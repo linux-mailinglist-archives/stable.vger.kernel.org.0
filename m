@@ -2,129 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9689E265C21
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 11:03:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CFE3265C24
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 11:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725562AbgIKJDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 05:03:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37450 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725550AbgIKJDT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 05:03:19 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6D01221EB;
-        Fri, 11 Sep 2020 09:03:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599814998;
-        bh=UMzEnvHBBvgzchi2EUwTZTFhu4tKfVtRLvlsHIXyzOk=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=l2STL/oh2mMkbx0L/ITbTm1OovGg39vZqsg1P6p368nG5cV5aqTPfaKpHk1Rm5mBT
-         KN7+uVCb/uB5eyiyXHjnE7SMNMR0PeAVOIDLrHNpXMzEC3iB/PjFZ17kZld9vYjBze
-         dwTO7sTcYjJXvKwlo8sGlTYjHek4mYd1tEpZ6zw8=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1kGexg-00Awmy-MB; Fri, 11 Sep 2020 10:03:16 +0100
+        id S1725771AbgIKJF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 05:05:26 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:44113 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725550AbgIKJFZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Sep 2020 05:05:25 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 4DBD91941545;
+        Fri, 11 Sep 2020 05:05:24 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Fri, 11 Sep 2020 05:05:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=xf+uLZ
+        QZbfBDkNTlWrd6oh74hIby89YN4wG0w22Hk5U=; b=C7cKhLzUHP/k1wqFRSQyb/
+        +2q0zw3R0/eNSgU+/D/ltkl5vTZiYX3fte7rU2NjoOoExEKEkTaQLNMc5Sr4I1s/
+        N8WV3ZHxrmavP+Ydx5FC44ph1PCxmi8NiGzEs5tmrrI7gneYqgW2e3IdH/9949lW
+        CamQnwXBvFGpDDGpUGBBwo3lTGa46KpIQApYMisGySSIu3VnUBxm0iHrOM48OCxi
+        XNQcd26DtwYSc/u9sQcha8INaG9VgLiHpd7OeQ28/XsF6Bh4TUGwIN0hkNcLqhdh
+        Z+BTqwHr3Cb3hnvNixE/G+rf9iuIWC11Gag7AU+WNm6AsEKbdcmoJGPUBhh+qPzw
+        ==
+X-ME-Sender: <xms:0z1bX3Yh2J5QWJa5LO93ztlDJ4w2vMnS7walBBBOORki_7GZfNKp9g>
+    <xme:0z1bX2Zf1ERyz4Ia5nhvwxEQ_P4uy0NIHjEo5dLIjSU2s0adIDALudYJcHWnHYbv9
+    tRe-fRJqZdySw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehledguddvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:0z1bX5-ainlgViq58Yz8zmFQMXLmfVdJamIahnJJ0bRg7WWsBIZ1VA>
+    <xmx:0z1bX9obZvgD6EXRgOKGPK4SpGzW2Jf3tu2JHcnQ6QX9XAw68HJdmw>
+    <xmx:0z1bXyp8u3V3dH7Xw4dbFqjXgq9FrnuyDbOr3FRBak3_e3YD4Vz-hQ>
+    <xmx:1D1bX3AIT_jstoxHez4E9GwSoqxsp24KdbWlISAXAvmbuwkQkkbm_Q>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8ABF83064674;
+        Fri, 11 Sep 2020 05:05:23 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] netlabel: fix problems with mapping removal" failed to apply to 4.4-stable tree
+To:     paul@paul-moore.com, davem@davemloft.net,
+        stephen.smalley.work@gmail.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 11 Sep 2020 11:05:28 +0200
+Message-ID: <15998151285238@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Fri, 11 Sep 2020 10:03:16 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     Huacai Chen <chenhc@lemote.com>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        "open list:MIPS" <linux-mips@vger.kernel.org>,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 1/3] MIPS: Loongson64: Increase NR_IRQS to 320
-In-Reply-To: <CAAhV-H4wHO12HVaA307GJX-WnkddT5w+YWgFMGuk0ov-f7Sm8A@mail.gmail.com>
-References: <1599624552-17523-1-git-send-email-chenhc@lemote.com>
- <894f35a7883451c4c2bf91b6181376fb@kernel.org>
- <CAAhV-H401y6_9++CStCH=RrfoRw6-hZBWquEAGtGecbTGbVO1Q@mail.gmail.com>
- <efab39a121918316564168c07cf88539@kernel.org>
- <CAAhV-H4wHO12HVaA307GJX-WnkddT5w+YWgFMGuk0ov-f7Sm8A@mail.gmail.com>
-User-Agent: Roundcube Webmail/1.4.8
-Message-ID: <88b8ce9eaf6c866d47685d8608fe5a49@kernel.org>
-X-Sender: maz@kernel.org
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: chenhc@lemote.com, tsbogend@alpha.franken.de, tglx@linutronix.de, jason@lakedaemon.net, linux-mips@vger.kernel.org, zhangfx@lemote.com, jiaxun.yang@flygoat.com, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-09-11 09:43, Huacai Chen wrote:
-> Hi, Marc,
-> 
-> On Fri, Sep 11, 2020 at 3:45 PM Marc Zyngier <maz@kernel.org> wrote:
->> 
->> On 2020-09-11 04:24, Huacai Chen wrote:
->> > Hi, Marc,
->> >
->> > On Thu, Sep 10, 2020 at 6:10 PM Marc Zyngier <maz@kernel.org> wrote:
->> >>
->> >> On 2020-09-09 05:09, Huacai Chen wrote:
->> >> > Modernized Loongson64 uses a hierarchical organization for interrupt
->> >> > controllers (INTCs), all INTC nodes (not only leaf nodes) need some IRQ
->> >> > numbers. This means 280 (i.e., NR_IRQS_LEGACY + NR_MIPS_CPU_IRQS + 256)
->> >> > is not enough to represent all interrupts, so let's increase NR_IRQS to
->> >> > 320.
->> >> >
->> >> > Cc: stable@vger.kernel.org
->> >> > Signed-off-by: Huacai Chen <chenhc@lemote.com>
->> >> > ---
->> >> >  arch/mips/include/asm/mach-loongson64/irq.h | 2 +-
->> >> >  1 file changed, 1 insertion(+), 1 deletion(-)
->> >> >
->> >> > diff --git a/arch/mips/include/asm/mach-loongson64/irq.h
->> >> > b/arch/mips/include/asm/mach-loongson64/irq.h
->> >> > index f5e362f7..0da3017 100644
->> >> > --- a/arch/mips/include/asm/mach-loongson64/irq.h
->> >> > +++ b/arch/mips/include/asm/mach-loongson64/irq.h
->> >> > @@ -7,7 +7,7 @@
->> >> >  /* cpu core interrupt numbers */
->> >> >  #define NR_IRQS_LEGACY               16
->> >> >  #define NR_MIPS_CPU_IRQS     8
->> >> > -#define NR_IRQS                      (NR_IRQS_LEGACY + NR_MIPS_CPU_IRQS + 256)
->> >> > +#define NR_IRQS                      320
->> >> >
->> >> >  #define MIPS_CPU_IRQ_BASE    NR_IRQS_LEGACY
->> >>
->> >> Why are you hardcoding a random value instead of bumping the constant
->> >> in NR_IRQS?
->> > Because INTCs can organized in many kinds of hierarchy, we cannot use
->> > constants to define a accurate value, but 320 is big enough.
->> 
->> You're not answering my question. You have a parameterized NR_IRQS, 
->> and
->> you're turning it into an absolute constant. Why? I.e:
->> 
->> #define NR_IRQS        (NR_IRQS_LEGACY + NR_MIPS_CPU_IRQS + 296)
->> 
->> And why 320? Why not 512? or 2^15?
-> OK, I know, I will define a NR_MAX_MIDDLE_IRQS and then define NR_IRQS
-> as  (NR_IRQS_LEGACY + NR_MIPS_CPU_IRQS + NR_MAX_MIDDLE_IRQS + 256)
 
-What does MIDDLE_IRQS mean? Please name it to something that actually
-relates to its usage...
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
->> 
->> As for a "modernized" setup, the fact that you are not using 
->> SPARSE_IRQ
->> is pretty backward.
-> I have discussed this with Jiaxun, and he said that there are some
-> difficulties to use SPARSE_IRQ.
+thanks,
 
-It'd be worth considering putting some efforts there...
+greg k-h
 
-         M.
--- 
-Jazz is not dead. It just smells funny...
+------------------ original commit in Linus's tree ------------------
+
+From d3b990b7f327e2afa98006e7666fb8ada8ed8683 Mon Sep 17 00:00:00 2001
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 21 Aug 2020 16:34:52 -0400
+Subject: [PATCH] netlabel: fix problems with mapping removal
+
+This patch fixes two main problems seen when removing NetLabel
+mappings: memory leaks and potentially extra audit noise.
+
+The memory leaks are caused by not properly free'ing the mapping's
+address selector struct when free'ing the entire entry as well as
+not properly cleaning up a temporary mapping entry when adding new
+address selectors to an existing entry.  This patch fixes both these
+problems such that kmemleak reports no NetLabel associated leaks
+after running the SELinux test suite.
+
+The potentially extra audit noise was caused by the auditing code in
+netlbl_domhsh_remove_entry() being called regardless of the entry's
+validity.  If another thread had already marked the entry as invalid,
+but not removed/free'd it from the list of mappings, then it was
+possible that an additional mapping removal audit record would be
+generated.  This patch fixes this by returning early from the removal
+function when the entry was previously marked invalid.  This change
+also had the side benefit of improving the code by decreasing the
+indentation level of large chunk of code by one (accounting for most
+of the diffstat).
+
+Fixes: 63c416887437 ("netlabel: Add network address selectors to the NetLabel/LSM domain mapping")
+Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
+index d07de2c0fbc7..f73a8382c275 100644
+--- a/net/netlabel/netlabel_domainhash.c
++++ b/net/netlabel/netlabel_domainhash.c
+@@ -85,6 +85,7 @@ static void netlbl_domhsh_free_entry(struct rcu_head *entry)
+ 			kfree(netlbl_domhsh_addr6_entry(iter6));
+ 		}
+ #endif /* IPv6 */
++		kfree(ptr->def.addrsel);
+ 	}
+ 	kfree(ptr->domain);
+ 	kfree(ptr);
+@@ -537,6 +538,8 @@ int netlbl_domhsh_add(struct netlbl_dom_map *entry,
+ 				goto add_return;
+ 		}
+ #endif /* IPv6 */
++		/* cleanup the new entry since we've moved everything over */
++		netlbl_domhsh_free_entry(&entry->rcu);
+ 	} else
+ 		ret_val = -EINVAL;
+ 
+@@ -580,6 +583,12 @@ int netlbl_domhsh_remove_entry(struct netlbl_dom_map *entry,
+ {
+ 	int ret_val = 0;
+ 	struct audit_buffer *audit_buf;
++	struct netlbl_af4list *iter4;
++	struct netlbl_domaddr4_map *map4;
++#if IS_ENABLED(CONFIG_IPV6)
++	struct netlbl_af6list *iter6;
++	struct netlbl_domaddr6_map *map6;
++#endif /* IPv6 */
+ 
+ 	if (entry == NULL)
+ 		return -ENOENT;
+@@ -597,6 +606,9 @@ int netlbl_domhsh_remove_entry(struct netlbl_dom_map *entry,
+ 		ret_val = -ENOENT;
+ 	spin_unlock(&netlbl_domhsh_lock);
+ 
++	if (ret_val)
++		return ret_val;
++
+ 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_DEL, audit_info);
+ 	if (audit_buf != NULL) {
+ 		audit_log_format(audit_buf,
+@@ -606,40 +618,29 @@ int netlbl_domhsh_remove_entry(struct netlbl_dom_map *entry,
+ 		audit_log_end(audit_buf);
+ 	}
+ 
+-	if (ret_val == 0) {
+-		struct netlbl_af4list *iter4;
+-		struct netlbl_domaddr4_map *map4;
+-#if IS_ENABLED(CONFIG_IPV6)
+-		struct netlbl_af6list *iter6;
+-		struct netlbl_domaddr6_map *map6;
+-#endif /* IPv6 */
+-
+-		switch (entry->def.type) {
+-		case NETLBL_NLTYPE_ADDRSELECT:
+-			netlbl_af4list_foreach_rcu(iter4,
+-					     &entry->def.addrsel->list4) {
+-				map4 = netlbl_domhsh_addr4_entry(iter4);
+-				cipso_v4_doi_putdef(map4->def.cipso);
+-			}
++	switch (entry->def.type) {
++	case NETLBL_NLTYPE_ADDRSELECT:
++		netlbl_af4list_foreach_rcu(iter4, &entry->def.addrsel->list4) {
++			map4 = netlbl_domhsh_addr4_entry(iter4);
++			cipso_v4_doi_putdef(map4->def.cipso);
++		}
+ #if IS_ENABLED(CONFIG_IPV6)
+-			netlbl_af6list_foreach_rcu(iter6,
+-					     &entry->def.addrsel->list6) {
+-				map6 = netlbl_domhsh_addr6_entry(iter6);
+-				calipso_doi_putdef(map6->def.calipso);
+-			}
++		netlbl_af6list_foreach_rcu(iter6, &entry->def.addrsel->list6) {
++			map6 = netlbl_domhsh_addr6_entry(iter6);
++			calipso_doi_putdef(map6->def.calipso);
++		}
+ #endif /* IPv6 */
+-			break;
+-		case NETLBL_NLTYPE_CIPSOV4:
+-			cipso_v4_doi_putdef(entry->def.cipso);
+-			break;
++		break;
++	case NETLBL_NLTYPE_CIPSOV4:
++		cipso_v4_doi_putdef(entry->def.cipso);
++		break;
+ #if IS_ENABLED(CONFIG_IPV6)
+-		case NETLBL_NLTYPE_CALIPSO:
+-			calipso_doi_putdef(entry->def.calipso);
+-			break;
++	case NETLBL_NLTYPE_CALIPSO:
++		calipso_doi_putdef(entry->def.calipso);
++		break;
+ #endif /* IPv6 */
+-		}
+-		call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
+ 	}
++	call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
+ 
+ 	return ret_val;
+ }
+
