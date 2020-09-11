@@ -2,86 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D041E26642B
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4631D26641C
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:31:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726523AbgIKQc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 12:32:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53400 "EHLO mail.kernel.org"
+        id S1726439AbgIKQbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:31:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726466AbgIKPTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:19:08 -0400
+        id S1726410AbgIKPTW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:19:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86BCA2245C;
-        Fri, 11 Sep 2020 12:59:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4ED1F21D79;
+        Fri, 11 Sep 2020 13:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829186;
-        bh=ts5oWeF545x8yVXPV1jgSxK8OLtD4OAu6ZSBpIqSpDw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hqBdXfa+hp1FV2RfxAXDI2fM9nu6Jwurpu5pla8WdBpnaW5Dj17cAJBeQBMGUb67
-         BBWAnpUIFXwTHVEwGkfm5CcVUM41mHXRcfbRcwhDG0LJULZWsOSdzxHOGGFft0PKgi
-         0fjQ+x4PkVAbcQ4hx4hlpRpBy1q6VXDQrTiIgDiQ=
+        s=default; t=1599829212;
+        bh=SDm3NSxw1fCta6ix1bjkUr5fmBKjkUAslKLWmBPvl0k=;
+        h=From:To:Cc:Subject:Date:From;
+        b=gOI+gwk0gWpHfx/PSGAnYVIMy/WX3CQ5LpERZYDRSQKnawQJCDWV9WwhGPcu0LDpz
+         Xk+4s/OJnkHs+8Ts8UR3sHCJKiHjn4jP7/LHDRLd9hsm8GX1f+WqQde2WOxNp3MZPt
+         cfvvU8KEig08bbBTUu9MQyfi55Xxawlyrw9FN/Fw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 16/16] mptcp: free acked data before waiting for more memory
-Date:   Fri, 11 Sep 2020 14:47:33 +0200
-Message-Id: <20200911122500.382563283@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.4 0/8] 5.4.65-rc1 review
+Date:   Fri, 11 Sep 2020 14:54:38 +0200
+Message-Id: <20200911125420.580564179@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200911122459.585735377@linuxfoundation.org>
-References: <20200911122459.585735377@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.65-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.65-rc1
+X-KernelTest-Deadline: 2020-09-13T12:54+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+This is the start of the stable review cycle for the 5.4.65 release.
+There are 8 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 1cec170d458b1d18f6f1654ca84c0804a701c5ef ]
+Responses should be made by Sun, 13 Sep 2020 12:54:10 +0000.
+Anything received after that time might be too late.
 
-After subflow lock is dropped, more wmem might have been made available.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.65-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-This fixes a deadlock in mptcp_connect.sh 'mmap' mode: wmem is exhausted.
-But as the mptcp socket holds on to already-acked data (for retransmit)
-no wakeup will occur.
+thanks,
 
-Using 'goto restart' calls mptcp_clean_una(sk) which will free pages
-that have been acked completely in the mean time.
+greg k-h
 
-Fixes: fb529e62d3f3 ("mptcp: break and restart in case mptcp sndbuf is full")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/mptcp/protocol.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -772,7 +772,6 @@ fallback:
- restart:
- 	mptcp_clean_una(sk);
- 
--wait_for_sndbuf:
- 	__mptcp_flush_join_list(msk);
- 	ssk = mptcp_subflow_get_send(msk);
- 	while (!sk_stream_memory_free(sk) ||
-@@ -873,7 +872,7 @@ wait_for_sndbuf:
- 				 */
- 				mptcp_set_timeout(sk, ssk);
- 				release_sock(ssk);
--				goto wait_for_sndbuf;
-+				goto restart;
- 			}
- 		}
- 	}
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.65-rc1
+
+Jakub Kicinski <kuba@kernel.org>
+    net: disable netpoll on fresh napis
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    tipc: fix shutdown() of connectionless socket
+
+Vinicius Costa Gomes <vinicius.gomes@intel.com>
+    taprio: Fix using wrong queues in gate mask
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: not disable bh in the whole sctp_get_port_local()
+
+Kamil Lorenc <kamil@re-ws.pl>
+    net: usb: dm9601: Add USB ID of Keenetic Plus DSL
+
+Paul Moore <paul@paul-moore.com>
+    netlabel: fix problems with mapping removal
+
+Ido Schimmel <idosch@nvidia.com>
+    ipv6: Fix sysctl max for fib_multipath_hash_policy
+
+Ido Schimmel <idosch@nvidia.com>
+    ipv4: Silence suspicious RCU usage warning
+
+
+-------------
+
+Diffstat:
+
+ Makefile                           |  4 +--
+ drivers/net/usb/dm9601.c           |  4 +++
+ net/core/dev.c                     |  3 +-
+ net/core/netpoll.c                 |  2 +-
+ net/ipv4/fib_trie.c                |  3 +-
+ net/ipv6/sysctl_net_ipv6.c         |  3 +-
+ net/netlabel/netlabel_domainhash.c | 59 +++++++++++++++++++-------------------
+ net/sched/sch_taprio.c             | 30 +++++++++++++++----
+ net/sctp/socket.c                  | 16 ++++-------
+ net/tipc/socket.c                  |  9 ++++--
+ 10 files changed, 79 insertions(+), 54 deletions(-)
 
 
