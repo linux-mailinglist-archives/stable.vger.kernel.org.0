@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDF8726662A
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:22:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7329B26669F
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:30:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726414AbgIKRWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 13:22:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52822 "EHLO mail.kernel.org"
+        id S1726089AbgIKRag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 13:30:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726140AbgIKNAL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 09:00:11 -0400
+        id S1726093AbgIKM5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 08:57:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D025E22275;
-        Fri, 11 Sep 2020 12:56:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 989012224D;
+        Fri, 11 Sep 2020 12:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829002;
-        bh=6eXHt2jB/snH3r/mLZTCOH4m0HKadZRGmIKJEw5N2DQ=;
+        s=default; t=1599828918;
+        bh=EiiP0Cy7h2YSUN8YWK8knFCIrF6N6SZO+8rzOImC+A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mk6R5WZYbv1ppW9+5Mz5rBF6epNcxuYE3IHh49kU+xCJb3EFXvwEQjmGjDra30grv
-         z+WJTEDW1M8Sc1dkcTtbGk8BuvU8YI56tGIKUqfg4pwH0IE4MW+IhMlydUZN+37NO2
-         FpPlR30/xlVkijZXEdeGiAofK8iopOwmg45uobC0=
+        b=oHpRx+RJ2MtHpXURPDa+CbY3F75sXvvp5XtypS6Mk3Ynip8u0olRu0Z2UzRYxo3eh
+         YzpL9uXop1ipln3TSgOHNosVPEPEqQUJ4npC9VNrc5QlT3QeHmRMXgrPJYunxhJ08F
+         ISa0LEZh1m5VJQ382pfMdLM/QkYdfjTvINI/TtZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 27/71] thermal: ti-soc-thermal: Fix bogus thermal shutdowns for omap4430
+Subject: [PATCH 4.4 28/62] btrfs: fix potential deadlock in the search ioctl
 Date:   Fri, 11 Sep 2020 14:46:11 +0200
-Message-Id: <20200911122506.287906322@linuxfoundation.org>
+Message-Id: <20200911122503.793716871@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
-References: <20200911122504.928931589@linuxfoundation.org>
+In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
+References: <20200911122502.395450276@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,108 +45,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 30d24faba0532d6972df79a1bf060601994b5873 ]
+[ Upstream commit a48b73eca4ceb9b8a4b97f290a065335dbcd8a04 ]
 
-We can sometimes get bogus thermal shutdowns on omap4430 at least with
-droid4 running idle with a battery charger connected:
+With the conversion of the tree locks to rwsem I got the following
+lockdep splat:
 
-thermal thermal_zone0: critical temperature reached (143 C), shutting down
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.8.0-rc7-00165-g04ec4da5f45f-dirty #922 Not tainted
+  ------------------------------------------------------
+  compsize/11122 is trying to acquire lock:
+  ffff889fabca8768 (&mm->mmap_lock#2){++++}-{3:3}, at: __might_fault+0x3e/0x90
 
-Dumping out the register values shows we can occasionally get a 0x7f value
-that is outside the TRM listed values in the ADC conversion table. And then
-we get a normal value when reading again after that. Reading the register
-multiple times does not seem help avoiding the bogus values as they stay
-until the next sample is ready.
+  but task is already holding lock:
+  ffff889fe720fe40 (btrfs-fs-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
 
-Looking at the TRM chapter "18.4.10.2.3 ADC Codes Versus Temperature", we
-should have values from 13 to 107 listed with a total of 95 values. But
-looking at the omap4430_adc_to_temp array, the values are off, and the
-end values are missing. And it seems that the 4430 ADC table is similar
-to omap3630 rather than omap4460.
+  which lock already depends on the new lock.
 
-Let's fix the issue by using values based on the omap3630 table and just
-ignoring invalid values. Compared to the 4430 TRM, the omap3630 table has
-the missing values added while the TRM table only shows every second
-value.
+  the existing dependency chain (in reverse order) is:
 
-Note that sometimes the ADC register values within the valid table can
-also be way off for about 1 out of 10 values. But it seems that those
-just show about 25 C too low values rather than too high values. So those
-do not cause a bogus thermal shutdown.
+  -> #2 (btrfs-fs-00){++++}-{3:3}:
+	 down_write_nested+0x3b/0x70
+	 __btrfs_tree_lock+0x24/0x120
+	 btrfs_search_slot+0x756/0x990
+	 btrfs_lookup_inode+0x3a/0xb4
+	 __btrfs_update_delayed_inode+0x93/0x270
+	 btrfs_async_run_delayed_root+0x168/0x230
+	 btrfs_work_helper+0xd4/0x570
+	 process_one_work+0x2ad/0x5f0
+	 worker_thread+0x3a/0x3d0
+	 kthread+0x133/0x150
+	 ret_from_fork+0x1f/0x30
 
-Fixes: 1a31270e54d7 ("staging: omap-thermal: add OMAP4 data structures")
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200706183338.25622-1-tony@atomide.com
+  -> #1 (&delayed_node->mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x9f/0x930
+	 btrfs_delayed_update_inode+0x50/0x440
+	 btrfs_update_inode+0x8a/0xf0
+	 btrfs_dirty_inode+0x5b/0xd0
+	 touch_atime+0xa1/0xd0
+	 btrfs_file_mmap+0x3f/0x60
+	 mmap_region+0x3a4/0x640
+	 do_mmap+0x376/0x580
+	 vm_mmap_pgoff+0xd5/0x120
+	 ksys_mmap_pgoff+0x193/0x230
+	 do_syscall_64+0x50/0x90
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #0 (&mm->mmap_lock#2){++++}-{3:3}:
+	 __lock_acquire+0x1272/0x2310
+	 lock_acquire+0x9e/0x360
+	 __might_fault+0x68/0x90
+	 _copy_to_user+0x1e/0x80
+	 copy_to_sk.isra.32+0x121/0x300
+	 search_ioctl+0x106/0x200
+	 btrfs_ioctl_tree_search_v2+0x7b/0xf0
+	 btrfs_ioctl+0x106f/0x30a0
+	 ksys_ioctl+0x83/0xc0
+	 __x64_sys_ioctl+0x16/0x20
+	 do_syscall_64+0x50/0x90
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  other info that might help us debug this:
+
+  Chain exists of:
+    &mm->mmap_lock#2 --> &delayed_node->mutex --> btrfs-fs-00
+
+   Possible unsafe locking scenario:
+
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(btrfs-fs-00);
+				 lock(&delayed_node->mutex);
+				 lock(btrfs-fs-00);
+    lock(&mm->mmap_lock#2);
+
+   *** DEADLOCK ***
+
+  1 lock held by compsize/11122:
+   #0: ffff889fe720fe40 (btrfs-fs-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
+
+  stack backtrace:
+  CPU: 17 PID: 11122 Comm: compsize Kdump: loaded Not tainted 5.8.0-rc7-00165-g04ec4da5f45f-dirty #922
+  Hardware name: Quanta Tioga Pass Single Side 01-0030993006/Tioga Pass Single Side, BIOS F08_3A18 12/20/2018
+  Call Trace:
+   dump_stack+0x78/0xa0
+   check_noncircular+0x165/0x180
+   __lock_acquire+0x1272/0x2310
+   lock_acquire+0x9e/0x360
+   ? __might_fault+0x3e/0x90
+   ? find_held_lock+0x72/0x90
+   __might_fault+0x68/0x90
+   ? __might_fault+0x3e/0x90
+   _copy_to_user+0x1e/0x80
+   copy_to_sk.isra.32+0x121/0x300
+   ? btrfs_search_forward+0x2a6/0x360
+   search_ioctl+0x106/0x200
+   btrfs_ioctl_tree_search_v2+0x7b/0xf0
+   btrfs_ioctl+0x106f/0x30a0
+   ? __do_sys_newfstat+0x5a/0x70
+   ? ksys_ioctl+0x83/0xc0
+   ksys_ioctl+0x83/0xc0
+   __x64_sys_ioctl+0x16/0x20
+   do_syscall_64+0x50/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The problem is we're doing a copy_to_user() while holding tree locks,
+which can deadlock if we have to do a page fault for the copy_to_user().
+This exists even without my locking changes, so it needs to be fixed.
+Rework the search ioctl to do the pre-fault and then
+copy_to_user_nofault for the copying.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ti-soc-thermal/omap4-thermal-data.c       | 23 ++++++++++---------
- .../thermal/ti-soc-thermal/omap4xxx-bandgap.h | 10 +++++---
- 2 files changed, 19 insertions(+), 14 deletions(-)
+ fs/btrfs/extent_io.c |  8 ++++----
+ fs/btrfs/extent_io.h |  6 +++---
+ fs/btrfs/ioctl.c     | 27 ++++++++++++++++++++-------
+ 3 files changed, 27 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c b/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c
-index d255d33da9eb3..02e71d461d5c5 100644
---- a/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c
-+++ b/drivers/thermal/ti-soc-thermal/omap4-thermal-data.c
-@@ -49,20 +49,21 @@ static struct temp_sensor_data omap4430_mpu_temp_sensor_data = {
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 2f9f738ecf84a..97a80238fdee3 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -5431,9 +5431,9 @@ void read_extent_buffer(const struct extent_buffer *eb, void *dstv,
+ 	}
+ }
  
- /*
-  * Temperature values in milli degree celsius
-- * ADC code values from 530 to 923
-+ * ADC code values from 13 to 107, see TRM
-+ * "18.4.10.2.3 ADC Codes Versus Temperature".
-  */
- static const int
- omap4430_adc_to_temp[OMAP4430_ADC_END_VALUE - OMAP4430_ADC_START_VALUE + 1] = {
--	-38000, -35000, -34000, -32000, -30000, -28000, -26000, -24000, -22000,
--	-20000, -18000, -17000, -15000, -13000, -12000, -10000, -8000, -6000,
--	-5000, -3000, -1000, 0, 2000, 3000, 5000, 6000, 8000, 10000, 12000,
--	13000, 15000, 17000, 19000, 21000, 23000, 25000, 27000, 28000, 30000,
--	32000, 33000, 35000, 37000, 38000, 40000, 42000, 43000, 45000, 47000,
--	48000, 50000, 52000, 53000, 55000, 57000, 58000, 60000, 62000, 64000,
--	66000, 68000, 70000, 71000, 73000, 75000, 77000, 78000, 80000, 82000,
--	83000, 85000, 87000, 88000, 90000, 92000, 93000, 95000, 97000, 98000,
--	100000, 102000, 103000, 105000, 107000, 109000, 111000, 113000, 115000,
--	117000, 118000, 120000, 122000, 123000,
-+	-40000, -38000, -35000, -34000, -32000, -30000, -28000, -26000, -24000,
-+	-22000,	-20000, -18500, -17000, -15000, -13500, -12000, -10000, -8000,
-+	-6500, -5000, -3500, -1500, 0, 2000, 3500, 5000, 6500, 8500, 10000,
-+	12000, 13500, 15000, 17000, 19000, 21000, 23000, 25000, 27000, 28500,
-+	30000, 32000, 33500, 35000, 37000, 38500, 40000, 42000, 43500, 45000,
-+	47000, 48500, 50000, 52000, 53500, 55000, 57000, 58500, 60000, 62000,
-+	64000, 66000, 68000, 70000, 71500, 73500, 75000, 77000, 78500, 80000,
-+	82000, 83500, 85000, 87000, 88500, 90000, 92000, 93500, 95000, 97000,
-+	98500, 100000, 102000, 103500, 105000, 107000, 109000, 111000, 113000,
-+	115000, 117000, 118500, 120000, 122000, 123500, 125000,
- };
+-int read_extent_buffer_to_user(const struct extent_buffer *eb,
+-			       void __user *dstv,
+-			       unsigned long start, unsigned long len)
++int read_extent_buffer_to_user_nofault(const struct extent_buffer *eb,
++				       void __user *dstv,
++				       unsigned long start, unsigned long len)
+ {
+ 	size_t cur;
+ 	size_t offset;
+@@ -5454,7 +5454,7 @@ int read_extent_buffer_to_user(const struct extent_buffer *eb,
  
- /* OMAP4430 data */
-diff --git a/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h b/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h
-index 6f2de3a3356d4..86850082b24b9 100644
---- a/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h
-+++ b/drivers/thermal/ti-soc-thermal/omap4xxx-bandgap.h
-@@ -67,9 +67,13 @@
-  * and thresholds for OMAP4430.
-  */
+ 		cur = min(len, (PAGE_CACHE_SIZE - offset));
+ 		kaddr = page_address(page);
+-		if (copy_to_user(dst, kaddr + offset, cur)) {
++		if (probe_user_write(dst, kaddr + offset, cur)) {
+ 			ret = -EFAULT;
+ 			break;
+ 		}
+diff --git a/fs/btrfs/extent_io.h b/fs/btrfs/extent_io.h
+index 751435967724e..9631be7fc9e24 100644
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -313,9 +313,9 @@ int memcmp_extent_buffer(const struct extent_buffer *eb, const void *ptrv,
+ void read_extent_buffer(const struct extent_buffer *eb, void *dst,
+ 			unsigned long start,
+ 			unsigned long len);
+-int read_extent_buffer_to_user(const struct extent_buffer *eb,
+-			       void __user *dst, unsigned long start,
+-			       unsigned long len);
++int read_extent_buffer_to_user_nofault(const struct extent_buffer *eb,
++				       void __user *dst, unsigned long start,
++				       unsigned long len);
+ void write_extent_buffer(struct extent_buffer *eb, const void *src,
+ 			 unsigned long start, unsigned long len);
+ void copy_extent_buffer(struct extent_buffer *dst, struct extent_buffer *src,
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index 245a50f490f63..91a45ef69152d 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -2017,9 +2017,14 @@ static noinline int copy_to_sk(struct btrfs_root *root,
+ 		sh.len = item_len;
+ 		sh.transid = found_transid;
  
--/* ADC conversion table limits */
--#define OMAP4430_ADC_START_VALUE			0
--#define OMAP4430_ADC_END_VALUE				127
-+/*
-+ * ADC conversion table limits. Ignore values outside the TRM listed
-+ * range to avoid bogus thermal shutdowns. See omap4430 TRM chapter
-+ * "18.4.10.2.3 ADC Codes Versus Temperature".
-+ */
-+#define OMAP4430_ADC_START_VALUE			13
-+#define OMAP4430_ADC_END_VALUE				107
- /* bandgap clock limits (no control on 4430) */
- #define OMAP4430_MAX_FREQ				32768
- #define OMAP4430_MIN_FREQ				32768
+-		/* copy search result header */
+-		if (copy_to_user(ubuf + *sk_offset, &sh, sizeof(sh))) {
+-			ret = -EFAULT;
++		/*
++		 * Copy search result header. If we fault then loop again so we
++		 * can fault in the pages and -EFAULT there if there's a
++		 * problem. Otherwise we'll fault and then copy the buffer in
++		 * properly this next time through
++		 */
++		if (probe_user_write(ubuf + *sk_offset, &sh, sizeof(sh))) {
++			ret = 0;
+ 			goto out;
+ 		}
+ 
+@@ -2027,10 +2032,14 @@ static noinline int copy_to_sk(struct btrfs_root *root,
+ 
+ 		if (item_len) {
+ 			char __user *up = ubuf + *sk_offset;
+-			/* copy the item */
+-			if (read_extent_buffer_to_user(leaf, up,
+-						       item_off, item_len)) {
+-				ret = -EFAULT;
++			/*
++			 * Copy the item, same behavior as above, but reset the
++			 * * sk_offset so we copy the full thing again.
++			 */
++			if (read_extent_buffer_to_user_nofault(leaf, up,
++						item_off, item_len)) {
++				ret = 0;
++				*sk_offset -= sizeof(sh);
+ 				goto out;
+ 			}
+ 
+@@ -2120,6 +2129,10 @@ static noinline int search_ioctl(struct inode *inode,
+ 	key.offset = sk->min_offset;
+ 
+ 	while (1) {
++		ret = fault_in_pages_writeable(ubuf, *buf_size - sk_offset);
++		if (ret)
++			break;
++
+ 		ret = btrfs_search_forward(root, &key, path, sk->min_transid);
+ 		if (ret != 0) {
+ 			if (ret > 0)
 -- 
 2.25.1
 
