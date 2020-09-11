@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35C40266709
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:36:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 564BB26670D
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726351AbgIKRgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 13:36:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48356 "EHLO mail.kernel.org"
+        id S1725997AbgIKRg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 13:36:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725928AbgIKMxc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726031AbgIKMxc (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 11 Sep 2020 08:53:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1472221E3;
-        Fri, 11 Sep 2020 12:53:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 160DC22204;
+        Fri, 11 Sep 2020 12:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828796;
-        bh=DFDRKke5vROvEQcUa5OL+LpykKysm/Lz5k45FUhZR8M=;
+        s=default; t=1599828798;
+        bh=kiSrsTIrdXRGEnNSgk/vKpZvsLrP0+0TT4GLeyXZybI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUMMaZYmOP/zlfAFQdlBCZSkzAkZGT5HpekTHrrStYnozoeelK3pWW3ZyFDZtHChS
-         OXZ/yMvXVEqlco6SnHvAgsbKzx3gKa6a41VMRygWEFcElciK8z9PzCl+6YOM4rpiLL
-         AV6HJLLvCWz1QuShi+Fe9X6My9N4gTan4N2eZT9g=
+        b=m+y6z/N6hPCw1wft2z0IlWAMXPoOQVPlcWIbY9phU62EtffSqyQ9gv6B41LjPxtsW
+         v9FQ5mRvVC6jiGhI8rj/50+S26rMCee4WyAps+nrgsCC02grQMXuTmaQDSOdwuLO8C
+         1dpCPiTz13j7UeloOyy2Pv/AokJt3O+I+K8ZfpNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+ab16e463b903f5a37036@syzkaller.appspotmail.com,
+        Jussi Kivilinna <jussi.kivilinna@haltian.com>,
         Sven Eckelmann <sven@narfation.org>,
-        Antonio Quartulli <a@unstable.cc>,
         Simon Wunderlich <sw@simonwunderlich.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 10/62] batman-adv: Avoid uninitialized chaddr when handling DHCP
-Date:   Fri, 11 Sep 2020 14:45:53 +0200
-Message-Id: <20200911122502.905848423@linuxfoundation.org>
+Subject: [PATCH 4.4 11/62] batman-adv: bla: use netif_rx_ni when not in interrupt context
+Date:   Fri, 11 Sep 2020 14:45:54 +0200
+Message-Id: <20200911122502.956523709@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
 References: <20200911122502.395450276@linuxfoundation.org>
@@ -47,50 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Jussi Kivilinna <jussi.kivilinna@haltian.com>
 
-[ Upstream commit 303216e76dcab6049c9d42390b1032f0649a8206 ]
+[ Upstream commit 279e89b2281af3b1a9f04906e157992c19c9f163 ]
 
-The gateway client code can try to optimize the delivery of DHCP packets to
-avoid broadcasting them through the whole mesh. But also transmissions to
-the client can be optimized by looking up the destination via the chaddr of
-the DHCP packet.
+batadv_bla_send_claim() gets called from worker thread context through
+batadv_bla_periodic_work(), thus netif_rx_ni needs to be used in that
+case. This fixes "NOHZ: local_softirq_pending 08" log messages seen
+when batman-adv is enabled.
 
-But the chaddr is currently only done when chaddr is fully inside the
-non-paged area of the skbuff. Otherwise it will not be initialized and the
-unoptimized path should have been taken.
-
-But the implementation didn't handle this correctly. It didn't retrieve the
-correct chaddr but still tried to perform the TT lookup with this
-uninitialized memory.
-
-Reported-by: syzbot+ab16e463b903f5a37036@syzkaller.appspotmail.com
-Fixes: 6c413b1c22a2 ("batman-adv: send every DHCP packet as bat-unicast")
+Fixes: 23721387c409 ("batman-adv: add basic bridge loop avoidance code")
+Signed-off-by: Jussi Kivilinna <jussi.kivilinna@haltian.com>
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Acked-by: Antonio Quartulli <a@unstable.cc>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/gateway_client.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/batman-adv/bridge_loop_avoidance.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/batman-adv/gateway_client.c b/net/batman-adv/gateway_client.c
-index a88b529b7ca08..5fdb88f72b68f 100644
---- a/net/batman-adv/gateway_client.c
-+++ b/net/batman-adv/gateway_client.c
-@@ -757,8 +757,10 @@ batadv_gw_dhcp_recipient_get(struct sk_buff *skb, unsigned int *header_len,
+diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
+index cea7fdeac5aa2..9aa5daa551273 100644
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -380,7 +380,10 @@ static void batadv_bla_send_claim(struct batadv_priv *bat_priv, u8 *mac,
+ 			   skb->len + ETH_HLEN);
+ 	soft_iface->last_rx = jiffies;
  
- 	chaddr_offset = *header_len + BATADV_DHCP_CHADDR_OFFSET;
- 	/* store the client address if the message is going to a client */
--	if (ret == BATADV_DHCP_TO_CLIENT &&
--	    pskb_may_pull(skb, chaddr_offset + ETH_ALEN)) {
-+	if (ret == BATADV_DHCP_TO_CLIENT) {
-+		if (!pskb_may_pull(skb, chaddr_offset + ETH_ALEN))
-+			return BATADV_DHCP_NO;
-+
- 		/* check if the DHCP packet carries an Ethernet DHCP */
- 		p = skb->data + *header_len + BATADV_DHCP_HTYPE_OFFSET;
- 		if (*p != BATADV_DHCP_HTYPE_ETHERNET)
+-	netif_rx(skb);
++	if (in_interrupt())
++		netif_rx(skb);
++	else
++		netif_rx_ni(skb);
+ out:
+ 	if (primary_if)
+ 		batadv_hardif_free_ref(primary_if);
 -- 
 2.25.1
 
