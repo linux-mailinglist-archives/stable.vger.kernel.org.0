@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8FD266212
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 17:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B37452661FE
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 17:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbgIKPZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 11:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56252 "EHLO mail.kernel.org"
+        id S1726292AbgIKPUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 11:20:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726202AbgIKPZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:25:30 -0400
+        id S1726014AbgIKPTH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:19:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8E4422209;
-        Fri, 11 Sep 2020 12:58:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31B0A223E4;
+        Fri, 11 Sep 2020 12:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829120;
-        bh=QV0sfvbwCfESZtYBZ+Zp5DwnEUH8bq3nh4G+4hWU03A=;
+        s=default; t=1599829137;
+        bh=8+aKGES8phPY0yHlwA43c9QPgG1sGj0rjTH2xEYGUaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wPIuovvFc/hezj6zKMBdYesDPmLzucIHSkhYZfoONSffLwnx/KT03WDE0vXIrwFF6
-         UWQzFsXUy144/CwaQtOxq97g9usSBYb1ipR4BmDedFxSgqeHdB8Kg+BYiZtrGhWPft
-         Rlmq+wALcu3xB9ptNKAiUufkdApb8l+d1s1lxXgo=
+        b=i9/4L3maF+HyS/5x1tFwwvucGeq5sxl5Piq8OjbXvQZanfroCstyz4TW+FybVl6LK
+         Og64YkAyDOxx51gKlIzwwvSwoe7xiUZ2O8ytF+tVoWIFDT9Wgwgo4r4J3U00K+pCWk
+         JyzLdGlmFLLcmW4cQ0407L3hlOeph2Bxvu0yNgvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Sherwood <rsher@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 67/71] bnxt: dont enable NAPI until rings are ready
-Date:   Fri, 11 Sep 2020 14:46:51 +0200
-Message-Id: <20200911122508.289139691@linuxfoundation.org>
+Subject: [PATCH 4.14 10/12] sctp: not disable bh in the whole sctp_get_port_local()
+Date:   Fri, 11 Sep 2020 14:47:04 +0200
+Message-Id: <20200911122458.915150962@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
-References: <20200911122504.928931589@linuxfoundation.org>
+In-Reply-To: <20200911122458.413137406@linuxfoundation.org>
+References: <20200911122458.413137406@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +45,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 96ecdcc992eb7f468b2cf829b0f5408a1fad4668 upstream.
+[ Upstream commit 3106ecb43a05dc3e009779764b9da245a5d082de ]
 
-Netpoll can try to poll napi as soon as napi_enable() is called.
-It crashes trying to access a doorbell which is still NULL:
+With disabling bh in the whole sctp_get_port_local(), when
+snum == 0 and too many ports have been used, the do-while
+loop will take the cpu for a long time and cause cpu stuck:
 
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- CPU: 59 PID: 6039 Comm: ethtool Kdump: loaded Tainted: G S                5.9.0-rc1-00469-g5fd99b5d9950-dirty #26
- RIP: 0010:bnxt_poll+0x121/0x1c0
- Code: c4 20 44 89 e0 5b 5d 41 5c 41 5d 41 5e 41 5f c3 41 8b 86 a0 01 00 00 41 23 85 18 01 00 00 49 8b 96 a8 01 00 00 0d 00 00 00 24 <89> 02
-41 f6 45 77 02 74 cb 49 8b ae d8 01 00 00 31 c0 c7 44 24 1a
-  netpoll_poll_dev+0xbd/0x1a0
-  __netpoll_send_skb+0x1b2/0x210
-  netpoll_send_udp+0x2c9/0x406
-  write_ext_msg+0x1d7/0x1f0
-  console_unlock+0x23c/0x520
-  vprintk_emit+0xe0/0x1d0
-  printk+0x58/0x6f
-  x86_vector_activate.cold+0xf/0x46
-  __irq_domain_activate_irq+0x50/0x80
-  __irq_domain_activate_irq+0x32/0x80
-  __irq_domain_activate_irq+0x32/0x80
-  irq_domain_activate_irq+0x25/0x40
-  __setup_irq+0x2d2/0x700
-  request_threaded_irq+0xfb/0x160
-  __bnxt_open_nic+0x3b1/0x750
-  bnxt_open_nic+0x19/0x30
-  ethtool_set_channels+0x1ac/0x220
-  dev_ethtool+0x11ba/0x2240
-  dev_ioctl+0x1cf/0x390
-  sock_do_ioctl+0x95/0x130
+  [ ] watchdog: BUG: soft lockup - CPU#11 stuck for 22s!
+  [ ] RIP: 0010:native_queued_spin_lock_slowpath+0x4de/0x940
+  [ ] Call Trace:
+  [ ]  _raw_spin_lock+0xc1/0xd0
+  [ ]  sctp_get_port_local+0x527/0x650 [sctp]
+  [ ]  sctp_do_bind+0x208/0x5e0 [sctp]
+  [ ]  sctp_autobind+0x165/0x1e0 [sctp]
+  [ ]  sctp_connect_new_asoc+0x355/0x480 [sctp]
+  [ ]  __sctp_connect+0x360/0xb10 [sctp]
 
-Reported-by: Rob Sherwood <rsher@fb.com>
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+There's no need to disable bh in the whole function of
+sctp_get_port_local. So fix this cpu stuck by removing
+local_bh_disable() called at the beginning, and using
+spin_lock_bh() instead.
+
+The same thing was actually done for inet_csk_get_port() in
+Commit ea8add2b1903 ("tcp/dccp: better use of ephemeral
+ports in bind()").
+
+Thanks to Marcelo for pointing the buggy code out.
+
+v1->v2:
+  - use cond_resched() to yield cpu to other tasks if needed,
+    as Eric noticed.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Ying Xu <yinxu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ net/sctp/socket.c |   16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -5589,14 +5589,14 @@ static int __bnxt_open_nic(struct bnxt *
- 		}
- 	}
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -7086,8 +7086,6 @@ static long sctp_get_port_local(struct s
  
--	bnxt_enable_napi(bp);
+ 	pr_debug("%s: begins, snum:%d\n", __func__, snum);
+ 
+-	local_bh_disable();
 -
- 	rc = bnxt_init_nic(bp, irq_re_init);
- 	if (rc) {
- 		netdev_err(bp->dev, "bnxt_init_nic err: %x\n", rc);
--		goto open_err;
-+		goto open_err_irq;
- 	}
+ 	if (snum == 0) {
+ 		/* Search for an available port. */
+ 		int low, high, remaining, index;
+@@ -7106,20 +7104,21 @@ static long sctp_get_port_local(struct s
+ 				continue;
+ 			index = sctp_phashfn(sock_net(sk), rover);
+ 			head = &sctp_port_hashtable[index];
+-			spin_lock(&head->lock);
++			spin_lock_bh(&head->lock);
+ 			sctp_for_each_hentry(pp, &head->chain)
+ 				if ((pp->port == rover) &&
+ 				    net_eq(sock_net(sk), pp->net))
+ 					goto next;
+ 			break;
+ 		next:
+-			spin_unlock(&head->lock);
++			spin_unlock_bh(&head->lock);
++			cond_resched();
+ 		} while (--remaining > 0);
  
-+	bnxt_enable_napi(bp);
-+
- 	if (link_re_init) {
- 		mutex_lock(&bp->link_lock);
- 		rc = bnxt_update_phy_setting(bp);
-@@ -5618,9 +5618,6 @@ static int __bnxt_open_nic(struct bnxt *
+ 		/* Exhausted local port range during search? */
+ 		ret = 1;
+ 		if (remaining <= 0)
+-			goto fail;
++			return ret;
  
- 	return 0;
+ 		/* OK, here is the one we will use.  HEAD (the port
+ 		 * hash table list entry) is non-NULL and we hold it's
+@@ -7134,7 +7133,7 @@ static long sctp_get_port_local(struct s
+ 		 * port iterator, pp being NULL.
+ 		 */
+ 		head = &sctp_port_hashtable[sctp_phashfn(sock_net(sk), snum)];
+-		spin_lock(&head->lock);
++		spin_lock_bh(&head->lock);
+ 		sctp_for_each_hentry(pp, &head->chain) {
+ 			if ((pp->port == snum) && net_eq(pp->net, sock_net(sk)))
+ 				goto pp_found;
+@@ -7218,10 +7217,7 @@ success:
+ 	ret = 0;
  
--open_err:
--	bnxt_disable_napi(bp);
+ fail_unlock:
+-	spin_unlock(&head->lock);
 -
- open_err_irq:
- 	bnxt_del_napi(bp);
+-fail:
+-	local_bh_enable();
++	spin_unlock_bh(&head->lock);
+ 	return ret;
+ }
  
 
 
