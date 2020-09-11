@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF6C2664A5
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B288C2664EA
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:48:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726297AbgIKQnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 12:43:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47882 "EHLO mail.kernel.org"
+        id S1725833AbgIKQsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:48:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726394AbgIKPI3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:08:29 -0400
+        id S1726200AbgIKPHt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:07:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC66922241;
-        Fri, 11 Sep 2020 12:57:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FB78222E9;
+        Fri, 11 Sep 2020 12:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829077;
-        bh=Ymhy7pBqFq4zHj0gNByHoRyYK6cTCXC4fO4ECNKEVLM=;
+        s=default; t=1599829079;
+        bh=u1Zx9jpPbW0K5uo9rDG3f74pkx85q+fnLgYX+EDiMTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q+9xeVbTGHfOPH2hin7pVjmb7ZlSTuCXT/HuM0IfUT6w2o4hMrNbDC7d0LFnhVcyw
-         Xo0+gr/4mryUA9THb4q6MYuDT1qhDgiJ/vAWwoW9VHHkN/zLzXYtngSkYYIT4yr272
-         VELuXsyVORa6IzBNIhUFLhMO5VTGp2GWKL4Gbby4=
+        b=UPEVd0iqYj+m1h+Ry2dF6p3J/UrMv2X+obIbuvx9auo8bxXzz0VI2Z0AFL9qWaKKn
+         NvbpdTEZiETuh0yyeVpBVFYWPziIqHNb7Z+1YMke3mSwRG2UOgZRX7+Y3Q8ER1FYne
+         X2wAz8yJZ6k3qzbwUE2OFVXcdDfE0VbxPVT+kI60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Tim Froidcoeur <tim.froidcoeur@tessares.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 57/71] net: initialize fastreuse on inet_inherit_port
-Date:   Fri, 11 Sep 2020 14:46:41 +0200
-Message-Id: <20200911122507.757667428@linuxfoundation.org>
+        Alex Williamson <alex.williamson@redhat.com>
+Subject: [PATCH 4.9 58/71] vfio/pci: Fix SR-IOV VF handling with MMIO blocking
+Date:   Fri, 11 Sep 2020 14:46:42 +0200
+Message-Id: <20200911122507.805999939@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
 References: <20200911122504.928931589@linuxfoundation.org>
@@ -45,61 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Froidcoeur <tim.froidcoeur@tessares.net>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-commit d76f3351cea2d927fdf70dd7c06898235035e84e upstream.
+commit ebfa440ce38b7e2e04c3124aa89c8a9f4094cf21 upstream.
 
-In the case of TPROXY, bind_conflict optimizations for SO_REUSEADDR or
-SO_REUSEPORT are broken, possibly resulting in O(n) instead of O(1) bind
-behaviour or in the incorrect reuse of a bind.
+SR-IOV VFs do not implement the memory enable bit of the command
+register, therefore this bit is not set in config space after
+pci_enable_device().  This leads to an unintended difference
+between PF and VF in hand-off state to the user.  We can correct
+this by setting the initial value of the memory enable bit in our
+virtualized config space.  There's really no need however to
+ever fault a user on a VF though as this would only indicate an
+error in the user's management of the enable bit, versus a PF
+where the same access could trigger hardware faults.
 
-the kernel keeps track for each bind_bucket if all sockets in the
-bind_bucket support SO_REUSEADDR or SO_REUSEPORT in two fastreuse flags.
-These flags allow skipping the costly bind_conflict check when possible
-(meaning when all sockets have the proper SO_REUSE option).
-
-For every socket added to a bind_bucket, these flags need to be updated.
-As soon as a socket that does not support reuse is added, the flag is
-set to false and will never go back to true, unless the bind_bucket is
-deleted.
-
-Note that there is no mechanism to re-evaluate these flags when a socket
-is removed (this might make sense when removing a socket that would not
-allow reuse; this leaves room for a future patch).
-
-For this optimization to work, it is mandatory that these flags are
-properly initialized and updated.
-
-When a child socket is created from a listen socket in
-__inet_inherit_port, the TPROXY case could create a new bind bucket
-without properly initializing these flags, thus preventing the
-optimization to work. Alternatively, a socket not allowing reuse could
-be added to an existing bind bucket without updating the flags, causing
-bind_conflict to never be called as it should.
-
-Call inet_csk_update_fastreuse when __inet_inherit_port decides to create
-a new bind_bucket or use a different bind_bucket than the one of the
-listen socket.
-
-Fixes: 093d282321da ("tproxy: fix hash locking issue when using port redirection in __inet_inherit_port()")
-Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Tim Froidcoeur <tim.froidcoeur@tessares.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Tim Froidcoeur <tim.froidcoeur@tessares.net>
+Fixes: abafbc551fdd ("vfio-pci: Invalidate mmaps and block MMIO access on disabled memory")
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/inet_hashtables.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -163,6 +163,7 @@ int __inet_inherit_port(const struct soc
- 				return -ENOMEM;
- 			}
- 		}
-+		inet_csk_update_fastreuse(tb, child);
+---
+ drivers/vfio/pci/vfio_pci_config.c |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+--- a/drivers/vfio/pci/vfio_pci_config.c
++++ b/drivers/vfio/pci/vfio_pci_config.c
+@@ -403,9 +403,15 @@ static inline void p_setd(struct perm_bi
+ /* Caller should hold memory_lock semaphore */
+ bool __vfio_pci_memory_enabled(struct vfio_pci_device *vdev)
+ {
++	struct pci_dev *pdev = vdev->pdev;
+ 	u16 cmd = le16_to_cpu(*(__le16 *)&vdev->vconfig[PCI_COMMAND]);
+ 
+-	return cmd & PCI_COMMAND_MEMORY;
++	/*
++	 * SR-IOV VF memory enable is handled by the MSE bit in the
++	 * PF SR-IOV capability, there's therefore no need to trigger
++	 * faults based on the virtual value.
++	 */
++	return pdev->is_virtfn || (cmd & PCI_COMMAND_MEMORY);
+ }
+ 
+ /*
+@@ -1729,6 +1735,15 @@ int vfio_config_init(struct vfio_pci_dev
+ 				 vconfig[PCI_INTERRUPT_PIN]);
+ 
+ 		vconfig[PCI_INTERRUPT_PIN] = 0; /* Gratuitous for good VFs */
++
++		/*
++		 * VFs do no implement the memory enable bit of the COMMAND
++		 * register therefore we'll not have it set in our initial
++		 * copy of config space after pci_enable_device().  For
++		 * consistency with PFs, set the virtual enable bit here.
++		 */
++		*(__le16 *)&vconfig[PCI_COMMAND] |=
++					cpu_to_le16(PCI_COMMAND_MEMORY);
  	}
- 	inet_bind_hash(child, tb, port);
- 	spin_unlock(&head->lock);
+ 
+ 	if (!IS_ENABLED(CONFIG_VFIO_PCI_INTX) || vdev->nointx)
 
 
