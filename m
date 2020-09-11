@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09DCE266544
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:57:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1549A2664A7
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725913AbgIKQ5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 12:57:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46952 "EHLO mail.kernel.org"
+        id S1726394AbgIKQnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:43:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726322AbgIKPFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:05:30 -0400
+        id S1726392AbgIKPI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:08:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AA482242C;
-        Fri, 11 Sep 2020 12:59:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 896222242E;
+        Fri, 11 Sep 2020 12:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829155;
-        bh=Z9D407PuPDjKdFeYg8ua1Pb572B3W8AuPKajpC6UwCM=;
+        s=default; t=1599829158;
+        bh=ruSye/Xa0SxJovHShAZlpdR9ElD2kkZvl22+l4KTbsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=huEQ0yWxgXA5dl/DDwnfHdO5mx6prQbaoJ86tBN947N07ETgcsAJBMaNrWhJDqC5L
-         5ksTwvay2SEz2M7zYWQXu06XAjJLhz9bJhvZqh1khA7zKJcGqvTVVmoB53qW/8QSt0
-         werPm0bvy1KCaC8PEWyWAE/VMaBwASoVNsj52Jjk=
+        b=HPqx8QNuxcROx0RNbeWT5Jj6Dt05mZtao/0Ba5CAcxuGxwxULRfmI2vznE8DX8A3y
+         nqJUF21D5HjtI7X9tUI0XXs6ZakUfdTCluF8dVwvft2upnMQbla4P7rXBMrUAkdyDr
+         5HmIKXmhvG8kIlpGJf3W7Scqn0ILwz/3xrJev2dY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 4.14 06/12] vfio/pci: Fix SR-IOV VF handling with MMIO blocking
-Date:   Fri, 11 Sep 2020 14:47:00 +0200
-Message-Id: <20200911122458.729118580@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Sherwood <rsher@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 07/12] bnxt: dont enable NAPI until rings are ready
+Date:   Fri, 11 Sep 2020 14:47:01 +0200
+Message-Id: <20200911122458.776047210@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122458.413137406@linuxfoundation.org>
 References: <20200911122458.413137406@linuxfoundation.org>
@@ -43,62 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit ebfa440ce38b7e2e04c3124aa89c8a9f4094cf21 upstream.
+commit 96ecdcc992eb7f468b2cf829b0f5408a1fad4668 upstream.
 
-SR-IOV VFs do not implement the memory enable bit of the command
-register, therefore this bit is not set in config space after
-pci_enable_device().  This leads to an unintended difference
-between PF and VF in hand-off state to the user.  We can correct
-this by setting the initial value of the memory enable bit in our
-virtualized config space.  There's really no need however to
-ever fault a user on a VF though as this would only indicate an
-error in the user's management of the enable bit, versus a PF
-where the same access could trigger hardware faults.
+Netpoll can try to poll napi as soon as napi_enable() is called.
+It crashes trying to access a doorbell which is still NULL:
 
-Fixes: abafbc551fdd ("vfio-pci: Invalidate mmaps and block MMIO access on disabled memory")
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ CPU: 59 PID: 6039 Comm: ethtool Kdump: loaded Tainted: G S                5.9.0-rc1-00469-g5fd99b5d9950-dirty #26
+ RIP: 0010:bnxt_poll+0x121/0x1c0
+ Code: c4 20 44 89 e0 5b 5d 41 5c 41 5d 41 5e 41 5f c3 41 8b 86 a0 01 00 00 41 23 85 18 01 00 00 49 8b 96 a8 01 00 00 0d 00 00 00 24 <89> 02
+41 f6 45 77 02 74 cb 49 8b ae d8 01 00 00 31 c0 c7 44 24 1a
+  netpoll_poll_dev+0xbd/0x1a0
+  __netpoll_send_skb+0x1b2/0x210
+  netpoll_send_udp+0x2c9/0x406
+  write_ext_msg+0x1d7/0x1f0
+  console_unlock+0x23c/0x520
+  vprintk_emit+0xe0/0x1d0
+  printk+0x58/0x6f
+  x86_vector_activate.cold+0xf/0x46
+  __irq_domain_activate_irq+0x50/0x80
+  __irq_domain_activate_irq+0x32/0x80
+  __irq_domain_activate_irq+0x32/0x80
+  irq_domain_activate_irq+0x25/0x40
+  __setup_irq+0x2d2/0x700
+  request_threaded_irq+0xfb/0x160
+  __bnxt_open_nic+0x3b1/0x750
+  bnxt_open_nic+0x19/0x30
+  ethtool_set_channels+0x1ac/0x220
+  dev_ethtool+0x11ba/0x2240
+  dev_ioctl+0x1cf/0x390
+  sock_do_ioctl+0x95/0x130
+
+Reported-by: Rob Sherwood <rsher@fb.com>
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vfio/pci/vfio_pci_config.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -401,9 +401,15 @@ static inline void p_setd(struct perm_bi
- /* Caller should hold memory_lock semaphore */
- bool __vfio_pci_memory_enabled(struct vfio_pci_device *vdev)
- {
-+	struct pci_dev *pdev = vdev->pdev;
- 	u16 cmd = le16_to_cpu(*(__le16 *)&vdev->vconfig[PCI_COMMAND]);
- 
--	return cmd & PCI_COMMAND_MEMORY;
-+	/*
-+	 * SR-IOV VF memory enable is handled by the MSE bit in the
-+	 * PF SR-IOV capability, there's therefore no need to trigger
-+	 * faults based on the virtual value.
-+	 */
-+	return pdev->is_virtfn || (cmd & PCI_COMMAND_MEMORY);
- }
- 
- /*
-@@ -1732,6 +1738,15 @@ int vfio_config_init(struct vfio_pci_dev
- 				 vconfig[PCI_INTERRUPT_PIN]);
- 
- 		vconfig[PCI_INTERRUPT_PIN] = 0; /* Gratuitous for good VFs */
-+
-+		/*
-+		 * VFs do no implement the memory enable bit of the COMMAND
-+		 * register therefore we'll not have it set in our initial
-+		 * copy of config space after pci_enable_device().  For
-+		 * consistency with PFs, set the virtual enable bit here.
-+		 */
-+		*(__le16 *)&vconfig[PCI_COMMAND] |=
-+					cpu_to_le16(PCI_COMMAND_MEMORY);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -6378,14 +6378,14 @@ static int __bnxt_open_nic(struct bnxt *
+ 		}
  	}
  
- 	if (!IS_ENABLED(CONFIG_VFIO_PCI_INTX) || vdev->nointx)
+-	bnxt_enable_napi(bp);
+-
+ 	rc = bnxt_init_nic(bp, irq_re_init);
+ 	if (rc) {
+ 		netdev_err(bp->dev, "bnxt_init_nic err: %x\n", rc);
+-		goto open_err;
++		goto open_err_irq;
+ 	}
+ 
++	bnxt_enable_napi(bp);
++
+ 	if (link_re_init) {
+ 		mutex_lock(&bp->link_lock);
+ 		rc = bnxt_update_phy_setting(bp);
+@@ -6410,9 +6410,6 @@ static int __bnxt_open_nic(struct bnxt *
+ 		bnxt_vf_reps_open(bp);
+ 	return 0;
+ 
+-open_err:
+-	bnxt_disable_napi(bp);
+-
+ open_err_irq:
+ 	bnxt_del_napi(bp);
+ 
 
 
