@@ -2,123 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA1782662C1
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:00:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D62F1266386
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726275AbgIKP75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 11:59:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44470 "EHLO mail.kernel.org"
+        id S1726233AbgIKQSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:18:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726479AbgIKP7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:59:20 -0400
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        id S1726520AbgIKPab (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:30:31 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7034021D47;
-        Fri, 11 Sep 2020 15:59:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D5352224A;
+        Fri, 11 Sep 2020 12:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599839958;
-        bh=+HimZcClfEp/hB2NLGhAPb0y7aED313uyvMLU7dfEFg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NhPZx6zVsZ2jmLqKh5aSqxuCiqEwbWbGXBGpD007JoczFwGCray0iHPNlPAfzLY6i
-         lyEpREPKRv3xhGCfhKUAURVnTlr0f9eCeafHkbjRlcccYtJDUL+2WbF6irqkTzO3bk
-         2cZtQ/rU8Zf+4hLJQWsX7i9YkkEVGWRzVI/2x5hk=
-Date:   Fri, 11 Sep 2020 16:59:13 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        kvmarm@lists.cs.columbia.edu, James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        kernel-team@android.com, stable@vger.kernel.org
-Subject: Re: [PATCH] KVM: arm64: Assume write fault on S1PTW permission fault
- on instruction fetch
-Message-ID: <20200911155912.GB20527@willie-the-truck>
-References: <20200909210527.1926996-1-maz@kernel.org>
+        s=default; t=1599829122;
+        bh=QLxLHnsqBMRfkyabux2IZ0Ir8juf+/6Ln1bN5JXHj00=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HbukDnZvfHaCTnh8zCGBDyyEql9+LoI4oy986LAJ7+5072hRcytTYIL8bZdBK4GyU
+         YdwivvLZedwvo/cf2YctuACy0w32w6aQ8dpkfVUEOUWWhVIh1i3+9qVKLJ9xmPJgq+
+         kXoYpoi32GLi8j0P9ueIqynOSiLnqbaREs4J+5WE=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Paul Moore <paul@paul-moore.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 68/71] netlabel: fix problems with mapping removal
+Date:   Fri, 11 Sep 2020 14:46:52 +0200
+Message-Id: <20200911122508.337614546@linuxfoundation.org>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
+References: <20200911122504.928931589@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200909210527.1926996-1-maz@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 09, 2020 at 10:05:27PM +0100, Marc Zyngier wrote:
-> KVM currently assumes that an instruction abort can never be a write.
-> This is in general true, except when the abort is triggered by
-> a S1PTW on instruction fetch that tries to update the S1 page tables
-> (to set AF, for example).
-> 
-> This can happen if the page tables have been paged out and brought
-> back in without seeing a direct write to them (they are thus marked
-> read only), and the fault handling code will make the PT executable(!)
-> instead of writable. The guest gets stuck forever.
-> 
-> In these conditions, the permission fault must be considered as
-> a write so that the Stage-1 update can take place. This is essentially
-> the I-side equivalent of the problem fixed by 60e21a0ef54c ("arm64: KVM:
-> Take S1 walks into account when determining S2 write faults").
-> 
-> Update both kvm_is_write_fault() to return true on IABT+S1PTW, as well
-> as kvm_vcpu_trap_is_iabt() to return false in the same conditions.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> ---
-> This could do with some cleanup (kvm_vcpu_dabt_iss1tw has nothing to do
-> with data aborts), but I've chosen to keep the patch simple in order to
-> ease backporting.
-> 
->  arch/arm64/include/asm/kvm_emulate.h | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
-> index d21676409a24..33d7e16edaa3 100644
-> --- a/arch/arm64/include/asm/kvm_emulate.h
-> +++ b/arch/arm64/include/asm/kvm_emulate.h
-> @@ -480,7 +480,8 @@ static __always_inline u8 kvm_vcpu_trap_get_class(const struct kvm_vcpu *vcpu)
->  
->  static inline bool kvm_vcpu_trap_is_iabt(const struct kvm_vcpu *vcpu)
->  {
-> -	return kvm_vcpu_trap_get_class(vcpu) == ESR_ELx_EC_IABT_LOW;
-> +	return (kvm_vcpu_trap_get_class(vcpu) == ESR_ELx_EC_IABT_LOW &&
-> +		!kvm_vcpu_dabt_iss1tw(vcpu));
->  }
->  
->  static __always_inline u8 kvm_vcpu_trap_get_fault(const struct kvm_vcpu *vcpu)
-> @@ -520,6 +521,9 @@ static __always_inline int kvm_vcpu_sys_get_rt(struct kvm_vcpu *vcpu)
->  
->  static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
->  {
-> +	if (kvm_vcpu_dabt_iss1tw(vcpu))
-> +		return true;
-> +
+From: Paul Moore <paul@paul-moore.com>
 
-Hmm, I'm a bit uneasy about the interaction of this with
-kvm_handle_guest_abort() if we take an S1PTW fault on instruction fetch
-with our page-tables sitting in a read-only memslot. In this case, I
-think we'll end up injecting a data abort into the guest instead of an
-instruction abort. It hurts my brain thinking about it though.
+[ Upstream commit d3b990b7f327e2afa98006e7666fb8ada8ed8683 ]
 
-Overall, I'd be inclined to:
+This patch fixes two main problems seen when removing NetLabel
+mappings: memory leaks and potentially extra audit noise.
 
-  1. Rename kvm_vcpu_dabt_iss1tw() to kvm_vcpu_abt_iss1tw()
+The memory leaks are caused by not properly free'ing the mapping's
+address selector struct when free'ing the entire entry as well as
+not properly cleaning up a temporary mapping entry when adding new
+address selectors to an existing entry.  This patch fixes both these
+problems such that kmemleak reports no NetLabel associated leaks
+after running the SELinux test suite.
 
-  2. Introduce something like kvm_is_exec_fault() as:
+The potentially extra audit noise was caused by the auditing code in
+netlbl_domhsh_remove_entry() being called regardless of the entry's
+validity.  If another thread had already marked the entry as invalid,
+but not removed/free'd it from the list of mappings, then it was
+possible that an additional mapping removal audit record would be
+generated.  This patch fixes this by returning early from the removal
+function when the entry was previously marked invalid.  This change
+also had the side benefit of improving the code by decreasing the
+indentation level of large chunk of code by one (accounting for most
+of the diffstat).
 
-	return kvm_vcpu_trap_is_iabt() && !kvm_vcpu_abt_iss1tw();
+Fixes: 63c416887437 ("netlabel: Add network address selectors to the NetLabel/LSM domain mapping")
+Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ net/netlabel/netlabel_domainhash.c |   59 ++++++++++++++++++-------------------
+ 1 file changed, 30 insertions(+), 29 deletions(-)
 
-  3. Use that new function in user_mem_abort() to assign 'exec_fault'
+--- a/net/netlabel/netlabel_domainhash.c
++++ b/net/netlabel/netlabel_domainhash.c
+@@ -99,6 +99,7 @@ static void netlbl_domhsh_free_entry(str
+ 			kfree(netlbl_domhsh_addr6_entry(iter6));
+ 		}
+ #endif /* IPv6 */
++		kfree(ptr->def.addrsel);
+ 	}
+ 	kfree(ptr->domain);
+ 	kfree(ptr);
+@@ -550,6 +551,8 @@ int netlbl_domhsh_add(struct netlbl_dom_
+ 				goto add_return;
+ 		}
+ #endif /* IPv6 */
++		/* cleanup the new entry since we've moved everything over */
++		netlbl_domhsh_free_entry(&entry->rcu);
+ 	} else
+ 		ret_val = -EINVAL;
+ 
+@@ -593,6 +596,12 @@ int netlbl_domhsh_remove_entry(struct ne
+ {
+ 	int ret_val = 0;
+ 	struct audit_buffer *audit_buf;
++	struct netlbl_af4list *iter4;
++	struct netlbl_domaddr4_map *map4;
++#if IS_ENABLED(CONFIG_IPV6)
++	struct netlbl_af6list *iter6;
++	struct netlbl_domaddr6_map *map6;
++#endif /* IPv6 */
+ 
+ 	if (entry == NULL)
+ 		return -ENOENT;
+@@ -610,6 +619,9 @@ int netlbl_domhsh_remove_entry(struct ne
+ 		ret_val = -ENOENT;
+ 	spin_unlock(&netlbl_domhsh_lock);
+ 
++	if (ret_val)
++		return ret_val;
++
+ 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_DEL, audit_info);
+ 	if (audit_buf != NULL) {
+ 		audit_log_format(audit_buf,
+@@ -619,40 +631,29 @@ int netlbl_domhsh_remove_entry(struct ne
+ 		audit_log_end(audit_buf);
+ 	}
+ 
+-	if (ret_val == 0) {
+-		struct netlbl_af4list *iter4;
+-		struct netlbl_domaddr4_map *map4;
+-#if IS_ENABLED(CONFIG_IPV6)
+-		struct netlbl_af6list *iter6;
+-		struct netlbl_domaddr6_map *map6;
+-#endif /* IPv6 */
+-
+-		switch (entry->def.type) {
+-		case NETLBL_NLTYPE_ADDRSELECT:
+-			netlbl_af4list_foreach_rcu(iter4,
+-					     &entry->def.addrsel->list4) {
+-				map4 = netlbl_domhsh_addr4_entry(iter4);
+-				cipso_v4_doi_putdef(map4->def.cipso);
+-			}
++	switch (entry->def.type) {
++	case NETLBL_NLTYPE_ADDRSELECT:
++		netlbl_af4list_foreach_rcu(iter4, &entry->def.addrsel->list4) {
++			map4 = netlbl_domhsh_addr4_entry(iter4);
++			cipso_v4_doi_putdef(map4->def.cipso);
++		}
+ #if IS_ENABLED(CONFIG_IPV6)
+-			netlbl_af6list_foreach_rcu(iter6,
+-					     &entry->def.addrsel->list6) {
+-				map6 = netlbl_domhsh_addr6_entry(iter6);
+-				calipso_doi_putdef(map6->def.calipso);
+-			}
++		netlbl_af6list_foreach_rcu(iter6, &entry->def.addrsel->list6) {
++			map6 = netlbl_domhsh_addr6_entry(iter6);
++			calipso_doi_putdef(map6->def.calipso);
++		}
+ #endif /* IPv6 */
+-			break;
+-		case NETLBL_NLTYPE_CIPSOV4:
+-			cipso_v4_doi_putdef(entry->def.cipso);
+-			break;
++		break;
++	case NETLBL_NLTYPE_CIPSOV4:
++		cipso_v4_doi_putdef(entry->def.cipso);
++		break;
+ #if IS_ENABLED(CONFIG_IPV6)
+-		case NETLBL_NLTYPE_CALIPSO:
+-			calipso_doi_putdef(entry->def.calipso);
+-			break;
++	case NETLBL_NLTYPE_CALIPSO:
++		calipso_doi_putdef(entry->def.calipso);
++		break;
+ #endif /* IPv6 */
+-		}
+-		call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
+ 	}
++	call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
+ 
+ 	return ret_val;
+ }
 
-  4. Hack kvm_is_write_fault() as you have done above.
 
-Which I _think_ should work (famous last words)...
-
-The only nasty bit is that we then duplicate the kvm_vcpu_dabt_iss1tw()
-check in both kvm_is_write_fault() and kvm_vcpu_dabt_iswrite(). Perhaps
-we could remove the latter function in favour of the first? Anyway,
-obviously this sort of cleanup isn't for stable.
-
-Will
