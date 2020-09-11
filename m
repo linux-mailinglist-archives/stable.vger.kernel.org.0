@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCBBD26603C
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 15:26:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B10266041
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 15:28:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725916AbgIKNZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 09:25:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34922 "EHLO mail.kernel.org"
+        id S1726250AbgIKN0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 09:26:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726269AbgIKNXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726208AbgIKNXs (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 11 Sep 2020 09:23:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65FE1223DB;
-        Fri, 11 Sep 2020 12:58:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ECE1223B0;
+        Fri, 11 Sep 2020 12:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829094;
-        bh=bG3eJ2tRfBDEN5yN2uq3eJvefyu2VNA2g6ZcuWyY2jA=;
+        s=default; t=1599829070;
+        bh=GZalELLdj00pJWebLs/+xLJXt9Zukgi9cgkU6nGhhT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kFN0LgQdPgE47tu8bUtFjnT1SSgf0Y6RDd3fkqOAVbGhIwM4L54NvuP/yCUSMhe3/
-         VP1gP0RToIMYRHwJw1OnVrlFfcpmUNkn7RVt6D8FbP9zDZkvw93TdaZnpN2qsYgzzZ
-         +yVc/5BG92xAm6iOnsTFEhg5psxpkvAn0s742giY=
+        b=Z//DYQdNDuurHdgfxTuud3UryOyz6/8ovJ69dPzeJsc1ufI6igwWXTVFctP+/Tiri
+         QxOv2HUkKVZggYXRK3QksLgVWRGwV0Wxy+ICuFXizpMtRivHhLO0IrK/ROhbHHT7kF
+         fokdlEsZ9RMbN1SVMiwyM2my7lJz8jNN3lzeWJjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 35/71] btrfs: fix potential deadlock in the search ioctl
-Date:   Fri, 11 Sep 2020 14:46:19 +0200
-Message-Id: <20200911122506.680591979@linuxfoundation.org>
+        James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>
+Subject: [PATCH 4.9 54/71] KVM: arm64: Survive synchronous exceptions caused by AT instructions
+Date:   Fri, 11 Sep 2020 14:46:38 +0200
+Message-Id: <20200911122507.607246851@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
 References: <20200911122504.928931589@linuxfoundation.org>
@@ -45,227 +45,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit a48b73eca4ceb9b8a4b97f290a065335dbcd8a04 ]
+commit 88a84ccccb3966bcc3f309cdb76092a9892c0260 upstream.
 
-With the conversion of the tree locks to rwsem I got the following
-lockdep splat:
+KVM doesn't expect any synchronous exceptions when executing, any such
+exception leads to a panic(). AT instructions access the guest page
+tables, and can cause a synchronous external abort to be taken.
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.8.0-rc7-00165-g04ec4da5f45f-dirty #922 Not tainted
-  ------------------------------------------------------
-  compsize/11122 is trying to acquire lock:
-  ffff889fabca8768 (&mm->mmap_lock#2){++++}-{3:3}, at: __might_fault+0x3e/0x90
+The arm-arm is unclear on what should happen if the guest has configured
+the hardware update of the access-flag, and a memory type in TCR_EL1 that
+does not support atomic operations. B2.2.6 "Possible implementation
+restrictions on using atomic instructions" from DDI0487F.a lists
+synchronous external abort as a possible behaviour of atomic instructions
+that target memory that isn't writeback cacheable, but the page table
+walker may behave differently.
 
-  but task is already holding lock:
-  ffff889fe720fe40 (btrfs-fs-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
+Make KVM robust to synchronous exceptions caused by AT instructions.
+Add a get_user() style helper for AT instructions that returns -EFAULT
+if an exception was generated.
 
-  which lock already depends on the new lock.
+While KVM's version of the exception table mixes synchronous and
+asynchronous exceptions, only one of these can occur at each location.
 
-  the existing dependency chain (in reverse order) is:
+Re-enter the guest when the AT instructions take an exception on the
+assumption the guest will take the same exception. This isn't guaranteed
+to make forward progress, as the AT instructions may always walk the page
+tables, but guest execution may use the translation cached in the TLB.
 
-  -> #2 (btrfs-fs-00){++++}-{3:3}:
-	 down_write_nested+0x3b/0x70
-	 __btrfs_tree_lock+0x24/0x120
-	 btrfs_search_slot+0x756/0x990
-	 btrfs_lookup_inode+0x3a/0xb4
-	 __btrfs_update_delayed_inode+0x93/0x270
-	 btrfs_async_run_delayed_root+0x168/0x230
-	 btrfs_work_helper+0xd4/0x570
-	 process_one_work+0x2ad/0x5f0
-	 worker_thread+0x3a/0x3d0
-	 kthread+0x133/0x150
-	 ret_from_fork+0x1f/0x30
+This isn't a problem, as since commit 5dcd0fdbb492 ("KVM: arm64: Defer guest
+entry when an asynchronous exception is pending"), KVM will return to the
+host to process IRQs allowing the rest of the system to keep running.
 
-  -> #1 (&delayed_node->mutex){+.+.}-{3:3}:
-	 __mutex_lock+0x9f/0x930
-	 btrfs_delayed_update_inode+0x50/0x440
-	 btrfs_update_inode+0x8a/0xf0
-	 btrfs_dirty_inode+0x5b/0xd0
-	 touch_atime+0xa1/0xd0
-	 btrfs_file_mmap+0x3f/0x60
-	 mmap_region+0x3a4/0x640
-	 do_mmap+0x376/0x580
-	 vm_mmap_pgoff+0xd5/0x120
-	 ksys_mmap_pgoff+0x193/0x230
-	 do_syscall_64+0x50/0x90
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  -> #0 (&mm->mmap_lock#2){++++}-{3:3}:
-	 __lock_acquire+0x1272/0x2310
-	 lock_acquire+0x9e/0x360
-	 __might_fault+0x68/0x90
-	 _copy_to_user+0x1e/0x80
-	 copy_to_sk.isra.32+0x121/0x300
-	 search_ioctl+0x106/0x200
-	 btrfs_ioctl_tree_search_v2+0x7b/0xf0
-	 btrfs_ioctl+0x106f/0x30a0
-	 ksys_ioctl+0x83/0xc0
-	 __x64_sys_ioctl+0x16/0x20
-	 do_syscall_64+0x50/0x90
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  other info that might help us debug this:
-
-  Chain exists of:
-    &mm->mmap_lock#2 --> &delayed_node->mutex --> btrfs-fs-00
-
-   Possible unsafe locking scenario:
-
-	 CPU0                    CPU1
-	 ----                    ----
-    lock(btrfs-fs-00);
-				 lock(&delayed_node->mutex);
-				 lock(btrfs-fs-00);
-    lock(&mm->mmap_lock#2);
-
-   *** DEADLOCK ***
-
-  1 lock held by compsize/11122:
-   #0: ffff889fe720fe40 (btrfs-fs-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
-
-  stack backtrace:
-  CPU: 17 PID: 11122 Comm: compsize Kdump: loaded Not tainted 5.8.0-rc7-00165-g04ec4da5f45f-dirty #922
-  Hardware name: Quanta Tioga Pass Single Side 01-0030993006/Tioga Pass Single Side, BIOS F08_3A18 12/20/2018
-  Call Trace:
-   dump_stack+0x78/0xa0
-   check_noncircular+0x165/0x180
-   __lock_acquire+0x1272/0x2310
-   lock_acquire+0x9e/0x360
-   ? __might_fault+0x3e/0x90
-   ? find_held_lock+0x72/0x90
-   __might_fault+0x68/0x90
-   ? __might_fault+0x3e/0x90
-   _copy_to_user+0x1e/0x80
-   copy_to_sk.isra.32+0x121/0x300
-   ? btrfs_search_forward+0x2a6/0x360
-   search_ioctl+0x106/0x200
-   btrfs_ioctl_tree_search_v2+0x7b/0xf0
-   btrfs_ioctl+0x106f/0x30a0
-   ? __do_sys_newfstat+0x5a/0x70
-   ? ksys_ioctl+0x83/0xc0
-   ksys_ioctl+0x83/0xc0
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x50/0x90
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The problem is we're doing a copy_to_user() while holding tree locks,
-which can deadlock if we have to do a page fault for the copy_to_user().
-This exists even without my locking changes, so it needs to be fixed.
-Rework the search ioctl to do the pre-fault and then
-copy_to_user_nofault for the copying.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # v4.9
+Signed-off-by: James Morse <james.morse@arm.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_io.c |  8 ++++----
- fs/btrfs/extent_io.h |  6 +++---
- fs/btrfs/ioctl.c     | 27 ++++++++++++++++++++-------
- 3 files changed, 27 insertions(+), 14 deletions(-)
+ arch/arm64/include/asm/kvm_asm.h |   28 ++++++++++++++++++++++++++++
+ arch/arm64/kvm/hyp/hyp-entry.S   |   12 ++++++++++--
+ arch/arm64/kvm/hyp/switch.c      |    8 ++++----
+ 3 files changed, 42 insertions(+), 6 deletions(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index fa22bb29eee6f..d6c827a9ebc56 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -5488,9 +5488,9 @@ void read_extent_buffer(const struct extent_buffer *eb, void *dstv,
- 	}
- }
+--- a/arch/arm64/include/asm/kvm_asm.h
++++ b/arch/arm64/include/asm/kvm_asm.h
+@@ -82,6 +82,34 @@ extern u32 __init_stage2_translation(voi
+ 		*__hyp_this_cpu_ptr(sym);				\
+ 	 })
  
--int read_extent_buffer_to_user(const struct extent_buffer *eb,
--			       void __user *dstv,
--			       unsigned long start, unsigned long len)
-+int read_extent_buffer_to_user_nofault(const struct extent_buffer *eb,
-+				       void __user *dstv,
-+				       unsigned long start, unsigned long len)
- {
- 	size_t cur;
- 	size_t offset;
-@@ -5511,7 +5511,7 @@ int read_extent_buffer_to_user(const struct extent_buffer *eb,
- 
- 		cur = min(len, (PAGE_SIZE - offset));
- 		kaddr = page_address(page);
--		if (copy_to_user(dst, kaddr + offset, cur)) {
-+		if (probe_user_write(dst, kaddr + offset, cur)) {
- 			ret = -EFAULT;
- 			break;
- 		}
-diff --git a/fs/btrfs/extent_io.h b/fs/btrfs/extent_io.h
-index 9ecdc9584df77..75c03aa1800fe 100644
---- a/fs/btrfs/extent_io.h
-+++ b/fs/btrfs/extent_io.h
-@@ -401,9 +401,9 @@ int memcmp_extent_buffer(const struct extent_buffer *eb, const void *ptrv,
- void read_extent_buffer(const struct extent_buffer *eb, void *dst,
- 			unsigned long start,
- 			unsigned long len);
--int read_extent_buffer_to_user(const struct extent_buffer *eb,
--			       void __user *dst, unsigned long start,
--			       unsigned long len);
-+int read_extent_buffer_to_user_nofault(const struct extent_buffer *eb,
-+				       void __user *dst, unsigned long start,
-+				       unsigned long len);
- void write_extent_buffer(struct extent_buffer *eb, const void *src,
- 			 unsigned long start, unsigned long len);
- void copy_extent_buffer(struct extent_buffer *dst, struct extent_buffer *src,
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index eefe103c65daa..6db46daeed16b 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -2041,9 +2041,14 @@ static noinline int copy_to_sk(struct btrfs_path *path,
- 		sh.len = item_len;
- 		sh.transid = found_transid;
- 
--		/* copy search result header */
--		if (copy_to_user(ubuf + *sk_offset, &sh, sizeof(sh))) {
--			ret = -EFAULT;
-+		/*
-+		 * Copy search result header. If we fault then loop again so we
-+		 * can fault in the pages and -EFAULT there if there's a
-+		 * problem. Otherwise we'll fault and then copy the buffer in
-+		 * properly this next time through
-+		 */
-+		if (probe_user_write(ubuf + *sk_offset, &sh, sizeof(sh))) {
-+			ret = 0;
- 			goto out;
- 		}
- 
-@@ -2051,10 +2056,14 @@ static noinline int copy_to_sk(struct btrfs_path *path,
- 
- 		if (item_len) {
- 			char __user *up = ubuf + *sk_offset;
--			/* copy the item */
--			if (read_extent_buffer_to_user(leaf, up,
--						       item_off, item_len)) {
--				ret = -EFAULT;
-+			/*
-+			 * Copy the item, same behavior as above, but reset the
-+			 * * sk_offset so we copy the full thing again.
-+			 */
-+			if (read_extent_buffer_to_user_nofault(leaf, up,
-+						item_off, item_len)) {
-+				ret = 0;
-+				*sk_offset -= sizeof(sh);
- 				goto out;
- 			}
- 
-@@ -2142,6 +2151,10 @@ static noinline int search_ioctl(struct inode *inode,
- 	key.offset = sk->min_offset;
- 
- 	while (1) {
-+		ret = fault_in_pages_writeable(ubuf, *buf_size - sk_offset);
-+		if (ret)
-+			break;
++#define __KVM_EXTABLE(from, to)						\
++	"	.pushsection	__kvm_ex_table, \"a\"\n"		\
++	"	.align		3\n"					\
++	"	.long		(" #from " - .), (" #to " - .)\n"	\
++	"	.popsection\n"
 +
- 		ret = btrfs_search_forward(root, &key, path, sk->min_transid);
- 		if (ret != 0) {
- 			if (ret > 0)
--- 
-2.25.1
-
++
++#define __kvm_at(at_op, addr)						\
++( { 									\
++	int __kvm_at_err = 0;						\
++	u64 spsr, elr;							\
++	asm volatile(							\
++	"	mrs	%1, spsr_el2\n"					\
++	"	mrs	%2, elr_el2\n"					\
++	"1:	at	"at_op", %3\n"					\
++	"	isb\n"							\
++	"	b	9f\n"						\
++	"2:	msr	spsr_el2, %1\n"					\
++	"	msr	elr_el2, %2\n"					\
++	"	mov	%w0, %4\n"					\
++	"9:\n"								\
++	__KVM_EXTABLE(1b, 2b)						\
++	: "+r" (__kvm_at_err), "=&r" (spsr), "=&r" (elr)		\
++	: "r" (addr), "i" (-EFAULT));					\
++	__kvm_at_err;							\
++} )
++
++
+ #else /* __ASSEMBLY__ */
+ 
+ .macro hyp_adr_this_cpu reg, sym, tmp
+--- a/arch/arm64/kvm/hyp/hyp-entry.S
++++ b/arch/arm64/kvm/hyp/hyp-entry.S
+@@ -201,6 +201,15 @@ el1_error:
+ 	mov	x0, #ARM_EXCEPTION_EL1_SERROR
+ 	b	__guest_exit
+ 
++el2_sync:
++	save_caller_saved_regs_vect
++	stp     x29, x30, [sp, #-16]!
++	bl	kvm_unexpected_el2_exception
++	ldp     x29, x30, [sp], #16
++	restore_caller_saved_regs_vect
++
++	eret
++
+ el2_error:
+ 	save_caller_saved_regs_vect
+ 	stp     x29, x30, [sp, #-16]!
+@@ -238,7 +247,6 @@ ENDPROC(\label)
+ 	invalid_vector	el2t_irq_invalid
+ 	invalid_vector	el2t_fiq_invalid
+ 	invalid_vector	el2t_error_invalid
+-	invalid_vector	el2h_sync_invalid
+ 	invalid_vector	el2h_irq_invalid
+ 	invalid_vector	el2h_fiq_invalid
+ 	invalid_vector	el1_sync_invalid
+@@ -255,7 +263,7 @@ ENTRY(__kvm_hyp_vector)
+ 	ventry	el2t_fiq_invalid		// FIQ EL2t
+ 	ventry	el2t_error_invalid		// Error EL2t
+ 
+-	ventry	el2h_sync_invalid		// Synchronous EL2h
++	ventry	el2_sync			// Synchronous EL2h
+ 	ventry	el2h_irq_invalid		// IRQ EL2h
+ 	ventry	el2h_fiq_invalid		// FIQ EL2h
+ 	ventry	el2_error			// Error EL2h
+--- a/arch/arm64/kvm/hyp/switch.c
++++ b/arch/arm64/kvm/hyp/switch.c
+@@ -206,10 +206,10 @@ static bool __hyp_text __translate_far_t
+ 	 * saved the guest context yet, and we may return early...
+ 	 */
+ 	par = read_sysreg(par_el1);
+-	asm volatile("at s1e1r, %0" : : "r" (far));
+-	isb();
+-
+-	tmp = read_sysreg(par_el1);
++	if (!__kvm_at("s1e1r", far))
++		tmp = read_sysreg(par_el1);
++	else
++		tmp = 1; /* back to the guest */
+ 	write_sysreg(par, par_el1);
+ 
+ 	if (unlikely(tmp & 1))
 
 
