@@ -2,48 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC8D2659EB
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 09:04:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E43E52659DF
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 09:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725799AbgIKHDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 03:03:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40442 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725780AbgIKHCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Sep 2020 03:02:31 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6004C061757;
-        Fri, 11 Sep 2020 00:02:30 -0700 (PDT)
+        id S1725804AbgIKHDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 03:03:15 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:45112 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725785AbgIKHCd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Sep 2020 03:02:33 -0400
 Date:   Fri, 11 Sep 2020 07:02:28 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1599807748;
+        s=2020; t=1599807749;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=5d9fe4eytXUd+WWgl53CTGZ6C41OK0l4pfyvLMLPzBM=;
-        b=4TWbKgyRoZNfR5l/x3w4Rbu6kLx/7nZbRQDIX/2K8IU16HKyyid7/pRWNedHLRzGXaEZQv
-        FU6LvZIATgXUAfG/adezZs9wa9JH9uXnxDgQws83e+Vfhxj2rzzYU6lq245Dq30QoQozHG
-        5zcrMoP8EX/DGa3G6u5kyoFCy935HJ0lUz5zWp+ixCJHT1x87S0ZiMBzj1xUfdSXoN8OhK
-        jR8snlgvG6ngcKj+unlZMAfNtp83NHmyArAmA98rWEBnL3WHS10ZndnIz3Dr91AOmrMGbh
-        +3+a8P7xEksMu6q4G9LYrIJgLzR1NyLsCect0i2RWEdgvFhj+PNx00ytj03y4Q==
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nK+Y+pGcwGyQYhqw3U+d78NVAhziKaGB5comF2R4ZiA=;
+        b=lnBSJV9bIdkFa8DN3Lvz1CA+G3rVL4l21bP2jfAMs+ZdaDyK1jsBHKNXGotvd9EfBcyy/a
+        axVjq6KYlMPwbuwcdc/Y4dYsAtglaQ1WbovpuIh0Y4Vsrvm4Dxy2HByVIUIhfINLrbfc5I
+        0IU203uWaLSSQaIjT+QqeRQiYhahDubrjOy9P1qVsXnpW0Az+ism2Qb+ZFwW+SkIXe7pz/
+        aamGOkOniX6aDAo2FHgnPaFVI/8yl2+/MAX++j1vX+c4WDR86UmelLADNs+YJYH/euD41V
+        iNfiRTppl8ZpIRU9PNROcy0dlmqJLe2JITHOhLhFlhIQflvUz1cfGqDFknlPjw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1599807748;
+        s=2020e; t=1599807749;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=5d9fe4eytXUd+WWgl53CTGZ6C41OK0l4pfyvLMLPzBM=;
-        b=0AbQ0w3TMfUVq71qvyxszMHlmJPLSV2Boh5q2uchp9g2xYKxpNoGpG/AIqoF0t7pz4hH4T
-        PIW5N55gXM23oNDA==
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nK+Y+pGcwGyQYhqw3U+d78NVAhziKaGB5comF2R4ZiA=;
+        b=McWhkeW8OMH0xUppniI1KSnVOTBV6QAD5eiaCGz+ICy/zhpAoWGHQv1jLJzFAwcFxzvPZm
+        KgQQdlKEUdrXpkCA==
 From:   "tip-bot2 for Kim Phillips" <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/core] perf/x86/amd: Fix sampling Large Increment per Cycle events
+Subject: [tip: perf/core] perf/amd/uncore: Set all slices and threads to
+ restore perf stat -a behaviour
 Cc:     Kim Phillips <kim.phillips@amd.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         stable@vger.kernel.org, x86 <x86@kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200908214740.18097-2-kim.phillips@amd.com>
+References: <20200908214740.18097-2-kim.phillips@amd.com>
 MIME-Version: 1.0
-Message-ID: <159980774821.20229.7720841504258329146.tip-bot2@tip-bot2>
+Message-ID: <159980774865.20229.4594347442051094162.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2.linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -55,51 +59,104 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the perf/core branch of tip:
 
-Commit-ID:     26e52558ead4b39c0e0fe7bf08f82f5a9777a412
-Gitweb:        https://git.kernel.org/tip/26e52558ead4b39c0e0fe7bf08f82f5a9777a412
+Commit-ID:     c8fe99d0701fec9fb849ec880a86bc5592530496
+Gitweb:        https://git.kernel.org/tip/c8fe99d0701fec9fb849ec880a86bc5592530496
 Author:        Kim Phillips <kim.phillips@amd.com>
-AuthorDate:    Tue, 08 Sep 2020 16:47:35 -05:00
+AuthorDate:    Tue, 08 Sep 2020 16:47:34 -05:00
 Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Thu, 10 Sep 2020 11:19:35 +02:00
+CommitterDate: Thu, 10 Sep 2020 11:19:34 +02:00
 
-perf/x86/amd: Fix sampling Large Increment per Cycle events
+perf/amd/uncore: Set all slices and threads to restore perf stat -a behaviour
 
-Commit 5738891229a2 ("perf/x86/amd: Add support for Large Increment
-per Cycle Events") mistakenly zeroes the upper 16 bits of the count
-in set_period().  That's fine for counting with perf stat, but not
-sampling with perf record when only Large Increment events are being
-sampled.  To enable sampling, we sign extend the upper 16 bits of the
-merged counter pair as described in the Family 17h PPRs:
+Commit 2f217d58a8a0 ("perf/x86/amd/uncore: Set the thread mask for
+F17h L3 PMCs") inadvertently changed the uncore driver's behaviour
+wrt perf tool invocations with or without a CPU list, specified with
+-C / --cpu=.
 
-"Software wanting to preload a value to a merged counter pair writes the
-high-order 16-bit value to the low-order 16 bits of the odd counter and
-then writes the low-order 48-bit value to the even counter. Reading the
-even counter of the merged counter pair returns the full 64-bit value."
+Change the behaviour of the driver to assume the former all-cpu (-a)
+case, which is the more commonly desired default.  This fixes
+'-a -A' invocations without explicit cpu lists (-C) to not count
+L3 events only on behalf of the first thread of the first core
+in the L3 domain.
 
-Fixes: 5738891229a2 ("perf/x86/amd: Add support for Large Increment per Cycle Events")
+BEFORE:
+
+Activity performed by the first thread of the last core (CPU#43) in
+CPU#40's L3 domain is not reported by CPU#40:
+
+sudo perf stat -a -A -e l3_request_g1.caching_l3_cache_accesses taskset -c 43 perf bench mem memcpy -s 32mb -l 100 -f default
+...
+CPU36                 21,835      l3_request_g1.caching_l3_cache_accesses
+CPU40                 87,066      l3_request_g1.caching_l3_cache_accesses
+CPU44                 17,360      l3_request_g1.caching_l3_cache_accesses
+...
+
+AFTER:
+
+The L3 domain activity is now reported by CPU#40:
+
+sudo perf stat -a -A -e l3_request_g1.caching_l3_cache_accesses taskset -c 43 perf bench mem memcpy -s 32mb -l 100 -f default
+...
+CPU36                354,891      l3_request_g1.caching_l3_cache_accesses
+CPU40              1,780,870      l3_request_g1.caching_l3_cache_accesses
+CPU44                315,062      l3_request_g1.caching_l3_cache_accesses
+...
+
+Fixes: 2f217d58a8a0 ("perf/x86/amd/uncore: Set the thread mask for F17h L3 PMCs")
 Signed-off-by: Kim Phillips <kim.phillips@amd.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Link: https://lkml.kernel.org/r/20200908214740.18097-2-kim.phillips@amd.com
 ---
- arch/x86/events/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/events/amd/uncore.c | 28 ++++++++--------------------
+ 1 file changed, 8 insertions(+), 20 deletions(-)
 
-diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-index 0f3d015..cb5cfef 100644
---- a/arch/x86/events/core.c
-+++ b/arch/x86/events/core.c
-@@ -1326,11 +1326,11 @@ int x86_perf_event_set_period(struct perf_event *event)
- 	wrmsrl(hwc->event_base, (u64)(-left) & x86_pmu.cntval_mask);
+diff --git a/arch/x86/events/amd/uncore.c b/arch/x86/events/amd/uncore.c
+index 76400c0..e7e61c8 100644
+--- a/arch/x86/events/amd/uncore.c
++++ b/arch/x86/events/amd/uncore.c
+@@ -181,28 +181,16 @@ static void amd_uncore_del(struct perf_event *event, int flags)
+ }
  
- 	/*
--	 * Clear the Merge event counter's upper 16 bits since
-+	 * Sign extend the Merge event counter's upper 16 bits since
- 	 * we currently declare a 48-bit counter width
+ /*
+- * Convert logical CPU number to L3 PMC Config ThreadMask format
++ * Return a full thread and slice mask until per-CPU is
++ * properly supported.
+  */
+-static u64 l3_thread_slice_mask(int cpu)
++static u64 l3_thread_slice_mask(void)
+ {
+-	u64 thread_mask, core = topology_core_id(cpu);
+-	unsigned int shift, thread = 0;
++	if (boot_cpu_data.x86 <= 0x18)
++		return AMD64_L3_SLICE_MASK | AMD64_L3_THREAD_MASK;
+ 
+-	if (topology_smt_supported() && !topology_is_primary_thread(cpu))
+-		thread = 1;
+-
+-	if (boot_cpu_data.x86 <= 0x18) {
+-		shift = AMD64_L3_THREAD_SHIFT + 2 * (core % 4) + thread;
+-		thread_mask = BIT_ULL(shift);
+-
+-		return AMD64_L3_SLICE_MASK | thread_mask;
+-	}
+-
+-	core = (core << AMD64_L3_COREID_SHIFT) & AMD64_L3_COREID_MASK;
+-	shift = AMD64_L3_THREAD_SHIFT + thread;
+-	thread_mask = BIT_ULL(shift);
+-
+-	return AMD64_L3_EN_ALL_SLICES | core | thread_mask;
++	return AMD64_L3_EN_ALL_SLICES | AMD64_L3_EN_ALL_CORES |
++	       AMD64_L3_F19H_THREAD_MASK;
+ }
+ 
+ static int amd_uncore_event_init(struct perf_event *event)
+@@ -232,7 +220,7 @@ static int amd_uncore_event_init(struct perf_event *event)
+ 	 * For other events, the two fields do not affect the count.
  	 */
- 	if (is_counter_pair(hwc))
--		wrmsrl(x86_pmu_event_addr(idx + 1), 0);
-+		wrmsrl(x86_pmu_event_addr(idx + 1), 0xffff);
+ 	if (l3_mask && is_llc_event(event))
+-		hwc->config |= l3_thread_slice_mask(event->cpu);
++		hwc->config |= l3_thread_slice_mask();
  
- 	/*
- 	 * Due to erratum on certan cpu we need
+ 	uncore = event_to_amd_uncore(event);
+ 	if (!uncore)
