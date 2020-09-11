@@ -2,68 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7FC2265744
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 05:10:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2055E265758
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 05:24:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725497AbgIKDKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Sep 2020 23:10:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33266 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725300AbgIKDKd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Sep 2020 23:10:33 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B592C061573;
-        Thu, 10 Sep 2020 20:10:32 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id u21so10851045ljl.6;
-        Thu, 10 Sep 2020 20:10:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4QzQDhaCJCst2HK6aH2WUPrdT5Dum1Od9MmMWsCaOcg=;
-        b=WrsBlUuFA4/+FHg1Eeljuvw+qsz6YK/899CgQAlz/Qre86TlRsTLE8y27EP/H+6Zrd
-         Fq96jMMD74Ob3Hs8Jy1SJYxGr7zLFCNGj0NcoJwtkKlIdfG4indfWnXUotYVWjcIZD3G
-         pRCjTJXUTtNHtgJ4Vtoto3RQGrNRYVova4LSgXe64y2/G+goPuM5xFERgIz9lMFKAfDZ
-         hhLTnqIpHi8Zo7ZYZ9whMRnRsGFNOJ+cwDIivOL7bfOEzh12BPkykzUBfR4nmLRetd9p
-         9L2el3mi8t0s3RyyudX9w76Ba0CuoSlzNud+Tct6t0J3DxAZvv8ErsOIR+xGlyDsG73C
-         vB3Q==
+        id S1725440AbgIKDYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Sep 2020 23:24:54 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:39216 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725355AbgIKDYx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Sep 2020 23:24:53 -0400
+Received: by mail-io1-f66.google.com with SMTP id b6so9543369iof.6;
+        Thu, 10 Sep 2020 20:24:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=4QzQDhaCJCst2HK6aH2WUPrdT5Dum1Od9MmMWsCaOcg=;
-        b=hfNO+tj+TzwTaHWN+KMpYtC8Hv1JkNRXj90LdDVFEtPQl0N3z4NRDiAxwZiq1Hu1+B
-         RXTOascxcEwufvZnPTLTUWtDe1yBifEVeThINe4FZOsRLn+cBvKrxMlRqXa/v3JTnlzj
-         LCzgxB7ltE8RMIkF9bDUs/osWM4vGAcSJKYEiCeEBfDovQI+ughfa1G/dfui55tE41D7
-         VPRgwKf70si7+tTNq5GCRaZGmlzvm/pXb3T9nr8WRokvrLq0YFbf+lGYG4gwjZMhMDuZ
-         3x4XCKTsWUKXhl7Rb0PvOJWK7P93uZbg9VGNnMWdXviqMVLAXI5Tn8ERfoKFyKN7Z+0Z
-         pI7g==
-X-Gm-Message-State: AOAM532ZgVETB0mnsVJKdtfhT1D+UJg39pZLmxrDuviI6n2SbhzS92wS
-        U0r/cIB2PJSwy3j2IFQtyYPnvKMp5Kij351ffcE=
-X-Google-Smtp-Source: ABdhPJzREqIAFoiLPnbTQN6MLaZVostzv8ZrlXvknLKeJmMPmicfB//y/LF9m4CMg7H4XWOFezdMVyywAOPJy1GSo/o=
-X-Received: by 2002:a2e:8593:: with SMTP id b19mr5633231lji.290.1599793830730;
- Thu, 10 Sep 2020 20:10:30 -0700 (PDT)
+        bh=zGBoBmGAtB2vcBBsx9k1EM9PouHaew/fLnFa1nNdlDM=;
+        b=lOYon75hM3rc1v8++DQ0zme1a9rDnktIki34+jdYcpxBsHxJgN1zIl19Tdsh/PgoO6
+         TBrgwWVvza2B2jEeA5GyQjylYaTDAb1WyGzU9jVwveDe9WuCIdYFO1SWlXMTYxVJWOvg
+         1B0DpA2N1hNt6pEF0cTF/j8/uVyrL0jGQriJ9Hi/NTCbAgudcpGWN2mMxbnUQgZpTSmT
+         grTxzM+B9I6Gto2JEva/gh/ht49kDa2gNoYnikGGqkHMcOW3SM8yqofya3WeQtXZ1fgU
+         7bMr9dDkqvSxaRP+fGR/6RUQY/kdJlCyjqQ7BLTjqfZjeD5ko+3IGYJvVrbIhm2+K8z5
+         weXA==
+X-Gm-Message-State: AOAM533WWK8A4oPRrvvG1tany3MN0Q3XCDjWogsxjVgPNn7w7GkXKDa+
+        yjJqlAVvUElCAzkVnToHe1IxzkQBPitNaeU05l4=
+X-Google-Smtp-Source: ABdhPJyhMxtOK1kT1gtKdIjuikcvqZaGTWG9MBcuG/GizwxIqTMk+kwjjr4v6F3S8YJ7Y+WRQGEgtTE12OA4gRIdjf8=
+X-Received: by 2002:a6b:6016:: with SMTP id r22mr214533iog.42.1599794692495;
+ Thu, 10 Sep 2020 20:24:52 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200910203314.70018-1-songliubraving@fb.com>
-In-Reply-To: <20200910203314.70018-1-songliubraving@fb.com>
-From:   Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date:   Thu, 10 Sep 2020 20:10:19 -0700
-Message-ID: <CAADnVQJjf-32YCbr1yRqb43rVMYSXbSdDZzt+UzocnWxZUxzKQ@mail.gmail.com>
-Subject: Re: [PATCH bpf-next] bpf: fix comment for helper bpf_current_task_under_cgroup()
-To:     Song Liu <songliubraving@fb.com>
-Cc:     bpf <bpf@vger.kernel.org>, stable <stable@vger.kernel.org>
+References: <1599624552-17523-1-git-send-email-chenhc@lemote.com> <894f35a7883451c4c2bf91b6181376fb@kernel.org>
+In-Reply-To: <894f35a7883451c4c2bf91b6181376fb@kernel.org>
+From:   Huacai Chen <chenhc@lemote.com>
+Date:   Fri, 11 Sep 2020 11:24:41 +0800
+Message-ID: <CAAhV-H401y6_9++CStCH=RrfoRw6-hZBWquEAGtGecbTGbVO1Q@mail.gmail.com>
+Subject: Re: [PATCH 1/3] MIPS: Loongson64: Increase NR_IRQS to 320
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        Fuxin Zhang <zhangfx@lemote.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 10, 2020 at 1:36 PM Song Liu <songliubraving@fb.com> wrote:
->
-> This should be "current" not "skb".
->
-> Fixes: c6b5fb8690fa ("bpf: add documentation for eBPF helpers (42-50)")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Song Liu <songliubraving@fb.com>
+Hi, Marc,
 
-Applied. Thanks
+On Thu, Sep 10, 2020 at 6:10 PM Marc Zyngier <maz@kernel.org> wrote:
+>
+> On 2020-09-09 05:09, Huacai Chen wrote:
+> > Modernized Loongson64 uses a hierarchical organization for interrupt
+> > controllers (INTCs), all INTC nodes (not only leaf nodes) need some IRQ
+> > numbers. This means 280 (i.e., NR_IRQS_LEGACY + NR_MIPS_CPU_IRQS + 256)
+> > is not enough to represent all interrupts, so let's increase NR_IRQS to
+> > 320.
+> >
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Huacai Chen <chenhc@lemote.com>
+> > ---
+> >  arch/mips/include/asm/mach-loongson64/irq.h | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/arch/mips/include/asm/mach-loongson64/irq.h
+> > b/arch/mips/include/asm/mach-loongson64/irq.h
+> > index f5e362f7..0da3017 100644
+> > --- a/arch/mips/include/asm/mach-loongson64/irq.h
+> > +++ b/arch/mips/include/asm/mach-loongson64/irq.h
+> > @@ -7,7 +7,7 @@
+> >  /* cpu core interrupt numbers */
+> >  #define NR_IRQS_LEGACY               16
+> >  #define NR_MIPS_CPU_IRQS     8
+> > -#define NR_IRQS                      (NR_IRQS_LEGACY + NR_MIPS_CPU_IRQS + 256)
+> > +#define NR_IRQS                      320
+> >
+> >  #define MIPS_CPU_IRQ_BASE    NR_IRQS_LEGACY
+>
+> Why are you hardcoding a random value instead of bumping the constant
+> in NR_IRQS?
+Because INTCs can organized in many kinds of hierarchy, we cannot use
+constants to define a accurate value, but 320 is big enough.
+
+Huacai
+>
+>          M.
+> --
+> Jazz is not dead. It just smells funny...
