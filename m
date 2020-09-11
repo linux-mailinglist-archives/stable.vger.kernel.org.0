@@ -2,135 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BD1E2660D4
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DBEB2660DD
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725821AbgIKOAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 10:00:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32774 "EHLO mail.kernel.org"
+        id S1726310AbgIKOCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 10:02:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726231AbgIKNVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 09:21:31 -0400
+        id S1726108AbgIKNVa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 09:21:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CCC92244C;
-        Fri, 11 Sep 2020 12:59:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 139CA223EA;
+        Fri, 11 Sep 2020 12:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829165;
-        bh=VhHZzxYJ8nkNA9SGFQ+ilawWcnvt8a/KgqfCYjaOi7o=;
-        h=From:To:Cc:Subject:Date:From;
-        b=aHgsZ+4rOP2B7N6zHS3k2OtVWXaHvvBxrg2H8/Xko6nVXH7qvXObS+7Mj+htdCulZ
-         9g7T0JQHIJcPKUbyo826+qyzOsoSb900puOAmuyT8vBs1L90u2wv1NPSMr0kiUK5Ft
-         S5Bv4zD/9rRkLuyoBNTiSfqn/M/K99fp7zbOSWXI=
+        s=default; t=1599829142;
+        bh=UAs3Q/Zz9F5+9bZ42uUtir1voEsU5TfKbTq5cMt4HEs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=tZz12LH5l7veTMDSJjDe3roefZRkQpr+qBcPF+3wWb4Ao4pZRsFdm3WS9oW7nypoW
+         wiJpJU2wE/68XTJivVsTOz+jDtLMEGsdp6/x44JdgGquTKpLqncZu2Fh3WSTBas3bK
+         1TnE8+Fu0fAtoVKl/e1SeKXK7dqMvAjJlsxUrKyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.14 00/12] 4.14.198-rc1 review
-Date:   Fri, 11 Sep 2020 14:46:54 +0200
-Message-Id: <20200911122458.413137406@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Sherwood <rsher@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 12/12] net: disable netpoll on fresh napis
+Date:   Fri, 11 Sep 2020 14:47:06 +0200
+Message-Id: <20200911122459.015758062@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-MIME-Version: 1.0
+In-Reply-To: <20200911122458.413137406@linuxfoundation.org>
+References: <20200911122458.413137406@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.198-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.198-rc1
-X-KernelTest-Deadline: 2020-09-13T12:24+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.198 release.
-There are 12 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Jakub Kicinski <kuba@kernel.org>
 
-Responses should be made by Sun, 13 Sep 2020 12:24:42 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 96e97bc07e90f175a8980a22827faf702ca4cb30 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.198-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+napi_disable() makes sure to set the NAPI_STATE_NPSVC bit to prevent
+netpoll from accessing rings before init is complete. However, the
+same is not done for fresh napi instances in netif_napi_add(),
+even though we expect NAPI instances to be added as disabled.
 
-thanks,
+This causes crashes during driver reconfiguration (enabling XDP,
+changing the channel count) - if there is any printk() after
+netif_napi_add() but before napi_enable().
 
-greg k-h
+To ensure memory ordering is correct we need to use RCU accessors.
 
--------------
-Pseudo-Shortlog of commits:
+Reported-by: Rob Sherwood <rsher@fb.com>
+Fixes: 2d8bff12699a ("netpoll: Close race condition between poll_one_napi and napi_disable")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ net/core/dev.c     |    3 ++-
+ net/core/netpoll.c |    2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.198-rc1
-
-Jakub Kicinski <kuba@kernel.org>
-    net: disable netpoll on fresh napis
-
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    tipc: fix shutdown() of connectionless socket
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: not disable bh in the whole sctp_get_port_local()
-
-Kamil Lorenc <kamil@re-ws.pl>
-    net: usb: dm9601: Add USB ID of Keenetic Plus DSL
-
-Paul Moore <paul@paul-moore.com>
-    netlabel: fix problems with mapping removal
-
-Jakub Kicinski <kuba@kernel.org>
-    bnxt: don't enable NAPI until rings are ready
-
-Alex Williamson <alex.williamson@redhat.com>
-    vfio/pci: Fix SR-IOV VF handling with MMIO blocking
-
-Alex Williamson <alex.williamson@redhat.com>
-    vfio-pci: Invalidate mmaps and block MMIO access on disabled memory
-
-Alex Williamson <alex.williamson@redhat.com>
-    vfio-pci: Fault mmaps to enable vma tracking
-
-Alex Williamson <alex.williamson@redhat.com>
-    vfio/type1: Support faulting PFNMAP vmas
-
-Jens Axboe <axboe@kernel.dk>
-    block: ensure bdi->io_pages is always initialized
-
-Takashi Sakamoto <o-takashi@sakamocchi.jp>
-    ALSA; firewire-tascam: exclude Tascam FE-8 from detection
-
-
--------------
-
-Diffstat:
-
- Makefile                                  |   4 +-
- block/blk-core.c                          |   2 +
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |   9 +-
- drivers/net/usb/dm9601.c                  |   4 +
- drivers/vfio/pci/vfio_pci.c               | 352 +++++++++++++++++++++++++++---
- drivers/vfio/pci/vfio_pci_config.c        |  51 ++++-
- drivers/vfio/pci/vfio_pci_intrs.c         |  14 ++
- drivers/vfio/pci/vfio_pci_private.h       |  16 ++
- drivers/vfio/pci/vfio_pci_rdwr.c          |  29 ++-
- drivers/vfio/vfio_iommu_type1.c           |  36 ++-
- net/core/dev.c                            |   3 +-
- net/core/netpoll.c                        |   2 +-
- net/netlabel/netlabel_domainhash.c        |  59 ++---
- net/sctp/socket.c                         |  16 +-
- net/tipc/socket.c                         |   9 +-
- sound/firewire/tascam/tascam.c            |  30 ++-
- 16 files changed, 539 insertions(+), 97 deletions(-)
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5532,12 +5532,13 @@ void netif_napi_add(struct net_device *d
+ 		pr_err_once("netif_napi_add() called with weight %d on device %s\n",
+ 			    weight, dev->name);
+ 	napi->weight = weight;
+-	list_add(&napi->dev_list, &dev->napi_list);
+ 	napi->dev = dev;
+ #ifdef CONFIG_NETPOLL
+ 	napi->poll_owner = -1;
+ #endif
+ 	set_bit(NAPI_STATE_SCHED, &napi->state);
++	set_bit(NAPI_STATE_NPSVC, &napi->state);
++	list_add_rcu(&napi->dev_list, &dev->napi_list);
+ 	napi_hash_add(napi);
+ }
+ EXPORT_SYMBOL(netif_napi_add);
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -179,7 +179,7 @@ static void poll_napi(struct net_device
+ 	struct napi_struct *napi;
+ 	int cpu = smp_processor_id();
+ 
+-	list_for_each_entry(napi, &dev->napi_list, dev_list) {
++	list_for_each_entry_rcu(napi, &dev->napi_list, dev_list) {
+ 		if (cmpxchg(&napi->poll_owner, -1, cpu) == -1) {
+ 			poll_one_napi(napi);
+ 			smp_store_release(&napi->poll_owner, -1);
 
 
