@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AB2026607C
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 15:42:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C81CC2660DE
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726263AbgIKNm2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 09:42:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34916 "EHLO mail.kernel.org"
+        id S1726311AbgIKOCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 10:02:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726301AbgIKN20 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 09:28:26 -0400
+        id S1726253AbgIKNVa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 09:21:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D03122456;
-        Fri, 11 Sep 2020 12:59:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28618223BD;
+        Fri, 11 Sep 2020 12:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829181;
-        bh=ybDPXSWX6t6Yrp5Uds0fPcMTpwzBemoFk3ybMUuZEyY=;
+        s=default; t=1599829107;
+        bh=p6jDxVLZ941Viwt6z0ZSwHIXamD1uxgdHGWmNH7SGUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1M/FByuPrgNq1JusDVuk1YhRm/doUstz9Ea9u/uS4/HHmulwV7a7t78H2gKn3SS4e
-         IiSqSKDY8PuiAkh43pW8Ea6+ZwGX8hF6zSnP2ICrRynkgC8wrzBSdZhhZ7fa1nS3U1
-         oGplK8zKCSVpBZ/UfsUuR/vN95PGSdnB/cGyZDJw=
+        b=RoIMhLeoefq71CCBX2yrT1gyf0l7LRWs5fRE9fcQz1tma/iUbPGEibfMpkmNnDj3R
+         1W7BfXrAnHYwfUrxyvlygssG16LlY1+GA1Vm+xPBEjmwzhUX9OHe6IzVjh7kvbmXz0
+         ftHkK3QlKr1yCuxTcQZLT5j/aBIJPEwAv+VvxigA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Tuong Lien <tuong.t.lien@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 14/16] tipc: fix using smp_processor_id() in preemptible
-Date:   Fri, 11 Sep 2020 14:47:31 +0200
-Message-Id: <20200911122500.284435224@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 30/71] btrfs: Remove redundant extent_buffer_get in get_old_root
+Date:   Fri, 11 Sep 2020 14:46:14 +0200
+Message-Id: <20200911122506.435222840@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200911122459.585735377@linuxfoundation.org>
-References: <20200911122459.585735377@linuxfoundation.org>
+In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
+References: <20200911122504.928931589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuong Lien <tuong.t.lien@dektech.com.au>
+From: Nikolay Borisov <nborisov@suse.com>
 
-[ Upstream commit bb8872a1e6bc911869a729240781076ed950764b ]
+[ Upstream commit 6c122e2a0c515cfb3f3a9cefb5dad4cb62109c78 ]
 
-The 'this_cpu_ptr()' is used to obtain the AEAD key' TFM on the current
-CPU for encryption, however the execution can be preemptible since it's
-actually user-space context, so the 'using smp_processor_id() in
-preemptible' has been observed.
+get_old_root used used only by btrfs_search_old_slot to initialise the
+path structure. The old root is always a cloned buffer (either via alloc
+dummy or via btrfs_clone_extent_buffer) and its reference count is 2: 1
+from allocation, 1 from extent_buffer_get call in get_old_root.
 
-We fix the issue by using the 'get/put_cpu_ptr()' API which consists of
-a 'preempt_disable()' instead.
+This latter explicit ref count acquire operation is in fact unnecessary
+since the semantic is such that the newly allocated buffer is handed
+over to the btrfs_path for lifetime management. Considering this just
+remove the extra extent_buffer_get in get_old_root.
 
-Fixes: fc1b6d6de220 ("tipc: introduce TIPC encryption & authentication")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/crypto.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ fs/btrfs/ctree.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/tipc/crypto.c
-+++ b/net/tipc/crypto.c
-@@ -326,7 +326,8 @@ static void tipc_aead_free(struct rcu_he
- 	if (aead->cloned) {
- 		tipc_aead_put(aead->cloned);
- 	} else {
--		head = *this_cpu_ptr(aead->tfm_entry);
-+		head = *get_cpu_ptr(aead->tfm_entry);
-+		put_cpu_ptr(aead->tfm_entry);
- 		list_for_each_entry_safe(tfm_entry, tmp, &head->list, list) {
- 			crypto_free_aead(tfm_entry->tfm);
- 			list_del(&tfm_entry->list);
-@@ -399,10 +400,15 @@ static void tipc_aead_users_set(struct t
-  */
- static struct crypto_aead *tipc_aead_tfm_next(struct tipc_aead *aead)
- {
--	struct tipc_tfm **tfm_entry = this_cpu_ptr(aead->tfm_entry);
-+	struct tipc_tfm **tfm_entry;
-+	struct crypto_aead *tfm;
+diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
+index b5ebb43b1824f..78d4c8c22b4ac 100644
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -1430,7 +1430,6 @@ get_old_root(struct btrfs_root *root, u64 time_seq)
  
-+	tfm_entry = get_cpu_ptr(aead->tfm_entry);
- 	*tfm_entry = list_next_entry(*tfm_entry, list);
--	return (*tfm_entry)->tfm;
-+	tfm = (*tfm_entry)->tfm;
-+	put_cpu_ptr(tfm_entry);
-+
-+	return tfm;
- }
- 
- /**
+ 	if (!eb)
+ 		return NULL;
+-	extent_buffer_get(eb);
+ 	btrfs_tree_read_lock(eb);
+ 	if (old_root) {
+ 		btrfs_set_header_bytenr(eb, eb->start);
+-- 
+2.25.1
+
 
 
