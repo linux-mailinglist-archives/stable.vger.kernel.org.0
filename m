@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81E1B265CA9
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 11:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79DAB265D76
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 12:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725797AbgIKJlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 05:41:03 -0400
-Received: from mail-il1-f194.google.com ([209.85.166.194]:44980 "EHLO
-        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725710AbgIKJlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Sep 2020 05:41:02 -0400
-Received: by mail-il1-f194.google.com with SMTP id h11so8400166ilj.11;
-        Fri, 11 Sep 2020 02:41:01 -0700 (PDT)
+        id S1725554AbgIKKNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 06:13:15 -0400
+Received: from mail-il1-f193.google.com ([209.85.166.193]:35363 "EHLO
+        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725781AbgIKKNN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Sep 2020 06:13:13 -0400
+Received: by mail-il1-f193.google.com with SMTP id y9so703570ilq.2;
+        Fri, 11 Sep 2020 03:13:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=pmVjM/dy1qrndSGo1jnx31Vj3jjPiwVS7vEoYuKJKtg=;
-        b=ctH0NyJjOC2GKa2BIqZ4vLkq6U+k7/rHEqsat38ldJFgbTKg4boAhLtZFPic4WS1xP
-         hFE97Rt6uTklJnXiAqlSWmPBZwnJDmKeBV41zzVKyefc9Kgsis8mo8VzAAbqQUNdoK1n
-         GBMjW6vxfo6fF+KnHQF3/kJ/Q3TkyTuX3CDsKXj7aqPxvnvkfKQ8F1VcxF+E+5EuyUuE
-         szy+G20G+vMhHVwPiry+MOZ1TkphnMg5lii65CYoi+soRvRUUASQO/h/I7p3tFvISiHq
-         6V4SfEXMBOh+Eqg7H1CzTC2TXK4gJQJ2m8GjVQXirRrwIwQz36H7tdv4OThe0nStK0h2
-         /2PA==
-X-Gm-Message-State: AOAM532g2ujS21+ApKDFcFfrQWX0g6z4Dki0zAMmrnVxj2+yTMPSqUzS
-        3MwYkAIvAIW5+48hS6tJvaYFcb5DIy45TtSprgNWO6MjdnU=
-X-Google-Smtp-Source: ABdhPJzPFiXGuXSXhXigH5NRrwttFOoJ6hjP0lxUK7FDJEAn6EZHxecOXmH3Zeo6x0Y4DdCsDToPckic8fuoMlvVIKY=
-X-Received: by 2002:a92:c8c4:: with SMTP id c4mr1063485ilq.287.1599817260807;
- Fri, 11 Sep 2020 02:41:00 -0700 (PDT)
+        bh=hNAgDJmssVpw4aMJ18Kb1if3usn2Q1OLYU7PwTagydI=;
+        b=XasShgc6jkunjr2FzZ2Zg/+2Uhkko/zR/kargiaqWBq9SC1RxEJ0HJVB7X5kmS/xGe
+         Z0AjLhyZ3NeOrAvxlSTt5kCJV++AymMQObb07iSMLUL7VlyhZrAk1b59sCyDOXPHzEGd
+         x/DdwSvl6bb+F462eDWi1KlvtZ58lp1EkUHajWY/g5zsaGbvU7qYHCifUvBb8NiYeVWA
+         xe+yFpCyjTLgFIW/Ul/rZhz2yvNxMM2DWEfMkU3Midc0LzQSscHG0JZwnqGRZSZqgvi0
+         B6FLiu/QSYfASdsnc4W/b6V7qTMcKX+LWHyBLAS4adT0UcI+uDA5/Hphc/xjZYz1GXVj
+         gYwg==
+X-Gm-Message-State: AOAM533vaImYiSvsm9uYTTrIDCADG42k/dnhYW272C3zyraoslkPyTPb
+        PjnO3tMvXgD0mbL/QpL8fQxoSTJ+fTh+oprcJVs=
+X-Google-Smtp-Source: ABdhPJwUVdyO+k4KE34x6ppO9BMm8P/K08kHVYCJa1Rk6zmWOIv8EG/Kfr5AxqsGi6/kDCieNbG0G7aV+4cuRnsSBhs=
+X-Received: by 2002:a92:2806:: with SMTP id l6mr1095325ilf.147.1599819188684;
+ Fri, 11 Sep 2020 03:13:08 -0700 (PDT)
 MIME-Version: 1.0
 References: <1599624552-17523-1-git-send-email-chenhc@lemote.com>
- <894f35a7883451c4c2bf91b6181376fb@kernel.org> <CAAhV-H401y6_9++CStCH=RrfoRw6-hZBWquEAGtGecbTGbVO1Q@mail.gmail.com>
- <efab39a121918316564168c07cf88539@kernel.org> <CAAhV-H4wHO12HVaA307GJX-WnkddT5w+YWgFMGuk0ov-f7Sm8A@mail.gmail.com>
- <88b8ce9eaf6c866d47685d8608fe5a49@kernel.org> <CAAhV-H5ZF6=xj9=mP5r6FudFjy9N-TjzZaoVhkuevVKE50LE1A@mail.gmail.com>
- <fe22abfaa37590c794d7f792dc3b4af7@kernel.org>
-In-Reply-To: <fe22abfaa37590c794d7f792dc3b4af7@kernel.org>
+ <1599624552-17523-3-git-send-email-chenhc@lemote.com> <613dd7bc4d7eeec1a5fd30f679fc83eb@kernel.org>
+ <CAAhV-H5Rs-PHV6Sy=1tbhsF-nj5MOYgvNie_5g7+8yFYT_2Anw@mail.gmail.com> <6af66ab3dbf81cc1d0cf4c204ebac2b8@kernel.org>
+In-Reply-To: <6af66ab3dbf81cc1d0cf4c204ebac2b8@kernel.org>
 From:   Huacai Chen <chenhc@lemote.com>
-Date:   Fri, 11 Sep 2020 17:40:49 +0800
-Message-ID: <CAAhV-H7YvCsFnxyLbP0wy19Q0kBz4LUasEwUwL4MxSox-770Mw@mail.gmail.com>
-Subject: Re: [PATCH 1/3] MIPS: Loongson64: Increase NR_IRQS to 320
+Date:   Fri, 11 Sep 2020 18:12:55 +0800
+Message-ID: <CAAhV-H5-2SZOaGny68-PBP3_+afHk5XMuQRYgCQS50b_3fMj4A@mail.gmail.com>
+Subject: Re: [PATCH 3/3] irqchip/loongson-pch-pic: Reserve legacy LPC irqs
 To:     Marc Zyngier <maz@kernel.org>
 Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -56,98 +54,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi, Marc,
 
-On Fri, Sep 11, 2020 at 5:23 PM Marc Zyngier <maz@kernel.org> wrote:
+On Fri, Sep 11, 2020 at 3:50 PM Marc Zyngier <maz@kernel.org> wrote:
 >
-> On 2020-09-11 10:14, Huacai Chen wrote:
+> On 2020-09-11 05:13, Huacai Chen wrote:
 > > Hi, Marc,
 > >
-> > On Fri, Sep 11, 2020 at 5:03 PM Marc Zyngier <maz@kernel.org> wrote:
+> > On Thu, Sep 10, 2020 at 6:08 PM Marc Zyngier <maz@kernel.org> wrote:
 > >>
-> >> On 2020-09-11 09:43, Huacai Chen wrote:
-> >> > Hi, Marc,
-> >> >
-> >> > On Fri, Sep 11, 2020 at 3:45 PM Marc Zyngier <maz@kernel.org> wrote:
-> >> >>
-> >> >> On 2020-09-11 04:24, Huacai Chen wrote:
-> >> >> > Hi, Marc,
-> >> >> >
-> >> >> > On Thu, Sep 10, 2020 at 6:10 PM Marc Zyngier <maz@kernel.org> wrote:
-> >> >> >>
-> >> >> >> On 2020-09-09 05:09, Huacai Chen wrote:
-> >> >> >> > Modernized Loongson64 uses a hierarchical organization for interrupt
-> >> >> >> > controllers (INTCs), all INTC nodes (not only leaf nodes) need some IRQ
-> >> >> >> > numbers. This means 280 (i.e., NR_IRQS_LEGACY + NR_MIPS_CPU_IRQS + 256)
-> >> >> >> > is not enough to represent all interrupts, so let's increase NR_IRQS to
-> >> >> >> > 320.
-> >> >> >> >
-> >> >> >> > Cc: stable@vger.kernel.org
-> >> >> >> > Signed-off-by: Huacai Chen <chenhc@lemote.com>
-> >> >> >> > ---
-> >> >> >> >  arch/mips/include/asm/mach-loongson64/irq.h | 2 +-
-> >> >> >> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >> >> >> >
-> >> >> >> > diff --git a/arch/mips/include/asm/mach-loongson64/irq.h
-> >> >> >> > b/arch/mips/include/asm/mach-loongson64/irq.h
-> >> >> >> > index f5e362f7..0da3017 100644
-> >> >> >> > --- a/arch/mips/include/asm/mach-loongson64/irq.h
-> >> >> >> > +++ b/arch/mips/include/asm/mach-loongson64/irq.h
-> >> >> >> > @@ -7,7 +7,7 @@
-> >> >> >> >  /* cpu core interrupt numbers */
-> >> >> >> >  #define NR_IRQS_LEGACY               16
-> >> >> >> >  #define NR_MIPS_CPU_IRQS     8
-> >> >> >> > -#define NR_IRQS                      (NR_IRQS_LEGACY + NR_MIPS_CPU_IRQS + 256)
-> >> >> >> > +#define NR_IRQS                      320
-> >> >> >> >
-> >> >> >> >  #define MIPS_CPU_IRQ_BASE    NR_IRQS_LEGACY
-> >> >> >>
-> >> >> >> Why are you hardcoding a random value instead of bumping the constant
-> >> >> >> in NR_IRQS?
-> >> >> > Because INTCs can organized in many kinds of hierarchy, we cannot use
-> >> >> > constants to define a accurate value, but 320 is big enough.
-> >> >>
-> >> >> You're not answering my question. You have a parameterized NR_IRQS,
-> >> >> and
-> >> >> you're turning it into an absolute constant. Why? I.e:
-> >> >>
-> >> >> #define NR_IRQS        (NR_IRQS_LEGACY + NR_MIPS_CPU_IRQS + 296)
-> >> >>
-> >> >> And why 320? Why not 512? or 2^15?
-> >> > OK, I know, I will define a NR_MAX_MIDDLE_IRQS and then define NR_IRQS
-> >> > as  (NR_IRQS_LEGACY + NR_MIPS_CPU_IRQS + NR_MAX_MIDDLE_IRQS + 256)
+> >> On 2020-09-09 05:09, Huacai Chen wrote:
+> >> > Reserve legacy LPC irqs (0~15) to avoid spurious interrupts.
 > >>
-> >> What does MIDDLE_IRQS mean? Please name it to something that actually
-> >> relates to its usage...
-> > INTCs are organized as a tree, MIDDLE_IRQS means those IRQS used by
->
-> Tell me something I don't know...
->
-> > middle nodes (not leaf nodes and not root node), midde nodes is not
-> > directed by devices, but they consumes irq numbers.
->
-> Then name the #define something that represents its use. "middle"
-> doesn't
-> describe anything. Call it "chained", or "cascade", or something at
-> actually
-> reflects the topology of these systems.
-I choose "chained".
-
->
-> >
+> >> How can they be spurious? Why are they enabled the first place?
 > >>
-> >> >>
-> >> >> As for a "modernized" setup, the fact that you are not using
-> >> >> SPARSE_IRQ
-> >> >> is pretty backward.
-> >> > I have discussed this with Jiaxun, and he said that there are some
-> >> > difficulties to use SPARSE_IRQ.
-> >>
-> >> It'd be worth considering putting some efforts there...
-> > Yes, but that is another topic.
+> >> This looks like you are papering over a much bigger issue.
+> > The spurious interrupts are probably occurred after kdump and the irq
+> > number is in legacy LPC ranges. I think this is because the old kernel
+> > doesn't (and it can't) disable devices properly so there are stale
+> > interrupts in the kdump case.
 >
-> It really is the same topic. You keep bumping this NR_IRQS up in
-> arbitrary ways,
-> which would be avoided if you brought MIPS into the 21st century.
-Jiaxun, please explain why you don't use SPARSE_IRQ?
+> I don't really understand why the old kernel can't turn the interrupts
+> off. Most architectures are able t, why not yours?
+>
+> Finally, why don't you just shut these interrupts off the first place
+> in the interrupt controller init? Adding a whole lot of kernel
+> data structures as a band-aid doesn't strike me as the best possible
+> idea. Not to mention that if they keep firing, all you are doing
+> is adding extra overhead.
+After tests, I found that the previous patch (patch 2 in this series)
+can avoid most spurious interrupts and kdump can work, so I will send
+V2 to drop this patch.
 
 Huacai
 >
