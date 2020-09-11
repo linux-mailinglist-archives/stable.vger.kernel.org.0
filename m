@@ -2,100 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6710026612E
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:28:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C7CA266129
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726197AbgIKO13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 10:27:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56024 "EHLO mail.kernel.org"
+        id S1725800AbgIKO1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 10:27:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726155AbgIKNMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726183AbgIKNMA (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 11 Sep 2020 09:12:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23A5C206A2;
-        Fri, 11 Sep 2020 13:00:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57E5B2224F;
+        Fri, 11 Sep 2020 13:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829230;
-        bh=g0Tx0buTZ4v0lJqs0QvuGVYtuk5Alm9+RarIUFQmvcE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w3TMX521c81c76BBehZVa/HNZ81mxkJIEWjhaqdiW20s9E7pgkxlqiv8Dh2lNrERw
-         2wO/gCCjUm243s56tGE8j06gyttMym/Y+X+wOdaL6ZnC5SQR4FW71+VV8PjpciB/L+
-         zMZ0w4JRgKgiW3jdNQnA9t9Sohh7PR6mF4SQZrp8=
+        s=default; t=1599829256;
+        bh=9SZnSJ2IUQMOnQv1v0HyutS6AgCI4nGtzKD+DXqCrBU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jaaXaJZopyN/TgUD0qS56chD/HJhj8rB0uTjFru3mSXELCYh9gPhrPhw6iHM5U1zG
+         GkRJudPUi+va7mI5H8/3G6ZVdbqK40Vr5gO9caaPWSELxPjfMDKFS3zeoilRTj3vXS
+         hD8LpvpiCSIrDkD0WaCLe9gvpL6nf7cC+TGwKerA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Sherwood <rsher@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 8/8] net: disable netpoll on fresh napis
-Date:   Fri, 11 Sep 2020 14:54:46 +0200
-Message-Id: <20200911125420.968741538@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.19 0/8] 4.19.145-rc1 review
+Date:   Fri, 11 Sep 2020 14:54:47 +0200
+Message-Id: <20200911125421.695645838@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200911125420.580564179@linuxfoundation.org>
-References: <20200911125420.580564179@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.145-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.145-rc1
+X-KernelTest-Deadline: 2020-09-13T12:54+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+This is the start of the stable review cycle for the 4.19.145 release.
+There are 8 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 96e97bc07e90f175a8980a22827faf702ca4cb30 ]
+Responses should be made by Sun, 13 Sep 2020 12:54:13 +0000.
+Anything received after that time might be too late.
 
-napi_disable() makes sure to set the NAPI_STATE_NPSVC bit to prevent
-netpoll from accessing rings before init is complete. However, the
-same is not done for fresh napi instances in netif_napi_add(),
-even though we expect NAPI instances to be added as disabled.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.145-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-This causes crashes during driver reconfiguration (enabling XDP,
-changing the channel count) - if there is any printk() after
-netif_napi_add() but before napi_enable().
+thanks,
 
-To ensure memory ordering is correct we need to use RCU accessors.
+greg k-h
 
-Reported-by: Rob Sherwood <rsher@fb.com>
-Fixes: 2d8bff12699a ("netpoll: Close race condition between poll_one_napi and napi_disable")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/dev.c     |    3 ++-
- net/core/netpoll.c |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6231,12 +6231,13 @@ void netif_napi_add(struct net_device *d
- 		netdev_err_once(dev, "%s() called with weight %d\n", __func__,
- 				weight);
- 	napi->weight = weight;
--	list_add(&napi->dev_list, &dev->napi_list);
- 	napi->dev = dev;
- #ifdef CONFIG_NETPOLL
- 	napi->poll_owner = -1;
- #endif
- 	set_bit(NAPI_STATE_SCHED, &napi->state);
-+	set_bit(NAPI_STATE_NPSVC, &napi->state);
-+	list_add_rcu(&napi->dev_list, &dev->napi_list);
- 	napi_hash_add(napi);
- }
- EXPORT_SYMBOL(netif_napi_add);
---- a/net/core/netpoll.c
-+++ b/net/core/netpoll.c
-@@ -161,7 +161,7 @@ static void poll_napi(struct net_device
- 	struct napi_struct *napi;
- 	int cpu = smp_processor_id();
- 
--	list_for_each_entry(napi, &dev->napi_list, dev_list) {
-+	list_for_each_entry_rcu(napi, &dev->napi_list, dev_list) {
- 		if (cmpxchg(&napi->poll_owner, -1, cpu) == -1) {
- 			poll_one_napi(napi);
- 			smp_store_release(&napi->poll_owner, -1);
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.145-rc1
+
+Roi Dayan <roid@mellanox.com>
+    net/mlx5e: Don't support phys switch id if not in switchdev mode
+
+Jakub Kicinski <kuba@kernel.org>
+    net: disable netpoll on fresh napis
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    tipc: fix shutdown() of connectionless socket
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: not disable bh in the whole sctp_get_port_local()
+
+Kamil Lorenc <kamil@re-ws.pl>
+    net: usb: dm9601: Add USB ID of Keenetic Plus DSL
+
+Paul Moore <paul@paul-moore.com>
+    netlabel: fix problems with mapping removal
+
+Jens Axboe <axboe@kernel.dk>
+    block: ensure bdi->io_pages is always initialized
+
+Takashi Sakamoto <o-takashi@sakamocchi.jp>
+    ALSA; firewire-tascam: exclude Tascam FE-8 from detection
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                         |  4 +-
+ block/blk-core.c                                 |  2 +
+ drivers/net/ethernet/mellanox/mlx5/core/en_rep.c |  2 +-
+ drivers/net/usb/dm9601.c                         |  4 ++
+ net/core/dev.c                                   |  3 +-
+ net/core/netpoll.c                               |  2 +-
+ net/netlabel/netlabel_domainhash.c               | 59 ++++++++++++------------
+ net/sctp/socket.c                                | 16 +++----
+ net/tipc/socket.c                                |  9 ++--
+ sound/firewire/tascam/tascam.c                   | 30 +++++++++++-
+ 10 files changed, 83 insertions(+), 48 deletions(-)
 
 
