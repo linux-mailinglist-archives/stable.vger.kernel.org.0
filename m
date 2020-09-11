@@ -2,117 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4631D26641C
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:31:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 936E326641F
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726439AbgIKQbc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 12:31:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
+        id S1726485AbgIKQbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:31:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726410AbgIKPTW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726440AbgIKPTW (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 11 Sep 2020 11:19:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4ED1F21D79;
-        Fri, 11 Sep 2020 13:00:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4E8A22226;
+        Fri, 11 Sep 2020 13:00:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829212;
-        bh=SDm3NSxw1fCta6ix1bjkUr5fmBKjkUAslKLWmBPvl0k=;
-        h=From:To:Cc:Subject:Date:From;
-        b=gOI+gwk0gWpHfx/PSGAnYVIMy/WX3CQ5LpERZYDRSQKnawQJCDWV9WwhGPcu0LDpz
-         Xk+4s/OJnkHs+8Ts8UR3sHCJKiHjn4jP7/LHDRLd9hsm8GX1f+WqQde2WOxNp3MZPt
-         cfvvU8KEig08bbBTUu9MQyfi55Xxawlyrw9FN/Fw=
+        s=default; t=1599829215;
+        bh=JrLztB9YR9rV95zKnvwpDb5/OzCC3LdzhveX60ZxFnE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=wK0BS5+ejbsD2uUphkd56ddCmwS/53e4g1MPtp+7HIiRir5JbpWRt+pbIr4P5ffW9
+         4YJJM4A27W0gJPuulbfQYc+anNDvWc3W/3pyNDEF0uaSdsIO9IO5Cs7pmfEhLf869j
+         Hzy+gCITCYiZO792ru6u8HjQme1os5JOHuHFcFok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 5.4 0/8] 5.4.65-rc1 review
-Date:   Fri, 11 Sep 2020 14:54:38 +0200
-Message-Id: <20200911125420.580564179@linuxfoundation.org>
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Stephen Suryaputra <ssuryaextr@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 2/8] ipv6: Fix sysctl max for fib_multipath_hash_policy
+Date:   Fri, 11 Sep 2020 14:54:40 +0200
+Message-Id: <20200911125420.701606317@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-MIME-Version: 1.0
+In-Reply-To: <20200911125420.580564179@linuxfoundation.org>
+References: <20200911125420.580564179@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.65-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.65-rc1
-X-KernelTest-Deadline: 2020-09-13T12:54+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.65 release.
-There are 8 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Ido Schimmel <idosch@nvidia.com>
 
-Responses should be made by Sun, 13 Sep 2020 12:54:10 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 05d4487197b2b71d5363623c28924fd58c71c0b6 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.65-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+Cited commit added the possible value of '2', but it cannot be set. Fix
+it by adjusting the maximum value to '2'. This is consistent with the
+corresponding IPv4 sysctl.
 
-thanks,
+Before:
 
-greg k-h
+# sysctl -w net.ipv6.fib_multipath_hash_policy=2
+sysctl: setting key "net.ipv6.fib_multipath_hash_policy": Invalid argument
+net.ipv6.fib_multipath_hash_policy = 2
+# sysctl net.ipv6.fib_multipath_hash_policy
+net.ipv6.fib_multipath_hash_policy = 0
 
--------------
-Pseudo-Shortlog of commits:
+After:
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.65-rc1
+# sysctl -w net.ipv6.fib_multipath_hash_policy=2
+net.ipv6.fib_multipath_hash_policy = 2
+# sysctl net.ipv6.fib_multipath_hash_policy
+net.ipv6.fib_multipath_hash_policy = 2
 
-Jakub Kicinski <kuba@kernel.org>
-    net: disable netpoll on fresh napis
+Fixes: d8f74f0975d8 ("ipv6: Support multipath hashing on inner IP pkts")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Stephen Suryaputra <ssuryaextr@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ net/ipv6/sysctl_net_ipv6.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    tipc: fix shutdown() of connectionless socket
-
-Vinicius Costa Gomes <vinicius.gomes@intel.com>
-    taprio: Fix using wrong queues in gate mask
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: not disable bh in the whole sctp_get_port_local()
-
-Kamil Lorenc <kamil@re-ws.pl>
-    net: usb: dm9601: Add USB ID of Keenetic Plus DSL
-
-Paul Moore <paul@paul-moore.com>
-    netlabel: fix problems with mapping removal
-
-Ido Schimmel <idosch@nvidia.com>
-    ipv6: Fix sysctl max for fib_multipath_hash_policy
-
-Ido Schimmel <idosch@nvidia.com>
-    ipv4: Silence suspicious RCU usage warning
-
-
--------------
-
-Diffstat:
-
- Makefile                           |  4 +--
- drivers/net/usb/dm9601.c           |  4 +++
- net/core/dev.c                     |  3 +-
- net/core/netpoll.c                 |  2 +-
- net/ipv4/fib_trie.c                |  3 +-
- net/ipv6/sysctl_net_ipv6.c         |  3 +-
- net/netlabel/netlabel_domainhash.c | 59 +++++++++++++++++++-------------------
- net/sched/sch_taprio.c             | 30 +++++++++++++++----
- net/sctp/socket.c                  | 16 ++++-------
- net/tipc/socket.c                  |  9 ++++--
- 10 files changed, 79 insertions(+), 54 deletions(-)
+--- a/net/ipv6/sysctl_net_ipv6.c
++++ b/net/ipv6/sysctl_net_ipv6.c
+@@ -21,6 +21,7 @@
+ #include <net/calipso.h>
+ #endif
+ 
++static int two = 2;
+ static int flowlabel_reflect_max = 0x7;
+ static int auto_flowlabels_min;
+ static int auto_flowlabels_max = IP6_AUTO_FLOW_LABEL_MAX;
+@@ -151,7 +152,7 @@ static struct ctl_table ipv6_table_templ
+ 		.mode		= 0644,
+ 		.proc_handler   = proc_rt6_multipath_hash_policy,
+ 		.extra1		= SYSCTL_ZERO,
+-		.extra2		= SYSCTL_ONE,
++		.extra2		= &two,
+ 	},
+ 	{
+ 		.procname	= "seg6_flowlabel",
 
 
