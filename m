@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 212EC2666D8
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:34:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73BF72666C7
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726387AbgIKRcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726058AbgIKRcq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 11 Sep 2020 13:32:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49240 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726018AbgIKMzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 08:55:10 -0400
+        id S1726054AbgIKMzU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 08:55:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C2962222D;
-        Fri, 11 Sep 2020 12:54:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB1872223C;
+        Fri, 11 Sep 2020 12:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828852;
-        bh=ks8FBRzzE0qli1nkpe2h0FyERehMi7N5X63Tf043nKE=;
+        s=default; t=1599828857;
+        bh=QPYBtG8DEvhAdZkAPODVw70d/QOR5jMrzDGOOq4q1Zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f9Ry2WnfRW0mrjuEH9qCDadX/JQJuTn3XliQ/iiDtDXuO8UBFjLVJHr/3M6fkd236
-         Dr0x0+tuoxpVQYfpE36igcAn3+1Ppv7+rwa9LyTOzsaVmi4geXNAqNZ8QP1uShkj7Q
-         3dF+051x2Igr5IHRg5as1/mgHhoF5zDcd1kHkb6U=
+        b=DtUR3Kzu29+0Nlc7AI0tIhyDdRmkDNzuoL+NznLTPezCFuEhBxhnD+qBgxlbDKqX8
+         j/VrKlWTUk732prE7rhzWSFVGZm2tywYobv78IagBD799Ll83RkWpik+y0l0ubCxig
+         DX2r1W2LwEwyio4agIfW6/L6G6gWfw+LLz14pDS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kanerva Topi <Topi.Kanerva@cinia.fi>,
+        stable@vger.kernel.org,
+        Hans-Christoph Schemmel <hans-christoph.schemmel@gemalto.com>,
         =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 32/62] net: qmi_wwan: ignore bogus CDC Union descriptors
-Date:   Fri, 11 Sep 2020 14:46:15 +0200
-Message-Id: <20200911122503.996071501@linuxfoundation.org>
+Subject: [PATCH 4.4 34/62] qmi_wwan: Added support for Gemaltos Cinterion PHxx WWAN interface
+Date:   Fri, 11 Sep 2020 14:46:17 +0200
+Message-Id: <20200911122504.092114873@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
 References: <20200911122502.395450276@linuxfoundation.org>
@@ -45,44 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjørn Mork <bjorn@mork.no>
+From: Schemmel Hans-Christoph <Hans-Christoph.Schemmel@gemalto.com>
 
-[ Upstream commit 34a55d5e858e81a20d33fd9490149d6a1058be0c ]
+[ Upstream commit bd9e33508c5e1eb5d807d11d7bfc52125fcdb04e ]
 
-The CDC descriptors found on these vendor specific functions should
-not be considered authoritative.  They seem to be ignored by drivers
-for other systems, and the quality is therefore low.
+Added support for Gemalto's Cinterion PHxx WWAN interfaces
+by adding QMI_FIXED_INTF with Cinterion's VID and PID.
 
-One device (1e0e:9001) has been reported to have such a bogus union
-descriptor on the QMI function, making it fail probing even if the
-device id was dynamically added.  The report was not complete enough
-to allow adding a device entry for this modem. But this should at
-least fix the dynamic id probing problem.
+PHxx can have:
+2 RmNet Interfaces (PID 0x0082) or
+1 RmNet + 1 USB Audio interface (PID 0x0083).
 
-Reported-by: Kanerva Topi <Topi.Kanerva@cinia.fi>
-Signed-off-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Hans-Christoph Schemmel <hans-christoph.schemmel@gemalto.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index e75e984483bc5..f8d00846b4a59 100644
+index 977df611164a6..ec03cf1f107bc 100644
 --- a/drivers/net/usb/qmi_wwan.c
 +++ b/drivers/net/usb/qmi_wwan.c
-@@ -374,7 +374,10 @@ static int qmi_wwan_bind(struct usbnet *dev, struct usb_interface *intf)
- 				"bogus CDC Union: master=%u, slave=%u\n",
- 				cdc_union->bMasterInterface0,
- 				cdc_union->bSlaveInterface0);
--			goto err;
-+
-+			/* ignore and continue... */
-+			cdc_union = NULL;
-+			info->data = intf;
- 		}
- 	}
- 
+@@ -907,6 +907,9 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x0b3c, 0xc00b, 4)},	/* Olivetti Olicard 500 */
+ 	{QMI_FIXED_INTF(0x1e2d, 0x0060, 4)},	/* Cinterion PLxx */
+ 	{QMI_FIXED_INTF(0x1e2d, 0x0053, 4)},	/* Cinterion PHxx,PXxx */
++	{QMI_FIXED_INTF(0x1e2d, 0x0082, 4)},	/* Cinterion PHxx,PXxx (2 RmNet) */
++	{QMI_FIXED_INTF(0x1e2d, 0x0082, 5)},	/* Cinterion PHxx,PXxx (2 RmNet) */
++	{QMI_FIXED_INTF(0x1e2d, 0x0083, 4)},	/* Cinterion PHxx,PXxx (1 RmNet + USB Audio)*/
+ 	{QMI_FIXED_INTF(0x413c, 0x81a2, 8)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
+ 	{QMI_FIXED_INTF(0x413c, 0x81a3, 8)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
+ 	{QMI_FIXED_INTF(0x413c, 0x81a4, 8)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
 -- 
 2.25.1
 
