@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE1C2660DF
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:03:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BDD4266101
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:13:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725868AbgIKODA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 10:03:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32776 "EHLO mail.kernel.org"
+        id S1725920AbgIKNQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 09:16:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726190AbgIKNVa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 09:21:30 -0400
+        id S1725941AbgIKNPc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 09:15:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C07F0222EB;
-        Fri, 11 Sep 2020 12:58:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 094EE22244;
+        Fri, 11 Sep 2020 12:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829105;
-        bh=/nDaup0sHf4oUzd2UAeg0tErQHDEQTfD4TfGN77pCxE=;
+        s=default; t=1599829067;
+        bh=WrKfuh3yAbeARMYEHR1js9UP1lzjuhWNQKJKsRGMwbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zmuapuft4jSVjWCuOir3MTeKhPJoN+gs/xUZH8KtybLBBovj5BBvC4CIzl6AQrJKi
-         BNWKvmaxCQFZB8U1Hjvl52x+TkgAGurRv7Y4cvAFZiqM9TtWdXnrBNHBHidSbYSmKZ
-         d2hc9o26pN38NVkwlYsyOBrcQ10J3NeADgE0X6XU=
+        b=pirSo71w2yZIoqOUcuLqses2fxB0OqL2CPPn3InnLvm4kIUyeXsMfep0qDYEUpr/v
+         CoffsopHQvCyqLtOzq5L6PqjCmX2tv8jzLHGqQLr+i/q8ScJ8JmoqqO7qAvTxzQLiR
+         6NRHosyI5FMsoaD3FgqaDjH9K2RsOVQmK/NUooQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rogan Dawes <rogan@dawes.za.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 39/71] usb: qmi_wwan: add D-Link DWM-222 A2 device ID
-Date:   Fri, 11 Sep 2020 14:46:23 +0200
-Message-Id: <20200911122506.877249043@linuxfoundation.org>
+        James Morse <james.morse@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>
+Subject: [PATCH 4.9 53/71] KVM: arm64: Defer guest entry when an asynchronous exception is pending
+Date:   Fri, 11 Sep 2020 14:46:37 +0200
+Message-Id: <20200911122507.555558810@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
 References: <20200911122504.928931589@linuxfoundation.org>
@@ -44,31 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rogan Dawes <rogan@dawes.za.net>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit 7d6053097311643545a8118100175a39bd6fa637 ]
+commit 5dcd0fdbb492d49dac6bf21c436dfcb5ded0a895 upstream.
 
-Signed-off-by: Rogan Dawes <rogan@dawes.za.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+SError that occur during world-switch's entry to the guest will be
+accounted to the guest, as the exception is masked until we enter the
+guest... but we want to attribute the SError as precisely as possible.
+
+Reading DISR_EL1 before guest entry requires free registers, and using
+ESB+DISR_EL1 to consume and read back the ESR would leave KVM holding
+a host SError... We would rather leave the SError pending and let the
+host take it once we exit world-switch. To do this, we need to defer
+guest-entry if an SError is pending.
+
+Read the ISR to see if SError (or an IRQ) is pending. If so fake an
+exit. Place this check between __guest_enter()'s save of the host
+registers, and restore of the guest's. SError that occur between
+here and the eret into the guest must have affected the guest's
+registers, which we can naturally attribute to the guest.
+
+The dsb is needed to ensure any previous writes have been done before
+we read ISR_EL1. On systems without the v8.2 RAS extensions this
+doesn't give us anything as we can't contain errors, and the ESR bits
+to describe the severity are all implementation-defined. Replace
+this with a nop for these systems.
+
+v4.9-backport: as this kernel version doesn't have the RAS support at
+all, remove the RAS alternative.
+
+Cc: stable@vger.kernel.org # v4.9
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+[ James: Removed v8.2 RAS related barriers ]
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kvm/hyp/entry.S |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index d812335600212..74c925cd19a93 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -890,6 +890,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x19d2, 0x2002, 4)},	/* ZTE (Vodafone) K3765-Z */
- 	{QMI_FIXED_INTF(0x2001, 0x7e19, 4)},	/* D-Link DWM-221 B1 */
- 	{QMI_FIXED_INTF(0x2001, 0x7e35, 4)},	/* D-Link DWM-222 */
-+	{QMI_FIXED_INTF(0x2001, 0x7e3d, 4)},	/* D-Link DWM-222 A2 */
- 	{QMI_FIXED_INTF(0x2020, 0x2031, 4)},	/* Olicard 600 */
- 	{QMI_FIXED_INTF(0x2020, 0x2033, 4)},	/* BroadMobi BM806U */
- 	{QMI_FIXED_INTF(0x2020, 0x2060, 4)},	/* BroadMobi BM818 */
--- 
-2.25.1
-
+--- a/arch/arm64/kvm/hyp/entry.S
++++ b/arch/arm64/kvm/hyp/entry.S
+@@ -17,6 +17,7 @@
+ 
+ #include <linux/linkage.h>
+ 
++#include <asm/alternative.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/assembler.h>
+ #include <asm/fpsimdmacros.h>
+@@ -62,6 +63,15 @@ ENTRY(__guest_enter)
+ 	// Store the host regs
+ 	save_callee_saved_regs x1
+ 
++	// Now the host state is stored if we have a pending RAS SError it must
++	// affect the host. If any asynchronous exception is pending we defer
++	// the guest entry.
++	mrs	x1, isr_el1
++	cbz	x1,  1f
++	mov	x0, #ARM_EXCEPTION_IRQ
++	ret
++
++1:
+ 	add	x18, x0, #VCPU_CONTEXT
+ 
+ 	// Restore guest regs x0-x17
 
 
