@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F5E2266430
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D041E26642B
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:32:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726401AbgIKQcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 12:32:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53910 "EHLO mail.kernel.org"
+        id S1726523AbgIKQc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:32:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726437AbgIKPTF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:19:05 -0400
+        id S1726466AbgIKPTI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:19:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3214022454;
-        Fri, 11 Sep 2020 12:59:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86BCA2245C;
+        Fri, 11 Sep 2020 12:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829175;
-        bh=W1ZGXPCPWg4GDwJhPkYdlGLPtpBi+3EawQT0rGrBiAU=;
+        s=default; t=1599829186;
+        bh=ts5oWeF545x8yVXPV1jgSxK8OLtD4OAu6ZSBpIqSpDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wn1T2ezpZ/I7K4BdGERS1TsY1h4gwXq1MnuHejCF5y8yWQgoDzpiUx0oO1KKhovKu
-         brQGrObcBuAxluZ8B+TmGlrlUFB4ygRYDO/EIQWmKC8b5aLTiRuVJ3kuseZRHn8PzR
-         z+/zpV1VxPtFHKpwL9o19X4l0yO2o1rhx9eINMgc=
+        b=0hqBdXfa+hp1FV2RfxAXDI2fM9nu6Jwurpu5pla8WdBpnaW5Dj17cAJBeQBMGUb67
+         BBWAnpUIFXwTHVEwGkfm5CcVUM41mHXRcfbRcwhDG0LJULZWsOSdzxHOGGFft0PKgi
+         0fjQ+x4PkVAbcQ4hx4hlpRpBy1q6VXDQrTiIgDiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 12/16] taprio: Fix using wrong queues in gate mask
-Date:   Fri, 11 Sep 2020 14:47:29 +0200
-Message-Id: <20200911122500.188587305@linuxfoundation.org>
+Subject: [PATCH 5.8 16/16] mptcp: free acked data before waiting for more memory
+Date:   Fri, 11 Sep 2020 14:47:33 +0200
+Message-Id: <20200911122500.382563283@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122459.585735377@linuxfoundation.org>
 References: <20200911122459.585735377@linuxfoundation.org>
@@ -44,98 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 09e31cf0c528dac3358a081dc4e773d1b3de1bc9 ]
+[ Upstream commit 1cec170d458b1d18f6f1654ca84c0804a701c5ef ]
 
-Since commit 9c66d1564676 ("taprio: Add support for hardware
-offloading") there's a bit of inconsistency when offloading schedules
-to the hardware:
+After subflow lock is dropped, more wmem might have been made available.
 
-In software mode, the gate masks are specified in terms of traffic
-classes, so if say "sched-entry S 03 20000", it means that the traffic
-classes 0 and 1 are open for 20us; when taprio is offloaded to
-hardware, the gate masks are specified in terms of hardware queues.
+This fixes a deadlock in mptcp_connect.sh 'mmap' mode: wmem is exhausted.
+But as the mptcp socket holds on to already-acked data (for retransmit)
+no wakeup will occur.
 
-The idea here is to fix hardware offloading, so schedules in hardware
-and software mode have the same behavior. What's needed to do is to
-map traffic classes to queues when applying the offload to the driver.
+Using 'goto restart' calls mptcp_clean_una(sk) which will free pages
+that have been acked completely in the mean time.
 
-Fixes: 9c66d1564676 ("taprio: Add support for hardware offloading")
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Fixes: fb529e62d3f3 ("mptcp: break and restart in case mptcp sndbuf is full")
+Signed-off-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_taprio.c |   30 ++++++++++++++++++++++++------
- 1 file changed, 24 insertions(+), 6 deletions(-)
+ net/mptcp/protocol.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1177,9 +1177,27 @@ static void taprio_offload_config_change
- 	spin_unlock(&q->current_entry_lock);
- }
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -772,7 +772,6 @@ fallback:
+ restart:
+ 	mptcp_clean_una(sk);
  
--static void taprio_sched_to_offload(struct taprio_sched *q,
-+static u32 tc_map_to_queue_mask(struct net_device *dev, u32 tc_mask)
-+{
-+	u32 i, queue_mask = 0;
-+
-+	for (i = 0; i < dev->num_tc; i++) {
-+		u32 offset, count;
-+
-+		if (!(tc_mask & BIT(i)))
-+			continue;
-+
-+		offset = dev->tc_to_txq[i].offset;
-+		count = dev->tc_to_txq[i].count;
-+
-+		queue_mask |= GENMASK(offset + count - 1, offset);
-+	}
-+
-+	return queue_mask;
-+}
-+
-+static void taprio_sched_to_offload(struct net_device *dev,
- 				    struct sched_gate_list *sched,
--				    const struct tc_mqprio_qopt *mqprio,
- 				    struct tc_taprio_qopt_offload *offload)
- {
- 	struct sched_entry *entry;
-@@ -1194,7 +1212,8 @@ static void taprio_sched_to_offload(stru
- 
- 		e->command = entry->command;
- 		e->interval = entry->interval;
--		e->gate_mask = entry->gate_mask;
-+		e->gate_mask = tc_map_to_queue_mask(dev, entry->gate_mask);
-+
- 		i++;
+-wait_for_sndbuf:
+ 	__mptcp_flush_join_list(msk);
+ 	ssk = mptcp_subflow_get_send(msk);
+ 	while (!sk_stream_memory_free(sk) ||
+@@ -873,7 +872,7 @@ wait_for_sndbuf:
+ 				 */
+ 				mptcp_set_timeout(sk, ssk);
+ 				release_sock(ssk);
+-				goto wait_for_sndbuf;
++				goto restart;
+ 			}
+ 		}
  	}
- 
-@@ -1202,7 +1221,6 @@ static void taprio_sched_to_offload(stru
- }
- 
- static int taprio_enable_offload(struct net_device *dev,
--				 struct tc_mqprio_qopt *mqprio,
- 				 struct taprio_sched *q,
- 				 struct sched_gate_list *sched,
- 				 struct netlink_ext_ack *extack)
-@@ -1224,7 +1242,7 @@ static int taprio_enable_offload(struct
- 		return -ENOMEM;
- 	}
- 	offload->enable = 1;
--	taprio_sched_to_offload(q, sched, mqprio, offload);
-+	taprio_sched_to_offload(dev, sched, offload);
- 
- 	err = ops->ndo_setup_tc(dev, TC_SETUP_QDISC_TAPRIO, offload);
- 	if (err < 0) {
-@@ -1486,7 +1504,7 @@ static int taprio_change(struct Qdisc *s
- 	}
- 
- 	if (FULL_OFFLOAD_IS_ENABLED(q->flags))
--		err = taprio_enable_offload(dev, mqprio, q, new_admin, extack);
-+		err = taprio_enable_offload(dev, q, new_admin, extack);
- 	else
- 		err = taprio_disable_offload(dev, q, extack);
- 	if (err)
 
 
