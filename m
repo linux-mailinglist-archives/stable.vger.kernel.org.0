@@ -2,119 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D4A26760E
-	for <lists+stable@lfdr.de>; Sat, 12 Sep 2020 00:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA13226769E
+	for <lists+stable@lfdr.de>; Sat, 12 Sep 2020 01:52:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725903AbgIKWlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 18:41:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45132 "EHLO
+        id S1725849AbgIKXwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 19:52:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725856AbgIKWln (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Sep 2020 18:41:43 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDDE6C061573
-        for <stable@vger.kernel.org>; Fri, 11 Sep 2020 15:41:42 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id v23so13800759ljd.1
-        for <stable@vger.kernel.org>; Fri, 11 Sep 2020 15:41:42 -0700 (PDT)
+        with ESMTP id S1725824AbgIKXwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Sep 2020 19:52:17 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD892C061573
+        for <stable@vger.kernel.org>; Fri, 11 Sep 2020 16:52:16 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id v15so7632202pgh.6
+        for <stable@vger.kernel.org>; Fri, 11 Sep 2020 16:52:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=naSKnnliw5Mpgkr2F3L5QROMJpfjAY9uHH+kOIOM738=;
-        b=H1dQIbWKaMmL+aZc7U2mstufXvwtiANpXmTZnMm92/rw2KJWyLz/QU83Bt4N+zqKKa
-         sm6W1Vm1HGStoH5YocmrMJPTFOTwLtdgXallj0p/IV+V5ichue/yRoZxEDobDnlyYotz
-         g+OI9rxfJtVW1bP9RX+ZfomLlXUdA58+Q8IhjI4mo/pP7YsBJBpnyLsLNk1Xg9iGRECh
-         cMGsbTGXWu+0vtGpwBtRG+eK3HbgrtCp8GxFvdtcmYFoEIC7FxeZ9lx1+Z9dLfQHW6nv
-         0TB+JZO/cExgP/lnq+hAiYivGXu9Na077PEDjZuOfif3yjrXPVgz9L1BMxI04BWBYWvP
-         ZBbA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HrmOuOj6wHxb77dTF+61Gg/8IU4oefOyKXk+Zuxyf4I=;
+        b=VbJJFg6z8v4i80CWbupzIWSnRQVMVJS26b7HAXo3XFNVVF0baOPK0Yk/BPR6uemc+1
+         6+WYEbhf6zbiNwYQCL0gEDocJ3Yc7Ha1XxNiOGYWDVBFJmiNVD2PlqharNgk0azwJ9O/
+         tCcTKc24aXQ50yOZb0LE/RZfRqMeLvnmKZTl1V6HPOg5DGsEE5faD5OQvzec3/SKBMa2
+         JT3HzyZoSLdHN89dd9Cn2EEB49g1Hyz+HeuVeIImp53nE4I/tHzk+/R4Ltv/KQqfQxmI
+         4jeLe4dzE4ktrauOzRKcIZ+IHmFEyQERw900Eq+kR8jKkrfcs7BElwF6QtImO5ppW+b5
+         XARA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=naSKnnliw5Mpgkr2F3L5QROMJpfjAY9uHH+kOIOM738=;
-        b=ayPj6MYMrssYAcdAGA4T2CfahHO5E3EjX890QwY0m2wSvnsLuujv/7LZgFAsYWWO2c
-         8v5wVyowBYUac2RqWZyPX+dD1gdyJ8w7wHM3jMbs5MDLb/9Mk3IHeWgM2143dkZU5qN2
-         5RkdmAK9Ovc7IgAw0PvLMCZD6gAxPLCKLEv1aRVX3V6g8IIE2ZUyGZeXP3A8mFyMZJVJ
-         abCYA34Z6Rl1fgk+18Vj9aBAfCUCaZBu4dP4zk7u3FXd18CKkILwgs8pdt6P9/XeNMpQ
-         3R/R6iFLQWRM8HHJ+ccgTdHtXR3/SofmJPwaoXVrcbOknm5P5kz8lxsVZHkuPMAaGusE
-         14rw==
-X-Gm-Message-State: AOAM531+yDPRHrpvgtXGl6xa/2+VONTUCHarjfCz9qtOeAl0jkh8TlPS
-        +l2gB1CTHJAdh+wQdawzleRW7V79dzXVnf7dbDwqiQ==
-X-Google-Smtp-Source: ABdhPJxixpRuERtNUdFVdh1FadJSasbxEi9YKCOjBuG1pUZrm0Kydbw0hEXHgdqwha99ZluySJyDdfc8rGsqDTUY8cE=
-X-Received: by 2002:a2e:3511:: with SMTP id z17mr1459032ljz.58.1599864100989;
- Fri, 11 Sep 2020 15:41:40 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HrmOuOj6wHxb77dTF+61Gg/8IU4oefOyKXk+Zuxyf4I=;
+        b=fgNyinGxnGSZMjpiCaMRAbeAFY92nSKjtPwgh8Qau94B88jhybE4zbtHRHoGNswOw3
+         qUls9YFT54vyR8T8C33GwBhaEt+Ud0H+YFxZ2+sVBih63vIfqLG7Tw9NfkWnbHOA/7FB
+         KnMzZPbb+dNY6Iyr9W48Sn/OT+Lmms7Yg8yVXxZg+hadcWTjgSps98nyv5YxFtZ5wtSC
+         yzHs92XIsH2+UIxhmuCQqfzIgTJmFr1X424YkI8Gm7tXTMcSNFZ43syQIWjtFjMeAWR/
+         aQZJNKUxnuJEWpLdIGSdJgTr16RWwel4bAJfQvKs8nYny99VYSsaR6pGBVG064HmSPG1
+         WF0g==
+X-Gm-Message-State: AOAM5325p0X79uVecrO6keaFHIIPi1c12FQO5RXJGd50H66f3c0NrCfH
+        2SPs9tIz0ZcTrGZYqv2R5EXky3+yRcOLcQ==
+X-Google-Smtp-Source: ABdhPJz9E7TXpLhsNh56IXPyWVu9XLR3hZjjIwtm4swcO4xHmLFE9LdEr5EZyQ0lUYWjTWyujM5v3A==
+X-Received: by 2002:a63:dd0f:: with SMTP id t15mr3422873pgg.123.1599868335094;
+        Fri, 11 Sep 2020 16:52:15 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g23sm3245172pfh.133.2020.09.11.16.52.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Sep 2020 16:52:14 -0700 (PDT)
+Message-ID: <5f5c0dae.1c69fb81.5fff0.8d28@mx.google.com>
+Date:   Fri, 11 Sep 2020 16:52:14 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200910022435.2773735-1-guro@fb.com> <20200910224309.GB1307870@carbon.dhcp.thefacebook.com>
-In-Reply-To: <20200910224309.GB1307870@carbon.dhcp.thefacebook.com>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Fri, 11 Sep 2020 15:41:30 -0700
-Message-ID: <CALvZod7RxjcyhscGmJzcAw9_LU0ruQRU0bJc8dYD5Ne07END_w@mail.gmail.com>
-Subject: Re: [PATCH] mm: memcg/slab: fix racy access to page->mem_cgroup in mem_cgroup_from_obj()
-To:     Roman Gushchin <guro@fb.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Linux MM <linux-mm@kvack.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Kernel Team <kernel-team@fb.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Vlastimil Babka <vbabka@suse.cz>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.144-9-gdc4669f837af
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y baseline: 164 runs,
+ 1 regressions (v4.19.144-9-gdc4669f837af)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 10, 2020 at 3:43 PM Roman Gushchin <guro@fb.com> wrote:
->
-> Forgot to cc stable@, an updated version is below.
->
-> Thanks!
->
-> --
->
-> From fe61af45ae570b143ca783ba4d013a0a2b923a15 Mon Sep 17 00:00:00 2001
-> From: Roman Gushchin <guro@fb.com>
-> Date: Wed, 9 Sep 2020 12:19:37 -0700
-> Subject: [PATCH] mm: memcg/slab: fix racy access to page->mem_cgroup in
->  mem_cgroup_from_obj()
->
-> mem_cgroup_from_obj() checks the lowest bit of the page->mem_cgroup
-> pointer to determine if the page has an attached obj_cgroup vector
-> instead of a regular memcg pointer. If it's not set, it simple returns
-> the page->mem_cgroup value as a struct mem_cgroup pointer.
->
-> The commit 10befea91b61 ("mm: memcg/slab: use a single set of
-> kmem_caches for all allocations") changed the moment when this bit
-> is set: if previously it was set on the allocation of the slab page,
-> now it can be set well after, when the first accounted object is
-> allocated on this page.
->
-> It opened a race: if page->mem_cgroup is set concurrently after the
-> first page_has_obj_cgroups(page) check, a pointer to the obj_cgroups
-> array can be returned as a memory cgroup pointer.
->
-> A simple check for page->mem_cgroup pointer for NULL before the
-> page_has_obj_cgroups() check fixes the race. Indeed, if the pointer
-> is not NULL, it's either a simple mem_cgroup pointer or a pointer
-> to obj_cgroup vector. The pointer can be asynchronously changed
-> from NULL to (obj_cgroup_vec | 0x1UL), but can't be changed
-> from a valid memcg pointer to objcg vector or back.
->
-> If the object passed to mem_cgroup_from_obj() is a slab object
-> and page->mem_cgroup is NULL, it means that the object is not
-> accounted, so the function must return NULL.
->
-> I've discovered the race looking at the code, so far I haven't seen it
-> in the wild.
->
-> Fixes: 10befea91b61 ("mm: memcg/slab: use a single set of kmem_caches for all allocations")
-> Signed-off-by: Roman Gushchin <guro@fb.com>
-> Cc: Johannes Weiner <hannes@cmpxchg.org>
-> Cc: Vlastimil Babka <vbabka@suse.cz>
-> Cc: Shakeel Butt <shakeelb@google.com>
-> Cc: stable@vger.kernel.org
+stable-rc/linux-4.19.y baseline: 164 runs, 1 regressions (v4.19.144-9-gdc46=
+69f837af)
 
-I think this patch is good to have as it will make
-mem_cgroup_from_obj() more future proof.
+Regressions Summary
+-------------------
 
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
+platform | arch | lab          | compiler | defconfig      | results
+---------+------+--------------+----------+----------------+--------
+hsdk     | arc  | lab-baylibre | gcc-8    | hsdk_defconfig | 0/1    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.144-9-gdc4669f837af/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.144-9-gdc4669f837af
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      dc4669f837af87843c89b6eaccfe395fd83bc1df =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab          | compiler | defconfig      | results
+---------+------+--------------+----------+----------------+--------
+hsdk     | arc  | lab-baylibre | gcc-8    | hsdk_defconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f5bd81cddb7b4be8ba60a12
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: hsdk_defconfig
+  Compiler:    gcc-8 (arc-elf32-gcc (ARCompact/ARCv2 ISA elf32 toolchain 20=
+19.03-rc1) 8.3.1 20190225)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+44-9-gdc4669f837af/arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+44-9-gdc4669f837af/arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arc/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f5bd81cddb7b4be8ba60=
+a13
+      failing since 53 days (last pass: v4.19.125-93-g80718197a8a3, first f=
+ail: v4.19.133-134-g9d319b54cc24)  =20
