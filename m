@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED8D2266427
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9679B26642F
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726308AbgIKQc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 12:32:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53914 "EHLO mail.kernel.org"
+        id S1726302AbgIKQct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:32:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726456AbgIKPTJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:19:09 -0400
+        id S1726401AbgIKPTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:19:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE62422210;
-        Fri, 11 Sep 2020 12:59:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A9AB2245B;
+        Fri, 11 Sep 2020 13:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829196;
-        bh=eVcYg1cJOefDsu6kms7fDMPDr5i2bdkGkA+Hpm7nYuo=;
+        s=default; t=1599829201;
+        bh=NwDlos2Su04sMbf3aXst3vL8NNa1u9JoRt1CPihA33E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7v+1825Fz4yuLgDuq4UUEfq3IcawKemnxKy4/mFBbFcn/NYMMBp1WHtz9S+2TtOH
-         pqZYXC3rYitnzWDY6lt3h02Oghx2H7Ohd5vxijo+cMLrmcgJabp2fK2A3N5kjwbCYd
-         pLrDhHciXVbLieCND2X5c6Uq9E+oUhvUGq6rTJuc=
+        b=gdduANGwx31aDHIExtx1pmJ47qrQrEcvoPTLdMYpP9U8EAHO+p7SLrKeHyffmq5PS
+         7J/d6D210cvnQVnIUu30jqKEjhBrgBpcTxymzW2YGnQTJC2b9LsTmMPVvzTou71DOh
+         u5QOn8L1x1e1NjvZCATwFcVT25hd4RicTFRWUDIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 05/16] RDMA/cma: Remove unneeded locking for req paths
-Date:   Fri, 11 Sep 2020 14:47:22 +0200
-Message-Id: <20200911122459.843026940@linuxfoundation.org>
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.8 07/16] ipv4: Silence suspicious RCU usage warning
+Date:   Fri, 11 Sep 2020 14:47:24 +0200
+Message-Id: <20200911122459.944382043@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122459.585735377@linuxfoundation.org>
 References: <20200911122459.585735377@linuxfoundation.org>
@@ -44,123 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@nvidia.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit cc9c037343898eb7a775e6b81d092ee21eeff218 ]
+[ Upstream commit 7f6f32bb7d3355cd78ebf1dece9a6ea7a0ca8158 ]
 
-The REQ flows are concerned that once the handler is called on the new
-cm_id the ULP can choose to trigger a rdma_destroy_id() concurrently at
-any time.
+fib_info_notify_update() is always called with RTNL held, but not from
+an RCU read-side critical section. This leads to the following warning
+[1] when the FIB table list is traversed with
+hlist_for_each_entry_rcu(), but without a proper lockdep expression.
 
-However, this is not true, while the ULP can call rdma_destroy_id(), it
-immediately blocks on the handler_mutex which prevents anything harmful
-from running concurrently.
+Since modification of the list is protected by RTNL, silence the warning
+by adding a lockdep expression which verifies RTNL is held.
 
-Remove the confusing extra locking and refcounts and make the
-handler_mutex protecting state during destroy more clear.
+[1]
+ =============================
+ WARNING: suspicious RCU usage
+ 5.9.0-rc1-custom-14233-g2f26e122d62f #129 Not tainted
+ -----------------------------
+ net/ipv4/fib_trie.c:2124 RCU-list traversed in non-reader section!!
 
-Link: https://lore.kernel.org/r/20200723070707.1771101-4-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ other info that might help us debug this:
+
+ rcu_scheduler_active = 2, debug_locks = 1
+ 1 lock held by ip/834:
+  #0: ffffffff85a3b6b0 (rtnl_mutex){+.+.}-{3:3}, at: rtnetlink_rcv_msg+0x49a/0xbd0
+
+ stack backtrace:
+ CPU: 0 PID: 834 Comm: ip Not tainted 5.9.0-rc1-custom-14233-g2f26e122d62f #129
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
+ Call Trace:
+  dump_stack+0x100/0x184
+  lockdep_rcu_suspicious+0x143/0x14d
+  fib_info_notify_update+0x8d1/0xa60
+  __nexthop_replace_notify+0xd2/0x290
+  rtm_new_nexthop+0x35e2/0x5946
+  rtnetlink_rcv_msg+0x4f7/0xbd0
+  netlink_rcv_skb+0x17a/0x480
+  rtnetlink_rcv+0x22/0x30
+  netlink_unicast+0x5ae/0x890
+  netlink_sendmsg+0x98a/0xf40
+  ____sys_sendmsg+0x879/0xa00
+  ___sys_sendmsg+0x122/0x190
+  __sys_sendmsg+0x103/0x1d0
+  __x64_sys_sendmsg+0x7d/0xb0
+  do_syscall_64+0x32/0x50
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ RIP: 0033:0x7fde28c3be57
+ Code: 0c 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51
+c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
+RSP: 002b:00007ffc09330028 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fde28c3be57
+RDX: 0000000000000000 RSI: 00007ffc09330090 RDI: 0000000000000003
+RBP: 000000005f45f911 R08: 0000000000000001 R09: 00007ffc0933012c
+R10: 0000000000000076 R11: 0000000000000246 R12: 0000000000000001
+R13: 00007ffc09330290 R14: 00007ffc09330eee R15: 00005610e48ed020
+
+Fixes: 1bff1a0c9bbd ("ipv4: Add function to send route updates")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/cma.c | 31 ++++++-------------------------
- 1 file changed, 6 insertions(+), 25 deletions(-)
+ net/ipv4/fib_trie.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 04151c301e851..11f43204fee77 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -1831,21 +1831,21 @@ static void cma_leave_mc_groups(struct rdma_id_private *id_priv)
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -2121,7 +2121,8 @@ void fib_info_notify_update(struct net *
+ 		struct hlist_head *head = &net->ipv4.fib_table_hash[h];
+ 		struct fib_table *tb;
  
- void rdma_destroy_id(struct rdma_cm_id *id)
- {
--	struct rdma_id_private *id_priv;
-+	struct rdma_id_private *id_priv =
-+		container_of(id, struct rdma_id_private, id);
- 	enum rdma_cm_state state;
- 
--	id_priv = container_of(id, struct rdma_id_private, id);
--	trace_cm_id_destroy(id_priv);
--	state = cma_exch(id_priv, RDMA_CM_DESTROYING);
--	cma_cancel_operation(id_priv, state);
--
- 	/*
- 	 * Wait for any active callback to finish.  New callbacks will find
- 	 * the id_priv state set to destroying and abort.
- 	 */
- 	mutex_lock(&id_priv->handler_mutex);
-+	trace_cm_id_destroy(id_priv);
-+	state = cma_exch(id_priv, RDMA_CM_DESTROYING);
- 	mutex_unlock(&id_priv->handler_mutex);
- 
-+	cma_cancel_operation(id_priv, state);
-+
- 	rdma_restrack_del(&id_priv->res);
- 	if (id_priv->cma_dev) {
- 		if (rdma_cap_ib_cm(id_priv->id.device, 1)) {
-@@ -2205,19 +2205,9 @@ static int cma_ib_req_handler(struct ib_cm_id *cm_id,
- 	cm_id->context = conn_id;
- 	cm_id->cm_handler = cma_ib_handler;
- 
--	/*
--	 * Protect against the user destroying conn_id from another thread
--	 * until we're done accessing it.
--	 */
--	cma_id_get(conn_id);
- 	ret = cma_cm_event_handler(conn_id, &event);
- 	if (ret)
- 		goto err3;
--	/*
--	 * Acquire mutex to prevent user executing rdma_destroy_id()
--	 * while we're accessing the cm_id.
--	 */
--	mutex_lock(&lock);
- 	if (cma_comp(conn_id, RDMA_CM_CONNECT) &&
- 	    (conn_id->id.qp_type != IB_QPT_UD)) {
- 		trace_cm_send_mra(cm_id->context);
-@@ -2226,13 +2216,11 @@ static int cma_ib_req_handler(struct ib_cm_id *cm_id,
- 	mutex_unlock(&lock);
- 	mutex_unlock(&conn_id->handler_mutex);
- 	mutex_unlock(&listen_id->handler_mutex);
--	cma_id_put(conn_id);
- 	if (net_dev)
- 		dev_put(net_dev);
- 	return 0;
- 
- err3:
--	cma_id_put(conn_id);
- 	/* Destroy the CM ID by returning a non-zero value. */
- 	conn_id->cm_id.ib = NULL;
- err2:
-@@ -2409,11 +2397,6 @@ static int iw_conn_req_handler(struct iw_cm_id *cm_id,
- 	memcpy(cma_src_addr(conn_id), laddr, rdma_addr_size(laddr));
- 	memcpy(cma_dst_addr(conn_id), raddr, rdma_addr_size(raddr));
- 
--	/*
--	 * Protect against the user destroying conn_id from another thread
--	 * until we're done accessing it.
--	 */
--	cma_id_get(conn_id);
- 	ret = cma_cm_event_handler(conn_id, &event);
- 	if (ret) {
- 		/* User wants to destroy the CM ID */
-@@ -2421,13 +2404,11 @@ static int iw_conn_req_handler(struct iw_cm_id *cm_id,
- 		cma_exch(conn_id, RDMA_CM_DESTROYING);
- 		mutex_unlock(&conn_id->handler_mutex);
- 		mutex_unlock(&listen_id->handler_mutex);
--		cma_id_put(conn_id);
- 		rdma_destroy_id(&conn_id->id);
- 		return ret;
+-		hlist_for_each_entry_rcu(tb, head, tb_hlist)
++		hlist_for_each_entry_rcu(tb, head, tb_hlist,
++					 lockdep_rtnl_is_held())
+ 			__fib_info_notify_update(net, tb, info);
  	}
- 
- 	mutex_unlock(&conn_id->handler_mutex);
--	cma_id_put(conn_id);
- 
- out:
- 	mutex_unlock(&listen_id->handler_mutex);
--- 
-2.25.1
-
+ }
 
 
