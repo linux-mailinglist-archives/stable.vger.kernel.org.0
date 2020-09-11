@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04DE026663C
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60896266629
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:22:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726151AbgIKRXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 13:23:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52786 "EHLO mail.kernel.org"
+        id S1726242AbgIKRWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 13:22:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726128AbgIKNAL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726127AbgIKNAL (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 11 Sep 2020 09:00:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 761A822267;
-        Fri, 11 Sep 2020 12:56:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06BBA22229;
+        Fri, 11 Sep 2020 12:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828974;
-        bh=akxpJ0rsfWqXx9/FOBzjlAehhYpQLNEBtMVLU54iBa4=;
+        s=default; t=1599828976;
+        bh=RoyFK1P18WX3DYvexX/ai7qTSMM7cszkK3C4fBr7ssQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NjepwetBmSeRfIKOm4y/Fo4ejJzup55WpUI5+zN8p1dMI/Gwj3D65MwT/PeAi2xra
-         RYch/h9jsRg/oA32SaezosbXsk5kXFj3wMg6Lov0BFDOfQ+CnNSqk5uHYJNGvQFX8Z
-         sbV5W1lQVwilgxdLXDFJ0O9dDvwlpUC93SMg4lVI=
+        b=IcdqcuaRCxcswrppbDyUH62oxjuvTPOMF/tWDb+uPysDQ1qz/uWhBxzkl3zP5BqhZ
+         iHnXqbGoaSoAEumTlK1y9pTEJPlymBTRa/9pmBxF4GtcCWQnQLTWwb665q7mTOcKdp
+         NQP2GoxrzUP2IOFhE7X6Jg+HIVGJdLUwhFYRMNSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 17/71] netfilter: nf_tables: fix destination register zeroing
-Date:   Fri, 11 Sep 2020 14:46:01 +0200
-Message-Id: <20200911122505.804833167@linuxfoundation.org>
+Subject: [PATCH 4.9 18/71] net: hns: Fix memleak in hns_nic_dev_probe
+Date:   Fri, 11 Sep 2020 14:46:02 +0200
+Message-Id: <20200911122505.847138844@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
 References: <20200911122504.928931589@linuxfoundation.org>
@@ -44,80 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 1e105e6afa6c3d32bfb52c00ffa393894a525c27 ]
+[ Upstream commit 100e3345c6e719d2291e1efd5de311cc24bb9c0b ]
 
-Following bug was reported via irc:
-nft list ruleset
-   set knock_candidates_ipv4 {
-      type ipv4_addr . inet_service
-      size 65535
-      elements = { 127.0.0.1 . 123,
-                   127.0.0.1 . 123 }
-      }
- ..
-   udp dport 123 add @knock_candidates_ipv4 { ip saddr . 123 }
-   udp dport 123 add @knock_candidates_ipv4 { ip saddr . udp dport }
+hns_nic_dev_probe allocates ndev, but not free it on
+two error handling paths, which may lead to memleak.
 
-It should not have been possible to add a duplicate set entry.
-
-After some debugging it turned out that the problem is the immediate
-value (123) in the second-to-last rule.
-
-Concatenations use 32bit registers, i.e. the elements are 8 bytes each,
-not 6 and it turns out the kernel inserted
-
-inet firewall @knock_candidates_ipv4
-        element 0100007f ffff7b00  : 0 [end]
-        element 0100007f 00007b00  : 0 [end]
-
-Note the non-zero upper bits of the first element.  It turns out that
-nft_immediate doesn't zero the destination register, but this is needed
-when the length isn't a multiple of 4.
-
-Furthermore, the zeroing in nft_payload is broken.  We can't use
-[len / 4] = 0 -- if len is a multiple of 4, index is off by one.
-
-Skip zeroing in this case and use a conditional instead of (len -1) / 4.
-
-Fixes: 49499c3e6e18 ("netfilter: nf_tables: switch registers to 32 bit addressing")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 63434888aaf1b ("net: hns: net: hns: enet adds support of acpi")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/netfilter/nf_tables.h | 2 ++
- net/netfilter/nft_payload.c       | 4 +++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/netfilter/nf_tables.h b/include/net/netfilter/nf_tables.h
-index 7ba9a624090fb..91e395fd0a65c 100644
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -119,6 +119,8 @@ static inline u8 nft_reg_load8(u32 *sreg)
- static inline void nft_data_copy(u32 *dst, const struct nft_data *src,
- 				 unsigned int len)
- {
-+	if (len % NFT_REG32_SIZE)
-+		dst[len / NFT_REG32_SIZE] = 0;
- 	memcpy(dst, src, len);
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_enet.c b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+index 24a815997ec57..796f81106b432 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+@@ -1990,8 +1990,10 @@ static int hns_nic_dev_probe(struct platform_device *pdev)
+ 			priv->enet_ver = AE_VERSION_1;
+ 		else if (acpi_dev_found(hns_enet_acpi_match[1].id))
+ 			priv->enet_ver = AE_VERSION_2;
+-		else
+-			return -ENXIO;
++		else {
++			ret = -ENXIO;
++			goto out_read_prop_fail;
++		}
  
-diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
-index b2f88617611aa..f73d47b3ffb72 100644
---- a/net/netfilter/nft_payload.c
-+++ b/net/netfilter/nft_payload.c
-@@ -74,7 +74,9 @@ static void nft_payload_eval(const struct nft_expr *expr,
- 	u32 *dest = &regs->data[priv->dreg];
- 	int offset;
+ 		/* try to find port-idx-in-ae first */
+ 		ret = acpi_node_get_property_reference(dev->fwnode,
+@@ -2003,7 +2005,8 @@ static int hns_nic_dev_probe(struct platform_device *pdev)
+ 		priv->fwnode = acpi_fwnode_handle(args.adev);
+ 	} else {
+ 		dev_err(dev, "cannot read cfg data from OF or acpi\n");
+-		return -ENXIO;
++		ret = -ENXIO;
++		goto out_read_prop_fail;
+ 	}
  
--	dest[priv->len / NFT_REG32_SIZE] = 0;
-+	if (priv->len % NFT_REG32_SIZE)
-+		dest[priv->len / NFT_REG32_SIZE] = 0;
-+
- 	switch (priv->base) {
- 	case NFT_PAYLOAD_LL_HEADER:
- 		if (!skb_mac_header_was_set(skb))
+ 	ret = device_property_read_u32(dev, "port-idx-in-ae", &port_id);
 -- 
 2.25.1
 
