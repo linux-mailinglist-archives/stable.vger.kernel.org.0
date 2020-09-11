@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DBEB2660DD
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:02:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81784266127
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 16:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726310AbgIKOCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 10:02:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32772 "EHLO mail.kernel.org"
+        id S1726290AbgIKO0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 10:26:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726108AbgIKNVa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 09:21:30 -0400
+        id S1726101AbgIKNMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 09:12:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 139CA223EA;
-        Fri, 11 Sep 2020 12:59:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B992D2245F;
+        Fri, 11 Sep 2020 13:00:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829142;
-        bh=UAs3Q/Zz9F5+9bZ42uUtir1voEsU5TfKbTq5cMt4HEs=;
+        s=default; t=1599829233;
+        bh=9FMYo2bufVujsHw85HNr708jaQ3F376AuTAIpj9bjuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZz12LH5l7veTMDSJjDe3roefZRkQpr+qBcPF+3wWb4Ao4pZRsFdm3WS9oW7nypoW
-         wiJpJU2wE/68XTJivVsTOz+jDtLMEGsdp6/x44JdgGquTKpLqncZu2Fh3WSTBas3bK
-         1TnE8+Fu0fAtoVKl/e1SeKXK7dqMvAjJlsxUrKyw=
+        b=WNWME/k1O/d7VwmZGjF8r4hGgwpjLbu41LG+SFXxc5JnKEBJr/UPOjx7v2knLvZv7
+         5LLL09ilmh5MaHgEdOfJniDWbjCTp7TtqCKv2/DDFI3XWIP4DGpnjg01ZeGM3YKM7E
+         +w2qi1kLWm1PkdjBPnBBBUpsKwK2U0aVKYKNF1ZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Sherwood <rsher@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 12/12] net: disable netpoll on fresh napis
-Date:   Fri, 11 Sep 2020 14:47:06 +0200
-Message-Id: <20200911122459.015758062@linuxfoundation.org>
+Subject: [PATCH 5.4 1/8] ipv4: Silence suspicious RCU usage warning
+Date:   Fri, 11 Sep 2020 14:54:39 +0200
+Message-Id: <20200911125420.653876365@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200911122458.413137406@linuxfoundation.org>
-References: <20200911122458.413137406@linuxfoundation.org>
+In-Reply-To: <20200911125420.580564179@linuxfoundation.org>
+References: <20200911125420.580564179@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,58 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 96e97bc07e90f175a8980a22827faf702ca4cb30 ]
+[ Upstream commit 7f6f32bb7d3355cd78ebf1dece9a6ea7a0ca8158 ]
 
-napi_disable() makes sure to set the NAPI_STATE_NPSVC bit to prevent
-netpoll from accessing rings before init is complete. However, the
-same is not done for fresh napi instances in netif_napi_add(),
-even though we expect NAPI instances to be added as disabled.
+fib_info_notify_update() is always called with RTNL held, but not from
+an RCU read-side critical section. This leads to the following warning
+[1] when the FIB table list is traversed with
+hlist_for_each_entry_rcu(), but without a proper lockdep expression.
 
-This causes crashes during driver reconfiguration (enabling XDP,
-changing the channel count) - if there is any printk() after
-netif_napi_add() but before napi_enable().
+Since modification of the list is protected by RTNL, silence the warning
+by adding a lockdep expression which verifies RTNL is held.
 
-To ensure memory ordering is correct we need to use RCU accessors.
+[1]
+ =============================
+ WARNING: suspicious RCU usage
+ 5.9.0-rc1-custom-14233-g2f26e122d62f #129 Not tainted
+ -----------------------------
+ net/ipv4/fib_trie.c:2124 RCU-list traversed in non-reader section!!
 
-Reported-by: Rob Sherwood <rsher@fb.com>
-Fixes: 2d8bff12699a ("netpoll: Close race condition between poll_one_napi and napi_disable")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ other info that might help us debug this:
+
+ rcu_scheduler_active = 2, debug_locks = 1
+ 1 lock held by ip/834:
+  #0: ffffffff85a3b6b0 (rtnl_mutex){+.+.}-{3:3}, at: rtnetlink_rcv_msg+0x49a/0xbd0
+
+ stack backtrace:
+ CPU: 0 PID: 834 Comm: ip Not tainted 5.9.0-rc1-custom-14233-g2f26e122d62f #129
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
+ Call Trace:
+  dump_stack+0x100/0x184
+  lockdep_rcu_suspicious+0x143/0x14d
+  fib_info_notify_update+0x8d1/0xa60
+  __nexthop_replace_notify+0xd2/0x290
+  rtm_new_nexthop+0x35e2/0x5946
+  rtnetlink_rcv_msg+0x4f7/0xbd0
+  netlink_rcv_skb+0x17a/0x480
+  rtnetlink_rcv+0x22/0x30
+  netlink_unicast+0x5ae/0x890
+  netlink_sendmsg+0x98a/0xf40
+  ____sys_sendmsg+0x879/0xa00
+  ___sys_sendmsg+0x122/0x190
+  __sys_sendmsg+0x103/0x1d0
+  __x64_sys_sendmsg+0x7d/0xb0
+  do_syscall_64+0x32/0x50
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ RIP: 0033:0x7fde28c3be57
+ Code: 0c 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51
+c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
+RSP: 002b:00007ffc09330028 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fde28c3be57
+RDX: 0000000000000000 RSI: 00007ffc09330090 RDI: 0000000000000003
+RBP: 000000005f45f911 R08: 0000000000000001 R09: 00007ffc0933012c
+R10: 0000000000000076 R11: 0000000000000246 R12: 0000000000000001
+R13: 00007ffc09330290 R14: 00007ffc09330eee R15: 00005610e48ed020
+
+Fixes: 1bff1a0c9bbd ("ipv4: Add function to send route updates")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c     |    3 ++-
- net/core/netpoll.c |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ net/ipv4/fib_trie.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5532,12 +5532,13 @@ void netif_napi_add(struct net_device *d
- 		pr_err_once("netif_napi_add() called with weight %d on device %s\n",
- 			    weight, dev->name);
- 	napi->weight = weight;
--	list_add(&napi->dev_list, &dev->napi_list);
- 	napi->dev = dev;
- #ifdef CONFIG_NETPOLL
- 	napi->poll_owner = -1;
- #endif
- 	set_bit(NAPI_STATE_SCHED, &napi->state);
-+	set_bit(NAPI_STATE_NPSVC, &napi->state);
-+	list_add_rcu(&napi->dev_list, &dev->napi_list);
- 	napi_hash_add(napi);
- }
- EXPORT_SYMBOL(netif_napi_add);
---- a/net/core/netpoll.c
-+++ b/net/core/netpoll.c
-@@ -179,7 +179,7 @@ static void poll_napi(struct net_device
- 	struct napi_struct *napi;
- 	int cpu = smp_processor_id();
+--- a/net/ipv4/fib_trie.c
++++ b/net/ipv4/fib_trie.c
+@@ -2010,7 +2010,8 @@ void fib_info_notify_update(struct net *
+ 		struct hlist_head *head = &net->ipv4.fib_table_hash[h];
+ 		struct fib_table *tb;
  
--	list_for_each_entry(napi, &dev->napi_list, dev_list) {
-+	list_for_each_entry_rcu(napi, &dev->napi_list, dev_list) {
- 		if (cmpxchg(&napi->poll_owner, -1, cpu) == -1) {
- 			poll_one_napi(napi);
- 			smp_store_release(&napi->poll_owner, -1);
+-		hlist_for_each_entry_rcu(tb, head, tb_hlist)
++		hlist_for_each_entry_rcu(tb, head, tb_hlist,
++					 lockdep_rtnl_is_held())
+ 			__fib_info_notify_update(net, tb, info);
+ 	}
+ }
 
 
