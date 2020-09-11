@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A96F3265FF9
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 15:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A92E7265FF4
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 15:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726159AbgIKNB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 09:01:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49240 "EHLO mail.kernel.org"
+        id S1726004AbgIKNAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 09:00:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725916AbgIKM7I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 08:59:08 -0400
+        id S1726102AbgIKM6D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 08:58:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62D612222B;
-        Fri, 11 Sep 2020 12:55:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F0CF22224;
+        Fri, 11 Sep 2020 12:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828953;
-        bh=WfBcY1zSWre1JihwGq+YcH6ZzX+EwLdW5Jvhm07z5KU=;
+        s=default; t=1599828928;
+        bh=svXOEzPwRsOn0YI0r7BxwC0NFoM3u0CxMt9i8WkVgH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYgtA7fpw1pCJkK0uTBSXYOYKFijXQWYOHs+1M6TYNojhoEhDhxA/4F+dDVRR2TDU
-         zPThEu4449FQVSK1n0YMiws3JSlC/dJ3NIJJzgEjSSM6O6eie7MW2Jtg8sATm0Npub
-         bXs3Cha9dIY9mCaj1A22QFPQvQ1SHM9wjKNe0nsY=
+        b=ca93ihv4rvVaCGLaDDq1gK9uswGZXub9ToYRU69uzPC8lYvhMB/T5ahG2Ek5RUsC4
+         xpGPaJiyczckn1j29KFfc0pFKMkBGPPZtmP/5RMyC88P0aZ+SsXQE6tKPV94luRnBW
+         3w/gbqD/JqnrEK+27h96RT5xgNtUwVc3q5LAjoVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: [PATCH 4.9 01/71] HID: core: Correctly handle ReportSize being zero
-Date:   Fri, 11 Sep 2020 14:45:45 +0200
-Message-Id: <20200911122505.006765914@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.4 22/62] btrfs: drop path before adding new uuid tree entry
+Date:   Fri, 11 Sep 2020 14:46:05 +0200
+Message-Id: <20200911122503.503512875@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
-References: <20200911122504.928931589@linuxfoundation.org>
+In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
+References: <20200911122502.395450276@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,63 +44,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit bce1305c0ece3dc549663605e567655dd701752c upstream.
+commit 9771a5cf937129307d9f58922d60484d58ababe7 upstream.
 
-It appears that a ReportSize value of zero is legal, even if a bit
-non-sensical. Most of the HID code seems to handle that gracefully,
-except when computing the total size in bytes. When fed as input to
-memset, this leads to some funky outcomes.
+With the conversion of the tree locks to rwsem I got the following
+lockdep splat:
 
-Detect the corner case and correctly compute the size.
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.8.0-rc7-00167-g0d7ba0c5b375-dirty #925 Not tainted
+  ------------------------------------------------------
+  btrfs-uuid/7955 is trying to acquire lock:
+  ffff88bfbafec0f8 (btrfs-root-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+  but task is already holding lock:
+  ffff88bfbafef2a8 (btrfs-uuid-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
+
+  which lock already depends on the new lock.
+
+  the existing dependency chain (in reverse order) is:
+
+  -> #1 (btrfs-uuid-00){++++}-{3:3}:
+	 down_read_nested+0x3e/0x140
+	 __btrfs_tree_read_lock+0x39/0x180
+	 __btrfs_read_lock_root_node+0x3a/0x50
+	 btrfs_search_slot+0x4bd/0x990
+	 btrfs_uuid_tree_add+0x89/0x2d0
+	 btrfs_uuid_scan_kthread+0x330/0x390
+	 kthread+0x133/0x150
+	 ret_from_fork+0x1f/0x30
+
+  -> #0 (btrfs-root-00){++++}-{3:3}:
+	 __lock_acquire+0x1272/0x2310
+	 lock_acquire+0x9e/0x360
+	 down_read_nested+0x3e/0x140
+	 __btrfs_tree_read_lock+0x39/0x180
+	 __btrfs_read_lock_root_node+0x3a/0x50
+	 btrfs_search_slot+0x4bd/0x990
+	 btrfs_find_root+0x45/0x1b0
+	 btrfs_read_tree_root+0x61/0x100
+	 btrfs_get_root_ref.part.50+0x143/0x630
+	 btrfs_uuid_tree_iterate+0x207/0x314
+	 btrfs_uuid_rescan_kthread+0x12/0x50
+	 kthread+0x133/0x150
+	 ret_from_fork+0x1f/0x30
+
+  other info that might help us debug this:
+
+   Possible unsafe locking scenario:
+
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(btrfs-uuid-00);
+				 lock(btrfs-root-00);
+				 lock(btrfs-uuid-00);
+    lock(btrfs-root-00);
+
+   *** DEADLOCK ***
+
+  1 lock held by btrfs-uuid/7955:
+   #0: ffff88bfbafef2a8 (btrfs-uuid-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
+
+  stack backtrace:
+  CPU: 73 PID: 7955 Comm: btrfs-uuid Kdump: loaded Not tainted 5.8.0-rc7-00167-g0d7ba0c5b375-dirty #925
+  Hardware name: Quanta Tioga Pass Single Side 01-0030993006/Tioga Pass Single Side, BIOS F08_3A18 12/20/2018
+  Call Trace:
+   dump_stack+0x78/0xa0
+   check_noncircular+0x165/0x180
+   __lock_acquire+0x1272/0x2310
+   lock_acquire+0x9e/0x360
+   ? __btrfs_tree_read_lock+0x39/0x180
+   ? btrfs_root_node+0x1c/0x1d0
+   down_read_nested+0x3e/0x140
+   ? __btrfs_tree_read_lock+0x39/0x180
+   __btrfs_tree_read_lock+0x39/0x180
+   __btrfs_read_lock_root_node+0x3a/0x50
+   btrfs_search_slot+0x4bd/0x990
+   btrfs_find_root+0x45/0x1b0
+   btrfs_read_tree_root+0x61/0x100
+   btrfs_get_root_ref.part.50+0x143/0x630
+   btrfs_uuid_tree_iterate+0x207/0x314
+   ? btree_readpage+0x20/0x20
+   btrfs_uuid_rescan_kthread+0x12/0x50
+   kthread+0x133/0x150
+   ? kthread_create_on_node+0x60/0x60
+   ret_from_fork+0x1f/0x30
+
+This problem exists because we have two different rescan threads,
+btrfs_uuid_scan_kthread which creates the uuid tree, and
+btrfs_uuid_tree_iterate that goes through and updates or deletes any out
+of date roots.  The problem is they both do things in different order.
+btrfs_uuid_scan_kthread() reads the tree_root, and then inserts entries
+into the uuid_root.  btrfs_uuid_tree_iterate() scans the uuid_root, but
+then does a btrfs_get_fs_root() which can read from the tree_root.
+
+It's actually easy enough to not be holding the path in
+btrfs_uuid_scan_kthread() when we add a uuid entry, as we already drop
+it further down and re-start the search when we loop.  So simply move
+the path release before we add our entry to the uuid tree.
+
+This also fixes a problem where we're holding a path open after we do
+btrfs_end_transaction(), which has it's own problems.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-core.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ fs/btrfs/volumes.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1407,6 +1407,17 @@ static void hid_output_field(const struc
- }
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4065,6 +4065,7 @@ static int btrfs_uuid_scan_kthread(void
+ 			goto skip;
+ 		}
+ update_tree:
++		btrfs_release_path(path);
+ 		if (!btrfs_is_empty_uuid(root_item.uuid)) {
+ 			ret = btrfs_uuid_tree_add(trans, fs_info->uuid_root,
+ 						  root_item.uuid,
+@@ -4090,6 +4091,7 @@ update_tree:
+ 		}
  
- /*
-+ * Compute the size of a report.
-+ */
-+static size_t hid_compute_report_size(struct hid_report *report)
-+{
-+	if (report->size)
-+		return ((report->size - 1) >> 3) + 1;
-+
-+	return 0;
-+}
-+
-+/*
-  * Create a report. 'data' has to be allocated using
-  * hid_alloc_report_buf() so that it has proper size.
-  */
-@@ -1418,7 +1429,7 @@ void hid_output_report(struct hid_report
- 	if (report->id > 0)
- 		*data++ = report->id;
+ skip:
++		btrfs_release_path(path);
+ 		if (trans) {
+ 			ret = btrfs_end_transaction(trans, fs_info->uuid_root);
+ 			trans = NULL;
+@@ -4097,7 +4099,6 @@ skip:
+ 				break;
+ 		}
  
--	memset(data, 0, ((report->size - 1) >> 3) + 1);
-+	memset(data, 0, hid_compute_report_size(report));
- 	for (n = 0; n < report->maxfield; n++)
- 		hid_output_field(report->device, report->field[n], data);
- }
-@@ -1545,7 +1556,7 @@ int hid_report_raw_event(struct hid_devi
- 		csize--;
- 	}
- 
--	rsize = ((report->size - 1) >> 3) + 1;
-+	rsize = hid_compute_report_size(report);
- 
- 	if (report_enum->numbered && rsize >= HID_MAX_BUFFER_SIZE)
- 		rsize = HID_MAX_BUFFER_SIZE - 1;
+-		btrfs_release_path(path);
+ 		if (key.offset < (u64)-1) {
+ 			key.offset++;
+ 		} else if (key.type < BTRFS_ROOT_ITEM_KEY) {
 
 
