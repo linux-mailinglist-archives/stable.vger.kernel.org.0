@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CD5526669E
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:30:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C698F266636
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:23:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726123AbgIKRaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 13:30:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49840 "EHLO mail.kernel.org"
+        id S1726319AbgIKRWg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 13:22:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726091AbgIKM5a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 08:57:30 -0400
+        id S1726139AbgIKNAL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 09:00:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B8F52224C;
-        Fri, 11 Sep 2020 12:55:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F43322274;
+        Fri, 11 Sep 2020 12:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828915;
-        bh=Uwbfi8W/Cl7IDwfcCRT5yuJmKg1LKpGoXBrox13rh+A=;
+        s=default; t=1599829000;
+        bh=nCJ/LEhl7wKjpj2NUqkEt2s1w9T0+lXZhzCNOn9f6bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yi3GgI6ma5pdTLb7J2HbuMUK9zcmsAxlbXgf9Z8/Er4WZSpBvD5mr1rzQ/sF6/0Lz
-         dUssWO/HkV7w2/23QC1IS3O1/I6JhhOvSkFlPr1U7DyvxhzsxnaC08l9FRlOwGpXIz
-         o3XnkGH5mt1eYqlpJpw83TRefoi76wbu2uSPgj5I=
+        b=NDlaiks1+CAG+F0p8o5AZIuGGK5UoFPvcLE3QNz7JdJmlesny/lbaEY27SPU7dR6j
+         fcrnfZPIwKTUCCNxlM8Ij8qJPRW8+VSluKkdGsBovlnLLJO5ZikskP5KL1N1HFdxdA
+         7xkCK/KyRLtq2+dMhXXAvCUPjZdCU2DEABtT6jPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 27/62] uaccess: Add non-pagefault user-space write function
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Ashok Raj <ashok.raj@intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 26/71] iommu/vt-d: Serialize IOMMU GCMD register modifications
 Date:   Fri, 11 Sep 2020 14:46:10 +0200
-Message-Id: <20200911122503.743743910@linuxfoundation.org>
+Message-Id: <20200911122506.238456130@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
-References: <20200911122502.395450276@linuxfoundation.org>
+In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
+References: <20200911122504.928931589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,128 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit 1d1585ca0f48fe7ed95c3571f3e4a82b2b5045dc ]
+[ Upstream commit 6e4e9ec65078093165463c13d4eb92b3e8d7b2e8 ]
 
-Commit 3d7081822f7f ("uaccess: Add non-pagefault user-space read functions")
-missed to add probe write function, therefore factor out a probe_write_common()
-helper with most logic of probe_kernel_write() except setting KERNEL_DS, and
-add a new probe_user_write() helper so it can be used from BPF side.
+The VT-d spec requires (10.4.4 Global Command Register, GCMD_REG General
+Description) that:
 
-Again, on some archs, the user address space and kernel address space can
-co-exist and be overlapping, so in such case, setting KERNEL_DS would mean
-that the given address is treated as being in kernel address space.
+If multiple control fields in this register need to be modified, software
+must serialize the modifications through multiple writes to this register.
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lore.kernel.org/bpf/9df2542e68141bfa3addde631441ee45503856a8.1572649915.git.daniel@iogearbox.net
+However, in irq_remapping.c, modifications of IRE and CFI are done in one
+write. We need to do two separate writes with STS checking after each. It
+also checks the status register before writing command register to avoid
+unnecessary register write.
+
+Fixes: af8d102f999a4 ("x86/intel/irq_remapping: Clean up x2apic opt-out security warning mess")
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Cc: Kevin Tian <kevin.tian@intel.com>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Link: https://lore.kernel.org/r/20200828000615.8281-1-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/uaccess.h | 12 +++++++++++
- mm/maccess.c            | 45 +++++++++++++++++++++++++++++++++++++----
- 2 files changed, 53 insertions(+), 4 deletions(-)
+ drivers/iommu/intel_irq_remapping.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/uaccess.h b/include/linux/uaccess.h
-index b9e538176349c..c82dcea216b15 100644
---- a/include/linux/uaccess.h
-+++ b/include/linux/uaccess.h
-@@ -113,6 +113,18 @@ extern long probe_user_read(void *dst, const void __user *src, size_t size);
- extern long notrace probe_kernel_write(void *dst, const void *src, size_t size);
- extern long notrace __probe_kernel_write(void *dst, const void *src, size_t size);
+diff --git a/drivers/iommu/intel_irq_remapping.c b/drivers/iommu/intel_irq_remapping.c
+index ac596928f6b40..ce125ec23d2a5 100644
+--- a/drivers/iommu/intel_irq_remapping.c
++++ b/drivers/iommu/intel_irq_remapping.c
+@@ -486,12 +486,18 @@ static void iommu_enable_irq_remapping(struct intel_iommu *iommu)
  
-+/*
-+ * probe_user_write(): safely attempt to write to a location in user space
-+ * @dst: address to write to
-+ * @src: pointer to the data that shall be written
-+ * @size: size of the data chunk
-+ *
-+ * Safely write to address @dst from the buffer at @src.  If a kernel fault
-+ * happens, handle that and return -EFAULT.
-+ */
-+extern long notrace probe_user_write(void __user *dst, const void *src, size_t size);
-+extern long notrace __probe_user_write(void __user *dst, const void *src, size_t size);
-+
- extern long strncpy_from_unsafe(char *dst, const void *unsafe_addr, long count);
- extern long strncpy_from_unsafe_user(char *dst, const void __user *unsafe_addr,
- 				     long count);
-diff --git a/mm/maccess.c b/mm/maccess.c
-index 78add1654b41a..18717e893a758 100644
---- a/mm/maccess.c
-+++ b/mm/maccess.c
-@@ -17,6 +17,18 @@ probe_read_common(void *dst, const void __user *src, size_t size)
- 	return ret ? -EFAULT : 0;
- }
+ 	/* Enable interrupt-remapping */
+ 	iommu->gcmd |= DMA_GCMD_IRE;
+-	iommu->gcmd &= ~DMA_GCMD_CFI;  /* Block compatibility-format MSIs */
+ 	writel(iommu->gcmd, iommu->reg + DMAR_GCMD_REG);
+-
+ 	IOMMU_WAIT_OP(iommu, DMAR_GSTS_REG,
+ 		      readl, (sts & DMA_GSTS_IRES), sts);
  
-+static __always_inline long
-+probe_write_common(void __user *dst, const void *src, size_t size)
-+{
-+	long ret;
++	/* Block compatibility-format MSIs */
++	if (sts & DMA_GSTS_CFIS) {
++		iommu->gcmd &= ~DMA_GCMD_CFI;
++		writel(iommu->gcmd, iommu->reg + DMAR_GCMD_REG);
++		IOMMU_WAIT_OP(iommu, DMAR_GSTS_REG,
++			      readl, !(sts & DMA_GSTS_CFIS), sts);
++	}
 +
-+	pagefault_disable();
-+	ret = __copy_to_user_inatomic(dst, src, size);
-+	pagefault_enable();
-+
-+	return ret ? -EFAULT : 0;
-+}
-+
- /**
-  * probe_kernel_read(): safely attempt to read from a kernel-space location
-  * @dst: pointer to the buffer that shall take the data
-@@ -84,6 +96,7 @@ EXPORT_SYMBOL_GPL(probe_user_read);
-  * Safely write to address @dst from the buffer at @src.  If a kernel fault
-  * happens, handle that and return -EFAULT.
-  */
-+
- long __weak probe_kernel_write(void *dst, const void *src, size_t size)
-     __attribute__((alias("__probe_kernel_write")));
- 
-@@ -93,15 +106,39 @@ long __probe_kernel_write(void *dst, const void *src, size_t size)
- 	mm_segment_t old_fs = get_fs();
- 
- 	set_fs(KERNEL_DS);
--	pagefault_disable();
--	ret = __copy_to_user_inatomic((__force void __user *)dst, src, size);
--	pagefault_enable();
-+	ret = probe_write_common((__force void __user *)dst, src, size);
- 	set_fs(old_fs);
- 
--	return ret ? -EFAULT : 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(probe_kernel_write);
- 
-+/**
-+ * probe_user_write(): safely attempt to write to a user-space location
-+ * @dst: address to write to
-+ * @src: pointer to the data that shall be written
-+ * @size: size of the data chunk
-+ *
-+ * Safely write to address @dst from the buffer at @src.  If a kernel fault
-+ * happens, handle that and return -EFAULT.
-+ */
-+
-+long __weak probe_user_write(void __user *dst, const void *src, size_t size)
-+    __attribute__((alias("__probe_user_write")));
-+
-+long __probe_user_write(void __user *dst, const void *src, size_t size)
-+{
-+	long ret = -EFAULT;
-+	mm_segment_t old_fs = get_fs();
-+
-+	set_fs(USER_DS);
-+	if (access_ok(VERIFY_WRITE, dst, size))
-+		ret = probe_write_common(dst, src, size);
-+	set_fs(old_fs);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(probe_user_write);
- 
- /**
-  * strncpy_from_unsafe: - Copy a NUL terminated string from unsafe address.
+ 	/*
+ 	 * With CFI clear in the Global Command register, we should be
+ 	 * protected from dangerous (i.e. compatibility) interrupts
 -- 
 2.25.1
 
