@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ACF22664E3
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6716266420
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725904AbgIKQrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 12:47:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49232 "EHLO mail.kernel.org"
+        id S1726511AbgIKQby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:31:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726296AbgIKPIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:08:04 -0400
+        id S1726463AbgIKPTJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:19:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30122223C6;
-        Fri, 11 Sep 2020 12:58:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81EC6223C8;
+        Fri, 11 Sep 2020 12:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829117;
-        bh=4Xk5YfXF6sqYijZ5aWjpFFEN3fF6lqguy/KbKh6p48k=;
+        s=default; t=1599829130;
+        bh=28sTi4CQh5jzkQmikquEFW4FGLEVT7HhCFTfebhfdqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hycLCDxuMJV15lE9re3Ios9fis84chndcLYUTiNbw5WPP+fi9upjqeL/R79LodMaY
-         bmxVSC+FFEHVvHB1mkwhpcp4udll22qy8X0770ese3OIgNFz20HO9NZgRVhdO7KDAn
-         XzwEBnOHremxgm9FxaiMeKE/6fiE3iRQbcDhbp54=
+        b=lKaQZWmC9BueIKxxtvPVK4sdxI0JsATirjQsNHc9VAjdVSUCCyZGrB5R1qKK4WK94
+         jaDVNgAjDZ2E2ZwSRpMfWxJUiBdC80Anr9kLOWTfIy3P1djYmWf9qDvnooIRezJC0e
+         58FVNEUhnQrkxPh3lFMRx3EEcNqLTsre0B/ODI7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shung-Hsi Yu <shung-hsi.yu@suse.com>,
+        stable@vger.kernel.org, Rob Sherwood <rsher@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 66/71] net: ethernet: mlx4: Fix memory allocation in mlx4_buddy_init()
-Date:   Fri, 11 Sep 2020 14:46:50 +0200
-Message-Id: <20200911122508.228000858@linuxfoundation.org>
+Subject: [PATCH 4.9 71/71] net: disable netpoll on fresh napis
+Date:   Fri, 11 Sep 2020 14:46:55 +0200
+Message-Id: <20200911122508.482650346@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
 References: <20200911122504.928931589@linuxfoundation.org>
@@ -43,40 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit cbedcb044e9cc4e14bbe6658111224bb923094f4 upstream.
+[ Upstream commit 96e97bc07e90f175a8980a22827faf702ca4cb30 ]
 
-On machines with much memory (> 2 TByte) and log_mtts_per_seg == 0, a
-max_order of 31 will be passed to mlx_buddy_init(), which results in
-s = BITS_TO_LONGS(1 << 31) becoming a negative value, leading to
-kvmalloc_array() failure when it is converted to size_t.
+napi_disable() makes sure to set the NAPI_STATE_NPSVC bit to prevent
+netpoll from accessing rings before init is complete. However, the
+same is not done for fresh napi instances in netif_napi_add(),
+even though we expect NAPI instances to be added as disabled.
 
-  mlx4_core 0000:b1:00.0: Failed to initialize memory region table, aborting
-  mlx4_core: probe of 0000:b1:00.0 failed with error -12
+This causes crashes during driver reconfiguration (enabling XDP,
+changing the channel count) - if there is any printk() after
+netif_napi_add() but before napi_enable().
 
-Fix this issue by changing the left shifting operand from a signed literal to
-an unsigned one.
+To ensure memory ordering is correct we need to use RCU accessors.
 
-Fixes: 225c7b1feef1 ("IB/mlx4: Add a driver Mellanox ConnectX InfiniBand adapters")
-Signed-off-by: Shung-Hsi Yu <shung-hsi.yu@suse.com>
+Reported-by: Rob Sherwood <rsher@fb.com>
+Fixes: 2d8bff12699a ("netpoll: Close race condition between poll_one_napi and napi_disable")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/mellanox/mlx4/mr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/dev.c     |    3 ++-
+ net/core/netpoll.c |    2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/mr.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/mr.c
-@@ -114,7 +114,7 @@ static int mlx4_buddy_init(struct mlx4_b
- 		goto err_out;
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5188,13 +5188,14 @@ void netif_napi_add(struct net_device *d
+ 		pr_err_once("netif_napi_add() called with weight %d on device %s\n",
+ 			    weight, dev->name);
+ 	napi->weight = weight;
+-	list_add(&napi->dev_list, &dev->napi_list);
+ 	napi->dev = dev;
+ #ifdef CONFIG_NETPOLL
+ 	spin_lock_init(&napi->poll_lock);
+ 	napi->poll_owner = -1;
+ #endif
+ 	set_bit(NAPI_STATE_SCHED, &napi->state);
++	set_bit(NAPI_STATE_NPSVC, &napi->state);
++	list_add_rcu(&napi->dev_list, &dev->napi_list);
+ 	napi_hash_add(napi);
+ }
+ EXPORT_SYMBOL(netif_napi_add);
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -178,7 +178,7 @@ static void poll_napi(struct net_device
+ {
+ 	struct napi_struct *napi;
  
- 	for (i = 0; i <= buddy->max_order; ++i) {
--		s = BITS_TO_LONGS(1 << (buddy->max_order - i));
-+		s = BITS_TO_LONGS(1UL << (buddy->max_order - i));
- 		buddy->bits[i] = kcalloc(s, sizeof (long), GFP_KERNEL | __GFP_NOWARN);
- 		if (!buddy->bits[i]) {
- 			buddy->bits[i] = vzalloc(s * sizeof(long));
+-	list_for_each_entry(napi, &dev->napi_list, dev_list) {
++	list_for_each_entry_rcu(napi, &dev->napi_list, dev_list) {
+ 		if (napi->poll_owner != smp_processor_id() &&
+ 		    spin_trylock(&napi->poll_lock)) {
+ 			poll_one_napi(napi);
 
 
