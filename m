@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9679B26642F
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EAD526641B
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 18:31:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726302AbgIKQct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 12:32:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53394 "EHLO mail.kernel.org"
+        id S1726318AbgIKQbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 12:31:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726401AbgIKPTF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 11:19:05 -0400
+        id S1726420AbgIKPTW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:19:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A9AB2245B;
-        Fri, 11 Sep 2020 13:00:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE3B72076C;
+        Fri, 11 Sep 2020 13:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599829201;
-        bh=NwDlos2Su04sMbf3aXst3vL8NNa1u9JoRt1CPihA33E=;
+        s=default; t=1599829207;
+        bh=H9KAolUqWQVgCsYPLTdOsrxGNRQBT4lkkfDwBjylwu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gdduANGwx31aDHIExtx1pmJ47qrQrEcvoPTLdMYpP9U8EAHO+p7SLrKeHyffmq5PS
-         7J/d6D210cvnQVnIUu30jqKEjhBrgBpcTxymzW2YGnQTJC2b9LsTmMPVvzTou71DOh
-         u5QOn8L1x1e1NjvZCATwFcVT25hd4RicTFRWUDIY=
+        b=2cl0JW8XQArezzj6Q3oTZoYXxTQenJI2FiX5sf51GIbO67NNBjZOYPUc31D4A93ae
+         7JFUhtObHw8aAFBvcFTwQXJ2DIL86konTk8cbha74PQGxENB3PXBfWeV8SoTfbaZYH
+         flOTeunkO+00hr0KsAW6RJPzC3bw+NSxbuKeRzZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Paul Moore <paul@paul-moore.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 07/16] ipv4: Silence suspicious RCU usage warning
-Date:   Fri, 11 Sep 2020 14:47:24 +0200
-Message-Id: <20200911122459.944382043@linuxfoundation.org>
+Subject: [PATCH 5.8 09/16] netlabel: fix problems with mapping removal
+Date:   Fri, 11 Sep 2020 14:47:26 +0200
+Message-Id: <20200911122500.036474277@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122459.585735377@linuxfoundation.org>
 References: <20200911122459.585735377@linuxfoundation.org>
@@ -44,81 +45,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit 7f6f32bb7d3355cd78ebf1dece9a6ea7a0ca8158 ]
+[ Upstream commit d3b990b7f327e2afa98006e7666fb8ada8ed8683 ]
 
-fib_info_notify_update() is always called with RTNL held, but not from
-an RCU read-side critical section. This leads to the following warning
-[1] when the FIB table list is traversed with
-hlist_for_each_entry_rcu(), but without a proper lockdep expression.
+This patch fixes two main problems seen when removing NetLabel
+mappings: memory leaks and potentially extra audit noise.
 
-Since modification of the list is protected by RTNL, silence the warning
-by adding a lockdep expression which verifies RTNL is held.
+The memory leaks are caused by not properly free'ing the mapping's
+address selector struct when free'ing the entire entry as well as
+not properly cleaning up a temporary mapping entry when adding new
+address selectors to an existing entry.  This patch fixes both these
+problems such that kmemleak reports no NetLabel associated leaks
+after running the SELinux test suite.
 
-[1]
- =============================
- WARNING: suspicious RCU usage
- 5.9.0-rc1-custom-14233-g2f26e122d62f #129 Not tainted
- -----------------------------
- net/ipv4/fib_trie.c:2124 RCU-list traversed in non-reader section!!
+The potentially extra audit noise was caused by the auditing code in
+netlbl_domhsh_remove_entry() being called regardless of the entry's
+validity.  If another thread had already marked the entry as invalid,
+but not removed/free'd it from the list of mappings, then it was
+possible that an additional mapping removal audit record would be
+generated.  This patch fixes this by returning early from the removal
+function when the entry was previously marked invalid.  This change
+also had the side benefit of improving the code by decreasing the
+indentation level of large chunk of code by one (accounting for most
+of the diffstat).
 
- other info that might help us debug this:
-
- rcu_scheduler_active = 2, debug_locks = 1
- 1 lock held by ip/834:
-  #0: ffffffff85a3b6b0 (rtnl_mutex){+.+.}-{3:3}, at: rtnetlink_rcv_msg+0x49a/0xbd0
-
- stack backtrace:
- CPU: 0 PID: 834 Comm: ip Not tainted 5.9.0-rc1-custom-14233-g2f26e122d62f #129
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
- Call Trace:
-  dump_stack+0x100/0x184
-  lockdep_rcu_suspicious+0x143/0x14d
-  fib_info_notify_update+0x8d1/0xa60
-  __nexthop_replace_notify+0xd2/0x290
-  rtm_new_nexthop+0x35e2/0x5946
-  rtnetlink_rcv_msg+0x4f7/0xbd0
-  netlink_rcv_skb+0x17a/0x480
-  rtnetlink_rcv+0x22/0x30
-  netlink_unicast+0x5ae/0x890
-  netlink_sendmsg+0x98a/0xf40
-  ____sys_sendmsg+0x879/0xa00
-  ___sys_sendmsg+0x122/0x190
-  __sys_sendmsg+0x103/0x1d0
-  __x64_sys_sendmsg+0x7d/0xb0
-  do_syscall_64+0x32/0x50
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
- RIP: 0033:0x7fde28c3be57
- Code: 0c 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51
-c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
-RSP: 002b:00007ffc09330028 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fde28c3be57
-RDX: 0000000000000000 RSI: 00007ffc09330090 RDI: 0000000000000003
-RBP: 000000005f45f911 R08: 0000000000000001 R09: 00007ffc0933012c
-R10: 0000000000000076 R11: 0000000000000246 R12: 0000000000000001
-R13: 00007ffc09330290 R14: 00007ffc09330eee R15: 00005610e48ed020
-
-Fixes: 1bff1a0c9bbd ("ipv4: Add function to send route updates")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
+Fixes: 63c416887437 ("netlabel: Add network address selectors to the NetLabel/LSM domain mapping")
+Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_trie.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netlabel/netlabel_domainhash.c |   59 ++++++++++++++++++-------------------
+ 1 file changed, 30 insertions(+), 29 deletions(-)
 
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -2121,7 +2121,8 @@ void fib_info_notify_update(struct net *
- 		struct hlist_head *head = &net->ipv4.fib_table_hash[h];
- 		struct fib_table *tb;
- 
--		hlist_for_each_entry_rcu(tb, head, tb_hlist)
-+		hlist_for_each_entry_rcu(tb, head, tb_hlist,
-+					 lockdep_rtnl_is_held())
- 			__fib_info_notify_update(net, tb, info);
+--- a/net/netlabel/netlabel_domainhash.c
++++ b/net/netlabel/netlabel_domainhash.c
+@@ -85,6 +85,7 @@ static void netlbl_domhsh_free_entry(str
+ 			kfree(netlbl_domhsh_addr6_entry(iter6));
+ 		}
+ #endif /* IPv6 */
++		kfree(ptr->def.addrsel);
  	}
+ 	kfree(ptr->domain);
+ 	kfree(ptr);
+@@ -537,6 +538,8 @@ int netlbl_domhsh_add(struct netlbl_dom_
+ 				goto add_return;
+ 		}
+ #endif /* IPv6 */
++		/* cleanup the new entry since we've moved everything over */
++		netlbl_domhsh_free_entry(&entry->rcu);
+ 	} else
+ 		ret_val = -EINVAL;
+ 
+@@ -580,6 +583,12 @@ int netlbl_domhsh_remove_entry(struct ne
+ {
+ 	int ret_val = 0;
+ 	struct audit_buffer *audit_buf;
++	struct netlbl_af4list *iter4;
++	struct netlbl_domaddr4_map *map4;
++#if IS_ENABLED(CONFIG_IPV6)
++	struct netlbl_af6list *iter6;
++	struct netlbl_domaddr6_map *map6;
++#endif /* IPv6 */
+ 
+ 	if (entry == NULL)
+ 		return -ENOENT;
+@@ -597,6 +606,9 @@ int netlbl_domhsh_remove_entry(struct ne
+ 		ret_val = -ENOENT;
+ 	spin_unlock(&netlbl_domhsh_lock);
+ 
++	if (ret_val)
++		return ret_val;
++
+ 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_DEL, audit_info);
+ 	if (audit_buf != NULL) {
+ 		audit_log_format(audit_buf,
+@@ -606,40 +618,29 @@ int netlbl_domhsh_remove_entry(struct ne
+ 		audit_log_end(audit_buf);
+ 	}
+ 
+-	if (ret_val == 0) {
+-		struct netlbl_af4list *iter4;
+-		struct netlbl_domaddr4_map *map4;
+-#if IS_ENABLED(CONFIG_IPV6)
+-		struct netlbl_af6list *iter6;
+-		struct netlbl_domaddr6_map *map6;
+-#endif /* IPv6 */
+-
+-		switch (entry->def.type) {
+-		case NETLBL_NLTYPE_ADDRSELECT:
+-			netlbl_af4list_foreach_rcu(iter4,
+-					     &entry->def.addrsel->list4) {
+-				map4 = netlbl_domhsh_addr4_entry(iter4);
+-				cipso_v4_doi_putdef(map4->def.cipso);
+-			}
++	switch (entry->def.type) {
++	case NETLBL_NLTYPE_ADDRSELECT:
++		netlbl_af4list_foreach_rcu(iter4, &entry->def.addrsel->list4) {
++			map4 = netlbl_domhsh_addr4_entry(iter4);
++			cipso_v4_doi_putdef(map4->def.cipso);
++		}
+ #if IS_ENABLED(CONFIG_IPV6)
+-			netlbl_af6list_foreach_rcu(iter6,
+-					     &entry->def.addrsel->list6) {
+-				map6 = netlbl_domhsh_addr6_entry(iter6);
+-				calipso_doi_putdef(map6->def.calipso);
+-			}
++		netlbl_af6list_foreach_rcu(iter6, &entry->def.addrsel->list6) {
++			map6 = netlbl_domhsh_addr6_entry(iter6);
++			calipso_doi_putdef(map6->def.calipso);
++		}
+ #endif /* IPv6 */
+-			break;
+-		case NETLBL_NLTYPE_CIPSOV4:
+-			cipso_v4_doi_putdef(entry->def.cipso);
+-			break;
++		break;
++	case NETLBL_NLTYPE_CIPSOV4:
++		cipso_v4_doi_putdef(entry->def.cipso);
++		break;
+ #if IS_ENABLED(CONFIG_IPV6)
+-		case NETLBL_NLTYPE_CALIPSO:
+-			calipso_doi_putdef(entry->def.calipso);
+-			break;
++	case NETLBL_NLTYPE_CALIPSO:
++		calipso_doi_putdef(entry->def.calipso);
++		break;
+ #endif /* IPv6 */
+-		}
+-		call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
+ 	}
++	call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
+ 
+ 	return ret_val;
  }
 
 
