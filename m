@@ -2,47 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2684C2666CA
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C199C2666ED
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726503AbgIKRcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 13:32:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49250 "EHLO mail.kernel.org"
+        id S1726230AbgIKRe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 13:34:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726046AbgIKMye (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726050AbgIKMye (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 11 Sep 2020 08:54:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3744E22210;
-        Fri, 11 Sep 2020 12:53:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4187022226;
+        Fri, 11 Sep 2020 12:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828828;
-        bh=kruzOKCTPxnOTx70+MyuJMTS8UQqa8dxkdaLKKGd+l8=;
+        s=default; t=1599828836;
+        bh=wo/9jfUs/QsfWHN0aWZWBzIi8v87Qpm/6HXW9VcwsdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQxqpltcT7xD59DX+eek2pazPNtzFt7bVq+FJrsQy0iU3NiqGeSOYA3xaGGEx7OEb
-         0M4pEpeDpOOmJVRkWX0d7DJy5HkEWWrKo+7iLFxELU545oKAY8J0d4KFSfCCK+B7P1
-         hgPc+0zrUn8nsvRoxMQtGCveCH7Roc9KHhNUiaOg=
+        b=j9VgQ+YiaSOt3ivWG0/baDmBcrg/vyXBC8xyq7QCpPc2L+K12KWYn4rIK0IjL0R7v
+         OeTIwbngJtV8nSaTA6pzX2n2Mm/UlZdtArOHqUZFK5LoS6mJiUOcBmCZwkZXSxzUoP
+         AR1c0dOlz1GEKMsNbbQnTCuOj/P60IjcPEfZ1Pto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Paul Clarke <pc@us.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Tony Jones <tonyj@suse.de>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.4 03/62] perf record/stat: Explicitly call out event modifiers in the documentation
-Date:   Fri, 11 Sep 2020 14:45:46 +0200
-Message-Id: <20200911122502.568324530@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 06/62] ceph: dont allow setlease on cephfs
+Date:   Fri, 11 Sep 2020 14:45:49 +0200
+Message-Id: <20200911122502.716707091@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
 References: <20200911122502.395450276@linuxfoundation.org>
@@ -55,63 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit e48a73a312ebf19cc3d72aa74985db25c30757c1 upstream.
+[ Upstream commit 496ceaf12432b3d136dcdec48424312e71359ea7 ]
 
-Event modifiers are not mentioned in the perf record or perf stat
-manpages.  Add them to orient new users more effectively by pointing
-them to the perf list manpage for details.
+Leases don't currently work correctly on kcephfs, as they are not broken
+when caps are revoked. They could eventually be implemented similarly to
+how we did them in libcephfs, but for now don't allow them.
 
-Fixes: 2055fdaf8703 ("perf list: Document precise event sampling for AMD IBS")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Paul Clarke <pc@us.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tony Jones <tonyj@suse.de>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200901215853.276234-1-kim.phillips@amd.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[ idryomov: no need for simple_nosetlease() in ceph_dir_fops and
+  ceph_snapdir_fops ]
 
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/Documentation/perf-record.txt |    4 ++++
- tools/perf/Documentation/perf-stat.txt   |    4 ++++
- 2 files changed, 8 insertions(+)
+ fs/ceph/file.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/tools/perf/Documentation/perf-record.txt
-+++ b/tools/perf/Documentation/perf-record.txt
-@@ -33,6 +33,10 @@ OPTIONS
-         - a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
- 	  hexadecimal event descriptor.
- 
-+        - a symbolic or raw PMU event followed by an optional colon
-+	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
-+	  linkperf:perf-list[1] man page for details on event modifiers.
-+
- 	- a symbolically formed PMU event like 'pmu/param1=0x3,param2/' where
- 	  'param1', 'param2', etc are defined as formats for the PMU in
- 	  /sys/bus/event_sources/devices/<pmu>/format/*.
---- a/tools/perf/Documentation/perf-stat.txt
-+++ b/tools/perf/Documentation/perf-stat.txt
-@@ -32,6 +32,10 @@ OPTIONS
- 	- a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a
- 	  hexadecimal event descriptor.
- 
-+        - a symbolic or raw PMU event followed by an optional colon
-+	  and a list of event modifiers, e.g., cpu-cycles:p.  See the
-+	  linkperf:perf-list[1] man page for details on event modifiers.
-+
- 	- a symbolically formed event like 'pmu/param1=0x3,param2/' where
- 	  param1 and param2 are defined as formats for the PMU in
- 	  /sys/bus/event_sources/devices/<pmu>/format/*
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index c8222bfe1e566..3e6ebe40f06fb 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -1433,6 +1433,7 @@ const struct file_operations ceph_file_fops = {
+ 	.mmap = ceph_mmap,
+ 	.fsync = ceph_fsync,
+ 	.lock = ceph_lock,
++	.setlease = simple_nosetlease,
+ 	.flock = ceph_flock,
+ 	.splice_read = generic_file_splice_read,
+ 	.splice_write = iter_file_splice_write,
+-- 
+2.25.1
+
 
 
