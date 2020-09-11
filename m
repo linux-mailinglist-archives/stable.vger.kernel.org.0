@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7329B26669F
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 558C1266671
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:28:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726089AbgIKRag (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 13:30:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49260 "EHLO mail.kernel.org"
+        id S1726113AbgIKR1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 13:27:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726093AbgIKM5a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 08:57:30 -0400
+        id S1726098AbgIKM6D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 08:58:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 989012224D;
-        Fri, 11 Sep 2020 12:55:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C8632224E;
+        Fri, 11 Sep 2020 12:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828918;
-        bh=EiiP0Cy7h2YSUN8YWK8knFCIrF6N6SZO+8rzOImC+A8=;
+        s=default; t=1599828920;
+        bh=QVdzqYJERNYRtJmuQaJEbs6c3WcsGmTTOuf7J3MmMTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oHpRx+RJ2MtHpXURPDa+CbY3F75sXvvp5XtypS6Mk3Ynip8u0olRu0Z2UzRYxo3eh
-         YzpL9uXop1ipln3TSgOHNosVPEPEqQUJ4npC9VNrc5QlT3QeHmRMXgrPJYunxhJ08F
-         ISa0LEZh1m5VJQ382pfMdLM/QkYdfjTvINI/TtZk=
+        b=QVWUOM7qk0sep5DlD4ZqSFVSAGfC7X2F0QStWmFnnDTpsVVDb2C95c4znMmyLap6U
+         DWyhiaDkbwCskEjM7EBETq0nidnhyNUmbAOm27bzeA8QEYFAjT/qDjiI8tX1q8kSuh
+         DVmQFTdJWaVDjlkS2FHj6oYnINr2eOoSyzqzBdhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 28/62] btrfs: fix potential deadlock in the search ioctl
-Date:   Fri, 11 Sep 2020 14:46:11 +0200
-Message-Id: <20200911122503.793716871@linuxfoundation.org>
+Subject: [PATCH 4.4 29/62] net: qmi_wwan: MDM9x30 specific power management
+Date:   Fri, 11 Sep 2020 14:46:12 +0200
+Message-Id: <20200911122503.848342627@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
 References: <20200911122502.395450276@linuxfoundation.org>
@@ -45,225 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Bjørn Mork <bjorn@mork.no>
 
-[ Upstream commit a48b73eca4ceb9b8a4b97f290a065335dbcd8a04 ]
+[ Upstream commit 93725149794d3d418cf1eddcae60c7b536c5faa1 ]
 
-With the conversion of the tree locks to rwsem I got the following
-lockdep splat:
+MDM9x30 based modems appear to go into a deeper sleep when
+suspended without "Remote Wakeup" enabled.  The QMI interface
+will not respond unless a "set DTR" control request is sent
+on resume. The effect is similar to a QMI_CTL SYNC request,
+resetting (some of) the firmware state.
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.8.0-rc7-00165-g04ec4da5f45f-dirty #922 Not tainted
-  ------------------------------------------------------
-  compsize/11122 is trying to acquire lock:
-  ffff889fabca8768 (&mm->mmap_lock#2){++++}-{3:3}, at: __might_fault+0x3e/0x90
+We allow userspace sessions to span multiple character device
+open/close sequences.  This means that userspace can depend
+on firmware state while both the netdev and the character
+device are closed.  We have disabled "needs_remote_wakeup" at
+this point to allow devices without remote wakeup support to
+be auto-suspended.
 
-  but task is already holding lock:
-  ffff889fe720fe40 (btrfs-fs-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
+To make sure the MDM9x30 keeps firmware state, we need to
+keep "needs_remote_wakeup" always set. We also need to
+issue a "set DTR" request to enable the QMI interface.
 
-  which lock already depends on the new lock.
-
-  the existing dependency chain (in reverse order) is:
-
-  -> #2 (btrfs-fs-00){++++}-{3:3}:
-	 down_write_nested+0x3b/0x70
-	 __btrfs_tree_lock+0x24/0x120
-	 btrfs_search_slot+0x756/0x990
-	 btrfs_lookup_inode+0x3a/0xb4
-	 __btrfs_update_delayed_inode+0x93/0x270
-	 btrfs_async_run_delayed_root+0x168/0x230
-	 btrfs_work_helper+0xd4/0x570
-	 process_one_work+0x2ad/0x5f0
-	 worker_thread+0x3a/0x3d0
-	 kthread+0x133/0x150
-	 ret_from_fork+0x1f/0x30
-
-  -> #1 (&delayed_node->mutex){+.+.}-{3:3}:
-	 __mutex_lock+0x9f/0x930
-	 btrfs_delayed_update_inode+0x50/0x440
-	 btrfs_update_inode+0x8a/0xf0
-	 btrfs_dirty_inode+0x5b/0xd0
-	 touch_atime+0xa1/0xd0
-	 btrfs_file_mmap+0x3f/0x60
-	 mmap_region+0x3a4/0x640
-	 do_mmap+0x376/0x580
-	 vm_mmap_pgoff+0xd5/0x120
-	 ksys_mmap_pgoff+0x193/0x230
-	 do_syscall_64+0x50/0x90
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  -> #0 (&mm->mmap_lock#2){++++}-{3:3}:
-	 __lock_acquire+0x1272/0x2310
-	 lock_acquire+0x9e/0x360
-	 __might_fault+0x68/0x90
-	 _copy_to_user+0x1e/0x80
-	 copy_to_sk.isra.32+0x121/0x300
-	 search_ioctl+0x106/0x200
-	 btrfs_ioctl_tree_search_v2+0x7b/0xf0
-	 btrfs_ioctl+0x106f/0x30a0
-	 ksys_ioctl+0x83/0xc0
-	 __x64_sys_ioctl+0x16/0x20
-	 do_syscall_64+0x50/0x90
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  other info that might help us debug this:
-
-  Chain exists of:
-    &mm->mmap_lock#2 --> &delayed_node->mutex --> btrfs-fs-00
-
-   Possible unsafe locking scenario:
-
-	 CPU0                    CPU1
-	 ----                    ----
-    lock(btrfs-fs-00);
-				 lock(&delayed_node->mutex);
-				 lock(btrfs-fs-00);
-    lock(&mm->mmap_lock#2);
-
-   *** DEADLOCK ***
-
-  1 lock held by compsize/11122:
-   #0: ffff889fe720fe40 (btrfs-fs-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x39/0x180
-
-  stack backtrace:
-  CPU: 17 PID: 11122 Comm: compsize Kdump: loaded Not tainted 5.8.0-rc7-00165-g04ec4da5f45f-dirty #922
-  Hardware name: Quanta Tioga Pass Single Side 01-0030993006/Tioga Pass Single Side, BIOS F08_3A18 12/20/2018
-  Call Trace:
-   dump_stack+0x78/0xa0
-   check_noncircular+0x165/0x180
-   __lock_acquire+0x1272/0x2310
-   lock_acquire+0x9e/0x360
-   ? __might_fault+0x3e/0x90
-   ? find_held_lock+0x72/0x90
-   __might_fault+0x68/0x90
-   ? __might_fault+0x3e/0x90
-   _copy_to_user+0x1e/0x80
-   copy_to_sk.isra.32+0x121/0x300
-   ? btrfs_search_forward+0x2a6/0x360
-   search_ioctl+0x106/0x200
-   btrfs_ioctl_tree_search_v2+0x7b/0xf0
-   btrfs_ioctl+0x106f/0x30a0
-   ? __do_sys_newfstat+0x5a/0x70
-   ? ksys_ioctl+0x83/0xc0
-   ksys_ioctl+0x83/0xc0
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x50/0x90
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The problem is we're doing a copy_to_user() while holding tree locks,
-which can deadlock if we have to do a page fault for the copy_to_user().
-This exists even without my locking changes, so it needs to be fixed.
-Rework the search ioctl to do the pre-fault and then
-copy_to_user_nofault for the copying.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent_io.c |  8 ++++----
- fs/btrfs/extent_io.h |  6 +++---
- fs/btrfs/ioctl.c     | 27 ++++++++++++++++++++-------
- 3 files changed, 27 insertions(+), 14 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 2f9f738ecf84a..97a80238fdee3 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -5431,9 +5431,9 @@ void read_extent_buffer(const struct extent_buffer *eb, void *dstv,
- 	}
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 4391430e25273..b8b15deb94bdb 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -223,6 +223,20 @@ err:
+ 	return rv;
  }
  
--int read_extent_buffer_to_user(const struct extent_buffer *eb,
--			       void __user *dstv,
--			       unsigned long start, unsigned long len)
-+int read_extent_buffer_to_user_nofault(const struct extent_buffer *eb,
-+				       void __user *dstv,
-+				       unsigned long start, unsigned long len)
- {
- 	size_t cur;
- 	size_t offset;
-@@ -5454,7 +5454,7 @@ int read_extent_buffer_to_user(const struct extent_buffer *eb,
- 
- 		cur = min(len, (PAGE_CACHE_SIZE - offset));
- 		kaddr = page_address(page);
--		if (copy_to_user(dst, kaddr + offset, cur)) {
-+		if (probe_user_write(dst, kaddr + offset, cur)) {
- 			ret = -EFAULT;
- 			break;
- 		}
-diff --git a/fs/btrfs/extent_io.h b/fs/btrfs/extent_io.h
-index 751435967724e..9631be7fc9e24 100644
---- a/fs/btrfs/extent_io.h
-+++ b/fs/btrfs/extent_io.h
-@@ -313,9 +313,9 @@ int memcmp_extent_buffer(const struct extent_buffer *eb, const void *ptrv,
- void read_extent_buffer(const struct extent_buffer *eb, void *dst,
- 			unsigned long start,
- 			unsigned long len);
--int read_extent_buffer_to_user(const struct extent_buffer *eb,
--			       void __user *dst, unsigned long start,
--			       unsigned long len);
-+int read_extent_buffer_to_user_nofault(const struct extent_buffer *eb,
-+				       void __user *dst, unsigned long start,
-+				       unsigned long len);
- void write_extent_buffer(struct extent_buffer *eb, const void *src,
- 			 unsigned long start, unsigned long len);
- void copy_extent_buffer(struct extent_buffer *dst, struct extent_buffer *src,
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 245a50f490f63..91a45ef69152d 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -2017,9 +2017,14 @@ static noinline int copy_to_sk(struct btrfs_root *root,
- 		sh.len = item_len;
- 		sh.transid = found_transid;
- 
--		/* copy search result header */
--		if (copy_to_user(ubuf + *sk_offset, &sh, sizeof(sh))) {
--			ret = -EFAULT;
-+		/*
-+		 * Copy search result header. If we fault then loop again so we
-+		 * can fault in the pages and -EFAULT there if there's a
-+		 * problem. Otherwise we'll fault and then copy the buffer in
-+		 * properly this next time through
-+		 */
-+		if (probe_user_write(ubuf + *sk_offset, &sh, sizeof(sh))) {
-+			ret = 0;
- 			goto out;
- 		}
- 
-@@ -2027,10 +2032,14 @@ static noinline int copy_to_sk(struct btrfs_root *root,
- 
- 		if (item_len) {
- 			char __user *up = ubuf + *sk_offset;
--			/* copy the item */
--			if (read_extent_buffer_to_user(leaf, up,
--						       item_off, item_len)) {
--				ret = -EFAULT;
-+			/*
-+			 * Copy the item, same behavior as above, but reset the
-+			 * * sk_offset so we copy the full thing again.
-+			 */
-+			if (read_extent_buffer_to_user_nofault(leaf, up,
-+						item_off, item_len)) {
-+				ret = 0;
-+				*sk_offset -= sizeof(sh);
- 				goto out;
- 			}
- 
-@@ -2120,6 +2129,10 @@ static noinline int search_ioctl(struct inode *inode,
- 	key.offset = sk->min_offset;
- 
- 	while (1) {
-+		ret = fault_in_pages_writeable(ubuf, *buf_size - sk_offset);
-+		if (ret)
-+			break;
++/* Send CDC SetControlLineState request, setting or clearing the DTR.
++ * "Required for Autoconnect and 9x30 to wake up" according to the
++ * GobiNet driver. The requirement has been verified on an MDM9230
++ * based Sierra Wireless MC7455
++ */
++static int qmi_wwan_change_dtr(struct usbnet *dev, bool on)
++{
++	u8 intf = dev->intf->cur_altsetting->desc.bInterfaceNumber;
 +
- 		ret = btrfs_search_forward(root, &key, path, sk->min_transid);
- 		if (ret != 0) {
- 			if (ret > 0)
++	return usbnet_write_cmd(dev, USB_CDC_REQ_SET_CONTROL_LINE_STATE,
++				USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
++				on ? 0x01 : 0x00, intf, NULL, 0);
++}
++
+ static int qmi_wwan_bind(struct usbnet *dev, struct usb_interface *intf)
+ {
+ 	int status = -1;
+@@ -280,6 +294,24 @@ static int qmi_wwan_bind(struct usbnet *dev, struct usb_interface *intf)
+ 		usb_driver_release_interface(driver, info->data);
+ 	}
+ 
++	/* disabling remote wakeup on MDM9x30 devices has the same
++	 * effect as clearing DTR. The device will not respond to QMI
++	 * requests until we set DTR again.  This is similar to a
++	 * QMI_CTL SYNC request, clearing a lot of firmware state
++	 * including the client ID allocations.
++	 *
++	 * Our usage model allows a session to span multiple
++	 * open/close events, so we must prevent the firmware from
++	 * clearing out state the clients might need.
++	 *
++	 * MDM9x30 is the first QMI chipset with USB3 support. Abuse
++	 * this fact to enable the quirk.
++	 */
++	if (le16_to_cpu(dev->udev->descriptor.bcdUSB) >= 0x0201) {
++		qmi_wwan_manage_power(dev, 1);
++		qmi_wwan_change_dtr(dev, true);
++	}
++
+ 	/* Never use the same address on both ends of the link, even if the
+ 	 * buggy firmware told us to. Or, if device is assigned the well-known
+ 	 * buggy firmware MAC address, replace it with a random address,
+@@ -307,6 +339,12 @@ static void qmi_wwan_unbind(struct usbnet *dev, struct usb_interface *intf)
+ 	if (info->subdriver && info->subdriver->disconnect)
+ 		info->subdriver->disconnect(info->control);
+ 
++	/* disable MDM9x30 quirk */
++	if (le16_to_cpu(dev->udev->descriptor.bcdUSB) >= 0x0201) {
++		qmi_wwan_change_dtr(dev, false);
++		qmi_wwan_manage_power(dev, 0);
++	}
++
+ 	/* allow user to unbind using either control or data */
+ 	if (intf == info->control)
+ 		other = info->data;
 -- 
 2.25.1
 
