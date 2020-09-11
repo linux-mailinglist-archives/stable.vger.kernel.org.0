@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 062472666A8
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:31:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A4C02666A7
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:31:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726183AbgIKRak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 13:30:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49246 "EHLO mail.kernel.org"
+        id S1726163AbgIKRah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 13:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726068AbgIKMzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 08:55:37 -0400
+        id S1726069AbgIKMzi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 08:55:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1141C22245;
-        Fri, 11 Sep 2020 12:54:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 811DC22246;
+        Fri, 11 Sep 2020 12:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828890;
-        bh=u1dk5W0oM0NPdP8kRNII+SlXEzp77OsHcF2QsEGuQEs=;
+        s=default; t=1599828893;
+        bh=+h/p9gHHwVzsHz7LcGKUucRqugGoYlWRyIyoXbbg724=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SG6lakEQk91fVQvLZWq1aFlM/JrSIhy76D5FSJVlLYv+b9yzUp6H8DJ8ksXe/2tVt
-         PBLrAzHRPHHymHlsUu6at4nsjxao3QUzGtfuAGBAWQgyIpjJB18kvSrm8TRBvskLFb
-         u0P7lKCD+vEX6jdlVHupsNzLQPSTVrRfu8dFy0Us=
+        b=Z+q+I1QVC2DWAnt32+Kz3cDUEHLc8gpeyXSGBJT76ovyOABEg+uREQWZNQ99CtSsI
+         bFz3uuz39RuqVLDGU9H4SQnBwNNhCtSYFaiSWBT8pRO2rh5BU/vMqn+lECV8WtQSl5
+         VGsoVlMbz2ROPfasYflUKrAfdAjBpdNJdUae7rgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Tim Froidcoeur <tim.froidcoeur@tessares.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 46/62] net: initialize fastreuse on inet_inherit_port
-Date:   Fri, 11 Sep 2020 14:46:29 +0200
-Message-Id: <20200911122504.690138814@linuxfoundation.org>
+        stable@vger.kernel.org, Mrinal Pandey <mrinalmni@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Joe Perches <joe@perches.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 47/62] checkpatch: fix the usage of capture group ( ... )
+Date:   Fri, 11 Sep 2020 14:46:30 +0200
+Message-Id: <20200911122504.739680751@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
 References: <20200911122502.395450276@linuxfoundation.org>
@@ -45,61 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Froidcoeur <tim.froidcoeur@tessares.net>
+From: Mrinal Pandey <mrinalmni@gmail.com>
 
-commit d76f3351cea2d927fdf70dd7c06898235035e84e upstream.
+commit 13e45417cedbfc44b1926124b1846f5ee8c6ba4a upstream.
 
-In the case of TPROXY, bind_conflict optimizations for SO_REUSEADDR or
-SO_REUSEPORT are broken, possibly resulting in O(n) instead of O(1) bind
-behaviour or in the incorrect reuse of a bind.
+The usage of "capture group (...)" in the immediate condition after `&&`
+results in `$1` being uninitialized.  This issues a warning "Use of
+uninitialized value $1 in regexp compilation at ./scripts/checkpatch.pl
+line 2638".
 
-the kernel keeps track for each bind_bucket if all sockets in the
-bind_bucket support SO_REUSEADDR or SO_REUSEPORT in two fastreuse flags.
-These flags allow skipping the costly bind_conflict check when possible
-(meaning when all sockets have the proper SO_REUSE option).
+I noticed this bug while running checkpatch on the set of commits from
+v5.7 to v5.8-rc1 of the kernel on the commits with a diff content in
+their commit message.
 
-For every socket added to a bind_bucket, these flags need to be updated.
-As soon as a socket that does not support reuse is added, the flag is
-set to false and will never go back to true, unless the bind_bucket is
-deleted.
+This bug was introduced in the script by commit e518e9a59ec3
+("checkpatch: emit an error when there's a diff in a changelog").  It
+has been in the script since then.
 
-Note that there is no mechanism to re-evaluate these flags when a socket
-is removed (this might make sense when removing a socket that would not
-allow reuse; this leaves room for a future patch).
+The author intended to store the match made by capture group in variable
+`$1`.  This should have contained the name of the file as `[\w/]+`
+matched.  However, this couldn't be accomplished due to usage of capture
+group and `$1` in the same regular expression.
 
-For this optimization to work, it is mandatory that these flags are
-properly initialized and updated.
+Fix this by placing the capture group in the condition before `&&`.
+Thus, `$1` can be initialized to the text that capture group matches
+thereby setting it to the desired and required value.
 
-When a child socket is created from a listen socket in
-__inet_inherit_port, the TPROXY case could create a new bind bucket
-without properly initializing these flags, thus preventing the
-optimization to work. Alternatively, a socket not allowing reuse could
-be added to an existing bind bucket without updating the flags, causing
-bind_conflict to never be called as it should.
-
-Call inet_csk_update_fastreuse when __inet_inherit_port decides to create
-a new bind_bucket or use a different bind_bucket than the one of the
-listen socket.
-
-Fixes: 093d282321da ("tproxy: fix hash locking issue when using port redirection in __inet_inherit_port()")
-Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Tim Froidcoeur <tim.froidcoeur@tessares.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Tim Froidcoeur <tim.froidcoeur@tessares.net>
+Fixes: e518e9a59ec3 ("checkpatch: emit an error when there's a diff in a changelog")
+Signed-off-by: Mrinal Pandey <mrinalmni@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Reviewed-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Cc: Joe Perches <joe@perches.com>
+Link: https://lkml.kernel.org/r/20200714032352.f476hanaj2dlmiot@mrinalpandey
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/inet_hashtables.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -160,6 +160,7 @@ int __inet_inherit_port(const struct soc
- 				return -ENOMEM;
- 			}
- 		}
-+		inet_csk_update_fastreuse(tb, child);
- 	}
- 	inet_bind_hash(child, tb, port);
- 	spin_unlock(&head->lock);
+---
+ scripts/checkpatch.pl |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/scripts/checkpatch.pl
++++ b/scripts/checkpatch.pl
+@@ -2195,8 +2195,8 @@ sub process {
+ 
+ # Check if the commit log has what seems like a diff which can confuse patch
+ 		if ($in_commit_log && !$commit_log_has_diff &&
+-		    (($line =~ m@^\s+diff\b.*a/[\w/]+@ &&
+-		      $line =~ m@^\s+diff\b.*a/([\w/]+)\s+b/$1\b@) ||
++		    (($line =~ m@^\s+diff\b.*a/([\w/]+)@ &&
++		      $line =~ m@^\s+diff\b.*a/[\w/]+\s+b/$1\b@) ||
+ 		     $line =~ m@^\s*(?:\-\-\-\s+a/|\+\+\+\s+b/)@ ||
+ 		     $line =~ m/^\s*\@\@ \-\d+,\d+ \+\d+,\d+ \@\@/)) {
+ 			ERROR("DIFF_IN_COMMIT_MSG",
 
 
