@@ -2,106 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D42E7265DD2
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 12:27:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C816265DFA
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 12:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725812AbgIKK1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 06:27:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43800 "EHLO
+        id S1725809AbgIKKec (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 06:34:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725710AbgIKK13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Sep 2020 06:27:29 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 789DCC061573;
-        Fri, 11 Sep 2020 03:27:29 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id v14so168031pjd.4;
-        Fri, 11 Sep 2020 03:27:29 -0700 (PDT)
+        with ESMTP id S1725836AbgIKKe0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Sep 2020 06:34:26 -0400
+Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F8BCC061756
+        for <stable@vger.kernel.org>; Fri, 11 Sep 2020 03:34:23 -0700 (PDT)
+Received: by mail-io1-xd44.google.com with SMTP id z13so10464584iom.8
+        for <stable@vger.kernel.org>; Fri, 11 Sep 2020 03:34:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=lQt4U1iP+l97io+9Y7fL8PAkQ11+CExjcyqCQ8vCFRA=;
-        b=uUcpqUl4J+axBPi2cfKLPmynySnRMfC5EpBgmWLEzxFSXrPj5+nKQLDVyX9VOCxhdk
-         BdOEZS137xO92s4BG/U92Vhk3woMyqnpbzLRJag/igi73YRR5kpQf7OxO/BZga6KVbfA
-         3P18XJDE1rWaKurScyWaFhWoa2ZSNFL04aR1j/iSzcKDd8plYusp8uyyrjAdX8kg/kvL
-         W+WQddK1Vz4qFOAwvG0Y9FvaWrEdtVAHrmNZfnc0Bi2Bt7Gi31QQrKTCzI1CMvGpapkH
-         Jf0665tj8Xuuyhx6VRKYmY4kQzY9C1f97PLS35ZdhA/XLaX5IJ6q+vZ0lrIKzmRaU13W
-         8zKw==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=+z524mDmvYq+baR0BWogYM0GjW8snYS+Z6ogchoEokY=;
+        b=U+n9suKgHn5P4rOWtcLGBQNpFFA9wbEzWX4NZIkjlHPuA/ugaIFVl2FkMB622us5cD
+         15vSSipnejQOem5Myy7vGHfyB+PeX3OX/96+8/tEgwMGZudeZ0zKX/Y9V5wM5tmHuFxS
+         DeSDdtuuDPXe1kHSjYUvMNLwNWqWtSdpvvRPPpEzcATRHnMS+II1sAwIowUMfM3RuaD0
+         gFA55gcypM6nJj8McgkXB/znaneoMVQHSqRUpEo4l4HrLu79phghjooQijzMnX8w6v3F
+         pw5HfenWhH4fNG8feAPUpvsGQ2cDH1TJgegTbxFW5MVkeLiv6K+vRAlOojD5rs6sgHLl
+         u3Xg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=lQt4U1iP+l97io+9Y7fL8PAkQ11+CExjcyqCQ8vCFRA=;
-        b=QKIcj5uI0SUECDi+/nTmVXMcxD/gYQPuPxBJgnATJQl73Pwu3jB61ILTNT698Qi3Kc
-         SNOUyhU5JuQUcHGoVzVoAWo9us0EvIbM9DSpoA5Iccna/PdPogvfBDTY8Sn4E60axU6G
-         bzOk+3xnzFeYLBVsZDSiN8b1tGQEdmrh41E6gPGpSqA9sKFm/YTldlD9OZk4EoRBWzwU
-         1/pVCnDtXWP7C79XVWDLUu2+mbZXnmwEPyk8QbuYdav5b+7UjBKEvszKCBBa+1rXVa7f
-         Fjx670XJY5JARgIw51/Z1+AtKMZPMJAlXN5SKRXbHt7iHlLW6/OLBZoY8SPuRdDbr7/c
-         RzqA==
-X-Gm-Message-State: AOAM531nUCXeNL32FJqva0OqZC5RgcPPX+UJb/4Cmn05Z1rB6xfmh65W
-        EUbzJdvaeLma0CMe9wsbJRA=
-X-Google-Smtp-Source: ABdhPJwcUR55ZC7FLF5EZfwaI9zLqj9zqxA7mzSfvZKiNBvZaiLTovujelILqFDHwGe/+eBswzad+A==
-X-Received: by 2002:a17:90b:715:: with SMTP id s21mr1549243pjz.113.1599820049108;
-        Fri, 11 Sep 2020 03:27:29 -0700 (PDT)
-Received: from software.domain.org ([45.77.13.216])
-        by smtp.gmail.com with ESMTPSA id j24sm1612727pjy.35.2020.09.11.03.27.25
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 11 Sep 2020 03:27:28 -0700 (PDT)
-From:   Huacai Chen <chenhc@lemote.com>
-To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Marc Zyngier <maz@kernel.org>
-Cc:     linux-mips@vger.kernel.org, Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org
-Subject: [PATCH V2 2/2] irqchip/loongson-htvec: Fix initial interrupts clearing
-Date:   Fri, 11 Sep 2020 18:26:18 +0800
-Message-Id: <1599819978-13999-2-git-send-email-chenhc@lemote.com>
-X-Mailer: git-send-email 2.7.0
-In-Reply-To: <1599819978-13999-1-git-send-email-chenhc@lemote.com>
-References: <1599819978-13999-1-git-send-email-chenhc@lemote.com>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=+z524mDmvYq+baR0BWogYM0GjW8snYS+Z6ogchoEokY=;
+        b=bla7POkw1kfmbETIqvmGhujwmTZOKwoL0kr7mZcgNkdveHrJHJj0JfnK+hrP1vukcH
+         Xri1W3GjEvpa8hqSqcT5fqhiTPeRIUjFJqQqFbLrkU/AhcXtqYLsT2zXTFckBerTqa6D
+         CX1CHEJ3aMmIr6Xs7nxuaJZzOE/qvni7mhPoy6GmKPY5nAILLuvmpt7t25qZjqbkQH6u
+         5GiHf/egQXGu5/UO+Uyqs3xIbEQmEU76z0+Mu6+X4jqG3w4UL7K0F8ahU5ZOepxb2ESt
+         PSGOuItWCt/w+kfYsEUBzt+gpy2W1k8vsg+J2RtbyQkB/NhPNwD/M3c+kkmUc4BmOcOa
+         FFcQ==
+X-Gm-Message-State: AOAM531F39hB8C2C2lfo9Q9a6LOZac8i3wsgg539om5XTD038aSdtXHH
+        t9ryC3x/YiCzI5OgcTjr3CHehgXD4QdXVp6HEvY=
+X-Google-Smtp-Source: ABdhPJxxT1mW4hhlkRAC+cE3wLb65DWVRjbHs4jtnu+f9EL8hJ9ZugQhTYkAZdmyA/fPU4QVEvJCOHqpxhm9qy7Da/o=
+X-Received: by 2002:a02:9086:: with SMTP id x6mr1298114jaf.126.1599820462464;
+ Fri, 11 Sep 2020 03:34:22 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a05:6602:2d45:0:0:0:0 with HTTP; Fri, 11 Sep 2020 03:34:22
+ -0700 (PDT)
+Reply-To: mrs.sophia202@list.ru
+From:   "Mrs. Sophia Robin" <agencydirectorw@gmail.com>
+Date:   Fri, 11 Sep 2020 03:34:22 -0700
+Message-ID: <CAHEkVHsRy8arJT6X-Rpsd_F5api_T7VTutt5fp-HSjHqSTx-Mg@mail.gmail.com>
+Subject: Hello My Dearest
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In htvec_reset() only the first group of initial interrupts is cleared.
-This sometimes causes spurious interrupts, so let's clear all groups.
+Hello My Dearest
 
-BTW, commit c47e388cfc648421bd821f ("irqchip/loongson-htvec: Support 8
-groups of HT vectors") increase interrupt lines from 4 to 8, so update
-comments as well.
+Please I appeal to you to exercise a little patience and read through
+my mail carefully, I am contacting you personally for investment
+assistance and a long term business relationship in your Country.
 
-Cc: stable@vger.kernel.org
-Fixes: 818e915fbac518e8c78e1877 ("irqchip: Add Loongson HyperTransport Vector support")
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- drivers/irqchip/irq-loongson-htvec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+I am Mrs. Sophia Robin a citizen of the united state of America; I
+work in HSBC Bank in Milan Italy as a Telex Manager charge of wire
+transfer and online banking department.
 
-diff --git a/drivers/irqchip/irq-loongson-htvec.c b/drivers/irqchip/irq-loongson-htvec.c
-index 13e6016..6392aaf 100644
---- a/drivers/irqchip/irq-loongson-htvec.c
-+++ b/drivers/irqchip/irq-loongson-htvec.c
-@@ -151,7 +151,7 @@ static void htvec_reset(struct htvec *priv)
- 	/* Clear IRQ cause registers, mask all interrupts */
- 	for (idx = 0; idx < priv->num_parents; idx++) {
- 		writel_relaxed(0x0, priv->base + HTVEC_EN_OFF + 4 * idx);
--		writel_relaxed(0xFFFFFFFF, priv->base);
-+		writel_relaxed(0xFFFFFFFF, priv->base + 4 * idx);
- 	}
- }
- 
-@@ -172,7 +172,7 @@ static int htvec_of_init(struct device_node *node,
- 		goto free_priv;
- 	}
- 
--	/* Interrupt may come from any of the 4 interrupt line */
-+	/* Interrupt may come from any of the 8 interrupt lines */
- 	for (i = 0; i < HTVEC_MAX_PARENT_IRQ; i++) {
- 		parent_irq[i] = irq_of_parse_and_map(node, i);
- 		if (parent_irq[i] <= 0)
--- 
-2.7.0
+I am contacting you for an important and  urgent business transaction,
+I  want the bank to transfer the money left by Dr. Cheng Chao,  A
+Chinese  Politicians who  died, March 17th 2020 without any trace of
+his family member,  he used our bank to launder money overseas through
+the help of their Political advisers. And most of the funds which they
+transferred out of the shores of China were gold and oil money that
+was supposed to have been used to develop the continent.
 
+Can you invest this money and also help the poor? The amount value at
+($15.5million Dollars), left in his account still unclaimed, if you
+know that you are capable to invest this fund into any  profitable
+business in your country kindly send me your details information as
+listed below to enable me draft you an application form of claim which
+you are going to fill with your bank account detail necessary and
+contact the HSBC Bank in Italy  for immediate transfer of the Amounted
+sum into your bank account direct  Or open an online banking for you.
+
+Percentage share will be 60, for me/ 40, for you.
+
+(1) Your full name..................................................
+(2) Your address....................................................
+(3) Your Nationality.................................................
+(4) Your Age / Sex.....................................................
+(5) Your Occupation............................................
+(6) Your marital status......................................
+(7) Your direct telephone number..................
+(8) your ID Card.......................................
+
+Thanks with my best regards.
+Mrs. Sophia Robin
+Telex / Online Banking Manager
+Milan Italy  (H.S.B.C)
