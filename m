@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B16B4265FEA
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 14:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2500265FF0
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 15:00:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726056AbgIKM6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 08:58:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49594 "EHLO mail.kernel.org"
+        id S1726047AbgIKM67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 08:58:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725999AbgIKM4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 08:56:33 -0400
+        id S1726085AbgIKM4n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 08:56:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16F5422248;
-        Fri, 11 Sep 2020 12:54:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7835E2224A;
+        Fri, 11 Sep 2020 12:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828900;
-        bh=2M3kLTHecVIjdKsP3KHuzpxTamDyJv9Z+X2VsAslpYc=;
+        s=default; t=1599828908;
+        bh=pAMpOAnyHqcbatPDSU73E2z9pv/KDTEpLUOtcQTinhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z4WKEr6cj603/VIOZdFmipUDUi/AdJngdkLoKfgYFQAaiqmfQzL4nqb79CKKH17BU
-         PATcsICqqcTGUPyUu4xycIziFbwKaKk+h2GGub1OjgcYwx0p5xRcd6FQyKsPES0iie
-         srESN7S6n/NC9EGL5bnLPEh62Uo42KSS+YNClWRM=
+        b=tZCm+xtcdBqJwQONhjrA9qbPu4LtBna8B31qBJQuoMnv3ohqnM8RViiTId0gpfQjy
+         KtzAVQtIuuFJt+nt7nf36W9z6c6mldHYUm+kec2HY6cqIy3A4YpAcwJMTIul2MHTKO
+         XYYP681oWZvbHclyhzlQuglwec9gGOtCQrXZ5IrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himadri Pandya <himadrispandya@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 50/62] net: usb: Fix uninit-was-stored issue in asix_read_phy_addr()
-Date:   Fri, 11 Sep 2020 14:46:33 +0200
-Message-Id: <20200911122504.887449684@linuxfoundation.org>
+        stable@vger.kernel.org, Simon Wood <simon@mungewell.org>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 52/62] ALSA: firewire-digi00x: exclude Avid Adrenaline from detection
+Date:   Fri, 11 Sep 2020 14:46:35 +0200
+Message-Id: <20200911122504.985599862@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122502.395450276@linuxfoundation.org>
 References: <20200911122502.395450276@linuxfoundation.org>
@@ -43,34 +44,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Himadri Pandya <himadrispandya@gmail.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit a092b7233f0e000cc6f2c71a49e2ecc6f917a5fc upstream.
+[ Upstream commit acd46a6b6de88569654567810acad2b0a0a25cea ]
 
-The buffer size is 2 Bytes and we expect to receive the same amount of
-data. But sometimes we receive less data and run into uninit-was-stored
-issue upon read. Hence modify the error check on the return value to match
-with the buffer size as a prevention.
+Avid Adrenaline is reported that ALSA firewire-digi00x driver is bound to.
+However, as long as he investigated, the design of this model is hardly
+similar to the one of Digi 00x family. It's better to exclude the model
+from modalias of ALSA firewire-digi00x driver.
 
-Reported-and-tested by: syzbot+a7e220df5a81d1ab400e@syzkaller.appspotmail.com
-Signed-off-by: Himadri Pandya <himadrispandya@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This commit changes device entries so that the model is excluded.
 
+$ python3 crpp < ~/git/am-config-rom/misc/avid-adrenaline.img
+               ROM header and bus information block
+               -----------------------------------------------------------------
+400  04203a9c  bus_info_length 4, crc_length 32, crc 15004
+404  31333934  bus_name "1394"
+408  e064a002  irmc 1, cmc 1, isc 1, bmc 0, cyc_clk_acc 100, max_rec 10 (2048)
+40c  00a07e01  company_id 00a07e     |
+410  00085257  device_id 0100085257  | EUI-64 00a07e0100085257
+
+               root directory
+               -----------------------------------------------------------------
+414  0005d08c  directory_length 5, crc 53388
+418  0300a07e  vendor
+41c  8100000c  --> descriptor leaf at 44c
+420  0c008380  node capabilities
+424  8d000002  --> eui-64 leaf at 42c
+428  d1000004  --> unit directory at 438
+
+               eui-64 leaf at 42c
+               -----------------------------------------------------------------
+42c  0002410f  leaf_length 2, crc 16655
+430  00a07e01  company_id 00a07e     |
+434  00085257  device_id 0100085257  | EUI-64 00a07e0100085257
+
+               unit directory at 438
+               -----------------------------------------------------------------
+438  0004d6c9  directory_length 4, crc 54985
+43c  1200a02d  specifier id: 1394 TA
+440  13014001  version: Vender Unique and AV/C
+444  17000001  model
+448  81000009  --> descriptor leaf at 46c
+
+               descriptor leaf at 44c
+               -----------------------------------------------------------------
+44c  00077205  leaf_length 7, crc 29189
+450  00000000  textual descriptor
+454  00000000  minimal ASCII
+458  41766964  "Avid"
+45c  20546563  " Tec"
+460  686e6f6c  "hnol"
+464  6f677900  "ogy"
+468  00000000
+
+               descriptor leaf at 46c
+               -----------------------------------------------------------------
+46c  000599a5  leaf_length 5, crc 39333
+470  00000000  textual descriptor
+474  00000000  minimal ASCII
+478  41647265  "Adre"
+47c  6e616c69  "nali"
+480  6e650000  "ne"
+
+Reported-by: Simon Wood <simon@mungewell.org>
+Fixes: 9edf723fd858 ("ALSA: firewire-digi00x: add skeleton for Digi 002/003 family")
+Cc: <stable@vger.kernel.org> # 4.4+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20200823075545.56305-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/asix_common.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/firewire/digi00x/digi00x.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/usb/asix_common.c
-+++ b/drivers/net/usb/asix_common.c
-@@ -251,7 +251,7 @@ int asix_read_phy_addr(struct usbnet *de
+diff --git a/sound/firewire/digi00x/digi00x.c b/sound/firewire/digi00x/digi00x.c
+index 6973a7ff1c503..659e8224a4dee 100644
+--- a/sound/firewire/digi00x/digi00x.c
++++ b/sound/firewire/digi00x/digi00x.c
+@@ -15,6 +15,7 @@ MODULE_LICENSE("GPL v2");
+ #define VENDOR_DIGIDESIGN	0x00a07e
+ #define MODEL_CONSOLE		0x000001
+ #define MODEL_RACK		0x000002
++#define SPEC_VERSION		0x000001
  
- 	netdev_dbg(dev->net, "asix_get_phy_addr()\n");
- 
--	if (ret < 0) {
-+	if (ret < 2) {
- 		netdev_err(dev->net, "Error reading PHYID register: %02x\n", ret);
- 		goto out;
- 	}
+ static int name_card(struct snd_dg00x *dg00x)
+ {
+@@ -139,14 +140,18 @@ static const struct ieee1394_device_id snd_dg00x_id_table[] = {
+ 	/* Both of 002/003 use the same ID. */
+ 	{
+ 		.match_flags = IEEE1394_MATCH_VENDOR_ID |
++			       IEEE1394_MATCH_VERSION |
+ 			       IEEE1394_MATCH_MODEL_ID,
+ 		.vendor_id = VENDOR_DIGIDESIGN,
++		.version = SPEC_VERSION,
+ 		.model_id = MODEL_CONSOLE,
+ 	},
+ 	{
+ 		.match_flags = IEEE1394_MATCH_VENDOR_ID |
++			       IEEE1394_MATCH_VERSION |
+ 			       IEEE1394_MATCH_MODEL_ID,
+ 		.vendor_id = VENDOR_DIGIDESIGN,
++		.version = SPEC_VERSION,
+ 		.model_id = MODEL_RACK,
+ 	},
+ 	{}
+-- 
+2.25.1
+
 
 
