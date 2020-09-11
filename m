@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47677266625
-	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:22:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93917266648
+	for <lists+stable@lfdr.de>; Fri, 11 Sep 2020 19:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726206AbgIKRVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Sep 2020 13:21:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52784 "EHLO mail.kernel.org"
+        id S1726187AbgIKRY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Sep 2020 13:24:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726129AbgIKNAL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Sep 2020 09:00:11 -0400
+        id S1726131AbgIKNAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Sep 2020 09:00:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A571B22268;
-        Fri, 11 Sep 2020 12:56:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A862D2226B;
+        Fri, 11 Sep 2020 12:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599828979;
-        bh=Z6gJZPjSRK3HXTHj6lNOoVFeYyw7CtoNcqJnYpcp5Sk=;
+        s=default; t=1599828984;
+        bh=p6uNEAiri0OzZ1/93DJ8TG7PHf9aP2bTZ9/fkANWS+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MItNY877L1JBb4AjOg+N2MW57EmpEizutQwawZqRudmGmXW1ACN+zEtfFrG/pFTYW
-         UhVTu30z1UdNifupA72Bj4b++gmajTfN8h0rS33W47RJLzkSEfm+ecIMt99lBvjlox
-         TqsDjj3kX+q5Fm3ALFfTBEIrz8a08JTs4cqJkCWs=
+        b=dtIucj3oT+uGOUyKrsmjO3eHGI0wnfDvIrph9x32EzR6KjODliT92FgTt10PR3tIL
+         OguleYa+I1ndlGerWxDKLNOVBMZVECGn9AHFSMdta3DRfiq0uCyOH3db5U6bYVMhdd
+         mkoztpB+fEytdUpFyBJBhFAkqmgWA35mdIlGZiwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuusuke Ashizuka <ashiduka@fujitsu.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 19/71] ravb: Fixed to be able to unload modules
-Date:   Fri, 11 Sep 2020 14:46:03 +0200
-Message-Id: <20200911122505.899535138@linuxfoundation.org>
+Subject: [PATCH 4.9 20/71] net: arc_emac: Fix memleak in arc_mdio_probe
+Date:   Fri, 11 Sep 2020 14:46:04 +0200
+Message-Id: <20200911122505.949211751@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200911122504.928931589@linuxfoundation.org>
 References: <20200911122504.928931589@linuxfoundation.org>
@@ -45,206 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuusuke Ashizuka <ashiduka@fujitsu.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 1838d6c62f57836639bd3d83e7855e0ee4f6defc ]
+[ Upstream commit e2d79cd8875fa8c3cc7defa98a8cc99a1ed0c62f ]
 
-When this driver is built as a module, I cannot rmmod it after insmoding
-it.
-This is because that this driver calls ravb_mdio_init() at the time of
-probe, and module->refcnt is incremented by alloc_mdio_bitbang() called
-after that.
-Therefore, even if ifup is not performed, the driver is in use and rmmod
-cannot be performed.
+When devm_gpiod_get_optional() fails, bus should be
+freed just like when of_mdiobus_register() fails.
 
-$ lsmod
-Module                  Size  Used by
-ravb                   40960  1
-$ rmmod ravb
-rmmod: ERROR: Module ravb is in use
-
-Call ravb_mdio_init() at open and free_mdio_bitbang() at close, thereby
-rmmod is possible in the ifdown state.
-
-Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
-Signed-off-by: Yuusuke Ashizuka <ashiduka@fujitsu.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Fixes: 1bddd96cba03d ("net: arc_emac: support the phy reset for emac driver")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c | 110 +++++++++++------------
- 1 file changed, 55 insertions(+), 55 deletions(-)
+ drivers/net/ethernet/arc/emac_mdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 93d3152752ff4..a5de56bcbac08 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1336,6 +1336,51 @@ static inline int ravb_hook_irq(unsigned int irq, irq_handler_t handler,
- 	return error;
- }
- 
-+/* MDIO bus init function */
-+static int ravb_mdio_init(struct ravb_private *priv)
-+{
-+	struct platform_device *pdev = priv->pdev;
-+	struct device *dev = &pdev->dev;
-+	int error;
-+
-+	/* Bitbang init */
-+	priv->mdiobb.ops = &bb_ops;
-+
-+	/* MII controller setting */
-+	priv->mii_bus = alloc_mdio_bitbang(&priv->mdiobb);
-+	if (!priv->mii_bus)
-+		return -ENOMEM;
-+
-+	/* Hook up MII support for ethtool */
-+	priv->mii_bus->name = "ravb_mii";
-+	priv->mii_bus->parent = dev;
-+	snprintf(priv->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
-+		 pdev->name, pdev->id);
-+
-+	/* Register MDIO bus */
-+	error = of_mdiobus_register(priv->mii_bus, dev->of_node);
-+	if (error)
-+		goto out_free_bus;
-+
-+	return 0;
-+
-+out_free_bus:
-+	free_mdio_bitbang(priv->mii_bus);
-+	return error;
-+}
-+
-+/* MDIO bus release function */
-+static int ravb_mdio_release(struct ravb_private *priv)
-+{
-+	/* Unregister mdio bus */
-+	mdiobus_unregister(priv->mii_bus);
-+
-+	/* Free bitbang info */
-+	free_mdio_bitbang(priv->mii_bus);
-+
-+	return 0;
-+}
-+
- /* Network device open function for Ethernet AVB */
- static int ravb_open(struct net_device *ndev)
- {
-@@ -1344,6 +1389,13 @@ static int ravb_open(struct net_device *ndev)
- 	struct device *dev = &pdev->dev;
- 	int error;
- 
-+	/* MDIO bus init */
-+	error = ravb_mdio_init(priv);
-+	if (error) {
-+		netdev_err(ndev, "failed to initialize MDIO\n");
-+		return error;
-+	}
-+
- 	napi_enable(&priv->napi[RAVB_BE]);
- 	napi_enable(&priv->napi[RAVB_NC]);
- 
-@@ -1421,6 +1473,7 @@ out_free_irq:
- out_napi_off:
- 	napi_disable(&priv->napi[RAVB_NC]);
- 	napi_disable(&priv->napi[RAVB_BE]);
-+	ravb_mdio_release(priv);
- 	return error;
- }
- 
-@@ -1718,6 +1771,8 @@ static int ravb_close(struct net_device *ndev)
- 	ravb_ring_free(ndev, RAVB_BE);
- 	ravb_ring_free(ndev, RAVB_NC);
- 
-+	ravb_mdio_release(priv);
-+
- 	return 0;
- }
- 
-@@ -1820,51 +1875,6 @@ static const struct net_device_ops ravb_netdev_ops = {
- 	.ndo_change_mtu		= eth_change_mtu,
- };
- 
--/* MDIO bus init function */
--static int ravb_mdio_init(struct ravb_private *priv)
--{
--	struct platform_device *pdev = priv->pdev;
--	struct device *dev = &pdev->dev;
--	int error;
--
--	/* Bitbang init */
--	priv->mdiobb.ops = &bb_ops;
--
--	/* MII controller setting */
--	priv->mii_bus = alloc_mdio_bitbang(&priv->mdiobb);
--	if (!priv->mii_bus)
--		return -ENOMEM;
--
--	/* Hook up MII support for ethtool */
--	priv->mii_bus->name = "ravb_mii";
--	priv->mii_bus->parent = dev;
--	snprintf(priv->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
--		 pdev->name, pdev->id);
--
--	/* Register MDIO bus */
--	error = of_mdiobus_register(priv->mii_bus, dev->of_node);
--	if (error)
--		goto out_free_bus;
--
--	return 0;
--
--out_free_bus:
--	free_mdio_bitbang(priv->mii_bus);
--	return error;
--}
--
--/* MDIO bus release function */
--static int ravb_mdio_release(struct ravb_private *priv)
--{
--	/* Unregister mdio bus */
--	mdiobus_unregister(priv->mii_bus);
--
--	/* Free bitbang info */
--	free_mdio_bitbang(priv->mii_bus);
--
--	return 0;
--}
--
- static const struct of_device_id ravb_match_table[] = {
- 	{ .compatible = "renesas,etheravb-r8a7790", .data = (void *)RCAR_GEN2 },
- 	{ .compatible = "renesas,etheravb-r8a7794", .data = (void *)RCAR_GEN2 },
-@@ -2069,13 +2079,6 @@ static int ravb_probe(struct platform_device *pdev)
- 		eth_hw_addr_random(ndev);
+diff --git a/drivers/net/ethernet/arc/emac_mdio.c b/drivers/net/ethernet/arc/emac_mdio.c
+index a22403c688c95..337cfce78aef2 100644
+--- a/drivers/net/ethernet/arc/emac_mdio.c
++++ b/drivers/net/ethernet/arc/emac_mdio.c
+@@ -152,6 +152,7 @@ int arc_mdio_probe(struct arc_emac_priv *priv)
+ 	if (IS_ERR(data->reset_gpio)) {
+ 		error = PTR_ERR(data->reset_gpio);
+ 		dev_err(priv->dev, "Failed to request gpio: %d\n", error);
++		mdiobus_free(bus);
+ 		return error;
  	}
  
--	/* MDIO bus init */
--	error = ravb_mdio_init(priv);
--	if (error) {
--		dev_err(&pdev->dev, "failed to initialize MDIO\n");
--		goto out_dma_free;
--	}
--
- 	netif_napi_add(ndev, &priv->napi[RAVB_BE], ravb_poll, 64);
- 	netif_napi_add(ndev, &priv->napi[RAVB_NC], ravb_poll, 64);
- 
-@@ -2095,8 +2098,6 @@ static int ravb_probe(struct platform_device *pdev)
- out_napi_del:
- 	netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
--	ravb_mdio_release(priv);
--out_dma_free:
- 	dma_free_coherent(ndev->dev.parent, priv->desc_bat_size, priv->desc_bat,
- 			  priv->desc_bat_dma);
- 
-@@ -2129,7 +2130,6 @@ static int ravb_remove(struct platform_device *pdev)
- 	unregister_netdev(ndev);
- 	netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
--	ravb_mdio_release(priv);
- 	pm_runtime_disable(&pdev->dev);
- 	free_netdev(ndev);
- 	platform_set_drvdata(pdev, NULL);
 -- 
 2.25.1
 
