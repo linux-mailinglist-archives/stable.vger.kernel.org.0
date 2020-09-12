@@ -2,86 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02638267856
-	for <lists+stable@lfdr.de>; Sat, 12 Sep 2020 08:49:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38EC8267882
+	for <lists+stable@lfdr.de>; Sat, 12 Sep 2020 09:21:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725830AbgILGtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Sep 2020 02:49:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35448 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725820AbgILGtE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 12 Sep 2020 02:49:04 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FD5B214D8;
-        Sat, 12 Sep 2020 06:49:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599893344;
-        bh=H5QLO5t2OyR6Esoq8FXYgazAadJEqcGK/5dN4M9Wuhw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Cq8cbeVF4/v2jlYDOnyNTzv99+d3JrRL8Pjqny/g2dEgcLSDIiMedkL1hY/ZRcFHH
-         pKqP1TdIy8YFvL/R+HoP3McqKR8inZt8rYlM6jgpUmc/x7mVddG0LR+6RraZylrD3o
-         plFCvLzB5gTPJNrRkwQRLUhqHe8J8i+oC1K3guTk=
-Date:   Sat, 12 Sep 2020 08:49:00 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alex Hung <alex.hung@canonical.com>
-Cc:     rjw@rjwysocki.net, lenb@kernel.org, linux-acpi@vger.kernel.org,
-        All applicable <stable@vger.kernel.org>
-Subject: Re: [PATCH] ACPI: video: use ACPI backlight for HP 635 Notebook
-Message-ID: <20200912064900.GB558156@kroah.com>
-References: <20200911221420.21692-1-alex.hung@canonical.com>
+        id S1725808AbgILHVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Sep 2020 03:21:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40026 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725788AbgILHVA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Sep 2020 03:21:00 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D73C061573;
+        Sat, 12 Sep 2020 00:20:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=IO15FPfV7WlpSs/4QD3nTgCmNRAVUjKHodQH7y6cWwc=; b=tLhDzwg795yoiuFQqAj2x/Pntj
+        LJWzdWp7CSBxptRrH+UZNlui/ZsGChvfD3/bHUsW6L81Q50JAUKMsubFzeERNXuqDGkHKwUNr9LoX
+        ABzE1pr8xP0rWrBY8rjJ5nSWwB+QxJo6LP04nryZ5LA+hWUXX3VTXTHcYE8H8RIi9ggCRdXHUyUve
+        7hiQUuboDW7wZcll2QxyB3qK+XAo0xG7KYgnv1YDfwPQUqKk+LhzGUgR192w9T4ppKuEPvANjXKYX
+        kgVqKAHz5sVu8Gw4fYkVUyUyxf3E2RU8M81qNg8Gx1GSmbN+YHlvDn/oKEX/nxyQp8RirLwQ4aEKB
+        87qu1HYQ==;
+Received: from hch by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kGzq9-00019Q-Uq; Sat, 12 Sep 2020 07:20:54 +0000
+Date:   Sat, 12 Sep 2020 08:20:53 +0100
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Kashyap Desai <kashyap.desai@broadcom.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        hch@infradead.org, stable@vger.kernel.org,
+        Anand Lodnoor <anand.lodnoor@broadcom.com>,
+        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+        Hannes Reinecke <hare@suse.de>, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] scsi: megaraid_sas: check user-provided offsets
+Message-ID: <20200912072053.GB1945@infradead.org>
+References: <20200908213715.3553098-1-arnd@arndb.de>
+ <20200908213715.3553098-2-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200911221420.21692-1-alex.hung@canonical.com>
+In-Reply-To: <20200908213715.3553098-2-arnd@arndb.de>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 11, 2020 at 04:14:20PM -0600, Alex Hung wrote:
-> Default backlight interface is AMD's radeon_bl0 which does not work on
-> this system. As a result, let's for ACPI backlight interface for this
-> system.
+On Tue, Sep 08, 2020 at 11:36:22PM +0200, Arnd Bergmann wrote:
+> It sounds unwise to let user space pass an unchecked 32-bit
+> offset into a kernel structure in an ioctl. This is an unsigned
+> variable, so checking the upper bound for the size of the structure
+> it points into is sufficient to avoid data corruption, but as
+> the pointer might also be unaligned, it has to be written carefully
+> as well.
 > 
-> BugLink: https://bugs.launchpad.net/bugs/1894667
-> 
-> Cc: All applicable <stable@vger.kernel.org>
-> Signed-off-by: Alex Hung <alex.hung@canonical.com>
-> ---
->  drivers/acpi/video_detect.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-> index 2499d7e..05047a3 100644
-> --- a/drivers/acpi/video_detect.c
-> +++ b/drivers/acpi/video_detect.c
-> @@ -282,6 +282,15 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
->  		DMI_MATCH(DMI_PRODUCT_NAME, "530U4E/540U4E"),
->  		},
->  	},
-> +	/* https://bugs.launchpad.net/bugs/1894667 */
-> +	{
-> +	 .callback = video_detect_force_video,
-> +	 .ident = "HP 635 Notebook",
-> +	 .matches = {
-> +		DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-> +		DMI_MATCH(DMI_PRODUCT_NAME, "HP 635 Notebook PC"),
-> +		},
-> +	},
->  
->  	/* Non win8 machines which need native backlight nevertheless */
->  	{
-> -- 
-> 2.7.4
-> 
+> While I stumbled over this problem by reading the code, I did not
+> continue checking the function for further problems like it.
 
-<formletter>
+Oh, yikes!
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+> 
+> Cc: stable@vger.kernel.org
 
-</formletter>
+What about a Fixes tag instead?
+
+>  	if (ioc->sense_len) {
+> +		/* make sure the pointer is part of the frame */
+> +		if (ioc->sense_off > (sizeof(union megasas_frame) - sizeof(__le64))) {
+
+No need for the inner braces and please avoid over 80 char lines.
+
+Otherwise looks good:
+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
