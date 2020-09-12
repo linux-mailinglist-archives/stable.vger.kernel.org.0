@@ -2,96 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1FD267AF3
-	for <lists+stable@lfdr.de>; Sat, 12 Sep 2020 16:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF98E267B29
+	for <lists+stable@lfdr.de>; Sat, 12 Sep 2020 17:02:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725865AbgILOiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Sep 2020 10:38:00 -0400
-Received: from sonic312-23.consmr.mail.ne1.yahoo.com ([66.163.191.204]:35955
-        "EHLO sonic312-23.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725848AbgILOhY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Sep 2020 10:37:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1599921443; bh=DPYuw2gUpgtMJzJhlH/AVmRGu2wSKCY1C+f8nOCoxu0=; h=Date:From:Reply-To:Subject:References:From:Subject; b=Zqzx6k+wEXSDklolrl4PyfjSe0Jlsfke3ETxPkfyl8mNFtibASVYExGcc/ZprlUcL3rx5Jm/R7ylALnALDLaCOc2S4cFa82A0OOMsLAD02abXwXRUI5BnzJnY45bwQH4eCMC6wgPPV6IP1VGEw9kxjIEbjG1Zw+GYJzkYw5f1nbcgSu/jzD/WMSTpCFbp57SducilqLDCdZSPc+TxPquls7LiU36cop/LHaGH9ilQ53IaAHFESDLKMHH2u3Jc62x/KRPcMLrwdLlCFXsCNzjmGwQRUgzbD4QxwwbCCcDMAJv59ehNzaE+M4V5GAHhA0xuaj5Vc3U6bzsxM+9ql5aZw==
-X-YMail-OSG: lvfoKWEVM1k84KG_XH_YAdRyf9tTnvoTfeoVBiUBSleRbf7mU_C9r1airxK6f8Y
- SFxJ0OnfS2TnWQlk7KN9Wsl.m.QEwMh4SYNSWm_6fDP3cp2X9QK6X2dGgJfj207vrCf4TD7CFx4s
- 5WjX4wivBhTX4k5tesoq1oNWRRsDU_HGbDXyDmfdTPC8uIVOGNeJifh.inTk9Lnu_KyyYFv4UmWw
- ospooJcbqB5VVso2uaAIMOeTU3tWfOcuFo0oQq.02ybyM3qZL3nc1g6DET68YOZZnS5lxuEtznMR
- 1XGSBvQHMINsW9XGszvq.h6GCIuApaODlkGnyDMYYKpgsg2ezdYXhD3N2LOQ.EVH3yKFDq68pfBW
- _XlNHWFRYhfPlVapMmt9Vsf0ntEM3ttlNcizxvL2yBqQ3jqHYTDJDCQJ5STaLeVDJlJ6hD2lrv_B
- KxHdLCeo8_FQVF6ER5gdZVV0kugwc.5LzlTaYnKOyAbc4EHg1htlK0qmsV2xgtEDdfdvsUL9cvMk
- JZQny5gI7RJ1YqageZOd_G6L4juaG4Ccrbacce1XYLPZlFIJzJUFkQ4CKK4CcrgAyRqDrXs5iSTE
- lwjQFHQLvWzJrlI3sGlWTlqnggbWCDjw0TuwFc7FcUsEqPV_Y6iVwH03FGSJyfUQPruMFzPElpQ5
- T0QVcOJ4cykgRV_Pn5v5xFgTtP0etZH0Ukl6VCai4oDZzSmNV7to1flIdfVw2t8uLQ4G49xOlYxK
- T0N_lhB1UHttvz0dbL9l_EUz3mER06O.3Jc.xY.6SRhnLCq1cYnx3NLElNr5pGzO0wU1HnUBC5An
- XGWtItIcNBI7RFuZaHL757.DU9uUChn_kECUUc1Ck8mglTyida1To34T4Hrx6kMVnMSss6Liomab
- 4Xu47qGvugzyWJzOrgHrSLmWhLY1qC5.ScpGJPSLP2I2ID7dVVh7OmhuhBHkJtW5toT1OfZ4qOoj
- Eq9gs5g3jPTDd4BgWJjdsB8T1QKClarNUX8R2Zn5UnjPEJS5cb2pd.qcVVSXoHmQ5ySKhu6qd8eE
- Z0yQXVng2deClxDGUdiPiMexgwZf1Wvkhb8BhLPt7KpfHSZnbwZYhbAlzT6.6zDZdUIO1FO86rCj
- 9fC.CKVuNCIbR_2q0ZvXBpyM20kfZCeqJIgJkFciEoARAsevcVk3WfWJcccniJ69g5aNngOqCE9K
- .k37GJDGd0WyN.JyQ.pzTMkOW3QGngO_u7uQcESxtI3H_RRhMA1YdCxqp1v2elrkQC5CXQVE103R
- x.B7DlIO92AhXtQJjfJmLDKh6xWhJgIa8WVy5IW6XkISL5dOkgi5Ia5KCDTx1x.YoKdXN4wrvRHn
- 3X5xvFJZHqElB38.U_aN_P1IXcUNAhP7SZBvPZPxlksgEaIxpEOswWCn58Sbriigv0NQM9.Wetm7
- VnUXopoLKa8WLc2xelpbPO4bdt0mjdpKfZgYSsTKULys4dnrSJA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Sat, 12 Sep 2020 14:37:23 +0000
-Date:   Sat, 12 Sep 2020 14:37:19 +0000 (UTC)
-From:   "Mrs. Mina A. Brunel" <brunelminaa2@gmail.com>
-Reply-To: mrsminaabrunel7@gmail.com
-Message-ID: <618514927.1518164.1599921439413@mail.yahoo.com>
-Subject: My Dear in the lord
+        id S1725869AbgILPCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Sep 2020 11:02:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725899AbgILPB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Sep 2020 11:01:57 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CA8EC061573
+        for <stable@vger.kernel.org>; Sat, 12 Sep 2020 08:01:57 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id b17so3108263pji.1
+        for <stable@vger.kernel.org>; Sat, 12 Sep 2020 08:01:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3L8yGJppvZxLj3tgNtU2sAVws+CjDXcrLUYHKMkpwG0=;
+        b=0kPtlc8i2h8U+Z6yaPYgzvpDIAO5FtOCHhzyAdXcS3fkIReanLMgYm9dSqCbvkhMlo
+         mFBFu5RO+9elOvt4j7PMu89qJ2cYPvcQfmoJCVE0uxhtBYozt8yoErzzpqufj6HhElr/
+         JvBVmuuKeTxGbmaULCKhrE/VuKtE5G3IIa3cN67ssm3X1vJsBGb6V2F95goRtI0pqqFf
+         1ETZgimF2eZp1AqPjj8SZovCKQdW3EQdyEQ91+QHAB6f/w5hWCNhb+fjA46HhAa4M68h
+         VGN8nMZSji7wlyJ7oD5tXKss+oF7LOPO+KdzzWnoHjX10LrCKdn6dYfCPF4EeSLbXNPb
+         +HVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3L8yGJppvZxLj3tgNtU2sAVws+CjDXcrLUYHKMkpwG0=;
+        b=eCLtXQu/SrNRkaDB2+oiscoNXTemQSv1+qT2hPGX1q9M8u8jhiIvVAIOCJbcCSUKc2
+         RWrsdZ3TShItR+RoWg3sP23913ArNHt0TclajdPdY+IQciaM+7OJfaaJxVkc8oS1ijcN
+         /5OG5KwLKu/D7oVD1d1grsAR6wWarCj/L8IA2R/UTlVgCl1BfE6miPYJ+UlZ3GbRnN3w
+         CMvO1jcbAMjUR4gmQ3XUVwO4C6WtsOVilMLCcgXuYZp/xrh9Qp5kQ2RWRuQEZrEYuKpW
+         Ym5UWalTfuh3+NMw90MF5s5J8jhu3eF5Y82jjsgfJ1ZdVU+B6I82HEBBOEbiAkRJYiwk
+         U6hQ==
+X-Gm-Message-State: AOAM531P+6jv5OI21E5loktH5hda+eSXB91pvK+dYIsMkT7rdXdS7jPW
+        pvFi5ZhrzhfO827L5cgz5HueDcla1rapJg==
+X-Google-Smtp-Source: ABdhPJzTDzueP9l/kNyLJZDVYAk5WEWHyHK9AyLBtapOKxN5gEXtzg3KVHvdcFiGUkqpsq/eMmKw/g==
+X-Received: by 2002:a17:902:9341:: with SMTP id g1mr6553889plp.94.1599922914574;
+        Sat, 12 Sep 2020 08:01:54 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id bx18sm4582734pjb.6.2020.09.12.08.01.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 12 Sep 2020 08:01:53 -0700 (PDT)
+Message-ID: <5f5ce2e1.1c69fb81.aef08.b5dc@mx.google.com>
+Date:   Sat, 12 Sep 2020 08:01:53 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-References: <618514927.1518164.1599921439413.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16583 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+X-Kernelci-Kernel: v5.4.64-8-g94236713d3ff
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 183 runs,
+ 1 regressions (v5.4.64-8-g94236713d3ff)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.4 baseline: 183 runs, 1 regressions (v5.4.64-8-g94236713d=
+3ff)
+
+Regressions Summary
+-------------------
+
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
 
 
-My Dear in the lord
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.64-8-g94236713d3ff/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.64-8-g94236713d3ff
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      94236713d3ffccdd8562e43952fa6234fc5b531c =
 
 
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politicians who owns a small=
- gold company in Burkina Faso; He died of Leprosy and Radesyge, in year Feb=
-ruary 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Milli=
-on Euro) Eight million, Five hundred thousand Euros in a bank in Ouagadougo=
-u the capital city of of Burkina in West Africa. The money was from the sal=
-e of his company and death benefits payment and entitlements of my deceased=
- husband by his company.
 
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
+Test Regressions
+---------------- =
 
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
 
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
 
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
 
-Thanks
-Mrs. Mina A. Brunel
+
+  Details:     https://kernelci.org/test/plan/id/5f5ca8e81f7a8d8a53a60917
+
+  Results:     3 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.64-8-=
+g94236713d3ff/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.64-8-=
+g94236713d3ff/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f5ca8e81f7a8d8a=
+53a60919
+      new failure (last pass: v5.4.64-8-gdca50a33fc3d)
+      2 lines
+
+    2020-09-12 10:52:21.970000  Connected to bcm2837-rpi-3-b console [chann=
+el connected] (~$quit to exit)
+    2020-09-12 10:52:21.970000  (user:khilman) is already connected
+    2020-09-12 10:52:36.909000  =00
+    2020-09-12 10:52:36.909000  =
+
+    2020-09-12 10:52:36.909000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
+0)
+    2020-09-12 10:52:36.909000  =
+
+    2020-09-12 10:52:36.910000  DRAM:  948 MiB
+    2020-09-12 10:52:36.925000  RPI 3 Model B (0xa02082)
+    2020-09-12 10:52:37.013000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
+    2020-09-12 10:52:37.045000  Loading Environment from FAT... *** Warning=
+ - bad CRC, using default environment
+    ... (385 line(s) more)
+      =20
