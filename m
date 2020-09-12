@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AACA8267886
-	for <lists+stable@lfdr.de>; Sat, 12 Sep 2020 09:27:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 767D526788D
+	for <lists+stable@lfdr.de>; Sat, 12 Sep 2020 09:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725833AbgILH1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Sep 2020 03:27:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41310 "EHLO
+        id S1725832AbgILHc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Sep 2020 03:32:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725808AbgILH1v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Sep 2020 03:27:51 -0400
-Received: from mail-vk1-xa41.google.com (mail-vk1-xa41.google.com [IPv6:2607:f8b0:4864:20::a41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C340C061757
-        for <stable@vger.kernel.org>; Sat, 12 Sep 2020 00:27:51 -0700 (PDT)
-Received: by mail-vk1-xa41.google.com with SMTP id n7so2933565vkq.5
-        for <stable@vger.kernel.org>; Sat, 12 Sep 2020 00:27:51 -0700 (PDT)
+        with ESMTP id S1725820AbgILHc1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Sep 2020 03:32:27 -0400
+Received: from mail-vs1-xe42.google.com (mail-vs1-xe42.google.com [IPv6:2607:f8b0:4864:20::e42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D629DC061757
+        for <stable@vger.kernel.org>; Sat, 12 Sep 2020 00:32:25 -0700 (PDT)
+Received: by mail-vs1-xe42.google.com with SMTP id a16so6637536vsp.12
+        for <stable@vger.kernel.org>; Sat, 12 Sep 2020 00:32:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=7NlcLAlNPtWofagY+Is55AZgVy6zFJSOgrS1UIM2OXQ=;
-        b=XgMqgE835V9QHhzkTOvYVDVA8MZMAZIArnyAFUycUjR1g/V1pqoAVjdtI24gO5O0Bk
-         0UR+uZnX+OTONAj4r2vUeaNiGa+QII3JIZTDwl9rgZBfnY5PLkVsm0ASJ4/owomZsYdT
-         HcM51fIhEhyw8L04L8m83JWSKWHK6yrLekvIV0T7gRLMK9+lKx3PFsUs/kOUYg2YUhiH
-         KyGzEsiWgWKcLfQmSud6ETJmJdDDuuR/dMmk8+veZFVFjiX5+GPXigxgbQ/RTMhMK2pe
-         lapPrCritDzNGDOifvbS0+uc9xzDQ3iDNv2WvL9Qo9ma7Oukpk2IrXMvADz3GN9xVKp9
-         1jgQ==
+        bh=nfFkqnWEErNxFtWv/YO3PFi1cE+9jARKcj78ildkfXw=;
+        b=x6ZvlpK4bqoK5Naewn83FqTmxPX5/4/XfaZWtvdJZooo0Pa58j6a5agCmUjMaiGRg0
+         tuBGC5sKDLBvP3TrYE6IqwDUH14zFqoyRC8V9nxhuGLr0Q7zNMkc86wYGlJP23mqwbmt
+         mWhg1df020BaMzArFTNdyOjtiB1WXPb8b9poDKWAVfCVDlZOx1yINO2jS8t6OrgW45Sf
+         WFoIKAy1HCXdwFO1BkVeaKkdnJITF+J7vKacoPG5TtfcJT381DQVd7hmeXEZ2bXR4iIr
+         XZ+t4zpRzxOA0GImcbQCxkzwxBZNJrmmdfo6mdzdhdu/Ik8ksgzQGjN+VWJO6bpqbs30
+         RjEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=7NlcLAlNPtWofagY+Is55AZgVy6zFJSOgrS1UIM2OXQ=;
-        b=amf4tOoF0m6q2fjuDOYnZd49YRKFpUN4KMru9L/tdpP4q1KwVxgnjBGS3maRo/YcDB
-         S4S6NjjzdQDXbwYCluzvO8851JF/2pYJVs3RMWmVk1S3Z7zk1iaU93OOiUDEqf7FVuK+
-         KzqK9ggIAoDY6kvfK+j4fifiSyNH6KuFrSylfaUr4u3OzOCs40TioAxjtmng164coq3n
-         6cz4nqbfrWps3iD2I1GuYtlOi8n6H7Jn59JadPQ6+a7Ca1HsSAxj4/1DLxB21nldgMXB
-         /3Fy7/gPNIOj+YYYGXZQPeCcpB2gCYXjNJBnAWZQBtTqbIkurvuhfsCCSFQlYHQSwlc1
-         WweA==
-X-Gm-Message-State: AOAM533Amzcgkao9Bf3f+oy/uPcRdGkmjiJVF9qOvmWO8YPnA/N9cAwc
-        0WXSGoPhBk/DZIdCwI8J/0UlL9RXG81GEY2xJ2cauQ==
-X-Google-Smtp-Source: ABdhPJyLGSzyYoi6qjpNDXXb+e5Vam9IhtoOp2KTKvUe/cSIVGC7y74I8WaKXXT4voGH/Xt+Qi+qHLdyrj8BzkBn/RE=
-X-Received: by 2002:a1f:198b:: with SMTP id 133mr2979974vkz.28.1599895669873;
- Sat, 12 Sep 2020 00:27:49 -0700 (PDT)
+        bh=nfFkqnWEErNxFtWv/YO3PFi1cE+9jARKcj78ildkfXw=;
+        b=kyipD6FyBl8qZe3ovMBhOYhHkjVwD8NqAlPYcvnF4cSYWmDwXw94ARUzRKwxcDuB+r
+         YQJAJ93oQqMQglvcTeFVQiuho2fkMblk8lyopQ9+CaNj6Rn3wTY7LdoRgpGLQL3iAhxA
+         FsaYEmuNjQsLZH06wzSGOWfgcmjkYDNVEXX59WTjfTUitarwUQn/PCLj9xgP7Sf4QkdM
+         uVhhzAgfFR2l21nRMU32zMaQ89o9k1LKF8pOftHtQsM57uyzhJrHFhLon4WZ532Bh+ya
+         3uydro/CN5f29/rpAs9INaxlGMkULC4Ct3cbcMidZRICsazVdKZEY14XbQIXMb21rRNL
+         gg8g==
+X-Gm-Message-State: AOAM530+/Pagu4obVnFofpHUxD/CV5TxR1pax+wqFc0YM2X1dRYXEvLU
+        mahTjvgl9aDr300BhRpttv0ZermExFkYgGPupFEAaw==
+X-Google-Smtp-Source: ABdhPJymmSWRVMaBiaEb51EEzKXZicnyVgNWqPdBP9jxO/FyT2ZsKBQ2uIbNkq37k8J1eXBxQ2lpEyFHUgoN9qQf4qY=
+X-Received: by 2002:a05:6102:10c2:: with SMTP id t2mr3145887vsr.10.1599895943346;
+ Sat, 12 Sep 2020 00:32:23 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200911122459.585735377@linuxfoundation.org>
-In-Reply-To: <20200911122459.585735377@linuxfoundation.org>
+References: <20200911125420.580564179@linuxfoundation.org>
+In-Reply-To: <20200911125420.580564179@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 12 Sep 2020 12:57:38 +0530
-Message-ID: <CA+G9fYsg+g_4B=6ritrWuZKFHJadnmAOjppjBt1nAGQGrdty2g@mail.gmail.com>
-Subject: Re: [PATCH 5.8 00/16] 5.8.9-rc1 review
+Date:   Sat, 12 Sep 2020 13:02:12 +0530
+Message-ID: <CA+G9fYtmb-V2QRWA7is1fGRKjBh6FgYcDjTjrydWOPWq7wNk5w@mail.gmail.com>
+Subject: Re: [PATCH 5.4 0/8] 5.4.65-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
@@ -69,26 +69,25 @@ X-Mailing-List: stable@vger.kernel.org
 On Fri, 11 Sep 2020 at 18:30, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.8.9 release.
-> There are 16 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.4.65 release.
+> There are 8 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
-> Responses should be made by Sun, 13 Sep 2020 12:24:42 +0000.
+> Responses should be made by Sun, 13 Sep 2020 12:54:10 +0000.
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.8.9-rc1.gz
+5.4.65-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.8.y
+-rc.git linux-5.4.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
->
 
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
@@ -98,23 +97,23 @@ Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.8.9-rc1
+kernel: 5.4.65-rc1
 git repo: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able-rc.git',
 'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
-git branch: linux-5.8.y
-git commit: dcdaabfe3cea0fafa25a9a2ce8d83fd4edad41d6
-git describe: v5.8.8-17-gdcdaabfe3cea
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.8.=
-y/build/v5.8.8-17-gdcdaabfe3cea
+git branch: linux-5.4.y
+git commit: cdcf7cd54ebd34795a39be0bf517dd1017873640
+git describe: v5.4.64-9-gcdcf7cd54ebd
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
+y/build/v5.4.64-9-gcdcf7cd54ebd
 
 
-No regressions (compared to build v5.8.8)
+No regressions (compared to build v5.4.64)
 
 
-No fixes (compared to build v5.8.8)
+No fixes (compared to build v5.4.64)
 
-Ran 20836 total tests in the following environments and test suites.
+Ran 19759 total tests in the following environments and test suites.
 
 Environments
 --------------
