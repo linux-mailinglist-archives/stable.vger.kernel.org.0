@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76F2A267A5F
-	for <lists+stable@lfdr.de>; Sat, 12 Sep 2020 14:46:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E82A267A58
+	for <lists+stable@lfdr.de>; Sat, 12 Sep 2020 14:44:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725931AbgILMpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Sep 2020 08:45:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42168 "EHLO mail.kernel.org"
+        id S1725909AbgILMnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Sep 2020 08:43:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725882AbgILMnO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 12 Sep 2020 08:43:14 -0400
+        id S1725893AbgILMnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 12 Sep 2020 08:43:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20D37221F0;
-        Sat, 12 Sep 2020 12:42:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 834AD22204;
+        Sat, 12 Sep 2020 12:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1599914571;
-        bh=1r08tkym/ZCo/V/fiF24eE5DKgZ7zKUtVhfYNSfDDX0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CC6p88dPM27uzN/L+XU91bL1gYaITGs/2RARQDBQ1K9KH7zOC7s5NwM9U0lBFUber
-         2YOOvZhIG8H/OPRYbbQ4vQ+QYFTeeiBNHKEAuWppYZ7xj7aoin9vSytZ5QuMYm2yTf
-         PttdFT01r5FP9MQcPNIIYCM8mKQcy3H91MkrOVVg=
+        s=default; t=1599914576;
+        bh=1pxj5KMJIIG4YfDalHo+mh/C9ESdaK54gnp78NfKjoU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Cs33MsyVx1tPMmbbU4+kMvHDjwxidUYaQ1I6ADsL7t6HwR4zELRMW7qrksagTSVuA
+         q3YqwAZMzOFu1r8BDLBMrlUKiJRXoMsO72WRmHAkFBmGVlgEzdUnLzYqMKGSFAuJRh
+         wm9LaQdVASbFi8QMN/CqVTBEaVyg4TUtjryR5Q/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.19.145
-Date:   Sat, 12 Sep 2020 14:42:50 +0200
-Message-Id: <1599914569919@kroah.com>
+Subject: Linux 5.4.65
+Date:   Sat, 12 Sep 2020 14:42:58 +0200
+Message-Id: <1599914579255132@kroah.com>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <1599914569200227@kroah.com>
-References: <1599914569200227@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -41,325 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index ba9d0b4476e1..6bf851efcabe 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 19
--SUBLEVEL = 144
-+SUBLEVEL = 145
- EXTRAVERSION =
- NAME = "People's Front"
- 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index ea33d6abdcfc..ce3710404544 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -1036,6 +1036,8 @@ struct request_queue *blk_alloc_queue_node(gfp_t gfp_mask, int node_id,
- 
- 	q->backing_dev_info->ra_pages =
- 			(VM_MAX_READAHEAD * 1024) / PAGE_SIZE;
-+	q->backing_dev_info->io_pages =
-+			(VM_MAX_READAHEAD * 1024) / PAGE_SIZE;
- 	q->backing_dev_info->capabilities = BDI_CAP_CGROUP_WRITEBACK;
- 	q->backing_dev_info->name = "block";
- 	q->node = node_id;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-index 701624a63d2f..1ab40d622ae1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -198,7 +198,7 @@ int mlx5e_attr_get(struct net_device *dev, struct switchdev_attr *attr)
- 	struct mlx5_eswitch_rep *rep = rpriv->rep;
- 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
- 
--	if (esw->mode == SRIOV_NONE)
-+	if (esw->mode != SRIOV_OFFLOADS)
- 		return -EOPNOTSUPP;
- 
- 	switch (attr->id) {
-diff --git a/drivers/net/usb/dm9601.c b/drivers/net/usb/dm9601.c
-index b91f92e4e5f2..915ac75b55fc 100644
---- a/drivers/net/usb/dm9601.c
-+++ b/drivers/net/usb/dm9601.c
-@@ -625,6 +625,10 @@ static const struct usb_device_id products[] = {
- 	 USB_DEVICE(0x0a46, 0x1269),	/* DM9621A USB to Fast Ethernet Adapter */
- 	 .driver_info = (unsigned long)&dm9601_info,
- 	},
-+	{
-+	 USB_DEVICE(0x0586, 0x3427),	/* ZyXEL Keenetic Plus DSL xDSL modem */
-+	 .driver_info = (unsigned long)&dm9601_info,
-+	},
- 	{},			// END
- };
- 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 42ba150fa18d..c77d12a35f92 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6196,12 +6196,13 @@ void netif_napi_add(struct net_device *dev, struct napi_struct *napi,
- 		pr_err_once("netif_napi_add() called with weight %d on device %s\n",
- 			    weight, dev->name);
- 	napi->weight = weight;
--	list_add(&napi->dev_list, &dev->napi_list);
- 	napi->dev = dev;
- #ifdef CONFIG_NETPOLL
- 	napi->poll_owner = -1;
- #endif
- 	set_bit(NAPI_STATE_SCHED, &napi->state);
-+	set_bit(NAPI_STATE_NPSVC, &napi->state);
-+	list_add_rcu(&napi->dev_list, &dev->napi_list);
- 	napi_hash_add(napi);
- }
- EXPORT_SYMBOL(netif_napi_add);
-diff --git a/net/core/netpoll.c b/net/core/netpoll.c
-index a581cf101cd9..023ce0fbb496 100644
---- a/net/core/netpoll.c
-+++ b/net/core/netpoll.c
-@@ -161,7 +161,7 @@ static void poll_napi(struct net_device *dev)
- 	struct napi_struct *napi;
- 	int cpu = smp_processor_id();
- 
--	list_for_each_entry(napi, &dev->napi_list, dev_list) {
-+	list_for_each_entry_rcu(napi, &dev->napi_list, dev_list) {
- 		if (cmpxchg(&napi->poll_owner, -1, cpu) == -1) {
- 			poll_one_napi(napi);
- 			smp_store_release(&napi->poll_owner, -1);
-diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
-index 41d0e95d171e..b1a1718495f3 100644
---- a/net/netlabel/netlabel_domainhash.c
-+++ b/net/netlabel/netlabel_domainhash.c
-@@ -99,6 +99,7 @@ static void netlbl_domhsh_free_entry(struct rcu_head *entry)
- 			kfree(netlbl_domhsh_addr6_entry(iter6));
- 		}
- #endif /* IPv6 */
-+		kfree(ptr->def.addrsel);
- 	}
- 	kfree(ptr->domain);
- 	kfree(ptr);
-@@ -550,6 +551,8 @@ int netlbl_domhsh_add(struct netlbl_dom_map *entry,
- 				goto add_return;
- 		}
- #endif /* IPv6 */
-+		/* cleanup the new entry since we've moved everything over */
-+		netlbl_domhsh_free_entry(&entry->rcu);
- 	} else
- 		ret_val = -EINVAL;
- 
-@@ -593,6 +596,12 @@ int netlbl_domhsh_remove_entry(struct netlbl_dom_map *entry,
- {
- 	int ret_val = 0;
- 	struct audit_buffer *audit_buf;
-+	struct netlbl_af4list *iter4;
-+	struct netlbl_domaddr4_map *map4;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	struct netlbl_af6list *iter6;
-+	struct netlbl_domaddr6_map *map6;
-+#endif /* IPv6 */
- 
- 	if (entry == NULL)
- 		return -ENOENT;
-@@ -610,6 +619,9 @@ int netlbl_domhsh_remove_entry(struct netlbl_dom_map *entry,
- 		ret_val = -ENOENT;
- 	spin_unlock(&netlbl_domhsh_lock);
- 
-+	if (ret_val)
-+		return ret_val;
-+
- 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_DEL, audit_info);
- 	if (audit_buf != NULL) {
- 		audit_log_format(audit_buf,
-@@ -619,40 +631,29 @@ int netlbl_domhsh_remove_entry(struct netlbl_dom_map *entry,
- 		audit_log_end(audit_buf);
- 	}
- 
--	if (ret_val == 0) {
--		struct netlbl_af4list *iter4;
--		struct netlbl_domaddr4_map *map4;
--#if IS_ENABLED(CONFIG_IPV6)
--		struct netlbl_af6list *iter6;
--		struct netlbl_domaddr6_map *map6;
--#endif /* IPv6 */
--
--		switch (entry->def.type) {
--		case NETLBL_NLTYPE_ADDRSELECT:
--			netlbl_af4list_foreach_rcu(iter4,
--					     &entry->def.addrsel->list4) {
--				map4 = netlbl_domhsh_addr4_entry(iter4);
--				cipso_v4_doi_putdef(map4->def.cipso);
--			}
-+	switch (entry->def.type) {
-+	case NETLBL_NLTYPE_ADDRSELECT:
-+		netlbl_af4list_foreach_rcu(iter4, &entry->def.addrsel->list4) {
-+			map4 = netlbl_domhsh_addr4_entry(iter4);
-+			cipso_v4_doi_putdef(map4->def.cipso);
-+		}
- #if IS_ENABLED(CONFIG_IPV6)
--			netlbl_af6list_foreach_rcu(iter6,
--					     &entry->def.addrsel->list6) {
--				map6 = netlbl_domhsh_addr6_entry(iter6);
--				calipso_doi_putdef(map6->def.calipso);
--			}
-+		netlbl_af6list_foreach_rcu(iter6, &entry->def.addrsel->list6) {
-+			map6 = netlbl_domhsh_addr6_entry(iter6);
-+			calipso_doi_putdef(map6->def.calipso);
-+		}
- #endif /* IPv6 */
--			break;
--		case NETLBL_NLTYPE_CIPSOV4:
--			cipso_v4_doi_putdef(entry->def.cipso);
--			break;
-+		break;
-+	case NETLBL_NLTYPE_CIPSOV4:
-+		cipso_v4_doi_putdef(entry->def.cipso);
-+		break;
- #if IS_ENABLED(CONFIG_IPV6)
--		case NETLBL_NLTYPE_CALIPSO:
--			calipso_doi_putdef(entry->def.calipso);
--			break;
-+	case NETLBL_NLTYPE_CALIPSO:
-+		calipso_doi_putdef(entry->def.calipso);
-+		break;
- #endif /* IPv6 */
--		}
--		call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
- 	}
-+	call_rcu(&entry->rcu, netlbl_domhsh_free_entry);
- 
- 	return ret_val;
- }
-diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-index df4a7d7c5ec0..4a2873f70b37 100644
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -7643,8 +7643,6 @@ static long sctp_get_port_local(struct sock *sk, union sctp_addr *addr)
- 
- 	pr_debug("%s: begins, snum:%d\n", __func__, snum);
- 
--	local_bh_disable();
--
- 	if (snum == 0) {
- 		/* Search for an available port. */
- 		int low, high, remaining, index;
-@@ -7663,20 +7661,21 @@ static long sctp_get_port_local(struct sock *sk, union sctp_addr *addr)
- 				continue;
- 			index = sctp_phashfn(sock_net(sk), rover);
- 			head = &sctp_port_hashtable[index];
--			spin_lock(&head->lock);
-+			spin_lock_bh(&head->lock);
- 			sctp_for_each_hentry(pp, &head->chain)
- 				if ((pp->port == rover) &&
- 				    net_eq(sock_net(sk), pp->net))
- 					goto next;
- 			break;
- 		next:
--			spin_unlock(&head->lock);
-+			spin_unlock_bh(&head->lock);
-+			cond_resched();
- 		} while (--remaining > 0);
- 
- 		/* Exhausted local port range during search? */
- 		ret = 1;
- 		if (remaining <= 0)
--			goto fail;
-+			return ret;
- 
- 		/* OK, here is the one we will use.  HEAD (the port
- 		 * hash table list entry) is non-NULL and we hold it's
-@@ -7691,7 +7690,7 @@ static long sctp_get_port_local(struct sock *sk, union sctp_addr *addr)
- 		 * port iterator, pp being NULL.
- 		 */
- 		head = &sctp_port_hashtable[sctp_phashfn(sock_net(sk), snum)];
--		spin_lock(&head->lock);
-+		spin_lock_bh(&head->lock);
- 		sctp_for_each_hentry(pp, &head->chain) {
- 			if ((pp->port == snum) && net_eq(pp->net, sock_net(sk)))
- 				goto pp_found;
-@@ -7773,10 +7772,7 @@ static long sctp_get_port_local(struct sock *sk, union sctp_addr *addr)
- 	ret = 0;
- 
- fail_unlock:
--	spin_unlock(&head->lock);
--
--fail:
--	local_bh_enable();
-+	spin_unlock_bh(&head->lock);
- 	return ret;
- }
- 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index f0184a5e83aa..d0cf7169f08c 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -2565,18 +2565,21 @@ static int tipc_shutdown(struct socket *sock, int how)
- 	lock_sock(sk);
- 
- 	__tipc_shutdown(sock, TIPC_CONN_SHUTDOWN);
--	sk->sk_shutdown = SEND_SHUTDOWN;
-+	if (tipc_sk_type_connectionless(sk))
-+		sk->sk_shutdown = SHUTDOWN_MASK;
-+	else
-+		sk->sk_shutdown = SEND_SHUTDOWN;
- 
- 	if (sk->sk_state == TIPC_DISCONNECTING) {
- 		/* Discard any unreceived messages */
- 		__skb_queue_purge(&sk->sk_receive_queue);
- 
--		/* Wake up anyone sleeping in poll */
--		sk->sk_state_change(sk);
- 		res = 0;
- 	} else {
- 		res = -ENOTCONN;
- 	}
-+	/* Wake up anyone sleeping in poll. */
-+	sk->sk_state_change(sk);
- 
- 	release_sock(sk);
- 	return res;
-diff --git a/sound/firewire/tascam/tascam.c b/sound/firewire/tascam/tascam.c
-index d3fdc463a884..1e61cdce2895 100644
---- a/sound/firewire/tascam/tascam.c
-+++ b/sound/firewire/tascam/tascam.c
-@@ -225,11 +225,39 @@ static void snd_tscm_remove(struct fw_unit *unit)
- }
- 
- static const struct ieee1394_device_id snd_tscm_id_table[] = {
-+	// Tascam, FW-1884.
- 	{
- 		.match_flags = IEEE1394_MATCH_VENDOR_ID |
--			       IEEE1394_MATCH_SPECIFIER_ID,
-+			       IEEE1394_MATCH_SPECIFIER_ID |
-+			       IEEE1394_MATCH_VERSION,
- 		.vendor_id = 0x00022e,
- 		.specifier_id = 0x00022e,
-+		.version = 0x800000,
-+	},
-+	// Tascam, FE-8 (.version = 0x800001)
-+	// This kernel module doesn't support FE-8 because the most of features
-+	// can be implemented in userspace without any specific support of this
-+	// module.
-+	//
-+	// .version = 0x800002 is unknown.
-+	//
-+	// Tascam, FW-1082.
-+	{
-+		.match_flags = IEEE1394_MATCH_VENDOR_ID |
-+			       IEEE1394_MATCH_SPECIFIER_ID |
-+			       IEEE1394_MATCH_VERSION,
-+		.vendor_id = 0x00022e,
-+		.specifier_id = 0x00022e,
-+		.version = 0x800003,
-+	},
-+	// Tascam, FW-1804.
-+	{
-+		.match_flags = IEEE1394_MATCH_VENDOR_ID |
-+			       IEEE1394_MATCH_SPECIFIER_ID |
-+			       IEEE1394_MATCH_VERSION,
-+		.vendor_id = 0x00022e,
-+		.specifier_id = 0x00022e,
-+		.version = 0x800004,
- 	},
- 	/* FE-08 requires reverse-engineering because it just has faders. */
- 	{}
+I'm announcing the release of the 5.4.65 kernel.
+
+All users of the 5.4 kernel series must upgrade.
+
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                           |    2 -
+ drivers/net/usb/dm9601.c           |    4 ++
+ net/core/dev.c                     |    3 +
+ net/core/netpoll.c                 |    2 -
+ net/ipv4/fib_trie.c                |    3 +
+ net/ipv6/sysctl_net_ipv6.c         |    3 +
+ net/netlabel/netlabel_domainhash.c |   59 ++++++++++++++++++-------------------
+ net/sched/sch_taprio.c             |   30 +++++++++++++++---
+ net/sctp/socket.c                  |   16 +++-------
+ net/tipc/socket.c                  |    9 +++--
+ 10 files changed, 78 insertions(+), 53 deletions(-)
+
+Greg Kroah-Hartman (1):
+      Linux 5.4.65
+
+Ido Schimmel (2):
+      ipv4: Silence suspicious RCU usage warning
+      ipv6: Fix sysctl max for fib_multipath_hash_policy
+
+Jakub Kicinski (1):
+      net: disable netpoll on fresh napis
+
+Kamil Lorenc (1):
+      net: usb: dm9601: Add USB ID of Keenetic Plus DSL
+
+Paul Moore (1):
+      netlabel: fix problems with mapping removal
+
+Tetsuo Handa (1):
+      tipc: fix shutdown() of connectionless socket
+
+Vinicius Costa Gomes (1):
+      taprio: Fix using wrong queues in gate mask
+
+Xin Long (1):
+      sctp: not disable bh in the whole sctp_get_port_local()
+
