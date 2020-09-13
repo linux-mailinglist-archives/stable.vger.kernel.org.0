@@ -2,67 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60A3E267D62
-	for <lists+stable@lfdr.de>; Sun, 13 Sep 2020 04:59:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E60A8267EFC
+	for <lists+stable@lfdr.de>; Sun, 13 Sep 2020 11:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725909AbgIMC7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Sep 2020 22:59:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50722 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725908AbgIMC7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Sep 2020 22:59:47 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 627ADC061573
-        for <stable@vger.kernel.org>; Sat, 12 Sep 2020 19:59:47 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id g10so11775842otq.9
-        for <stable@vger.kernel.org>; Sat, 12 Sep 2020 19:59:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
-        b=IkJpHPtAIP6ve5nWI+u2tzith72lV1PLg0rttBp2DTjUTolVjWWmaOhKELU4CY3p0m
-         6twl0hQzjNSA0Wu85vJ7QmeJiqC/a/3j64XCOMMnx4fWjLosYlm0QbIZ6Scol5OLYV7G
-         3ySarDYCWXOKKsjx4PBL0TJtmox3bSbym9Cn4NPd9Ra8KKCDDu1Fee7WWkzwCUs2HHU8
-         0z+TmFAjqymmY7HOD8cbl5F5u62VZvqME+UogzAS6cvL7P0X2/7JaqElWSSgTPfMD50h
-         nkD0+lt2kOxwbe29A9g5k4f7DZPxGDc5YbnWXkGuCKOWtmlp9lpPrQVCdOMQD0nwuOE3
-         yEHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
-        b=mwN4BWMzkR+ZRj+4jtCn9VJ+AtNYeTlOEdo0XDG11+oXq39zaCftfrmDSbb0ddHAXC
-         qtUvu0EqECabKgir2IoHGpNHca/MswMMtacxoCBr0+uWGlVg3o0EQvt3PXM/RH42liWw
-         FPAo5Pd47hFBsvalCUl9k28UTCD2lUUNicifRXRBSmL0UNMftupZfTGm2ikLS7PeSHug
-         mOUoSQGLDS6k4tVWrZLZZUeMNjwB1fNPriCjQzMu3GBNuc9m4Z9yNTbx+IbQNcZcyty7
-         q2JqpWGxdzfX8wYabZtMa8xFRDcjYo1pg0YW947vc8pSiF+Q/hBZaJrpO8vZzfUPTtM+
-         rSaQ==
-X-Gm-Message-State: AOAM533BMxgJ8pur2iRAU8Dg/IoBdxzCflkYXDqzq5fsnd5iFe3AWbDH
-        hN+4TIz0UURLDqnaAbaYIaV4ZWRfTZqIiMqs03E=
-X-Google-Smtp-Source: ABdhPJwnjTXQIfOSaOy/71iNn1MUZ+w2DXADUBUkI3EZUEFTDQCp7Sx/reeM/++70m2K7ygA6SllFI8EOJk4blaKUms=
-X-Received: by 2002:a9d:6acf:: with SMTP id m15mr5225660otq.15.1599965986419;
- Sat, 12 Sep 2020 19:59:46 -0700 (PDT)
+        id S1725935AbgIMJnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Sep 2020 05:43:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725916AbgIMJnK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 13 Sep 2020 05:43:10 -0400
+Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46C0E20796;
+        Sun, 13 Sep 2020 09:43:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1599990190;
+        bh=g2kZ8VU/dV4hxq9fiHOO6AMzPY+3Tn5IM/Mjj2glBIM=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=iASmzCJGLHNUfneLXBb+sEIIolfZd2PyVYjuMBs4yCvSG+V/+y1kX71aLm45cTMbU
+         Nkgc1gfhFWNujkF2UfKuVuBk6AivGx1Vo8stEVRnxhtcTon5BSRchJZqMZX5plv7sC
+         PckhH6L4C9TwCSPx5JSLR9h/xExVGnmDUz7L3KgE=
+Date:   Sun, 13 Sep 2020 10:43:05 +0100
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     kernel test robot <lkp@intel.com>
+Cc:     Christian Eggers <ceggers@arri.de>, kbuild-all@lists.01.org,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] iio: trigger: Don't use RT priority
+Message-ID: <20200913104240.5c1b98ae@archlinux>
+In-Reply-To: <202009100951.s9xJuuod%lkp@intel.com>
+References: <20200909162216.13765-1-ceggers@arri.de>
+        <202009100951.s9xJuuod%lkp@intel.com>
+X-Mailer: Claws Mail 3.17.6 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Received: by 2002:a05:6830:114d:0:0:0:0 with HTTP; Sat, 12 Sep 2020 19:59:45
- -0700 (PDT)
-Reply-To: mfdp@tlen.pl
-From:   Mr Bill T Winters <keshintondesmond12@gmail.com>
-Date:   Sat, 12 Sep 2020 19:59:45 -0700
-Message-ID: <CADCet9rufoZh+YePjWZHY5qY46RmKsjAHLEKx8CfQuigs5E63w@mail.gmail.com>
-Subject: Good Morning!
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Greetings,
-I Mr Bill T, did you Receive the (FUND), that was paid to you?
-Let me know with your full name:...  immediately,
+On Thu, 10 Sep 2020 09:54:06 +0800
+kernel test robot <lkp@intel.com> wrote:
 
-Sincerely Yours, Respectfully,
+> Hi Christian,
+> 
+> I love your patch! Yet something to improve:
+> 
+> [auto build test ERROR on iio/togreg]
+> [also build test ERROR on v5.9-rc4 next-20200909]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch]
+> 
+> url:    https://github.com/0day-ci/linux/commits/Christian-Eggers/iio-trigger-Don-t-use-RT-priority/20200910-002619
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/jic23/iio.git togreg
+> config: i386-randconfig-r026-20200909 (attached as .config)
+> compiler: gcc-9 (Debian 9.3.0-15) 9.3.0
+> reproduce (this is a W=1 build):
+>         # save the attached .config to linux build tree
+>         make W=1 ARCH=i386 
+> 
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+> 
+> All errors (new ones prefixed by >>, old ones prefixed by <<):
+> 
+> >> ERROR: modpost: "sched_setscheduler_nocheck" [drivers/iio/industrialio.ko] undefined!
+ 
+Looks like we can't do this unless we have a precusor patch to export that
+function for module use.
 
-Mr Bill T Winters,
-Group Chief Executive Officer & Executive Director,
+Jonathan
+
+> 
+> ---
+> 0-DAY CI Kernel Test Service, Intel Corporation
+> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+
