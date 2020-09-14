@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98064268D84
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:26:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D78D2268D81
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:25:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726859AbgINOZc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726863AbgINOZc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 14 Sep 2020 10:25:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60802 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:32804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726665AbgINNGE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726668AbgINNGE (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Sep 2020 09:06:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A0CE21D80;
-        Mon, 14 Sep 2020 13:05:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D246321D41;
+        Mon, 14 Sep 2020 13:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088725;
-        bh=neZeJyo/vrJWlGXfGrMWd1Maus0uo5g1Kgtkd1PsBV0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nRb+eAh78ZY6WUhJ73RcLsEOhwQ8KRW3u4jxFgH+vwaJXOUIZd99pIyimUx8pZrFC
-         ikWV1FMSIRuQNbzBhOAuEXyVN1ecPWT6EvCCvQGJBYG1uPP6TN5j8cSkNuvXrccHly
-         KhQq9w+NL4qRXvi73DzrF7TfezHyeTiTiLF7I6UU=
+        s=default; t=1600088728;
+        bh=f9uTyh33a2+faJ5onVvqk+6/QKRk0vmHVpNOFvAqT+0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VCB6cgkR11HNpyJuxsl6qaKfgG1/Oi5qGRtVcQs5BbNPAYwG09mxMsEV6GHJFD+Ci
+         hAqNoqRBU0rjOnZIh8zwaI3CtYKA2izbEIx/7YD/WykFev6GI4hyC1eqqcS60jTjrx
+         lkhdSnp4gFhMFXec8wDn/4XxbBicOHNNwLITuzXM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huacai Chen <chenhc@lemote.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 19/19] KVM: MIPS: Change the definition of kvm type
-Date:   Mon, 14 Sep 2020 09:05:02 -0400
-Message-Id: <20200914130502.1804708-19-sashal@kernel.org>
+Cc:     Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/15] NFSv4.1 handle ERR_DELAY error reclaiming locking state on delegation recall
+Date:   Mon, 14 Sep 2020 09:05:12 -0400
+Message-Id: <20200914130526.1804913-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200914130502.1804708-1-sashal@kernel.org>
-References: <20200914130502.1804708-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,78 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 15e9e35cd1dec2bc138464de6bf8ef828df19235 ]
+[ Upstream commit 3d7a9520f0c3e6a68b6de8c5812fc8b6d7a52626 ]
 
-MIPS defines two kvm types:
+A client should be able to handle getting an ERR_DELAY error
+while doing a LOCK call to reclaim state due to delegation being
+recalled. This is a transient error that can happen due to server
+moving its volumes and invalidating its file location cache and
+upon reference to it during the LOCK call needing to do an
+expensive lookup (leading to an ERR_DELAY error on a PUTFH).
 
- #define KVM_VM_MIPS_TE          0
- #define KVM_VM_MIPS_VZ          1
-
-In Documentation/virt/kvm/api.rst it is said that "You probably want to
-use 0 as machine type", which implies that type 0 be the "automatic" or
-"default" type. And, in user-space libvirt use the null-machine (with
-type 0) to detect the kvm capability, which returns "KVM not supported"
-on a VZ platform.
-
-I try to fix it in QEMU but it is ugly:
-https://lists.nongnu.org/archive/html/qemu-devel/2020-08/msg05629.html
-
-And Thomas Huth suggests me to change the definition of kvm type:
-https://lists.nongnu.org/archive/html/qemu-devel/2020-09/msg03281.html
-
-So I define like this:
-
- #define KVM_VM_MIPS_AUTO        0
- #define KVM_VM_MIPS_VZ          1
- #define KVM_VM_MIPS_TE          2
-
-Since VZ and TE cannot co-exists, using type 0 on a TE platform will
-still return success (so old user-space tools have no problems on new
-kernels); the advantage is that using type 0 on a VZ platform will not
-return failure. So, the only problem is "new user-space tools use type
-2 on old kernels", but if we treat this as a kernel bug, we can backport
-this patch to old stable kernels.
-
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Message-Id: <1599734031-28746-1-git-send-email-chenhc@lemote.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kvm/mips.c     | 2 ++
- include/uapi/linux/kvm.h | 5 +++--
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ fs/nfs/nfs4proc.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-index e7f5ef6bed0fe..79485790f7b56 100644
---- a/arch/mips/kvm/mips.c
-+++ b/arch/mips/kvm/mips.c
-@@ -131,6 +131,8 @@ void kvm_arch_check_processor_compat(void *rtn)
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
- 	switch (type) {
-+	case KVM_VM_MIPS_AUTO:
-+		break;
- #ifdef CONFIG_KVM_MIPS_VZ
- 	case KVM_VM_MIPS_VZ:
- #else
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 66ce6659ecb69..c297abc4e6697 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -746,9 +746,10 @@ struct kvm_ppc_resize_hpt {
- #define KVM_VM_PPC_HV 1
- #define KVM_VM_PPC_PR 2
- 
--/* on MIPS, 0 forces trap & emulate, 1 forces VZ ASE */
--#define KVM_VM_MIPS_TE		0
-+/* on MIPS, 0 indicates auto, 1 forces VZ ASE, 2 forces trap & emulate */
-+#define KVM_VM_MIPS_AUTO	0
- #define KVM_VM_MIPS_VZ		1
-+#define KVM_VM_MIPS_TE		2
- 
- #define KVM_S390_SIE_PAGE_OFFSET 1
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 4cfb84119e017..997b731ee19ab 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -6687,7 +6687,12 @@ int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state,
+ 	err = nfs4_set_lock_state(state, fl);
+ 	if (err != 0)
+ 		return err;
+-	err = _nfs4_do_setlk(state, F_SETLK, fl, NFS_LOCK_NEW);
++	do {
++		err = _nfs4_do_setlk(state, F_SETLK, fl, NFS_LOCK_NEW);
++		if (err != -NFS4ERR_DELAY)
++			break;
++		ssleep(1);
++	} while (err == -NFS4ERR_DELAY);
+ 	return nfs4_handle_delegation_recall_error(server, state, stateid, fl, err);
+ }
  
 -- 
 2.25.1
