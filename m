@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 375EE268E06
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:42:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E80B2268DE5
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:37:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726098AbgINOmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 10:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32952 "EHLO mail.kernel.org"
+        id S1726769AbgINOhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 10:37:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726639AbgINNFm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726646AbgINNFm (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Sep 2020 09:05:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2B3B22242;
-        Mon, 14 Sep 2020 13:04:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0916F22249;
+        Mon, 14 Sep 2020 13:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088694;
-        bh=Uox0Mw/hPEWcP5BEoQnhTdAVlwYXQ+URXE9EsGe4ogg=;
+        s=default; t=1600088696;
+        bh=hcg0xITRDx7PJvaz4JYlC8n1jzqkFTy22dae6DGDrbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SA3QLqx5sEyjATdMzdewsXR3n+p8c+qU/1SyRcTxGfTMNu4l2CNzpGiqCuorPJXS2
-         OFQrpqqPM0+W3ENa7ZPia+FK8ImNkhF7H5wEXkWqN6OEzw89+/jXDWNW5GrwdXTINa
-         0z1viUNHB3SKxf8DOuoM0YAbILH/oXJH2SGKJ8wM=
+        b=1/kp7RtJeLWo0vLBDkBZZU69C2h1e/BjBShpl01TSKfPfKNwmcy3ojWoYabnGUpXz
+         ybXtKI6UTlBhnoRWlZukRy+DsQj9CWhJ9CXQ61FCXDPI7DBoCZ7WdFmNBNcLz+EdzC
+         BhoIKTnetwGU14shSRhaNICH129Qz8BqE2V9qurw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Omar Sandoval <osandov@fb.com>, Yang Yang <yang.yang@vivo.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/22] block: only call sched requeue_request() for scheduled requests
-Date:   Mon, 14 Sep 2020 09:04:28 -0400
-Message-Id: <20200914130434.1804478-16-sashal@kernel.org>
+Cc:     Gabriel Krisman Bertazi <krisman@collabora.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.4 18/22] f2fs: Return EOF on unaligned end of file DIO read
+Date:   Mon, 14 Sep 2020 09:04:30 -0400
+Message-Id: <20200914130434.1804478-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200914130434.1804478-1-sashal@kernel.org>
 References: <20200914130434.1804478-1-sashal@kernel.org>
@@ -43,84 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Gabriel Krisman Bertazi <krisman@collabora.com>
 
-[ Upstream commit e8a8a185051a460e3eb0617dca33f996f4e31516 ]
+[ Upstream commit 20d0a107fb35f37578b919f62bd474d6d358d579 ]
 
-Yang Yang reported the following crash caused by requeueing a flush
-request in Kyber:
+Reading past end of file returns EOF for aligned reads but -EINVAL for
+unaligned reads on f2fs.  While documentation is not strict about this
+corner case, most filesystem returns EOF on this case, like iomap
+filesystems.  This patch consolidates the behavior for f2fs, by making
+it return EOF(0).
 
-  [    2.517297] Unable to handle kernel paging request at virtual address ffffffd8071c0b00
-  ...
-  [    2.517468] pc : clear_bit+0x18/0x2c
-  [    2.517502] lr : sbitmap_queue_clear+0x40/0x228
-  [    2.517503] sp : ffffff800832bc60 pstate : 00c00145
-  ...
-  [    2.517599] Process ksoftirqd/5 (pid: 51, stack limit = 0xffffff8008328000)
-  [    2.517602] Call trace:
-  [    2.517606]  clear_bit+0x18/0x2c
-  [    2.517619]  kyber_finish_request+0x74/0x80
-  [    2.517627]  blk_mq_requeue_request+0x3c/0xc0
-  [    2.517637]  __scsi_queue_insert+0x11c/0x148
-  [    2.517640]  scsi_softirq_done+0x114/0x130
-  [    2.517643]  blk_done_softirq+0x7c/0xb0
-  [    2.517651]  __do_softirq+0x208/0x3bc
-  [    2.517657]  run_ksoftirqd+0x34/0x60
-  [    2.517663]  smpboot_thread_fn+0x1c4/0x2c0
-  [    2.517667]  kthread+0x110/0x120
-  [    2.517669]  ret_from_fork+0x10/0x18
+it can be verified by a read loop on a file that does a partial read
+before EOF (A file that doesn't end at an aligned address).  The
+following code fails on an unaligned file on f2fs, but not on
+btrfs, ext4, and xfs.
 
-This happens because Kyber doesn't track flush requests, so
-kyber_finish_request() reads a garbage domain token. Only call the
-scheduler's requeue_request() hook if RQF_ELVPRIV is set (like we do for
-the finish_request() hook in blk_mq_free_request()). Now that we're
-handling it in blk-mq, also remove the check from BFQ.
+  while (done < total) {
+    ssize_t delta = pread(fd, buf + done, total - done, off + done);
+    if (!delta)
+      break;
+    ...
+  }
 
-Reported-by: Yang Yang <yang.yang@vivo.com>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+It is arguable whether filesystems should actually return EOF or
+-EINVAL, but since iomap filesystems support it, and so does the
+original DIO code, it seems reasonable to consolidate on that.
+
+Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c  | 12 ------------
- block/blk-mq-sched.h |  2 +-
- 2 files changed, 1 insertion(+), 13 deletions(-)
+ fs/f2fs/data.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 88497bff1135f..ba32adaeefdd0 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5890,18 +5890,6 @@ static void bfq_finish_requeue_request(struct request *rq)
- 	struct bfq_queue *bfqq = RQ_BFQQ(rq);
- 	struct bfq_data *bfqd;
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index ec9a1f9ce2dd6..68be334afc286 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -2753,6 +2753,9 @@ static int check_direct_IO(struct inode *inode, struct iov_iter *iter,
+ 	unsigned long align = offset | iov_iter_alignment(iter);
+ 	struct block_device *bdev = inode->i_sb->s_bdev;
  
--	/*
--	 * Requeue and finish hooks are invoked in blk-mq without
--	 * checking whether the involved request is actually still
--	 * referenced in the scheduler. To handle this fact, the
--	 * following two checks make this function exit in case of
--	 * spurious invocations, for which there is nothing to do.
--	 *
--	 * First, check whether rq has nothing to do with an elevator.
--	 */
--	if (unlikely(!(rq->rq_flags & RQF_ELVPRIV)))
--		return;
--
- 	/*
- 	 * rq either is not associated with any icq, or is an already
- 	 * requeued request that has not (yet) been re-inserted into
-diff --git a/block/blk-mq-sched.h b/block/blk-mq-sched.h
-index 126021fc3a11f..e81ca1bf6e10b 100644
---- a/block/blk-mq-sched.h
-+++ b/block/blk-mq-sched.h
-@@ -66,7 +66,7 @@ static inline void blk_mq_sched_requeue_request(struct request *rq)
- 	struct request_queue *q = rq->q;
- 	struct elevator_queue *e = q->elevator;
- 
--	if (e && e->type->ops.requeue_request)
-+	if ((rq->rq_flags & RQF_ELVPRIV) && e && e->type->ops.requeue_request)
- 		e->type->ops.requeue_request(rq);
- }
- 
++	if (iov_iter_rw(iter) == READ && offset >= i_size_read(inode))
++		return 1;
++
+ 	if (align & blocksize_mask) {
+ 		if (bdev)
+ 			blkbits = blksize_bits(bdev_logical_block_size(bdev));
 -- 
 2.25.1
 
