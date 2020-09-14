@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95AC7269225
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 18:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CF4F269223
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 18:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726121AbgINQwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 12:52:39 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7042 "EHLO
+        id S1726162AbgINQwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 12:52:40 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1964 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726174AbgINQvB (ORCPT
+        by vger.kernel.org with ESMTP id S1726022AbgINQvB (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 12:51:01 -0400
 Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08EGUqrn126648;
-        Mon, 14 Sep 2020 12:50:50 -0400
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08EGUrl6126724;
+        Mon, 14 Sep 2020 12:50:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type :
+ : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=F+6vQedN52j8wgtFjBUAiJBhp+e0vxfPw/ZjD+hUdYk=;
- b=gw8SIyU+lBQfuXuu9NGvUbGkH3uqOnZfQ8/G0Z2nyn21hf+zAxg24vFq6JjLsTN9zKNd
- PwEXeyV/VYBFG+sH+fDqLCU9x59p+zzoxgb/cFCat4wKQE865xO6hr7HCEKYyr/QHAvm
- W+uXayO62Z4+pTywaTr/1iZk6clYjRgglFc/hGcXgmikPpND/JBB/yE+AlgX0N3T3cNm
- 3pBBLcUM8tPFRugcB5VYIoZq4PF7tO3f2q4mdXWTBEQAerMmNNBV9/tGQ7zn4NmvdFVX
- o2Ti1ikigkAvtMGsc1Sf0/A6oxnxM6l+8IWlciJ73k61BVXHOy7J4d7Iw7YmfJ+FMmej dw== 
+ bh=pK7GY1xx65VsY/5aMjDZSzL4n3fHHH/i+E2lxeofQTQ=;
+ b=M7yL7hQbchLDi419jdWZM1mQwpIwmH3ZuPzm7vnhAxmZIMRgiyXOHzoMVKotBSMvliWT
+ Gq40VNG79LKPdxLPs9Z8d1fO1sXP3aADbvMn+Pre4zNvBsDigCkpIGoZcf4WjxKcZOVA
+ IWLAdXUqEpCVwBYHKZRzEwQoMcF1oPeg2mASgobDfex4f0N5GdFGASFabllEbG8oCCL3
+ 6rFB5GgyRPDwLj1scF5AcUSX79sm02nY55OTra8+BXf9VaP00hwgfK8ft/Et8T+FJ9oD
+ sxjpb55ArhE4GXP5DoEpJ3HXFXt4YsLb2EY3QpDzRCPM1Gv3Qqy0uECtDayvyAyzhBM+ 8A== 
 Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 33jbx7guyd-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 33jbx7guyt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 14 Sep 2020 12:50:51 -0400
+Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08EGV4Z3127226;
+        Mon, 14 Sep 2020 12:50:50 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 33jbx7guy3-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
         Mon, 14 Sep 2020 12:50:50 -0400
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08EGV8je127370;
-        Mon, 14 Sep 2020 12:50:49 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 33jbx7guxw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Sep 2020 12:50:49 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08EGlGAW015707;
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+        by ppma03fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08EGlkwK010252;
         Mon, 14 Sep 2020 16:50:48 GMT
 Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma04ams.nl.ibm.com with ESMTP id 33h2r99ybs-1
+        by ppma03fra.de.ibm.com with ESMTP id 33gny819sw-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 14 Sep 2020 16:50:47 +0000
+        Mon, 14 Sep 2020 16:50:48 +0000
 Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08EGojis21037426
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08EGojD08978810
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Mon, 14 Sep 2020 16:50:45 GMT
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F3EBCA4059;
-        Mon, 14 Sep 2020 16:50:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 88E3FA4055;
+        Mon, 14 Sep 2020 16:50:45 +0000 (GMT)
 Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7F681A4055;
-        Mon, 14 Sep 2020 16:50:44 +0000 (GMT)
+        by IMSVA (Postfix) with ESMTP id 160A5A4051;
+        Mon, 14 Sep 2020 16:50:45 +0000 (GMT)
 Received: from pomme.tlslab.ibm.com (unknown [9.145.51.157])
         by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 14 Sep 2020 16:50:44 +0000 (GMT)
+        Mon, 14 Sep 2020 16:50:45 +0000 (GMT)
 From:   Laurent Dufour <ldufour@linux.ibm.com>
 To:     akpm@linux-foundation.org, David Hildenbrand <david@redhat.com>,
         Oscar Salvador <osalvador@suse.de>, mhocko@kernel.org,
@@ -63,12 +63,13 @@ Cc:     linux-mm@kvack.org, "Rafael J . Wysocki" <rafael@kernel.org>,
         Tony Luck <tony.luck@intel.com>,
         Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v2 0/3] mm: fix memory to node bad links in sysfs
-Date:   Mon, 14 Sep 2020 18:50:39 +0200
-Message-Id: <20200914165042.96218-1-ldufour@linux.ibm.com>
+Subject: [PATCH v2 1/3] mm: replace memmap_context by memplug_context
+Date:   Mon, 14 Sep 2020 18:50:40 +0200
+Message-Id: <20200914165042.96218-2-ldufour@linux.ibm.com>
 X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200914165042.96218-1-ldufour@linux.ibm.com>
+References: <20200914165042.96218-1-ldufour@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
@@ -83,118 +84,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sometimes, firmware may expose interleaved memory layout like this:
- Early memory node ranges
-   node   1: [mem 0x0000000000000000-0x000000011fffffff]
-   node   2: [mem 0x0000000120000000-0x000000014fffffff]
-   node   1: [mem 0x0000000150000000-0x00000001ffffffff]
-   node   0: [mem 0x0000000200000000-0x000000048fffffff]
-   node   2: [mem 0x0000000490000000-0x00000007ffffffff]
+The memmap_context is used to detect whether a memory operation is due to a
+hot-add operation or happening at boot time.
 
-In that case, we can see memory blocks assigned to multiple nodes in sysfs:
+Make it general to the hotplug operation and rename it at memplug_context.
 
-$ ls -l /sys/devices/system/memory/memory21
-total 0
-lrwxrwxrwx 1 root root     0 Aug 24 05:27 node1 -> ../../node/node1
-lrwxrwxrwx 1 root root     0 Aug 24 05:27 node2 -> ../../node/node2
--rw-r--r-- 1 root root 65536 Aug 24 05:27 online
--r--r--r-- 1 root root 65536 Aug 24 05:27 phys_device
--r--r--r-- 1 root root 65536 Aug 24 05:27 phys_index
-drwxr-xr-x 2 root root     0 Aug 24 05:27 power
--r--r--r-- 1 root root 65536 Aug 24 05:27 removable
--rw-r--r-- 1 root root 65536 Aug 24 05:27 state
-lrwxrwxrwx 1 root root     0 Aug 24 05:25 subsystem -> ../../../../bus/memory
--rw-r--r-- 1 root root 65536 Aug 24 05:25 uevent
--r--r--r-- 1 root root 65536 Aug 24 05:27 valid_zones
+There is no functional change introduced by this patch
 
-The same applies in the node's directory with a memory21 link in both the
-node1 and node2's directory.
-
-This is wrong but doesn't prevent the system to run. However when later one
-of these memory blocks is hot-unplugged and then hot-plugged, the system is
-detecting an inconsistency in the sysfs layout and a BUG_ON() is raised:
-
-------------[ cut here ]------------
-kernel BUG at /Users/laurent/src/linux-ppc/mm/memory_hotplug.c:1084!
-Oops: Exception in kernel mode, sig: 5 [#1]
-LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-Modules linked in: rpadlpar_io rpaphp pseries_rng rng_core vmx_crypto gf128mul binfmt_misc ip_tables x_tables xfs libcrc32c crc32c_vpmsum autofs4
-CPU: 8 PID: 10256 Comm: drmgr Not tainted 5.9.0-rc1+ #25
-NIP:  c000000000403f34 LR: c000000000403f2c CTR: 0000000000000000
-REGS: c0000004876e3660 TRAP: 0700   Not tainted  (5.9.0-rc1+)
-MSR:  800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 24000448  XER: 20040000
-CFAR: c000000000846d20 IRQMASK: 0
-GPR00: c000000000403f2c c0000004876e38f0 c0000000012f6f00 ffffffffffffffef
-GPR04: 0000000000000227 c0000004805ae680 0000000000000000 00000004886f0000
-GPR08: 0000000000000226 0000000000000003 0000000000000002 fffffffffffffffd
-GPR12: 0000000088000484 c00000001ec96280 0000000000000000 0000000000000000
-GPR16: 0000000000000000 0000000000000000 0000000000000004 0000000000000003
-GPR20: c00000047814ffe0 c0000007ffff7c08 0000000000000010 c0000000013332c8
-GPR24: 0000000000000000 c0000000011f6cc0 0000000000000000 0000000000000000
-GPR28: ffffffffffffffef 0000000000000001 0000000150000000 0000000010000000
-NIP [c000000000403f34] add_memory_resource+0x244/0x340
-LR [c000000000403f2c] add_memory_resource+0x23c/0x340
-Call Trace:
-[c0000004876e38f0] [c000000000403f2c] add_memory_resource+0x23c/0x340 (unreliable)
-[c0000004876e39c0] [c00000000040408c] __add_memory+0x5c/0xf0
-[c0000004876e39f0] [c0000000000e2b94] dlpar_add_lmb+0x1b4/0x500
-[c0000004876e3ad0] [c0000000000e3888] dlpar_memory+0x1f8/0xb80
-[c0000004876e3b60] [c0000000000dc0d0] handle_dlpar_errorlog+0xc0/0x190
-[c0000004876e3bd0] [c0000000000dc398] dlpar_store+0x198/0x4a0
-[c0000004876e3c90] [c00000000072e630] kobj_attr_store+0x30/0x50
-[c0000004876e3cb0] [c00000000051f954] sysfs_kf_write+0x64/0x90
-[c0000004876e3cd0] [c00000000051ee40] kernfs_fop_write+0x1b0/0x290
-[c0000004876e3d20] [c000000000438dd8] vfs_write+0xe8/0x290
-[c0000004876e3d70] [c0000000004391ac] ksys_write+0xdc/0x130
-[c0000004876e3dc0] [c000000000034e40] system_call_exception+0x160/0x270
-[c0000004876e3e20] [c00000000000d740] system_call_common+0xf0/0x27c
-Instruction dump:
-48442e35 60000000 0b030000 3cbe0001 7fa3eb78 7bc48402 38a5fffe 7ca5fa14
-78a58402 48442db1 60000000 7c7c1b78 <0b030000> 7f23cb78 4bda371d 60000000
----[ end trace 562fd6c109cd0fb2 ]---
-
-This has been seen on PowerPC LPAR.
-
-The root cause of this issue is that when node's memory is registered, the
-range used can overlap another node's range, thus the memory block is
-registered to multiple nodes in sysfs.
-
-There are 2 issues here:
-
-a. The sysfs memory and node's layout are broken due to these multiple
-   links
-
-b. The link errors in link_mem_sections() should not lead to a system
-   panic.
-
-To address a. register_mem_sect_under_node should not rely on the system
-state to detect whether the link operation is triggered by a hot plug
-operation or not. This is addressed by the patches 1 and 2 of this series.
-
-The patch 3 is addressing the point b.
-
-Thanks,
-Laurent
-
-Since v1:
-- change context enum's name from Michal's comment
-- use 2 callbacks in link_mem_sections from David's comment
-- use dev_err_ratelimited from Greg's comment
-
-Laurent Dufour (3):
-  mm: replace memmap_context by memplug_context
-  mm: don't rely on system state to detect hot-plug operations
-  mm: don't panic when links can't be created in sysfs
-
- arch/ia64/mm/init.c    |  6 +--
- drivers/base/node.c    | 99 ++++++++++++++++++++++++++++--------------
+Suggested-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+---
+ arch/ia64/mm/init.c    |  6 +++---
  include/linux/mm.h     |  2 +-
- include/linux/mmzone.h | 11 +++--
- include/linux/node.h   | 13 +++---
- mm/memory_hotplug.c    |  6 +--
- mm/page_alloc.c        | 10 ++---
- 7 files changed, 94 insertions(+), 53 deletions(-)
+ include/linux/mmzone.h | 11 ++++++++---
+ mm/memory_hotplug.c    |  2 +-
+ mm/page_alloc.c        | 10 +++++-----
+ 5 files changed, 18 insertions(+), 13 deletions(-)
 
+diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
+index 0b3fb4c7af29..b5054b5e77c8 100644
+--- a/arch/ia64/mm/init.c
++++ b/arch/ia64/mm/init.c
+@@ -538,7 +538,7 @@ virtual_memmap_init(u64 start, u64 end, void *arg)
+ 	if (map_start < map_end)
+ 		memmap_init_zone((unsigned long)(map_end - map_start),
+ 				 args->nid, args->zone, page_to_pfn(map_start),
+-				 MEMMAP_EARLY, NULL);
++				 MEMPLUG_EARLY, NULL);
+ 	return 0;
+ }
+ 
+@@ -547,8 +547,8 @@ memmap_init (unsigned long size, int nid, unsigned long zone,
+ 	     unsigned long start_pfn)
+ {
+ 	if (!vmem_map) {
+-		memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY,
+-				NULL);
++		memmap_init_zone(size, nid, zone, start_pfn,
++				 MEMPLUG_EARLY, NULL);
+ 	} else {
+ 		struct page *start;
+ 		struct memmap_init_callback_data args;
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 1983e08f5906..e942f91ed155 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2409,7 +2409,7 @@ extern int __meminit __early_pfn_to_nid(unsigned long pfn,
+ 
+ extern void set_dma_reserve(unsigned long new_dma_reserve);
+ extern void memmap_init_zone(unsigned long, int, unsigned long, unsigned long,
+-		enum memmap_context, struct vmem_altmap *);
++		enum meminit_context, struct vmem_altmap *);
+ extern void setup_per_zone_wmarks(void);
+ extern int __meminit init_per_zone_wmark_min(void);
+ extern void mem_init(void);
+diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+index 8379432f4f2f..0f7a4ff4b059 100644
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -824,10 +824,15 @@ bool zone_watermark_ok(struct zone *z, unsigned int order,
+ 		unsigned int alloc_flags);
+ bool zone_watermark_ok_safe(struct zone *z, unsigned int order,
+ 		unsigned long mark, int highest_zoneidx);
+-enum memmap_context {
+-	MEMMAP_EARLY,
+-	MEMMAP_HOTPLUG,
++/*
++ * Memory initialization context, use to differentiate memory added by
++ * the platform statically or via memory hotplug interface.
++ */
++enum meminit_context {
++	MEMINIT_EARLY,
++	MEMINIT_HOTPLUG,
+ };
++
+ extern void init_currently_empty_zone(struct zone *zone, unsigned long start_pfn,
+ 				     unsigned long size);
+ 
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index e9d5ab5d3ca0..fc21625e42de 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -729,7 +729,7 @@ void __ref move_pfn_range_to_zone(struct zone *zone, unsigned long start_pfn,
+ 	 * are reserved so nobody should be touching them so we should be safe
+ 	 */
+ 	memmap_init_zone(nr_pages, nid, zone_idx(zone), start_pfn,
+-			MEMMAP_HOTPLUG, altmap);
++			 MEMPLUG_HOTPLUG, altmap);
+ 
+ 	set_zone_contiguous(zone);
+ }
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index fab5e97dc9ca..5661fa164f13 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5975,7 +5975,7 @@ overlap_memmap_init(unsigned long zone, unsigned long *pfn)
+  * done. Non-atomic initialization, single-pass.
+  */
+ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+-		unsigned long start_pfn, enum memmap_context context,
++		unsigned long start_pfn, enum meminit_context context,
+ 		struct vmem_altmap *altmap)
+ {
+ 	unsigned long pfn, end_pfn = start_pfn + size;
+@@ -6007,7 +6007,7 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+ 		 * There can be holes in boot-time mem_map[]s handed to this
+ 		 * function.  They do not exist on hotplugged memory.
+ 		 */
+-		if (context == MEMMAP_EARLY) {
++		if (context == MEMINIT_EARLY) {
+ 			if (overlap_memmap_init(zone, &pfn))
+ 				continue;
+ 			if (defer_init(nid, pfn, end_pfn))
+@@ -6016,7 +6016,7 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+ 
+ 		page = pfn_to_page(pfn);
+ 		__init_single_page(page, pfn, zone, nid);
+-		if (context == MEMMAP_HOTPLUG)
++		if (context == MEMINIT_HOTPLUG)
+ 			__SetPageReserved(page);
+ 
+ 		/*
+@@ -6099,7 +6099,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
+ 		 * check here not to call set_pageblock_migratetype() against
+ 		 * pfn out of zone.
+ 		 *
+-		 * Please note that MEMMAP_HOTPLUG path doesn't clear memmap
++		 * Please note that MEMINIT_HOTPLUG path doesn't clear memmap
+ 		 * because this is done early in section_activate()
+ 		 */
+ 		if (!(pfn & (pageblock_nr_pages - 1))) {
+@@ -6137,7 +6137,7 @@ void __meminit __weak memmap_init(unsigned long size, int nid,
+ 		if (end_pfn > start_pfn) {
+ 			size = end_pfn - start_pfn;
+ 			memmap_init_zone(size, nid, zone, start_pfn,
+-					 MEMMAP_EARLY, NULL);
++					 MEMINIT_EARLY, NULL);
+ 		}
+ 	}
+ }
 -- 
 2.28.0
 
