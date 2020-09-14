@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B425268BBD
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 15:06:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AC25268BB8
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 15:06:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726657AbgINNGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 09:06:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60290 "EHLO mail.kernel.org"
+        id S1726650AbgINNFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 09:05:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726616AbgINNF3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726622AbgINNF3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Sep 2020 09:05:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20DB32222A;
-        Mon, 14 Sep 2020 13:04:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E68DC2222C;
+        Mon, 14 Sep 2020 13:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088673;
-        bh=FJGrFZh/wSlG57bHCjvhePW4NhaqITwdnUviTd90E1o=;
+        s=default; t=1600088681;
+        bh=o57RbGD8uMJj+tMt5YNVcExtffE71HnhQmJtx9DVsHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IPZ84mhEoyRPga2DH98rhbeTd3HY/6eUSFUdJThfihiGwdYshpOmG2+csdig2XmBX
-         AE21hP3lmmyk6aWqwdX/hoccOSdc2IERQQALwOoizmxdS0ZHtBVb4eaPVcecovi4d+
-         e+sqSsXlkAgLb56hbPvAoJEAwousK/EVzZ3fpK3E=
+        b=WIzCj/mbIUx5oKmsxBteFu3qq0LybY44ARU+mxbZpoPUt73Vcdt82Yg1XPrAix/1P
+         g3OGl64dxsrng/13N6j3CuwKfAg1XTHftp62+VIiwjPGOJ6HhUO1PNiuhRRjQz3y3M
+         nDApZ+Uz+2LPVDW7y01/hn1fcWlIRhlWiJ811OTg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huacai Chen <chenhc@lemote.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org,
-        kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 29/29] KVM: MIPS: Change the definition of kvm type
-Date:   Mon, 14 Sep 2020 09:03:58 -0400
-Message-Id: <20200914130358.1804194-29-sashal@kernel.org>
+Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 05/22] regulator: pwm: Fix machine constraints application
+Date:   Mon, 14 Sep 2020 09:04:17 -0400
+Message-Id: <20200914130434.1804478-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200914130358.1804194-1-sashal@kernel.org>
-References: <20200914130358.1804194-1-sashal@kernel.org>
+In-Reply-To: <20200914130434.1804478-1-sashal@kernel.org>
+References: <20200914130434.1804478-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,79 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 15e9e35cd1dec2bc138464de6bf8ef828df19235 ]
+[ Upstream commit 59ae97a7a9e1499c2070e29841d1c4be4ae2994a ]
 
-MIPS defines two kvm types:
+If the zero duty cycle doesn't correspond to any voltage in the voltage
+table, the PWM regulator returns an -EINVAL from get_voltage_sel() which
+results in the core erroring out with a "failed to get the current
+voltage" and ending up not applying the machine constraints.
 
- #define KVM_VM_MIPS_TE          0
- #define KVM_VM_MIPS_VZ          1
+Instead, return -ENOTRECOVERABLE which makes the core set the voltage
+since it's at an unknown value.
 
-In Documentation/virt/kvm/api.rst it is said that "You probably want to
-use 0 as machine type", which implies that type 0 be the "automatic" or
-"default" type. And, in user-space libvirt use the null-machine (with
-type 0) to detect the kvm capability, which returns "KVM not supported"
-on a VZ platform.
+For example, with this device tree:
 
-I try to fix it in QEMU but it is ugly:
-https://lists.nongnu.org/archive/html/qemu-devel/2020-08/msg05629.html
+	fooregulator {
+		compatible = "pwm-regulator";
+		pwms = <&foopwm 0 100000>;
+		regulator-min-microvolt = <2250000>;
+		regulator-max-microvolt = <2250000>;
+		regulator-name = "fooregulator";
+		regulator-always-on;
+		regulator-boot-on;
+		voltage-table = <2250000 30>;
+	};
 
-And Thomas Huth suggests me to change the definition of kvm type:
-https://lists.nongnu.org/archive/html/qemu-devel/2020-09/msg03281.html
+Before this patch:
 
-So I define like this:
+  fooregulator: failed to get the current voltage(-22)
 
- #define KVM_VM_MIPS_AUTO        0
- #define KVM_VM_MIPS_VZ          1
- #define KVM_VM_MIPS_TE          2
+After this patch:
 
-Since VZ and TE cannot co-exists, using type 0 on a TE platform will
-still return success (so old user-space tools have no problems on new
-kernels); the advantage is that using type 0 on a VZ platform will not
-return failure. So, the only problem is "new user-space tools use type
-2 on old kernels", but if we treat this as a kernel bug, we can backport
-this patch to old stable kernels.
+  fooregulator: Setting 2250000-2250000uV
+  fooregulator: 2250 mV
 
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Message-Id: <1599734031-28746-1-git-send-email-chenhc@lemote.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/20200902130952.24880-1-vincent.whitchurch@axis.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kvm/mips.c     | 2 ++
- include/uapi/linux/kvm.h | 5 +++--
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/regulator/pwm-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-index 666d3350b4ac1..6c6836669ce16 100644
---- a/arch/mips/kvm/mips.c
-+++ b/arch/mips/kvm/mips.c
-@@ -137,6 +137,8 @@ extern void kvm_init_loongson_ipi(struct kvm *kvm);
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
- 	switch (type) {
-+	case KVM_VM_MIPS_AUTO:
-+		break;
- #ifdef CONFIG_KVM_MIPS_VZ
- 	case KVM_VM_MIPS_VZ:
- #else
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 4fdf303165827..65fd95f9784ce 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -789,9 +789,10 @@ struct kvm_ppc_resize_hpt {
- #define KVM_VM_PPC_HV 1
- #define KVM_VM_PPC_PR 2
+diff --git a/drivers/regulator/pwm-regulator.c b/drivers/regulator/pwm-regulator.c
+index e74e11101fc15..0a9d61a91f436 100644
+--- a/drivers/regulator/pwm-regulator.c
++++ b/drivers/regulator/pwm-regulator.c
+@@ -279,7 +279,7 @@ static int pwm_regulator_init_table(struct platform_device *pdev,
+ 		return ret;
+ 	}
  
--/* on MIPS, 0 forces trap & emulate, 1 forces VZ ASE */
--#define KVM_VM_MIPS_TE		0
-+/* on MIPS, 0 indicates auto, 1 forces VZ ASE, 2 forces trap & emulate */
-+#define KVM_VM_MIPS_AUTO	0
- #define KVM_VM_MIPS_VZ		1
-+#define KVM_VM_MIPS_TE		2
- 
- #define KVM_S390_SIE_PAGE_OFFSET 1
- 
+-	drvdata->state			= -EINVAL;
++	drvdata->state			= -ENOTRECOVERABLE;
+ 	drvdata->duty_cycle_table	= duty_cycle_table;
+ 	drvdata->desc.ops = &pwm_regulator_voltage_table_ops;
+ 	drvdata->desc.n_voltages	= length / sizeof(*duty_cycle_table);
 -- 
 2.25.1
 
