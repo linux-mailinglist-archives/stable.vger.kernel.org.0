@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98D792692AE
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:13:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF282692A6
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:12:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726142AbgINRMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 13:12:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60116 "EHLO mail.kernel.org"
+        id S1725961AbgINRLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 13:11:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726391AbgINNEp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Sep 2020 09:04:45 -0400
+        id S1726258AbgINNEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Sep 2020 09:04:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 759CE21BE5;
-        Mon, 14 Sep 2020 13:04:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A982C21D7E;
+        Mon, 14 Sep 2020 13:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088647;
-        bh=nj04gQ2nO4VIAL2d7c7u/+7BBIF7UPrKHeahbNgg3hw=;
+        s=default; t=1600088648;
+        bh=3oTBHsTFSaSjiAFuk1w5MRsRzcO9Ats6ervYAEvAuDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/s10q0z3zZ9zC7npn/Rjgo1gaY8g60XxteJPW0FM+TWEDZrY1rgDOJTjXD2lMOCi
-         0cDf8BamRlbQFimjGfRWeBuoSBMYek0xEz5mcgz111mCaW4jFauAmVoZ1E6K/uamQ6
-         1P0L9qjqL75z1YeY40zKlScBRFkzWwHF27A7dRb8=
+        b=HrBRL9QTzP8mK2xNjVV8txOPCnjKjW+0/A/JSud7Wmx1g6G9H5w6gJDRXBUqV+F9/
+         nCY2OZ8LUCqOvIVElYJKmQNDaL9bYudGgVRUrLh5m9Ms5GrZlA5GF7+/j9FTfxVCOe
+         P03t38exl4mHwXiW0LnkHAL5Sum01dNUsTAFU3Xs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Javed Hasan <jhasan@marvell.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     James Smart <james.smart@broadcom.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 07/29] scsi: libfc: Fix for double free()
-Date:   Mon, 14 Sep 2020 09:03:36 -0400
-Message-Id: <20200914130358.1804194-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 08/29] scsi: lpfc: Fix FLOGI/PLOGI receive race condition in pt2pt discovery
+Date:   Mon, 14 Sep 2020 09:03:37 -0400
+Message-Id: <20200914130358.1804194-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200914130358.1804194-1-sashal@kernel.org>
 References: <20200914130358.1804194-1-sashal@kernel.org>
@@ -44,35 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+From: James Smart <james.smart@broadcom.com>
 
-[ Upstream commit 5a5b80f98534416b3b253859897e2ba1dc241e70 ]
+[ Upstream commit 7b08e89f98cee9907895fabb64cf437bc505ce9a ]
 
-Fix for '&fp->skb' double free.
+The driver is unable to successfully login with remote device. During pt2pt
+login, the driver completes its FLOGI request with the remote device having
+WWN precedence.  The remote device issues its own (delayed) FLOGI after
+accepting the driver's and, upon transmitting the FLOGI, immediately
+recognizes it has already processed the driver's FLOGI thus it transitions
+to sending a PLOGI before waiting for an ACC to its FLOGI.
 
-Link:
-https://lore.kernel.org/r/20200825093940.19612-1-jhasan@marvell.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
+In the driver, the FLOGI is received and an ACC sent, followed by the PLOGI
+being received and an ACC sent. The issue is that the PLOGI reception
+occurs before the response from the adapter from the FLOGI ACC is
+received. Processing of the PLOGI sets state flags to perform the REG_RPI
+mailbox command and proceed with the rest of discovery on the port. The
+same completion routine used by both FLOGI and PLOGI is generic in
+nature. One of the things it does is clear flags, and those flags happen to
+drive the rest of discovery.  So what happened was the PLOGI processing set
+the flags, the FLOGI ACC completion cleared them, thus when the PLOGI ACC
+completes it doesn't see the flags and stops.
+
+Fix by modifying the generic completion routine to not clear the rest of
+discovery flag (NLP_ACC_REGLOGIN) unless the completion is also associated
+with performing a mailbox command as part of its handling.  For things such
+as FLOGI ACC, there isn't a subsequent action to perform with the adapter,
+thus there is no mailbox cmd ptr. PLOGI ACC though will perform REG_RPI
+upon completion, thus there is a mailbox cmd ptr.
+
+Link: https://lore.kernel.org/r/20200828175332.130300-3-james.smart@broadcom.com
+Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <james.smart@broadcom.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libfc/fc_disc.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_els.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/libfc/fc_disc.c b/drivers/scsi/libfc/fc_disc.c
-index e00dc4693fcbd..589ddf003886e 100644
---- a/drivers/scsi/libfc/fc_disc.c
-+++ b/drivers/scsi/libfc/fc_disc.c
-@@ -634,8 +634,6 @@ static void fc_disc_gpn_id_resp(struct fc_seq *sp, struct fc_frame *fp,
- 	fc_frame_free(fp);
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 3d670568a2760..7b6a210825677 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -4644,7 +4644,9 @@ lpfc_cmpl_els_rsp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
  out:
- 	kref_put(&rdata->kref, fc_rport_destroy);
--	if (!IS_ERR(fp))
--		fc_frame_free(fp);
- }
+ 	if (ndlp && NLP_CHK_NODE_ACT(ndlp) && shost) {
+ 		spin_lock_irq(shost->host_lock);
+-		ndlp->nlp_flag &= ~(NLP_ACC_REGLOGIN | NLP_RM_DFLT_RPI);
++		if (mbox)
++			ndlp->nlp_flag &= ~NLP_ACC_REGLOGIN;
++		ndlp->nlp_flag &= ~NLP_RM_DFLT_RPI;
+ 		spin_unlock_irq(shost->host_lock);
  
- /**
+ 		/* If the node is not being used by another discovery thread,
 -- 
 2.25.1
 
