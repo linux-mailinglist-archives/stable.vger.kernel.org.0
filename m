@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B34268DC5
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C0D6268DD5
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726698AbgINOcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 10:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32960 "EHLO mail.kernel.org"
+        id S1726400AbgINOcO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 10:32:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726653AbgINNGA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726652AbgINNGA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Sep 2020 09:06:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E091B221E2;
-        Mon, 14 Sep 2020 13:05:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0932922263;
+        Mon, 14 Sep 2020 13:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088711;
-        bh=/+g3tl0tKR2B1dR6A3fWUZXSKcXBlnnKwUTXG4CoPQA=;
+        s=default; t=1600088712;
+        bh=hWU04rgWnszO0+JCWAIWkGKFxP7PKw0YfbmzUqP/JYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kuzZvJ0xFgYjt+E6AyTaWiHHCD68YRdtEy73mmd9HNMiamjBCJXo9BQpYqhw9bi1F
-         40QpgzlNla9dUWV8uAfK+QpULXXdnr5W85N6PvXR7HzKCL+V1wk9ID9NIs7BdV88dS
-         IcepsSZselDht3RpkLPvHU3FuQV11jI4lg28zAbE=
+        b=CNpSucoJFrcN+bQ/t5jvHwBqOOyINeaMwzvEU9UYh0jEHJ2geT4XpWbh5udOamX4o
+         MD8Cp3ZKokrHwUHPWS5d99IvE2cTg1EWlCcKs3aJyhKxEJtN+HdeZGquKDaV5z7mFX
+         Qjz/Seq05R23nPM4h5HjY5LHyEujUZmcXlLI6w5Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuck Lever <chuck.lever@oracle.com>,
+Cc:     "J. Bruce Fields" <bfields@redhat.com>, Zhi Li <yieli@redhat.com>,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 07/19] NFS: Zero-stateid SETATTR should first return delegation
-Date:   Mon, 14 Sep 2020 09:04:50 -0400
-Message-Id: <20200914130502.1804708-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 08/19] SUNRPC: stop printk reading past end of string
+Date:   Mon, 14 Sep 2020 09:04:51 -0400
+Message-Id: <20200914130502.1804708-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200914130502.1804708-1-sashal@kernel.org>
 References: <20200914130502.1804708-1-sashal@kernel.org>
@@ -43,47 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: "J. Bruce Fields" <bfields@redhat.com>
 
-[ Upstream commit 644c9f40cf71969f29add32f32349e71d4995c0b ]
+[ Upstream commit 8c6b6c793ed32b8f9770ebcdf1ba99af423c303b ]
 
-If a write delegation isn't available, the Linux NFS client uses
-a zero-stateid when performing a SETATTR.
+Since p points at raw xdr data, there's no guarantee that it's NULL
+terminated, so we should give a length.  And probably escape any special
+characters too.
 
-NFSv4.0 provides no mechanism for an NFS server to match such a
-request to a particular client. It recalls all delegations for that
-file, even delegations held by the client issuing the request. If
-that client happens to hold a read delegation, the server will
-recall it immediately, resulting in an NFS4ERR_DELAY/CB_RECALL/
-DELEGRETURN sequence.
-
-Optimize out this pipeline bubble by having the client return any
-delegations it may hold on a file before it issues a
-SETATTR(zero-stateid) on that file.
-
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Reported-by: Zhi Li <yieli@redhat.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sunrpc/rpcb_clnt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 929f1d72bfd39..b2a2ff3f22a46 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -3129,8 +3129,10 @@ static int _nfs4_do_setattr(struct inode *inode,
+diff --git a/net/sunrpc/rpcb_clnt.c b/net/sunrpc/rpcb_clnt.c
+index 08b5fa4a2852a..ba8f367312289 100644
+--- a/net/sunrpc/rpcb_clnt.c
++++ b/net/sunrpc/rpcb_clnt.c
+@@ -981,8 +981,8 @@ static int rpcb_dec_getaddr(struct rpc_rqst *req, struct xdr_stream *xdr,
+ 	p = xdr_inline_decode(xdr, len);
+ 	if (unlikely(p == NULL))
+ 		goto out_fail;
+-	dprintk("RPC: %5u RPCB_%s reply: %s\n", req->rq_task->tk_pid,
+-			req->rq_task->tk_msg.rpc_proc->p_name, (char *)p);
++	dprintk("RPC: %5u RPCB_%s reply: %*pE\n", req->rq_task->tk_pid,
++			req->rq_task->tk_msg.rpc_proc->p_name, len, (char *)p);
  
- 	/* Servers should only apply open mode checks for file size changes */
- 	truncate = (arg->iap->ia_valid & ATTR_SIZE) ? true : false;
--	if (!truncate)
-+	if (!truncate) {
-+		nfs4_inode_make_writeable(inode);
- 		goto zero_stateid;
-+	}
- 
- 	if (nfs4_copy_delegation_stateid(inode, FMODE_WRITE, &arg->stateid, &delegation_cred)) {
- 		/* Use that stateid */
+ 	if (rpc_uaddr2sockaddr(req->rq_xprt->xprt_net, (char *)p, len,
+ 				sap, sizeof(address)) == 0)
 -- 
 2.25.1
 
