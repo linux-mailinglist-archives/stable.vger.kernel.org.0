@@ -2,69 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F9A268524
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 08:51:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8358D26866C
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 09:47:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726064AbgINGvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 02:51:36 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:51136 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726039AbgINGvg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 02:51:36 -0400
-Received: from [125.35.49.90] (helo=localhost.localdomain)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <hui.wang@canonical.com>)
-        id 1kHiKn-0001o9-28; Mon, 14 Sep 2020 06:51:29 +0000
-From:   Hui Wang <hui.wang@canonical.com>
-To:     alsa-devel@alsa-project.org, tiwai@suse.de, kailang@realtek.com
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] ALSA: hda/realtek - Couldn't detect Mic if booting with headset plugged
-Date:   Mon, 14 Sep 2020 14:51:18 +0800
-Message-Id: <20200914065118.19238-1-hui.wang@canonical.com>
-X-Mailer: git-send-email 2.17.1
+        id S1726140AbgINHrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 03:47:45 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:43002 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726116AbgINHrk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 03:47:40 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 97F7C1C0B76; Mon, 14 Sep 2020 09:47:32 +0200 (CEST)
+Date:   Mon, 14 Sep 2020 09:47:31 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH 4.19 1/8] ALSA; firewire-tascam: exclude Tascam FE-8 from
+ detection
+Message-ID: <20200914074731.GA11659@amd>
+References: <20200911125421.695645838@linuxfoundation.org>
+ <20200911125421.771196664@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
+Content-Disposition: inline
+In-Reply-To: <20200911125421.771196664@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We found a Mic detection issue on many Lenovo laptops, those laptops
-belong to differnt models and they have different audio design like
-internal mic connects to the codec or PCH, they all have this problem,
-the problem is if plugging a headset before powerup/reboot the
-machine, after booting up, the headphone could be detected but Mic
-couldn't. If we plug out and plug in the headset, both headphone and
-Mic could be detected then.
 
-Through debugging we found the codec on those laptops are same, it is
-alc257, and if we don't disable the 3k pulldown in alc256_shutup(),
-the issue will be fixed. So far there is no pop noise or power
-consumption regression on those laptops after this change.
+--GvXjxJ+pjyke8COw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cc: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
----
- sound/pci/hda/patch_realtek.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+Hi!
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 85e207173f5d..b6dc47da1d7b 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3428,7 +3428,11 @@ static void alc256_shutup(struct hda_codec *codec)
- 
- 	/* 3k pull low control for Headset jack. */
- 	/* NOTE: call this before clearing the pin, otherwise codec stalls */
--	alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
-+	/* If disable 3k pulldown control for alc257, the Mic detection will not work correctly
-+	 * when booting with headset plugged. So skip setting it for the codec alc257
-+	 */
-+	if (codec->core.vendor_id != 0x10ec0257)
-+		alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
- 
- 	if (!spec->no_shutup_pins)
- 		snd_hda_codec_write(codec, hp_pin, 0,
--- 
-2.17.1
+> From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+>=20
+> Tascam FE-8 is known to support communication by asynchronous transaction
+> only. The support can be implemented in userspace application and
+> snd-firewire-ctl-services project has the support. However, ALSA
+> firewire-tascam driver is bound to the model.
 
+This one is in upstream, but is not marked as such. AFAICT it is
+0bd8bce897b6697bbc286b8ba473aa0705fe394b.
+
+Unfortunately it is too late to fix that now.
+
+This one was scheduled to be released at "Responses should be made by
+Sun, 13 Sep 2020 12:54:13 +0000.". But it was released day earlier:
+"Date: Sat, 12 Sep 2020 14:42:49 +0200".
+
+Could you actually follow published schedule? Could the schedule be
+made a bit less agressive over the weekends?
+
+Could you cc me release announcements on pavel@denx.de email?
+
+Thanks and best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--GvXjxJ+pjyke8COw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl9fIBMACgkQMOfwapXb+vJTigCeKFaps7ePED8HaUvjFtxeGIGc
+BbcAnRQTedv3xiKcipgx98qEEe6NUF5j
+=xAIU
+-----END PGP SIGNATURE-----
+
+--GvXjxJ+pjyke8COw--
