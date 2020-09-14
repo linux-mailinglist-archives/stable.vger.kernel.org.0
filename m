@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA367268D9D
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:29:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D980D268D96
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:28:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726663AbgINO2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 10:28:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60116 "EHLO mail.kernel.org"
+        id S1726671AbgINO1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 10:27:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726662AbgINNGD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Sep 2020 09:06:03 -0400
+        id S1726663AbgINNGE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Sep 2020 09:06:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FDFF22268;
-        Mon, 14 Sep 2020 13:05:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B525D21655;
+        Mon, 14 Sep 2020 13:05:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088720;
-        bh=ovSjpe2ce2YVY9yKlvvgRCAOPx0oaHO+4EhjgHFnIVE=;
+        s=default; t=1600088723;
+        bh=tFyPP/LVcV8CScN25dO/aS7HgelBcX7Ed0HLml41wzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+Dq8ZdF7rrjjirLyPekzncXgO1kVntPt4HIZ2bCYdj6ghRnGrkybckObRS+fvzJR
-         7+zWWu5xMTXo8mpT5ZphgTOOi41MPGM8Ev//IYWPHFjgk6iYIks3Hs5Eszt50kLLmH
-         u3iBPut+b/f0lId4ca6JJQbyEhQtDE3d5URBc4B4=
+        b=QRE6h7SRRnNjT0tk2GHPFhyUZ/HomAsS+FcjHf8PwC8XWWp0pj9Sd2xKKkA4FGH79
+         EZFkpNzjrK1uekHsObQqPYWA6BnmlxWDQUNs5Woa1K4+u2wCt3xUIiRVm5Lo6OrHTi
+         YdEgLQ0C4d3qPx1JO0dd/mqJr1VAxCaqZDDay0UA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 15/19] f2fs: Return EOF on unaligned end of file DIO read
-Date:   Mon, 14 Sep 2020 09:04:58 -0400
-Message-Id: <20200914130502.1804708-15-sashal@kernel.org>
+Cc:     Gustav Wiklander <gustavwi@axis.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 17/19] spi: Fix memory leak on splited transfers
+Date:   Mon, 14 Sep 2020 09:05:00 -0400
+Message-Id: <20200914130502.1804708-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200914130502.1804708-1-sashal@kernel.org>
 References: <20200914130502.1804708-1-sashal@kernel.org>
@@ -44,54 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@collabora.com>
+From: Gustav Wiklander <gustavwi@axis.com>
 
-[ Upstream commit 20d0a107fb35f37578b919f62bd474d6d358d579 ]
+[ Upstream commit b59a7ca15464c78ea1ba3b280cfc5ac5ece11ade ]
 
-Reading past end of file returns EOF for aligned reads but -EINVAL for
-unaligned reads on f2fs.  While documentation is not strict about this
-corner case, most filesystem returns EOF on this case, like iomap
-filesystems.  This patch consolidates the behavior for f2fs, by making
-it return EOF(0).
+In the prepare_message callback the bus driver has the
+opportunity to split a transfer into smaller chunks.
+spi_map_msg is done after prepare_message.
 
-it can be verified by a read loop on a file that does a partial read
-before EOF (A file that doesn't end at an aligned address).  The
-following code fails on an unaligned file on f2fs, but not on
-btrfs, ext4, and xfs.
+Function spi_res_release releases the splited transfers
+in the message. Therefore spi_res_release should be called
+after spi_map_msg.
 
-  while (done < total) {
-    ssize_t delta = pread(fd, buf + done, total - done, off + done);
-    if (!delta)
-      break;
-    ...
-  }
+The previous try at this was commit c9ba7a16d0f1
+which released the splited transfers after
+spi_finalize_current_message had been called.
+This introduced a race since the message struct could be
+out of scope because the spi_sync call got completed.
 
-It is arguable whether filesystems should actually return EOF or
--EINVAL, but since iomap filesystems support it, and so does the
-original DIO code, it seems reasonable to consolidate on that.
+Fixes this leak on spi bus driver spi-bcm2835.c when transfer
+size is greater than 65532:
 
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Kmemleak:
+sg_alloc_table+0x28/0xc8
+spi_map_buf+0xa4/0x300
+__spi_pump_messages+0x370/0x748
+__spi_sync+0x1d4/0x270
+spi_sync+0x34/0x58
+spi_test_execute_msg+0x60/0x340 [spi_loopback_test]
+spi_test_run_iter+0x548/0x578 [spi_loopback_test]
+spi_test_run_test+0x94/0x140 [spi_loopback_test]
+spi_test_run_tests+0x150/0x180 [spi_loopback_test]
+spi_loopback_test_probe+0x50/0xd0 [spi_loopback_test]
+spi_drv_probe+0x84/0xe0
+
+Signed-off-by: Gustav Wiklander <gustavwi@axis.com>
+Link: https://lore.kernel.org/r/20200908151129.15915-1-gustav.wiklander@axis.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/spi/spi.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index c81a1f3f0a101..c63f5e32630ee 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -2490,6 +2490,9 @@ static int check_direct_IO(struct inode *inode, struct iov_iter *iter,
- 	unsigned long align = offset | iov_iter_alignment(iter);
- 	struct block_device *bdev = inode->i_sb->s_bdev;
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 92e6b6774d98e..1fd529a2d2f6b 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -1116,8 +1116,6 @@ static int spi_transfer_one_message(struct spi_controller *ctlr,
+ 	if (msg->status && ctlr->handle_err)
+ 		ctlr->handle_err(ctlr, msg);
  
-+	if (iov_iter_rw(iter) == READ && offset >= i_size_read(inode))
-+		return 1;
+-	spi_res_release(ctlr, msg);
+-
+ 	spi_finalize_current_message(ctlr);
+ 
+ 	return ret;
+@@ -1375,6 +1373,13 @@ void spi_finalize_current_message(struct spi_controller *ctlr)
+ 
+ 	spi_unmap_msg(ctlr, mesg);
+ 
++	/* In the prepare_messages callback the spi bus has the opportunity to
++	 * split a transfer to smaller chunks.
++	 * Release splited transfers here since spi_map_msg is done on the
++	 * splited transfers.
++	 */
++	spi_res_release(ctlr, mesg);
 +
- 	if (align & blocksize_mask) {
- 		if (bdev)
- 			blkbits = blksize_bits(bdev_logical_block_size(bdev));
+ 	if (ctlr->cur_msg_prepared && ctlr->unprepare_message) {
+ 		ret = ctlr->unprepare_message(ctlr, mesg);
+ 		if (ret) {
 -- 
 2.25.1
 
