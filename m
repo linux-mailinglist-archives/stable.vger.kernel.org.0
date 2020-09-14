@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF282692A6
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:12:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3B9C269274
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:05:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725961AbgINRLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 13:11:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60274 "EHLO mail.kernel.org"
+        id S1726511AbgINNFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 09:05:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726258AbgINNEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726364AbgINNEt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Sep 2020 09:04:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A982C21D7E;
-        Mon, 14 Sep 2020 13:04:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F75E21D80;
+        Mon, 14 Sep 2020 13:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088648;
-        bh=3oTBHsTFSaSjiAFuk1w5MRsRzcO9Ats6ervYAEvAuDQ=;
+        s=default; t=1600088650;
+        bh=AV4Eaj7jrOJ68D6Rsb5R/SK1Yx16OhK4Q+b+JiZaeQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrBRL9QTzP8mK2xNjVV8txOPCnjKjW+0/A/JSud7Wmx1g6G9H5w6gJDRXBUqV+F9/
-         nCY2OZ8LUCqOvIVElYJKmQNDaL9bYudGgVRUrLh5m9Ms5GrZlA5GF7+/j9FTfxVCOe
-         P03t38exl4mHwXiW0LnkHAL5Sum01dNUsTAFU3Xs=
+        b=oMrC+Cxd+ZATKqav0QY/Qfn9qBjPE2YKZ2Pn/0tEyadQzPmUa1635hkGSjO18pdNa
+         dck26uvygEvg6SgB7JwViIXlj5p0ywPonbE8uxsf+wh+aIX1vse2zMzpbSKiQVfW/A
+         xIAEoorrITW902st+1nphwgrt9zVbsf1sMj6TTx4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <james.smart@broadcom.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 08/29] scsi: lpfc: Fix FLOGI/PLOGI receive race condition in pt2pt discovery
-Date:   Mon, 14 Sep 2020 09:03:37 -0400
-Message-Id: <20200914130358.1804194-8-sashal@kernel.org>
+Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 10/29] regulator: pwm: Fix machine constraints application
+Date:   Mon, 14 Sep 2020 09:03:39 -0400
+Message-Id: <20200914130358.1804194-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200914130358.1804194-1-sashal@kernel.org>
 References: <20200914130358.1804194-1-sashal@kernel.org>
@@ -44,60 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <james.smart@broadcom.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 7b08e89f98cee9907895fabb64cf437bc505ce9a ]
+[ Upstream commit 59ae97a7a9e1499c2070e29841d1c4be4ae2994a ]
 
-The driver is unable to successfully login with remote device. During pt2pt
-login, the driver completes its FLOGI request with the remote device having
-WWN precedence.  The remote device issues its own (delayed) FLOGI after
-accepting the driver's and, upon transmitting the FLOGI, immediately
-recognizes it has already processed the driver's FLOGI thus it transitions
-to sending a PLOGI before waiting for an ACC to its FLOGI.
+If the zero duty cycle doesn't correspond to any voltage in the voltage
+table, the PWM regulator returns an -EINVAL from get_voltage_sel() which
+results in the core erroring out with a "failed to get the current
+voltage" and ending up not applying the machine constraints.
 
-In the driver, the FLOGI is received and an ACC sent, followed by the PLOGI
-being received and an ACC sent. The issue is that the PLOGI reception
-occurs before the response from the adapter from the FLOGI ACC is
-received. Processing of the PLOGI sets state flags to perform the REG_RPI
-mailbox command and proceed with the rest of discovery on the port. The
-same completion routine used by both FLOGI and PLOGI is generic in
-nature. One of the things it does is clear flags, and those flags happen to
-drive the rest of discovery.  So what happened was the PLOGI processing set
-the flags, the FLOGI ACC completion cleared them, thus when the PLOGI ACC
-completes it doesn't see the flags and stops.
+Instead, return -ENOTRECOVERABLE which makes the core set the voltage
+since it's at an unknown value.
 
-Fix by modifying the generic completion routine to not clear the rest of
-discovery flag (NLP_ACC_REGLOGIN) unless the completion is also associated
-with performing a mailbox command as part of its handling.  For things such
-as FLOGI ACC, there isn't a subsequent action to perform with the adapter,
-thus there is no mailbox cmd ptr. PLOGI ACC though will perform REG_RPI
-upon completion, thus there is a mailbox cmd ptr.
+For example, with this device tree:
 
-Link: https://lore.kernel.org/r/20200828175332.130300-3-james.smart@broadcom.com
-Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+	fooregulator {
+		compatible = "pwm-regulator";
+		pwms = <&foopwm 0 100000>;
+		regulator-min-microvolt = <2250000>;
+		regulator-max-microvolt = <2250000>;
+		regulator-name = "fooregulator";
+		regulator-always-on;
+		regulator-boot-on;
+		voltage-table = <2250000 30>;
+	};
+
+Before this patch:
+
+  fooregulator: failed to get the current voltage(-22)
+
+After this patch:
+
+  fooregulator: Setting 2250000-2250000uV
+  fooregulator: 2250 mV
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/20200902130952.24880-1-vincent.whitchurch@axis.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/regulator/pwm-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 3d670568a2760..7b6a210825677 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -4644,7 +4644,9 @@ lpfc_cmpl_els_rsp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- out:
- 	if (ndlp && NLP_CHK_NODE_ACT(ndlp) && shost) {
- 		spin_lock_irq(shost->host_lock);
--		ndlp->nlp_flag &= ~(NLP_ACC_REGLOGIN | NLP_RM_DFLT_RPI);
-+		if (mbox)
-+			ndlp->nlp_flag &= ~NLP_ACC_REGLOGIN;
-+		ndlp->nlp_flag &= ~NLP_RM_DFLT_RPI;
- 		spin_unlock_irq(shost->host_lock);
+diff --git a/drivers/regulator/pwm-regulator.c b/drivers/regulator/pwm-regulator.c
+index 638329bd0745e..62ad7c4e7e7c8 100644
+--- a/drivers/regulator/pwm-regulator.c
++++ b/drivers/regulator/pwm-regulator.c
+@@ -279,7 +279,7 @@ static int pwm_regulator_init_table(struct platform_device *pdev,
+ 		return ret;
+ 	}
  
- 		/* If the node is not being used by another discovery thread,
+-	drvdata->state			= -EINVAL;
++	drvdata->state			= -ENOTRECOVERABLE;
+ 	drvdata->duty_cycle_table	= duty_cycle_table;
+ 	drvdata->desc.ops = &pwm_regulator_voltage_table_ops;
+ 	drvdata->desc.n_voltages	= length / sizeof(*duty_cycle_table);
 -- 
 2.25.1
 
