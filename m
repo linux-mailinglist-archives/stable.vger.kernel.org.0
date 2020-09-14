@@ -2,122 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04701268C58
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 15:39:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AB49268DA7
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726720AbgINNi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 09:38:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58086 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726774AbgINNhw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 09:37:52 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422FEC061351;
-        Mon, 14 Sep 2020 06:37:52 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id c18so18757936wrm.9;
-        Mon, 14 Sep 2020 06:37:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=07LfpwukpmTeG70upPXM1ceHmoutqYVR0coB+0ggDoI=;
-        b=MGzE+KCln2rDlWU1eor1MDlnrGu6r4T9HJnQcZfGGdYlBsSLzOuOKiZmi/RtTeCWsh
-         PMFpPh35W8yjk3tKQsF4ZvlYO3/Ozbc26pqBrCXTqP6QTscaqsPQ+jor9OAiqd3P8T21
-         3pMl9gPdP7rXbspX1NNpdGWMDUlsC//0sGdmtcPgEsYf/GpbHoPbDDHikmh9BZAEU4ki
-         EoIZlp6JLAQfC0+ueN8Xv6qnLS5WFOJYj1wzSyzPHkGdN7WPIPDhg2GcW2jttgGr2Xfh
-         3vaFf8L1Js5VoKx0WLJoIQ7f1OyOwm2JNPU8wcJcIJNLmo/y5ui4b8HSGEuRc6XZopIk
-         w2JA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=07LfpwukpmTeG70upPXM1ceHmoutqYVR0coB+0ggDoI=;
-        b=forROESNbABpZQBdRKnXP97WJU0T6KeQ6pi10CSLjYRXluwyoI0/lKhrE8nv+qU3vH
-         jJZ+xMps5GT9slUeDkPSfeH+yNxV0aZLWp8H4QfdahXbNSdiy2hQ0mow+l5160CZJ+Or
-         33SugaN4qR1KiIp3/QAJhfWpEiZudJyZkZ4NLbbJHxmGxbL1Mr4Qz4HUIYyca6hbmicq
-         mTV9ADhME1w/HReYlRBTXXs1u6YACzBOYbsf4s3kAD6v6XTcJZFAs1xyEWDb6/+Qc9eT
-         zkqSE98lQAOuiPIPxcqMFOj4QruLjpsQuiAHgMRj8S8JkAJVNRrSyIxjjk7bzT3NWI+d
-         qEpw==
-X-Gm-Message-State: AOAM533JiGlO09n75PK8B1wUtnXqEe/Et/48K1B2s/5RZJeEsvs3U/mo
-        Z4KyUxBYTh3rHM2hMAdTVoA=
-X-Google-Smtp-Source: ABdhPJwOX30ps/KDJqJPmeNlxoDcQHCf41blysDKip2XcAupmMDfIO/EoCW16fLZhFmxwma2jVaUNw==
-X-Received: by 2002:adf:8b1d:: with SMTP id n29mr15420779wra.383.1600090671007;
-        Mon, 14 Sep 2020 06:37:51 -0700 (PDT)
-Received: from arrakis.kwizart.net (lfbn-nic-1-212-171.w2-15.abo.wanadoo.fr. [2.15.59.171])
-        by smtp.gmail.com with ESMTPSA id a11sm18532488wmm.18.2020.09.14.06.37.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2020 06:37:50 -0700 (PDT)
-From:   Nicolas Chauvet <kwizart@gmail.com>
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>
-Cc:     linux-tegra@vger.kernel.org, Nicolas Chauvet <kwizart@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 4/4] ARM: tegra: Avoid setting edp_irq when not relevant
-Date:   Mon, 14 Sep 2020 15:37:39 +0200
-Message-Id: <20200914133739.60020-5-kwizart@gmail.com>
-X-Mailer: git-send-email 2.25.4
-In-Reply-To: <20200914133739.60020-1-kwizart@gmail.com>
-References: <20200914133739.60020-1-kwizart@gmail.com>
+        id S1726532AbgINO3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 10:29:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60804 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726348AbgINNGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Sep 2020 09:06:03 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 531D822262;
+        Mon, 14 Sep 2020 13:05:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600088715;
+        bh=5VjjZjn7IDHSD+pHCCMmV5MP4ZgYmLZKLYomeCYNuAc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Jyajp+nvuQyTJfVanEdosFhxxMLaCQYqy+OHApdGncv8O7cPdyZzSAftrjScCiFE+
+         KTt/HekTo9lorraxhnYBIfUNr8wnjzv1ZGhXHKM+t34MIU54lFHbGIYqUEkKk7gqBf
+         DMeDcGgjGwbLSPvlhEgvfd89/8nTikeOoLq9mLHA=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 10/19] kobject: Drop unneeded conditional in __kobject_del()
+Date:   Mon, 14 Sep 2020 09:04:53 -0400
+Message-Id: <20200914130502.1804708-10-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200914130502.1804708-1-sashal@kernel.org>
+References: <20200914130502.1804708-1-sashal@kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-According to the binding, the edp_irq is not available on tegra124/132
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-This commit moves the initialization of tegra->edp_irq after the
-introduced SoCs condition. This will have the following effects:
- - soctherm_interrupts_init will not return prematurely with unfinished
-thermal_irq initialization on tegra124 and tegra132
- - edp_irq initialization will be bypassed when not relevant
+[ Upstream commit 07ecc6693f9157cf293da5d165c73fb28fd69bf4 ]
 
-As a result, this will clear the following error when loading the driver:
-  kernel: tegra_soctherm 700e2000.thermal-sensor: IRQ index 1 not found
+__kobject_del() is called from two places, in one where kobj is dereferenced
+before and thus can't be NULL, and in the other the NULL check is done before
+call. Drop unneeded conditional in __kobject_del().
 
-Fixes: 4a04beb1bf2e (thermal: tegra: add support for EDP IRQ)
-Cc: stable@vger.kernel.org
-Signed-off-by: Nicolas Chauvet <kwizart@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/20200803083520.5460-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/tegra/soctherm.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ lib/kobject.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/thermal/tegra/soctherm.c b/drivers/thermal/tegra/soctherm.c
-index 66e0639da4bf..0a7dc988f25f 100644
---- a/drivers/thermal/tegra/soctherm.c
-+++ b/drivers/thermal/tegra/soctherm.c
-@@ -2025,12 +2025,6 @@ static int soctherm_interrupts_init(struct platform_device *pdev,
- 		return 0;
- 	}
+diff --git a/lib/kobject.c b/lib/kobject.c
+index 97d86dc17c42b..6483c11e2e74f 100644
+--- a/lib/kobject.c
++++ b/lib/kobject.c
+@@ -585,9 +585,6 @@ void kobject_del(struct kobject *kobj)
+ {
+ 	struct kernfs_node *sd;
  
--	tegra->edp_irq = platform_get_irq(pdev, 1);
--	if (tegra->edp_irq < 0) {
--		dev_dbg(&pdev->dev, "get 'edp_irq' failed.\n");
--		return 0;
--	}
+-	if (!kobj)
+-		return;
 -
- 	ret = devm_request_threaded_irq(&pdev->dev,
- 					tegra->thermal_irq,
- 					soctherm_thermal_isr,
-@@ -2043,6 +2037,17 @@ static int soctherm_interrupts_init(struct platform_device *pdev,
- 		return ret;
- 	}
- 
-+	/* None of the tegra124 and tegra132 SoCs have edp_irq */
-+	if (of_machine_is_compatible("nvidia,tegra124") ||
-+		of_machine_is_compatible("nvidia,tegra132"))
-+			return 0;
-+
-+	tegra->edp_irq = platform_get_irq(pdev, 1);
-+	if (tegra->edp_irq < 0) {
-+		dev_dbg(&pdev->dev, "get 'edp_irq' failed.\n");
-+		return 0;
-+	}
-+
- 	ret = devm_request_threaded_irq(&pdev->dev,
- 					tegra->edp_irq,
- 					soctherm_edp_isr,
+ 	sd = kobj->sd;
+ 	sysfs_remove_dir(kobj);
+ 	sysfs_put(sd);
 -- 
-2.25.4
+2.25.1
 
