@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 012202692D3
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:17:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47BFD2692D7
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726361AbgINRQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 13:16:43 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:34800 "EHLO
+        id S1726349AbgINRRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 13:17:10 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:34874 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726269AbgINRQZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 13:16:25 -0400
-Date:   Mon, 14 Sep 2020 17:16:12 -0000
+        with ESMTP id S1726050AbgINRQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 13:16:45 -0400
+Date:   Mon, 14 Sep 2020 17:16:27 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1600103773;
+        s=2020; t=1600103788;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=fLSnEgwh8ujg7fMrevLvBVnoQboiRoJVpphwkpSLwRA=;
-        b=gnt3Uw/PnJ1o6+nxEJqPT51LubGOhzH+U8/jVgv8Be6UEymN3eiBy5+3uuZ4TcD/NzFV6g
-        WLgDdSXLlhC/vVA0vtAujPWUCEW0rezNBF6eQcHtHUD48JL02qZHFdtGeLT8YLShYQcO1n
-        IN6MpntSGcMSg4Sh8b96hnBV6rF5Uxvpw+haxTuumgXAEt8RotcOFRAhhIBW9+GfIpWtzM
-        0mZ9q9+51hmmfzi+PrMNNRnQ2hS9HYbrmB+NkC7E3aXTeZyTCT4nYFRjhC69625jRmleGe
-        zUwnwWFh/yRnoLIYU8FfWQ/vG6VXKh1ZkHPvvHKruS2CgWI78kGNgtD9OjwGww==
+        bh=hKJzvN3Uf4aP8GgYNeDCYfuKOeuXhv5z36Q85ovx5No=;
+        b=UoRphFcNXi0ifDS+QAaPqLa2McRsJDl3PaE5j53RuxH0mkU5UTpYMboL91103/yBQHXyI8
+        lQzc/TNITQc8MFwGDoqAZqsyxeMijLT77J0m0q7b7ruiL1OBbZDdpZo41JFNIZiFi109dw
+        9UFlA6pgyC7E8+kxZgpC9xkqzQRuk28T9+3mniV185i1sXT33su2StVgrlEytibJkL+mx8
+        MrWmlQzbicczRWPF/hoNrmdT+CrX8wiqb5TYyKcx2H8YCZdpg35EAqxmeS9B56DxXlHVES
+        TmV1kfGN2QPtbIBumNK3mqag6iLQDUlYBPbZkYJ8gikPlJbEw2qKq8gVFIBPZQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1600103773;
+        s=2020e; t=1600103788;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=fLSnEgwh8ujg7fMrevLvBVnoQboiRoJVpphwkpSLwRA=;
-        b=0376xdLIFdOkV3n23pHqNypL+On0ZO9B0iO+VVBXNSP0ilEt9ycCFYSv+X9/SQzaysQ9yR
-        fNvw/d//VTtsefCQ==
-From:   "tip-bot2 for Masami Hiramatsu" <tip-bot2@linutronix.de>
+        bh=hKJzvN3Uf4aP8GgYNeDCYfuKOeuXhv5z36Q85ovx5No=;
+        b=4zIOFmguJw1gEy//WPx2xtIczzDCoT7ymR+KfhaZRw32ECJqrnA9V5y+w+b2gBIM3vVnT9
+        N4vihCt0PSHMLwDw==
+From:   "tip-bot2 for Arvind Sankar" <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/kprobes] kprobes: Fix to check probe enabled before
- disarm_kprobe_ftrace()
-Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, stable@vger.kernel.org,
+Subject: [tip: x86/urgent] x86/boot/compressed: Disable relocation relaxation
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org,
         x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <159888672694.1411785.5987998076694782591.stgit@devnote2>
-References: <159888672694.1411785.5987998076694782591.stgit@devnote2>
+In-Reply-To: <20200812004308.1448603-1-nivedita@alum.mit.edu>
+References: <20200812004308.1448603-1-nivedita@alum.mit.edu>
 MIME-Version: 1.0
-Message-ID: <160010377221.15536.8797457304463305492.tip-bot2@tip-bot2>
+Message-ID: <160010378780.15536.10220665698122173682.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2.linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -56,63 +58,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the perf/kprobes branch of tip:
+The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     bcb53209be5cb32d485507452edda19b78f31d84
-Gitweb:        https://git.kernel.org/tip/bcb53209be5cb32d485507452edda19b78f31d84
-Author:        Masami Hiramatsu <mhiramat@kernel.org>
-AuthorDate:    Tue, 01 Sep 2020 00:12:07 +09:00
+Commit-ID:     09e43968db40c33a73e9ddbfd937f46d5c334924
+Gitweb:        https://git.kernel.org/tip/09e43968db40c33a73e9ddbfd937f46d5c334924
+Author:        Arvind Sankar <nivedita@alum.mit.edu>
+AuthorDate:    Tue, 11 Aug 2020 20:43:08 -04:00
 Committer:     Ingo Molnar <mingo@kernel.org>
-CommitterDate: Mon, 14 Sep 2020 11:20:03 +02:00
+CommitterDate: Mon, 14 Sep 2020 11:14:45 +02:00
 
-kprobes: Fix to check probe enabled before disarm_kprobe_ftrace()
+x86/boot/compressed: Disable relocation relaxation
 
-Commit:
+The x86-64 psABI [0] specifies special relocation types
+(R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
+Table, semantically equivalent to R_X86_64_GOTPCREL, which the linker
+can take advantage of for optimization (relaxation) at link time. This
+is supported by LLD and binutils versions 2.26 onwards.
 
-  0cb2f1372baa ("kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler")
+The compressed kernel is position-independent code, however, when using
+LLD or binutils versions before 2.27, it must be linked without the -pie
+option. In this case, the linker may optimize certain instructions into
+a non-position-independent form, by converting foo@GOTPCREL(%rip) to $foo.
 
-fixed one bug but the underlying bugs are not completely fixed yet.
+This potential issue has been present with LLD and binutils-2.26 for a
+long time, but it has never manifested itself before now:
 
-If we run a kprobe_module.tc of ftracetest, a warning triggers:
+- LLD and binutils-2.26 only relax
+	movq	foo@GOTPCREL(%rip), %reg
+  to
+	leaq	foo(%rip), %reg
+  which is still position-independent, rather than
+	mov	$foo, %reg
+  which is permitted by the psABI when -pie is not enabled.
 
-  # ./ftracetest test.d/kprobe/kprobe_module.tc
-  === Ftrace unit tests ===
-  [1] Kprobe dynamic event - probing module
-  ...
-   ------------[ cut here ]------------
-   Failed to disarm kprobe-ftrace at trace_printk_irq_work+0x0/0x7e [trace_printk] (-2)
-   WARNING: CPU: 7 PID: 200 at kernel/kprobes.c:1091 __disarm_kprobe_ftrace.isra.0+0x7e/0xa0
+- GCC happens to only generate GOTPCREL relocations on mov instructions.
 
-This is because the kill_kprobe() calls disarm_kprobe_ftrace() even
-if the given probe is not enabled. In that case, ftrace_set_filter_ip()
-fails because the given probe point is not registered to ftrace.
+- CLang does generate GOTPCREL relocations on non-mov instructions, but
+  when building the compressed kernel, it uses its integrated assembler
+  (due to the redefinition of KBUILD_CFLAGS dropping -no-integrated-as),
+  which has so far defaulted to not generating the GOTPCRELX
+  relocations.
 
-Fix to check the given (going) probe is enabled before invoking
-disarm_kprobe_ftrace().
+Nick Desaulniers reports [1,2]:
 
-Fixes: 0cb2f1372baa ("kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+  "A recent change [3] to a default value of configuration variable
+   (ENABLE_X86_RELAX_RELOCATIONS OFF -> ON) in LLVM now causes Clang's
+   integrated assembler to emit R_X86_64_GOTPCRELX/R_X86_64_REX_GOTPCRELX
+   relocations. LLD will relax instructions with these relocations based
+   on whether the image is being linked as position independent or not.
+   When not, then LLD will relax these instructions to use absolute
+   addressing mode (R_RELAX_GOT_PC_NOPIC). This causes kernels built with
+   Clang and linked with LLD to fail to boot."
+
+Patch series [4] is a solution to allow the compressed kernel to be
+linked with -pie unconditionally, but even if merged is unlikely to be
+backported. As a simple solution that can be applied to stable as well,
+prevent the assembler from generating the relaxed relocation types using
+the -mrelax-relocations=no option. For ease of backporting, do this
+unconditionally.
+
+[0] https://gitlab.com/x86-psABIs/x86-64-ABI/-/blob/master/x86-64-ABI/linker-optimization.tex#L65
+[1] https://lore.kernel.org/lkml/20200807194100.3570838-1-ndesaulniers@google.com/
+[2] https://github.com/ClangBuiltLinux/linux/issues/1121
+[3] https://reviews.llvm.org/rGc41a18cf61790fc898dcda1055c3efbf442c14c0
+[4] https://lore.kernel.org/lkml/20200731202738.2577854-1-nivedita@alum.mit.edu/
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/159888672694.1411785.5987998076694782591.stgit@devnote2
+Link: https://lore.kernel.org/r/20200812004308.1448603-1-nivedita@alum.mit.edu
 ---
- kernel/kprobes.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/boot/compressed/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 732a701..3b61ae8 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2235,9 +2235,10 @@ static void kill_kprobe(struct kprobe *p)
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 3962f59..ff7894f 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -43,6 +43,8 @@ KBUILD_CFLAGS += -Wno-pointer-sign
+ KBUILD_CFLAGS += $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+ KBUILD_CFLAGS += -fno-asynchronous-unwind-tables
+ KBUILD_CFLAGS += -D__DISABLE_EXPORTS
++# Disable relocation relaxation in case the link is not PIE.
++KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
  
- 	/*
- 	 * The module is going away. We should disarm the kprobe which
--	 * is using ftrace.
-+	 * is using ftrace, because ftrace framework is still available at
-+	 * MODULE_STATE_GOING notification.
- 	 */
--	if (kprobe_ftrace(p))
-+	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
- 		disarm_kprobe_ftrace(p);
- }
- 
+ KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
+ GCOV_PROFILE := n
