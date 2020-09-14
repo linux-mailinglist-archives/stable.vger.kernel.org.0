@@ -2,93 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E62B268EAB
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:59:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2480268F27
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 17:09:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726885AbgINO7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 10:59:06 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:47410 "EHLO m43-7.mailgun.net"
+        id S1726614AbgINNF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 09:05:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726360AbgINO64 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Sep 2020 10:58:56 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1600095535; h=Content-Transfer-Encoding: MIME-Version:
- Message-Id: Date: Subject: Cc: To: From: Sender;
- bh=6B1eHivMPY/Y7JjheulizygZ7FR99YPUY1zmWLJj70I=; b=vx47B0OaeK9QjwmNR3hG87uy517wz+p2nRQTCuRaYphq6Xe5blM8OXQccwyAXL2e/rtGVsXu
- 3LM+fpovYfxpouVdLdgdK7AXBq5CNVK2jPCWCfh+EoHtgbzcZxRiB0WQfd15hxfY7X2I7/Oy
- y5454kv4cq9UzIJ3qA+7/VaDO44=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n04.prod.us-west-2.postgun.com with SMTP id
- 5f5f850c4ba82a82fd76569e (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 14 Sep 2020 14:58:20
- GMT
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id AA676C433C8; Mon, 14 Sep 2020 14:58:19 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
-Received: from blr-ubuntu-253.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        id S1726586AbgINNEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Sep 2020 09:04:49 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        (Authenticated sender: sibis)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id A8699C433F0;
-        Mon, 14 Sep 2020 14:58:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org A8699C433F0
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=sibis@codeaurora.org
-From:   Sibi Sankar <sibis@codeaurora.org>
-To:     bjorn.andersson@linaro.org, rishabhb@codeaurora.org
-Cc:     agross@kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, sidgup@codeaurora.org,
-        stable@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>
-Subject: [PATCH] soc: qcom: pdr: Fixup array type of get_domain_list_resp message
-Date:   Mon, 14 Sep 2020 20:28:07 +0530
-Message-Id: <20200914145807.1224-1-sibis@codeaurora.org>
-X-Mailer: git-send-email 2.27.0
+        by mail.kernel.org (Postfix) with ESMTPSA id E58A021D41;
+        Mon, 14 Sep 2020 13:04:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600088649;
+        bh=+hTCQXSoThcQFiyF2kREjmsvdzzXC//BrwpSRW/S5Bo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GWTP7vzVof5O6qmfZZyDPs6gWjgDTi4Lq3ryo7InHfmyKGwHOgKkjUdFOVj69atv2
+         ZNHXl1Aqn0U4iQCVNXsNePop0GpCKgkKUFoyD9Wb10GY2oaaRZTN5Dr2R3xzFdy4Hv
+         Y7FIpAmadmb0RSERda4LURy6hZYm4PjeWdH28drE=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     James Smart <james.smart@broadcom.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 09/29] scsi: lpfc: Extend the RDF FPIN Registration descriptor for additional events
+Date:   Mon, 14 Sep 2020 09:03:38 -0400
+Message-Id: <20200914130358.1804194-9-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200914130358.1804194-1-sashal@kernel.org>
+References: <20200914130358.1804194-1-sashal@kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The array type of get_domain_list_resp is incorrectly marked as NO_ARRAY.
-Due to which the following error was observed when using pdr helpers with
-the downstream proprietary pd-mapper. Fix this up by marking it as
-VAR_LEN_ARRAY instead.
+From: James Smart <james.smart@broadcom.com>
 
-Err logs:
-qmi_decode_struct_elem: Fault in decoding: dl(2), db(27), tl(160), i(1), el(1)
-failed to decode incoming message
-PDR: tms/servreg get domain list txn wait failed: -14
-PDR: service lookup for tms/servreg failed: -14
+[ Upstream commit 441f6b5b097d74a8aa72ec0d8992ef820e2b3773 ]
 
-Fixes: fbe639b44a82 ("soc: qcom: Introduce Protection Domain Restart helpers")
-Reported-by: Rishabh Bhatnagar <rishabhb@codeaurora.org>
-Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Currently the driver registers for Link Integrity events only.
+
+This patch adds registration for the following FPIN types:
+
+ - Delivery Notifications
+ - Congestion Notification
+ - Peer Congestion Notification
+
+Link: https://lore.kernel.org/r/20200828175332.130300-4-james.smart@broadcom.com
+Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/pdr_internal.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_els.c | 3 +++
+ drivers/scsi/lpfc/lpfc_hw4.h | 2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/pdr_internal.h b/drivers/soc/qcom/pdr_internal.h
-index 15b5002e4127b..ab9ae8cdfa54c 100644
---- a/drivers/soc/qcom/pdr_internal.h
-+++ b/drivers/soc/qcom/pdr_internal.h
-@@ -185,7 +185,7 @@ struct qmi_elem_info servreg_get_domain_list_resp_ei[] = {
- 		.data_type      = QMI_STRUCT,
- 		.elem_len       = SERVREG_DOMAIN_LIST_LENGTH,
- 		.elem_size      = sizeof(struct servreg_location_entry),
--		.array_type	= NO_ARRAY,
-+		.array_type	= VAR_LEN_ARRAY,
- 		.tlv_type       = 0x12,
- 		.offset         = offsetof(struct servreg_get_domain_list_resp,
- 					   domain_list),
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 7b6a210825677..519c7be404e75 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -3512,6 +3512,9 @@ lpfc_issue_els_rdf(struct lpfc_vport *vport, uint8_t retry)
+ 				FC_TLV_DESC_LENGTH_FROM_SZ(prdf->reg_d1));
+ 	prdf->reg_d1.reg_desc.count = cpu_to_be32(ELS_RDF_REG_TAG_CNT);
+ 	prdf->reg_d1.desc_tags[0] = cpu_to_be32(ELS_DTAG_LNK_INTEGRITY);
++	prdf->reg_d1.desc_tags[1] = cpu_to_be32(ELS_DTAG_DELIVERY);
++	prdf->reg_d1.desc_tags[2] = cpu_to_be32(ELS_DTAG_PEER_CONGEST);
++	prdf->reg_d1.desc_tags[3] = cpu_to_be32(ELS_DTAG_CONGESTION);
+ 
+ 	lpfc_debugfs_disc_trc(vport, LPFC_DISC_TRC_ELS_CMD,
+ 			      "Issue RDF:       did:x%x",
+diff --git a/drivers/scsi/lpfc/lpfc_hw4.h b/drivers/scsi/lpfc/lpfc_hw4.h
+index 6dfff03765471..c7085769170d7 100644
+--- a/drivers/scsi/lpfc/lpfc_hw4.h
++++ b/drivers/scsi/lpfc/lpfc_hw4.h
+@@ -4797,7 +4797,7 @@ struct send_frame_wqe {
+ 	uint32_t fc_hdr_wd5;           /* word 15 */
+ };
+ 
+-#define ELS_RDF_REG_TAG_CNT		1
++#define ELS_RDF_REG_TAG_CNT		4
+ struct lpfc_els_rdf_reg_desc {
+ 	struct fc_df_desc_fpin_reg	reg_desc;	/* descriptor header */
+ 	__be32				desc_tags[ELS_RDF_REG_TAG_CNT];
 -- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+2.25.1
 
