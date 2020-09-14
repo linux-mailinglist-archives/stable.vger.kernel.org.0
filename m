@@ -2,210 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34ACA26916B
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 18:25:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5AC52691A2
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 18:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726142AbgINQTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 12:19:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
+        id S1726038AbgINQdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 12:33:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726239AbgINQRA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 12:17:00 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 349FAC061788
-        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 09:16:50 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id b127so239882ybh.21
-        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 09:16:50 -0700 (PDT)
+        with ESMTP id S1726410AbgINPqK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 11:46:10 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252CCC06178C
+        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 08:46:06 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id a9so555187wmm.2
+        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 08:46:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=sender:date:in-reply-to:message-id:mime-version:references:subject
-         :from:to:cc;
-        bh=YI5TFjrZrW6iX6wLKYhaDvA2UAvnRhVpfjmVtoFV008=;
-        b=vXMRc/pNGgQ0c8UXl2DPqopDPJA6DtVr6/XcYChPaglz/iNglFqK+mTodoVaHIdwpq
-         C63+5CRQO9d5ztZ7r+1Sno5e3tFMg7ZXQ8fjZ/qU4P0tAQhOlGrOed070oTIGc0RJk3Y
-         r+CIvaxawo4c7O13+z0RXgz8AODB/woVEs8iKVP9Lv0IriRJA0DNi1zTHuxsf4ck56dd
-         iTMoPK899e5pa3fFdpKcQ7EZAF9ohW2tXpd4m2uDwHpi3EQYnXV5V5o0vEYUBQZVzVSU
-         hD520P01MTbJhxV2wfRFrGTbKLPSln2glDgk43McGyxujSODT7H1Ye/jvP5Uja4yG0uO
-         T2Sg==
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=plilCXA5A5q09idBzIpTg+BIsAJANgsHzo+a6wZVjlA=;
+        b=S7ctMuLP+H6ZENeDO2FsY0msTCT202b26BjCdFuawnWwkLH2CKc8jwl0bbUXNbCeg6
+         63B+pHIzJLSDKmztuJU29lKzRs5XVgbvoktw5AMA/G/E89qjGV66ZJGEA9OoTuirhU6F
+         0To6lxnCn8AvOI5jrUjzC7IjVXOTh4Qlli1ZBKXdgLXv8LpIGj0lBGSHm0JwPNhg+HZf
+         w1xBEfETzJrdkNYmCT15XKmqXcdAurqGk5GSJXSs3QMGIKvhHrTrfRG2NTyYJ2vlgks6
+         keCX4c7V4PAYBPenv2P46IJmOVGuVJhbCKkLDt8/72Vjsw8PeZDadfFwxIN2u+RJx0K4
+         ptUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=YI5TFjrZrW6iX6wLKYhaDvA2UAvnRhVpfjmVtoFV008=;
-        b=oz69ZLGWZ81WSZUhcHyE70LDARMu8UnJ133uwwFHbAyvG633Yh2AQBhtSlKAHpaRTi
-         yc4WjKhoAA7ETf8Hi7tWSTcNnteOZdC/svuO4OtqTbaPAuacGJXnTsa5EuON204bwAK6
-         cu/deWr1LKUNlwmSxQF/OvKKOqn83CiNxxaja35SmkRhpI9NLTrYo+cT3+GZ+vEugcOV
-         oOLUVVGLfIiE7xGwDYZmXh0z8kGE+r5qcGuHpzxTYpoZFR1hX64s761z+ILv7NR0uqQR
-         1hD1O7NSMlIEPUGzHqAt3c3oK0sDZ/1MMDaQDPbY/XGt7LTUQJgCzMr51B6TO5HbTDHY
-         8Kxw==
-X-Gm-Message-State: AOAM530LYXv+N6JK6QixeydyR/YI1eUi403YEtw8k/JJNbQh5Lwp/W1/
-        6mGs8LNUIlwuyODJ0kFzJvR7i79p/lmW3CPqPL0=
-X-Google-Smtp-Source: ABdhPJwD7JVagoDruqSqJDoFs6vE126qHPtYArFvvt+8uZMKEwM2SSkjvjwott5vd30JoTaEVIfYPDYNURSk750kq7o=
-X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:f693:9fff:fef4:4d25])
- (user=ndesaulniers job=sendgmr) by 2002:a25:ce90:: with SMTP id
- x138mr2809847ybe.95.1600100209393; Mon, 14 Sep 2020 09:16:49 -0700 (PDT)
-Date:   Mon, 14 Sep 2020 09:16:43 -0700
-In-Reply-To: <20200914160958.889694-1-ndesaulniers@google.com>
-Message-Id: <20200914161643.938408-1-ndesaulniers@google.com>
-Mime-Version: 1.0
-References: <20200914160958.889694-1-ndesaulniers@google.com>
-X-Mailer: git-send-email 2.28.0.618.gf4bc123cb7-goog
-Subject: [PATCH v5] lib/string.c: implement stpcpy
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andy Lavr <andy.lavr@gmail.com>, Joe Perches <joe@perches.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Nathan Chancellor <natechancellor@gmail.com>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=plilCXA5A5q09idBzIpTg+BIsAJANgsHzo+a6wZVjlA=;
+        b=cHyPhRiC+6JBpG8926o3FbFQeJr5dc+IcShkgpFz2n8oOdM61f3izzyK1Nb6pSO8gr
+         qU9Eaj0nnaVKx0lN9VuZfGIYqeRem0lzqhPaYFtOSrwHCF1GGo4z9tQaxn4q+TJCVuPj
+         1/LHoV0pIzjgo+AFP7nKey8w4YmdWC8An34KFQ8v2nC8jfo61yVnrq+wuNC/uf21kFlZ
+         Pi7sONug5UTHJmejQp2wZEKyELqyJe7kEAWUzltRUjLnqmsVgSc+o1snXUyo42V+qk+v
+         0OJtGRmoadeYEPfm1y6I/8P/Qbuj2mmLHfP7kbJlrChXJvR88d3wV4PgHe9vNPZbV9z6
+         K0Tg==
+X-Gm-Message-State: AOAM5302iptzT3U6HCbOMSb3E9D3q+QU9FyCuB/UKcYlB1jbfKTfB9Az
+        rwyn55zZs8VkWTWHnTfeeIfygqNamTGk4g==
+X-Google-Smtp-Source: ABdhPJyQwSx+HXVYm5DHmvbn4LTEV128NOS4N1474J7+Jszy/ozfkmXbRUZuDvtDHuuKGVCWyrxs6w==
+X-Received: by 2002:a7b:c5c6:: with SMTP id n6mr31296wmk.120.1600098364820;
+        Mon, 14 Sep 2020 08:46:04 -0700 (PDT)
+Received: from debian-brgl.home (lfbn-nic-1-68-20.w2-15.abo.wanadoo.fr. [2.15.159.20])
+        by smtp.gmail.com with ESMTPSA id l19sm19510448wmi.8.2020.09.14.08.46.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Sep 2020 08:46:04 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH v3 01/14] rtc: rx8010: don't modify the global rtc ops
+Date:   Mon, 14 Sep 2020 17:45:48 +0200
+Message-Id: <20200914154601.32245-2-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.26.1
+In-Reply-To: <20200914154601.32245-1-brgl@bgdev.pl>
+References: <20200914154601.32245-1-brgl@bgdev.pl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LLVM implemented a recent "libcall optimization" that lowers calls to
-`sprintf(dest, "%s", str)` where the return value is used to
-`stpcpy(dest, str) - dest`. This generally avoids the machinery involved
-in parsing format strings.  `stpcpy` is just like `strcpy` except it
-returns the pointer to the new tail of `dest`.  This optimization was
-introduced into clang-12.
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Implement this so that we don't observe linkage failures due to missing
-symbol definitions for `stpcpy`.
+The way the driver is implemented is buggy for the (admittedly unlikely)
+use case where there are two RTCs with one having an interrupt configured
+and the second not. This is caused by the fact that we use a global
+rtc_class_ops struct which we modify depending on whether the irq number
+is present or not.
 
-Similar to last year's fire drill with:
-commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
+Fix it by using two const ops structs with and without alarm operations.
+While at it: not being able to request a configured interrupt is an error
+so don't ignore it and bail out of probe().
 
-The kernel is somewhere between a "freestanding" environment (no full libc)
-and "hosted" environment (many symbols from libc exist with the same
-type, function signature, and semantics).
-
-As H. Peter Anvin notes, there's not really a great way to inform the
-compiler that you're targeting a freestanding environment but would like
-to opt-in to some libcall optimizations (see pr/47280 below), rather than
-opt-out.
-
-Arvind notes, -fno-builtin-* behaves slightly differently between GCC
-and Clang, and Clang is missing many __builtin_* definitions, which I
-consider a bug in Clang and am working on fixing.
-
-Masahiro summarizes the subtle distinction between compilers justly:
-  To prevent transformation from foo() into bar(), there are two ways in
-  Clang to do that; -fno-builtin-foo, and -fno-builtin-bar.  There is
-  only one in GCC; -fno-buitin-foo.
-
-(Any difference in that behavior in Clang is likely a bug from a missing
-__builtin_* definition.)
-
-Masahiro also notes:
-  We want to disable optimization from foo() to bar(),
-  but we may still benefit from the optimization from
-  foo() into something else. If GCC implements the same transform, we
-  would run into a problem because it is not -fno-builtin-bar, but
-  -fno-builtin-foo that disables that optimization.
-
-  In this regard, -fno-builtin-foo would be more future-proof than
-  -fno-built-bar, but -fno-builtin-foo is still potentially overkill. We
-  may want to prevent calls from foo() being optimized into calls to
-  bar(), but we still may want other optimization on calls to foo().
-
-It seems that compilers today don't quite provide the fine grain control
-over which libcall optimizations pseudo-freestanding environments would
-prefer.
-
-Finally, Kees notes that this interface is unsafe, so we should not
-encourage its use.  As such, I've removed the declaration from any
-header, but it still needs to be exported to avoid linkage errors in
-modules.
-
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Suggested-by: Andy Lavr <andy.lavr@gmail.com>
-Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
-Suggested-by: Joe Perches <joe@perches.com>
-Suggested-by: Kees Cook <keescook@chromium.org>
-Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
-Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Fixes: ed13d89b08e3 ("rtc: Add Epson RX8010SJ RTC driver")
 Cc: stable@vger.kernel.org
-Link: https://bugs.llvm.org/show_bug.cgi?id=47162
-Link: https://bugs.llvm.org/show_bug.cgi?id=47280
-Link: https://github.com/ClangBuiltLinux/linux/issues/1126
-Link: https://man7.org/linux/man-pages/man3/stpcpy.3.html
-Link: https://pubs.opengroup.org/onlinepubs/9699919799/functions/stpcpy.html
-Link: https://reviews.llvm.org/D85963
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
-Changes V5:
-* fix missing parens in comment.
+ drivers/rtc/rtc-rx8010.c | 24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
-Changes V4:
-* Roll up Kees' comment fixup from
-  https://lore.kernel.org/lkml/202009060302.4574D8D0E0@keescook/#t.
-* Keep Nathan's tested by tag.
-* Add Kees' reviewed by tag from
-  https://lore.kernel.org/lkml/202009031446.3865FE82B@keescook/.
-
-Changes V3:
-* Drop Sami's Tested by tag; newer patch.
-* Add EXPORT_SYMBOL as per Andy.
-* Rewrite commit message, rewrote part of what Masahiro said to be
-  generic in terms of foo() and bar().
-* Prefer %NUL-terminated to NULL terminated. NUL is the ASCII character
-  '\0', as per Arvind and Rasmus.
-
-Changes V2:
-* Added Sami's Tested by; though the patch changed implementation, the
-  missing symbol at link time was the problem Sami was observing.
-* Fix __restrict -> __restrict__ typo as per Joe.
-* Drop note about restrict from commit message as per Arvind.
-* Fix NULL -> NUL as per Arvind; NUL is ASCII '\0'. TIL
-* Fix off by one error as per Arvind; I had another off by one error in
-  my test program that was masking this.
-
- lib/string.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
-
-diff --git a/lib/string.c b/lib/string.c
-index 6012c385fb31..4288e0158d47 100644
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -272,6 +272,30 @@ ssize_t strscpy_pad(char *dest, const char *src, size_t count)
+diff --git a/drivers/rtc/rtc-rx8010.c b/drivers/rtc/rtc-rx8010.c
+index fe010151ec8f..08c93d492494 100644
+--- a/drivers/rtc/rtc-rx8010.c
++++ b/drivers/rtc/rtc-rx8010.c
+@@ -407,16 +407,26 @@ static int rx8010_ioctl(struct device *dev, unsigned int cmd, unsigned long arg)
+ 	}
  }
- EXPORT_SYMBOL(strscpy_pad);
  
-+/**
-+ * stpcpy - copy a string from src to dest returning a pointer to the new end
-+ *          of dest, including src's %NUL-terminator. May overrun dest.
-+ * @dest: pointer to end of string being copied into. Must be large enough
-+ *        to receive copy.
-+ * @src: pointer to the beginning of string being copied from. Must not overlap
-+ *       dest.
-+ *
-+ * stpcpy differs from strcpy in a key way: the return value is a pointer
-+ * to the new %NUL-terminating character in @dest. (For strcpy, the return
-+ * value is a pointer to the start of @dest). This interface is considered
-+ * unsafe as it doesn't perform bounds checking of the inputs. As such it's
-+ * not recommended for usage. Instead, its definition is provided in case
-+ * the compiler lowers other libcalls to stpcpy.
-+ */
-+char *stpcpy(char *__restrict__ dest, const char *__restrict__ src);
-+char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
-+{
-+	while ((*dest++ = *src++) != '\0')
-+		/* nothing */;
-+	return --dest;
-+}
-+EXPORT_SYMBOL(stpcpy);
+-static struct rtc_class_ops rx8010_rtc_ops = {
++static const struct rtc_class_ops rx8010_rtc_ops_default = {
+ 	.read_time = rx8010_get_time,
+ 	.set_time = rx8010_set_time,
+ 	.ioctl = rx8010_ioctl,
+ };
+ 
++static const struct rtc_class_ops rx8010_rtc_ops_alarm = {
++	.read_time = rx8010_get_time,
++	.set_time = rx8010_set_time,
++	.ioctl = rx8010_ioctl,
++	.read_alarm = rx8010_read_alarm,
++	.set_alarm = rx8010_set_alarm,
++	.alarm_irq_enable = rx8010_alarm_irq_enable,
++};
 +
- #ifndef __HAVE_ARCH_STRCAT
- /**
-  * strcat - Append one %NUL-terminated string to another
+ static int rx8010_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+ 	struct i2c_adapter *adapter = client->adapter;
++	const struct rtc_class_ops *rtc_ops;
+ 	struct rx8010_data *rx8010;
+ 	int err = 0;
+ 
+@@ -447,16 +457,16 @@ static int rx8010_probe(struct i2c_client *client,
+ 
+ 		if (err) {
+ 			dev_err(&client->dev, "unable to request IRQ\n");
+-			client->irq = 0;
+-		} else {
+-			rx8010_rtc_ops.read_alarm = rx8010_read_alarm;
+-			rx8010_rtc_ops.set_alarm = rx8010_set_alarm;
+-			rx8010_rtc_ops.alarm_irq_enable = rx8010_alarm_irq_enable;
++			return err;
+ 		}
++
++		rtc_ops = &rx8010_rtc_ops_alarm;
++	} else {
++		rtc_ops = &rx8010_rtc_ops_default;
+ 	}
+ 
+ 	rx8010->rtc = devm_rtc_device_register(&client->dev, client->name,
+-		&rx8010_rtc_ops, THIS_MODULE);
++					       rtc_ops, THIS_MODULE);
+ 
+ 	if (IS_ERR(rx8010->rtc)) {
+ 		dev_err(&client->dev, "unable to register the class device\n");
 -- 
-2.28.0.618.gf4bc123cb7-goog
+2.26.1
 
