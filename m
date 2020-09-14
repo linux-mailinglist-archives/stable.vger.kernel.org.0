@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBFD7268E13
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:43:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B21268DF8
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726737AbgINOnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 10:43:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60278 "EHLO mail.kernel.org"
+        id S1726327AbgINOkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 10:40:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726632AbgINNFm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726636AbgINNFm (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Sep 2020 09:05:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2C1021741;
-        Mon, 14 Sep 2020 13:04:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5B05206B2;
+        Mon, 14 Sep 2020 13:04:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088688;
-        bh=BYhbOQ9a7Qb46xcnmQorEGzvVnPcs1MA6OLGxfSa3zw=;
+        s=default; t=1600088689;
+        bh=R7mR3aLIf2CGGcWqGZaqKCMfrWa7L3YNwpWo4rPGCRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ww29zuF9RnoTb77N943czbN9z7ceO8M57ZuGegTS9WkrHRNtGzBHwh4Bo9BxeyzMX
-         DA55kG10NoZ/aDD6i74ezxEm3XtaqtdRp2tZmSxboXgV53o9GLAkSVHoE2eFFfMfpx
-         pawQgZU1d1DoQQfj/pqEaJ45nJqv8ZY/aE8U3neE=
+        b=OkjONoIjC2zowdYYC7q1Cjy1wqXtj8d9xkwHa1343lvpAwzQ8v9LqRrzgpi1QtVCr
+         47aueyrJeSttOIwtIdRjS774Jv5S4hDS7ll/QGu96HdpCRVRL1crjdvvqBubC4l3H2
+         d8HcsyTOuvn1o24sE+O1MUJyqP2I9NQMW8QXNhHM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 11/22] kobject: Drop unneeded conditional in __kobject_del()
-Date:   Mon, 14 Sep 2020 09:04:23 -0400
-Message-Id: <20200914130434.1804478-11-sashal@kernel.org>
+Cc:     Stafford Horne <shorne@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        openrisc@lists.librecores.org
+Subject: [PATCH AUTOSEL 5.4 12/22] openrisc: Fix cache API compile issue when not inlining
+Date:   Mon, 14 Sep 2020 09:04:24 -0400
+Message-Id: <20200914130434.1804478-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200914130434.1804478-1-sashal@kernel.org>
 References: <20200914130434.1804478-1-sashal@kernel.org>
@@ -44,37 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Stafford Horne <shorne@gmail.com>
 
-[ Upstream commit 07ecc6693f9157cf293da5d165c73fb28fd69bf4 ]
+[ Upstream commit 3ae90d764093dfcd6ab8ab6875377302892c87d4 ]
 
-__kobject_del() is called from two places, in one where kobj is dereferenced
-before and thus can't be NULL, and in the other the NULL check is done before
-call. Drop unneeded conditional in __kobject_del().
+I found this when compiling a kbuild random config with GCC 11.  The
+config enables CONFIG_DEBUG_SECTION_MISMATCH, which sets CFLAGS
+-fno-inline-functions-called-once. This causes the call to cache_loop in
+cache.c to not be inlined causing the below compile error.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Link: https://lore.kernel.org/r/20200803083520.5460-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    In file included from arch/openrisc/mm/cache.c:13:
+    arch/openrisc/mm/cache.c: In function 'cache_loop':
+    ./arch/openrisc/include/asm/spr.h:16:27: warning: 'asm' operand 0 probably does not match constraints
+       16 | #define mtspr(_spr, _val) __asm__ __volatile__ (  \
+	  |                           ^~~~~~~
+    arch/openrisc/mm/cache.c:25:3: note: in expansion of macro 'mtspr'
+       25 |   mtspr(reg, line);
+	  |   ^~~~~
+    ./arch/openrisc/include/asm/spr.h:16:27: error: impossible constraint in 'asm'
+       16 | #define mtspr(_spr, _val) __asm__ __volatile__ (  \
+	  |                           ^~~~~~~
+    arch/openrisc/mm/cache.c:25:3: note: in expansion of macro 'mtspr'
+       25 |   mtspr(reg, line);
+	  |   ^~~~~
+    make[1]: *** [scripts/Makefile.build:283: arch/openrisc/mm/cache.o] Error 1
+
+The asm constraint "K" requires a immediate constant argument to mtspr,
+however because of no inlining a register argument is passed causing a
+failure.  Fix this by using __always_inline.
+
+Link: https://lore.kernel.org/lkml/202008200453.ohnhqkjQ%25lkp@intel.com/
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kobject.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/openrisc/mm/cache.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/kobject.c b/lib/kobject.c
-index 386873bdd51c9..f885d1287e29b 100644
---- a/lib/kobject.c
-+++ b/lib/kobject.c
-@@ -604,9 +604,6 @@ static void __kobject_del(struct kobject *kobj)
- 	struct kernfs_node *sd;
- 	const struct kobj_type *ktype;
+diff --git a/arch/openrisc/mm/cache.c b/arch/openrisc/mm/cache.c
+index 08f56af387ac4..534a52ec5e667 100644
+--- a/arch/openrisc/mm/cache.c
++++ b/arch/openrisc/mm/cache.c
+@@ -16,7 +16,7 @@
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
  
--	if (!kobj)
--		return;
--
- 	sd = kobj->sd;
- 	ktype = get_ktype(kobj);
- 
+-static void cache_loop(struct page *page, const unsigned int reg)
++static __always_inline void cache_loop(struct page *page, const unsigned int reg)
+ {
+ 	unsigned long paddr = page_to_pfn(page) << PAGE_SHIFT;
+ 	unsigned long line = paddr & ~(L1_CACHE_BYTES - 1);
 -- 
 2.25.1
 
