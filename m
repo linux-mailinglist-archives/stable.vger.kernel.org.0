@@ -2,90 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32E552693CF
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08ADD26939C
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726034AbgINRnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 13:43:40 -0400
-Received: from mga02.intel.com ([134.134.136.20]:35229 "EHLO mga02.intel.com"
+        id S1726382AbgINRhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 13:37:25 -0400
+Received: from mailout07.rmx.de ([94.199.90.95]:34600 "EHLO mailout07.rmx.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726191AbgINMRc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Sep 2020 08:17:32 -0400
-IronPort-SDR: TQWMj1zEqCU+fIadJbMG6FpQI/GUmzIOQlry1N6Wwk06k+mEz/y6/r/X/iP7/AAR+G6pbjxxj6
- IqrbhcJJ80fw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9743"; a="146757109"
-X-IronPort-AV: E=Sophos;i="5.76,426,1592895600"; 
-   d="scan'208";a="146757109"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Sep 2020 05:14:29 -0700
-IronPort-SDR: b34j+gzHlZXBkLI/FcXPAtUYFIqWzDW7HliECCjA8xKGFgDYjZuazHgtOMHX0l8CvBTyNIsh04
- aK34YPhcYfsg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,426,1592895600"; 
-   d="scan'208";a="408839789"
-Received: from kuha.fi.intel.com ([10.237.72.162])
-  by fmsmga001.fm.intel.com with SMTP; 14 Sep 2020 05:14:26 -0700
-Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Mon, 14 Sep 2020 15:14:25 +0300
-Date:   Mon, 14 Sep 2020 15:14:25 +0300
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Felipe Balbi <balbi@kernel.org>
-Cc:     linux-usb@vger.kernel.org, Raymond Tan <raymond.tan@intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] usb: dwc3: pci: Allow Elkhart Lake to utilize DSM method
- for PM functionality
-Message-ID: <20200914121425.GA810499@kuha.fi.intel.com>
-References: <20200821131101.81915-1-heikki.krogerus@linux.intel.com>
+        id S1726091AbgINRhN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Sep 2020 13:37:13 -0400
+Received: from kdin02.retarus.com (kdin02.dmz1.retloc [172.19.17.49])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mailout07.rmx.de (Postfix) with ESMTPS id 4BqtpR3xK9zBtwp;
+        Mon, 14 Sep 2020 19:37:03 +0200 (CEST)
+Received: from mta.arri.de (unknown [217.111.95.66])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by kdin02.retarus.com (Postfix) with ESMTPS id 4Bqtp267Chz2TRjk;
+        Mon, 14 Sep 2020 19:36:42 +0200 (CEST)
+Received: from n95hx1g2.localnet (192.168.54.15) by mta.arri.de
+ (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Mon, 14 Sep
+ 2020 19:36:20 +0200
+From:   Christian Eggers <ceggers@arri.de>
+To:     Jonathan Cameron <jic23@kernel.org>
+CC:     kernel test robot <lkp@intel.com>, <kbuild-all@lists.01.org>,
+        "Hartmut Knaack" <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        "Peter Meerwald-Stadler" <pmeerw@pmeerw.net>,
+        <linux-iio@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH] iio: trigger: Don't use RT priority
+Date:   Mon, 14 Sep 2020 19:36:19 +0200
+Message-ID: <2593270.IIsAztQlyu@n95hx1g2>
+Organization: Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
+In-Reply-To: <20200913104240.5c1b98ae@archlinux>
+References: <20200909162216.13765-1-ceggers@arri.de> <202009100951.s9xJuuod%lkp@intel.com> <20200913104240.5c1b98ae@archlinux>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200821131101.81915-1-heikki.krogerus@linux.intel.com>
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+X-Originating-IP: [192.168.54.15]
+X-RMX-ID: 20200914-193644-4Bqtp267Chz2TRjk-0@kdin02
+X-RMX-SOURCE: 217.111.95.66
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Felipe,
+Hi Jonathan,
 
-On Fri, Aug 21, 2020 at 04:11:01PM +0300, Heikki Krogerus wrote:
-> From: Raymond Tan <raymond.tan@intel.com>
-> 
-> Similar to some other IA platforms, Elkhart Lake too depends on the
-> PMU register write to request transition of Dx power state.
-> 
-> Thus, we add the PCI_DEVICE_ID_INTEL_EHLLP to the list of devices that
-> shall execute the ACPI _DSM method during D0/D3 sequence.
->a 
-> [heikki.krogerus@linux.intel.com: included Fixes tag]
-> 
-> Fixes: dbb0569de852 ("usb: dwc3: pci: Add Support for Intel Elkhart Lake Devices")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Raymond Tan <raymond.tan@intel.com>
-> Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-> ---
->  drivers/usb/dwc3/dwc3-pci.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-> index f5a61f57c74f0..242b6210380a4 100644
-> --- a/drivers/usb/dwc3/dwc3-pci.c
-> +++ b/drivers/usb/dwc3/dwc3-pci.c
-> @@ -147,7 +147,8 @@ static int dwc3_pci_quirks(struct dwc3_pci *dwc)
->  
->  	if (pdev->vendor == PCI_VENDOR_ID_INTEL) {
->  		if (pdev->device == PCI_DEVICE_ID_INTEL_BXT ||
-> -				pdev->device == PCI_DEVICE_ID_INTEL_BXT_M) {
-> +		    pdev->device == PCI_DEVICE_ID_INTEL_BXT_M ||
-> +		    pdev->device == PCI_DEVICE_ID_INTEL_EHLLP) {
->  			guid_parse(PCI_INTEL_BXT_DSM_GUID, &dwc->guid);
->  			dwc->has_dsm_for_pm = true;
->  		}
+On Sunday, 13 September 2020, 11:43:05 CEST, Jonathan Cameron wrote:
+> Looks like we can't do this unless we have a precusor patch to export that
+> function for module use.
 
-I think this has gone under your radar. Let me know if you want
-anything to be changed.
+This patch compiles fine on my development kernel (5.4-rt). I guess that it 
+doesn't link on latest due to https://lwn.net/Articles/818388/
 
-thanks,
+This raises the important question, which priority to use for the iio trigger. 
+According to the above link, this should better be chosen by user space than 
+by the kernel. Some systems may require a medium/high priority thread for data 
+acquisition, on other systems (like mine) this exposed a number of bugs in the 
+i2c bus driver which blocked the whole system.
 
--- 
-heikki
+Use space can change the priority of the iio trigger thread using the chrt 
+command. The question is, which priority should be used by default (RT / non 
+RT). If desired, I'll port the patch to latest.
+
+What happened on my system (only if interested):
+A normal priority user space process was using the i2c bus. Due to noise on 
+the bus and several bugs in the (noise related) error handling in i2c-imx, the 
+driver code was caught in a busy wait loop with a 500 ms timeout. This was bad 
+enough but after the iio trigger irq thread with a RT priority equal to 
+interrupt threads wanted to access the same i2c bus, the prio of the user 
+space process was boosted and busy waiting was done with IRQ priority. For the 
+rest of the 500 ms timeout, no further IRQ threads were serviced.
+
+Best regards
+Christian
+
+
+
