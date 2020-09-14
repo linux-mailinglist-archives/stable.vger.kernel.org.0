@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0E1268C09
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 15:18:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1D69268BFC
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 15:15:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726360AbgINNR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 09:17:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60694 "EHLO mail.kernel.org"
+        id S1726734AbgINNPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 09:15:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726701AbgINNHL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Sep 2020 09:07:11 -0400
+        id S1726705AbgINNHO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Sep 2020 09:07:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9788E2222A;
-        Mon, 14 Sep 2020 13:05:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EC0A2222D;
+        Mon, 14 Sep 2020 13:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088753;
-        bh=9HbgiSXTTYuKOPK7+OSiQPwOJsg8dQyJD9HsgqPvPss=;
+        s=default; t=1600088758;
+        bh=Wa7KRm6tn7vNOdpQ4oQQWBXEvv4e9jMtg1Gp+w2t1Lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8hBLEhbBbVDRrkRwr3yAFF2uD8oZQMXMFeD2TLVz39BMeKPHwDC8YavrPwB3sx83
-         F7hYbuZqNdCRDXqpb8/zjEJDd+MdpwFyotCWQ/FPj4LCIXFYcgDY8rLlwwd7tWywKL
-         xayJrjO4VOe1fl2Kh/Nt98RWfnUbSgD+M1rb43T0=
+        b=h+AupLerg6ha47rP1fz8xGvLhu4gaArBrk3zJALaNSmScEwz5/2x0ZJ2ZDj/ThLOl
+         uFTHKSySf3bCneRbAkc+BQEBOjdR6s772btCP4WkndiVMEXbsAyPqvibOJnOJQWrSU
+         ImLpu/mIWqGaXDMvgLWMMlPIk0io1ZtRVmeouu1E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "J. Bruce Fields" <bfields@redhat.com>, Zhi Li <yieli@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 06/10] SUNRPC: stop printk reading past end of string
-Date:   Mon, 14 Sep 2020 09:05:41 -0400
-Message-Id: <20200914130545.1805084-6-sashal@kernel.org>
+Cc:     Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 10/10] gcov: add support for GCC 10.1
+Date:   Mon, 14 Sep 2020 09:05:45 -0400
+Message-Id: <20200914130545.1805084-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200914130545.1805084-1-sashal@kernel.org>
 References: <20200914130545.1805084-1-sashal@kernel.org>
@@ -44,37 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "J. Bruce Fields" <bfields@redhat.com>
+From: Peter Oberparleiter <oberpar@linux.ibm.com>
 
-[ Upstream commit 8c6b6c793ed32b8f9770ebcdf1ba99af423c303b ]
+[ Upstream commit 40249c6962075c040fd071339acae524f18bfac9 ]
 
-Since p points at raw xdr data, there's no guarantee that it's NULL
-terminated, so we should give a length.  And probably escape any special
-characters too.
+Using gcov to collect coverage data for kernels compiled with GCC 10.1
+causes random malfunctions and kernel crashes.  This is the result of a
+changed GCOV_COUNTERS value in GCC 10.1 that causes a mismatch between
+the layout of the gcov_info structure created by GCC profiling code and
+the related structure used by the kernel.
 
-Reported-by: Zhi Li <yieli@redhat.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fix this by updating the in-kernel GCOV_COUNTERS value.  Also re-enable
+config GCOV_KERNEL for use with GCC 10.
+
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Reported-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Tested-by: Leon Romanovsky <leonro@nvidia.com>
+Tested-and-Acked-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/rpcb_clnt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/gcov/gcc_4_7.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/rpcb_clnt.c b/net/sunrpc/rpcb_clnt.c
-index eafc78e063f1d..185441d7a2814 100644
---- a/net/sunrpc/rpcb_clnt.c
-+++ b/net/sunrpc/rpcb_clnt.c
-@@ -975,8 +975,8 @@ static int rpcb_dec_getaddr(struct rpc_rqst *req, struct xdr_stream *xdr,
- 	p = xdr_inline_decode(xdr, len);
- 	if (unlikely(p == NULL))
- 		goto out_fail;
--	dprintk("RPC: %5u RPCB_%s reply: %s\n", req->rq_task->tk_pid,
--			req->rq_task->tk_msg.rpc_proc->p_name, (char *)p);
-+	dprintk("RPC: %5u RPCB_%s reply: %*pE\n", req->rq_task->tk_pid,
-+			req->rq_task->tk_msg.rpc_proc->p_name, len, (char *)p);
+diff --git a/kernel/gcov/gcc_4_7.c b/kernel/gcov/gcc_4_7.c
+index 46a18e72bce61..6d5ef6220afe7 100644
+--- a/kernel/gcov/gcc_4_7.c
++++ b/kernel/gcov/gcc_4_7.c
+@@ -18,7 +18,9 @@
+ #include <linux/vmalloc.h>
+ #include "gcov.h"
  
- 	if (rpc_uaddr2sockaddr(req->rq_xprt->xprt_net, (char *)p, len,
- 				sap, sizeof(address)) == 0)
+-#if (__GNUC__ >= 7)
++#if (__GNUC__ >= 10)
++#define GCOV_COUNTERS			8
++#elif (__GNUC__ >= 7)
+ #define GCOV_COUNTERS			9
+ #elif (__GNUC__ > 5) || (__GNUC__ == 5 && __GNUC_MINOR__ >= 1)
+ #define GCOV_COUNTERS			10
 -- 
 2.25.1
 
