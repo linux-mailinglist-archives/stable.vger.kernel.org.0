@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9234E268DF2
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:39:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 442CE268DDC
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726341AbgINOjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 10:39:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32804 "EHLO mail.kernel.org"
+        id S1726743AbgINOff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 10:35:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726644AbgINNFm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726633AbgINNFm (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Sep 2020 09:05:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A78482224E;
-        Mon, 14 Sep 2020 13:04:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E79032224C;
+        Mon, 14 Sep 2020 13:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088700;
-        bh=5e5Kk2AOeS78Qv4SrQX3odeD26laGhmB/08ZVdPfEQ8=;
+        s=default; t=1600088701;
+        bh=CecopbIxRuxj/S1S8shXfRQpmD8h2mSpBBGt+VGBdOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IbVbakQy3Ci0G1tMP84ud2pdBKcpsEa6BIC/Rbz50P7MA4Bk/4PCDXjVFq6EG80MI
-         Y+Jaxlf24hbzNGn3toonANiVKXJtXUGHCHbqzMf1BK9vHZI3Oag9BAKWoLuyF7wCxi
-         Sqf40wIrj7uDXbkp0M31jnMb9LP4IUsLk9X/NsQ8=
+        b=VWwg+A9PvyD4P3zj1oy45b3LHGRaiHWijvDfffa1A+8Gd86WJ6JrMivYFdHxpAGoB
+         0pPXQzLJScTfZuRNavnb86KtdYY3+I+l4e4WVXC6CU8mvUw9YuEljgaHDfRznRYhBq
+         oMg+iJTy31rJtAwZL+YWdb+0khdc2aEDdD0YkAeI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 21/22] gcov: add support for GCC 10.1
-Date:   Mon, 14 Sep 2020 09:04:33 -0400
-Message-Id: <20200914130434.1804478-21-sashal@kernel.org>
+Cc:     Huacai Chen <chenhc@lemote.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 22/22] KVM: MIPS: Change the definition of kvm type
+Date:   Mon, 14 Sep 2020 09:04:34 -0400
+Message-Id: <20200914130434.1804478-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200914130434.1804478-1-sashal@kernel.org>
 References: <20200914130434.1804478-1-sashal@kernel.org>
@@ -45,45 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Oberparleiter <oberpar@linux.ibm.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-[ Upstream commit 40249c6962075c040fd071339acae524f18bfac9 ]
+[ Upstream commit 15e9e35cd1dec2bc138464de6bf8ef828df19235 ]
 
-Using gcov to collect coverage data for kernels compiled with GCC 10.1
-causes random malfunctions and kernel crashes.  This is the result of a
-changed GCOV_COUNTERS value in GCC 10.1 that causes a mismatch between
-the layout of the gcov_info structure created by GCC profiling code and
-the related structure used by the kernel.
+MIPS defines two kvm types:
 
-Fix this by updating the in-kernel GCOV_COUNTERS value.  Also re-enable
-config GCOV_KERNEL for use with GCC 10.
+ #define KVM_VM_MIPS_TE          0
+ #define KVM_VM_MIPS_VZ          1
 
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Reported-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Tested-by: Leon Romanovsky <leonro@nvidia.com>
-Tested-and-Acked-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+In Documentation/virt/kvm/api.rst it is said that "You probably want to
+use 0 as machine type", which implies that type 0 be the "automatic" or
+"default" type. And, in user-space libvirt use the null-machine (with
+type 0) to detect the kvm capability, which returns "KVM not supported"
+on a VZ platform.
+
+I try to fix it in QEMU but it is ugly:
+https://lists.nongnu.org/archive/html/qemu-devel/2020-08/msg05629.html
+
+And Thomas Huth suggests me to change the definition of kvm type:
+https://lists.nongnu.org/archive/html/qemu-devel/2020-09/msg03281.html
+
+So I define like this:
+
+ #define KVM_VM_MIPS_AUTO        0
+ #define KVM_VM_MIPS_VZ          1
+ #define KVM_VM_MIPS_TE          2
+
+Since VZ and TE cannot co-exists, using type 0 on a TE platform will
+still return success (so old user-space tools have no problems on new
+kernels); the advantage is that using type 0 on a VZ platform will not
+return failure. So, the only problem is "new user-space tools use type
+2 on old kernels", but if we treat this as a kernel bug, we can backport
+this patch to old stable kernels.
+
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Message-Id: <1599734031-28746-1-git-send-email-chenhc@lemote.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/gcov/gcc_4_7.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/mips/kvm/mips.c     | 2 ++
+ include/uapi/linux/kvm.h | 5 +++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/gcov/gcc_4_7.c b/kernel/gcov/gcc_4_7.c
-index ec37563674d62..60c7be5ff5c8c 100644
---- a/kernel/gcov/gcc_4_7.c
-+++ b/kernel/gcov/gcc_4_7.c
-@@ -19,7 +19,9 @@
- #include <linux/vmalloc.h>
- #include "gcov.h"
+diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+index 1109924560d8c..b22a3565e1330 100644
+--- a/arch/mips/kvm/mips.c
++++ b/arch/mips/kvm/mips.c
+@@ -131,6 +131,8 @@ int kvm_arch_check_processor_compat(void)
+ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ {
+ 	switch (type) {
++	case KVM_VM_MIPS_AUTO:
++		break;
+ #ifdef CONFIG_KVM_MIPS_VZ
+ 	case KVM_VM_MIPS_VZ:
+ #else
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index e735bc4075dc7..1b6b8e05868dd 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -768,9 +768,10 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_VM_PPC_HV 1
+ #define KVM_VM_PPC_PR 2
  
--#if (__GNUC__ >= 7)
-+#if (__GNUC__ >= 10)
-+#define GCOV_COUNTERS			8
-+#elif (__GNUC__ >= 7)
- #define GCOV_COUNTERS			9
- #elif (__GNUC__ > 5) || (__GNUC__ == 5 && __GNUC_MINOR__ >= 1)
- #define GCOV_COUNTERS			10
+-/* on MIPS, 0 forces trap & emulate, 1 forces VZ ASE */
+-#define KVM_VM_MIPS_TE		0
++/* on MIPS, 0 indicates auto, 1 forces VZ ASE, 2 forces trap & emulate */
++#define KVM_VM_MIPS_AUTO	0
+ #define KVM_VM_MIPS_VZ		1
++#define KVM_VM_MIPS_TE		2
+ 
+ #define KVM_S390_SIE_PAGE_OFFSET 1
+ 
 -- 
 2.25.1
 
