@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D84C2684AD
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 08:18:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6932684B4
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 08:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726039AbgINGSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 02:18:49 -0400
-Received: from Mailgw01.mediatek.com ([1.203.163.78]:4650 "EHLO
+        id S1726003AbgINGUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 02:20:08 -0400
+Received: from Mailgw01.mediatek.com ([1.203.163.78]:22499 "EHLO
         mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726030AbgINGSs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 02:18:48 -0400
-X-UUID: 5de75fe1365e422fa86cc95bc383e785-20200914
+        with ESMTP id S1726033AbgINGUB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 02:20:01 -0400
+X-UUID: 4db4b5caade74da3baf0199f3a4e85a0-20200914
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=FgYGajFnr48178YWlLNBCrvjxfgu8FSyvJO866EVJIo=;
-        b=ej2v/DB2B/D9UhzwXru0U1Y702h6SfGBRQ7CArp8gQkYi+N91eXG2i60uToa9o4b87b22RCWuR9x9opkcmEkRGe3qHnOjHyIHZIhTjjIHD75p3HczxgP2lCzNNwO2LoopytwYf1FTn8GbPqhAn9RfOj28fTOjKYCkgf2f9IehWw=;
-X-UUID: 5de75fe1365e422fa86cc95bc383e785-20200914
-Received: from mtkcas34.mediatek.inc [(172.27.4.253)] by mailgw01.mediatek.com
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=wrw9ErLmusz8Mzqi1finrY3zRs9O8FuYizuUfANpacw=;
+        b=F9TBXArQ8GftL+udERxkKLmV6ItUd6F8S7DEpoXLPJsqQNeoWpS1U/o/zoH5TYU7lk+SudA6jxJa0NP7vMLIK0m6z7u0F4LybeNdBc/7oDcXHK4jT0MJBsg0LrqqMeCH55kbcvEdKPOd7aiFb857kv8Gc0x/Z2UrlpAoEYTWb4s=;
+X-UUID: 4db4b5caade74da3baf0199f3a4e85a0-20200914
+Received: from mtkcas35.mediatek.inc [(172.27.4.253)] by mailgw01.mediatek.com
         (envelope-from <chunfeng.yun@mediatek.com>)
         (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 654306854; Mon, 14 Sep 2020 14:18:38 +0800
-Received: from MTKCAS36.mediatek.inc (172.27.4.186) by MTKMBS31N2.mediatek.inc
- (172.27.4.87) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 14 Sep
- 2020 14:18:37 +0800
-Received: from [10.17.3.153] (10.17.3.153) by MTKCAS36.mediatek.inc
- (172.27.4.170) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 14 Sep 2020 14:18:36 +0800
-Message-ID: <1600064195.29909.13.camel@mhfsdcap03>
-Subject: Re: [PATCH] usb: gadget: bcm63xx_udc: fix up the error of
- undeclared usb_debug_root
+        with ESMTP id 1680536980; Mon, 14 Sep 2020 14:19:54 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ MTKMBS31DR.mediatek.inc (172.27.6.102) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Mon, 14 Sep 2020 14:19:33 +0800
+Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Mon, 14 Sep 2020 14:19:33 +0800
 From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Felipe Balbi <balbi@kernel.org>,
-        Kevin Cernekee <cernekee@gmail.com>,
+To:     Felipe Balbi <balbi@kernel.org>
+CC:     Kevin Cernekee <cernekee@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Florian Fainelli <f.fainelli@gmail.com>,
         <bcm-kernel-feedback-list@broadcom.com>,
         Matthias Brugger <matthias.bgg@gmail.com>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>,
         <linux-usb@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-kernel@vger.kernel.org>,
         <linux-mediatek@lists.infradead.org>,
         stable <stable@vger.kernel.org>
-Date:   Mon, 14 Sep 2020 14:16:35 +0800
-In-Reply-To: <20200914061210.GA788192@kroah.com>
-References: <1600061930-778-1-git-send-email-chunfeng.yun@mediatek.com>
-         <20200914061210.GA788192@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.10.4-0ubuntu2 
+Subject: [PATCH v2] usb: gadget: bcm63xx_udc: fix up the error of undeclared usb_debug_root
+Date:   Mon, 14 Sep 2020 14:17:30 +0800
+Message-ID: <1600064250-1662-1-git-send-email-chunfeng.yun@mediatek.com>
+X-Mailer: git-send-email 1.8.1.1.dirty
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: 4EF90E5793C0723BBF8B3E7E35116F0E7C228F9523B03CB81A31635FD5023F032000:8
+Content-Type: text/plain
+X-TM-SNTS-SMTP: A5A618360A84B577C1F0FD2679A7857DC670EC5A23B24CE3103BD5D7D8A1B49E2000:8
 X-MTK:  N
 Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
@@ -56,12 +53,20 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gTW9uLCAyMDIwLTA5LTE0IGF0IDA4OjEyICswMjAwLCBHcmVnIEtyb2FoLUhhcnRtYW4gd3Jv
-dGU6DQo+IE9uIE1vbiwgU2VwIDE0LCAyMDIwIGF0IDAxOjM4OjUwUE0gKzA4MDAsIENodW5mZW5n
-IFl1biB3cm90ZToNCj4gPiBGaXggdXAgdGhlIGJ1aWxkIGVycm9yIGNhdXNlZCBieSB1bmRlY2xh
-cmVkIHVzYl9kZWJ1Z19yb290DQo+ID4gDQo+ID4gQ2M6IHN0YWJsZSA8c3RhYmxlQHZnZXIua2Vy
-bmVsLm9yZz4NCj4gPiBGaXhlczogYTY2YWRhNGYyNDFjKCJ1c2I6IGdhZGdldDogYmNtNjN4eF91
-ZGM6IGNyZWF0ZSBkZWJ1Z2ZzIGRpcmVjdG9yeSB1bmRlciB1c2Igcm9vdCIpDQo+IA0KPiBOaXQs
-IHlvdSBuZWVkIGEgJyAnIGJlZm9yZSB0aGUgJygnIGNoYXJhY3Rlci4uLg0KT2ssIHRoYW5rcw0K
-PiANCj4gdGhhbmtzLA0KPiANCj4gZ3JlZyBrLWgNCg0K
+Rml4IHVwIHRoZSBidWlsZCBlcnJvciBjYXVzZWQgYnkgdW5kZWNsYXJlZCB1c2JfZGVidWdfcm9v
+dA0KDQpDYzogc3RhYmxlIDxzdGFibGVAdmdlci5rZXJuZWwub3JnPg0KRml4ZXM6IGE2NmFkYTRm
+MjQxYyAoInVzYjogZ2FkZ2V0OiBiY202M3h4X3VkYzogY3JlYXRlIGRlYnVnZnMgZGlyZWN0b3J5
+IHVuZGVyIHVzYiByb290IikNClJlcG9ydGVkLWJ5OiBrZXJuZWwgdGVzdCByb2JvdCA8bGtwQGlu
+dGVsLmNvbT4NClNpZ25lZC1vZmYtYnk6IENodW5mZW5nIFl1biA8Y2h1bmZlbmcueXVuQG1lZGlh
+dGVrLmNvbT4NCi0tLQ0KdjI6IGFkZCBhIGJsYW5rIHNwYWNlIGFmdGVyIGZpeGVzIGNoYW5nZS1p
+ZCBzdWdnZXN0ZWQgYnkgR3JlZw0KLS0tDQogZHJpdmVycy91c2IvZ2FkZ2V0L3VkYy9iY202M3h4
+X3VkYy5jIHwgMSArDQogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspDQoNCmRpZmYgLS1n
+aXQgYS9kcml2ZXJzL3VzYi9nYWRnZXQvdWRjL2JjbTYzeHhfdWRjLmMgYi9kcml2ZXJzL3VzYi9n
+YWRnZXQvdWRjL2JjbTYzeHhfdWRjLmMNCmluZGV4IGZlYWVjMDAuLjljZDRhNzAgMTAwNjQ0DQot
+LS0gYS9kcml2ZXJzL3VzYi9nYWRnZXQvdWRjL2JjbTYzeHhfdWRjLmMNCisrKyBiL2RyaXZlcnMv
+dXNiL2dhZGdldC91ZGMvYmNtNjN4eF91ZGMuYw0KQEAgLTI2LDYgKzI2LDcgQEANCiAjaW5jbHVk
+ZSA8bGludXgvc2VxX2ZpbGUuaD4NCiAjaW5jbHVkZSA8bGludXgvc2xhYi5oPg0KICNpbmNsdWRl
+IDxsaW51eC90aW1lci5oPg0KKyNpbmNsdWRlIDxsaW51eC91c2IuaD4NCiAjaW5jbHVkZSA8bGlu
+dXgvdXNiL2NoOS5oPg0KICNpbmNsdWRlIDxsaW51eC91c2IvZ2FkZ2V0Lmg+DQogI2luY2x1ZGUg
+PGxpbnV4L3dvcmtxdWV1ZS5oPg0KLS0gDQoxLjkuMQ0K
 
