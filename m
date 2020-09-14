@@ -2,402 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AECD5268A2C
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 13:37:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A04E268AD1
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 14:25:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725984AbgINLhL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 07:37:11 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:41604 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726013AbgINLgv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 07:36:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1600083395;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=skCtHGowovWoz1QC4uapDoLjczehXd1EbZqrRa4LfqY=;
-        b=azjBxBIJxqxxV9dA3uOkj5PrlAoRNEqC7BLtOlp0tzy1Emw8yISAk0skS43zXG7C/mUpN6
-        mGbLEU6mPROMTxVQ4lB2zxXFQNOQj2+CgbPYRm3lHLiwbaMcauLkDLfVIU9BqY93m8Jy8A
-        a3TXCyEK+Y2Rj0KAhyhw/ulrkefXqV0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-385-4poSOZmgNkOBxklbebfYKQ-1; Mon, 14 Sep 2020 07:36:32 -0400
-X-MC-Unique: 4poSOZmgNkOBxklbebfYKQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3A92B8B94B5;
-        Mon, 14 Sep 2020 11:36:31 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3272060BE2;
-        Mon, 14 Sep 2020 11:36:31 +0000 (UTC)
-Received: from zmail25.collab.prod.int.phx2.redhat.com (zmail25.collab.prod.int.phx2.redhat.com [10.5.83.31])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 28C4E8C7BF;
-        Mon, 14 Sep 2020 11:36:31 +0000 (UTC)
-Date:   Mon, 14 Sep 2020 07:36:30 -0400 (EDT)
-From:   Yi Zhang <yi.zhang@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>,
-        linux-nvme@lists.infradead.org
-Cc:     CKI Project <cki-project@redhat.com>,
-        Rachel Sibley <rasibley@redhat.com>, vkabatov@redhat.com
-Message-ID: <1389865146.1041346.1600083390739.JavaMail.zimbra@redhat.com>
-In-Reply-To: <cki.D5F53E4FC7.BDYEGGZHNS@redhat.com>
-References: <cki.D5F53E4FC7.BDYEGGZHNS@redhat.com>
-Subject: blktests nvme/ failure in kernel 5.8.9-5b82fef.cki (stable-queue)
+        id S1726299AbgINMZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 08:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46154 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726161AbgINMY4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 08:24:56 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BC51C0698D0
+        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 05:19:51 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id k15so12460764pfc.12
+        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 05:19:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=gxYQz48aGorfvze6exW0FuIKKJvVhs5z+cRnEenJUaY=;
+        b=VThCD8XFP97W3x+veKHv9N3VJDXrUGxuJpWCoAlgvtuHreklE6fEfbdH2hnwXQTGYn
+         jiafH+JK8NajqSpYChXK0W2qQH9NZ2hSgNgs/XIg1pi9H+dBdl9tXzDgqfwDoqYxiBUe
+         WQGPBNNU6FeZP/i9q3XD/JDeAm+0Ae88Oa9Wm5wGbX/fJl1k5zMrjaT3/OZo/LN3VeZJ
+         U4ly9dPhvC4zlbElSolU++T1Yb+paoCrMOcHg6Xo1zfJ8+NxZPUU/jfL70aehhM+bJtJ
+         gS6nlQ9JJB0IN6IF7Sa3ropmV+Sp6baO0SCkacwI0rLjpWxXesrJX1lWewenafz/UruM
+         h5Iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=gxYQz48aGorfvze6exW0FuIKKJvVhs5z+cRnEenJUaY=;
+        b=AtHpESNKDz9zP1kIUWBW4cuF9W5w7mfMGRyWs+HZPn5/Au238QSD0nfgQR+98jaty2
+         tcpPPlA7VeMpctXYVrGuFPu3zidbGYRSBrzRE2TyvGGhlGim0Q2Z2eZCqYqqvF/kx4cn
+         +N3WYMn//oP0kftcw5Sou1JaDzW5kRrUEC7kOJptSozCDPaBm3U3gVcHxhy8+BYuJOpc
+         DuIOXKJRWEN1SJOvcFB7URVJgxHz91amsv+O8NRd4+25/xAxdB86JDrKtMhexB555tfH
+         3tOJT4NXOvlJTSwvGMeBDU6Wkb1ENuqoBi+lTW+63XpRkIjRHRZkOwB7quZpUTASW69B
+         Uamw==
+X-Gm-Message-State: AOAM533j9RzQ9hBCQbDx7u+hUTRaAxVA/MHMmbWg4Vq0pK78S2S02YQn
+        0x3h//kylE3D1K/B2xR+77d4PCavYxSzTMUiumk=
+X-Google-Smtp-Source: ABdhPJyL7cO+nyxIMEvFsxEM5Gpne4zsuFPYw8h6/IK2GCtQOjdhzCEpPWuXrJM01NL0ugDPiFimWnZz1c3rCsZbszc=
+X-Received: by 2002:a62:64d5:: with SMTP id y204mr12787741pfb.97.1600085991101;
+ Mon, 14 Sep 2020 05:19:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Originating-IP: [10.68.5.41, 10.4.195.29]
-Thread-Topic: blktests nvme/ failure in kernel 5.8.9-5b82fef.cki (stable-queue)
-Thread-Index: 0iY04xanao4TZkTXDOQ6xhNmNn1m0Q==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Received: by 2002:a05:6a10:60d1:0:0:0:0 with HTTP; Mon, 14 Sep 2020 05:19:50
+ -0700 (PDT)
+Reply-To: mrsmegwilliam6@gmail.com
+From:   Ms Mary Mcniff <diplomaticstoragecourier@gmail.com>
+Date:   Mon, 14 Sep 2020 05:19:50 -0700
+Message-ID: <CAD72A3P634cmdJwk2eeLsy2spHM=1QE+j0vb_dgHKWhtp-VgqQ@mail.gmail.com>
+Subject: Your Respond ASAP
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello=20
+-- 
+From Chief Compliance Officer, Citigroup Inc CITIBANK
+388 Greenwich St, New York, 10013, United States United.
+PAYMENT CODE: FRB010
+Swift: PTBLBXXX
+==============================================
 
-We're seeing most blktests nvme/ failed with this commit, and we haven't ye=
-t seen it in 5.8.8
+Attention: Beneficiary,
 
+We write to inform you that Series of meetings have been held over the
+past 2 weeks with the Secretary General of United Nations,U.S
+Department of State and Dubai Union Organization this ended last
+week.And parcel is under our custody right now, It will deliver to you
+within 24 hours once you clear the charges which will cost you
+according to the BANKERS COURIER SERVICES that wish to deliver your
+ATM CARD card to
+you immediately.
 
-Here is one of the cases log:
-# ./check nvme/004
-nvme/004 (test nvme and nvmet UUID NS descriptors)           [failed]
-    runtime  0.119s  ...  0.132s
-    --- tests/nvme/004.out=092020-09-14 06:57:45.186433281 -0400
-    +++ /mnt/tests/gitlab.com/cki-project/kernel-tests/-/archive/master/ker=
-nel-tests-master.zip/storage/blk/blktests/results/nodev/nvme/004.out.bad=09=
-2020-09-14 07:21:44.504524477 -0400
-    @@ -1,5 +1,7 @@
-     Running nvme/004
-    -91fdba0d-f87b-4c25-b80f-db7be1418b9e
-    -uuid.91fdba0d-f87b-4c25-b80f-db7be1418b9e
-    -NQN:blktests-subsystem-1 disconnected 1 controller(s)
-    +Failed to write to /dev/nvme-fabrics: Input/output error
-    +cat: '/sys/class/nvme/nvme*/transport': No such file or directory
-    +cat: /sys/block/n1/uuid: No such file or directory
-    ...
-    (Run 'diff -u tests/nvme/004.out /mnt/tests/gitlab.com/cki-project/kern=
-el-tests/-/archive/master/kernel-tests-master.zip/storage/blk/blktests/resu=
-lts/nodev/nvme/004.out.bad' to see the entire diff)
-# dmesg
-[ 1555.700766] run blktests nvme/004 at 2020-09-14 07:21:44
-[ 1555.755218] nvmet: adding nsid 1 to subsystem blktests-subsystem-1
-[ 1555.769895] nvme nvme0: Connect command failed, error wo/DNR bit: 880
+However, it is the pleasure of this office to inform you that your ATM
+CARD number; is 29741733 and it has been approved and upgraded in your
+favor .you call me for the pin code numbers. The ATM CARD value is us
+$10.5 Million only.
 
+Kindly contact the paying bank for the claim of your ATM visa card
+payment fund $10,500,000.00 through the below contact information;
 
-Best Regards,
-  Yi Zhang
+Contact Person:Mr Williams S Young
+Director of Financial Controller
+Bank Name: CITIBANK
+Bank address; 388 Greenwich St,
+New York City,10013, United States
+Email:mrsmegwilliam6@gmail.com
 
+Reconfirm the following information?
 
------ Original Message -----
-From: "CKI Project" <cki-project@redhat.com>
-To: "Linux Stable maillist" <stable@vger.kernel.org>
-Cc: "Yi Zhang" <yi.zhang@redhat.com>, "David Arcari" <darcari@redhat.com>
-Sent: Monday, September 14, 2020 5:12:53 PM
-Subject: =E2=9C=85 PASS: Test report for kernel 5.8.9-5b82fef.cki (stable-q=
-ueue)
+(1)Your Full Name=============
+(2)Mobile Phone Number======
+(3)Current Home Address==== ====
+(4)Fax Number================
+(5)Passport/Drivers license ======
 
+Endeavor to keep me posted once you contacted the officer in charge
+through the above mentioned information.
 
-Hello,
+Your timely response is highly appreciated.To this end, you are
+required to forward your payment information as follows to enable us
+load your fund into the card with your information and deliver it to
+your door step. as the BANKERS COURIER SERVICES are in charge of the
+delivery services to your destination.
 
-We ran automated tests on a recent commit from this kernel tree:
+Yours truly;
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
-linux-stable-rc.git
-            Commit: 5b82fefdb13e - gcov: Disable gcov build with GCC 10
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?pre=
-fix=3Ddatawarehouse/2020/09/14/613696
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 ACPI enabled test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - sysrq-c
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
-       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/=
-sanity test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
-
-  Test sources: https://gitlab.com/cki-project/kernel-tests
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=
-=E2=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
-
+Ms Mary Mcniff.
+Chief Compliance Officer, Citigroup Inc
+FEDERAL RESERVE SYSTEM.
+Email: marymcniff7@gmail.com.
