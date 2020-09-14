@@ -2,139 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E36E26882D
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 11:20:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9BC5268868
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 11:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726264AbgINJTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 05:19:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46230 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726258AbgINJTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 05:19:49 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76DBCC06174A
-        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 02:19:48 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id l191so11043217pgd.5
-        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 02:19:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=J7shcnfnGXwwSx9r1VOglUbpyte7UWr/gkNjDqBFVQI=;
-        b=QAvkp4vEjB1Ki0bJofQgEVyOCbOlu8YXSFExs/tunuIN0zLoOYIY6niyul2kbcxjKw
-         BFQmXDVzgeFzTyA1q3J8hmKS7jShUrANx9/iBgyC7LHEFmEREHpSGaSF+KrULGI2iCNS
-         yfxg8br57q8kKsA2fFhwJgExPpN10M/mU0RWHio5VC0ltxZdbiLLl7y5SVWdUBEnp66G
-         VKA4VlHStR8CZrf9FXG2tIoBPKFqdjmipMtFXFplSGLbIHeq9c/gS2SCDcv8uo/O1sk/
-         zmR+LvD3p31X5DRI2RgCWFv9Dd5FwUy8YkOtwvjk8LPu0rNIfFgoub1D7oVfsgNtC/Hh
-         mUqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=J7shcnfnGXwwSx9r1VOglUbpyte7UWr/gkNjDqBFVQI=;
-        b=i2EaFeg+1vvXjTgr8ujjOIKnWsr32QiCQpvQV0p07S0YIA5NnnNqIK4/EP4bfZ4RL8
-         esDHl3HuYLgYff/m1PYBttYcNCX4O1YEUyqNv6YZ+pA34AW7umj5SuaTpBjyyYZC9HAk
-         mne5oN1msycBGu+ucm+b2GsvkxruC2zmzj294rE0QgZoOS2nY5xpZ3ZGAkxQPm+m9O6p
-         NkQXKLuE8P0gZE/HfPAmvuAfY1VeHFs3Thzs3JY06UrQFZ0V5HqyOF8yUEqXbCg29SUx
-         p5CbzO+r2syFxXzBqZlq3ZDoschmf8UzjTpvXPU3ypxnm//IPfcylzG45yQtpR49lWeQ
-         ZBcQ==
-X-Gm-Message-State: AOAM533Q/Lhl9WvPyfQhX8VWsP0PZ9Xi5eMiKn54FWofNa4Dj8LZUD+c
-        65IwaHcHPVHwVziF5q+O6fgk5SaSqhWEiQ==
-X-Google-Smtp-Source: ABdhPJwGc31UIVKMIy1NiIkr4cR9TSPTY8QxAuEkN2Z2AnqDcCzBgwDQeam98YpfCP1tKEIJ00HFJQ==
-X-Received: by 2002:a17:902:8643:b029:d1:920c:c1db with SMTP id y3-20020a1709028643b02900d1920cc1dbmr14217740plt.42.1600075187706;
-        Mon, 14 Sep 2020 02:19:47 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h4sm8163725pji.19.2020.09.14.02.19.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2020 02:19:46 -0700 (PDT)
-Message-ID: <5f5f35b2.1c69fb81.ec21b.50a3@mx.google.com>
-Date:   Mon, 14 Sep 2020 02:19:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726239AbgINJcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 05:32:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58868 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726230AbgINJcP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Sep 2020 05:32:15 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9114320719;
+        Mon, 14 Sep 2020 09:32:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600075932;
+        bh=1BSQE18mOLeieZIEJX3nhtUEcdSn/Db67JaorMfQvkI=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=rgwL2w94by8v2vjHBHSfnnk1h3eRTmmv2oVRaG5JPa357oKa8QSu22LQoeMME7+2T
+         D7qlSk95YZo7Ab275csCMuuWwWM8p2F2kO9gsjmQcHxUVmYaMeYb313zZ+cowrKh/3
+         Y766p789qlNpw9QUd5FjzQs5gLNi4/RC0aX0I6pA=
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1kHkqI-00BdtE-Kf; Mon, 14 Sep 2020 10:32:10 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.8.9-108-g5b82fefdb13e
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.8
-Subject: stable-rc/queue/5.8 baseline: 164 runs,
- 1 regressions (v5.8.9-108-g5b82fefdb13e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Mon, 14 Sep 2020 10:32:10 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        kvmarm@lists.cs.columbia.edu, James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: Re: [PATCH] KVM: arm64: Assume write fault on S1PTW permission fault
+ on instruction fetch
+In-Reply-To: <20200911155912.GB20527@willie-the-truck>
+References: <20200909210527.1926996-1-maz@kernel.org>
+ <20200911155912.GB20527@willie-the-truck>
+User-Agent: Roundcube Webmail/1.4.8
+Message-ID: <edbb56d954913bbe8422c9f32aee9c76@kernel.org>
+X-Sender: maz@kernel.org
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: will@kernel.org, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.8 baseline: 164 runs, 1 regressions (v5.8.9-108-g5b82fefd=
-b13e)
+On 2020-09-11 16:59, Will Deacon wrote:
+> On Wed, Sep 09, 2020 at 10:05:27PM +0100, Marc Zyngier wrote:
+>> KVM currently assumes that an instruction abort can never be a write.
+>> This is in general true, except when the abort is triggered by
+>> a S1PTW on instruction fetch that tries to update the S1 page tables
+>> (to set AF, for example).
+>> 
+>> This can happen if the page tables have been paged out and brought
+>> back in without seeing a direct write to them (they are thus marked
+>> read only), and the fault handling code will make the PT executable(!)
+>> instead of writable. The guest gets stuck forever.
+>> 
+>> In these conditions, the permission fault must be considered as
+>> a write so that the Stage-1 update can take place. This is essentially
+>> the I-side equivalent of the problem fixed by 60e21a0ef54c ("arm64: 
+>> KVM:
+>> Take S1 walks into account when determining S2 write faults").
+>> 
+>> Update both kvm_is_write_fault() to return true on IABT+S1PTW, as well
+>> as kvm_vcpu_trap_is_iabt() to return false in the same conditions.
+>> 
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Marc Zyngier <maz@kernel.org>
+>> ---
+>> This could do with some cleanup (kvm_vcpu_dabt_iss1tw has nothing to 
+>> do
+>> with data aborts), but I've chosen to keep the patch simple in order 
+>> to
+>> ease backporting.
+>> 
+>>  arch/arm64/include/asm/kvm_emulate.h | 6 +++++-
+>>  1 file changed, 5 insertions(+), 1 deletion(-)
+>> 
+>> diff --git a/arch/arm64/include/asm/kvm_emulate.h 
+>> b/arch/arm64/include/asm/kvm_emulate.h
+>> index d21676409a24..33d7e16edaa3 100644
+>> --- a/arch/arm64/include/asm/kvm_emulate.h
+>> +++ b/arch/arm64/include/asm/kvm_emulate.h
+>> @@ -480,7 +480,8 @@ static __always_inline u8 
+>> kvm_vcpu_trap_get_class(const struct kvm_vcpu *vcpu)
+>> 
+>>  static inline bool kvm_vcpu_trap_is_iabt(const struct kvm_vcpu *vcpu)
+>>  {
+>> -	return kvm_vcpu_trap_get_class(vcpu) == ESR_ELx_EC_IABT_LOW;
+>> +	return (kvm_vcpu_trap_get_class(vcpu) == ESR_ELx_EC_IABT_LOW &&
+>> +		!kvm_vcpu_dabt_iss1tw(vcpu));
+>>  }
+>> 
+>>  static __always_inline u8 kvm_vcpu_trap_get_fault(const struct 
+>> kvm_vcpu *vcpu)
+>> @@ -520,6 +521,9 @@ static __always_inline int 
+>> kvm_vcpu_sys_get_rt(struct kvm_vcpu *vcpu)
+>> 
+>>  static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
+>>  {
+>> +	if (kvm_vcpu_dabt_iss1tw(vcpu))
+>> +		return true;
+>> +
+> 
+> Hmm, I'm a bit uneasy about the interaction of this with
+> kvm_handle_guest_abort() if we take an S1PTW fault on instruction fetch
+> with our page-tables sitting in a read-only memslot. In this case, I
+> think we'll end up injecting a data abort into the guest instead of an
+> instruction abort. It hurts my brain thinking about it though.
 
-Regressions Summary
--------------------
+Good point.
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
+> 
+> Overall, I'd be inclined to:
+> 
+>   1. Rename kvm_vcpu_dabt_iss1tw() to kvm_vcpu_abt_iss1tw()
+> 
+>   2. Introduce something like kvm_is_exec_fault() as:
+> 
+> 	return kvm_vcpu_trap_is_iabt() && !kvm_vcpu_abt_iss1tw();
+> 
+>   3. Use that new function in user_mem_abort() to assign 'exec_fault'
+> 
+>   4. Hack kvm_is_write_fault() as you have done above.
+> 
+> Which I _think_ should work (famous last words)...
 
+That's what I initially had, but went for ease of backporting instead...
+Back to square one.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
-el/v5.8.9-108-g5b82fefdb13e/plan/baseline/
+> The only nasty bit is that we then duplicate the kvm_vcpu_dabt_iss1tw()
+> check in both kvm_is_write_fault() and kvm_vcpu_dabt_iswrite(). Perhaps
+> we could remove the latter function in favour of the first? Anyway,
+> obviously this sort of cleanup isn't for stable.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.8
-  Describe: v5.8.9-108-g5b82fefdb13e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5b82fefdb13e7638df31383c434411b43c1ad7fc =
+I've had a look, and I believe this is safe. We always check for S1PTW
+*before* using kvm_vcpu_dabt_iswrite() anyway. I'll add that as a second
+patch that we can merge later if required.
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f5ef74a6034b7db1ba60928
-
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.9-108=
--g5b82fefdb13e/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.9-108=
--g5b82fefdb13e/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f5ef74a6034b7db=
-1ba6092a
-      failing since 1 day (last pass: v5.8.8-16-gbd542de38b92, first fail: =
-v5.8.8-16-ga447c0d84b6f)
-      2 lines
-
-    2020-09-14 04:51:15.503000  Connected to bcm2837-rpi-3-b console [chann=
-el connected] (~$quit to exit)
-    2020-09-14 04:51:15.503000  (user:khilman) is already connected
-    2020-09-14 04:51:30.897000  =00
-    2020-09-14 04:51:30.898000  =
-
-    2020-09-14 04:51:30.912000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
-0)
-    2020-09-14 04:51:30.913000  =
-
-    2020-09-14 04:51:30.913000  DRAM:  948 MiB
-    2020-09-14 04:51:30.928000  RPI 3 Model B (0xa02082)
-    2020-09-14 04:51:31.019000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
-    2020-09-14 04:51:31.051000  Loading Environment from FAT... *** Warning=
- - bad CRC, using default environment
-    ... (386 line(s) more)
-      =20
+         M.
+-- 
+Jazz is not dead. It just smells funny...
