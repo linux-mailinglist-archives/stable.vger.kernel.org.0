@@ -2,70 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51A7A26842A
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 07:41:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C273F26842E
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 07:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726031AbgINFkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 01:40:53 -0400
-Received: from mailgw02.mediatek.com ([1.203.163.81]:5206 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726003AbgINFkw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 01:40:52 -0400
-X-UUID: ab4240b2afa94746b687547402643818-20200914
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=fBVLtMBuFfeBUBqP/RzEoxUtZXT2osAXTyH79wtLx08=;
-        b=Idubs2+ievcAYAZKvQ/JU5tzaCD0G58d5tKkiAY3mhv4xzcoKN3PiaHEk4uhTnzOXT4rS09CxAjSl+xqBoIlFUgEa+HHmZiBZI6a+QY1vlP5uDI1hBnqaPJCYp76PxVNTmnjHySIY5C4PQl3PwWP/dLTDqHBhb+6zEWV6Ox4leM=;
-X-UUID: ab4240b2afa94746b687547402643818-20200914
-Received: from mtkcas35.mediatek.inc [(172.27.4.253)] by mailgw02.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (mailgw01.mediatek.com ESMTP with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 728763372; Mon, 14 Sep 2020 13:40:55 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- MTKMBS31N2.mediatek.inc (172.27.4.87) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Mon, 14 Sep 2020 13:40:52 +0800
-Received: from localhost.localdomain (10.17.3.153) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 14 Sep 2020 13:40:52 +0800
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Felipe Balbi <balbi@kernel.org>
-CC:     Kevin Cernekee <cernekee@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        <bcm-kernel-feedback-list@broadcom.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        <linux-usb@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH] usb: gadget: bcm63xx_udc: fix up the error of undeclared usb_debug_root
-Date:   Mon, 14 Sep 2020 13:38:50 +0800
-Message-ID: <1600061930-778-1-git-send-email-chunfeng.yun@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
+        id S1726027AbgINFnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 01:43:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37254 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726003AbgINFnD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Sep 2020 01:43:03 -0400
+Received: from mail-oi1-f174.google.com (mail-oi1-f174.google.com [209.85.167.174])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EA9C2192A;
+        Mon, 14 Sep 2020 05:43:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600062199;
+        bh=btGwiYUkU53Jy4j049GtVI8nD4s/KYGcKzzkilnTtcE=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=N4wtrVtlDsYhr4X+iUSf9pTZqTXkOXBXp4rFK94nq2Oi3sN0dJuHYEaW70VUGFRc3
+         PERGD5ebv2jNkDSc+yM4ytv9VXX7L/byv6KtxKwqnK/nfT3VcIu4wjitfL8gL2pjo8
+         oKFIu2/g3GNpEingghwVFQ+1DsRU1vafAH8LQ55M=
+Received: by mail-oi1-f174.google.com with SMTP id x19so16623716oix.3;
+        Sun, 13 Sep 2020 22:43:19 -0700 (PDT)
+X-Gm-Message-State: AOAM533TC+xZ+6SQ54Z70AmoxMUBBBEqxrgJBQrDN6Vly+lKZPzVahiN
+        EQxzwZJfcwB4D9zbmZf16/jVrt1WVmCbAHz1S5s=
+X-Google-Smtp-Source: ABdhPJwHY+CLdurRIhKknwldTre1l+g3D6rGk4MIhKEeeTUl6b0SHxcF0G2/oFaZ877pdwhSfxbQcV8VofTfRTHtvPE=
+X-Received: by 2002:a05:6808:8e5:: with SMTP id d5mr7890035oic.33.1600062198923;
+ Sun, 13 Sep 2020 22:43:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-SNTS-SMTP: ECB9098F0EB5B81046F04177D76A33CE08016C522848931B0844B60C9FFF46062000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+References: <20200812004158.GA1447296@rani.riverdale.lan> <20200812004308.1448603-1-nivedita@alum.mit.edu>
+ <CA+icZUVdTT1Vz8ACckj-SQyKi+HxJyttM52s6HUtCDLFCKbFgQ@mail.gmail.com>
+ <CAKwvOdmHxsLzou=6WN698LOGq9ahWUmztAHfUYYAUcgpH1FGRA@mail.gmail.com>
+ <20200825145652.GA780995@rani.riverdale.lan> <20200913223455.GA349140@rani.riverdale.lan>
+In-Reply-To: <20200913223455.GA349140@rani.riverdale.lan>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Mon, 14 Sep 2020 08:43:07 +0300
+X-Gmail-Original-Message-ID: <CAMj1kXFnuzdmPxCytCbFdgtLo8Bb4k247ePgbLuZ1mANEn=azw@mail.gmail.com>
+Message-ID: <CAMj1kXFnuzdmPxCytCbFdgtLo8Bb4k247ePgbLuZ1mANEn=azw@mail.gmail.com>
+Subject: Re: [PATCH v2] x86/boot/compressed: Disable relocation relaxation
+To:     Arvind Sankar <nivedita@alum.mit.edu>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Fangrui Song <maskray@google.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        e5ten.arch@gmail.com,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Rml4IHVwIHRoZSBidWlsZCBlcnJvciBjYXVzZWQgYnkgdW5kZWNsYXJlZCB1c2JfZGVidWdfcm9v
-dA0KDQpDYzogc3RhYmxlIDxzdGFibGVAdmdlci5rZXJuZWwub3JnPg0KRml4ZXM6IGE2NmFkYTRm
-MjQxYygidXNiOiBnYWRnZXQ6IGJjbTYzeHhfdWRjOiBjcmVhdGUgZGVidWdmcyBkaXJlY3Rvcnkg
-dW5kZXIgdXNiIHJvb3QiKQ0KUmVwb3J0ZWQtYnk6IGtlcm5lbCB0ZXN0IHJvYm90IDxsa3BAaW50
-ZWwuY29tPg0KU2lnbmVkLW9mZi1ieTogQ2h1bmZlbmcgWXVuIDxjaHVuZmVuZy55dW5AbWVkaWF0
-ZWsuY29tPg0KLS0tDQogZHJpdmVycy91c2IvZ2FkZ2V0L3VkYy9iY202M3h4X3VkYy5jIHwgMSAr
-DQogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJz
-L3VzYi9nYWRnZXQvdWRjL2JjbTYzeHhfdWRjLmMgYi9kcml2ZXJzL3VzYi9nYWRnZXQvdWRjL2Jj
-bTYzeHhfdWRjLmMNCmluZGV4IGZlYWVjMDAuLjljZDRhNzAgMTAwNjQ0DQotLS0gYS9kcml2ZXJz
-L3VzYi9nYWRnZXQvdWRjL2JjbTYzeHhfdWRjLmMNCisrKyBiL2RyaXZlcnMvdXNiL2dhZGdldC91
-ZGMvYmNtNjN4eF91ZGMuYw0KQEAgLTI2LDYgKzI2LDcgQEANCiAjaW5jbHVkZSA8bGludXgvc2Vx
-X2ZpbGUuaD4NCiAjaW5jbHVkZSA8bGludXgvc2xhYi5oPg0KICNpbmNsdWRlIDxsaW51eC90aW1l
-ci5oPg0KKyNpbmNsdWRlIDxsaW51eC91c2IuaD4NCiAjaW5jbHVkZSA8bGludXgvdXNiL2NoOS5o
-Pg0KICNpbmNsdWRlIDxsaW51eC91c2IvZ2FkZ2V0Lmg+DQogI2luY2x1ZGUgPGxpbnV4L3dvcmtx
-dWV1ZS5oPg0KLS0gDQoxLjkuMQ0K
+On Mon, 14 Sep 2020 at 01:34, Arvind Sankar <nivedita@alum.mit.edu> wrote:
+>
+> On Tue, Aug 25, 2020 at 10:56:52AM -0400, Arvind Sankar wrote:
+> > On Sat, Aug 15, 2020 at 01:56:49PM -0700, Nick Desaulniers wrote:
+> > > Hi Ingo,
+> > > I saw you picked up Arvind's other series into x86/boot.  Would you
+> > > mind please including this, as well?  Our CI is quite red for x86...
+> > >
+> > > EOM
+> > >
+> >
+> > Hi Ingo, while this patch is unnecessary after the series in
+> > tip/x86/boot, it is still needed for 5.9 and older. Would you be able to
+> > send it in for the next -rc? It shouldn't hurt the tip/x86/boot series,
+> > and we can add a revert on top of that later.
+> >
+> > Thanks.
+>
+> Ping.
+>
+> https://lore.kernel.org/lkml/20200812004308.1448603-1-nivedita@alum.mit.edu/
 
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
