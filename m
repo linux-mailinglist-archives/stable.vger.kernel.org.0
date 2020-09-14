@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AF43268BC1
+	by mail.lfdr.de (Postfix) with ESMTP id E85EC268BC2
 	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 15:08:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726707AbgINNHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 09:07:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60274 "EHLO mail.kernel.org"
+        id S1726710AbgINNHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 09:07:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726664AbgINNGE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Sep 2020 09:06:04 -0400
+        id S1726561AbgINNGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Sep 2020 09:06:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6ECC722269;
-        Mon, 14 Sep 2020 13:05:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 056C522273;
+        Mon, 14 Sep 2020 13:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088722;
-        bh=9riOZ9GAoOgxV0Qc8gUkznQnBBID+SRdhaHl6RzsQ/I=;
+        s=default; t=1600088736;
+        bh=zolZwzTxEfBeTWyu+h7YHfETfQ/DiytX4nDIsqj6itw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U42ga6+l7pgjOR3aBmvoRzo90erEHGn6V1XEVSZ0Ys47TOf3ZVg6Wj+SmRioBOhux
-         z1Dj3WdFOBU2l+KpsUbZrEV7fF5mFGerGFYcFOXfH0+pzEZWzr3wRRUldwJk+5BxLG
-         oKEwOVafiEAzjuDivSb/5KKeLaYkHeC2H8BYPq+Y=
+        b=zWGoRwHjdkcL2eT2p3JUUjCM6G5nV9Z/gjDoAv5fTae6D0SMFFPNgHAvS7Xt7jT3u
+         dn9V6kI8Lv+spDeLf8F9QhSU9TDqOD2gUNTWUiDw2QPXqkfRipOLPEV7iZtnJrEreH
+         27Iq6mARuW4fiBnNNES0oCCAKNtvMROYuvJw2ILU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 16/19] i2c: algo: pca: Reapply i2c bus settings after reset
-Date:   Mon, 14 Sep 2020 09:04:59 -0400
-Message-Id: <20200914130502.1804708-16-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 08/15] rapidio: Replace 'select' DMAENGINES 'with depends on'
+Date:   Mon, 14 Sep 2020 09:05:19 -0400
+Message-Id: <20200914130526.1804913-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200914130502.1804708-1-sashal@kernel.org>
-References: <20200914130502.1804708-1-sashal@kernel.org>
+In-Reply-To: <20200914130526.1804913-1-sashal@kernel.org>
+References: <20200914130526.1804913-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,129 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 0a355aeb24081e4538d4d424cd189f16c0bbd983 ]
+[ Upstream commit d2b86100245080cfdf1e95e9e07477474c1be2bd ]
 
-If something goes wrong (such as the SCL being stuck low) then we need
-to reset the PCA chip. The issue with this is that on reset we lose all
-config settings and the chip ends up in a disabled state which results
-in a lock up/high CPU usage. We need to re-apply any configuration that
-had previously been set and re-enable the chip.
+Enabling a whole subsystem from a single driver 'select' is frowned
+upon and won't be accepted in new drivers, that need to use 'depends on'
+instead. Existing selection of DMAENGINES will then cause circular
+dependencies. Replace them with a dependency.
 
-Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
-Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/algos/i2c-algo-pca.c | 35 +++++++++++++++++++++-----------
- include/linux/i2c-algo-pca.h     | 15 ++++++++++++++
- 2 files changed, 38 insertions(+), 12 deletions(-)
+ drivers/rapidio/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
-index 0e745f82d6a53..f328de980855d 100644
---- a/drivers/i2c/algos/i2c-algo-pca.c
-+++ b/drivers/i2c/algos/i2c-algo-pca.c
-@@ -50,8 +50,22 @@ static void pca_reset(struct i2c_algo_pca_data *adap)
- 		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_IPRESET);
- 		pca_outw(adap, I2C_PCA_IND, 0xA5);
- 		pca_outw(adap, I2C_PCA_IND, 0x5A);
-+
-+		/*
-+		 * After a reset we need to re-apply any configuration
-+		 * (calculated in pca_init) to get the bus in a working state.
-+		 */
-+		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_IMODE);
-+		pca_outw(adap, I2C_PCA_IND, adap->bus_settings.mode);
-+		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_ISCLL);
-+		pca_outw(adap, I2C_PCA_IND, adap->bus_settings.tlow);
-+		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_ISCLH);
-+		pca_outw(adap, I2C_PCA_IND, adap->bus_settings.thi);
-+
-+		pca_set_con(adap, I2C_PCA_CON_ENSIO);
- 	} else {
- 		adap->reset_chip(adap->data);
-+		pca_set_con(adap, I2C_PCA_CON_ENSIO | adap->bus_settings.clock_freq);
- 	}
- }
- 
-@@ -432,13 +446,14 @@ static int pca_init(struct i2c_adapter *adap)
- 				" Use the nominal frequency.\n", adap->name);
- 		}
- 
--		pca_reset(pca_data);
--
- 		clock = pca_clock(pca_data);
- 		printk(KERN_INFO "%s: Clock frequency is %dkHz\n",
- 		     adap->name, freqs[clock]);
- 
--		pca_set_con(pca_data, I2C_PCA_CON_ENSIO | clock);
-+		/* Store settings as these will be needed when the PCA chip is reset */
-+		pca_data->bus_settings.clock_freq = clock;
-+
-+		pca_reset(pca_data);
- 	} else {
- 		int clock;
- 		int mode;
-@@ -505,19 +520,15 @@ static int pca_init(struct i2c_adapter *adap)
- 			thi = tlow * min_thi / min_tlow;
- 		}
- 
-+		/* Store settings as these will be needed when the PCA chip is reset */
-+		pca_data->bus_settings.mode = mode;
-+		pca_data->bus_settings.tlow = tlow;
-+		pca_data->bus_settings.thi = thi;
-+
- 		pca_reset(pca_data);
- 
- 		printk(KERN_INFO
- 		     "%s: Clock frequency is %dHz\n", adap->name, clock * 100);
--
--		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_IMODE);
--		pca_outw(pca_data, I2C_PCA_IND, mode);
--		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_ISCLL);
--		pca_outw(pca_data, I2C_PCA_IND, tlow);
--		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_ISCLH);
--		pca_outw(pca_data, I2C_PCA_IND, thi);
--
--		pca_set_con(pca_data, I2C_PCA_CON_ENSIO);
- 	}
- 	udelay(500); /* 500 us for oscillator to stabilise */
- 
-diff --git a/include/linux/i2c-algo-pca.h b/include/linux/i2c-algo-pca.h
-index d03071732db4a..7c522fdd9ea73 100644
---- a/include/linux/i2c-algo-pca.h
-+++ b/include/linux/i2c-algo-pca.h
-@@ -53,6 +53,20 @@
- #define I2C_PCA_CON_SI		0x08 /* Serial Interrupt */
- #define I2C_PCA_CON_CR		0x07 /* Clock Rate (MASK) */
- 
-+/**
-+ * struct pca_i2c_bus_settings - The configured PCA i2c bus settings
-+ * @mode: Configured i2c bus mode
-+ * @tlow: Configured SCL LOW period
-+ * @thi: Configured SCL HIGH period
-+ * @clock_freq: The configured clock frequency
-+ */
-+struct pca_i2c_bus_settings {
-+	int mode;
-+	int tlow;
-+	int thi;
-+	int clock_freq;
-+};
-+
- struct i2c_algo_pca_data {
- 	void 				*data;	/* private low level data */
- 	void (*write_byte)		(void *data, int reg, int val);
-@@ -64,6 +78,7 @@ struct i2c_algo_pca_data {
- 	 * For PCA9665, use the frequency you want here. */
- 	unsigned int			i2c_clock;
- 	unsigned int			chip;
-+	struct pca_i2c_bus_settings		bus_settings;
- };
- 
- int i2c_pca_add_bus(struct i2c_adapter *);
+diff --git a/drivers/rapidio/Kconfig b/drivers/rapidio/Kconfig
+index d6d2f20c45977..21df2816def76 100644
+--- a/drivers/rapidio/Kconfig
++++ b/drivers/rapidio/Kconfig
+@@ -25,7 +25,7 @@ config RAPIDIO_ENABLE_RX_TX_PORTS
+ config RAPIDIO_DMA_ENGINE
+ 	bool "DMA Engine support for RapidIO"
+ 	depends on RAPIDIO
+-	select DMADEVICES
++	depends on DMADEVICES
+ 	select DMA_ENGINE
+ 	help
+ 	  Say Y here if you want to use DMA Engine frameork for RapidIO data
 -- 
 2.25.1
 
