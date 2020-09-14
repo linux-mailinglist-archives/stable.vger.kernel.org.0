@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE1B6269278
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6C13269276
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:05:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726131AbgINRF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 13:05:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60272 "EHLO mail.kernel.org"
+        id S1726198AbgINRFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 13:05:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726056AbgINNFZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726269AbgINNFZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Sep 2020 09:05:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2D4422224;
-        Mon, 14 Sep 2020 13:04:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4280522225;
+        Mon, 14 Sep 2020 13:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088667;
-        bh=UlDZOmMEl82BvN+q3X8IemklTtPmKk+JfenhcMngvX4=;
+        s=default; t=1600088669;
+        bh=cIly/5z+st1Uow7ZPenOwpPHPjIa9UBrWv11R6UmPww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1IWvkgimFUR0ligA4bzBswGaQ2PmdvgMaRTAlMynnyTMMzWiVLBMFacmdSKZ2s3B
-         wKcBpBA2Nl5yYRk1F+3wacicFKPg9zD4i/CNfL3IQ2gFvpt8gTS3zTYuUwW+wu9QRz
-         v2JokThZ2X0taqPFBg4XJ6A6sTSNZzQlgSxhUEIU=
+        b=b0d9ElpZW3/Rdttx0jYuGDMIiyylq1k7g/4r5I5LETBu7HlDri3H/qnEDFZ1eoWnS
+         6BibYJm64gmR0wP+Zlx7usS6BNlTKyqQ6uBEkvK6XyEL/CA1iFTYCeo/96poSi+pGK
+         NYCOcfHZZa0i9gDebCt9/Dz7Csf5g0UnC8TH6+q4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.8 24/29] f2fs: Return EOF on unaligned end of file DIO read
-Date:   Mon, 14 Sep 2020 09:03:53 -0400
-Message-Id: <20200914130358.1804194-24-sashal@kernel.org>
+Cc:     Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 25/29] i2c: algo: pca: Reapply i2c bus settings after reset
+Date:   Mon, 14 Sep 2020 09:03:54 -0400
+Message-Id: <20200914130358.1804194-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200914130358.1804194-1-sashal@kernel.org>
 References: <20200914130358.1804194-1-sashal@kernel.org>
@@ -44,54 +45,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@collabora.com>
+From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
 
-[ Upstream commit 20d0a107fb35f37578b919f62bd474d6d358d579 ]
+[ Upstream commit 0a355aeb24081e4538d4d424cd189f16c0bbd983 ]
 
-Reading past end of file returns EOF for aligned reads but -EINVAL for
-unaligned reads on f2fs.  While documentation is not strict about this
-corner case, most filesystem returns EOF on this case, like iomap
-filesystems.  This patch consolidates the behavior for f2fs, by making
-it return EOF(0).
+If something goes wrong (such as the SCL being stuck low) then we need
+to reset the PCA chip. The issue with this is that on reset we lose all
+config settings and the chip ends up in a disabled state which results
+in a lock up/high CPU usage. We need to re-apply any configuration that
+had previously been set and re-enable the chip.
 
-it can be verified by a read loop on a file that does a partial read
-before EOF (A file that doesn't end at an aligned address).  The
-following code fails on an unaligned file on f2fs, but not on
-btrfs, ext4, and xfs.
-
-  while (done < total) {
-    ssize_t delta = pread(fd, buf + done, total - done, off + done);
-    if (!delta)
-      break;
-    ...
-  }
-
-It is arguable whether filesystems should actually return EOF or
--EINVAL, but since iomap filesystems support it, and so does the
-original DIO code, it seems reasonable to consolidate on that.
-
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/i2c/algos/i2c-algo-pca.c | 35 +++++++++++++++++++++-----------
+ include/linux/i2c-algo-pca.h     | 15 ++++++++++++++
+ 2 files changed, 38 insertions(+), 12 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 6e9017e6a8197..403e8033c974b 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -3463,6 +3463,9 @@ static int check_direct_IO(struct inode *inode, struct iov_iter *iter,
- 	unsigned long align = offset | iov_iter_alignment(iter);
- 	struct block_device *bdev = inode->i_sb->s_bdev;
- 
-+	if (iov_iter_rw(iter) == READ && offset >= i_size_read(inode))
-+		return 1;
+diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
+index 388978775be04..edc6985c696f0 100644
+--- a/drivers/i2c/algos/i2c-algo-pca.c
++++ b/drivers/i2c/algos/i2c-algo-pca.c
+@@ -41,8 +41,22 @@ static void pca_reset(struct i2c_algo_pca_data *adap)
+ 		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_IPRESET);
+ 		pca_outw(adap, I2C_PCA_IND, 0xA5);
+ 		pca_outw(adap, I2C_PCA_IND, 0x5A);
 +
- 	if (align & blocksize_mask) {
- 		if (bdev)
- 			blkbits = blksize_bits(bdev_logical_block_size(bdev));
++		/*
++		 * After a reset we need to re-apply any configuration
++		 * (calculated in pca_init) to get the bus in a working state.
++		 */
++		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_IMODE);
++		pca_outw(adap, I2C_PCA_IND, adap->bus_settings.mode);
++		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_ISCLL);
++		pca_outw(adap, I2C_PCA_IND, adap->bus_settings.tlow);
++		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_ISCLH);
++		pca_outw(adap, I2C_PCA_IND, adap->bus_settings.thi);
++
++		pca_set_con(adap, I2C_PCA_CON_ENSIO);
+ 	} else {
+ 		adap->reset_chip(adap->data);
++		pca_set_con(adap, I2C_PCA_CON_ENSIO | adap->bus_settings.clock_freq);
+ 	}
+ }
+ 
+@@ -423,13 +437,14 @@ static int pca_init(struct i2c_adapter *adap)
+ 				" Use the nominal frequency.\n", adap->name);
+ 		}
+ 
+-		pca_reset(pca_data);
+-
+ 		clock = pca_clock(pca_data);
+ 		printk(KERN_INFO "%s: Clock frequency is %dkHz\n",
+ 		     adap->name, freqs[clock]);
+ 
+-		pca_set_con(pca_data, I2C_PCA_CON_ENSIO | clock);
++		/* Store settings as these will be needed when the PCA chip is reset */
++		pca_data->bus_settings.clock_freq = clock;
++
++		pca_reset(pca_data);
+ 	} else {
+ 		int clock;
+ 		int mode;
+@@ -496,19 +511,15 @@ static int pca_init(struct i2c_adapter *adap)
+ 			thi = tlow * min_thi / min_tlow;
+ 		}
+ 
++		/* Store settings as these will be needed when the PCA chip is reset */
++		pca_data->bus_settings.mode = mode;
++		pca_data->bus_settings.tlow = tlow;
++		pca_data->bus_settings.thi = thi;
++
+ 		pca_reset(pca_data);
+ 
+ 		printk(KERN_INFO
+ 		     "%s: Clock frequency is %dHz\n", adap->name, clock * 100);
+-
+-		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_IMODE);
+-		pca_outw(pca_data, I2C_PCA_IND, mode);
+-		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_ISCLL);
+-		pca_outw(pca_data, I2C_PCA_IND, tlow);
+-		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_ISCLH);
+-		pca_outw(pca_data, I2C_PCA_IND, thi);
+-
+-		pca_set_con(pca_data, I2C_PCA_CON_ENSIO);
+ 	}
+ 	udelay(500); /* 500 us for oscillator to stabilise */
+ 
+diff --git a/include/linux/i2c-algo-pca.h b/include/linux/i2c-algo-pca.h
+index d03071732db4a..7c522fdd9ea73 100644
+--- a/include/linux/i2c-algo-pca.h
++++ b/include/linux/i2c-algo-pca.h
+@@ -53,6 +53,20 @@
+ #define I2C_PCA_CON_SI		0x08 /* Serial Interrupt */
+ #define I2C_PCA_CON_CR		0x07 /* Clock Rate (MASK) */
+ 
++/**
++ * struct pca_i2c_bus_settings - The configured PCA i2c bus settings
++ * @mode: Configured i2c bus mode
++ * @tlow: Configured SCL LOW period
++ * @thi: Configured SCL HIGH period
++ * @clock_freq: The configured clock frequency
++ */
++struct pca_i2c_bus_settings {
++	int mode;
++	int tlow;
++	int thi;
++	int clock_freq;
++};
++
+ struct i2c_algo_pca_data {
+ 	void 				*data;	/* private low level data */
+ 	void (*write_byte)		(void *data, int reg, int val);
+@@ -64,6 +78,7 @@ struct i2c_algo_pca_data {
+ 	 * For PCA9665, use the frequency you want here. */
+ 	unsigned int			i2c_clock;
+ 	unsigned int			chip;
++	struct pca_i2c_bus_settings		bus_settings;
+ };
+ 
+ int i2c_pca_add_bus(struct i2c_adapter *);
 -- 
 2.25.1
 
