@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3B9C269274
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:05:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ECF72692B4
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 19:13:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726511AbgINNFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 09:05:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60276 "EHLO mail.kernel.org"
+        id S1725957AbgINRMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 13:12:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726364AbgINNEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726589AbgINNEt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 14 Sep 2020 09:04:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F75E21D80;
-        Mon, 14 Sep 2020 13:04:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 392C9221E2;
+        Mon, 14 Sep 2020 13:04:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088650;
-        bh=AV4Eaj7jrOJ68D6Rsb5R/SK1Yx16OhK4Q+b+JiZaeQA=;
+        s=default; t=1600088651;
+        bh=kTrpFz5CAoCPBtBgvwd9l4jFxoKG54s1sxlhsmpU9JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oMrC+Cxd+ZATKqav0QY/Qfn9qBjPE2YKZ2Pn/0tEyadQzPmUa1635hkGSjO18pdNa
-         dck26uvygEvg6SgB7JwViIXlj5p0ywPonbE8uxsf+wh+aIX1vse2zMzpbSKiQVfW/A
-         xIAEoorrITW902st+1nphwgrt9zVbsf1sMj6TTx4=
+        b=S/86Z86l/eQgMGN6+cvfa/LgqDchFkL2fkFGxi5cb7obMrKPMQrqVuPNBIo1xg8LN
+         R/jzhLE1UDZrfZo4A0/F236hyDPPXLuKJKe0aTO3RcVDIYvK+racA3k0EYXsDx/sJv
+         hP7nyGq5gZ3N6gXuziuExmkQakiDl3mbjjnWDeXo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 10/29] regulator: pwm: Fix machine constraints application
-Date:   Mon, 14 Sep 2020 09:03:39 -0400
-Message-Id: <20200914130358.1804194-10-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 11/29] spi: spi-loopback-test: Fix out-of-bounds read
+Date:   Mon, 14 Sep 2020 09:03:40 -0400
+Message-Id: <20200914130358.1804194-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200914130358.1804194-1-sashal@kernel.org>
 References: <20200914130358.1804194-1-sashal@kernel.org>
@@ -45,59 +45,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 59ae97a7a9e1499c2070e29841d1c4be4ae2994a ]
+[ Upstream commit 837ba18dfcd4db21ad58107c65bfe89753aa56d7 ]
 
-If the zero duty cycle doesn't correspond to any voltage in the voltage
-table, the PWM regulator returns an -EINVAL from get_voltage_sel() which
-results in the core erroring out with a "failed to get the current
-voltage" and ending up not applying the machine constraints.
+The "tx/rx-transfer - crossing PAGE_SIZE" test always fails when
+len=131071 and rx_offset >= 5:
 
-Instead, return -ENOTRECOVERABLE which makes the core set the voltage
-since it's at an unknown value.
+ spi-loopback-test spi0.0: Running test tx/rx-transfer - crossing PAGE_SIZE
+ ...
+   with iteration values: len = 131071, tx_off = 0, rx_off = 3
+   with iteration values: len = 131071, tx_off = 0, rx_off = 4
+   with iteration values: len = 131071, tx_off = 0, rx_off = 5
+ loopback strangeness - rx changed outside of allowed range at: ...a4321000
+   spi_msg@ffffffd5a4157690
+     frame_length:  131071
+     actual_length: 131071
+     spi_transfer@ffffffd5a41576f8
+       len:    131071
+       tx_buf: ffffffd5a4340ffc
 
-For example, with this device tree:
+Note that rx_offset > 3 can only occur if the SPI controller driver sets
+->dma_alignment to a higher value than 4, so most SPI controller drivers
+are not affect.
 
-	fooregulator {
-		compatible = "pwm-regulator";
-		pwms = <&foopwm 0 100000>;
-		regulator-min-microvolt = <2250000>;
-		regulator-max-microvolt = <2250000>;
-		regulator-name = "fooregulator";
-		regulator-always-on;
-		regulator-boot-on;
-		voltage-table = <2250000 30>;
-	};
+The allocated Rx buffer is of size SPI_TEST_MAX_SIZE_PLUS, which is 132
+KiB (assuming 4 KiB pages).  This test uses an initial offset into the
+rx_buf of PAGE_SIZE - 4, and a len of 131071, so the range expected to
+be written in this transfer ends at (4096 - 4) + 5 + 131071 == 132 KiB,
+which is also the end of the allocated buffer.  But the code which
+verifies the content of the buffer reads a byte beyond the allocated
+buffer and spuriously fails because this out-of-bounds read doesn't
+return the expected value.
 
-Before this patch:
-
-  fooregulator: failed to get the current voltage(-22)
-
-After this patch:
-
-  fooregulator: Setting 2250000-2250000uV
-  fooregulator: 2250 mV
+Fix this by using ITERATE_LEN instead of ITERATE_MAX_LEN to avoid
+testing sizes which cause out-of-bounds reads.
 
 Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20200902130952.24880-1-vincent.whitchurch@axis.com
+Link: https://lore.kernel.org/r/20200902132341.7079-1-vincent.whitchurch@axis.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pwm-regulator.c | 2 +-
+ drivers/spi/spi-loopback-test.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/pwm-regulator.c b/drivers/regulator/pwm-regulator.c
-index 638329bd0745e..62ad7c4e7e7c8 100644
---- a/drivers/regulator/pwm-regulator.c
-+++ b/drivers/regulator/pwm-regulator.c
-@@ -279,7 +279,7 @@ static int pwm_regulator_init_table(struct platform_device *pdev,
- 		return ret;
- 	}
- 
--	drvdata->state			= -EINVAL;
-+	drvdata->state			= -ENOTRECOVERABLE;
- 	drvdata->duty_cycle_table	= duty_cycle_table;
- 	drvdata->desc.ops = &pwm_regulator_voltage_table_ops;
- 	drvdata->desc.n_voltages	= length / sizeof(*duty_cycle_table);
+diff --git a/drivers/spi/spi-loopback-test.c b/drivers/spi/spi-loopback-test.c
+index b6d79cd156fb5..da1153ec9f0e3 100644
+--- a/drivers/spi/spi-loopback-test.c
++++ b/drivers/spi/spi-loopback-test.c
+@@ -90,7 +90,7 @@ static struct spi_test spi_tests[] = {
+ 	{
+ 		.description	= "tx/rx-transfer - crossing PAGE_SIZE",
+ 		.fill_option	= FILL_COUNT_8,
+-		.iterate_len    = { ITERATE_MAX_LEN },
++		.iterate_len    = { ITERATE_LEN },
+ 		.iterate_tx_align = ITERATE_ALIGN,
+ 		.iterate_rx_align = ITERATE_ALIGN,
+ 		.transfer_count = 1,
 -- 
 2.25.1
 
