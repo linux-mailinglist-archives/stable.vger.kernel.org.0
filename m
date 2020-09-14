@@ -2,98 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2480268F27
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 17:09:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A142D269120
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 18:10:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726614AbgINNF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 09:05:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60272 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726586AbgINNEt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Sep 2020 09:04:49 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E58A021D41;
-        Mon, 14 Sep 2020 13:04:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088649;
-        bh=+hTCQXSoThcQFiyF2kREjmsvdzzXC//BrwpSRW/S5Bo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GWTP7vzVof5O6qmfZZyDPs6gWjgDTi4Lq3ryo7InHfmyKGwHOgKkjUdFOVj69atv2
-         ZNHXl1Aqn0U4iQCVNXsNePop0GpCKgkKUFoyD9Wb10GY2oaaRZTN5Dr2R3xzFdy4Hv
-         Y7FIpAmadmb0RSERda4LURy6hZYm4PjeWdH28drE=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <james.smart@broadcom.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 09/29] scsi: lpfc: Extend the RDF FPIN Registration descriptor for additional events
-Date:   Mon, 14 Sep 2020 09:03:38 -0400
-Message-Id: <20200914130358.1804194-9-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200914130358.1804194-1-sashal@kernel.org>
-References: <20200914130358.1804194-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        id S1726476AbgINQKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 12:10:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53644 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726424AbgINQKM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Sep 2020 12:10:12 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D768C061788
+        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 09:10:12 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id 125so248297ybg.12
+        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 09:10:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=C2H9/eVSssk9N9c19TNJ2NvJt1R7mxUsxPzXQi2K3kk=;
+        b=fDeporrsJV/dWDridcsDYkD9WhhQkww1EXqMrmF2B+RkyEVSOGhQaNCxuIJMlEjRrx
+         g8yfIrEKwcaPWD45Cpmg/l2Ubu31x/5g9qomcMGC96Uz6Y3nNgJLfc+f9/zNobLxS5xV
+         ks/jS5e+LzBvu8WZ6zb/8FzufYgbNJIfEy/qWYpB4a77W972KfC2n+6Ti/WcpxSbF/I+
+         vyeqiimeIgc5PPnZRXKKYMp1q8UKtOjRi3RnX7GOTeX7czYvGgVahPR/IhJ8Z2ROoj1W
+         qTgvO1xxTV2J/uQkiGlvyoG3z714GWisc9F5JAkhdNcsBatzCc118wMvfwKOSlQPhWgB
+         vptQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=C2H9/eVSssk9N9c19TNJ2NvJt1R7mxUsxPzXQi2K3kk=;
+        b=JmqttLOhf8co7lKxqdgNB35Ob/04s+angyWYsTUGwS2AVePHO2N1+x/zHzf8Fh4fyG
+         esDK2juOBHPP+EAof9E3rMVaazBahE8xbLP/TW136oWcbTL4JT1OeW/zHI373eEvKGjv
+         NPrv8FeHccanWwXO4RcLeSt5hYpuPnhL1pfBzUhiu1xfFvUhMkXqNg3v8XLf+OroPbC6
+         EtRA36ex/0/Dert5aU2Ljecy2pqVlmEoZNbhmzXQ9K+N/7cDNYSnjkDBq1pOCEPxXwmX
+         2XbSnW/SXxOIQbNvZGBu1j0lbtlXYhWTIQCLuiL+MQn1Qys2MpKYu/gaVIfHD5Wn5QlS
+         LIRQ==
+X-Gm-Message-State: AOAM532WtpHkI+NfVEGP2BaleQBdWqRZHcfR9VU0JqcBfPfICCxamEB5
+        Y1VUD9lfiUbFPqdKRKGXDX6Hs9ooq/2mrPr+HZA=
+X-Google-Smtp-Source: ABdhPJx8aZpEsKXySdSPyRjhfwyZ8AQEa2E2IoVBsvSrRsyabBpcL3j3xYdB/MKcncDBFONrCBjEJ1xnj7rcIU89YgY=
+X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:f693:9fff:fef4:4d25])
+ (user=ndesaulniers job=sendgmr) by 2002:a5b:f03:: with SMTP id
+ x3mr8451188ybr.137.1600099811376; Mon, 14 Sep 2020 09:10:11 -0700 (PDT)
+Date:   Mon, 14 Sep 2020 09:09:58 -0700
+Message-Id: <20200914160958.889694-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.28.0.618.gf4bc123cb7-goog
+Subject: [PATCH v4] lib/string.c: implement stpcpy
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Andy Lavr <andy.lavr@gmail.com>, Joe Perches <joe@perches.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <james.smart@broadcom.com>
+LLVM implemented a recent "libcall optimization" that lowers calls to
+`sprintf(dest, "%s", str)` where the return value is used to
+`stpcpy(dest, str) - dest`. This generally avoids the machinery involved
+in parsing format strings.  `stpcpy` is just like `strcpy` except it
+returns the pointer to the new tail of `dest`.  This optimization was
+introduced into clang-12.
 
-[ Upstream commit 441f6b5b097d74a8aa72ec0d8992ef820e2b3773 ]
+Implement this so that we don't observe linkage failures due to missing
+symbol definitions for `stpcpy`.
 
-Currently the driver registers for Link Integrity events only.
+Similar to last year's fire drill with:
+commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
 
-This patch adds registration for the following FPIN types:
+The kernel is somewhere between a "freestanding" environment (no full libc)
+and "hosted" environment (many symbols from libc exist with the same
+type, function signature, and semantics).
 
- - Delivery Notifications
- - Congestion Notification
- - Peer Congestion Notification
+As H. Peter Anvin notes, there's not really a great way to inform the
+compiler that you're targeting a freestanding environment but would like
+to opt-in to some libcall optimizations (see pr/47280 below), rather than
+opt-out.
 
-Link: https://lore.kernel.org/r/20200828175332.130300-4-james.smart@broadcom.com
-Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Arvind notes, -fno-builtin-* behaves slightly differently between GCC
+and Clang, and Clang is missing many __builtin_* definitions, which I
+consider a bug in Clang and am working on fixing.
+
+Masahiro summarizes the subtle distinction between compilers justly:
+  To prevent transformation from foo() into bar(), there are two ways in
+  Clang to do that; -fno-builtin-foo, and -fno-builtin-bar.  There is
+  only one in GCC; -fno-buitin-foo.
+
+(Any difference in that behavior in Clang is likely a bug from a missing
+__builtin_* definition.)
+
+Masahiro also notes:
+  We want to disable optimization from foo() to bar(),
+  but we may still benefit from the optimization from
+  foo() into something else. If GCC implements the same transform, we
+  would run into a problem because it is not -fno-builtin-bar, but
+  -fno-builtin-foo that disables that optimization.
+
+  In this regard, -fno-builtin-foo would be more future-proof than
+  -fno-built-bar, but -fno-builtin-foo is still potentially overkill. We
+  may want to prevent calls from foo() being optimized into calls to
+  bar(), but we still may want other optimization on calls to foo().
+
+It seems that compilers today don't quite provide the fine grain control
+over which libcall optimizations pseudo-freestanding environments would
+prefer.
+
+Finally, Kees notes that this interface is unsafe, so we should not
+encourage its use.  As such, I've removed the declaration from any
+header, but it still needs to be exported to avoid linkage errors in
+modules.
+
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Suggested-by: Andy Lavr <andy.lavr@gmail.com>
+Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
+Suggested-by: Joe Perches <joe@perches.com>
+Suggested-by: Kees Cook <keescook@chromium.org>
+Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: stable@vger.kernel.org
+Link: https://bugs.llvm.org/show_bug.cgi?id=47162
+Link: https://bugs.llvm.org/show_bug.cgi?id=47280
+Link: https://github.com/ClangBuiltLinux/linux/issues/1126
+Link: https://man7.org/linux/man-pages/man3/stpcpy.3.html
+Link: https://pubs.opengroup.org/onlinepubs/9699919799/functions/stpcpy.html
+Link: https://reviews.llvm.org/D85963
 ---
- drivers/scsi/lpfc/lpfc_els.c | 3 +++
- drivers/scsi/lpfc/lpfc_hw4.h | 2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+Changes V4:
+* Roll up Kees' comment fixup from
+  https://lore.kernel.org/lkml/202009060302.4574D8D0E0@keescook/#t.
+* Keep Nathan's tested by tag.
+* Add Kees' reviewed by tag from
+  https://lore.kernel.org/lkml/202009031446.3865FE82B@keescook/.
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 7b6a210825677..519c7be404e75 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -3512,6 +3512,9 @@ lpfc_issue_els_rdf(struct lpfc_vport *vport, uint8_t retry)
- 				FC_TLV_DESC_LENGTH_FROM_SZ(prdf->reg_d1));
- 	prdf->reg_d1.reg_desc.count = cpu_to_be32(ELS_RDF_REG_TAG_CNT);
- 	prdf->reg_d1.desc_tags[0] = cpu_to_be32(ELS_DTAG_LNK_INTEGRITY);
-+	prdf->reg_d1.desc_tags[1] = cpu_to_be32(ELS_DTAG_DELIVERY);
-+	prdf->reg_d1.desc_tags[2] = cpu_to_be32(ELS_DTAG_PEER_CONGEST);
-+	prdf->reg_d1.desc_tags[3] = cpu_to_be32(ELS_DTAG_CONGESTION);
+Changes V3:
+* Drop Sami's Tested by tag; newer patch.
+* Add EXPORT_SYMBOL as per Andy.
+* Rewrite commit message, rewrote part of what Masahiro said to be
+  generic in terms of foo() and bar().
+* Prefer %NUL-terminated to NULL terminated. NUL is the ASCII character
+  '\0', as per Arvind and Rasmus.
+
+Changes V2:
+* Added Sami's Tested by; though the patch changed implementation, the
+  missing symbol at link time was the problem Sami was observing.
+* Fix __restrict -> __restrict__ typo as per Joe.
+* Drop note about restrict from commit message as per Arvind.
+* Fix NULL -> NUL as per Arvind; NUL is ASCII '\0'. TIL
+* Fix off by one error as per Arvind; I had another off by one error in
+  my test program that was masking this.
+ lib/string.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/lib/string.c b/lib/string.c
+index 6012c385fb31..b6b8847218b5 100644
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -272,6 +272,30 @@ ssize_t strscpy_pad(char *dest, const char *src, size_t count)
+ }
+ EXPORT_SYMBOL(strscpy_pad);
  
- 	lpfc_debugfs_disc_trc(vport, LPFC_DISC_TRC_ELS_CMD,
- 			      "Issue RDF:       did:x%x",
-diff --git a/drivers/scsi/lpfc/lpfc_hw4.h b/drivers/scsi/lpfc/lpfc_hw4.h
-index 6dfff03765471..c7085769170d7 100644
---- a/drivers/scsi/lpfc/lpfc_hw4.h
-+++ b/drivers/scsi/lpfc/lpfc_hw4.h
-@@ -4797,7 +4797,7 @@ struct send_frame_wqe {
- 	uint32_t fc_hdr_wd5;           /* word 15 */
- };
- 
--#define ELS_RDF_REG_TAG_CNT		1
-+#define ELS_RDF_REG_TAG_CNT		4
- struct lpfc_els_rdf_reg_desc {
- 	struct fc_df_desc_fpin_reg	reg_desc;	/* descriptor header */
- 	__be32				desc_tags[ELS_RDF_REG_TAG_CNT];
++/**
++ * stpcpy - copy a string from src to dest returning a pointer to the new end
++ *          of dest, including src's %NUL-terminator. May overrun dest.
++ * @dest: pointer to end of string being copied into. Must be large enough
++ *        to receive copy.
++ * @src: pointer to the beginning of string being copied from. Must not overlap
++ *       dest.
++ *
++ * stpcpy differs from strcpy in a key way: the return value is a pointer
++ * to the new %NUL-terminating character in @dest. (For strcpy, the return
++ * value is a pointer to the start of @dest. This interface is considered
++ * unsafe as it doesn't perform bounds checking of the inputs. As such it's
++ * not recommended for usage. Instead, its definition is provided in case
++ * the compiler lowers other libcalls to stpcpy.
++ */
++char *stpcpy(char *__restrict__ dest, const char *__restrict__ src);
++char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
++{
++	while ((*dest++ = *src++) != '\0')
++		/* nothing */;
++	return --dest;
++}
++EXPORT_SYMBOL(stpcpy);
++
+ #ifndef __HAVE_ARCH_STRCAT
+ /**
+  * strcat - Append one %NUL-terminated string to another
 -- 
-2.25.1
+2.28.0.618.gf4bc123cb7-goog
 
