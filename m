@@ -2,77 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F42A268DB5
-	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E62B268EAB
+	for <lists+stable@lfdr.de>; Mon, 14 Sep 2020 16:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726717AbgINO35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Sep 2020 10:29:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60276 "EHLO mail.kernel.org"
+        id S1726885AbgINO7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Sep 2020 10:59:06 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:47410 "EHLO m43-7.mailgun.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726583AbgINNGD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Sep 2020 09:06:03 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1726360AbgINO64 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Sep 2020 10:58:56 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1600095535; h=Content-Transfer-Encoding: MIME-Version:
+ Message-Id: Date: Subject: Cc: To: From: Sender;
+ bh=6B1eHivMPY/Y7JjheulizygZ7FR99YPUY1zmWLJj70I=; b=vx47B0OaeK9QjwmNR3hG87uy517wz+p2nRQTCuRaYphq6Xe5blM8OXQccwyAXL2e/rtGVsXu
+ 3LM+fpovYfxpouVdLdgdK7AXBq5CNVK2jPCWCfh+EoHtgbzcZxRiB0WQfd15hxfY7X2I7/Oy
+ y5454kv4cq9UzIJ3qA+7/VaDO44=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n04.prod.us-west-2.postgun.com with SMTP id
+ 5f5f850c4ba82a82fd76569e (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Mon, 14 Sep 2020 14:58:20
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id AA676C433C8; Mon, 14 Sep 2020 14:58:19 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+Received: from blr-ubuntu-253.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9EE722267;
-        Mon, 14 Sep 2020 13:05:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600088718;
-        bh=MzWnIxtOue9UZv1v1Vab4i0yZPiIvaGLn0jYHvew5aY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kwhnv5/zl00RRXY17cN6NHgle0dG4pa383Dm5rXUg/S+k0DUU/YGQ2g6oqwn/pzaN
-         WuzNFbzrT+9KMS4Lr98zLs9U/h4ODgktGoQBz6CJMqxrJoE08VJpUd0z/DoGs9zKk0
-         VzQR0i8mfPpAe7o3Ky0G92yKpt4ubafHU/MM6vcs=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Milburn <dmilburn@redhat.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 13/19] nvme-rdma: cancel async events before freeing event struct
-Date:   Mon, 14 Sep 2020 09:04:56 -0400
-Message-Id: <20200914130502.1804708-13-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200914130502.1804708-1-sashal@kernel.org>
-References: <20200914130502.1804708-1-sashal@kernel.org>
+        (Authenticated sender: sibis)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id A8699C433F0;
+        Mon, 14 Sep 2020 14:58:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org A8699C433F0
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=sibis@codeaurora.org
+From:   Sibi Sankar <sibis@codeaurora.org>
+To:     bjorn.andersson@linaro.org, rishabhb@codeaurora.org
+Cc:     agross@kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, sidgup@codeaurora.org,
+        stable@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>
+Subject: [PATCH] soc: qcom: pdr: Fixup array type of get_domain_list_resp message
+Date:   Mon, 14 Sep 2020 20:28:07 +0530
+Message-Id: <20200914145807.1224-1-sibis@codeaurora.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Milburn <dmilburn@redhat.com>
+The array type of get_domain_list_resp is incorrectly marked as NO_ARRAY.
+Due to which the following error was observed when using pdr helpers with
+the downstream proprietary pd-mapper. Fix this up by marking it as
+VAR_LEN_ARRAY instead.
 
-[ Upstream commit 925dd04c1f9825194b9e444c12478084813b2b5d ]
+Err logs:
+qmi_decode_struct_elem: Fault in decoding: dl(2), db(27), tl(160), i(1), el(1)
+failed to decode incoming message
+PDR: tms/servreg get domain list txn wait failed: -14
+PDR: service lookup for tms/servreg failed: -14
 
-Cancel async event work in case async event has been queued up, and
-nvme_rdma_submit_async_event() runs after event has been freed.
-
-Signed-off-by: David Milburn <dmilburn@redhat.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fbe639b44a82 ("soc: qcom: Introduce Protection Domain Restart helpers")
+Reported-by: Rishabh Bhatnagar <rishabhb@codeaurora.org>
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
 ---
- drivers/nvme/host/rdma.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/soc/qcom/pdr_internal.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index f393a6193252e..8a11e26d17683 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -739,6 +739,7 @@ static void nvme_rdma_destroy_admin_queue(struct nvme_rdma_ctrl *ctrl,
- 		nvme_rdma_free_tagset(&ctrl->ctrl, ctrl->ctrl.admin_tagset);
- 	}
- 	if (ctrl->async_event_sqe.data) {
-+		cancel_work_sync(&ctrl->ctrl.async_event_work);
- 		nvme_rdma_free_qe(ctrl->device->dev, &ctrl->async_event_sqe,
- 				sizeof(struct nvme_command), DMA_TO_DEVICE);
- 		ctrl->async_event_sqe.data = NULL;
+diff --git a/drivers/soc/qcom/pdr_internal.h b/drivers/soc/qcom/pdr_internal.h
+index 15b5002e4127b..ab9ae8cdfa54c 100644
+--- a/drivers/soc/qcom/pdr_internal.h
++++ b/drivers/soc/qcom/pdr_internal.h
+@@ -185,7 +185,7 @@ struct qmi_elem_info servreg_get_domain_list_resp_ei[] = {
+ 		.data_type      = QMI_STRUCT,
+ 		.elem_len       = SERVREG_DOMAIN_LIST_LENGTH,
+ 		.elem_size      = sizeof(struct servreg_location_entry),
+-		.array_type	= NO_ARRAY,
++		.array_type	= VAR_LEN_ARRAY,
+ 		.tlv_type       = 0x12,
+ 		.offset         = offsetof(struct servreg_get_domain_list_resp,
+ 					   domain_list),
 -- 
-2.25.1
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
 
