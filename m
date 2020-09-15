@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6329426B40E
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7E2526B436
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726825AbgIOXP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:15:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
+        id S1727254AbgIOXSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:18:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727234AbgIOOj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727237AbgIOOj2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:39:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AB3423CD2;
-        Tue, 15 Sep 2020 14:29:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF01822574;
+        Tue, 15 Sep 2020 14:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180177;
-        bh=LnuiVm0b09YwpMrte0fpCkGcY5t1tjX1Rt1Rs296Zzo=;
+        s=default; t=1600180180;
+        bh=K16LQU8ASbMCD3V/Pq+HsXrgrY56NVmsaTVeY9zFb0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXILGyYqAKfUWI2nOF1O96mt1WSkxTguaFO1VfISVs5EuJ7l1DtNwSVKu4++JHcW+
-         Az7SJiXMUbFbYnrhpBtSat/QXsWN5Mxwl3dRkaaoWgT1nQphck/1cMPZu776MRlwsY
-         X8qJ3mmzOYIRi/fTce0QyAtG6AGAQpzwAVVVn0xs=
+        b=p49ezQdMOzIdUJQ2iuKl85a6qRP1mLM9KVBPc5PeYjceb+LERteRk9hJOAmyzDHLx
+         FVvnk4WwIOc7LEJaBmN84LzguwR/UX21jT8BaS2V0MmZMZehd7gM62qDoIB1ktjVDl
+         VH2+78A1n4v9xJAHUuAQd3Or4bljCqeaiaAkpUA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadym Kochan <vadym.kochan@plvision.eu>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.8 138/177] misc: eeprom: at24: register nvmem only after eeprom is ready to use
-Date:   Tue, 15 Sep 2020 16:13:29 +0200
-Message-Id: <20200915140700.271172638@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oralce.com>,
+        Varun Prakash <varun@chelsio.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.8 139/177] scsi: target: iscsi: Fix data digest calculation
+Date:   Tue, 15 Sep 2020 16:13:30 +0200
+Message-Id: <20200915140700.320981926@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -43,56 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadym Kochan <vadym.kochan@plvision.eu>
+From: Varun Prakash <varun@chelsio.com>
 
-commit 45df80d7605c25055a85fbc5a8446c81c6c0ca24 upstream.
+commit 5528d03183fe5243416c706f64b1faa518b05130 upstream.
 
-During nvmem_register() the nvmem core sends notifications when:
+Current code does not consider 'page_off' in data digest calculation. To
+fix this, add a local variable 'first_sg' and set first_sg.offset to
+sg->offset + page_off.
 
-    - cell added
-    - nvmem added
-
-and during these notifications some callback func may access the nvmem
-device, which will fail in case of at24 eeprom because regulator and pm
-are enabled after nvmem_register().
-
-Fixes: cd5676db0574 ("misc: eeprom: at24: support pm_runtime control")
-Fixes: b20eb4c1f026 ("eeprom: at24: drop unnecessary label")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Link: https://lore.kernel.org/r/1598358910-3052-1-git-send-email-varun@chelsio.com
+Fixes: e48354ce078c ("iscsi-target: Add iSCSI fabric support for target v4.1")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Mike Christie <michael.christie@oralce.com>
+Signed-off-by: Varun Prakash <varun@chelsio.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/eeprom/at24.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/target/iscsi/iscsi_target.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -692,10 +692,6 @@ static int at24_probe(struct i2c_client
- 	nvmem_config.word_size = 1;
- 	nvmem_config.size = byte_len;
+--- a/drivers/target/iscsi/iscsi_target.c
++++ b/drivers/target/iscsi/iscsi_target.c
+@@ -1389,14 +1389,27 @@ static u32 iscsit_do_crypto_hash_sg(
+ 	sg = cmd->first_data_sg;
+ 	page_off = cmd->first_data_sg_off;
  
--	at24->nvmem = devm_nvmem_register(dev, &nvmem_config);
--	if (IS_ERR(at24->nvmem))
--		return PTR_ERR(at24->nvmem);
--
- 	i2c_set_clientdata(client, at24);
- 
- 	err = regulator_enable(at24->vcc_reg);
-@@ -708,6 +704,13 @@ static int at24_probe(struct i2c_client
- 	pm_runtime_set_active(dev);
- 	pm_runtime_enable(dev);
- 
-+	at24->nvmem = devm_nvmem_register(dev, &nvmem_config);
-+	if (IS_ERR(at24->nvmem)) {
-+		pm_runtime_disable(dev);
-+		regulator_disable(at24->vcc_reg);
-+		return PTR_ERR(at24->nvmem);
++	if (data_length && page_off) {
++		struct scatterlist first_sg;
++		u32 len = min_t(u32, data_length, sg->length - page_off);
++
++		sg_init_table(&first_sg, 1);
++		sg_set_page(&first_sg, sg_page(sg), len, sg->offset + page_off);
++
++		ahash_request_set_crypt(hash, &first_sg, NULL, len);
++		crypto_ahash_update(hash);
++
++		data_length -= len;
++		sg = sg_next(sg);
 +	}
 +
- 	/*
- 	 * Perform a one-byte test read to verify that the
- 	 * chip is functional.
+ 	while (data_length) {
+-		u32 cur_len = min_t(u32, data_length, (sg->length - page_off));
++		u32 cur_len = min_t(u32, data_length, sg->length);
+ 
+ 		ahash_request_set_crypt(hash, sg, NULL, cur_len);
+ 		crypto_ahash_update(hash);
+ 
+ 		data_length -= cur_len;
+-		page_off = 0;
+ 		/* iscsit_map_iovec has already checked for invalid sg pointers */
+ 		sg = sg_next(sg);
+ 	}
 
 
