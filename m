@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7D5826B5B4
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0F226B5A2
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:48:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727265AbgIOXtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:49:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
+        id S1727351AbgIOXsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:48:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727097AbgIOOcm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:32:42 -0400
+        id S1727096AbgIOOcn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:32:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8ED523BE0;
-        Tue, 15 Sep 2020 14:24:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64CA123BE2;
+        Tue, 15 Sep 2020 14:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179882;
-        bh=x4U0PxElE1NikM11/3itTjZcEzcHNr2qNGiO5fYb0us=;
+        s=default; t=1600179884;
+        bh=ByQOXLScGAN+9NlFCb8SEXCejk2L6A0XCMxzOSYsSZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrwbyrVS1oeyHL6TZn5cO+v0/JTWubj5XfkllpeWmMIWcm8bUoG+R2QaUkjf03MD+
-         mqksR7ZDnytsobLCEERrOPhI/p6QOoILlH649vgbh8n2xSxvD3s7/e8RttLXMBLPnI
-         xctaaOnf9K7OgS+BXAUvJRYapxghem3Z/K3Qhg7U=
+        b=uyhpcV8J73RwwCBOryYohgCcqLaR/AeX01twF5zHtnrrf/8v6+wgEpRDnpR/K7at6
+         6u9JDdCGh5lj2Z5d2UM6147z1+Rq5t+TZYKz7FLD/2yoA3RJCNrM+ZZfEWqrXSEQKJ
+         mBewnFUfxazH9/Lo5y7Ou2EDm3crNP6M9neW/zmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 004/177] ARM: dts: logicpd-som-lv-baseboard: Fix missing video
-Date:   Tue, 15 Sep 2020 16:11:15 +0200
-Message-Id: <20200915140653.838633706@linuxfoundation.org>
+Subject: [PATCH 5.8 005/177] regulator: push allocation in regulator_ena_gpio_request() out of lock
+Date:   Tue, 15 Sep 2020 16:11:16 +0200
+Message-Id: <20200915140653.886414386@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -44,71 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-[ Upstream commit d1db7b80a6c8c5f81db0e80664d29b374750e2c6 ]
+[ Upstream commit 467bf30142c64f2eb64e2ac67fa4595126230efd ]
 
-A previous commit removed the panel-dpi driver, which made the
-SOM-LV video stop working because it relied on the DPI driver
-for setting video timings.  Now that the simple-panel driver is
-available in omap2plus, this patch migrates the SOM-LV dev kits
-to use a similar panel and remove the manual timing requirements.
-A similar patch was already done and applied to the Torpedo family.
+Move another allocation out of regulator_list_mutex-protected region, as
+reclaim might want to take the same lock.
 
-Fixes: 8bf4b1621178 ("drm/omap: Remove panel-dpi driver")
+WARNING: possible circular locking dependency detected
+5.7.13+ #534 Not tainted
+------------------------------------------------------
+kswapd0/383 is trying to acquire lock:
+c0e5d920 (regulator_list_mutex){+.+.}-{3:3}, at: regulator_lock_dependent+0x54/0x2c0
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+but task is already holding lock:
+c0e38518 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x0/0x50
+
+which lock already depends on the new lock.
+
+the existing dependency chain (in reverse order) is:
+
+-> #1 (fs_reclaim){+.+.}-{0:0}:
+       fs_reclaim_acquire.part.11+0x40/0x50
+       fs_reclaim_acquire+0x24/0x28
+       kmem_cache_alloc_trace+0x40/0x1e8
+       regulator_register+0x384/0x1630
+       devm_regulator_register+0x50/0x84
+       reg_fixed_voltage_probe+0x248/0x35c
+[...]
+other info that might help us debug this:
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(fs_reclaim);
+                               lock(regulator_list_mutex);
+                               lock(fs_reclaim);
+  lock(regulator_list_mutex);
+
+ *** DEADLOCK ***
+[...]
+2 locks held by kswapd0/383:
+ #0: c0e38518 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x0/0x50
+ #1: cb70e5e0 (hctx->srcu){....}-{0:0}, at: hctx_lock+0x60/0xb8
+[...]
+
+Fixes: 541d052d7215 ("regulator: core: Only support passing enable GPIO descriptors")
+[this commit only changes context]
+Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
+[this is when the regulator_list_mutex was introduced in reclaim locking path]
+
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Link: https://lore.kernel.org/r/41fe6a9670335721b48e8f5195038c3d67a3bf92.1597195321.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/logicpd-som-lv-baseboard.dtsi    | 27 ++++---------------
- 1 file changed, 5 insertions(+), 22 deletions(-)
+ drivers/regulator/core.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi b/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
-index c310c33ca6f3f..395e05f10d36c 100644
---- a/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
-+++ b/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
-@@ -104,35 +104,18 @@
- 		regulator-max-microvolt = <3300000>;
- 	};
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 720f28844795b..86107d2e1733e 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -2222,10 +2222,13 @@ EXPORT_SYMBOL_GPL(regulator_bulk_unregister_supply_alias);
+ static int regulator_ena_gpio_request(struct regulator_dev *rdev,
+ 				const struct regulator_config *config)
+ {
+-	struct regulator_enable_gpio *pin;
++	struct regulator_enable_gpio *pin, *new_pin;
+ 	struct gpio_desc *gpiod;
  
--	lcd0: display@0 {
--		compatible = "panel-dpi";
--		label = "28";
--		status = "okay";
--		/* default-on; */
-+	lcd0: display {
-+		/* This isn't the exact LCD, but the timings meet spec */
-+		compatible = "logicpd,type28";
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&lcd_enable_pin>;
--		enable-gpios = <&gpio5 27 GPIO_ACTIVE_HIGH>;	/* gpio155, lcd INI */
-+		backlight = <&bl>;
-+		enable-gpios = <&gpio5 27 GPIO_ACTIVE_HIGH>;
- 		port {
- 			lcd_in: endpoint {
- 				remote-endpoint = <&dpi_out>;
- 			};
- 		};
--
--		panel-timing {
--			clock-frequency = <9000000>;
--			hactive = <480>;
--			vactive = <272>;
--			hfront-porch = <3>;
--			hback-porch = <2>;
--			hsync-len = <42>;
--			vback-porch = <3>;
--			vfront-porch = <2>;
--			vsync-len = <11>;
--			hsync-active = <1>;
--			vsync-active = <1>;
--			de-active = <1>;
--			pixelclk-active = <0>;
--		};
- 	};
+ 	gpiod = config->ena_gpiod;
++	new_pin = kzalloc(sizeof(*new_pin), GFP_KERNEL);
++
++	mutex_lock(&regulator_list_mutex);
  
- 	bl: backlight {
+ 	list_for_each_entry(pin, &regulator_ena_gpio_list, list) {
+ 		if (pin->gpiod == gpiod) {
+@@ -2234,9 +2237,13 @@ static int regulator_ena_gpio_request(struct regulator_dev *rdev,
+ 		}
+ 	}
+ 
+-	pin = kzalloc(sizeof(struct regulator_enable_gpio), GFP_KERNEL);
+-	if (pin == NULL)
++	if (new_pin == NULL) {
++		mutex_unlock(&regulator_list_mutex);
+ 		return -ENOMEM;
++	}
++
++	pin = new_pin;
++	new_pin = NULL;
+ 
+ 	pin->gpiod = gpiod;
+ 	list_add(&pin->list, &regulator_ena_gpio_list);
+@@ -2244,6 +2251,10 @@ static int regulator_ena_gpio_request(struct regulator_dev *rdev,
+ update_ena_gpio_to_rdev:
+ 	pin->request_count++;
+ 	rdev->ena_pin = pin;
++
++	mutex_unlock(&regulator_list_mutex);
++	kfree(new_pin);
++
+ 	return 0;
+ }
+ 
+@@ -5137,9 +5148,7 @@ regulator_register(const struct regulator_desc *regulator_desc,
+ 	}
+ 
+ 	if (config->ena_gpiod) {
+-		mutex_lock(&regulator_list_mutex);
+ 		ret = regulator_ena_gpio_request(rdev, config);
+-		mutex_unlock(&regulator_list_mutex);
+ 		if (ret != 0) {
+ 			rdev_err(rdev, "Failed to request enable GPIO: %d\n",
+ 				 ret);
 -- 
 2.25.1
 
