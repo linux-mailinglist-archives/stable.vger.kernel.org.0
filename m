@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 473F226A71C
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:31:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D6BC26A752
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:40:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727068AbgIOObk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:31:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44122 "EHLO mail.kernel.org"
+        id S1727269AbgIOOkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:40:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727036AbgIOOba (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:31:30 -0400
+        id S1727151AbgIOOjr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:39:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A60822B48;
-        Tue, 15 Sep 2020 14:22:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2387E23D20;
+        Tue, 15 Sep 2020 14:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179770;
-        bh=+/4Gi/warB2s9shqbQ2i8K/l2a79KsNB7gX8hhBj9Xs=;
+        s=default; t=1600180197;
+        bh=YyA7VUKTSTDrFSQMiIR9540oXL+Hk7219jpS6Lyi+XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HQ1fc8kuy6FsTAWS9mL5J1FIvsB0gdq9LukXB6VlR1KRL1WT0UGW1KAN046R5JjhN
-         jn/ydk25hQgjs2HMc07/+vUptg8tlNz/Gahz4M34s+qx3u2GBxCq+jV0nHJMjz5kcN
-         rahUcVh6VVugkrgmz+EOLcxTdgfjzPnqwcFRlLQ8=
+        b=p+vkyOBInf9lGruEazH56SP+2BpGKiEcUQV8NSreyXxZv4Sju8UnGTLXMAHJTNDWN
+         Zn8YARpX74+vFg1q1pBRKFdQffRAnodpZIIa6iqGjYiatjc/X4JVWqlgiGJAzzaIay
+         keMqAaXEKwqmO1q7b7malSh9ZrxuZQ1RqEkxmYSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Bloch <markb@mellanox.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.4 111/132] RDMA/mlx4: Read pkey table length instead of hardcoded value
-Date:   Tue, 15 Sep 2020 16:13:33 +0200
-Message-Id: <20200915140649.682609222@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.8 146/177] mmc: sdio: Use mmc_pre_req() / mmc_post_req()
+Date:   Tue, 15 Sep 2020 16:13:37 +0200
+Message-Id: <20200915140700.651150531@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
-References: <20200915140644.037604909@linuxfoundation.org>
+In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
+References: <20200915140653.610388773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Bloch <markb@mellanox.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit ec78b3bd66bc9a015505df0ef0eb153d9e64b03b upstream.
+commit f0c393e2104e48c8a881719a8bd37996f71b0aee upstream.
 
-If the pkey_table is not available (which is the case when RoCE is not
-supported), the cited commit caused a regression where mlx4_devices
-without RoCE are not created.
+SDHCI changed from using a tasklet to finish requests, to using an IRQ
+thread i.e. commit c07a48c2651965 ("mmc: sdhci: Remove finish_tasklet").
+Because this increased the latency to complete requests, a preparatory
+change was made to complete the request from the IRQ handler if
+possible i.e. commit 19d2f695f4e827 ("mmc: sdhci: Call mmc_request_done()
+from IRQ handler if possible").  That alleviated the situation for MMC
+block devices because the MMC block driver makes use of mmc_pre_req()
+and mmc_post_req() so that successful requests are completed in the IRQ
+handler and any DMA unmapping is handled separately in mmc_post_req().
+However SDIO was still affected, and an example has been reported with
+up to 20% degradation in performance.
 
-Fix this by returning a pkey table length of zero in procedure
-eth_link_query_port() if the pkey-table length reported by the device is
-zero.
+Looking at SDIO I/O helper functions, sdio_io_rw_ext_helper() appeared
+to be a possible candidate for making use of asynchronous requests
+within its I/O loops, but analysis revealed that these loops almost
+never iterate more than once, so the complexity of the change would not
+be warrented.
 
-Link: https://lore.kernel.org/r/20200824110229.1094376-1-leon@kernel.org
-Cc: <stable@vger.kernel.org>
-Fixes: 1901b91f9982 ("IB/core: Fix potential NULL pointer dereference in pkey cache")
-Fixes: fa417f7b520e ("IB/mlx4: Add support for IBoE")
-Signed-off-by: Mark Bloch <markb@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Instead, mmc_pre_req() and mmc_post_req() are added before and after I/O
+submission (mmc_wait_for_req) in mmc_io_rw_extended().  This still has
+the potential benefit of reducing the duration of interrupt handlers, as
+well as addressing the latency issue for SDHCI.  It also seems a more
+reasonable solution than forcing drivers to do everything in the IRQ
+handler.
+
+Reported-by: Dmitry Osipenko <digetx@gmail.com>
+Fixes: c07a48c2651965 ("mmc: sdhci: Remove finish_tasklet")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200903082007.18715-1-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx4/main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/core/sdio_ops.c |   39 ++++++++++++++++++++++-----------------
+ 1 file changed, 22 insertions(+), 17 deletions(-)
 
---- a/drivers/infiniband/hw/mlx4/main.c
-+++ b/drivers/infiniband/hw/mlx4/main.c
-@@ -781,7 +781,8 @@ static int eth_link_query_port(struct ib
- 	props->ip_gids = true;
- 	props->gid_tbl_len	= mdev->dev->caps.gid_table_len[port];
- 	props->max_msg_sz	= mdev->dev->caps.max_msg_sz;
--	props->pkey_tbl_len	= 1;
-+	if (mdev->dev->caps.pkey_table_len[port])
-+		props->pkey_tbl_len = 1;
- 	props->max_mtu		= IB_MTU_4096;
- 	props->max_vl_num	= 2;
- 	props->state		= IB_PORT_DOWN;
+--- a/drivers/mmc/core/sdio_ops.c
++++ b/drivers/mmc/core/sdio_ops.c
+@@ -121,6 +121,7 @@ int mmc_io_rw_extended(struct mmc_card *
+ 	struct sg_table sgtable;
+ 	unsigned int nents, left_size, i;
+ 	unsigned int seg_size = card->host->max_seg_size;
++	int err;
+ 
+ 	WARN_ON(blksz == 0);
+ 
+@@ -170,28 +171,32 @@ int mmc_io_rw_extended(struct mmc_card *
+ 
+ 	mmc_set_data_timeout(&data, card);
+ 
+-	mmc_wait_for_req(card->host, &mrq);
++	mmc_pre_req(card->host, &mrq);
+ 
+-	if (nents > 1)
+-		sg_free_table(&sgtable);
++	mmc_wait_for_req(card->host, &mrq);
+ 
+ 	if (cmd.error)
+-		return cmd.error;
+-	if (data.error)
+-		return data.error;
+-
+-	if (mmc_host_is_spi(card->host)) {
++		err = cmd.error;
++	else if (data.error)
++		err = data.error;
++	else if (mmc_host_is_spi(card->host))
+ 		/* host driver already reported errors */
+-	} else {
+-		if (cmd.resp[0] & R5_ERROR)
+-			return -EIO;
+-		if (cmd.resp[0] & R5_FUNCTION_NUMBER)
+-			return -EINVAL;
+-		if (cmd.resp[0] & R5_OUT_OF_RANGE)
+-			return -ERANGE;
+-	}
++		err = 0;
++	else if (cmd.resp[0] & R5_ERROR)
++		err = -EIO;
++	else if (cmd.resp[0] & R5_FUNCTION_NUMBER)
++		err = -EINVAL;
++	else if (cmd.resp[0] & R5_OUT_OF_RANGE)
++		err = -ERANGE;
++	else
++		err = 0;
++
++	mmc_post_req(card->host, &mrq, err);
++
++	if (nents > 1)
++		sg_free_table(&sgtable);
+ 
+-	return 0;
++	return err;
+ }
+ 
+ int sdio_reset(struct mmc_host *host)
 
 
