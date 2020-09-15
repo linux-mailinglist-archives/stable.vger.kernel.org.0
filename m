@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30EBF26B54C
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4856226B559
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:42:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727414AbgIOXlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:41:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
+        id S1727149AbgIOXmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:42:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727119AbgIOOem (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:34:42 -0400
+        id S1727022AbgIOOei (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:34:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E8D121D7F;
-        Tue, 15 Sep 2020 14:15:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB05A21D80;
+        Tue, 15 Sep 2020 14:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179325;
-        bh=C+g55F/GGrJnaepSvz19rogOIfrb73BvXRpFf5AMRZg=;
+        s=default; t=1600179328;
+        bh=5wG56LdaQbiFS+Ocf2zZ7D+B6WkKUwF9hxlX/ka52qY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uSju0cGnGN5Yt/3rjEd8XB7KOqyj2xhdZpUwe++YmrJrsBOLYXahGJtHXRg5L5HrB
-         8Z1xjZWtZoBN2XUiNfKiPfts8qUe5AoVF/QcdSQWV/0I+p0KrZaiOqr7fagpzYMkyp
-         MhDoBjWGZ0zftbyrucIQTWez/C2ZOzEqZrAuGgc4=
+        b=uYa7r3Vd2ISy0KnTS4eNfSwvtETWb7Mt0Ilm/w3rnInAQuekAChdAZNu0tlBm4pJs
+         Il1bbAd4xGTWtSVJ/L1k93Puc3iix+MdSsF07r0A9QwEB3BtlzbsohFdygU2XQ0kiE
+         oYoHKSFY+xb8xyujAm3q8LPdQ8f/AUyZi3Gr5dUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/78] arm64: dts: ns2: Fixed QSPI compatible string
-Date:   Tue, 15 Sep 2020 16:12:41 +0200
-Message-Id: <20200915140634.374186838@linuxfoundation.org>
+Subject: [PATCH 4.19 17/78] ARC: HSDK: wireup perf irq
+Date:   Tue, 15 Sep 2020 16:12:42 +0200
+Message-Id: <20200915140634.421430857@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 References: <20200915140633.552502750@linuxfoundation.org>
@@ -43,33 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit 686e0a0c8c61e0e3f55321d0181fece3efd92777 ]
+[ Upstream commit fe81d927b78c4f0557836661d32e41ebc957b024 ]
 
-The string was incorrectly defined before from least to most specific,
-swap the compatible strings accordingly.
+Newer version of HSDK aka HSDK-4xD (with dual issue HS48x4 CPU) wired up
+the perf interrupt, so enable that in DT.
+This is OK for old HSDK where this irq is ignored because pct irq is not
+wired up in hardware.
 
-Fixes: ff73917d38a6 ("ARM64: dts: Add QSPI Device Tree node for NS2")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arc/boot/dts/hsdk.dts | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-index ea854f689fda8..6bfb7bbd264af 100644
---- a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-@@ -745,7 +745,7 @@
- 		};
+diff --git a/arch/arc/boot/dts/hsdk.dts b/arch/arc/boot/dts/hsdk.dts
+index d131c54acd3ec..ab01b75bfa67d 100644
+--- a/arch/arc/boot/dts/hsdk.dts
++++ b/arch/arc/boot/dts/hsdk.dts
+@@ -83,6 +83,8 @@
  
- 		qspi: spi@66470200 {
--			compatible = "brcm,spi-bcm-qspi", "brcm,spi-ns2-qspi";
-+			compatible = "brcm,spi-ns2-qspi", "brcm,spi-bcm-qspi";
- 			reg = <0x66470200 0x184>,
- 				<0x66470000 0x124>,
- 				<0x67017408 0x004>,
+ 	arcpct: pct {
+ 		compatible = "snps,archs-pct";
++		interrupt-parent = <&cpu_intc>;
++		interrupts = <20>;
+ 	};
+ 
+ 	/* TIMER0 with interrupt for clockevent */
 -- 
 2.25.1
 
