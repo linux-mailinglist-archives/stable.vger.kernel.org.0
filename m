@@ -2,225 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10E6226A76E
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:45:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F18CF26A8BB
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 17:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727303AbgIOOpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:45:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36710 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727334AbgIOOpC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 10:45:02 -0400
-Received: from mail-vk1-xa44.google.com (mail-vk1-xa44.google.com [IPv6:2607:f8b0:4864:20::a44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC8E4C061788
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 07:44:46 -0700 (PDT)
-Received: by mail-vk1-xa44.google.com with SMTP id q13so892702vkd.0
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 07:44:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=zT4idoY3GXU6AKl9P1KDotBGRD6i9BlOD/Yn8HDxrN8=;
-        b=cZcT/XO2v6Dw0s2Q7AzR/zkwbrn4Ls20hHCTCwjhdEm4E90JV0hcQRXDXeZO0/79hQ
-         aF+uMGX1TJIcuD68ObaYkd9bA7Qdk0HFRWwA/rZBI/5tw6+sCym7qpOxSaA1MKQzKvA+
-         PKT/I2wOPNx697M0Kt0AyARG4MwGHIMriU4Y05nxMvOVLHijn/kzh8bV9Lmyfx5IX6ls
-         rO3tL24NeY+O0sTDx89AZcGI995Ai5XwqYKMrD8Arrvow+1WyE8b+lLmjZzvByom/hw5
-         jE0q04luXWatzViaRyWafy86MVsVozNRTnWLmGTUMkBfAricswHoyVpHKVc9XAVxLIke
-         RGNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=zT4idoY3GXU6AKl9P1KDotBGRD6i9BlOD/Yn8HDxrN8=;
-        b=c/hE3SfiWFK4uHAtY7JUKtSBO46+yxIuBZwJS5h2Aw+Q6I7Wy35qXqvbO8t6emrgHb
-         vomFKd75ZTv0f7oc2lEFL1EZ79jPFBtwmd3mGKkXDaHqTzMFx48YQ9wAQvtLxoT+XOlR
-         LIrmqUn5D1Xy0ql1rXvkHNNIt+e6rnTfwr2FmM1L/aNLQjCnLFsy+v2Fjg8C3gWDI5bR
-         jL43AC9ZgR4r3JnCA40wC7ybclE9luE6Zobfg+2fgTAkgp4Bl/jOVSWXG9zR2CccwiI3
-         5q+BriRSSXAF+NlLqssMsv+DZRxpnR6dz+V1J4damgt2UM7amPGUAKcfYlE13pbiFggt
-         GPAg==
-X-Gm-Message-State: AOAM5317oV70hK3reSVdlAnX95tKG2nSZaomrbWbH1Sa37x4PQdaz/Qz
-        TR2pkP5lbC21gSPmDu6YQA7HU8wUSpc+JsluTHlJJw==
-X-Google-Smtp-Source: ABdhPJz9V+xdlRF8ie6wyANpoDEf4gTRpkJcbnRPg71Sjm27NaLv4OKg5H8hiYkDipcT92cxG4GzEtlmJZG5SuY43QQ=
-X-Received: by 2002:a1f:7882:: with SMTP id t124mr1612757vkc.22.1600181085580;
- Tue, 15 Sep 2020 07:44:45 -0700 (PDT)
+        id S1727315AbgIOPYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 11:24:31 -0400
+Received: from mx2.suse.de ([195.135.220.15]:34770 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727279AbgIOPXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 11:23:52 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 8A288AE0C;
+        Tue, 15 Sep 2020 13:35:27 +0000 (UTC)
+Date:   Tue, 15 Sep 2020 15:35:11 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Laurent Dufour <ldufour@linux.ibm.com>
+Cc:     akpm@linux-foundation.org, David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-mm@kvack.org, "Rafael J . Wysocki" <rafael@kernel.org>,
+        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
+        Tony Luck <tony.luck@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v3 1/3] mm: replace memmap_context by meminit_context
+Message-ID: <20200915133511.GA3736@dhcp22.suse.cz>
+References: <20200915121541.GD4649@dhcp22.suse.cz>
+ <20200915132624.9723-1-ldufour@linux.ibm.com>
 MIME-Version: 1.0
-References: <20200915140644.037604909@linuxfoundation.org>
-In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 15 Sep 2020 20:14:34 +0530
-Message-ID: <CA+G9fYv5hvOYNdfX6F40aZPP9Vr6aEsP_-22gX2P+Q95TrfF-A@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/132] 5.4.66-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        freedreno <freedreno@lists.freedesktop.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200915132624.9723-1-ldufour@linux.ibm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 15 Sep 2020 at 19:50, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.66 release.
-> There are 132 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.66-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+On Tue 15-09-20 15:26:24, Laurent Dufour wrote:
+> The memmap_context enum is used to detect whether a memory operation is due
+> to a hot-add operation or happening at boot time.
+> 
+> Make it general to the hotplug operation and rename it as meminit_context.
+> 
+> There is no functional change introduced by this patch
+> 
+> Suggested-by: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
 
-arm and arm64 build breaks on stable rc 5.4.
+Acked-by: Michal Hocko <mhocko@suse.com>
 
-make -sk KBUILD_BUILD_USER=3DTuxBuild -C/linux -j16 ARCH=3Darm
-CROSS_COMPILE=3Darm-linux-gnueabihf- HOSTCC=3Dgcc CC=3D"sccache
-arm-linux-gnueabihf-gcc" O=3Dbuild zImage
-#
-../kernel/kprobes.c: In function =E2=80=98kill_kprobe=E2=80=99:
-../kernel/kprobes.c:1081:33: warning: statement with no effect [-Wunused-va=
-lue]
- 1081 | #define disarm_kprobe_ftrace(p) (-ENODEV)
-      |                                 ^
-../kernel/kprobes.c:2113:3: note: in expansion of macro =E2=80=98disarm_kpr=
-obe_ftrace=E2=80=99
- 2113 |   disarm_kprobe_ftrace(p);
-      |   ^~~~~~~~~~~~~~~~~~~~
-#
-# make -sk KBUILD_BUILD_USER=3DTuxBuild -C/linux -j16 ARCH=3Darm
-CROSS_COMPILE=3Darm-linux-gnueabihf- HOSTCC=3Dgcc CC=3D"sccache
-arm-linux-gnueabihf-gcc" O=3Dbuild modules
-#
-../drivers/gpu/drm/msm/adreno/a5xx_preempt.c: In function =E2=80=98preempt_=
-init_ring=E2=80=99:
-../drivers/gpu/drm/msm/adreno/a5xx_preempt.c:235:21: error:
-=E2=80=98MSM_BO_MAP_PRIV=E2=80=99 undeclared (first use in this function)
-  235 |   MSM_BO_UNCACHED | MSM_BO_MAP_PRIV, gpu->aspace, &bo, &iova);
-      |                     ^~~~~~~~~~~~~~~
-../drivers/gpu/drm/msm/adreno/a5xx_preempt.c:235:21: note: each
-undeclared identifier is reported only once for each function it
-appears in
-make[5]: *** [../scripts/Makefile.build:266:
-drivers/gpu/drm/msm/adreno/a5xx_preempt.o] Error 1
-../drivers/gpu/drm/msm/adreno/a6xx_gpu.c: In function =E2=80=98a6xx_hw_init=
-=E2=80=99:
-../drivers/gpu/drm/msm/adreno/a6xx_gpu.c:414:6: error: implicit
-declaration of function =E2=80=98adreno_is_a640=E2=80=99; did you mean
-=E2=80=98adreno_is_a540=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-  414 |  if (adreno_is_a640(adreno_gpu) || adreno_is_a650(adreno_gpu)) {
-      |      ^~~~~~~~~~~~~~
-      |      adreno_is_a540
-../drivers/gpu/drm/msm/adreno/a6xx_gpu.c:414:36: error: implicit
-declaration of function =E2=80=98adreno_is_a650=E2=80=99; did you mean
-=E2=80=98adreno_is_a540=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-  414 |  if (adreno_is_a640(adreno_gpu) || adreno_is_a650(adreno_gpu)) {
-      |                                    ^~~~~~~~~~~~~~
-      |                                    adreno_is_a540
-../drivers/gpu/drm/msm/adreno/a6xx_gpu.c:415:18: error:
-=E2=80=98REG_A6XX_GBIF_QSB_SIDE0=E2=80=99 undeclared (first use in this fun=
-ction)
-  415 |   gpu_write(gpu, REG_A6XX_GBIF_QSB_SIDE0, 0x00071620);
-      |                  ^~~~~~~~~~~~~~~~~~~~~~~
-../drivers/gpu/drm/msm/adreno/a6xx_gpu.c:415:18: note: each undeclared
-identifier is reported only once for each function it appears in
-../drivers/gpu/drm/msm/adreno/a6xx_gpu.c:416:18: error:
-=E2=80=98REG_A6XX_GBIF_QSB_SIDE1=E2=80=99 undeclared (first use in this fun=
-ction)
-  416 |   gpu_write(gpu, REG_A6XX_GBIF_QSB_SIDE1, 0x00071620);
-      |                  ^~~~~~~~~~~~~~~~~~~~~~~
-../drivers/gpu/drm/msm/adreno/a6xx_gpu.c:417:18: error:
-=E2=80=98REG_A6XX_GBIF_QSB_SIDE2=E2=80=99 undeclared (first use in this fun=
-ction)
-  417 |   gpu_write(gpu, REG_A6XX_GBIF_QSB_SIDE2, 0x00071620);
-      |                  ^~~~~~~~~~~~~~~~~~~~~~~
-../drivers/gpu/drm/msm/adreno/a6xx_gpu.c:418:18: error:
-=E2=80=98REG_A6XX_GBIF_QSB_SIDE3=E2=80=99 undeclared (first use in this fun=
-ction)
-  418 |   gpu_write(gpu, REG_A6XX_GBIF_QSB_SIDE3, 0x00071620);
-      |                  ^~~~~~~~~~~~~~~~~~~~~~~
-cc1: some warnings being treated as errors
-make[5]: *** [../scripts/Makefile.build:265:
-drivers/gpu/drm/msm/adreno/a6xx_gpu.o] Error 1
-In file included from ../drivers/gpu/drm/msm/msm_gpu.c:7:
-../drivers/gpu/drm/msm/msm_gpu.c: In function =E2=80=98msm_gpu_init=E2=80=
-=99:
-../drivers/gpu/drm/msm/msm_gpu.h:330:22: error: =E2=80=98MSM_BO_MAP_PRIV=E2=
-=80=99
-undeclared (first use in this function)
-  330 |  (((gpu)->hw_apriv ? MSM_BO_MAP_PRIV : 0) | (flags))
-      |                      ^~~~~~~~~~~~~~~
-../drivers/gpu/drm/msm/msm_gpu.c:935:3: note: in expansion of macro
-=E2=80=98check_apriv=E2=80=99
-  935 |   check_apriv(gpu, MSM_BO_UNCACHED), gpu->aspace, &gpu->memptrs_bo,
-      |   ^~~~~~~~~~~
-../drivers/gpu/drm/msm/msm_gpu.h:330:22: note: each undeclared
-identifier is reported only once for each function it appears in
-  330 |  (((gpu)->hw_apriv ? MSM_BO_MAP_PRIV : 0) | (flags))
-      |                      ^~~~~~~~~~~~~~~
-../drivers/gpu/drm/msm/msm_gpu.c:935:3: note: in expansion of macro
-=E2=80=98check_apriv=E2=80=99
-  935 |   check_apriv(gpu, MSM_BO_UNCACHED), gpu->aspace, &gpu->memptrs_bo,
-      |   ^~~~~~~~~~~
-make[5]: *** [../scripts/Makefile.build:266:
-drivers/gpu/drm/msm/msm_gpu.o] Error 1
-In file included from ../drivers/gpu/drm/msm/msm_ringbuffer.c:8:
-../drivers/gpu/drm/msm/msm_ringbuffer.c: In function =E2=80=98msm_ringbuffe=
-r_new=E2=80=99:
-../drivers/gpu/drm/msm/msm_gpu.h:330:22: error: =E2=80=98MSM_BO_MAP_PRIV=E2=
-=80=99
-undeclared (first use in this function)
-  330 |  (((gpu)->hw_apriv ? MSM_BO_MAP_PRIV : 0) | (flags))
-      |                      ^~~~~~~~~~~~~~~
-../drivers/gpu/drm/msm/msm_ringbuffer.c:30:3: note: in expansion of
-macro =E2=80=98check_apriv=E2=80=99
-   30 |   check_apriv(gpu, MSM_BO_WC | MSM_BO_GPU_READONLY),
-      |   ^~~~~~~~~~~
-../drivers/gpu/drm/msm/msm_gpu.h:330:22: note: each undeclared
-identifier is reported only once for each function it appears in
-  330 |  (((gpu)->hw_apriv ? MSM_BO_MAP_PRIV : 0) | (flags))
-      |                      ^~~~~~~~~~~~~~~
-../drivers/gpu/drm/msm/msm_ringbuffer.c:30:3: note: in expansion of
-macro =E2=80=98check_apriv=E2=80=99
-   30 |   check_apriv(gpu, MSM_BO_WC | MSM_BO_GPU_READONLY),
-      |   ^~~~~~~~~~~
-make[5]: *** [../scripts/Makefile.build:265:
-drivers/gpu/drm/msm/msm_ringbuffer.o] Error 1
-make[5]: Target '__build' not remade because of errors.
-make[4]: *** [../scripts/Makefile.build:500: drivers/gpu/drm/msm] Error 2
-make[4]: Target '__build' not remade because of errors.
-make[3]: *** [../scripts/Makefile.build:500: drivers/gpu/drm] Error 2
-make[3]: Target '__build' not remade because of errors.
-make[2]: *** [../scripts/Makefile.build:500: drivers/gpu] Error 2
-make[2]: Target '__build' not remade because of errors.
-make[1]: *** [/linux/Makefile:1729: drivers] Error 2
-make[1]: Target 'modules' not remade because of errors.
-make: *** [Makefile:179: sub-make] Error 2
-make: Target 'modules' not remade because of errors.
+> ---
+>  arch/ia64/mm/init.c    |  6 +++---
+>  include/linux/mm.h     |  2 +-
+>  include/linux/mmzone.h | 11 ++++++++---
+>  mm/memory_hotplug.c    |  2 +-
+>  mm/page_alloc.c        | 10 +++++-----
+>  5 files changed, 18 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
+> index 0b3fb4c7af29..8e7b8c6c576e 100644
+> --- a/arch/ia64/mm/init.c
+> +++ b/arch/ia64/mm/init.c
+> @@ -538,7 +538,7 @@ virtual_memmap_init(u64 start, u64 end, void *arg)
+>  	if (map_start < map_end)
+>  		memmap_init_zone((unsigned long)(map_end - map_start),
+>  				 args->nid, args->zone, page_to_pfn(map_start),
+> -				 MEMMAP_EARLY, NULL);
+> +				 MEMINIT_EARLY, NULL);
+>  	return 0;
+>  }
+>  
+> @@ -547,8 +547,8 @@ memmap_init (unsigned long size, int nid, unsigned long zone,
+>  	     unsigned long start_pfn)
+>  {
+>  	if (!vmem_map) {
+> -		memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY,
+> -				NULL);
+> +		memmap_init_zone(size, nid, zone, start_pfn,
+> +				 MEMINIT_EARLY, NULL);
+>  	} else {
+>  		struct page *start;
+>  		struct memmap_init_callback_data args;
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index 1983e08f5906..e942f91ed155 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -2409,7 +2409,7 @@ extern int __meminit __early_pfn_to_nid(unsigned long pfn,
+>  
+>  extern void set_dma_reserve(unsigned long new_dma_reserve);
+>  extern void memmap_init_zone(unsigned long, int, unsigned long, unsigned long,
+> -		enum memmap_context, struct vmem_altmap *);
+> +		enum meminit_context, struct vmem_altmap *);
+>  extern void setup_per_zone_wmarks(void);
+>  extern int __meminit init_per_zone_wmark_min(void);
+>  extern void mem_init(void);
+> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+> index 8379432f4f2f..0f7a4ff4b059 100644
+> --- a/include/linux/mmzone.h
+> +++ b/include/linux/mmzone.h
+> @@ -824,10 +824,15 @@ bool zone_watermark_ok(struct zone *z, unsigned int order,
+>  		unsigned int alloc_flags);
+>  bool zone_watermark_ok_safe(struct zone *z, unsigned int order,
+>  		unsigned long mark, int highest_zoneidx);
+> -enum memmap_context {
+> -	MEMMAP_EARLY,
+> -	MEMMAP_HOTPLUG,
+> +/*
+> + * Memory initialization context, use to differentiate memory added by
+> + * the platform statically or via memory hotplug interface.
+> + */
+> +enum meminit_context {
+> +	MEMINIT_EARLY,
+> +	MEMINIT_HOTPLUG,
+>  };
+> +
+>  extern void init_currently_empty_zone(struct zone *zone, unsigned long start_pfn,
+>  				     unsigned long size);
+>  
+> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> index e9d5ab5d3ca0..fc25886ad719 100644
+> --- a/mm/memory_hotplug.c
+> +++ b/mm/memory_hotplug.c
+> @@ -729,7 +729,7 @@ void __ref move_pfn_range_to_zone(struct zone *zone, unsigned long start_pfn,
+>  	 * are reserved so nobody should be touching them so we should be safe
+>  	 */
+>  	memmap_init_zone(nr_pages, nid, zone_idx(zone), start_pfn,
+> -			MEMMAP_HOTPLUG, altmap);
+> +			 MEMINIT_HOTPLUG, altmap);
+>  
+>  	set_zone_contiguous(zone);
+>  }
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index fab5e97dc9ca..5661fa164f13 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -5975,7 +5975,7 @@ overlap_memmap_init(unsigned long zone, unsigned long *pfn)
+>   * done. Non-atomic initialization, single-pass.
+>   */
+>  void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+> -		unsigned long start_pfn, enum memmap_context context,
+> +		unsigned long start_pfn, enum meminit_context context,
+>  		struct vmem_altmap *altmap)
+>  {
+>  	unsigned long pfn, end_pfn = start_pfn + size;
+> @@ -6007,7 +6007,7 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+>  		 * There can be holes in boot-time mem_map[]s handed to this
+>  		 * function.  They do not exist on hotplugged memory.
+>  		 */
+> -		if (context == MEMMAP_EARLY) {
+> +		if (context == MEMINIT_EARLY) {
+>  			if (overlap_memmap_init(zone, &pfn))
+>  				continue;
+>  			if (defer_init(nid, pfn, end_pfn))
+> @@ -6016,7 +6016,7 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+>  
+>  		page = pfn_to_page(pfn);
+>  		__init_single_page(page, pfn, zone, nid);
+> -		if (context == MEMMAP_HOTPLUG)
+> +		if (context == MEMINIT_HOTPLUG)
+>  			__SetPageReserved(page);
+>  
+>  		/*
+> @@ -6099,7 +6099,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
+>  		 * check here not to call set_pageblock_migratetype() against
+>  		 * pfn out of zone.
+>  		 *
+> -		 * Please note that MEMMAP_HOTPLUG path doesn't clear memmap
+> +		 * Please note that MEMINIT_HOTPLUG path doesn't clear memmap
+>  		 * because this is done early in section_activate()
+>  		 */
+>  		if (!(pfn & (pageblock_nr_pages - 1))) {
+> @@ -6137,7 +6137,7 @@ void __meminit __weak memmap_init(unsigned long size, int nid,
+>  		if (end_pfn > start_pfn) {
+>  			size = end_pfn - start_pfn;
+>  			memmap_init_zone(size, nid, zone, start_pfn,
+> -					 MEMMAP_EARLY, NULL);
+> +					 MEMINIT_EARLY, NULL);
+>  		}
+>  	}
+>  }
+> -- 
+> 2.28.0
 
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+Michal Hocko
+SUSE Labs
