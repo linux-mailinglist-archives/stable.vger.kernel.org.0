@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D78326B5DC
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:52:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C849526B5D6
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:52:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726855AbgIOXwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727044AbgIOXwI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 15 Sep 2020 19:52:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44122 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726279AbgIOObk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:31:40 -0400
+        id S1727082AbgIOOca (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:32:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F750222B7;
-        Tue, 15 Sep 2020 14:23:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1FC8222B9;
+        Tue, 15 Sep 2020 14:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179826;
-        bh=xb21JpmSL5z8X/r5tjQs7XjVUCwJ5WDFMTSWWTE5/FQ=;
+        s=default; t=1600179831;
+        bh=miPX4RjeJn5w/r+hKoXTnbvZZrD4git9/cOHZbzQ3fQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2hYf4DTeUwhPfNhEIQFz8OWbgyOTzWzt+2oHJmU1dhLX5uHnbEjKJ7un19bXth0W
-         A6NA9KPW5zKptJ/gNj4N+mQ1A+yzPMrmCf8u20dcIJ6oO1VIWbG82jc50eRwBqEdAl
-         aYiWvn1SBRSJfvA1Pk1MHt5Yk2C3XvUer/BwTfWE=
+        b=bN2ag6CzHehbU5I8PW4gYAZcrnaa81S7k3W9+BiR3au0GYjFf3CdxmYnvYY6x+Uug
+         7smPSy5Kd39o75EcuNuqPdW3uK3pjGBlYWRvrpKqMwd+xrjU8foUr4dQX/jatvCgWH
+         m5itT8T1L45GcuX0QVdOu4UFfCg2uBoQZidOTDDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Aleksander Morgado <aleksander@aleksander.es>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 126/132] USB: serial: option: add support for SIM7070/SIM7080/SIM7090 modules
-Date:   Tue, 15 Sep 2020 16:13:48 +0200
-Message-Id: <20200915140650.415141409@linuxfoundation.org>
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 5.4 128/132] usb: typec: ucsi: acpi: Check the _DEP dependencies
+Date:   Tue, 15 Sep 2020 16:13:50 +0200
+Message-Id: <20200915140650.512795685@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -44,79 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Morgado <aleksander@aleksander.es>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit 1ac698790819b83f39fd7ea4f6cdabee9bdd7b38 upstream.
+commit 1f3546ff3f0a1000971daef58406954bad3f7061 upstream.
 
-These modules have 2 different USB layouts:
+Failing probe with -EPROBE_DEFER until all dependencies
+listed in the _DEP (Operation Region Dependencies) object
+have been met.
 
-The default layout with PID 0x9205 (AT+CUSBSELNV=1) exposes 4 TTYs and
-an ECM interface:
+This will fix an issue where on some platforms UCSI ACPI
+driver fails to probe because the address space handler for
+the operation region that the UCSI ACPI interface uses has
+not been loaded yet.
 
-  T:  Bus=02 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  6 Spd=480 MxCh= 0
-  D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-  P:  Vendor=1e0e ProdID=9205 Rev=00.00
-  S:  Manufacturer=SimTech, Incorporated
-  S:  Product=SimTech SIM7080
-  S:  SerialNumber=1234567890ABCDEF
-  C:  #Ifs= 6 Cfg#= 1 Atr=e0 MxPwr=500mA
-  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-  I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-  I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-  I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-  I:  If#=0x4 Alt= 0 #EPs= 1 Cls=02(commc) Sub=06 Prot=00 Driver=cdc_ether
-  I:  If#=0x5 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-
-The purpose of each TTY is as follows:
- * ttyUSB0: DIAG/QCDM port.
- * ttyUSB1: GNSS data.
- * ttyUSB2: AT-capable port (control).
- * ttyUSB3: AT-capable port (data).
-
-In the secondary layout with PID=0x9206 (AT+CUSBSELNV=86) the module
-exposes 6 TTY ports:
-
-  T:  Bus=02 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  8 Spd=480 MxCh= 0
-  D:  Ver= 2.00 Cls=02(commc) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-  P:  Vendor=1e0e ProdID=9206 Rev=00.00
-  S:  Manufacturer=SimTech, Incorporated
-  S:  Product=SimTech SIM7080
-  S:  SerialNumber=1234567890ABCDEF
-  C:  #Ifs= 6 Cfg#= 1 Atr=e0 MxPwr=500mA
-  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-  I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-  I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-  I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-  I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-  I:  If#=0x5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-
-The purpose of each TTY is as follows:
- * ttyUSB0: DIAG/QCDM port.
- * ttyUSB1: GNSS data.
- * ttyUSB2: AT-capable port (control).
- * ttyUSB3: QFLOG interface.
- * ttyUSB4: DAM interface.
- * ttyUSB5: AT-capable port (data).
-
-Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Fixes: 8243edf44152 ("usb: typec: ucsi: Add ACPI driver")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20200904110918.51546-1-heikki.krogerus@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/typec/ucsi/ucsi_acpi.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1823,6 +1823,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9003, 0xff) },	/* Simcom SIM7500/SIM7600 MBIM mode */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9011, 0xff),	/* Simcom SIM7500/SIM7600 RNDIS mode */
- 	  .driver_info = RSVD(7) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9205, 0xff) },	/* Simcom SIM7070/SIM7080/SIM7090 AT+ECM mode */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9206, 0xff) },	/* Simcom SIM7070/SIM7080/SIM7090 AT-only mode */
- 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X060S_X200),
- 	  .driver_info = NCTRL(0) | NCTRL(1) | RSVD(4) },
- 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X220_X500D),
+--- a/drivers/usb/typec/ucsi/ucsi_acpi.c
++++ b/drivers/usb/typec/ucsi/ucsi_acpi.c
+@@ -64,11 +64,15 @@ static void ucsi_acpi_notify(acpi_handle
+ 
+ static int ucsi_acpi_probe(struct platform_device *pdev)
+ {
++	struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
+ 	struct ucsi_acpi *ua;
+ 	struct resource *res;
+ 	acpi_status status;
+ 	int ret;
+ 
++	if (adev->dep_unmet)
++		return -EPROBE_DEFER;
++
+ 	ua = devm_kzalloc(&pdev->dev, sizeof(*ua), GFP_KERNEL);
+ 	if (!ua)
+ 		return -ENOMEM;
 
 
