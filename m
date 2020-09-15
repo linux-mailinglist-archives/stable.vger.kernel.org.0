@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F8126B6DF
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:13:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1621126B6CC
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:12:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727288AbgIPAMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37474 "EHLO mail.kernel.org"
+        id S1727256AbgIPAKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:10:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726826AbgIOOZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:25:53 -0400
+        id S1726763AbgIOO0a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:26:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07E0822404;
-        Tue, 15 Sep 2020 14:19:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B84D822403;
+        Tue, 15 Sep 2020 14:19:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179544;
-        bh=y3N8zlAglbgsaRb4BbSxno80ESXE4HVC2wmOGrWmI8I=;
+        s=default; t=1600179547;
+        bh=O3ecDamMAxbCoSqr+XnDZVASWUt6qTssg0OD47dYZdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXJh3KzRA2nwfEuD96UTTS045eOZV9zGHSCFerXqy4cqYFfpTxf/dr6yu4lAzlYeV
-         b9M0UVYADhfGk/YsOjNdYn3RUzpxRm69tNIeBG84c3EuQQaflk+4/A+bAWEwDr0SK+
-         OqZOVG1lEubDDs1j5CqLPQ8GEbTszmtCgg2w1vQ0=
+        b=hi+ufX8tY+a9zEbHkxVDCMruOKNfdRZXtLVJj/mJKBG07wGiAY1Mb8XTdAxGlbliK
+         MQIhAkeUlPO/krCosK3n8CDVyOY2uSdZ3IgbNYk909/Faz7xHhDSH2nwbfEDQPB854
+         4C96vzdns4ybE1tqbYh6vFJt8DEbUwqaDa3PC4LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 022/132] soundwire: fix double free of dangling pointer
-Date:   Tue, 15 Sep 2020 16:12:04 +0200
-Message-Id: <20200915140645.182732782@linuxfoundation.org>
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 023/132] drm/sun4i: backend: Support alpha property on lowest plane
+Date:   Tue, 15 Sep 2020 16:12:05 +0200
+Message-Id: <20200915140645.231047273@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -45,74 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 3fbbf2148a406b3e350fe91e6fdd78eb42ecad24 ]
+[ Upstream commit e359c70462d2a82aae80274d027351d38792dde6 ]
 
-clang static analysis flags this problem
+Unlike what we previously thought, only the per-pixel alpha is broken on
+the lowest plane and the per-plane alpha isn't. Remove the check on the
+alpha property being set on the lowest plane to reject a mode.
 
-stream.c:844:9: warning: Use of memory after
-  it is freed
-        kfree(bus->defer_msg.msg->buf);
-              ^~~~~~~~~~~~~~~~~~~~~~~
-
-This happens in an error handler cleaning up memory
-allocated for elements in a list.
-
-	list_for_each_entry(m_rt, &stream->master_list, stream_node) {
-		bus = m_rt->bus;
-
-		kfree(bus->defer_msg.msg->buf);
-		kfree(bus->defer_msg.msg);
-	}
-
-And is triggered when the call to sdw_bank_switch() fails.
-There are a two problems.
-
-First, when sdw_bank_switch() fails, though it frees memory it
-does not clear bus's reference 'defer_msg.msg' to that memory.
-
-The second problem is the freeing msg->buf. In some cases
-msg will be NULL so this will dereference a null pointer.
-Need to check before freeing.
-
-Fixes: 99b8a5d608a6 ("soundwire: Add bank switch routine")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200902202650.14189-1-trix@redhat.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: dcf496a6a608 ("drm/sun4i: sun4i: Introduce a quirk for lowest plane alpha support")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+Cc: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200728134810.883457-1-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/stream.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/sun4i/sun4i_backend.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/soundwire/stream.c b/drivers/soundwire/stream.c
-index e69f94a8c3a86..de7c57e17710a 100644
---- a/drivers/soundwire/stream.c
-+++ b/drivers/soundwire/stream.c
-@@ -702,6 +702,7 @@ error:
- 	kfree(wbuf);
- error_1:
- 	kfree(wr_msg);
-+	bus->defer_msg.msg = NULL;
- 	return ret;
- }
+diff --git a/drivers/gpu/drm/sun4i/sun4i_backend.c b/drivers/gpu/drm/sun4i/sun4i_backend.c
+index 4e29f4fe4a05e..9ac637019f039 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_backend.c
++++ b/drivers/gpu/drm/sun4i/sun4i_backend.c
+@@ -589,8 +589,7 @@ static int sun4i_backend_atomic_check(struct sunxi_engine *engine,
  
-@@ -825,9 +826,10 @@ static int do_bank_switch(struct sdw_stream_runtime *stream)
- error:
- 	list_for_each_entry(m_rt, &stream->master_list, stream_node) {
- 		bus = m_rt->bus;
--
--		kfree(bus->defer_msg.msg->buf);
--		kfree(bus->defer_msg.msg);
-+		if (bus->defer_msg.msg) {
-+			kfree(bus->defer_msg.msg->buf);
-+			kfree(bus->defer_msg.msg);
-+		}
- 	}
+ 	/* We can't have an alpha plane at the lowest position */
+ 	if (!backend->quirks->supports_lowest_plane_alpha &&
+-	    (plane_states[0]->fb->format->has_alpha ||
+-	    (plane_states[0]->alpha != DRM_BLEND_ALPHA_OPAQUE)))
++	    (plane_states[0]->alpha != DRM_BLEND_ALPHA_OPAQUE))
+ 		return -EINVAL;
  
- msg_unlock:
+ 	for (i = 1; i < num_planes; i++) {
 -- 
 2.25.1
 
