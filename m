@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B17FD26B41A
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6329426B40E
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:15:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727264AbgIOXP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:15:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48832 "EHLO mail.kernel.org"
+        id S1726825AbgIOXP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:15:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727243AbgIOOj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727234AbgIOOj2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:39:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CBC22253D;
-        Tue, 15 Sep 2020 14:29:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AB3423CD2;
+        Tue, 15 Sep 2020 14:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180175;
-        bh=QDTOZ2Ua6v4ZoH4N2xPZsOjBIHzjHhGTNnXI5qojH2E=;
+        s=default; t=1600180177;
+        bh=LnuiVm0b09YwpMrte0fpCkGcY5t1tjX1Rt1Rs296Zzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lmn8S0qQbNpZZS/0RvZ4nFlhJOp5QktSFh8rmDo3uLbRbZD9P7wBwet0VhCUS1Ssz
-         ntlTX+wtUDsdVUBJpOW2jbO3mkkfqLIav9Taq1M1nKh4juVsK6+eNf2R/FTiyuRZwg
-         tW4tv+TK5AxbYqnj4/SmiIbtgRTo/KCw+yiIn+jo=
+        b=bXILGyYqAKfUWI2nOF1O96mt1WSkxTguaFO1VfISVs5EuJ7l1DtNwSVKu4++JHcW+
+         Az7SJiXMUbFbYnrhpBtSat/QXsWN5Mxwl3dRkaaoWgT1nQphck/1cMPZu776MRlwsY
+         X8qJ3mmzOYIRi/fTce0QyAtG6AGAQpzwAVVVn0xs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.8 137/177] regulator: core: Fix slab-out-of-bounds in regulator_unlock_recursive()
-Date:   Tue, 15 Sep 2020 16:13:28 +0200
-Message-Id: <20200915140700.218120657@linuxfoundation.org>
+        stable@vger.kernel.org, Vadym Kochan <vadym.kochan@plvision.eu>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.8 138/177] misc: eeprom: at24: register nvmem only after eeprom is ready to use
+Date:   Tue, 15 Sep 2020 16:13:29 +0200
+Message-Id: <20200915140700.271172638@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -43,59 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Vadym Kochan <vadym.kochan@plvision.eu>
 
-commit 0a7416f94707c60b9f66b01c0a505b7e41375f3a upstream.
+commit 45df80d7605c25055a85fbc5a8446c81c6c0ca24 upstream.
 
-The recent commit 7d8196641ee1 ("regulator: Remove pointer table
-overallocation") changed the size of coupled_rdevs and now KASAN is able
-to detect slab-out-of-bounds problem in regulator_unlock_recursive(),
-which is a legit problem caused by a typo in the code. The recursive
-unlock function uses n_coupled value of a parent regulator for unlocking
-supply regulator, while supply's n_coupled should be used. In practice
-problem may only affect platforms that use coupled regulators.
+During nvmem_register() the nvmem core sends notifications when:
 
-Cc: stable@vger.kernel.org # 5.0+
-Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20200831204335.19489-1-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+    - cell added
+    - nvmem added
+
+and during these notifications some callback func may access the nvmem
+device, which will fail in case of at24 eeprom because regulator and pm
+are enabled after nvmem_register().
+
+Fixes: cd5676db0574 ("misc: eeprom: at24: support pm_runtime control")
+Fixes: b20eb4c1f026 ("eeprom: at24: drop unnecessary label")
+Cc: stable@vger.kernel.org
+Signed-off-by: Vadym Kochan <vadym.kochan@plvision.eu>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/regulator/core.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/misc/eeprom/at24.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -235,8 +235,8 @@ static bool regulator_supply_is_couple(s
- static void regulator_unlock_recursive(struct regulator_dev *rdev,
- 				       unsigned int n_coupled)
- {
--	struct regulator_dev *c_rdev;
--	int i;
-+	struct regulator_dev *c_rdev, *supply_rdev;
-+	int i, supply_n_coupled;
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -692,10 +692,6 @@ static int at24_probe(struct i2c_client
+ 	nvmem_config.word_size = 1;
+ 	nvmem_config.size = byte_len;
  
- 	for (i = n_coupled; i > 0; i--) {
- 		c_rdev = rdev->coupling_desc.coupled_rdevs[i - 1];
-@@ -244,10 +244,13 @@ static void regulator_unlock_recursive(s
- 		if (!c_rdev)
- 			continue;
+-	at24->nvmem = devm_nvmem_register(dev, &nvmem_config);
+-	if (IS_ERR(at24->nvmem))
+-		return PTR_ERR(at24->nvmem);
+-
+ 	i2c_set_clientdata(client, at24);
  
--		if (c_rdev->supply && !regulator_supply_is_couple(c_rdev))
--			regulator_unlock_recursive(
--					c_rdev->supply->rdev,
--					c_rdev->coupling_desc.n_coupled);
-+		if (c_rdev->supply && !regulator_supply_is_couple(c_rdev)) {
-+			supply_rdev = c_rdev->supply->rdev;
-+			supply_n_coupled = supply_rdev->coupling_desc.n_coupled;
+ 	err = regulator_enable(at24->vcc_reg);
+@@ -708,6 +704,13 @@ static int at24_probe(struct i2c_client
+ 	pm_runtime_set_active(dev);
+ 	pm_runtime_enable(dev);
+ 
++	at24->nvmem = devm_nvmem_register(dev, &nvmem_config);
++	if (IS_ERR(at24->nvmem)) {
++		pm_runtime_disable(dev);
++		regulator_disable(at24->vcc_reg);
++		return PTR_ERR(at24->nvmem);
++	}
 +
-+			regulator_unlock_recursive(supply_rdev,
-+						   supply_n_coupled);
-+		}
- 
- 		regulator_unlock(c_rdev);
- 	}
+ 	/*
+ 	 * Perform a one-byte test read to verify that the
+ 	 * chip is functional.
 
 
