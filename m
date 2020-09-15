@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8846F26A756
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:41:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 473F226A71C
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727080AbgIOOkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:40:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49932 "EHLO mail.kernel.org"
+        id S1727068AbgIOObk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:31:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727264AbgIOOkd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:40:33 -0400
+        id S1727036AbgIOOba (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:31:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35E9622240;
-        Tue, 15 Sep 2020 14:16:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A60822B48;
+        Tue, 15 Sep 2020 14:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179402;
-        bh=CE3QUOg42KxiXLvlDiM/XXgY2b+uUBnrBOGwPivyvUI=;
+        s=default; t=1600179770;
+        bh=+/4Gi/warB2s9shqbQ2i8K/l2a79KsNB7gX8hhBj9Xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKae7+LVOYVTogIKysYlpiGOv6rSOfCFRi9ZtDtiIq8beRJi/Tx0h8lBIVptD4j0m
-         foa5vEJeNkCj2kgxLGZoKQN9spwxD1UbC4v/6oREbTPwPHugiYdLtpFkam5cBP5DTB
-         mI2RX9T/j3vf71qtI1S/MY1D98ha6p+vtoaNxXTY=
+        b=HQ1fc8kuy6FsTAWS9mL5J1FIvsB0gdq9LukXB6VlR1KRL1WT0UGW1KAN046R5JjhN
+         jn/ydk25hQgjs2HMc07/+vUptg8tlNz/Gahz4M34s+qx3u2GBxCq+jV0nHJMjz5kcN
+         rahUcVh6VVugkrgmz+EOLcxTdgfjzPnqwcFRlLQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Akinobu Mita <akinobu.mita@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.19 46/78] iio:adc:max1118 Fix alignment of timestamp and data leak issues
-Date:   Tue, 15 Sep 2020 16:13:11 +0200
-Message-Id: <20200915140635.889822953@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Bloch <markb@mellanox.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.4 111/132] RDMA/mlx4: Read pkey table length instead of hardcoded value
+Date:   Tue, 15 Sep 2020 16:13:33 +0200
+Message-Id: <20200915140649.682609222@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
-References: <20200915140633.552502750@linuxfoundation.org>
+In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
+References: <20200915140644.037604909@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,70 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Mark Bloch <markb@mellanox.com>
 
-commit db8f06d97ec284dc018e2e4890d2e5035fde8630 upstream.
+commit ec78b3bd66bc9a015505df0ef0eb153d9e64b03b upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data.
+If the pkey_table is not available (which is the case when RoCE is not
+supported), the cited commit caused a regression where mlx4_devices
+without RoCE are not created.
 
-This data is allocated with kzalloc so no data can leak apart
-from previous readings.
+Fix this by returning a pkey table length of zero in procedure
+eth_link_query_port() if the pkey-table length reported by the device is
+zero.
 
-The explicit alignment of ts is necessary to ensure correct padding
-on architectures where s64 is only 4 bytes aligned such as x86_32.
-
-Fixes: a9e9c7153e96 ("iio: adc: add max1117/max1118/max1119 ADC driver")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200824110229.1094376-1-leon@kernel.org
+Cc: <stable@vger.kernel.org>
+Fixes: 1901b91f9982 ("IB/core: Fix potential NULL pointer dereference in pkey cache")
+Fixes: fa417f7b520e ("IB/mlx4: Add support for IBoE")
+Signed-off-by: Mark Bloch <markb@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/max1118.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/mlx4/main.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/max1118.c
-+++ b/drivers/iio/adc/max1118.c
-@@ -38,6 +38,11 @@ struct max1118 {
- 	struct spi_device *spi;
- 	struct mutex lock;
- 	struct regulator *reg;
-+	/* Ensure natural alignment of buffer elements */
-+	struct {
-+		u8 channels[2];
-+		s64 ts __aligned(8);
-+	} scan;
- 
- 	u8 data ____cacheline_aligned;
- };
-@@ -162,7 +167,6 @@ static irqreturn_t max1118_trigger_handl
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct max1118 *adc = iio_priv(indio_dev);
--	u8 data[16] = { }; /* 2x 8-bit ADC data + padding + 8 bytes timestamp */
- 	int scan_index;
- 	int i = 0;
- 
-@@ -180,10 +184,10 @@ static irqreturn_t max1118_trigger_handl
- 			goto out;
- 		}
- 
--		data[i] = ret;
-+		adc->scan.channels[i] = ret;
- 		i++;
- 	}
--	iio_push_to_buffers_with_timestamp(indio_dev, data,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &adc->scan,
- 					   iio_get_time_ns(indio_dev));
- out:
- 	mutex_unlock(&adc->lock);
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -781,7 +781,8 @@ static int eth_link_query_port(struct ib
+ 	props->ip_gids = true;
+ 	props->gid_tbl_len	= mdev->dev->caps.gid_table_len[port];
+ 	props->max_msg_sz	= mdev->dev->caps.max_msg_sz;
+-	props->pkey_tbl_len	= 1;
++	if (mdev->dev->caps.pkey_table_len[port])
++		props->pkey_tbl_len = 1;
+ 	props->max_mtu		= IB_MTU_4096;
+ 	props->max_vl_num	= 2;
+ 	props->state		= IB_PORT_DOWN;
 
 
