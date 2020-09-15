@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F183426B566
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:43:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34D3226B570
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:44:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726392AbgIOXnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:43:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
+        id S1727104AbgIOXnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:43:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727018AbgIOOd4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726161AbgIOOd4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:33:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ED5123C16;
-        Tue, 15 Sep 2020 14:25:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E303023C17;
+        Tue, 15 Sep 2020 14:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179916;
-        bh=j7uRp6sr73vaznyqfi4Pv4VW7OB/bwPYX9PJlQsWRQE=;
+        s=default; t=1600179918;
+        bh=RrlsD9NdrbML6SLa8BP9HqWhrWQm7OexGuvYAJIiDYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uD93Wc+8sMhFIWMwLLBwF/48IXXmVROyvIk4zTolgY3l6ef8qfZHyZ55GkDSNR7j1
-         Ck3qlN6Vh4QN2VjHqNxxNfLm6z+BSAk2zJU/V92qhLOFJbMQOQw9wHTXdMWbiaNbOG
-         gvGE26q0xZlMvwY9FnD3mItyiolzB7t5Eu4q5WR8=
+        b=Y5VHKmoOHW1LvhxMrPsxDBJyyCmIHNpq4nVqsC4Mqt1uwGl3hnMHQaXscyQIWP9VV
+         mfg7Hn7wE3zh1p+htSCdhMNNcuEi197rr/oau23bL451Qnzz9gh9cVPNG+Ck0aEIVq
+         MvAshTY1BVz9I9T626DYLlgSbv9TFL7++LYz9dSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Tipton <mdtipton@codeaurora.org>,
-        Georgi Djakov <georgi.djakov@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 036/177] interconnect: qcom: Fix small BW votes being truncated to zero
-Date:   Tue, 15 Sep 2020 16:11:47 +0200
-Message-Id: <20200915140655.369889622@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+f4b9f49e38e25eb4ef52@syzkaller.appspotmail.com,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 037/177] padata: fix possible padata_works_lock deadlock
+Date:   Tue, 15 Sep 2020 16:11:48 +0200
+Message-Id: <20200915140655.417897354@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -44,78 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Tipton <mdtipton@codeaurora.org>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 91e045b93db79a2ef66e045ad0d1f8f9d348e1f4 ]
+[ Upstream commit 1b0df11fde0f14a269a181b3b7f5122415bc5ed7 ]
 
-Small BW votes that translate to less than a single BCM unit are
-currently truncated to zero. Ensure that non-zero BW requests always
-result in at least a vote of 1 to BCM.
+syzbot reports,
 
-Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
-Signed-off-by: Mike Tipton <mdtipton@codeaurora.org>
-Link: https://lore.kernel.org/r/20200903192149.30385-2-mdtipton@codeaurora.org
-Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
+  WARNING: inconsistent lock state
+  5.9.0-rc2-syzkaller #0 Not tainted
+  --------------------------------
+  inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-W} usage.
+  syz-executor.0/26715 takes:
+  (padata_works_lock){+.?.}-{2:2}, at: padata_do_parallel kernel/padata.c:220
+  {IN-SOFTIRQ-W} state was registered at:
+    spin_lock include/linux/spinlock.h:354 [inline]
+    padata_do_parallel kernel/padata.c:220
+    ...
+    __do_softirq kernel/softirq.c:298
+    ...
+    sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1091
+    asm_sysvec_apic_timer_interrupt arch/x86/include/asm/idtentry.h:581
+
+   Possible unsafe locking scenario:
+
+         CPU0
+         ----
+    lock(padata_works_lock);
+    <Interrupt>
+      lock(padata_works_lock);
+
+padata_do_parallel() takes padata_works_lock with softirqs enabled, so a
+deadlock is possible if, on the same CPU, the lock is acquired in
+process context and then softirq handling done in an interrupt leads to
+the same path.
+
+Fix by leaving softirqs disabled while do_parallel holds
+padata_works_lock.
+
+Reported-by: syzbot+f4b9f49e38e25eb4ef52@syzkaller.appspotmail.com
+Fixes: 4611ce2246889 ("padata: allocate work structures for parallel jobs from a pool")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/bcm-voter.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ kernel/padata.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/interconnect/qcom/bcm-voter.c b/drivers/interconnect/qcom/bcm-voter.c
-index 2a11a63e7217a..b360dc34c90c7 100644
---- a/drivers/interconnect/qcom/bcm-voter.c
-+++ b/drivers/interconnect/qcom/bcm-voter.c
-@@ -52,8 +52,20 @@ static int cmp_vcd(void *priv, struct list_head *a, struct list_head *b)
- 		return 1;
- }
+diff --git a/kernel/padata.c b/kernel/padata.c
+index 4373f7adaa40a..3bc90fec0904c 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -215,12 +215,13 @@ int padata_do_parallel(struct padata_shell *ps,
+ 	padata->pd = pd;
+ 	padata->cb_cpu = *cb_cpu;
  
-+static u64 bcm_div(u64 num, u32 base)
-+{
-+	/* Ensure that small votes aren't lost. */
-+	if (num && num < base)
-+		return 1;
+-	rcu_read_unlock_bh();
+-
+ 	spin_lock(&padata_works_lock);
+ 	padata->seq_nr = ++pd->seq_nr;
+ 	pw = padata_work_alloc();
+ 	spin_unlock(&padata_works_lock);
 +
-+	do_div(num, base);
++	rcu_read_unlock_bh();
 +
-+	return num;
-+}
-+
- static void bcm_aggregate(struct qcom_icc_bcm *bcm)
- {
-+	struct qcom_icc_node *node;
- 	size_t i, bucket;
- 	u64 agg_avg[QCOM_ICC_NUM_BUCKETS] = {0};
- 	u64 agg_peak[QCOM_ICC_NUM_BUCKETS] = {0};
-@@ -61,22 +73,21 @@ static void bcm_aggregate(struct qcom_icc_bcm *bcm)
- 
- 	for (bucket = 0; bucket < QCOM_ICC_NUM_BUCKETS; bucket++) {
- 		for (i = 0; i < bcm->num_nodes; i++) {
--			temp = bcm->nodes[i]->sum_avg[bucket] * bcm->aux_data.width;
--			do_div(temp, bcm->nodes[i]->buswidth * bcm->nodes[i]->channels);
-+			node = bcm->nodes[i];
-+			temp = bcm_div(node->sum_avg[bucket] * bcm->aux_data.width,
-+				       node->buswidth * node->channels);
- 			agg_avg[bucket] = max(agg_avg[bucket], temp);
- 
--			temp = bcm->nodes[i]->max_peak[bucket] * bcm->aux_data.width;
--			do_div(temp, bcm->nodes[i]->buswidth);
-+			temp = bcm_div(node->max_peak[bucket] * bcm->aux_data.width,
-+				       node->buswidth);
- 			agg_peak[bucket] = max(agg_peak[bucket], temp);
- 		}
- 
- 		temp = agg_avg[bucket] * 1000ULL;
--		do_div(temp, bcm->aux_data.unit);
--		bcm->vote_x[bucket] = temp;
-+		bcm->vote_x[bucket] = bcm_div(temp, bcm->aux_data.unit);
- 
- 		temp = agg_peak[bucket] * 1000ULL;
--		do_div(temp, bcm->aux_data.unit);
--		bcm->vote_y[bucket] = temp;
-+		bcm->vote_y[bucket] = bcm_div(temp, bcm->aux_data.unit);
- 	}
- 
- 	if (bcm->keepalive && bcm->vote_x[QCOM_ICC_BUCKET_AMC] == 0 &&
+ 	if (pw) {
+ 		padata_work_init(pw, padata_parallel_worker, padata, 0);
+ 		queue_work(pinst->parallel_wq, &pw->pw_work);
 -- 
 2.25.1
 
