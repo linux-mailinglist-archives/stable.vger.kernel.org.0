@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA2C26A74F
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:39:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCF9F26A72F
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:36:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726500AbgIOOjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:39:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48798 "EHLO mail.kernel.org"
+        id S1726198AbgIOOgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:36:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727224AbgIOOic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:38:32 -0400
+        id S1727125AbgIOOe6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:34:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32F44206B7;
-        Tue, 15 Sep 2020 14:29:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BFCD21D41;
+        Tue, 15 Sep 2020 14:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180140;
-        bh=sK7ILSZVozEYvJaWTYMPr5b05a5jAp2muVMYn6xpy3k=;
+        s=default; t=1600179315;
+        bh=hy4Cg3Bcba56r9+MqDFiwn1/6C4+ITl2oHpjXOmdoNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjRAYw1t78R0nd0X0Lc0rN1nWRzUpNr1emcihMJO6IlgneMjuc6taTygRA37rlOV2
-         O0jNnnPnDU16VpNXp4TqhVOBsmDcHE7flwiKr/uQzbgncwq84Vk1TBzZbEe4PohXs2
-         6GulpU0OCvt5z5F+77ViY06n8EFL+ocUZaZnzh2c=
+        b=1Nygd3K4OZySLYiN6FPb3hUaHNiOzaaljukDb/t9hDyYCSQsaus9javX++RVLBNoH
+         TrJ7CIsHSbiYVaeHxb7cHikvlroSvIwSloaFEUG83XAagAcLoRVGugR2BqKWJD5UUJ
+         1C+jK3bbTUADCU0/bonpAFC+SNWCLef+bfG855WM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 085/177] nvme: have nvme_wait_freeze_timeout return if it timed out
-Date:   Tue, 15 Sep 2020 16:12:36 +0200
-Message-Id: <20200915140657.715189410@linuxfoundation.org>
+Subject: [PATCH 4.19 12/78] mmc: sdhci-msm: Add retries when all tuning phases are found valid
+Date:   Tue, 15 Sep 2020 16:12:37 +0200
+Message-Id: <20200915140634.150306549@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
-References: <20200915140653.610388773@linuxfoundation.org>
+In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
+References: <20200915140633.552502750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +46,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 7cf0d7c0f3c3b0203aaf81c1bc884924d8fdb9bd ]
+[ Upstream commit 9d5dcefb7b114d610aeb2371f6a6f119af316e43 ]
 
-Users can detect if the wait has completed or not and take appropriate
-actions based on this information (e.g. weather to continue
-initialization or rather fail and schedule another initialization
-attempt).
+As the comments in this patch say, if we tune and find all phases are
+valid it's _almost_ as bad as no phases being found valid.  Probably
+all phases are not really reliable but we didn't detect where the
+unreliable place is.  That means we'll essentially be guessing and
+hoping we get a good phase.
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+This is not just a problem in theory.  It was causing real problems on
+a real board.  On that board, most often phase 10 is found as the only
+invalid phase, though sometimes 10 and 11 are invalid and sometimes
+just 11.  Some percentage of the time, however, all phases are found
+to be valid.  When this happens, the current logic will decide to use
+phase 11.  Since phase 11 is sometimes found to be invalid, this is a
+bad choice.  Sure enough, when phase 11 is picked we often get mmc
+errors later in boot.
+
+I have seen cases where all phases were found to be valid 3 times in a
+row, so increase the retry count to 10 just to be extra sure.
+
+Fixes: 415b5a75da43 ("mmc: sdhci-msm: Add platform_execute_tuning implementation")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20200827075809.1.If179abf5ecb67c963494db79c3bc4247d987419b@changeid
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 3 ++-
- drivers/nvme/host/nvme.h | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci-msm.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index fa0039dcacc66..da82ba1896d8d 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -4287,7 +4287,7 @@ void nvme_unfreeze(struct nvme_ctrl *ctrl)
- }
- EXPORT_SYMBOL_GPL(nvme_unfreeze);
- 
--void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
-+int nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
+diff --git a/drivers/mmc/host/sdhci-msm.c b/drivers/mmc/host/sdhci-msm.c
+index 643fd1a1b88be..4970cd40813b2 100644
+--- a/drivers/mmc/host/sdhci-msm.c
++++ b/drivers/mmc/host/sdhci-msm.c
+@@ -1060,7 +1060,7 @@ static void sdhci_msm_set_cdr(struct sdhci_host *host, bool enable)
+ static int sdhci_msm_execute_tuning(struct mmc_host *mmc, u32 opcode)
  {
- 	struct nvme_ns *ns;
+ 	struct sdhci_host *host = mmc_priv(mmc);
+-	int tuning_seq_cnt = 3;
++	int tuning_seq_cnt = 10;
+ 	u8 phase, tuned_phases[16], tuned_phase_cnt = 0;
+ 	int rc;
+ 	struct mmc_ios ios = host->mmc->ios;
+@@ -1124,6 +1124,22 @@ retry:
+ 	} while (++phase < ARRAY_SIZE(tuned_phases));
  
-@@ -4298,6 +4298,7 @@ void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
- 			break;
- 	}
- 	up_read(&ctrl->namespaces_rwsem);
-+	return timeout;
- }
- EXPORT_SYMBOL_GPL(nvme_wait_freeze_timeout);
- 
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index e268f1d7e1a0f..c053aedbc55db 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -538,7 +538,7 @@ void nvme_kill_queues(struct nvme_ctrl *ctrl);
- void nvme_sync_queues(struct nvme_ctrl *ctrl);
- void nvme_unfreeze(struct nvme_ctrl *ctrl);
- void nvme_wait_freeze(struct nvme_ctrl *ctrl);
--void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout);
-+int nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout);
- void nvme_start_freeze(struct nvme_ctrl *ctrl);
- 
- #define NVME_QID_ANY -1
+ 	if (tuned_phase_cnt) {
++		if (tuned_phase_cnt == ARRAY_SIZE(tuned_phases)) {
++			/*
++			 * All phases valid is _almost_ as bad as no phases
++			 * valid.  Probably all phases are not really reliable
++			 * but we didn't detect where the unreliable place is.
++			 * That means we'll essentially be guessing and hoping
++			 * we get a good phase.  Better to try a few times.
++			 */
++			dev_dbg(mmc_dev(mmc), "%s: All phases valid; try again\n",
++				mmc_hostname(mmc));
++			if (--tuning_seq_cnt) {
++				tuned_phase_cnt = 0;
++				goto retry;
++			}
++		}
++
+ 		rc = msm_find_most_appropriate_phase(host, tuned_phases,
+ 						     tuned_phase_cnt);
+ 		if (rc < 0)
 -- 
 2.25.1
 
