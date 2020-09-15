@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA8526A6F8
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:22:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2C4426A6F7
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:22:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726818AbgIOOVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:21:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60852 "EHLO mail.kernel.org"
+        id S1726855AbgIOOWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:22:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37093 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726855AbgIOOVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:21:07 -0400
+        id S1726843AbgIOOVg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:21:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A89BD2224B;
-        Tue, 15 Sep 2020 14:16:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34E3422266;
+        Tue, 15 Sep 2020 14:17:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179420;
-        bh=QtLLmG3kh0dT55OUon/4hi34yStQhL40NliPqaR7GU4=;
+        s=default; t=1600179443;
+        bh=ndK5F6mXR0HjMYzKKtEvyxSPehzUsemUtX5v+GyJJnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FjUe7275vy7T+WAbGNh8utlVVKjlleVZpaN0+nFYCI2mEQiduOTs+OFTkYMgnJ+WF
-         b9xe/Vt6dPxNWKV5jLikD68+j76Pgwzvs9AcWz2/b9r4cIRlsG5Rmp7TKIQ+CE97Rv
-         Iq9LoQr2AQPXLGzWzD64qGOfjfWhGZzWCpMGpl10=
+        b=ikDXZoI3p6edHiTxf2LS3ngtNKYZQsnG7o50x+Qs7povhM+FVA7jNOZ35Ttt4ubkE
+         vuOy5lT83cmFzuFwgqdcvUXX+RXtrTQWyhtFbC2F9XhZs/Sd7LiKey0M00Oa+OH1m+
+         T+SsUhhHL52xK9L95h/FyCPPb1Tsn8xDTkDBXOhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH 4.19 52/78] iio:accel:mma7455: Fix timestamp alignment and prevent data leak.
-Date:   Tue, 15 Sep 2020 16:13:17 +0200
-Message-Id: <20200915140636.183263323@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Hou Pu <houpu@bytedance.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 60/78] scsi: target: iscsi: Fix hang in iscsit_access_np() when getting tpg->np_login_sem
+Date:   Tue, 15 Sep 2020 16:13:25 +0200
+Message-Id: <20200915140636.580547547@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 References: <20200915140633.552502750@linuxfoundation.org>
@@ -44,74 +45,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Hou Pu <houpu@bytedance.com>
 
-commit 7e5ac1f2206eda414f90c698fe1820dee873394d upstream.
+commit ed43ffea78dcc97db3f561da834f1a49c8961e33 upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses a 16 byte u8 array on the stack   As Lars also noted
-this anti pattern can involve a leak of data to userspace and that
-indeed can happen here.  We close both issues by moving to
-a suitable structure in the iio_priv() data with alignment
-ensured by use of an explicit c structure.  This data is allocated
-with kzalloc so no data can leak appart from previous readings.
+The iSCSI target login thread might get stuck with the following stack:
 
-The force alignment of ts is not strictly necessary in this particularly
-case but does make the code less fragile.
+cat /proc/`pidof iscsi_np`/stack
+[<0>] down_interruptible+0x42/0x50
+[<0>] iscsit_access_np+0xe3/0x167
+[<0>] iscsi_target_locate_portal+0x695/0x8ac
+[<0>] __iscsi_target_login_thread+0x855/0xb82
+[<0>] iscsi_target_login_thread+0x2f/0x5a
+[<0>] kthread+0xfa/0x130
+[<0>] ret_from_fork+0x1f/0x30
 
-Fixes: a84ef0d181d9 ("iio: accel: add Freescale MMA7455L/MMA7456L 3-axis accelerometer driver")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: <Stable@vger.kernel.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+This can be reproduced via the following steps:
+
+1. Initiator A tries to log in to iqn1-tpg1 on port 3260. After finishing
+   PDU exchange in the login thread and before the negotiation is finished
+   the the network link goes down. At this point A has not finished login
+   and tpg->np_login_sem is held.
+
+2. Initiator B tries to log in to iqn2-tpg1 on port 3260. After finishing
+   PDU exchange in the login thread the target expects to process remaining
+   login PDUs in workqueue context.
+
+3. Initiator A' tries to log in to iqn1-tpg1 on port 3260 from a new
+   socket. A' will wait for tpg->np_login_sem with np->np_login_timer
+   loaded to wait for at most 15 seconds. The lock is held by A so A'
+   eventually times out.
+
+4. Before A' got timeout initiator B gets negotiation failed and calls
+   iscsi_target_login_drop()->iscsi_target_login_sess_out().  The
+   np->np_login_timer is canceled and initiator A' will hang forever.
+   Because A' is now in the login thread, no new login requests can be
+   serviced.
+
+Fix this by moving iscsi_stop_login_thread_timer() out of
+iscsi_target_login_sess_out(). Also remove iscsi_np parameter from
+iscsi_target_login_sess_out().
+
+Link: https://lore.kernel.org/r/20200729130343.24976-1-houpu@bytedance.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Hou Pu <houpu@bytedance.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/accel/mma7455_core.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/target/iscsi/iscsi_target_login.c |    6 +++---
+ drivers/target/iscsi/iscsi_target_login.h |    3 +--
+ drivers/target/iscsi/iscsi_target_nego.c  |    3 +--
+ 3 files changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/iio/accel/mma7455_core.c
-+++ b/drivers/iio/accel/mma7455_core.c
-@@ -55,6 +55,14 @@
+--- a/drivers/target/iscsi/iscsi_target_login.c
++++ b/drivers/target/iscsi/iscsi_target_login.c
+@@ -1183,7 +1183,7 @@ void iscsit_free_conn(struct iscsi_conn
+ }
  
- struct mma7455_data {
- 	struct regmap *regmap;
-+	/*
-+	 * Used to reorganize data.  Will ensure correct alignment of
-+	 * the timestamp if present
-+	 */
-+	struct {
-+		__le16 channels[3];
-+		s64 ts __aligned(8);
-+	} scan;
- };
+ void iscsi_target_login_sess_out(struct iscsi_conn *conn,
+-		struct iscsi_np *np, bool zero_tsih, bool new_sess)
++				 bool zero_tsih, bool new_sess)
+ {
+ 	if (!new_sess)
+ 		goto old_sess_out;
+@@ -1201,7 +1201,6 @@ void iscsi_target_login_sess_out(struct
+ 	conn->sess = NULL;
  
- static int mma7455_drdy(struct mma7455_data *mma7455)
-@@ -85,19 +93,19 @@ static irqreturn_t mma7455_trigger_handl
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct mma7455_data *mma7455 = iio_priv(indio_dev);
--	u8 buf[16]; /* 3 x 16-bit channels + padding + ts */
- 	int ret;
+ old_sess_out:
+-	iscsi_stop_login_thread_timer(np);
+ 	/*
+ 	 * If login negotiation fails check if the Time2Retain timer
+ 	 * needs to be restarted.
+@@ -1441,8 +1440,9 @@ static int __iscsi_target_login_thread(s
+ new_sess_out:
+ 	new_sess = true;
+ old_sess_out:
++	iscsi_stop_login_thread_timer(np);
+ 	tpg_np = conn->tpg_np;
+-	iscsi_target_login_sess_out(conn, np, zero_tsih, new_sess);
++	iscsi_target_login_sess_out(conn, zero_tsih, new_sess);
+ 	new_sess = false;
  
- 	ret = mma7455_drdy(mma7455);
- 	if (ret)
- 		goto done;
+ 	if (tpg) {
+--- a/drivers/target/iscsi/iscsi_target_login.h
++++ b/drivers/target/iscsi/iscsi_target_login.h
+@@ -22,8 +22,7 @@ extern int iscsit_put_login_tx(struct is
+ extern void iscsit_free_conn(struct iscsi_conn *);
+ extern int iscsit_start_kthreads(struct iscsi_conn *);
+ extern void iscsi_post_login_handler(struct iscsi_np *, struct iscsi_conn *, u8);
+-extern void iscsi_target_login_sess_out(struct iscsi_conn *, struct iscsi_np *,
+-				bool, bool);
++extern void iscsi_target_login_sess_out(struct iscsi_conn *, bool, bool);
+ extern int iscsi_target_login_thread(void *);
+ extern void iscsi_handle_login_thread_timeout(struct timer_list *t);
  
--	ret = regmap_bulk_read(mma7455->regmap, MMA7455_REG_XOUTL, buf,
--			       sizeof(__le16) * 3);
-+	ret = regmap_bulk_read(mma7455->regmap, MMA7455_REG_XOUTL,
-+			       mma7455->scan.channels,
-+			       sizeof(mma7455->scan.channels));
- 	if (ret)
- 		goto done;
+--- a/drivers/target/iscsi/iscsi_target_nego.c
++++ b/drivers/target/iscsi/iscsi_target_nego.c
+@@ -554,12 +554,11 @@ static bool iscsi_target_sk_check_and_cl
  
--	iio_push_to_buffers_with_timestamp(indio_dev, buf,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &mma7455->scan,
- 					   iio_get_time_ns(indio_dev));
+ static void iscsi_target_login_drop(struct iscsi_conn *conn, struct iscsi_login *login)
+ {
+-	struct iscsi_np *np = login->np;
+ 	bool zero_tsih = login->zero_tsih;
  
- done:
+ 	iscsi_remove_failed_auth_entry(conn);
+ 	iscsi_target_nego_release(conn);
+-	iscsi_target_login_sess_out(conn, np, zero_tsih, true);
++	iscsi_target_login_sess_out(conn, zero_tsih, true);
+ }
+ 
+ struct conn_timeout {
 
 
