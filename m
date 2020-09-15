@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F67426A716
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:30:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8846F26A756
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:41:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727024AbgIOOaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:30:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42304 "EHLO mail.kernel.org"
+        id S1727080AbgIOOkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:40:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726985AbgIOO3B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:29:01 -0400
+        id S1727264AbgIOOkd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:40:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54CA122242;
-        Tue, 15 Sep 2020 14:21:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35E9622240;
+        Tue, 15 Sep 2020 14:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179696;
-        bh=ZDpgKMqIR75TT9/pOhLpxSZfykDF5VhWsBXA3cBlMPo=;
+        s=default; t=1600179402;
+        bh=CE3QUOg42KxiXLvlDiM/XXgY2b+uUBnrBOGwPivyvUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZ65xjx3wadi8pqCUfwHf5OwK5/xPw+jqDPG4K9gLZojWf31SS2a8tzA27VzCjWjM
-         86rmKLbPZh8dQE3sjssI2+mHKsCPztjyynwLlIQZ6E1m02aQnx+HkmvdPDYa7drb+O
-         qHL/PJzJEg4ZFvaGMTKXCf4uJfCYXGOizQAkCKbM=
+        b=DKae7+LVOYVTogIKysYlpiGOv6rSOfCFRi9ZtDtiIq8beRJi/Tx0h8lBIVptD4j0m
+         foa5vEJeNkCj2kgxLGZoKQN9spwxD1UbC4v/6oREbTPwPHugiYdLtpFkam5cBP5DTB
+         mI2RX9T/j3vf71qtI1S/MY1D98ha6p+vtoaNxXTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Stable@vger.kernel.org
-Subject: [PATCH 5.4 082/132] iio:adc:max1118 Fix alignment of timestamp and data leak issues
-Date:   Tue, 15 Sep 2020 16:13:04 +0200
-Message-Id: <20200915140648.201586848@linuxfoundation.org>
+Subject: [PATCH 4.19 46/78] iio:adc:max1118 Fix alignment of timestamp and data leak issues
+Date:   Tue, 15 Sep 2020 16:13:11 +0200
+Message-Id: <20200915140635.889822953@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
-References: <20200915140644.037604909@linuxfoundation.org>
+In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
+References: <20200915140633.552502750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -78,7 +78,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/iio/adc/max1118.c
 +++ b/drivers/iio/adc/max1118.c
-@@ -35,6 +35,11 @@ struct max1118 {
+@@ -38,6 +38,11 @@ struct max1118 {
  	struct spi_device *spi;
  	struct mutex lock;
  	struct regulator *reg;
@@ -90,7 +90,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	u8 data ____cacheline_aligned;
  };
-@@ -159,7 +164,6 @@ static irqreturn_t max1118_trigger_handl
+@@ -162,7 +167,6 @@ static irqreturn_t max1118_trigger_handl
  	struct iio_poll_func *pf = p;
  	struct iio_dev *indio_dev = pf->indio_dev;
  	struct max1118 *adc = iio_priv(indio_dev);
@@ -98,7 +98,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int scan_index;
  	int i = 0;
  
-@@ -177,10 +181,10 @@ static irqreturn_t max1118_trigger_handl
+@@ -180,10 +184,10 @@ static irqreturn_t max1118_trigger_handl
  			goto out;
  		}
  
