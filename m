@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B5C126B74A
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:21:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5AD226B6EF
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:14:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726859AbgIPAUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:20:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37100 "EHLO mail.kernel.org"
+        id S1726857AbgIPAOA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:14:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726869AbgIOOVf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:21:35 -0400
+        id S1726910AbgIOOY4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:24:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF51122262;
-        Tue, 15 Sep 2020 14:17:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BD20222E8;
+        Tue, 15 Sep 2020 14:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179441;
-        bh=p7cyvx5FCIt9EeIMFbZcg4VXvU9Oxz0PMhb8cSQboU8=;
+        s=default; t=1600179506;
+        bh=rEpSmYtoIujAmsNAmPFB5csU6aLFmwaRf49gUuUAa5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bonz1nAQoTGhHguuio2LBQJz1MoruawRJD6eVNYv2whMBlfsPV7DfhlsP1A5AdV82
-         yr89vUzBba5zyvpqf4m3i+COU2dsViC2uE9J7FoHlHSzUUiJDRpN40URkUFL2pOAnQ
-         P6Yl7hRLVhVjwJQfRSRlcVppYzIXbgJ1AUNhRvPA=
+        b=0Xri6pYsYSCzxxbEgcsgQY4aEMaVqQYeEyS8o71UFy8XxNFaZr9WBcszDIaRAEXhx
+         cv8KzBqVUPzkWHic4iUEDvOzk2QxbIHyNtRSYc489VkfvCIz8FkQaSfhDAhKfbsF5L
+         52bGHBBHbrtP+PoC8/ZvOybagxgyJKd1uV3X15Rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oralce.com>,
-        Varun Prakash <varun@chelsio.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 59/78] scsi: target: iscsi: Fix data digest calculation
-Date:   Tue, 15 Sep 2020 16:13:24 +0200
-Message-Id: <20200915140636.530891594@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.19 61/78] drm/tve200: Stabilize enable/disable
+Date:   Tue, 15 Sep 2020 16:13:26 +0200
+Message-Id: <20200915140636.627659051@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 References: <20200915140633.552502750@linuxfoundation.org>
@@ -45,57 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 5528d03183fe5243416c706f64b1faa518b05130 upstream.
+commit f71800228dc74711c3df43854ce7089562a3bc2d upstream.
 
-Current code does not consider 'page_off' in data digest calculation. To
-fix this, add a local variable 'first_sg' and set first_sg.offset to
-sg->offset + page_off.
+The TVE200 will occasionally print a bunch of lost interrupts
+and similar dmesg messages, sometimes during boot and sometimes
+after disabling and coming back to enablement. This is probably
+because the hardware is left in an unknown state by the boot
+loader that displays a logo.
 
-Link: https://lore.kernel.org/r/1598358910-3052-1-git-send-email-varun@chelsio.com
-Fixes: e48354ce078c ("iscsi-target: Add iSCSI fabric support for target v4.1")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Mike Christie <michael.christie@oralce.com>
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This can be fixed by bringing the controller into a known state
+by resetting the controller while enabling it. We retry reset 5
+times like the vendor driver does. We also put the controller
+into reset before de-clocking it and clear all interrupts before
+enabling the vblank IRQ.
+
+This makes the video enable/disable/enable cycle rock solid
+on the D-Link DIR-685. Tested extensively.
+
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: stable@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20200820203144.271081-1-linus.walleij@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/target/iscsi/iscsi_target.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/tve200/tve200_display.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
---- a/drivers/target/iscsi/iscsi_target.c
-+++ b/drivers/target/iscsi/iscsi_target.c
-@@ -1381,14 +1381,27 @@ static u32 iscsit_do_crypto_hash_sg(
- 	sg = cmd->first_data_sg;
- 	page_off = cmd->first_data_sg_off;
+--- a/drivers/gpu/drm/tve200/tve200_display.c
++++ b/drivers/gpu/drm/tve200/tve200_display.c
+@@ -17,6 +17,7 @@
+ #include <linux/version.h>
+ #include <linux/dma-buf.h>
+ #include <linux/of_graph.h>
++#include <linux/delay.h>
  
-+	if (data_length && page_off) {
-+		struct scatterlist first_sg;
-+		u32 len = min_t(u32, data_length, sg->length - page_off);
-+
-+		sg_init_table(&first_sg, 1);
-+		sg_set_page(&first_sg, sg_page(sg), len, sg->offset + page_off);
-+
-+		ahash_request_set_crypt(hash, &first_sg, NULL, len);
-+		crypto_ahash_update(hash);
-+
-+		data_length -= len;
-+		sg = sg_next(sg);
+ #include <drm/drmP.h>
+ #include <drm/drm_panel.h>
+@@ -132,9 +133,25 @@ static void tve200_display_enable(struct
+ 	struct drm_connector *connector = priv->connector;
+ 	u32 format = fb->format->format;
+ 	u32 ctrl1 = 0;
++	int retries;
+ 
+ 	clk_prepare_enable(priv->clk);
+ 
++	/* Reset the TVE200 and wait for it to come back online */
++	writel(TVE200_CTRL_4_RESET, priv->regs + TVE200_CTRL_4);
++	for (retries = 0; retries < 5; retries++) {
++		usleep_range(30000, 50000);
++		if (readl(priv->regs + TVE200_CTRL_4) & TVE200_CTRL_4_RESET)
++			continue;
++		else
++			break;
++	}
++	if (retries == 5 &&
++	    readl(priv->regs + TVE200_CTRL_4) & TVE200_CTRL_4_RESET) {
++		dev_err(drm->dev, "can't get hardware out of reset\n");
++		return;
 +	}
 +
- 	while (data_length) {
--		u32 cur_len = min_t(u32, data_length, (sg->length - page_off));
-+		u32 cur_len = min_t(u32, data_length, sg->length);
+ 	/* Function 1 */
+ 	ctrl1 |= TVE200_CTRL_CSMODE;
+ 	/* Interlace mode for CCIR656: parameterize? */
+@@ -231,8 +248,9 @@ static void tve200_display_disable(struc
  
- 		ahash_request_set_crypt(hash, sg, NULL, cur_len);
- 		crypto_ahash_update(hash);
+ 	drm_crtc_vblank_off(crtc);
  
- 		data_length -= cur_len;
--		page_off = 0;
- 		/* iscsit_map_iovec has already checked for invalid sg pointers */
- 		sg = sg_next(sg);
- 	}
+-	/* Disable and Power Down */
++	/* Disable put into reset and Power Down */
+ 	writel(0, priv->regs + TVE200_CTRL);
++	writel(TVE200_CTRL_4_RESET, priv->regs + TVE200_CTRL_4);
+ 
+ 	clk_disable_unprepare(priv->clk);
+ }
+@@ -280,6 +298,8 @@ static int tve200_display_enable_vblank(
+ 	struct drm_device *drm = crtc->dev;
+ 	struct tve200_drm_dev_private *priv = drm->dev_private;
+ 
++	/* Clear any IRQs and enable */
++	writel(0xFF, priv->regs + TVE200_INT_CLR);
+ 	writel(TVE200_INT_V_STATUS, priv->regs + TVE200_INT_EN);
+ 	return 0;
+ }
 
 
