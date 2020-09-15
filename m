@@ -2,59 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0D8526A0A7
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 10:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C739726A09C
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 10:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726394AbgIOIXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 04:23:23 -0400
+        id S1726339AbgIOISv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 04:18:51 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726333AbgIOIQl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 04:16:41 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D420DC061353
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 01:16:21 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id u13so1607324pgh.1
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 01:16:21 -0700 (PDT)
+        with ESMTP id S1726340AbgIOIQt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 04:16:49 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EC3FC06121E
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 01:16:27 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id fa1so1382433pjb.0
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 01:16:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bytedance-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=h1giRpRS9X9iGbfoHdaClkksgvnLrTHVH3ZE6EYYf5w=;
-        b=NWwEr8pMqoyzgcPCYblukhwGncL3ErPzfQ8LvMA76dimaQ8KPJhV1PTLtZsnyCzjpn
-         1QFQfdg/vJbTwQ0QkI01v2u1YmsmK/JkKDAJ5uoeaU244APf6n24YLFhBU+oTIb+cjQW
-         E2m1oIXn4tpECXasKAfnuDei89DUXIvoLyYoNYamEH6eeAAHi7EVVU8kyMM/4tdURQrX
-         G9/g1qJHIs3SvtE06yIDAwhHbA9S7son6GzN+dhfe+7SLSqCnG329/UI/IdYB2SIhVJo
-         IT5LgF2N6UDPabK3DbGyp4j4GIgczouBRCQ5Ir53NHC6HwiFbrQnwoEld9yF+yPGAcDM
-         HNZA==
+        bh=yeFwfk8Fpky7+g0bZ85JgIbAdUzzzWR3a+mPLSdrdV0=;
+        b=HkzVjO/FOfTkR/OgQ7OzDwoYETbOrDAd2UlR+0I8bmpH18gj/WpgtRMLBDIuo0BXFe
+         Y3IRdNfnVt0vpzutQiMKIQmO5xoPv8dJE5VripWF0LvE3KDFO0nJaOnvkXt0jGwp1sat
+         on+ikT+ooKjrN/6aK0hoZilQ8PcflhRuUumS9R+hhNW/YPI9h5fecdXuZ0h5ByXqLvFY
+         KEfCt3LPgvl0K7w1Om9zefFCGHnVIiXgi7L3GRub1oXIlFYDpOcCRbkGWHYkhTiqz2lK
+         zeEJq61DGDMvB1ywJN/CVKLhJzuOM3DFuB5G8EjnFrsVeA40oyjXQKintNV0W326fzIm
+         cjlw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=h1giRpRS9X9iGbfoHdaClkksgvnLrTHVH3ZE6EYYf5w=;
-        b=EYmM0hNVPj6y2xpXSxzJ0fvRgSznrsKveyfssF4gv9EuN22u8jZrJa9rSawvvOSSSr
-         QDwzl2BBWhqo21j97T2qITiLmUU+/5R/B09R2zgKV/I+u7qyhpiqIM7SpY3RMhMzzA0H
-         4j9tKbzHgysWNibKUsIrs8jhiwKW36AQ0LwMDy830AD+r4C1Y4v4kNHint463j8AWG3e
-         9/TufTnTiiCKMPVqOhPTcNke8KTn6wo8w+sfkYPayBHFYW8NlZ/mPGb4/E6+MdmPWH4M
-         Cgs/+Sws5/1J7HAcnLyRHizGjZQsihwPomKUzYCqMFCrHGxYU94D4SoOQaTdlvMRKk8w
-         vV2w==
-X-Gm-Message-State: AOAM5305ooSkrTQnWL1DG25EzrFYrc7SsjduW1Wg1CBk8XXaoFr7NJXe
-        Jz1RpjsPpArYpzIGFGXsnKsyiA==
-X-Google-Smtp-Source: ABdhPJzG7AfzJNGmWgFgqKx8HHaMlyg8/ehNJvdar6KvrLtmayHh9UsdjQU2dFZEQSj8EMbjp4D9TQ==
-X-Received: by 2002:a63:7f59:: with SMTP id p25mr13678448pgn.146.1600157781390;
-        Tue, 15 Sep 2020 01:16:21 -0700 (PDT)
+        bh=yeFwfk8Fpky7+g0bZ85JgIbAdUzzzWR3a+mPLSdrdV0=;
+        b=BfKCCj1ALK1AlGcw4I8Ipx6BoRzba4yjK9ZHIDPDlN9D1dt21n9iG5f8SOXWhjfuPt
+         dCwrgGtsOBLTVgnR2gPUtRLvNvix+VoBo13qNAeRYW5kRdu07HOoYmI0xyFuK0leK13X
+         RY1HcHNDfeT3Oa5KQcwkcdNGx+rv350nAUO/z8sPdjHtH9nxg1fDOEi+bcs254hv6o4q
+         VMyS1Srq0vqWbfqkMJ9NHdlzkfUWgZEtouU1CHUgCLdIM5Wic7ChMIwUQa+02DLg551V
+         p97x3T705sMOX4d12jrJ4FsgQpVPY36icmREYyfiACM0mBMdSbCxqgb4ZLcMzVNRMDMh
+         cXSQ==
+X-Gm-Message-State: AOAM5311cj1Ssknltv12fAZliteWzSzOpWfX00V8Wnsvs2LZrTaMT1dI
+        v+SD3J5fLkh0yDgA2OAebzdImw==
+X-Google-Smtp-Source: ABdhPJx+JN8JVfTOwoiHYm896JtzN+/OSIrJBJw4sQYZu6grmFAU24fWL1bmw+Ee2XkBtf98ne8ghA==
+X-Received: by 2002:a17:90b:1988:: with SMTP id mv8mr3170235pjb.23.1600157786660;
+        Tue, 15 Sep 2020 01:16:26 -0700 (PDT)
 Received: from localhost.bytedance.net ([103.136.221.71])
-        by smtp.gmail.com with ESMTPSA id x19sm10539429pge.22.2020.09.15.01.16.17
+        by smtp.gmail.com with ESMTPSA id x19sm10539429pge.22.2020.09.15.01.16.23
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 15 Sep 2020 01:16:21 -0700 (PDT)
+        Tue, 15 Sep 2020 01:16:26 -0700 (PDT)
 From:   Muchun Song <songmuchun@bytedance.com>
 To:     axboe@kernel.dk, viro@zeniv.linux.org.uk
 Cc:     linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Muchun Song <songmuchun@bytedance.com>
-Subject: [PATCH 2/3] io_uring: Fix missing smp_mb() in io_cancel_async_work()
-Date:   Tue, 15 Sep 2020 16:15:50 +0800
-Message-Id: <20200915081551.12140-3-songmuchun@bytedance.com>
+Subject: [PATCH 3/3] io_uring: Fix remove irrelevant req from the task_list
+Date:   Tue, 15 Sep 2020 16:15:51 +0800
+Message-Id: <20200915081551.12140-4-songmuchun@bytedance.com>
 X-Mailer: git-send-email 2.21.0 (Apple Git-122)
 In-Reply-To: <20200915081551.12140-1-songmuchun@bytedance.com>
 References: <20200915081551.12140-1-songmuchun@bytedance.com>
@@ -65,51 +65,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The store to req->flags and load req->work_task should not be
-reordering in io_cancel_async_work(). We should make sure that
-either we store REQ_F_CANCE flag to req->flags or we see the
-req->work_task setted in io_sq_wq_submit_work().
+If the process 0 has been initialized io_uring is complete, and
+then fork process 1. If process 1 exits and it leads to delete
+all reqs from the task_list. If we kill process 0. We will not
+send SIGINT signal to the kworker. So we can not remove the req
+from the task_list. The io_sq_wq_submit_work() can do that for
+us.
 
 Fixes: 1c4404efcf2c ("io_uring: make sure async workqueue is canceled on exit")
 Signed-off-by: Muchun Song <songmuchun@bytedance.com>
 ---
- fs/io_uring.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index de4f7b3a0d789..adaafe857b074 100644
+index adaafe857b074..2b95be09c0dad 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2252,6 +2252,12 @@ static void io_sq_wq_submit_work(struct work_struct *work)
+@@ -2277,13 +2277,11 @@ static void io_sq_wq_submit_work(struct work_struct *work)
+ 					break;
+ 				cond_resched();
+ 			} while (1);
+-end_req:
+-			if (!list_empty(&req->task_list)) {
+-				spin_lock_irq(&ctx->task_lock);
+-				list_del_init(&req->task_list);
+-				spin_unlock_irq(&ctx->task_lock);
+-			}
+ 		}
++end_req:
++		spin_lock_irq(&ctx->task_lock);
++		list_del_init(&req->task_list);
++		spin_unlock_irq(&ctx->task_lock);
  
- 		if (!ret) {
- 			req->work_task = current;
+ 		/* drop submission reference */
+ 		io_put_req(req);
+@@ -3716,15 +3714,16 @@ static int io_uring_fasync(int fd, struct file *file, int on)
+ static void io_cancel_async_work(struct io_ring_ctx *ctx,
+ 				 struct files_struct *files)
+ {
++	struct io_kiocb *req;
 +
-+			/*
-+			 * Pairs with the smp_store_mb() (B) in
-+			 * io_cancel_async_work().
-+			 */
-+			smp_mb(); /* A */
- 			if (req->flags & REQ_F_CANCEL) {
- 				ret = -ECANCELED;
- 				goto end_req;
-@@ -3719,7 +3725,15 @@ static void io_cancel_async_work(struct io_ring_ctx *ctx,
+ 	if (list_empty(&ctx->task_list))
+ 		return;
  
- 		req = list_first_entry(&ctx->task_list, struct io_kiocb, task_list);
- 		list_del_init(&req->task_list);
--		req->flags |= REQ_F_CANCEL;
-+
-+		/*
-+		 * The below executes an smp_mb(), which matches with the
-+		 * smp_mb() (A) in io_sq_wq_submit_work() such that either
-+		 * we store REQ_F_CANCEL flag to req->flags or we see the
-+		 * req->work_task setted in io_sq_wq_submit_work().
-+		 */
-+		smp_store_mb(req->flags, req->flags | REQ_F_CANCEL); /* B */
-+
- 		if (req->work_task && (!files || req->files == files))
+ 	spin_lock_irq(&ctx->task_lock);
+-	while (!list_empty(&ctx->task_list)) {
+-		struct io_kiocb *req;
+ 
+-		req = list_first_entry(&ctx->task_list, struct io_kiocb, task_list);
+-		list_del_init(&req->task_list);
++	list_for_each_entry(req, &ctx->task_list, task_list) {
++		if (files && req->files != files)
++			continue;
+ 
+ 		/*
+ 		 * The below executes an smp_mb(), which matches with the
+@@ -3734,7 +3733,7 @@ static void io_cancel_async_work(struct io_ring_ctx *ctx,
+ 		 */
+ 		smp_store_mb(req->flags, req->flags | REQ_F_CANCEL); /* B */
+ 
+-		if (req->work_task && (!files || req->files == files))
++		if (req->work_task)
  			send_sig(SIGINT, req->work_task, 1);
  	}
+ 	spin_unlock_irq(&ctx->task_lock);
 -- 
 2.11.0
 
