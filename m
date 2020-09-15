@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDC226B778
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:24:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5799526B6B7
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:10:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726524AbgIOOUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:20:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60904 "EHLO mail.kernel.org"
+        id S1727198AbgIPAJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:09:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726766AbgIOOTe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:19:34 -0400
+        id S1726963AbgIOO2g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:28:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B78422224;
-        Tue, 15 Sep 2020 14:16:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB6DC224D2;
+        Tue, 15 Sep 2020 14:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179374;
-        bh=VMRScTNZjqcuxBSNlIcKXYNZRhstNmmeSh2GLH+N330=;
+        s=default; t=1600179618;
+        bh=DN1QFIiCGUOZpIUU7k3WwUP4VFVGGomKaZtle0ZutOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9+ZFo6WJV99XpfcW/E096RTq96cAsLvbkG1nhoQX+xGWFqVjo5u/1m4PRvF1KMAk
-         j8dhI5TZnzCVvXRvcMvbIixwbczEDpai9jrAGA0rs4FhD4lUSeZBR5Oa3IqGmRPz04
-         PjLyRoG4/leU2LkB7NBizAggKi1Hp8aNVydcMtzo=
+        b=M2DpaaowluCVK6Vk1uGZD7SKTOzIaRlFT2U3ASRZwTPUed3IO1omCPTdu5HxCt39c
+         crg4XD90IxO2vI5VUrveiRgvbUvd/3bJ3DJUo2V5Md9UpqOheMM+hDgSZYlDvAGpnh
+         P4JWdt4/1LNdGat+C7etNSg7/jVs2YVSGoVVTJZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
+        stable@vger.kernel.org, Ziye Yang <ziye.yang@intel.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/78] drm/sun4i: Fix dsi dcs long write function
+Subject: [PATCH 5.4 051/132] nvmet-tcp: Fix NULL dereference when a connect data comes in h2cdata pdu
 Date:   Tue, 15 Sep 2020 16:12:33 +0200
-Message-Id: <20200915140633.952390220@linuxfoundation.org>
+Message-Id: <20200915140646.671044725@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
-References: <20200915140633.552502750@linuxfoundation.org>
+In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
+References: <20200915140644.037604909@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Jirman <megous@megous.com>
+From: Ziye Yang <ziye.yang@intel.com>
 
-[ Upstream commit fd90e3808fd2c207560270c39b86b71af2231aa1 ]
+[ Upstream commit a6ce7d7b4adaebc27ee7e78e5ecc378a1cfc221d ]
 
-It's writing too much data. regmap_bulk_write expects number of
-register sized chunks to write, not a byte sized length of the
-bounce buffer. Bounce buffer needs to be padded too, so that
-regmap_bulk_write will not read past the end of the buffer.
+When handling commands without in-capsule data, we assign the ttag
+assuming we already have the queue commands array allocated (based
+on the queue size information in the connect data payload). However
+if the connect itself did not send the connect data in-capsule we
+have yet to allocate the queue commands,and we will assign a bogus
+ttag and suffer a NULL dereference when we receive the corresponding
+h2cdata pdu.
 
-Fixes: 133add5b5ad4 ("drm/sun4i: Add Allwinner A31 MIPI-DSI controller support")
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200828125032.937148-1-megous@megous.com
+Fix this by checking if we already allocated commands before
+dereferencing it when handling h2cdata, if we didn't, its for sure a
+connect and we should use the preallocated connect command.
+
+Signed-off-by: Ziye Yang <ziye.yang@intel.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/target/tcp.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-index 79eb11cd185d1..9a5584efd5e78 100644
---- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-+++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-@@ -761,7 +761,7 @@ static int sun6i_dsi_dcs_write_long(struct sun6i_dsi *dsi,
- 	regmap_write(dsi->regs, SUN6I_DSI_CMD_TX_REG(0),
- 		     sun6i_dsi_dcs_build_pkt_hdr(dsi, msg));
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index 22014e76d7714..e31823f19a0fa 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -150,6 +150,11 @@ static void nvmet_tcp_finish_cmd(struct nvmet_tcp_cmd *cmd);
+ static inline u16 nvmet_tcp_cmd_tag(struct nvmet_tcp_queue *queue,
+ 		struct nvmet_tcp_cmd *cmd)
+ {
++	if (unlikely(!queue->nr_cmds)) {
++		/* We didn't allocate cmds yet, send 0xffff */
++		return USHRT_MAX;
++	}
++
+ 	return cmd - queue->cmds;
+ }
  
--	bounce = kzalloc(msg->tx_len + sizeof(crc), GFP_KERNEL);
-+	bounce = kzalloc(ALIGN(msg->tx_len + sizeof(crc), 4), GFP_KERNEL);
- 	if (!bounce)
- 		return -ENOMEM;
+@@ -847,7 +852,10 @@ static int nvmet_tcp_handle_h2c_data_pdu(struct nvmet_tcp_queue *queue)
+ 	struct nvme_tcp_data_pdu *data = &queue->pdu.data;
+ 	struct nvmet_tcp_cmd *cmd;
  
-@@ -772,7 +772,7 @@ static int sun6i_dsi_dcs_write_long(struct sun6i_dsi *dsi,
- 	memcpy((u8 *)bounce + msg->tx_len, &crc, sizeof(crc));
- 	len += sizeof(crc);
+-	cmd = &queue->cmds[data->ttag];
++	if (likely(queue->nr_cmds))
++		cmd = &queue->cmds[data->ttag];
++	else
++		cmd = &queue->connect;
  
--	regmap_bulk_write(dsi->regs, SUN6I_DSI_CMD_TX_REG(1), bounce, len);
-+	regmap_bulk_write(dsi->regs, SUN6I_DSI_CMD_TX_REG(1), bounce, DIV_ROUND_UP(len, 4));
- 	regmap_write(dsi->regs, SUN6I_DSI_CMD_CTL_REG, len + 4 - 1);
- 	kfree(bounce);
- 
+ 	if (le32_to_cpu(data->data_offset) != cmd->rbytes_done) {
+ 		pr_err("ttag %u unexpected data offset %u (expected %u)\n",
 -- 
 2.25.1
 
