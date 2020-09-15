@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B27626B719
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B0CF26B72A
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:18:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727266AbgIPARF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:17:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38302 "EHLO mail.kernel.org"
+        id S1727386AbgIPASf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:18:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726895AbgIOOWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726894AbgIOOWr (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:22:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AABA5222B7;
-        Tue, 15 Sep 2020 14:18:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A812222B8;
+        Tue, 15 Sep 2020 14:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179481;
-        bh=uXyLgWWtXvtKawlnH3XELolzRHSpqGxGipb5/muov4s=;
+        s=default; t=1600179483;
+        bh=miPX4RjeJn5w/r+hKoXTnbvZZrD4git9/cOHZbzQ3fQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1urNVuPbezonTOiOSdtPd9FZ0fZhHno3DLct/I3ECPsChqnjXPA3akwhT+4nqEsTK
-         jX25YtcKk95VsygpiIrxZIKXBJnl/f71dLFlCetzXa5wNty5kjtreegzT7USBKzWvz
-         tZPGJDN1Cyl0i+sr8j3EbNKdq43tGOYI5cXcxseM=
+        b=ORQvH7gO/gnIOHufprZ1c6i0WJ+m861rPmNBqoJrLl9UXtRWHdGbszLNMi129Pm5V
+         vmCfjIso/m5dnfjphqVK5AwFEvP7gjbVfzRYm5sbiD1IHaAWMRudAHmEcQGfGwLsah
+         lz0rz0W357noFZ7wYExwFTyOYokxEp32s7AERVyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Thierer <mthierer@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 77/78] usb: Fix out of sync data toggle if a configured device is reconfigured
-Date:   Tue, 15 Sep 2020 16:13:42 +0200
-Message-Id: <20200915140637.460011197@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 4.19 78/78] usb: typec: ucsi: acpi: Check the _DEP dependencies
+Date:   Tue, 15 Sep 2020 16:13:43 +0200
+Message-Id: <20200915140637.507948901@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 References: <20200915140633.552502750@linuxfoundation.org>
@@ -43,180 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit cfd54fa83a5068b61b7eb28d3c117d8354c74c7a upstream.
+commit 1f3546ff3f0a1000971daef58406954bad3f7061 upstream.
 
-Userspace drivers that use a SetConfiguration() request to "lightweight"
-reset an already configured usb device might cause data toggles to get out
-of sync between the device and host, and the device becomes unusable.
+Failing probe with -EPROBE_DEFER until all dependencies
+listed in the _DEP (Operation Region Dependencies) object
+have been met.
 
-The xHCI host requires endpoints to be dropped and added back to reset the
-toggle. If USB core notices the new configuration is the same as the
-current active configuration it will avoid these extra steps by calling
-usb_reset_configuration() instead of usb_set_configuration().
+This will fix an issue where on some platforms UCSI ACPI
+driver fails to probe because the address space handler for
+the operation region that the UCSI ACPI interface uses has
+not been loaded yet.
 
-A SetConfiguration() request will reset the device side data toggles.
-Make sure usb_reset_configuration() function also drops and adds back the
-endpoints to ensure data toggles are in sync.
-
-To avoid code duplication split the current usb_disable_device() function
-and reuse the endpoint specific part.
-
-Cc: stable <stable@vger.kernel.org>
-Tested-by: Martin Thierer <mthierer@gmail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200901082528.12557-1-mathias.nyman@linux.intel.com
+Fixes: 8243edf44152 ("usb: typec: ucsi: Add ACPI driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20200904110918.51546-1-heikki.krogerus@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/message.c |   93 ++++++++++++++++++++-------------------------
- 1 file changed, 43 insertions(+), 50 deletions(-)
+ drivers/usb/typec/ucsi/ucsi_acpi.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -1204,6 +1204,34 @@ void usb_disable_interface(struct usb_de
- 	}
- }
+--- a/drivers/usb/typec/ucsi/ucsi_acpi.c
++++ b/drivers/usb/typec/ucsi/ucsi_acpi.c
+@@ -64,11 +64,15 @@ static void ucsi_acpi_notify(acpi_handle
  
-+/*
-+ * usb_disable_device_endpoints -- Disable all endpoints for a device
-+ * @dev: the device whose endpoints are being disabled
-+ * @skip_ep0: 0 to disable endpoint 0, 1 to skip it.
-+ */
-+static void usb_disable_device_endpoints(struct usb_device *dev, int skip_ep0)
-+{
-+	struct usb_hcd *hcd = bus_to_hcd(dev->bus);
-+	int i;
-+
-+	if (hcd->driver->check_bandwidth) {
-+		/* First pass: Cancel URBs, leave endpoint pointers intact. */
-+		for (i = skip_ep0; i < 16; ++i) {
-+			usb_disable_endpoint(dev, i, false);
-+			usb_disable_endpoint(dev, i + USB_DIR_IN, false);
-+		}
-+		/* Remove endpoints from the host controller internal state */
-+		mutex_lock(hcd->bandwidth_mutex);
-+		usb_hcd_alloc_bandwidth(dev, NULL, NULL, NULL);
-+		mutex_unlock(hcd->bandwidth_mutex);
-+	}
-+	/* Second pass: remove endpoint pointers */
-+	for (i = skip_ep0; i < 16; ++i) {
-+		usb_disable_endpoint(dev, i, true);
-+		usb_disable_endpoint(dev, i + USB_DIR_IN, true);
-+	}
-+}
-+
- /**
-  * usb_disable_device - Disable all the endpoints for a USB device
-  * @dev: the device whose endpoints are being disabled
-@@ -1217,7 +1245,6 @@ void usb_disable_interface(struct usb_de
- void usb_disable_device(struct usb_device *dev, int skip_ep0)
+ static int ucsi_acpi_probe(struct platform_device *pdev)
  {
- 	int i;
--	struct usb_hcd *hcd = bus_to_hcd(dev->bus);
++	struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
+ 	struct ucsi_acpi *ua;
+ 	struct resource *res;
+ 	acpi_status status;
+ 	int ret;
  
- 	/* getting rid of interfaces will disconnect
- 	 * any drivers bound to them (a key side effect)
-@@ -1263,22 +1290,8 @@ void usb_disable_device(struct usb_devic
- 
- 	dev_dbg(&dev->dev, "%s nuking %s URBs\n", __func__,
- 		skip_ep0 ? "non-ep0" : "all");
--	if (hcd->driver->check_bandwidth) {
--		/* First pass: Cancel URBs, leave endpoint pointers intact. */
--		for (i = skip_ep0; i < 16; ++i) {
--			usb_disable_endpoint(dev, i, false);
--			usb_disable_endpoint(dev, i + USB_DIR_IN, false);
--		}
--		/* Remove endpoints from the host controller internal state */
--		mutex_lock(hcd->bandwidth_mutex);
--		usb_hcd_alloc_bandwidth(dev, NULL, NULL, NULL);
--		mutex_unlock(hcd->bandwidth_mutex);
--		/* Second pass: remove endpoint pointers */
--	}
--	for (i = skip_ep0; i < 16; ++i) {
--		usb_disable_endpoint(dev, i, true);
--		usb_disable_endpoint(dev, i + USB_DIR_IN, true);
--	}
++	if (adev->dep_unmet)
++		return -EPROBE_DEFER;
 +
-+	usb_disable_device_endpoints(dev, skip_ep0);
- }
- 
- /**
-@@ -1521,6 +1534,9 @@ EXPORT_SYMBOL_GPL(usb_set_interface);
-  * The caller must own the device lock.
-  *
-  * Return: Zero on success, else a negative error code.
-+ *
-+ * If this routine fails the device will probably be in an unusable state
-+ * with endpoints disabled, and interfaces only partially enabled.
-  */
- int usb_reset_configuration(struct usb_device *dev)
- {
-@@ -1536,10 +1552,7 @@ int usb_reset_configuration(struct usb_d
- 	 * calls during probe() are fine
- 	 */
- 
--	for (i = 1; i < 16; ++i) {
--		usb_disable_endpoint(dev, i, true);
--		usb_disable_endpoint(dev, i + USB_DIR_IN, true);
--	}
-+	usb_disable_device_endpoints(dev, 1); /* skip ep0*/
- 
- 	config = dev->actconfig;
- 	retval = 0;
-@@ -1552,34 +1565,10 @@ int usb_reset_configuration(struct usb_d
- 		mutex_unlock(hcd->bandwidth_mutex);
+ 	ua = devm_kzalloc(&pdev->dev, sizeof(*ua), GFP_KERNEL);
+ 	if (!ua)
  		return -ENOMEM;
- 	}
--	/* Make sure we have enough bandwidth for each alternate setting 0 */
--	for (i = 0; i < config->desc.bNumInterfaces; i++) {
--		struct usb_interface *intf = config->interface[i];
--		struct usb_host_interface *alt;
--
--		alt = usb_altnum_to_altsetting(intf, 0);
--		if (!alt)
--			alt = &intf->altsetting[0];
--		if (alt != intf->cur_altsetting)
--			retval = usb_hcd_alloc_bandwidth(dev, NULL,
--					intf->cur_altsetting, alt);
--		if (retval < 0)
--			break;
--	}
--	/* If not, reinstate the old alternate settings */
-+
-+	/* xHCI adds all endpoints in usb_hcd_alloc_bandwidth */
-+	retval = usb_hcd_alloc_bandwidth(dev, config, NULL, NULL);
- 	if (retval < 0) {
--reset_old_alts:
--		for (i--; i >= 0; i--) {
--			struct usb_interface *intf = config->interface[i];
--			struct usb_host_interface *alt;
--
--			alt = usb_altnum_to_altsetting(intf, 0);
--			if (!alt)
--				alt = &intf->altsetting[0];
--			if (alt != intf->cur_altsetting)
--				usb_hcd_alloc_bandwidth(dev, NULL,
--						alt, intf->cur_altsetting);
--		}
- 		usb_enable_lpm(dev);
- 		mutex_unlock(hcd->bandwidth_mutex);
- 		return retval;
-@@ -1588,8 +1577,12 @@ reset_old_alts:
- 			USB_REQ_SET_CONFIGURATION, 0,
- 			config->desc.bConfigurationValue, 0,
- 			NULL, 0, USB_CTRL_SET_TIMEOUT);
--	if (retval < 0)
--		goto reset_old_alts;
-+	if (retval < 0) {
-+		usb_hcd_alloc_bandwidth(dev, NULL, NULL, NULL);
-+		usb_enable_lpm(dev);
-+		mutex_unlock(hcd->bandwidth_mutex);
-+		return retval;
-+	}
- 	mutex_unlock(hcd->bandwidth_mutex);
- 
- 	/* re-init hc/hcd interface/endpoint state */
 
 
