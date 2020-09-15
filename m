@@ -2,256 +2,252 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 176A2269FBA
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 09:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0732A269FDE
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 09:35:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726320AbgIOH05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 03:26:57 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62476 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726252AbgIOHZF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 03:25:05 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08F76t66068686;
-        Tue, 15 Sep 2020 03:24:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=lIBF0yIZ/euhPJ4mHyoWSctgnR1mo++/vKvP8La0i+c=;
- b=oJ5M7IINZhbynnZEaZmnSftJUOvFg9/kCZsVnCNJAeG6xZ6hIK9U59AUFV+wPG/5k1NM
- jeFNj2w0VeTL3gjKNRCJ3b8hIRd0Ec9SB7Uuoy+TNhR/CmX9uIEe57fV5sCNvnWfXfuf
- jqsfxy7raCFnILrydLgkj21zRd8wrxRN5jZrZcxOHtmyc1c+Qm6fDqFsjpaFEk36V7kl
- Mqp7TOy7Xlv4IpcskBMB94j2lfOXN7zEDUQBXz8hLdmKIHVb/4zwhYpubrxqSBAnKKVF
- Msx8NQNpRmbqZ9bTM7tA5q7GQPcHemlQn3W2bGVkq0jt95oo30Xqajz/WUY9dJRIo9JW GA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33jqawatby-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Sep 2020 03:24:52 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08F78QBD072884;
-        Tue, 15 Sep 2020 03:24:52 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33jqawatb1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Sep 2020 03:24:52 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08F7Mue0026200;
-        Tue, 15 Sep 2020 07:24:49 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma05fra.de.ibm.com with ESMTP id 33gny81prs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 15 Sep 2020 07:24:49 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08F7Ok4518809314
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 15 Sep 2020 07:24:46 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6A45752050;
-        Tue, 15 Sep 2020 07:24:46 +0000 (GMT)
-Received: from pomme.local (unknown [9.145.72.89])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 789AF52052;
-        Tue, 15 Sep 2020 07:24:45 +0000 (GMT)
-Subject: Re: [PATCH v2 3/3] mm: don't panic when links can't be created in
- sysfs
-To:     David Hildenbrand <david@redhat.com>, akpm@linux-foundation.org,
-        Oscar Salvador <osalvador@suse.de>, mhocko@kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-mm@kvack.org, "Rafael J . Wysocki" <rafael@kernel.org>,
-        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Michal Hocko <mhocko@suse.com>
-References: <20200914165042.96218-1-ldufour@linux.ibm.com>
- <20200914165042.96218-4-ldufour@linux.ibm.com>
- <a62d5cde-85c9-8650-d5e0-d277c6f7360f@redhat.com>
-From:   Laurent Dufour <ldufour@linux.ibm.com>
-Message-ID: <77a61ee9-0fec-f812-3999-8742bfcf7943@linux.ibm.com>
-Date:   Tue, 15 Sep 2020 09:24:45 +0200
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.12.0
+        id S1726174AbgIOHfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 03:35:13 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:39567 "EHLO
+        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726134AbgIOHfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 03:35:11 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 05E8E75A;
+        Tue, 15 Sep 2020 03:35:09 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 15 Sep 2020 03:35:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=yJunly
+        AVHhFNhtT2WiIwNkigXXckiWmTM2cvVoox5vo=; b=PfkCYOjla3nie8e9QPRO3Z
+        KxKT7STN++6apMNakM2F2Fm/p8h5b6FM626GorQTjRs/LuHZYhKNI5UWWv8nSqI2
+        cLiYoBWBIqK+BrfaHGIsBgQlYkDgjVNQtJRQGgDBa/oO6B4jQj/XJ0cGtq0K5YFy
+        11ZmHoSuvZuu9lO4cTzDyUU2WI/s4KrQqKZ4M3NSWBVwAhzrk31FpWoEbeKHCE2i
+        8h4hDpCXoDDVGFh/6yqOorZQcmbAVgW3HqQLk10odQV+u6SCjzrlqE77XuVeD6df
+        B449J03nXtlks2DC8dPu+OUCgjGIyKJVjYrgrp5+urBGR9X+DaHdjsW7UQykbFAQ
+        ==
+X-ME-Sender: <xms:rW5gXwlUQhW4VblX_q1P_YZh-rKOUgrrvw-U_2erxuz-LsZyvdI5uQ>
+    <xme:rW5gX_35_zLq_raRIYBPdi_p7Okjh_fSenc5MHmUMH1nP2vqV9jCCA5TJIwAGA3fS
+    eaZhqQWbrxb-A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudeijedguddujecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
+    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:rW5gX-oWM4St7E0PIrevtLDMof0BkLBxc5oT5-InBaVcwvkBUizEYA>
+    <xmx:rW5gX8lp8oCnabxwR3Glv8RI9M2Kor-dHZdjUDexv0in7n1rdHcgdw>
+    <xmx:rW5gX-1k0cFG2eYPeUsWHvGGav_-TgcU5Sh5v6xl1pgX0IJpD6HNhw>
+    <xmx:rW5gX8BCuY-H0tU0QCOC8NGrZHmHlPDGmzx2kn3sQegiLBSSpb_gSlAYGgk>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 07193328005A;
+        Tue, 15 Sep 2020 03:35:08 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: fix lockdep splat in add_missing_dev" failed to apply to 4.4-stable tree
+To:     josef@toxicpanda.com, anand.jain@oracle.com, dsterba@suse.com,
+        nborisov@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 15 Sep 2020 09:35:07 +0200
+Message-ID: <16001553071347@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <a62d5cde-85c9-8650-d5e0-d277c6f7360f@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-15_04:2020-09-15,2020-09-15 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
- malwarescore=0 priorityscore=1501 clxscore=1015 mlxlogscore=999
- spamscore=0 lowpriorityscore=0 impostorscore=0 adultscore=0 phishscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009150059
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Le 15/09/2020 à 09:23, David Hildenbrand a écrit :
-> On 14.09.20 18:50, Laurent Dufour wrote:
->> At boot time, or when doing memory hot-add operations, if the links in
->> sysfs can't be created, the system is still able to run, so just report the
->> error in the kernel log rather than BUG_ON and potentially make system
->> unusable because the callpath can be called with locks held.
->>
->> Since the number of memory blocks managed could be high, the messages are
->> rate limited.
->>
->> As a consequence, link_mem_sections() has no status to report anymore.
->>
->> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
->> Acked-by: Michal Hocko <mhocko@suse.com>
->> Cc: David Hildenbrand <david@redhat.com>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> ---
->>   drivers/base/node.c  | 33 +++++++++++++++++++++------------
->>   include/linux/node.h | 16 +++++++---------
->>   mm/memory_hotplug.c  |  5 ++---
->>   3 files changed, 30 insertions(+), 24 deletions(-)
->>
->> diff --git a/drivers/base/node.c b/drivers/base/node.c
->> index 01ee73c9d675..249b2ba6dc81 100644
->> --- a/drivers/base/node.c
->> +++ b/drivers/base/node.c
->> @@ -761,8 +761,8 @@ static int __ref get_nid_for_pfn(unsigned long pfn)
->>   	return pfn_to_nid(pfn);
->>   }
->>   
->> -static int do_register_memory_block_under_node(int nid,
->> -					       struct memory_block *mem_blk)
->> +static void do_register_memory_block_under_node(int nid,
->> +						struct memory_block *mem_blk)
->>   {
->>   	int ret;
->>   
->> @@ -775,12 +775,19 @@ static int do_register_memory_block_under_node(int nid,
->>   	ret = sysfs_create_link_nowarn(&node_devices[nid]->dev.kobj,
->>   				       &mem_blk->dev.kobj,
->>   				       kobject_name(&mem_blk->dev.kobj));
->> -	if (ret)
->> -		return ret;
->> +	if (ret && ret != -EEXIST)
->> +		dev_err_ratelimited(&node_devices[nid]->dev,
->> +				    "can't create link to %s in sysfs (%d)\n",
->> +				    kobject_name(&mem_blk->dev.kobj), ret);
->>   
->> -	return sysfs_create_link_nowarn(&mem_blk->dev.kobj,
->> +	ret = sysfs_create_link_nowarn(&mem_blk->dev.kobj,
->>   				&node_devices[nid]->dev.kobj,
->>   				kobject_name(&node_devices[nid]->dev.kobj));
->> +	if (ret && ret != -EEXIST)
->> +		dev_err_ratelimited(&mem_blk->dev,
->> +				    "can't create link to %s in sysfs (%d)\n",
->> +				    kobject_name(&node_devices[nid]->dev.kobj),
->> +				    ret);
->>   }
->>   
->>   /* register memory section under specified node if it spans that node */
->> @@ -817,7 +824,8 @@ static int register_mem_block_under_node_early(struct memory_block *mem_blk,
->>   			continue;
->>   
->>   		/* The memory block is registered to the first matching node */
->> -		return do_register_memory_block_under_node(nid, mem_blk);
->> +		do_register_memory_block_under_node(nid, mem_blk);
->> +		return 0;
->>   	}
->>   	/* mem section does not span the specified node */
->>   	return 0;
->> @@ -832,7 +840,8 @@ static int register_mem_block_under_node_hotplug(struct memory_block *mem_blk,
->>   {
->>   	int nid = *(int *)arg;
->>   
->> -	return do_register_memory_block_under_node(nid, mem_blk);
->> +	do_register_memory_block_under_node(nid, mem_blk);
->> +	return 0;
->>   }
->>   
->>   /*
->> @@ -850,8 +859,8 @@ void unregister_memory_block_under_nodes(struct memory_block *mem_blk)
->>   			  kobject_name(&node_devices[mem_blk->nid]->dev.kobj));
->>   }
->>   
->> -int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn,
->> -		      enum meminit_context context)
->> +void link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn,
->> +		       enum meminit_context context)
->>   {
->>   	walk_memory_blocks_func_t func;
->>   
->> @@ -860,9 +869,9 @@ int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn,
->>   	else
->>   		func = register_mem_block_under_node_early;
->>   
->> -	return walk_memory_blocks(PFN_PHYS(start_pfn),
->> -				  PFN_PHYS(end_pfn - start_pfn), (void *)&nid,
->> -				  func);
->> +	walk_memory_blocks(PFN_PHYS(start_pfn), PFN_PHYS(end_pfn - start_pfn),
->> +			   (void *)&nid, func);
->> +	return;
->>   }
->>   
->>   #ifdef CONFIG_HUGETLBFS
->> diff --git a/include/linux/node.h b/include/linux/node.h
->> index 014ba3ab2efd..8e5a29897936 100644
->> --- a/include/linux/node.h
->> +++ b/include/linux/node.h
->> @@ -99,15 +99,14 @@ extern struct node *node_devices[];
->>   typedef  void (*node_registration_func_t)(struct node *);
->>   
->>   #if defined(CONFIG_MEMORY_HOTPLUG_SPARSE) && defined(CONFIG_NUMA)
->> -int link_mem_sections(int nid, unsigned long start_pfn,
->> -		      unsigned long end_pfn,
->> -		      enum meminit_context context);
->> +void link_mem_sections(int nid, unsigned long start_pfn,
->> +		       unsigned long end_pfn,
->> +		       enum meminit_context context);
->>   #else
->> -static inline int link_mem_sections(int nid, unsigned long start_pfn,
->> -				    unsigned long end_pfn,
->> -				    enum meminit_context context)
->> +static inline void link_mem_sections(int nid, unsigned long start_pfn,
->> +				     unsigned long end_pfn,
->> +				     enum meminit_context context)
->>   {
->> -	return 0;
->>   }
->>   #endif
->>   
->> @@ -130,8 +129,7 @@ static inline int register_one_node(int nid)
->>   		if (error)
->>   			return error;
->>   		/* link memory sections under this node */
->> -		error = link_mem_sections(nid, start_pfn, end_pfn,
->> -					  MEMINIT_EARLY);
->> +		link_mem_sections(nid, start_pfn, end_pfn, MEMINIT_EARLY);
->>   	}
->>   
->>   	return error;
->> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
->> index 03df20078827..01e01a530d38 100644
->> --- a/mm/memory_hotplug.c
->> +++ b/mm/memory_hotplug.c
->> @@ -1080,9 +1080,8 @@ int __ref add_memory_resource(int nid, struct resource *res)
->>   	}
->>   
->>   	/* link memory sections under this node.*/
->> -	ret = link_mem_sections(nid, PFN_DOWN(start), PFN_UP(start + size - 1),
->> -				MEMINIT_HOTPLUG);
->> -	BUG_ON(ret);
->> +	link_mem_sections(nid, PFN_DOWN(start), PFN_UP(start + size - 1),
->> +			  MEMINIT_HOTPLUG);
->>   
->>   	/* create new memmap entry */
->>   	if (!strcmp(res->name, "System RAM"))
->>
-> 
-> I just remember that I still have some cleanup patches lying around that
-> rework the whole node onlining on the add_memory() path, being able to
-> fail in a nice way rather than ignoring errors. Anyhow, this is good
-> enough for now
-> 
-> Acked-by: David Hildenbrand <david@redhat.com>
-> 
 
-Thanks David.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From fccc0007b8dc952c6bc0805cdf842eb8ea06a639 Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Mon, 31 Aug 2020 10:52:42 -0400
+Subject: [PATCH] btrfs: fix lockdep splat in add_missing_dev
+
+Nikolay reported a lockdep splat in generic/476 that I could reproduce
+with btrfs/187.
+
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.9.0-rc2+ #1 Tainted: G        W
+  ------------------------------------------------------
+  kswapd0/100 is trying to acquire lock:
+  ffff9e8ef38b6268 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x330
+
+  but task is already holding lock:
+  ffffffffa9d74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+
+  which lock already depends on the new lock.
+
+  the existing dependency chain (in reverse order) is:
+
+  -> #2 (fs_reclaim){+.+.}-{0:0}:
+	 fs_reclaim_acquire+0x65/0x80
+	 slab_pre_alloc_hook.constprop.0+0x20/0x200
+	 kmem_cache_alloc_trace+0x3a/0x1a0
+	 btrfs_alloc_device+0x43/0x210
+	 add_missing_dev+0x20/0x90
+	 read_one_chunk+0x301/0x430
+	 btrfs_read_sys_array+0x17b/0x1b0
+	 open_ctree+0xa62/0x1896
+	 btrfs_mount_root.cold+0x12/0xea
+	 legacy_get_tree+0x30/0x50
+	 vfs_get_tree+0x28/0xc0
+	 vfs_kern_mount.part.0+0x71/0xb0
+	 btrfs_mount+0x10d/0x379
+	 legacy_get_tree+0x30/0x50
+	 vfs_get_tree+0x28/0xc0
+	 path_mount+0x434/0xc00
+	 __x64_sys_mount+0xe3/0x120
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x7e/0x7e0
+	 btrfs_chunk_alloc+0x125/0x3a0
+	 find_free_extent+0xdf6/0x1210
+	 btrfs_reserve_extent+0xb3/0x1b0
+	 btrfs_alloc_tree_block+0xb0/0x310
+	 alloc_tree_block_no_bg_flush+0x4a/0x60
+	 __btrfs_cow_block+0x11a/0x530
+	 btrfs_cow_block+0x104/0x220
+	 btrfs_search_slot+0x52e/0x9d0
+	 btrfs_lookup_inode+0x2a/0x8f
+	 __btrfs_update_delayed_inode+0x80/0x240
+	 btrfs_commit_inode_delayed_inode+0x119/0x120
+	 btrfs_evict_inode+0x357/0x500
+	 evict+0xcf/0x1f0
+	 vfs_rmdir.part.0+0x149/0x160
+	 do_rmdir+0x136/0x1a0
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
+	 __lock_acquire+0x1184/0x1fa0
+	 lock_acquire+0xa4/0x3d0
+	 __mutex_lock+0x7e/0x7e0
+	 __btrfs_release_delayed_node.part.0+0x3f/0x330
+	 btrfs_evict_inode+0x24c/0x500
+	 evict+0xcf/0x1f0
+	 dispose_list+0x48/0x70
+	 prune_icache_sb+0x44/0x50
+	 super_cache_scan+0x161/0x1e0
+	 do_shrink_slab+0x178/0x3c0
+	 shrink_slab+0x17c/0x290
+	 shrink_node+0x2b2/0x6d0
+	 balance_pgdat+0x30a/0x670
+	 kswapd+0x213/0x4c0
+	 kthread+0x138/0x160
+	 ret_from_fork+0x1f/0x30
+
+  other info that might help us debug this:
+
+  Chain exists of:
+    &delayed_node->mutex --> &fs_info->chunk_mutex --> fs_reclaim
+
+   Possible unsafe locking scenario:
+
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(fs_reclaim);
+				 lock(&fs_info->chunk_mutex);
+				 lock(fs_reclaim);
+    lock(&delayed_node->mutex);
+
+   *** DEADLOCK ***
+
+  3 locks held by kswapd0/100:
+   #0: ffffffffa9d74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+   #1: ffffffffa9d65c50 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x115/0x290
+   #2: ffff9e8e9da260e0 (&type->s_umount_key#48){++++}-{3:3}, at: super_cache_scan+0x38/0x1e0
+
+  stack backtrace:
+  CPU: 1 PID: 100 Comm: kswapd0 Tainted: G        W         5.9.0-rc2+ #1
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  Call Trace:
+   dump_stack+0x92/0xc8
+   check_noncircular+0x12d/0x150
+   __lock_acquire+0x1184/0x1fa0
+   lock_acquire+0xa4/0x3d0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   __mutex_lock+0x7e/0x7e0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? lock_acquire+0xa4/0x3d0
+   ? btrfs_evict_inode+0x11e/0x500
+   ? find_held_lock+0x2b/0x80
+   __btrfs_release_delayed_node.part.0+0x3f/0x330
+   btrfs_evict_inode+0x24c/0x500
+   evict+0xcf/0x1f0
+   dispose_list+0x48/0x70
+   prune_icache_sb+0x44/0x50
+   super_cache_scan+0x161/0x1e0
+   do_shrink_slab+0x178/0x3c0
+   shrink_slab+0x17c/0x290
+   shrink_node+0x2b2/0x6d0
+   balance_pgdat+0x30a/0x670
+   kswapd+0x213/0x4c0
+   ? _raw_spin_unlock_irqrestore+0x46/0x60
+   ? add_wait_queue_exclusive+0x70/0x70
+   ? balance_pgdat+0x670/0x670
+   kthread+0x138/0x160
+   ? kthread_create_worker_on_cpu+0x40/0x40
+   ret_from_fork+0x1f/0x30
+
+This is because we are holding the chunk_mutex when we call
+btrfs_alloc_device, which does a GFP_KERNEL allocation.  We don't want
+to switch that to a GFP_NOFS lock because this is the only place where
+it matters.  So instead use memalloc_nofs_save() around the allocation
+in order to avoid the lockdep splat.
+
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 214856c4ccb1..117b43367629 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include <linux/sched.h>
++#include <linux/sched/mm.h>
+ #include <linux/bio.h>
+ #include <linux/slab.h>
+ #include <linux/blkdev.h>
+@@ -6484,8 +6485,17 @@ static struct btrfs_device *add_missing_dev(struct btrfs_fs_devices *fs_devices,
+ 					    u64 devid, u8 *dev_uuid)
+ {
+ 	struct btrfs_device *device;
++	unsigned int nofs_flag;
+ 
++	/*
++	 * We call this under the chunk_mutex, so we want to use NOFS for this
++	 * allocation, however we don't want to change btrfs_alloc_device() to
++	 * always do NOFS because we use it in a lot of other GFP_KERNEL safe
++	 * places.
++	 */
++	nofs_flag = memalloc_nofs_save();
+ 	device = btrfs_alloc_device(NULL, &devid, dev_uuid);
++	memalloc_nofs_restore(nofs_flag);
+ 	if (IS_ERR(device))
+ 		return device;
+ 
+
