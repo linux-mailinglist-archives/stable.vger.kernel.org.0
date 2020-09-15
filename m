@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80D5326B4E8
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C28826B4E4
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:33:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727377AbgIOXdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:33:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
+        id S1726900AbgIOXdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:33:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727149AbgIOOgT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:36:19 -0400
+        id S1726505AbgIOOga (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:36:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69397223E4;
-        Tue, 15 Sep 2020 14:26:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEBD6223EA;
+        Tue, 15 Sep 2020 14:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180004;
-        bh=58wy6+NLVtxqoBa6LJfUWGbvwTcc7WuVJSuHWnbCVhw=;
+        s=default; t=1600180007;
+        bh=FHTcrPnwNgdAZABEN21HVNkT3V+T3gP6yMDMA/0pYuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XlCOANbZ+DiAzCmAF9O/Obdo4gLadVi7PpuWp4ioYKvkbVr+3VvbfiPPSr/1ASyBW
-         9PbcWY/R44seWq7THVCt/RNw/QaNQjzajJ2ZJ00+QdPbh/Z7QL+SiNV1S8xTWz+utH
-         NHBIxjwLcqWy6Wn6eCpg6bBG2EJqWKNf3BbyO1sU=
+        b=MW/lSUFNhU3gZqnBfvoFe/yQwSkTdYSSftJMzlls1toRk+PmrdBRPwO0xg5Ct/GsT
+         vdQ2KPVcbiAAyRYrYTcfILU0VKErhbTn2+Bo1UKC1dFe4ZiRpFsdaRmpXea8Mwf8NX
+         /Lul17rPkCxwTXY7IqUa38iaQ74Su8Ej8cz5mvGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mohan Kumar <mkumard@nvidia.com>,
-        Sameer Pujar <spujar@nvidia.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 071/177] ALSA: hda/tegra: Program WAKEEN register for Tegra
-Date:   Tue, 15 Sep 2020 16:12:22 +0200
-Message-Id: <20200915140657.035511850@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 072/177] drivers/dma/dma-jz4780: Fix race condition between probe and irq handler
+Date:   Tue, 15 Sep 2020 16:12:23 +0200
+Message-Id: <20200915140657.084051853@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -44,49 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohan Kumar <mkumard@nvidia.com>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit 23d63a31d9f44d7daeac0d1fb65c6a73c70e5216 ]
+[ Upstream commit 6d6018fc30bee67290dbed2fa51123f7c6f3d691 ]
 
-The WAKEEN bits are used to indicate which bits in the
-STATESTS register may cause wake event during the codec
-state change request. Configure the WAKEEN register for
-the Tegra to detect the wake events.
+In probe, IRQ is requested before zchan->id is initialized which can be
+read in the irq handler. Hence, shift request irq after other initializations
+complete.
 
-Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
-Acked-by: Sameer Pujar <spujar@nvidia.com>
-Link: https://lore.kernel.org/r/20200825052415.20626-3-mkumard@nvidia.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Reviewed-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20200821034423.12713-1-madhuparnabhowmik10@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_tegra.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/dma/dma-jz4780.c | 38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
 
-diff --git a/sound/pci/hda/hda_tegra.c b/sound/pci/hda/hda_tegra.c
-index 0cc5fad1af8a9..ae40ca3f29837 100644
---- a/sound/pci/hda/hda_tegra.c
-+++ b/sound/pci/hda/hda_tegra.c
-@@ -179,6 +179,10 @@ static int __maybe_unused hda_tegra_runtime_suspend(struct device *dev)
- 	struct hda_tegra *hda = container_of(chip, struct hda_tegra, chip);
+diff --git a/drivers/dma/dma-jz4780.c b/drivers/dma/dma-jz4780.c
+index 448f663da89c6..8beed91428bd6 100644
+--- a/drivers/dma/dma-jz4780.c
++++ b/drivers/dma/dma-jz4780.c
+@@ -879,24 +879,11 @@ static int jz4780_dma_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
  
- 	if (chip && chip->running) {
-+		/* enable controller wake up event */
-+		azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) |
-+			   STATESTS_INT_MASK);
+-	ret = platform_get_irq(pdev, 0);
+-	if (ret < 0)
+-		return ret;
+-
+-	jzdma->irq = ret;
+-
+-	ret = request_irq(jzdma->irq, jz4780_dma_irq_handler, 0, dev_name(dev),
+-			  jzdma);
+-	if (ret) {
+-		dev_err(dev, "failed to request IRQ %u!\n", jzdma->irq);
+-		return ret;
+-	}
+-
+ 	jzdma->clk = devm_clk_get(dev, NULL);
+ 	if (IS_ERR(jzdma->clk)) {
+ 		dev_err(dev, "failed to get clock\n");
+ 		ret = PTR_ERR(jzdma->clk);
+-		goto err_free_irq;
++		return ret;
+ 	}
+ 
+ 	clk_prepare_enable(jzdma->clk);
+@@ -949,10 +936,23 @@ static int jz4780_dma_probe(struct platform_device *pdev)
+ 		jzchan->vchan.desc_free = jz4780_dma_desc_free;
+ 	}
+ 
++	ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		goto err_disable_clk;
 +
- 		azx_stop_chip(chip);
- 		azx_enter_link_reset(chip);
- 	}
-@@ -200,6 +204,9 @@ static int __maybe_unused hda_tegra_runtime_resume(struct device *dev)
- 	if (chip && chip->running) {
- 		hda_tegra_init(hda);
- 		azx_init_chip(chip, 1);
-+		/* disable controller wake up event*/
-+		azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) &
-+			   ~STATESTS_INT_MASK);
++	jzdma->irq = ret;
++
++	ret = request_irq(jzdma->irq, jz4780_dma_irq_handler, 0, dev_name(dev),
++			  jzdma);
++	if (ret) {
++		dev_err(dev, "failed to request IRQ %u!\n", jzdma->irq);
++		goto err_disable_clk;
++	}
++
+ 	ret = dmaenginem_async_device_register(dd);
+ 	if (ret) {
+ 		dev_err(dev, "failed to register device\n");
+-		goto err_disable_clk;
++		goto err_free_irq;
  	}
  
+ 	/* Register with OF DMA helpers. */
+@@ -960,17 +960,17 @@ static int jz4780_dma_probe(struct platform_device *pdev)
+ 					 jzdma);
+ 	if (ret) {
+ 		dev_err(dev, "failed to register OF DMA controller\n");
+-		goto err_disable_clk;
++		goto err_free_irq;
+ 	}
+ 
+ 	dev_info(dev, "JZ4780 DMA controller initialised\n");
  	return 0;
+ 
+-err_disable_clk:
+-	clk_disable_unprepare(jzdma->clk);
+-
+ err_free_irq:
+ 	free_irq(jzdma->irq, jzdma);
++
++err_disable_clk:
++	clk_disable_unprepare(jzdma->clk);
+ 	return ret;
+ }
+ 
 -- 
 2.25.1
 
