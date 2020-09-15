@@ -2,121 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0FD126A0C6
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 10:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F63026A0C2
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 10:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726217AbgIOIZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726435AbgIOIZO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 15 Sep 2020 04:25:14 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:53027 "EHLO
-        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726200AbgIOIMY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 04:12:24 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 132995A3;
-        Tue, 15 Sep 2020 04:12:14 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 15 Sep 2020 04:12:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=x9UrH4
-        qf72PpLgnXb5i5XaLx5xuFMPoX0uLyJ+5Tz2I=; b=OjGXWLNxvv9UQfxCUHstf4
-        gs1lpJhODsvPaS3WhF/C2rWRym9EPrMvQ1NIbRB9UpcWlz3nVzZoMZ6OFlvX8sok
-        HxANl6phjrJ6U2Y8flcxHv8Ckt4hgZyEhd33dMRVgWAUXj5PpxJlmzqjrIc7gMTd
-        goijVojuhcrGVj6dPg8QdEK57LzSsCPnSckpDdyz+gOtTdcG8l6mdUEH6CG/DVil
-        NJFnj4MoWlnGFsuQXuZt+q71S0AAU+RuVoMLcU6I2sYFcvVQe9VkxTFxuM2wWnyi
-        /zdkaE+KFFGJuOmAdLGzBgk5UpvFK/sUKh9Jehd+CQx94pRTIPSdNfSXfm4vhXLQ
-        ==
-X-ME-Sender: <xms:XXdgXy4__fVGtr_DyYFItysm7_OjEJM-mQ7ConXbFThRXLStTnXUow>
-    <xme:XXdgX75W9a3kd5Gtm_lxJ9IptqF8JGeExcl-_-mcTNG8ABPlAzpRvSEF-h4n9LtL8
-    M9_-VMRoSNYWA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudeikedgtdduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:XXdgXxf77C81zBMrRtGDwwz3dVJRZ-MWg_J8-1zYaRrVWOUUI_V1ow>
-    <xmx:XXdgX_L-lAG5bLCKXmE54Q2SoBpz5nvoXZsbIcTswoDjmUXb-zyICA>
-    <xmx:XXdgX2K92ahWgzbo2QFsurIV4LS4Z6zQLWkxAlbq_et75zwI0ZXQjQ>
-    <xmx:XXdgX4g23gDZlocZnTbH5hRd3WoKpRKT92JjkULed7Vkjn5zsHXoIwig9sQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 989D43280060;
-        Tue, 15 Sep 2020 04:12:12 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] RDMA/rxe: Fix the parent sysfs read when the interface has 15" failed to apply to 4.9-stable tree
-To:     yi.zhang@redhat.com, bvanassche@acm.org, jgg@nvidia.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 15 Sep 2020 10:12:09 +0200
-Message-ID: <16001575293494@kroah.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60682 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726235AbgIOIOC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 04:14:02 -0400
+Received: from mail-ua1-x943.google.com (mail-ua1-x943.google.com [IPv6:2607:f8b0:4864:20::943])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB0AC06174A
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 01:13:33 -0700 (PDT)
+Received: by mail-ua1-x943.google.com with SMTP id j12so744593ual.7
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 01:13:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=Y0Eppo/kYLyMRVTN/kpzdicBUcF/hn0/YG7ihTMQInU=;
+        b=VndatTgW4u5XLkAOcpx1SQuzg9u76UAR6LHyIKCkL4wRSUSxbKvmZon1/nyIq4p9i0
+         e7juRPfM2gQqj8N/0tYjAIzk53AF98nW3aSrqmnODJHNXsAAy/bdt6M+fkZk6gVZ41Qu
+         fSBAZ8aDN2LqYbtYE72IiPopo5XyHFnTD85pZpwJn76m+lvTLdHyk7eGaY0jTOUl6CRq
+         xoZGfM7qJmSKh0oJ5qWboGIZl1aRqCKHEDGabXNahLUA8J35vD4Sj4wu1tdyquuS4qRO
+         pQRX/StKCxFT/bvvDCTLOlFEl0B8HFCE3Db7VG/gnKAuJtdDS071WfhyAdkZTKBHb69Q
+         WEcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=Y0Eppo/kYLyMRVTN/kpzdicBUcF/hn0/YG7ihTMQInU=;
+        b=KgzQOV2jC5r+3Ls0UB7aCd6+xBgHWNVR4CoNH2Z1lMOS0Pu2FyW9jJvA0Qm0MK2O4h
+         b71IttZCoHlleZ4lLcB/f6LbAi0Yeva8yPKYfsmyovlaUnmuOx11EZhySqut7Vruuew4
+         tYz89dXCyBYxFk5T8/5LBOFCyMKL1JskUl1pgXlPypUfnOKlyVMrclxmHfpW3iCJzhjD
+         37EM0KIz3yZSO/IVKL5iqZK5Bc2cGFv0e4DVoWoBxjVDITaIXIxz26A/PdMhwfpLxy45
+         WNyPxE9I+eAL0LSgYRNwynMS5GSOlseT2kD3syS6M1BnmMlqbvHQrWgRXinz2EoaKpTC
+         ZCzQ==
+X-Gm-Message-State: AOAM533jUb4GGfqigXFIqihVQSV8W9VoZ/Ns32ZhwjXDW0tcUUvYDGKZ
+        EATGj8IumkbcbrDjfWizSpODdr8Fj/sr5T7ui2w=
+X-Google-Smtp-Source: ABdhPJwZ3mMK4GEadNAEjSuCqdbWAeQdIj4rrUhwTucO6WCRxn9Yq/ub9RhiPdVWdlhHk6aH8AAP0/IJ/oNz85WBtEU=
+X-Received: by 2002:ab0:269:: with SMTP id 96mr9084924uas.41.1600157612525;
+ Tue, 15 Sep 2020 01:13:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:ab0:7241:0:0:0:0:0 with HTTP; Tue, 15 Sep 2020 01:13:32
+ -0700 (PDT)
+From:   Mrs Franisca carlsen <franciscacarlsen20@gmail.com>
+Date:   Tue, 15 Sep 2020 09:13:32 +0100
+X-Google-Sender-Auth: poCBrPwVSDH7CWpga7SsacRWN_I
+Message-ID: <CADaVw9n7h9GYRuDHmY0oZ7i1Pbdc3Z_w+DrMRsU1aCUPCucLag@mail.gmail.com>
+Subject: Greetings My Dear,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Greetings My Dear,
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+    I sent this mail praying it will found you in a good condition of
+health, since I myself are in a very critical health condition in
+which I  sleep every night without knowing if I may be alive to see
+the next day. I am Mrs. Francisca  Carlsen from Denmark wife of late
+Mr John Carlsen, a widow suffering from long time illness. I have some
+funds I inherited from my late husband, the sum of (eleven million
+dollars) my Doctor told me recently that I have serious sickness which
+is cancer problem. What disturbs me most is my stroke sickness. Having
+known my condition, I decided to donate this fund to a good person
+that will utilize it the way i am going to instruct herein. I need a
+very honest and God fearing person who can claim this money and use it
+for Charity works, for orphanages, widows and also build schools for
+less privileges that will be named after my late husband if possible
+and to promote the word of God and the effort that the house of God is
+maintained.
 
-thanks,
+I do not want a situation where this money will be used in an ungodly
+manner. That's why I'm taking this decision. I'm not afraid of death,
+so I know where I'm going. I accept this decision because I do not
+have any child who will inherit this money after I die. Please I want
+your sincerely and urgent answer to know if you will be able to
+execute this project, and I will give you more information on how the
+fund will be transferred to your bank account. I am waiting for your
+reply.
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 60b1af64eb35074a4f2d41cc1e503a7671e68963 Mon Sep 17 00:00:00 2001
-From: Yi Zhang <yi.zhang@redhat.com>
-Date: Thu, 20 Aug 2020 23:36:46 +0800
-Subject: [PATCH] RDMA/rxe: Fix the parent sysfs read when the interface has 15
- chars
-
-'parent' sysfs reads will yield '\0' bytes when the interface name has 15
-chars, and there will no "\n" output.
-
-To reproduce, create one interface with 15 chars:
-
- [root@test ~]# ip a s enp0s29u1u7u3c2
- 2: enp0s29u1u7u3c2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN group default qlen 1000
-     link/ether 02:21:28:57:47:17 brd ff:ff:ff:ff:ff:ff
-     inet6 fe80::ac41:338f:5bcd:c222/64 scope link noprefixroute
-        valid_lft forever preferred_lft forever
- [root@test ~]# modprobe rdma_rxe
- [root@test ~]# echo enp0s29u1u7u3c2 > /sys/module/rdma_rxe/parameters/add
- [root@test ~]# cat /sys/class/infiniband/rxe0/parent
- enp0s29u1u7u3c2[root@test ~]#
- [root@test ~]# f="/sys/class/infiniband/rxe0/parent"
- [root@test ~]# echo "$(<"$f")"
- -bash: warning: command substitution: ignored null byte in input
- enp0s29u1u7u3c2
-
-Use scnprintf and PAGE_SIZE to fill the sysfs output buffer.
-
-Cc: stable@vger.kernel.org
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20200820153646.31316-1-yi.zhang@redhat.com
-Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Yi Zhang <yi.zhang@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-
-diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.c b/drivers/infiniband/sw/rxe/rxe_verbs.c
-index bb61e534e468..756980f79951 100644
---- a/drivers/infiniband/sw/rxe/rxe_verbs.c
-+++ b/drivers/infiniband/sw/rxe/rxe_verbs.c
-@@ -1056,7 +1056,7 @@ static ssize_t parent_show(struct device *device,
- 	struct rxe_dev *rxe =
- 		rdma_device_to_drv_device(device, struct rxe_dev, ib_dev);
- 
--	return snprintf(buf, 16, "%s\n", rxe_parent_name(rxe, 1));
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", rxe_parent_name(rxe, 1));
- }
- 
- static DEVICE_ATTR_RO(parent);
-
+May God Bless you,
+Mrs. Francisca Carlsen
