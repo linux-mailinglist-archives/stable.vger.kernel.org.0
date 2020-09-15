@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E42A826B654
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:03:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2A4C26B76D
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:23:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727015AbgIPADC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:03:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42988 "EHLO mail.kernel.org"
+        id S1726783AbgIOOUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:20:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726997AbgIOO36 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:29:58 -0400
+        id S1726699AbgIOOTx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:19:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CA6522243;
-        Tue, 15 Sep 2020 14:21:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D29A620829;
+        Tue, 15 Sep 2020 14:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179701;
-        bh=LOHx9iKz54gX/OmLjmEHq4jRiPb6ASYlg6BHPTsYI+A=;
+        s=default; t=1600179389;
+        bh=68ifFe8bMTvCqox7vYKsjUGQ2ojIVQTihFkdsvI06uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IWUDS9u/KNHWXl8CNrqiyA6E49rjp+VNDHiAKXlP4JB3exutKUFVT/IkO5LLvl7YF
-         UuJ4hrOpE3gwOz1qzQ6y+vWw4d2BbT61WmxD2gD78kIjm/CjwQeC+uS0cm3rKJx4JN
-         rmqfRIkgvW1TZLZhrtCM2QqZvx9xk/iTcYWdViSQ=
+        b=GWW9vehwTBtEd2jLDRrjSf7V8xxvUSNMuwcAi3KPts8OJY5/ZwnrAeJYYBhMH1aTN
+         C7iqoa+tdOUjapnBzMV3Svjx80VOSJlCEsZsRHVq3gMBH/c3iS4lrCjJhlPtOLTAUh
+         Yvm3JnG+nf2M3EDVUqsSSknBfVlxumEtKF8jRtR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Gregor Boirie <gregor.boirie@parrot.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.4 084/132] iio:magnetometer:ak8975 Fix alignment and data leak issues.
+        stable@vger.kernel.org, Maxim Kochetkov <fido_max@inbox.ru>,
+        Maxim Kiselev <bigunclemax@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 41/78] iio: adc: ti-ads1015: fix conversion when CONFIG_PM is not set
 Date:   Tue, 15 Sep 2020 16:13:06 +0200
-Message-Id: <20200915140648.304853183@linuxfoundation.org>
+Message-Id: <20200915140635.641067364@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
-References: <20200915140644.037604909@linuxfoundation.org>
+In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
+References: <20200915140633.552502750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,78 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Maxim Kochetkov <fido_max@inbox.ru>
 
-commit 02ad21cefbac4d89ac443866f25b90449527737b upstream.
+commit e71e6dbe96ac80ac2aebe71a6a942e7bd60e7596 upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data.
+To stop conversion ads1015_set_power_state() function call unimplemented
+function __pm_runtime_suspend() from pm_runtime_put_autosuspend()
+if CONFIG_PM is not set.
+In case of CONFIG_PM is not set: __pm_runtime_suspend() returns -ENOSYS,
+so ads1015_read_raw() failed because ads1015_set_power_state() returns an
+error.
 
-This data is allocated with kzalloc so no data can leak apart from
-previous readings.
+If CONFIG_PM is disabled, there is no need to start/stop conversion.
+Fix it by adding return 0 function variant if CONFIG_PM is not set.
 
-The explicit alignment of ts is not necessary in this case as by
-coincidence the padding will end up the same, however I consider
-it to make the code less fragile and have included it.
-
-Fixes: bc11ca4a0b84 ("iio:magnetometer:ak8975: triggered buffer support")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Gregor Boirie <gregor.boirie@parrot.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
+Fixes: ecc24e72f437 ("iio: adc: Add TI ADS1015 ADC driver support")
+Tested-by: Maxim Kiselev <bigunclemax@gmail.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/magnetometer/ak8975.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/iio/adc/ti-ads1015.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/iio/magnetometer/ak8975.c
-+++ b/drivers/iio/magnetometer/ak8975.c
-@@ -368,6 +368,12 @@ struct ak8975_data {
- 	struct iio_mount_matrix orientation;
- 	struct regulator	*vdd;
- 	struct regulator	*vid;
-+
-+	/* Ensure natural alignment of timestamp */
-+	struct {
-+		s16 channels[3];
-+		s64 ts __aligned(8);
-+	} scan;
+--- a/drivers/iio/adc/ti-ads1015.c
++++ b/drivers/iio/adc/ti-ads1015.c
+@@ -312,6 +312,7 @@ static const struct iio_chan_spec ads111
+ 	IIO_CHAN_SOFT_TIMESTAMP(ADS1015_TIMESTAMP),
  };
  
- /* Enable attached power regulator if any. */
-@@ -805,7 +811,6 @@ static void ak8975_fill_buffer(struct ii
- 	const struct i2c_client *client = data->client;
- 	const struct ak_def *def = data->def;
++#ifdef CONFIG_PM
+ static int ads1015_set_power_state(struct ads1015_data *data, bool on)
+ {
  	int ret;
--	s16 buff[8]; /* 3 x 16 bits axis values + 1 aligned 64 bits timestamp */
- 	__le16 fval[3];
+@@ -329,6 +330,15 @@ static int ads1015_set_power_state(struc
+ 	return ret < 0 ? ret : 0;
+ }
  
- 	mutex_lock(&data->lock);
-@@ -828,12 +833,13 @@ static void ak8975_fill_buffer(struct ii
- 	mutex_unlock(&data->lock);
- 
- 	/* Clamp to valid range. */
--	buff[0] = clamp_t(s16, le16_to_cpu(fval[0]), -def->range, def->range);
--	buff[1] = clamp_t(s16, le16_to_cpu(fval[1]), -def->range, def->range);
--	buff[2] = clamp_t(s16, le16_to_cpu(fval[2]), -def->range, def->range);
-+	data->scan.channels[0] = clamp_t(s16, le16_to_cpu(fval[0]), -def->range, def->range);
-+	data->scan.channels[1] = clamp_t(s16, le16_to_cpu(fval[1]), -def->range, def->range);
-+	data->scan.channels[2] = clamp_t(s16, le16_to_cpu(fval[2]), -def->range, def->range);
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buff,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   iio_get_time_ns(indio_dev));
++#else /* !CONFIG_PM */
 +
- 	return;
- 
- unlock:
++static int ads1015_set_power_state(struct ads1015_data *data, bool on)
++{
++	return 0;
++}
++
++#endif /* !CONFIG_PM */
++
+ static
+ int ads1015_get_adc_result(struct ads1015_data *data, int chan, int *val)
+ {
 
 
