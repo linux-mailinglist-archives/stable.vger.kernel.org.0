@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5047926A727
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9854E26A759
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726450AbgIOOdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42988 "EHLO mail.kernel.org"
+        id S1727304AbgIOOll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:41:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727083AbgIOOca (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:32:30 -0400
+        id S1727281AbgIOOlg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:41:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0F29222BB;
-        Tue, 15 Sep 2020 14:23:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BDBF22A83;
+        Tue, 15 Sep 2020 14:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179834;
-        bh=4sSaA8sSc/MSeLJiOieIDKBP7CzF7vHakoPHP8AZ5Fs=;
+        s=default; t=1600180242;
+        bh=3DeDof8zH8ebgLROJLAJWdreYRB88ogNi4I2Oja4Bdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GTUAhr/QVsV0d1p01tGVcaBk4aZ/KrfhZz4juuUBOP/XaYSn+ksF6X4sdViPjZIZl
-         tJQccIaK/nHXeyVCDd+F/Eszz5fcyhXEkJuXG8QeFrlccAcS3j9s9F1aVLA0Flqxw8
-         adx+Lrvj6G4iVxTMa/0IzoTMiRHAFe+VGo+P/4vc=
+        b=Cmx5pXK9bw01kThu4efkiC9euacE/3pf0jGgtKqAgrq1SDUySe+AG5qIVs6Rak5V1
+         8drzANeq12DESgt0g3oJLk5ze2FUSPuSbzSwRIHGKIk5Lu9TtFQcKSgZPQhzdec2lK
+         oJk4k/jEnjqMzNLkzotIa3H+Fn9dKHuuXbkZbqDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 129/132] drm/msm/gpu: make ringbuffer readonly
-Date:   Tue, 15 Sep 2020 16:13:51 +0200
-Message-Id: <20200915140650.568692745@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Vaibhav Agarwal <vaibhav.sr@gmail.com>
+Subject: [PATCH 5.8 165/177] staging: greybus: audio: fix uninitialized value issue
+Date:   Tue, 15 Sep 2020 16:13:56 +0200
+Message-Id: <20200915140701.606608402@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
-References: <20200915140644.037604909@linuxfoundation.org>
+In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
+References: <20200915140653.610388773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Vaibhav Agarwal <vaibhav.sr@gmail.com>
 
-[ Upstream commit 352c83fb39cae3eff95a8e1ed23006291abb6196 ]
+commit 1dffeb8b8b4c261c45416d53c75ea51e6ece1770 upstream.
 
-The GPU has no business writing into the ringbuffer, let's make it
-readonly to the GPU.
+The current implementation for gbcodec_mixer_dapm_ctl_put() uses
+uninitialized gbvalue for comparison with updated value. This was found
+using static analysis with coverity.
 
-Fixes: 7198e6b03155 ("drm/msm: add a3xx gpu support")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Uninitialized scalar variable (UNINIT)
+11. uninit_use: Using uninitialized value
+gbvalue.value.integer_value[0].
+460        if (gbvalue.value.integer_value[0] != val) {
+
+This patch fixes the issue with fetching the gbvalue before using it for
+    comparision.
+
+Fixes: 6339d2322c47 ("greybus: audio: Add topology parser for GB codec")
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Vaibhav Agarwal <vaibhav.sr@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/bc4f29eb502ccf93cd2ffd98db0e319fa7d0f247.1597408126.git.vaibhav.sr@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/msm/msm_ringbuffer.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/greybus/audio_topology.c |   29 +++++++++++++++--------------
+ 1 file changed, 15 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_ringbuffer.c b/drivers/gpu/drm/msm/msm_ringbuffer.c
-index e397c44cc0112..39ecb5a18431e 100644
---- a/drivers/gpu/drm/msm/msm_ringbuffer.c
-+++ b/drivers/gpu/drm/msm/msm_ringbuffer.c
-@@ -27,7 +27,8 @@ struct msm_ringbuffer *msm_ringbuffer_new(struct msm_gpu *gpu, int id,
- 	ring->id = id;
+--- a/drivers/staging/greybus/audio_topology.c
++++ b/drivers/staging/greybus/audio_topology.c
+@@ -460,6 +460,15 @@ static int gbcodec_mixer_dapm_ctl_put(st
+ 	val = ucontrol->value.integer.value[0] & mask;
+ 	connect = !!val;
  
- 	ring->start = msm_gem_kernel_new(gpu->dev, MSM_GPU_RINGBUFFER_SZ,
--		MSM_BO_WC, gpu->aspace, &ring->bo, &ring->iova);
-+		MSM_BO_WC | MSM_BO_GPU_READONLY, gpu->aspace, &ring->bo,
-+		&ring->iova);
++	ret = gb_pm_runtime_get_sync(bundle);
++	if (ret)
++		return ret;
++
++	ret = gb_audio_gb_get_control(module->mgmt_connection, data->ctl_id,
++				      GB_AUDIO_INVALID_INDEX, &gbvalue);
++	if (ret)
++		goto exit;
++
+ 	/* update ucontrol */
+ 	if (gbvalue.value.integer_value[0] != val) {
+ 		for (wi = 0; wi < wlist->num_widgets; wi++) {
+@@ -473,25 +482,17 @@ static int gbcodec_mixer_dapm_ctl_put(st
+ 		gbvalue.value.integer_value[0] =
+ 			cpu_to_le32(ucontrol->value.integer.value[0]);
  
- 	if (IS_ERR(ring->start)) {
- 		ret = PTR_ERR(ring->start);
--- 
-2.25.1
-
+-		ret = gb_pm_runtime_get_sync(bundle);
+-		if (ret)
+-			return ret;
+-
+ 		ret = gb_audio_gb_set_control(module->mgmt_connection,
+ 					      data->ctl_id,
+ 					      GB_AUDIO_INVALID_INDEX, &gbvalue);
+-
+-		gb_pm_runtime_put_autosuspend(bundle);
+-
+-		if (ret) {
+-			dev_err_ratelimited(codec->dev,
+-					    "%d:Error in %s for %s\n", ret,
+-					    __func__, kcontrol->id.name);
+-			return ret;
+-		}
+ 	}
+ 
+-	return 0;
++exit:
++	gb_pm_runtime_put_autosuspend(bundle);
++	if (ret)
++		dev_err_ratelimited(codec_dev, "%d:Error in %s for %s\n", ret,
++				    __func__, kcontrol->id.name);
++	return ret;
+ }
+ 
+ #define SOC_DAPM_MIXER_GB(xname, kcount, data) \
 
 
