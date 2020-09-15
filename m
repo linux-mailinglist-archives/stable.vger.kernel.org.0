@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D45BB26B410
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F86526B420
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727358AbgIOXP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:15:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48792 "EHLO mail.kernel.org"
+        id S1727104AbgIOXRP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:17:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727161AbgIOOj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727227AbgIOOj2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:39:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D07E3224B1;
-        Tue, 15 Sep 2020 14:29:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F0A4224B8;
+        Tue, 15 Sep 2020 14:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180151;
-        bh=qFZdGYGe67YRBp/sEfrLzaeQi3/LGqucDOf5ijLBXPo=;
+        s=default; t=1600180154;
+        bh=/1IozrNqi9WS4vLF9ZvRdlaBkyVWTl8cTDqheaHHwsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rVF4xiq2VYTbXrit3Xg8HGyeogDe+WcI3XOqS8y24+MWHmYQvgl/oGm059OSCJQqy
-         YvHobrvVUj6sonqMfesL7HKz9GkvDs2OlG6I0t4bfllhJj3p8yFXP4EipHlvQRMVOJ
-         wZZ0HrYGz19S5RToO0y1GbkxiOD05x92IY19dLCw=
+        b=AUC7kyLQUnXi1ynjhUCkdvHFmzwtiJ1PHhXq8fTl61uVy9NgvAQbQ25vLclLyJRQ+
+         5s6Z9EKC/MLAs3sPgCWvAYMmrzHG49O7o1AujHVtDvVomPtDIntPcYc0h3B+T8r3xk
+         7mDQKtRlut0vTCWyOZ8UucB41lnE72biN3erkIpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, A L <mail@lechevalier.se>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.8 129/177] btrfs: fix wrong address when faulting in pages in the search ioctl
-Date:   Tue, 15 Sep 2020 16:13:20 +0200
-Message-Id: <20200915140659.832712398@linuxfoundation.org>
+        stable@vger.kernel.org, Prateek Sood <prsood@codeaurora.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.8 130/177] firmware_loader: fix memory leak for paged buffer
+Date:   Tue, 15 Sep 2020 16:13:21 +0200
+Message-Id: <20200915140659.882010944@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -45,51 +43,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Prateek Sood <prsood@codeaurora.org>
 
-commit 1c78544eaa4660096aeb6a57ec82b42cdb3bfe5a upstream.
+commit 4965b8cd1bc1ffb017e5c58e622da82b55e49414 upstream.
 
-When faulting in the pages for the user supplied buffer for the search
-ioctl, we are passing only the base address of the buffer to the function
-fault_in_pages_writeable(). This means that after the first iteration of
-the while loop that searches for leaves, when we have a non-zero offset,
-stored in 'sk_offset', we try to fault in a wrong page range.
+vfree() is being called on paged buffer allocated
+using alloc_page() and mapped using vmap().
 
-So fix this by adding the offset in 'sk_offset' to the base address of the
-user supplied buffer when calling fault_in_pages_writeable().
+Freeing of pages in vfree() relies on nr_pages of
+struct vm_struct. vmap() does not update nr_pages.
+It can lead to memory leaks.
 
-Several users have reported that the applications compsize and bees have
-started to operate incorrectly since commit a48b73eca4ceb9 ("btrfs: fix
-potential deadlock in the search ioctl") was added to stable trees, and
-these applications make heavy use of the search ioctls. This fixes their
-issues.
-
-Link: https://lore.kernel.org/linux-btrfs/632b888d-a3c3-b085-cdf5-f9bb61017d92@lechevalier.se/
-Link: https://github.com/kilobyte/compsize/issues/34
-Fixes: a48b73eca4ceb9 ("btrfs: fix potential deadlock in the search ioctl")
-CC: stable@vger.kernel.org # 4.4+
-Tested-by: A L <mail@lechevalier.se>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: ddaf29fd9bb6 ("firmware: Free temporary page table after vmapping")
+Signed-off-by: Prateek Sood <prsood@codeaurora.org>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1597957070-27185-1-git-send-email-prsood@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ioctl.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/base/firmware_loader/firmware.h |    2 ++
+ drivers/base/firmware_loader/main.c     |   17 +++++++++++------
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -2193,7 +2193,8 @@ static noinline int search_ioctl(struct
- 	key.offset = sk->min_offset;
+--- a/drivers/base/firmware_loader/firmware.h
++++ b/drivers/base/firmware_loader/firmware.h
+@@ -142,10 +142,12 @@ int assign_fw(struct firmware *fw, struc
+ void fw_free_paged_buf(struct fw_priv *fw_priv);
+ int fw_grow_paged_buf(struct fw_priv *fw_priv, int pages_needed);
+ int fw_map_paged_buf(struct fw_priv *fw_priv);
++bool fw_is_paged_buf(struct fw_priv *fw_priv);
+ #else
+ static inline void fw_free_paged_buf(struct fw_priv *fw_priv) {}
+ static inline int fw_grow_paged_buf(struct fw_priv *fw_priv, int pages_needed) { return -ENXIO; }
+ static inline int fw_map_paged_buf(struct fw_priv *fw_priv) { return -ENXIO; }
++static inline bool fw_is_paged_buf(struct fw_priv *fw_priv) { return false; }
+ #endif
  
- 	while (1) {
--		ret = fault_in_pages_writeable(ubuf, *buf_size - sk_offset);
-+		ret = fault_in_pages_writeable(ubuf + sk_offset,
-+					       *buf_size - sk_offset);
- 		if (ret)
- 			break;
+ #endif /* __FIRMWARE_LOADER_H */
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -252,9 +252,11 @@ static void __free_fw_priv(struct kref *
+ 	list_del(&fw_priv->list);
+ 	spin_unlock(&fwc->lock);
  
+-	fw_free_paged_buf(fw_priv); /* free leftover pages */
+-	if (!fw_priv->allocated_size)
++	if (fw_is_paged_buf(fw_priv))
++		fw_free_paged_buf(fw_priv);
++	else if (!fw_priv->allocated_size)
+ 		vfree(fw_priv->data);
++
+ 	kfree_const(fw_priv->fw_name);
+ 	kfree(fw_priv);
+ }
+@@ -268,6 +270,11 @@ static void free_fw_priv(struct fw_priv
+ }
+ 
+ #ifdef CONFIG_FW_LOADER_PAGED_BUF
++bool fw_is_paged_buf(struct fw_priv *fw_priv)
++{
++	return fw_priv->is_paged_buf;
++}
++
+ void fw_free_paged_buf(struct fw_priv *fw_priv)
+ {
+ 	int i;
+@@ -275,6 +282,8 @@ void fw_free_paged_buf(struct fw_priv *f
+ 	if (!fw_priv->pages)
+ 		return;
+ 
++	vunmap(fw_priv->data);
++
+ 	for (i = 0; i < fw_priv->nr_pages; i++)
+ 		__free_page(fw_priv->pages[i]);
+ 	kvfree(fw_priv->pages);
+@@ -328,10 +337,6 @@ int fw_map_paged_buf(struct fw_priv *fw_
+ 	if (!fw_priv->data)
+ 		return -ENOMEM;
+ 
+-	/* page table is no longer needed after mapping, let's free */
+-	kvfree(fw_priv->pages);
+-	fw_priv->pages = NULL;
+-
+ 	return 0;
+ }
+ #endif
 
 
