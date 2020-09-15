@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7680B26B72C
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:18:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B6F26B72E
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727413AbgIPASg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:18:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38262 "EHLO mail.kernel.org"
+        id S1727393AbgIPASf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:18:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726889AbgIOOWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726887AbgIOOWr (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:22:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5C5C22284;
-        Tue, 15 Sep 2020 14:17:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 379CD22286;
+        Tue, 15 Sep 2020 14:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179466;
-        bh=3DeDof8zH8ebgLROJLAJWdreYRB88ogNi4I2Oja4Bdw=;
+        s=default; t=1600179468;
+        bh=riLVx3JTdnHNB76EjOjB6sBcKEKA36yNufDKIv31q2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vwl9ZK66VpLSREXQLHarELiSg07ZCzWKAMFcP5+F9andQVJgzMkFuvmSQAzq5g6Mm
-         AaaNQN/tPpk8INaG/c79fkvg0x9i3y2HgydDG8HidY+amH67aH22AaYMCRsCMV5FIA
-         hgHyTWeqmfPvr8zztO2eXa7S4bnFrXVTYrEM7uUo=
+        b=WZj9tVXutMEvg+/HY9BWHdrMRAmytMH2Qr7lbDIYtDAtVJfnu/3p+CgZ5P2rI84qz
+         stx44Ej66Lc1m6vN6sD8jIlj6LN+tvQF+gbPyECH4YO7KenDJqKYqCFh+Ij82XBYkN
+         o5UVKXbzSbN0BQT988prpjmmzfcGe6Hoft1roxqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Vaibhav Agarwal <vaibhav.sr@gmail.com>
-Subject: [PATCH 4.19 71/78] staging: greybus: audio: fix uninitialized value issue
-Date:   Tue, 15 Sep 2020 16:13:36 +0200
-Message-Id: <20200915140637.141656938@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>,
+        Sivaprakash Murugesan <sivaprak@codeaurora.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.19 72/78] phy: qcom-qmp: Use correct values for ipq8074 PCIe Gen2 PHY init
+Date:   Tue, 15 Sep 2020 16:13:37 +0200
+Message-Id: <20200915140637.190662014@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 References: <20200915140633.552502750@linuxfoundation.org>
@@ -43,82 +45,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vaibhav Agarwal <vaibhav.sr@gmail.com>
+From: Sivaprakash Murugesan <sivaprak@codeaurora.org>
 
-commit 1dffeb8b8b4c261c45416d53c75ea51e6ece1770 upstream.
+commit afd55e6d1bd35b4b36847869011447a83a81c8e0 upstream.
 
-The current implementation for gbcodec_mixer_dapm_ctl_put() uses
-uninitialized gbvalue for comparison with updated value. This was found
-using static analysis with coverity.
+There were some problem in ipq8074 Gen2 PCIe phy init sequence.
 
-Uninitialized scalar variable (UNINIT)
-11. uninit_use: Using uninitialized value
-gbvalue.value.integer_value[0].
-460        if (gbvalue.value.integer_value[0] != val) {
+1. Few register values were wrongly updated in the phy init sequence.
+2. The register QSERDES_RX_SIGDET_CNTRL is a RX tuning parameter
+   register which is added in serdes table causing the wrong register
+   was getting updated.
+3. Clocks and resets were not added in the phy init.
 
-This patch fixes the issue with fetching the gbvalue before using it for
-    comparision.
+Fix these to make Gen2 PCIe port on ipq8074 devices to work.
 
-Fixes: 6339d2322c47 ("greybus: audio: Add topology parser for GB codec")
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Vaibhav Agarwal <vaibhav.sr@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/bc4f29eb502ccf93cd2ffd98db0e319fa7d0f247.1597408126.git.vaibhav.sr@gmail.com
+Fixes: eef243d04b2b6 ("phy: qcom-qmp: Add support for IPQ8074")
+Cc: stable@vger.kernel.org
+Co-developed-by: Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
+Signed-off-by: Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
+Signed-off-by: Sivaprakash Murugesan <sivaprak@codeaurora.org>
+Link: https://lore.kernel.org/r/1596036607-11877-4-git-send-email-sivaprak@codeaurora.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/greybus/audio_topology.c |   29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-qmp.c |   16 +++++++++-------
+ drivers/phy/qualcomm/phy-qcom-qmp.h |    2 ++
+ 2 files changed, 11 insertions(+), 7 deletions(-)
 
---- a/drivers/staging/greybus/audio_topology.c
-+++ b/drivers/staging/greybus/audio_topology.c
-@@ -460,6 +460,15 @@ static int gbcodec_mixer_dapm_ctl_put(st
- 	val = ucontrol->value.integer.value[0] & mask;
- 	connect = !!val;
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+@@ -311,8 +311,8 @@ static const struct qmp_phy_init_tbl ipq
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_BG_TRIM, 0xf),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_LOCK_CMP_EN, 0x1),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_MAP, 0x0),
+-	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER1, 0x1f),
+-	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER2, 0x3f),
++	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER1, 0xff),
++	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER2, 0x1f),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_CMN_CONFIG, 0x6),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_PLL_IVCO, 0xf),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_HSCLK_SEL, 0x0),
+@@ -338,7 +338,6 @@ static const struct qmp_phy_init_tbl ipq
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_INTEGLOOP_GAIN1_MODE0, 0x0),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_INTEGLOOP_GAIN0_MODE0, 0x80),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_BIAS_EN_CTRL_BY_PSM, 0x1),
+-	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_CTRL, 0xa),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_EN_CENTER, 0x1),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_PER1, 0x31),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_PER2, 0x1),
+@@ -347,7 +346,6 @@ static const struct qmp_phy_init_tbl ipq
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_STEP_SIZE1, 0x2f),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_STEP_SIZE2, 0x19),
+ 	QMP_PHY_INIT_CFG(QSERDES_COM_CLK_EP_DIV, 0x19),
+-	QMP_PHY_INIT_CFG(QSERDES_RX_SIGDET_CNTRL, 0x7),
+ };
  
-+	ret = gb_pm_runtime_get_sync(bundle);
-+	if (ret)
-+		return ret;
-+
-+	ret = gb_audio_gb_get_control(module->mgmt_connection, data->ctl_id,
-+				      GB_AUDIO_INVALID_INDEX, &gbvalue);
-+	if (ret)
-+		goto exit;
-+
- 	/* update ucontrol */
- 	if (gbvalue.value.integer_value[0] != val) {
- 		for (wi = 0; wi < wlist->num_widgets; wi++) {
-@@ -473,25 +482,17 @@ static int gbcodec_mixer_dapm_ctl_put(st
- 		gbvalue.value.integer_value[0] =
- 			cpu_to_le32(ucontrol->value.integer.value[0]);
+ static const struct qmp_phy_init_tbl ipq8074_pcie_tx_tbl[] = {
+@@ -355,6 +353,8 @@ static const struct qmp_phy_init_tbl ipq
+ 	QMP_PHY_INIT_CFG(QSERDES_TX_LANE_MODE, 0x6),
+ 	QMP_PHY_INIT_CFG(QSERDES_TX_RES_CODE_LANE_OFFSET, 0x2),
+ 	QMP_PHY_INIT_CFG(QSERDES_TX_RCV_DETECT_LVL_2, 0x12),
++	QMP_PHY_INIT_CFG(QSERDES_TX_EMP_POST1_LVL, 0x36),
++	QMP_PHY_INIT_CFG(QSERDES_TX_SLEW_CNTL, 0x0a),
+ };
  
--		ret = gb_pm_runtime_get_sync(bundle);
--		if (ret)
--			return ret;
--
- 		ret = gb_audio_gb_set_control(module->mgmt_connection,
- 					      data->ctl_id,
- 					      GB_AUDIO_INVALID_INDEX, &gbvalue);
--
--		gb_pm_runtime_put_autosuspend(bundle);
--
--		if (ret) {
--			dev_err_ratelimited(codec->dev,
--					    "%d:Error in %s for %s\n", ret,
--					    __func__, kcontrol->id.name);
--			return ret;
--		}
- 	}
+ static const struct qmp_phy_init_tbl ipq8074_pcie_rx_tbl[] = {
+@@ -365,7 +365,6 @@ static const struct qmp_phy_init_tbl ipq
+ 	QMP_PHY_INIT_CFG(QSERDES_RX_RX_EQU_ADAPTOR_CNTRL4, 0xdb),
+ 	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_SATURATION_AND_ENABLE, 0x4b),
+ 	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_GAIN, 0x4),
+-	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_GAIN_HALF, 0x4),
+ };
  
--	return 0;
-+exit:
-+	gb_pm_runtime_put_autosuspend(bundle);
-+	if (ret)
-+		dev_err_ratelimited(codec_dev, "%d:Error in %s for %s\n", ret,
-+				    __func__, kcontrol->id.name);
-+	return ret;
- }
+ static const struct qmp_phy_init_tbl ipq8074_pcie_pcs_tbl[] = {
+@@ -818,6 +817,9 @@ static const struct qmp_phy_cfg msm8996_
+ 	.mask_pcs_ready		= PHYSTATUS,
+ };
  
- #define SOC_DAPM_MIXER_GB(xname, kcount, data) \
++static const char * const ipq8074_pciephy_clk_l[] = {
++	"aux", "cfg_ahb",
++};
+ /* list of resets */
+ static const char * const ipq8074_pciephy_reset_l[] = {
+ 	"phy", "common",
+@@ -835,8 +837,8 @@ static const struct qmp_phy_cfg ipq8074_
+ 	.rx_tbl_num		= ARRAY_SIZE(ipq8074_pcie_rx_tbl),
+ 	.pcs_tbl		= ipq8074_pcie_pcs_tbl,
+ 	.pcs_tbl_num		= ARRAY_SIZE(ipq8074_pcie_pcs_tbl),
+-	.clk_list		= NULL,
+-	.num_clks		= 0,
++	.clk_list		= ipq8074_pciephy_clk_l,
++	.num_clks		= ARRAY_SIZE(ipq8074_pciephy_clk_l),
+ 	.reset_list		= ipq8074_pciephy_reset_l,
+ 	.num_resets		= ARRAY_SIZE(ipq8074_pciephy_reset_l),
+ 	.vreg_list		= NULL,
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.h
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.h
+@@ -77,6 +77,8 @@
+ #define QSERDES_COM_CORECLK_DIV_MODE1			0x1bc
+ 
+ /* Only for QMP V2 PHY - TX registers */
++#define QSERDES_TX_EMP_POST1_LVL			0x018
++#define QSERDES_TX_SLEW_CNTL				0x040
+ #define QSERDES_TX_RES_CODE_LANE_OFFSET			0x054
+ #define QSERDES_TX_DEBUG_BUS_SEL			0x064
+ #define QSERDES_TX_HIGHZ_TRANSCEIVEREN_BIAS_DRVR_EN	0x068
 
 
