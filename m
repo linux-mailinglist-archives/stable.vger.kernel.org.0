@@ -2,219 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ACC326B5A3
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B83926B4CD
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727357AbgIOXsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:48:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47652 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727086AbgIOOcn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:32:43 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AB5822BEA;
-        Tue, 15 Sep 2020 14:24:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179841;
-        bh=z3VuaGv082dQfs8ogrfrrT40VnM19ZaA0lgMHalf3BE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ka537YzWeYFFrN563G19OZS/E6rM1V4l5Q0M1tu+P07fE7q+VRlqChnAsuY+mqKTc
-         ZQ3zSjGeZ+RxBdU1FAqf/P5HvIyPjZ+bHWzlSruT2GFlePJ/vaW6Q+1OccJRGdXhFj
-         J24oHMaV8WVvtIcenMBy7pf7Y+Wz1sqe7qFc9/VM=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordan Crouse <jcrouse@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 132/132] drm/msm: Disable the RPTR shadow
-Date:   Tue, 15 Sep 2020 16:13:54 +0200
-Message-Id: <20200915140650.714378261@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
-References: <20200915140644.037604909@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727160AbgIOXay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:30:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34020 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727459AbgIOX3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 19:29:18 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E8DC06174A
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 16:29:16 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id c13so5926777oiy.6
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 16:29:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=qbOUuv1gUD+qXXkj5YWutXFkg4WLBN2ngc3Iyk5DDAs=;
+        b=BlbJ7ncCQzp+upzh5WZtzcI/GRPLRHBv+YtzJu3J44nOv3QlIKEDkuiJRdsmYFJdvl
+         q/6VZELF4b2ltbzpMVaXpLK+GzT4Nix7fuJdFpDQhZfQJLbPLdCMdOrZafZ2/ubqXN+9
+         9rWlzx77n4KJQnwlbi8ZHAUqvr3EkmXGUccgA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=qbOUuv1gUD+qXXkj5YWutXFkg4WLBN2ngc3Iyk5DDAs=;
+        b=d4g85EfYFNygLeWoJ1qIWMP19N3cEkxEzuIOFczU+dufkX/hNlypgG3mVtMvAK98zR
+         kZw2CuaiP+7tNBWnWYCK6Dsg9WYaVEtghkkR18s5KKPA2T7wWp63lcczaBAMd3v6WBhR
+         Xhs8pm9lFu8le5okNTy91yhHhslCM0BN7VY/9xNaCZDaI4yqryQKMlF5ZA9nYMHd67To
+         pn+BPdwsJyAUDUeLIvezVaibAoda54R6FwDu9wqg4PreBVn6/CnUX75F02VoeZyiXMQK
+         hjafPGySnubN05UpP6ApDncWI0EITPaAGSJszFFIfHXThaTAgx0nnC1cwJ2F8mA7DLzW
+         NYcg==
+X-Gm-Message-State: AOAM530TncRxmb8qndFisOnqX+CsKn3pOGLmZC11RqZJQ6rmjoOoLUFF
+        RkPq0zHT5py9VrEca6tXp0ZkJA==
+X-Google-Smtp-Source: ABdhPJwxHv8Z8lb1erUw3ImFC9R2ImDiSNZK+V5IExxSAAwGZBukNJpnngQR2z+/IKUI/YDKWvLCTA==
+X-Received: by 2002:aca:52ca:: with SMTP id g193mr1243613oib.126.1600212555958;
+        Tue, 15 Sep 2020 16:29:15 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id n37sm6816316ota.20.2020.09.15.16.29.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Sep 2020 16:29:15 -0700 (PDT)
+Subject: Re: [PATCH 5.4 000/130] 5.4.66-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20200915164455.372746145@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <44c0fb9a-2510-c9e7-0bdf-52f1e19698e1@linuxfoundation.org>
+Date:   Tue, 15 Sep 2020 17:29:13 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200915164455.372746145@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordan Crouse <jcrouse@codeaurora.org>
+On 9/15/20 10:45 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.66 release.
+> There are 130 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 17 Sep 2020 16:44:19 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.66-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-[ Upstream commit f6828e0c4045f03f9cf2df6c2a768102641183f4 ]
+Compiled and booted on my test system. No dmesg regressions.
 
-Disable the RPTR shadow across all targets. It will be selectively
-re-enabled later for targets that need it.
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/gpu/drm/msm/adreno/a2xx_gpu.c   |  5 +++++
- drivers/gpu/drm/msm/adreno/a3xx_gpu.c   | 10 +++++++++
- drivers/gpu/drm/msm/adreno/a4xx_gpu.c   | 10 +++++++++
- drivers/gpu/drm/msm/adreno/a5xx_gpu.c   | 11 ++++++++--
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c   |  7 +++++++
- drivers/gpu/drm/msm/adreno/adreno_gpu.c | 27 ++-----------------------
- 6 files changed, 43 insertions(+), 27 deletions(-)
-
-diff --git a/drivers/gpu/drm/msm/adreno/a2xx_gpu.c b/drivers/gpu/drm/msm/adreno/a2xx_gpu.c
-index 1f83bc18d5008..80f3b1da9fc26 100644
---- a/drivers/gpu/drm/msm/adreno/a2xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a2xx_gpu.c
-@@ -164,6 +164,11 @@ static int a2xx_hw_init(struct msm_gpu *gpu)
- 	if (ret)
- 		return ret;
- 
-+	gpu_write(gpu, REG_AXXX_CP_RB_CNTL,
-+		MSM_GPU_RB_CNTL_DEFAULT | AXXX_CP_RB_CNTL_NO_UPDATE);
-+
-+	gpu_write(gpu, REG_AXXX_CP_RB_BASE, lower_32_bits(gpu->rb[0]->iova));
-+
- 	/* NOTE: PM4/micro-engine firmware registers look to be the same
- 	 * for a2xx and a3xx.. we could possibly push that part down to
- 	 * adreno_gpu base class.  Or push both PM4 and PFP but
-diff --git a/drivers/gpu/drm/msm/adreno/a3xx_gpu.c b/drivers/gpu/drm/msm/adreno/a3xx_gpu.c
-index 5f7e98028eaf4..eeba2deeca1e8 100644
---- a/drivers/gpu/drm/msm/adreno/a3xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a3xx_gpu.c
-@@ -215,6 +215,16 @@ static int a3xx_hw_init(struct msm_gpu *gpu)
- 	if (ret)
- 		return ret;
- 
-+	/*
-+	 * Use the default ringbuffer size and block size but disable the RPTR
-+	 * shadow
-+	 */
-+	gpu_write(gpu, REG_AXXX_CP_RB_CNTL,
-+		MSM_GPU_RB_CNTL_DEFAULT | AXXX_CP_RB_CNTL_NO_UPDATE);
-+
-+	/* Set the ringbuffer address */
-+	gpu_write(gpu, REG_AXXX_CP_RB_BASE, lower_32_bits(gpu->rb[0]->iova));
-+
- 	/* setup access protection: */
- 	gpu_write(gpu, REG_A3XX_CP_PROTECT_CTRL, 0x00000007);
- 
-diff --git a/drivers/gpu/drm/msm/adreno/a4xx_gpu.c b/drivers/gpu/drm/msm/adreno/a4xx_gpu.c
-index ab2b752566d81..05cfa81d4c540 100644
---- a/drivers/gpu/drm/msm/adreno/a4xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a4xx_gpu.c
-@@ -265,6 +265,16 @@ static int a4xx_hw_init(struct msm_gpu *gpu)
- 	if (ret)
- 		return ret;
- 
-+	/*
-+	 * Use the default ringbuffer size and block size but disable the RPTR
-+	 * shadow
-+	 */
-+	gpu_write(gpu, REG_A4XX_CP_RB_CNTL,
-+		MSM_GPU_RB_CNTL_DEFAULT | AXXX_CP_RB_CNTL_NO_UPDATE);
-+
-+	/* Set the ringbuffer address */
-+	gpu_write(gpu, REG_A4XX_CP_RB_BASE, lower_32_bits(gpu->rb[0]->iova));
-+
- 	/* Load PM4: */
- 	ptr = (uint32_t *)(adreno_gpu->fw[ADRENO_FW_PM4]->data);
- 	len = adreno_gpu->fw[ADRENO_FW_PM4]->size / 4;
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-index 4a484b06319ff..24b55103bfe00 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-@@ -677,14 +677,21 @@ static int a5xx_hw_init(struct msm_gpu *gpu)
- 	if (ret)
- 		return ret;
- 
--	a5xx_preempt_hw_init(gpu);
--
- 	a5xx_gpmu_ucode_init(gpu);
- 
- 	ret = a5xx_ucode_init(gpu);
- 	if (ret)
- 		return ret;
- 
-+	/* Set the ringbuffer address */
-+	gpu_write64(gpu, REG_A5XX_CP_RB_BASE, REG_A5XX_CP_RB_BASE_HI,
-+		gpu->rb[0]->iova);
-+
-+	gpu_write(gpu, REG_A5XX_CP_RB_CNTL,
-+		MSM_GPU_RB_CNTL_DEFAULT | AXXX_CP_RB_CNTL_NO_UPDATE);
-+
-+	a5xx_preempt_hw_init(gpu);
-+
- 	/* Disable the interrupts through the initial bringup stage */
- 	gpu_write(gpu, REG_A5XX_RBBM_INT_0_MASK, A5XX_INT_MASK);
- 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index ea073cd9d248e..dae32c6ac2120 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -550,6 +550,13 @@ static int a6xx_hw_init(struct msm_gpu *gpu)
- 	if (ret)
- 		goto out;
- 
-+	/* Set the ringbuffer address */
-+	gpu_write64(gpu, REG_A6XX_CP_RB_BASE, REG_A6XX_CP_RB_BASE_HI,
-+		gpu->rb[0]->iova);
-+
-+	gpu_write(gpu, REG_A6XX_CP_RB_CNTL,
-+		MSM_GPU_RB_CNTL_DEFAULT | AXXX_CP_RB_CNTL_NO_UPDATE);
-+
- 	/* Always come up on rb 0 */
- 	a6xx_gpu->cur_ring = gpu->rb[0];
- 
-diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-index 053da39da1cc0..3802ad38c519c 100644
---- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
-@@ -354,26 +354,6 @@ int adreno_hw_init(struct msm_gpu *gpu)
- 		ring->memptrs->rptr = 0;
- 	}
- 
--	/*
--	 * Setup REG_CP_RB_CNTL.  The same value is used across targets (with
--	 * the excpetion of A430 that disables the RPTR shadow) - the cacluation
--	 * for the ringbuffer size and block size is moved to msm_gpu.h for the
--	 * pre-processor to deal with and the A430 variant is ORed in here
--	 */
--	adreno_gpu_write(adreno_gpu, REG_ADRENO_CP_RB_CNTL,
--		MSM_GPU_RB_CNTL_DEFAULT |
--		(adreno_is_a430(adreno_gpu) ? AXXX_CP_RB_CNTL_NO_UPDATE : 0));
--
--	/* Setup ringbuffer address - use ringbuffer[0] for GPU init */
--	adreno_gpu_write64(adreno_gpu, REG_ADRENO_CP_RB_BASE,
--		REG_ADRENO_CP_RB_BASE_HI, gpu->rb[0]->iova);
--
--	if (!adreno_is_a430(adreno_gpu)) {
--		adreno_gpu_write64(adreno_gpu, REG_ADRENO_CP_RB_RPTR_ADDR,
--			REG_ADRENO_CP_RB_RPTR_ADDR_HI,
--			rbmemptr(gpu->rb[0], rptr));
--	}
--
- 	return 0;
- }
- 
-@@ -381,11 +361,8 @@ int adreno_hw_init(struct msm_gpu *gpu)
- static uint32_t get_rptr(struct adreno_gpu *adreno_gpu,
- 		struct msm_ringbuffer *ring)
- {
--	if (adreno_is_a430(adreno_gpu))
--		return ring->memptrs->rptr = adreno_gpu_read(
--			adreno_gpu, REG_ADRENO_CP_RB_RPTR);
--	else
--		return ring->memptrs->rptr;
-+	return ring->memptrs->rptr = adreno_gpu_read(
-+		adreno_gpu, REG_ADRENO_CP_RB_RPTR);
- }
- 
- struct msm_ringbuffer *adreno_active_ring(struct msm_gpu *gpu)
--- 
-2.25.1
-
-
+thanks,
+-- Shuah
 
