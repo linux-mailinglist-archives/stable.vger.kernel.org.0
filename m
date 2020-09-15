@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22A7A26B666
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CDFF26B721
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727082AbgIPAEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:04:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43010 "EHLO mail.kernel.org"
+        id S1727189AbgIPARx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:17:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726987AbgIOO3B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:29:01 -0400
+        id S1726885AbgIOOWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:22:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0E3022A99;
-        Tue, 15 Sep 2020 14:21:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EC4A22275;
+        Tue, 15 Sep 2020 14:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179694;
-        bh=l9PE0i3dqO1wjo3eLC0sOZ7qcqnrqZx3DKZtkeCtXiw=;
+        s=default; t=1600179458;
+        bh=WrnlAqu4pYVCGlc1rGq/4Sm+z4IbESJor4R40Xlh220=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MI4spaMqb5WxTku/QF6FNZSAC21tnP6RgSi1cvMWKdMHMEb3rvkPp5KOqlgH1JBxk
-         X6qjhab8NG+KIRkn1srRBulFLH2HkNanYtDu5BU2MKu4KRuKqKgu5GOr1bK6lo+mjY
-         J1/P/e0jVjLv+SHSXUTIcYaONq83VXxlfAR0ehzM=
+        b=Z2IPMIHUrSa14G7F4u/NK0PR2/MWSpSoRM/Dd5ebu0qvebfKsTwad7Sm+8SPE3tjh
+         hJqlhYurbI0su8r+DhnJFpWPuh5qWMO4njXy/BM6B4umIMEspazF8GP4AB27nIeRHh
+         GT8AZtR/RCdmCGCyV8HBwWTywwpWTi6BD0DdmfUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>,
-        Marc Titinger <mtitinger@baylibre.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.4 081/132] iio:adc:ina2xx Fix timestamp alignment issue.
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 38/78] iommu/amd: Do not use IOMMUv2 functionality when SME is active
 Date:   Tue, 15 Sep 2020 16:13:03 +0200
-Message-Id: <20200915140648.154529152@linuxfoundation.org>
+Message-Id: <20200915140635.495652007@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
-References: <20200915140644.037604909@linuxfoundation.org>
+In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
+References: <20200915140633.552502750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,73 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit f8cd222feb82ecd82dcf610fcc15186f55f9c2b5 upstream.
+[ Upstream commit 2822e582501b65707089b097e773e6fd70774841 ]
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses a 32 byte array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc so no
-data can leak apart from previous readings. The explicit alignment
-isn't technically needed here, but it reduced fragility and avoids
-cut and paste into drivers where it will be needed.
+When memory encryption is active the device is likely not in a direct
+mapped domain. Forbid using IOMMUv2 functionality for now until finer
+grained checks for this have been implemented.
 
-If we want this in older stables will need manual backport due to
-driver reworks.
-
-Fixes: c43a102e67db ("iio: ina2xx: add support for TI INA2xx Power Monitors")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Stefan Brüns <stefan.bruens@rwth-aachen.de>
-Cc: Marc Titinger <mtitinger@baylibre.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Link: https://lore.kernel.org/r/20200824105415.21000-3-joro@8bytes.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ina2xx-adc.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/iommu/amd_iommu_v2.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/iio/adc/ina2xx-adc.c
-+++ b/drivers/iio/adc/ina2xx-adc.c
-@@ -146,6 +146,11 @@ struct ina2xx_chip_info {
- 	int range_vbus; /* Bus voltage maximum in V */
- 	int pga_gain_vshunt; /* Shunt voltage PGA gain */
- 	bool allow_async_readout;
-+	/* data buffer needs space for channel data and timestamp */
-+	struct {
-+		u16 chan[4];
-+		u64 ts __aligned(8);
-+	} scan;
- };
+diff --git a/drivers/iommu/amd_iommu_v2.c b/drivers/iommu/amd_iommu_v2.c
+index 58da65df03f5e..7a59a8ebac108 100644
+--- a/drivers/iommu/amd_iommu_v2.c
++++ b/drivers/iommu/amd_iommu_v2.c
+@@ -776,6 +776,13 @@ int amd_iommu_init_device(struct pci_dev *pdev, int pasids)
  
- static const struct ina2xx_config ina2xx_config[] = {
-@@ -738,8 +743,6 @@ static int ina2xx_conversion_ready(struc
- static int ina2xx_work_buffer(struct iio_dev *indio_dev)
- {
- 	struct ina2xx_chip_info *chip = iio_priv(indio_dev);
--	/* data buffer needs space for channel data and timestap */
--	unsigned short data[4 + sizeof(s64)/sizeof(short)];
- 	int bit, ret, i = 0;
- 	s64 time;
+ 	might_sleep();
  
-@@ -758,10 +761,10 @@ static int ina2xx_work_buffer(struct iio
- 		if (ret < 0)
- 			return ret;
++	/*
++	 * When memory encryption is active the device is likely not in a
++	 * direct-mapped domain. Forbid using IOMMUv2 functionality for now.
++	 */
++	if (mem_encrypt_active())
++		return -ENODEV;
++
+ 	if (!amd_iommu_v2_supported())
+ 		return -ENODEV;
  
--		data[i++] = val;
-+		chip->scan.chan[i++] = val;
- 	}
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, data, time);
-+	iio_push_to_buffers_with_timestamp(indio_dev, &chip->scan, time);
- 
- 	return 0;
- };
+-- 
+2.25.1
+
 
 
