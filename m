@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8FC026B51A
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:37:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7B6326B54D
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727366AbgIOXhD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:37:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
+        id S1727464AbgIOXlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:41:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727068AbgIOOfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:35:23 -0400
+        id S1727108AbgIOOem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:34:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E602920735;
-        Tue, 15 Sep 2020 14:15:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50EF721D91;
+        Tue, 15 Sep 2020 14:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179331;
-        bh=3st5nF5UcQ80yr/lcX3pOnZPlbiq4npcK9jsNL3vzmI=;
+        s=default; t=1600179333;
+        bh=6lJqYousbkRWzTnKPucX719ewW66jKHGJq1Or/5QNn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jqw/+5rE1/Sc9Kmok9bl8m6Eu+1lOYLVZVEsJ2zEvYv91bY4/BfjGd07MK0XkO9Rw
-         vdixKQGkacIUt09KNOE+OJtdUuMkYMAuiAxlpynxWz2iJ1JL72zPXo8399wOBIVfyF
-         I8aDO85xriN31COWEynmLxIEUR0c8598JIXbnaGk=
+        b=2CLYtzkO/9UM9YfzWcQignThgXtcAAkw3uplwCBaXgJ5cZOHmrtIsCPtulFq0twmf
+         6+GGXMzlYnue8IQv6/WquorLljHIuulVu4AkG9Ush48nrzdHXbwR5jIPN6i8N0s4Na
+         AwspHp1xbGLAuWmGENuN0i2JBsALGzVUFXhMyOqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hanjun Guo <guohanjun@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/78] dmaengine: acpi: Put the CSRT table after using it
-Date:   Tue, 15 Sep 2020 16:12:43 +0200
-Message-Id: <20200915140634.472561027@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 19/78] netfilter: conntrack: allow sctp hearbeat after connection re-use
+Date:   Tue, 15 Sep 2020 16:12:44 +0200
+Message-Id: <20200915140634.526206757@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 References: <20200915140633.552502750@linuxfoundation.org>
@@ -43,41 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 7eb48dd094de5fe0e216b550e73aa85257903973 ]
+[ Upstream commit cc5453a5b7e90c39f713091a7ebc53c1f87d1700 ]
 
-The acpi_get_table() should be coupled with acpi_put_table() if
-the mapped table is not used at runtime to release the table
-mapping, put the CSRT table buf after using it.
+If an sctp connection gets re-used, heartbeats are flagged as invalid
+because their vtag doesn't match.
 
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Link: https://lore.kernel.org/r/1595411661-15936-1-git-send-email-guohanjun@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Handle this in a similar way as TCP conntrack when it suspects that the
+endpoints and conntrack are out-of-sync.
+
+When a HEARTBEAT request fails its vtag validation, flag this in the
+conntrack state and accept the packet.
+
+When a HEARTBEAT_ACK is received with an invalid vtag in the reverse
+direction after we allowed such a HEARTBEAT through, assume we are
+out-of-sync and re-set the vtag info.
+
+v2: remove left-over snippet from an older incarnation that moved
+    new_state/old_state assignments, thats not needed so keep that
+    as-is.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/acpi-dma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/netfilter/nf_conntrack_sctp.h |  2 ++
+ net/netfilter/nf_conntrack_proto_sctp.c     | 39 ++++++++++++++++++---
+ 2 files changed, 37 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/dma/acpi-dma.c b/drivers/dma/acpi-dma.c
-index 4a748c3435d7d..8d99c84361cbb 100644
---- a/drivers/dma/acpi-dma.c
-+++ b/drivers/dma/acpi-dma.c
-@@ -131,11 +131,13 @@ static void acpi_dma_parse_csrt(struct acpi_device *adev, struct acpi_dma *adma)
- 		if (ret < 0) {
- 			dev_warn(&adev->dev,
- 				 "error in parsing resource group\n");
--			return;
-+			break;
+diff --git a/include/linux/netfilter/nf_conntrack_sctp.h b/include/linux/netfilter/nf_conntrack_sctp.h
+index 9a33f171aa822..625f491b95de8 100644
+--- a/include/linux/netfilter/nf_conntrack_sctp.h
++++ b/include/linux/netfilter/nf_conntrack_sctp.h
+@@ -9,6 +9,8 @@ struct ip_ct_sctp {
+ 	enum sctp_conntrack state;
+ 
+ 	__be32 vtag[IP_CT_DIR_MAX];
++	u8 last_dir;
++	u8 flags;
+ };
+ 
+ #endif /* _NF_CONNTRACK_SCTP_H */
+diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
+index 7d7e30ea0ecf9..a937d4f75613f 100644
+--- a/net/netfilter/nf_conntrack_proto_sctp.c
++++ b/net/netfilter/nf_conntrack_proto_sctp.c
+@@ -65,6 +65,8 @@ static const unsigned int sctp_timeouts[SCTP_CONNTRACK_MAX] = {
+ 	[SCTP_CONNTRACK_HEARTBEAT_ACKED]	= 210 SECS,
+ };
+ 
++#define	SCTP_FLAG_HEARTBEAT_VTAG_FAILED	1
++
+ #define sNO SCTP_CONNTRACK_NONE
+ #define	sCL SCTP_CONNTRACK_CLOSED
+ #define	sCW SCTP_CONNTRACK_COOKIE_WAIT
+@@ -288,6 +290,7 @@ static int sctp_packet(struct nf_conn *ct,
+ 	u_int32_t offset, count;
+ 	unsigned int *timeouts;
+ 	unsigned long map[256 / sizeof(unsigned long)] = { 0 };
++	bool ignore = false;
+ 
+ 	sh = skb_header_pointer(skb, dataoff, sizeof(_sctph), &_sctph);
+ 	if (sh == NULL)
+@@ -332,15 +335,39 @@ static int sctp_packet(struct nf_conn *ct,
+ 			/* Sec 8.5.1 (D) */
+ 			if (sh->vtag != ct->proto.sctp.vtag[dir])
+ 				goto out_unlock;
+-		} else if (sch->type == SCTP_CID_HEARTBEAT ||
+-			   sch->type == SCTP_CID_HEARTBEAT_ACK) {
++		} else if (sch->type == SCTP_CID_HEARTBEAT) {
++			if (ct->proto.sctp.vtag[dir] == 0) {
++				pr_debug("Setting %d vtag %x for dir %d\n", sch->type, sh->vtag, dir);
++				ct->proto.sctp.vtag[dir] = sh->vtag;
++			} else if (sh->vtag != ct->proto.sctp.vtag[dir]) {
++				if (test_bit(SCTP_CID_DATA, map) || ignore)
++					goto out_unlock;
++
++				ct->proto.sctp.flags |= SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
++				ct->proto.sctp.last_dir = dir;
++				ignore = true;
++				continue;
++			} else if (ct->proto.sctp.flags & SCTP_FLAG_HEARTBEAT_VTAG_FAILED) {
++				ct->proto.sctp.flags &= ~SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
++			}
++		} else if (sch->type == SCTP_CID_HEARTBEAT_ACK) {
+ 			if (ct->proto.sctp.vtag[dir] == 0) {
+ 				pr_debug("Setting vtag %x for dir %d\n",
+ 					 sh->vtag, dir);
+ 				ct->proto.sctp.vtag[dir] = sh->vtag;
+ 			} else if (sh->vtag != ct->proto.sctp.vtag[dir]) {
+-				pr_debug("Verification tag check failed\n");
+-				goto out_unlock;
++				if (test_bit(SCTP_CID_DATA, map) || ignore)
++					goto out_unlock;
++
++				if ((ct->proto.sctp.flags & SCTP_FLAG_HEARTBEAT_VTAG_FAILED) == 0 ||
++				    ct->proto.sctp.last_dir == dir)
++					goto out_unlock;
++
++				ct->proto.sctp.flags &= ~SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
++				ct->proto.sctp.vtag[dir] = sh->vtag;
++				ct->proto.sctp.vtag[!dir] = 0;
++			} else if (ct->proto.sctp.flags & SCTP_FLAG_HEARTBEAT_VTAG_FAILED) {
++				ct->proto.sctp.flags &= ~SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
+ 			}
  		}
  
- 		grp = (struct acpi_csrt_group *)((void *)grp + grp->length);
+@@ -375,6 +402,10 @@ static int sctp_packet(struct nf_conn *ct,
  	}
-+
-+	acpi_put_table((struct acpi_table_header *)csrt);
- }
+ 	spin_unlock_bh(&ct->lock);
  
- /**
++	/* allow but do not refresh timeout */
++	if (ignore)
++		return NF_ACCEPT;
++
+ 	timeouts = nf_ct_timeout_lookup(ct);
+ 	if (!timeouts)
+ 		timeouts = sctp_pernet(nf_ct_net(ct))->timeouts;
 -- 
 2.25.1
 
