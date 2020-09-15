@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5274426B614
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:57:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 555DA26B60F
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:56:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727351AbgIOX4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42986 "EHLO mail.kernel.org"
+        id S1727345AbgIOX4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:56:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726335AbgIOOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726741AbgIOOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:31:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EFE422B3B;
-        Tue, 15 Sep 2020 14:22:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2564722B3F;
+        Tue, 15 Sep 2020 14:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179756;
-        bh=4bNBUO1gyYJHFqCnwdqdxfsZWK6wJzE3stm0C7itsEk=;
+        s=default; t=1600179758;
+        bh=YyA7VUKTSTDrFSQMiIR9540oXL+Hk7219jpS6Lyi+XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qaktFTRGF1wtunf4ZTJmnrW6gbo7qMjmwRhg2hUfcpFlbuYHJM30bDJkKdprzE95z
-         y5pui34e+NtZ7dbxldS51fHZZ6PWfdipcGqE560FM3jMAD/FgVOVf9Q7w/VFlJDnDV
-         M30MXWbkotSxfApRFFyi8COaa1L/o/+JvyEC+OIA=
+        b=GLtwv5+nWyZCt3W0v4Nv1i69W9RkxZAkiSAyUMuD2mkoWrjMw8vIIqyWJDHtVtUTK
+         8jJd3K+oSs5RSptoFlvnwMv6y3qDZo05eFQnG6WBEEmyldwgAcT5mgV2e1lAf/esq6
+         D8wxUHmmjwxKvI0UG5yCBR2pR49qcMpW5OdcR67I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordan Crouse <jcrouse@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 5.4 106/132] drm/msm: Disable preemption on all 5xx targets
-Date:   Tue, 15 Sep 2020 16:13:28 +0200
-Message-Id: <20200915140649.455152621@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 107/132] mmc: sdio: Use mmc_pre_req() / mmc_post_req()
+Date:   Tue, 15 Sep 2020 16:13:29 +0200
+Message-Id: <20200915140649.493256897@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -43,33 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordan Crouse <jcrouse@codeaurora.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 7b3f3948c8b7053d771acc9f79810cc410f5e2e0 upstream.
+commit f0c393e2104e48c8a881719a8bd37996f71b0aee upstream.
 
-Temporarily disable preemption on a5xx targets pending some improvements
-to protect the RPTR shadow from being corrupted.
+SDHCI changed from using a tasklet to finish requests, to using an IRQ
+thread i.e. commit c07a48c2651965 ("mmc: sdhci: Remove finish_tasklet").
+Because this increased the latency to complete requests, a preparatory
+change was made to complete the request from the IRQ handler if
+possible i.e. commit 19d2f695f4e827 ("mmc: sdhci: Call mmc_request_done()
+from IRQ handler if possible").  That alleviated the situation for MMC
+block devices because the MMC block driver makes use of mmc_pre_req()
+and mmc_post_req() so that successful requests are completed in the IRQ
+handler and any DMA unmapping is handled separately in mmc_post_req().
+However SDIO was still affected, and an example has been reported with
+up to 20% degradation in performance.
 
+Looking at SDIO I/O helper functions, sdio_io_rw_ext_helper() appeared
+to be a possible candidate for making use of asynchronous requests
+within its I/O loops, but analysis revealed that these loops almost
+never iterate more than once, so the complexity of the change would not
+be warrented.
+
+Instead, mmc_pre_req() and mmc_post_req() are added before and after I/O
+submission (mmc_wait_for_req) in mmc_io_rw_extended().  This still has
+the potential benefit of reducing the duration of interrupt handlers, as
+well as addressing the latency issue for SDHCI.  It also seems a more
+reasonable solution than forcing drivers to do everything in the IRQ
+handler.
+
+Reported-by: Dmitry Osipenko <digetx@gmail.com>
+Fixes: c07a48c2651965 ("mmc: sdhci: Remove finish_tasklet")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Link: https://lore.kernel.org/r/20200903082007.18715-1-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/msm/adreno/a5xx_gpu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/core/sdio_ops.c |   39 ++++++++++++++++++++++-----------------
+ 1 file changed, 22 insertions(+), 17 deletions(-)
 
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-@@ -1451,7 +1451,8 @@ struct msm_gpu *a5xx_gpu_init(struct drm
+--- a/drivers/mmc/core/sdio_ops.c
++++ b/drivers/mmc/core/sdio_ops.c
+@@ -121,6 +121,7 @@ int mmc_io_rw_extended(struct mmc_card *
+ 	struct sg_table sgtable;
+ 	unsigned int nents, left_size, i;
+ 	unsigned int seg_size = card->host->max_seg_size;
++	int err;
  
- 	check_speed_bin(&pdev->dev);
+ 	WARN_ON(blksz == 0);
  
--	ret = adreno_gpu_init(dev, pdev, adreno_gpu, &funcs, 4);
-+	/* Restricting nr_rings to 1 to temporarily disable preemption */
-+	ret = adreno_gpu_init(dev, pdev, adreno_gpu, &funcs, 1);
- 	if (ret) {
- 		a5xx_destroy(&(a5xx_gpu->base.base));
- 		return ERR_PTR(ret);
+@@ -170,28 +171,32 @@ int mmc_io_rw_extended(struct mmc_card *
+ 
+ 	mmc_set_data_timeout(&data, card);
+ 
+-	mmc_wait_for_req(card->host, &mrq);
++	mmc_pre_req(card->host, &mrq);
+ 
+-	if (nents > 1)
+-		sg_free_table(&sgtable);
++	mmc_wait_for_req(card->host, &mrq);
+ 
+ 	if (cmd.error)
+-		return cmd.error;
+-	if (data.error)
+-		return data.error;
+-
+-	if (mmc_host_is_spi(card->host)) {
++		err = cmd.error;
++	else if (data.error)
++		err = data.error;
++	else if (mmc_host_is_spi(card->host))
+ 		/* host driver already reported errors */
+-	} else {
+-		if (cmd.resp[0] & R5_ERROR)
+-			return -EIO;
+-		if (cmd.resp[0] & R5_FUNCTION_NUMBER)
+-			return -EINVAL;
+-		if (cmd.resp[0] & R5_OUT_OF_RANGE)
+-			return -ERANGE;
+-	}
++		err = 0;
++	else if (cmd.resp[0] & R5_ERROR)
++		err = -EIO;
++	else if (cmd.resp[0] & R5_FUNCTION_NUMBER)
++		err = -EINVAL;
++	else if (cmd.resp[0] & R5_OUT_OF_RANGE)
++		err = -ERANGE;
++	else
++		err = 0;
++
++	mmc_post_req(card->host, &mrq, err);
++
++	if (nents > 1)
++		sg_free_table(&sgtable);
+ 
+-	return 0;
++	return err;
+ }
+ 
+ int sdio_reset(struct mmc_host *host)
 
 
