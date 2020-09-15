@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F86526B420
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B28526B423
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:17:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727104AbgIOXRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:17:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48796 "EHLO mail.kernel.org"
+        id S1727392AbgIOXRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:17:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727227AbgIOOj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727231AbgIOOj2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:39:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F0A4224B8;
-        Tue, 15 Sep 2020 14:29:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0499B224BD;
+        Tue, 15 Sep 2020 14:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180154;
-        bh=/1IozrNqi9WS4vLF9ZvRdlaBkyVWTl8cTDqheaHHwsw=;
+        s=default; t=1600180156;
+        bh=58TBYymxmKpaFYpk4lNiLPMkNeK6ZLrqqxeFmqXRauY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUC7kyLQUnXi1ynjhUCkdvHFmzwtiJ1PHhXq8fTl61uVy9NgvAQbQ25vLclLyJRQ+
-         5s6Z9EKC/MLAs3sPgCWvAYMmrzHG49O7o1AujHVtDvVomPtDIntPcYc0h3B+T8r3xk
-         7mDQKtRlut0vTCWyOZ8UucB41lnE72biN3erkIpY=
+        b=OZxGYz7h6vNKINk8KdYkmiDNtX+lUiCvwxnYa3pmb5AXlUJlK8PXSG2vgjnatvE9Q
+         XRngvsfhALGcxldKMEmYIoJz9zJHrgqSjjiLK+lSIqhMBZEbnyUXVlCFuZzNdSdOwS
+         DEh6UG4r8spOflL3skJCTyafKaND1DYo5vi62o4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prateek Sood <prsood@codeaurora.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.8 130/177] firmware_loader: fix memory leak for paged buffer
-Date:   Tue, 15 Sep 2020 16:13:21 +0200
-Message-Id: <20200915140659.882010944@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srikanth Nandamuri <srikanth.nandamuri@intel.com>,
+        "Nikunj A. Dadhania" <nikunj.dadhania@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.8 131/177] thunderbolt: Disable ports that are not implemented
+Date:   Tue, 15 Sep 2020 16:13:22 +0200
+Message-Id: <20200915140659.930599375@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -43,91 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prateek Sood <prsood@codeaurora.org>
+From: Nikunj A. Dadhania <nikunj.dadhania@linux.intel.com>
 
-commit 4965b8cd1bc1ffb017e5c58e622da82b55e49414 upstream.
+commit 8824d19b45867be75d375385414c4f06719a11a4 upstream.
 
-vfree() is being called on paged buffer allocated
-using alloc_page() and mapped using vmap().
+Commit 4caf2511ec49 ("thunderbolt: Add trivial .shutdown") exposes a bug
+in the Thunderbolt driver, that frees an unallocated id, resulting in the
+following spinlock bad magic bug.
 
-Freeing of pages in vfree() relies on nr_pages of
-struct vm_struct. vmap() does not update nr_pages.
-It can lead to memory leaks.
+[ 20.633803] BUG: spinlock bad magic on CPU#4, halt/3313
+[ 20.640030] lock: 0xffff92e6ad5c97e0, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+[ 20.672139] Call Trace:
+[ 20.675032] dump_stack+0x97/0xdb
+[ 20.678950] ? spin_bug+0xa5/0xb0
+[ 20.682865] do_raw_spin_lock+0x68/0x98
+[ 20.687397] _raw_spin_lock_irqsave+0x3f/0x5d
+[ 20.692535] ida_destroy+0x4f/0x124
+[ 20.696657] tb_switch_release+0x6d/0xfd
+[ 20.701295] device_release+0x2c/0x7d
+[ 20.705622] kobject_put+0x8e/0xac
+[ 20.709637] tb_stop+0x55/0x66
+[ 20.713243] tb_domain_remove+0x36/0x62
+[ 20.717774] nhi_remove+0x4d/0x58
 
-Fixes: ddaf29fd9bb6 ("firmware: Free temporary page table after vmapping")
-Signed-off-by: Prateek Sood <prsood@codeaurora.org>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Fix the issue by disabling ports that are enabled as per the EEPROM, but
+not implemented. While at it, update the kernel doc for the disabled
+field, to reflect this.
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1597957070-27185-1-git-send-email-prsood@codeaurora.org
+Fixes: 4caf2511ec49 ("thunderbolt: Add trivial .shutdown")
+Reported-by: Srikanth Nandamuri <srikanth.nandamuri@intel.com>
+Signed-off-by: Nikunj A. Dadhania <nikunj.dadhania@linux.intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/firmware_loader/firmware.h |    2 ++
- drivers/base/firmware_loader/main.c     |   17 +++++++++++------
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ drivers/thunderbolt/switch.c |    1 +
+ drivers/thunderbolt/tb.h     |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/base/firmware_loader/firmware.h
-+++ b/drivers/base/firmware_loader/firmware.h
-@@ -142,10 +142,12 @@ int assign_fw(struct firmware *fw, struc
- void fw_free_paged_buf(struct fw_priv *fw_priv);
- int fw_grow_paged_buf(struct fw_priv *fw_priv, int pages_needed);
- int fw_map_paged_buf(struct fw_priv *fw_priv);
-+bool fw_is_paged_buf(struct fw_priv *fw_priv);
- #else
- static inline void fw_free_paged_buf(struct fw_priv *fw_priv) {}
- static inline int fw_grow_paged_buf(struct fw_priv *fw_priv, int pages_needed) { return -ENXIO; }
- static inline int fw_map_paged_buf(struct fw_priv *fw_priv) { return -ENXIO; }
-+static inline bool fw_is_paged_buf(struct fw_priv *fw_priv) { return false; }
- #endif
- 
- #endif /* __FIRMWARE_LOADER_H */
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -252,9 +252,11 @@ static void __free_fw_priv(struct kref *
- 	list_del(&fw_priv->list);
- 	spin_unlock(&fwc->lock);
- 
--	fw_free_paged_buf(fw_priv); /* free leftover pages */
--	if (!fw_priv->allocated_size)
-+	if (fw_is_paged_buf(fw_priv))
-+		fw_free_paged_buf(fw_priv);
-+	else if (!fw_priv->allocated_size)
- 		vfree(fw_priv->data);
-+
- 	kfree_const(fw_priv->fw_name);
- 	kfree(fw_priv);
- }
-@@ -268,6 +270,11 @@ static void free_fw_priv(struct fw_priv
- }
- 
- #ifdef CONFIG_FW_LOADER_PAGED_BUF
-+bool fw_is_paged_buf(struct fw_priv *fw_priv)
-+{
-+	return fw_priv->is_paged_buf;
-+}
-+
- void fw_free_paged_buf(struct fw_priv *fw_priv)
- {
- 	int i;
-@@ -275,6 +282,8 @@ void fw_free_paged_buf(struct fw_priv *f
- 	if (!fw_priv->pages)
- 		return;
- 
-+	vunmap(fw_priv->data);
-+
- 	for (i = 0; i < fw_priv->nr_pages; i++)
- 		__free_page(fw_priv->pages[i]);
- 	kvfree(fw_priv->pages);
-@@ -328,10 +337,6 @@ int fw_map_paged_buf(struct fw_priv *fw_
- 	if (!fw_priv->data)
- 		return -ENOMEM;
- 
--	/* page table is no longer needed after mapping, let's free */
--	kvfree(fw_priv->pages);
--	fw_priv->pages = NULL;
--
- 	return 0;
- }
- #endif
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -739,6 +739,7 @@ static int tb_init_port(struct tb_port *
+ 		if (res == -ENODEV) {
+ 			tb_dbg(port->sw->tb, " Port %d: not implemented\n",
+ 			       port->port);
++			port->disabled = true;
+ 			return 0;
+ 		}
+ 		return res;
+--- a/drivers/thunderbolt/tb.h
++++ b/drivers/thunderbolt/tb.h
+@@ -167,7 +167,7 @@ struct tb_switch {
+  * @cap_adap: Offset of the adapter specific capability (%0 if not present)
+  * @cap_usb4: Offset to the USB4 port capability (%0 if not present)
+  * @port: Port number on switch
+- * @disabled: Disabled by eeprom
++ * @disabled: Disabled by eeprom or enabled but not implemented
+  * @bonded: true if the port is bonded (two lanes combined as one)
+  * @dual_link_port: If the switch is connected using two ports, points
+  *		    to the other port.
 
 
