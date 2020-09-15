@@ -2,144 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 942D826AF87
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 23:25:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1A926AFCB
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 23:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728009AbgIOVZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 17:25:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42964 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727992AbgIOVYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 17:24:48 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D55C06174A
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 14:24:48 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id bg9so2018162plb.2
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 14:24:48 -0700 (PDT)
+        id S1728116AbgIOVm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 17:42:57 -0400
+Received: from mail-bn8nam12on2106.outbound.protection.outlook.com ([40.107.237.106]:50336
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728117AbgIOVbI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 17:31:08 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XDOQv5hXs1fj0ZSsq3dGSiTeptG7WSyEepFq1DIEB1FRBGEzJA8xaWvyqrPkTSMB5WwqHgrIL4oz36HOtnHQwzbUMbvV2kQTn5+bpSjZBTyU/sTDY8deLggdQx5Jw0KCJ9iZY4LjirXEUUDIhqlT7qt7JQJ6O3b1uyy5xxBg26CzWxKGu/UCfaHp2N0CbdmW1RjSQ10+qxYIW2FDJSrVMXYGhUdmLvmV79JIlkFW5XkAFfwSvPfbRyHamznpjDKHldU7oEPb9E4QIbcGtfQmpYDcD7gLwknrGmx2XFQubmJVqGfrbnoh72MO4HUk2bQeVeo93DanTJL7t82CiaZcpg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=w3C4zmL8mafDJiYrDkD1G6FvRM0LyTtpHN3tNOpu0JM=;
+ b=ZE/8AnmkO6H/elwIrAfbc8m9u+hd55NIPCfENIymxW+2gKf858Kp3/Am3OognNgwFLMn26aavLk2Idn89Y6Ab+kg1uPWO71VAF+Cwp91wYACh5ZOTnPi/PTsouF9v6yayTKw6fb4VH+irLyJwdEszhGsjClfutHieO5cu8JCtV8I74q+MMsBr7gX7U0IuFIej83wVXokWP2Wj+z6rYGEtgjJLxJxIat1NBCW1Cn5shE6w2ixlL+SmOCxrhuzsjhx1aLrWy3gQuBOpOFqIpVqY23nR4qPAC41EOB8UhsaeTg6UvIVtEQxnIfkuVmgyyv+DuFrgboXxn4BQ2S1va9xvg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
+ header.from=os.amperecomputing.com; dkim=pass
+ header.d=os.amperecomputing.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=PTgQ830HVBAbzepwTNVzvx5MvkLEAXf3QpQye9kHzO4=;
-        b=Wrcnf0Rrw3c56F+yHM+X2OoEK/YWkl21IDWOT9PLCZg/RFZPpkA0b00urdKqEOMnaS
-         FG4tUETlrtiVeGKeV1S09hJj0/uA/JNa3vAH+XLsrcWp2jjy1gVQe64K+VrdIrnd4Yp6
-         WssdM2rnUQh3SeGZcn9uNVxRbfp+lB9YihGxyjmCMSbuEL2Mhlm4rWbmJZ+lZG6cid82
-         P4eeRoTqtakkmTt2gtZbxJpIkmb7Vv+1rT7Bidk00BZ6YIy5sLakcxQcnocLzIkp8Co1
-         KScLUc1W+w6RQiScaftIRI+3oWNRP/XedJIOM/nRxP9bNntvKoU5Vzoc7TXwZXkmw8Wa
-         H2KQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=PTgQ830HVBAbzepwTNVzvx5MvkLEAXf3QpQye9kHzO4=;
-        b=doQGmNljh2NCoaLJ+hPVKrkLWt8F4N3Qjibnck678nN+MyhNp5pGdVe+QYNyqVNlMQ
-         y4wTTC7HB/mCRTYfVm1DNdqCKjAfCbsuUYy51m7zLPTvDr8LnHEgt53cflQec8O6t5t6
-         z4QUbL8coLU9e/9lhH4Hph7ryUGiF1bqWpvZyNNvgrfCXtOFAnhgBlSCyQTrf1NypDH/
-         6Wgdv/hB2hP80cIzle83M5ne0rQdPhT/su30iAqN4hih42ml5IBGpn3fW40yTqdZOrUB
-         q2LezoaWXPcD/DHrAG2a6dN9YY/4LZu+q+5ApGEqvRInYo4i/gDdj0mu4UXI5YpIVv2q
-         h9Gg==
-X-Gm-Message-State: AOAM53324IrsaefEOXgFhr1NoQpup+QJIcfoL1s8ioWE51l6Mm8jiTmo
-        NuJm1SQm4CX7LKfpw67Xg5ROeA/1Yot60ok2PkMnW4zcP0o=
-X-Google-Smtp-Source: ABdhPJxca9XtVQPYh5S/ZgR99g3XptMvihVyB92KqZN1nR05d3aUsx/I2xeo0ssMTeMuqOC1hHsLxO0bCx167JNiu+A=
-X-Received: by 2002:a17:902:7295:b029:d1:e3bd:48cc with SMTP id
- d21-20020a1709027295b02900d1e3bd48ccmr4931075pll.10.1600205087532; Tue, 15
- Sep 2020 14:24:47 -0700 (PDT)
+ d=os.amperecomputing.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=w3C4zmL8mafDJiYrDkD1G6FvRM0LyTtpHN3tNOpu0JM=;
+ b=p4TBQkkxNHjweSgY959UPi9wTEZarCPByt7Sxg+PGVLbnKyyfvmj3fRE588P0hUn3ef4G3Oh0wyYcSRv2YvfM8kIs7OWwlTM9XgzHUu0eZIvu/VXBc8lRZb5xKBqFbPFplkaNeSjqkLem9j2UJnT9V4K1aR6v36BMecIGctieF0=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none
+ header.from=os.amperecomputing.com;
+Received: from DM6PR01MB5802.prod.exchangelabs.com (2603:10b6:5:203::17) by
+ DM6PR01MB5516.prod.exchangelabs.com (2603:10b6:5:153::22) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3370.17; Tue, 15 Sep 2020 21:31:03 +0000
+Received: from DM6PR01MB5802.prod.exchangelabs.com
+ ([fe80::ed9e:20e7:332a:704b]) by DM6PR01MB5802.prod.exchangelabs.com
+ ([fe80::ed9e:20e7:332a:704b%7]) with mapi id 15.20.3391.011; Tue, 15 Sep 2020
+ 21:31:03 +0000
+From:   "John L. Villalovos" <jlvillal@os.amperecomputing.com>
+To:     stable@vger.kernel.org
+Cc:     "John L. Villalovos" <jlvillal@os.amperecomputing.com>
+Subject: [PATCH 4.19 0/5] Add support needed for Renesas USB 3.0 controller
+Date:   Tue, 15 Sep 2020 14:30:34 -0700
+Message-Id: <20200915213039.862123-1-jlvillal@os.amperecomputing.com>
+X-Mailer: git-send-email 2.26.2
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: CY4PR14CA0040.namprd14.prod.outlook.com
+ (2603:10b6:903:101::26) To DM6PR01MB5802.prod.exchangelabs.com
+ (2603:10b6:5:203::17)
 MIME-Version: 1.0
-References: <9f513eef618b6e72a088cc8b2787496f190d1c2d.1600203307.git.luto@kernel.org>
-In-Reply-To: <9f513eef618b6e72a088cc8b2787496f190d1c2d.1600203307.git.luto@kernel.org>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Tue, 15 Sep 2020 14:24:35 -0700
-Message-ID: <CAKwvOdnjHbyamsW71FJ=Cd36YfVppp55ftcE_eSDO_z+KE9zeQ@mail.gmail.com>
-Subject: Re: [PATCH] x86/smap: Fix the smap_save() asm
-To:     Andy Lutomirski <luto@kernel.org>, Bill Wendling <morbo@google.com>
-Cc:     "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Greg Thelen <gthelen@google.com>,
-        John Sperbeck <jsperbeck@google.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from localhost.localdomain (4.28.12.214) by CY4PR14CA0040.namprd14.prod.outlook.com (2603:10b6:903:101::26) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3370.16 via Frontend Transport; Tue, 15 Sep 2020 21:31:02 +0000
+X-Mailer: git-send-email 2.26.2
+X-Originating-IP: [4.28.12.214]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 518234c6-bac2-42ba-57cc-08d859bea58e
+X-MS-TrafficTypeDiagnostic: DM6PR01MB5516:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <DM6PR01MB55165A0916C132AA26C95935ED200@DM6PR01MB5516.prod.exchangelabs.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3513;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: sQRDZT7dsZdPLHpiOqrgmienrcf5SRzcNkGdHxJ/yyFMWfKq7BTnFvNvhB2EFTf04y7tzMfAST7447sKcGSljYPmuYOzfVUudzoyO1GLeg+dhD5pw6T1iw5WaUF2UmsukXoLiMJUbjKoUel3Khpoh1o9q8V7jMz0eOZGPW7OdwSicHt3jfdzU0gDTQ6tPjZr1ok8HapZ0eHg6HWGND8L8WOsMtlyHa43StP07SmVFpONSrGNQvMwKsdOnTM7dayZIoMuxeGu3thDjpvrr4u0cioXRRJXgjbOcfKIfXJsRkWka4D+fTYlK0ukV55mQop6RSbDITtVspp2gCwP8IrTzmzKPCt1UiympLqYyIJlWu+1RlyB2QNk1Lo3tu62EskKLbv3FevzE5rCNqxAYEueqj52J92aggfOdNvZQWss24CBs9ZNYDlp3G+zz760q5kR
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR01MB5802.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(396003)(136003)(366004)(376002)(39850400004)(6512007)(8936002)(316002)(66946007)(16526019)(8676002)(4326008)(2616005)(6486002)(956004)(26005)(186003)(1076003)(6666004)(6506007)(4744005)(107886003)(478600001)(5660300002)(86362001)(2906002)(66476007)(69590400008)(66556008)(52116002)(6916009);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: FwoZt4MVIZIExPRfZv388Dl84OSVPw0QXjZ2MDo59XMryTTtjUa5iL30QZ8OWkD30V5Shb1tTmbkG/BpyVLl7MxluWwkcLeutzH9i3vIlkT1ZMcl9pCMJ3EvTwPUmxaPq5p9ripXoXPExQ+pN7fZQWRn5v7w5Rez3ErF60FdKdW5g9ztrpK314FXUBi3Y60iQ29F2UiQj/RafFWMAXTec+H5ULOo3bKcgJTYiyb6zEOFA72U1fvCwvcq6wetP5bgimOq6gMVvQfpSTB5W+YhU3UZI/MlJ86AalC9UKjd78YA5pf/2w7M2xaHjJB8lA8yNC8rkXkrrwE49TCty8mPV5Dhb3UMyov6eCGOP1oip9pnIbx+0tzyGAwAHSq530DUBGkukz9lb6tNo78AGbdZ2foGf1IPdvGltlQVscqId3+qRn1hq15wp4D9PiIx4NJeA/SvHDQwn7i11tGwr5dtOSQ2Ys+Fv8djRDn4E2McduCKsODZ3unyL31N1+BGjshQcEdphqJD8S/nfkt2JzqwkTgt4cvXOfLWLXwcyDpeCRp40DAAlAtebV16u7G9UCzF2W6b0H/dGs81BWGEXfgMVlizkLTgM5iYjD+5QwYkDHzO9GtnTidK7y/4gYBqJpgdRHRXre+ZuiSwb8by+agc9Q==
+X-OriginatorOrg: os.amperecomputing.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 518234c6-bac2-42ba-57cc-08d859bea58e
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR01MB5802.prod.exchangelabs.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Sep 2020 21:31:03.1081
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: pQn/adyU99nl5jEHPE32cyLVldnqEVMTFr7L4TYmvjGxHG0BgsaJ2xJ+ffo0SbiQoYswAXH5pV74//9pR/3jat2IKDebdT7oqSHdCC9IDH+qcoBv/mMdi1OIMNqth+B3
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR01MB5516
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 15, 2020 at 1:56 PM Andy Lutomirski <luto@kernel.org> wrote:
->
-> The old smap_save() code was:
->
->   pushf
->   pop %0
->
-> with %0 defined by an "=rm" constraint.  This is fine if the
-> compiler picked the register option, but it was incorrect with an
-> %rsp-relative memory operand.
+Add support needed for the Renesas USB 3.0 controller
+(PD720201/PD720202).  Without these patches a system with this USB
+controller will crash during boot.
 
-It is incorrect because ... (I think mentioning the point about the
-red zone would be good, unless there were additional concerns?)
+This patch series backports the following upstream patches:
 
-The patch should be fine, so
+01: da83a722959a82733c3ca60030cc364ca2318c5a
+lib/genalloc: add gen_pool_dma_zalloc() for zeroed DMA allocations
 
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+02: b0310c2f09bbe8aebefb97ed67949a3a7092aca6
+USB: use genalloc for USB HCs with local memory
 
-regardless of whether or not you choose to amend the commit message.
-I suspect that the use of "r" exclusively without "m" could lead to
-register exhaustion (though it's more likely the compiler will spill
-some other variable to stack), which is why it's common to use it in
-conjunction with "m."  As Bill's patch notes, getting the "m" version
-is poor for performance of this pattern, or at least for
-native_{save|restore}_fl.  Being able to use the compiler builtins is
-another possibility here.
+03: 2d7a3dc3e24f43504b1f25eae8195e600f4cce8b
+USB: drop HCD_LOCAL_MEM flag
 
-> With some intentional abuse, I can
-> get both gcc and clang to generate code along these lines:
->
->   pushfq
->   popq 0x8(%rsp)
->   mov 0x8(%rsp),%rax
->
-> which is incorrect and will not work as intended.
->
-> Fix it by removing the memory option.  This issue is exacerbated by
-> a clang optimization bug:
->
->   https://bugs.llvm.org/show_bug.cgi?id=47530
+04: dd3ecf17ba70a70d2c9ef9ba725281b84f8eef12
+usb: don't create dma pools for HCDs with a localmem_pool
 
-This is something we should fix.  Bill, James, and I are discussing
-this internally.  Thank you for filing a bug; I owe you a beer just
-for that.
+05: edfbcb321faf07ca970e4191abe061deeb7d3788
+usb: add a hcd_uses_dma helper
 
->
-> Fixes: e74deb11931f ("x86/uaccess: Introduce user_access_{save,restore}()")
-> Cc: stable@vger.kernel.org
-> Reported-by: Bill Wendling <morbo@google.com> # I think
-
-LOL, yes, the comment can be dropped...though I guess someone else may
-have reported the problem to Bill?
-
-> Signed-off-by: Andy Lutomirski <luto@kernel.org>
-> ---
->  arch/x86/include/asm/smap.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/x86/include/asm/smap.h b/arch/x86/include/asm/smap.h
-> index 8b58d6975d5d..be6d675ae3ac 100644
-> --- a/arch/x86/include/asm/smap.h
-> +++ b/arch/x86/include/asm/smap.h
-> @@ -61,7 +61,7 @@ static __always_inline unsigned long smap_save(void)
->                       ALTERNATIVE("jmp 1f", "", X86_FEATURE_SMAP)
->                       "pushf; pop %0; " __ASM_CLAC "\n\t"
->                       "1:"
-> -                     : "=rm" (flags) : : "memory", "cc");
-> +                     : "=r" (flags) : : "memory", "cc");
->
->         return flags;
->  }
-> --
-> 2.26.2
->
-
-
--- 
-Thanks,
-~Nick Desaulniers
+Signed-off-by: John L. Villalovos <jlvillal@os.amperecomputing.com>
