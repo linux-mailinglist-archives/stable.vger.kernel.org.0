@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33A6A26B6FA
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E1EE26B6ED
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:14:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726148AbgIPAP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:15:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38308 "EHLO mail.kernel.org"
+        id S1727160AbgIPAOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:14:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726918AbgIOOYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726920AbgIOOYz (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:24:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 907B5223C6;
-        Tue, 15 Sep 2020 14:18:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C096223E4;
+        Tue, 15 Sep 2020 14:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179524;
-        bh=iG1bIU5EhUKwfx9UnD06qETtVPAWWEtlDW1My2TVsVc=;
+        s=default; t=1600179529;
+        bh=0uPjmulYsyNZ//rQ8QGW14anblW7jkrvTlwURNjbcyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMsUvhumRXscJrZL0R/Aw+0oTeQaX32HeeBQU2J5Ndsn/R+1oWd20ml6d8nCDijSJ
-         GdjAsnBLJEVTcZUjMHf9rwAnOHGi1Rii2xRwUwr84ZDCh5u/mEVQWRd0rD0pdhGdRD
-         TXg8Ycl4YVJ1Uro5MmKnji3+pbGz3QYAVCyaXydU=
+        b=Ni1b7CuCAT5aYLGeJlzJpPZ8BIjiIsEebwadxa09NCk/uYO6yo/vrBvb3qlxRAlmo
+         DXsy1ce36JRB3EpNxsJoMYQyDli7flgjOUWjexZWtJJU0O6vzAtG7idkohqminm2wZ
+         4AbrVrAh1gPcldvUfEzqWfNAi5PumqZG21ZPu6OI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <jonathan.cameron@huawei.com>,
+        Angelo Compagnucci <angelo.compagnucci@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 015/132] arm64: dts: imx8mq: Fix TMU interrupt property
-Date:   Tue, 15 Sep 2020 16:11:57 +0200
-Message-Id: <20200915140644.840371943@linuxfoundation.org>
+Subject: [PATCH 5.4 017/132] iio: adc: mcp3422: fix locking on error path
+Date:   Tue, 15 Sep 2020 16:11:59 +0200
+Message-Id: <20200915140644.935125552@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -44,36 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Angelo Compagnucci <angelo.compagnucci@gmail.com>
 
-[ Upstream commit 1f2f98f2703e8134678fe20982886085631eda23 ]
+[ Upstream commit a139ffa40f0c24b753838b8ef3dcf6ad10eb7854 ]
 
-"interrupt" is not a valid property.  Using proper name fixes dtbs_check
-warning:
+Reading from the chip should be unlocked on error path else the lock
+could never being released.
 
-  arch/arm64/boot/dts/freescale/imx8mq-zii-ultra-zest.dt.yaml: tmu@30260000: 'interrupts' is a required property
-
-Fixes: e464fd2ba4d4 ("arm64: dts: imx8mq: enable the multi sensor TMU")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 07914c84ba30 ("iio: adc: Add driver for Microchip MCP3422/3/4 high resolution ADC")
+Fixes: 3f1093d83d71 ("iio: adc: mcp3422: fix locking scope")
+Acked-by: Jonathan Cameron <jonathan.cameron@huawei.com>
+Signed-off-by: Angelo Compagnucci <angelo.compagnucci@gmail.com>
+Link: https://lore.kernel.org/r/20200901093218.1500845-1-angelo.compagnucci@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mq.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/mcp3422.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-index 55a3d1c4bdf04..bc8540f879654 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-@@ -349,7 +349,7 @@
- 			tmu: tmu@30260000 {
- 				compatible = "fsl,imx8mq-tmu";
- 				reg = <0x30260000 0x10000>;
--				interrupt = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
-+				interrupts = <GIC_SPI 49 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&clk IMX8MQ_CLK_TMU_ROOT>;
- 				little-endian;
- 				fsl,tmu-range = <0xb0000 0xa0026 0x80048 0x70061>;
+diff --git a/drivers/iio/adc/mcp3422.c b/drivers/iio/adc/mcp3422.c
+index ea24d7c58b127..4d03b1f265d9c 100644
+--- a/drivers/iio/adc/mcp3422.c
++++ b/drivers/iio/adc/mcp3422.c
+@@ -144,8 +144,10 @@ static int mcp3422_read_channel(struct mcp3422 *adc,
+ 		config &= ~MCP3422_PGA_MASK;
+ 		config |= MCP3422_PGA_VALUE(adc->pga[req_channel]);
+ 		ret = mcp3422_update_config(adc, config);
+-		if (ret < 0)
++		if (ret < 0) {
++			mutex_unlock(&adc->lock);
+ 			return ret;
++		}
+ 		msleep(mcp3422_read_times[MCP3422_SAMPLE_RATE(adc->config)]);
+ 	}
+ 
 -- 
 2.25.1
 
