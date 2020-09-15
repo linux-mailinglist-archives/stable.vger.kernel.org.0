@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C4D126B40A
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:15:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D24426B41D
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:17:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727201AbgIOXPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:15:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
+        id S1726876AbgIOXRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:17:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727238AbgIOOj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727233AbgIOOj2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:39:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35EC023D1C;
-        Tue, 15 Sep 2020 14:29:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2D8A23D1F;
+        Tue, 15 Sep 2020 14:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180187;
-        bh=kJTTzebs1uAYr4TkT17ToBGVy6L10UaQOp5OfMXmmYo=;
+        s=default; t=1600180190;
+        bh=UPQXZeCNkXHFtjD2PxRqbIz0d0bL7pyAIvK0EYxJTDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b61xDlteGp1i9ZN5XHI9uzxkwfqJkyv4nbDukhiRRxY66MNsUmD5Socr7N/O1QNG1
-         qxS0iCSzEluag/ZKtH0uzGEV3JqWJt9CFJk5ir3iO1pi48823Wo7yNCvYnriOrDdyp
-         YAUP0e3pti8jvtouoy/gV0vJKhihT2legkPfnTnw=
+        b=x7/GnugWZHAgoVSLFu7S6W1f4cHEoOTpqCIQ14eBucSSD9b+w59EbogLywNqnt8SM
+         UtNjMaOElGEMrW7qDF7cbFP2+AtL7JUw22PCRteFahKxuaqTszH8COjs+fpsrJmWWd
+         gA5rSEcAzSUn1OaoxSVXYQIhGBuRLUEP8OF5PsBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.8 142/177] drm/tve200: Stabilize enable/disable
-Date:   Tue, 15 Sep 2020 16:13:33 +0200
-Message-Id: <20200915140700.463157628@linuxfoundation.org>
+        stable@vger.kernel.org, Jordan Crouse <jcrouse@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 5.8 143/177] drm/msm: Split the a5xx preemption record
+Date:   Tue, 15 Sep 2020 16:13:34 +0200
+Message-Id: <20200915140700.512752244@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -43,90 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Jordan Crouse <jcrouse@codeaurora.org>
 
-commit f71800228dc74711c3df43854ce7089562a3bc2d upstream.
+commit 34221545d2069dc947131f42392fd4cebabe1b39 upstream.
 
-The TVE200 will occasionally print a bunch of lost interrupts
-and similar dmesg messages, sometimes during boot and sometimes
-after disabling and coming back to enablement. This is probably
-because the hardware is left in an unknown state by the boot
-loader that displays a logo.
+The main a5xx preemption record can be marked as privileged to
+protect it from user access but the counters storage needs to be
+remain unprivileged. Split the buffers and mark the critical memory
+as privileged.
 
-This can be fixed by bringing the controller into a known state
-by resetting the controller while enabling it. We retry reset 5
-times like the vendor driver does. We also put the controller
-into reset before de-clocking it and clear all interrupts before
-enabling the vblank IRQ.
-
-This makes the video enable/disable/enable cycle rock solid
-on the D-Link DIR-685. Tested extensively.
-
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20200820203144.271081-1-linus.walleij@linaro.org
+Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/tve200/tve200_display.c |   22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.h     |    1 +
+ drivers/gpu/drm/msm/adreno/a5xx_preempt.c |   25 ++++++++++++++++++++-----
+ 2 files changed, 21 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/tve200/tve200_display.c
-+++ b/drivers/gpu/drm/tve200/tve200_display.c
-@@ -14,6 +14,7 @@
- #include <linux/version.h>
- #include <linux/dma-buf.h>
- #include <linux/of_graph.h>
-+#include <linux/delay.h>
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.h
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.h
+@@ -31,6 +31,7 @@ struct a5xx_gpu {
+ 	struct msm_ringbuffer *next_ring;
  
- #include <drm/drm_fb_cma_helper.h>
- #include <drm/drm_fourcc.h>
-@@ -130,9 +131,25 @@ static void tve200_display_enable(struct
- 	struct drm_connector *connector = priv->connector;
- 	u32 format = fb->format->format;
- 	u32 ctrl1 = 0;
-+	int retries;
+ 	struct drm_gem_object *preempt_bo[MSM_GPU_MAX_RINGS];
++	struct drm_gem_object *preempt_counters_bo[MSM_GPU_MAX_RINGS];
+ 	struct a5xx_preempt_record *preempt[MSM_GPU_MAX_RINGS];
+ 	uint64_t preempt_iova[MSM_GPU_MAX_RINGS];
  
- 	clk_prepare_enable(priv->clk);
+--- a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
+@@ -226,19 +226,31 @@ static int preempt_init_ring(struct a5xx
+ 	struct adreno_gpu *adreno_gpu = &a5xx_gpu->base;
+ 	struct msm_gpu *gpu = &adreno_gpu->base;
+ 	struct a5xx_preempt_record *ptr;
+-	struct drm_gem_object *bo = NULL;
+-	u64 iova = 0;
++	void *counters;
++	struct drm_gem_object *bo = NULL, *counters_bo = NULL;
++	u64 iova = 0, counters_iova = 0;
  
-+	/* Reset the TVE200 and wait for it to come back online */
-+	writel(TVE200_CTRL_4_RESET, priv->regs + TVE200_CTRL_4);
-+	for (retries = 0; retries < 5; retries++) {
-+		usleep_range(30000, 50000);
-+		if (readl(priv->regs + TVE200_CTRL_4) & TVE200_CTRL_4_RESET)
-+			continue;
-+		else
-+			break;
-+	}
-+	if (retries == 5 &&
-+	    readl(priv->regs + TVE200_CTRL_4) & TVE200_CTRL_4_RESET) {
-+		dev_err(drm->dev, "can't get hardware out of reset\n");
-+		return;
+ 	ptr = msm_gem_kernel_new(gpu->dev,
+ 		A5XX_PREEMPT_RECORD_SIZE + A5XX_PREEMPT_COUNTER_SIZE,
+-		MSM_BO_UNCACHED, gpu->aspace, &bo, &iova);
++		MSM_BO_UNCACHED | MSM_BO_MAP_PRIV, gpu->aspace, &bo, &iova);
+ 
+ 	if (IS_ERR(ptr))
+ 		return PTR_ERR(ptr);
+ 
++	/* The buffer to store counters needs to be unprivileged */
++	counters = msm_gem_kernel_new(gpu->dev,
++		A5XX_PREEMPT_COUNTER_SIZE,
++		MSM_BO_UNCACHED, gpu->aspace, &counters_bo, &counters_iova);
++	if (IS_ERR(counters)) {
++		msm_gem_kernel_put(bo, gpu->aspace, true);
++		return PTR_ERR(counters);
 +	}
 +
- 	/* Function 1 */
- 	ctrl1 |= TVE200_CTRL_CSMODE;
- 	/* Interlace mode for CCIR656: parameterize? */
-@@ -230,8 +247,9 @@ static void tve200_display_disable(struc
+ 	msm_gem_object_set_name(bo, "preempt");
++	msm_gem_object_set_name(counters_bo, "preempt_counters");
  
- 	drm_crtc_vblank_off(crtc);
+ 	a5xx_gpu->preempt_bo[ring->id] = bo;
++	a5xx_gpu->preempt_counters_bo[ring->id] = counters_bo;
+ 	a5xx_gpu->preempt_iova[ring->id] = iova;
+ 	a5xx_gpu->preempt[ring->id] = ptr;
  
--	/* Disable and Power Down */
-+	/* Disable put into reset and Power Down */
- 	writel(0, priv->regs + TVE200_CTRL);
-+	writel(TVE200_CTRL_4_RESET, priv->regs + TVE200_CTRL_4);
+@@ -249,7 +261,7 @@ static int preempt_init_ring(struct a5xx
+ 	ptr->data = 0;
+ 	ptr->cntl = MSM_GPU_RB_CNTL_DEFAULT;
+ 	ptr->rptr_addr = rbmemptr(ring, rptr);
+-	ptr->counter = iova + A5XX_PREEMPT_RECORD_SIZE;
++	ptr->counter = counters_iova;
  
- 	clk_disable_unprepare(priv->clk);
- }
-@@ -279,6 +297,8 @@ static int tve200_display_enable_vblank(
- 	struct drm_device *drm = crtc->dev;
- 	struct tve200_drm_dev_private *priv = drm->dev_private;
- 
-+	/* Clear any IRQs and enable */
-+	writel(0xFF, priv->regs + TVE200_INT_CLR);
- 	writel(TVE200_INT_V_STATUS, priv->regs + TVE200_INT_EN);
  	return 0;
  }
+@@ -260,8 +272,11 @@ void a5xx_preempt_fini(struct msm_gpu *g
+ 	struct a5xx_gpu *a5xx_gpu = to_a5xx_gpu(adreno_gpu);
+ 	int i;
+ 
+-	for (i = 0; i < gpu->nr_rings; i++)
++	for (i = 0; i < gpu->nr_rings; i++) {
+ 		msm_gem_kernel_put(a5xx_gpu->preempt_bo[i], gpu->aspace, true);
++		msm_gem_kernel_put(a5xx_gpu->preempt_counters_bo[i],
++			gpu->aspace, true);
++	}
+ }
+ 
+ void a5xx_preempt_init(struct msm_gpu *gpu)
 
 
