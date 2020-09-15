@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8764726AFC4
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 23:42:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E48E526AFC2
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 23:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727787AbgIOVmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 17:42:18 -0400
-Received: from mail-bn8nam12on2106.outbound.protection.outlook.com ([40.107.237.106]:50336
+        id S1727992AbgIOVln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 17:41:43 -0400
+Received: from mail-bn8nam12on2118.outbound.protection.outlook.com ([40.107.237.118]:22112
         "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728127AbgIOVbv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 17:31:51 -0400
+        id S1728131AbgIOVdA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 17:33:00 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=aynFijQg75efb21yr4T4utZJb13Y7876m1wStkCIIKQ/MTpi60DmCQ466GUmiT9nZ5cGxxdNslxLdhfqpdR6gvuaYjBLaKOMXxoUIKcF1zpn2x1ssTNQkEZImNaEdXxlWLdjlJX/xxNMUmK19OXlgARRMY3nZmAkAYcdfERJ31lvgF8VTw14IQe65u+/DxzyunP91fy3pdqm1y8SpwL8zyKQTAHVh70GUTusFf44LDt5oSvLSpYY7O2xw6hV98giF0R/UBKm+PZZi+Ir/PQ72bIKSdVX5iUYg67WTPfnkxgHtFv/th6S68vRXoNMGqif1kToVChUwoOFI+p6N4z3nQ==
+ b=OtGoPq0leZvwRPgzdLsiGmVHl6LWRJYswCSj9eValnOTVjlOiOeVB/Lz12Z+q1coqLfORZP545e3GtiqjoHwwPSvYpLzUasXwy7vG6Sdi+Cmh9gYZP2EQfI8bzznB0qXQ//KvqPFxSyEUoT9lpJF97aehPHzOuKO1cAHJJRDFZEZ6r9LEhkf83sIhaD5MnhggdeUDcLQxnNvlDeiVSHZpItQpDClOiCL+NwPuU55Ee2OsQa3xQzdoxDDU9UBBBssXwRueE6pKVHMrjuC8kFhdHg7p/1BCma8YOYaXt6zVkAWKsVT9YSmeCGexqtJd6CW14UeB+gKw3deWESoA/6kfQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QcC5atYKHIVWPnCHh1OvvK5gzJs8/PHMoavVka86r2U=;
- b=RH8HMvZgVSyA/87i6WB0bVpGqpNgUkw3Pf9vopwdMbipBQHK/aAERYLUGYWKsyCLcRbnGIUumrDphu9P9PZvn1BlJ8nw9Od9BT0fYS0VwqXeTJaD3vb6pJiPV2gpexACFKzKPjqeQ8vzNVF7yNL3W0PP3R6Sq4Yg7FyCymq17TowDJOazhs4zP3sKgE6DI7PlSsGAALmWurdVSojY8Jqi4HQxQCliyMf5ei/bJcoJMHL0z93q2Y5JZ0ZkPge0Cjd8L9S2fPn/fN20O0PLLN8vsOhk88cklQCVFpytTkcRIlLNzZ/bM3W2Vnf89Nds3yRbCHXWekot5LEbl7v6xBaZg==
+ bh=6udCXZv0n6zMMzIkdXfMI8YgvTF43uNzbitjkXJVFDI=;
+ b=dknhkAnUqYTfZkAofzZZNkIYM/gdrkW99hDHYAm4AhDfDWsU7Lsu/hlhbb1R5Ti9JAKUbD2g0wx19oYMboNSFNJCJ0jU1f0+E1R//4o26re9w+nyyIOxHRJ2TRFBAobqkLH+TB29UXeyBZOUed3cilftcZSOJKXogphEk/p2f/n6TCfHW8IY6RqhZBQSfQ6zriuWqgCUnHGFxbUlenFAfMXlihrce/in2mnjDCs2cp5Dta7qQhdPHPe3bYSGbQHJNSVoisEURQ/5bm72ipNtMD7pTVaDjaOfRH1lzp/GCSz9mcF8M6lXEYY4Z9QT7Tl/FySPSmQD1zfQy/G6EF0Lyw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
  header.from=os.amperecomputing.com; dkim=pass
@@ -26,19 +26,19 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=os.amperecomputing.com; s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QcC5atYKHIVWPnCHh1OvvK5gzJs8/PHMoavVka86r2U=;
- b=g+BPBy1lHcyUUUzaceIh3MllfGiQxkLFM6b+WykVRK+Lc3V18vOLJTVX/44KQQDGa2XpfjTqRYGeyTrBbZmTDzcLb/By6EZ0FYoQuwosVzMXGRsfBD6XKfSC94ZiSjssoYc9DdrfVnLCF5MXWlvd62V26BdgQ2r4e/CyUrCsZ6w=
+ bh=6udCXZv0n6zMMzIkdXfMI8YgvTF43uNzbitjkXJVFDI=;
+ b=PPLkipyPcP3tWAGFLUr3XtXIkKc8KbawJyEtyGvm+o+Q/z1PhKAVDiKO9QcSnZFZVVijAcT8RvDnxkbTIftfnb2rasLglMNRauK/1Br7uXMM8ZubaD26gzdDKrEontPXj6Vfd6w+micSmxaGqRTNHRbt0CxOjc07cZqbeQ3OWmQ=
 Authentication-Results: vger.kernel.org; dkim=none (message not signed)
  header.d=none;vger.kernel.org; dmarc=none action=none
  header.from=os.amperecomputing.com;
 Received: from DM6PR01MB5802.prod.exchangelabs.com (2603:10b6:5:203::17) by
  DM6PR01MB5516.prod.exchangelabs.com (2603:10b6:5:153::22) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3370.17; Tue, 15 Sep 2020 21:31:11 +0000
+ 15.20.3370.17; Tue, 15 Sep 2020 21:31:13 +0000
 Received: from DM6PR01MB5802.prod.exchangelabs.com
  ([fe80::ed9e:20e7:332a:704b]) by DM6PR01MB5802.prod.exchangelabs.com
  ([fe80::ed9e:20e7:332a:704b%7]) with mapi id 15.20.3391.011; Tue, 15 Sep 2020
- 21:31:11 +0000
+ 21:31:13 +0000
 From:   "John L. Villalovos" <jlvillal@os.amperecomputing.com>
 To:     stable@vger.kernel.org
 Cc:     "John L. Villalovos" <jlvillal@os.amperecomputing.com>,
@@ -46,9 +46,9 @@ Cc:     "John L. Villalovos" <jlvillal@os.amperecomputing.com>,
         Fredrik Noring <noring@nocrew.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.19 2/5] USB: use genalloc for USB HCs with local memory
-Date:   Tue, 15 Sep 2020 14:30:36 -0700
-Message-Id: <20200915213039.862123-3-jlvillal@os.amperecomputing.com>
+Subject: [PATCH 4.19 3/5] USB: drop HCD_LOCAL_MEM flag
+Date:   Tue, 15 Sep 2020 14:30:37 -0700
+Message-Id: <20200915213039.862123-4-jlvillal@os.amperecomputing.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200915213039.862123-1-jlvillal@os.amperecomputing.com>
 References: <20200915213039.862123-1-jlvillal@os.amperecomputing.com>
@@ -59,46 +59,41 @@ X-ClientProxiedBy: CY4PR14CA0040.namprd14.prod.outlook.com
  (2603:10b6:5:203::17)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from localhost.localdomain (4.28.12.214) by CY4PR14CA0040.namprd14.prod.outlook.com (2603:10b6:903:101::26) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3370.16 via Frontend Transport; Tue, 15 Sep 2020 21:31:10 +0000
+Received: from localhost.localdomain (4.28.12.214) by CY4PR14CA0040.namprd14.prod.outlook.com (2603:10b6:903:101::26) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3370.16 via Frontend Transport; Tue, 15 Sep 2020 21:31:12 +0000
 X-Mailer: git-send-email 2.26.2
 X-Originating-IP: [4.28.12.214]
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 6c166616-ad93-4e14-d728-08d859beaa80
+X-MS-Office365-Filtering-Correlation-Id: 7824220b-0c4a-41eb-e506-08d859beab99
 X-MS-TrafficTypeDiagnostic: DM6PR01MB5516:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM6PR01MB55167C48D81355BC15F7B528ED200@DM6PR01MB5516.prod.exchangelabs.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5516;
+X-Microsoft-Antispam-PRVS: <DM6PR01MB5516DF8A1F0BF1C7151AB277ED200@DM6PR01MB5516.prod.exchangelabs.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:765;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 6X76WEG/LuMKvBGF0Tl8Tmp8ghUFlnyASKHbjdx5sSvi4NHIrej4mCSNeiPJUTQFQMmXXi6w1DmTEXHqO3C7GKZPxpD5TJW9Gb5lc1HwDrPiK+7EcymKR8u6+NjGnBlxqYmSE18UWFaiTP6X9aKxWg3bmtIIs/IHexJrOQ29JNYpPt3GpJujV5UiEjJTr5vgvIqJDX4ltGWaHxQj9WlO9ziciynlfboLHPrTuQX/bT76ejWy6ad31Ky36eU0yeCrN/lkd+KvLkhr+qkNNSwZIqacC1kzI2KUwAV0BsX81DPOGNfTtDEiWJMKGPo7F093EfqjW9m1JRPcp3akAue1sJmjqvuvlU1IHq4HyRQSSjY0GAe9TpmyhXSHHA5xIQZuHyBhX6WruYASolSvU/MgAO+Y8olvXm7XMKPdIK3mTAocJG+jcf5y4azIg8XEgzej
+X-Microsoft-Antispam-Message-Info: raktIQegyoSkja/q7/XZM3gzV4K1ypuJFP5UcdJuW5H8Xn6lcNkANw6itKUUABIXBVQVIyK6cR8K2K+QZhtyxPNpu2dQREYfQjABMUE8y0xKse/LsVPVrOuEpajZj2b8im6Q0LHTUFTMK7rFTNSVf+OHSy8WYnsmZcvJSkspC4uTjTMMKsdOMLpKXmO6mF3lIgWyiZfyS8hv6Go8U52MMPtT8UUoF/2aXBouiO7cVeqEV0JEcOsNq75+qAsNdavnHhz62UttH0GsrxjFhBmgUpyGKSGeNxVfrEkC27iR0c5fPIpVXQ4/K0BD8wZOVRVir3jxSaEhPXODEkkfkSh5LQcVkoEcpwe2gAjeqdPUegYZkDjguesW0klUc+FBY0GOJGE5dSm8YtH90W/qy5y/MOfNnX7QhmAxzQ/i/013YoGQxjhH3b7uGNYGBVnFphuK
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR01MB5802.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(396003)(136003)(366004)(376002)(39850400004)(83380400001)(6512007)(8936002)(316002)(66946007)(16526019)(8676002)(4326008)(2616005)(6486002)(956004)(26005)(186003)(1076003)(54906003)(6666004)(6506007)(478600001)(5660300002)(86362001)(2906002)(66476007)(69590400008)(66556008)(52116002)(6916009);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData: KbKRFgpCdk6afG6VqxMAaSE74cLSSw4pqsBEj4fTiNWHZlNMkkqZIGOiMiaGZMhZixEKeG31M9ThXMOTk3hZjVUVugVeC42qe0+hX8r4R+jiIkMh670GI4K2HVvAlAAd7merPAdq7qCEpSgTuUg+bBa2O95zZHkQd+5Ml1V1nCD5R1ELT7Qd2n8fc126irCtVY7wfZvMfJZJjqfJGPX/4maUbK1Eh4jKAlNOz7PRjUlNe4P+xfXwUP8+BQNrw5h+m3k6lfh3DU3OuSLHRugQPWxcQOBpSawM4UflHCgW1hrhO/pBGhSVGEi/44PeoKx4svL//xwwsFNgGWaqLuLWNHNiSWuxJJ7tYJXscbIB+z2ShqtZpBuCLXzJoPeXwMNOUjx13GMQeBD8Xu6aQHn+x07YGzfvLqR4et/EiNDVARymrGgMVwN/hSUGldUsCOop0X7gvITVaraBr7xjsmNWf3v6Bbu+ZbNo/z9txZlLZZywGQt045MaBoO/K2lneHiFxT1LpHjU0U+KPOJcBkmpebysX9T3HbjxNDRaO5vNxiS9WJR2fM9XuE5drY8EawF5tRSWBbHqjQlZ+xPGdmLg6nYI3K/nC+zvLGAo5Oi4rrs4BfGXY6cyxRKfaJP6DSzXu12VZubn1TeisxNgebBplw==
+X-MS-Exchange-AntiSpam-MessageData: ntGNI9maA4gluVHjhlED1yDApOmwszv+Lk6Yrkg2deb0QjniMovQPORB3n0aXgqkHkHnSdyGnmZY7s9Cmpy8Cx12xtPM8bEUIm5MgVA+ggLzdcrOaZZOJs3Tev5J7VbEadlEKAPduzuRAWhqy0pOYvs9yd7xbjpPI4eZOrviGtXwOzGW0d7ZVQt+lEa2Bt/p1jnIs43AnYV+4J0tYQFF1Ttwuwl+7uGGItwR258S0psEZh0y1LndNY7JElssHXzq+sJItOP6guFCeVAm9zsCPJCWixhwBSqPV5VlyTs9dunsD4mcg/FzcAjgA/9G8XSJOtnw8FK8PhFJRGwPFp9LZrIi8oPic8nFXOryCqAqDt3S3Wh100iaFs50xO2inpNePFHbVFe/gGC7dNEXoxNE9C0xip3WD9aUtLPpi3G76XrJBFEyVwGxvte/oW9T0SG88QxiQAgJnToOyiBPG6FN5Bs09SsibW0lKvkAL63hVOPo6/PzahNCJbph/px1Nt9e6jWMMB0LiKSTG55xYfPvHh25h1RAHX6/gzJGWdmFyIMMXK7ZpBkB9fCpkwQW6DwJ0b8PYD47VOFX4rtMVhwv3DMFYPW2PfbczdbsxruU79fwyjaBLIK0Fv8Iot0zlymEXwZvbOTu8zVPUhs0mwTpvw==
 X-OriginatorOrg: os.amperecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6c166616-ad93-4e14-d728-08d859beaa80
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7824220b-0c4a-41eb-e506-08d859beab99
 X-MS-Exchange-CrossTenant-AuthSource: DM6PR01MB5802.prod.exchangelabs.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Sep 2020 21:31:11.3922
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Sep 2020 21:31:13.2012
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 2CvLWkdv2Xx+d98mYU2EjJFCm881vpCzGw/YYwRw9gQitrCNUUsJAX+67CW3SQnYn71BGUXfLywKo53pzz1A1tx1x8CRFwB63ZIe6lIxrqGq6vOMJSaPKrJPDnVWn+8N
+X-MS-Exchange-CrossTenant-UserPrincipalName: nlMrdmxJfRaEEoaphMzbzqkbwNtBmvCi73KGdXSV/cFcOw+JYnRCATIiIY8cnmiUVIMf6wykabvqRasMEvG9nAnrVGbs6YABYsXyNw65Iyh5Yi05PIxfp2AciiBpQJwd
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR01MB5516
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b0310c2f09bbe8aebefb97ed67949a3a7092aca6 upstream.
+commit 2d7a3dc3e24f43504b1f25eae8195e600f4cce8b upstream.
 
-For HCs that have local memory, replace the current DMA API usage with
-a genalloc generic allocator to manage the mappings for these devices.
-To help users, introduce a new HCD API, usb_hcd_setup_local_mem() that
-will setup up the genalloc backing up the device local memory. It will
-be used in subsequent patches.  This is in preparation for dropping
-the existing "coherent" dma mem declaration APIs.  The current
-implementation was relying on a short circuit in the DMA API that in
-the end, was acting as an allocator for these type of devices.
+With the addition of the local memory allocator, the HCD_LOCAL_MEM
+flag can be dropped and the checks against it replaced with a check
+for the localmem_pool ptr being initialized.
 
 Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 Tested-by: Fredrik Noring <noring@nocrew.org>
@@ -106,281 +101,191 @@ Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: John L. Villalovos <jlvillal@os.amperecomputing.com>
 ---
- drivers/usb/Kconfig         |  1 +
- drivers/usb/core/buffer.c   |  9 +++++++++
- drivers/usb/core/hcd.c      | 36 ++++++++++++++++++++++++++++++++++++
- drivers/usb/host/ohci-hcd.c | 23 ++++++++++++++++++-----
- drivers/usb/host/ohci-mem.c | 35 +++++++++++++++++++++++++++++++----
- drivers/usb/host/ohci.h     |  2 ++
- include/linux/usb/hcd.h     |  5 +++++
- 7 files changed, 102 insertions(+), 9 deletions(-)
+ drivers/usb/core/buffer.c      |  8 +++-----
+ drivers/usb/core/hcd.c         | 15 ++++++---------
+ drivers/usb/host/ehci-hcd.c    |  2 +-
+ drivers/usb/host/fotg210-hcd.c |  2 +-
+ drivers/usb/host/ohci-hcd.c    |  2 +-
+ drivers/usb/host/ohci-sm501.c  |  2 +-
+ drivers/usb/host/ohci-tmio.c   |  2 +-
+ drivers/usb/host/uhci-hcd.c    |  2 +-
+ include/linux/usb/hcd.h        |  1 -
+ 9 files changed, 15 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/usb/Kconfig b/drivers/usb/Kconfig
-index 70e6c956c23c..2b3a76eaa653 100644
---- a/drivers/usb/Kconfig
-+++ b/drivers/usb/Kconfig
-@@ -44,6 +44,7 @@ config USB_ARCH_HAS_HCD
- config USB
- 	tristate "Support for Host-side USB"
- 	depends on USB_ARCH_HAS_HCD
-+	select GENERIC_ALLOCATOR
- 	select USB_COMMON
- 	select NLS  # for UTF-8 strings
- 	---help---
 diff --git a/drivers/usb/core/buffer.c b/drivers/usb/core/buffer.c
-index 77eef8acff94..a9392b63c175 100644
+index a9392b63c175..d93e25aeaf96 100644
 --- a/drivers/usb/core/buffer.c
 +++ b/drivers/usb/core/buffer.c
-@@ -16,6 +16,7 @@
- #include <linux/io.h>
- #include <linux/dma-mapping.h>
- #include <linux/dmapool.h>
-+#include <linux/genalloc.h>
- #include <linux/usb.h>
- #include <linux/usb/hcd.h>
+@@ -68,7 +68,7 @@ int hcd_buffer_create(struct usb_hcd *hcd)
  
-@@ -128,6 +129,9 @@ void *hcd_buffer_alloc(
- 	if (size == 0)
- 		return NULL;
+ 	if (!IS_ENABLED(CONFIG_HAS_DMA) ||
+ 	    (!is_device_dma_capable(hcd->self.sysdev) &&
+-	     !(hcd->driver->flags & HCD_LOCAL_MEM)))
++	     !hcd->localmem_pool))
+ 		return 0;
  
-+	if (hcd->localmem_pool)
-+		return gen_pool_dma_alloc(hcd->localmem_pool, size, dma);
-+
+ 	for (i = 0; i < HCD_BUFFER_POOLS; i++) {
+@@ -134,8 +134,7 @@ void *hcd_buffer_alloc(
+ 
  	/* some USB hosts just use PIO */
  	if (!IS_ENABLED(CONFIG_HAS_DMA) ||
- 	    (!is_device_dma_capable(bus->sysdev) &&
-@@ -156,6 +160,11 @@ void hcd_buffer_free(
- 	if (!addr)
- 		return;
+-	    (!is_device_dma_capable(bus->sysdev) &&
+-	     !(hcd->driver->flags & HCD_LOCAL_MEM))) {
++	    !is_device_dma_capable(bus->sysdev)) {
+ 		*dma = ~(dma_addr_t) 0;
+ 		return kmalloc(size, mem_flags);
+ 	}
+@@ -166,8 +165,7 @@ void hcd_buffer_free(
+ 	}
  
-+	if (hcd->localmem_pool) {
-+		gen_pool_free(hcd->localmem_pool, (unsigned long)addr, size);
-+		return;
-+	}
-+
  	if (!IS_ENABLED(CONFIG_HAS_DMA) ||
- 	    (!is_device_dma_capable(bus->sysdev) &&
- 	     !(hcd->driver->flags & HCD_LOCAL_MEM))) {
+-	    (!is_device_dma_capable(bus->sysdev) &&
+-	     !(hcd->driver->flags & HCD_LOCAL_MEM))) {
++	    !is_device_dma_capable(bus->sysdev)) {
+ 		kfree(addr);
+ 		return;
+ 	}
 diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
-index b82a7d787add..c1daf3f646d6 100644
+index c1daf3f646d6..c991e7ff1875 100644
 --- a/drivers/usb/core/hcd.c
 +++ b/drivers/usb/core/hcd.c
-@@ -29,6 +29,8 @@
- #include <linux/workqueue.h>
- #include <linux/pm_runtime.h>
- #include <linux/types.h>
-+#include <linux/genalloc.h>
-+#include <linux/io.h>
+@@ -1346,14 +1346,14 @@ EXPORT_SYMBOL_GPL(usb_hcd_unlink_urb_from_ep);
+  * using regular system memory - like pci devices doing bus mastering.
+  *
+  * To support host controllers with limited dma capabilities we provide dma
+- * bounce buffers. This feature can be enabled using the HCD_LOCAL_MEM flag.
++ * bounce buffers. This feature can be enabled by initializing
++ * hcd->localmem_pool using usb_hcd_setup_local_mem().
+  * For this to work properly the host controller code must first use the
+  * function dma_declare_coherent_memory() to point out which memory area
+  * that should be used for dma allocations.
+  *
+- * The HCD_LOCAL_MEM flag then tells the usb code to allocate all data for
+- * dma using dma_alloc_coherent() which in turn allocates from the memory
+- * area pointed out with dma_declare_coherent_memory().
++ * The initialized hcd->localmem_pool then tells the usb code to allocate all
++ * data for dma using the genalloc API.
+  *
+  * So, to summarize...
+  *
+@@ -1363,9 +1363,6 @@ EXPORT_SYMBOL_GPL(usb_hcd_unlink_urb_from_ep);
+  *   (a) "normal" kernel memory is no good, and
+  *   (b) there's not enough to share
+  *
+- * - The only *portable* hook for such stuff in the
+- *   DMA framework is dma_declare_coherent_memory()
+- *
+  * - So we use that, even though the primary requirement
+  *   is that the memory be "local" (hence addressable
+  *   by that device), not "coherent".
+@@ -1532,7 +1529,7 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
+ 						urb->setup_dma))
+ 				return -EAGAIN;
+ 			urb->transfer_flags |= URB_SETUP_MAP_SINGLE;
+-		} else if (hcd->driver->flags & HCD_LOCAL_MEM) {
++		} else if (hcd->localmem_pool) {
+ 			ret = hcd_alloc_coherent(
+ 					urb->dev->bus, mem_flags,
+ 					&urb->setup_dma,
+@@ -1602,7 +1599,7 @@ int usb_hcd_map_urb_for_dma(struct usb_hcd *hcd, struct urb *urb,
+ 				else
+ 					urb->transfer_flags |= URB_DMA_MAP_SINGLE;
+ 			}
+-		} else if (hcd->driver->flags & HCD_LOCAL_MEM) {
++		} else if (hcd->localmem_pool) {
+ 			ret = hcd_alloc_coherent(
+ 					urb->dev->bus, mem_flags,
+ 					&urb->transfer_dma,
+diff --git a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
+index 8608ac513fb7..f0a0ddee52d0 100644
+--- a/drivers/usb/host/ehci-hcd.c
++++ b/drivers/usb/host/ehci-hcd.c
+@@ -559,7 +559,7 @@ static int ehci_init(struct usb_hcd *hcd)
+ 	ehci->command = temp;
  
- #include <linux/phy/phy.h>
- #include <linux/usb.h>
-@@ -3025,6 +3027,40 @@ usb_hcd_platform_shutdown(struct platform_device *dev)
+ 	/* Accept arbitrarily long scatter-gather lists */
+-	if (!(hcd->driver->flags & HCD_LOCAL_MEM))
++	if (!hcd->localmem_pool)
+ 		hcd->self.sg_tablesize = ~0;
+ 
+ 	/* Prepare for unlinking active QHs */
+diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
+index 2d5a72c15069..cfaf03008a13 100644
+--- a/drivers/usb/host/fotg210-hcd.c
++++ b/drivers/usb/host/fotg210-hcd.c
+@@ -4998,7 +4998,7 @@ static int hcd_fotg210_init(struct usb_hcd *hcd)
+ 	fotg210->command = temp;
+ 
+ 	/* Accept arbitrarily long scatter-gather lists */
+-	if (!(hcd->driver->flags & HCD_LOCAL_MEM))
++	if (!hcd->localmem_pool)
+ 		hcd->self.sg_tablesize = ~0;
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(usb_hcd_platform_shutdown);
- 
-+int usb_hcd_setup_local_mem(struct usb_hcd *hcd, phys_addr_t phys_addr,
-+			    dma_addr_t dma, size_t size)
-+{
-+	int err;
-+	void *local_mem;
-+
-+	hcd->localmem_pool = devm_gen_pool_create(hcd->self.sysdev, PAGE_SHIFT,
-+						  dev_to_node(hcd->self.sysdev),
-+						  dev_name(hcd->self.sysdev));
-+	if (IS_ERR(hcd->localmem_pool))
-+		return PTR_ERR(hcd->localmem_pool);
-+
-+	local_mem = devm_memremap(hcd->self.sysdev, phys_addr,
-+				  size, MEMREMAP_WC);
-+	if (!local_mem)
-+		return -ENOMEM;
-+
-+	/*
-+	 * Here we pass a dma_addr_t but the arg type is a phys_addr_t.
-+	 * It's not backed by system memory and thus there's no kernel mapping
-+	 * for it.
-+	 */
-+	err = gen_pool_add_virt(hcd->localmem_pool, (unsigned long)local_mem,
-+				dma, size, dev_to_node(hcd->self.sysdev));
-+	if (err < 0) {
-+		dev_err(hcd->self.sysdev, "gen_pool_add_virt failed with %d\n",
-+			err);
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(usb_hcd_setup_local_mem);
-+
- /*-------------------------------------------------------------------------*/
- 
- #if IS_ENABLED(CONFIG_USB_MON)
 diff --git a/drivers/usb/host/ohci-hcd.c b/drivers/usb/host/ohci-hcd.c
-index af11887f5f9e..9b2d8b84ae26 100644
+index 9b2d8b84ae26..81a104fafbc2 100644
 --- a/drivers/usb/host/ohci-hcd.c
 +++ b/drivers/usb/host/ohci-hcd.c
-@@ -40,6 +40,7 @@
- #include <linux/dmapool.h>
- #include <linux/workqueue.h>
- #include <linux/debugfs.h>
-+#include <linux/genalloc.h>
+@@ -457,7 +457,7 @@ static int ohci_init (struct ohci_hcd *ohci)
+ 	struct usb_hcd *hcd = ohci_to_hcd(ohci);
  
- #include <asm/io.h>
- #include <asm/irq.h>
-@@ -514,8 +515,15 @@ static int ohci_init (struct ohci_hcd *ohci)
- 	timer_setup(&ohci->io_watchdog, io_watchdog_func, 0);
- 	ohci->prev_frame_no = IO_WATCHDOG_OFF;
+ 	/* Accept arbitrarily long scatter-gather lists */
+-	if (!(hcd->driver->flags & HCD_LOCAL_MEM))
++	if (!hcd->localmem_pool)
+ 		hcd->self.sg_tablesize = ~0;
  
--	ohci->hcca = dma_alloc_coherent (hcd->self.controller,
--			sizeof(*ohci->hcca), &ohci->hcca_dma, GFP_KERNEL);
-+	if (hcd->localmem_pool)
-+		ohci->hcca = gen_pool_dma_alloc(hcd->localmem_pool,
-+						sizeof(*ohci->hcca),
-+						&ohci->hcca_dma);
-+	else
-+		ohci->hcca = dma_alloc_coherent(hcd->self.controller,
-+						sizeof(*ohci->hcca),
-+						&ohci->hcca_dma,
-+						GFP_KERNEL);
- 	if (!ohci->hcca)
- 		return -ENOMEM;
- 
-@@ -999,9 +1007,14 @@ static void ohci_stop (struct usb_hcd *hcd)
- 	remove_debug_files (ohci);
- 	ohci_mem_cleanup (ohci);
- 	if (ohci->hcca) {
--		dma_free_coherent (hcd->self.controller,
--				sizeof *ohci->hcca,
--				ohci->hcca, ohci->hcca_dma);
-+		if (hcd->localmem_pool)
-+			gen_pool_free(hcd->localmem_pool,
-+				      (unsigned long)ohci->hcca,
-+				      sizeof(*ohci->hcca));
-+		else
-+			dma_free_coherent(hcd->self.controller,
-+					  sizeof(*ohci->hcca),
-+					  ohci->hcca, ohci->hcca_dma);
- 		ohci->hcca = NULL;
- 		ohci->hcca_dma = 0;
- 	}
-diff --git a/drivers/usb/host/ohci-mem.c b/drivers/usb/host/ohci-mem.c
-index b3da3f12e5b1..8e15044be14c 100644
---- a/drivers/usb/host/ohci-mem.c
-+++ b/drivers/usb/host/ohci-mem.c
-@@ -36,6 +36,13 @@ static void ohci_hcd_init (struct ohci_hcd *ohci)
- 
- static int ohci_mem_init (struct ohci_hcd *ohci)
- {
-+	/*
-+	 * HCs with local memory allocate from localmem_pool so there's
-+	 * no need to create the below dma pools.
-+	 */
-+	if (ohci_to_hcd(ohci)->localmem_pool)
-+		return 0;
-+
- 	ohci->td_cache = dma_pool_create ("ohci_td",
- 		ohci_to_hcd(ohci)->self.controller,
- 		sizeof (struct td),
-@@ -88,8 +95,12 @@ td_alloc (struct ohci_hcd *hc, gfp_t mem_flags)
- {
- 	dma_addr_t	dma;
- 	struct td	*td;
-+	struct usb_hcd	*hcd = ohci_to_hcd(hc);
- 
--	td = dma_pool_zalloc (hc->td_cache, mem_flags, &dma);
-+	if (hcd->localmem_pool)
-+		td = gen_pool_dma_zalloc(hcd->localmem_pool, sizeof(*td), &dma);
-+	else
-+		td = dma_pool_zalloc(hc->td_cache, mem_flags, &dma);
- 	if (td) {
- 		/* in case hc fetches it, make it look dead */
- 		td->hwNextTD = cpu_to_hc32 (hc, dma);
-@@ -103,6 +114,7 @@ static void
- td_free (struct ohci_hcd *hc, struct td *td)
- {
- 	struct td	**prev = &hc->td_hash [TD_HASH_FUNC (td->td_dma)];
-+	struct usb_hcd	*hcd = ohci_to_hcd(hc);
- 
- 	while (*prev && *prev != td)
- 		prev = &(*prev)->td_hash;
-@@ -110,7 +122,12 @@ td_free (struct ohci_hcd *hc, struct td *td)
- 		*prev = td->td_hash;
- 	else if ((td->hwINFO & cpu_to_hc32(hc, TD_DONE)) != 0)
- 		ohci_dbg (hc, "no hash for td %p\n", td);
--	dma_pool_free (hc->td_cache, td, td->td_dma);
-+
-+	if (hcd->localmem_pool)
-+		gen_pool_free(hcd->localmem_pool, (unsigned long)td,
-+			      sizeof(*td));
-+	else
-+		dma_pool_free(hc->td_cache, td, td->td_dma);
- }
- 
- /*-------------------------------------------------------------------------*/
-@@ -121,8 +138,12 @@ ed_alloc (struct ohci_hcd *hc, gfp_t mem_flags)
- {
- 	dma_addr_t	dma;
- 	struct ed	*ed;
-+	struct usb_hcd	*hcd = ohci_to_hcd(hc);
- 
--	ed = dma_pool_zalloc (hc->ed_cache, mem_flags, &dma);
-+	if (hcd->localmem_pool)
-+		ed = gen_pool_dma_zalloc(hcd->localmem_pool, sizeof(*ed), &dma);
-+	else
-+		ed = dma_pool_zalloc(hc->ed_cache, mem_flags, &dma);
- 	if (ed) {
- 		INIT_LIST_HEAD (&ed->td_list);
- 		ed->dma = dma;
-@@ -133,6 +154,12 @@ ed_alloc (struct ohci_hcd *hc, gfp_t mem_flags)
- static void
- ed_free (struct ohci_hcd *hc, struct ed *ed)
- {
--	dma_pool_free (hc->ed_cache, ed, ed->dma);
-+	struct usb_hcd	*hcd = ohci_to_hcd(hc);
-+
-+	if (hcd->localmem_pool)
-+		gen_pool_free(hcd->localmem_pool, (unsigned long)ed,
-+			      sizeof(*ed));
-+	else
-+		dma_pool_free(hc->ed_cache, ed, ed->dma);
- }
- 
-diff --git a/drivers/usb/host/ohci.h b/drivers/usb/host/ohci.h
-index ef4813bfc5bf..b015b00774b2 100644
---- a/drivers/usb/host/ohci.h
-+++ b/drivers/usb/host/ohci.h
-@@ -385,6 +385,8 @@ struct ohci_hcd {
+ 	if (distrust_firmware)
+diff --git a/drivers/usb/host/ohci-sm501.c b/drivers/usb/host/ohci-sm501.c
+index 0a39dc58f376..f9b1279b68ec 100644
+--- a/drivers/usb/host/ohci-sm501.c
++++ b/drivers/usb/host/ohci-sm501.c
+@@ -49,7 +49,7 @@ static const struct hc_driver ohci_sm501_hc_driver = {
+ 	 * generic hardware linkage
+ 	 */
+ 	.irq =			ohci_irq,
+-	.flags =		HCD_USB11 | HCD_MEMORY | HCD_LOCAL_MEM,
++	.flags =		HCD_USB11 | HCD_MEMORY,
  
  	/*
- 	 * memory management for queue data structures
-+	 *
-+	 * @td_cache and @ed_cache are %NULL if &usb_hcd.localmem_pool is used.
- 	 */
- 	struct dma_pool		*td_cache;
- 	struct dma_pool		*ed_cache;
+ 	 * basic lifecycle operations
+diff --git a/drivers/usb/host/ohci-tmio.c b/drivers/usb/host/ohci-tmio.c
+index a631dbb369d7..98ecf3e3d74f 100644
+--- a/drivers/usb/host/ohci-tmio.c
++++ b/drivers/usb/host/ohci-tmio.c
+@@ -153,7 +153,7 @@ static const struct hc_driver ohci_tmio_hc_driver = {
+ 
+ 	/* generic hardware linkage */
+ 	.irq =			ohci_irq,
+-	.flags =		HCD_USB11 | HCD_MEMORY | HCD_LOCAL_MEM,
++	.flags =		HCD_USB11 | HCD_MEMORY,
+ 
+ 	/* basic lifecycle operations */
+ 	.start =		ohci_tmio_start,
+diff --git a/drivers/usb/host/uhci-hcd.c b/drivers/usb/host/uhci-hcd.c
+index 6218bfe54f52..b4f4f729e080 100644
+--- a/drivers/usb/host/uhci-hcd.c
++++ b/drivers/usb/host/uhci-hcd.c
+@@ -581,7 +581,7 @@ static int uhci_start(struct usb_hcd *hcd)
+ 
+ 	hcd->uses_new_polling = 1;
+ 	/* Accept arbitrarily long scatter-gather lists */
+-	if (!(hcd->driver->flags & HCD_LOCAL_MEM))
++	if (!hcd->localmem_pool)
+ 		hcd->self.sg_tablesize = ~0;
+ 
+ 	spin_lock_init(&uhci->lock);
 diff --git a/include/linux/usb/hcd.h b/include/linux/usb/hcd.h
-index 97e2ddec18b1..5f1d57064cc0 100644
+index 5f1d57064cc0..e24dade77132 100644
 --- a/include/linux/usb/hcd.h
 +++ b/include/linux/usb/hcd.h
-@@ -211,6 +211,9 @@ struct usb_hcd {
- #define	HC_IS_RUNNING(state) ((state) & __ACTIVE)
- #define	HC_IS_SUSPENDED(state) ((state) & __SUSPEND)
+@@ -256,7 +256,6 @@ struct hc_driver {
  
-+	/* memory pool for HCs having local memory, or %NULL */
-+	struct gen_pool         *localmem_pool;
-+
- 	/* more shared queuing code would be good; it should support
- 	 * smarter scheduling, handle transaction translators, etc;
- 	 * input size of periodic table to an interrupt scheduler.
-@@ -461,6 +464,8 @@ extern int usb_add_hcd(struct usb_hcd *hcd,
- 		unsigned int irqnum, unsigned long irqflags);
- extern void usb_remove_hcd(struct usb_hcd *hcd);
- extern int usb_hcd_find_raw_port_number(struct usb_hcd *hcd, int port1);
-+int usb_hcd_setup_local_mem(struct usb_hcd *hcd, phys_addr_t phys_addr,
-+			    dma_addr_t dma, size_t size);
- 
- struct platform_device;
- extern void usb_hcd_platform_shutdown(struct platform_device *dev);
+ 	int	flags;
+ #define	HCD_MEMORY	0x0001		/* HC regs use memory (else I/O) */
+-#define	HCD_LOCAL_MEM	0x0002		/* HC needs local memory */
+ #define	HCD_SHARED	0x0004		/* Two (or more) usb_hcds share HW */
+ #define	HCD_USB11	0x0010		/* USB 1.1 */
+ #define	HCD_USB2	0x0020		/* USB 2.0 */
 -- 
 2.26.2
 
