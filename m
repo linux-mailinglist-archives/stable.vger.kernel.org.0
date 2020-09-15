@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE2E26B55C
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:43:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F183426B566
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727499AbgIOXmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:42:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
+        id S1726392AbgIOXnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:43:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726998AbgIOOd4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727018AbgIOOd4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:33:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F366323C1A;
-        Tue, 15 Sep 2020 14:25:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ED5123C16;
+        Tue, 15 Sep 2020 14:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179913;
-        bh=BFTTLcTWONJd8p/WOaJbTTYUGOs6+qxRFrZ5EOhjsa0=;
+        s=default; t=1600179916;
+        bh=j7uRp6sr73vaznyqfi4Pv4VW7OB/bwPYX9PJlQsWRQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JfxInEdTGful1wSV+e08/TQFlLw2O/cPv3BHHMBXrtfKSdAVuH3CmuuhIhtONG7wy
-         qBYWhnpFAr3nQwaU1VxgOTEG6FuD64/cFHu+Z8uqnfOITjDbCWtEM4CAzKeUFeQq8a
-         dtozQBRL0Y5Gmj33i7lSto32qKbjVTFN1NJRrrUo=
+        b=uD93Wc+8sMhFIWMwLLBwF/48IXXmVROyvIk4zTolgY3l6ef8qfZHyZ55GkDSNR7j1
+         Ck3qlN6Vh4QN2VjHqNxxNfLm6z+BSAk2zJU/V92qhLOFJbMQOQw9wHTXdMWbiaNbOG
+         gvGE26q0xZlMvwY9FnD3mItyiolzB7t5Eu4q5WR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 035/177] Revert "kbuild: use -flive-patching when CONFIG_LIVEPATCH is enabled"
-Date:   Tue, 15 Sep 2020 16:11:46 +0200
-Message-Id: <20200915140655.318806860@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Tipton <mdtipton@codeaurora.org>,
+        Georgi Djakov <georgi.djakov@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 036/177] interconnect: qcom: Fix small BW votes being truncated to zero
+Date:   Tue, 15 Sep 2020 16:11:47 +0200
+Message-Id: <20200915140655.369889622@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -45,87 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Mike Tipton <mdtipton@codeaurora.org>
 
-[ Upstream commit 318af7b80b6a6751520cf2b71edb8c45abb9d9d8 ]
+[ Upstream commit 91e045b93db79a2ef66e045ad0d1f8f9d348e1f4 ]
 
-Use of the new -flive-patching flag was introduced with the following
-commit:
+Small BW votes that translate to less than a single BCM unit are
+currently truncated to zero. Ensure that non-zero BW requests always
+result in at least a vote of 1 to BCM.
 
-  43bd3a95c98e ("kbuild: use -flive-patching when CONFIG_LIVEPATCH is enabled")
-
-This flag has several drawbacks:
-
-- It disables some optimizations, so it can have a negative effect on
-  performance.
-
-- According to the GCC documentation it's not compatible with LTO, which
-  will become a compatibility issue as LTO support gets upstreamed in
-  the kernel.
-
-- It was intended to be used for source-based patch generation tooling,
-  as opposed to binary-based patch generation tooling (e.g.,
-  kpatch-build).  It probably should have at least been behind a
-  separate config option so as not to negatively affect other livepatch
-  users.
-
-- Clang doesn't have the flag, so as far as I can tell, this method of
-  generating patches is incompatible with Clang, which like LTO is
-  becoming more mainstream.
-
-- It breaks GCC's implicit noreturn detection for local functions.  This
-  is the cause of several "unreachable instruction" objtool warnings.
-
-- The broken noreturn detection is an obvious GCC regression, but we
-  haven't yet gotten GCC developers to acknowledge that, which doesn't
-  inspire confidence in their willingness to keep the feature working as
-  optimizations are added or changed going forward.
-
-- While there *is* a distro which relies on this flag for their distro
-  livepatch module builds, there's not a publicly documented way to
-  create safe livepatch modules with it.  Its use seems to be based on
-  tribal knowledge.  It serves no benefit to those who don't know how to
-  use it.
-
-  (In fact, I believe the current livepatch documentation and samples
-  are misleading and dangerous, and should be corrected.  Or at least
-  amended with a disclaimer.  But I don't feel qualified to make such
-  changes.)
-
-Also, we have an idea for using objtool to detect function changes,
-which could potentially obsolete the need for this flag anyway.
-
-At this point the flag has no benefits for upstream which would
-counteract the above drawbacks.  Revert it until it becomes more ready.
-
-This reverts commit 43bd3a95c98e1a86b8b55d97f745c224ecff02b9.
-
-Fixes: 43bd3a95c98e ("kbuild: use -flive-patching when CONFIG_LIVEPATCH is enabled")
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Acked-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/696262e997359666afa053fe7d1a9fb2bb373964.1595010490.git.jpoimboe@redhat.com
+Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
+Signed-off-by: Mike Tipton <mdtipton@codeaurora.org>
+Link: https://lore.kernel.org/r/20200903192149.30385-2-mdtipton@codeaurora.org
+Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/interconnect/qcom/bcm-voter.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 36eab48d1d4a6..3299cc45c1dd0 100644
---- a/Makefile
-+++ b/Makefile
-@@ -876,10 +876,6 @@ KBUILD_CFLAGS_KERNEL += -ffunction-sections -fdata-sections
- LDFLAGS_vmlinux += --gc-sections
- endif
+diff --git a/drivers/interconnect/qcom/bcm-voter.c b/drivers/interconnect/qcom/bcm-voter.c
+index 2a11a63e7217a..b360dc34c90c7 100644
+--- a/drivers/interconnect/qcom/bcm-voter.c
++++ b/drivers/interconnect/qcom/bcm-voter.c
+@@ -52,8 +52,20 @@ static int cmp_vcd(void *priv, struct list_head *a, struct list_head *b)
+ 		return 1;
+ }
  
--ifdef CONFIG_LIVEPATCH
--KBUILD_CFLAGS += $(call cc-option, -flive-patching=inline-clone)
--endif
--
- ifdef CONFIG_SHADOW_CALL_STACK
- CC_FLAGS_SCS	:= -fsanitize=shadow-call-stack
- KBUILD_CFLAGS	+= $(CC_FLAGS_SCS)
++static u64 bcm_div(u64 num, u32 base)
++{
++	/* Ensure that small votes aren't lost. */
++	if (num && num < base)
++		return 1;
++
++	do_div(num, base);
++
++	return num;
++}
++
+ static void bcm_aggregate(struct qcom_icc_bcm *bcm)
+ {
++	struct qcom_icc_node *node;
+ 	size_t i, bucket;
+ 	u64 agg_avg[QCOM_ICC_NUM_BUCKETS] = {0};
+ 	u64 agg_peak[QCOM_ICC_NUM_BUCKETS] = {0};
+@@ -61,22 +73,21 @@ static void bcm_aggregate(struct qcom_icc_bcm *bcm)
+ 
+ 	for (bucket = 0; bucket < QCOM_ICC_NUM_BUCKETS; bucket++) {
+ 		for (i = 0; i < bcm->num_nodes; i++) {
+-			temp = bcm->nodes[i]->sum_avg[bucket] * bcm->aux_data.width;
+-			do_div(temp, bcm->nodes[i]->buswidth * bcm->nodes[i]->channels);
++			node = bcm->nodes[i];
++			temp = bcm_div(node->sum_avg[bucket] * bcm->aux_data.width,
++				       node->buswidth * node->channels);
+ 			agg_avg[bucket] = max(agg_avg[bucket], temp);
+ 
+-			temp = bcm->nodes[i]->max_peak[bucket] * bcm->aux_data.width;
+-			do_div(temp, bcm->nodes[i]->buswidth);
++			temp = bcm_div(node->max_peak[bucket] * bcm->aux_data.width,
++				       node->buswidth);
+ 			agg_peak[bucket] = max(agg_peak[bucket], temp);
+ 		}
+ 
+ 		temp = agg_avg[bucket] * 1000ULL;
+-		do_div(temp, bcm->aux_data.unit);
+-		bcm->vote_x[bucket] = temp;
++		bcm->vote_x[bucket] = bcm_div(temp, bcm->aux_data.unit);
+ 
+ 		temp = agg_peak[bucket] * 1000ULL;
+-		do_div(temp, bcm->aux_data.unit);
+-		bcm->vote_y[bucket] = temp;
++		bcm->vote_y[bucket] = bcm_div(temp, bcm->aux_data.unit);
+ 	}
+ 
+ 	if (bcm->keepalive && bcm->vote_x[QCOM_ICC_BUCKET_AMC] == 0 &&
 -- 
 2.25.1
 
