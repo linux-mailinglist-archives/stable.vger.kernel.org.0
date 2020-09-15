@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B969426A761
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:42:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D65326A75C
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727316AbgIOOlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:41:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48800 "EHLO mail.kernel.org"
+        id S1727318AbgIOOlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:41:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727289AbgIOOlg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727290AbgIOOlg (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:41:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28B4323D3B;
-        Tue, 15 Sep 2020 14:31:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06B0222244;
+        Tue, 15 Sep 2020 14:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180277;
-        bh=Gu2iqRHP1K8/Zt7RzqE3Nd9c8pjfEBEL9bNBIgTKYHk=;
+        s=default; t=1600180282;
+        bh=5e4mQgDYnmIDfKkLtWK4kxfvJfEl/fO1vpDX/fQXTsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tVfbSXbS3ddhJxGIAuYlQQPX7wSg4Me2g1oZbktA2TNBD0gruSb/uNj8H88UqA5s9
-         AUdMAD66+gXq1yQ2Jui4tN+7uEmWkzxzd/coClqYtCCyKLQb4YQCmz8mQLr7yzBZHx
-         yGypULHgr+HLo1EtYZfJSa550wAJmsVsfVleVTQg=
+        b=U+85+Rv2+9v2kioc0qL6f+UWbQR3+37Wr96sIiUWqu1OMjtq9JRbt8yp+1sb0+Dz+
+         VgdHbIMuFbQ2EiTG1Nwb2EYVNutisAefWKaVtYHxaqdIoF2plDcSXuGzMl/jWrrAKC
+         hqKFJmYCMj9nRmimoxjRlWVAkMDheDPBtfiJZvps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuan Ming <yuanmingbuaa@gmail.com>,
+        stable@vger.kernel.org, NopNop Nop <nopitydays@gmail.com>,
         Willy Tarreau <w@1wt.eu>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        =?UTF-8?q?=E5=BC=A0=E4=BA=91=E6=B5=B7?= <zhangyunhai@nsfocus.com>,
+        Andy Lutomirski <luto@amacapital.net>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 152/177] fbcon: remove soft scrollback code
-Date:   Tue, 15 Sep 2020 16:13:43 +0200
-Message-Id: <20200915140700.970029921@linuxfoundation.org>
+Subject: [PATCH 5.8 154/177] vgacon: remove software scrollback support
+Date:   Tue, 15 Sep 2020 16:13:45 +0200
+Message-Id: <20200915140701.071583717@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -48,524 +48,405 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 50145474f6ef4a9c19205b173da6264a644c7489 upstream.
+commit 973c096f6a85e5b5f2a295126ba6928d9a6afd45 upstream.
 
-This (and the VGA soft scrollback) turns out to have various nasty small
-special cases that nobody really is willing to fight.  The soft
-scrollback code was really useful a few decades ago when you typically
-used the console interactively as the main way to interact with the
-machine, but that just isn't the case any more.
+Yunhai Zhang recently fixed a VGA software scrollback bug in commit
+ebfdfeeae8c0 ("vgacon: Fix for missing check in scrollback handling"),
+but that then made people look more closely at some of this code, and
+there were more problems on the vgacon side, but also the fbcon software
+scrollback.
 
-So it's not worth dragging along.
+We don't really have anybody who maintains this code - probably because
+nobody actually _uses_ it any more.  Sure, people still use both VGA and
+the framebuffer consoles, but they are no longer the main user
+interfaces to the kernel, and haven't been for decades, so these kinds
+of extra features end up bitrotting and not really being used.
 
-Tested-by: Yuan Ming <yuanmingbuaa@gmail.com>
+So rather than try to maintain a likely unused set of code, I'll just
+aggressively remove it, and see if anybody even notices.  Maybe there
+are people who haven't jumped on the whole GUI badnwagon yet, and think
+it's just a fad.  And maybe those people use the scrollback code.
+
+If that turns out to be the case, we can resurrect this again, once
+we've found the sucker^Wmaintainer for it who actually uses it.
+
+Reported-by: NopNop Nop <nopitydays@gmail.com>
 Tested-by: Willy Tarreau <w@1wt.eu>
-Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: 张云海 <zhangyunhai@nsfocus.com>
+Acked-by: Andy Lutomirski <luto@amacapital.net>
+Acked-by: Willy Tarreau <w@1wt.eu>
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/core/fbcon.c |  334 ---------------------------------------
- 1 file changed, 4 insertions(+), 330 deletions(-)
+ arch/powerpc/configs/pasemi_defconfig |    1 
+ arch/powerpc/configs/ppc6xx_defconfig |    1 
+ arch/x86/configs/i386_defconfig       |    1 
+ arch/x86/configs/x86_64_defconfig     |    1 
+ drivers/video/console/Kconfig         |   46 -------
+ drivers/video/console/vgacon.c        |  221 ----------------------------------
+ 6 files changed, 1 insertion(+), 270 deletions(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -122,12 +122,6 @@ static int logo_lines;
- /* logo_shown is an index to vc_cons when >= 0; otherwise follows FBCON_LOGO
-    enums.  */
- static int logo_shown = FBCON_LOGO_CANSHOW;
--/* Software scrollback */
--static int fbcon_softback_size = 32768;
--static unsigned long softback_buf, softback_curr;
--static unsigned long softback_in;
--static unsigned long softback_top, softback_end;
--static int softback_lines;
- /* console mappings */
- static int first_fb_vc;
- static int last_fb_vc = MAX_NR_CONSOLES - 1;
-@@ -167,8 +161,6 @@ static int margin_color;
+--- a/arch/powerpc/configs/pasemi_defconfig
++++ b/arch/powerpc/configs/pasemi_defconfig
+@@ -109,7 +109,6 @@ CONFIG_FB_NVIDIA=y
+ CONFIG_FB_NVIDIA_I2C=y
+ CONFIG_FB_RADEON=y
+ # CONFIG_LCD_CLASS_DEVICE is not set
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_LOGO=y
+ CONFIG_SOUND=y
+ CONFIG_SND=y
+--- a/arch/powerpc/configs/ppc6xx_defconfig
++++ b/arch/powerpc/configs/ppc6xx_defconfig
+@@ -772,7 +772,6 @@ CONFIG_FB_TRIDENT=m
+ CONFIG_FB_SM501=m
+ CONFIG_FB_IBM_GXT4500=y
+ CONFIG_LCD_PLATFORM=m
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_FRAMEBUFFER_CONSOLE=y
+ CONFIG_FRAMEBUFFER_CONSOLE_ROTATION=y
+ CONFIG_LOGO=y
+--- a/arch/x86/configs/i386_defconfig
++++ b/arch/x86/configs/i386_defconfig
+@@ -202,7 +202,6 @@ CONFIG_FB_MODE_HELPERS=y
+ CONFIG_FB_TILEBLITTING=y
+ CONFIG_FB_EFI=y
+ # CONFIG_LCD_CLASS_DEVICE is not set
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_LOGO=y
+ # CONFIG_LOGO_LINUX_MONO is not set
+ # CONFIG_LOGO_LINUX_VGA16 is not set
+--- a/arch/x86/configs/x86_64_defconfig
++++ b/arch/x86/configs/x86_64_defconfig
+@@ -197,7 +197,6 @@ CONFIG_FB_MODE_HELPERS=y
+ CONFIG_FB_TILEBLITTING=y
+ CONFIG_FB_EFI=y
+ # CONFIG_LCD_CLASS_DEVICE is not set
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_LOGO=y
+ # CONFIG_LOGO_LINUX_MONO is not set
+ # CONFIG_LOGO_LINUX_VGA16 is not set
+--- a/drivers/video/console/Kconfig
++++ b/drivers/video/console/Kconfig
+@@ -22,52 +22,6 @@ config VGA_CONSOLE
  
- static const struct consw fb_con;
+ 	  Say Y.
  
--#define CM_SOFTBACK	(8)
+-config VGACON_SOFT_SCROLLBACK
+-       bool "Enable Scrollback Buffer in System RAM"
+-       depends on VGA_CONSOLE
+-       default n
+-       help
+-	 The scrollback buffer of the standard VGA console is located in
+-	 the VGA RAM.  The size of this RAM is fixed and is quite small.
+-	 If you require a larger scrollback buffer, this can be placed in
+-	 System RAM which is dynamically allocated during initialization.
+-	 Placing the scrollback buffer in System RAM will slightly slow
+-	 down the console.
 -
- #define advance_row(p, delta) (unsigned short *)((unsigned long)(p) + (delta) * vc->vc_size_row)
- 
- static int fbcon_set_origin(struct vc_data *);
-@@ -373,18 +365,6 @@ static int get_color(struct vc_data *vc,
- 	return color;
+-	 If you want this feature, say 'Y' here and enter the amount of
+-	 RAM to allocate for this buffer.  If unsure, say 'N'.
+-
+-config VGACON_SOFT_SCROLLBACK_SIZE
+-       int "Scrollback Buffer Size (in KB)"
+-       depends on VGACON_SOFT_SCROLLBACK
+-       range 1 1024
+-       default "64"
+-       help
+-	  Enter the amount of System RAM to allocate for scrollback
+-	  buffers of VGA consoles. Each 64KB will give you approximately
+-	  16 80x25 screenfuls of scrollback buffer.
+-
+-config VGACON_SOFT_SCROLLBACK_PERSISTENT_ENABLE_BY_DEFAULT
+-	bool "Persistent Scrollback History for each console by default"
+-	depends on VGACON_SOFT_SCROLLBACK
+-	default n
+-	help
+-	  Say Y here if the scrollback history should persist by default when
+-	  switching between consoles. Otherwise, the scrollback history will be
+-	  flushed each time the console is switched. This feature can also be
+-	  enabled using the boot command line parameter
+-	  'vgacon.scrollback_persistent=1'.
+-
+-	  This feature might break your tool of choice to flush the scrollback
+-	  buffer, e.g. clear(1) will work fine but Debian's clear_console(1)
+-	  will be broken, which might cause security issues.
+-	  You can use the escape sequence \e[3J instead if this feature is
+-	  activated.
+-
+-	  Note that a buffer of VGACON_SOFT_SCROLLBACK_SIZE is taken for each
+-	  created tty device.
+-	  So if you use a RAM-constrained system, say N here.
+-
+ config MDA_CONSOLE
+ 	depends on !M68K && !PARISC && ISA
+ 	tristate "MDA text console (dual-headed)"
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -165,214 +165,6 @@ static inline void vga_set_mem_top(struc
+ 	write_vga(12, (c->vc_visible_origin - vga_vram_base) / 2);
  }
  
--static void fbcon_update_softback(struct vc_data *vc)
--{
--	int l = fbcon_softback_size / vc->vc_size_row;
+-#ifdef CONFIG_VGACON_SOFT_SCROLLBACK
+-/* software scrollback */
+-struct vgacon_scrollback_info {
+-	void *data;
+-	int tail;
+-	int size;
+-	int rows;
+-	int cnt;
+-	int cur;
+-	int save;
+-	int restore;
+-};
 -
--	if (l > 5)
--		softback_end = softback_buf + l * vc->vc_size_row;
--	else
--		/* Smaller scrollback makes no sense, and 0 would screw
--		   the operation totally */
--		softback_top = 0;
+-static struct vgacon_scrollback_info *vgacon_scrollback_cur;
+-static struct vgacon_scrollback_info vgacon_scrollbacks[MAX_NR_CONSOLES];
+-static bool scrollback_persistent = \
+-	IS_ENABLED(CONFIG_VGACON_SOFT_SCROLLBACK_PERSISTENT_ENABLE_BY_DEFAULT);
+-module_param_named(scrollback_persistent, scrollback_persistent, bool, 0000);
+-MODULE_PARM_DESC(scrollback_persistent, "Enable persistent scrollback for all vga consoles");
+-
+-static void vgacon_scrollback_reset(int vc_num, size_t reset_size)
+-{
+-	struct vgacon_scrollback_info *scrollback = &vgacon_scrollbacks[vc_num];
+-
+-	if (scrollback->data && reset_size > 0)
+-		memset(scrollback->data, 0, reset_size);
+-
+-	scrollback->cnt  = 0;
+-	scrollback->tail = 0;
+-	scrollback->cur  = 0;
 -}
 -
- static void fb_flashcursor(struct work_struct *work)
- {
- 	struct fb_info *info = container_of(work, struct fb_info, queue);
-@@ -414,7 +394,7 @@ static void fb_flashcursor(struct work_s
- 	c = scr_readw((u16 *) vc->vc_pos);
- 	mode = (!ops->cursor_flash || ops->cursor_state.enable) ?
- 		CM_ERASE : CM_DRAW;
--	ops->cursor(vc, info, mode, softback_lines, get_color(vc, info, c, 1),
-+	ops->cursor(vc, info, mode, 0, get_color(vc, info, c, 1),
- 		    get_color(vc, info, c, 0));
- 	console_unlock();
- }
-@@ -471,13 +451,7 @@ static int __init fb_console_setup(char
- 		}
- 		
- 		if (!strncmp(options, "scrollback:", 11)) {
--			options += 11;
--			if (*options) {
--				fbcon_softback_size = simple_strtoul(options, &options, 0);
--				if (*options == 'k' || *options == 'K') {
--					fbcon_softback_size *= 1024;
--				}
--			}
-+			pr_warn("Ignoring scrollback size option\n");
- 			continue;
- 		}
- 		
-@@ -1022,31 +996,6 @@ static const char *fbcon_startup(void)
- 
- 	set_blitting_type(vc, info);
- 
--	if (info->fix.type != FB_TYPE_TEXT) {
--		if (fbcon_softback_size) {
--			if (!softback_buf) {
--				softback_buf =
--				    (unsigned long)
--				    kvmalloc(fbcon_softback_size,
--					    GFP_KERNEL);
--				if (!softback_buf) {
--					fbcon_softback_size = 0;
--					softback_top = 0;
--				}
--			}
+-static void vgacon_scrollback_init(int vc_num)
+-{
+-	int pitch = vga_video_num_columns * 2;
+-	size_t size = CONFIG_VGACON_SOFT_SCROLLBACK_SIZE * 1024;
+-	int rows = size / pitch;
+-	void *data;
+-
+-	data = kmalloc_array(CONFIG_VGACON_SOFT_SCROLLBACK_SIZE, 1024,
+-			     GFP_NOWAIT);
+-
+-	vgacon_scrollbacks[vc_num].data = data;
+-	vgacon_scrollback_cur = &vgacon_scrollbacks[vc_num];
+-
+-	vgacon_scrollback_cur->rows = rows - 1;
+-	vgacon_scrollback_cur->size = rows * pitch;
+-
+-	vgacon_scrollback_reset(vc_num, size);
+-}
+-
+-static void vgacon_scrollback_switch(int vc_num)
+-{
+-	if (!scrollback_persistent)
+-		vc_num = 0;
+-
+-	if (!vgacon_scrollbacks[vc_num].data) {
+-		vgacon_scrollback_init(vc_num);
+-	} else {
+-		if (scrollback_persistent) {
+-			vgacon_scrollback_cur = &vgacon_scrollbacks[vc_num];
 -		} else {
--			if (softback_buf) {
--				kvfree((void *) softback_buf);
--				softback_buf = 0;
--				softback_top = 0;
--			}
+-			size_t size = CONFIG_VGACON_SOFT_SCROLLBACK_SIZE * 1024;
+-
+-			vgacon_scrollback_reset(vc_num, size);
 -		}
--		if (softback_buf)
--			softback_in = softback_top = softback_curr =
--			    softback_buf;
--		softback_lines = 0;
 -	}
+-}
 -
- 	/* Setup default font */
- 	if (!p->fontdata && !vc->vc_font.data) {
- 		if (!fontname[0] || !(font = find_font(fontname)))
-@@ -1220,9 +1169,6 @@ static void fbcon_init(struct vc_data *v
- 	if (logo)
- 		fbcon_prepare_logo(vc, info, cols, rows, new_cols, new_rows);
- 
--	if (vc == svc && softback_buf)
--		fbcon_update_softback(vc);
--
- 	if (ops->rotate_font && ops->rotate_font(info, vc)) {
- 		ops->rotate = FB_ROTATE_UR;
- 		set_blitting_type(vc, info);
-@@ -1385,7 +1331,6 @@ static void fbcon_cursor(struct vc_data
- {
- 	struct fb_info *info = registered_fb[con2fb_map[vc->vc_num]];
- 	struct fbcon_ops *ops = info->fbcon_par;
--	int y;
-  	int c = scr_readw((u16 *) vc->vc_pos);
- 
- 	ops->cur_blink_jiffies = msecs_to_jiffies(vc->vc_cur_blink_ms);
-@@ -1399,16 +1344,8 @@ static void fbcon_cursor(struct vc_data
- 		fbcon_add_cursor_timer(info);
- 
- 	ops->cursor_flash = (mode == CM_ERASE) ? 0 : 1;
--	if (mode & CM_SOFTBACK) {
--		mode &= ~CM_SOFTBACK;
--		y = softback_lines;
--	} else {
--		if (softback_lines)
--			fbcon_set_origin(vc);
--		y = 0;
--	}
- 
--	ops->cursor(vc, info, mode, y, get_color(vc, info, c, 1),
-+	ops->cursor(vc, info, mode, 0, get_color(vc, info, c, 1),
- 		    get_color(vc, info, c, 0));
- }
- 
-@@ -1479,8 +1416,6 @@ static void fbcon_set_disp(struct fb_inf
- 
- 	if (con_is_visible(vc)) {
- 		update_screen(vc);
--		if (softback_buf)
--			fbcon_update_softback(vc);
- 	}
- }
- 
-@@ -1618,99 +1553,6 @@ static __inline__ void ypan_down_redraw(
- 	scrollback_current = 0;
- }
- 
--static void fbcon_redraw_softback(struct vc_data *vc, struct fbcon_display *p,
--				  long delta)
+-static void vgacon_scrollback_startup(void)
 -{
--	int count = vc->vc_rows;
--	unsigned short *d, *s;
--	unsigned long n;
--	int line = 0;
+-	vgacon_scrollback_cur = &vgacon_scrollbacks[0];
+-	vgacon_scrollback_init(0);
+-}
 -
--	d = (u16 *) softback_curr;
--	if (d == (u16 *) softback_in)
--		d = (u16 *) vc->vc_origin;
--	n = softback_curr + delta * vc->vc_size_row;
--	softback_lines -= delta;
--	if (delta < 0) {
--		if (softback_curr < softback_top && n < softback_buf) {
--			n += softback_end - softback_buf;
--			if (n < softback_top) {
--				softback_lines -=
--				    (softback_top - n) / vc->vc_size_row;
--				n = softback_top;
--			}
--		} else if (softback_curr >= softback_top
--			   && n < softback_top) {
--			softback_lines -=
--			    (softback_top - n) / vc->vc_size_row;
--			n = softback_top;
--		}
--	} else {
--		if (softback_curr > softback_in && n >= softback_end) {
--			n += softback_buf - softback_end;
--			if (n > softback_in) {
--				n = softback_in;
--				softback_lines = 0;
--			}
--		} else if (softback_curr <= softback_in && n > softback_in) {
--			n = softback_in;
--			softback_lines = 0;
--		}
--	}
--	if (n == softback_curr)
+-static void vgacon_scrollback_update(struct vc_data *c, int t, int count)
+-{
+-	void *p;
+-
+-	if (!vgacon_scrollback_cur->data || !vgacon_scrollback_cur->size ||
+-	    c->vc_num != fg_console)
 -		return;
--	softback_curr = n;
--	s = (u16 *) softback_curr;
--	if (s == (u16 *) softback_in)
--		s = (u16 *) vc->vc_origin;
+-
+-	p = (void *) (c->vc_origin + t * c->vc_size_row);
+-
 -	while (count--) {
--		unsigned short *start;
--		unsigned short *le;
--		unsigned short c;
--		int x = 0;
--		unsigned short attr = 1;
+-		if ((vgacon_scrollback_cur->tail + c->vc_size_row) >
+-		    vgacon_scrollback_cur->size)
+-			vgacon_scrollback_cur->tail = 0;
 -
--		start = s;
--		le = advance_row(s, 1);
--		do {
--			c = scr_readw(s);
--			if (attr != (c & 0xff00)) {
--				attr = c & 0xff00;
--				if (s > start) {
--					fbcon_putcs(vc, start, s - start,
--						    line, x);
--					x += s - start;
--					start = s;
--				}
--			}
--			if (c == scr_readw(d)) {
--				if (s > start) {
--					fbcon_putcs(vc, start, s - start,
--						    line, x);
--					x += s - start + 1;
--					start = s + 1;
--				} else {
--					x++;
--					start++;
--				}
--			}
--			s++;
--			d++;
--		} while (s < le);
--		if (s > start)
--			fbcon_putcs(vc, start, s - start, line, x);
--		line++;
--		if (d == (u16 *) softback_end)
--			d = (u16 *) softback_buf;
--		if (d == (u16 *) softback_in)
--			d = (u16 *) vc->vc_origin;
--		if (s == (u16 *) softback_end)
--			s = (u16 *) softback_buf;
--		if (s == (u16 *) softback_in)
--			s = (u16 *) vc->vc_origin;
+-		scr_memcpyw(vgacon_scrollback_cur->data +
+-			    vgacon_scrollback_cur->tail,
+-			    p, c->vc_size_row);
+-
+-		vgacon_scrollback_cur->cnt++;
+-		p += c->vc_size_row;
+-		vgacon_scrollback_cur->tail += c->vc_size_row;
+-
+-		if (vgacon_scrollback_cur->tail >= vgacon_scrollback_cur->size)
+-			vgacon_scrollback_cur->tail = 0;
+-
+-		if (vgacon_scrollback_cur->cnt > vgacon_scrollback_cur->rows)
+-			vgacon_scrollback_cur->cnt = vgacon_scrollback_cur->rows;
+-
+-		vgacon_scrollback_cur->cur = vgacon_scrollback_cur->cnt;
 -	}
 -}
 -
- static void fbcon_redraw_move(struct vc_data *vc, struct fbcon_display *p,
- 			      int line, int count, int dy)
- {
-@@ -1850,31 +1692,6 @@ static void fbcon_redraw(struct vc_data
- 	}
- }
- 
--static inline void fbcon_softback_note(struct vc_data *vc, int t,
--				       int count)
+-static void vgacon_restore_screen(struct vc_data *c)
 -{
--	unsigned short *p;
+-	c->vc_origin = c->vc_visible_origin;
+-	vgacon_scrollback_cur->save = 0;
 -
--	if (vc->vc_num != fg_console)
--		return;
--	p = (unsigned short *) (vc->vc_origin + t * vc->vc_size_row);
--
--	while (count) {
--		scr_memcpyw((u16 *) softback_in, p, vc->vc_size_row);
--		count--;
--		p = advance_row(p, 1);
--		softback_in += vc->vc_size_row;
--		if (softback_in == softback_end)
--			softback_in = softback_buf;
--		if (softback_in == softback_top) {
--			softback_top += vc->vc_size_row;
--			if (softback_top == softback_end)
--				softback_top = softback_buf;
--		}
--	}
--	softback_curr = softback_in;
--}
--
- static bool fbcon_scroll(struct vc_data *vc, unsigned int t, unsigned int b,
- 		enum con_scroll dir, unsigned int count)
- {
-@@ -1897,8 +1714,6 @@ static bool fbcon_scroll(struct vc_data
- 	case SM_UP:
- 		if (count > vc->vc_rows)	/* Maximum realistic size */
- 			count = vc->vc_rows;
--		if (softback_top)
--			fbcon_softback_note(vc, t, count);
- 		if (logo_shown >= 0)
- 			goto redraw_up;
- 		switch (p->scrollmode) {
-@@ -2269,14 +2084,6 @@ static int fbcon_switch(struct vc_data *
- 	info = registered_fb[con2fb_map[vc->vc_num]];
- 	ops = info->fbcon_par;
- 
--	if (softback_top) {
--		if (softback_lines)
--			fbcon_set_origin(vc);
--		softback_top = softback_curr = softback_in = softback_buf;
--		softback_lines = 0;
--		fbcon_update_softback(vc);
--	}
--
- 	if (logo_shown >= 0) {
- 		struct vc_data *conp2 = vc_cons[logo_shown].d;
- 
-@@ -2600,9 +2407,6 @@ static int fbcon_do_set_font(struct vc_d
- 	int cnt;
- 	char *old_data = NULL;
- 
--	if (con_is_visible(vc) && softback_lines)
--		fbcon_set_origin(vc);
--
- 	resize = (w != vc->vc_font.width) || (h != vc->vc_font.height);
- 	if (p->userfont)
- 		old_data = vc->vc_font.data;
-@@ -2628,8 +2432,6 @@ static int fbcon_do_set_font(struct vc_d
- 		cols /= w;
- 		rows /= h;
- 		vc_resize(vc, cols, rows);
--		if (con_is_visible(vc) && softback_buf)
--			fbcon_update_softback(vc);
- 	} else if (con_is_visible(vc)
- 		   && vc->vc_mode == KD_TEXT) {
- 		fbcon_clear_margins(vc, 0);
-@@ -2788,19 +2590,7 @@ static void fbcon_set_palette(struct vc_
- 
- static u16 *fbcon_screen_pos(struct vc_data *vc, int offset)
- {
--	unsigned long p;
--	int line;
--	
--	if (vc->vc_num != fg_console || !softback_lines)
--		return (u16 *) (vc->vc_origin + offset);
--	line = offset / vc->vc_size_row;
--	if (line >= softback_lines)
--		return (u16 *) (vc->vc_origin + offset -
--				softback_lines * vc->vc_size_row);
--	p = softback_curr + offset;
--	if (p >= softback_end)
--		p += softback_buf - softback_end;
--	return (u16 *) p;
-+	return (u16 *) (vc->vc_origin + offset);
- }
- 
- static unsigned long fbcon_getxy(struct vc_data *vc, unsigned long pos,
-@@ -2814,22 +2604,7 @@ static unsigned long fbcon_getxy(struct
- 
- 		x = offset % vc->vc_cols;
- 		y = offset / vc->vc_cols;
--		if (vc->vc_num == fg_console)
--			y += softback_lines;
- 		ret = pos + (vc->vc_cols - x) * 2;
--	} else if (vc->vc_num == fg_console && softback_lines) {
--		unsigned long offset = pos - softback_curr;
--
--		if (pos < softback_curr)
--			offset += softback_end - softback_buf;
--		offset /= 2;
--		x = offset % vc->vc_cols;
--		y = offset / vc->vc_cols;
--		ret = pos + (vc->vc_cols - x) * 2;
--		if (ret == softback_end)
--			ret = softback_buf;
--		if (ret == softback_in)
--			ret = vc->vc_origin;
- 	} else {
- 		/* Should not happen */
- 		x = y = 0;
-@@ -2857,106 +2632,11 @@ static void fbcon_invert_region(struct v
- 			a = ((a) & 0x88ff) | (((a) & 0x7000) >> 4) |
- 			    (((a) & 0x0700) << 4);
- 		scr_writew(a, p++);
--		if (p == (u16 *) softback_end)
--			p = (u16 *) softback_buf;
--		if (p == (u16 *) softback_in)
--			p = (u16 *) vc->vc_origin;
+-	if (!vga_is_gfx && !vgacon_scrollback_cur->restore) {
+-		scr_memcpyw((u16 *) c->vc_origin, (u16 *) c->vc_screenbuf,
+-			    c->vc_screenbuf_size > vga_vram_size ?
+-			    vga_vram_size : c->vc_screenbuf_size);
+-		vgacon_scrollback_cur->restore = 1;
+-		vgacon_scrollback_cur->cur = vgacon_scrollback_cur->cnt;
 -	}
 -}
 -
--static void fbcon_scrolldelta(struct vc_data *vc, int lines)
+-static void vgacon_scrolldelta(struct vc_data *c, int lines)
 -{
--	struct fb_info *info = registered_fb[con2fb_map[fg_console]];
--	struct fbcon_ops *ops = info->fbcon_par;
--	struct fbcon_display *disp = &fb_display[fg_console];
--	int offset, limit, scrollback_old;
+-	int start, end, count, soff;
 -
--	if (softback_top) {
--		if (vc->vc_num != fg_console)
--			return;
--		if (vc->vc_mode != KD_TEXT || !lines)
--			return;
--		if (logo_shown >= 0) {
--			struct vc_data *conp2 = vc_cons[logo_shown].d;
--
--			if (conp2->vc_top == logo_lines
--			    && conp2->vc_bottom == conp2->vc_rows)
--				conp2->vc_top = 0;
--			if (logo_shown == vc->vc_num) {
--				unsigned long p, q;
--				int i;
--
--				p = softback_in;
--				q = vc->vc_origin +
--				    logo_lines * vc->vc_size_row;
--				for (i = 0; i < logo_lines; i++) {
--					if (p == softback_top)
--						break;
--					if (p == softback_buf)
--						p = softback_end;
--					p -= vc->vc_size_row;
--					q -= vc->vc_size_row;
--					scr_memcpyw((u16 *) q, (u16 *) p,
--						    vc->vc_size_row);
--				}
--				softback_in = softback_curr = p;
--				update_region(vc, vc->vc_origin,
--					      logo_lines * vc->vc_cols);
--			}
--			logo_shown = FBCON_LOGO_CANSHOW;
--		}
--		fbcon_cursor(vc, CM_ERASE | CM_SOFTBACK);
--		fbcon_redraw_softback(vc, disp, lines);
--		fbcon_cursor(vc, CM_DRAW | CM_SOFTBACK);
+-	if (!lines) {
+-		vgacon_restore_screen(c);
 -		return;
- 	}
--
--	if (!scrollback_phys_max)
--		return;
--
--	scrollback_old = scrollback_current;
--	scrollback_current -= lines;
--	if (scrollback_current < 0)
--		scrollback_current = 0;
--	else if (scrollback_current > scrollback_max)
--		scrollback_current = scrollback_max;
--	if (scrollback_current == scrollback_old)
--		return;
--
--	if (fbcon_is_inactive(vc, info))
--		return;
--
--	fbcon_cursor(vc, CM_ERASE);
--
--	offset = disp->yscroll - scrollback_current;
--	limit = disp->vrows;
--	switch (disp->scrollmode) {
--	case SCROLL_WRAP_MOVE:
--		info->var.vmode |= FB_VMODE_YWRAP;
--		break;
--	case SCROLL_PAN_MOVE:
--	case SCROLL_PAN_REDRAW:
--		limit -= vc->vc_rows;
--		info->var.vmode &= ~FB_VMODE_YWRAP;
--		break;
 -	}
--	if (offset < 0)
--		offset += limit;
--	else if (offset >= limit)
--		offset -= limit;
 -
--	ops->var.xoffset = 0;
--	ops->var.yoffset = offset * vc->vc_font.height;
--	ops->update_start(info);
+-	if (!vgacon_scrollback_cur->data)
+-		return;
 -
--	if (!scrollback_current)
--		fbcon_cursor(vc, CM_DRAW);
- }
- 
- static int fbcon_set_origin(struct vc_data *vc)
+-	if (!vgacon_scrollback_cur->save) {
+-		vgacon_cursor(c, CM_ERASE);
+-		vgacon_save_screen(c);
+-		c->vc_origin = (unsigned long)c->vc_screenbuf;
+-		vgacon_scrollback_cur->save = 1;
+-	}
+-
+-	vgacon_scrollback_cur->restore = 0;
+-	start = vgacon_scrollback_cur->cur + lines;
+-	end = start + abs(lines);
+-
+-	if (start < 0)
+-		start = 0;
+-
+-	if (start > vgacon_scrollback_cur->cnt)
+-		start = vgacon_scrollback_cur->cnt;
+-
+-	if (end < 0)
+-		end = 0;
+-
+-	if (end > vgacon_scrollback_cur->cnt)
+-		end = vgacon_scrollback_cur->cnt;
+-
+-	vgacon_scrollback_cur->cur = start;
+-	count = end - start;
+-	soff = vgacon_scrollback_cur->tail -
+-		((vgacon_scrollback_cur->cnt - end) * c->vc_size_row);
+-	soff -= count * c->vc_size_row;
+-
+-	if (soff < 0)
+-		soff += vgacon_scrollback_cur->size;
+-
+-	count = vgacon_scrollback_cur->cnt - start;
+-
+-	if (count > c->vc_rows)
+-		count = c->vc_rows;
+-
+-	if (count) {
+-		int copysize;
+-
+-		int diff = c->vc_rows - count;
+-		void *d = (void *) c->vc_visible_origin;
+-		void *s = (void *) c->vc_screenbuf;
+-
+-		count *= c->vc_size_row;
+-		/* how much memory to end of buffer left? */
+-		copysize = min(count, vgacon_scrollback_cur->size - soff);
+-		scr_memcpyw(d, vgacon_scrollback_cur->data + soff, copysize);
+-		d += copysize;
+-		count -= copysize;
+-
+-		if (count) {
+-			scr_memcpyw(d, vgacon_scrollback_cur->data, count);
+-			d += count;
+-		}
+-
+-		if (diff)
+-			scr_memcpyw(d, s, diff * c->vc_size_row);
+-	} else
+-		vgacon_cursor(c, CM_MOVE);
+-}
+-
+-static void vgacon_flush_scrollback(struct vc_data *c)
+-{
+-	size_t size = CONFIG_VGACON_SOFT_SCROLLBACK_SIZE * 1024;
+-
+-	vgacon_scrollback_reset(c->vc_num, size);
+-}
+-#else
+-#define vgacon_scrollback_startup(...) do { } while (0)
+-#define vgacon_scrollback_init(...)    do { } while (0)
+-#define vgacon_scrollback_update(...)  do { } while (0)
+-#define vgacon_scrollback_switch(...)  do { } while (0)
+-
+ static void vgacon_restore_screen(struct vc_data *c)
  {
--	if (softback_lines)
--		fbcon_scrolldelta(vc, softback_lines);
- 	return 0;
+ 	if (c->vc_origin != c->vc_visible_origin)
+@@ -386,11 +178,6 @@ static void vgacon_scrolldelta(struct vc
+ 	vga_set_mem_top(c);
  }
  
-@@ -3020,8 +2700,6 @@ static void fbcon_modechanged(struct fb_
- 
- 		fbcon_set_palette(vc, color_table);
- 		update_screen(vc);
--		if (softback_buf)
--			fbcon_update_softback(vc);
- 	}
- }
- 
-@@ -3432,7 +3110,6 @@ static const struct consw fb_con = {
- 	.con_font_default	= fbcon_set_def_font,
- 	.con_font_copy 		= fbcon_copy_font,
- 	.con_set_palette 	= fbcon_set_palette,
--	.con_scrolldelta 	= fbcon_scrolldelta,
- 	.con_set_origin 	= fbcon_set_origin,
- 	.con_invert_region 	= fbcon_invert_region,
- 	.con_screen_pos 	= fbcon_screen_pos,
-@@ -3667,9 +3344,6 @@ static void fbcon_exit(void)
- 	}
- #endif
- 
--	kvfree((void *)softback_buf);
--	softback_buf = 0UL;
+-static void vgacon_flush_scrollback(struct vc_data *c)
+-{
+-}
+-#endif /* CONFIG_VGACON_SOFT_SCROLLBACK */
 -
- 	for_each_registered_fb(i) {
- 		int pending = 0;
+ static const char *vgacon_startup(void)
+ {
+ 	const char *display_desc = NULL;
+@@ -573,10 +360,7 @@ static const char *vgacon_startup(void)
+ 	vgacon_xres = screen_info.orig_video_cols * VGA_FONTWIDTH;
+ 	vgacon_yres = vga_scan_lines;
+ 
+-	if (!vga_init_done) {
+-		vgacon_scrollback_startup();
+-		vga_init_done = true;
+-	}
++	vga_init_done = true;
+ 
+ 	return display_desc;
+ }
+@@ -867,7 +651,6 @@ static int vgacon_switch(struct vc_data
+ 			vgacon_doresize(c, c->vc_cols, c->vc_rows);
+ 	}
+ 
+-	vgacon_scrollback_switch(c->vc_num);
+ 	return 0;		/* Redrawing not needed */
+ }
+ 
+@@ -1384,7 +1167,6 @@ static bool vgacon_scroll(struct vc_data
+ 	oldo = c->vc_origin;
+ 	delta = lines * c->vc_size_row;
+ 	if (dir == SM_UP) {
+-		vgacon_scrollback_update(c, t, lines);
+ 		if (c->vc_scr_end + delta >= vga_vram_end) {
+ 			scr_memcpyw((u16 *) vga_vram_base,
+ 				    (u16 *) (oldo + delta),
+@@ -1448,7 +1230,6 @@ const struct consw vga_con = {
+ 	.con_save_screen = vgacon_save_screen,
+ 	.con_build_attr = vgacon_build_attr,
+ 	.con_invert_region = vgacon_invert_region,
+-	.con_flush_scrollback = vgacon_flush_scrollback,
+ };
+ EXPORT_SYMBOL(vga_con);
  
 
 
