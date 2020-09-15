@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3141926A737
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:38:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6386C26A738
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727200AbgIOOiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:38:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48770 "EHLO mail.kernel.org"
+        id S1727199AbgIOOh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:37:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727165AbgIOOhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727104AbgIOOhi (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:37:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAF5223C31;
-        Tue, 15 Sep 2020 14:27:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2D9A23C3F;
+        Tue, 15 Sep 2020 14:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180025;
-        bh=mmh0CepIcG1mpL1AKzdAl1yZDSGrYI73gdVhh+oTT+w=;
+        s=default; t=1600180030;
+        bh=gcI9M0cKFhQZxep1ek1FT+mVnZX+a0Y8DyH3bsT0iBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lC7vfZA1zjZfM2zNQ90gpgsExgaQGiGLf2R9mENiRza50Aw2c2FPF0U4dRy6u4Nsn
-         JyFMORGPhzL5fjhafiaiY607ZeflUSqzE2IAp2k09IEzGCbRptX9ggiOAhlPr0jj8Y
-         mxX+kwCb4X2BRJWNE5kfaP3rQFJsWF2VijmBnR94=
+        b=WSSZVl8+QYh25IShnfizRfR4EZwNNZMZdHtx/V2pecgC4BFUWj5SUpoHmFMy6r56S
+         ODYC4Ld/FcBHrrU3VzAimofh67S9LylmpO6ta4Q3fNtBMdPtUqUU+U56Pk9w4EYQno
+         jhiFUX7grLJOCTddBssJD68wcSe/om4rTPkaY5/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amar Singhal <asinghal@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 078/177] cfg80211: Adjust 6 GHz frequency to channel conversion
-Date:   Tue, 15 Sep 2020 16:12:29 +0200
-Message-Id: <20200915140657.377780453@linuxfoundation.org>
+Subject: [PATCH 5.8 080/177] ARC: show_regs: fix r12 printing and simplify
+Date:   Tue, 15 Sep 2020 16:12:31 +0200
+Message-Id: <20200915140657.476262699@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -44,43 +43,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amar Singhal <asinghal@codeaurora.org>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit 2d9b55508556ccee6410310fb9ea2482fd3328eb ]
+[ Upstream commit e5c388b4b967037a0e00b60194b0dbcf94881a9b ]
 
-Adjust the 6 GHz frequency to channel conversion function,
-the other way around was previously handled.
+when working on ARC64, spotted an issue in ARCv2 reg file printing.
+print_reg_file() assumes contiguous reg-file whereas in ARCv2 they are
+not: r12 comes before r0-r11 due to hardware auto-save. Apparently this
+issue has been present since v2 port submission.
 
-Signed-off-by: Amar Singhal <asinghal@codeaurora.org>
-Link: https://lore.kernel.org/r/1592599921-10607-1-git-send-email-asinghal@codeaurora.org
-[rewrite commit message, hard-code channel 2]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+To avoid bolting hacks for this discontinuity while looping through
+pt_regs, just ditching the loop and print pt_regs directly.
+
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arc/kernel/troubleshoot.c | 77 +++++++++++++---------------------
+ 1 file changed, 30 insertions(+), 47 deletions(-)
 
-diff --git a/net/wireless/util.c b/net/wireless/util.c
-index 4d3b76f94f55e..a72d2ad6ade8b 100644
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -121,11 +121,13 @@ int ieee80211_freq_khz_to_channel(u32 freq)
- 		return (freq - 2407) / 5;
- 	else if (freq >= 4910 && freq <= 4980)
- 		return (freq - 4000) / 5;
--	else if (freq < 5945)
-+	else if (freq < 5925)
- 		return (freq - 5000) / 5;
-+	else if (freq == 5935)
-+		return 2;
- 	else if (freq <= 45000) /* DMG band lower limit */
--		/* see 802.11ax D4.1 27.3.22.2 */
--		return (freq - 5940) / 5;
-+		/* see 802.11ax D6.1 27.3.22.2 */
-+		return (freq - 5950) / 5;
- 	else if (freq >= 58320 && freq <= 70200)
- 		return (freq - 56160) / 2160;
- 	else
+diff --git a/arch/arc/kernel/troubleshoot.c b/arch/arc/kernel/troubleshoot.c
+index 28e8bf04b253f..a331bb5d8319f 100644
+--- a/arch/arc/kernel/troubleshoot.c
++++ b/arch/arc/kernel/troubleshoot.c
+@@ -18,44 +18,37 @@
+ 
+ #define ARC_PATH_MAX	256
+ 
+-/*
+- * Common routine to print scratch regs (r0-r12) or callee regs (r13-r25)
+- *   -Prints 3 regs per line and a CR.
+- *   -To continue, callee regs right after scratch, special handling of CR
+- */
+-static noinline void print_reg_file(long *reg_rev, int start_num)
++static noinline void print_regs_scratch(struct pt_regs *regs)
+ {
+-	unsigned int i;
+-	char buf[512];
+-	int n = 0, len = sizeof(buf);
+-
+-	for (i = start_num; i < start_num + 13; i++) {
+-		n += scnprintf(buf + n, len - n, "r%02u: 0x%08lx\t",
+-			       i, (unsigned long)*reg_rev);
+-
+-		if (((i + 1) % 3) == 0)
+-			n += scnprintf(buf + n, len - n, "\n");
+-
+-		/* because pt_regs has regs reversed: r12..r0, r25..r13 */
+-		if (is_isa_arcv2() && start_num == 0)
+-			reg_rev++;
+-		else
+-			reg_rev--;
+-	}
+-
+-	if (start_num != 0)
+-		n += scnprintf(buf + n, len - n, "\n\n");
++	pr_cont("BTA: 0x%08lx\n SP: 0x%08lx  FP: 0x%08lx BLK: %pS\n",
++		regs->bta, regs->sp, regs->fp, (void *)regs->blink);
++	pr_cont("LPS: 0x%08lx\tLPE: 0x%08lx\tLPC: 0x%08lx\n",
++		regs->lp_start, regs->lp_end, regs->lp_count);
+ 
+-	/* To continue printing callee regs on same line as scratch regs */
+-	if (start_num == 0)
+-		pr_info("%s", buf);
+-	else
+-		pr_cont("%s\n", buf);
++	pr_info("r00: 0x%08lx\tr01: 0x%08lx\tr02: 0x%08lx\n"	\
++		"r03: 0x%08lx\tr04: 0x%08lx\tr05: 0x%08lx\n"	\
++		"r06: 0x%08lx\tr07: 0x%08lx\tr08: 0x%08lx\n"	\
++		"r09: 0x%08lx\tr10: 0x%08lx\tr11: 0x%08lx\n"	\
++		"r12: 0x%08lx\t",
++		regs->r0, regs->r1, regs->r2,
++		regs->r3, regs->r4, regs->r5,
++		regs->r6, regs->r7, regs->r8,
++		regs->r9, regs->r10, regs->r11,
++		regs->r12);
+ }
+ 
+-static void show_callee_regs(struct callee_regs *cregs)
++static void print_regs_callee(struct callee_regs *regs)
+ {
+-	print_reg_file(&(cregs->r13), 13);
++	pr_cont("r13: 0x%08lx\tr14: 0x%08lx\n"			\
++		"r15: 0x%08lx\tr16: 0x%08lx\tr17: 0x%08lx\n"	\
++		"r18: 0x%08lx\tr19: 0x%08lx\tr20: 0x%08lx\n"	\
++		"r21: 0x%08lx\tr22: 0x%08lx\tr23: 0x%08lx\n"	\
++		"r24: 0x%08lx\tr25: 0x%08lx\n",
++		regs->r13, regs->r14,
++		regs->r15, regs->r16, regs->r17,
++		regs->r18, regs->r19, regs->r20,
++		regs->r21, regs->r22, regs->r23,
++		regs->r24, regs->r25);
+ }
+ 
+ static void print_task_path_n_nm(struct task_struct *tsk)
+@@ -175,7 +168,7 @@ static void show_ecr_verbose(struct pt_regs *regs)
+ void show_regs(struct pt_regs *regs)
+ {
+ 	struct task_struct *tsk = current;
+-	struct callee_regs *cregs;
++	struct callee_regs *cregs = (struct callee_regs *)tsk->thread.callee_reg;
+ 
+ 	/*
+ 	 * generic code calls us with preemption disabled, but some calls
+@@ -204,25 +197,15 @@ void show_regs(struct pt_regs *regs)
+ 			STS_BIT(regs, A2), STS_BIT(regs, A1),
+ 			STS_BIT(regs, E2), STS_BIT(regs, E1));
+ #else
+-	pr_cont(" [%2s%2s%2s%2s]",
++	pr_cont(" [%2s%2s%2s%2s]   ",
+ 			STS_BIT(regs, IE),
+ 			(regs->status32 & STATUS_U_MASK) ? "U " : "K ",
+ 			STS_BIT(regs, DE), STS_BIT(regs, AE));
+ #endif
+-	pr_cont("  BTA: 0x%08lx\n  SP: 0x%08lx  FP: 0x%08lx BLK: %pS\n",
+-		regs->bta, regs->sp, regs->fp, (void *)regs->blink);
+-	pr_info("LPS: 0x%08lx\tLPE: 0x%08lx\tLPC: 0x%08lx\n",
+-		regs->lp_start, regs->lp_end, regs->lp_count);
+-
+-	/* print regs->r0 thru regs->r12
+-	 * Sequential printing was generating horrible code
+-	 */
+-	print_reg_file(&(regs->r0), 0);
+ 
+-	/* If Callee regs were saved, display them too */
+-	cregs = (struct callee_regs *)current->thread.callee_reg;
++	print_regs_scratch(regs);
+ 	if (cregs)
+-		show_callee_regs(cregs);
++		print_regs_callee(cregs);
+ 
+ 	preempt_disable();
+ }
 -- 
 2.25.1
 
