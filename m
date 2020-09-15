@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD34826B639
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:00:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3DC26B5DD
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727167AbgIPAAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:00:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42984 "EHLO mail.kernel.org"
+        id S1727065AbgIOXws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:52:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726842AbgIOOaS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:30:18 -0400
+        id S1727062AbgIOObj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:31:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD1A622AAB;
-        Tue, 15 Sep 2020 14:21:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C24322284;
+        Tue, 15 Sep 2020 14:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179719;
-        bh=3Z67A8+P2v8hhSTbh7eQemkVGjSUpEUK12e9BJrmSpA=;
+        s=default; t=1600179819;
+        bh=uoVndxlUy6tvVazS26OJHe95a1H/23LeHdYFKnGgOMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M8zfuN73fKlYu4v2Vv0pEIndLJFH92/Nd0JlLehGMsE7P/cRbbfrGqSxpqk7g4JK7
-         lsNabo7lTXz3cz8lGTmuSpNhG+gBv6SgBfuDvyXn0v0GKUS4XwF52U2Vnfs0e8McbC
-         LrDhZhaA0tauH6QrGO2igni04w+DB+rwWutf9eFk=
+        b=jQE3Chbj/Ohp2FjwHvF8AQQnq7AGXhF2nIU7UYNr1mcLAdFZ6X2c6zuhB9MCEL5+1
+         OGp+VnH1Zm1EnQmR+Oj7MDEubJIS1Rff+ikB1VW0pDiHi5oqEhdCUoZtkDVXdLNMzl
+         nn5RYqdzSW/Dm0d1cBradhMq2OJ9fut/DkwckRvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        syzbot+22794221ab96b0bab53a@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 090/132] staging: wlan-ng: fix out of bounds read in prism2sta_probe_usb()
-Date:   Tue, 15 Sep 2020 16:13:12 +0200
-Message-Id: <20200915140648.619754785@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 091/132] btrfs: require only sector size alignment for parent eb bytenr
+Date:   Tue, 15 Sep 2020 16:13:13 +0200
+Message-Id: <20200915140648.678393337@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -43,84 +43,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit fea22e159d51c766ba70473f473a0ec914cc7e92 upstream.
+commit ea57788eb76dc81f6003245427356a1dcd0ac524 upstream.
 
-let's use usb_find_common_endpoints() to discover endpoints, it does all
-necessary checks for type and xfer direction
+[BUG]
+A completely sane converted fs will cause kernel warning at balance
+time:
 
-remove memset() in hfa384x_create(), because we now assign endpoints in
-prism2sta_probe_usb() and because create_wlan() uses kzalloc() to
-allocate hfa384x struct before calling hfa384x_create()
+  [ 1557.188633] BTRFS info (device sda7): relocating block group 8162107392 flags data
+  [ 1563.358078] BTRFS info (device sda7): found 11722 extents
+  [ 1563.358277] BTRFS info (device sda7): leaf 7989321728 gen 95 total ptrs 213 free space 3458 owner 2
+  [ 1563.358280] 	item 0 key (7984947200 169 0) itemoff 16250 itemsize 33
+  [ 1563.358281] 		extent refs 1 gen 90 flags 2
+  [ 1563.358282] 		ref#0: tree block backref root 4
+  [ 1563.358285] 	item 1 key (7985602560 169 0) itemoff 16217 itemsize 33
+  [ 1563.358286] 		extent refs 1 gen 93 flags 258
+  [ 1563.358287] 		ref#0: shared block backref parent 7985602560
+  [ 1563.358288] 			(parent 7985602560 is NOT ALIGNED to nodesize 16384)
+  [ 1563.358290] 	item 2 key (7985635328 169 0) itemoff 16184 itemsize 33
+  ...
+  [ 1563.358995] BTRFS error (device sda7): eb 7989321728 invalid extent inline ref type 182
+  [ 1563.358996] ------------[ cut here ]------------
+  [ 1563.359005] WARNING: CPU: 14 PID: 2930 at 0xffffffff9f231766
 
-Fixes: faaff9765664 ("staging: wlan-ng: properly check endpoint types")
-Reported-and-tested-by: syzbot+22794221ab96b0bab53a@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=22794221ab96b0bab53a
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200804145614.104320-1-rkovhaev@gmail.com
+Then with transaction abort, and obviously failed to balance the fs.
+
+[CAUSE]
+That mentioned inline ref type 182 is completely sane, it's
+BTRFS_SHARED_BLOCK_REF_KEY, it's some extra check making kernel to
+believe it's invalid.
+
+Commit 64ecdb647ddb ("Btrfs: add one more sanity check for shared ref
+type") introduced extra checks for backref type.
+
+One of the requirement is, parent bytenr must be aligned to node size,
+which is not correct.
+
+One example is like this:
+
+0	1G  1G+4K		2G 2G+4K
+	|   |///////////////////|//|  <- A chunk starts at 1G+4K
+            |   |	<- A tree block get reserved at bytenr 1G+4K
+
+Then we have a valid tree block at bytenr 1G+4K, but not aligned to
+nodesize (16K).
+
+Such chunk is not ideal, but current kernel can handle it pretty well.
+We may warn about such tree block in the future, but should not reject
+them.
+
+[FIX]
+Change the alignment requirement from node size alignment to sector size
+alignment.
+
+Also, to make our lives a little easier, also output @iref when
+btrfs_get_extent_inline_ref_type() failed, so we can locate the item
+easier.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205475
+Fixes: 64ecdb647ddb ("Btrfs: add one more sanity check for shared ref type")
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+[ update comments and messages ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/wlan-ng/hfa384x_usb.c |    5 -----
- drivers/staging/wlan-ng/prism2usb.c   |   19 ++++++-------------
- 2 files changed, 6 insertions(+), 18 deletions(-)
+ fs/btrfs/extent-tree.c |   19 +++++++++----------
+ fs/btrfs/print-tree.c  |   12 +++++++-----
+ 2 files changed, 16 insertions(+), 15 deletions(-)
 
---- a/drivers/staging/wlan-ng/hfa384x_usb.c
-+++ b/drivers/staging/wlan-ng/hfa384x_usb.c
-@@ -526,13 +526,8 @@ static void hfa384x_usb_defer(struct wor
-  */
- void hfa384x_create(struct hfa384x *hw, struct usb_device *usb)
- {
--	memset(hw, 0, sizeof(*hw));
- 	hw->usb = usb;
- 
--	/* set up the endpoints */
--	hw->endp_in = usb_rcvbulkpipe(usb, 1);
--	hw->endp_out = usb_sndbulkpipe(usb, 2);
--
- 	/* Set up the waitq */
- 	init_waitqueue_head(&hw->cmdq);
- 
---- a/drivers/staging/wlan-ng/prism2usb.c
-+++ b/drivers/staging/wlan-ng/prism2usb.c
-@@ -61,23 +61,14 @@ static int prism2sta_probe_usb(struct us
- 			       const struct usb_device_id *id)
- {
- 	struct usb_device *dev;
--	const struct usb_endpoint_descriptor *epd;
--	const struct usb_host_interface *iface_desc = interface->cur_altsetting;
-+	struct usb_endpoint_descriptor *bulk_in, *bulk_out;
-+	struct usb_host_interface *iface_desc = interface->cur_altsetting;
- 	struct wlandevice *wlandev = NULL;
- 	struct hfa384x *hw = NULL;
- 	int result = 0;
- 
--	if (iface_desc->desc.bNumEndpoints != 2) {
--		result = -ENODEV;
--		goto failed;
--	}
--
--	result = -EINVAL;
--	epd = &iface_desc->endpoint[1].desc;
--	if (!usb_endpoint_is_bulk_in(epd))
--		goto failed;
--	epd = &iface_desc->endpoint[2].desc;
--	if (!usb_endpoint_is_bulk_out(epd))
-+	result = usb_find_common_endpoints(iface_desc, &bulk_in, &bulk_out, NULL, NULL);
-+	if (result)
- 		goto failed;
- 
- 	dev = interface_to_usbdev(interface);
-@@ -96,6 +87,8 @@ static int prism2sta_probe_usb(struct us
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -402,12 +402,11 @@ int btrfs_get_extent_inline_ref_type(con
+ 			if (type == BTRFS_SHARED_BLOCK_REF_KEY) {
+ 				ASSERT(eb->fs_info);
+ 				/*
+-				 * Every shared one has parent tree
+-				 * block, which must be aligned to
+-				 * nodesize.
++				 * Every shared one has parent tree block,
++				 * which must be aligned to sector size.
+ 				 */
+ 				if (offset &&
+-				    IS_ALIGNED(offset, eb->fs_info->nodesize))
++				    IS_ALIGNED(offset, eb->fs_info->sectorsize))
+ 					return type;
+ 			}
+ 		} else if (is_data == BTRFS_REF_TYPE_DATA) {
+@@ -416,12 +415,11 @@ int btrfs_get_extent_inline_ref_type(con
+ 			if (type == BTRFS_SHARED_DATA_REF_KEY) {
+ 				ASSERT(eb->fs_info);
+ 				/*
+-				 * Every shared one has parent tree
+-				 * block, which must be aligned to
+-				 * nodesize.
++				 * Every shared one has parent tree block,
++				 * which must be aligned to sector size.
+ 				 */
+ 				if (offset &&
+-				    IS_ALIGNED(offset, eb->fs_info->nodesize))
++				    IS_ALIGNED(offset, eb->fs_info->sectorsize))
+ 					return type;
+ 			}
+ 		} else {
+@@ -431,8 +429,9 @@ int btrfs_get_extent_inline_ref_type(con
  	}
  
- 	/* Initialize the hw data */
-+	hw->endp_in = usb_rcvbulkpipe(dev, bulk_in->bEndpointAddress);
-+	hw->endp_out = usb_sndbulkpipe(dev, bulk_out->bEndpointAddress);
- 	hfa384x_create(hw, dev);
- 	hw->wlandev = wlandev;
+ 	btrfs_print_leaf((struct extent_buffer *)eb);
+-	btrfs_err(eb->fs_info, "eb %llu invalid extent inline ref type %d",
+-		  eb->start, type);
++	btrfs_err(eb->fs_info,
++		  "eb %llu iref 0x%lx invalid extent inline ref type %d",
++		  eb->start, (unsigned long)iref, type);
+ 	WARN_ON(1);
  
+ 	return BTRFS_REF_TYPE_INVALID;
+--- a/fs/btrfs/print-tree.c
++++ b/fs/btrfs/print-tree.c
+@@ -95,9 +95,10 @@ static void print_extent_item(struct ext
+ 			 * offset is supposed to be a tree block which
+ 			 * must be aligned to nodesize.
+ 			 */
+-			if (!IS_ALIGNED(offset, eb->fs_info->nodesize))
+-				pr_info("\t\t\t(parent %llu is NOT ALIGNED to nodesize %llu)\n",
+-					offset, (unsigned long long)eb->fs_info->nodesize);
++			if (!IS_ALIGNED(offset, eb->fs_info->sectorsize))
++				pr_info(
++			"\t\t\t(parent %llu not aligned to sectorsize %u)\n",
++					offset, eb->fs_info->sectorsize);
+ 			break;
+ 		case BTRFS_EXTENT_DATA_REF_KEY:
+ 			dref = (struct btrfs_extent_data_ref *)(&iref->offset);
+@@ -112,8 +113,9 @@ static void print_extent_item(struct ext
+ 			 * must be aligned to nodesize.
+ 			 */
+ 			if (!IS_ALIGNED(offset, eb->fs_info->nodesize))
+-				pr_info("\t\t\t(parent %llu is NOT ALIGNED to nodesize %llu)\n",
+-				     offset, (unsigned long long)eb->fs_info->nodesize);
++				pr_info(
++			"\t\t\t(parent %llu not aligned to sectorsize %u)\n",
++				     offset, eb->fs_info->sectorsize);
+ 			break;
+ 		default:
+ 			pr_cont("(extent %llu has INVALID ref type %d)\n",
 
 
