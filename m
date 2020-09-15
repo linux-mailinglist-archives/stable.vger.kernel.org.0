@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A09C726B5F9
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:55:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2333826B5F3
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727033AbgIOXzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:55:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42986 "EHLO mail.kernel.org"
+        id S1727219AbgIOXzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:55:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727049AbgIOObb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:31:31 -0400
+        id S1727054AbgIOObc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:31:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 810562226A;
-        Tue, 15 Sep 2020 14:23:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D57A22272;
+        Tue, 15 Sep 2020 14:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179796;
-        bh=8KmxFY6DjvSmI/qzt7tSIiHbSKlbpKWFxSy2PHjuujY=;
+        s=default; t=1600179803;
+        bh=ifnurhpycPLGZeFJBQdmcEfPl/nA6hUm+yrAbyQdj3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XNXFPVakcNLxD1uJ8dSBJeElfP3KNaab5zj/HAkoR//4Ch6Vmz9yniK3y1DB1Ir1G
-         7b4DutTXxQ1UZlq1XYzEfcNm2O0EZTKrkGybRDrV25YXZkhgg/XHK4K0Jj7QuaZz0v
-         VUXubVKIbSajsqrHIG7zYikDKVHVk/dFdzKcg+D0=
+        b=QI0wI9nbvhNFHclCHyY4Wi4Qw0o6X3I562xWDtrNKjRNPJFuGZPjGairFkVvFWKKU
+         6hK1OW9x9QuI8eNL2xPItI9i67VKoEiEpWJy/e0D1s+qzAvh+3IOh43ilNy2nksGyE
+         LjY4HOJQb6Rq77rP+pd4MfUmbefQtFF+RqYN5tsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prateek Sood <prsood@codeaurora.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 094/132] firmware_loader: fix memory leak for paged buffer
-Date:   Tue, 15 Sep 2020 16:13:16 +0200
-Message-Id: <20200915140648.858924866@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <quwenruo.btrfs@gmx.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Qu Wenruo <wqu@suse.com>
+Subject: [PATCH 5.4 095/132] kobject: Restore old behaviour of kobject_del(NULL)
+Date:   Tue, 15 Sep 2020 16:13:17 +0200
+Message-Id: <20200915140648.902771537@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -43,91 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prateek Sood <prsood@codeaurora.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 4965b8cd1bc1ffb017e5c58e622da82b55e49414 upstream.
+commit 40b8b826a6998639dd1c26f0e127f18371e1058d upstream.
 
-vfree() is being called on paged buffer allocated
-using alloc_page() and mapped using vmap().
+The commit 079ad2fb4bf9 ("kobject: Avoid premature parent object freeing in
+kobject_cleanup()") inadvertently dropped a possibility to call kobject_del()
+with NULL pointer. Restore the old behaviour.
 
-Freeing of pages in vfree() relies on nr_pages of
-struct vm_struct. vmap() does not update nr_pages.
-It can lead to memory leaks.
-
-Fixes: ddaf29fd9bb6 ("firmware: Free temporary page table after vmapping")
-Signed-off-by: Prateek Sood <prsood@codeaurora.org>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1597957070-27185-1-git-send-email-prsood@codeaurora.org
+Fixes: 079ad2fb4bf9 ("kobject: Avoid premature parent object freeing in kobject_cleanup()")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Qu Wenruo <quwenruo.btrfs@gmx.com>
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Link: https://lore.kernel.org/r/20200803082706.65347-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/base/firmware_loader/firmware.h |    2 ++
- drivers/base/firmware_loader/main.c     |   17 +++++++++++------
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ lib/kobject.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/base/firmware_loader/firmware.h
-+++ b/drivers/base/firmware_loader/firmware.h
-@@ -139,10 +139,12 @@ int assign_fw(struct firmware *fw, struc
- void fw_free_paged_buf(struct fw_priv *fw_priv);
- int fw_grow_paged_buf(struct fw_priv *fw_priv, int pages_needed);
- int fw_map_paged_buf(struct fw_priv *fw_priv);
-+bool fw_is_paged_buf(struct fw_priv *fw_priv);
- #else
- static inline void fw_free_paged_buf(struct fw_priv *fw_priv) {}
- static inline int fw_grow_paged_buf(struct fw_priv *fw_priv, int pages_needed) { return -ENXIO; }
- static inline int fw_map_paged_buf(struct fw_priv *fw_priv) { return -ENXIO; }
-+static inline bool fw_is_paged_buf(struct fw_priv *fw_priv) { return false; }
- #endif
- 
- #endif /* __FIRMWARE_LOADER_H */
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -252,9 +252,11 @@ static void __free_fw_priv(struct kref *
- 	list_del(&fw_priv->list);
- 	spin_unlock(&fwc->lock);
- 
--	fw_free_paged_buf(fw_priv); /* free leftover pages */
--	if (!fw_priv->allocated_size)
-+	if (fw_is_paged_buf(fw_priv))
-+		fw_free_paged_buf(fw_priv);
-+	else if (!fw_priv->allocated_size)
- 		vfree(fw_priv->data);
-+
- 	kfree_const(fw_priv->fw_name);
- 	kfree(fw_priv);
- }
-@@ -268,6 +270,11 @@ static void free_fw_priv(struct fw_priv
- }
- 
- #ifdef CONFIG_FW_LOADER_PAGED_BUF
-+bool fw_is_paged_buf(struct fw_priv *fw_priv)
-+{
-+	return fw_priv->is_paged_buf;
-+}
-+
- void fw_free_paged_buf(struct fw_priv *fw_priv)
+--- a/lib/kobject.c
++++ b/lib/kobject.c
+@@ -630,8 +630,12 @@ static void __kobject_del(struct kobject
+  */
+ void kobject_del(struct kobject *kobj)
  {
- 	int i;
-@@ -275,6 +282,8 @@ void fw_free_paged_buf(struct fw_priv *f
- 	if (!fw_priv->pages)
- 		return;
+-	struct kobject *parent = kobj->parent;
++	struct kobject *parent;
  
-+	vunmap(fw_priv->data);
++	if (!kobj)
++		return;
 +
- 	for (i = 0; i < fw_priv->nr_pages; i++)
- 		__free_page(fw_priv->pages[i]);
- 	kvfree(fw_priv->pages);
-@@ -328,10 +337,6 @@ int fw_map_paged_buf(struct fw_priv *fw_
- 	if (!fw_priv->data)
- 		return -ENOMEM;
- 
--	/* page table is no longer needed after mapping, let's free */
--	kvfree(fw_priv->pages);
--	fw_priv->pages = NULL;
--
- 	return 0;
++	parent = kobj->parent;
+ 	__kobject_del(kobj);
+ 	kobject_put(parent);
  }
- #endif
 
 
