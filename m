@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C4426A6F7
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:22:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F5F26A6FE
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726855AbgIOOWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:22:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37093 "EHLO mail.kernel.org"
+        id S1726391AbgIOOZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:25:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726843AbgIOOVg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:21:36 -0400
+        id S1726883AbgIOOYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:24:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34E3422266;
-        Tue, 15 Sep 2020 14:17:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09EEC222BA;
+        Tue, 15 Sep 2020 14:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179443;
-        bh=ndK5F6mXR0HjMYzKKtEvyxSPehzUsemUtX5v+GyJJnM=;
+        s=default; t=1600179493;
+        bh=uaLRnY7Edfv21uYVDZYQ//xKF1mn90N/M+5Oj7H69R4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikDXZoI3p6edHiTxf2LS3ngtNKYZQsnG7o50x+Qs7povhM+FVA7jNOZ35Ttt4ubkE
-         vuOy5lT83cmFzuFwgqdcvUXX+RXtrTQWyhtFbC2F9XhZs/Sd7LiKey0M00Oa+OH1m+
-         T+SsUhhHL52xK9L95h/FyCPPb1Tsn8xDTkDBXOhs=
+        b=pc+iD8t3jOYGWX+iFPTcTWtA3lcOodmcuoGUtT+X1eWfAvM/5HgCMYBSxsulKoBiZ
+         A6DKQJV8BoNUL3OjalcAlzWaem88TBbvuAlxc+zl9JFoDk1XFxjcpELwYHVYaUOCY/
+         VUi/agA7AfbIYfpaQpioirRXhe18kfrUgbIAOnEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Hou Pu <houpu@bytedance.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 60/78] scsi: target: iscsi: Fix hang in iscsit_access_np() when getting tpg->np_login_sem
-Date:   Tue, 15 Sep 2020 16:13:25 +0200
-Message-Id: <20200915140636.580547547@linuxfoundation.org>
+        stable@vger.kernel.org, Yuan Ming <yuanmingbuaa@gmail.com>,
+        Willy Tarreau <w@1wt.eu>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 66/78] fbcon: remove soft scrollback code
+Date:   Tue, 15 Sep 2020 16:13:31 +0200
+Message-Id: <20200915140636.861676717@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 References: <20200915140633.552502750@linuxfoundation.org>
@@ -45,117 +46,526 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Pu <houpu@bytedance.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit ed43ffea78dcc97db3f561da834f1a49c8961e33 upstream.
+commit 50145474f6ef4a9c19205b173da6264a644c7489 upstream.
 
-The iSCSI target login thread might get stuck with the following stack:
+This (and the VGA soft scrollback) turns out to have various nasty small
+special cases that nobody really is willing to fight.  The soft
+scrollback code was really useful a few decades ago when you typically
+used the console interactively as the main way to interact with the
+machine, but that just isn't the case any more.
 
-cat /proc/`pidof iscsi_np`/stack
-[<0>] down_interruptible+0x42/0x50
-[<0>] iscsit_access_np+0xe3/0x167
-[<0>] iscsi_target_locate_portal+0x695/0x8ac
-[<0>] __iscsi_target_login_thread+0x855/0xb82
-[<0>] iscsi_target_login_thread+0x2f/0x5a
-[<0>] kthread+0xfa/0x130
-[<0>] ret_from_fork+0x1f/0x30
+So it's not worth dragging along.
 
-This can be reproduced via the following steps:
-
-1. Initiator A tries to log in to iqn1-tpg1 on port 3260. After finishing
-   PDU exchange in the login thread and before the negotiation is finished
-   the the network link goes down. At this point A has not finished login
-   and tpg->np_login_sem is held.
-
-2. Initiator B tries to log in to iqn2-tpg1 on port 3260. After finishing
-   PDU exchange in the login thread the target expects to process remaining
-   login PDUs in workqueue context.
-
-3. Initiator A' tries to log in to iqn1-tpg1 on port 3260 from a new
-   socket. A' will wait for tpg->np_login_sem with np->np_login_timer
-   loaded to wait for at most 15 seconds. The lock is held by A so A'
-   eventually times out.
-
-4. Before A' got timeout initiator B gets negotiation failed and calls
-   iscsi_target_login_drop()->iscsi_target_login_sess_out().  The
-   np->np_login_timer is canceled and initiator A' will hang forever.
-   Because A' is now in the login thread, no new login requests can be
-   serviced.
-
-Fix this by moving iscsi_stop_login_thread_timer() out of
-iscsi_target_login_sess_out(). Also remove iscsi_np parameter from
-iscsi_target_login_sess_out().
-
-Link: https://lore.kernel.org/r/20200729130343.24976-1-houpu@bytedance.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Hou Pu <houpu@bytedance.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Tested-by: Yuan Ming <yuanmingbuaa@gmail.com>
+Tested-by: Willy Tarreau <w@1wt.eu>
+Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/target/iscsi/iscsi_target_login.c |    6 +++---
- drivers/target/iscsi/iscsi_target_login.h |    3 +--
- drivers/target/iscsi/iscsi_target_nego.c  |    3 +--
- 3 files changed, 5 insertions(+), 7 deletions(-)
+ drivers/video/fbdev/core/fbcon.c |  334 ---------------------------------------
+ 1 file changed, 4 insertions(+), 330 deletions(-)
 
---- a/drivers/target/iscsi/iscsi_target_login.c
-+++ b/drivers/target/iscsi/iscsi_target_login.c
-@@ -1183,7 +1183,7 @@ void iscsit_free_conn(struct iscsi_conn
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -102,12 +102,6 @@ static int logo_lines;
+ /* logo_shown is an index to vc_cons when >= 0; otherwise follows FBCON_LOGO
+    enums.  */
+ static int logo_shown = FBCON_LOGO_CANSHOW;
+-/* Software scrollback */
+-static int fbcon_softback_size = 32768;
+-static unsigned long softback_buf, softback_curr;
+-static unsigned long softback_in;
+-static unsigned long softback_top, softback_end;
+-static int softback_lines;
+ /* console mappings */
+ static int first_fb_vc;
+ static int last_fb_vc = MAX_NR_CONSOLES - 1;
+@@ -148,8 +142,6 @@ static int margin_color;
+ 
+ static const struct consw fb_con;
+ 
+-#define CM_SOFTBACK	(8)
+-
+ #define advance_row(p, delta) (unsigned short *)((unsigned long)(p) + (delta) * vc->vc_size_row)
+ 
+ static int fbcon_set_origin(struct vc_data *);
+@@ -355,18 +347,6 @@ static int get_color(struct vc_data *vc,
+ 	return color;
  }
  
- void iscsi_target_login_sess_out(struct iscsi_conn *conn,
--		struct iscsi_np *np, bool zero_tsih, bool new_sess)
-+				 bool zero_tsih, bool new_sess)
+-static void fbcon_update_softback(struct vc_data *vc)
+-{
+-	int l = fbcon_softback_size / vc->vc_size_row;
+-
+-	if (l > 5)
+-		softback_end = softback_buf + l * vc->vc_size_row;
+-	else
+-		/* Smaller scrollback makes no sense, and 0 would screw
+-		   the operation totally */
+-		softback_top = 0;
+-}
+-
+ static void fb_flashcursor(struct work_struct *work)
  {
- 	if (!new_sess)
- 		goto old_sess_out;
-@@ -1201,7 +1201,6 @@ void iscsi_target_login_sess_out(struct
- 	conn->sess = NULL;
+ 	struct fb_info *info = container_of(work, struct fb_info, queue);
+@@ -396,7 +376,7 @@ static void fb_flashcursor(struct work_s
+ 	c = scr_readw((u16 *) vc->vc_pos);
+ 	mode = (!ops->cursor_flash || ops->cursor_state.enable) ?
+ 		CM_ERASE : CM_DRAW;
+-	ops->cursor(vc, info, mode, softback_lines, get_color(vc, info, c, 1),
++	ops->cursor(vc, info, mode, 0, get_color(vc, info, c, 1),
+ 		    get_color(vc, info, c, 0));
+ 	console_unlock();
+ }
+@@ -453,13 +433,7 @@ static int __init fb_console_setup(char
+ 		}
+ 		
+ 		if (!strncmp(options, "scrollback:", 11)) {
+-			options += 11;
+-			if (*options) {
+-				fbcon_softback_size = simple_strtoul(options, &options, 0);
+-				if (*options == 'k' || *options == 'K') {
+-					fbcon_softback_size *= 1024;
+-				}
+-			}
++			pr_warn("Ignoring scrollback size option\n");
+ 			continue;
+ 		}
+ 		
+@@ -988,31 +962,6 @@ static const char *fbcon_startup(void)
  
- old_sess_out:
--	iscsi_stop_login_thread_timer(np);
- 	/*
- 	 * If login negotiation fails check if the Time2Retain timer
- 	 * needs to be restarted.
-@@ -1441,8 +1440,9 @@ static int __iscsi_target_login_thread(s
- new_sess_out:
- 	new_sess = true;
- old_sess_out:
-+	iscsi_stop_login_thread_timer(np);
- 	tpg_np = conn->tpg_np;
--	iscsi_target_login_sess_out(conn, np, zero_tsih, new_sess);
-+	iscsi_target_login_sess_out(conn, zero_tsih, new_sess);
- 	new_sess = false;
+ 	set_blitting_type(vc, info);
  
- 	if (tpg) {
---- a/drivers/target/iscsi/iscsi_target_login.h
-+++ b/drivers/target/iscsi/iscsi_target_login.h
-@@ -22,8 +22,7 @@ extern int iscsit_put_login_tx(struct is
- extern void iscsit_free_conn(struct iscsi_conn *);
- extern int iscsit_start_kthreads(struct iscsi_conn *);
- extern void iscsi_post_login_handler(struct iscsi_np *, struct iscsi_conn *, u8);
--extern void iscsi_target_login_sess_out(struct iscsi_conn *, struct iscsi_np *,
--				bool, bool);
-+extern void iscsi_target_login_sess_out(struct iscsi_conn *, bool, bool);
- extern int iscsi_target_login_thread(void *);
- extern void iscsi_handle_login_thread_timeout(struct timer_list *t);
+-	if (info->fix.type != FB_TYPE_TEXT) {
+-		if (fbcon_softback_size) {
+-			if (!softback_buf) {
+-				softback_buf =
+-				    (unsigned long)
+-				    kmalloc(fbcon_softback_size,
+-					    GFP_KERNEL);
+-				if (!softback_buf) {
+-					fbcon_softback_size = 0;
+-					softback_top = 0;
+-				}
+-			}
+-		} else {
+-			if (softback_buf) {
+-				kfree((void *) softback_buf);
+-				softback_buf = 0;
+-				softback_top = 0;
+-			}
+-		}
+-		if (softback_buf)
+-			softback_in = softback_top = softback_curr =
+-			    softback_buf;
+-		softback_lines = 0;
+-	}
+-
+ 	/* Setup default font */
+ 	if (!p->fontdata && !vc->vc_font.data) {
+ 		if (!fontname[0] || !(font = find_font(fontname)))
+@@ -1181,9 +1130,6 @@ static void fbcon_init(struct vc_data *v
+ 	if (logo)
+ 		fbcon_prepare_logo(vc, info, cols, rows, new_cols, new_rows);
  
---- a/drivers/target/iscsi/iscsi_target_nego.c
-+++ b/drivers/target/iscsi/iscsi_target_nego.c
-@@ -554,12 +554,11 @@ static bool iscsi_target_sk_check_and_cl
- 
- static void iscsi_target_login_drop(struct iscsi_conn *conn, struct iscsi_login *login)
+-	if (vc == svc && softback_buf)
+-		fbcon_update_softback(vc);
+-
+ 	if (ops->rotate_font && ops->rotate_font(info, vc)) {
+ 		ops->rotate = FB_ROTATE_UR;
+ 		set_blitting_type(vc, info);
+@@ -1346,7 +1292,6 @@ static void fbcon_cursor(struct vc_data
  {
--	struct iscsi_np *np = login->np;
- 	bool zero_tsih = login->zero_tsih;
+ 	struct fb_info *info = registered_fb[con2fb_map[vc->vc_num]];
+ 	struct fbcon_ops *ops = info->fbcon_par;
+-	int y;
+  	int c = scr_readw((u16 *) vc->vc_pos);
  
- 	iscsi_remove_failed_auth_entry(conn);
- 	iscsi_target_nego_release(conn);
--	iscsi_target_login_sess_out(conn, np, zero_tsih, true);
-+	iscsi_target_login_sess_out(conn, zero_tsih, true);
+ 	ops->cur_blink_jiffies = msecs_to_jiffies(vc->vc_cur_blink_ms);
+@@ -1360,16 +1305,8 @@ static void fbcon_cursor(struct vc_data
+ 		fbcon_add_cursor_timer(info);
+ 
+ 	ops->cursor_flash = (mode == CM_ERASE) ? 0 : 1;
+-	if (mode & CM_SOFTBACK) {
+-		mode &= ~CM_SOFTBACK;
+-		y = softback_lines;
+-	} else {
+-		if (softback_lines)
+-			fbcon_set_origin(vc);
+-		y = 0;
+-	}
+ 
+-	ops->cursor(vc, info, mode, y, get_color(vc, info, c, 1),
++	ops->cursor(vc, info, mode, 0, get_color(vc, info, c, 1),
+ 		    get_color(vc, info, c, 0));
  }
  
- struct conn_timeout {
+@@ -1440,8 +1377,6 @@ static void fbcon_set_disp(struct fb_inf
+ 
+ 	if (con_is_visible(vc)) {
+ 		update_screen(vc);
+-		if (softback_buf)
+-			fbcon_update_softback(vc);
+ 	}
+ }
+ 
+@@ -1579,99 +1514,6 @@ static __inline__ void ypan_down_redraw(
+ 	scrollback_current = 0;
+ }
+ 
+-static void fbcon_redraw_softback(struct vc_data *vc, struct display *p,
+-				  long delta)
+-{
+-	int count = vc->vc_rows;
+-	unsigned short *d, *s;
+-	unsigned long n;
+-	int line = 0;
+-
+-	d = (u16 *) softback_curr;
+-	if (d == (u16 *) softback_in)
+-		d = (u16 *) vc->vc_origin;
+-	n = softback_curr + delta * vc->vc_size_row;
+-	softback_lines -= delta;
+-	if (delta < 0) {
+-		if (softback_curr < softback_top && n < softback_buf) {
+-			n += softback_end - softback_buf;
+-			if (n < softback_top) {
+-				softback_lines -=
+-				    (softback_top - n) / vc->vc_size_row;
+-				n = softback_top;
+-			}
+-		} else if (softback_curr >= softback_top
+-			   && n < softback_top) {
+-			softback_lines -=
+-			    (softback_top - n) / vc->vc_size_row;
+-			n = softback_top;
+-		}
+-	} else {
+-		if (softback_curr > softback_in && n >= softback_end) {
+-			n += softback_buf - softback_end;
+-			if (n > softback_in) {
+-				n = softback_in;
+-				softback_lines = 0;
+-			}
+-		} else if (softback_curr <= softback_in && n > softback_in) {
+-			n = softback_in;
+-			softback_lines = 0;
+-		}
+-	}
+-	if (n == softback_curr)
+-		return;
+-	softback_curr = n;
+-	s = (u16 *) softback_curr;
+-	if (s == (u16 *) softback_in)
+-		s = (u16 *) vc->vc_origin;
+-	while (count--) {
+-		unsigned short *start;
+-		unsigned short *le;
+-		unsigned short c;
+-		int x = 0;
+-		unsigned short attr = 1;
+-
+-		start = s;
+-		le = advance_row(s, 1);
+-		do {
+-			c = scr_readw(s);
+-			if (attr != (c & 0xff00)) {
+-				attr = c & 0xff00;
+-				if (s > start) {
+-					fbcon_putcs(vc, start, s - start,
+-						    line, x);
+-					x += s - start;
+-					start = s;
+-				}
+-			}
+-			if (c == scr_readw(d)) {
+-				if (s > start) {
+-					fbcon_putcs(vc, start, s - start,
+-						    line, x);
+-					x += s - start + 1;
+-					start = s + 1;
+-				} else {
+-					x++;
+-					start++;
+-				}
+-			}
+-			s++;
+-			d++;
+-		} while (s < le);
+-		if (s > start)
+-			fbcon_putcs(vc, start, s - start, line, x);
+-		line++;
+-		if (d == (u16 *) softback_end)
+-			d = (u16 *) softback_buf;
+-		if (d == (u16 *) softback_in)
+-			d = (u16 *) vc->vc_origin;
+-		if (s == (u16 *) softback_end)
+-			s = (u16 *) softback_buf;
+-		if (s == (u16 *) softback_in)
+-			s = (u16 *) vc->vc_origin;
+-	}
+-}
+-
+ static void fbcon_redraw_move(struct vc_data *vc, struct display *p,
+ 			      int line, int count, int dy)
+ {
+@@ -1811,31 +1653,6 @@ static void fbcon_redraw(struct vc_data
+ 	}
+ }
+ 
+-static inline void fbcon_softback_note(struct vc_data *vc, int t,
+-				       int count)
+-{
+-	unsigned short *p;
+-
+-	if (vc->vc_num != fg_console)
+-		return;
+-	p = (unsigned short *) (vc->vc_origin + t * vc->vc_size_row);
+-
+-	while (count) {
+-		scr_memcpyw((u16 *) softback_in, p, vc->vc_size_row);
+-		count--;
+-		p = advance_row(p, 1);
+-		softback_in += vc->vc_size_row;
+-		if (softback_in == softback_end)
+-			softback_in = softback_buf;
+-		if (softback_in == softback_top) {
+-			softback_top += vc->vc_size_row;
+-			if (softback_top == softback_end)
+-				softback_top = softback_buf;
+-		}
+-	}
+-	softback_curr = softback_in;
+-}
+-
+ static bool fbcon_scroll(struct vc_data *vc, unsigned int t, unsigned int b,
+ 		enum con_scroll dir, unsigned int count)
+ {
+@@ -1858,8 +1675,6 @@ static bool fbcon_scroll(struct vc_data
+ 	case SM_UP:
+ 		if (count > vc->vc_rows)	/* Maximum realistic size */
+ 			count = vc->vc_rows;
+-		if (softback_top)
+-			fbcon_softback_note(vc, t, count);
+ 		if (logo_shown >= 0)
+ 			goto redraw_up;
+ 		switch (p->scrollmode) {
+@@ -2230,14 +2045,6 @@ static int fbcon_switch(struct vc_data *
+ 	info = registered_fb[con2fb_map[vc->vc_num]];
+ 	ops = info->fbcon_par;
+ 
+-	if (softback_top) {
+-		if (softback_lines)
+-			fbcon_set_origin(vc);
+-		softback_top = softback_curr = softback_in = softback_buf;
+-		softback_lines = 0;
+-		fbcon_update_softback(vc);
+-	}
+-
+ 	if (logo_shown >= 0) {
+ 		struct vc_data *conp2 = vc_cons[logo_shown].d;
+ 
+@@ -2571,9 +2378,6 @@ static int fbcon_do_set_font(struct vc_d
+ 	int cnt;
+ 	char *old_data = NULL;
+ 
+-	if (con_is_visible(vc) && softback_lines)
+-		fbcon_set_origin(vc);
+-
+ 	resize = (w != vc->vc_font.width) || (h != vc->vc_font.height);
+ 	if (p->userfont)
+ 		old_data = vc->vc_font.data;
+@@ -2599,8 +2403,6 @@ static int fbcon_do_set_font(struct vc_d
+ 		cols /= w;
+ 		rows /= h;
+ 		vc_resize(vc, cols, rows);
+-		if (con_is_visible(vc) && softback_buf)
+-			fbcon_update_softback(vc);
+ 	} else if (con_is_visible(vc)
+ 		   && vc->vc_mode == KD_TEXT) {
+ 		fbcon_clear_margins(vc, 0);
+@@ -2759,19 +2561,7 @@ static void fbcon_set_palette(struct vc_
+ 
+ static u16 *fbcon_screen_pos(struct vc_data *vc, int offset)
+ {
+-	unsigned long p;
+-	int line;
+-	
+-	if (vc->vc_num != fg_console || !softback_lines)
+-		return (u16 *) (vc->vc_origin + offset);
+-	line = offset / vc->vc_size_row;
+-	if (line >= softback_lines)
+-		return (u16 *) (vc->vc_origin + offset -
+-				softback_lines * vc->vc_size_row);
+-	p = softback_curr + offset;
+-	if (p >= softback_end)
+-		p += softback_buf - softback_end;
+-	return (u16 *) p;
++	return (u16 *) (vc->vc_origin + offset);
+ }
+ 
+ static unsigned long fbcon_getxy(struct vc_data *vc, unsigned long pos,
+@@ -2785,22 +2575,7 @@ static unsigned long fbcon_getxy(struct
+ 
+ 		x = offset % vc->vc_cols;
+ 		y = offset / vc->vc_cols;
+-		if (vc->vc_num == fg_console)
+-			y += softback_lines;
+ 		ret = pos + (vc->vc_cols - x) * 2;
+-	} else if (vc->vc_num == fg_console && softback_lines) {
+-		unsigned long offset = pos - softback_curr;
+-
+-		if (pos < softback_curr)
+-			offset += softback_end - softback_buf;
+-		offset /= 2;
+-		x = offset % vc->vc_cols;
+-		y = offset / vc->vc_cols;
+-		ret = pos + (vc->vc_cols - x) * 2;
+-		if (ret == softback_end)
+-			ret = softback_buf;
+-		if (ret == softback_in)
+-			ret = vc->vc_origin;
+ 	} else {
+ 		/* Should not happen */
+ 		x = y = 0;
+@@ -2828,106 +2603,11 @@ static void fbcon_invert_region(struct v
+ 			a = ((a) & 0x88ff) | (((a) & 0x7000) >> 4) |
+ 			    (((a) & 0x0700) << 4);
+ 		scr_writew(a, p++);
+-		if (p == (u16 *) softback_end)
+-			p = (u16 *) softback_buf;
+-		if (p == (u16 *) softback_in)
+-			p = (u16 *) vc->vc_origin;
+ 	}
+ }
+ 
+-static void fbcon_scrolldelta(struct vc_data *vc, int lines)
+-{
+-	struct fb_info *info = registered_fb[con2fb_map[fg_console]];
+-	struct fbcon_ops *ops = info->fbcon_par;
+-	struct display *disp = &fb_display[fg_console];
+-	int offset, limit, scrollback_old;
+-
+-	if (softback_top) {
+-		if (vc->vc_num != fg_console)
+-			return;
+-		if (vc->vc_mode != KD_TEXT || !lines)
+-			return;
+-		if (logo_shown >= 0) {
+-			struct vc_data *conp2 = vc_cons[logo_shown].d;
+-
+-			if (conp2->vc_top == logo_lines
+-			    && conp2->vc_bottom == conp2->vc_rows)
+-				conp2->vc_top = 0;
+-			if (logo_shown == vc->vc_num) {
+-				unsigned long p, q;
+-				int i;
+-
+-				p = softback_in;
+-				q = vc->vc_origin +
+-				    logo_lines * vc->vc_size_row;
+-				for (i = 0; i < logo_lines; i++) {
+-					if (p == softback_top)
+-						break;
+-					if (p == softback_buf)
+-						p = softback_end;
+-					p -= vc->vc_size_row;
+-					q -= vc->vc_size_row;
+-					scr_memcpyw((u16 *) q, (u16 *) p,
+-						    vc->vc_size_row);
+-				}
+-				softback_in = softback_curr = p;
+-				update_region(vc, vc->vc_origin,
+-					      logo_lines * vc->vc_cols);
+-			}
+-			logo_shown = FBCON_LOGO_CANSHOW;
+-		}
+-		fbcon_cursor(vc, CM_ERASE | CM_SOFTBACK);
+-		fbcon_redraw_softback(vc, disp, lines);
+-		fbcon_cursor(vc, CM_DRAW | CM_SOFTBACK);
+-		return;
+-	}
+-
+-	if (!scrollback_phys_max)
+-		return;
+-
+-	scrollback_old = scrollback_current;
+-	scrollback_current -= lines;
+-	if (scrollback_current < 0)
+-		scrollback_current = 0;
+-	else if (scrollback_current > scrollback_max)
+-		scrollback_current = scrollback_max;
+-	if (scrollback_current == scrollback_old)
+-		return;
+-
+-	if (fbcon_is_inactive(vc, info))
+-		return;
+-
+-	fbcon_cursor(vc, CM_ERASE);
+-
+-	offset = disp->yscroll - scrollback_current;
+-	limit = disp->vrows;
+-	switch (disp->scrollmode) {
+-	case SCROLL_WRAP_MOVE:
+-		info->var.vmode |= FB_VMODE_YWRAP;
+-		break;
+-	case SCROLL_PAN_MOVE:
+-	case SCROLL_PAN_REDRAW:
+-		limit -= vc->vc_rows;
+-		info->var.vmode &= ~FB_VMODE_YWRAP;
+-		break;
+-	}
+-	if (offset < 0)
+-		offset += limit;
+-	else if (offset >= limit)
+-		offset -= limit;
+-
+-	ops->var.xoffset = 0;
+-	ops->var.yoffset = offset * vc->vc_font.height;
+-	ops->update_start(info);
+-
+-	if (!scrollback_current)
+-		fbcon_cursor(vc, CM_DRAW);
+-}
+-
+ static int fbcon_set_origin(struct vc_data *vc)
+ {
+-	if (softback_lines)
+-		fbcon_scrolldelta(vc, softback_lines);
+ 	return 0;
+ }
+ 
+@@ -2991,8 +2671,6 @@ static void fbcon_modechanged(struct fb_
+ 
+ 		fbcon_set_palette(vc, color_table);
+ 		update_screen(vc);
+-		if (softback_buf)
+-			fbcon_update_softback(vc);
+ 	}
+ }
+ 
+@@ -3434,7 +3112,6 @@ static const struct consw fb_con = {
+ 	.con_font_default	= fbcon_set_def_font,
+ 	.con_font_copy 		= fbcon_copy_font,
+ 	.con_set_palette 	= fbcon_set_palette,
+-	.con_scrolldelta 	= fbcon_scrolldelta,
+ 	.con_set_origin 	= fbcon_set_origin,
+ 	.con_invert_region 	= fbcon_invert_region,
+ 	.con_screen_pos 	= fbcon_screen_pos,
+@@ -3691,9 +3368,6 @@ static void fbcon_exit(void)
+ 	}
+ #endif
+ 
+-	kfree((void *)softback_buf);
+-	softback_buf = 0UL;
+-
+ 	for_each_registered_fb(i) {
+ 		int pending = 0;
+ 
 
 
