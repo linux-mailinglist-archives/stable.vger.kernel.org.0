@@ -2,102 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8980726AF29
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 23:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 942D826AF87
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 23:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727821AbgIOVGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 17:06:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40084 "EHLO
+        id S1728009AbgIOVZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 17:25:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727841AbgIOVGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 17:06:16 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69619C06174A
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 14:06:16 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id a3so5542806oib.4
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 14:06:16 -0700 (PDT)
+        with ESMTP id S1727992AbgIOVYs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 17:24:48 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D55C06174A
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 14:24:48 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id bg9so2018162plb.2
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 14:24:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=KcpSM7PS7PsvIaDBC6wC/2fRLEAM7h6XtduMyEup08A=;
-        b=SmESRUV/vjDH3aGyqxFESW8tMhQ/WVwKedSfeQ4gzz0yApBKny/LpXh3LHgo9N6nZn
-         DpfgvTFlqNAZP9bh2hIOBIqapYxs8uLqnca0k4PF2D84twFwlznQj5mIRAuyb4NiAmTu
-         RtCHGrVtZqLcaLvKqIQ8VDIoz2kM08zM9MxT0=
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=PTgQ830HVBAbzepwTNVzvx5MvkLEAXf3QpQye9kHzO4=;
+        b=Wrcnf0Rrw3c56F+yHM+X2OoEK/YWkl21IDWOT9PLCZg/RFZPpkA0b00urdKqEOMnaS
+         FG4tUETlrtiVeGKeV1S09hJj0/uA/JNa3vAH+XLsrcWp2jjy1gVQe64K+VrdIrnd4Yp6
+         WssdM2rnUQh3SeGZcn9uNVxRbfp+lB9YihGxyjmCMSbuEL2Mhlm4rWbmJZ+lZG6cid82
+         P4eeRoTqtakkmTt2gtZbxJpIkmb7Vv+1rT7Bidk00BZ6YIy5sLakcxQcnocLzIkp8Co1
+         KScLUc1W+w6RQiScaftIRI+3oWNRP/XedJIOM/nRxP9bNntvKoU5Vzoc7TXwZXkmw8Wa
+         H2KQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=KcpSM7PS7PsvIaDBC6wC/2fRLEAM7h6XtduMyEup08A=;
-        b=Q3P7BNq29O4NCkOk43NrsLSzkJy5TjKiUalk2DfDB+RbIChMoZhGN6ZVKQTlCmUfBB
-         FrGve/XjS0BPgBqODQyZ6lYT72GbYo3Vx0mUly9c/ePSV4fv4kD6ubMG2MpSoERA0qIH
-         S4sq8Ebu34rCFtNiVNcatTZHgsGwNbDSTw/lQzaxuTV78oNX/seljy2a6amX5wkRpVeK
-         8/+5nOJTh1I2nt2UD7509YY1cOXPgtiYhwQznEEY853HvV6eiE/7HjXu4qHU20SJ1Wyx
-         0CWpaPC9SRhkTbCbY+c6u6cZnM0S+1VrBNjy345wyHVrxRH7K/MHw06TNjhna8DFwMpI
-         zE4w==
-X-Gm-Message-State: AOAM533EGt1NskD0JBfuXIxlZPwE4Lz1YOsEs15vVDc6tJDBfyUjF3ze
-        w8a/YqaeK8dMEBiCyDj9zk1JfnEFuFGiiQ==
-X-Google-Smtp-Source: ABdhPJwGhiao15MvmOslBePDNbz8gaYFGBb/X0Etx0vmLG/fr0rwly57smkVtd+UgPoe9WuDN1ZhYQ==
-X-Received: by 2002:aca:5f89:: with SMTP id t131mr987228oib.32.1600203975819;
-        Tue, 15 Sep 2020 14:06:15 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id h135sm7403746oib.50.2020.09.15.14.06.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Sep 2020 14:06:15 -0700 (PDT)
-Subject: Re: [PATCH 5.8 000/177] 5.8.10-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        pavel@denx.de, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20200915140653.610388773@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <b94c29b3-ef68-897b-25a8-e6fcc181a22a@linuxfoundation.org>
-Date:   Tue, 15 Sep 2020 15:06:14 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PTgQ830HVBAbzepwTNVzvx5MvkLEAXf3QpQye9kHzO4=;
+        b=doQGmNljh2NCoaLJ+hPVKrkLWt8F4N3Qjibnck678nN+MyhNp5pGdVe+QYNyqVNlMQ
+         y4wTTC7HB/mCRTYfVm1DNdqCKjAfCbsuUYy51m7zLPTvDr8LnHEgt53cflQec8O6t5t6
+         z4QUbL8coLU9e/9lhH4Hph7ryUGiF1bqWpvZyNNvgrfCXtOFAnhgBlSCyQTrf1NypDH/
+         6Wgdv/hB2hP80cIzle83M5ne0rQdPhT/su30iAqN4hih42ml5IBGpn3fW40yTqdZOrUB
+         q2LezoaWXPcD/DHrAG2a6dN9YY/4LZu+q+5ApGEqvRInYo4i/gDdj0mu4UXI5YpIVv2q
+         h9Gg==
+X-Gm-Message-State: AOAM53324IrsaefEOXgFhr1NoQpup+QJIcfoL1s8ioWE51l6Mm8jiTmo
+        NuJm1SQm4CX7LKfpw67Xg5ROeA/1Yot60ok2PkMnW4zcP0o=
+X-Google-Smtp-Source: ABdhPJxca9XtVQPYh5S/ZgR99g3XptMvihVyB92KqZN1nR05d3aUsx/I2xeo0ssMTeMuqOC1hHsLxO0bCx167JNiu+A=
+X-Received: by 2002:a17:902:7295:b029:d1:e3bd:48cc with SMTP id
+ d21-20020a1709027295b02900d1e3bd48ccmr4931075pll.10.1600205087532; Tue, 15
+ Sep 2020 14:24:47 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <9f513eef618b6e72a088cc8b2787496f190d1c2d.1600203307.git.luto@kernel.org>
+In-Reply-To: <9f513eef618b6e72a088cc8b2787496f190d1c2d.1600203307.git.luto@kernel.org>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Tue, 15 Sep 2020 14:24:35 -0700
+Message-ID: <CAKwvOdnjHbyamsW71FJ=Cd36YfVppp55ftcE_eSDO_z+KE9zeQ@mail.gmail.com>
+Subject: Re: [PATCH] x86/smap: Fix the smap_save() asm
+To:     Andy Lutomirski <luto@kernel.org>, Bill Wendling <morbo@google.com>
+Cc:     "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Greg Thelen <gthelen@google.com>,
+        John Sperbeck <jsperbeck@google.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/15/20 8:11 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.8.10 release.
-> There are 177 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.10-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.8.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Tue, Sep 15, 2020 at 1:56 PM Andy Lutomirski <luto@kernel.org> wrote:
+>
+> The old smap_save() code was:
+>
+>   pushf
+>   pop %0
+>
+> with %0 defined by an "=rm" constraint.  This is fine if the
+> compiler picked the register option, but it was incorrect with an
+> %rsp-relative memory operand.
 
-Compiled and booted fine. wifi died:
+It is incorrect because ... (I think mentioning the point about the
+red zone would be good, unless there were additional concerns?)
 
-ath10k_pci 0000:02:00.0: could not init core (-110)
-ath10k_pci 0000:02:00.0: could not probe fw (-110)
+The patch should be fine, so
 
-This is regression from 5.8.9 and 5.9-rc5 works just fine.
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 
-I will try to bisect later this evening to see if I can isolate the
-commit.
+regardless of whether or not you choose to amend the commit message.
+I suspect that the use of "r" exclusively without "m" could lead to
+register exhaustion (though it's more likely the compiler will spill
+some other variable to stack), which is why it's common to use it in
+conjunction with "m."  As Bill's patch notes, getting the "m" version
+is poor for performance of this pattern, or at least for
+native_{save|restore}_fl.  Being able to use the compiler builtins is
+another possibility here.
 
-thanks,
--- Shuah
+> With some intentional abuse, I can
+> get both gcc and clang to generate code along these lines:
+>
+>   pushfq
+>   popq 0x8(%rsp)
+>   mov 0x8(%rsp),%rax
+>
+> which is incorrect and will not work as intended.
+>
+> Fix it by removing the memory option.  This issue is exacerbated by
+> a clang optimization bug:
+>
+>   https://bugs.llvm.org/show_bug.cgi?id=47530
+
+This is something we should fix.  Bill, James, and I are discussing
+this internally.  Thank you for filing a bug; I owe you a beer just
+for that.
+
+>
+> Fixes: e74deb11931f ("x86/uaccess: Introduce user_access_{save,restore}()")
+> Cc: stable@vger.kernel.org
+> Reported-by: Bill Wendling <morbo@google.com> # I think
+
+LOL, yes, the comment can be dropped...though I guess someone else may
+have reported the problem to Bill?
+
+> Signed-off-by: Andy Lutomirski <luto@kernel.org>
+> ---
+>  arch/x86/include/asm/smap.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/x86/include/asm/smap.h b/arch/x86/include/asm/smap.h
+> index 8b58d6975d5d..be6d675ae3ac 100644
+> --- a/arch/x86/include/asm/smap.h
+> +++ b/arch/x86/include/asm/smap.h
+> @@ -61,7 +61,7 @@ static __always_inline unsigned long smap_save(void)
+>                       ALTERNATIVE("jmp 1f", "", X86_FEATURE_SMAP)
+>                       "pushf; pop %0; " __ASM_CLAC "\n\t"
+>                       "1:"
+> -                     : "=rm" (flags) : : "memory", "cc");
+> +                     : "=r" (flags) : : "memory", "cc");
+>
+>         return flags;
+>  }
+> --
+> 2.26.2
+>
+
+
+-- 
+Thanks,
+~Nick Desaulniers
