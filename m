@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5D3B26B509
+	by mail.lfdr.de (Postfix) with ESMTP id 5972726B508
 	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727271AbgIOXfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47668 "EHLO mail.kernel.org"
+        id S1726484AbgIOXft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:35:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727142AbgIOOfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727134AbgIOOfY (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:35:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23A6722228;
-        Tue, 15 Sep 2020 14:25:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78D7A22229;
+        Tue, 15 Sep 2020 14:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179941;
-        bh=/p2bt4Xb6gzPGnKNOC+RitZDbjUI9NfS55+3BpLByQM=;
+        s=default; t=1600179944;
+        bh=DaXUFbbZNrARA9Fmb+uk/CfNJygBHmnae2x1HEsJlhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhN19YHWt4J/NLJRt544I50oVdLyjgINHGwBAV6+BNnF/P5PcM2PPCkUHAs1QCUxY
-         5gNKNOjrW1jpIVPNBZSr0/F6oOj32EE+l4uPqrfDnL7NTPfmH3o8ZOubchikxxMArt
-         pllfJO0hEK3sI11EY9TxRih7yhpavvBNkWoHbUlE=
+        b=P3D3re5XNa1MCJi4UVVYd2ovzsDuS73mCRn1su1I8njts1PMRqjanC791bzSoAbLd
+         9S7zKEJ+dM7I3YK43mwz309nfA1XaAH1d0zHnoGuU3cbHzA7W+hys/KP+6LOlUWxYL
+         wN3lbd3V3iUZK2ul8NcDiGXjUyTBhxYfdNA3bjeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Amelie Delaunay <amelie.delaunay@st.com>,
-        Antonio Borneo <borneo.antonio@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 045/177] spi: stm32: Rate-limit the Communication suspended message
-Date:   Tue, 15 Sep 2020 16:11:56 +0200
-Message-Id: <20200915140655.791643761@linuxfoundation.org>
+Subject: [PATCH 5.8 046/177] btrfs: fix NULL pointer dereference after failure to create snapshot
+Date:   Tue, 15 Sep 2020 16:11:57 +0200
+Message-Id: <20200915140655.837928185@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -47,62 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit ea8be08cc9358f811e4175ba7fa7fea23c5d393e ]
+[ Upstream commit 2d892ccdc163a3d2e08c5ed1cea8b61bf7e4f531 ]
 
-The 'spi_stm32 44004000.spi: Communication suspended' message means that
-when using PIO, the kernel did not read the FIFO fast enough and so the
-SPI controller paused the transfer. Currently, this is printed on every
-single such event, so if the kernel is busy and the controller is pausing
-the transfers often, the kernel will be all the more busy scrolling this
-message into the log buffer every few milliseconds. That is not helpful.
+When trying to get a new fs root for a snapshot during the transaction
+at transaction.c:create_pending_snapshot(), if btrfs_get_new_fs_root()
+fails we leave "pending->snap" pointing to an error pointer, and then
+later at ioctl.c:create_snapshot() we dereference that pointer, resulting
+in a crash:
 
-Instead, rate-limit the message and print it every once in a while. It is
-not possible to use the default dev_warn_ratelimited(), because that is
-still too verbose, as it prints 10 lines (DEFAULT_RATELIMIT_BURST) every
-5 seconds (DEFAULT_RATELIMIT_INTERVAL). The policy here is to print 1 line
-every 50 seconds (DEFAULT_RATELIMIT_INTERVAL * 10), because 1 line is more
-than enough and the cycles saved on printing are better left to the CPU to
-handle the SPI. However, dev_warn_once() is also not useful, as the user
-should be aware that this condition is possibly recurring or ongoing. Thus
-the custom rate-limit policy.
+  [12264.614689] BUG: kernel NULL pointer dereference, address: 00000000000007c4
+  [12264.615650] #PF: supervisor write access in kernel mode
+  [12264.616487] #PF: error_code(0x0002) - not-present page
+  [12264.617436] PGD 0 P4D 0
+  [12264.618328] Oops: 0002 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
+  [12264.619150] CPU: 0 PID: 2310635 Comm: fsstress Tainted: G        W         5.9.0-rc3-btrfs-next-67 #1
+  [12264.619960] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+  [12264.621769] RIP: 0010:btrfs_mksubvol+0x438/0x4a0 [btrfs]
+  [12264.622528] Code: bc ef ff ff (...)
+  [12264.624092] RSP: 0018:ffffaa6fc7277cd8 EFLAGS: 00010282
+  [12264.624669] RAX: 00000000fffffff4 RBX: ffff9d3e8f151a60 RCX: 0000000000000000
+  [12264.625249] RDX: 0000000000000001 RSI: ffffffff9d56c9be RDI: fffffffffffffff4
+  [12264.625830] RBP: ffff9d3e8f151b48 R08: 0000000000000000 R09: 0000000000000000
+  [12264.626413] R10: 0000000000000000 R11: 0000000000000000 R12: 00000000fffffff4
+  [12264.626994] R13: ffff9d3ede380538 R14: ffff9d3ede380500 R15: ffff9d3f61b2eeb8
+  [12264.627582] FS:  00007f140d5d8200(0000) GS:ffff9d3fb5e00000(0000) knlGS:0000000000000000
+  [12264.628176] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [12264.628773] CR2: 00000000000007c4 CR3: 000000020f8e8004 CR4: 00000000003706f0
+  [12264.629379] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [12264.629994] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [12264.630594] Call Trace:
+  [12264.631227]  btrfs_mksnapshot+0x7b/0xb0 [btrfs]
+  [12264.631840]  __btrfs_ioctl_snap_create+0x16f/0x1a0 [btrfs]
+  [12264.632458]  btrfs_ioctl_snap_create_v2+0xb0/0xf0 [btrfs]
+  [12264.633078]  btrfs_ioctl+0x1864/0x3130 [btrfs]
+  [12264.633689]  ? do_sys_openat2+0x1a7/0x2d0
+  [12264.634295]  ? kmem_cache_free+0x147/0x3a0
+  [12264.634899]  ? __x64_sys_ioctl+0x83/0xb0
+  [12264.635488]  __x64_sys_ioctl+0x83/0xb0
+  [12264.636058]  do_syscall_64+0x33/0x80
+  [12264.636616]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Finally, turn the message from dev_warn() to dev_dbg(), since the system
-does not suffer any sort of malfunction if this message appears, it is
-just slowing down. This further reduces the printing into the log buffer
-and frees the CPU to do useful work.
+  (gdb) list *(btrfs_mksubvol+0x438)
+  0x7c7b8 is in btrfs_mksubvol (fs/btrfs/ioctl.c:858).
+  853		ret = 0;
+  854		pending_snapshot->anon_dev = 0;
+  855	fail:
+  856		/* Prevent double freeing of anon_dev */
+  857		if (ret && pending_snapshot->snap)
+  858			pending_snapshot->snap->anon_dev = 0;
+  859		btrfs_put_root(pending_snapshot->snap);
+  860		btrfs_subvolume_release_metadata(root, &pending_snapshot->block_rsv);
+  861	free_pending:
+  862		if (pending_snapshot->anon_dev)
 
-Fixes: dcbe0d84dfa5 ("spi: add driver for STM32 SPI controller")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Amelie Delaunay <amelie.delaunay@st.com>
-Cc: Antonio Borneo <borneo.antonio@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20200905151913.117775-1-marex@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So fix this by setting "pending->snap" to NULL if we get an error from the
+call to btrfs_get_new_fs_root() at transaction.c:create_pending_snapshot().
+
+Fixes: 2dfb1e43f57dd3 ("btrfs: preallocate anon block device at first phase of snapshot creation")
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/btrfs/transaction.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index d4b33b358a31e..a00f6b51ccbfc 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -936,7 +936,11 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index 2710f8ddb95fb..b43ebf55b93e1 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -1636,6 +1636,7 @@ static noinline int create_pending_snapshot(struct btrfs_trans_handle *trans,
+ 	pending->snap = btrfs_get_new_fs_root(fs_info, objectid, pending->anon_dev);
+ 	if (IS_ERR(pending->snap)) {
+ 		ret = PTR_ERR(pending->snap);
++		pending->snap = NULL;
+ 		btrfs_abort_transaction(trans, ret);
+ 		goto fail;
  	}
- 
- 	if (sr & STM32H7_SPI_SR_SUSP) {
--		dev_warn(spi->dev, "Communication suspended\n");
-+		static DEFINE_RATELIMIT_STATE(rs,
-+					      DEFAULT_RATELIMIT_INTERVAL * 10,
-+					      1);
-+		if (__ratelimit(&rs))
-+			dev_dbg_ratelimited(spi->dev, "Communication suspended\n");
- 		if (!spi->cur_usedma && (spi->rx_buf && (spi->rx_len > 0)))
- 			stm32h7_spi_read_rxfifo(spi, false);
- 		/*
 -- 
 2.25.1
 
