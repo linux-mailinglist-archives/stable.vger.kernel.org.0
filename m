@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23C4726B55A
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:42:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2299026B4DB
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726864AbgIOXmp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:42:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44144 "EHLO mail.kernel.org"
+        id S1727211AbgIOXcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727084AbgIOOd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:33:56 -0400
+        id S1727166AbgIOOhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:37:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C2AB2220E;
-        Tue, 15 Sep 2020 14:16:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D12323C40;
+        Tue, 15 Sep 2020 14:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179366;
-        bh=GlC6sitWUz8lsGgGYG9CqFfSF0aw0BpNZsrM9Rwj3TI=;
+        s=default; t=1600180032;
+        bh=Q/p0TMUryxX77+CV/KVWZ+Q4CYue+xeVAxSZstCpHeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scAlkz1Op7RQqnI1qQKnxBqEIQ8Nb6C9lw9ucosu9wTa/K7XFOK1DpSRC6LqaTtpn
-         NXUoSdUQVBF6Od7MpAqhbKuPj75saEHU+uDfhNqCKNsThBxPRJuCKZRUMnVKm86aw9
-         CGAFu4NmmK6c7v8Hjbk2JFeIvpBq7EsT62DrS7Ts=
+        b=J1unCqSV7vKXblOCW3Wm5VnlTbh4F2PvP2r28S4jMqHJSr0DZEobZnw2k3rCjOJQr
+         7DRdj2H0e26SZZLFy5zdV4smDLi9evYzZDxE0bPuGMpR9+OQ1oRksitp6JeMn28zLu
+         2fcRx3SMedoGfZeHpPmGuKutRGHWK1p1L1FC/OyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/78] RDMA/rxe: Fix memleak in rxe_mem_init_user
-Date:   Tue, 15 Sep 2020 16:12:30 +0200
-Message-Id: <20200915140633.799254311@linuxfoundation.org>
+Subject: [PATCH 5.8 081/177] irqchip/eznps: Fix build error for !ARC700 builds
+Date:   Tue, 15 Sep 2020 16:12:32 +0200
+Message-Id: <20200915140657.524433915@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
-References: <20200915140633.552502750@linuxfoundation.org>
+In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
+References: <20200915140653.610388773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit e3ddd6067ee62f6e76ebcf61ff08b2c729ae412b ]
+[ Upstream commit 89d29997f103d08264b0685796b420d911658b96 ]
 
-When page_address() fails, umem should be freed just like when
-rxe_mem_alloc() fails.
+eznps driver is supposed to be platform independent however it ends up
+including stuff from inside arch/arc headers leading to rand config
+build errors.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20200819075632.22285-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+The quick hack to fix this (proper fix is too much chrun for non active
+user-base) is to add following to nps platform agnostic header.
+ - copy AUX_IENABLE from arch/arc header
+ - move CTOP_AUX_IACK from arch/arc/plat-eznps/*/**
+
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Link: https://lkml.kernel.org/r/20200824095831.5lpkmkafelnvlpi2@linutronix.de
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_mr.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arc/plat-eznps/include/plat/ctop.h | 1 -
+ include/soc/nps/common.h                | 6 ++++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
-index dff605fdf60fa..2cca89ca08cd4 100644
---- a/drivers/infiniband/sw/rxe/rxe_mr.c
-+++ b/drivers/infiniband/sw/rxe/rxe_mr.c
-@@ -203,6 +203,7 @@ int rxe_mem_init_user(struct rxe_pd *pd, u64 start,
- 			vaddr = page_address(sg_page(sg));
- 			if (!vaddr) {
- 				pr_warn("null vaddr\n");
-+				ib_umem_release(umem);
- 				err = -ENOMEM;
- 				goto err1;
- 			}
+diff --git a/arch/arc/plat-eznps/include/plat/ctop.h b/arch/arc/plat-eznps/include/plat/ctop.h
+index a4a61531c7fb9..77712c5ffe848 100644
+--- a/arch/arc/plat-eznps/include/plat/ctop.h
++++ b/arch/arc/plat-eznps/include/plat/ctop.h
+@@ -33,7 +33,6 @@
+ #define CTOP_AUX_DPC				(CTOP_AUX_BASE + 0x02C)
+ #define CTOP_AUX_LPC				(CTOP_AUX_BASE + 0x030)
+ #define CTOP_AUX_EFLAGS				(CTOP_AUX_BASE + 0x080)
+-#define CTOP_AUX_IACK				(CTOP_AUX_BASE + 0x088)
+ #define CTOP_AUX_GPA1				(CTOP_AUX_BASE + 0x08C)
+ #define CTOP_AUX_UDMC				(CTOP_AUX_BASE + 0x300)
+ 
+diff --git a/include/soc/nps/common.h b/include/soc/nps/common.h
+index 9b1d43d671a3f..8c18dc6d3fde5 100644
+--- a/include/soc/nps/common.h
++++ b/include/soc/nps/common.h
+@@ -45,6 +45,12 @@
+ #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_INST	0x5B60
+ #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_LIMM	0x00010422
+ 
++#ifndef AUX_IENABLE
++#define AUX_IENABLE				0x40c
++#endif
++
++#define CTOP_AUX_IACK				(0xFFFFF800 + 0x088)
++
+ #ifndef __ASSEMBLY__
+ 
+ /* In order to increase compilation test coverage */
 -- 
 2.25.1
 
