@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD24026B878
+	by mail.lfdr.de (Postfix) with ESMTP id 4045226B877
 	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:44:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726627AbgIPAoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:44:25 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:58553 "EHLO
+        id S1726594AbgIPAoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:44:24 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:46753 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726326AbgIONBU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 09:01:20 -0400
+        by vger.kernel.org with ESMTP id S1726444AbgIONBY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 09:01:24 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id D13ED19413BA;
-        Tue, 15 Sep 2020 09:01:17 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 15 Sep 2020 09:01:17 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id D1C5A1940132;
+        Tue, 15 Sep 2020 09:01:21 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 15 Sep 2020 09:01:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=WFYstc
-        LBEngY11qK+/T7pnM2AdAQwceDLiPqEz7JbYQ=; b=MD0V2ksA2b4HbivfHMuCsv
-        u6+Th6ojkXQm+jhihpLkbeM0I85t/Avrse78tVP8B2KNgJ8gWfhEQDx92Q/uVPv6
-        tKWg4LDNMneRK29fThRdw9+eqOuFAQbmw8zbObdIcagyR1ZW9aVj2Rlpq7kovh/e
-        PQmqJHUkuE7DsHBvoOFwQ2FMHD8EGEBXkRHJTY+gAH8mvFxzYiL7CxqZnP3M+IWg
-        nRwtYWHcajwOUkvnu8nsK2StnCaLoRrgi7sGh7rxtMHEgLy2JIZoynm+ey9gYG4Y
-        pCSTbUw9UCnyvnbu1NnQUil0zeRJIX+a3PHQWK6b0OSC/dHAvl9ev04qR7buMmHg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=a8LAhb
+        ELrBC2rgz3xpfxWZzA6LhkUV/XY1TDMir5x7Y=; b=htVnebYOQcsfG7m3mIo5E7
+        esu+jyvgc631f+RfvNA6f+l+5VMl/CXCjpPC4x9YWxuVLhOOLVS3TIw+zBAHrbb9
+        bjoUhssKrv4qOYcS1SsseV7CeyyaRZz31vtnLPkXl4HPfe2WXy1eXsMDXqdzeuWG
+        Al6B7xc569uLqAcZxP6eu7t1RorkNua37R/t2rUFP0UCCOa6VIeF6FVZ0313uiiE
+        2gPMzvnaKnHxlpdsHnXIvpy27A2FkJYQKLPtL7/5FCHpSZxcNJe/XrUIir0w6uQh
+        PnRhugQxEgjeDROnYjrIIWBA1ArtZAWLS3OWT6ZztX/Ve73Kq30qzPzR56DF6pAA
         ==
-X-ME-Sender: <xms:HbtgX_M-eFsIfGHOq8fGzWKukX7L53eR2EqO0DztrwypJTi3TFWKgQ>
-    <xme:HbtgX587uwTCzDfqoHu7R4IpaI100GXnRQ8JCmJ64w5pWUrSyZWa_kKGg8pyfhK5X
-    p7E7znH7mLYvQ>
+X-ME-Sender: <xms:ILtgX1cNuj1cBr-UtEpWMzdoROBUw-Q3EtzTq2IwqMXf_l-Mu0TuLQ>
+    <xme:ILtgXzP0XXbZ5QxCrqBsdwwgvqwRI0BJWdXYKNMcLx_esefqbKKAKpeAsGhjB4eH6
+    KZARvbazuWo5g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrtddtgddvjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -37,20 +37,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrtddtgddvjecutefuodetggdote
     qeenucggtffrrghtthgvrhhnpeejtddtieefjeeigfelleefffduueejvefggfejteeugf
     ffueevfeetvdetudejteenucffohhmrghinhepshihiihkrghllhgvrhdrrghpphhsphho
     thdrtghomhenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpe
-    dunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:HbtgX-SUPQuq3mbCWks-lMa7LTrYPZ10s3gqJZ3jA7XKVW5tcxi0LQ>
-    <xmx:HbtgXzupEFwisRwOH4Hea27saVYh6o_VaFaeRxXOFeKm0i-THqRt-Q>
-    <xmx:HbtgX3fUypOHxsHwbOoPbZr_WQw0UEeifOsGfMB9cku-ShYyz6MqLg>
-    <xmx:HbtgX_GAH21ARd1CiZT5wbwILYZUdwiXPT-6WwQlzoVQTBFjHapDDg>
+    efnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:IbtgX-gjyx9csT-MIEhXlTCw_DkcRmfTtWSY4jGVL0jSdSsNBdYaEQ>
+    <xmx:IbtgX-8lhJqB39NLhCQtUaGo3UOj9Xec7I-2dXlh2GyuSjQu2MZnHw>
+    <xmx:IbtgXxul8PrPxPoAjNvYz5musadCLb4tY3esR7KFY-J0zj2aYibswQ>
+    <xmx:IbtgXyVgegZnE_w1mWcs9Q2vU1EbSzfuLNZ0qtqynZfDV0SWG7znxA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F1757328005E;
-        Tue, 15 Sep 2020 09:01:16 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: fix memory leak in kvm_io_bus_unregister_dev()" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id ECCE3306468A;
+        Tue, 15 Sep 2020 09:01:19 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: fix memory leak in kvm_io_bus_unregister_dev()" failed to apply to 4.4-stable tree
 To:     rkovhaev@gmail.com, pbonzini@redhat.com, vkuznets@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 15 Sep 2020 15:01:06 +0200
-Message-ID: <16001748666846@kroah.com>
+Date:   Tue, 15 Sep 2020 15:01:07 +0200
+Message-ID: <160017486719179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
