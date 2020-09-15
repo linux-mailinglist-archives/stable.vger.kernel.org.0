@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C7A26B5B8
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:50:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D469026B5C8
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:51:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727122AbgIOXtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:49:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46174 "EHLO mail.kernel.org"
+        id S1727187AbgIOXvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:51:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727092AbgIOOcm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727089AbgIOOcm (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:32:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF4CF22C9F;
-        Tue, 15 Sep 2020 14:24:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B56922CAD;
+        Tue, 15 Sep 2020 14:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179849;
-        bh=w0V1TJf6yGYB3FH1k7gCABqSbY5nNZ589wveAnNNRs8=;
+        s=default; t=1600179851;
+        bh=ZMFSM/ky15tcCkJXLSBMAm/OUHU3XkGYmq+8LxZSaW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qNoBJXk+HTnIdaXKeU4hybGTY9JgMNImjGDWRglyOE8dNrOzycR+JjKh4G44XVNpR
-         rP1mhb7vdn1IZIYpd8RFCoB9bkAcbfVa+SWq+ril+P+3r9WKCnTgzK1akLe54gIcfF
-         H9PYWb4VhMC8cZ2pmEnENQnEXrca1+mG1nel7LsY=
+        b=lXWHzGoyJ/luNgDFC6fTvmdCdu1Mhj/LAupdt6+M8y6GqtWtFW0Gd/Smvbng6C0hf
+         pMfnh0qipS8BJcLhzcXT02iwgUgn9vTAISfnjaLtPnP995gO/ay9nPy/Xs24Uq5o8p
+         nthYyewX2XRIhH5cdgVRbZnPKIGMXWuS4U6XKhzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 010/177] ARM: dts: ls1021a: fix QuadSPI-memory reg range
-Date:   Tue, 15 Sep 2020 16:11:21 +0200
-Message-Id: <20200915140654.134197279@linuxfoundation.org>
+Subject: [PATCH 5.8 011/177] ARM: dts: imx7ulp: Correct gpio ranges
+Date:   Tue, 15 Sep 2020 16:11:22 +0200
+Message-Id: <20200915140654.180049299@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -45,40 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit 81dbbb417da4d1ac407dca5b434d39d5b6b91ef3 ]
+[ Upstream commit deb6323b739c54e1a1e83cd3a2bae4901e3eebf6 ]
 
-According to the Reference Manual, the correct size is 512 MiB.
+Correct gpio ranges according to i.MX7ULP pinctrl driver:
 
-Without this fix, probing the QSPI fails:
+gpio_ptc: ONLY pin 0~19 are available;
+gpio_ptd: ONLY pin 0~11 are available;
+gpio_pte: ONLY pin 0~15 are available;
+gpio_ptf: ONLY pin 0~19 are available;
 
-    fsl-quadspi 1550000.spi: ioremap failed for resource
-        [mem 0x40000000-0x7fffffff]
-    fsl-quadspi 1550000.spi: Freescale QuadSPI probe failed
-    fsl-quadspi: probe of 1550000.spi failed with error -12
-
-Fixes: 85f8ee78ab72 ("ARM: dts: ls1021a: Add support for QSPI with ls1021a SoC")
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Fixes: 20434dc92c05 ("ARM: dts: imx: add common imx7ulp dtsi support")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ls1021a.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx7ulp.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ls1021a.dtsi b/arch/arm/boot/dts/ls1021a.dtsi
-index b2ff27af090ec..9435ce527e855 100644
---- a/arch/arm/boot/dts/ls1021a.dtsi
-+++ b/arch/arm/boot/dts/ls1021a.dtsi
-@@ -181,7 +181,7 @@
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0x0 0x1550000 0x0 0x10000>,
--			      <0x0 0x40000000 0x0 0x40000000>;
-+			      <0x0 0x40000000 0x0 0x20000000>;
- 			reg-names = "QuadSPI", "QuadSPI-memory";
- 			interrupts = <GIC_SPI 131 IRQ_TYPE_LEVEL_HIGH>;
- 			clock-names = "qspi_en", "qspi";
+diff --git a/arch/arm/boot/dts/imx7ulp.dtsi b/arch/arm/boot/dts/imx7ulp.dtsi
+index f7c4878534c8e..1bff3efe8aafe 100644
+--- a/arch/arm/boot/dts/imx7ulp.dtsi
++++ b/arch/arm/boot/dts/imx7ulp.dtsi
+@@ -394,7 +394,7 @@
+ 			clocks = <&pcc2 IMX7ULP_CLK_RGPIO2P1>,
+ 				 <&pcc3 IMX7ULP_CLK_PCTLC>;
+ 			clock-names = "gpio", "port";
+-			gpio-ranges = <&iomuxc1 0 0 32>;
++			gpio-ranges = <&iomuxc1 0 0 20>;
+ 		};
+ 
+ 		gpio_ptd: gpio@40af0000 {
+@@ -408,7 +408,7 @@
+ 			clocks = <&pcc2 IMX7ULP_CLK_RGPIO2P1>,
+ 				 <&pcc3 IMX7ULP_CLK_PCTLD>;
+ 			clock-names = "gpio", "port";
+-			gpio-ranges = <&iomuxc1 0 32 32>;
++			gpio-ranges = <&iomuxc1 0 32 12>;
+ 		};
+ 
+ 		gpio_pte: gpio@40b00000 {
+@@ -422,7 +422,7 @@
+ 			clocks = <&pcc2 IMX7ULP_CLK_RGPIO2P1>,
+ 				 <&pcc3 IMX7ULP_CLK_PCTLE>;
+ 			clock-names = "gpio", "port";
+-			gpio-ranges = <&iomuxc1 0 64 32>;
++			gpio-ranges = <&iomuxc1 0 64 16>;
+ 		};
+ 
+ 		gpio_ptf: gpio@40b10000 {
+@@ -436,7 +436,7 @@
+ 			clocks = <&pcc2 IMX7ULP_CLK_RGPIO2P1>,
+ 				 <&pcc3 IMX7ULP_CLK_PCTLF>;
+ 			clock-names = "gpio", "port";
+-			gpio-ranges = <&iomuxc1 0 96 32>;
++			gpio-ranges = <&iomuxc1 0 96 20>;
+ 		};
+ 	};
+ 
 -- 
 2.25.1
 
