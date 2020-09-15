@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E0926B605
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:56:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5274426B614
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727185AbgIOX4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:56:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43890 "EHLO mail.kernel.org"
+        id S1727351AbgIOX4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:56:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726949AbgIOOba (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:31:30 -0400
+        id S1726335AbgIOOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:31:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E446022B3A;
-        Tue, 15 Sep 2020 14:22:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EFE422B3B;
+        Tue, 15 Sep 2020 14:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179753;
-        bh=UPQXZeCNkXHFtjD2PxRqbIz0d0bL7pyAIvK0EYxJTDA=;
+        s=default; t=1600179756;
+        bh=4bNBUO1gyYJHFqCnwdqdxfsZWK6wJzE3stm0C7itsEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SOhmKg2Ro08DzljvnoPmMOhRsrPRxl8Vk6PiFe9968GDT+ecXADuXVVmE6ohjKpxK
-         I4apNxPvr36X4tA8nSQFiTk4fgNiG63OnTDnzt1wXOBq6U/i0OI/IrELK3zWcDc48M
-         BItblohmE6pdnhAZqbnEQHQ7PyDCWbD2w0xWZhM0=
+        b=qaktFTRGF1wtunf4ZTJmnrW6gbo7qMjmwRhg2hUfcpFlbuYHJM30bDJkKdprzE95z
+         y5pui34e+NtZ7dbxldS51fHZZ6PWfdipcGqE560FM3jMAD/FgVOVf9Q7w/VFlJDnDV
+         M30MXWbkotSxfApRFFyi8COaa1L/o/+JvyEC+OIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jordan Crouse <jcrouse@codeaurora.org>,
         Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 5.4 105/132] drm/msm: Split the a5xx preemption record
-Date:   Tue, 15 Sep 2020 16:13:27 +0200
-Message-Id: <20200915140649.400517956@linuxfoundation.org>
+Subject: [PATCH 5.4 106/132] drm/msm: Disable preemption on all 5xx targets
+Date:   Tue, 15 Sep 2020 16:13:28 +0200
+Message-Id: <20200915140649.455152621@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -45,12 +45,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jordan Crouse <jcrouse@codeaurora.org>
 
-commit 34221545d2069dc947131f42392fd4cebabe1b39 upstream.
+commit 7b3f3948c8b7053d771acc9f79810cc410f5e2e0 upstream.
 
-The main a5xx preemption record can be marked as privileged to
-protect it from user access but the counters storage needs to be
-remain unprivileged. Split the buffers and mark the critical memory
-as privileged.
+Temporarily disable preemption on a5xx targets pending some improvements
+to protect the RPTR shadow from being corrupted.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
@@ -58,78 +56,20 @@ Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/msm/adreno/a5xx_gpu.h     |    1 +
- drivers/gpu/drm/msm/adreno/a5xx_preempt.c |   25 ++++++++++++++++++++-----
- 2 files changed, 21 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.h
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.h
-@@ -31,6 +31,7 @@ struct a5xx_gpu {
- 	struct msm_ringbuffer *next_ring;
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -1451,7 +1451,8 @@ struct msm_gpu *a5xx_gpu_init(struct drm
  
- 	struct drm_gem_object *preempt_bo[MSM_GPU_MAX_RINGS];
-+	struct drm_gem_object *preempt_counters_bo[MSM_GPU_MAX_RINGS];
- 	struct a5xx_preempt_record *preempt[MSM_GPU_MAX_RINGS];
- 	uint64_t preempt_iova[MSM_GPU_MAX_RINGS];
+ 	check_speed_bin(&pdev->dev);
  
---- a/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_preempt.c
-@@ -226,19 +226,31 @@ static int preempt_init_ring(struct a5xx
- 	struct adreno_gpu *adreno_gpu = &a5xx_gpu->base;
- 	struct msm_gpu *gpu = &adreno_gpu->base;
- 	struct a5xx_preempt_record *ptr;
--	struct drm_gem_object *bo = NULL;
--	u64 iova = 0;
-+	void *counters;
-+	struct drm_gem_object *bo = NULL, *counters_bo = NULL;
-+	u64 iova = 0, counters_iova = 0;
- 
- 	ptr = msm_gem_kernel_new(gpu->dev,
- 		A5XX_PREEMPT_RECORD_SIZE + A5XX_PREEMPT_COUNTER_SIZE,
--		MSM_BO_UNCACHED, gpu->aspace, &bo, &iova);
-+		MSM_BO_UNCACHED | MSM_BO_MAP_PRIV, gpu->aspace, &bo, &iova);
- 
- 	if (IS_ERR(ptr))
- 		return PTR_ERR(ptr);
- 
-+	/* The buffer to store counters needs to be unprivileged */
-+	counters = msm_gem_kernel_new(gpu->dev,
-+		A5XX_PREEMPT_COUNTER_SIZE,
-+		MSM_BO_UNCACHED, gpu->aspace, &counters_bo, &counters_iova);
-+	if (IS_ERR(counters)) {
-+		msm_gem_kernel_put(bo, gpu->aspace, true);
-+		return PTR_ERR(counters);
-+	}
-+
- 	msm_gem_object_set_name(bo, "preempt");
-+	msm_gem_object_set_name(counters_bo, "preempt_counters");
- 
- 	a5xx_gpu->preempt_bo[ring->id] = bo;
-+	a5xx_gpu->preempt_counters_bo[ring->id] = counters_bo;
- 	a5xx_gpu->preempt_iova[ring->id] = iova;
- 	a5xx_gpu->preempt[ring->id] = ptr;
- 
-@@ -249,7 +261,7 @@ static int preempt_init_ring(struct a5xx
- 	ptr->data = 0;
- 	ptr->cntl = MSM_GPU_RB_CNTL_DEFAULT;
- 	ptr->rptr_addr = rbmemptr(ring, rptr);
--	ptr->counter = iova + A5XX_PREEMPT_RECORD_SIZE;
-+	ptr->counter = counters_iova;
- 
- 	return 0;
- }
-@@ -260,8 +272,11 @@ void a5xx_preempt_fini(struct msm_gpu *g
- 	struct a5xx_gpu *a5xx_gpu = to_a5xx_gpu(adreno_gpu);
- 	int i;
- 
--	for (i = 0; i < gpu->nr_rings; i++)
-+	for (i = 0; i < gpu->nr_rings; i++) {
- 		msm_gem_kernel_put(a5xx_gpu->preempt_bo[i], gpu->aspace, true);
-+		msm_gem_kernel_put(a5xx_gpu->preempt_counters_bo[i],
-+			gpu->aspace, true);
-+	}
- }
- 
- void a5xx_preempt_init(struct msm_gpu *gpu)
+-	ret = adreno_gpu_init(dev, pdev, adreno_gpu, &funcs, 4);
++	/* Restricting nr_rings to 1 to temporarily disable preemption */
++	ret = adreno_gpu_init(dev, pdev, adreno_gpu, &funcs, 1);
+ 	if (ret) {
+ 		a5xx_destroy(&(a5xx_gpu->base.base));
+ 		return ERR_PTR(ret);
 
 
