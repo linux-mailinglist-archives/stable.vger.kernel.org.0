@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6528A26B68A
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:07:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D8426B679
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:05:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727325AbgIPAHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:07:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43012 "EHLO mail.kernel.org"
+        id S1727219AbgIPAFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:05:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726962AbgIOO2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:28:37 -0400
+        id S1726874AbgIOO27 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:28:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C56D2253A;
-        Tue, 15 Sep 2020 14:20:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97A5022838;
+        Tue, 15 Sep 2020 14:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179638;
-        bh=6b7jyqDgzjf/XlXCPAtkiF64G1ssZErU0QXenjYYtsw=;
+        s=default; t=1600179659;
+        bh=RhaPA3pQ7SyixbQGjlkGEpmSUuwz4jFNd4JEmU/aJ1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PgcCs52crxAFPQLn18x0jfhcc9Wn+L8PMYJxu90zTYG16/nzyxR+CcsX6u48gOLip
-         XfCKsc7KDPERwgFhdsRMlsoNH744l558LxIS5DcqxEwmfHbIB1pby+x1FFoqiCdvBz
-         uyVdX3GE9eaipKv3cNi/j+75VLFWCYtUoMNyRop8=
+        b=Z05435KAjgmo63FTr/tIQJGntT+NlPweDh58OxhxhRS+fAYegWg0y+avsPedHqYyL
+         QRtlXUrnlzH6W0Q50MVMUoUqHc56c8MK1QCq5t8l22vexR3NXhC1OJ9CWQnYIiArlE
+         1TJRcvwwx3YSVI9FiWs4cF8vD/aFW4LyrzBGUsF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        James Smart <james.smart@broadcom.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        Keith Busch <kbusch@kernel.org>,
         Sagi Grimberg <sagi@grimberg.me>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/132] nvme-rdma: fix timeout handler
-Date:   Tue, 15 Sep 2020 16:12:40 +0200
-Message-Id: <20200915140647.012285235@linuxfoundation.org>
+Subject: [PATCH 5.4 060/132] nvme-pci: cancel nvme device request before disabling
+Date:   Tue, 15 Sep 2020 16:12:42 +0200
+Message-Id: <20200915140647.107457990@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -45,115 +45,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 0475a8dcbcee92a5d22e40c9c6353829fc6294b8 ]
+[ Upstream commit 7ad92f656bddff4cf8f641e0e3b1acd4eb9644cb ]
 
-When a request times out in a LIVE state, we simply trigger error
-recovery and let the error recovery handle the request cancellation,
-however when a request times out in a non LIVE state, we make sure to
-complete it immediately as it might block controller setup or teardown
-and prevent forward progress.
+This patch addresses an irq free warning and null pointer dereference
+error problem when nvme devices got timeout error during initialization.
+This problem happens when nvme_timeout() function is called while
+nvme_reset_work() is still in execution. This patch fixed the problem by
+setting flag of the problematic request to NVME_REQ_CANCELLED before
+calling nvme_dev_disable() to make sure __nvme_submit_sync_cmd() returns
+an error code and let nvme_submit_sync_cmd() fail gracefully.
+The following is console output.
 
-However tearing down the entire set of I/O and admin queues causes
-freeze/unfreeze imbalance (q->mq_freeze_depth) because and is really
-an overkill to what we actually need, which is to just fence controller
-teardown that may be running, stop the queue, and cancel the request if
-it is not already completed.
+[   62.472097] nvme nvme0: I/O 13 QID 0 timeout, disable controller
+[   62.488796] nvme nvme0: could not set timestamp (881)
+[   62.494888] ------------[ cut here ]------------
+[   62.495142] Trying to free already-free IRQ 11
+[   62.495366] WARNING: CPU: 0 PID: 7 at kernel/irq/manage.c:1751 free_irq+0x1f7/0x370
+[   62.495742] Modules linked in:
+[   62.495902] CPU: 0 PID: 7 Comm: kworker/u4:0 Not tainted 5.8.0+ #8
+[   62.496206] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-48-gd9c812dda519-p4
+[   62.496772] Workqueue: nvme-reset-wq nvme_reset_work
+[   62.497019] RIP: 0010:free_irq+0x1f7/0x370
+[   62.497223] Code: e8 ce 49 11 00 48 83 c4 08 4c 89 e0 5b 5d 41 5c 41 5d 41 5e 41 5f c3 44 89 f6 48 c70
+[   62.498133] RSP: 0000:ffffa96800043d40 EFLAGS: 00010086
+[   62.498391] RAX: 0000000000000000 RBX: ffff9b87fc458400 RCX: 0000000000000000
+[   62.498741] RDX: 0000000000000001 RSI: 0000000000000096 RDI: ffffffff9693d72c
+[   62.499091] RBP: ffff9b87fd4c8f60 R08: ffffa96800043bfd R09: 0000000000000163
+[   62.499440] R10: ffffa96800043bf8 R11: ffffa96800043bfd R12: ffff9b87fd4c8e00
+[   62.499790] R13: ffff9b87fd4c8ea4 R14: 000000000000000b R15: ffff9b87fd76b000
+[   62.500140] FS:  0000000000000000(0000) GS:ffff9b87fdc00000(0000) knlGS:0000000000000000
+[   62.500534] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   62.500816] CR2: 0000000000000000 CR3: 000000003aa0a000 CR4: 00000000000006f0
+[   62.501165] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   62.501515] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   62.501864] Call Trace:
+[   62.501993]  pci_free_irq+0x13/0x20
+[   62.502167]  nvme_reset_work+0x5d0/0x12a0
+[   62.502369]  ? update_load_avg+0x59/0x580
+[   62.502569]  ? ttwu_queue_wakelist+0xa8/0xc0
+[   62.502780]  ? try_to_wake_up+0x1a2/0x450
+[   62.502979]  process_one_work+0x1d2/0x390
+[   62.503179]  worker_thread+0x45/0x3b0
+[   62.503361]  ? process_one_work+0x390/0x390
+[   62.503568]  kthread+0xf9/0x130
+[   62.503726]  ? kthread_park+0x80/0x80
+[   62.503911]  ret_from_fork+0x22/0x30
+[   62.504090] ---[ end trace de9ed4a70f8d71e2 ]---
+[  123.912275] nvme nvme0: I/O 12 QID 0 timeout, disable controller
+[  123.914670] nvme nvme0: 1/0/0 default/read/poll queues
+[  123.916310] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[  123.917469] #PF: supervisor write access in kernel mode
+[  123.917725] #PF: error_code(0x0002) - not-present page
+[  123.917976] PGD 0 P4D 0
+[  123.918109] Oops: 0002 [#1] SMP PTI
+[  123.918283] CPU: 0 PID: 7 Comm: kworker/u4:0 Tainted: G        W         5.8.0+ #8
+[  123.918650] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-48-gd9c812dda519-p4
+[  123.919219] Workqueue: nvme-reset-wq nvme_reset_work
+[  123.919469] RIP: 0010:__blk_mq_alloc_map_and_request+0x21/0x80
+[  123.919757] Code: 66 0f 1f 84 00 00 00 00 00 41 55 41 54 55 48 63 ee 53 48 8b 47 68 89 ee 48 89 fb 8b4
+[  123.920657] RSP: 0000:ffffa96800043d40 EFLAGS: 00010286
+[  123.920912] RAX: ffff9b87fc4fee40 RBX: ffff9b87fc8cb008 RCX: 0000000000000000
+[  123.921258] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9b87fc618000
+[  123.921602] RBP: 0000000000000000 R08: ffff9b87fdc2c4a0 R09: ffff9b87fc616000
+[  123.921949] R10: 0000000000000000 R11: ffff9b87fffd1500 R12: 0000000000000000
+[  123.922295] R13: 0000000000000000 R14: ffff9b87fc8cb200 R15: ffff9b87fc8cb000
+[  123.922641] FS:  0000000000000000(0000) GS:ffff9b87fdc00000(0000) knlGS:0000000000000000
+[  123.923032] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  123.923312] CR2: 0000000000000000 CR3: 000000003aa0a000 CR4: 00000000000006f0
+[  123.923660] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  123.924007] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  123.924353] Call Trace:
+[  123.924479]  blk_mq_alloc_tag_set+0x137/0x2a0
+[  123.924694]  nvme_reset_work+0xed6/0x12a0
+[  123.924898]  process_one_work+0x1d2/0x390
+[  123.925099]  worker_thread+0x45/0x3b0
+[  123.925280]  ? process_one_work+0x390/0x390
+[  123.925486]  kthread+0xf9/0x130
+[  123.925642]  ? kthread_park+0x80/0x80
+[  123.925825]  ret_from_fork+0x22/0x30
+[  123.926004] Modules linked in:
+[  123.926158] CR2: 0000000000000000
+[  123.926322] ---[ end trace de9ed4a70f8d71e3 ]---
+[  123.926549] RIP: 0010:__blk_mq_alloc_map_and_request+0x21/0x80
+[  123.926832] Code: 66 0f 1f 84 00 00 00 00 00 41 55 41 54 55 48 63 ee 53 48 8b 47 68 89 ee 48 89 fb 8b4
+[  123.927734] RSP: 0000:ffffa96800043d40 EFLAGS: 00010286
+[  123.927989] RAX: ffff9b87fc4fee40 RBX: ffff9b87fc8cb008 RCX: 0000000000000000
+[  123.928336] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9b87fc618000
+[  123.928679] RBP: 0000000000000000 R08: ffff9b87fdc2c4a0 R09: ffff9b87fc616000
+[  123.929025] R10: 0000000000000000 R11: ffff9b87fffd1500 R12: 0000000000000000
+[  123.929370] R13: 0000000000000000 R14: ffff9b87fc8cb200 R15: ffff9b87fc8cb000
+[  123.929715] FS:  0000000000000000(0000) GS:ffff9b87fdc00000(0000) knlGS:0000000000000000
+[  123.930106] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  123.930384] CR2: 0000000000000000 CR3: 000000003aa0a000 CR4: 00000000000006f0
+[  123.930731] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  123.931077] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-Now that we have the controller teardown_lock, we can safely serialize
-request cancellation. This addresses a hang caused by calling extra
-queue freeze on controller namespaces, causing unfreeze to not complete
-correctly.
-
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: James Smart <james.smart@broadcom.com>
+Co-developed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/rdma.c | 49 +++++++++++++++++++++++++++-------------
- 1 file changed, 33 insertions(+), 16 deletions(-)
+ drivers/nvme/host/pci.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index b164c662fed30..4e73da2c45bb6 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1101,6 +1101,7 @@ static void nvme_rdma_error_recovery(struct nvme_rdma_ctrl *ctrl)
- 	if (!nvme_change_ctrl_state(&ctrl->ctrl, NVME_CTRL_RESETTING))
- 		return;
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 100da11ce98cb..a91433bdf5de4 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1274,8 +1274,8 @@ static enum blk_eh_timer_return nvme_timeout(struct request *req, bool reserved)
+ 		dev_warn_ratelimited(dev->ctrl.device,
+ 			 "I/O %d QID %d timeout, disable controller\n",
+ 			 req->tag, nvmeq->qid);
+-		nvme_dev_disable(dev, true);
+ 		nvme_req(req)->flags |= NVME_REQ_CANCELLED;
++		nvme_dev_disable(dev, true);
+ 		return BLK_EH_DONE;
+ 	case NVME_CTRL_RESETTING:
+ 		return BLK_EH_RESET_TIMER;
+@@ -1292,10 +1292,10 @@ static enum blk_eh_timer_return nvme_timeout(struct request *req, bool reserved)
+ 		dev_warn(dev->ctrl.device,
+ 			 "I/O %d QID %d timeout, reset controller\n",
+ 			 req->tag, nvmeq->qid);
++		nvme_req(req)->flags |= NVME_REQ_CANCELLED;
+ 		nvme_dev_disable(dev, false);
+ 		nvme_reset_ctrl(&dev->ctrl);
  
-+	dev_warn(ctrl->ctrl.device, "starting error recovery\n");
- 	queue_work(nvme_reset_wq, &ctrl->err_work);
- }
- 
-@@ -1704,6 +1705,22 @@ static int nvme_rdma_cm_handler(struct rdma_cm_id *cm_id,
- 	return 0;
- }
- 
-+static void nvme_rdma_complete_timed_out(struct request *rq)
-+{
-+	struct nvme_rdma_request *req = blk_mq_rq_to_pdu(rq);
-+	struct nvme_rdma_queue *queue = req->queue;
-+	struct nvme_rdma_ctrl *ctrl = queue->ctrl;
-+
-+	/* fence other contexts that may complete the command */
-+	mutex_lock(&ctrl->teardown_lock);
-+	nvme_rdma_stop_queue(queue);
-+	if (!blk_mq_request_completed(rq)) {
-+		nvme_req(rq)->status = NVME_SC_HOST_ABORTED_CMD;
-+		blk_mq_complete_request(rq);
-+	}
-+	mutex_unlock(&ctrl->teardown_lock);
-+}
-+
- static enum blk_eh_timer_return
- nvme_rdma_timeout(struct request *rq, bool reserved)
- {
-@@ -1714,29 +1731,29 @@ nvme_rdma_timeout(struct request *rq, bool reserved)
- 	dev_warn(ctrl->ctrl.device, "I/O %d QID %d timeout\n",
- 		 rq->tag, nvme_rdma_queue_idx(queue));
- 
--	/*
--	 * Restart the timer if a controller reset is already scheduled. Any
--	 * timed out commands would be handled before entering the connecting
--	 * state.
--	 */
--	if (ctrl->ctrl.state == NVME_CTRL_RESETTING)
--		return BLK_EH_RESET_TIMER;
--
- 	if (ctrl->ctrl.state != NVME_CTRL_LIVE) {
- 		/*
--		 * Teardown immediately if controller times out while starting
--		 * or we are already started error recovery. all outstanding
--		 * requests are completed on shutdown, so we return BLK_EH_DONE.
-+		 * If we are resetting, connecting or deleting we should
-+		 * complete immediately because we may block controller
-+		 * teardown or setup sequence
-+		 * - ctrl disable/shutdown fabrics requests
-+		 * - connect requests
-+		 * - initialization admin requests
-+		 * - I/O requests that entered after unquiescing and
-+		 *   the controller stopped responding
-+		 *
-+		 * All other requests should be cancelled by the error
-+		 * recovery work, so it's fine that we fail it here.
- 		 */
--		flush_work(&ctrl->err_work);
--		nvme_rdma_teardown_io_queues(ctrl, false);
--		nvme_rdma_teardown_admin_queue(ctrl, false);
-+		nvme_rdma_complete_timed_out(rq);
+-		nvme_req(req)->flags |= NVME_REQ_CANCELLED;
  		return BLK_EH_DONE;
  	}
- 
--	dev_warn(ctrl->ctrl.device, "starting error recovery\n");
-+	/*
-+	 * LIVE state should trigger the normal error recovery which will
-+	 * handle completing this request.
-+	 */
- 	nvme_rdma_error_recovery(ctrl);
--
- 	return BLK_EH_RESET_TIMER;
- }
  
 -- 
 2.25.1
