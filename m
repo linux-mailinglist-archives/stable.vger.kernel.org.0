@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D967926A74E
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F0326A72A
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:35:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726198AbgIOOjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:39:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48768 "EHLO mail.kernel.org"
+        id S1727147AbgIOOfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:35:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727222AbgIOOic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:38:32 -0400
+        id S1726245AbgIOOfD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:35:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFCD623CD1;
-        Tue, 15 Sep 2020 14:28:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47F58221E8;
+        Tue, 15 Sep 2020 14:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180138;
-        bh=s/VLEdes0wbiMZGXyUfMgWJ9+MejCfODHBmKBnvB8ws=;
+        s=default; t=1600179348;
+        bh=OYWucVYP7dD+UA/1BSwGw/P5H+lgPztv1OB0A580bek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXBCyoA3X8XgbpcRRHHy9AiMb2W9+Fm2Ri2kKjPkf/V593dX3bmXBwMSpLOge9Yr8
-         bqbF/iPWmoKknz3aPFXKOIvnlcLctaso1fN8VXmj1NZn1kgVzEbLMUDlUg6FbFtjwN
-         1YmNGS0tDZXkIzgdypCJhSPsLXj6wiVlDA3uyDI8=
+        b=eGWELl1Mk0wRi1r4uq71REMWT5zbSMSheZcSG76W5Knb0Jm338Tr/QWqrAlcUjBXY
+         6L7UKGQGKHdi8eQ04SIXfAHrWCSLxE68uZJ4qB5Bkjx13lwt8JN+oc0EhXdGdYmGIb
+         3hDzqeiNLKo+WzmGOXZn+yNo2WSVuRRd1X0lT+I4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Miell <nmiell@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 094/177] HID: microsoft: Add rumble support for the 8bitdo SN30 Pro+ controller
-Date:   Tue, 15 Sep 2020 16:12:45 +0200
-Message-Id: <20200915140658.147467372@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/78] drivers/net/wan/lapbether: Set network_header before transmitting
+Date:   Tue, 15 Sep 2020 16:12:49 +0200
+Message-Id: <20200915140634.763971119@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
-References: <20200915140653.610388773@linuxfoundation.org>
+In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
+References: <20200915140633.552502750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Miell <nmiell@gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 724a419ea28f7514a391e80040230f69cf626707 ]
+[ Upstream commit 91244d108441013b7367b3b4dcc6869998676473 ]
 
-When operating in XInput mode, the 8bitdo SN30 Pro+ requires the same
-quirk as the official Xbox One Bluetooth controllers for rumble to
-function.
+Set the skb's network_header before it is passed to the underlying
+Ethernet device for transmission.
 
-Other controllers like the N30 Pro 2, SF30 Pro, SN30 Pro, etc. probably
-also need this quirk, but I do not have the hardware to test.
+This patch fixes the following issue:
 
-Signed-off-by: Nicholas Miell <nmiell@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+When we use this driver with AF_PACKET sockets, there would be error
+messages of:
+   protocol 0805 is buggy, dev (Ethernet interface name)
+printed in the system "dmesg" log.
+
+This is because skbs passed down to the Ethernet device for transmission
+don't have their network_header properly set, and the dev_queue_xmit_nit
+function in net/core/dev.c complains about this.
+
+Reason of setting the network_header to this place (at the end of the
+Ethernet header, and at the beginning of the Ethernet payload):
+
+Because when this driver receives an skb from the Ethernet device, the
+network_header is also set at this place.
+
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h       | 1 +
- drivers/hid/hid-microsoft.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/net/wan/lapbether.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 8fa034b3b7073..b49ec7dde6457 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -849,6 +849,7 @@
- #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
- #define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER	0x02fd
- #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb
-+#define USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS      0x02e0
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 6b2553e893aca..15177a54b17d7 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -213,6 +213,8 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
  
- #define USB_VENDOR_ID_MOJO		0x8282
- #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index 2d8b589201a4e..8cb1ca1936e42 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -451,6 +451,8 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_SURFACE_DIAL },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER),
- 		.driver_data = MS_QUIRK_FF },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS),
-+		.driver_data = MS_QUIRK_FF },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, ms_devices);
+ 	skb->dev = dev = lapbeth->ethdev;
+ 
++	skb_reset_network_header(skb);
++
+ 	dev_hard_header(skb, dev, ETH_P_DEC, bcast_addr, NULL, 0);
+ 
+ 	dev_queue_xmit(skb);
 -- 
 2.25.1
 
