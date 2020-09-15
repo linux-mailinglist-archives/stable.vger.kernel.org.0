@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F16DD26B4F5
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90A6726B4F1
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:34:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727396AbgIOXem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:34:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46458 "EHLO mail.kernel.org"
+        id S1727375AbgIOXdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:33:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727148AbgIOOgT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727152AbgIOOgT (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:36:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BCCA223BE;
-        Tue, 15 Sep 2020 14:26:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8138223C7;
+        Tue, 15 Sep 2020 14:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179984;
-        bh=AVqPuBkTTjcguZkuosZqOamQYFdo3B3gnE6D204M4To=;
+        s=default; t=1600179987;
+        bh=N2TzsaDDwqM6tAPNhthsqRzY7Ob4UQpx+wDCC0gnkxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c96cSIHKa/6dXwfGrozZUgmxKFyA0HBUL7+mnpiXsOR399HGTHkOPrEx+UGofsRtC
-         LgsmoqGEkJEAWI9jvxJ//tWRZu0zC1H7rBa8l+yEkV4ds2ksp+yIqnE5eUsO8qKP6o
-         xFRLX0p0yW91QQHKshBEQNJZ2Lgaz+Ti9+huZ46s=
+        b=n2F64uCjhAIVaFKc9nYY0RC4H6a6B/FczLN2sg/0wVJqvrTo5WLWTQtRsh22BN0Hu
+         aAwZa7V6RQONuRorncRBodkoMNFhtAb2AHnpJHq08nujg6pTTLpZZS828EuKktPqRZ
+         omr8ATGv3S4eSPUkyhi4UnOBaZd+PIz6A7wFm4LE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Huacai Chen <chenhc@lemote.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 063/177] MIPS: Loongson64: Do not override watch and ejtag feature
-Date:   Tue, 15 Sep 2020 16:12:14 +0200
-Message-Id: <20200915140656.652558424@linuxfoundation.org>
+Subject: [PATCH 5.8 064/177] netfilter: conntrack: allow sctp hearbeat after connection re-use
+Date:   Tue, 15 Sep 2020 16:12:15 +0200
+Message-Id: <20200915140656.701117166@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -45,42 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxun Yang <jiaxun.yang@flygoat.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 433c1ca0d441ee0b88fdd83c84ee6d6d43080dcd ]
+[ Upstream commit cc5453a5b7e90c39f713091a7ebc53c1f87d1700 ]
 
-Do not override ejtag feature to 0 as Loongson 3A1000+ do have ejtag.
-For watch, as KVM emulated CPU doesn't have watch feature, we should
-not enable it unconditionally.
+If an sctp connection gets re-used, heartbeats are flagged as invalid
+because their vtag doesn't match.
 
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Reviewed-by: Huacai Chen <chenhc@lemote.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Handle this in a similar way as TCP conntrack when it suspects that the
+endpoints and conntrack are out-of-sync.
+
+When a HEARTBEAT request fails its vtag validation, flag this in the
+conntrack state and accept the packet.
+
+When a HEARTBEAT_ACK is received with an invalid vtag in the reverse
+direction after we allowed such a HEARTBEAT through, assume we are
+out-of-sync and re-set the vtag info.
+
+v2: remove left-over snippet from an older incarnation that moved
+    new_state/old_state assignments, thats not needed so keep that
+    as-is.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/mach-loongson64/cpu-feature-overrides.h | 2 --
- 1 file changed, 2 deletions(-)
+ include/linux/netfilter/nf_conntrack_sctp.h |  2 ++
+ net/netfilter/nf_conntrack_proto_sctp.c     | 39 ++++++++++++++++++---
+ 2 files changed, 37 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/include/asm/mach-loongson64/cpu-feature-overrides.h b/arch/mips/include/asm/mach-loongson64/cpu-feature-overrides.h
-index b6e9c99b85a52..eb181224eb4c4 100644
---- a/arch/mips/include/asm/mach-loongson64/cpu-feature-overrides.h
-+++ b/arch/mips/include/asm/mach-loongson64/cpu-feature-overrides.h
-@@ -26,7 +26,6 @@
- #define cpu_has_counter		1
- #define cpu_has_dc_aliases	(PAGE_SIZE < 0x4000)
- #define cpu_has_divec		0
--#define cpu_has_ejtag		0
- #define cpu_has_inclusive_pcaches	1
- #define cpu_has_llsc		1
- #define cpu_has_mcheck		0
-@@ -42,7 +41,6 @@
- #define cpu_has_veic		0
- #define cpu_has_vint		0
- #define cpu_has_vtag_icache	0
--#define cpu_has_watch		1
- #define cpu_has_wsbh		1
- #define cpu_has_ic_fills_f_dc	1
- #define cpu_hwrena_impl_bits	0xc0000000
+diff --git a/include/linux/netfilter/nf_conntrack_sctp.h b/include/linux/netfilter/nf_conntrack_sctp.h
+index 9a33f171aa822..625f491b95de8 100644
+--- a/include/linux/netfilter/nf_conntrack_sctp.h
++++ b/include/linux/netfilter/nf_conntrack_sctp.h
+@@ -9,6 +9,8 @@ struct ip_ct_sctp {
+ 	enum sctp_conntrack state;
+ 
+ 	__be32 vtag[IP_CT_DIR_MAX];
++	u8 last_dir;
++	u8 flags;
+ };
+ 
+ #endif /* _NF_CONNTRACK_SCTP_H */
+diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
+index 4f897b14b6069..810cca24b3990 100644
+--- a/net/netfilter/nf_conntrack_proto_sctp.c
++++ b/net/netfilter/nf_conntrack_proto_sctp.c
+@@ -62,6 +62,8 @@ static const unsigned int sctp_timeouts[SCTP_CONNTRACK_MAX] = {
+ 	[SCTP_CONNTRACK_HEARTBEAT_ACKED]	= 210 SECS,
+ };
+ 
++#define	SCTP_FLAG_HEARTBEAT_VTAG_FAILED	1
++
+ #define sNO SCTP_CONNTRACK_NONE
+ #define	sCL SCTP_CONNTRACK_CLOSED
+ #define	sCW SCTP_CONNTRACK_COOKIE_WAIT
+@@ -369,6 +371,7 @@ int nf_conntrack_sctp_packet(struct nf_conn *ct,
+ 	u_int32_t offset, count;
+ 	unsigned int *timeouts;
+ 	unsigned long map[256 / sizeof(unsigned long)] = { 0 };
++	bool ignore = false;
+ 
+ 	if (sctp_error(skb, dataoff, state))
+ 		return -NF_ACCEPT;
+@@ -427,15 +430,39 @@ int nf_conntrack_sctp_packet(struct nf_conn *ct,
+ 			/* Sec 8.5.1 (D) */
+ 			if (sh->vtag != ct->proto.sctp.vtag[dir])
+ 				goto out_unlock;
+-		} else if (sch->type == SCTP_CID_HEARTBEAT ||
+-			   sch->type == SCTP_CID_HEARTBEAT_ACK) {
++		} else if (sch->type == SCTP_CID_HEARTBEAT) {
++			if (ct->proto.sctp.vtag[dir] == 0) {
++				pr_debug("Setting %d vtag %x for dir %d\n", sch->type, sh->vtag, dir);
++				ct->proto.sctp.vtag[dir] = sh->vtag;
++			} else if (sh->vtag != ct->proto.sctp.vtag[dir]) {
++				if (test_bit(SCTP_CID_DATA, map) || ignore)
++					goto out_unlock;
++
++				ct->proto.sctp.flags |= SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
++				ct->proto.sctp.last_dir = dir;
++				ignore = true;
++				continue;
++			} else if (ct->proto.sctp.flags & SCTP_FLAG_HEARTBEAT_VTAG_FAILED) {
++				ct->proto.sctp.flags &= ~SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
++			}
++		} else if (sch->type == SCTP_CID_HEARTBEAT_ACK) {
+ 			if (ct->proto.sctp.vtag[dir] == 0) {
+ 				pr_debug("Setting vtag %x for dir %d\n",
+ 					 sh->vtag, dir);
+ 				ct->proto.sctp.vtag[dir] = sh->vtag;
+ 			} else if (sh->vtag != ct->proto.sctp.vtag[dir]) {
+-				pr_debug("Verification tag check failed\n");
+-				goto out_unlock;
++				if (test_bit(SCTP_CID_DATA, map) || ignore)
++					goto out_unlock;
++
++				if ((ct->proto.sctp.flags & SCTP_FLAG_HEARTBEAT_VTAG_FAILED) == 0 ||
++				    ct->proto.sctp.last_dir == dir)
++					goto out_unlock;
++
++				ct->proto.sctp.flags &= ~SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
++				ct->proto.sctp.vtag[dir] = sh->vtag;
++				ct->proto.sctp.vtag[!dir] = 0;
++			} else if (ct->proto.sctp.flags & SCTP_FLAG_HEARTBEAT_VTAG_FAILED) {
++				ct->proto.sctp.flags &= ~SCTP_FLAG_HEARTBEAT_VTAG_FAILED;
+ 			}
+ 		}
+ 
+@@ -470,6 +497,10 @@ int nf_conntrack_sctp_packet(struct nf_conn *ct,
+ 	}
+ 	spin_unlock_bh(&ct->lock);
+ 
++	/* allow but do not refresh timeout */
++	if (ignore)
++		return NF_ACCEPT;
++
+ 	timeouts = nf_ct_timeout_lookup(ct);
+ 	if (!timeouts)
+ 		timeouts = nf_sctp_pernet(nf_ct_net(ct))->timeouts;
 -- 
 2.25.1
 
