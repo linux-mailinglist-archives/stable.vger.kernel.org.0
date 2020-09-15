@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C748126B543
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A89926B544
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727152AbgIOXlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
+        id S1727293AbgIOXlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:41:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727117AbgIOOem (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727066AbgIOOem (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:34:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58CBE221EF;
-        Tue, 15 Sep 2020 14:15:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C25B622206;
+        Tue, 15 Sep 2020 14:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179354;
-        bh=Y7DfL2QIoK+7AlOig5I7K0jPWLIoatifmL4WfTHq3TM=;
+        s=default; t=1600179359;
+        bh=4taMP0KtAQ3FpoKjx8CsPOo7xUU2+5CQiZzdAwWs+Lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9Zq3GysdtCzgHBvZBdcQEcUljaAR7gaj4vvLON2klNlxMJ4l1zgaIFjG+DQyCKaF
-         imciagXQWbccTiKw3L9xHfx/1g0j3ua4dDxSa7Y0pGTE1XppD1sxH8/vimO6pHNEkC
-         pef13eH4WqC8oTu2p4/06Y3Tocbqsj9tUgnsoAuU=
+        b=HIpeV2bKR0ryCoqootT88yRhyZTTSb28vpxnjrBz9B40x0Y34VTbVk45XVYIyCxn0
+         6EJxaJC1Y5CWWTT60DRS0FYCDxCBvhAXSYwo47g8MgwzB+M5PQ+hqFIsQOVjh7xyte
+         tl7Cx2Zq5kTgYckmeN7tkUhdaEbyPzLduGIKT7nA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/78] irqchip/eznps: Fix build error for !ARC700 builds
-Date:   Tue, 15 Sep 2020 16:12:51 +0200
-Message-Id: <20200915140634.879288113@linuxfoundation.org>
+Subject: [PATCH 4.19 28/78] nvme: have nvme_wait_freeze_timeout return if it timed out
+Date:   Tue, 15 Sep 2020 16:12:53 +0200
+Message-Id: <20200915140634.986905823@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 References: <20200915140633.552502750@linuxfoundation.org>
@@ -45,58 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 89d29997f103d08264b0685796b420d911658b96 ]
+[ Upstream commit 7cf0d7c0f3c3b0203aaf81c1bc884924d8fdb9bd ]
 
-eznps driver is supposed to be platform independent however it ends up
-including stuff from inside arch/arc headers leading to rand config
-build errors.
+Users can detect if the wait has completed or not and take appropriate
+actions based on this information (e.g. weather to continue
+initialization or rather fail and schedule another initialization
+attempt).
 
-The quick hack to fix this (proper fix is too much chrun for non active
-user-base) is to add following to nps platform agnostic header.
- - copy AUX_IENABLE from arch/arc header
- - move CTOP_AUX_IACK from arch/arc/plat-eznps/*/**
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Link: https://lkml.kernel.org/r/20200824095831.5lpkmkafelnvlpi2@linutronix.de
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/plat-eznps/include/plat/ctop.h | 1 -
- include/soc/nps/common.h                | 6 ++++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 3 ++-
+ drivers/nvme/host/nvme.h | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arc/plat-eznps/include/plat/ctop.h b/arch/arc/plat-eznps/include/plat/ctop.h
-index 4f6a1673b3a6e..ddfca2c3357a0 100644
---- a/arch/arc/plat-eznps/include/plat/ctop.h
-+++ b/arch/arc/plat-eznps/include/plat/ctop.h
-@@ -43,7 +43,6 @@
- #define CTOP_AUX_DPC				(CTOP_AUX_BASE + 0x02C)
- #define CTOP_AUX_LPC				(CTOP_AUX_BASE + 0x030)
- #define CTOP_AUX_EFLAGS				(CTOP_AUX_BASE + 0x080)
--#define CTOP_AUX_IACK				(CTOP_AUX_BASE + 0x088)
- #define CTOP_AUX_GPA1				(CTOP_AUX_BASE + 0x08C)
- #define CTOP_AUX_UDMC				(CTOP_AUX_BASE + 0x300)
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 0d60f2f8f3eec..1b0133564f0ca 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3726,7 +3726,7 @@ void nvme_unfreeze(struct nvme_ctrl *ctrl)
+ }
+ EXPORT_SYMBOL_GPL(nvme_unfreeze);
  
-diff --git a/include/soc/nps/common.h b/include/soc/nps/common.h
-index 9b1d43d671a3f..8c18dc6d3fde5 100644
---- a/include/soc/nps/common.h
-+++ b/include/soc/nps/common.h
-@@ -45,6 +45,12 @@
- #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_INST	0x5B60
- #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_LIMM	0x00010422
+-void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
++int nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
+ {
+ 	struct nvme_ns *ns;
  
-+#ifndef AUX_IENABLE
-+#define AUX_IENABLE				0x40c
-+#endif
-+
-+#define CTOP_AUX_IACK				(0xFFFFF800 + 0x088)
-+
- #ifndef __ASSEMBLY__
+@@ -3737,6 +3737,7 @@ void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout)
+ 			break;
+ 	}
+ 	up_read(&ctrl->namespaces_rwsem);
++	return timeout;
+ }
+ EXPORT_SYMBOL_GPL(nvme_wait_freeze_timeout);
  
- /* In order to increase compilation test coverage */
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index cc4273f119894..9bada68b4bd0c 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -438,7 +438,7 @@ void nvme_start_queues(struct nvme_ctrl *ctrl);
+ void nvme_kill_queues(struct nvme_ctrl *ctrl);
+ void nvme_unfreeze(struct nvme_ctrl *ctrl);
+ void nvme_wait_freeze(struct nvme_ctrl *ctrl);
+-void nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout);
++int nvme_wait_freeze_timeout(struct nvme_ctrl *ctrl, long timeout);
+ void nvme_start_freeze(struct nvme_ctrl *ctrl);
+ 
+ #define NVME_QID_ANY -1
 -- 
 2.25.1
 
