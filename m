@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D45F26B553
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2F526B536
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:39:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727030AbgIOXmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:42:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47666 "EHLO mail.kernel.org"
+        id S1726383AbgIOXjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:39:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727075AbgIOOem (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:34:42 -0400
+        id S1727131AbgIOOfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:35:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24D04206B5;
-        Tue, 15 Sep 2020 14:15:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E943D2078D;
+        Tue, 15 Sep 2020 14:15:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179308;
-        bh=xMj9tZ/UOvEe4zajYuzJ0XQTOTcz0ulkOceGNgvlGaM=;
+        s=default; t=1600179336;
+        bh=JOBJM7SW+9TZf13C2E70WE7Rn7eaY1DjfzTGwbJpfq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AOFA5S5DIXE9zHVjFQb2T2jmocKwinapqoissqNouI0+CO0c36smaPC2tBBPjEP4U
-         pdNAueTVQ5Fe99L/DA+/PHUbc/jVFtVaUQNrkIy+Fny2Rsd9LgvOOjmsjMqqjwtjMy
-         LrVKE0xv+DR1jazf9QEP6dhsu6CqeTT28yEsXf7Q=
+        b=ZqY53vx9nXi6cJQ+y8m3uN9QzJdLHu3smv93X6WT6M5StDxa9EeyxS63Vq3uLohuy
+         OWZS88CN4E6kHX1pUjXb0UXLBhRaeWEzBm6hD8IEtc5tLxvWXYN4gcW0mi5DNdPouG
+         czF7vEaKibocEW4VIxHY0D5LLQUI7FXno/hyqrUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
         Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/78] ARM: dts: logicpd-torpedo-baseboard: Fix broken audio
-Date:   Tue, 15 Sep 2020 16:12:26 +0200
-Message-Id: <20200915140633.609185422@linuxfoundation.org>
+Subject: [PATCH 4.19 02/78] ARM: dts: logicpd-som-lv-baseboard: Fix broken audio
+Date:   Tue, 15 Sep 2020 16:12:27 +0200
+Message-Id: <20200915140633.661511379@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 References: <20200915140633.552502750@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,42 +46,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit d7dfee67688ac7f2dfd4c3bc70c053ee990c40b5 ]
+[ Upstream commit 4d26e9a028e3d88223e06fa133c3d55af7ddbceb ]
 
 Older versions of U-Boot would pinmux the whole board, but as
 the bootloader got updated, it started to only pinmux the pins
 it needed, and expected Linux to configure what it needed.
 
 Unfortunately this caused an issue with the audio, because the
-mcbsp2 pins were configured in the device tree, they were never
+mcbsp2 pins were configured in the device tree but never
 referenced by the driver. When U-Boot stopped muxing the audio
 pins, the audio died.
 
 This patch adds the references to the associate the pin controller
 with the mcbsp2 driver which makes audio operate again.
 
-Fixes: 739f85bba5ab ("ARM: dts: Move most of logicpd-torpedo-37xx-devkit to logicpd-torpedo-baseboard")
+Fixes: 5cb8b0fa55a9 ("ARM: dts: Move most of logicpd-som-lv-37xx-devkit.dts to logicpd-som-lv-baseboard.dtsi")
 
 Signed-off-by: Adam Ford <aford173@gmail.com>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/logicpd-torpedo-baseboard.dtsi | 2 ++
+ arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/logicpd-torpedo-baseboard.dtsi b/arch/arm/boot/dts/logicpd-torpedo-baseboard.dtsi
-index 86c5644f558cb..032e8dde13817 100644
---- a/arch/arm/boot/dts/logicpd-torpedo-baseboard.dtsi
-+++ b/arch/arm/boot/dts/logicpd-torpedo-baseboard.dtsi
-@@ -84,6 +84,8 @@
- };
+diff --git a/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi b/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
+index 3e39b9a1f35d0..0093548d50ff8 100644
+--- a/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
++++ b/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
+@@ -55,6 +55,8 @@
  
  &mcbsp2 {
+ 	status = "okay";
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&mcbsp2_pins>;
- 	status = "okay";
  };
  
+ &charger {
 -- 
 2.25.1
 
