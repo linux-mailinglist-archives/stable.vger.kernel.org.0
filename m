@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5B4226B452
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7514226B451
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727400AbgIOXVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:21:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48430 "EHLO mail.kernel.org"
+        id S1727245AbgIOXVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:21:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726926AbgIOOiG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727207AbgIOOiG (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:38:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5391C23C84;
-        Tue, 15 Sep 2020 14:28:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D177923C85;
+        Tue, 15 Sep 2020 14:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180101;
-        bh=RyxKfKkL6hk8jdH12QM0DQHAPNf5UTd9QXsh5XxXdNw=;
+        s=default; t=1600180104;
+        bh=T/7IdzVg6tDw67/+oxDC7F3CgpDRdRW6AuPkmcHjzRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQvb/lg0+wHRijRTTpUhb+GYY0Bp6L767zPiwUF8bEVJOf+SY1vyfDtcHwDrR8A0v
-         ww7X6iiAxOFKpzNiHCT4Z4KuzNCCkNntEMiYYKyl+z8uK+1K7YvYh8fKM/PZNJxJST
-         hvzZ/Bsw1G1nOm4MgeDV0AQip1VrXZUq/TA5sRy4=
+        b=j/88OTIpaoTF2vy157+lqzeidpPsS/MEEAa/jgqC+8H9ogh6E9km3jufybo91SBRq
+         N2kmA+VRYIFA9cIjsIi9L1ygc3nE4gUnLW3oh0uWVYJNs6o1tYBnwMsLSxmbgk3ovM
+         2Rnt9E7Glcd98fiWb9tQwMxobJ6IVw0RMuNLr7TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Angelo Compagnucci <angelo.compagnucci@gmail.com>,
+        stable@vger.kernel.org, Maxim Kochetkov <fido_max@inbox.ru>,
+        Maxim Kiselev <bigunclemax@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.8 109/177] iio: adc: mcp3422: fix locking scope
-Date:   Tue, 15 Sep 2020 16:13:00 +0200
-Message-Id: <20200915140658.870673113@linuxfoundation.org>
+Subject: [PATCH 5.8 110/177] iio: adc: ti-ads1015: fix conversion when CONFIG_PM is not set
+Date:   Tue, 15 Sep 2020 16:13:01 +0200
+Message-Id: <20200915140658.920543178@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -45,67 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angelo Compagnucci <angelo.compagnucci@gmail.com>
+From: Maxim Kochetkov <fido_max@inbox.ru>
 
-commit 3f1093d83d7164e4705e4232ccf76da54adfda85 upstream.
+commit e71e6dbe96ac80ac2aebe71a6a942e7bd60e7596 upstream.
 
-Locking should be held for the entire reading sequence involving setting
-the channel, waiting for the channel switch and reading from the
-channel.
-If not, reading from a channel can result mixing with the reading from
-another channel.
+To stop conversion ads1015_set_power_state() function call unimplemented
+function __pm_runtime_suspend() from pm_runtime_put_autosuspend()
+if CONFIG_PM is not set.
+In case of CONFIG_PM is not set: __pm_runtime_suspend() returns -ENOSYS,
+so ads1015_read_raw() failed because ads1015_set_power_state() returns an
+error.
 
-Fixes: 07914c84ba30 ("iio: adc: Add driver for Microchip MCP3422/3/4 high resolution ADC")
-Signed-off-by: Angelo Compagnucci <angelo.compagnucci@gmail.com>
-Link: https://lore.kernel.org/r/20200819075525.1395248-1-angelo.compagnucci@gmail.com
+If CONFIG_PM is disabled, there is no need to start/stop conversion.
+Fix it by adding return 0 function variant if CONFIG_PM is not set.
+
+Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
+Fixes: ecc24e72f437 ("iio: adc: Add TI ADS1015 ADC driver support")
+Tested-by: Maxim Kiselev <bigunclemax@gmail.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/mcp3422.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/iio/adc/ti-ads1015.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/iio/adc/mcp3422.c
-+++ b/drivers/iio/adc/mcp3422.c
-@@ -96,16 +96,12 @@ static int mcp3422_update_config(struct
+--- a/drivers/iio/adc/ti-ads1015.c
++++ b/drivers/iio/adc/ti-ads1015.c
+@@ -316,6 +316,7 @@ static const struct iio_chan_spec ads111
+ 	IIO_CHAN_SOFT_TIMESTAMP(ADS1015_TIMESTAMP),
+ };
+ 
++#ifdef CONFIG_PM
+ static int ads1015_set_power_state(struct ads1015_data *data, bool on)
  {
  	int ret;
- 
--	mutex_lock(&adc->lock);
--
- 	ret = i2c_master_send(adc->i2c, &newconfig, 1);
- 	if (ret > 0) {
- 		adc->config = newconfig;
- 		ret = 0;
- 	}
- 
--	mutex_unlock(&adc->lock);
--
- 	return ret;
+@@ -333,6 +334,15 @@ static int ads1015_set_power_state(struc
+ 	return ret < 0 ? ret : 0;
  }
  
-@@ -138,6 +134,8 @@ static int mcp3422_read_channel(struct m
- 	u8 config;
- 	u8 req_channel = channel->channel;
- 
-+	mutex_lock(&adc->lock);
++#else /* !CONFIG_PM */
 +
- 	if (req_channel != MCP3422_CHANNEL(adc->config)) {
- 		config = adc->config;
- 		config &= ~MCP3422_CHANNEL_MASK;
-@@ -152,7 +150,11 @@ static int mcp3422_read_channel(struct m
- 		msleep(mcp3422_read_times[MCP3422_SAMPLE_RATE(adc->config)]);
- 	}
- 
--	return mcp3422_read(adc, value, &config);
-+	ret = mcp3422_read(adc, value, &config);
++static int ads1015_set_power_state(struct ads1015_data *data, bool on)
++{
++	return 0;
++}
 +
-+	mutex_unlock(&adc->lock);
++#endif /* !CONFIG_PM */
 +
-+	return ret;
- }
- 
- static int mcp3422_read_raw(struct iio_dev *iio,
+ static
+ int ads1015_get_adc_result(struct ads1015_data *data, int chan, int *val)
+ {
 
 
