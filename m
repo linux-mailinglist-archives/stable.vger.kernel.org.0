@@ -2,91 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D44D26ABF6
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 20:31:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF6726ABF3
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 20:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727559AbgIOSb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 14:31:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41158 "EHLO
+        id S1727926AbgIOSaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 14:30:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727972AbgIOSOX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 14:14:23 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73C7DC06178B
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 11:14:06 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id l191so2413080pgd.5
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 11:14:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AT0mHORaxDdMUqWTyM6bXKGpvP94IwQFIcwyyHppM00=;
-        b=oVqB6rH1ygmPOlbcsDJp6t662dBAL0svgY6P3cB7gO5IGclx2mJ+Z6xGpYEV4vEQPr
-         LX2mUDMFXjOVeISFJ7TPgUVOht+9qtshJd/mT0A7SdFPO7Z6w1R+FqWQkrhwN2gBPQTw
-         /rdvct36NLscqnrIcjwf0sw6JpQUXCtnSTGzNpExiH3WGrHQQqKdoul+9UFlmt7bXIa5
-         xkPzSduP739AjHnT2BQ38h0ikswSlVjsKQB4xhBfntXqYk34YcnVMT+gjUvWtXwCuwMj
-         0wGytZo5pm5njm9KhvpTLAgP2CsTXj0ZsZCwdBnQMDrVEcmmQu1bz2VyikB87JcU9cIK
-         ZqTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AT0mHORaxDdMUqWTyM6bXKGpvP94IwQFIcwyyHppM00=;
-        b=oMPF2QB79T/o8lMGp33T5cTB3h1Ma7QOslXrz3DYwXbqyQtMYpkX8E7v1WW6O1Drii
-         D91N9UetvROZVN5qLVO0r+xFz/cMK4qlS6BROdzQVONALaP+oBuVy/ICHLmw+DWo0P8I
-         aXBKwHy9nRxumBoBf3eOHBfUa74UoUdIIZ3xJr4OOeaLX0TPBw2WGZU+cSukO8kBs0lk
-         kfsOz2HBpkVUHI7I1J4ZmwS7BKOtwFNrFeGnSsFHseICKhC+zcLldxLdy/YNwEUrgOSe
-         /U3otKVU31F5euIntx7wNsCN7J5zAwuMH9w74oz0kRQWvHKGs2CCus41+BsaF5stgoGZ
-         AA8g==
-X-Gm-Message-State: AOAM531He6oSgpHpAdorIi91s+0mFxVw5GJZ7wNLvHNClr9yfzs02Ppu
-        /3YaURatEh1tDrKnwjTJN4gjBWsGqvW1ziXUHqWYSg==
-X-Google-Smtp-Source: ABdhPJxoYdf1sOG5PfqHKd6wvML9dc6l14Gv1d+/SBAyITIcWM+XQeuVX/wpBYCd2oG0inFIsnktJSMCGDsZtIFVRZY=
-X-Received: by 2002:a63:31d2:: with SMTP id x201mr16100266pgx.263.1600193645755;
- Tue, 15 Sep 2020 11:14:05 -0700 (PDT)
+        with ESMTP id S1728002AbgIOSRb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 14:17:31 -0400
+Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24754C06174A;
+        Tue, 15 Sep 2020 11:17:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=TpXFc9y8wD3r1ZuGpqIyIgD31aYfhCp2Mbvu/dVpBHo=; b=iQt0WubjIBcofUDJWMFR7iUupl
+        lk2xCKtz3F5Vm17nRnPtlqXMG8bS9S4kr8GvCw66sUZuuFMsx0LivRNIclHnQCWgwXsm8uIkR7Wd+
+        iEiiMuPsAkoCL5U8Smqu+4oDMrVwam49jLQ26TRnafXau1S8TNxQPiuCpIMvdUC8xA/xw9bnrKcjC
+        mVQ66WngyHdSuno6nChX6yZRsmxhTb3+mPoo2ZHNrd+Nnhb8gJM121PUBjw1UPGG6Ki+05Pp6nmsE
+        73Xeffy5TiPXq0rB92Dd6gB24GE0m1Bpmy4o7o3ALn1PuyQjptlVLR3eXnfaIrTfpn7QOtdy3gR81
+        IqFLjWow==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kIFVb-0002aX-1S; Tue, 15 Sep 2020 18:16:51 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 827993006D0;
+        Tue, 15 Sep 2020 20:16:42 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 4DBE3299BA20F; Tue, 15 Sep 2020 20:16:42 +0200 (CEST)
+Date:   Tue, 15 Sep 2020 20:16:42 +0200
+From:   peterz@infradead.org
+To:     Michal Suchanek <msuchanek@suse.de>
+Cc:     linuxppc-dev@lists.ozlabs.org,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Santosh Sivaraj <santosh@fossix.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Ganesh Goudar <ganeshgr@linux.ibm.com>,
+        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
+        Alistair Popple <alistair@popple.id.au>,
+        Jordan Niethe <jniethe5@gmail.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "powerpc/64s: machine check interrupt update NMI
+ accounting"
+Message-ID: <20200915181642.GF2674@hirez.programming.kicks-ass.net>
+References: <20200915084302.GG29778@kitsune.suse.cz>
+ <20200915180659.12503-1-msuchanek@suse.de>
 MIME-Version: 1.0
-References: <20200914160958.889694-1-ndesaulniers@google.com>
- <20200914161643.938408-1-ndesaulniers@google.com> <20200915042233.GA816510@ubuntu-n2-xlarge-x86>
-In-Reply-To: <20200915042233.GA816510@ubuntu-n2-xlarge-x86>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Tue, 15 Sep 2020 11:13:54 -0700
-Message-ID: <CAKwvOdkg6MNBDfEH_A8=HRstAWFA+OcLkMkHsOLjuvSOWF9dxQ@mail.gmail.com>
-Subject: Re: [PATCH v5] lib/string.c: implement stpcpy
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andy Lavr <andy.lavr@gmail.com>, Joe Perches <joe@perches.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200915180659.12503-1-msuchanek@suse.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 14, 2020 at 9:22 PM Nathan Chancellor
-<natechancellor@gmail.com> wrote:
->
-> It would be nice to get this into mainline sooner rather than later so
-> that it can start filtering into the stable trees. ToT LLVM builds have
-> been broken for a month now.
+On Tue, Sep 15, 2020 at 08:06:59PM +0200, Michal Suchanek wrote:
+> This reverts commit 116ac378bb3ff844df333e7609e7604651a0db9d.
+> 
+> This commit causes the kernel to oops and reboot when injecting a SLB
+> multihit which causes a MCE.
+> 
+> Before this commit a SLB multihit was corrected by the kernel and the
+> system continued to operate normally.
+> 
+> cc: stable@vger.kernel.org
+> Fixes: 116ac378bb3f ("powerpc/64s: machine check interrupt update NMI accounting")
+> Signed-off-by: Michal Suchanek <msuchanek@suse.de>
 
-Hi Andrew, I appreciate your help getting this submitted to mainline.
-
-Noting that other folks are hitting this frequently:
-https://lore.kernel.org/lkml/CAKwvOdkh=bZE6uY8zk_QePq5B3fY1ue9VjEguJ_cQi4CtZ4xgw@mail.gmail.com/
-
-CrOS folks are already shipping v3 downstream since this is blocking
-the release of their toolchain.
-
-(Also, I appreciate folks' thoughts on the comments in the patch, but
-please stop delaying this patch from hitting mainline.  You can
-rewrite the commit message to whatever you want, delete it for all I
-care, please for god's sake please unbreak the build first).
--- 
-Thanks,
-~Nick Desaulniers
+Ever since 69ea03b56ed2 ("hardirq/nmi: Allow nested nmi_enter()")
+nmi_enter() supports nesting natively.
