@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B075B26A033
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 09:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6D1326A03E
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 09:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726184AbgIOHxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 03:53:38 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:51947 "EHLO
+        id S1726179AbgIOHyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 03:54:46 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:41947 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726198AbgIOHxc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 03:53:32 -0400
+        by vger.kernel.org with ESMTP id S1726202AbgIOHxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 03:53:39 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 5CEA36CC;
-        Tue, 15 Sep 2020 03:53:26 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 15 Sep 2020 03:53:26 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 9A650788;
+        Tue, 15 Sep 2020 03:53:36 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 15 Sep 2020 03:53:36 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hwEUA7
-        vFudY3dRbiEozd6cF/QfNUoBduIQJpkHwBtoo=; b=icQgYx9R8LIo5FIsaiaXjb
-        sk/legYu1l8Vd3ayC/9/8n6b2gwNO3Ent9DfbjkyMFoMOe49/lYwGmDS2tL22+Mw
-        MCnrCDOJMbVx8n4tBB4wMqkt8+9pJNHEc+MSf+cDVDqVqMcCuYDWUc+p+N5VwmPr
-        wXkDapiACJJ/yFEU2svU2SzM1tf5gUgy7z4E1oqFVn4zAVy2bMNOPrQp7UctFDog
-        atVD3c00PXr2n12oFTKA/TAppcbYwaoE7fvhPrJNnsL3r7cKP4q5oCiNzyZzRe3c
-        1SihIJUaeRlK5p4RhcSpyou4Z9SEBOVBKBVLVmgRu0BgJjoGpfwpC7GF6qeoa94A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Tq7AdX
+        ku3y00K3YVvajVOunAEKfjDKEQCYrsqjq4+do=; b=Et4LJ0jcvcztgnimF3Ob2O
+        bXjbRgw2n0oTS2sfqK0NkV4MSQV95L/XvAWp2/eQqYRob8EDSmYp/TwSjiCK+pXS
+        z3prQoRJLho7Og7U0E5vZG0/HUgB21TmS8VxBczSjKxmawKJvnwK+lC1LAkEH/iE
+        GIXyJ+UpDuE33FmWo0PFMrpJ7reZDyUKN/0xV5KqN6flVw4NGbGo+/pmbTQJU+a7
+        YqQcs/YRytyaI9YAlMdSgysRSh6eOzArnN/1mR/i+eSp8oXhjrw2nfANFLosV9qt
+        VeLRRgekIQP9a0b4lwqT7E2YTWCMc7CFNgYDOIxH0PI1/mabNVQjfDY+999ykhRg
         ==
-X-ME-Sender: <xms:9XJgX9B1F6E6FCn8fWOhmSzfEEX7lhliDe5fyigFnYhG2akVAMNcuQ>
-    <xme:9XJgX7gljO71RYnWcYRkbs7bvfhLecJJdZDzqd0OsYM_MClyeQao8i7t3hMuxlcwL
-    oGFolw23Qai2Q>
+X-ME-Sender: <xms:AHNgX2Qi6W5PYH3SXPM1tlAyrlEDNOjUJBNAM-UVCTnu8uFe2U1lvg>
+    <xme:AHNgX7yYT2LrDCrITYpfMj-nrCccaYKW8Tb0uuciE4dBPUY4KJpoOR63liAOYFUTm
+    NjVkUKKDSK9Yw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudeijedguddvudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
     duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:9XJgX4m3j8g1LkbVVK03vuNMBFu4ysP65sXvT3gYAB8hQXq1YuNI_A>
-    <xmx:9XJgX3ynRckqxCW6RRxRZHjDEcXHRxU02iubXIM7m63ZV8EhtvQ5WA>
-    <xmx:9XJgXyR8tXGHSujgzK0-pdOT-GlG7PlMCeVxcxW0bFlCvQlIFq-cow>
-    <xmx:9nJgX77cnuMtmC68Hvy9H7uh58PnhrMvyPRtRuY4HbmJmg_NZgs4B7wkplc>
+X-ME-Proxy: <xmx:AHNgXz1IzSscGWuHB8qsW5YPhAG1wpJgBoHbh4DFhwGWhqZzgsxUqw>
+    <xmx:AHNgXyD8bdis9H0AyeCtqpxox0R-TrGwVEaiUNYv9N6Wijgd6c-tnw>
+    <xmx:AHNgX_jdHGE257V4ZiXCfR1qhbxoq2dPsFK9ETAyf5pS1LleH6JYIw>
+    <xmx:AHNgX_JPcqFi2Qkw3gF1Oo1Rxm6H8PgnOSzwIhxOPjFSuZma5xj0gdC9jN8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9C58F3064683;
-        Tue, 15 Sep 2020 03:53:25 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/msm: Enable expanded apriv support for a650" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id D2E68328005A;
+        Tue, 15 Sep 2020 03:53:35 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/msm: Enable expanded apriv support for a650" failed to apply to 5.8-stable tree
 To:     jcrouse@codeaurora.org, robdclark@chromium.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 15 Sep 2020 09:53:23 +0200
-Message-ID: <160015640316855@kroah.com>
+Date:   Tue, 15 Sep 2020 09:53:24 +0200
+Message-ID: <1600156404166149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.8-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
