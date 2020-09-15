@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9A6C26A71B
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:31:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B671726A757
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:41:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727057AbgIOObd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:31:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43012 "EHLO mail.kernel.org"
+        id S1726900AbgIOOlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:41:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727045AbgIOOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:31:29 -0400
+        id S1727257AbgIOOki (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:40:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D959422BEF;
-        Tue, 15 Sep 2020 14:23:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B06A722242;
+        Tue, 15 Sep 2020 14:30:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179788;
-        bh=sqMiux7YFL12oeLmvSHQEdY+BOA8nNfOb2gJMb81Z9c=;
+        s=default; t=1600180226;
+        bh=ZyeAyIGJMPcQBcXm3JZ7JKU6J5uWY8weGq+9FpfRY/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klksSWbMZHmkhGoOYqvCpxH2sRRWHD0Kvce1+Gqwv2UTS92IZB6Z9Gu4Qx3cbp9NX
-         z4+WvwFAvvxsIYMuCrZADZreWxXACIT2kwX4FAqCYtGFGDnP+yEN5vDD8a8nsaMiDE
-         jrj+YaNsEZk/Yk2M1oPkbcuiLnUqCVq1j3+Z/nb8=
+        b=OsT6O/FMvH915hF6ackDjDmUzi30SNdIMkjkceiqZ5bITliWqFsySBz/Gof+MfcjK
+         LzKL/7YD3oHZDiNDX+hg5qUAlyH87BzNpA6N6UFEx74gsJiA++wlGX5PuRLnOWY8Ek
+         KLEgyThigeU+3mp/Z0S3pClTjUj0rlSd3R8RTx6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladis Dronov <vdronov@redhat.com>
-Subject: [PATCH 5.4 118/132] debugfs: Fix module state check condition
-Date:   Tue, 15 Sep 2020 16:13:40 +0200
-Message-Id: <20200915140650.024329304@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+        Yi Zhang <yi.zhang@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>
+Subject: [PATCH 5.8 150/177] RDMA/rxe: Fix the parent sysfs read when the interface has 15 chars
+Date:   Tue, 15 Sep 2020 16:13:41 +0200
+Message-Id: <20200915140700.874983171@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
-References: <20200915140644.037604909@linuxfoundation.org>
+In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
+References: <20200915140653.610388773@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladis Dronov <vdronov@redhat.com>
+From: Yi Zhang <yi.zhang@redhat.com>
 
-commit e3b9fc7eec55e6fdc8beeed18f2ed207086341e2 upstream.
+commit 60b1af64eb35074a4f2d41cc1e503a7671e68963 upstream.
 
-The '#ifdef MODULE' check in the original commit does not work as intended.
-The code under the check is not built at all if CONFIG_DEBUG_FS=y. Fix this
-by using a correct check.
+'parent' sysfs reads will yield '\0' bytes when the interface name has 15
+chars, and there will no "\n" output.
 
-Fixes: 275678e7a9be ("debugfs: Check module state before warning in {full/open}_proxy_open()")
-Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200811150129.53343-1-vdronov@redhat.com
+To reproduce, create one interface with 15 chars:
+
+ [root@test ~]# ip a s enp0s29u1u7u3c2
+ 2: enp0s29u1u7u3c2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN group default qlen 1000
+     link/ether 02:21:28:57:47:17 brd ff:ff:ff:ff:ff:ff
+     inet6 fe80::ac41:338f:5bcd:c222/64 scope link noprefixroute
+        valid_lft forever preferred_lft forever
+ [root@test ~]# modprobe rdma_rxe
+ [root@test ~]# echo enp0s29u1u7u3c2 > /sys/module/rdma_rxe/parameters/add
+ [root@test ~]# cat /sys/class/infiniband/rxe0/parent
+ enp0s29u1u7u3c2[root@test ~]#
+ [root@test ~]# f="/sys/class/infiniband/rxe0/parent"
+ [root@test ~]# echo "$(<"$f")"
+ -bash: warning: command substitution: ignored null byte in input
+ enp0s29u1u7u3c2
+
+Use scnprintf and PAGE_SIZE to fill the sysfs output buffer.
+
+Cc: stable@vger.kernel.org
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20200820153646.31316-1-yi.zhang@redhat.com
+Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Yi Zhang <yi.zhang@redhat.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/debugfs/file.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_verbs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/debugfs/file.c
-+++ b/fs/debugfs/file.c
-@@ -176,7 +176,7 @@ static int open_proxy_open(struct inode
- 		goto out;
+--- a/drivers/infiniband/sw/rxe/rxe_verbs.c
++++ b/drivers/infiniband/sw/rxe/rxe_verbs.c
+@@ -1083,7 +1083,7 @@ static ssize_t parent_show(struct device
+ 	struct rxe_dev *rxe =
+ 		rdma_device_to_drv_device(device, struct rxe_dev, ib_dev);
  
- 	if (!fops_get(real_fops)) {
--#ifdef MODULE
-+#ifdef CONFIG_MODULES
- 		if (real_fops->owner &&
- 		    real_fops->owner->state == MODULE_STATE_GOING)
- 			goto out;
-@@ -311,7 +311,7 @@ static int full_proxy_open(struct inode
- 		goto out;
+-	return snprintf(buf, 16, "%s\n", rxe_parent_name(rxe, 1));
++	return scnprintf(buf, PAGE_SIZE, "%s\n", rxe_parent_name(rxe, 1));
+ }
  
- 	if (!fops_get(real_fops)) {
--#ifdef MODULE
-+#ifdef CONFIG_MODULES
- 		if (real_fops->owner &&
- 		    real_fops->owner->state == MODULE_STATE_GOING)
- 			goto out;
+ static DEVICE_ATTR_RO(parent);
 
 
