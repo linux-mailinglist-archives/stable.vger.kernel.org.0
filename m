@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABEDD26B6FD
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01BE426B6F2
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726908AbgIPAPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:15:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38170 "EHLO mail.kernel.org"
+        id S1727023AbgIPAOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:14:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726912AbgIOOYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726911AbgIOOYz (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:24:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFE5D223B0;
-        Tue, 15 Sep 2020 14:18:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65C4F223BD;
+        Tue, 15 Sep 2020 14:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179511;
-        bh=bU+R6JmFXa9LtvyWd4YQfPKALOaQMNUxCNAqlhTY21A=;
+        s=default; t=1600179514;
+        bh=gPXLyAsy49PNnXrFm6S9qnnnmWa0aDWoBo9jksep1Ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7Dctg7i/Fk2dTWs6FKmSto2782zDPXGnF3y1lHTNpms2clCPkH+yHiPL0VNEtk5R
-         mWtIUuHNA5GcOG86zb83uJRec/gSc2MyHufIBxSqbRGROwp1vYdxrjmcrv0bOLLnkH
-         sZsz0V6m8NqiWWJjLKBzdbYYkT5c1++1yVxfJdcU=
+        b=GvkJiAJE0zHAktFPXftCDLrjPDp6umxx+TNoZzlpsOJAJuJQ3gjg/Qbhp9Uxz85Ng
+         55+NUrIHQch6Dt3//hqKnHJ65L9iCoWtWE/VAeiRh4Naw3Qbi9qTaxL+OJhjX2VFb5
+         m4TRy4C9PbTmm/2QA3wqYLBCR8Zi87iXuQaF6w9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 010/132] RDMA/rxe: Fix memleak in rxe_mem_init_user
-Date:   Tue, 15 Sep 2020 16:11:52 +0200
-Message-Id: <20200915140644.587245881@linuxfoundation.org>
+Subject: [PATCH 5.4 011/132] RDMA/rxe: Drop pointless checks in rxe_init_ports
+Date:   Tue, 15 Sep 2020 16:11:53 +0200
+Message-Id: <20200915140644.634856867@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -44,34 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit e3ddd6067ee62f6e76ebcf61ff08b2c729ae412b ]
+[ Upstream commit 6112ef62826e91afbae5446d5d47b38e25f47e3f ]
 
-When page_address() fails, umem should be freed just like when
-rxe_mem_alloc() fails.
+Both pkey_tbl_len and gid_tbl_len are set in rxe_init_port_param() - so no
+need to check if they aren't set.
 
 Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20200819075632.22285-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20200705104313.283034-2-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_mr.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/sw/rxe/rxe.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
-index ea6a819b71675..ffbc50341a55a 100644
---- a/drivers/infiniband/sw/rxe/rxe_mr.c
-+++ b/drivers/infiniband/sw/rxe/rxe_mr.c
-@@ -207,6 +207,7 @@ int rxe_mem_init_user(struct rxe_pd *pd, u64 start,
- 			vaddr = page_address(sg_page_iter_page(&sg_iter));
- 			if (!vaddr) {
- 				pr_warn("null vaddr\n");
-+				ib_umem_release(umem);
- 				err = -ENOMEM;
- 				goto err1;
- 			}
+diff --git a/drivers/infiniband/sw/rxe/rxe.c b/drivers/infiniband/sw/rxe/rxe.c
+index a8c11b5e1e943..dee0c2b7897ac 100644
+--- a/drivers/infiniband/sw/rxe/rxe.c
++++ b/drivers/infiniband/sw/rxe/rxe.c
+@@ -157,9 +157,6 @@ static int rxe_init_ports(struct rxe_dev *rxe)
+ 
+ 	rxe_init_port_param(port);
+ 
+-	if (!port->attr.pkey_tbl_len || !port->attr.gid_tbl_len)
+-		return -EINVAL;
+-
+ 	port->pkey_tbl = kcalloc(port->attr.pkey_tbl_len,
+ 			sizeof(*port->pkey_tbl), GFP_KERNEL);
+ 
 -- 
 2.25.1
 
