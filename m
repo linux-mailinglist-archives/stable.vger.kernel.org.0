@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E55F726B3A7
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:07:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90BB926B3BE
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727406AbgIOXHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:07:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48794 "EHLO mail.kernel.org"
+        id S1727206AbgIOXJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:09:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727286AbgIOOlg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727291AbgIOOlg (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:41:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8DBD229F0;
-        Tue, 15 Sep 2020 14:30:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C71622243;
+        Tue, 15 Sep 2020 14:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180252;
-        bh=pxJ9r1h/3xXAPhxrkuJTGfChvbCVZb1QngmHcguI4WI=;
+        s=default; t=1600180280;
+        bh=Yjr0krBQfCE3q+ngUHbLyjEbIUolOREdoOMK1kCv3OY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q5F09ANtAWVA26+ZTxFE3tfYLPqELfV4ge+l8DNS6bN9mwbminQ7Mql0W9eJMd2SW
-         rxtXAmyzPpY6RvgLz1kyGBC+J5hTQ1CJcaJDeN9p390+a01gE6EzuxBEwe49Lx2DQ5
-         geQGmGU5lfRBpJfY0bgO7g/52D8GiGt4WqpKShQs=
+        b=I1EXgURFjvAGZxYrejbphvw892b/m0V396mLVHDBbxmjslDREB2zYRecZSiNmiExz
+         T0FuZdpov/6XjeEnQpV9Me4QCc06IITZI/424UPbRXY0GFkI2ykJWagtTgFsk3or1A
+         AE6zlb3Dg85/dEQWAjqBJooOuDRMEGflPe20JUUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Bloch <markb@mellanox.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.8 151/177] RDMA/mlx4: Read pkey table length instead of hardcoded value
-Date:   Tue, 15 Sep 2020 16:13:42 +0200
-Message-Id: <20200915140700.922465993@linuxfoundation.org>
+        stable@vger.kernel.org, Yuan Ming <yuanmingbuaa@gmail.com>,
+        Willy Tarreau <w@1wt.eu>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.8 153/177] fbcon: remove now unusued softback_lines cursor() argument
+Date:   Tue, 15 Sep 2020 16:13:44 +0200
+Message-Id: <20200915140701.020906950@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -45,43 +44,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Bloch <markb@mellanox.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit ec78b3bd66bc9a015505df0ef0eb153d9e64b03b upstream.
+commit 06a0df4d1b8b13b551668e47b11fd7629033b7df upstream.
 
-If the pkey_table is not available (which is the case when RoCE is not
-supported), the cited commit caused a regression where mlx4_devices
-without RoCE are not created.
+Since the softscroll code got removed, this argument is always zero and
+makes no sense any more.
 
-Fix this by returning a pkey table length of zero in procedure
-eth_link_query_port() if the pkey-table length reported by the device is
-zero.
-
-Link: https://lore.kernel.org/r/20200824110229.1094376-1-leon@kernel.org
-Cc: <stable@vger.kernel.org>
-Fixes: 1901b91f9982 ("IB/core: Fix potential NULL pointer dereference in pkey cache")
-Fixes: fa417f7b520e ("IB/mlx4: Add support for IBoE")
-Signed-off-by: Mark Bloch <markb@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Tested-by: Yuan Ming <yuanmingbuaa@gmail.com>
+Tested-by: Willy Tarreau <w@1wt.eu>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx4/main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/core/bitblit.c   |   11 +----------
+ drivers/video/fbdev/core/fbcon.c     |    4 ++--
+ drivers/video/fbdev/core/fbcon.h     |    2 +-
+ drivers/video/fbdev/core/fbcon_ccw.c |   11 +----------
+ drivers/video/fbdev/core/fbcon_cw.c  |   11 +----------
+ drivers/video/fbdev/core/fbcon_ud.c  |   11 +----------
+ drivers/video/fbdev/core/tileblit.c  |    2 +-
+ 7 files changed, 8 insertions(+), 44 deletions(-)
 
---- a/drivers/infiniband/hw/mlx4/main.c
-+++ b/drivers/infiniband/hw/mlx4/main.c
-@@ -784,7 +784,8 @@ static int eth_link_query_port(struct ib
- 	props->ip_gids = true;
- 	props->gid_tbl_len	= mdev->dev->caps.gid_table_len[port];
- 	props->max_msg_sz	= mdev->dev->caps.max_msg_sz;
--	props->pkey_tbl_len	= 1;
-+	if (mdev->dev->caps.pkey_table_len[port])
-+		props->pkey_tbl_len = 1;
- 	props->max_mtu		= IB_MTU_4096;
- 	props->max_vl_num	= 2;
- 	props->state		= IB_PORT_DOWN;
+--- a/drivers/video/fbdev/core/bitblit.c
++++ b/drivers/video/fbdev/core/bitblit.c
+@@ -234,7 +234,7 @@ static void bit_clear_margins(struct vc_
+ }
+ 
+ static void bit_cursor(struct vc_data *vc, struct fb_info *info, int mode,
+-		       int softback_lines, int fg, int bg)
++		       int fg, int bg)
+ {
+ 	struct fb_cursor cursor;
+ 	struct fbcon_ops *ops = info->fbcon_par;
+@@ -247,15 +247,6 @@ static void bit_cursor(struct vc_data *v
+ 
+ 	cursor.set = 0;
+ 
+-	if (softback_lines) {
+-		if (y + softback_lines >= vc->vc_rows) {
+-			mode = CM_ERASE;
+-			ops->cursor_flash = 0;
+-			return;
+-		} else
+-			y += softback_lines;
+-	}
+-
+  	c = scr_readw((u16 *) vc->vc_pos);
+ 	attribute = get_attribute(info, c);
+ 	src = vc->vc_font.data + ((c & charmask) * (w * vc->vc_font.height));
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -394,7 +394,7 @@ static void fb_flashcursor(struct work_s
+ 	c = scr_readw((u16 *) vc->vc_pos);
+ 	mode = (!ops->cursor_flash || ops->cursor_state.enable) ?
+ 		CM_ERASE : CM_DRAW;
+-	ops->cursor(vc, info, mode, 0, get_color(vc, info, c, 1),
++	ops->cursor(vc, info, mode, get_color(vc, info, c, 1),
+ 		    get_color(vc, info, c, 0));
+ 	console_unlock();
+ }
+@@ -1345,7 +1345,7 @@ static void fbcon_cursor(struct vc_data
+ 
+ 	ops->cursor_flash = (mode == CM_ERASE) ? 0 : 1;
+ 
+-	ops->cursor(vc, info, mode, 0, get_color(vc, info, c, 1),
++	ops->cursor(vc, info, mode, get_color(vc, info, c, 1),
+ 		    get_color(vc, info, c, 0));
+ }
+ 
+--- a/drivers/video/fbdev/core/fbcon.h
++++ b/drivers/video/fbdev/core/fbcon.h
+@@ -62,7 +62,7 @@ struct fbcon_ops {
+ 	void (*clear_margins)(struct vc_data *vc, struct fb_info *info,
+ 			      int color, int bottom_only);
+ 	void (*cursor)(struct vc_data *vc, struct fb_info *info, int mode,
+-		       int softback_lines, int fg, int bg);
++		       int fg, int bg);
+ 	int  (*update_start)(struct fb_info *info);
+ 	int  (*rotate_font)(struct fb_info *info, struct vc_data *vc);
+ 	struct fb_var_screeninfo var;  /* copy of the current fb_var_screeninfo */
+--- a/drivers/video/fbdev/core/fbcon_ccw.c
++++ b/drivers/video/fbdev/core/fbcon_ccw.c
+@@ -219,7 +219,7 @@ static void ccw_clear_margins(struct vc_
+ }
+ 
+ static void ccw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
+-		       int softback_lines, int fg, int bg)
++		       int fg, int bg)
+ {
+ 	struct fb_cursor cursor;
+ 	struct fbcon_ops *ops = info->fbcon_par;
+@@ -236,15 +236,6 @@ static void ccw_cursor(struct vc_data *v
+ 
+ 	cursor.set = 0;
+ 
+-	if (softback_lines) {
+-		if (y + softback_lines >= vc->vc_rows) {
+-			mode = CM_ERASE;
+-			ops->cursor_flash = 0;
+-			return;
+-		} else
+-			y += softback_lines;
+-	}
+-
+  	c = scr_readw((u16 *) vc->vc_pos);
+ 	attribute = get_attribute(info, c);
+ 	src = ops->fontbuffer + ((c & charmask) * (w * vc->vc_font.width));
+--- a/drivers/video/fbdev/core/fbcon_cw.c
++++ b/drivers/video/fbdev/core/fbcon_cw.c
+@@ -202,7 +202,7 @@ static void cw_clear_margins(struct vc_d
+ }
+ 
+ static void cw_cursor(struct vc_data *vc, struct fb_info *info, int mode,
+-		      int softback_lines, int fg, int bg)
++		      int fg, int bg)
+ {
+ 	struct fb_cursor cursor;
+ 	struct fbcon_ops *ops = info->fbcon_par;
+@@ -219,15 +219,6 @@ static void cw_cursor(struct vc_data *vc
+ 
+ 	cursor.set = 0;
+ 
+-	if (softback_lines) {
+-		if (y + softback_lines >= vc->vc_rows) {
+-			mode = CM_ERASE;
+-			ops->cursor_flash = 0;
+-			return;
+-		} else
+-			y += softback_lines;
+-	}
+-
+  	c = scr_readw((u16 *) vc->vc_pos);
+ 	attribute = get_attribute(info, c);
+ 	src = ops->fontbuffer + ((c & charmask) * (w * vc->vc_font.width));
+--- a/drivers/video/fbdev/core/fbcon_ud.c
++++ b/drivers/video/fbdev/core/fbcon_ud.c
+@@ -249,7 +249,7 @@ static void ud_clear_margins(struct vc_d
+ }
+ 
+ static void ud_cursor(struct vc_data *vc, struct fb_info *info, int mode,
+-		      int softback_lines, int fg, int bg)
++		      int fg, int bg)
+ {
+ 	struct fb_cursor cursor;
+ 	struct fbcon_ops *ops = info->fbcon_par;
+@@ -267,15 +267,6 @@ static void ud_cursor(struct vc_data *vc
+ 
+ 	cursor.set = 0;
+ 
+-	if (softback_lines) {
+-		if (y + softback_lines >= vc->vc_rows) {
+-			mode = CM_ERASE;
+-			ops->cursor_flash = 0;
+-			return;
+-		} else
+-			y += softback_lines;
+-	}
+-
+  	c = scr_readw((u16 *) vc->vc_pos);
+ 	attribute = get_attribute(info, c);
+ 	src = ops->fontbuffer + ((c & charmask) * (w * vc->vc_font.height));
+--- a/drivers/video/fbdev/core/tileblit.c
++++ b/drivers/video/fbdev/core/tileblit.c
+@@ -80,7 +80,7 @@ static void tile_clear_margins(struct vc
+ }
+ 
+ static void tile_cursor(struct vc_data *vc, struct fb_info *info, int mode,
+-			int softback_lines, int fg, int bg)
++			int fg, int bg)
+ {
+ 	struct fb_tilecursor cursor;
+ 	int use_sw = (vc->vc_cursor_type & 0x10);
 
 
