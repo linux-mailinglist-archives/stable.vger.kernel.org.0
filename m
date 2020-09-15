@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EAB126B43D
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:20:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D104626B474
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:24:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727307AbgIOXTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:19:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
+        id S1727371AbgIOXYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:24:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727220AbgIOOi2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:38:28 -0400
+        id S1727179AbgIOOiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:38:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9ACFF22525;
-        Tue, 15 Sep 2020 14:28:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4332A2245C;
+        Tue, 15 Sep 2020 14:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180133;
-        bh=YeRuvJeRfEhYcJKp47ybCcwTR/qg0ODBRukrD7S43XM=;
+        s=default; t=1600180064;
+        bh=xAdK3PiHwXgLjxAasfNZs7F1puTlp5nfQfYOvPu9SUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wh0GGErMrxvX6VLgOuO69qV89EH1jhzYOI33udRbBkZ3PyJLZq6xXzMrwDMyBoyhE
-         pQGqIs8w+q6IZYOvGKwFDxK4PCqmrTsWalJPL/TwVXDFO6xNRV8LelF/l9gZI/4Dos
-         cwjgP+wAK4e+0ttsP64kcPyiTDCWgDV9S87uHOgg=
+        b=hqhzzDkl5eNRbIB13t7ytxLjehiYP57GTK5iyU1Eh7cLYNmQf6IYNlhpZ3BgVgR1H
+         xwwygJCXrE7ax8cYBYCPXqLsY/YnyZxH60fyHTARk+7PO00xjWfyq9S0HFqpi7EufU
+         EHNf7SNNSaO7kEzKkTySIoZ/EqPpQcbaRVt6D3P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
+        Krzysztof Halasa <khc@pm.waw.pl>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 092/177] nvme-pci: cancel nvme device request before disabling
-Date:   Tue, 15 Sep 2020 16:12:43 +0200
-Message-Id: <20200915140658.052827087@linuxfoundation.org>
+Subject: [PATCH 5.8 095/177] drivers/net/wan/hdlc_cisco: Add hard_header_len
+Date:   Tue, 15 Sep 2020 16:12:46 +0200
+Message-Id: <20200915140658.195514672@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -45,138 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 7ad92f656bddff4cf8f641e0e3b1acd4eb9644cb ]
+[ Upstream commit 1a545ebe380bf4c1433e3c136e35a77764fda5ad ]
 
-This patch addresses an irq free warning and null pointer dereference
-error problem when nvme devices got timeout error during initialization.
-This problem happens when nvme_timeout() function is called while
-nvme_reset_work() is still in execution. This patch fixed the problem by
-setting flag of the problematic request to NVME_REQ_CANCELLED before
-calling nvme_dev_disable() to make sure __nvme_submit_sync_cmd() returns
-an error code and let nvme_submit_sync_cmd() fail gracefully.
-The following is console output.
+This driver didn't set hard_header_len. This patch sets hard_header_len
+for it according to its header_ops->create function.
 
-[   62.472097] nvme nvme0: I/O 13 QID 0 timeout, disable controller
-[   62.488796] nvme nvme0: could not set timestamp (881)
-[   62.494888] ------------[ cut here ]------------
-[   62.495142] Trying to free already-free IRQ 11
-[   62.495366] WARNING: CPU: 0 PID: 7 at kernel/irq/manage.c:1751 free_irq+0x1f7/0x370
-[   62.495742] Modules linked in:
-[   62.495902] CPU: 0 PID: 7 Comm: kworker/u4:0 Not tainted 5.8.0+ #8
-[   62.496206] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-48-gd9c812dda519-p4
-[   62.496772] Workqueue: nvme-reset-wq nvme_reset_work
-[   62.497019] RIP: 0010:free_irq+0x1f7/0x370
-[   62.497223] Code: e8 ce 49 11 00 48 83 c4 08 4c 89 e0 5b 5d 41 5c 41 5d 41 5e 41 5f c3 44 89 f6 48 c70
-[   62.498133] RSP: 0000:ffffa96800043d40 EFLAGS: 00010086
-[   62.498391] RAX: 0000000000000000 RBX: ffff9b87fc458400 RCX: 0000000000000000
-[   62.498741] RDX: 0000000000000001 RSI: 0000000000000096 RDI: ffffffff9693d72c
-[   62.499091] RBP: ffff9b87fd4c8f60 R08: ffffa96800043bfd R09: 0000000000000163
-[   62.499440] R10: ffffa96800043bf8 R11: ffffa96800043bfd R12: ffff9b87fd4c8e00
-[   62.499790] R13: ffff9b87fd4c8ea4 R14: 000000000000000b R15: ffff9b87fd76b000
-[   62.500140] FS:  0000000000000000(0000) GS:ffff9b87fdc00000(0000) knlGS:0000000000000000
-[   62.500534] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   62.500816] CR2: 0000000000000000 CR3: 000000003aa0a000 CR4: 00000000000006f0
-[   62.501165] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   62.501515] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   62.501864] Call Trace:
-[   62.501993]  pci_free_irq+0x13/0x20
-[   62.502167]  nvme_reset_work+0x5d0/0x12a0
-[   62.502369]  ? update_load_avg+0x59/0x580
-[   62.502569]  ? ttwu_queue_wakelist+0xa8/0xc0
-[   62.502780]  ? try_to_wake_up+0x1a2/0x450
-[   62.502979]  process_one_work+0x1d2/0x390
-[   62.503179]  worker_thread+0x45/0x3b0
-[   62.503361]  ? process_one_work+0x390/0x390
-[   62.503568]  kthread+0xf9/0x130
-[   62.503726]  ? kthread_park+0x80/0x80
-[   62.503911]  ret_from_fork+0x22/0x30
-[   62.504090] ---[ end trace de9ed4a70f8d71e2 ]---
-[  123.912275] nvme nvme0: I/O 12 QID 0 timeout, disable controller
-[  123.914670] nvme nvme0: 1/0/0 default/read/poll queues
-[  123.916310] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[  123.917469] #PF: supervisor write access in kernel mode
-[  123.917725] #PF: error_code(0x0002) - not-present page
-[  123.917976] PGD 0 P4D 0
-[  123.918109] Oops: 0002 [#1] SMP PTI
-[  123.918283] CPU: 0 PID: 7 Comm: kworker/u4:0 Tainted: G        W         5.8.0+ #8
-[  123.918650] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-48-gd9c812dda519-p4
-[  123.919219] Workqueue: nvme-reset-wq nvme_reset_work
-[  123.919469] RIP: 0010:__blk_mq_alloc_map_and_request+0x21/0x80
-[  123.919757] Code: 66 0f 1f 84 00 00 00 00 00 41 55 41 54 55 48 63 ee 53 48 8b 47 68 89 ee 48 89 fb 8b4
-[  123.920657] RSP: 0000:ffffa96800043d40 EFLAGS: 00010286
-[  123.920912] RAX: ffff9b87fc4fee40 RBX: ffff9b87fc8cb008 RCX: 0000000000000000
-[  123.921258] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9b87fc618000
-[  123.921602] RBP: 0000000000000000 R08: ffff9b87fdc2c4a0 R09: ffff9b87fc616000
-[  123.921949] R10: 0000000000000000 R11: ffff9b87fffd1500 R12: 0000000000000000
-[  123.922295] R13: 0000000000000000 R14: ffff9b87fc8cb200 R15: ffff9b87fc8cb000
-[  123.922641] FS:  0000000000000000(0000) GS:ffff9b87fdc00000(0000) knlGS:0000000000000000
-[  123.923032] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  123.923312] CR2: 0000000000000000 CR3: 000000003aa0a000 CR4: 00000000000006f0
-[  123.923660] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  123.924007] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  123.924353] Call Trace:
-[  123.924479]  blk_mq_alloc_tag_set+0x137/0x2a0
-[  123.924694]  nvme_reset_work+0xed6/0x12a0
-[  123.924898]  process_one_work+0x1d2/0x390
-[  123.925099]  worker_thread+0x45/0x3b0
-[  123.925280]  ? process_one_work+0x390/0x390
-[  123.925486]  kthread+0xf9/0x130
-[  123.925642]  ? kthread_park+0x80/0x80
-[  123.925825]  ret_from_fork+0x22/0x30
-[  123.926004] Modules linked in:
-[  123.926158] CR2: 0000000000000000
-[  123.926322] ---[ end trace de9ed4a70f8d71e3 ]---
-[  123.926549] RIP: 0010:__blk_mq_alloc_map_and_request+0x21/0x80
-[  123.926832] Code: 66 0f 1f 84 00 00 00 00 00 41 55 41 54 55 48 63 ee 53 48 8b 47 68 89 ee 48 89 fb 8b4
-[  123.927734] RSP: 0000:ffffa96800043d40 EFLAGS: 00010286
-[  123.927989] RAX: ffff9b87fc4fee40 RBX: ffff9b87fc8cb008 RCX: 0000000000000000
-[  123.928336] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9b87fc618000
-[  123.928679] RBP: 0000000000000000 R08: ffff9b87fdc2c4a0 R09: ffff9b87fc616000
-[  123.929025] R10: 0000000000000000 R11: ffff9b87fffd1500 R12: 0000000000000000
-[  123.929370] R13: 0000000000000000 R14: ffff9b87fc8cb200 R15: ffff9b87fc8cb000
-[  123.929715] FS:  0000000000000000(0000) GS:ffff9b87fdc00000(0000) knlGS:0000000000000000
-[  123.930106] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  123.930384] CR2: 0000000000000000 CR3: 000000003aa0a000 CR4: 00000000000006f0
-[  123.930731] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  123.931077] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+This driver's header_ops->create function (cisco_hard_header) creates
+a header of (struct hdlc_header), so hard_header_len should be set to
+sizeof(struct hdlc_header).
 
-Co-developed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wan/hdlc_cisco.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index d4b1ff7471231..69a19fe241063 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1250,8 +1250,8 @@ static enum blk_eh_timer_return nvme_timeout(struct request *req, bool reserved)
- 		dev_warn_ratelimited(dev->ctrl.device,
- 			 "I/O %d QID %d timeout, disable controller\n",
- 			 req->tag, nvmeq->qid);
--		nvme_dev_disable(dev, true);
- 		nvme_req(req)->flags |= NVME_REQ_CANCELLED;
-+		nvme_dev_disable(dev, true);
- 		return BLK_EH_DONE;
- 	case NVME_CTRL_RESETTING:
- 		return BLK_EH_RESET_TIMER;
-@@ -1268,10 +1268,10 @@ static enum blk_eh_timer_return nvme_timeout(struct request *req, bool reserved)
- 		dev_warn(dev->ctrl.device,
- 			 "I/O %d QID %d timeout, reset controller\n",
- 			 req->tag, nvmeq->qid);
-+		nvme_req(req)->flags |= NVME_REQ_CANCELLED;
- 		nvme_dev_disable(dev, false);
- 		nvme_reset_ctrl(&dev->ctrl);
- 
--		nvme_req(req)->flags |= NVME_REQ_CANCELLED;
- 		return BLK_EH_DONE;
- 	}
- 
+diff --git a/drivers/net/wan/hdlc_cisco.c b/drivers/net/wan/hdlc_cisco.c
+index d8cba3625c185..444130655d8ea 100644
+--- a/drivers/net/wan/hdlc_cisco.c
++++ b/drivers/net/wan/hdlc_cisco.c
+@@ -370,6 +370,7 @@ static int cisco_ioctl(struct net_device *dev, struct ifreq *ifr)
+ 		memcpy(&state(hdlc)->settings, &new_settings, size);
+ 		spin_lock_init(&state(hdlc)->lock);
+ 		dev->header_ops = &cisco_header_ops;
++		dev->hard_header_len = sizeof(struct hdlc_header);
+ 		dev->type = ARPHRD_CISCO;
+ 		call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, dev);
+ 		netif_dormant_on(dev);
 -- 
 2.25.1
 
