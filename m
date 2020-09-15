@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 182ED26B628
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C748126B543
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:41:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727130AbgIOX6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:58:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42304 "EHLO mail.kernel.org"
+        id S1727152AbgIOXlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:41:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727016AbgIOOaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:30:23 -0400
+        id S1727117AbgIOOem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:34:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D38E422B2A;
-        Tue, 15 Sep 2020 14:22:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58CBE221EF;
+        Tue, 15 Sep 2020 14:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179735;
-        bh=RLnm2/WdwBdljCPhwPl14tRBTo7Xc6Y33lXFr1ACZyE=;
+        s=default; t=1600179354;
+        bh=Y7DfL2QIoK+7AlOig5I7K0jPWLIoatifmL4WfTHq3TM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/DcXJddikTz0wIhlETEZwzagNOHAIfXug6E4toGUOWeLlb5Rfao2im70Wicp8IrZ
-         BU3VeVokioX47uXjDUVl5TFx1T5hMADTuDlAwTLJvXc/Ar8FyzsfNiCQbF3+BHj8I3
-         wdordw7Z0dHEVaaBw9LK2U04HFv9KJFBLoKu79Ek=
+        b=j9Zq3GysdtCzgHBvZBdcQEcUljaAR7gaj4vvLON2klNlxMJ4l1zgaIFjG+DQyCKaF
+         imciagXQWbccTiKw3L9xHfx/1g0j3ua4dDxSa7Y0pGTE1XppD1sxH8/vimO6pHNEkC
+         pef13eH4WqC8oTu2p4/06Y3Tocbqsj9tUgnsoAuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jessica Yu <jeyu@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 068/132] arm64/module: set trampoline section flags regardless of CONFIG_DYNAMIC_FTRACE
-Date:   Tue, 15 Sep 2020 16:12:50 +0200
-Message-Id: <20200915140647.512952460@linuxfoundation.org>
+Subject: [PATCH 4.19 26/78] irqchip/eznps: Fix build error for !ARC700 builds
+Date:   Tue, 15 Sep 2020 16:12:51 +0200
+Message-Id: <20200915140634.879288113@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
-References: <20200915140644.037604909@linuxfoundation.org>
+In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
+References: <20200915140633.552502750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Yu <jeyu@kernel.org>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit e0328feda79d9681b3e3245e6e180295550c8ee9 ]
+[ Upstream commit 89d29997f103d08264b0685796b420d911658b96 ]
 
-In the arm64 module linker script, the section .text.ftrace_trampoline
-is specified unconditionally regardless of whether CONFIG_DYNAMIC_FTRACE
-is enabled (this is simply due to the limitation that module linker
-scripts are not preprocessed like the vmlinux one).
+eznps driver is supposed to be platform independent however it ends up
+including stuff from inside arch/arc headers leading to rand config
+build errors.
 
-Normally, for .plt and .text.ftrace_trampoline, the section flags
-present in the module binary wouldn't matter since module_frob_arch_sections()
-would assign them manually anyway. However, the arm64 module loader only
-sets the section flags for .text.ftrace_trampoline when CONFIG_DYNAMIC_FTRACE=y.
-That's only become problematic recently due to a recent change in
-binutils-2.35, where the .text.ftrace_trampoline section (along with the
-.plt section) is now marked writable and executable (WAX).
+The quick hack to fix this (proper fix is too much chrun for non active
+user-base) is to add following to nps platform agnostic header.
+ - copy AUX_IENABLE from arch/arc header
+ - move CTOP_AUX_IACK from arch/arc/plat-eznps/*/**
 
-We no longer allow writable and executable sections to be loaded due to
-commit 5c3a7db0c7ec ("module: Harden STRICT_MODULE_RWX"), so this is
-causing all modules linked with binutils-2.35 to be rejected under arm64.
-Drop the IS_ENABLED(CONFIG_DYNAMIC_FTRACE) check in module_frob_arch_sections()
-so that the section flags for .text.ftrace_trampoline get properly set to
-SHF_EXECINSTR|SHF_ALLOC, without SHF_WRITE.
-
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
-Acked-by: Will Deacon <will@kernel.org>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Link: http://lore.kernel.org/r/20200831094651.GA16385@linux-8ccs
-Link: https://lore.kernel.org/r/20200901160016.3646-1-jeyu@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Link: https://lkml.kernel.org/r/20200824095831.5lpkmkafelnvlpi2@linutronix.de
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/module-plts.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arc/plat-eznps/include/plat/ctop.h | 1 -
+ include/soc/nps/common.h                | 6 ++++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/module-plts.c b/arch/arm64/kernel/module-plts.c
-index b182442b87a32..426018ebb7007 100644
---- a/arch/arm64/kernel/module-plts.c
-+++ b/arch/arm64/kernel/module-plts.c
-@@ -270,8 +270,7 @@ int module_frob_arch_sections(Elf_Ehdr *ehdr, Elf_Shdr *sechdrs,
- 			mod->arch.core.plt_shndx = i;
- 		else if (!strcmp(secstrings + sechdrs[i].sh_name, ".init.plt"))
- 			mod->arch.init.plt_shndx = i;
--		else if (IS_ENABLED(CONFIG_DYNAMIC_FTRACE) &&
--			 !strcmp(secstrings + sechdrs[i].sh_name,
-+		else if (!strcmp(secstrings + sechdrs[i].sh_name,
- 				 ".text.ftrace_trampoline"))
- 			tramp = sechdrs + i;
- 		else if (sechdrs[i].sh_type == SHT_SYMTAB)
+diff --git a/arch/arc/plat-eznps/include/plat/ctop.h b/arch/arc/plat-eznps/include/plat/ctop.h
+index 4f6a1673b3a6e..ddfca2c3357a0 100644
+--- a/arch/arc/plat-eznps/include/plat/ctop.h
++++ b/arch/arc/plat-eznps/include/plat/ctop.h
+@@ -43,7 +43,6 @@
+ #define CTOP_AUX_DPC				(CTOP_AUX_BASE + 0x02C)
+ #define CTOP_AUX_LPC				(CTOP_AUX_BASE + 0x030)
+ #define CTOP_AUX_EFLAGS				(CTOP_AUX_BASE + 0x080)
+-#define CTOP_AUX_IACK				(CTOP_AUX_BASE + 0x088)
+ #define CTOP_AUX_GPA1				(CTOP_AUX_BASE + 0x08C)
+ #define CTOP_AUX_UDMC				(CTOP_AUX_BASE + 0x300)
+ 
+diff --git a/include/soc/nps/common.h b/include/soc/nps/common.h
+index 9b1d43d671a3f..8c18dc6d3fde5 100644
+--- a/include/soc/nps/common.h
++++ b/include/soc/nps/common.h
+@@ -45,6 +45,12 @@
+ #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_INST	0x5B60
+ #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_LIMM	0x00010422
+ 
++#ifndef AUX_IENABLE
++#define AUX_IENABLE				0x40c
++#endif
++
++#define CTOP_AUX_IACK				(0xFFFFF800 + 0x088)
++
+ #ifndef __ASSEMBLY__
+ 
+ /* In order to increase compilation test coverage */
 -- 
 2.25.1
 
