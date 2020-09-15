@@ -2,118 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAC1D26B56F
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC02426B604
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:56:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727250AbgIOXoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:44:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36282 "EHLO
+        id S1726843AbgIOX4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:56:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727287AbgIOXnx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 19:43:53 -0400
-Received: from mail-vs1-xe44.google.com (mail-vs1-xe44.google.com [IPv6:2607:f8b0:4864:20::e44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AEC5C061788
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 16:43:52 -0700 (PDT)
-Received: by mail-vs1-xe44.google.com with SMTP id 7so2944317vsp.6
-        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 16:43:52 -0700 (PDT)
+        with ESMTP id S1727152AbgIOX4I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 19:56:08 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19F26C06174A
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 16:56:08 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id k14so2841704pgi.9
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 16:56:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=1DPRkUZDl392dX2kwtfz30F6Ge2UvEVr5Xwbj157Pec=;
-        b=TgmvDqGep6Mg+RrQgN0IuphaYGXD5YK6lGXof/b3gC2ZUQI3baIKi/dcwzaEEh+X9a
-         oVea6cQC/2QlSGMIIl6TSuGQfMJiz1SODtof0lTh5O2mr72EIG45+zImzt9+OA4FzN2X
-         irXtM6lwLw9k7aRfZgduhshxzqoVtaD297lhYn3gAOG23peLwr9zIDlNfZJtEIPPXCtN
-         8yLaBAIo0ODxh2rUchR66hr05MQz694vyC3ulncxAawih0GO1dRVCEShB5sp8Xe+l+w6
-         OargJSouEY7d9+Qua7bC9zf667ZfZXDkqqKzdXWG9HynCmT2wM1DEGPKQKYwGYOkHfTo
-         TYDQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5WuydkDbsWmjTCW95J42kzueNrdrNRDWav3C+lSziOA=;
+        b=PtJ7Bs8QxawA57H4G3z61asdWjT+e5fSHkbRR43HHkeYwRuL0SL1XZdk9VOwCn0MGZ
+         KCEOehvhh2fe1o485YJShniYxhUy/tgCshFRl4B0DyiQYsEjLGg4Ibhfpd+IjJRyfpCF
+         u+XsYybYS0mVJuDqeg9EvHYKYUImvfKjSzaO6a70RGZqtXE+Ut9+Z8bo89RrkCXh6AuI
+         J1tiPlRCZ4J0rjeJFfaUzuUe3V4mfVwKNM6F5BeDfyzARuo0L55zlVtYYikvaD0My2us
+         BBh5t37IrUATEMAor+BPU/O3Fmv4kcw0YTESDx8SBIUSMU/wexfSuAd5oLCe5VZogm/C
+         zNWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1DPRkUZDl392dX2kwtfz30F6Ge2UvEVr5Xwbj157Pec=;
-        b=mF2ODH/WkWo2qvebLsOacPP4btM+l9048uNVOF9wsXzXKiMds1b/isuGAmX6RfR3sk
-         byhM8JJD/Jsg7+q9b+McRD77rZJIqn5a/6uqgudbEga0Mb6kuBI5lG3Iy6641E+uo1eK
-         Mu1ueMeDlfpJAKfcfHlSb8UI/gxhtx98OPEG/buOyZ9tcKDJJLvsGtDLXlxOqY9XVW+V
-         TTMpctei+zMRhM0gbUh/lcR81yd2F0FYAnppahKHwkkP+pIVE8N7mzxUOoagHUawV6P2
-         xpSfKVdDm1GpXGHrMFz/hoKdkmrwZbDQoKQOQFSzx00jkNdBrnGaHdGxX91Wt/EHENK6
-         w3Bw==
-X-Gm-Message-State: AOAM532I0lALIyUrSfJmgAsxWdIhJT6JVnpdigSaCcikE6TVWMxfqi8D
-        SQxuPyBjZr4MPFbTFWd86avXoxScQQGaT4jrLKPq
-X-Google-Smtp-Source: ABdhPJxDsDmh1UhpZ9JnDm+RZz60OFyCMd+BjldyowwnjBe3TMzfHABs8c5D/Ic9i9iCyeyQ6GuTtZ3TexGVYicQ4kQ=
-X-Received: by 2002:a67:f7cb:: with SMTP id a11mr3011158vsp.58.1600213431006;
- Tue, 15 Sep 2020 16:43:51 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5WuydkDbsWmjTCW95J42kzueNrdrNRDWav3C+lSziOA=;
+        b=bHXvancAqPe3vd7YltC8FtoiUPyw9yvl/1S8OoDJbr3p8zTNrl9WQmhB6gr5Wxah0e
+         EL4JiXUIehrbYZPF4CCYvmk5ohk6we5Z/3pzWs0hsJgNVjImwjlk+zGV+JFRdS7ygSK1
+         Usg7rUNfFS6StpYw3RsWvaHPcn6GrvPeYk0BzV2rzGB2k21wUexN1DnP+ikFik/gYWSs
+         ulwygcOINhDqbM3lZyKIarSZgsnlDHi2lWmi21IzUHp3m56pC9wIyREz3cQ/rZhw2jSQ
+         WH3RznACVidvI7Ro/NOonL9+EhMzprW/t+5H7C2NwcYLTAZFMQdl23vYHDi/85zjs/Yg
+         V5ug==
+X-Gm-Message-State: AOAM531iuhSJ0e+BvxPWs8pqY+wbb/Cu5p/gEfhMZbQH2EoKZ2CbRprp
+        AZ89DJwCILgzMqWFBjS+ed+HGefiYPb5GQ==
+X-Google-Smtp-Source: ABdhPJzdv8zc78dagf9/MH9OnzgMjMwPCNw3feVpY0TaAgOJpej54pkgusJHY/E4265BZq/rmN36Rg==
+X-Received: by 2002:a62:8c88:0:b029:13e:d13d:a08b with SMTP id m130-20020a628c880000b029013ed13da08bmr19933854pfd.34.1600214167117;
+        Tue, 15 Sep 2020 16:56:07 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w203sm14520665pfc.97.2020.09.15.16.56.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Sep 2020 16:56:06 -0700 (PDT)
+Message-ID: <5f615496.1c69fb81.3d201.7470@mx.google.com>
+Date:   Tue, 15 Sep 2020 16:56:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <CAKwvOdnjHbyamsW71FJ=Cd36YfVppp55ftcE_eSDO_z+KE9zeQ@mail.gmail.com>
- <441AA771-A859-4145-9425-E9D041580FE4@amacapital.net> <7233f4cf-5b1d-0fca-0880-f1cf2e6e765b@citrix.com>
-In-Reply-To: <7233f4cf-5b1d-0fca-0880-f1cf2e6e765b@citrix.com>
-From:   Bill Wendling <morbo@google.com>
-Date:   Tue, 15 Sep 2020 16:43:39 -0700
-Message-ID: <CAGG=3QUUgqLFdKMtJQuvASdD2JiGuiM4BcYrUrpLto+jmB6ohw@mail.gmail.com>
-Subject: Re: [PATCH] x86/smap: Fix the smap_save() asm
-To:     Andrew Cooper <andrew.cooper3@citrix.com>
-Cc:     Andy Lutomirski <luto@amacapital.net>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Greg Thelen <gthelen@google.com>,
-        John Sperbeck <jsperbeck@google.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.236-27-g5ae111cedb9e
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.4 baseline: 110 runs,
+ 2 regressions (v4.4.236-27-g5ae111cedb9e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 15, 2020 at 4:40 PM Andrew Cooper <andrew.cooper3@citrix.com> w=
-rote:
->
-> On 16/09/2020 00:11, Andy Lutomirski wrote:
-> >> On Sep 15, 2020, at 2:24 PM, Nick Desaulniers <ndesaulniers@google.com=
-> wrote:
-> >>
-> >> =EF=BB=BFOn Tue, Sep 15, 2020 at 1:56 PM Andy Lutomirski <luto@kernel.=
-org> wrote:
-> >>> The old smap_save() code was:
-> >>>
-> >>>  pushf
-> >>>  pop %0
-> >>>
-> >>> with %0 defined by an "=3Drm" constraint.  This is fine if the
-> >>> compiler picked the register option, but it was incorrect with an
-> >>> %rsp-relative memory operand.
-> >> It is incorrect because ... (I think mentioning the point about the
-> >> red zone would be good, unless there were additional concerns?)
-> > This isn=E2=80=99t a red zone issue =E2=80=94 it=E2=80=99s a just-plain=
--wrong issue.  The popf is storing the result in the wrong place in memory =
-=E2=80=94 it=E2=80=99s RSP-relative, but RSP is whatever the compiler think=
-s it should be minus 8, because the compiler doesn=E2=80=99t know that push=
-fq changed RSP.
->
-> It's worse than that.  Even when stating that %rsp is modified in the
-> asm, the generated code sequence is still buggy, for recent Clang and GCC=
-.
->
-> https://godbolt.org/z/ccz9v7
->
-> It's clearly not safe to ever use memory operands with pushf/popf asm
-> fragments.
->
-Would this apply to native_save_fl() and native_restore_fl in
-arch/x86/include/asm/irqflags.h? It was like that two revisions ago,
-but it was changed (back) to "=3Drm" with a comment about it being safe.
+stable-rc/queue/4.4 baseline: 110 runs, 2 regressions (v4.4.236-27-g5ae111c=
+edb9e)
 
-> >> This is something we should fix.  Bill, James, and I are discussing
-> >> this internally.  Thank you for filing a bug; I owe you a beer just
-> >> for that.
-> > I=E2=80=99m looking forward to the day that beers can be exchanged in p=
-erson again :)
->
-> +1 to that.
->
-+100
+Regressions Summary
+-------------------
 
--bw
+platform  | arch | lab          | compiler | defconfig           | results
+----------+------+--------------+----------+---------------------+--------
+beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1/4    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.236-27-g5ae111cedb9e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.236-27-g5ae111cedb9e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5ae111cedb9e9221274e1df7c537dbbc3046478e =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | results
+----------+------+--------------+----------+---------------------+--------
+beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1/4    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f612389a14db6a0bebed96d
+
+  Results:     1 PASS, 2 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.236-2=
+7-g5ae111cedb9e/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.236-2=
+7-g5ae111cedb9e/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f612389a14db6a0=
+bebed96f
+      new failure (last pass: v4.4.236-19-g85b7132c76df)
+      1 lines
+
+    2020-09-15 20:24:57.998000  Connected to omap3-beagle-xm console [chann=
+el connected] (~$quit to exit)
+    2020-09-15 20:24:57.998000  (user:khilman) is already connected
+    2020-09-15 20:25:09.780000  =00
+    2020-09-15 20:25:09.786000  U-Boot SPL 2018.09-rc2-00001-ge6aa9785acb2 =
+(Aug 15 2018 - 09:41:52 -0700)
+    2020-09-15 20:25:09.791000  Trying to boot from MMC1
+    2020-09-15 20:25:09.980000  spl_load_image_fat_os: error reading image =
+args, err - -2
+    2020-09-15 20:25:10.550000  =
+
+    2020-09-15 20:25:10.556000  U-Boot SPL 2018.09-rc2-00001-ge6aa9785acb2 =
+(Aug 15 2018 - 09:41:52 -0700)
+    2020-09-15 20:25:10.560000  Trying to boot from MMC1
+    2020-09-15 20:25:10.749000  spl_load_image_fat_os: error reading image =
+args, err - -2
+    ... (452 line(s) more)
+     * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f612389a14d=
+b6a0bebed971
+      new failure (last pass: v4.4.236-19-g85b7132c76df)
+      28 lines
+
+    2020-09-15 20:26:44.638000  kern  :emerg : Stack: (0xcb991d10 to 0xcb99=
+2000)
+    2020-09-15 20:26:44.646000  kern  :emerg : 1d00:                       =
+              bf02b8fc bf010b84 cbb69610 bf02b988
+    2020-09-15 20:26:44.654000  kern  :emerg : 1d20: cbb69610 bf2000a8 0000=
+0002 cb8ac010 cbb69610 bf24bb54 cbcb07b0 cbcb07b0
+    2020-09-15 20:26:44.662000  kern  :emerg : 1d40: 00000000 00000000 ce22=
+8930 c01fb390 ce228930 ce228930 c08595ac 00000001
+    2020-09-15 20:26:44.670000  kern  :emerg : 1d60: ce228930 cbcb07b0 cbcb=
+0870 00000000 ce228930 c08595ac 00000001 c09632c0
+    2020-09-15 20:26:44.678000  kern  :emerg : 1d80: ffffffed bf24fff4 ffff=
+fdfb 00000022 00000001 c00ce2e4 bf250188 c0406ee0
+    2020-09-15 20:26:44.687000  kern  :emerg : 1da0: c09632c0 c120ea30 bf24=
+fff4 00000000 00000022 c04053b4 c09632c0 c09632f4
+    2020-09-15 20:26:44.695000  kern  :emerg : 1dc0: bf24fff4 00000000 0000=
+0000 c040555c 00000000 bf24fff4 c04054d0 c0403880
+    2020-09-15 20:26:44.703000  kern  :emerg : 1de0: ce0b08a4 ce221910 bf24=
+fff4 cbc337c0 c09ddba8 c04049cc bf24eb6c c0960460
+    2020-09-15 20:26:44.711000  kern  :emerg : 1e00: cbceef00 bf24fff4 c096=
+0460 cbceef00 bf253000 c0405f94 c0960460 c0960460
+    ... (16 line(s) more)
+      =20
