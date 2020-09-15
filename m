@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A163426A751
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:40:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D967926A74E
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:39:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726902AbgIOOjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:39:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48800 "EHLO mail.kernel.org"
+        id S1726198AbgIOOjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:39:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727223AbgIOOic (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727222AbgIOOic (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:38:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EE0E23CCD;
-        Tue, 15 Sep 2020 14:28:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFCD623CD1;
+        Tue, 15 Sep 2020 14:28:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180135;
-        bh=SNGHeGnn3ml8oKJyN1DTu6PUWD0bQmOixttiH6UUWU4=;
+        s=default; t=1600180138;
+        bh=s/VLEdes0wbiMZGXyUfMgWJ9+MejCfODHBmKBnvB8ws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJUfrmEaGsa1yPcQLti7VT/zwNL824zRRa9sg3DyT19douYRt2BLK8GK0i2noL3vX
-         Shl4I39ii9UcsvppbZTeoM5GbrzWy0ilHGwNG8h7PwBnAxaCk+avNrIC3KFoyaQN51
-         ln5IKgvz/0yVYBan702GANNI6xfN+aYeZzMfpWWg=
+        b=fXBCyoA3X8XgbpcRRHHy9AiMb2W9+Fm2Ri2kKjPkf/V593dX3bmXBwMSpLOge9Yr8
+         bqbF/iPWmoKknz3aPFXKOIvnlcLctaso1fN8VXmj1NZn1kgVzEbLMUDlUg6FbFtjwN
+         1YmNGS0tDZXkIzgdypCJhSPsLXj6wiVlDA3uyDI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nirenjan Krishnan <nirenjan@gmail.com>,
+        stable@vger.kernel.org, Nicholas Miell <nmiell@gmail.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 093/177] HID: quirks: Set INCREMENT_USAGE_ON_DUPLICATE for all Saitek X52 devices
-Date:   Tue, 15 Sep 2020 16:12:44 +0200
-Message-Id: <20200915140658.099621184@linuxfoundation.org>
+Subject: [PATCH 5.8 094/177] HID: microsoft: Add rumble support for the 8bitdo SN30 Pro+ controller
+Date:   Tue, 15 Sep 2020 16:12:45 +0200
+Message-Id: <20200915140658.147467372@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -43,54 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirenjan Krishnan <nirenjan@gmail.com>
+From: Nicholas Miell <nmiell@gmail.com>
 
-[ Upstream commit 77df710ba633dfb6c65c65cf99ea9e084a1c9933 ]
+[ Upstream commit 724a419ea28f7514a391e80040230f69cf626707 ]
 
-The Saitek X52 family of joysticks has a pair of axes that were
-originally (by the Windows driver) used as mouse pointer controls. The
-corresponding usage page is the Game Controls page, which is not
-recognized by the generic HID driver, and therefore, both axes get
-mapped to ABS_MISC. The quirk makes the second axis get mapped to
-ABS_MISC+1, and therefore made available separately.
+When operating in XInput mode, the 8bitdo SN30 Pro+ requires the same
+quirk as the official Xbox One Bluetooth controllers for rumble to
+function.
 
-One Saitek X52 device is already fixed. This patch fixes the other two
-known devices with VID/PID 06a3:0255 and 06a3:0762.
+Other controllers like the N30 Pro 2, SF30 Pro, SN30 Pro, etc. probably
+also need this quirk, but I do not have the hardware to test.
 
-Signed-off-by: Nirenjan Krishnan <nirenjan@gmail.com>
+Signed-off-by: Nicholas Miell <nmiell@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 2 ++
- drivers/hid/hid-quirks.c | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/hid/hid-ids.h       | 1 +
+ drivers/hid/hid-microsoft.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 6ea3619842d8d..8fa034b3b7073 100644
+index 8fa034b3b7073..b49ec7dde6457 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -1014,6 +1014,8 @@
- #define USB_DEVICE_ID_SAITEK_RAT9	0x0cfa
- #define USB_DEVICE_ID_SAITEK_MMO7	0x0cd0
- #define USB_DEVICE_ID_SAITEK_X52	0x075c
-+#define USB_DEVICE_ID_SAITEK_X52_2	0x0255
-+#define USB_DEVICE_ID_SAITEK_X52_PRO	0x0762
+@@ -849,6 +849,7 @@
+ #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+ #define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER	0x02fd
+ #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb
++#define USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS      0x02e0
  
- #define USB_VENDOR_ID_SAMSUNG		0x0419
- #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index a65aef6a322fb..7a2be0205dfd1 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -150,6 +150,8 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_RETROUSB, USB_DEVICE_ID_RETROUSB_SNES_RETROPORT), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RUMBLEPAD), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_PRO), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
+ #define USB_VENDOR_ID_MOJO		0x8282
+ #define USB_DEVICE_ID_RETRO_ADAPTER	0x3201
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index 2d8b589201a4e..8cb1ca1936e42 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -451,6 +451,8 @@ static const struct hid_device_id ms_devices[] = {
+ 		.driver_data = MS_SURFACE_DIAL },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER),
+ 		.driver_data = MS_QUIRK_FF },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS),
++		.driver_data = MS_QUIRK_FF },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ms_devices);
 -- 
 2.25.1
 
