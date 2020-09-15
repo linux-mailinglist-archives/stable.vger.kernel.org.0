@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE5F26B579
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2D4826B59D
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727192AbgIOXo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:44:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44146 "EHLO mail.kernel.org"
+        id S1726969AbgIOXs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:48:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726746AbgIOOdX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726348AbgIOOdX (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:33:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81D7923BE5;
-        Tue, 15 Sep 2020 14:24:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 162D923BEB;
+        Tue, 15 Sep 2020 14:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179890;
-        bh=+5jQ+2T3TUQBjDfHf2mTIIbQIYKYejpOQqv0/qhBiI8=;
+        s=default; t=1600179892;
+        bh=LI/sscUIW8xR4KpzI5c/auJJcSJXS1F1ajHVrXqEM+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRVin4YuLKIg8TN6pxQWW+dKzCxD0u7tRMQ9bPECdOy6mQYaPGPc3r7PmaWwe0UFJ
-         x/OlfZ15se0ICc4AuQI4h2TshijKYfokR5NYHZN8uZmmiTksaUZtosuRxAHOMwNZwS
-         3OAH5xdn5hB7MXAbaUbMGSTF4lQeYqG/AGRVLkDM=
+        b=OV+/ltZ3fwvnA2NjhideerlJx6jgwLVC5YGHgMhYX6O+0QTHXByqd2AxIGpi47jQm
+         chB5ba6ziZbiMKcRTbDHsxgrrrEngisTHzY1oldvm2/tGpqL/C7Vq/O5mqVy8cX4Kz
+         NY67Ad/Abta4uxiG2Tg70XVWeyjVfMK36/Cf3TOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        stable@vger.kernel.org, David Shah <dave@ds0.me>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 007/177] ARM: dts: socfpga: fix register entry for timer3 on Arria10
-Date:   Tue, 15 Sep 2020 16:11:18 +0200
-Message-Id: <20200915140653.981031950@linuxfoundation.org>
+Subject: [PATCH 5.8 008/177] ARM: dts: omap5: Fix DSI base address and clocks
+Date:   Tue, 15 Sep 2020 16:11:19 +0200
+Message-Id: <20200915140654.039362173@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -43,32 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: David Shah <dave@ds0.me>
 
-[ Upstream commit 0ff5a4812be4ebd4782bbb555d369636eea164f7 ]
+[ Upstream commit 6542e2b613c2b1952e83973dc434831332ce8e27 ]
 
-Fixes the register address for the timer3 entry on Arria10.
+DSI was not probing due to base address off by 0x1000, and sys_clk
+missing.
 
-Fixes: 475dc86d08de4 ("arm: dts: socfpga: Add a base DTSI for Altera's Arria10 SOC")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+With this patch, the Pyra display works if HDMI is disabled in the
+device tree.
+
+Fixes: 5a507162f096 ("ARM: dts: Configure interconnect target module for omap5 dsi1")
+Signed-off-by: David Shah <dave@ds0.me>
+Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
+[tony@atomide.com: standardized subject line, added fixes tag]
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/socfpga_arria10.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/omap5.dtsi | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm/boot/dts/socfpga_arria10.dtsi b/arch/arm/boot/dts/socfpga_arria10.dtsi
-index 8f614c4b0e3eb..9c71472c237bd 100644
---- a/arch/arm/boot/dts/socfpga_arria10.dtsi
-+++ b/arch/arm/boot/dts/socfpga_arria10.dtsi
-@@ -819,7 +819,7 @@
- 		timer3: timer3@ffd00100 {
- 			compatible = "snps,dw-apb-timer";
- 			interrupts = <0 118 IRQ_TYPE_LEVEL_HIGH>;
--			reg = <0xffd01000 0x100>;
-+			reg = <0xffd00100 0x100>;
- 			clocks = <&l4_sys_free_clk>;
- 			clock-names = "timer";
- 			resets = <&rst L4SYSTIMER1_RESET>;
+diff --git a/arch/arm/boot/dts/omap5.dtsi b/arch/arm/boot/dts/omap5.dtsi
+index fb889c5b00c9d..de55ac5e60f39 100644
+--- a/arch/arm/boot/dts/omap5.dtsi
++++ b/arch/arm/boot/dts/omap5.dtsi
+@@ -463,11 +463,11 @@
+ 					};
+ 				};
+ 
+-				target-module@5000 {
++				target-module@4000 {
+ 					compatible = "ti,sysc-omap2", "ti,sysc";
+-					reg = <0x5000 0x4>,
+-					      <0x5010 0x4>,
+-					      <0x5014 0x4>;
++					reg = <0x4000 0x4>,
++					      <0x4010 0x4>,
++					      <0x4014 0x4>;
+ 					reg-names = "rev", "sysc", "syss";
+ 					ti,sysc-sidle = <SYSC_IDLE_FORCE>,
+ 							<SYSC_IDLE_NO>,
+@@ -479,7 +479,7 @@
+ 					ti,syss-mask = <1>;
+ 					#address-cells = <1>;
+ 					#size-cells = <1>;
+-					ranges = <0 0x5000 0x1000>;
++					ranges = <0 0x4000 0x1000>;
+ 
+ 					dsi1: encoder@0 {
+ 						compatible = "ti,omap5-dsi";
+@@ -489,8 +489,9 @@
+ 						reg-names = "proto", "phy", "pll";
+ 						interrupts = <GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>;
+ 						status = "disabled";
+-						clocks = <&dss_clkctrl OMAP5_DSS_CORE_CLKCTRL 8>;
+-						clock-names = "fck";
++						clocks = <&dss_clkctrl OMAP5_DSS_CORE_CLKCTRL 8>,
++							 <&dss_clkctrl OMAP5_DSS_CORE_CLKCTRL 10>;
++						clock-names = "fck", "sys_clk";
+ 					};
+ 				};
+ 
+@@ -520,8 +521,9 @@
+ 						reg-names = "proto", "phy", "pll";
+ 						interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
+ 						status = "disabled";
+-						clocks = <&dss_clkctrl OMAP5_DSS_CORE_CLKCTRL 8>;
+-						clock-names = "fck";
++						clocks = <&dss_clkctrl OMAP5_DSS_CORE_CLKCTRL 8>,
++							 <&dss_clkctrl OMAP5_DSS_CORE_CLKCTRL 10>;
++						clock-names = "fck", "sys_clk";
+ 					};
+ 				};
+ 
 -- 
 2.25.1
 
