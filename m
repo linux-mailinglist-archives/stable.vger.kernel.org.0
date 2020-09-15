@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD2B26B52B
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 570A326B516
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:37:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727068AbgIOXjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:39:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
+        id S1726817AbgIOXhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:37:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727132AbgIOOfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:35:23 -0400
+        id S1727030AbgIOOfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:35:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 577AF20872;
-        Tue, 15 Sep 2020 14:25:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF2CF20936;
+        Tue, 15 Sep 2020 14:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179933;
-        bh=mdvMzpxIHZHLEMxXayHzGtPNZw6xii9wJqUXcGFTS5Q=;
+        s=default; t=1600179936;
+        bh=7MSzW1zRlZI+VR0IICXY4a3VbxUOv5nB8ChdCgxNmZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVOS1mW+Cr5SVxKf46arzaiwCD1VkqIA4oZsXMLNHvzECMjU7k98Ig7hv9mhwXCPl
-         kcSjaxlTMYaHwLSB6LA3JetjKEf7tf6wERNoHBdobKyqbyxaMoMPFJ4le2WNmqcO3Y
-         U7LO3y9WI1YAnXZmzZxnIlEdCVT8Ltyq8qU88onI=
+        b=d0IUxQdkOwS09BLvtrpNCkiyPSfvvWy1NRYj33JepXYT9ItVqVQt+BvzR8lY65PxK
+         MVrGK/N/gqsc2a68c+cbCDB+/1EUga1L8tzyOOg9gLPgcnc03zmM3oFA8gig+GiVIh
+         D//ADX95mMwi/jqvQNdzWMg5bjY3M03fZLLIiogk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 042/177] ARM: dts: imx6sx: fix the pad QSPI1B_SCLK mux mode for uart3
-Date:   Tue, 15 Sep 2020 16:11:53 +0200
-Message-Id: <20200915140655.654566535@linuxfoundation.org>
+Subject: [PATCH 5.8 043/177] mmc: sdhci-acpi: Clear amd_sdhci_host on reset
+Date:   Tue, 15 Sep 2020 16:11:54 +0200
+Message-Id: <20200915140655.698022710@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -44,34 +45,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Raul E Rangel <rrangel@chromium.org>
 
-[ Upstream commit 3ee99f6a2379eca87ab11122b7e9abd68f3441e2 ]
+[ Upstream commit 2cf9bfe9be75ed3656bbf882fb70c3e3047866e4 ]
 
-The pad QSPI1B_SCLK mux mode 0x1 is for function UART3_DTE_TX,
-correct the mux mode.
+The commit 61d7437ed1390 ("mmc: sdhci-acpi: Fix HS400 tuning for AMDI0040")
+broke resume for eMMC HS400. When the system suspends the eMMC controller
+is powered down. So, on resume we need to reinitialize the controller.
+Although, amd_sdhci_host was not getting cleared, so the DLL was never
+re-enabled on resume. This results in HS400 being non-functional.
 
-Fixes: 743636f25f1d ("ARM: dts: imx: add pin function header for imx6sx")
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+To fix the problem, this change clears the tuned_clock flag, clears the
+dll_enabled flag and disables the DLL on reset.
+
+Fixes: 61d7437ed1390 ("mmc: sdhci-acpi: Fix HS400 tuning for AMDI0040")
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20200831150517.1.I93c78bfc6575771bb653c9d3fca5eb018a08417d@changeid
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sx-pinfunc.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-acpi.c | 31 ++++++++++++++++++++++++-------
+ 1 file changed, 24 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6sx-pinfunc.h b/arch/arm/boot/dts/imx6sx-pinfunc.h
-index 0b02c7e60c174..f4dc46207954c 100644
---- a/arch/arm/boot/dts/imx6sx-pinfunc.h
-+++ b/arch/arm/boot/dts/imx6sx-pinfunc.h
-@@ -1026,7 +1026,7 @@
- #define MX6SX_PAD_QSPI1B_DQS__SIM_M_HADDR_15                      0x01B0 0x04F8 0x0000 0x7 0x0
- #define MX6SX_PAD_QSPI1B_SCLK__QSPI1_B_SCLK                       0x01B4 0x04FC 0x0000 0x0 0x0
- #define MX6SX_PAD_QSPI1B_SCLK__UART3_DCE_RX                       0x01B4 0x04FC 0x0840 0x1 0x4
--#define MX6SX_PAD_QSPI1B_SCLK__UART3_DTE_TX                       0x01B4 0x04FC 0x0000 0x0 0x0
-+#define MX6SX_PAD_QSPI1B_SCLK__UART3_DTE_TX                       0x01B4 0x04FC 0x0000 0x1 0x0
- #define MX6SX_PAD_QSPI1B_SCLK__ECSPI3_SCLK                        0x01B4 0x04FC 0x0730 0x2 0x1
- #define MX6SX_PAD_QSPI1B_SCLK__ESAI_RX_HF_CLK                     0x01B4 0x04FC 0x0780 0x3 0x2
- #define MX6SX_PAD_QSPI1B_SCLK__CSI1_DATA_16                       0x01B4 0x04FC 0x06DC 0x4 0x1
+diff --git a/drivers/mmc/host/sdhci-acpi.c b/drivers/mmc/host/sdhci-acpi.c
+index 2d9f79b50a7fa..841e34aa7caae 100644
+--- a/drivers/mmc/host/sdhci-acpi.c
++++ b/drivers/mmc/host/sdhci-acpi.c
+@@ -550,12 +550,18 @@ static int amd_select_drive_strength(struct mmc_card *card,
+ 	return MMC_SET_DRIVER_TYPE_A;
+ }
+ 
+-static void sdhci_acpi_amd_hs400_dll(struct sdhci_host *host)
++static void sdhci_acpi_amd_hs400_dll(struct sdhci_host *host, bool enable)
+ {
++	struct sdhci_acpi_host *acpi_host = sdhci_priv(host);
++	struct amd_sdhci_host *amd_host = sdhci_acpi_priv(acpi_host);
++
+ 	/* AMD Platform requires dll setting */
+ 	sdhci_writel(host, 0x40003210, SDHCI_AMD_RESET_DLL_REGISTER);
+ 	usleep_range(10, 20);
+-	sdhci_writel(host, 0x40033210, SDHCI_AMD_RESET_DLL_REGISTER);
++	if (enable)
++		sdhci_writel(host, 0x40033210, SDHCI_AMD_RESET_DLL_REGISTER);
++
++	amd_host->dll_enabled = enable;
+ }
+ 
+ /*
+@@ -595,10 +601,8 @@ static void amd_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
+ 
+ 		/* DLL is only required for HS400 */
+ 		if (host->timing == MMC_TIMING_MMC_HS400 &&
+-		    !amd_host->dll_enabled) {
+-			sdhci_acpi_amd_hs400_dll(host);
+-			amd_host->dll_enabled = true;
+-		}
++		    !amd_host->dll_enabled)
++			sdhci_acpi_amd_hs400_dll(host, true);
+ 	}
+ }
+ 
+@@ -619,10 +623,23 @@ static int amd_sdhci_execute_tuning(struct mmc_host *mmc, u32 opcode)
+ 	return err;
+ }
+ 
++static void amd_sdhci_reset(struct sdhci_host *host, u8 mask)
++{
++	struct sdhci_acpi_host *acpi_host = sdhci_priv(host);
++	struct amd_sdhci_host *amd_host = sdhci_acpi_priv(acpi_host);
++
++	if (mask & SDHCI_RESET_ALL) {
++		amd_host->tuned_clock = false;
++		sdhci_acpi_amd_hs400_dll(host, false);
++	}
++
++	sdhci_reset(host, mask);
++}
++
+ static const struct sdhci_ops sdhci_acpi_ops_amd = {
+ 	.set_clock	= sdhci_set_clock,
+ 	.set_bus_width	= sdhci_set_bus_width,
+-	.reset		= sdhci_reset,
++	.reset		= amd_sdhci_reset,
+ 	.set_uhs_signaling = sdhci_set_uhs_signaling,
+ };
+ 
 -- 
 2.25.1
 
