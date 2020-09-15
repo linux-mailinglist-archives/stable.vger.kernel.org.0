@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7A526B731
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C806726B727
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727092AbgIPATA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:19:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38308 "EHLO mail.kernel.org"
+        id S1727033AbgIPASC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:18:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37093 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726896AbgIOOWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726898AbgIOOWr (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:22:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41D2F222BB;
-        Tue, 15 Sep 2020 14:18:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97416222C2;
+        Tue, 15 Sep 2020 14:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179488;
-        bh=krxdbRDgaMeMb8S9OipgumFVTvya9dp9ZGTLkVj+cJQ=;
+        s=default; t=1600179491;
+        bh=d8BcB9AMmtY97x2b8DRZ60afkmlZmbuWqLgT3K0dPwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uiNwa2zAio89DAYg+icIckaIzuz8RfW9PyWVgmzJg4PUrRiS7LxVpJxyp9PsH6JeR
-         AZdOxc8+/ugmZ863fRyb8KOAH+S45Moy1MRnLGq+qZkrtYMUHVMUsknFrPJ12+lRmV
-         8UJjFKAetsj5YBrgSfbVpZL8rbl7W2IHAxmqLP/4=
+        b=rdn3REfix0UsJEbOHQnyZUdR16dJvGf71J26JKMf0Rdv+cgMcPi+K4RhpJip0sdDZ
+         OVBzFjb1/P5Q12cKEDOr+mWhtohcpaxSYauBSfkZ8KiYlQQ3pPzjJVCUsVj3ddERFW
+         nPgBKiX/bGc8+Ix65LvV10iSFzp6zGtlwjWzfwQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
-        Yi Zhang <yi.zhang@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>
-Subject: [PATCH 4.19 64/78] RDMA/rxe: Fix the parent sysfs read when the interface has 15 chars
-Date:   Tue, 15 Sep 2020 16:13:29 +0200
-Message-Id: <20200915140636.771980797@linuxfoundation.org>
+        stable@vger.kernel.org, NopNop Nop <nopitydays@gmail.com>,
+        Willy Tarreau <w@1wt.eu>,
+        =?UTF-8?q?=E5=BC=A0=E4=BA=91=E6=B5=B7?= <zhangyunhai@nsfocus.com>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 65/78] vgacon: remove software scrollback support
+Date:   Tue, 15 Sep 2020 16:13:30 +0200
+Message-Id: <20200915140636.813355716@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 References: <20200915140633.552502750@linuxfoundation.org>
@@ -44,54 +46,407 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi Zhang <yi.zhang@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 60b1af64eb35074a4f2d41cc1e503a7671e68963 upstream.
+commit 973c096f6a85e5b5f2a295126ba6928d9a6afd45 upstream.
 
-'parent' sysfs reads will yield '\0' bytes when the interface name has 15
-chars, and there will no "\n" output.
+Yunhai Zhang recently fixed a VGA software scrollback bug in commit
+ebfdfeeae8c0 ("vgacon: Fix for missing check in scrollback handling"),
+but that then made people look more closely at some of this code, and
+there were more problems on the vgacon side, but also the fbcon software
+scrollback.
 
-To reproduce, create one interface with 15 chars:
+We don't really have anybody who maintains this code - probably because
+nobody actually _uses_ it any more.  Sure, people still use both VGA and
+the framebuffer consoles, but they are no longer the main user
+interfaces to the kernel, and haven't been for decades, so these kinds
+of extra features end up bitrotting and not really being used.
 
- [root@test ~]# ip a s enp0s29u1u7u3c2
- 2: enp0s29u1u7u3c2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN group default qlen 1000
-     link/ether 02:21:28:57:47:17 brd ff:ff:ff:ff:ff:ff
-     inet6 fe80::ac41:338f:5bcd:c222/64 scope link noprefixroute
-        valid_lft forever preferred_lft forever
- [root@test ~]# modprobe rdma_rxe
- [root@test ~]# echo enp0s29u1u7u3c2 > /sys/module/rdma_rxe/parameters/add
- [root@test ~]# cat /sys/class/infiniband/rxe0/parent
- enp0s29u1u7u3c2[root@test ~]#
- [root@test ~]# f="/sys/class/infiniband/rxe0/parent"
- [root@test ~]# echo "$(<"$f")"
- -bash: warning: command substitution: ignored null byte in input
- enp0s29u1u7u3c2
+So rather than try to maintain a likely unused set of code, I'll just
+aggressively remove it, and see if anybody even notices.  Maybe there
+are people who haven't jumped on the whole GUI badnwagon yet, and think
+it's just a fad.  And maybe those people use the scrollback code.
 
-Use scnprintf and PAGE_SIZE to fill the sysfs output buffer.
+If that turns out to be the case, we can resurrect this again, once
+we've found the sucker^Wmaintainer for it who actually uses it.
 
-Cc: stable@vger.kernel.org
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20200820153646.31316-1-yi.zhang@redhat.com
-Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Yi Zhang <yi.zhang@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reported-by: NopNop Nop <nopitydays@gmail.com>
+Tested-by: Willy Tarreau <w@1wt.eu>
+Cc: 张云海 <zhangyunhai@nsfocus.com>
+Acked-by: Andy Lutomirski <luto@amacapital.net>
+Acked-by: Willy Tarreau <w@1wt.eu>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/sw/rxe/rxe_verbs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/configs/pasemi_defconfig |    1 
+ arch/powerpc/configs/ppc6xx_defconfig |    1 
+ arch/x86/configs/i386_defconfig       |    1 
+ arch/x86/configs/x86_64_defconfig     |    1 
+ drivers/video/console/Kconfig         |   46 -------
+ drivers/video/console/vgacon.c        |  221 ----------------------------------
+ 6 files changed, 1 insertion(+), 270 deletions(-)
 
---- a/drivers/infiniband/sw/rxe/rxe_verbs.c
-+++ b/drivers/infiniband/sw/rxe/rxe_verbs.c
-@@ -1146,7 +1146,7 @@ static ssize_t parent_show(struct device
- 	struct rxe_dev *rxe = container_of(device, struct rxe_dev,
- 					   ib_dev.dev);
+--- a/arch/powerpc/configs/pasemi_defconfig
++++ b/arch/powerpc/configs/pasemi_defconfig
+@@ -110,7 +110,6 @@ CONFIG_FB_NVIDIA=y
+ CONFIG_FB_NVIDIA_I2C=y
+ CONFIG_FB_RADEON=y
+ # CONFIG_LCD_CLASS_DEVICE is not set
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_LOGO=y
+ CONFIG_SOUND=y
+ CONFIG_SND=y
+--- a/arch/powerpc/configs/ppc6xx_defconfig
++++ b/arch/powerpc/configs/ppc6xx_defconfig
+@@ -779,7 +779,6 @@ CONFIG_FB_TRIDENT=m
+ CONFIG_FB_SM501=m
+ CONFIG_FB_IBM_GXT4500=y
+ CONFIG_LCD_PLATFORM=m
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_FRAMEBUFFER_CONSOLE=y
+ CONFIG_FRAMEBUFFER_CONSOLE_ROTATION=y
+ CONFIG_LOGO=y
+--- a/arch/x86/configs/i386_defconfig
++++ b/arch/x86/configs/i386_defconfig
+@@ -216,7 +216,6 @@ CONFIG_FB_MODE_HELPERS=y
+ CONFIG_FB_TILEBLITTING=y
+ CONFIG_FB_EFI=y
+ # CONFIG_LCD_CLASS_DEVICE is not set
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_LOGO=y
+ # CONFIG_LOGO_LINUX_MONO is not set
+ # CONFIG_LOGO_LINUX_VGA16 is not set
+--- a/arch/x86/configs/x86_64_defconfig
++++ b/arch/x86/configs/x86_64_defconfig
+@@ -212,7 +212,6 @@ CONFIG_FB_MODE_HELPERS=y
+ CONFIG_FB_TILEBLITTING=y
+ CONFIG_FB_EFI=y
+ # CONFIG_LCD_CLASS_DEVICE is not set
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_LOGO=y
+ # CONFIG_LOGO_LINUX_MONO is not set
+ # CONFIG_LOGO_LINUX_VGA16 is not set
+--- a/drivers/video/console/Kconfig
++++ b/drivers/video/console/Kconfig
+@@ -21,52 +21,6 @@ config VGA_CONSOLE
  
--	return snprintf(buf, 16, "%s\n", rxe_parent_name(rxe, 1));
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", rxe_parent_name(rxe, 1));
+ 	  Say Y.
+ 
+-config VGACON_SOFT_SCROLLBACK
+-       bool "Enable Scrollback Buffer in System RAM"
+-       depends on VGA_CONSOLE
+-       default n
+-       help
+-         The scrollback buffer of the standard VGA console is located in
+-	 the VGA RAM.  The size of this RAM is fixed and is quite small.
+-	 If you require a larger scrollback buffer, this can be placed in
+-	 System RAM which is dynamically allocated during initialization.
+-	 Placing the scrollback buffer in System RAM will slightly slow
+-	 down the console.
+-
+-	 If you want this feature, say 'Y' here and enter the amount of
+-	 RAM to allocate for this buffer.  If unsure, say 'N'.
+-
+-config VGACON_SOFT_SCROLLBACK_SIZE
+-       int "Scrollback Buffer Size (in KB)"
+-       depends on VGACON_SOFT_SCROLLBACK
+-       range 1 1024
+-       default "64"
+-       help
+-	  Enter the amount of System RAM to allocate for scrollback
+-	  buffers of VGA consoles. Each 64KB will give you approximately
+-	  16 80x25 screenfuls of scrollback buffer.
+-
+-config VGACON_SOFT_SCROLLBACK_PERSISTENT_ENABLE_BY_DEFAULT
+-	bool "Persistent Scrollback History for each console by default"
+-	depends on VGACON_SOFT_SCROLLBACK
+-	default n
+-	help
+-	  Say Y here if the scrollback history should persist by default when
+-	  switching between consoles. Otherwise, the scrollback history will be
+-	  flushed each time the console is switched. This feature can also be
+-	  enabled using the boot command line parameter
+-	  'vgacon.scrollback_persistent=1'.
+-
+-	  This feature might break your tool of choice to flush the scrollback
+-	  buffer, e.g. clear(1) will work fine but Debian's clear_console(1)
+-	  will be broken, which might cause security issues.
+-	  You can use the escape sequence \e[3J instead if this feature is
+-	  activated.
+-
+-	  Note that a buffer of VGACON_SOFT_SCROLLBACK_SIZE is taken for each
+-	  created tty device.
+-	  So if you use a RAM-constrained system, say N here.
+-
+ config MDA_CONSOLE
+ 	depends on !M68K && !PARISC && ISA
+ 	tristate "MDA text console (dual-headed)"
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -165,214 +165,6 @@ static inline void vga_set_mem_top(struc
+ 	write_vga(12, (c->vc_visible_origin - vga_vram_base) / 2);
  }
  
- static DEVICE_ATTR_RO(parent);
+-#ifdef CONFIG_VGACON_SOFT_SCROLLBACK
+-/* software scrollback */
+-struct vgacon_scrollback_info {
+-	void *data;
+-	int tail;
+-	int size;
+-	int rows;
+-	int cnt;
+-	int cur;
+-	int save;
+-	int restore;
+-};
+-
+-static struct vgacon_scrollback_info *vgacon_scrollback_cur;
+-static struct vgacon_scrollback_info vgacon_scrollbacks[MAX_NR_CONSOLES];
+-static bool scrollback_persistent = \
+-	IS_ENABLED(CONFIG_VGACON_SOFT_SCROLLBACK_PERSISTENT_ENABLE_BY_DEFAULT);
+-module_param_named(scrollback_persistent, scrollback_persistent, bool, 0000);
+-MODULE_PARM_DESC(scrollback_persistent, "Enable persistent scrollback for all vga consoles");
+-
+-static void vgacon_scrollback_reset(int vc_num, size_t reset_size)
+-{
+-	struct vgacon_scrollback_info *scrollback = &vgacon_scrollbacks[vc_num];
+-
+-	if (scrollback->data && reset_size > 0)
+-		memset(scrollback->data, 0, reset_size);
+-
+-	scrollback->cnt  = 0;
+-	scrollback->tail = 0;
+-	scrollback->cur  = 0;
+-}
+-
+-static void vgacon_scrollback_init(int vc_num)
+-{
+-	int pitch = vga_video_num_columns * 2;
+-	size_t size = CONFIG_VGACON_SOFT_SCROLLBACK_SIZE * 1024;
+-	int rows = size / pitch;
+-	void *data;
+-
+-	data = kmalloc_array(CONFIG_VGACON_SOFT_SCROLLBACK_SIZE, 1024,
+-			     GFP_NOWAIT);
+-
+-	vgacon_scrollbacks[vc_num].data = data;
+-	vgacon_scrollback_cur = &vgacon_scrollbacks[vc_num];
+-
+-	vgacon_scrollback_cur->rows = rows - 1;
+-	vgacon_scrollback_cur->size = rows * pitch;
+-
+-	vgacon_scrollback_reset(vc_num, size);
+-}
+-
+-static void vgacon_scrollback_switch(int vc_num)
+-{
+-	if (!scrollback_persistent)
+-		vc_num = 0;
+-
+-	if (!vgacon_scrollbacks[vc_num].data) {
+-		vgacon_scrollback_init(vc_num);
+-	} else {
+-		if (scrollback_persistent) {
+-			vgacon_scrollback_cur = &vgacon_scrollbacks[vc_num];
+-		} else {
+-			size_t size = CONFIG_VGACON_SOFT_SCROLLBACK_SIZE * 1024;
+-
+-			vgacon_scrollback_reset(vc_num, size);
+-		}
+-	}
+-}
+-
+-static void vgacon_scrollback_startup(void)
+-{
+-	vgacon_scrollback_cur = &vgacon_scrollbacks[0];
+-	vgacon_scrollback_init(0);
+-}
+-
+-static void vgacon_scrollback_update(struct vc_data *c, int t, int count)
+-{
+-	void *p;
+-
+-	if (!vgacon_scrollback_cur->data || !vgacon_scrollback_cur->size ||
+-	    c->vc_num != fg_console)
+-		return;
+-
+-	p = (void *) (c->vc_origin + t * c->vc_size_row);
+-
+-	while (count--) {
+-		if ((vgacon_scrollback_cur->tail + c->vc_size_row) >
+-		    vgacon_scrollback_cur->size)
+-			vgacon_scrollback_cur->tail = 0;
+-
+-		scr_memcpyw(vgacon_scrollback_cur->data +
+-			    vgacon_scrollback_cur->tail,
+-			    p, c->vc_size_row);
+-
+-		vgacon_scrollback_cur->cnt++;
+-		p += c->vc_size_row;
+-		vgacon_scrollback_cur->tail += c->vc_size_row;
+-
+-		if (vgacon_scrollback_cur->tail >= vgacon_scrollback_cur->size)
+-			vgacon_scrollback_cur->tail = 0;
+-
+-		if (vgacon_scrollback_cur->cnt > vgacon_scrollback_cur->rows)
+-			vgacon_scrollback_cur->cnt = vgacon_scrollback_cur->rows;
+-
+-		vgacon_scrollback_cur->cur = vgacon_scrollback_cur->cnt;
+-	}
+-}
+-
+-static void vgacon_restore_screen(struct vc_data *c)
+-{
+-	c->vc_origin = c->vc_visible_origin;
+-	vgacon_scrollback_cur->save = 0;
+-
+-	if (!vga_is_gfx && !vgacon_scrollback_cur->restore) {
+-		scr_memcpyw((u16 *) c->vc_origin, (u16 *) c->vc_screenbuf,
+-			    c->vc_screenbuf_size > vga_vram_size ?
+-			    vga_vram_size : c->vc_screenbuf_size);
+-		vgacon_scrollback_cur->restore = 1;
+-		vgacon_scrollback_cur->cur = vgacon_scrollback_cur->cnt;
+-	}
+-}
+-
+-static void vgacon_scrolldelta(struct vc_data *c, int lines)
+-{
+-	int start, end, count, soff;
+-
+-	if (!lines) {
+-		vgacon_restore_screen(c);
+-		return;
+-	}
+-
+-	if (!vgacon_scrollback_cur->data)
+-		return;
+-
+-	if (!vgacon_scrollback_cur->save) {
+-		vgacon_cursor(c, CM_ERASE);
+-		vgacon_save_screen(c);
+-		c->vc_origin = (unsigned long)c->vc_screenbuf;
+-		vgacon_scrollback_cur->save = 1;
+-	}
+-
+-	vgacon_scrollback_cur->restore = 0;
+-	start = vgacon_scrollback_cur->cur + lines;
+-	end = start + abs(lines);
+-
+-	if (start < 0)
+-		start = 0;
+-
+-	if (start > vgacon_scrollback_cur->cnt)
+-		start = vgacon_scrollback_cur->cnt;
+-
+-	if (end < 0)
+-		end = 0;
+-
+-	if (end > vgacon_scrollback_cur->cnt)
+-		end = vgacon_scrollback_cur->cnt;
+-
+-	vgacon_scrollback_cur->cur = start;
+-	count = end - start;
+-	soff = vgacon_scrollback_cur->tail -
+-		((vgacon_scrollback_cur->cnt - end) * c->vc_size_row);
+-	soff -= count * c->vc_size_row;
+-
+-	if (soff < 0)
+-		soff += vgacon_scrollback_cur->size;
+-
+-	count = vgacon_scrollback_cur->cnt - start;
+-
+-	if (count > c->vc_rows)
+-		count = c->vc_rows;
+-
+-	if (count) {
+-		int copysize;
+-
+-		int diff = c->vc_rows - count;
+-		void *d = (void *) c->vc_visible_origin;
+-		void *s = (void *) c->vc_screenbuf;
+-
+-		count *= c->vc_size_row;
+-		/* how much memory to end of buffer left? */
+-		copysize = min(count, vgacon_scrollback_cur->size - soff);
+-		scr_memcpyw(d, vgacon_scrollback_cur->data + soff, copysize);
+-		d += copysize;
+-		count -= copysize;
+-
+-		if (count) {
+-			scr_memcpyw(d, vgacon_scrollback_cur->data, count);
+-			d += count;
+-		}
+-
+-		if (diff)
+-			scr_memcpyw(d, s, diff * c->vc_size_row);
+-	} else
+-		vgacon_cursor(c, CM_MOVE);
+-}
+-
+-static void vgacon_flush_scrollback(struct vc_data *c)
+-{
+-	size_t size = CONFIG_VGACON_SOFT_SCROLLBACK_SIZE * 1024;
+-
+-	vgacon_scrollback_reset(c->vc_num, size);
+-}
+-#else
+-#define vgacon_scrollback_startup(...) do { } while (0)
+-#define vgacon_scrollback_init(...)    do { } while (0)
+-#define vgacon_scrollback_update(...)  do { } while (0)
+-#define vgacon_scrollback_switch(...)  do { } while (0)
+-
+ static void vgacon_restore_screen(struct vc_data *c)
+ {
+ 	if (c->vc_origin != c->vc_visible_origin)
+@@ -386,11 +178,6 @@ static void vgacon_scrolldelta(struct vc
+ 	vga_set_mem_top(c);
+ }
+ 
+-static void vgacon_flush_scrollback(struct vc_data *c)
+-{
+-}
+-#endif /* CONFIG_VGACON_SOFT_SCROLLBACK */
+-
+ static const char *vgacon_startup(void)
+ {
+ 	const char *display_desc = NULL;
+@@ -573,10 +360,7 @@ static const char *vgacon_startup(void)
+ 	vgacon_xres = screen_info.orig_video_cols * VGA_FONTWIDTH;
+ 	vgacon_yres = vga_scan_lines;
+ 
+-	if (!vga_init_done) {
+-		vgacon_scrollback_startup();
+-		vga_init_done = true;
+-	}
++	vga_init_done = true;
+ 
+ 	return display_desc;
+ }
+@@ -867,7 +651,6 @@ static int vgacon_switch(struct vc_data
+ 			vgacon_doresize(c, c->vc_cols, c->vc_rows);
+ 	}
+ 
+-	vgacon_scrollback_switch(c->vc_num);
+ 	return 0;		/* Redrawing not needed */
+ }
+ 
+@@ -1384,7 +1167,6 @@ static bool vgacon_scroll(struct vc_data
+ 	oldo = c->vc_origin;
+ 	delta = lines * c->vc_size_row;
+ 	if (dir == SM_UP) {
+-		vgacon_scrollback_update(c, t, lines);
+ 		if (c->vc_scr_end + delta >= vga_vram_end) {
+ 			scr_memcpyw((u16 *) vga_vram_base,
+ 				    (u16 *) (oldo + delta),
+@@ -1448,7 +1230,6 @@ const struct consw vga_con = {
+ 	.con_save_screen = vgacon_save_screen,
+ 	.con_build_attr = vgacon_build_attr,
+ 	.con_invert_region = vgacon_invert_region,
+-	.con_flush_scrollback = vgacon_flush_scrollback,
+ };
+ EXPORT_SYMBOL(vga_con);
+ 
 
 
