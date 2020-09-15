@@ -2,189 +2,344 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F18CF26A8BB
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 17:24:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3022F26A874
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 17:11:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727315AbgIOPYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 11:24:31 -0400
-Received: from mx2.suse.de ([195.135.220.15]:34770 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727279AbgIOPXw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 11:23:52 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 8A288AE0C;
-        Tue, 15 Sep 2020 13:35:27 +0000 (UTC)
-Date:   Tue, 15 Sep 2020 15:35:11 +0200
-From:   Michal Hocko <mhocko@suse.com>
-To:     Laurent Dufour <ldufour@linux.ibm.com>
-Cc:     akpm@linux-foundation.org, David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-mm@kvack.org, "Rafael J . Wysocki" <rafael@kernel.org>,
-        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3 1/3] mm: replace memmap_context by meminit_context
-Message-ID: <20200915133511.GA3736@dhcp22.suse.cz>
-References: <20200915121541.GD4649@dhcp22.suse.cz>
- <20200915132624.9723-1-ldufour@linux.ibm.com>
+        id S1727193AbgIOPLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 11:11:16 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:45801 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727374AbgIOPLG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 11:11:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1600182635;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=NcS8SnHkWsJU5f6lEqIIz7OF7bsFFnC+/KORxioejJ8=;
+        b=Xd1xlVVgHPWreyixVJjouXQ7T+OyzaPTnGn9MhSt+a6mgjuGt5OS9P/ZNgdjKCz/TGJmPK
+        SulkGd0ypPLYNwh7V8Tzt2OXCTgt7PDIddPrF61IIB1kOiqpNpBkW7oX++MGrTKNV1DYGH
+        3iXXP0l6PCzl3OrX9hkNxUCnXY3tFi4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-335-UzAVsf_HMxOf37t-hi-tbg-1; Tue, 15 Sep 2020 11:10:32 -0400
+X-MC-Unique: UzAVsf_HMxOf37t-hi-tbg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3941B10199B5
+        for <stable@vger.kernel.org>; Tue, 15 Sep 2020 15:10:31 +0000 (UTC)
+Received: from [10.129.11.178] (unknown [10.0.117.154])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 96F776EE48;
+        Tue, 15 Sep 2020 15:10:12 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200915132624.9723-1-ldufour@linux.ibm.com>
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.8.9-179511b.cki
+ (stable-queue)
+Date:   Tue, 15 Sep 2020 15:10:12 -0000
+CC:     Yi Zhang <yi.zhang@redhat.com>,
+        Rachel Sibley <rasibley@redhat.com>,
+        David Arcari <darcari@redhat.com>
+Message-ID: <cki.6735134C3E.DMW6289YCD@redhat.com>
+X-Gitlab-Pipeline-ID: 613759
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/613759
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 15-09-20 15:26:24, Laurent Dufour wrote:
-> The memmap_context enum is used to detect whether a memory operation is due
-> to a hot-add operation or happening at boot time.
-> 
-> Make it general to the hotplug operation and rename it as meminit_context.
-> 
-> There is no functional change introduced by this patch
-> 
-> Suggested-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
 
-Acked-by: Michal Hocko <mhocko@suse.com>
+Hello,
 
-> ---
->  arch/ia64/mm/init.c    |  6 +++---
->  include/linux/mm.h     |  2 +-
->  include/linux/mmzone.h | 11 ++++++++---
->  mm/memory_hotplug.c    |  2 +-
->  mm/page_alloc.c        | 10 +++++-----
->  5 files changed, 18 insertions(+), 13 deletions(-)
-> 
-> diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-> index 0b3fb4c7af29..8e7b8c6c576e 100644
-> --- a/arch/ia64/mm/init.c
-> +++ b/arch/ia64/mm/init.c
-> @@ -538,7 +538,7 @@ virtual_memmap_init(u64 start, u64 end, void *arg)
->  	if (map_start < map_end)
->  		memmap_init_zone((unsigned long)(map_end - map_start),
->  				 args->nid, args->zone, page_to_pfn(map_start),
-> -				 MEMMAP_EARLY, NULL);
-> +				 MEMINIT_EARLY, NULL);
->  	return 0;
->  }
->  
-> @@ -547,8 +547,8 @@ memmap_init (unsigned long size, int nid, unsigned long zone,
->  	     unsigned long start_pfn)
->  {
->  	if (!vmem_map) {
-> -		memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY,
-> -				NULL);
-> +		memmap_init_zone(size, nid, zone, start_pfn,
-> +				 MEMINIT_EARLY, NULL);
->  	} else {
->  		struct page *start;
->  		struct memmap_init_callback_data args;
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 1983e08f5906..e942f91ed155 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -2409,7 +2409,7 @@ extern int __meminit __early_pfn_to_nid(unsigned long pfn,
->  
->  extern void set_dma_reserve(unsigned long new_dma_reserve);
->  extern void memmap_init_zone(unsigned long, int, unsigned long, unsigned long,
-> -		enum memmap_context, struct vmem_altmap *);
-> +		enum meminit_context, struct vmem_altmap *);
->  extern void setup_per_zone_wmarks(void);
->  extern int __meminit init_per_zone_wmark_min(void);
->  extern void mem_init(void);
-> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-> index 8379432f4f2f..0f7a4ff4b059 100644
-> --- a/include/linux/mmzone.h
-> +++ b/include/linux/mmzone.h
-> @@ -824,10 +824,15 @@ bool zone_watermark_ok(struct zone *z, unsigned int order,
->  		unsigned int alloc_flags);
->  bool zone_watermark_ok_safe(struct zone *z, unsigned int order,
->  		unsigned long mark, int highest_zoneidx);
-> -enum memmap_context {
-> -	MEMMAP_EARLY,
-> -	MEMMAP_HOTPLUG,
-> +/*
-> + * Memory initialization context, use to differentiate memory added by
-> + * the platform statically or via memory hotplug interface.
-> + */
-> +enum meminit_context {
-> +	MEMINIT_EARLY,
-> +	MEMINIT_HOTPLUG,
->  };
-> +
->  extern void init_currently_empty_zone(struct zone *zone, unsigned long start_pfn,
->  				     unsigned long size);
->  
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index e9d5ab5d3ca0..fc25886ad719 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -729,7 +729,7 @@ void __ref move_pfn_range_to_zone(struct zone *zone, unsigned long start_pfn,
->  	 * are reserved so nobody should be touching them so we should be safe
->  	 */
->  	memmap_init_zone(nr_pages, nid, zone_idx(zone), start_pfn,
-> -			MEMMAP_HOTPLUG, altmap);
-> +			 MEMINIT_HOTPLUG, altmap);
->  
->  	set_zone_contiguous(zone);
->  }
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index fab5e97dc9ca..5661fa164f13 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -5975,7 +5975,7 @@ overlap_memmap_init(unsigned long zone, unsigned long *pfn)
->   * done. Non-atomic initialization, single-pass.
->   */
->  void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
-> -		unsigned long start_pfn, enum memmap_context context,
-> +		unsigned long start_pfn, enum meminit_context context,
->  		struct vmem_altmap *altmap)
->  {
->  	unsigned long pfn, end_pfn = start_pfn + size;
-> @@ -6007,7 +6007,7 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
->  		 * There can be holes in boot-time mem_map[]s handed to this
->  		 * function.  They do not exist on hotplugged memory.
->  		 */
-> -		if (context == MEMMAP_EARLY) {
-> +		if (context == MEMINIT_EARLY) {
->  			if (overlap_memmap_init(zone, &pfn))
->  				continue;
->  			if (defer_init(nid, pfn, end_pfn))
-> @@ -6016,7 +6016,7 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
->  
->  		page = pfn_to_page(pfn);
->  		__init_single_page(page, pfn, zone, nid);
-> -		if (context == MEMMAP_HOTPLUG)
-> +		if (context == MEMINIT_HOTPLUG)
->  			__SetPageReserved(page);
->  
->  		/*
-> @@ -6099,7 +6099,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
->  		 * check here not to call set_pageblock_migratetype() against
->  		 * pfn out of zone.
->  		 *
-> -		 * Please note that MEMMAP_HOTPLUG path doesn't clear memmap
-> +		 * Please note that MEMINIT_HOTPLUG path doesn't clear memmap
->  		 * because this is done early in section_activate()
->  		 */
->  		if (!(pfn & (pageblock_nr_pages - 1))) {
-> @@ -6137,7 +6137,7 @@ void __meminit __weak memmap_init(unsigned long size, int nid,
->  		if (end_pfn > start_pfn) {
->  			size = end_pfn - start_pfn;
->  			memmap_init_zone(size, nid, zone, start_pfn,
-> -					 MEMMAP_EARLY, NULL);
-> +					 MEMINIT_EARLY, NULL);
->  		}
->  	}
->  }
-> -- 
-> 2.28.0
+We ran automated tests on a recent commit from this kernel tree:
 
--- 
-Michal Hocko
-SUSE Labs
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: 179511bc2622 - RDMA/mlx4: Read pkey table length instead =
+of hardcoded value
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse/2020/09/15/613759
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9D=8C IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
+       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+  x86_64:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/sa=
+nity test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
+
