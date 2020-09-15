@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B53BA26B50B
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:35:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1D526B52A
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727306AbgIOXfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:35:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46458 "EHLO mail.kernel.org"
+        id S1727149AbgIOXhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:37:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727145AbgIOOfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727135AbgIOOfY (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:35:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D7682222F;
-        Tue, 15 Sep 2020 14:25:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E3C42224A;
+        Tue, 15 Sep 2020 14:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179954;
-        bh=ieX4YYQ0dGPOKPYb+Rfr2chY6D8Y4UPkLua/wpj6qB8=;
+        s=default; t=1600179959;
+        bh=S2lpl7cJCH8k86S3isb6+lxcBkcnXCLPfDJsLAkhxKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VafS4AzdFij3FlphGgEaRwO8Jf34tJsvAoGJ8yCSBEdEaMnozQPNngV0DhVze2z+r
-         APKGFUPBeVjicsyZqbrhTumWTWjOIseyglYJcCA9yz2HEMOgI0c5TKlR6Th/TM5f4b
-         nE3amq4MKftpO3e25Dt8WnpykqNis7wQ/rXZCoog=
+        b=v8/kOP5JLpNRb0u9pNW9zMVXQaUjpvozVwzZFv4PZkQSt+aqPGNiRQJ6xPlXvEwN4
+         C5xklnwfzzeEUhpjTlG0sIsJMZMIo2BgqaGVw1C4ARpzeIUgPe+O74PSKK17H+7L2c
+         kMHxmoDrk3jUhRGXyFXYH4b4vpiekNUUU8iQsXHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <james.smart@broadcom.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 050/177] nvme-fabrics: allow to queue requests for live queues
-Date:   Tue, 15 Sep 2020 16:12:01 +0200
-Message-Id: <20200915140656.029827348@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alain Volmat <alain.volmat@st.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 051/177] spi: stm32: fix pm_runtime_get_sync() error checking
+Date:   Tue, 15 Sep 2020 16:12:02 +0200
+Message-Id: <20200915140656.076740999@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -44,69 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 73a5379937ec89b91e907bb315e2434ee9696a2c ]
+[ Upstream commit c170a5a3b6944ad8e76547c4a1d9fe81c8f23ac8 ]
 
-Right now we are failing requests based on the controller state (which
-is checked inline in nvmf_check_ready) however we should definitely
-accept requests if the queue is live.
+The pm_runtime_get_sync() can return either 0 or 1 on success but this
+code treats 1 as a failure.
 
-When entering controller reset, we transition the controller into
-NVME_CTRL_RESETTING, and then return BLK_STS_RESOURCE for non-mpath
-requests (have blk_noretry_request set).
-
-This is also the case for NVME_REQ_USER for the wrong reason. There
-shouldn't be any reason for us to reject this I/O in a controller reset.
-We do want to prevent passthru commands on the admin queue because we
-need the controller to fully initialize first before we let user passthru
-admin commands to be issued.
-
-In a non-mpath setup, this means that the requests will simply be
-requeued over and over forever not allowing the q_usage_counter to drop
-its final reference, causing controller reset to hang if running
-concurrently with heavy I/O.
-
-Fixes: 35897b920c8a ("nvme-fabrics: fix and refine state checks in __nvmf_check_ready")
-Reviewed-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: db96bf976a4f ("spi: stm32: fixes suspend/resume management")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Alain Volmat <alain.volmat@st.com>
+Link: https://lore.kernel.org/r/20200909094304.GA420136@mwanda
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fabrics.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/spi/spi-stm32.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/fabrics.c b/drivers/nvme/host/fabrics.c
-index 4ec4829d62334..7799d032bf38b 100644
---- a/drivers/nvme/host/fabrics.c
-+++ b/drivers/nvme/host/fabrics.c
-@@ -565,10 +565,14 @@ bool __nvmf_check_ready(struct nvme_ctrl *ctrl, struct request *rq,
- 	struct nvme_request *req = nvme_req(rq);
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index a00f6b51ccbfc..3056428b09f31 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -2064,7 +2064,7 @@ static int stm32_spi_resume(struct device *dev)
+ 	}
  
- 	/*
--	 * If we are in some state of setup or teardown only allow
--	 * internally generated commands.
-+	 * currently we have a problem sending passthru commands
-+	 * on the admin_q if the controller is not LIVE because we can't
-+	 * make sure that they are going out after the admin connect,
-+	 * controller enable and/or other commands in the initialization
-+	 * sequence. until the controller will be LIVE, fail with
-+	 * BLK_STS_RESOURCE so that they will be rescheduled.
- 	 */
--	if (!blk_rq_is_passthrough(rq) || (req->flags & NVME_REQ_USERCMD))
-+	if (rq->q == ctrl->admin_q && (req->flags & NVME_REQ_USERCMD))
- 		return false;
- 
- 	/*
-@@ -578,7 +582,7 @@ bool __nvmf_check_ready(struct nvme_ctrl *ctrl, struct request *rq,
- 	switch (ctrl->state) {
- 	case NVME_CTRL_NEW:
- 	case NVME_CTRL_CONNECTING:
--		if (nvme_is_fabrics(req->cmd) &&
-+		if (blk_rq_is_passthrough(rq) && nvme_is_fabrics(req->cmd) &&
- 		    req->cmd->fabrics.fctype == nvme_fabrics_type_connect)
- 			return true;
- 		break;
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret) {
++	if (ret < 0) {
+ 		dev_err(dev, "Unable to power device:%d\n", ret);
+ 		return ret;
+ 	}
 -- 
 2.25.1
 
