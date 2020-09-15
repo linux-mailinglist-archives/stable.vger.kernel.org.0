@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 507DD26B4F3
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB00826B578
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:45:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727381AbgIOXem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:34:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46442 "EHLO mail.kernel.org"
+        id S1727159AbgIOXox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:44:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727077AbgIOOgT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:36:19 -0400
+        id S1726996AbgIOOdX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:33:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2C27222E7;
-        Tue, 15 Sep 2020 14:26:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D611323BEE;
+        Tue, 15 Sep 2020 14:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179977;
-        bh=aVCQPC1uDildNSTSS9c0m5IXtC8LNq6LKlT83+/al3s=;
+        s=default; t=1600179903;
+        bh=rncgLFQieqc1c+0KLanBYlWKY6fYFuJQywdujbj/i90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OWQ2k+zEAlLK1tk8LZDN/PLPOWfc6leYxlTc1qmxvoSPPbINjvZ0JgEM26rS3WIh
-         Q3Cc5K/YT8rd8ENN8AnHV0NcKZjSzEgBk3uwQxm1uOZPStxjHavDbD1X1CCy5gHgm6
-         0JKb+wpmq/ZMtoojb2mDExWry997PcmOeO3ZPRFg=
+        b=ma1vjAr7tOx2/ooYlCbI/5Hc6OTh2clZr03HjRrwZ6sxWyOc2a6Oqts6sKcZpLfOR
+         uN+dGOZAvnpzXmjtVaMf41xbLLzZHFFuDBmceU3HFprdYvFYCLVW+X6oFlO7H1yCMo
+         FEOPOzWpNgpe1pT8HfG5kAYP6h4s46te+Jfau6z4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xi Wang <wangxi11@huawei.com>,
-        Weihang Li <liweihang@huawei.com>,
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 030/177] RDMA/core: Fix unsafe linked list traversal after failing to allocate CQ
-Date:   Tue, 15 Sep 2020 16:11:41 +0200
-Message-Id: <20200915140655.083201980@linuxfoundation.org>
+Subject: [PATCH 5.8 031/177] RDMA/core: Fix reported speed and width
+Date:   Tue, 15 Sep 2020 16:11:42 +0200
+Message-Id: <20200915140655.131837751@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -45,47 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xi Wang <wangxi11@huawei.com>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit 8aa64be019567c4f90d45c5082a4b6f22e182d00 ]
+[ Upstream commit 28b0865714b315e318ac45c4fc9156f3d4649646 ]
 
-It's not safe to access the next CQ in list_for_each_entry() after
-invoking ib_free_cq(), because the CQ has already been freed in current
-iteration.  It should be replaced by list_for_each_entry_safe().
+When the returned speed from __ethtool_get_link_ksettings() is
+SPEED_UNKNOWN this will lead to reporting a wrong speed and width for
+providers that uses ib_get_eth_speed(), fix that by defaulting the
+netdev_speed to SPEED_1000 in case the returned value from
+__ethtool_get_link_ksettings() is SPEED_UNKNOWN.
 
-Fixes: c7ff819aefea ("RDMA/core: Introduce shared CQ pool API")
-Link: https://lore.kernel.org/r/1598963935-32335-1-git-send-email-liweihang@huawei.com
-Signed-off-by: Xi Wang <wangxi11@huawei.com>
-Signed-off-by: Weihang Li <liweihang@huawei.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: d41861942fc5 ("IB/core: Add generic function to extract IB speed from netdev")
+Link: https://lore.kernel.org/r/20200902124304.170912-1-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/verbs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cq.c b/drivers/infiniband/core/cq.c
-index 513825e424bff..a92fc3f90bb5b 100644
---- a/drivers/infiniband/core/cq.c
-+++ b/drivers/infiniband/core/cq.c
-@@ -379,7 +379,7 @@ static int ib_alloc_cqs(struct ib_device *dev, unsigned int nr_cqes,
- {
- 	LIST_HEAD(tmp_list);
- 	unsigned int nr_cqs, i;
--	struct ib_cq *cq;
-+	struct ib_cq *cq, *n;
- 	int ret;
+diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
+index f369f0a19e851..1b0ea945756f0 100644
+--- a/drivers/infiniband/core/verbs.c
++++ b/drivers/infiniband/core/verbs.c
+@@ -1803,7 +1803,7 @@ int ib_get_eth_speed(struct ib_device *dev, u8 port_num, u8 *speed, u8 *width)
  
- 	if (poll_ctx > IB_POLL_LAST_POOL_TYPE) {
-@@ -412,7 +412,7 @@ static int ib_alloc_cqs(struct ib_device *dev, unsigned int nr_cqes,
- 	return 0;
+ 	dev_put(netdev);
  
- out_free_cqs:
--	list_for_each_entry(cq, &tmp_list, pool_entry) {
-+	list_for_each_entry_safe(cq, n, &tmp_list, pool_entry) {
- 		cq->shared = false;
- 		ib_free_cq(cq);
- 	}
+-	if (!rc) {
++	if (!rc && lksettings.base.speed != (u32)SPEED_UNKNOWN) {
+ 		netdev_speed = lksettings.base.speed;
+ 	} else {
+ 		netdev_speed = SPEED_1000;
 -- 
 2.25.1
 
