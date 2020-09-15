@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 555DA26B60F
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA6C026B613
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:57:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727345AbgIOX4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727347AbgIOX4w (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 15 Sep 2020 19:56:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726741AbgIOOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727035AbgIOOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:31:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2564722B3F;
-        Tue, 15 Sep 2020 14:22:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACE8622B40;
+        Tue, 15 Sep 2020 14:22:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179758;
-        bh=YyA7VUKTSTDrFSQMiIR9540oXL+Hk7219jpS6Lyi+XM=;
+        s=default; t=1600179761;
+        bh=HldwYWlpSmuLOEQ+/KxCjoNEjj1SyIEMlVSBrpq3360=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLtwv5+nWyZCt3W0v4Nv1i69W9RkxZAkiSAyUMuD2mkoWrjMw8vIIqyWJDHtVtUTK
-         8jJd3K+oSs5RSptoFlvnwMv6y3qDZo05eFQnG6WBEEmyldwgAcT5mgV2e1lAf/esq6
-         D8wxUHmmjwxKvI0UG5yCBR2pR49qcMpW5OdcR67I=
+        b=v/6gWSpjJ+ph/c7gAeK4E2iXKAHWJMoKDImyJlv0dKqudCbYZs8SiKsAY7NCDTWGr
+         Nkb+14XYtORMClaLYMQDQKDVr/zskSWmSM4TCXofO09MnpBVZqNFQzAa6+IDDcvMDk
+         iOnqlnRHq8fglbcGZhDvqXwcyTA7As6muiJ5lZm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 107/132] mmc: sdio: Use mmc_pre_req() / mmc_post_req()
-Date:   Tue, 15 Sep 2020 16:13:29 +0200
-Message-Id: <20200915140649.493256897@linuxfoundation.org>
+Subject: [PATCH 5.4 108/132] mmc: sdhci-of-esdhc: Dont walk device-tree on every interrupt
+Date:   Tue, 15 Sep 2020 16:13:30 +0200
+Message-Id: <20200915140649.542719698@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -44,107 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-commit f0c393e2104e48c8a881719a8bd37996f71b0aee upstream.
+commit 060522d89705f9d961ef1762dc1468645dd21fbd upstream.
 
-SDHCI changed from using a tasklet to finish requests, to using an IRQ
-thread i.e. commit c07a48c2651965 ("mmc: sdhci: Remove finish_tasklet").
-Because this increased the latency to complete requests, a preparatory
-change was made to complete the request from the IRQ handler if
-possible i.e. commit 19d2f695f4e827 ("mmc: sdhci: Call mmc_request_done()
-from IRQ handler if possible").  That alleviated the situation for MMC
-block devices because the MMC block driver makes use of mmc_pre_req()
-and mmc_post_req() so that successful requests are completed in the IRQ
-handler and any DMA unmapping is handled separately in mmc_post_req().
-However SDIO was still affected, and an example has been reported with
-up to 20% degradation in performance.
+Commit b214fe592ab7 ("mmc: sdhci-of-esdhc: add erratum eSDHC7 support")
+added code to check for a specific compatible string in the device-tree
+on every esdhc interrupat. Instead of doing this record the quirk in
+struct sdhci_esdhc and lookup the struct in esdhc_irq.
 
-Looking at SDIO I/O helper functions, sdio_io_rw_ext_helper() appeared
-to be a possible candidate for making use of asynchronous requests
-within its I/O loops, but analysis revealed that these loops almost
-never iterate more than once, so the complexity of the change would not
-be warrented.
-
-Instead, mmc_pre_req() and mmc_post_req() are added before and after I/O
-submission (mmc_wait_for_req) in mmc_io_rw_extended().  This still has
-the potential benefit of reducing the duration of interrupt handlers, as
-well as addressing the latency issue for SDHCI.  It also seems a more
-reasonable solution than forcing drivers to do everything in the IRQ
-handler.
-
-Reported-by: Dmitry Osipenko <digetx@gmail.com>
-Fixes: c07a48c2651965 ("mmc: sdhci: Remove finish_tasklet")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20200903012029.25673-1-chris.packham@alliedtelesis.co.nz
+Fixes: b214fe592ab7 ("mmc: sdhci-of-esdhc: add erratum eSDHC7 support")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200903082007.18715-1-adrian.hunter@intel.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/core/sdio_ops.c |   39 ++++++++++++++++++++++-----------------
- 1 file changed, 22 insertions(+), 17 deletions(-)
+ drivers/mmc/host/sdhci-of-esdhc.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/core/sdio_ops.c
-+++ b/drivers/mmc/core/sdio_ops.c
-@@ -121,6 +121,7 @@ int mmc_io_rw_extended(struct mmc_card *
- 	struct sg_table sgtable;
- 	unsigned int nents, left_size, i;
- 	unsigned int seg_size = card->host->max_seg_size;
-+	int err;
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -81,6 +81,7 @@ struct sdhci_esdhc {
+ 	bool quirk_tuning_erratum_type2;
+ 	bool quirk_ignore_data_inhibit;
+ 	bool quirk_delay_before_data_reset;
++	bool quirk_trans_complete_erratum;
+ 	bool in_sw_tuning;
+ 	unsigned int peripheral_clock;
+ 	const struct esdhc_clk_fixup *clk_fixup;
+@@ -1082,10 +1083,11 @@ static void esdhc_set_uhs_signaling(stru
  
- 	WARN_ON(blksz == 0);
+ static u32 esdhc_irq(struct sdhci_host *host, u32 intmask)
+ {
++	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
++	struct sdhci_esdhc *esdhc = sdhci_pltfm_priv(pltfm_host);
+ 	u32 command;
  
-@@ -170,28 +171,32 @@ int mmc_io_rw_extended(struct mmc_card *
+-	if (of_find_compatible_node(NULL, NULL,
+-				"fsl,p2020-esdhc")) {
++	if (esdhc->quirk_trans_complete_erratum) {
+ 		command = SDHCI_GET_CMD(sdhci_readw(host,
+ 					SDHCI_COMMAND));
+ 		if (command == MMC_WRITE_MULTIPLE_BLOCK &&
+@@ -1239,8 +1241,10 @@ static void esdhc_init(struct platform_d
+ 		esdhc->clk_fixup = match->data;
+ 	np = pdev->dev.of_node;
  
- 	mmc_set_data_timeout(&data, card);
+-	if (of_device_is_compatible(np, "fsl,p2020-esdhc"))
++	if (of_device_is_compatible(np, "fsl,p2020-esdhc")) {
+ 		esdhc->quirk_delay_before_data_reset = true;
++		esdhc->quirk_trans_complete_erratum = true;
++	}
  
--	mmc_wait_for_req(card->host, &mrq);
-+	mmc_pre_req(card->host, &mrq);
- 
--	if (nents > 1)
--		sg_free_table(&sgtable);
-+	mmc_wait_for_req(card->host, &mrq);
- 
- 	if (cmd.error)
--		return cmd.error;
--	if (data.error)
--		return data.error;
--
--	if (mmc_host_is_spi(card->host)) {
-+		err = cmd.error;
-+	else if (data.error)
-+		err = data.error;
-+	else if (mmc_host_is_spi(card->host))
- 		/* host driver already reported errors */
--	} else {
--		if (cmd.resp[0] & R5_ERROR)
--			return -EIO;
--		if (cmd.resp[0] & R5_FUNCTION_NUMBER)
--			return -EINVAL;
--		if (cmd.resp[0] & R5_OUT_OF_RANGE)
--			return -ERANGE;
--	}
-+		err = 0;
-+	else if (cmd.resp[0] & R5_ERROR)
-+		err = -EIO;
-+	else if (cmd.resp[0] & R5_FUNCTION_NUMBER)
-+		err = -EINVAL;
-+	else if (cmd.resp[0] & R5_OUT_OF_RANGE)
-+		err = -ERANGE;
-+	else
-+		err = 0;
-+
-+	mmc_post_req(card->host, &mrq, err);
-+
-+	if (nents > 1)
-+		sg_free_table(&sgtable);
- 
--	return 0;
-+	return err;
- }
- 
- int sdio_reset(struct mmc_host *host)
+ 	clk = of_clk_get(np, 0);
+ 	if (!IS_ERR(clk)) {
 
 
