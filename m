@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2333826B5F3
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BCD26B5F7
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727219AbgIOXzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:55:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43012 "EHLO mail.kernel.org"
+        id S1726202AbgIOXy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:54:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727054AbgIOObc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727056AbgIOObc (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:31:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D57A22272;
-        Tue, 15 Sep 2020 14:23:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD31822276;
+        Tue, 15 Sep 2020 14:23:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179803;
-        bh=ifnurhpycPLGZeFJBQdmcEfPl/nA6hUm+yrAbyQdj3E=;
+        s=default; t=1600179806;
+        bh=wOwxC+GNecDrXZxoqugE7lh1JBYDB5DQA5JN0mZGbto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QI0wI9nbvhNFHclCHyY4Wi4Qw0o6X3I562xWDtrNKjRNPJFuGZPjGairFkVvFWKKU
-         6hK1OW9x9QuI8eNL2xPItI9i67VKoEiEpWJy/e0D1s+qzAvh+3IOh43ilNy2nksGyE
-         LjY4HOJQb6Rq77rP+pd4MfUmbefQtFF+RqYN5tsk=
+        b=GPvy8q1z8b2ablNC3hPhSzNC2N2aow/ISpBdi8OzQwurgVVNTfY4jeF0tE4LJg8JA
+         7KG7gpIRRb7Wg5VVHX8YUqYQ6AEb3lU2wbLZrybaPKDoS/ktdlHG506+/4j7egFOlG
+         pohBgYN58UxlAEpfoQ2mGL+OaNZc2Uzr+P8nVtMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <quwenruo.btrfs@gmx.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Qu Wenruo <wqu@suse.com>
-Subject: [PATCH 5.4 095/132] kobject: Restore old behaviour of kobject_del(NULL)
-Date:   Tue, 15 Sep 2020 16:13:17 +0200
-Message-Id: <20200915140648.902771537@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 096/132] regulator: push allocation in regulator_init_coupling() outside of lock
+Date:   Tue, 15 Sep 2020 16:13:18 +0200
+Message-Id: <20200915140648.956437927@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -45,42 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit 40b8b826a6998639dd1c26f0e127f18371e1058d upstream.
+commit 73a32129f8ccb556704a26b422f54e048bf14bd0 upstream.
 
-The commit 079ad2fb4bf9 ("kobject: Avoid premature parent object freeing in
-kobject_cleanup()") inadvertently dropped a possibility to call kobject_del()
-with NULL pointer. Restore the old behaviour.
+Allocating memory with regulator_list_mutex held makes lockdep unhappy
+when memory pressure makes the system do fs_reclaim on eg. eMMC using
+a regulator. Push the lock inside regulator_init_coupling() after the
+allocation.
 
-Fixes: 079ad2fb4bf9 ("kobject: Avoid premature parent object freeing in kobject_cleanup()")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Qu Wenruo <quwenruo.btrfs@gmx.com>
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Link: https://lore.kernel.org/r/20200803082706.65347-1-andriy.shevchenko@linux.intel.com
+======================================================
+WARNING: possible circular locking dependency detected
+5.7.13+ #533 Not tainted
+------------------------------------------------------
+kswapd0/383 is trying to acquire lock:
+cca78ca4 (&sbi->write_io[i][j].io_rwsem){++++}-{3:3}, at: __submit_merged_write_cond+0x104/0x154
+but task is already holding lock:
+c0e38518 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x0/0x50
+which lock already depends on the new lock.
+the existing dependency chain (in reverse order) is:
+-> #2 (fs_reclaim){+.+.}-{0:0}:
+       fs_reclaim_acquire.part.11+0x40/0x50
+       fs_reclaim_acquire+0x24/0x28
+       __kmalloc+0x54/0x218
+       regulator_register+0x860/0x1584
+       dummy_regulator_probe+0x60/0xa8
+[...]
+other info that might help us debug this:
+
+Chain exists of:
+  &sbi->write_io[i][j].io_rwsem --> regulator_list_mutex --> fs_reclaim
+
+Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(fs_reclaim);
+                               lock(regulator_list_mutex);
+                               lock(fs_reclaim);
+  lock(&sbi->write_io[i][j].io_rwsem);
+ *** DEADLOCK ***
+
+1 lock held by kswapd0/383:
+ #0: c0e38518 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x0/0x50
+[...]
+
+Fixes: d8ca7d184b33 ("regulator: core: Introduce API for regulators coupling customization")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1a889cf7f61c6429c9e6b34ddcdde99be77a26b6.1597195321.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/kobject.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/regulator/core.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/lib/kobject.c
-+++ b/lib/kobject.c
-@@ -630,8 +630,12 @@ static void __kobject_del(struct kobject
-  */
- void kobject_del(struct kobject *kobj)
- {
--	struct kobject *parent = kobj->parent;
-+	struct kobject *parent;
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -4955,7 +4955,10 @@ static int regulator_init_coupling(struc
+ 	if (!of_check_coupling_data(rdev))
+ 		return -EPERM;
  
-+	if (!kobj)
-+		return;
++	mutex_lock(&regulator_list_mutex);
+ 	rdev->coupling_desc.coupler = regulator_find_coupler(rdev);
++	mutex_unlock(&regulator_list_mutex);
 +
-+	parent = kobj->parent;
- 	__kobject_del(kobj);
- 	kobject_put(parent);
- }
+ 	if (IS_ERR(rdev->coupling_desc.coupler)) {
+ 		err = PTR_ERR(rdev->coupling_desc.coupler);
+ 		rdev_err(rdev, "failed to get coupler: %d\n", err);
+@@ -5155,9 +5158,7 @@ regulator_register(const struct regulato
+ 	if (ret < 0)
+ 		goto wash;
+ 
+-	mutex_lock(&regulator_list_mutex);
+ 	ret = regulator_init_coupling(rdev);
+-	mutex_unlock(&regulator_list_mutex);
+ 	if (ret < 0)
+ 		goto wash;
+ 
 
 
