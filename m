@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78F8426B695
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82C6426B6A4
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:08:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727097AbgIPAHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:07:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42986 "EHLO mail.kernel.org"
+        id S1727386AbgIPAIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:08:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726955AbgIOO2g (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726954AbgIOO2g (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:28:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F951224BD;
-        Tue, 15 Sep 2020 14:20:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D13C7224BE;
+        Tue, 15 Sep 2020 14:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179610;
-        bh=YB6LMn6dVIAQQecjsMuXES5wSTgr8G+mlKOQ3KV/a/8=;
+        s=default; t=1600179613;
+        bh=gHzqM5SbKBDVfGaPTK2hj5hQR2LeONNE70U5p4PrLF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CqqIYcFlo7gkagibqiswmGvrQIZhFQkvrI+NLBeCriBTDO+cwFW4o+tM+qNUP/ksR
-         4jmm9wt1D3DLzBeRe++86yMkIZVF8t/t4BqVoi/zsMuznqE/boPJtHzkQ7RnWflE2K
-         MXcv4TxGZdQbS+k3+DmoB8LR0YxsRslv7Di5auVQ=
+        b=kZS1YMoFucD7OsGvlZKpuOhRq3ZqwF8c6L+/pSG25wFTPgNQ+xuKRZEcQi9qBDqmv
+         QMfI7x69I1szindE4jtEJNan6Klvat80zAiL7dDnpG+e2vh/5Yne6ULXAQUL5nQSJi
+         pWHzQxJm9aHmN5mVJtUykbYFCbqb+AGoTs5ASx+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amar Singhal <asinghal@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 048/132] cfg80211: Adjust 6 GHz frequency to channel conversion
-Date:   Tue, 15 Sep 2020 16:12:30 +0200
-Message-Id: <20200915140646.520323779@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Eric Sandeen <sandeen@redhat.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 049/132] xfs: initialize the shortform attr header padding entry
+Date:   Tue, 15 Sep 2020 16:12:31 +0200
+Message-Id: <20200915140646.570599349@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -44,43 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amar Singhal <asinghal@codeaurora.org>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 2d9b55508556ccee6410310fb9ea2482fd3328eb ]
+[ Upstream commit 125eac243806e021f33a1fdea3687eccbb9f7636 ]
 
-Adjust the 6 GHz frequency to channel conversion function,
-the other way around was previously handled.
+Don't leak kernel memory contents into the shortform attr fork.
 
-Signed-off-by: Amar Singhal <asinghal@codeaurora.org>
-Link: https://lore.kernel.org/r/1592599921-10607-1-git-send-email-asinghal@codeaurora.org
-[rewrite commit message, hard-code channel 2]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/xfs/libxfs/xfs_attr_leaf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/wireless/util.c b/net/wireless/util.c
-index 8481e9ac33da5..9abafd76ec50e 100644
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -116,11 +116,13 @@ int ieee80211_frequency_to_channel(int freq)
- 		return (freq - 2407) / 5;
- 	else if (freq >= 4910 && freq <= 4980)
- 		return (freq - 4000) / 5;
--	else if (freq < 5945)
-+	else if (freq < 5925)
- 		return (freq - 5000) / 5;
-+	else if (freq == 5935)
-+		return 2;
- 	else if (freq <= 45000) /* DMG band lower limit */
--		/* see 802.11ax D4.1 27.3.22.2 */
--		return (freq - 5940) / 5;
-+		/* see 802.11ax D6.1 27.3.22.2 */
-+		return (freq - 5950) / 5;
- 	else if (freq >= 58320 && freq <= 70200)
- 		return (freq - 56160) / 2160;
- 	else
+diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
+index fe277ee5ec7c4..5472ed3ce6943 100644
+--- a/fs/xfs/libxfs/xfs_attr_leaf.c
++++ b/fs/xfs/libxfs/xfs_attr_leaf.c
+@@ -583,8 +583,8 @@ xfs_attr_shortform_create(xfs_da_args_t *args)
+ 		ASSERT(ifp->if_flags & XFS_IFINLINE);
+ 	}
+ 	xfs_idata_realloc(dp, sizeof(*hdr), XFS_ATTR_FORK);
+-	hdr = (xfs_attr_sf_hdr_t *)ifp->if_u1.if_data;
+-	hdr->count = 0;
++	hdr = (struct xfs_attr_sf_hdr *)ifp->if_u1.if_data;
++	memset(hdr, 0, sizeof(*hdr));
+ 	hdr->totsize = cpu_to_be16(sizeof(*hdr));
+ 	xfs_trans_log_inode(args->trans, dp, XFS_ILOG_CORE | XFS_ILOG_ADATA);
+ }
 -- 
 2.25.1
 
