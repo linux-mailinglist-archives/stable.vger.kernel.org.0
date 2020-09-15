@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7446D26B5C4
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D5826B5B4
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727111AbgIOXvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
+        id S1727265AbgIOXtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:49:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727102AbgIOOcm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727097AbgIOOcm (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:32:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1593F23BDF;
-        Tue, 15 Sep 2020 14:24:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8ED523BE0;
+        Tue, 15 Sep 2020 14:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179879;
-        bh=bVSvRP7SZUwKmiBBHeXufbbS6lduYbTr2ANmIMAqUXg=;
+        s=default; t=1600179882;
+        bh=x4U0PxElE1NikM11/3itTjZcEzcHNr2qNGiO5fYb0us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plbJi4qlRdDLPfK9XEbsEZFRnx7Y0KTD4CD2CcVCX99RAjSqiqDhksgvtez6yUOLN
-         ybKInXWFj/0cjyDk1d3co4UGvUPRAglFlQ62X2dlRYKr3t/eQHu8i9W9KrHgrJfXn8
-         PoDURobUK8IiemUs0r5zyYWqqIwRDB63jKME50qQ=
+        b=jrwbyrVS1oeyHL6TZn5cO+v0/JTWubj5XfkllpeWmMIWcm8bUoG+R2QaUkjf03MD+
+         mqksR7ZDnytsobLCEERrOPhI/p6QOoILlH649vgbh8n2xSxvD3s7/e8RttLXMBLPnI
+         xctaaOnf9K7OgS+BXAUvJRYapxghem3Z/K3Qhg7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
         Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 003/177] ARM: dts: logicpd-som-lv-baseboard: Fix broken audio
-Date:   Tue, 15 Sep 2020 16:11:14 +0200
-Message-Id: <20200915140653.790527488@linuxfoundation.org>
+Subject: [PATCH 5.8 004/177] ARM: dts: logicpd-som-lv-baseboard: Fix missing video
+Date:   Tue, 15 Sep 2020 16:11:15 +0200
+Message-Id: <20200915140653.838633706@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -46,42 +46,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit 4d26e9a028e3d88223e06fa133c3d55af7ddbceb ]
+[ Upstream commit d1db7b80a6c8c5f81db0e80664d29b374750e2c6 ]
 
-Older versions of U-Boot would pinmux the whole board, but as
-the bootloader got updated, it started to only pinmux the pins
-it needed, and expected Linux to configure what it needed.
+A previous commit removed the panel-dpi driver, which made the
+SOM-LV video stop working because it relied on the DPI driver
+for setting video timings.  Now that the simple-panel driver is
+available in omap2plus, this patch migrates the SOM-LV dev kits
+to use a similar panel and remove the manual timing requirements.
+A similar patch was already done and applied to the Torpedo family.
 
-Unfortunately this caused an issue with the audio, because the
-mcbsp2 pins were configured in the device tree but never
-referenced by the driver. When U-Boot stopped muxing the audio
-pins, the audio died.
-
-This patch adds the references to the associate the pin controller
-with the mcbsp2 driver which makes audio operate again.
-
-Fixes: 5cb8b0fa55a9 ("ARM: dts: Move most of logicpd-som-lv-37xx-devkit.dts to logicpd-som-lv-baseboard.dtsi")
+Fixes: 8bf4b1621178 ("drm/omap: Remove panel-dpi driver")
 
 Signed-off-by: Adam Ford <aford173@gmail.com>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ .../boot/dts/logicpd-som-lv-baseboard.dtsi    | 27 ++++---------------
+ 1 file changed, 5 insertions(+), 22 deletions(-)
 
 diff --git a/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi b/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
-index 100396f6c2feb..c310c33ca6f3f 100644
+index c310c33ca6f3f..395e05f10d36c 100644
 --- a/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
 +++ b/arch/arm/boot/dts/logicpd-som-lv-baseboard.dtsi
-@@ -51,6 +51,8 @@
+@@ -104,35 +104,18 @@
+ 		regulator-max-microvolt = <3300000>;
+ 	};
  
- &mcbsp2 {
- 	status = "okay";
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&mcbsp2_pins>;
- };
+-	lcd0: display@0 {
+-		compatible = "panel-dpi";
+-		label = "28";
+-		status = "okay";
+-		/* default-on; */
++	lcd0: display {
++		/* This isn't the exact LCD, but the timings meet spec */
++		compatible = "logicpd,type28";
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&lcd_enable_pin>;
+-		enable-gpios = <&gpio5 27 GPIO_ACTIVE_HIGH>;	/* gpio155, lcd INI */
++		backlight = <&bl>;
++		enable-gpios = <&gpio5 27 GPIO_ACTIVE_HIGH>;
+ 		port {
+ 			lcd_in: endpoint {
+ 				remote-endpoint = <&dpi_out>;
+ 			};
+ 		};
+-
+-		panel-timing {
+-			clock-frequency = <9000000>;
+-			hactive = <480>;
+-			vactive = <272>;
+-			hfront-porch = <3>;
+-			hback-porch = <2>;
+-			hsync-len = <42>;
+-			vback-porch = <3>;
+-			vfront-porch = <2>;
+-			vsync-len = <11>;
+-			hsync-active = <1>;
+-			vsync-active = <1>;
+-			de-active = <1>;
+-			pixelclk-active = <0>;
+-		};
+ 	};
  
- &charger {
+ 	bl: backlight {
 -- 
 2.25.1
 
