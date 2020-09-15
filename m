@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D608626B66E
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00CB226B76E
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726205AbgIPAFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:05:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43008 "EHLO mail.kernel.org"
+        id S1726857AbgIPAXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:23:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726981AbgIOO3B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:29:01 -0400
+        id S1726691AbgIOOU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:20:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03DFD229C7;
-        Tue, 15 Sep 2020 14:21:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2F8B22245;
+        Tue, 15 Sep 2020 14:16:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179671;
-        bh=Cs67b7b8aOKdlSY4NXgpobtUy8yeAmBH6EWwOpUJqEQ=;
+        s=default; t=1600179410;
+        bh=wuwVLdXX2n13+HfWQm1zOODVzzKlPBYPTWU70RzIDXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lnjwqv60xRbtDFZhfXvxBkuv17nPkwm2P+tUomiBRv2ufniDz+jxrBUOEerRq/m/I
-         fl10Gv23KCY1oVTGgm49xmq7ZyQ51I83877oNYWYVjVeXwSKM6GANGTddZTc7iKj+I
-         1DRveYrhgUIK81ipRvLeVhuxpdbanEvNSWLgwHPQ=
+        b=UjQF7VB/bOI5Se8ZgPsG4pRLXk+y+7UWyG7kU9ND19jEb+o5HcnOaiWv2Sgaz3V/F
+         dSFkiRYB3hyYhT1mjARspvCH1X241gpvFbJajutHZXaJI15R+kxnmZBWaWw/xFXXwl
+         gydgHVFLQ9poXHNELr7NZjwQrTemN+AmLZ8dWrAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
+        Krzysztof Halasa <khc@pm.waw.pl>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/132] gcov: Disable gcov build with GCC 10
-Date:   Tue, 15 Sep 2020 16:12:55 +0200
-Message-Id: <20200915140647.764617525@linuxfoundation.org>
+Subject: [PATCH 4.19 31/78] drivers/net/wan/hdlc_cisco: Add hard_header_len
+Date:   Tue, 15 Sep 2020 16:12:56 +0200
+Message-Id: <20200915140635.142645939@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
-References: <20200915140644.037604909@linuxfoundation.org>
+In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
+References: <20200915140633.552502750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit cfc905f158eaa099d6258031614d11869e7ef71c ]
+[ Upstream commit 1a545ebe380bf4c1433e3c136e35a77764fda5ad ]
 
-GCOV built with GCC 10 doesn't initialize n_function variable.  This
-produces different kernel panics as was seen by Colin in Ubuntu and me
-in FC 32.
+This driver didn't set hard_header_len. This patch sets hard_header_len
+for it according to its header_ops->create function.
 
-As a workaround, let's disable GCOV build for broken GCC 10 version.
+This driver's header_ops->create function (cisco_hard_header) creates
+a header of (struct hdlc_header), so hard_header_len should be set to
+sizeof(struct hdlc_header).
 
-Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1891288
-Link: https://lore.kernel.org/lkml/20200827133932.3338519-1-leon@kernel.org
-Link: https://lore.kernel.org/lkml/CAHk-=whbijeSdSvx-Xcr0DPMj0BiwhJ+uiNnDSVZcr_h_kg7UA@mail.gmail.com/
-Cc: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/gcov/Kconfig | 1 +
+ drivers/net/wan/hdlc_cisco.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
-index 3941a9c48f833..005d8b851bc18 100644
---- a/kernel/gcov/Kconfig
-+++ b/kernel/gcov/Kconfig
-@@ -4,6 +4,7 @@ menu "GCOV-based kernel profiling"
- config GCOV_KERNEL
- 	bool "Enable gcov-based kernel profiling"
- 	depends on DEBUG_FS
-+	depends on !CC_IS_GCC || GCC_VERSION < 100000
- 	select CONSTRUCTORS if !UML
- 	default n
- 	---help---
+diff --git a/drivers/net/wan/hdlc_cisco.c b/drivers/net/wan/hdlc_cisco.c
+index 320039d329c7d..c169a26e5359a 100644
+--- a/drivers/net/wan/hdlc_cisco.c
++++ b/drivers/net/wan/hdlc_cisco.c
+@@ -374,6 +374,7 @@ static int cisco_ioctl(struct net_device *dev, struct ifreq *ifr)
+ 		memcpy(&state(hdlc)->settings, &new_settings, size);
+ 		spin_lock_init(&state(hdlc)->lock);
+ 		dev->header_ops = &cisco_header_ops;
++		dev->hard_header_len = sizeof(struct hdlc_header);
+ 		dev->type = ARPHRD_CISCO;
+ 		call_netdevice_notifiers(NETDEV_POST_TYPE_CHANGE, dev);
+ 		netif_dormant_on(dev);
 -- 
 2.25.1
 
