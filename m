@@ -2,61 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 481B4269D7A
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 06:28:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67C5B269EA1
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 08:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726123AbgIOE2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 00:28:16 -0400
-Received: from smtprelay0164.hostedemail.com ([216.40.44.164]:60422 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726019AbgIOE2Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 00:28:16 -0400
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay08.hostedemail.com (Postfix) with ESMTP id 2FFA5182CED34;
-        Tue, 15 Sep 2020 04:28:15 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Spam-Summary: 2,0,0,,d41d8cd98f00b204,joe@perches.com,,RULES_HIT:41:355:379:599:973:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1537:1567:1593:1594:1711:1714:1730:1747:1777:1792:2393:2559:2562:2828:3138:3139:3140:3141:3142:3622:3865:3866:3867:3872:3874:4321:5007:6117:10004:10400:10848:11232:11658:11914:12050:12297:12740:12760:12895:13069:13211:13229:13311:13357:13439:14659:21080:21627:21987:30054:30091,0,RBL:none,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:,MSBL:0,DNSBL:none,Custom_rules:0:0:0,LFtime:1,LUA_SUMMARY:none
-X-HE-Tag: edge48_1415aac2710e
-X-Filterd-Recvd-Size: 1630
-Received: from XPS-9350.home (unknown [47.151.133.149])
-        (Authenticated sender: joe@perches.com)
-        by omf09.hostedemail.com (Postfix) with ESMTPA;
-        Tue, 15 Sep 2020 04:28:13 +0000 (UTC)
-Message-ID: <5a9007605dec96c81ec85bc3dcc78faaa9ed06a0.camel@perches.com>
-Subject: Re: [PATCH v5] lib/string.c: implement stpcpy
-From:   Joe Perches <joe@perches.com>
-To:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andy Lavr <andy.lavr@gmail.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        stable@vger.kernel.org
-Date:   Mon, 14 Sep 2020 21:28:12 -0700
-In-Reply-To: <20200915042233.GA816510@ubuntu-n2-xlarge-x86>
-References: <20200914160958.889694-1-ndesaulniers@google.com>
-         <20200914161643.938408-1-ndesaulniers@google.com>
-         <20200915042233.GA816510@ubuntu-n2-xlarge-x86>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.36.4-0ubuntu1 
+        id S1726033AbgIOGfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 02:35:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45630 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726062AbgIOGfw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 02:35:52 -0400
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23A31C06174A
+        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 23:35:52 -0700 (PDT)
+Received: by mail-pg1-x533.google.com with SMTP id j34so1441454pgi.7
+        for <stable@vger.kernel.org>; Mon, 14 Sep 2020 23:35:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=+Fs4ZeznpGm60Fj0sCenmnLEAnI6NhSQDwrtv0OtO5U=;
+        b=hR1i7iQUcROdEDuPUOzQwfH5sj8DTo/wySqdR2jKDfRzEl6judCnRiXN3/J8k3g1KS
+         tAThggSywtwIxWCRDECXi0ahO8m4YnNClFaBqyzbbExenrUKQXWmQnhXTxKJ+75N6F3V
+         xsuGS6YQ0kY1KQeK0wUF9IY9oTcWUKAVCsGB/tPMqurvHMb0id+Q/LGFBT5/TE5UBevt
+         l4o/He7H4lGXL+pJADrKobTv2U6EhpvDjZboEN3EH09SCH2VWf/cOUsPLsSE2VEajgcQ
+         vq0IZd3DRmnOOhfEJxnxA8VtWpmVYyoVRdf4UTvRbhElwGNeQhHowtiPOGH8/bxhA9P4
+         +MgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=+Fs4ZeznpGm60Fj0sCenmnLEAnI6NhSQDwrtv0OtO5U=;
+        b=Cxmeo1QtPKQV2jSB+9AoAxCW9GuvdEIdg2qX2k6i3ofcsjK5WN4mEQrjL9v4KwT5Ax
+         IcA9NRxHMmojPD2qPwBxOseYfmT/NUyFOF0D3igoX2XSFhZABhP6OklG1vnQjaxRZsuV
+         jwpB7wRMVHpwl0WAbIGBdU6eX+EAaEzIjm5i8MZRIr3PZrfxp5hg/XusMBhPyuPessdc
+         sQlc+klZfTcYsntFCSXQwlUV6hYiaspBdU+Ygv6XjjJBuIfAxTUhbGv9gdLSgWm0aPcU
+         PTR1KQbpwKzf0HDmBIRND6r+tt5KOkPB6tiIx7w3JKSfB71Ip6wX7QWQS9CATYMCzcTU
+         eiSQ==
+X-Gm-Message-State: AOAM533gk5b5+t4DM/k8AZCQE4YM/khqKkTQ2Yry3M6VkdAlXxGnDrUS
+        1Q5zuk2rHNchRQhOzLSe33AcGjJ81Xtuqw==
+X-Google-Smtp-Source: ABdhPJzdYwBf23BSKiqmSoPZhgxQff+2ybWJC7l6ixsTuwSevWxQoeEqTgRjNF/7pi6NvaFo51/7zA==
+X-Received: by 2002:a63:4d56:: with SMTP id n22mr13124732pgl.177.1600151750312;
+        Mon, 14 Sep 2020 23:35:50 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z7sm6828314pgc.35.2020.09.14.23.35.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Sep 2020 23:35:49 -0700 (PDT)
+Message-ID: <5f6060c5.1c69fb81.a76fa.2862@mx.google.com>
+Date:   Mon, 14 Sep 2020 23:35:49 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.145-54-g7a39ee461951
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 173 runs,
+ 1 regressions (v4.19.145-54-g7a39ee461951)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2020-09-14 at 21:22 -0700, Nathan Chancellor wrote:
-> It would be nice to get this into mainline sooner rather than later so
-> that it can start filtering into the stable trees. ToT LLVM builds have
-> been broken for a month now.
+stable-rc/queue/4.19 baseline: 173 runs, 1 regressions (v4.19.145-54-g7a39e=
+e461951)
 
-People that build stable trees with new compilers
-unsupported at the time the of the base version
-release are just asking for trouble.
+Regressions Summary
+-------------------
+
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.145-54-g7a39ee461951/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.145-54-g7a39ee461951
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7a39ee4619519fdd8f40b8f6500fb710f446e336 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f602cfe344e697983a60917
+
+  Results:     3 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.145=
+-54-g7a39ee461951/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.145=
+-54-g7a39ee461951/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f602cfe344e6979=
+83a60919
+      new failure (last pass: v4.19.145-39-gd737ff1f1723)
+      1 lines
+
+    2020-09-15 02:53:04.357000  Connected to bcm2837-rpi-3-b console [chann=
+el connected] (~$quit to exit)
+    2020-09-15 02:53:04.357000  (user:khilman) is already connected
+    2020-09-15 02:53:20.758000  =00
+    2020-09-15 02:53:20.758000  =
+
+    2020-09-15 02:53:20.774000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
+0)
+    2020-09-15 02:53:20.774000  =
+
+    2020-09-15 02:53:20.774000  DRAM:  948 MiB
+    2020-09-15 02:53:20.790000  RPI 3 Model B (0xa02082)
+    2020-09-15 02:53:20.879000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
+    2020-09-15 02:53:20.911000  Loading Environment from FAT... *** Warning=
+ - bad CRC, using default environment
+    ... (362 line(s) more)
+      =20
