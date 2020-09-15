@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2E126B6CF
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F39DC26B6D8
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbgIPAL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:11:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41427 "EHLO mail.kernel.org"
+        id S1727015AbgIPAMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:12:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726943AbgIOO0a (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726932AbgIOO0a (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:26:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D6902245A;
-        Tue, 15 Sep 2020 14:19:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0EF72245C;
+        Tue, 15 Sep 2020 14:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179562;
-        bh=BAD7MJZDhiMFrBZy24x5q3ExUwMZLvdGyxskvCgd3Lo=;
+        s=default; t=1600179565;
+        bh=hcNMlLT8WPC/BoQhX7eai5oBEzD7XRS4GeDsX0qQAqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7M3UnM5VckATJcVesZGu0/X1JoW+QS9bfPM612r3+qaP7Gk/c3MH8LsmFGTtM7vI
-         x32FTP7ou/o6dQxXW/ys5lJwk6dlCDwZ1Occwa/8Chjys67fXX+gqJ7n6XCRMwFbim
-         wQHMv7WmOFAMvzv4mIlaWGVoK664HVuOP0T/DzMY=
+        b=pyQJXGEu7z6DDnsSlZ9u8peaXf/4KFjugnAdsJRb7Jl0SKqSWt2Dx3k0pzWTEZwY5
+         iZtGqgJx5mJLWZxo9rvSoLHR5pRLCmNDRBhwxPs6LzJrw8RwdpqOeAbDsDzYT4mo8K
+         kZbRfWACT7kCZGMq5ZRR+kuF0/9XMbiKC7Yx+YJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 006/132] ARM: dts: socfpga: fix register entry for timer3 on Arria10
-Date:   Tue, 15 Sep 2020 16:11:48 +0200
-Message-Id: <20200915140644.388494013@linuxfoundation.org>
+Subject: [PATCH 5.4 007/132] selftests/timers: Turn off timeout setting
+Date:   Tue, 15 Sep 2020 16:11:49 +0200
+Message-Id: <20200915140644.448396369@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -43,32 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-[ Upstream commit 0ff5a4812be4ebd4782bbb555d369636eea164f7 ]
+[ Upstream commit 5c1e4f7e9e49b6925b1fb5c507d2c614f3edb292 ]
 
-Fixes the register address for the timer3 entry on Arria10.
+The following 4 tests in timers can take longer than the default 45
+seconds that added in commit 852c8cbf34d3 ("selftests/kselftest/runner.sh:
+Add 45 second timeout per test") to run:
+  * nsleep-lat - 2m7.350s
+  * set-timer-lat - 2m0.66s
+  * inconsistency-check - 1m45.074s
+  * raw_skew - 2m0.013s
 
-Fixes: 475dc86d08de4 ("arm: dts: socfpga: Add a base DTSI for Altera's Arria10 SOC")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Thus they will be marked as failed with the current 45s setting:
+  not ok 3 selftests: timers: nsleep-lat # TIMEOUT
+  not ok 4 selftests: timers: set-timer-lat # TIMEOUT
+  not ok 6 selftests: timers: inconsistency-check # TIMEOUT
+  not ok 7 selftests: timers: raw_skew # TIMEOUT
+
+Disable the timeout setting for timers can make these tests finish
+properly:
+  ok 3 selftests: timers: nsleep-lat
+  ok 4 selftests: timers: set-timer-lat
+  ok 6 selftests: timers: inconsistency-check
+  ok 7 selftests: timers: raw_skew
+
+https://bugs.launchpad.net/bugs/1864626
+Fixes: 852c8cbf34d3 ("selftests/kselftest/runner.sh: Add 45 second timeout per test")
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Acked-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/socfpga_arria10.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/timers/Makefile | 1 +
+ tools/testing/selftests/timers/settings | 1 +
+ 2 files changed, 2 insertions(+)
+ create mode 100644 tools/testing/selftests/timers/settings
 
-diff --git a/arch/arm/boot/dts/socfpga_arria10.dtsi b/arch/arm/boot/dts/socfpga_arria10.dtsi
-index 906bfb580e9e7..f261a33440710 100644
---- a/arch/arm/boot/dts/socfpga_arria10.dtsi
-+++ b/arch/arm/boot/dts/socfpga_arria10.dtsi
-@@ -819,7 +819,7 @@
- 		timer3: timer3@ffd00100 {
- 			compatible = "snps,dw-apb-timer";
- 			interrupts = <0 118 IRQ_TYPE_LEVEL_HIGH>;
--			reg = <0xffd01000 0x100>;
-+			reg = <0xffd00100 0x100>;
- 			clocks = <&l4_sys_free_clk>;
- 			clock-names = "timer";
- 			resets = <&rst L4SYSTIMER1_RESET>;
+diff --git a/tools/testing/selftests/timers/Makefile b/tools/testing/selftests/timers/Makefile
+index 7656c7ce79d90..0e73a16874c4c 100644
+--- a/tools/testing/selftests/timers/Makefile
++++ b/tools/testing/selftests/timers/Makefile
+@@ -13,6 +13,7 @@ DESTRUCTIVE_TESTS = alarmtimer-suspend valid-adjtimex adjtick change_skew \
+ 
+ TEST_GEN_PROGS_EXTENDED = $(DESTRUCTIVE_TESTS)
+ 
++TEST_FILES := settings
+ 
+ include ../lib.mk
+ 
+diff --git a/tools/testing/selftests/timers/settings b/tools/testing/selftests/timers/settings
+new file mode 100644
+index 0000000000000..e7b9417537fbc
+--- /dev/null
++++ b/tools/testing/selftests/timers/settings
+@@ -0,0 +1 @@
++timeout=0
 -- 
 2.25.1
 
