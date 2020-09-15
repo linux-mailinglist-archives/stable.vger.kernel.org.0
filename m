@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECE0226B689
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C63726B69F
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:08:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726857AbgIPAHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:07:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43006 "EHLO mail.kernel.org"
+        id S1727266AbgIPAIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 20:08:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726964AbgIOO2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:28:37 -0400
+        id S1726967AbgIOO2g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:28:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EB2D224DE;
-        Tue, 15 Sep 2020 14:20:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D6B9224DF;
+        Tue, 15 Sep 2020 14:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179626;
-        bh=i7L02jWbdrrJ44cD2iixZ98rASUHpzgH9xnh3G5IAsE=;
+        s=default; t=1600179628;
+        bh=/giQpIgyqB4TuFWd/Ydrev5mAYr4SjoNTNzKmArCby8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0xtiEeTPIp3YYLNQoUEzzYbPzlyVIXikFNuVWmjIwsyzDz5nIWXFbpxIUhfqnDG0
-         lUmsrcc6Lk3luvwzC4YTHjlDr2kod3z/EmdKMei7zODdLO/ucqvJiSYh54V1HAWqsp
-         XjqcBs/704gYOwxodvjhu1A6CfK1/sxO42/zz9rc=
+        b=dqe+V587x8X4jupv4nx4N7pAs7LIbPAWjUikD7rBSLVp/xPpRSJI/fcQ67wPQuuyk
+         TTAExMLDT5yOcdV01FwoGQr2cYdtSpO2oxqAd122AKkYUnLuHlLbuQfQ9Yl5RjpraA
+         4Pm8qK1RoSoF2Wg0DOaf7yvZxn5yXxcOtwE86gsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/132] nvme-tcp: serialize controller teardown sequences
-Date:   Tue, 15 Sep 2020 16:12:36 +0200
-Message-Id: <20200915140646.825900915@linuxfoundation.org>
+Subject: [PATCH 5.4 055/132] nvme-tcp: fix timeout handler
+Date:   Tue, 15 Sep 2020 16:12:37 +0200
+Message-Id: <20200915140646.868260169@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -45,91 +45,119 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit d4d61470ae48838f49e668503e840e1520b97162 ]
+[ Upstream commit 236187c4ed195161dfa4237c7beffbba0c5ae45b ]
 
-In the timeout handler we may need to complete a request because the
-request that timed out may be an I/O that is a part of a serial sequence
-of controller teardown or initialization. In order to complete the
-request, we need to fence any other context that may compete with us
-and complete the request that is timing out.
+When a request times out in a LIVE state, we simply trigger error
+recovery and let the error recovery handle the request cancellation,
+however when a request times out in a non LIVE state, we make sure to
+complete it immediately as it might block controller setup or teardown
+and prevent forward progress.
 
-In this case, we could have a potential double completion in case
-a hard-irq or a different competing context triggered error recovery
-and is running inflight request cancellation concurrently with the
-timeout handler.
+However tearing down the entire set of I/O and admin queues causes
+freeze/unfreeze imbalance (q->mq_freeze_depth) because and is really
+an overkill to what we actually need, which is to just fence controller
+teardown that may be running, stop the queue, and cancel the request if
+it is not already completed.
 
-Protect using a ctrl teardown_lock to serialize contexts that may
-complete a cancelled request due to error recovery or a reset.
+Now that we have the controller teardown_lock, we can safely serialize
+request cancellation. This addresses a hang caused by calling extra
+queue freeze on controller namespaces, causing unfreeze to not complete
+correctly.
 
 Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/nvme/host/tcp.c | 56 ++++++++++++++++++++++++++---------------
+ 1 file changed, 36 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 0166ff0e4738e..a94c80727de1e 100644
+index a94c80727de1e..98a045429293e 100644
 --- a/drivers/nvme/host/tcp.c
 +++ b/drivers/nvme/host/tcp.c
-@@ -110,6 +110,7 @@ struct nvme_tcp_ctrl {
- 	struct sockaddr_storage src_addr;
- 	struct nvme_ctrl	ctrl;
- 
-+	struct mutex		teardown_lock;
- 	struct work_struct	err_work;
- 	struct delayed_work	connect_work;
- 	struct nvme_tcp_request async_req;
-@@ -1438,7 +1439,6 @@ static void nvme_tcp_stop_queue(struct nvme_ctrl *nctrl, int qid)
- 
- 	if (!test_and_clear_bit(NVME_TCP_Q_LIVE, &queue->flags))
+@@ -421,6 +421,7 @@ static void nvme_tcp_error_recovery(struct nvme_ctrl *ctrl)
+ 	if (!nvme_change_ctrl_state(ctrl, NVME_CTRL_RESETTING))
  		return;
+ 
++	dev_warn(ctrl->device, "starting error recovery\n");
+ 	queue_work(nvme_reset_wq, &to_tcp_ctrl(ctrl)->err_work);
+ }
+ 
+@@ -2057,40 +2058,55 @@ static void nvme_tcp_submit_async_event(struct nvme_ctrl *arg)
+ 	nvme_tcp_queue_request(&ctrl->async_req);
+ }
+ 
++static void nvme_tcp_complete_timed_out(struct request *rq)
++{
++	struct nvme_tcp_request *req = blk_mq_rq_to_pdu(rq);
++	struct nvme_ctrl *ctrl = &req->queue->ctrl->ctrl;
++
++	/* fence other contexts that may complete the command */
++	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
++	nvme_tcp_stop_queue(ctrl, nvme_tcp_queue_id(req->queue));
++	if (!blk_mq_request_completed(rq)) {
++		nvme_req(rq)->status = NVME_SC_HOST_ABORTED_CMD;
++		blk_mq_complete_request(rq);
++	}
++	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
++}
++
+ static enum blk_eh_timer_return
+ nvme_tcp_timeout(struct request *rq, bool reserved)
+ {
+ 	struct nvme_tcp_request *req = blk_mq_rq_to_pdu(rq);
+-	struct nvme_tcp_ctrl *ctrl = req->queue->ctrl;
++	struct nvme_ctrl *ctrl = &req->queue->ctrl->ctrl;
+ 	struct nvme_tcp_cmd_pdu *pdu = req->pdu;
+ 
+-	/*
+-	 * Restart the timer if a controller reset is already scheduled. Any
+-	 * timed out commands would be handled before entering the connecting
+-	 * state.
+-	 */
+-	if (ctrl->ctrl.state == NVME_CTRL_RESETTING)
+-		return BLK_EH_RESET_TIMER;
 -
- 	__nvme_tcp_stop_queue(queue);
+-	dev_warn(ctrl->ctrl.device,
++	dev_warn(ctrl->device,
+ 		"queue %d: timeout request %#x type %d\n",
+ 		nvme_tcp_queue_id(req->queue), rq->tag, pdu->hdr.type);
+ 
+-	if (ctrl->ctrl.state != NVME_CTRL_LIVE) {
++	if (ctrl->state != NVME_CTRL_LIVE) {
+ 		/*
+-		 * Teardown immediately if controller times out while starting
+-		 * or we are already started error recovery. all outstanding
+-		 * requests are completed on shutdown, so we return BLK_EH_DONE.
++		 * If we are resetting, connecting or deleting we should
++		 * complete immediately because we may block controller
++		 * teardown or setup sequence
++		 * - ctrl disable/shutdown fabrics requests
++		 * - connect requests
++		 * - initialization admin requests
++		 * - I/O requests that entered after unquiescing and
++		 *   the controller stopped responding
++		 *
++		 * All other requests should be cancelled by the error
++		 * recovery work, so it's fine that we fail it here.
+ 		 */
+-		flush_work(&ctrl->err_work);
+-		nvme_tcp_teardown_io_queues(&ctrl->ctrl, false);
+-		nvme_tcp_teardown_admin_queue(&ctrl->ctrl, false);
++		nvme_tcp_complete_timed_out(rq);
+ 		return BLK_EH_DONE;
+ 	}
+ 
+-	dev_warn(ctrl->ctrl.device, "starting error recovery\n");
+-	nvme_tcp_error_recovery(&ctrl->ctrl);
+-
++	/*
++	 * LIVE state should trigger the normal error recovery which will
++	 * handle completing this request.
++	 */
++	nvme_tcp_error_recovery(ctrl);
+ 	return BLK_EH_RESET_TIMER;
  }
  
-@@ -1785,6 +1785,7 @@ out_free_queue:
- static void nvme_tcp_teardown_admin_queue(struct nvme_ctrl *ctrl,
- 		bool remove)
- {
-+	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
- 	blk_mq_quiesce_queue(ctrl->admin_q);
- 	nvme_tcp_stop_queue(ctrl, 0);
- 	if (ctrl->admin_tagset) {
-@@ -1795,13 +1796,16 @@ static void nvme_tcp_teardown_admin_queue(struct nvme_ctrl *ctrl,
- 	if (remove)
- 		blk_mq_unquiesce_queue(ctrl->admin_q);
- 	nvme_tcp_destroy_admin_queue(ctrl, remove);
-+	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
- }
- 
- static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
- 		bool remove)
- {
-+	mutex_lock(&to_tcp_ctrl(ctrl)->teardown_lock);
- 	if (ctrl->queue_count <= 1)
--		return;
-+		goto out;
-+	blk_mq_quiesce_queue(ctrl->admin_q);
- 	nvme_start_freeze(ctrl);
- 	nvme_stop_queues(ctrl);
- 	nvme_tcp_stop_io_queues(ctrl);
-@@ -1813,6 +1817,8 @@ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
- 	if (remove)
- 		nvme_start_queues(ctrl);
- 	nvme_tcp_destroy_io_queues(ctrl, remove);
-+out:
-+	mutex_unlock(&to_tcp_ctrl(ctrl)->teardown_lock);
- }
- 
- static void nvme_tcp_reconnect_or_remove(struct nvme_ctrl *ctrl)
-@@ -2311,6 +2317,7 @@ static struct nvme_ctrl *nvme_tcp_create_ctrl(struct device *dev,
- 			nvme_tcp_reconnect_ctrl_work);
- 	INIT_WORK(&ctrl->err_work, nvme_tcp_error_recovery_work);
- 	INIT_WORK(&ctrl->ctrl.reset_work, nvme_reset_ctrl_work);
-+	mutex_init(&ctrl->teardown_lock);
- 
- 	if (!(opts->mask & NVMF_OPT_TRSVCID)) {
- 		opts->trsvcid =
 -- 
 2.25.1
 
