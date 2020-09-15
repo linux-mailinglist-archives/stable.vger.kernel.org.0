@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA6C026B613
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB5326B611
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727347AbgIOX4w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:56:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43008 "EHLO mail.kernel.org"
+        id S1727353AbgIOX4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:56:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727035AbgIOOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726834AbgIOOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:31:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACE8622B40;
-        Tue, 15 Sep 2020 14:22:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1010522B42;
+        Tue, 15 Sep 2020 14:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179761;
-        bh=HldwYWlpSmuLOEQ+/KxCjoNEjj1SyIEMlVSBrpq3360=;
+        s=default; t=1600179763;
+        bh=d0FQJwrhvmcBBIqNG69O3ky0ueUn5MUUwfHItqR3IMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/6gWSpjJ+ph/c7gAeK4E2iXKAHWJMoKDImyJlv0dKqudCbYZs8SiKsAY7NCDTWGr
-         Nkb+14XYtORMClaLYMQDQKDVr/zskSWmSM4TCXofO09MnpBVZqNFQzAa6+IDDcvMDk
-         iOnqlnRHq8fglbcGZhDvqXwcyTA7As6muiJ5lZm0=
+        b=F8hejsxpKbQbzkMB9JJhnqlC34xXa/b036XKegWDc/0Le6ASFQuFCBziBWAYSAFKk
+         IA4IeXVU8GeuSMtyhVhX6ND7kXFozd0ho9bJnGe26AC15bVmDYsLsvti6BjIngWd/n
+         3STN2hADffP/go/wMQcX99B+hWIBb8+vkdgfYExA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 108/132] mmc: sdhci-of-esdhc: Dont walk device-tree on every interrupt
-Date:   Tue, 15 Sep 2020 16:13:30 +0200
-Message-Id: <20200915140649.542719698@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Dryomov <idryomov@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>
+Subject: [PATCH 5.4 109/132] rbd: require global CAP_SYS_ADMIN for mapping and unmapping
+Date:   Tue, 15 Sep 2020 16:13:31 +0200
+Message-Id: <20200915140649.591993124@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -44,61 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Ilya Dryomov <idryomov@gmail.com>
 
-commit 060522d89705f9d961ef1762dc1468645dd21fbd upstream.
+commit f44d04e696feaf13d192d942c4f14ad2e117065a upstream.
 
-Commit b214fe592ab7 ("mmc: sdhci-of-esdhc: add erratum eSDHC7 support")
-added code to check for a specific compatible string in the device-tree
-on every esdhc interrupat. Instead of doing this record the quirk in
-struct sdhci_esdhc and lookup the struct in esdhc_irq.
+It turns out that currently we rely only on sysfs attribute
+permissions:
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Link: https://lore.kernel.org/r/20200903012029.25673-1-chris.packham@alliedtelesis.co.nz
-Fixes: b214fe592ab7 ("mmc: sdhci-of-esdhc: add erratum eSDHC7 support")
+  $ ll /sys/bus/rbd/{add*,remove*}
+  --w------- 1 root root 4096 Sep  3 20:37 /sys/bus/rbd/add
+  --w------- 1 root root 4096 Sep  3 20:37 /sys/bus/rbd/add_single_major
+  --w------- 1 root root 4096 Sep  3 20:37 /sys/bus/rbd/remove
+  --w------- 1 root root 4096 Sep  3 20:38 /sys/bus/rbd/remove_single_major
+
+This means that images can be mapped and unmapped (i.e. block devices
+can be created and deleted) by a UID 0 process even after it drops all
+privileges or by any process with CAP_DAC_OVERRIDE in its user namespace
+as long as UID 0 is mapped into that user namespace.
+
+Be consistent with other virtual block devices (loop, nbd, dm, md, etc)
+and require CAP_SYS_ADMIN in the initial user namespace for mapping and
+unmapping, and also for dumping the configuration string and refreshing
+the image header.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-esdhc.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/block/rbd.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -81,6 +81,7 @@ struct sdhci_esdhc {
- 	bool quirk_tuning_erratum_type2;
- 	bool quirk_ignore_data_inhibit;
- 	bool quirk_delay_before_data_reset;
-+	bool quirk_trans_complete_erratum;
- 	bool in_sw_tuning;
- 	unsigned int peripheral_clock;
- 	const struct esdhc_clk_fixup *clk_fixup;
-@@ -1082,10 +1083,11 @@ static void esdhc_set_uhs_signaling(stru
- 
- static u32 esdhc_irq(struct sdhci_host *host, u32 intmask)
+--- a/drivers/block/rbd.c
++++ b/drivers/block/rbd.c
+@@ -5280,6 +5280,9 @@ static ssize_t rbd_config_info_show(stru
  {
-+	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
-+	struct sdhci_esdhc *esdhc = sdhci_pltfm_priv(pltfm_host);
- 	u32 command;
+ 	struct rbd_device *rbd_dev = dev_to_rbd_dev(dev);
  
--	if (of_find_compatible_node(NULL, NULL,
--				"fsl,p2020-esdhc")) {
-+	if (esdhc->quirk_trans_complete_erratum) {
- 		command = SDHCI_GET_CMD(sdhci_readw(host,
- 					SDHCI_COMMAND));
- 		if (command == MMC_WRITE_MULTIPLE_BLOCK &&
-@@ -1239,8 +1241,10 @@ static void esdhc_init(struct platform_d
- 		esdhc->clk_fixup = match->data;
- 	np = pdev->dev.of_node;
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	return sprintf(buf, "%s\n", rbd_dev->config_info);
+ }
  
--	if (of_device_is_compatible(np, "fsl,p2020-esdhc"))
-+	if (of_device_is_compatible(np, "fsl,p2020-esdhc")) {
- 		esdhc->quirk_delay_before_data_reset = true;
-+		esdhc->quirk_trans_complete_erratum = true;
-+	}
+@@ -5391,6 +5394,9 @@ static ssize_t rbd_image_refresh(struct
+ 	struct rbd_device *rbd_dev = dev_to_rbd_dev(dev);
+ 	int ret;
  
- 	clk = of_clk_get(np, 0);
- 	if (!IS_ERR(clk)) {
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	ret = rbd_dev_refresh(rbd_dev);
+ 	if (ret)
+ 		return ret;
+@@ -7059,6 +7065,9 @@ static ssize_t do_rbd_add(struct bus_typ
+ 	struct rbd_client *rbdc;
+ 	int rc;
+ 
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	if (!try_module_get(THIS_MODULE))
+ 		return -ENODEV;
+ 
+@@ -7208,6 +7217,9 @@ static ssize_t do_rbd_remove(struct bus_
+ 	bool force = false;
+ 	int ret;
+ 
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	dev_id = -1;
+ 	opt_buf[0] = '\0';
+ 	sscanf(buf, "%d %5s", &dev_id, opt_buf);
 
 
