@@ -2,326 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1589226A4F2
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 14:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3967626A712
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:30:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726343AbgIOMTo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 08:19:44 -0400
-Received: from mx2.suse.de ([195.135.220.15]:59094 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726212AbgIOMTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 08:19:07 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 8F427AF8D;
-        Tue, 15 Sep 2020 12:19:21 +0000 (UTC)
-Date:   Tue, 15 Sep 2020 14:19:05 +0200
-From:   Michal Hocko <mhocko@suse.com>
-To:     Laurent Dufour <ldufour@linux.ibm.com>
-Cc:     akpm@linux-foundation.org, David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-mm@kvack.org, "Rafael J . Wysocki" <rafael@kernel.org>,
-        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3 2/3] mm: don't rely on system state to detect hot-plug
- operations
-Message-ID: <20200915121905.GE4649@dhcp22.suse.cz>
-References: <20200915094143.79181-1-ldufour@linux.ibm.com>
- <20200915094143.79181-3-ldufour@linux.ibm.com>
+        id S1727009AbgIOOaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:30:15 -0400
+Received: from mail-dm6nam10on2082.outbound.protection.outlook.com ([40.107.93.82]:59712
+        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726842AbgIOO2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:28:48 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Lyou6AF0YUIUCwmAqVvW8swMkDAsuPIBW6MbXOYEV8vuEvvbmQ7VjC1JlHBkQ3mcy3rSqLErXfwQMZVNUy+5YpIqU1rgTVj/AhuSdneunKWYfOO5N1/xvaofvyNkliP13cM9i1qxQI0WiGU5dEeY1/Joyqtc5xQbSp0IdAc/bdlHc40Q2k9sys0A8GsCMKTDfCvKheA0gDm0rTMZaCBkj4kxVPU50paJFedO14Ct1abjpDbeyFkGv6EakkEhk9/r2zaksmjoX+l3pCnd1qT67Y5d/H2n8ZEe1V9VTo0zdW204eVAek6GJkeEw66mKiOiSufE3u6jW3DV2K2ODWLeKw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wEZjTSljK9pucH5F/n/IBsHWc6AabljGjcHC3C3L7EU=;
+ b=Upwu0BmgIQHDmmBuDptCZi0I2TjGIeomeqa3HuRe3rFA1u2prs7skb9tYHBhcpRJPPUBlo8Zh2Qb8Ke5WFqCpiN576g4SN+7KIgSqgztDfUNgJPRW3+JtduJl++EjHl1pnWEzg1UF+Cnxc+tI75latRRXzHp7fRgL8OMCMdXD+Wyii2l/RlkzXcQeCEZyxiAf4Kqyz5CTDkW7bZIHVYn89/D7/Y0iHNLe75cfT+JDB1KjEfJgXbzahWwanlU0gO/2RWhuhpIeL7xV4IUmWuWglxGe+ljqW3l8TT/HjOdLJUmjfH4tWwqKDuBMaB8Ra/rBisNq477zKHCHC9I+XILKw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=infinera.com; dmarc=pass action=none header.from=infinera.com;
+ dkim=pass header.d=infinera.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infinera.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wEZjTSljK9pucH5F/n/IBsHWc6AabljGjcHC3C3L7EU=;
+ b=cs6GtDMPqGKCJsfgqxLV2zddIrZsDjTJEp5KcwKcza+7A9t/nRcQUpEWWCHKPNEbxv0D1bC8JtsxBwGSplJP31pdb+8498eB0n1LC1rHrzB6U5AsmJlXX5m4T+P7uMVEJ1uV5kUJB2ZNg4/YTZVr2mBUEhS12wPJoO97/XIhVAw=
+Received: from CY4PR1001MB2389.namprd10.prod.outlook.com
+ (2603:10b6:910:45::21) by CY4PR10MB1480.namprd10.prod.outlook.com
+ (2603:10b6:903:28::19) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3370.16; Tue, 15 Sep
+ 2020 13:54:44 +0000
+Received: from CY4PR1001MB2389.namprd10.prod.outlook.com
+ ([fe80::7c3b:e8e3:3d1b:284d]) by CY4PR1001MB2389.namprd10.prod.outlook.com
+ ([fe80::7c3b:e8e3:3d1b:284d%7]) with mapi id 15.20.3370.019; Tue, 15 Sep 2020
+ 13:54:44 +0000
+From:   Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+To:     "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] ALSA: usb-audio: Add delay quirk for H570e USB headsets
+Thread-Topic: [PATCH] ALSA: usb-audio: Add delay quirk for H570e USB headsets
+Thread-Index: AQHWh0/fePjx1NowkkyEsKM5VQOxhqlpwOgA
+Date:   Tue, 15 Sep 2020 13:54:44 +0000
+Message-ID: <f3942ae6bdc77a21b893939883adbcc9a5f4f60c.camel@infinera.com>
+References: <20200910085328.19188-1-joakim.tjernlund@infinera.com>
+In-Reply-To: <20200910085328.19188-1-joakim.tjernlund@infinera.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.37.92 
+authentication-results: alsa-project.org; dkim=none (message not signed)
+ header.d=none;alsa-project.org; dmarc=none action=none
+ header.from=infinera.com;
+x-originating-ip: [88.131.87.201]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 3e4ef84b-4468-4c4c-f41c-08d8597ee6f3
+x-ms-traffictypediagnostic: CY4PR10MB1480:
+x-microsoft-antispam-prvs: <CY4PR10MB14800AC1EFB87CC037A85128F4200@CY4PR10MB1480.namprd10.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:2201;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: kkksqWi0CYAIktECK8HZXN7QxLdeCbrovDOqzezwz7rAikt3JKmbILQvWn6FL+YpgOINadHLGj0vD+sYutGAEDL4NYB0Z+gKMiG6FeOrVjFmG45rMOeJlq468Ec3TxpO4Dd4K7LzWnV2hS0pVTuu/h6L/UHvzK5ROhow0vu2FWJrqil7i0aOnS+vev9mlIKZTLsRZ6HpgCDr06AY2JcqIKcQo7POOULcCTxoSSE5HtpVsNwRkbKV9xgZfyVqZ8zQzC6tMw7fxNBybrNyMcNARiOrmsjUeBpUgfj3c1nPUPFGs3yq70K9nD4H6oDB+cxE/jri0tyLssRn8jiz90bxARBD+QPZqQaWCgZPs3INf5qTMvQNY2GsqHM74hNvVSxr
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY4PR1001MB2389.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(346002)(396003)(366004)(39860400002)(376002)(6486002)(71200400001)(36756003)(186003)(8676002)(26005)(5660300002)(6512007)(2906002)(8936002)(316002)(86362001)(6506007)(4326008)(478600001)(2616005)(66946007)(76116006)(66476007)(66556008)(64756008)(91956017)(6916009)(66446008)(83380400001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: Wp780FgfXMu9Uw2RHQxiu3AFZuS0Ux0/D0Vse53CPH7sekVU83OmFM9LqE8R9w0iOY3Ld69rC5K7pFFv909hGi1L6DvM7Vway6Y0z/TllFmvdNu5XEGTfnG+VzyK0xzQDRw5pvx1ndnHc+dmGZocNlC3gWq38FiJQYY3Q9gh/BTkN9JBwwMPqjfNHw0QU3xbKB6I5j4aJjEtaHalZTLozusG+aYAAeCjG+fUKB+2LiXcxXLS4pl1YeZV8M3kF/Fm5+6daDnaofBtCoZHzr/mAyz5d4Bh+kVqupSg/1dZvVR+G4vwFnF5RJpDUuYpYR3rKrZ3oztTNxRPSE4BP5dyZUTwND2qjX7gNKCfeAung3phTX2EmRfRg0RGxyHlAy8ihGAtEPX+XAvO9ADyMrURNhIhiPQK0mYHYi6gtYJt14tvZxGuzQbkFXTGSu0yPQ9xo3SxyEk63dlWf9vFTq5Nx1u/s/UFMLHR9leX8b98yt10rP3O4aeW0YWmaUv/F9xh/mXHSLj/1dHkGyek0TDqBkdl6gWPtqDPpqrWYj7qYEj37+7aigF5gb75KrT2OHPgqz9Zn8jw7Bgm0T3MaXmNhQVD/6L/S2O6FM3sVogz1V1CDFuv2UL7H4lTiqZ7Tzjfxxqf0/meVTm68QeNUcGQSA==
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <7357DC638A8D56429C5863C80C4E29DF@namprd10.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200915094143.79181-3-ldufour@linux.ibm.com>
+X-OriginatorOrg: infinera.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CY4PR1001MB2389.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3e4ef84b-4468-4c4c-f41c-08d8597ee6f3
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Sep 2020 13:54:44.7744
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 285643de-5f5b-4b03-a153-0ae2dc8aaf77
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: me0JuYsfaMcly/xURn5HLZtOORXPr/4oE4q1MSZEqNk1/poYGJZhl20b1na1p6a+w6zMLOpKvfXJqmz41b2guQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR10MB1480
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 15-09-20 11:41:42, Laurent Dufour wrote:
-> In register_mem_sect_under_node() the system_state’s value is checked to
-> detect whether the call is made during boot time or during an hot-plug
-> operation. Unfortunately, that check against SYSTEM_BOOTING is wrong
-> because regular memory is registered at SYSTEM_SCHEDULING state. In
-> addition, memory hot-plug operation can be triggered at this system state
-> by the ACPI [1]. So checking against the system state is not enough.
-> 
-> The consequence is that on system with interleaved node's ranges like this:
->  Early memory node ranges
->    node   1: [mem 0x0000000000000000-0x000000011fffffff]
->    node   2: [mem 0x0000000120000000-0x000000014fffffff]
->    node   1: [mem 0x0000000150000000-0x00000001ffffffff]
->    node   0: [mem 0x0000000200000000-0x000000048fffffff]
->    node   2: [mem 0x0000000490000000-0x00000007ffffffff]
-> 
-> This can be seen on PowerPC LPAR after multiple memory hot-plug and
-> hot-unplug operations are done. At the next reboot the node's memory ranges
-> can be interleaved and since the call to link_mem_sections() is made in
-> topology_init() while the system is in the SYSTEM_SCHEDULING state, the
-> node's id is not checked, and the sections registered to multiple nodes:
-> 
-> $ ls -l /sys/devices/system/memory/memory21/node*
-> total 0
-> lrwxrwxrwx 1 root root     0 Aug 24 05:27 node1 -> ../../node/node1
-> lrwxrwxrwx 1 root root     0 Aug 24 05:27 node2 -> ../../node/node2
-> 
-> In that case, the system is able to boot but if later one of theses memory
-> blocks is hot-unplugged and then hot-plugged, the sysfs inconsistency is
-> detected and this is triggering a BUG_ON():
-> 
-> ------------[ cut here ]------------
-> kernel BUG at /Users/laurent/src/linux-ppc/mm/memory_hotplug.c:1084!
-> Oops: Exception in kernel mode, sig: 5 [#1]
-> LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-> Modules linked in: rpadlpar_io rpaphp pseries_rng rng_core vmx_crypto gf128mul binfmt_misc ip_tables x_tables xfs libcrc32c crc32c_vpmsum autofs4
-> CPU: 8 PID: 10256 Comm: drmgr Not tainted 5.9.0-rc1+ #25
-> NIP:  c000000000403f34 LR: c000000000403f2c CTR: 0000000000000000
-> REGS: c0000004876e3660 TRAP: 0700   Not tainted  (5.9.0-rc1+)
-> MSR:  800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 24000448  XER: 20040000
-> CFAR: c000000000846d20 IRQMASK: 0
-> GPR00: c000000000403f2c c0000004876e38f0 c0000000012f6f00 ffffffffffffffef
-> GPR04: 0000000000000227 c0000004805ae680 0000000000000000 00000004886f0000
-> GPR08: 0000000000000226 0000000000000003 0000000000000002 fffffffffffffffd
-> GPR12: 0000000088000484 c00000001ec96280 0000000000000000 0000000000000000
-> GPR16: 0000000000000000 0000000000000000 0000000000000004 0000000000000003
-> GPR20: c00000047814ffe0 c0000007ffff7c08 0000000000000010 c0000000013332c8
-> GPR24: 0000000000000000 c0000000011f6cc0 0000000000000000 0000000000000000
-> GPR28: ffffffffffffffef 0000000000000001 0000000150000000 0000000010000000
-> NIP [c000000000403f34] add_memory_resource+0x244/0x340
-> LR [c000000000403f2c] add_memory_resource+0x23c/0x340
-> Call Trace:
-> [c0000004876e38f0] [c000000000403f2c] add_memory_resource+0x23c/0x340 (unreliable)
-> [c0000004876e39c0] [c00000000040408c] __add_memory+0x5c/0xf0
-> [c0000004876e39f0] [c0000000000e2b94] dlpar_add_lmb+0x1b4/0x500
-> [c0000004876e3ad0] [c0000000000e3888] dlpar_memory+0x1f8/0xb80
-> [c0000004876e3b60] [c0000000000dc0d0] handle_dlpar_errorlog+0xc0/0x190
-> [c0000004876e3bd0] [c0000000000dc398] dlpar_store+0x198/0x4a0
-> [c0000004876e3c90] [c00000000072e630] kobj_attr_store+0x30/0x50
-> [c0000004876e3cb0] [c00000000051f954] sysfs_kf_write+0x64/0x90
-> [c0000004876e3cd0] [c00000000051ee40] kernfs_fop_write+0x1b0/0x290
-> [c0000004876e3d20] [c000000000438dd8] vfs_write+0xe8/0x290
-> [c0000004876e3d70] [c0000000004391ac] ksys_write+0xdc/0x130
-> [c0000004876e3dc0] [c000000000034e40] system_call_exception+0x160/0x270
-> [c0000004876e3e20] [c00000000000d740] system_call_common+0xf0/0x27c
-> Instruction dump:
-> 48442e35 60000000 0b030000 3cbe0001 7fa3eb78 7bc48402 38a5fffe 7ca5fa14
-> 78a58402 48442db1 60000000 7c7c1b78 <0b030000> 7f23cb78 4bda371d 60000000
-> ---[ end trace 562fd6c109cd0fb2 ]---
-> 
-> This patch addresses the root cause by not relying on the system_state
-> value to detect whether the call is due to a hot-plug operation. An extra
-> parameter is added to link_mem_sections() detailing whether the operation
-> is due to a hot-plug operation.
-> 
-> [1] According to Oscar Salvador, using this qemu command line, ACPI memory
-> hotplug operations are raised at SYSTEM_SCHEDULING state:
-> 
-> $QEMU -enable-kvm -machine pc -smp 4,sockets=4,cores=1,threads=1 -cpu host -monitor pty \
->         -m size=$MEM,slots=255,maxmem=4294967296k  \
->         -numa node,nodeid=0,cpus=0-3,mem=512 -numa node,nodeid=1,mem=512 \
->         -object memory-backend-ram,id=memdimm0,size=134217728 -device pc-dimm,node=0,memdev=memdimm0,id=dimm0,slot=0 \
->         -object memory-backend-ram,id=memdimm1,size=134217728 -device pc-dimm,node=0,memdev=memdimm1,id=dimm1,slot=1 \
->         -object memory-backend-ram,id=memdimm2,size=134217728 -device pc-dimm,node=0,memdev=memdimm2,id=dimm2,slot=2 \
->         -object memory-backend-ram,id=memdimm3,size=134217728 -device pc-dimm,node=0,memdev=memdimm3,id=dimm3,slot=3 \
->         -object memory-backend-ram,id=memdimm4,size=134217728 -device pc-dimm,node=1,memdev=memdimm4,id=dimm4,slot=4 \
->         -object memory-backend-ram,id=memdimm5,size=134217728 -device pc-dimm,node=1,memdev=memdimm5,id=dimm5,slot=5 \
->         -object memory-backend-ram,id=memdimm6,size=134217728 -device pc-dimm,node=1,memdev=memdimm6,id=dimm6,slot=6 \
-> 
-> Fixes: 4fbce633910e ("mm/memory_hotplug.c: make register_mem_sect_under_node() a callback of walk_memory_range()")
-> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
-> Reviewed-by: David Hildenbrand <david@redhat.com>
-> Cc: stable@vger.kernel.org
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Oscar Salvador <osalvador@suse.de>
-
-Acked-by: Michal Hocko <mhocko@suse.com>
-
-> ---
->  drivers/base/node.c  | 85 ++++++++++++++++++++++++++++----------------
->  include/linux/node.h | 11 +++---
->  mm/memory_hotplug.c  |  3 +-
->  3 files changed, 64 insertions(+), 35 deletions(-)
-> 
-> diff --git a/drivers/base/node.c b/drivers/base/node.c
-> index 508b80f6329b..50af16e68d98 100644
-> --- a/drivers/base/node.c
-> +++ b/drivers/base/node.c
-> @@ -761,14 +761,36 @@ static int __ref get_nid_for_pfn(unsigned long pfn)
->  	return pfn_to_nid(pfn);
->  }
->  
-> +static int do_register_memory_block_under_node(int nid,
-> +					       struct memory_block *mem_blk)
-> +{
-> +	int ret;
-> +
-> +	/*
-> +	 * If this memory block spans multiple nodes, we only indicate
-> +	 * the last processed node.
-> +	 */
-> +	mem_blk->nid = nid;
-> +
-> +	ret = sysfs_create_link_nowarn(&node_devices[nid]->dev.kobj,
-> +				       &mem_blk->dev.kobj,
-> +				       kobject_name(&mem_blk->dev.kobj));
-> +	if (ret)
-> +		return ret;
-> +
-> +	return sysfs_create_link_nowarn(&mem_blk->dev.kobj,
-> +				&node_devices[nid]->dev.kobj,
-> +				kobject_name(&node_devices[nid]->dev.kobj));
-> +}
-> +
->  /* register memory section under specified node if it spans that node */
-> -static int register_mem_sect_under_node(struct memory_block *mem_blk,
-> -					 void *arg)
-> +static int register_mem_block_under_node_early(struct memory_block *mem_blk,
-> +					       void *arg)
->  {
->  	unsigned long memory_block_pfns = memory_block_size_bytes() / PAGE_SIZE;
->  	unsigned long start_pfn = section_nr_to_pfn(mem_blk->start_section_nr);
->  	unsigned long end_pfn = start_pfn + memory_block_pfns - 1;
-> -	int ret, nid = *(int *)arg;
-> +	int nid = *(int *)arg;
->  	unsigned long pfn;
->  
->  	for (pfn = start_pfn; pfn <= end_pfn; pfn++) {
-> @@ -785,38 +807,33 @@ static int register_mem_sect_under_node(struct memory_block *mem_blk,
->  		}
->  
->  		/*
-> -		 * We need to check if page belongs to nid only for the boot
-> -		 * case, during hotplug we know that all pages in the memory
-> -		 * block belong to the same node.
-> -		 */
-> -		if (system_state == SYSTEM_BOOTING) {
-> -			page_nid = get_nid_for_pfn(pfn);
-> -			if (page_nid < 0)
-> -				continue;
-> -			if (page_nid != nid)
-> -				continue;
-> -		}
-> -
-> -		/*
-> -		 * If this memory block spans multiple nodes, we only indicate
-> -		 * the last processed node.
-> +		 * We need to check if page belongs to nid only at the boot
-> +		 * case because node's ranges can be interleaved.
->  		 */
-> -		mem_blk->nid = nid;
-> -
-> -		ret = sysfs_create_link_nowarn(&node_devices[nid]->dev.kobj,
-> -					&mem_blk->dev.kobj,
-> -					kobject_name(&mem_blk->dev.kobj));
-> -		if (ret)
-> -			return ret;
-> +		page_nid = get_nid_for_pfn(pfn);
-> +		if (page_nid < 0)
-> +			continue;
-> +		if (page_nid != nid)
-> +			continue;
->  
-> -		return sysfs_create_link_nowarn(&mem_blk->dev.kobj,
-> -				&node_devices[nid]->dev.kobj,
-> -				kobject_name(&node_devices[nid]->dev.kobj));
-> +		return do_register_memory_block_under_node(nid, mem_blk);
->  	}
->  	/* mem section does not span the specified node */
->  	return 0;
->  }
->  
-> +/*
-> + * During hotplug we know that all pages in the memory block belong to the same
-> + * node.
-> + */
-> +static int register_mem_block_under_node_hotplug(struct memory_block *mem_blk,
-> +						 void *arg)
-> +{
-> +	int nid = *(int *)arg;
-> +
-> +	return do_register_memory_block_under_node(nid, mem_blk);
-> +}
-> +
->  /*
->   * Unregister a memory block device under the node it spans. Memory blocks
->   * with multiple nodes cannot be offlined and therefore also never be removed.
-> @@ -832,11 +849,19 @@ void unregister_memory_block_under_nodes(struct memory_block *mem_blk)
->  			  kobject_name(&node_devices[mem_blk->nid]->dev.kobj));
->  }
->  
-> -int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn)
-> +int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn,
-> +		      enum meminit_context context)
->  {
-> +	walk_memory_blocks_func_t func;
-> +
-> +	if (context == MEMINIT_HOTPLUG)
-> +		func = register_mem_block_under_node_hotplug;
-> +	else
-> +		func = register_mem_block_under_node_early;
-> +
->  	return walk_memory_blocks(PFN_PHYS(start_pfn),
->  				  PFN_PHYS(end_pfn - start_pfn), (void *)&nid,
-> -				  register_mem_sect_under_node);
-> +				  func);
->  }
->  
->  #ifdef CONFIG_HUGETLBFS
-> diff --git a/include/linux/node.h b/include/linux/node.h
-> index 4866f32a02d8..014ba3ab2efd 100644
-> --- a/include/linux/node.h
-> +++ b/include/linux/node.h
-> @@ -99,11 +99,13 @@ extern struct node *node_devices[];
->  typedef  void (*node_registration_func_t)(struct node *);
->  
->  #if defined(CONFIG_MEMORY_HOTPLUG_SPARSE) && defined(CONFIG_NUMA)
-> -extern int link_mem_sections(int nid, unsigned long start_pfn,
-> -			     unsigned long end_pfn);
-> +int link_mem_sections(int nid, unsigned long start_pfn,
-> +		      unsigned long end_pfn,
-> +		      enum meminit_context context);
->  #else
->  static inline int link_mem_sections(int nid, unsigned long start_pfn,
-> -				    unsigned long end_pfn)
-> +				    unsigned long end_pfn,
-> +				    enum meminit_context context)
->  {
->  	return 0;
->  }
-> @@ -128,7 +130,8 @@ static inline int register_one_node(int nid)
->  		if (error)
->  			return error;
->  		/* link memory sections under this node */
-> -		error = link_mem_sections(nid, start_pfn, end_pfn);
-> +		error = link_mem_sections(nid, start_pfn, end_pfn,
-> +					  MEMINIT_EARLY);
->  	}
->  
->  	return error;
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index fc25886ad719..03df20078827 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -1080,7 +1080,8 @@ int __ref add_memory_resource(int nid, struct resource *res)
->  	}
->  
->  	/* link memory sections under this node.*/
-> -	ret = link_mem_sections(nid, PFN_DOWN(start), PFN_UP(start + size - 1));
-> +	ret = link_mem_sections(nid, PFN_DOWN(start), PFN_UP(start + size - 1),
-> +				MEMINIT_HOTPLUG);
->  	BUG_ON(ret);
->  
->  	/* create new memmap entry */
-> -- 
-> 2.28.0
-> 
-
--- 
-Michal Hocko
-SUSE Labs
+UGluZz8gV2FzIHRoaXMgYWNjZXB0ZWQgb3IgZHJvcHBlZCA/DQoNCiAgIEpvYWtpbQ0KT24gVGh1
+LCAyMDIwLTA5LTEwIGF0IDEwOjUzICswMjAwLCBKb2FraW0gVGplcm5sdW5kIHdyb3RlOg0KPiBO
+ZWVkcyB0aGUgc2FtZSBkZWxheSBhcyBINjUwZQ0KPiANCj4gU2lnbmVkLW9mZi1ieTogSm9ha2lt
+IFRqZXJubHVuZCA8am9ha2ltLnRqZXJubHVuZEBpbmZpbmVyYS5jb20+DQo+IENjOiBzdGFibGVA
+dmdlci5rZXJuZWwub3JnDQo+IC0tLQ0KPiDCoHNvdW5kL3VzYi9xdWlya3MuYyB8IDcgKysrKy0t
+LQ0KPiDCoDEgZmlsZSBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pDQo+
+IA0KPiBkaWZmIC0tZ2l0IGEvc291bmQvdXNiL3F1aXJrcy5jIGIvc291bmQvdXNiL3F1aXJrcy5j
+DQo+IGluZGV4IDc1YmJkYzY5MTI0My4uODkyMjk2ZGYxMzFkIDEwMDY0NA0KPiAtLS0gYS9zb3Vu
+ZC91c2IvcXVpcmtzLmMNCj4gKysrIGIvc291bmQvdXNiL3F1aXJrcy5jDQo+IEBAIC0xNjc4LDEy
+ICsxNjc4LDEzIEBAIHZvaWQgc25kX3VzYl9jdGxfbXNnX3F1aXJrKHN0cnVjdCB1c2JfZGV2aWNl
+ICpkZXYsIHVuc2lnbmVkIGludCBwaXBlLA0KPiDCoAkgICAgJiYgKHJlcXVlc3R0eXBlICYgVVNC
+X1RZUEVfTUFTSykgPT0gVVNCX1RZUEVfQ0xBU1MpDQo+IMKgCQltc2xlZXAoMjApOw0KPiDCoA0K
+PiANCj4gLQkvKiBab29tIFIxNi8yNCwgTG9naXRlY2ggSDY1MGUsIEphYnJhIDU1MGEsIEtpbmdz
+dG9uIEh5cGVyWCBuZWVkcyBhIHRpbnkNCj4gLQkgKiBkZWxheSBoZXJlLCBvdGhlcndpc2UgcmVx
+dWVzdHMgbGlrZSBnZXQvc2V0IGZyZXF1ZW5jeSByZXR1cm4gYXMNCj4gLQkgKiBmYWlsZWQgZGVz
+cGl0ZSBhY3R1YWxseSBzdWNjZWVkaW5nLg0KPiArCS8qIFpvb20gUjE2LzI0LCBMb2dpdGVjaCBI
+NjUwZS9INTcwZSwgSmFicmEgNTUwYSwgS2luZ3N0b24gSHlwZXJYDQo+ICsJICogIG5lZWRzIGEg
+dGlueSBkZWxheSBoZXJlLCBvdGhlcndpc2UgcmVxdWVzdHMgbGlrZSBnZXQvc2V0DQo+ICsJICog
+IGZyZXF1ZW5jeSByZXR1cm4gYXMgZmFpbGVkIGRlc3BpdGUgYWN0dWFsbHkgc3VjY2VlZGluZy4N
+Cj4gwqAJICovDQo+IMKgCWlmICgoY2hpcC0+dXNiX2lkID09IFVTQl9JRCgweDE2ODYsIDB4MDBk
+ZCkgfHwNCj4gwqAJICAgICBjaGlwLT51c2JfaWQgPT0gVVNCX0lEKDB4MDQ2ZCwgMHgwYTQ2KSB8
+fA0KPiArCSAgICAgY2hpcC0+dXNiX2lkID09IFVTQl9JRCgweDA0NmQsIDB4MGE1NikgfHwNCj4g
+wqAJICAgICBjaGlwLT51c2JfaWQgPT0gVVNCX0lEKDB4MGIwZSwgMHgwMzQ5KSB8fA0KPiDCoAkg
+ICAgIGNoaXAtPnVzYl9pZCA9PSBVU0JfSUQoMHgwOTUxLCAweDE2YWQpKSAmJg0KPiDCoAkgICAg
+KHJlcXVlc3R0eXBlICYgVVNCX1RZUEVfTUFTSykgPT0gVVNCX1RZUEVfQ0xBU1MpDQoNCg==
