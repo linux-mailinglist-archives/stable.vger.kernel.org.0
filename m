@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7219B26B3CD
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:10:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3763826B3B2
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:08:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727364AbgIOXKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:10:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48796 "EHLO mail.kernel.org"
+        id S1727444AbgIOXIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 19:08:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727284AbgIOOlg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727288AbgIOOlg (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:41:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18E2322A99;
-        Tue, 15 Sep 2020 14:30:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82E9223D25;
+        Tue, 15 Sep 2020 14:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180254;
-        bh=e50SUWOitZvKAMnNOoY8Ihb6Ud1YWSEyH7/SNZVnqbg=;
+        s=default; t=1600180257;
+        bh=xb21JpmSL5z8X/r5tjQs7XjVUCwJ5WDFMTSWWTE5/FQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6yBd6ASPhM4dArGk8s6AFlsVBFJU/L9c+C6x95V9Ci1aIeWwm1Ceb5QFC7OGJvdW
-         1qrdxIBhTEdutyxWiVSA0wTlZMvkwqmId4/ojpeOD86ggKwzbqESsXOEMs/VHVQ+oJ
-         iXijRtMV4zzdXpCQ1xOyjkJcH1M1UkCVUtu81AvU=
+        b=W8Vf32WzIYPdloIOsDdU2z8SLsaVqbNFulBomDI/+jbJTyarW/4Y+2R3QRJPBTbxC
+         hIILTxOPOzOBqAyGueMHZf4lKlwsjBpuJaNv9nYldvhiduZm94OPgjUbTtR4dWmApG
+         GeQJcTyfI5czmgczCUt+HfEq8UesA4SIQ1dipXJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
-        Sebastian Sjoholm <ssjoholm@mac.com>,
-        Dan Williams <dcbw@redhat.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        stable@vger.kernel.org,
+        Aleksander Morgado <aleksander@aleksander.es>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.8 169/177] USB: serial: option: support dynamic Quectel USB compositions
-Date:   Tue, 15 Sep 2020 16:14:00 +0200
-Message-Id: <20200915140701.798528274@linuxfoundation.org>
+Subject: [PATCH 5.8 170/177] USB: serial: option: add support for SIM7070/SIM7080/SIM7090 modules
+Date:   Tue, 15 Sep 2020 16:14:01 +0200
+Message-Id: <20200915140701.846625723@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -46,125 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjørn Mork <bjorn@mork.no>
+From: Aleksander Morgado <aleksander@aleksander.es>
 
-commit 2bb70f0a4b238323e4e2f392fc3ddeb5b7208c9e upstream.
+commit 1ac698790819b83f39fd7ea4f6cdabee9bdd7b38 upstream.
 
-The USB composition, defining the set of exported functions, is dynamic
-in newer Quectel modems.  Default functions can be disabled and
-alternative functions can be enabled instead.  The alternatives
-includes class functions using interface pairs, which should be
-handled by the respective class drivers.
+These modules have 2 different USB layouts:
 
-Active interfaces are numbered consecutively, so static
-blacklisting based on interface numbers will fail when the
-composition changes.  An example of such an error, where the
-option driver has bound to the CDC ECM data interface,
-preventing cdc_ether from handling this function:
+The default layout with PID 0x9205 (AT+CUSBSELNV=1) exposes 4 TTYs and
+an ECM interface:
 
- T: Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 2 Spd=480 MxCh= 0
- D: Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs= 1
- P: Vendor=2c7c ProdID=0125 Rev= 3.18
- S: Manufacturer=Quectel
- S: Product=EC25-AF
- C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
- A: FirstIf#= 4 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
- I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
- E: Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- E: Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
- E: Ad=83(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
- E: Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- E: Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
- E: Ad=85(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
- E: Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- E: Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
- E: Ad=87(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
- E: Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- E: Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- I:* If#= 4 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=(none)
- E: Ad=89(I) Atr=03(Int.) MxPS= 16 Ivl=32ms
- I:* If#= 5 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=option
- I: If#= 5 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=option
- E: Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- E: Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+  T:  Bus=02 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  6 Spd=480 MxCh= 0
+  D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+  P:  Vendor=1e0e ProdID=9205 Rev=00.00
+  S:  Manufacturer=SimTech, Incorporated
+  S:  Product=SimTech SIM7080
+  S:  SerialNumber=1234567890ABCDEF
+  C:  #Ifs= 6 Cfg#= 1 Atr=e0 MxPwr=500mA
+  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x4 Alt= 0 #EPs= 1 Cls=02(commc) Sub=06 Prot=00 Driver=cdc_ether
+  I:  If#=0x5 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
 
-Another device with the same id gets correct drivers, since the
-interface of the network function happens to be blacklisted by option:
+The purpose of each TTY is as follows:
+ * ttyUSB0: DIAG/QCDM port.
+ * ttyUSB1: GNSS data.
+ * ttyUSB2: AT-capable port (control).
+ * ttyUSB3: AT-capable port (data).
 
- T: Bus=01 Lev=02 Prnt=02 Port=01 Cnt=01 Dev#= 3 Spd=480 MxCh= 0
- D: Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs= 1
- P: Vendor=2c7c ProdID=0125 Rev= 3.18
- S: Manufacturer=Android
- S: Product=Android
- C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
- I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
- E: Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- E: Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
- E: Ad=83(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
- E: Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- E: Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
- E: Ad=85(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
- E: Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- E: Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
- E: Ad=87(I) Atr=03(Int.) MxPS= 10 Ivl=32ms
- E: Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- E: Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
- E: Ad=89(I) Atr=03(Int.) MxPS= 8 Ivl=32ms
- E: Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
- E: Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+In the secondary layout with PID=0x9206 (AT+CUSBSELNV=86) the module
+exposes 6 TTY ports:
 
-Change rules for EC21, EC25, BG96 and EG95 to match vendor specific
-serial functions only, to prevent binding to class functions. Require
-2 endpoints on ff/ff/ff functions, avoiding the 3 endpoint QMI/RMNET
-network functions.
+  T:  Bus=02 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  8 Spd=480 MxCh= 0
+  D:  Ver= 2.00 Cls=02(commc) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+  P:  Vendor=1e0e ProdID=9206 Rev=00.00
+  S:  Manufacturer=SimTech, Incorporated
+  S:  Product=SimTech SIM7080
+  S:  SerialNumber=1234567890ABCDEF
+  C:  #Ifs= 6 Cfg#= 1 Atr=e0 MxPwr=500mA
+  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
 
-Cc: AceLan Kao <acelan.kao@canonical.com>
-Cc: Sebastian Sjoholm <ssjoholm@mac.com>
-Cc: Dan Williams <dcbw@redhat.com>
+The purpose of each TTY is as follows:
+ * ttyUSB0: DIAG/QCDM port.
+ * ttyUSB1: GNSS data.
+ * ttyUSB2: AT-capable port (control).
+ * ttyUSB3: QFLOG interface.
+ * ttyUSB4: DAM interface.
+ * ttyUSB5: AT-capable port (data).
+
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
 Cc: stable@vger.kernel.org
-Signed-off-by: Bjørn Mork <bjorn@mork.no>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -1094,14 +1094,18 @@ static const struct usb_device_id option
- 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
- 	  .driver_info = RSVD(1) | RSVD(3) },
- 	/* Quectel products using Quectel vendor ID */
--	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21),
--	  .driver_info = RSVD(4) },
--	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25),
--	  .driver_info = RSVD(4) },
--	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95),
--	  .driver_info = RSVD(4) },
--	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96),
--	  .driver_info = RSVD(4) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0xff, 0xff),
-+	  .driver_info = NUMEP2 },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25, 0xff, 0xff, 0xff),
-+	  .driver_info = NUMEP2 },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95, 0xff, 0xff, 0xff),
-+	  .driver_info = NUMEP2 },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EG95, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96, 0xff, 0xff, 0xff),
-+	  .driver_info = NUMEP2 },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
+@@ -1823,6 +1823,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9003, 0xff) },	/* Simcom SIM7500/SIM7600 MBIM mode */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9011, 0xff),	/* Simcom SIM7500/SIM7600 RNDIS mode */
+ 	  .driver_info = RSVD(7) },
++	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9205, 0xff) },	/* Simcom SIM7070/SIM7080/SIM7090 AT+ECM mode */
++	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9206, 0xff) },	/* Simcom SIM7070/SIM7080/SIM7090 AT-only mode */
+ 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X060S_X200),
+ 	  .driver_info = NCTRL(0) | NCTRL(1) | RSVD(4) },
+ 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X220_X500D),
 
 
