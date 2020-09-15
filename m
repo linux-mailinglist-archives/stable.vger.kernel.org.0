@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6386C26A738
-	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:38:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DBB326A73A
+	for <lists+stable@lfdr.de>; Tue, 15 Sep 2020 16:38:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727199AbgIOOh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 10:37:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48028 "EHLO mail.kernel.org"
+        id S1727201AbgIOOiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:38:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727104AbgIOOhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727164AbgIOOhi (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 15 Sep 2020 10:37:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2D9A23C3F;
-        Tue, 15 Sep 2020 14:27:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0ACD2242C;
+        Tue, 15 Sep 2020 14:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600180030;
-        bh=gcI9M0cKFhQZxep1ek1FT+mVnZX+a0Y8DyH3bsT0iBw=;
+        s=default; t=1600180035;
+        bh=tHrh5VR63ed/BO5xJkXkOiyyZEqaggP7oWHcWOYt3L4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSSZVl8+QYh25IShnfizRfR4EZwNNZMZdHtx/V2pecgC4BFUWj5SUpoHmFMy6r56S
-         ODYC4Ld/FcBHrrU3VzAimofh67S9LylmpO6ta4Q3fNtBMdPtUqUU+U56Pk9w4EYQno
-         jhiFUX7grLJOCTddBssJD68wcSe/om4rTPkaY5/s=
+        b=qDzPfxqvwwC1ZicwQhyi15fal4YaO+n3NjK9X67KW6CIw1XDNDLgiF9mzV1eTt+eK
+         Nma3sF9XpB7ptgKqTbClwPCnp5qIOVZ4P4Mn6LRXJYHImqCYHBl0da/1F+gNaE4ZFz
+         Fvuw8e+7ULKF9wNi/2OxyUKem6/1RO0iWvzbq6M4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 080/177] ARC: show_regs: fix r12 printing and simplify
-Date:   Tue, 15 Sep 2020 16:12:31 +0200
-Message-Id: <20200915140657.476262699@linuxfoundation.org>
+Subject: [PATCH 5.8 082/177] media: gpio-ir-tx: spinlock is not needed to disable interrupts
+Date:   Tue, 15 Sep 2020 16:12:33 +0200
+Message-Id: <20200915140657.572571613@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
 References: <20200915140653.610388773@linuxfoundation.org>
@@ -43,137 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit e5c388b4b967037a0e00b60194b0dbcf94881a9b ]
+[ Upstream commit 1451b93223bbe3b4e9c91fca6b451d00667c5bf0 ]
 
-when working on ARC64, spotted an issue in ARCv2 reg file printing.
-print_reg_file() assumes contiguous reg-file whereas in ARCv2 they are
-not: r12 comes before r0-r11 due to hardware auto-save. Apparently this
-issue has been present since v2 port submission.
+During bit-banging the IR on a gpio pin, we cannot be scheduled or have
+anything interrupt us, else the generated signal will be incorrect.
+Therefore, we need to disable interrupts on the local cpu. This also
+disables preemption.
 
-To avoid bolting hacks for this discontinuity while looping through
-pt_regs, just ditching the loop and print pt_regs directly.
+local_irq_disable() does exactly what we need and does not require a
+spinlock.
 
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/troubleshoot.c | 77 +++++++++++++---------------------
- 1 file changed, 30 insertions(+), 47 deletions(-)
+ drivers/media/rc/gpio-ir-tx.c | 16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arc/kernel/troubleshoot.c b/arch/arc/kernel/troubleshoot.c
-index 28e8bf04b253f..a331bb5d8319f 100644
---- a/arch/arc/kernel/troubleshoot.c
-+++ b/arch/arc/kernel/troubleshoot.c
-@@ -18,44 +18,37 @@
+diff --git a/drivers/media/rc/gpio-ir-tx.c b/drivers/media/rc/gpio-ir-tx.c
+index f33b443bfa47b..c6cd2e6d8e654 100644
+--- a/drivers/media/rc/gpio-ir-tx.c
++++ b/drivers/media/rc/gpio-ir-tx.c
+@@ -19,8 +19,6 @@ struct gpio_ir {
+ 	struct gpio_desc *gpio;
+ 	unsigned int carrier;
+ 	unsigned int duty_cycle;
+-	/* we need a spinlock to hold the cpu while transmitting */
+-	spinlock_t lock;
+ };
  
- #define ARC_PATH_MAX	256
- 
--/*
-- * Common routine to print scratch regs (r0-r12) or callee regs (r13-r25)
-- *   -Prints 3 regs per line and a CR.
-- *   -To continue, callee regs right after scratch, special handling of CR
-- */
--static noinline void print_reg_file(long *reg_rev, int start_num)
-+static noinline void print_regs_scratch(struct pt_regs *regs)
+ static const struct of_device_id gpio_ir_tx_of_match[] = {
+@@ -53,12 +51,11 @@ static int gpio_ir_tx_set_carrier(struct rc_dev *dev, u32 carrier)
+ static void gpio_ir_tx_unmodulated(struct gpio_ir *gpio_ir, uint *txbuf,
+ 				   uint count)
  {
--	unsigned int i;
--	char buf[512];
--	int n = 0, len = sizeof(buf);
--
--	for (i = start_num; i < start_num + 13; i++) {
--		n += scnprintf(buf + n, len - n, "r%02u: 0x%08lx\t",
--			       i, (unsigned long)*reg_rev);
--
--		if (((i + 1) % 3) == 0)
--			n += scnprintf(buf + n, len - n, "\n");
--
--		/* because pt_regs has regs reversed: r12..r0, r25..r13 */
--		if (is_isa_arcv2() && start_num == 0)
--			reg_rev++;
--		else
--			reg_rev--;
--	}
--
--	if (start_num != 0)
--		n += scnprintf(buf + n, len - n, "\n\n");
-+	pr_cont("BTA: 0x%08lx\n SP: 0x%08lx  FP: 0x%08lx BLK: %pS\n",
-+		regs->bta, regs->sp, regs->fp, (void *)regs->blink);
-+	pr_cont("LPS: 0x%08lx\tLPE: 0x%08lx\tLPC: 0x%08lx\n",
-+		regs->lp_start, regs->lp_end, regs->lp_count);
+-	unsigned long flags;
+ 	ktime_t edge;
+ 	s32 delta;
+ 	int i;
  
--	/* To continue printing callee regs on same line as scratch regs */
--	if (start_num == 0)
--		pr_info("%s", buf);
--	else
--		pr_cont("%s\n", buf);
-+	pr_info("r00: 0x%08lx\tr01: 0x%08lx\tr02: 0x%08lx\n"	\
-+		"r03: 0x%08lx\tr04: 0x%08lx\tr05: 0x%08lx\n"	\
-+		"r06: 0x%08lx\tr07: 0x%08lx\tr08: 0x%08lx\n"	\
-+		"r09: 0x%08lx\tr10: 0x%08lx\tr11: 0x%08lx\n"	\
-+		"r12: 0x%08lx\t",
-+		regs->r0, regs->r1, regs->r2,
-+		regs->r3, regs->r4, regs->r5,
-+		regs->r6, regs->r7, regs->r8,
-+		regs->r9, regs->r10, regs->r11,
-+		regs->r12);
+-	spin_lock_irqsave(&gpio_ir->lock, flags);
++	local_irq_disable();
+ 
+ 	edge = ktime_get();
+ 
+@@ -72,14 +69,11 @@ static void gpio_ir_tx_unmodulated(struct gpio_ir *gpio_ir, uint *txbuf,
+ 	}
+ 
+ 	gpiod_set_value(gpio_ir->gpio, 0);
+-
+-	spin_unlock_irqrestore(&gpio_ir->lock, flags);
  }
  
--static void show_callee_regs(struct callee_regs *cregs)
-+static void print_regs_callee(struct callee_regs *regs)
+ static void gpio_ir_tx_modulated(struct gpio_ir *gpio_ir, uint *txbuf,
+ 				 uint count)
  {
--	print_reg_file(&(cregs->r13), 13);
-+	pr_cont("r13: 0x%08lx\tr14: 0x%08lx\n"			\
-+		"r15: 0x%08lx\tr16: 0x%08lx\tr17: 0x%08lx\n"	\
-+		"r18: 0x%08lx\tr19: 0x%08lx\tr20: 0x%08lx\n"	\
-+		"r21: 0x%08lx\tr22: 0x%08lx\tr23: 0x%08lx\n"	\
-+		"r24: 0x%08lx\tr25: 0x%08lx\n",
-+		regs->r13, regs->r14,
-+		regs->r15, regs->r16, regs->r17,
-+		regs->r18, regs->r19, regs->r20,
-+		regs->r21, regs->r22, regs->r23,
-+		regs->r24, regs->r25);
- }
- 
- static void print_task_path_n_nm(struct task_struct *tsk)
-@@ -175,7 +168,7 @@ static void show_ecr_verbose(struct pt_regs *regs)
- void show_regs(struct pt_regs *regs)
- {
- 	struct task_struct *tsk = current;
--	struct callee_regs *cregs;
-+	struct callee_regs *cregs = (struct callee_regs *)tsk->thread.callee_reg;
- 
+-	unsigned long flags;
+ 	ktime_t edge;
  	/*
- 	 * generic code calls us with preemption disabled, but some calls
-@@ -204,25 +197,15 @@ void show_regs(struct pt_regs *regs)
- 			STS_BIT(regs, A2), STS_BIT(regs, A1),
- 			STS_BIT(regs, E2), STS_BIT(regs, E1));
- #else
--	pr_cont(" [%2s%2s%2s%2s]",
-+	pr_cont(" [%2s%2s%2s%2s]   ",
- 			STS_BIT(regs, IE),
- 			(regs->status32 & STATUS_U_MASK) ? "U " : "K ",
- 			STS_BIT(regs, DE), STS_BIT(regs, AE));
- #endif
--	pr_cont("  BTA: 0x%08lx\n  SP: 0x%08lx  FP: 0x%08lx BLK: %pS\n",
--		regs->bta, regs->sp, regs->fp, (void *)regs->blink);
--	pr_info("LPS: 0x%08lx\tLPE: 0x%08lx\tLPC: 0x%08lx\n",
--		regs->lp_start, regs->lp_end, regs->lp_count);
+ 	 * delta should never exceed 0.5 seconds (IR_MAX_DURATION) and on
+@@ -95,7 +89,7 @@ static void gpio_ir_tx_modulated(struct gpio_ir *gpio_ir, uint *txbuf,
+ 	space = DIV_ROUND_CLOSEST((100 - gpio_ir->duty_cycle) *
+ 				  (NSEC_PER_SEC / 100), gpio_ir->carrier);
+ 
+-	spin_lock_irqsave(&gpio_ir->lock, flags);
++	local_irq_disable();
+ 
+ 	edge = ktime_get();
+ 
+@@ -128,19 +122,20 @@ static void gpio_ir_tx_modulated(struct gpio_ir *gpio_ir, uint *txbuf,
+ 			edge = last;
+ 		}
+ 	}
 -
--	/* print regs->r0 thru regs->r12
--	 * Sequential printing was generating horrible code
--	 */
--	print_reg_file(&(regs->r0), 0);
- 
--	/* If Callee regs were saved, display them too */
--	cregs = (struct callee_regs *)current->thread.callee_reg;
-+	print_regs_scratch(regs);
- 	if (cregs)
--		show_callee_regs(cregs);
-+		print_regs_callee(cregs);
- 
- 	preempt_disable();
+-	spin_unlock_irqrestore(&gpio_ir->lock, flags);
  }
+ 
+ static int gpio_ir_tx(struct rc_dev *dev, unsigned int *txbuf,
+ 		      unsigned int count)
+ {
+ 	struct gpio_ir *gpio_ir = dev->priv;
++	unsigned long flags;
+ 
++	local_irq_save(flags);
+ 	if (gpio_ir->carrier)
+ 		gpio_ir_tx_modulated(gpio_ir, txbuf, count);
+ 	else
+ 		gpio_ir_tx_unmodulated(gpio_ir, txbuf, count);
++	local_irq_restore(flags);
+ 
+ 	return count;
+ }
+@@ -176,7 +171,6 @@ static int gpio_ir_tx_probe(struct platform_device *pdev)
+ 
+ 	gpio_ir->carrier = 38000;
+ 	gpio_ir->duty_cycle = 50;
+-	spin_lock_init(&gpio_ir->lock);
+ 
+ 	rc = devm_rc_register_device(&pdev->dev, rcdev);
+ 	if (rc < 0)
 -- 
 2.25.1
 
