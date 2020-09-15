@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3DC26B5DD
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF9226B60A
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 01:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727065AbgIOXws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 19:52:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46458 "EHLO mail.kernel.org"
+        id S1727048AbgIOOba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 10:31:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727062AbgIOObj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 10:31:39 -0400
+        id S1726276AbgIOOaq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Sep 2020 10:30:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C24322284;
-        Tue, 15 Sep 2020 14:23:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06BCE22B2C;
+        Tue, 15 Sep 2020 14:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600179819;
-        bh=uoVndxlUy6tvVazS26OJHe95a1H/23LeHdYFKnGgOMo=;
+        s=default; t=1600179740;
+        bh=SrPfW7Km04ghLD43fTl2ZdHUS+G2DLTqir5xE6cf6CA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQE3Chbj/Ohp2FjwHvF8AQQnq7AGXhF2nIU7UYNr1mcLAdFZ6X2c6zuhB9MCEL5+1
-         OGp+VnH1Zm1EnQmR+Oj7MDEubJIS1Rff+ikB1VW0pDiHi5oqEhdCUoZtkDVXdLNMzl
-         nn5RYqdzSW/Dm0d1cBradhMq2OJ9fut/DkwckRvo=
+        b=m7FJ1c2rWv76v9/vrWQkUJM5B4FfUL+J1AtGDpbCs7TRLTrChetj92K4hmuMIoTHB
+         XTkrpxmZC2zZnFaySKnM/xwfHSnWu0yCuRGwzTUBoA8UJJneW6Lv+a6XckhQhFfR+q
+         Ma9E/unoiAitBd2IVd2XFP52TcIWxcYHh0SVeqEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 091/132] btrfs: require only sector size alignment for parent eb bytenr
-Date:   Tue, 15 Sep 2020 16:13:13 +0200
-Message-Id: <20200915140648.678393337@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 092/132] btrfs: fix lockdep splat in add_missing_dev
+Date:   Tue, 15 Sep 2020 16:13:14 +0200
+Message-Id: <20200915140648.748193758@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200915140644.037604909@linuxfoundation.org>
 References: <20200915140644.037604909@linuxfoundation.org>
@@ -43,151 +45,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit ea57788eb76dc81f6003245427356a1dcd0ac524 upstream.
+commit fccc0007b8dc952c6bc0805cdf842eb8ea06a639 upstream.
 
-[BUG]
-A completely sane converted fs will cause kernel warning at balance
-time:
+Nikolay reported a lockdep splat in generic/476 that I could reproduce
+with btrfs/187.
 
-  [ 1557.188633] BTRFS info (device sda7): relocating block group 8162107392 flags data
-  [ 1563.358078] BTRFS info (device sda7): found 11722 extents
-  [ 1563.358277] BTRFS info (device sda7): leaf 7989321728 gen 95 total ptrs 213 free space 3458 owner 2
-  [ 1563.358280] 	item 0 key (7984947200 169 0) itemoff 16250 itemsize 33
-  [ 1563.358281] 		extent refs 1 gen 90 flags 2
-  [ 1563.358282] 		ref#0: tree block backref root 4
-  [ 1563.358285] 	item 1 key (7985602560 169 0) itemoff 16217 itemsize 33
-  [ 1563.358286] 		extent refs 1 gen 93 flags 258
-  [ 1563.358287] 		ref#0: shared block backref parent 7985602560
-  [ 1563.358288] 			(parent 7985602560 is NOT ALIGNED to nodesize 16384)
-  [ 1563.358290] 	item 2 key (7985635328 169 0) itemoff 16184 itemsize 33
-  ...
-  [ 1563.358995] BTRFS error (device sda7): eb 7989321728 invalid extent inline ref type 182
-  [ 1563.358996] ------------[ cut here ]------------
-  [ 1563.359005] WARNING: CPU: 14 PID: 2930 at 0xffffffff9f231766
+  ======================================================
+  WARNING: possible circular locking dependency detected
+  5.9.0-rc2+ #1 Tainted: G        W
+  ------------------------------------------------------
+  kswapd0/100 is trying to acquire lock:
+  ffff9e8ef38b6268 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x330
 
-Then with transaction abort, and obviously failed to balance the fs.
+  but task is already holding lock:
+  ffffffffa9d74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
 
-[CAUSE]
-That mentioned inline ref type 182 is completely sane, it's
-BTRFS_SHARED_BLOCK_REF_KEY, it's some extra check making kernel to
-believe it's invalid.
+  which lock already depends on the new lock.
 
-Commit 64ecdb647ddb ("Btrfs: add one more sanity check for shared ref
-type") introduced extra checks for backref type.
+  the existing dependency chain (in reverse order) is:
 
-One of the requirement is, parent bytenr must be aligned to node size,
-which is not correct.
+  -> #2 (fs_reclaim){+.+.}-{0:0}:
+	 fs_reclaim_acquire+0x65/0x80
+	 slab_pre_alloc_hook.constprop.0+0x20/0x200
+	 kmem_cache_alloc_trace+0x3a/0x1a0
+	 btrfs_alloc_device+0x43/0x210
+	 add_missing_dev+0x20/0x90
+	 read_one_chunk+0x301/0x430
+	 btrfs_read_sys_array+0x17b/0x1b0
+	 open_ctree+0xa62/0x1896
+	 btrfs_mount_root.cold+0x12/0xea
+	 legacy_get_tree+0x30/0x50
+	 vfs_get_tree+0x28/0xc0
+	 vfs_kern_mount.part.0+0x71/0xb0
+	 btrfs_mount+0x10d/0x379
+	 legacy_get_tree+0x30/0x50
+	 vfs_get_tree+0x28/0xc0
+	 path_mount+0x434/0xc00
+	 __x64_sys_mount+0xe3/0x120
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-One example is like this:
+  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
+	 __mutex_lock+0x7e/0x7e0
+	 btrfs_chunk_alloc+0x125/0x3a0
+	 find_free_extent+0xdf6/0x1210
+	 btrfs_reserve_extent+0xb3/0x1b0
+	 btrfs_alloc_tree_block+0xb0/0x310
+	 alloc_tree_block_no_bg_flush+0x4a/0x60
+	 __btrfs_cow_block+0x11a/0x530
+	 btrfs_cow_block+0x104/0x220
+	 btrfs_search_slot+0x52e/0x9d0
+	 btrfs_lookup_inode+0x2a/0x8f
+	 __btrfs_update_delayed_inode+0x80/0x240
+	 btrfs_commit_inode_delayed_inode+0x119/0x120
+	 btrfs_evict_inode+0x357/0x500
+	 evict+0xcf/0x1f0
+	 vfs_rmdir.part.0+0x149/0x160
+	 do_rmdir+0x136/0x1a0
+	 do_syscall_64+0x33/0x40
+	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-0	1G  1G+4K		2G 2G+4K
-	|   |///////////////////|//|  <- A chunk starts at 1G+4K
-            |   |	<- A tree block get reserved at bytenr 1G+4K
+  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
+	 __lock_acquire+0x1184/0x1fa0
+	 lock_acquire+0xa4/0x3d0
+	 __mutex_lock+0x7e/0x7e0
+	 __btrfs_release_delayed_node.part.0+0x3f/0x330
+	 btrfs_evict_inode+0x24c/0x500
+	 evict+0xcf/0x1f0
+	 dispose_list+0x48/0x70
+	 prune_icache_sb+0x44/0x50
+	 super_cache_scan+0x161/0x1e0
+	 do_shrink_slab+0x178/0x3c0
+	 shrink_slab+0x17c/0x290
+	 shrink_node+0x2b2/0x6d0
+	 balance_pgdat+0x30a/0x670
+	 kswapd+0x213/0x4c0
+	 kthread+0x138/0x160
+	 ret_from_fork+0x1f/0x30
 
-Then we have a valid tree block at bytenr 1G+4K, but not aligned to
-nodesize (16K).
+  other info that might help us debug this:
 
-Such chunk is not ideal, but current kernel can handle it pretty well.
-We may warn about such tree block in the future, but should not reject
-them.
+  Chain exists of:
+    &delayed_node->mutex --> &fs_info->chunk_mutex --> fs_reclaim
 
-[FIX]
-Change the alignment requirement from node size alignment to sector size
-alignment.
+   Possible unsafe locking scenario:
 
-Also, to make our lives a little easier, also output @iref when
-btrfs_get_extent_inline_ref_type() failed, so we can locate the item
-easier.
+	 CPU0                    CPU1
+	 ----                    ----
+    lock(fs_reclaim);
+				 lock(&fs_info->chunk_mutex);
+				 lock(fs_reclaim);
+    lock(&delayed_node->mutex);
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205475
-Fixes: 64ecdb647ddb ("Btrfs: add one more sanity check for shared ref type")
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-[ update comments and messages ]
+   *** DEADLOCK ***
+
+  3 locks held by kswapd0/100:
+   #0: ffffffffa9d74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+   #1: ffffffffa9d65c50 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x115/0x290
+   #2: ffff9e8e9da260e0 (&type->s_umount_key#48){++++}-{3:3}, at: super_cache_scan+0x38/0x1e0
+
+  stack backtrace:
+  CPU: 1 PID: 100 Comm: kswapd0 Tainted: G        W         5.9.0-rc2+ #1
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  Call Trace:
+   dump_stack+0x92/0xc8
+   check_noncircular+0x12d/0x150
+   __lock_acquire+0x1184/0x1fa0
+   lock_acquire+0xa4/0x3d0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   __mutex_lock+0x7e/0x7e0
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
+   ? lock_acquire+0xa4/0x3d0
+   ? btrfs_evict_inode+0x11e/0x500
+   ? find_held_lock+0x2b/0x80
+   __btrfs_release_delayed_node.part.0+0x3f/0x330
+   btrfs_evict_inode+0x24c/0x500
+   evict+0xcf/0x1f0
+   dispose_list+0x48/0x70
+   prune_icache_sb+0x44/0x50
+   super_cache_scan+0x161/0x1e0
+   do_shrink_slab+0x178/0x3c0
+   shrink_slab+0x17c/0x290
+   shrink_node+0x2b2/0x6d0
+   balance_pgdat+0x30a/0x670
+   kswapd+0x213/0x4c0
+   ? _raw_spin_unlock_irqrestore+0x46/0x60
+   ? add_wait_queue_exclusive+0x70/0x70
+   ? balance_pgdat+0x670/0x670
+   kthread+0x138/0x160
+   ? kthread_create_worker_on_cpu+0x40/0x40
+   ret_from_fork+0x1f/0x30
+
+This is because we are holding the chunk_mutex when we call
+btrfs_alloc_device, which does a GFP_KERNEL allocation.  We don't want
+to switch that to a GFP_NOFS lock because this is the only place where
+it matters.  So instead use memalloc_nofs_save() around the allocation
+in order to avoid the lockdep splat.
+
+Reported-by: Nikolay Borisov <nborisov@suse.com>
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent-tree.c |   19 +++++++++----------
- fs/btrfs/print-tree.c  |   12 +++++++-----
- 2 files changed, 16 insertions(+), 15 deletions(-)
+ fs/btrfs/volumes.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -402,12 +402,11 @@ int btrfs_get_extent_inline_ref_type(con
- 			if (type == BTRFS_SHARED_BLOCK_REF_KEY) {
- 				ASSERT(eb->fs_info);
- 				/*
--				 * Every shared one has parent tree
--				 * block, which must be aligned to
--				 * nodesize.
-+				 * Every shared one has parent tree block,
-+				 * which must be aligned to sector size.
- 				 */
- 				if (offset &&
--				    IS_ALIGNED(offset, eb->fs_info->nodesize))
-+				    IS_ALIGNED(offset, eb->fs_info->sectorsize))
- 					return type;
- 			}
- 		} else if (is_data == BTRFS_REF_TYPE_DATA) {
-@@ -416,12 +415,11 @@ int btrfs_get_extent_inline_ref_type(con
- 			if (type == BTRFS_SHARED_DATA_REF_KEY) {
- 				ASSERT(eb->fs_info);
- 				/*
--				 * Every shared one has parent tree
--				 * block, which must be aligned to
--				 * nodesize.
-+				 * Every shared one has parent tree block,
-+				 * which must be aligned to sector size.
- 				 */
- 				if (offset &&
--				    IS_ALIGNED(offset, eb->fs_info->nodesize))
-+				    IS_ALIGNED(offset, eb->fs_info->sectorsize))
- 					return type;
- 			}
- 		} else {
-@@ -431,8 +429,9 @@ int btrfs_get_extent_inline_ref_type(con
- 	}
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4,6 +4,7 @@
+  */
  
- 	btrfs_print_leaf((struct extent_buffer *)eb);
--	btrfs_err(eb->fs_info, "eb %llu invalid extent inline ref type %d",
--		  eb->start, type);
-+	btrfs_err(eb->fs_info,
-+		  "eb %llu iref 0x%lx invalid extent inline ref type %d",
-+		  eb->start, (unsigned long)iref, type);
- 	WARN_ON(1);
+ #include <linux/sched.h>
++#include <linux/sched/mm.h>
+ #include <linux/bio.h>
+ #include <linux/slab.h>
+ #include <linux/buffer_head.h>
+@@ -6708,8 +6709,17 @@ static struct btrfs_device *add_missing_
+ 					    u64 devid, u8 *dev_uuid)
+ {
+ 	struct btrfs_device *device;
++	unsigned int nofs_flag;
  
- 	return BTRFS_REF_TYPE_INVALID;
---- a/fs/btrfs/print-tree.c
-+++ b/fs/btrfs/print-tree.c
-@@ -95,9 +95,10 @@ static void print_extent_item(struct ext
- 			 * offset is supposed to be a tree block which
- 			 * must be aligned to nodesize.
- 			 */
--			if (!IS_ALIGNED(offset, eb->fs_info->nodesize))
--				pr_info("\t\t\t(parent %llu is NOT ALIGNED to nodesize %llu)\n",
--					offset, (unsigned long long)eb->fs_info->nodesize);
-+			if (!IS_ALIGNED(offset, eb->fs_info->sectorsize))
-+				pr_info(
-+			"\t\t\t(parent %llu not aligned to sectorsize %u)\n",
-+					offset, eb->fs_info->sectorsize);
- 			break;
- 		case BTRFS_EXTENT_DATA_REF_KEY:
- 			dref = (struct btrfs_extent_data_ref *)(&iref->offset);
-@@ -112,8 +113,9 @@ static void print_extent_item(struct ext
- 			 * must be aligned to nodesize.
- 			 */
- 			if (!IS_ALIGNED(offset, eb->fs_info->nodesize))
--				pr_info("\t\t\t(parent %llu is NOT ALIGNED to nodesize %llu)\n",
--				     offset, (unsigned long long)eb->fs_info->nodesize);
-+				pr_info(
-+			"\t\t\t(parent %llu not aligned to sectorsize %u)\n",
-+				     offset, eb->fs_info->sectorsize);
- 			break;
- 		default:
- 			pr_cont("(extent %llu has INVALID ref type %d)\n",
++	/*
++	 * We call this under the chunk_mutex, so we want to use NOFS for this
++	 * allocation, however we don't want to change btrfs_alloc_device() to
++	 * always do NOFS because we use it in a lot of other GFP_KERNEL safe
++	 * places.
++	 */
++	nofs_flag = memalloc_nofs_save();
+ 	device = btrfs_alloc_device(NULL, &devid, dev_uuid);
++	memalloc_nofs_restore(nofs_flag);
+ 	if (IS_ERR(device))
+ 		return device;
+ 
 
 
