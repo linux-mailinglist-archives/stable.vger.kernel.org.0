@@ -2,93 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C27E26C605
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 19:29:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB5B26C688
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 19:54:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727132AbgIPR3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 13:29:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43062 "EHLO mail.kernel.org"
+        id S1727290AbgIPRxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 13:53:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727137AbgIPR3f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Sep 2020 13:29:35 -0400
+        id S1727222AbgIPRwC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Sep 2020 13:52:02 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C78CB222E9;
-        Wed, 16 Sep 2020 17:29:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EB8521D43;
+        Wed, 16 Sep 2020 11:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600277374;
-        bh=HQY6xflJpGglMz2DK2M1DUuUcDJLXAWATVceoBo4lpc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JxOxkRWzCmqKYWCniBPbpm3FXiu/KLwpWEqWj3tKAeJsXKgueUMnGBRcoSEMO0c4T
-         DkuU7vAg928KDZPjrFYDafkJsF3Cv+8Oonlw41Icb807bQWxAGeqRyso7U0K9LS431
-         rt0hHQwpi3DeLWphP7DefB94gGiXmGV8gdHyXqGE=
-Date:   Wed, 16 Sep 2020 19:30:08 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     John Villalovos <jlvillal@os.amperecomputing.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 0/5] Add support needed for Renesas USB 3.0
- controller
-Message-ID: <20200916173008.GA3068942@kroah.com>
-References: <20200915213039.862123-1-jlvillal@os.amperecomputing.com>
- <20200916063116.GI142621@kroah.com>
- <e92b6d88-387b-1b06-9df1-49897145e0a7@os.amperecomputing.com>
- <20200916170821.GA3054459@kroah.com>
- <935e6153-f249-56ef-0696-f46968993038@os.amperecomputing.com>
+        s=default; t=1600255404;
+        bh=lqzdIOQ2v5uAaJ5UDf7Rkv6xvR9w50zt6VNuSmWbeD0=;
+        h=Subject:To:From:Date:From;
+        b=tMqy+fB5WUjofla58yU2ip14yDHBdK1kGt1tjcWXaE5IC1BayfYMFsxTZwE9WJ3M5
+         cZYqbfB2x0RrmBq7NGWhuHxWOiW72XvtnFywIlKy/ToHA5RMhMex58zxPQpkns3oPQ
+         0QwMDcSXXC7jFGo9BVL+77as/mPF7PYFkww2SRHM=
+Subject: patch "serial: core: fix console port-lock regression" added to tty-linus
+To:     johan@kernel.org, andriy.shevchenko@linux.intel.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 16 Sep 2020 13:23:56 +0200
+Message-ID: <1600255436723@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <935e6153-f249-56ef-0696-f46968993038@os.amperecomputing.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 16, 2020 at 10:15:12AM -0700, John Villalovos wrote:
-> On 9/16/2020 10:08 AM, Greg KH wrote:
-> > On Wed, Sep 16, 2020 at 09:54:50AM -0700, John Villalovos wrote:
-> > > 
-> > > On 9/15/2020 11:31 PM, Greg KH wrote:
-> > > > On Tue, Sep 15, 2020 at 02:30:34PM -0700, John L. Villalovos wrote:
-> > > > > Add support needed for the Renesas USB 3.0 controller
-> > > > > (PD720201/PD720202).  Without these patches a system with this USB
-> > > > > controller will crash during boot.
-> > > > Is this a regression, or something that has always happened?  If a
-> > > > regression, any pointers to what commit caused this?
-> > > > 
-> > > > this really feels like a "new feature" addition to me, unless this used
-> > > > to work properly.
-> > > 
-> > > It is not a regression. It is a crash that occurs on new hardware that has
-> > > this USB controller.
-> > > 
-> > > 
-> > > Without this patch series, hardware with this USB controller will fail to
-> > > work. So in the choice between "regression" and "new feature" I would say
-> > > "new feature".
-> > 
-> > Ok, to support new hardware, use a newer kernel, no reason why 5.4 or
-> > newer will not work here, right?
-> 
-> This is true, but some customers who want to use this hardware don't want
-> (refuse) to use a new kernel :(
 
-That's crazy, 4.19 should NOT be used for any system that requires new
-hardware.  You all have read my "what kernel should I pick" guide,
-right?
+This is a note to let you know that I've just added the patch titled
 
-> Can I take this to mean that this patch series is not allowed to go into the
-> stable kernel?
+    serial: core: fix console port-lock regression
 
-That is correct.  Use a newer kernel, it's much better overall.
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
 
-Only reason you should be stuck on 4.19 at this point in time is if you
-have an SoC with millions of out-of-tree lines added to it (making a
-Linux-like system), or you are an "enterprise" distro and you are paying
-for support for them.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Or you are using Debian, they know what they are doing there :)
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-thanks,
+If you have any questions about this process, please let me know.
 
-greg k-h
+
+From e0830dbf71f191851ed3772d2760f007b7c5bc3a Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Wed, 9 Sep 2020 16:31:01 +0200
+Subject: serial: core: fix console port-lock regression
+
+Fix the port-lock initialisation regression introduced by commit
+a3cb39d258ef ("serial: core: Allow detach and attach serial device for
+console") by making sure that the lock is again initialised during
+console setup.
+
+The console may be registered before the serial controller has been
+probed in which case the port lock needs to be initialised during
+console setup by a call to uart_set_options(). The console-detach
+changes introduced a regression in several drivers by effectively
+removing that initialisation by not initialising the lock when the port
+is used as a console (which is always the case during console setup).
+
+Add back the early lock initialisation and instead use a new
+console-reinit flag to handle the case where a console is being
+re-attached through sysfs.
+
+The question whether the console-detach interface should have been added
+in the first place is left for another discussion.
+
+Note that the console-enabled check in uart_set_options() is not
+redundant because of kgdboc, which can end up reinitialising an already
+enabled console (see commit 42b6a1baa3ec ("serial_core: Don't
+re-initialize a previously initialized spinlock.")).
+
+Fixes: a3cb39d258ef ("serial: core: Allow detach and attach serial device for console")
+Cc: stable <stable@vger.kernel.org>     # 5.7
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20200909143101.15389-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/serial_core.c | 32 +++++++++++++++-----------------
+ include/linux/serial_core.h      |  1 +
+ 2 files changed, 16 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index 53b79e1fcbc8..124524ecfe26 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -1916,24 +1916,12 @@ static inline bool uart_console_enabled(struct uart_port *port)
+ 	return uart_console(port) && (port->cons->flags & CON_ENABLED);
+ }
+ 
+-static void __uart_port_spin_lock_init(struct uart_port *port)
++static void uart_port_spin_lock_init(struct uart_port *port)
+ {
+ 	spin_lock_init(&port->lock);
+ 	lockdep_set_class(&port->lock, &port_lock_key);
+ }
+ 
+-/*
+- * Ensure that the serial console lock is initialised early.
+- * If this port is a console, then the spinlock is already initialised.
+- */
+-static inline void uart_port_spin_lock_init(struct uart_port *port)
+-{
+-	if (uart_console(port))
+-		return;
+-
+-	__uart_port_spin_lock_init(port);
+-}
+-
+ #if defined(CONFIG_SERIAL_CORE_CONSOLE) || defined(CONFIG_CONSOLE_POLL)
+ /**
+  *	uart_console_write - write a console message to a serial port
+@@ -2086,7 +2074,15 @@ uart_set_options(struct uart_port *port, struct console *co,
+ 	struct ktermios termios;
+ 	static struct ktermios dummy;
+ 
+-	uart_port_spin_lock_init(port);
++	/*
++	 * Ensure that the serial-console lock is initialised early.
++	 *
++	 * Note that the console-enabled check is needed because of kgdboc,
++	 * which can end up calling uart_set_options() for an already enabled
++	 * console via tty_find_polling_driver() and uart_poll_init().
++	 */
++	if (!uart_console_enabled(port) && !port->console_reinit)
++		uart_port_spin_lock_init(port);
+ 
+ 	memset(&termios, 0, sizeof(struct ktermios));
+ 
+@@ -2794,10 +2790,12 @@ static ssize_t console_store(struct device *dev,
+ 		if (oldconsole && !newconsole) {
+ 			ret = unregister_console(uport->cons);
+ 		} else if (!oldconsole && newconsole) {
+-			if (uart_console(uport))
++			if (uart_console(uport)) {
++				uport->console_reinit = 1;
+ 				register_console(uport->cons);
+-			else
++			} else {
+ 				ret = -ENOENT;
++			}
+ 		}
+ 	} else {
+ 		ret = -ENXIO;
+@@ -2898,7 +2896,7 @@ int uart_add_one_port(struct uart_driver *drv, struct uart_port *uport)
+ 	 * initialised.
+ 	 */
+ 	if (!uart_console_enabled(uport))
+-		__uart_port_spin_lock_init(uport);
++		uart_port_spin_lock_init(uport);
+ 
+ 	if (uport->cons && uport->dev)
+ 		of_console_check(uport->dev->of_node, uport->cons->name, uport->line);
+diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
+index 01fc4d9c9c54..8a99279a579b 100644
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -248,6 +248,7 @@ struct uart_port {
+ 
+ 	unsigned char		hub6;			/* this should be in the 8250 driver */
+ 	unsigned char		suspended;
++	unsigned char		console_reinit;
+ 	const char		*name;			/* port name */
+ 	struct attribute_group	*attr_group;		/* port specific attributes */
+ 	const struct attribute_group **tty_groups;	/* all attributes (serial core use only) */
+-- 
+2.28.0
+
+
