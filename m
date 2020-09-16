@@ -2,126 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E316C26CB2A
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 22:23:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20DB126CA97
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 22:09:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727192AbgIPUXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 16:23:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60798 "EHLO
+        id S1727156AbgIPUJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 16:09:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727109AbgIPR2l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 13:28:41 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 373B0C0698D8
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 04:46:05 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id fa1so1468884pjb.0
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 04:46:05 -0700 (PDT)
+        with ESMTP id S1727080AbgIPReN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 13:34:13 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7331C0A893B
+        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 06:08:53 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id a17so6858414wrn.6
+        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 06:08:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=QaAlyxPmgwzV6ZkozSHtI0JrE79TjYJmNCTl6P2UFt4=;
-        b=ltQkvMjgK8l+53VJ+NS62ZL8eTLEqi1xKRvqBJyWwRWEFfcsXaviTnuHUm3JGnxuHL
-         nb5qDjhwVWFht4gfYa6HM8tL9vrZ/vK63I489QB8l7G8MqqWhzyfwl5tYQZSIRh5QBkq
-         YPE9UFJcWYoqDj2ID9cFwr6EPa80WUcE0IWKV5g1TvQ8RCAV2okif3FGU371A2uGzfBZ
-         X1oMd6N3gSCgssS7eHwQB7M7TL3hfXz/KUSlmk0po8G4IQ+cqC4bsomRs1NhDPGlOGjc
-         2FA9vj5urfKuTTLo6fCDyarGrouStNfcgzw/GOahUikQaoe27orV5S59Y/DpCpW7XeH7
-         bOjQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=boqFmJSvqYexxLobLNyh9qTrVnM8InJDrYRAbGJcCho=;
+        b=PmsES2SARiy3RNMai1PKHwmsW52gv1/E88+yqUQ9Tv0jC62ZlRhBcsmzE3b4ti/83J
+         r967Z58Yh8Cq5xasJ5umEjNwsnfDwjz2P6JpvpSZxUi5Hpu8xv08QlwTCltKOHoDtSZR
+         of5GhwBlvKJLkJX0yM3FjWHxODmE3o+/AWfrJFfAlwuoIa+cZjjbbAB2S77mUnpl/nzz
+         IEARN45BnQqyfl3YrVY+FFSj3o2L5Kwft3L6/7+JH5t6W08YP+9B9PvrfNUDcxhXqwhK
+         bGp+rdUw4xXROyTT7ev5ufpUQ5a1W57gboULd52Ki4ZQQ8vQ/nGMbr8yEOkW5K8bmwXY
+         JvBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=QaAlyxPmgwzV6ZkozSHtI0JrE79TjYJmNCTl6P2UFt4=;
-        b=Isueu97yn/Hq5pQBuzT3KGledmalrR9bo5BarQnLI3159ybWtnuLiswSk/rAyOQis1
-         /7Tr7/V7WoPyghhYtBW9V2Dl3z6A6xGeNqyqlGaTy7F3Gh83ragJw8kKh0MUVydLcfur
-         sV5mmhSKsZhP6hGmxwaJBD3w7ooG+7Ib9EUOvCqzYoK5IyPNqfhAD+h4EPLx0iFsGu+J
-         6ZMkNebXb9CLswHlc5A4AsPqLB1WOF2DKNeYC3Q3TQ/EKwhZRtnJYV4aYIzvXHS2y1E/
-         lJZF9bnQ78DlMpZJBkrWB3Hd1tHZ+Cb6WiRuaUPKIk5nO+ULRISmkRh7X/ZHem/8EIhR
-         zflA==
-X-Gm-Message-State: AOAM531mAmTawFOC/doeI39f43uPwYm1GTGM/q8v0TixBgv7xaGQuZXB
-        cbjV1v6ptPx2vmx8gb6CQeRn/meswz955g==
-X-Google-Smtp-Source: ABdhPJzVQABEv8dRG9bv+tjSPsOkKr6YVUKCBsp3XtQsytyr3g+b3H+H5NIVtqpfxsL4X2HrdVXqDQ==
-X-Received: by 2002:a17:902:6ac2:b029:d1:e5e7:be59 with SMTP id i2-20020a1709026ac2b02900d1e5e7be59mr6066727plt.51.1600256764254;
-        Wed, 16 Sep 2020 04:46:04 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f3sm13913970pgf.32.2020.09.16.04.46.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2020 04:46:03 -0700 (PDT)
-Message-ID: <5f61fafb.1c69fb81.26603.3127@mx.google.com>
-Date:   Wed, 16 Sep 2020 04:46:03 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=boqFmJSvqYexxLobLNyh9qTrVnM8InJDrYRAbGJcCho=;
+        b=F1JFJuCBuvwypGwtPENumgbWaaCZygTQ3e53tANIz3CS97S25AALw8YzTf/FEhpPS2
+         qZlhbc8kCalpZ2AH8YGWay3E+7zzmkktCDvFqnoRUOFHdGutx/TO7ojpuItc9FfKKvLE
+         70tC9CbtplYkB9bHqbBw+imA/4gX76b306h0HgJCax4zYFBbZ21F7AkhZdJ+uT90MmS1
+         Sidlw9Bvpc4bQ5o6SbsinWdDVLAiHygkIUQDT7aeFezoOI+j/zwhX9Vm3D0IRMHzTUf0
+         I9h+Xezt20U0mKg0ImfA0/tmPDmQoLmQ7za1OprbauszdQdA57JbBvzc++YyW83M5foi
+         4aNg==
+X-Gm-Message-State: AOAM5329p+ufqKm9V1w8Y3Za3Hc70p0AqTZV5tsRRShvYwJgqI/p8qua
+        MGk2j6CkgALr9KXYRPHFtLjhYVOzEQCsunWZ7qXcymMrBRE=
+X-Google-Smtp-Source: ABdhPJyn/PJ7xHU8ZYPwNfmhW+wrz8y3cokw/6HfKfyVIclqmJYVI81DT7pBaNF79qcayK5F8vAfGKFPbwm8P2+ByXQ=
+X-Received: by 2002:adf:dd82:: with SMTP id x2mr28315368wrl.419.1600261731057;
+ Wed, 16 Sep 2020 06:08:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.65-131-g0d8c7a7aec77
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.4.y baseline: 117 runs,
- 1 regressions (v5.4.65-131-g0d8c7a7aec77)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20200915184607.84435-1-alexander.deucher@amd.com> <20200916063300.GJ142621@kroah.com>
+In-Reply-To: <20200916063300.GJ142621@kroah.com>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Wed, 16 Sep 2020 09:08:39 -0400
+Message-ID: <CADnq5_ObvQ9sT_p=mdEk1m_o_LPHx6zwiEP5qFvX9YxveOBOZA@mail.gmail.com>
+Subject: Re: [PATCH] Revert "drm/radeon: handle PCIe root ports with
+ addressing limitations"
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     amd-gfx list <amd-gfx@lists.freedesktop.org>,
+        Maling list - DRI developers 
+        <dri-devel@lists.freedesktop.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        "for 3.8" <stable@vger.kernel.org>, Christoph Hellwig <hch@lst.de>,
+        Christian Koenig <christian.koenig@amd.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 117 runs, 1 regressions (v5.4.65-131-g0d8c7=
-a7aec77)
+On Wed, Sep 16, 2020 at 2:32 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Sep 15, 2020 at 02:46:07PM -0400, Alex Deucher wrote:
+> > This change breaks tons of systems.
+>
+> Very vague :(
 
-Regressions Summary
--------------------
+Screen corruption making the system unusable.
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+>
+> This commit has also been merged for over a year, why the sudden
+> problem now?
+>
 
+It was noticed by several people closer to when the change went in as
+well.  If you notice, most of the bugs date back quite a while.  We
+looked into it a bit at the time but couldn't determine the problem.
+It only seems to affect really old chips (like 15-20 years old) which
+makes it hard to reproduce if you don't have an old system.  There
+were a couple of threads at the time, but nothing was resolved.  I was
+able to find one of them:
+https://lkml.org/lkml/2019/12/14/263
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.65-131-g0d8c7a7aec77/plan/baseline/
+There were several new bugs filed which brought the issue back to my
+attention recently.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.65-131-g0d8c7a7aec77
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0d8c7a7aec7700b34810ac8d10a2d43df7810052 =
+> > This reverts commit 33b3ad3788aba846fc8b9a065fe2685a0b64f713.
+>
+> You mean "33b3ad3788ab ("drm/radeon: handle PCIe root ports with
+> addressing limitations")"?
+>
+> That's the proper way to reference commits in changelogs please.  It's
+> even documented that way...
 
+When you revert a patch with git, that is what it does.  Maybe we
+should fix git to change the formatting.
 
+>
+> >
+> > Bug: https://bugzilla.kernel.org/show_bug.cgi?id=206973
+> > Bug: https://bugzilla.kernel.org/show_bug.cgi?id=206697
+> > Bug: https://bugzilla.kernel.org/show_bug.cgi?id=207763
+> > Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1140
+> > Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1287
+> > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > Cc: stable@vger.kernel.org
+> > Cc: Christoph Hellwig <hch@lst.de>
+> > Cc: christian.koenig@amd.com
+>
+> Fixes: 33b3ad3788ab ("drm/radeon: handle PCIe root ports with addressing limitations")
+>
 
-Test Regressions
----------------- =
+Sure, I can add that, but it doesn't really fix it, it reverts it.
+But point taken, it does fix the commit by removing it.
 
+Alex
 
-
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f61c843c85591f1bcbed954
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.65-=
-131-g0d8c7a7aec77/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
-5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.65-=
-131-g0d8c7a7aec77/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
-5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f61c843c85591f1bcbed=
-955
-      failing since 157 days (last pass: v5.4.30-54-g6f04e8ca5355, first fa=
-il: v5.4.30-81-gf163418797b9)  =20
+> as well?
+>
+> thanks,
+>
+> greg k-h
