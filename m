@@ -2,79 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A10B26BF67
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 10:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83B6526BF8D
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 10:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726615AbgIPIe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 04:34:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36738 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725840AbgIPIe1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Sep 2020 04:34:27 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CDAF20795;
-        Wed, 16 Sep 2020 08:34:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600245267;
-        bh=5KLkA+J2/h4eyGXRPb1P2FQzvzNuKGk/+COHN+p/Ppk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vI336rtD1Shh6hNtyvcoudIm1LkDtc5bt5bmYZ5Dp2UHKGu95jAcATPJff75z82Wj
-         CCkhnImzgGirdmdsNURNuDKKTcs+MuOk/WXRz/FjfT1knQGDGOguEqqsgnC8yUMLs1
-         VZdZez1PU6f9/qRX4pFcq36uldf4/ngIc3lzee04=
-Date:   Wed, 16 Sep 2020 10:35:01 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 2/4] drm/i915/gt: Wait for CSB entries on
- Tigerlake
-Message-ID: <20200916083501.GA675213@kroah.com>
-References: <20200915124150.12045-1-chris@chris-wilson.co.uk>
- <20200915124150.12045-2-chris@chris-wilson.co.uk>
- <20200916063358.GL142621@kroah.com>
- <160024481825.2231.4268855132793535750@build.alporthouse.com>
+        id S1726377AbgIPIlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 04:41:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34626 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726149AbgIPIle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 04:41:34 -0400
+Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A831C06174A
+        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 01:41:34 -0700 (PDT)
+Received: by mail-io1-xd2d.google.com with SMTP id r9so7397131ioa.2
+        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 01:41:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=Gzr0tG9QIS5L2SbET8WTvMQNvVp/DEVyaK54Yv2iwwQ=;
+        b=u0hRdeRoGPrNEqclVTxKPbJktRq0xCJtP7gaT19BqI4gG8wrcKQglm7FbKOBFv1b9i
+         11mOd6tU753nQIG8bdxX6wqi9I362SiqffqFdSR8diswqUCiIxQ/HlVFGmyNaLA19jON
+         50j8R0EZpzt88NsKn8HENSulDNaX2Pa/bbNcv6c59eZJ/sbKE+YwsUIKFhnz66tbcwHe
+         m+9vGRhbw6hvimDi2TFRTOrv2XlQkhB4kHGLeZa72Qmiyb3VyUTnC4Dsljc+96IB6K8d
+         VRcTl8ObUxY0mWxlZGtzLPVgtKiGr7gJG8PyNPfbRZqQeUCPfQtgczbMJnorFgGvxTfB
+         hRtg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=Gzr0tG9QIS5L2SbET8WTvMQNvVp/DEVyaK54Yv2iwwQ=;
+        b=L9KPG5NXLrKx57rY/cKbUK+lWEu97occ0nH8RHDjG2Lu4QH9Rym/vx2wDXneyKD1L7
+         l5OrWavGgj9SvQeUHEoepgLrQbd6lyYvLLqyoHymyBKXO3WNwpgZ2EhYEde/xGGtB2Am
+         A6tU7qOpCIPv32Mlb0GYoCO+s09g9XzhmQ+yPlEMKNYDtzd/dbroCxLzkxLYZeC4mmN/
+         /8LJaIX2bEy6PYQDI8n3OxkwJ0ltCEO1dwPHBTJWKhPtU0l6QZH/ukUxjUMCUS0ez0i5
+         aK/IyS2U9FrdbYxWfWfjIRLzKZoPABvN3kYZDSxBCq7cUW31accBGFJtesRum7pCQSFf
+         11lg==
+X-Gm-Message-State: AOAM531L1mOJEjBcDIgpXZUg3Pga2EIW/mkDUjBuQsZcNJY9oIykpuZ7
+        pLjZyRdL/fZPmOf2sNKLEB7n2mjxKe9SY8wFRJHZIf+J4GQNSQ==
+X-Google-Smtp-Source: ABdhPJxzDHRkzKTCEwR17QFaRMp/lK8q83gN9vbB7mAq2PW+Eei+Sdmu6zPWW+gxfKMkv+xQ52d/hM+YiLCbajy9KrY=
+X-Received: by 2002:a6b:d214:: with SMTP id q20mr18819224iob.23.1600245692814;
+ Wed, 16 Sep 2020 01:41:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <160024481825.2231.4268855132793535750@build.alporthouse.com>
+From:   DENG Qingfang <dqfext@gmail.com>
+Date:   Wed, 16 Sep 2020 16:41:23 +0800
+Message-ID: <CALW65jb8xv2tZPiimQcLHmpzcyhZG3t1HAZG_wdjE9sdXsQxPg@mail.gmail.com>
+Subject: Please apply commit 1ed9ec9b08ad ("dsa: Allow forwarding of
+ redirected IGMP traffic") to stable
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Daniel Mack <daniel@zonque.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 16, 2020 at 09:26:58AM +0100, Chris Wilson wrote:
-> Quoting Greg KH (2020-09-16 07:33:58)
-> > On Tue, Sep 15, 2020 at 01:41:48PM +0100, Chris Wilson wrote:
-> > > On Tigerlake, we are seeing a repeat of commit d8f505311717 ("drm/i915/icl:
-> > > Forcibly evict stale csb entries") where, presumably, due to a missing
-> > > Global Observation Point synchronisation, the write pointer of the CSB
-> > > ringbuffer is updated _prior_ to the contents of the ringbuffer. That is
-> > > we see the GPU report more context-switch entries for us to parse, but
-> > > those entries have not been written, leading us to process stale events,
-> > > and eventually report a hung GPU.
-> > > 
-> > > However, this effect appears to be much more severe than we previously
-> > > saw on Icelake (though it might be best if we try the same approach
-> > > there as well and measure), and Bruce suggested the good idea of resetting
-> > > the CSB entry after use so that we can detect when it has been updated by
-> > > the GPU. By instrumenting how long that may be, we can set a reliable
-> > > upper bound for how long we should wait for:
-> > > 
-> > >     513 late, avg of 61 retries (590 ns), max of 1061 retries (10099 ns)
-> > > 
-> > > Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2045
-> > > References: d8f505311717 ("drm/i915/icl: Forcibly evict stale csb entries")
-> > 
-> > What does "References:" mean?  Should that be "Fixes:"?
-> 
-> It's a reference to an earlier w/a for a previous generation for the
-> same symptoms. This patch should supplement that w/a.
+Hi,
 
-I see no such "reference" to that tag in
-Documentation/process/submitting-patches.rst, so how were we supposed to
-know this?  :)
+Please apply commit 1ed9ec9b08ad ("dsa: Allow forwarding of redirected
+IGMP traffic") to stable as well, as it fixes IGMP snooping on Marvell
+switches.
 
-thanks,
-
-greg k-h
+Regards,
+Qingfang
