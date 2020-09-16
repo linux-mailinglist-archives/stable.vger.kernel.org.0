@@ -2,73 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08FB926BD31
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 08:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94D3026BD37
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 08:33:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726370AbgIPGcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 02:32:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48636 "EHLO mail.kernel.org"
+        id S1726419AbgIPGdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 02:33:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726161AbgIPGcv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Sep 2020 02:32:51 -0400
+        id S1726161AbgIPGdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Sep 2020 02:33:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0097C206A5;
-        Wed, 16 Sep 2020 06:32:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44177206A5;
+        Wed, 16 Sep 2020 06:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600237970;
-        bh=POCzdNd7m+wkeL61cJUuuEZiB0GVhYvTSJ+RU8n3mtc=;
+        s=default; t=1600238003;
+        bh=wIHXaI6KNDEeIf6lJk7M0ugz5xhnlkyEFdtA6sHzDGo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Khx4taHP46JKWz0xNhPjc56ajy3yocLcwlbpX4CWSVQSqHIgluXQucIOOb0+v4y9g
-         +rFHMIpwBt7vBuKupjoxnCVhP6fqBc1v5RmLuLJdwQb3VRArxVak4yY8qh8Bzj0mFH
-         DEPyzI+C/lbFjvcNxULrxfv+p0jtMyVdJiPt5xF0=
-Date:   Wed, 16 Sep 2020 08:33:25 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Laurent Dufour <ldufour@linux.ibm.com>
-Cc:     akpm@linux-foundation.org, David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>, mhocko@suse.com,
-        linux-mm@kvack.org, "Rafael J . Wysocki" <rafael@kernel.org>,
-        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3 1/3] mm: replace memmap_context by meminit_context
-Message-ID: <20200916063325.GK142621@kroah.com>
-References: <20200915121541.GD4649@dhcp22.suse.cz>
- <20200915132624.9723-1-ldufour@linux.ibm.com>
+        b=2q9tLnApNZIwyqKiTSt9JDlKToe7BELueEwJvazqnppkuBa2vwDc/M5j9Khj6J77O
+         1hOkLQgM69RsmNOWjRVafVr2nBXlGOKdNmlLXnmJmI3iv5DIEml06eFDGjzyS/VGWF
+         HcA4O7vh3sngiD7uuss6Pz/L4fB63eiafZrWJbjM=
+Date:   Wed, 16 Sep 2020 08:33:58 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     intel-gfx@lists.freedesktop.org,
+        Bruce Chang <yu.bruce.chang@intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 2/4] drm/i915/gt: Wait for CSB entries on Tigerlake
+Message-ID: <20200916063358.GL142621@kroah.com>
+References: <20200915124150.12045-1-chris@chris-wilson.co.uk>
+ <20200915124150.12045-2-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200915132624.9723-1-ldufour@linux.ibm.com>
+In-Reply-To: <20200915124150.12045-2-chris@chris-wilson.co.uk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 15, 2020 at 03:26:24PM +0200, Laurent Dufour wrote:
-> The memmap_context enum is used to detect whether a memory operation is due
-> to a hot-add operation or happening at boot time.
+On Tue, Sep 15, 2020 at 01:41:48PM +0100, Chris Wilson wrote:
+> On Tigerlake, we are seeing a repeat of commit d8f505311717 ("drm/i915/icl:
+> Forcibly evict stale csb entries") where, presumably, due to a missing
+> Global Observation Point synchronisation, the write pointer of the CSB
+> ringbuffer is updated _prior_ to the contents of the ringbuffer. That is
+> we see the GPU report more context-switch entries for us to parse, but
+> those entries have not been written, leading us to process stale events,
+> and eventually report a hung GPU.
 > 
-> Make it general to the hotplug operation and rename it as meminit_context.
+> However, this effect appears to be much more severe than we previously
+> saw on Icelake (though it might be best if we try the same approach
+> there as well and measure), and Bruce suggested the good idea of resetting
+> the CSB entry after use so that we can detect when it has been updated by
+> the GPU. By instrumenting how long that may be, we can set a reliable
+> upper bound for how long we should wait for:
 > 
-> There is no functional change introduced by this patch
+>     513 late, avg of 61 retries (590 ns), max of 1061 retries (10099 ns)
 > 
-> Suggested-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
-> ---
->  arch/ia64/mm/init.c    |  6 +++---
->  include/linux/mm.h     |  2 +-
->  include/linux/mmzone.h | 11 ++++++++---
->  mm/memory_hotplug.c    |  2 +-
->  mm/page_alloc.c        | 10 +++++-----
->  5 files changed, 18 insertions(+), 13 deletions(-)
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2045
+> References: d8f505311717 ("drm/i915/icl: Forcibly evict stale csb entries")
 
-<formletter>
+What does "References:" mean?  Should that be "Fixes:"?
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+thanks,
 
-</formletter>
+greg k-h
