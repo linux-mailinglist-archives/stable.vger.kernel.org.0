@@ -2,81 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2B0926C08D
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 11:29:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C6A26C0A3
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 11:32:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726514AbgIPJ3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 05:29:50 -0400
-Received: from mout.gmx.net ([212.227.17.21]:48101 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726129AbgIPJ3u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Sep 2020 05:29:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1600248552;
-        bh=qUGJBV+LmwxwcbrLgtQC3FmqOE9MHn2vtmTA4RuY3Ys=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
-        b=U1cz8VM0uS5s6ucIGVHbJehmWY6HZBNoIE58j0GJUCbdts6kKuupEvrcAl4ECSq2j
-         TAS1eoH5/yhHpTv1rVUijGqsqX2Qup/n+3kx8cDpXnquLogxFvs5w2bt5oxsNDBRnV
-         MWfw4OydIwPBOnSAKtVAGSumau6j+loWLIgProps=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [217.61.159.245] ([217.61.159.245]) by web-mail.gmx.net
- (3c-app-gmx-bap11.server.lan [172.19.172.81]) (via HTTP); Wed, 16 Sep 2020
- 11:29:11 +0200
+        id S1726243AbgIPJcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 05:32:25 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:35159 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726744AbgIPJcJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 05:32:09 -0400
+Received: by mail-ot1-f67.google.com with SMTP id o6so6092588ota.2;
+        Wed, 16 Sep 2020 02:32:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=gO1cQYnIv6MCy6jmh/NLJk3GH4hMeS1DLmzxepSLtGM=;
+        b=abSTZ0MaKLaRTMchdXSXttySB2E3IwUOC3VYtoMR9KmVQSsKsWmyt4/ubwotREUhXR
+         kqLKya3QpKGshqQT1pyUox2ARwJH6s97hk04fRb/5oDHMQLnBI9hCKnWFgAzwW2jQ0XZ
+         4rXWg1sYzj/aNKIrfwJ3PSlVUkEaEbLhZeGZ8vBCV69MBvwxVlVupUoIR5pRZsioM48j
+         gxmlk7JVsI7PJRHAyF3fcP73kFWBYDnGLM9DEihyjqyHXbFP0LsqI61cji6VdPKpUgil
+         SR0TydHxoC7vy5CPQ3kt0AvTKEZE3Foyvjbi2npvz1u7fdM/kElb5+bcoKwlZgMtsvLM
+         XQYw==
+X-Gm-Message-State: AOAM531G4Jc4yxcwws0jFMyVYzhAq5pugKmvpMMdlUBHU14Nzxd4+htk
+        hZkw1ycaj52xGQ1lBOwbHP+PVsdxQqv7E3OKIqQ=
+X-Google-Smtp-Source: ABdhPJwhDnkwCr9zt3bOfU6s/ZJWMCNXhnDAAzPnyJvN+ilTJMp4LBOFeBI2qOENQxSb53FbTLQFuE979X4DNea2iBs=
+X-Received: by 2002:a9d:5a92:: with SMTP id w18mr15568721oth.145.1600248728028;
+ Wed, 16 Sep 2020 02:32:08 -0700 (PDT)
 MIME-Version: 1.0
-Message-ID: <trinity-ae5f43d2-c2e3-46eb-84c7-d96843beb7de-1600248551915@3c-app-gmx-bap11>
-From:   Frank Wunderlich <frank-w@public-files.de>
-To:     Frank Wunderlich <linux@fw-web.de>
-Cc:     linux-mediatek@lists.infradead.org,
-        Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Landen Chao <landen.chao@mediatek.com>,
-        Qingfang DENG <dqfext@gmail.com>,
-        =?UTF-8?Q?Ren=C3=A9_van_Dorst?= <opensource@vdorst.com>,
-        Sean Wang <sean.wang@mediatek.com>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Aw: [PATCH] arm: dts: mt7623: add missing pause for switchport
-Content-Type: text/plain; charset=UTF-8
-Date:   Wed, 16 Sep 2020 11:29:11 +0200
-Importance: normal
-Sensitivity: Normal
-In-Reply-To: <20200907070517.51715-1-linux@fw-web.de>
-References: <20200907070517.51715-1-linux@fw-web.de>
-X-UI-Message-Type: mail
-X-Priority: 3
-X-Provags-ID: V03:K1:TC01A2xr8RkXbGgsLFqV/VbN+AQWwQnYA29J/gOoyTQTIr8jw2P4VTWWxuwr9MrAtMe6U
- uzP6I/mCnUJpUbaPsvJHZzg7U+63MfHeqcKzLQ4PHx48//3Ftii+5hGc97AKyZeiUGBVu8b53bqb
- UsV8RZZS1vslD17/qzt4n0p/+sB6x5XxE5jJoiLFJ7LoyoaWWM1oDs4igtcYPsRddltjzZ7H/kQ4
- NPP0VsOmDPrWc91W0xoXyIxg5yqiqLHKrTpFdhA2BD90X5LVXXbVZ3AaXuTUszI2FixJyaaxw1lT
- io=
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:sqErrydygD4=:evonUZdnNfjkzK5DzG4aaM
- usCFiwJmZLrRLKL0CDSIY2jUA64Co9RBWXVZAPuli/1LI7qzhg8mRuGc+xufAiDLbioLmwPmt
- riQPSD9BPMGyJ3iqGv/4DFw6NcX+DhaRgLr2priRBqHBZyLFAuwjsA1gxQ8MCxAPOiYQC2EQ6
- RE1CqkORT9ReeumjCaGZTYWyiyGIu7b+Y0gJ6370Cr9L/V90R/UggTWgIGD6a+nscgUh9JNb/
- NW03Uph/yvz0I10wotR3Ws9xuFHuc4OWDlcL7Uv75cb6l24gykk85ZEiy3J4+mLUKgnzlABFh
- tKYP4akwZaMeivNq0HDs2DuhHgZf6PPF3bUKN2XgYLdZZfgEFhGhIX9ZxymKOMX/hyiaxoAWR
- jDPr/FCviuP5QqX+m8Oxr38iAvX4uIGB1NfsZqNwtFOkUgsMCcfIvLUlWyn6zIq/FG7lX+GxE
- GhYTg1KO9vJEM6ZMV9ToVPBIyBQP3OPyqny6pXr3V5+SgJWWToEMxPTE7kf8/rfTFScifnLoV
- lXlaqjwyD1NE2lXGRl6/IAAyUnsGBS83Wp8nakQgolDn1kHR4QZTRmd1enisnle6vPUCs5WIv
- rhZMGzYGE9Ico2lE5zSZpr2wCfzBtO6IYRDmdlAeWQMrcuAk0FmFO7/fFOjjDzMaiLbyx8Bx1
- 1JHv1ZS4j7fXim8TefcpdAYwU+K6sfcHlXgaN3If+WrEWMOS1zQElrViMTDSxBV07FAY=
+References: <20200820094307.3977-1-ashiduka@fujitsu.com>
+In-Reply-To: <20200820094307.3977-1-ashiduka@fujitsu.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 16 Sep 2020 11:31:56 +0200
+Message-ID: <CAMuHMdXns4N=pUW=iq=CJz8dtNObt1jAOhAaxQ2UA4bTqQ9AwA@mail.gmail.com>
+Subject: Re: [PATCH v3] ravb: Fixed to be able to unload modules
+To:     Yuusuke Ashizuka <ashiduka@fujitsu.com>
+Cc:     Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        netdev <netdev@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-just a gentle ping
+Hi Ashizuka-san,
 
-regards Frank
+On Thu, Aug 20, 2020 at 2:55 PM Yuusuke Ashizuka <ashiduka@fujitsu.com> wrote:
+> When this driver is built as a module, I cannot rmmod it after insmoding
+> it.
+> This is because that this driver calls ravb_mdio_init() at the time of
+> probe, and module->refcnt is incremented by alloc_mdio_bitbang() called
+> after that.
+> Therefore, even if ifup is not performed, the driver is in use and rmmod
+> cannot be performed.
+>
+> $ lsmod
+> Module                  Size  Used by
+> ravb                   40960  1
+> $ rmmod ravb
+> rmmod: ERROR: Module ravb is in use
+>
+> Call ravb_mdio_init() at open and free_mdio_bitbang() at close, thereby
+> rmmod is possible in the ifdown state.
+>
+> Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+> Signed-off-by: Yuusuke Ashizuka <ashiduka@fujitsu.com>
+> Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
 
+Thanks for your patch, which is now commit 1838d6c62f578366 ("ravb:
+Fixed to be able to unload modules") in v5.9-rc4 (backported to stable
+v4.4, v4.9, v4.14, v4.19, v5.4, and v5.8).
 
-> Gesendet: Montag, 07. September 2020 um 09:05 Uhr
+This is causing a regression during resume from s2idle/s2ram on (at
+least) Salvator-X(S) and Ebisu.  Reverting that commit fixes this.
 
-> +++ b/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts
-> @@ -192,6 +192,7 @@ port@6 {
->  					fixed-link {
->  						speed = <1000>;
->  						full-duplex;
-> +						pause;
+During boot, the Micrel PHY is detected correctly:
 
+    Micrel KSZ9031 Gigabit PHY e6800000.ethernet-ffffffff:00: attached
+PHY driver [Micrel KSZ9031 Gigabit PHY]
+(mii_bus:phy_addr=e6800000.ethernet-ffffffff:00, irq=228)
+    ravb e6800000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+
+During resume, if CONFIG_MODULES=n, it falls back to the Generic PHY
+(case A):
+
+    Generic PHY e6800000.ethernet-ffffffff:00: attached PHY driver
+[Generic PHY] (mii_bus:phy_addr=e6800000.ethernet-ffffffff:00,
+irq=POLL)
+    ravb e6800000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+
+and Ethernet still works (degraded, due to polling).
+
+During resume, if CONFIG_MODULES=y, MDIO initialization fails (case B):
+
+    mdio_bus e6800000.ethernet-ffffffff:00: error -16 loading PHY
+driver module for ID 0x00221622
+    ravb e6800000.ethernet eth0: failed to initialize MDIO
+    PM: dpm_run_callback(): ravb_resume+0x0/0x1b8 returns -16
+    PM: Device e6800000.ethernet failed to resume: error -16
+
+and Ethernet no longer works.
+
+Case B happens because usermodehelper_disabled is set to UMH_DISABLED
+during system suspend, causing request_module() to return -EBUSY.
+Ignoring -EBUSY in phy_request_driver_module(), like was done for
+-ENOENT in commit 21e194425abd65b5 ("net: phy: fix issue with loading
+PHY driver w/o initramfs"), makes it fall back to the Generic PHY, cfr.
+case A.
+
+For case A, I haven't found out yet why it falls back to the Generic PHY.
+
+Thanks for your comments!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
