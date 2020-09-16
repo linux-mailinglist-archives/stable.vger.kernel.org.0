@@ -2,141 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1844726C8CD
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 20:58:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5282426C8ED
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 21:00:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727639AbgIPS5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 14:57:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36512 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727527AbgIPRxL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 13:53:11 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07849C002173
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 07:26:51 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id o8so6887832otl.4
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 07:26:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=2D1OU8amju4lA0O/9NcGkhPyv8OEovj+wikjkwIUt7Q=;
-        b=NGIGTUJ+Wm5tSYmyZhgb9P/mhMA1R8QbZFRuug43BZhiSWrANJuChB9zWZgolQqvWU
-         hT66ohFQqpnV3xk3AsC7wdbXmRJ7ZWkbZ1+lqkpD15+sAW7XR/cojjrNRzzh7n2vI3uo
-         7WeHkQQ1kMRJzu+ksCwVk/iFtucpSsLIFIYks=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2D1OU8amju4lA0O/9NcGkhPyv8OEovj+wikjkwIUt7Q=;
-        b=Gw5j+0Iag4dmN6cB86Ql3Ciq7w3tuelGIBWkcFwk3D6wMBV+pAfWEU+Z0YOVNcQ/YX
-         uQ+2XgK64pfDi+yJ1fj4LPIjNKdWKNiJY9niKVb6QRDyRnS2lsPlo0+X2NwtshFUJuWp
-         IUuXppeC90Sub6zgIdd9yPwxNNvaW+Dh/Sy8tveG5jJ8FhH9D2Xy4KC0BVOvZ6rpd5vQ
-         q+Q6+CNj1IU9/9Mv7LlIBankEbupE3SpRf1o7MPVSPM2wyrdU4vrDGBy/BKtrxpDp4kl
-         6y0AusftJ2gCubos9GMYDTZc4WNUN1R8QAXzZ0R/JOHTbjRLCNPxsq9k14p9dYVbHFJI
-         jTnA==
-X-Gm-Message-State: AOAM531uNtupoJOup5dVY0/K8R26IQjsUHjztpCSOQiM12mRHyjG2FTp
-        n+RoPFOfKSONN8bsGutE2oaIUTj+URdv+g==
-X-Google-Smtp-Source: ABdhPJwMz+cTRB/ole33O3az2A9OpsPjAFMkCBENa1ojUIpGBpjTHA4NjGEW2ki+PP7UlxYbEvF/8Q==
-X-Received: by 2002:a9d:7c7:: with SMTP id 65mr17220499oto.268.1600266411163;
-        Wed, 16 Sep 2020 07:26:51 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id l3sm8293920oth.36.2020.09.16.07.26.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 16 Sep 2020 07:26:50 -0700 (PDT)
-Subject: Re: [PATCH 5.8 000/177] 5.8.10-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Prateek Sood <prsood@codeaurora.org>,
-        Takashi Iwai <tiwai@suse.de>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <20200915140653.610388773@linuxfoundation.org>
- <b94c29b3-ef68-897b-25a8-e6fcc181a22a@linuxfoundation.org>
- <8277900f-d300-79fa-eac7-096686a6fbc3@linuxfoundation.org>
- <20200916062958.GH142621@kroah.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <69e7c908-4332-91fd-bdb2-6be19fcbf126@linuxfoundation.org>
-Date:   Wed, 16 Sep 2020 08:26:48 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1727413AbgIPTAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 15:00:15 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:62532 "EHLO m43-7.mailgun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727629AbgIPS76 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Sep 2020 14:59:58 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1600282797; h=Content-Transfer-Encoding: MIME-Version:
+ Message-Id: Date: Subject: Cc: To: From: Sender;
+ bh=SSqTKliitikyhS2Hm4khYk3MaXTZpP0INBcLPuNG4D4=; b=HT0CY1vZMJxh7/SXdk5NhQ6Kdyp4hBZwTJ8MS4EOEwYJzOfyUwf0IIBZqzYiQRHs7RiNWoiM
+ y/wwb5i6/xT8A3rvsIVoZD+0jLHGfTOKvfvU5/TOh2cMU2tNNgncTLoEUUXFkwlBgefX4mtg
+ g821qp4Fn2fDuKtFIABwC2axUvk=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n05.prod.us-west-2.postgun.com with SMTP id
+ 5f62266d9a5950f997bf30f5 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 16 Sep 2020 14:51:25
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id EB37DC433F1; Wed, 16 Sep 2020 14:51:24 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+Received: from blr-ubuntu-253.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: sibis)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 5492BC433CA;
+        Wed, 16 Sep 2020 14:51:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 5492BC433CA
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=sibis@codeaurora.org
+From:   Sibi Sankar <sibis@codeaurora.org>
+To:     bjorn.andersson@linaro.org, mathieu.poirier@linaro.org
+Cc:     agross@kernel.org, linux-arm-msm@vger.zkernel.org,
+        linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        ohad@wizery.com, rishabhb@codeaurora.org,
+        Sibi Sankar <sibis@codeaurora.org>, stable@vger.kernel.org
+Subject: [PATCH v2] remoteproc: Fixup coredump debugfs disable request
+Date:   Wed, 16 Sep 2020 20:21:00 +0530
+Message-Id: <20200916145100.15872-1-sibis@codeaurora.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-In-Reply-To: <20200916062958.GH142621@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/16/20 12:29 AM, Greg Kroah-Hartman wrote:
-> On Tue, Sep 15, 2020 at 08:54:24PM -0600, Shuah Khan wrote:
->> On 9/15/20 3:06 PM, Shuah Khan wrote:
->>> On 9/15/20 8:11 AM, Greg Kroah-Hartman wrote:
->>>> This is the start of the stable review cycle for the 5.8.10 release.
->>>> There are 177 patches in this series, all will be posted as a response
->>>> to this one.  If anyone has any issues with these being applied, please
->>>> let me know.
->>>>
->>>> Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
->>>> Anything received after that time might be too late.
->>>>
->>>> The whole patch series can be found in one patch at:
->>>>      https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.10-rc1.gz
->>>>
->>>> or in the git tree and branch at:
->>>>      git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->>>> linux-5.8.y
->>>> and the diffstat can be found below.
->>>>
->>>> thanks,
->>>>
->>>> greg k-h
->>>>
->>>
->>> Compiled and booted fine. wifi died:
->>>
->>> ath10k_pci 0000:02:00.0: could not init core (-110)
->>> ath10k_pci 0000:02:00.0: could not probe fw (-110)
->>>
->>> This is regression from 5.8.9 and 5.9-rc5 works just fine.
->>>
->>> I will try to bisect later this evening to see if I can isolate the
->>> commit.
->>>
->>
->> The following commit is what caused ath10k_pci driver problem
->> that killed wifi.
->>
->> Prateek Sood <prsood@codeaurora.org>
->>      firmware_loader: fix memory leak for paged buffer
->>
->> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.8.y&id=ec0a59266c9c9f46037efd3dcc0323973e102271
-> 
-> Ugh, that's not good, is this also a problem in 5.9-rc5 as well?  For
-> reference, this is commit 4965b8cd1bc1 ("firmware_loader: fix memory
-> leak for paged buffer") in Linus's tree.
-> 
+Fix the discrepancy observed between accepted input and read back value
+while disabling remoteproc coredump through the coredump debugfs entry.
 
-I am not seeing this on Linux 5.9-rc5 for sure.
+Fixes: 3afdc59e4390 ("remoteproc: Add coredump debugfs entry")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+---
 
-> And it should be showing up in 5.4.y at the moment too, as this patch is
-> in that tree right now...
-> 
+V2:
+ * Fixup commit message [Bjorn].
 
-I don't see this patch in  4.19.146-rc1
+ drivers/remoteproc/remoteproc_debugfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Linus's tree works for with this patch in. I compared the two files
-for differences in commit between Linus's tree and 5.8.10-rc1
-
-Couldn't find anything obvious.
-
-thanks,
--- Shuah
-
-
+diff --git a/drivers/remoteproc/remoteproc_debugfs.c b/drivers/remoteproc/remoteproc_debugfs.c
+index 2e3b3e22e1d0..7ca823f6aa63 100644
+--- a/drivers/remoteproc/remoteproc_debugfs.c
++++ b/drivers/remoteproc/remoteproc_debugfs.c
+@@ -94,7 +94,7 @@ static ssize_t rproc_coredump_write(struct file *filp,
+ 		goto out;
+ 	}
+ 
+-	if (!strncmp(buf, "disable", count)) {
++	if (!strncmp(buf, "disabled", count)) {
+ 		rproc->dump_conf = RPROC_COREDUMP_DISABLED;
+ 	} else if (!strncmp(buf, "inline", count)) {
+ 		rproc->dump_conf = RPROC_COREDUMP_INLINE;
+-- 
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
 
