@@ -2,72 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C05A526C431
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 17:30:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C617126C472
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 17:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726260AbgIPP3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 11:29:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41300 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726179AbgIPP2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 11:28:51 -0400
-Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07C61C02C28F
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 08:19:58 -0700 (PDT)
-Received: by mail-il1-x12c.google.com with SMTP id t12so6849999ilh.3
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 08:19:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=VNB6kO1NhT7pvOlSLoJjvFXwv7bNFNilhORr2T8SlFc=;
-        b=kp7g7jY1QDVEQeMdv+NIso9Teq41fvqsYCVFs7/CTunkmLjnfRHPKwWY0M5BUB720Y
-         DugE62iRJlrinoQuDztVCms5PsMhuMnzKvWH+wt4+XVmvU8KW8tI1kTyEZhwKN7VQDGk
-         NURBRxaTmWZIYjg5oOPo81GfQQLEu8icV5hI8dIV4wnMTP+GXhbgUxQZaelBxJPm7eDF
-         94Zq1V9ZZsZe54yt5rHLkWH6i83o0HkddZidiGNWMgvBTSKzbpYHzEy/EXFG6f3uFD/n
-         E/aZf0lTFcc4tKX09ZWWry7DC/x7VTMWPh1MD5R+hka/bCcHFcKIYXvm3hT/ixJcmdRw
-         RwTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VNB6kO1NhT7pvOlSLoJjvFXwv7bNFNilhORr2T8SlFc=;
-        b=CB5mCEhwvx8bx098/bwozVBV61WxyeHJxt4Ap5um6eohoEQ52B1hcc46iLGxZTQDrQ
-         C1KcGE1MZcX4AXP2Ymnim5DoGS75GvWNRChU9BLRlMNxtzhi0URSzwpJKQjkxXlX+MZs
-         xq75P0pm98LjT8cJ7IvZsLnvA8b5ylOFM7u8I8ZqsAJ0BeQaUJiOkaI2uPrcyopyJA0X
-         AxnvrWZ5iO8m0IGXL6HkX+/WxZrBm03TnIqmWRSjzqgSL9ISezSsZXtYAn0JV0PlNkAS
-         03xgYbn7F63r6xu6SihOwUNihMG4gU0V+OwC37oQt/mSvaY9y+9cAG6ZGcZfszEznXw0
-         rpgw==
-X-Gm-Message-State: AOAM530SFG74IojduJEkI8Xeko/Rl72MfqrHKgnnXgbCCYLeWEZ9uFv3
-        zn5kWZ5mf1w9yMpc34oWlKlZXyEhUGlLMuv/o4M=
-X-Google-Smtp-Source: ABdhPJx+HJRnE774t3/gUMU9tuNlkKaoWdIHZvEPLbZkCR+i0H9EzRNMz2UDRF38pM18k2ESI3ZHE+IAhiohTzKtZDc=
-X-Received: by 2002:a92:d40c:: with SMTP id q12mr8746120ilm.169.1600269596379;
- Wed, 16 Sep 2020 08:19:56 -0700 (PDT)
+        id S1726093AbgIPPkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 11:40:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46214 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726314AbgIPPa1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Sep 2020 11:30:27 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01EDE20715;
+        Wed, 16 Sep 2020 15:25:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600269955;
+        bh=L3ATN5SkAg5QienUVgSnHS6amRSeN8XZTpAIwp8DitY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=V8ZewoTBOL5l0jFfC96BgwpiJ+ivSbCO4hZD3xfFCotWrrVPWPgOflJGJ/gieF4SS
+         S0Ie5aCWSPLp8nJhoKxr05Kw6R/0ChNkl3symgCA3pVhuTUf0NU4GwYj1E2yxENXpB
+         Vd3xSHrXr5oA+4z3Uju2fVOSjxacrj6WwEuWgqbE=
+Date:   Wed, 16 Sep 2020 17:26:29 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     Prateek Sood <prsood@codeaurora.org>, Takashi Iwai <tiwai@suse.de>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 5.8 000/177] 5.8.10-rc1 review
+Message-ID: <20200916152629.GD3018065@kroah.com>
+References: <20200915140653.610388773@linuxfoundation.org>
+ <b94c29b3-ef68-897b-25a8-e6fcc181a22a@linuxfoundation.org>
+ <8277900f-d300-79fa-eac7-096686a6fbc3@linuxfoundation.org>
+ <20200916062958.GH142621@kroah.com>
+ <69e7c908-4332-91fd-bdb2-6be19fcbf126@linuxfoundation.org>
 MIME-Version: 1.0
-References: <CALW65jb8xv2tZPiimQcLHmpzcyhZG3t1HAZG_wdjE9sdXsQxPg@mail.gmail.com>
- <20200916093839.GB739330@kroah.com>
-In-Reply-To: <20200916093839.GB739330@kroah.com>
-From:   DENG Qingfang <dqfext@gmail.com>
-Date:   Wed, 16 Sep 2020 23:19:44 +0800
-Message-ID: <CALW65jZvq7_KggV4tOEi9=xFRjid1j+gfCSH7T3T_RSJCky_3g@mail.gmail.com>
-Subject: Re: Please apply commit 1ed9ec9b08ad ("dsa: Allow forwarding of
- redirected IGMP traffic") to stable
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Daniel Mack <daniel@zonque.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <69e7c908-4332-91fd-bdb2-6be19fcbf126@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 16, 2020 at 5:38 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
-> What stable tree(s) do you wish to see this applied to?
+On Wed, Sep 16, 2020 at 08:26:48AM -0600, Shuah Khan wrote:
+> On 9/16/20 12:29 AM, Greg Kroah-Hartman wrote:
+> > On Tue, Sep 15, 2020 at 08:54:24PM -0600, Shuah Khan wrote:
+> > > On 9/15/20 3:06 PM, Shuah Khan wrote:
+> > > > On 9/15/20 8:11 AM, Greg Kroah-Hartman wrote:
+> > > > > This is the start of the stable review cycle for the 5.8.10 release.
+> > > > > There are 177 patches in this series, all will be posted as a response
+> > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > let me know.
+> > > > > 
+> > > > > Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
+> > > > > Anything received after that time might be too late.
+> > > > > 
+> > > > > The whole patch series can be found in one patch at:
+> > > > >      https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.10-rc1.gz
+> > > > > 
+> > > > > or in the git tree and branch at:
+> > > > >      git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> > > > > linux-5.8.y
+> > > > > and the diffstat can be found below.
+> > > > > 
+> > > > > thanks,
+> > > > > 
+> > > > > greg k-h
+> > > > > 
+> > > > 
+> > > > Compiled and booted fine. wifi died:
+> > > > 
+> > > > ath10k_pci 0000:02:00.0: could not init core (-110)
+> > > > ath10k_pci 0000:02:00.0: could not probe fw (-110)
+> > > > 
+> > > > This is regression from 5.8.9 and 5.9-rc5 works just fine.
+> > > > 
+> > > > I will try to bisect later this evening to see if I can isolate the
+> > > > commit.
+> > > > 
+> > > 
+> > > The following commit is what caused ath10k_pci driver problem
+> > > that killed wifi.
+> > > 
+> > > Prateek Sood <prsood@codeaurora.org>
+> > >      firmware_loader: fix memory leak for paged buffer
+> > > 
+> > > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.8.y&id=ec0a59266c9c9f46037efd3dcc0323973e102271
+> > 
+> > Ugh, that's not good, is this also a problem in 5.9-rc5 as well?  For
+> > reference, this is commit 4965b8cd1bc1 ("firmware_loader: fix memory
+> > leak for paged buffer") in Linus's tree.
+> > 
+> 
+> I am not seeing this on Linux 5.9-rc5 for sure.
+> 
+> > And it should be showing up in 5.4.y at the moment too, as this patch is
+> > in that tree right now...
+> > 
+> 
+> I don't see this patch in  4.19.146-rc1
 
-5.4.y and 4.19.y
+It's not there, it's in 5.4.66-rc1, which worked for you somehow, right?
 
->
-> thanks,
->
-> greg k-h
+> Linus's tree works for with this patch in. I compared the two files
+> for differences in commit between Linus's tree and 5.8.10-rc1
+> 
+> Couldn't find anything obvious.
+
+Again, really odd...
+
+I don't have a problem dropping it, but I should drop it from both 5.4.y
+and 5.8.y, right?
+
+thanks,
+
+greg k-h
