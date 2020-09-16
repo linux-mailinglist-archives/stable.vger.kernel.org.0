@@ -2,185 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 130F026C7B8
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 20:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FCF226C896
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 20:53:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728080AbgIPSeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 14:34:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42260 "EHLO
+        id S1727271AbgIPSxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 14:53:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727757AbgIPS3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 14:29:14 -0400
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC3B7C0698E4
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 04:54:33 -0700 (PDT)
-Received: by mail-vs1-xe43.google.com with SMTP id b123so3819766vsd.10
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 04:54:33 -0700 (PDT)
+        with ESMTP id S1727725AbgIPSHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 14:07:54 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4725FC004595
+        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 07:10:30 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id i26so10517722ejb.12
+        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 07:10:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=soleen.com; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=STC9syRnsB/od57KLlUuYJG/pd+YClfa6tUJ+4CQt+c=;
-        b=M5lTGdY/TApM4vk2MB5RDFZfu9IfFcRYNq2MZuIBfN9wERz0OhEwIa2l/ENaVAMdpZ
-         zToZZx+JLLb2QvIPxE8EUpwC02ooHssMMene6KXY3aQiIx/JcZ2iowYW6EsGapuQ7fwL
-         KdfDSDuxt933uqzb/bKC50HCXKvV6TcrNnlgz0u3goHkPQ3NtUeLRLSOaIJHfWcbRDJk
-         +y7RP4lMMY14RrN/TlQCArvKKMtaHIpQwpMXfDl6RXrzy38Hg6b03joKw9KkpSw+lwpv
-         as6IcJtAONok1U7zQeCajVUmSifvTFqLTZoNr5S/mtsp3VPmX2pZAm42JbF99s+dVuBc
-         LxFQ==
+         :cc;
+        bh=+S2CSyUrJOoSBKBPReWtWulZnnCfEKHUy+NnngyRef0=;
+        b=dluw97T9kNaX3w4wxi7TgvZQVAz5KYKgo6ZXUd3RC+AdiNAUw5smK7MJsd9wsco4x0
+         jBJ/ZnbEIoIQNGHmT7flOg6+78EP6vH9RDSWELcntd9a9EPWUMbNfqMuQLRfC/il9Vh/
+         zNSNUpaQ74kW1dUXfkkuS9duSQXZYPxJ9OwDejpX+YSrP4vRN2nZ6XfHSqYlMgtNjpga
+         TpZ4coX0MP+aR5+kPLY2mxqiTGGa+GqtwjEGzceCzCl6zly9hdhqJGOZDoxAnUPpMQWN
+         B65Hjbn7qEMzSwOH6gA8OhzN835jVlgNbQygO1p2e7I3mSakhrJYP8lgZwLgPQb+opa3
+         LZKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=STC9syRnsB/od57KLlUuYJG/pd+YClfa6tUJ+4CQt+c=;
-        b=K1hwQIGB/cA5jeQzWmZnr4n3LCOGMVxXz8xHCLD2CFvwAmpuownycC2CkGn3dDkhtD
-         EQW/9uWi79YiltIOrAT4s+vPu3i1zWI8Uizwq/3dL8M4jtIwsuCFfCKsp69X6i/luIxE
-         UfAQLLTlV4fT9LFyM6+zxS0rCqZHYBQlnVfbdQfP6zf0IlQYL8nvaPD+9/3IJ0dPRrnp
-         XFZzwm5lGGcc0ox/OkRhzLXylZth3qO9kdXOZrLHJTDienwXsxqFhJB8FYCgy/wsYBWi
-         7QwGc/lSp1Q0jrBmr+/4qWddy4xx1XNYRcNas24g3n6k2kDurQRgbzgOi52ivppPd0ds
-         VcGw==
-X-Gm-Message-State: AOAM532DJv3SY2Or4LmDMXBozEVDXheME3Uca6Q14M/FCfswVeHzQrGZ
-        cjAjChHA4W2NBL00fi+1+OhA+F8zENGatQnIK7pI9Q==
-X-Google-Smtp-Source: ABdhPJyI7nB6GGW1cPNeGHlYzWMQd2Wp38tcHlza+kSPJSd9lRG/ct8GNLWK0pPv7zJ/VeF+b8LRbkqBqhcPhNAmvxw=
-X-Received: by 2002:a67:8c48:: with SMTP id o69mr4157256vsd.39.1600257272818;
- Wed, 16 Sep 2020 04:54:32 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=+S2CSyUrJOoSBKBPReWtWulZnnCfEKHUy+NnngyRef0=;
+        b=odxOy5lxtwyITwWJUfKfBCK5LtbdpbelSCEsXdtQ3nwFwKv7Mvq7LDs6q2zQrtyjDl
+         o0Z3rTa2US3onlLWMxzFgSMwuEsfo0HD+ly2HGmbdX5iF7j1WqSQvxFSECu6Y2P19hp4
+         D8qVBgOBggIKGv6eBVlsyo2paXuxd+/jUuDOYqs/GEW95VyMyk2qiFc0m6eRSDPyeLHl
+         YKTo69fVirGmjnbJEbFMBACB1wtF8AGTBgC0mG7YieO/PASlfpkdVUYlfj22eVGKscNS
+         GwkZGuuSxafhnlsfwf5lF73DqPs/7DitWC8xAYQGhkl+PNhGFeSJpw/u2RTK40VlCHlu
+         SGlQ==
+X-Gm-Message-State: AOAM533qf5/aWvniDJgiL230CSfz3IxwSjdEfH88WfwAfcd2FO6VBnSB
+        00FDlZp/1OqlQTa45PFAIA1cwZyN04wBu6uit7NKNg==
+X-Google-Smtp-Source: ABdhPJx2NzetNWtREp5DWWS4b530PRluwUjIRG1OMEZ86H/MG5LysfSoTioHzg3z9mZQBMl49b7e4Qhq5E9iVAG7qtw=
+X-Received: by 2002:a17:906:d787:: with SMTP id pj7mr24536109ejb.340.1600265428812;
+ Wed, 16 Sep 2020 07:10:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200916063531.282549329@linuxfoundation.org>
-In-Reply-To: <20200916063531.282549329@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 16 Sep 2020 17:24:21 +0530
-Message-ID: <CA+G9fYtfo+8huJtR0wFgKAbLJLES-UQAQ8Fv5zABuJMfG=raxQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/130] 5.4.66-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        linux- stable <stable@vger.kernel.org>
+References: <20200916000948.N0vvr%akpm@linux-foundation.org> <20200916073345.GC18998@dhcp22.suse.cz>
+In-Reply-To: <20200916073345.GC18998@dhcp22.suse.cz>
+From:   Pavel Tatashin <pasha.tatashin@soleen.com>
+Date:   Wed, 16 Sep 2020 10:09:52 -0400
+Message-ID: <CA+CK2bBSOQYbWjJZAHTFBwzcp4=h1X9Yd5rFj4hWxt97kzp8kw@mail.gmail.com>
+Subject: Re: + mm-khugepaged-recalculate-min_free_kbytes-after-memory-hotplug-as-expected-by-khugepaged.patch
+ added to -mm tree
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        mm-commits@vger.kernel.org, stable <stable@vger.kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Allen Pais <apais@microsoft.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Vijay Balakrishna <vijayb@linux.microsoft.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 16 Sep 2020 at 12:07, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Wed, Sep 16, 2020 at 3:33 AM Michal Hocko <mhocko@suse.com> wrote:
 >
-> This is the start of the stable review cycle for the 5.4.66 release.
-> There are 130 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> On Tue 15-09-20 17:09:48, Andrew Morton wrote:
+> > From: Vijay Balakrishna <vijayb@linux.microsoft.com>
+> > Subject: mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
+> >
+> > When memory is hotplug added or removed the min_free_kbytes must be
+> > recalculated based on what is expected by khugepaged.  Currently after
+> > hotplug, min_free_kbytes will be set to a lower default and higher default
+> > set when THP enabled is lost.  This leaves the system with small
+> > min_free_kbytes which isn't suitable for systems especially with network
+> > intensive loads.  Typical failure symptoms include HW WATCHDOG reset, soft
+> > lockup hang notices, NETDEVICE WATCHDOG timeouts, and OOM process kills.
+> >
+> > Link: https://lkml.kernel.org/r/1600204258-13683-1-git-send-email-vijayb@linux.microsoft.com
+> > Fixes: f000565adb77 ("thp: set recommended min free kbytes")
+> > Signed-off-by: Vijay Balakrishna <vijayb@linux.microsoft.com>
+> > Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+> > Cc: Allen Pais <apais@microsoft.com>
+> > Cc: Andrea Arcangeli <aarcange@redhat.com>
+> > Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+> > Cc: Michal Hocko <mhocko@suse.com>
+> > Cc: Oleg Nesterov <oleg@redhat.com>
+> > Cc: Song Liu <songliubraving@fb.com>
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 >
-> Responses should be made by Fri, 18 Sep 2020 06:35:01 +0000.
-> Anything received after that time might be too late.
+> The patch has been explicitly nacked by Kirill IIRC.
+
+Hi Michal,
+
+You are correct it was NAK by Kirill because of this:
+"NAK. It would override min_free_kbytes set by user."
+
+I do not see a problem with that because during boot we are doing
+exactly that: if the user sets unreasonably small min_free_kbytes we
+overwrite it and print a message about it. Kirill could you please
+comment on this?
+IMO the hot-add behaviour must be exactly the same as during boot.
+
+I am also not happy
+> about it because the changelog doesn't really explain the problem and
+> the follow up discussion didn't drill down to the underlying problem
+> either.
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.66-rc3.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
+> Maybe we want to make the min_free_kbytes udpate consistent with the
+> boot but the current changelog is incomplete and this shouldn't have
+> been added yet.
 >
-> thanks,
->
-> greg k-h
 
+Yes, what Vijay should do is to remove all the irrelevant information
+from the commit log, and only state the actual problem that he found
+which is min_free_kbytes is not being updated during the memory
+hotplug. I think the OOMs and timeouts should be covered in a
+different discussion.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 5.4.66-rc3
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.4.y
-git commit: 0d8c7a7aec7700b34810ac8d10a2d43df7810052
-git describe: v5.4.65-131-g0d8c7a7aec77
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
-y/build/v5.4.65-131-g0d8c7a7aec77
-
-
-No regressions (compared to build v5.4.65)
-
-
-No fixes (compared to build v5.4.65)
-
-Ran 32285 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* kvm-unit-tests
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-sched-tests
-* perf
-* libhugetlbfs
-* ltp-fs-tests
-* ltp-mm-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* v4l2-compliance
-* ltp-containers-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Thank you,
+Pasha
