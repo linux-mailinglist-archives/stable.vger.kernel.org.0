@@ -2,122 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C617126C472
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 17:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 553BF26C528
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 18:29:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726093AbgIPPkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 11:40:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46214 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726314AbgIPPa1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Sep 2020 11:30:27 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01EDE20715;
-        Wed, 16 Sep 2020 15:25:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600269955;
-        bh=L3ATN5SkAg5QienUVgSnHS6amRSeN8XZTpAIwp8DitY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=V8ZewoTBOL5l0jFfC96BgwpiJ+ivSbCO4hZD3xfFCotWrrVPWPgOflJGJ/gieF4SS
-         S0Ie5aCWSPLp8nJhoKxr05Kw6R/0ChNkl3symgCA3pVhuTUf0NU4GwYj1E2yxENXpB
-         Vd3xSHrXr5oA+4z3Uju2fVOSjxacrj6WwEuWgqbE=
-Date:   Wed, 16 Sep 2020 17:26:29 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Shuah Khan <skhan@linuxfoundation.org>
-Cc:     Prateek Sood <prsood@codeaurora.org>, Takashi Iwai <tiwai@suse.de>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 5.8 000/177] 5.8.10-rc1 review
-Message-ID: <20200916152629.GD3018065@kroah.com>
-References: <20200915140653.610388773@linuxfoundation.org>
- <b94c29b3-ef68-897b-25a8-e6fcc181a22a@linuxfoundation.org>
- <8277900f-d300-79fa-eac7-096686a6fbc3@linuxfoundation.org>
- <20200916062958.GH142621@kroah.com>
- <69e7c908-4332-91fd-bdb2-6be19fcbf126@linuxfoundation.org>
+        id S1726314AbgIPQ3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 12:29:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49340 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726480AbgIPQTz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 12:19:55 -0400
+Received: from mail-vk1-xa41.google.com (mail-vk1-xa41.google.com [IPv6:2607:f8b0:4864:20::a41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 083AFC06178C
+        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 03:50:08 -0700 (PDT)
+Received: by mail-vk1-xa41.google.com with SMTP id s127so1618860vkg.3
+        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 03:50:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ZX0iZioFwmgw1elGFiPjrIpPpg5vfn7asVW4qGAjRZM=;
+        b=VYMlWMvQNXApXDDzFlw6YZ/KMvktYCDwQv7McLUL8p8z7AbeYJ6BOZlT6oq2rCfNiw
+         7CyGVjcYIR7Ors1KPPnCo3xjokfvG0A1m1PBvVp/pHZW1RjZPUlgQ4sui6ZqZSyXq6jv
+         RU/w8MzpU9U+gQT84A2+Giaze8drDKsPSxpGgWdI3NIuR22Jzm9exnTARrKDM3oSqpL8
+         ZAoDl+xPRpMdN7H3afIqXnulGlQjJg54/8UPzCx3P4vkpwLZmu20PTGes8cpn8GtVmqI
+         XDdRxiRa3753N1mfiudowIrJ3hfWXhBgz7KtMilf5p5C75jd9pMix4gu9kQOpInuFVjl
+         r5AQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ZX0iZioFwmgw1elGFiPjrIpPpg5vfn7asVW4qGAjRZM=;
+        b=DZdTgrrb4R0jhXAkWJ5EV7t1a0vJl6UiBHPjXNDm/KAHLv0ewYfQcbLY89yfh11uJD
+         +x3jm/9balAyubBuaSHe+hscgrVy6+sKPFcZPtoEO0hL7n1RSKEEmbrG5v2w1SK2K5xI
+         2sLAAU1IGOr7baX4+WpxSCTjjfph0HjWWYfQkRkEWtO/ZQwhNAlsnV2o1r4y7c+b0qz1
+         OavcgDD/dvicE4i2mAixcoFcQGSsOHAPN7/oz2wGtv8l9oOWFweJobC3rNwwDPQ16yHX
+         0eqVTVvxUq+bbnrS52i6BHcfD1pIOnLO1AbqaUVfA0HoiwLp9nGejLpgwVdu6ILL+H7n
+         wxeA==
+X-Gm-Message-State: AOAM532irsvY9QjA7Rqb+0ikNMvzkfiy+raV2Y9WzXuoC21dwvc1k6Bk
+        meTG552moCBIixWmjm8uqtdyeHfMOaZpZypzSegbWA==
+X-Google-Smtp-Source: ABdhPJw6IrKNN3hqUMY3drGXUH+oAFQTfNgyQXdDa2TrY/YBK97UL7roPb7Yof8380iu1kcW3PFb0Dg4qScTbOC0DTc=
+X-Received: by 2002:ac5:ccd3:: with SMTP id j19mr13225775vkn.8.1600253407167;
+ Wed, 16 Sep 2020 03:50:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <69e7c908-4332-91fd-bdb2-6be19fcbf126@linuxfoundation.org>
+References: <20200915140633.552502750@linuxfoundation.org>
+In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 16 Sep 2020 16:19:55 +0530
+Message-ID: <CA+G9fYvyDCk1oK=2qstXWOM-eaw1x-r4N5YF45XFDi8GskSmvQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/78] 4.19.146-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 16, 2020 at 08:26:48AM -0600, Shuah Khan wrote:
-> On 9/16/20 12:29 AM, Greg Kroah-Hartman wrote:
-> > On Tue, Sep 15, 2020 at 08:54:24PM -0600, Shuah Khan wrote:
-> > > On 9/15/20 3:06 PM, Shuah Khan wrote:
-> > > > On 9/15/20 8:11 AM, Greg Kroah-Hartman wrote:
-> > > > > This is the start of the stable review cycle for the 5.8.10 release.
-> > > > > There are 177 patches in this series, all will be posted as a response
-> > > > > to this one.  If anyone has any issues with these being applied, please
-> > > > > let me know.
-> > > > > 
-> > > > > Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
-> > > > > Anything received after that time might be too late.
-> > > > > 
-> > > > > The whole patch series can be found in one patch at:
-> > > > >      https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.10-rc1.gz
-> > > > > 
-> > > > > or in the git tree and branch at:
-> > > > >      git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> > > > > linux-5.8.y
-> > > > > and the diffstat can be found below.
-> > > > > 
-> > > > > thanks,
-> > > > > 
-> > > > > greg k-h
-> > > > > 
-> > > > 
-> > > > Compiled and booted fine. wifi died:
-> > > > 
-> > > > ath10k_pci 0000:02:00.0: could not init core (-110)
-> > > > ath10k_pci 0000:02:00.0: could not probe fw (-110)
-> > > > 
-> > > > This is regression from 5.8.9 and 5.9-rc5 works just fine.
-> > > > 
-> > > > I will try to bisect later this evening to see if I can isolate the
-> > > > commit.
-> > > > 
-> > > 
-> > > The following commit is what caused ath10k_pci driver problem
-> > > that killed wifi.
-> > > 
-> > > Prateek Sood <prsood@codeaurora.org>
-> > >      firmware_loader: fix memory leak for paged buffer
-> > > 
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.8.y&id=ec0a59266c9c9f46037efd3dcc0323973e102271
-> > 
-> > Ugh, that's not good, is this also a problem in 5.9-rc5 as well?  For
-> > reference, this is commit 4965b8cd1bc1 ("firmware_loader: fix memory
-> > leak for paged buffer") in Linus's tree.
-> > 
-> 
-> I am not seeing this on Linux 5.9-rc5 for sure.
-> 
-> > And it should be showing up in 5.4.y at the moment too, as this patch is
-> > in that tree right now...
-> > 
-> 
-> I don't see this patch in  4.19.146-rc1
+On Tue, 15 Sep 2020 at 19:46, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.146 release.
+> There are 78 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.146-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-It's not there, it's in 5.4.66-rc1, which worked for you somehow, right?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> Linus's tree works for with this patch in. I compared the two files
-> for differences in commit between Linus's tree and 5.8.10-rc1
-> 
-> Couldn't find anything obvious.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Again, really odd...
+Summary
+------------------------------------------------------------------------
 
-I don't have a problem dropping it, but I should drop it from both 5.4.y
-and 5.8.y, right?
+kernel: 4.19.146-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: e92f22c53d42d29bd65909f4e01be1c0e0853765
+git describe: v4.19.145-79-ge92f22c53d42
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.145-79-ge92f22c53d42
 
-thanks,
 
-greg k-h
+No regressions (compared to build v4.19.145)
+
+No fixes (compared to build v4.19.145)
+
+
+Ran 33849 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-hugetlb-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* perf
+* v4l2-compliance
+* ltp-ipc-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* ltp-containers-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-open-posix-tests
+* ltp-tracing-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
