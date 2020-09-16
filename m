@@ -2,163 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 783B826C568
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 18:56:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8B6D26C5EB
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 19:25:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726628AbgIPQy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 12:54:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55280 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726559AbgIPQyL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 12:54:11 -0400
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9958EC014B48
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 06:20:31 -0700 (PDT)
-Received: by mail-qk1-x742.google.com with SMTP id o5so7994304qke.12
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 06:20:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=wo0aeFa71noE1SaeNWFZSJ3BKucJn7M1PEH9DQMwxYg=;
-        b=XGKl1y8GQ32Jk6DGgPSkXBbuDlvlUW/Vu7BzdGNYp40ePySgp4/98iZlkWKnSh6v+i
-         HukRbY+9JfNwXTmumUkpievO6zIb4G9Y5AN5zyRahyqz8U3XZYv5UWKBZx6+wm9mB8FE
-         K3Yy2K9aoOeXsdpteMFuiAEbeNrd8iVVTO3DX5yurPvZlRfPm+YjWLIHiotiUDJou+vR
-         SQfKm3ffQy9ysZUJ6vWNQEaYmiG8Z2cvYC+LXAG26j3jSkTI6lhdEAldMuqB4nP5Lhw3
-         VbJMIS+8nLAcQgLSMIQCu/n7l6aVF8uVu52i8uK9i1yMegcqP0ciilD42MuI0shI6LMK
-         xDww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=wo0aeFa71noE1SaeNWFZSJ3BKucJn7M1PEH9DQMwxYg=;
-        b=prAQ8B0RMAt7aCz2taS4MzUqgPBZNH8i0nVIFyJGQJ8YCl61HyK7SuD4KUFgFfaz2s
-         wcQCR3rYBAKCvZMZhNgMYWRYGwyuMVG6emTDMJwLh6j1CgldBICseops9qsWkbBleOv8
-         w77cAozWoDsGAdhngEluPj5ACtjQx0KRRUIElXPU309DE/GFcXT5/jbRlfdDi2XRDw0S
-         V2U695N3pzoUAt5yT8Higd8f+hGKkp3zvN0zjGAUpvmYXHiV6nyiSdDGtKtBX9sXwBIK
-         P+UBX2IttQbfgfrt750ockKF8ToS1O+gyOevIHUO+Bnu6TXuWwcGSAjwtihemeq6blrB
-         gpPw==
-X-Gm-Message-State: AOAM532jd5FeNPdkQO0beYtIRhqovUa7MwKAO3LCdCc/QpN5WO8uSpRq
-        54FQuseZZhE9rxIu9l0sLqk=
-X-Google-Smtp-Source: ABdhPJw7YUdj23N3NHT/8ojGA2UA7Xzi/Xqa5ywU7XfgxdH0XCNUdOp1cGQoGqloROPYDe9WKl35/w==
-X-Received: by 2002:a37:8c87:: with SMTP id o129mr5090351qkd.41.1600262430824;
-        Wed, 16 Sep 2020 06:20:30 -0700 (PDT)
-Received: from tr4.amd.com (atlvpn.amd.com. [165.204.84.11])
-        by smtp.gmail.com with ESMTPSA id m36sm18552022qtd.10.2020.09.16.06.20.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2020 06:20:29 -0700 (PDT)
-From:   Alex Deucher <alexdeucher@gmail.com>
-X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
-To:     amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>, christian.koenig@amd.com
-Subject: [PATCH v2] Revert "drm/radeon: handle PCIe root ports with addressing limitations"
-Date:   Wed, 16 Sep 2020 09:20:17 -0400
-Message-Id: <20200916132017.1221927-1-alexander.deucher@amd.com>
-X-Mailer: git-send-email 2.25.4
+        id S1726862AbgIPRZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 13:25:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40844 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727001AbgIPRY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Sep 2020 13:24:57 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88B58223E8;
+        Wed, 16 Sep 2020 17:24:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600277095;
+        bh=NFo+DJ/fouaauEXtmorMH6AncUeRb0g6T6S/Z660evo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0XovzQPdUuczyoy5mz8H2Lk6xEgRLmbf5kgwjh3G49xX7iSf6b2ENBTGg6RXrTd0q
+         39TXjCLODN78LPhyGqQlnauJTdtEjH1DpX/RaYS7N/Crg6h+flRZUvzpOIKKk9/J/C
+         P0aM/56tJ2Vf11ZvtPd6KIon9PSRuUFv8rRubRhg=
+Date:   Wed, 16 Sep 2020 19:25:29 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     Prateek Sood <prsood@codeaurora.org>, Takashi Iwai <tiwai@suse.de>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 5.8 000/177] 5.8.10-rc1 review
+Message-ID: <20200916172529.GA3056792@kroah.com>
+References: <20200915140653.610388773@linuxfoundation.org>
+ <b94c29b3-ef68-897b-25a8-e6fcc181a22a@linuxfoundation.org>
+ <8277900f-d300-79fa-eac7-096686a6fbc3@linuxfoundation.org>
+ <20200916062958.GH142621@kroah.com>
+ <69e7c908-4332-91fd-bdb2-6be19fcbf126@linuxfoundation.org>
+ <20200916152629.GD3018065@kroah.com>
+ <09de87b0-8055-26ef-cc31-0c63e63e5d2a@linuxfoundation.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <09de87b0-8055-26ef-cc31-0c63e63e5d2a@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This causes screen corruption when using the GPU which makes the
-system unusable.
+On Wed, Sep 16, 2020 at 09:34:52AM -0600, Shuah Khan wrote:
+> On 9/16/20 9:26 AM, Greg Kroah-Hartman wrote:
+> > On Wed, Sep 16, 2020 at 08:26:48AM -0600, Shuah Khan wrote:
+> > > On 9/16/20 12:29 AM, Greg Kroah-Hartman wrote:
+> > > > On Tue, Sep 15, 2020 at 08:54:24PM -0600, Shuah Khan wrote:
+> > > > > On 9/15/20 3:06 PM, Shuah Khan wrote:
+> > > > > > On 9/15/20 8:11 AM, Greg Kroah-Hartman wrote:
+> > > > > > > This is the start of the stable review cycle for the 5.8.10 release.
+> > > > > > > There are 177 patches in this series, all will be posted as a response
+> > > > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > > > let me know.
+> > > > > > > 
+> > > > > > > Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
+> > > > > > > Anything received after that time might be too late.
+> > > > > > > 
+> > > > > > > The whole patch series can be found in one patch at:
+> > > > > > >       https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.10-rc1.gz
+> > > > > > > 
+> > > > > > > or in the git tree and branch at:
+> > > > > > >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> > > > > > > linux-5.8.y
+> > > > > > > and the diffstat can be found below.
+> > > > > > > 
+> > > > > > > thanks,
+> > > > > > > 
+> > > > > > > greg k-h
+> > > > > > > 
+> > > > > > 
+> > > > > > Compiled and booted fine. wifi died:
+> > > > > > 
+> > > > > > ath10k_pci 0000:02:00.0: could not init core (-110)
+> > > > > > ath10k_pci 0000:02:00.0: could not probe fw (-110)
+> > > > > > 
+> > > > > > This is regression from 5.8.9 and 5.9-rc5 works just fine.
+> > > > > > 
+> > > > > > I will try to bisect later this evening to see if I can isolate the
+> > > > > > commit.
+> > > > > > 
+> > > > > 
+> > > > > The following commit is what caused ath10k_pci driver problem
+> > > > > that killed wifi.
+> > > > > 
+> > > > > Prateek Sood <prsood@codeaurora.org>
+> > > > >       firmware_loader: fix memory leak for paged buffer
+> > > > > 
+> > > > > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.8.y&id=ec0a59266c9c9f46037efd3dcc0323973e102271
+> > > > 
+> > > > Ugh, that's not good, is this also a problem in 5.9-rc5 as well?  For
+> > > > reference, this is commit 4965b8cd1bc1 ("firmware_loader: fix memory
+> > > > leak for paged buffer") in Linus's tree.
+> > > > 
+> > > 
+> > > I am not seeing this on Linux 5.9-rc5 for sure.
+> > > 
+> > > > And it should be showing up in 5.4.y at the moment too, as this patch is
+> > > > in that tree right now...
+> > > > 
+> > > 
+> > > I don't see this patch in  4.19.146-rc1
+> > 
+> > It's not there, it's in 5.4.66-rc1, which worked for you somehow, right?
+> > 
+> > > Linus's tree works for with this patch in. I compared the two files
+> > > for differences in commit between Linus's tree and 5.8.10-rc1
+> > > 
+> > > Couldn't find anything obvious.
+> > 
+> > Again, really odd...
+> > 
+> > I don't have a problem dropping it, but I should drop it from both 5.4.y
+> > and 5.8.y, right?
+> > 
+> 
+> Sorry. Yes. Dropping from 5.8 and 5.4 would be great until we figure out
+> why this patch causes problems.
+> 
+> I will continue debugging and let you know what I find.
 
-It was noticed by several people closer to when the change went in as
-well.  We looked into it a bit at the time but couldn't determine the
-problem.  It only seems to affect really old chips (like 15-20 years
-old) which makes it hard to reproduce if you don't have an old system.
-There were a couple of threads at the time, but nothing was resolved.
-I was able to find one of them:
-https://lkml.org/lkml/2019/12/14/263
+Thanks, now dropped from both trees.
 
-This reverts commit 33b3ad3788ab ("drm/radeon: handle PCIe root ports with addressing limitations").
-
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=206973
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=206697
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=207763
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1140
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1287
-Fixes: 33b3ad3788ab ("drm/radeon: handle PCIe root ports with addressing limitations")
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: christian.koenig@amd.com
----
-
-v2: provide a better commit message.  The issue seems to be related to himem.
-Any ideas?
-
- drivers/gpu/drm/radeon/radeon.h        |  1 +
- drivers/gpu/drm/radeon/radeon_device.c | 13 ++++++++-----
- drivers/gpu/drm/radeon/radeon_ttm.c    |  2 +-
- 3 files changed, 10 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/radeon/radeon.h b/drivers/gpu/drm/radeon/radeon.h
-index cc4f58d16589..019f756b3f80 100644
---- a/drivers/gpu/drm/radeon/radeon.h
-+++ b/drivers/gpu/drm/radeon/radeon.h
-@@ -2391,6 +2391,7 @@ struct radeon_device {
- 	struct radeon_wb		wb;
- 	struct radeon_dummy_page	dummy_page;
- 	bool				shutdown;
-+	bool				need_dma32;
- 	bool				need_swiotlb;
- 	bool				accel_working;
- 	bool				fastfb_working; /* IGP feature*/
-diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
-index 266e3cbbd09b..f74c74ad8b5d 100644
---- a/drivers/gpu/drm/radeon/radeon_device.c
-+++ b/drivers/gpu/drm/radeon/radeon_device.c
-@@ -1363,25 +1363,28 @@ int radeon_device_init(struct radeon_device *rdev,
- 	else
- 		rdev->mc.mc_mask = 0xffffffffULL; /* 32 bit MC */
- 
--	/* set DMA mask.
-+	/* set DMA mask + need_dma32 flags.
- 	 * PCIE - can handle 40-bits.
- 	 * IGP - can handle 40-bits
- 	 * AGP - generally dma32 is safest
- 	 * PCI - dma32 for legacy pci gart, 40 bits on newer asics
- 	 */
--	dma_bits = 40;
-+	rdev->need_dma32 = false;
- 	if (rdev->flags & RADEON_IS_AGP)
--		dma_bits = 32;
-+		rdev->need_dma32 = true;
- 	if ((rdev->flags & RADEON_IS_PCI) &&
- 	    (rdev->family <= CHIP_RS740))
--		dma_bits = 32;
-+		rdev->need_dma32 = true;
- #ifdef CONFIG_PPC64
- 	if (rdev->family == CHIP_CEDAR)
--		dma_bits = 32;
-+		rdev->need_dma32 = true;
- #endif
- 
-+	dma_bits = rdev->need_dma32 ? 32 : 40;
- 	r = dma_set_mask_and_coherent(&rdev->pdev->dev, DMA_BIT_MASK(dma_bits));
- 	if (r) {
-+		rdev->need_dma32 = true;
-+		dma_bits = 32;
- 		pr_warn("radeon: No suitable DMA available\n");
- 		return r;
- 	}
-diff --git a/drivers/gpu/drm/radeon/radeon_ttm.c b/drivers/gpu/drm/radeon/radeon_ttm.c
-index 74ad50c7491c..7e5c2fb8eab0 100644
---- a/drivers/gpu/drm/radeon/radeon_ttm.c
-+++ b/drivers/gpu/drm/radeon/radeon_ttm.c
-@@ -738,7 +738,7 @@ int radeon_ttm_init(struct radeon_device *rdev)
- 			       &radeon_bo_driver,
- 			       rdev->ddev->anon_inode->i_mapping,
- 			       rdev->ddev->vma_offset_manager,
--			       dma_addressing_limited(&rdev->pdev->dev));
-+			       rdev->need_dma32);
- 	if (r) {
- 		DRM_ERROR("failed initializing buffer object driver(%d).\n", r);
- 		return r;
--- 
-2.25.4
-
+greg k-h
