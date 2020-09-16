@@ -2,130 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED1CF26BE5C
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 09:42:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9E2626BE79
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 09:47:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726291AbgIPHmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 03:42:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53762 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726189AbgIPHmg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 03:42:36 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45CA5C06174A
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 00:42:34 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id d4so1752069wmd.5
-        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 00:42:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Ot6iZWd98YQr5mHaX8FXKQBw+IpUt9BsD4MskvvQqpo=;
-        b=BJLaewkh1jJeIx94d5rS5o5OhiIfCBOn/m+CGOnQ3cN9D60IaKLC5G0C2QG+DU5jNq
-         V1NdXeQKtmKS+bpl3GQfhqSH4nBVCtQjRuEmMA1r1vhnANHhawnanHGqicGnxufKJJF9
-         5vyA6Iv7lx2D07L4+9YoIV1Zgk+GzL0p7995w=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Ot6iZWd98YQr5mHaX8FXKQBw+IpUt9BsD4MskvvQqpo=;
-        b=diJJ3mE+EJ1BXKebOpqQUv2VicY8NFIwEGK89jNXmh3gEIqteVcnZ1kaYdtsLqRG3N
-         +lwnYDIF1WMPQCgkYo3dfpLX4aZNs7WjvW0BsgX+5dVWSMmxXQo4UNzP/WKixopc70Wd
-         3rwpopPOfraf83hgffDUQ8e35d6AidVJwlp5TMET05kYdA86smaJ2nH9TzHmjpv+yPH4
-         a6bDMOuLtRt4rhtggWuMtEXxUYpfom0uq0r+dMSFoElvuHa2xypizGZ3oMUep2F3xxP4
-         m6LjVTPJ991qS45G2awle08sJO75aCEwzj5LdA3TfTjYE2AaapOvC77LokV3bWzFkzwH
-         Y9BQ==
-X-Gm-Message-State: AOAM53352RviV+7mJxlb1zcnuQz4pqpajy29txfRXPBwUwVUMGDq/I9w
-        3ncCvsRZcOXyOPNfcGh//moWaw==
-X-Google-Smtp-Source: ABdhPJz3yMmR1XwOGajN+KW42rvNn/OWzNC/FWXYl3XGMATka4cMHZSootWZ6ul86yXqmajpNgIDFA==
-X-Received: by 2002:a7b:c8c9:: with SMTP id f9mr3317002wml.67.1600242153009;
-        Wed, 16 Sep 2020 00:42:33 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id y207sm4011619wmc.17.2020.09.16.00.42.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2020 00:42:32 -0700 (PDT)
-Date:   Wed, 16 Sep 2020 09:42:30 +0200
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        dri-devel@lists.freedesktop.org, stable@vger.kernel.org,
-        "Nikunj A. Dadhania" <nikunj.dadhania@linux.intel.com>
-Subject: Re: [Intel-gfx] [PATCH 3/3] drm/i915/gem: Serialise debugfs
- i915_gem_objects with ctx->mutex
-Message-ID: <20200916074230.GS438822@phenom.ffwll.local>
-References: <20200723172119.17649-1-chris@chris-wilson.co.uk>
- <20200723172119.17649-3-chris@chris-wilson.co.uk>
- <5e7f2c00-c72e-46ff-defe-404b5a847a02@linux.intel.com>
+        id S1726402AbgIPHrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 03:47:41 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23834 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726377AbgIPHri (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 03:47:38 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08G7W8lP190604;
+        Wed, 16 Sep 2020 03:47:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=uxNCl8fFFusJ76v2vIytAowtk1X716+rWi0oOl4u+bw=;
+ b=n76hj7KaNiOEAYfMSv3s+ih7Y75GZ+pj5lqi1Qg+tdnfZn+pjksN3TtMiXYuvvlNlhMQ
+ LzIRF/hw0j2GL1o1yonC1TXbWHpw9OHvjzUhZtnQFd/5Yd78PRCSYx4FSWfXm3tl4s1N
+ X70yNEwthH19GfaMHx+w9t15Q9Awv4NCw60EnHaM7gcy37XP6VbXaIdhDeK0xaXFA75q
+ 6+6iwhaRGR8Af1fnzkiisXoBUn70TwSMBI6u+H2MiiW9+UpyEDZ+ZMCWQOoyRGJnqQaA
+ rP8wwBM23LiJtwfZgEdjbXAPZVqKnE0CfS5+KyawDUJbNEHKmb6o+BC4MOPiAgA7l5L7 ZQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 33kd95jasn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Sep 2020 03:47:25 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08G7WOjm191455;
+        Wed, 16 Sep 2020 03:47:24 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 33kd95jarc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Sep 2020 03:47:24 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08G7gx15010357;
+        Wed, 16 Sep 2020 07:47:22 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma03ams.nl.ibm.com with ESMTP id 33k6esgcjv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 16 Sep 2020 07:47:21 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08G7lJdk24445202
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 16 Sep 2020 07:47:19 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 28E7B11C05E;
+        Wed, 16 Sep 2020 07:47:19 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 958C811C050;
+        Wed, 16 Sep 2020 07:47:18 +0000 (GMT)
+Received: from pomme.local (unknown [9.145.183.110])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 16 Sep 2020 07:47:18 +0000 (GMT)
+Subject: Re: [PATCH v3 1/3] mm: replace memmap_context by meminit_context
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     akpm@linux-foundation.org, David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>, mhocko@suse.com,
+        linux-mm@kvack.org, "Rafael J . Wysocki" <rafael@kernel.org>,
+        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
+        Tony Luck <tony.luck@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20200915121541.GD4649@dhcp22.suse.cz>
+ <20200915132624.9723-1-ldufour@linux.ibm.com>
+ <20200916063325.GK142621@kroah.com>
+ <0b3f2eb1-0efa-a491-c509-d16a7e18d8e8@linux.ibm.com>
+ <20200916074047.GA189144@kroah.com>
+From:   Laurent Dufour <ldufour@linux.ibm.com>
+Message-ID: <9e8d38b9-3875-0fd8-5f28-3502f33c2c34@linux.ibm.com>
+Date:   Wed, 16 Sep 2020 09:47:18 +0200
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
+ Gecko/20100101 Thunderbird/68.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5e7f2c00-c72e-46ff-defe-404b5a847a02@linux.intel.com>
-X-Operating-System: Linux phenom 5.7.0-1-amd64 
+In-Reply-To: <20200916074047.GA189144@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-16_02:2020-09-15,2020-09-16 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 mlxscore=0 priorityscore=1501
+ adultscore=0 spamscore=0 mlxlogscore=536 malwarescore=0 phishscore=0
+ clxscore=1015 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2009160051
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 14, 2020 at 05:45:09PM +0100, Tvrtko Ursulin wrote:
+Le 16/09/2020 à 09:40, Greg Kroah-Hartman a écrit :
+> On Wed, Sep 16, 2020 at 09:29:22AM +0200, Laurent Dufour wrote:
+>> Le 16/09/2020 à 08:33, Greg Kroah-Hartman a écrit :
+>>> On Tue, Sep 15, 2020 at 03:26:24PM +0200, Laurent Dufour wrote:
+>>>> The memmap_context enum is used to detect whether a memory operation is due
+>>>> to a hot-add operation or happening at boot time.
+>>>>
+>>>> Make it general to the hotplug operation and rename it as meminit_context.
+>>>>
+>>>> There is no functional change introduced by this patch
+>>>>
+>>>> Suggested-by: David Hildenbrand <david@redhat.com>
+>>>> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+>>>> ---
+>>>>    arch/ia64/mm/init.c    |  6 +++---
+>>>>    include/linux/mm.h     |  2 +-
+>>>>    include/linux/mmzone.h | 11 ++++++++---
+>>>>    mm/memory_hotplug.c    |  2 +-
+>>>>    mm/page_alloc.c        | 10 +++++-----
+>>>>    5 files changed, 18 insertions(+), 13 deletions(-)
+>>>
+>>> <formletter>
+>>>
+>>> This is not the correct way to submit patches for inclusion in the
+>>> stable kernel tree.  Please read:
+>>>       https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+>>> for how to do this properly.
+>>>
+>>> </formletter>
+>>
+>> Hi Greg,
+>>
+>> I'm sorry, I read that document few days ago before sending the series and
+>> again this morning, but I can't figure out what I missed (following option
+>> 1).
+>>
+>> Should the "Cc: stable@vger.kernel.org" tag be on each patch of the series
+>> even if the whole series has been sent to stable ?
 > 
-> On 23/07/2020 18:21, Chris Wilson wrote:
-> > Since the debugfs may peek into the GEM contexts as the corresponding
-> > client/fd is being closed, we may try and follow a dangling pointer.
-> > However, the context closure itself is serialised with the ctx->mutex,
-> > so if we hold that mutex as we inspect the state coupled in the context,
-> > we know the pointers within the context are stable and will remain valid
-> > as we inspect their tables.
-> > 
-> > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> > Cc: CQ Tang <cq.tang@intel.com>
-> > Cc: Daniel Vetter <daniel.vetter@intel.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >   drivers/gpu/drm/i915/i915_debugfs.c | 2 ++
-> >   1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/i915_debugfs.c b/drivers/gpu/drm/i915/i915_debugfs.c
-> > index 784219962193..ea469168cd44 100644
-> > --- a/drivers/gpu/drm/i915/i915_debugfs.c
-> > +++ b/drivers/gpu/drm/i915/i915_debugfs.c
-> > @@ -326,6 +326,7 @@ static void print_context_stats(struct seq_file *m,
-> >   		}
-> >   		i915_gem_context_unlock_engines(ctx);
-> > +		mutex_lock(&ctx->mutex);
-> >   		if (!IS_ERR_OR_NULL(ctx->file_priv)) {
-> >   			struct file_stats stats = {
-> >   				.vm = rcu_access_pointer(ctx->vm),
-> > @@ -346,6 +347,7 @@ static void print_context_stats(struct seq_file *m,
-> >   			print_file_stats(m, name, stats);
-> >   		}
-> > +		mutex_unlock(&ctx->mutex);
-> >   		spin_lock(&i915->gem.contexts.lock);
-> >   		list_safe_reset_next(ctx, cn, link);
-> > 
+> That should be on any patch you expect to show up in a stable kernel
+> release.
 > 
-> Hm this apparently never got it's r-b and so got re-discovered in the field.
-> +Nikunj
+>> Should the whole series sent again (v4) instead of sending a fix as a reply to ?
 > 
-> Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> It's up to the maintainer what they want, but as it is, this patch is
+> not going to end up in stable kernel release (which it looks like is the
+> right thing to do...)
 
-I'm not super thrilled about patch 1 in this, for debugfs imo better to
-wrangle this in the driver. And without patch 1 and 2 this wont fix a
-whole lot.
--Daniel
+Thanks a lot Greg.
 
+I'll send that single patch again with the Cc: stable tag.
 
-> 
-> Regards,
-> 
-> Tvrtko
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+I don't think the patch 3 need to be backported, it doesn't fix any issue and 
+with the patch 1 and 2 applied, the BUG_ON should no more be triggered easily.
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Laurent.
