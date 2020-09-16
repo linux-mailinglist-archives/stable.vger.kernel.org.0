@@ -2,78 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CBA326BFFE
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 11:00:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABAEF26BFFF
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 11:00:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726377AbgIPJAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 05:00:37 -0400
-Received: from mx2.suse.de ([195.135.220.15]:55062 "EHLO mx2.suse.de"
+        id S1726643AbgIPJAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 05:00:40 -0400
+Received: from mga01.intel.com ([192.55.52.88]:59022 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726196AbgIPJAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Sep 2020 05:00:36 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 40B73ADBD;
-        Wed, 16 Sep 2020 09:00:50 +0000 (UTC)
-Date:   Wed, 16 Sep 2020 11:00:32 +0200
-From:   Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-To:     peterz@infradead.org
-Cc:     linuxppc-dev@lists.ozlabs.org,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Santosh Sivaraj <santosh@fossix.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Ganesh Goudar <ganeshgr@linux.ibm.com>,
-        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
-        Alistair Popple <alistair@popple.id.au>,
-        Jordan Niethe <jniethe5@gmail.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] Revert "powerpc/64s: machine check interrupt update NMI
- accounting"
-Message-ID: <20200916090032.GO29778@kitsune.suse.cz>
-References: <20200915084302.GG29778@kitsune.suse.cz>
- <20200915180659.12503-1-msuchanek@suse.de>
- <20200915181642.GF2674@hirez.programming.kicks-ass.net>
+        id S1726349AbgIPJAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Sep 2020 05:00:38 -0400
+IronPort-SDR: ezjXa9dDyZSvU1zbt7NPyEPocv5reXWevzXe0yeR7g66qq9JXjwFSEsLprFM83cGZc/012WAaa
+ O4SMEyiTo+fA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9745"; a="177500631"
+X-IronPort-AV: E=Sophos;i="5.76,432,1592895600"; 
+   d="scan'208";a="177500631"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2020 02:00:37 -0700
+IronPort-SDR: H9NdyXG4B3WLSCpcf5HOGEyAsANotDSIOZeyds4BnezyKilj3wmgpI1xNed/1C9eesbCmNXSoO
+ IId4xflZ1Ylw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.76,432,1592895600"; 
+   d="scan'208";a="409487537"
+Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 16 Sep 2020 02:00:36 -0700
+From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH 1/2] usb: typec: ucsi: acpi: Increase command completion timeout value
+Date:   Wed, 16 Sep 2020 12:00:33 +0300
+Message-Id: <20200916090034.25119-2-heikki.krogerus@linux.intel.com>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20200916090034.25119-1-heikki.krogerus@linux.intel.com>
+References: <20200916090034.25119-1-heikki.krogerus@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200915181642.GF2674@hirez.programming.kicks-ass.net>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 15, 2020 at 08:16:42PM +0200, peterz@infradead.org wrote:
-> On Tue, Sep 15, 2020 at 08:06:59PM +0200, Michal Suchanek wrote:
-> > This reverts commit 116ac378bb3ff844df333e7609e7604651a0db9d.
-> > 
-> > This commit causes the kernel to oops and reboot when injecting a SLB
-> > multihit which causes a MCE.
-> > 
-> > Before this commit a SLB multihit was corrected by the kernel and the
-> > system continued to operate normally.
-> > 
-> > cc: stable@vger.kernel.org
-> > Fixes: 116ac378bb3f ("powerpc/64s: machine check interrupt update NMI accounting")
-> > Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-> 
-> Ever since 69ea03b56ed2 ("hardirq/nmi: Allow nested nmi_enter()")
-> nmi_enter() supports nesting natively.
+UCSI specification quite clearly states that if a command
+can't be completed in 10ms, the firmware must notify
+about BUSY condition. Unfortunately almost none of the
+platforms (the firmware on them) generate the BUSY
+notification even if a command can't be completed in time.
 
-And this patch was merged in parallel with this native nesting support
-and conflicted with it - hence the explicit nesting in the hunk that did
-not conflict.
+The driver already considered that, and used a timeout
+value of 5 seconds, but processing especially the alternate
+mode discovery commands takes often considerable amount of
+time from the firmware, much more than the 5 seconds. That
+happens especially after bootup when devices are already
+connected to the USB Type-C connector. For now on those
+platforms the alternate mode discovery has simply failed
+because of the timeout.
 
-Either way the bug is present on kernels both with and without
-69ea03b56ed2. So besides the conflict 69ea03b56ed2 does not affect this
-problem.
+To improve the situation, increasing the timeout value for
+the command completion to 1 minute. That should give enough
+time for even the slowest firmware to process the commands.
 
-Thanks
+Fixes: f56de278e8ec ("usb: typec: ucsi: acpi: Move to the new API")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+---
+ drivers/usb/typec/ucsi/ucsi_acpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Michal
+diff --git a/drivers/usb/typec/ucsi/ucsi_acpi.c b/drivers/usb/typec/ucsi/ucsi_acpi.c
+index c0aca2f0f23f0..fbfe8f5933af8 100644
+--- a/drivers/usb/typec/ucsi/ucsi_acpi.c
++++ b/drivers/usb/typec/ucsi/ucsi_acpi.c
+@@ -78,7 +78,7 @@ static int ucsi_acpi_sync_write(struct ucsi *ucsi, unsigned int offset,
+ 	if (ret)
+ 		goto out_clear_bit;
+ 
+-	if (!wait_for_completion_timeout(&ua->complete, msecs_to_jiffies(5000)))
++	if (!wait_for_completion_timeout(&ua->complete, 60 * HZ))
+ 		ret = -ETIMEDOUT;
+ 
+ out_clear_bit:
+-- 
+2.28.0
+
