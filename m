@@ -2,84 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0C926CC95
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 22:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E38D26CC35
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 22:40:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728456AbgIPUqX convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 16 Sep 2020 16:46:23 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:50718 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726198AbgIPRBY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 13:01:24 -0400
-Received: by mail-wm1-f67.google.com with SMTP id e17so3488563wme.0;
-        Wed, 16 Sep 2020 10:00:09 -0700 (PDT)
+        id S1726913AbgIPUk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 16:40:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57088 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726786AbgIPRFl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 13:05:41 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22570C061BD1;
+        Wed, 16 Sep 2020 10:05:33 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id v20so3921243oiv.3;
+        Wed, 16 Sep 2020 10:05:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=cvQOZo/xIcj29IBDYjXh823Q9aPEvAcLWtHUsWZfAJk=;
+        b=OL/ONQA/lo3IgRNuQHX0Y/10BCDIGUhiXTh0vbP9Vx8X8/zrX1rL4+GWEr4iOlXyen
+         XA8T/Fxv1dx2Vc3rIk0ymHLt573t/MNzAHwBf7Nu79LfPTNsrvxLA+cEZOFMj8kJmHEZ
+         2F3kW7xUKqxlY8L1teX04SGhsT64sqMhAryXQIykDh+Ul8BGtX3eSBSfrFWElyhPolVi
+         hXPx3kVyeyLc8cszGU5w7/RQuECoM33gBq1LyHZxWdypoZPFrBE7NWKlCAGtZtkguVRk
+         ePpjxQA/J4dQz8ygZUJQXxojra0H45Ait1ECt4TXmiysID+yxkmgo8JH12IsUcEKM4M9
+         KjAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=Bn+sbCWoMoEWXFDYYD/cn5Vwv90GZomveDJ0LJsbSEs=;
-        b=Zj0cf9BQVhIjYadlApua5Wunw/CjOZLtUnKlm1FAhyQcNN1AYZSiPk5OqhBReG3obg
-         S/5vTJ2aUCvlPjGcrt790i1WLeRn8/3XexM9lhLiKIrYmibiQ2jh+L8Mu1b1NzZBxj2v
-         k61JVAaeZ0N2+ZFb8JRAXNLpI6YZZa/9MARAyapCphFYGgpAqp7hd0xlJSXEaOLSiyYh
-         l2DyJz2pmoozRhzl5dvDOB9OMuf1eE9rAhm95aka7OU5wVXlrvggZYDG+KZ54YRnwzEO
-         cRCwVGniHnGm5EJH3eG/FDtSWneDHeY24kLAdkoRh1t37qBN8ryuS4c/zpOpYWlGFlf5
-         50hg==
-X-Gm-Message-State: AOAM5317ALdwfJ23ut3Kp6MvzzzgvOwW9NIdCnq/EuhU1IfK0W6pPn41
-        TOPkQNrvyPY32phQbZ1XfRQ=
-X-Google-Smtp-Source: ABdhPJzST1TbrG+M5Me6cW+XADMMr7T7ClzGrnimh+Kd5fIyONzHa8GzoHhctJNlccK4+AMkN4FJ+A==
-X-Received: by 2002:a7b:c5cf:: with SMTP id n15mr5670927wmk.93.1600275607933;
-        Wed, 16 Sep 2020 10:00:07 -0700 (PDT)
-Received: from kozik-lap ([194.230.155.191])
-        by smtp.googlemail.com with ESMTPSA id s80sm5914786wme.41.2020.09.16.10.00.06
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=cvQOZo/xIcj29IBDYjXh823Q9aPEvAcLWtHUsWZfAJk=;
+        b=Z/p1jNsDSOXgdgkH3oeRaN/qdCNz3D5p9uWW2QvaA14uRnOU3kuC8GbTXv9k1b53VT
+         P7vrce7CsYyELiJph7gcc5pYtmjTJBQ8X8jpJhnvDQb/Lktiso67ifzYcMD+FB+7YxNX
+         N6H7RuEZ3iw+9oxvGaBD7dYTN59mNBP40FB4iCJ5YCaOQGUCjUz9/0whn1pcaMonCRTX
+         ax6vXbXf3u8podo6GHgCISPWB1kEeqJjrqrjhulXwotkzOabWz8N509piqpwfAVHGFpw
+         HblYfZlAHvID/RhxOiSPmzxpVdjbc6086j4M4DcwKtcX8kvcr15l5hERYwBeiYNEyeaX
+         6XGw==
+X-Gm-Message-State: AOAM533Ez8JHilwu1FHHhDmO4eOpxBRIRBgLomnzvXKwqzkn7IwUhtyV
+        tyQFczBri6y1OktVAlO44HM=
+X-Google-Smtp-Source: ABdhPJwqvHmkz7Fc6pBEnlbwuKHuMjphmEhY9Z5lh2IhIdubZSr8fsPXJ0HlNw55owSANC/QsaFYuQ==
+X-Received: by 2002:aca:db42:: with SMTP id s63mr3688211oig.4.1600275931698;
+        Wed, 16 Sep 2020 10:05:31 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id y25sm8456094oti.26.2020.09.16.10.05.30
         (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 16 Sep 2020 10:00:07 -0700 (PDT)
-Date:   Wed, 16 Sep 2020 19:00:04 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Kukjin Kim <kgene@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Tomasz Figa <t.figa@samsung.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] ARM: samsung: fix PM debug build with DEBUG_LL but
- !MMU
-Message-ID: <20200916170004.GA19427@kozik-lap>
-References: <20200910154150.3318-1-krzk@kernel.org>
+        Wed, 16 Sep 2020 10:05:31 -0700 (PDT)
+Date:   Wed, 16 Sep 2020 10:05:29 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/78] 4.19.146-rc1 review
+Message-ID: <20200916170529.GA93678@roeck-us.net>
+References: <20200915140633.552502750@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20200910154150.3318-1-krzk@kernel.org>
+In-Reply-To: <20200915140633.552502750@linuxfoundation.org>
 User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 10, 2020 at 05:41:49PM +0200, Krzysztof Kozlowski wrote:
-> Selecting CONFIG_SAMSUNG_PM_DEBUG (depending on CONFIG_DEBUG_LL) but
-> without CONFIG_MMU leads to build errors:
+On Tue, Sep 15, 2020 at 04:12:25PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.146 release.
+> There are 78 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
->   arch/arm/plat-samsung/pm-debug.c: In function ‘s3c_pm_uart_base’:
->   arch/arm/plat-samsung/pm-debug.c:57:2: error:
->     implicit declaration of function ‘debug_ll_addr’ [-Werror=implicit-function-declaration]
+> Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
+> Anything received after that time might be too late.
 > 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Fixes: 99b2fc2b8b40 ("ARM: SAMSUNG: Use debug_ll_addr() to get UART base address")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> 
-> ---
-> 
-> Patchset is rebased on v5.9-rc1.
-> ---
->  arch/arm/plat-samsung/Kconfig | 1 +
 
-Applied.
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 421 pass: 421 fail: 0
 
-Best regards,
-Krzysztof
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
+Guenter
