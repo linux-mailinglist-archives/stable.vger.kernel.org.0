@@ -2,86 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2826026CC20
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 22:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D16126CC1C
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 22:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726662AbgIPUj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 16:39:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57270 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726741AbgIPRGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 13:06:48 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9BF7C0698D0;
-        Wed, 16 Sep 2020 10:06:39 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id u25so7356511otq.6;
-        Wed, 16 Sep 2020 10:06:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=SF9voxU64z1pyZcrMFE+ap4wxWaAPRKw46Uhy3wwL6s=;
-        b=fatBCrZhVMhXB5v+8znmZjQTUMq+BYZoYOIrpoMyY1dkNPxplhcP4hgu06GowR97dJ
-         aP6fVNwlGqyk2Ln0FIrlgHAlETGSQHA+Vmh+laESxYS8I1lVzbIGFTV4IMkt0oi09iBC
-         zNx5LupI+BL5vHwu6iMgB2zboFrt10GIT9i3CopOrqK9Hde4WHS4rcll6b6JKa5/tUHX
-         lfjG+hpZG222eEik70CAQ+v6vnt4WI9k2ae1yqjR6Y2uiylNaio45gjq1Y8obp7HpS4Z
-         qxIFOy73ZcLy6rqbMUVuVOBIbjyQ2QyvaYWq/3g2Wf4p3JZZGJI+fRU3o/dC555FH+De
-         xxmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=SF9voxU64z1pyZcrMFE+ap4wxWaAPRKw46Uhy3wwL6s=;
-        b=nDVOO3PEy+DzWjC/y1pWz8H2RopYuuSu2f3ohsvLgmVHpBwIHIOUgq6Z+7ENH979JM
-         kmp7ofkly6n+S7CTrsQtD15tqWq2mmEGP+NtXu1l+mvkxZJ7IV/YPkQV2KC629ancHwn
-         vnyq4CQHL61rUMhTzavnxVfbIRz9PjQ4BgTlRmIyhalctmgolOu5vrTAXlIv8JdxrMfS
-         aMFa8cZDNJtfHgF6QC6iwHKrj63lRVmuynzSy5iUzi7zVJ1h8TYoTntz42VG2SLRRqI+
-         39ZoDK2o1PBd6ToFAcL1FR0f9tQBIxxUGbjF4UPwLisI+RsD3omFDsdaMUQ4yYsiKOri
-         58Ng==
-X-Gm-Message-State: AOAM530dOy/Zs1RF7BR4hpXwI7LJY0w372143EjmmZjTJuQSEdbUxFSJ
-        lqAY0L3p4e4mCndu0M/YCUJrwr3W0Vs=
-X-Google-Smtp-Source: ABdhPJyBEVI4n4fE1Xk6ru73Cr/hJKqwDOaacxkYkAQZ6wTW86rG3kmtgV6zCrcZZZ0Lv2+OrCDtwQ==
-X-Received: by 2002:a05:6830:1be7:: with SMTP id k7mr17284343otb.162.1600275999375;
-        Wed, 16 Sep 2020 10:06:39 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 34sm8636012otg.23.2020.09.16.10.06.38
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 16 Sep 2020 10:06:39 -0700 (PDT)
-Date:   Wed, 16 Sep 2020 10:06:37 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 5.8 000/177] 5.8.10-rc1 review
-Message-ID: <20200916170637.GC93678@roeck-us.net>
-References: <20200915140653.610388773@linuxfoundation.org>
+        id S1726823AbgIPUjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 16:39:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58614 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726747AbgIPRHt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Sep 2020 13:07:49 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 068F220731;
+        Wed, 16 Sep 2020 17:07:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600276067;
+        bh=ib7N94E2nLCwiAfrg9neVbGKdpsytr4YeLzSAPlnqiU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2Zm55sb26Zkzc8leerButOxYH4sYSPn3orHxfsTv6vegpLbKYH8RpDGFTnCq491TM
+         BRp1zSStouOW/FK2C926yoe+2wJPIByHbxHK5aV3iOsyVNfjotSlD2DnkEeh8q/zCi
+         LW1aVZVqTni2QxBeWv7tNcIzaLzbAv4XojbenlVE=
+Date:   Wed, 16 Sep 2020 19:08:21 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     John Villalovos <jlvillal@os.amperecomputing.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 0/5] Add support needed for Renesas USB 3.0
+ controller
+Message-ID: <20200916170821.GA3054459@kroah.com>
+References: <20200915213039.862123-1-jlvillal@os.amperecomputing.com>
+ <20200916063116.GI142621@kroah.com>
+ <e92b6d88-387b-1b06-9df1-49897145e0a7@os.amperecomputing.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200915140653.610388773@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <e92b6d88-387b-1b06-9df1-49897145e0a7@os.amperecomputing.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 15, 2020 at 04:11:11PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.8.10 release.
-> There are 177 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, Sep 16, 2020 at 09:54:50AM -0700, John Villalovos wrote:
 > 
-> Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
-> Anything received after that time might be too late.
+> On 9/15/2020 11:31 PM, Greg KH wrote:
+> > On Tue, Sep 15, 2020 at 02:30:34PM -0700, John L. Villalovos wrote:
+> > > Add support needed for the Renesas USB 3.0 controller
+> > > (PD720201/PD720202).  Without these patches a system with this USB
+> > > controller will crash during boot.
+> > Is this a regression, or something that has always happened?  If a
+> > regression, any pointers to what commit caused this?
+> > 
+> > this really feels like a "new feature" addition to me, unless this used
+> > to work properly.
 > 
+> It is not a regression. It is a crash that occurs on new hardware that has
+> this USB controller.
+> 
+> 
+> Without this patch series, hardware with this USB controller will fail to
+> work. So in the choice between "regression" and "new feature" I would say
+> "new feature".
 
-Build results:
-	total: 154 pass: 154 fail: 0
-Qemu test results:
-	total: 430 pass: 430 fail: 0
+Ok, to support new hardware, use a newer kernel, no reason why 5.4 or
+newer will not work here, right?
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+thanks,
 
-Guenter
+greg k-h
