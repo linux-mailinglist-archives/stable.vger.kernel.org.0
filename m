@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB5B26C688
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 19:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B496B26C67C
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 19:51:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727290AbgIPRxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 13:53:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42918 "EHLO mail.kernel.org"
+        id S1727337AbgIPRvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 13:51:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727222AbgIPRwC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Sep 2020 13:52:02 -0400
+        id S1727561AbgIPRvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Sep 2020 13:51:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EB8521D43;
-        Wed, 16 Sep 2020 11:23:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F379F21974;
+        Wed, 16 Sep 2020 11:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600255404;
-        bh=lqzdIOQ2v5uAaJ5UDf7Rkv6xvR9w50zt6VNuSmWbeD0=;
+        s=default; t=1600255407;
+        bh=pPUgbT/wwB5fs/iEkEr+6agPdJjMGS9hSRFucHUfBvg=;
         h=Subject:To:From:Date:From;
-        b=tMqy+fB5WUjofla58yU2ip14yDHBdK1kGt1tjcWXaE5IC1BayfYMFsxTZwE9WJ3M5
-         cZYqbfB2x0RrmBq7NGWhuHxWOiW72XvtnFywIlKy/ToHA5RMhMex58zxPQpkns3oPQ
-         0QwMDcSXXC7jFGo9BVL+77as/mPF7PYFkww2SRHM=
-Subject: patch "serial: core: fix console port-lock regression" added to tty-linus
-To:     johan@kernel.org, andriy.shevchenko@linux.intel.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=XrOdmatdveT5X2a/g2B5vX37DXjS4+s/UyEXpAM3MdbHB6l1h6V2LsbONUUrGi4oL
+         611jw1d+tSBme8Zu1YTsBaYAn4odgGH7Y4BmPoHPYBTTpFllBnBsN3RzizfqPvjwBu
+         Wuy+RTcBJUPiQcVAc87fLDDfjbL9rObt+cxeAI+o=
+Subject: patch "serial: 8250_pci: Add Realtek 816a and 816b" added to tty-linus
+To:     tobiasdiedrich@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 16 Sep 2020 13:23:56 +0200
-Message-ID: <1600255436723@kroah.com>
+Date:   Wed, 16 Sep 2020 13:23:59 +0200
+Message-ID: <160025543941103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    serial: core: fix console port-lock regression
+    serial: 8250_pci: Add Realtek 816a and 816b
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -55,129 +55,121 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From e0830dbf71f191851ed3772d2760f007b7c5bc3a Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Wed, 9 Sep 2020 16:31:01 +0200
-Subject: serial: core: fix console port-lock regression
+From 3c5a87be170aba8ac40982182f812dcff6ed1ad1 Mon Sep 17 00:00:00 2001
+From: Tobias Diedrich <tobiasdiedrich@gmail.com>
+Date: Mon, 14 Sep 2020 19:36:28 +0200
+Subject: serial: 8250_pci: Add Realtek 816a and 816b
 
-Fix the port-lock initialisation regression introduced by commit
-a3cb39d258ef ("serial: core: Allow detach and attach serial device for
-console") by making sure that the lock is again initialised during
-console setup.
+These serial ports are exposed by the OOB-management-engine on
+RealManage-enabled network cards (e.g. AMD DASH enabled systems using
+Realtek cards).
 
-The console may be registered before the serial controller has been
-probed in which case the port lock needs to be initialised during
-console setup by a call to uart_set_options(). The console-detach
-changes introduced a regression in several drivers by effectively
-removing that initialisation by not initialising the lock when the port
-is used as a console (which is always the case during console setup).
+Because these have 3 BARs, they fail the "num_iomem <= 1" check in
+serial_pci_guess_board.
 
-Add back the early lock initialisation and instead use a new
-console-reinit flag to handle the case where a console is being
-re-attached through sysfs.
+I've manually checked the two IOMEM regions and BAR 2 doesn't seem to
+respond to reads, but BAR 4 seems to be an MMIO version of the IO ports
+(untested).
 
-The question whether the console-detach interface should have been added
-in the first place is left for another discussion.
+With this change, the ports are detected:
+0000:02:00.1: ttyS0 at I/O 0x2200 (irq = 82, base_baud = 115200) is a 16550A
+0000:02:00.2: ttyS1 at I/O 0x2100 (irq = 55, base_baud = 115200) is a 16550A
 
-Note that the console-enabled check in uart_set_options() is not
-redundant because of kgdboc, which can end up reinitialising an already
-enabled console (see commit 42b6a1baa3ec ("serial_core: Don't
-re-initialize a previously initialized spinlock.")).
+lspci output:
+02:00.1 0700: 10ec:816a (rev 0e) (prog-if 02 [16550])
+        Subsystem: 17aa:5082
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort+ <TAbort- <MAbort- >SERR- <PERR- INTx-
+        Interrupt: pin B routed to IRQ 82
+        IOMMU group: 11
+        Region 0: I/O ports at 2200 [size=256]
+        Region 2: Memory at fd715000 (64-bit, non-prefetchable) [size=4K]
+        Region 4: Memory at fd704000 (64-bit, non-prefetchable) [size=16K]
+        Capabilities: [40] Power Management version 3
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [50] MSI: Enable- Count=1/1 Maskable- 64bit+
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [70] Express (v2) Endpoint, MSI 01
+                DevCap: MaxPayload 128 bytes, PhantFunc 0, Latency L0s unlimited, L1 <64us
+                        ExtTag- AttnBtn- AttnInd- PwrInd- RBE+ FLReset- SlotPowerLimit 0.000W
+                DevCtl: CorrErr- NonFatalErr- FatalErr- UnsupReq-
+                        RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop-
+                        MaxPayload 128 bytes, MaxReadReq 512 bytes
+                DevSta: CorrErr+ NonFatalErr- FatalErr- UnsupReq+ AuxPwr+ TransPend-
+                LnkCap: Port #0, Speed 2.5GT/s, Width x1, ASPM L0s L1, Exit Latency L0s unlimited, L1 <64us
+                        ClockPM+ Surprise- LLActRep- BwNot- ASPMOptComp+
+                LnkCtl: ASPM L1 Enabled; RCB 64 bytes, Disabled- CommClk+
+                        ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+                LnkSta: Speed 2.5GT/s (ok), Width x1 (ok)
+                        TrErr- Train- SlotClk+ DLActive- BWMgmt- ABWMgmt-
+                DevCap2: Completion Timeout: Range ABCD, TimeoutDis+ NROPrPrP- LTR+
+                         10BitTagComp- 10BitTagReq- OBFF Via message/WAKE#, ExtFmt- EETLPPrefix-
+                         EmergencyPowerReduction Not Supported, EmergencyPowerReductionInit-
+                         FRS- TPHComp- ExtTPHComp-
+                         AtomicOpsCap: 32bit- 64bit- 128bitCAS-
+                DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis- LTR- OBFF Disabled,
+                         AtomicOpsCtl: ReqEn-
+                LnkSta2: Current De-emphasis Level: -6dB, EqualizationComplete- EqualizationPhase1-
+                         EqualizationPhase2- EqualizationPhase3- LinkEqualizationRequest-
+                         Retimer- 2Retimers- CrosslinkRes: unsupported
+        Capabilities: [b0] MSI-X: Enable- Count=4 Masked-
+                Vector table: BAR=4 offset=00000000
+                PBA: BAR=4 offset=00000800
+        Capabilities: [d0] Vital Product Data
+                Not readable
+        Capabilities: [100 v2] Advanced Error Reporting
+                UESta:  DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
+                UEMsk:  DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
+                UESvrt: DLP+ SDES+ TLP- FCP+ CmpltTO- CmpltAbrt- UnxCmplt- RxOF+ MalfTLP+ ECRC- UnsupReq- ACSViol-
+                CESta:  RxErr- BadTLP- BadDLLP- Rollover- Timeout- AdvNonFatalErr+
+                CEMsk:  RxErr- BadTLP- BadDLLP- Rollover- Timeout- AdvNonFatalErr+
+                AERCap: First Error Pointer: 00, ECRCGenCap+ ECRCGenEn- ECRCChkCap+ ECRCChkEn-
+                        MultHdrRecCap- MultHdrRecEn- TLPPfxPres- HdrLogCap-
+                HeaderLog: 00000000 00000000 00000000 00000000
+        Capabilities: [160 v1] Device Serial Number 00-00-00-00-00-00-00-00
+        Capabilities: [170 v1] Latency Tolerance Reporting
+                Max snoop latency: 0ns
+                Max no snoop latency: 0ns
+        Capabilities: [178 v1] L1 PM Substates
+                L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+                          PortCommonModeRestoreTime=150us PortTPowerOnTime=150us
+                L1SubCtl1: PCI-PM_L1.2- PCI-PM_L1.1- ASPM_L1.2- ASPM_L1.1-
+                           T_CommonMode=0us LTR1.2_Threshold=0ns
+                L1SubCtl2: T_PwrOn=10us
+02:00.2 0700: 10ec:816b (rev 0e)
+[...same...]
 
-Fixes: a3cb39d258ef ("serial: core: Allow detach and attach serial device for console")
-Cc: stable <stable@vger.kernel.org>     # 5.7
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20200909143101.15389-3-johan@kernel.org
+Signed-off-by: Tobias Diedrich <tobiasdiedrich@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200914173628.GA22508@yamamaya.is-a-geek.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/serial_core.c | 32 +++++++++++++++-----------------
- include/linux/serial_core.h      |  1 +
- 2 files changed, 16 insertions(+), 17 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index 53b79e1fcbc8..124524ecfe26 100644
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -1916,24 +1916,12 @@ static inline bool uart_console_enabled(struct uart_port *port)
- 	return uart_console(port) && (port->cons->flags & CON_ENABLED);
- }
+diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
+index 3eb2d485eaeb..55bb7b897d97 100644
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -5566,6 +5566,17 @@ static const struct pci_device_id serial_pci_tbl[] = {
+ 		PCI_ANY_ID, PCI_ANY_ID,
+ 		0, 0, pbn_wch384_4 },
  
--static void __uart_port_spin_lock_init(struct uart_port *port)
-+static void uart_port_spin_lock_init(struct uart_port *port)
- {
- 	spin_lock_init(&port->lock);
- 	lockdep_set_class(&port->lock, &port_lock_key);
- }
- 
--/*
-- * Ensure that the serial console lock is initialised early.
-- * If this port is a console, then the spinlock is already initialised.
-- */
--static inline void uart_port_spin_lock_init(struct uart_port *port)
--{
--	if (uart_console(port))
--		return;
--
--	__uart_port_spin_lock_init(port);
--}
--
- #if defined(CONFIG_SERIAL_CORE_CONSOLE) || defined(CONFIG_CONSOLE_POLL)
- /**
-  *	uart_console_write - write a console message to a serial port
-@@ -2086,7 +2074,15 @@ uart_set_options(struct uart_port *port, struct console *co,
- 	struct ktermios termios;
- 	static struct ktermios dummy;
- 
--	uart_port_spin_lock_init(port);
 +	/*
-+	 * Ensure that the serial-console lock is initialised early.
-+	 *
-+	 * Note that the console-enabled check is needed because of kgdboc,
-+	 * which can end up calling uart_set_options() for an already enabled
-+	 * console via tty_find_polling_driver() and uart_poll_init().
++	 * Realtek RealManage
 +	 */
-+	if (!uart_console_enabled(port) && !port->console_reinit)
-+		uart_port_spin_lock_init(port);
- 
- 	memset(&termios, 0, sizeof(struct ktermios));
- 
-@@ -2794,10 +2790,12 @@ static ssize_t console_store(struct device *dev,
- 		if (oldconsole && !newconsole) {
- 			ret = unregister_console(uport->cons);
- 		} else if (!oldconsole && newconsole) {
--			if (uart_console(uport))
-+			if (uart_console(uport)) {
-+				uport->console_reinit = 1;
- 				register_console(uport->cons);
--			else
-+			} else {
- 				ret = -ENOENT;
-+			}
- 		}
- 	} else {
- 		ret = -ENXIO;
-@@ -2898,7 +2896,7 @@ int uart_add_one_port(struct uart_driver *drv, struct uart_port *uport)
- 	 * initialised.
- 	 */
- 	if (!uart_console_enabled(uport))
--		__uart_port_spin_lock_init(uport);
-+		uart_port_spin_lock_init(uport);
- 
- 	if (uport->cons && uport->dev)
- 		of_console_check(uport->dev->of_node, uport->cons->name, uport->line);
-diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
-index 01fc4d9c9c54..8a99279a579b 100644
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -248,6 +248,7 @@ struct uart_port {
- 
- 	unsigned char		hub6;			/* this should be in the 8250 driver */
- 	unsigned char		suspended;
-+	unsigned char		console_reinit;
- 	const char		*name;			/* port name */
- 	struct attribute_group	*attr_group;		/* port specific attributes */
- 	const struct attribute_group **tty_groups;	/* all attributes (serial core use only) */
++	{	PCI_VENDOR_ID_REALTEK, 0x816a,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0, pbn_b0_1_115200 },
++
++	{	PCI_VENDOR_ID_REALTEK, 0x816b,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0, pbn_b0_1_115200 },
++
+ 	/* Fintek PCI serial cards */
+ 	{ PCI_DEVICE(0x1c29, 0x1104), .driver_data = pbn_fintek_4 },
+ 	{ PCI_DEVICE(0x1c29, 0x1108), .driver_data = pbn_fintek_8 },
 -- 
 2.28.0
 
