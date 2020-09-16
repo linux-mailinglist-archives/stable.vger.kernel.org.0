@@ -2,72 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA40426C004
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 11:01:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EFDF26C021
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 11:07:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726543AbgIPJBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 05:01:07 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:61298 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726505AbgIPJBG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 05:01:06 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22442877-1500050 
-        for multiple; Wed, 16 Sep 2020 10:00:59 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/3] drm/i915: Break up error capture compression loops with cond_resched()
-Date:   Wed, 16 Sep 2020 10:00:58 +0100
-Message-Id: <20200916090059.3189-2-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200916090059.3189-1-chris@chris-wilson.co.uk>
-References: <20200916090059.3189-1-chris@chris-wilson.co.uk>
+        id S1726590AbgIPJH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 05:07:28 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:43446 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726481AbgIPJH0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 05:07:26 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 1FCAE1C0B7D; Wed, 16 Sep 2020 11:07:24 +0200 (CEST)
+Date:   Wed, 16 Sep 2020 11:07:23 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@denx.de>, jikos@suse.cz, vojtech@suse.cz,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Yuan Ming <yuanmingbuaa@gmail.com>, Willy Tarreau <w@1wt.eu>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 4.19 66/78] fbcon: remove soft scrollback code
+Message-ID: <20200916090723.GA4151@duo.ucw.cz>
+References: <20200915140633.552502750@linuxfoundation.org>
+ <20200915140636.861676717@linuxfoundation.org>
+ <20200916075759.GC32537@duo.ucw.cz>
+ <20200916082510.GB509119@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="lrZ03NoBR/3+SXJZ"
+Content-Disposition: inline
+In-Reply-To: <20200916082510.GB509119@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As the error capture will compress user buffers as directed to by the
-user, it can take an arbitrary amount of time and space. Break up the
-compression loops with a call to cond_resched(), that will allow other
-processes to schedule (avoiding the soft lockups) and also serve as a
-warning should we try to make this loop atomic in the future.
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
----
- drivers/gpu/drm/i915/i915_gpu_error.c | 3 +++
- 1 file changed, 3 insertions(+)
+--lrZ03NoBR/3+SXJZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/gpu/drm/i915/i915_gpu_error.c b/drivers/gpu/drm/i915/i915_gpu_error.c
-index 3e6cbb0d1150..a635ec8d0b94 100644
---- a/drivers/gpu/drm/i915/i915_gpu_error.c
-+++ b/drivers/gpu/drm/i915/i915_gpu_error.c
-@@ -311,6 +311,8 @@ static int compress_page(struct i915_vma_compress *c,
- 
- 		if (zlib_deflate(zstream, Z_NO_FLUSH) != Z_OK)
- 			return -EIO;
-+
-+		cond_resched();
- 	} while (zstream->avail_in);
- 
- 	/* Fallback to uncompressed if we increase size? */
-@@ -397,6 +399,7 @@ static int compress_page(struct i915_vma_compress *c,
- 	if (!(wc && i915_memcpy_from_wc(ptr, src, PAGE_SIZE)))
- 		memcpy(ptr, src, PAGE_SIZE);
- 	dst->pages[dst->page_count++] = ptr;
-+	cond_resched();
- 
- 	return 0;
- }
--- 
-2.20.1
+Hi!
 
+> > > From: Linus Torvalds <torvalds@linux-foundation.org>
+> > >=20
+> > > commit 50145474f6ef4a9c19205b173da6264a644c7489 upstream.
+> > >=20
+> > > This (and the VGA soft scrollback) turns out to have various nasty sm=
+all
+> > > special cases that nobody really is willing to fight.  The soft
+> > > scrollback code was really useful a few decades ago when you typically
+> > > used the console interactively as the main way to interact with the
+> > > machine, but that just isn't the case any more.
+> > >=20
+> > > So it's not worth dragging along.
+> >=20
+> > It is still useful.
+> >=20
+> > In particular, kernel is now very verbose, so important messages
+> > during bootup scroll away. It is way bigger deal when you can no
+> > longer get to them using shift-pageup.
+> >=20
+> > fsck is rather verbose, too, and there's no easy way to run that under
+> > X terminal... and yes, that makes scrollback very useful, too.
+> >=20
+> > So, I believe we'll need to fix this. I guess I could do it. I also
+> > guess I'll not have to, because SuSE or RedHat will want to fix it.
+> >=20
+> > Anyway, this really should not be merged into stable.
+>=20
+> It's merged into the stable trees that _I_ have to maintain.  If you
+> want to revert it for trees you maintain and wish to keep secure, that's
+> up to you.  But it's something that I _STRONGLY_ do not advise doing.
+
+I believe it will need to be reverted in Linus' tree, too. In fact,
+the patch seems to be a way for Linus to find a maintainer for the
+code, and I already stated I can do it. Patch is so new it was not
+even in -rc released by Linus.
+
+> See the email recently on oss-devel for one such reason why this was
+> removed...
+
+Would you have a link for that?
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--lrZ03NoBR/3+SXJZ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX2HVywAKCRAw5/Bqldv6
+8n8IAJ9Ckk/Dt5yz2ZN03hdemFeg5cZhXACeIV86DHYDXC4IqpvDCyi6XVH55NI=
+=T25L
+-----END PGP SIGNATURE-----
+
+--lrZ03NoBR/3+SXJZ--
