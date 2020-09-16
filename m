@@ -2,185 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C70E26C900
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 21:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD2526C9E9
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 21:38:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728252AbgIPTCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Sep 2020 15:02:06 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:42102 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727530AbgIPTCE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Sep 2020 15:02:04 -0400
-Received: from [192.168.0.121] (unknown [209.134.121.133])
-        by linux.microsoft.com (Postfix) with ESMTPSA id C893820B7178;
-        Wed, 16 Sep 2020 12:02:01 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C893820B7178
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1600282922;
-        bh=GJZCIFFbV+G3fGXxdDrAP4Tr8M8bZGG2RDqHfdqx+bM=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=JNRW4+Xkd/YPU2ClS8TSZ2up2ik/1McVBujsi5MiGh3mlaE3LQgHdFqUCftKKzMmv
-         NCR1Xby4buUMKQt3LPJX7F6FiLROzU2mKtAEMw4ht5YTpKBZkV81/FnRO/fOXjRxQC
-         xBIJG0l7Rwmk7l9g8a6yIFevlkeHbG2K23R8Bf2w=
-Subject: Re: +
- mm-khugepaged-recalculate-min_free_kbytes-after-memory-hotplug-as-expected-by-khugepaged.patch
- added to -mm tree
-To:     Michal Hocko <mhocko@suse.com>, akpm@linux-foundation.org
-Cc:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        songliubraving@fb.com, pasha.tatashin@soleen.com, oleg@redhat.com,
-        kirill.shutemov@linux.intel.com, apais@microsoft.com,
-        aarcange@redhat.com
-References: <20200916000948.N0vvr%akpm@linux-foundation.org>
- <20200916073345.GC18998@dhcp22.suse.cz>
-From:   Vijay Balakrishna <vijayb@linux.microsoft.com>
-Message-ID: <24a3b0e1-f0a6-c0b1-2fc4-a1ca6248858f@linux.microsoft.com>
-Date:   Wed, 16 Sep 2020 12:02:00 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.2.2
+        id S1727410AbgIPTht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Sep 2020 15:37:49 -0400
+Received: from mail-co1nam11on2046.outbound.protection.outlook.com ([40.107.220.46]:4032
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727527AbgIPThK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Sep 2020 15:37:10 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZbCzeGNZa1zcigGoCNi2hpkdR12qkKM81PiLNR8//ippb0dH/NLz5GlVFrXysglC5cly+5XUDOtJzEfy6ujhqTQ4a0WxPdCiVmcgj79kPGtbCTinaALSswnm7J56W8mlTWO+PAD0mPACaeh5mmDtAkIIk5AoSxrKq4Xi8sLbWLTxIYrNnpGaY4qzMzs2zp01MVEiwQj1jHn/4kIfZMiNRNhrg3ZxPjqMq/bAl3OHE9vQHJItRDGNrsmQaa2lYHgq5FVIvk+E1o6f0O6J8Kc4/Upfk066K+dFRAZU8Lw5SJ8LBG6Frp03XiU+sTZSDQyXxoAwP8vbAAs60Jxc9zaeLg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7RtXeTOcZfsHWL3n2wEFH72T/DlyJf3iP8hDH+sqZrI=;
+ b=YKeDxCQOoCagAi363idBbwASgquWMi8ci9VPWXxoU1b/l6ts3VuVScr1+iiE07i3bHMcqNd6rAFhqC5AYumEZeiU+7Tf9mv7SAP5iKI2RWlW69MrfrZZQYbd+m27CYsVPSpKIzrqyhtzXZHL8b7RBq9ujDW9hlzo3oL5QK4OdVXVtkBdiRTr4QSxIGdtIHik0y7llnY3s19Xfeq5g+CuL6KBkGxExs0saVFH0eV0VWoZqpYDH/JKGSp3wN9SG5gDgu0entkHgD/zm3cMsu8MBb1LMFfZ2MPtYbcqmyo/4+Fpu6d/NpS8Hfo5iV+hAZJZQT41uZnod8gD+L0tadK46w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
+ dmarc=permerror action=none header.from=amd.com; dkim=none (message not
+ signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7RtXeTOcZfsHWL3n2wEFH72T/DlyJf3iP8hDH+sqZrI=;
+ b=XCGjy6CZtqOZaGU3GfOTD8/Ey9/YWDlccEnG5/ugn++e2LlmiGVlUg/BF5S2nhQJkO1TP+KMIlkjn+/BhuuP7aPlmOyhiT01l508hKUUw/7YpN4opXgjb0BLd8ch96inoYMQH1f2guR1Fk13JazYGnn3fHlShm+3yw0kJD4BJwo=
+Received: from DM6PR18CA0001.namprd18.prod.outlook.com (2603:10b6:5:15b::14)
+ by BL0PR12MB4754.namprd12.prod.outlook.com (2603:10b6:208:8e::26) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3391.11; Wed, 16 Sep
+ 2020 19:36:38 +0000
+Received: from DM6NAM11FT028.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:15b:cafe::d7) by DM6PR18CA0001.outlook.office365.com
+ (2603:10b6:5:15b::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3326.19 via Frontend
+ Transport; Wed, 16 Sep 2020 19:36:37 +0000
+X-MS-Exchange-Authentication-Results: spf=none (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
+ header.d=none;lists.freedesktop.org; dmarc=permerror action=none
+ header.from=amd.com;
+Received-SPF: None (protection.outlook.com: amd.com does not designate
+ permitted sender hosts)
+Received: from SATLEXMB02.amd.com (165.204.84.17) by
+ DM6NAM11FT028.mail.protection.outlook.com (10.13.173.140) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.3370.16 via Frontend Transport; Wed, 16 Sep 2020 19:36:37 +0000
+Received: from SATLEXMB04.amd.com (10.181.40.145) by SATLEXMB02.amd.com
+ (10.181.40.143) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1979.3; Wed, 16 Sep
+ 2020 14:36:36 -0500
+Received: from SATLEXMB02.amd.com (10.181.40.143) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1979.3; Wed, 16 Sep
+ 2020 14:36:36 -0500
+Received: from localhost.localdomain (10.180.168.240) by SATLEXMB02.amd.com
+ (10.181.40.143) with Microsoft SMTP Server id 15.1.1979.3 via Frontend
+ Transport; Wed, 16 Sep 2020 14:36:36 -0500
+From:   Qingqing Zhuo <qingqing.zhuo@amd.com>
+To:     <amd-gfx@lists.freedesktop.org>
+CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
+        <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
+        <Qingqing.Zhuo@amd.com>, <Eryk.Brol@amd.com>,
+        David Galiffi <David.Galiffi@amd.com>, <stable@vger.kernel.org>
+Subject: [PATCH 01/15] drm/amd/display: Fix incorrect backlight register offset for DCN
+Date:   Wed, 16 Sep 2020 15:36:21 -0400
+Message-ID: <20200916193635.5169-2-qingqing.zhuo@amd.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200916193635.5169-1-qingqing.zhuo@amd.com>
+References: <20200916193635.5169-1-qingqing.zhuo@amd.com>
 MIME-Version: 1.0
-In-Reply-To: <20200916073345.GC18998@dhcp22.suse.cz>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 222d152b-c814-48fa-78ce-08d85a77d3ee
+X-MS-TrafficTypeDiagnostic: BL0PR12MB4754:
+X-Microsoft-Antispam-PRVS: <BL0PR12MB47540ED9C759C5F5B71915F7FB210@BL0PR12MB4754.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1107;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: IhljxLH2plv5PP4ratDFJaOa55uSvsTnJmvDBA9lZ8+NebRICVTdnoXAflm3TCaMhJc7vk0Mp4FUmOMEYARhnp0U+JeqQFrtl9AGmbQ6dR2APtAk7WwPO5JrkBvPDHJm3oW94rxq2YsuS4o6gnxfvH1+3BEjUkvQ6n/2RG8tbgVljZ5MckENdrc6aSe7DsCxC/BwozTbPhE6ln1O5srjOoy6j/i38xhydZc9cp8Kta7G0YOmy7YATtKMbpV4QScPR+k7TJcreaFcJL8bHxCI14BDBuFcq6JuPCIzyK+EyN+dSBjv8wHdOrYMVe3aMH5dbzAx+O7h3OJWDFZfLhOjIMuSuKDf55jhTPtA8yWmNA9RmAYSBDxu8EC/IERvNG1HBxG7JJczOB6ALylyH8218g==
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SATLEXMB02.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(39860400002)(136003)(376002)(346002)(396003)(46966005)(47076004)(44832011)(54906003)(26005)(426003)(70206006)(6916009)(2616005)(82310400003)(478600001)(70586007)(4326008)(336012)(36756003)(356005)(6666004)(186003)(83380400001)(8676002)(82740400003)(316002)(86362001)(81166007)(8936002)(5660300002)(1076003)(2906002)(4744005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Sep 2020 19:36:37.5194
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 222d152b-c814-48fa-78ce-08d85a77d3ee
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB02.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT028.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB4754
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: David Galiffi <David.Galiffi@amd.com>
 
+[Why]
+Typo in backlight refactor introduced wrong register offset.
 
-On 9/16/2020 12:33 AM, Michal Hocko wrote:
-> On Tue 15-09-20 17:09:48, Andrew Morton wrote:
->> From: Vijay Balakrishna <vijayb@linux.microsoft.com>
->> Subject: mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
->>
->> When memory is hotplug added or removed the min_free_kbytes must be
->> recalculated based on what is expected by khugepaged.  Currently after
->> hotplug, min_free_kbytes will be set to a lower default and higher default
->> set when THP enabled is lost.  This leaves the system with small
->> min_free_kbytes which isn't suitable for systems especially with network
->> intensive loads.  Typical failure symptoms include HW WATCHDOG reset, soft
->> lockup hang notices, NETDEVICE WATCHDOG timeouts, and OOM process kills.
->>
->> Link: https://lkml.kernel.org/r/1600204258-13683-1-git-send-email-vijayb@linux.microsoft.com
->> Fixes: f000565adb77 ("thp: set recommended min free kbytes")
->> Signed-off-by: Vijay Balakrishna <vijayb@linux.microsoft.com>
->> Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
->> Cc: Allen Pais <apais@microsoft.com>
->> Cc: Andrea Arcangeli <aarcange@redhat.com>
->> Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
->> Cc: Michal Hocko <mhocko@suse.com>
->> Cc: Oleg Nesterov <oleg@redhat.com>
->> Cc: Song Liu <songliubraving@fb.com>
->> Cc: <stable@vger.kernel.org>
->> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> 
-> The patch has been explicitly nacked by Kirill IIRC. I am also not happy
-> about it because the changelog doesn't really explain the problem and
-> the follow up discussion didn't drill down to the underlying problem
-> either.
-> 
-> Maybe we want to make the min_free_kbytes udpate consistent with the
-> boot but the current changelog is incomplete and this shouldn't have
-> been added yet.
+[How]
+SR(BIOS_SCRATCH_2) to NBIO_SR(BIOS_SCRATCH_2).
 
-Let me modify changelog to remove references symptoms mentioned.
+Signed-off-by: David Galiffi <David.Galiffi@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Cc: <stable@vger.kernel.org>
+---
+ drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Vijay
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.h b/drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.h
+index 99c68ca9c7e0..967d04d75b98 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.h
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_panel_cntl.h
+@@ -54,7 +54,7 @@
+ 	SR(BL_PWM_CNTL2), \
+ 	SR(BL_PWM_PERIOD_CNTL), \
+ 	SR(BL_PWM_GRP1_REG_LOCK), \
+-	SR(BIOS_SCRATCH_2)
++	NBIO_SR(BIOS_SCRATCH_2)
+ 
+ #define DCE_PANEL_CNTL_SF(reg_name, field_name, post_fix)\
+ 	.field_name = reg_name ## __ ## field_name ## post_fix
+-- 
+2.17.1
 
-> 
->> ---
->>
->>   include/linux/khugepaged.h |    5 +++++
->>   mm/khugepaged.c            |   13 +++++++++++--
->>   mm/memory_hotplug.c        |    3 +++
->>   3 files changed, 19 insertions(+), 2 deletions(-)
->>
->> --- a/include/linux/khugepaged.h~mm-khugepaged-recalculate-min_free_kbytes-after-memory-hotplug-as-expected-by-khugepaged
->> +++ a/include/linux/khugepaged.h
->> @@ -15,6 +15,7 @@ extern int __khugepaged_enter(struct mm_
->>   extern void __khugepaged_exit(struct mm_struct *mm);
->>   extern int khugepaged_enter_vma_merge(struct vm_area_struct *vma,
->>   				      unsigned long vm_flags);
->> +extern void khugepaged_min_free_kbytes_update(void);
->>   #ifdef CONFIG_SHMEM
->>   extern void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr);
->>   #else
->> @@ -85,6 +86,10 @@ static inline void collapse_pte_mapped_t
->>   					   unsigned long addr)
->>   {
->>   }
->> +
->> +static inline void khugepaged_min_free_kbytes_update(void)
->> +{
->> +}
->>   #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
->>   
->>   #endif /* _LINUX_KHUGEPAGED_H */
->> --- a/mm/khugepaged.c~mm-khugepaged-recalculate-min_free_kbytes-after-memory-hotplug-as-expected-by-khugepaged
->> +++ a/mm/khugepaged.c
->> @@ -56,6 +56,9 @@ enum scan_result {
->>   #define CREATE_TRACE_POINTS
->>   #include <trace/events/huge_memory.h>
->>   
->> +static struct task_struct *khugepaged_thread __read_mostly;
->> +static DEFINE_MUTEX(khugepaged_mutex);
->> +
->>   /* default scan 8*512 pte (or vmas) every 30 second */
->>   static unsigned int khugepaged_pages_to_scan __read_mostly;
->>   static unsigned int khugepaged_pages_collapsed;
->> @@ -2292,8 +2295,6 @@ static void set_recommended_min_free_kby
->>   
->>   int start_stop_khugepaged(void)
->>   {
->> -	static struct task_struct *khugepaged_thread __read_mostly;
->> -	static DEFINE_MUTEX(khugepaged_mutex);
->>   	int err = 0;
->>   
->>   	mutex_lock(&khugepaged_mutex);
->> @@ -2320,3 +2321,11 @@ fail:
->>   	mutex_unlock(&khugepaged_mutex);
->>   	return err;
->>   }
->> +
->> +void khugepaged_min_free_kbytes_update(void)
->> +{
->> +	mutex_lock(&khugepaged_mutex);
->> +	if (khugepaged_enabled() && khugepaged_thread)
->> +		set_recommended_min_free_kbytes();
->> +	mutex_unlock(&khugepaged_mutex);
->> +}
->> --- a/mm/memory_hotplug.c~mm-khugepaged-recalculate-min_free_kbytes-after-memory-hotplug-as-expected-by-khugepaged
->> +++ a/mm/memory_hotplug.c
->> @@ -36,6 +36,7 @@
->>   #include <linux/memblock.h>
->>   #include <linux/compaction.h>
->>   #include <linux/rmap.h>
->> +#include <linux/khugepaged.h>
->>   
->>   #include <asm/tlbflush.h>
->>   
->> @@ -857,6 +858,7 @@ int __ref online_pages(unsigned long pfn
->>   	zone_pcp_update(zone);
->>   
->>   	init_per_zone_wmark_min();
->> +	khugepaged_min_free_kbytes_update();
->>   
->>   	kswapd_run(nid);
->>   	kcompactd_run(nid);
->> @@ -1614,6 +1616,7 @@ static int __ref __offline_pages(unsigne
->>   	pgdat_resize_unlock(zone->zone_pgdat, &flags);
->>   
->>   	init_per_zone_wmark_min();
->> +	khugepaged_min_free_kbytes_update();
->>   
->>   	if (!populated_zone(zone)) {
->>   		zone_pcp_reset(zone);
->> _
->>
->> Patches currently in -mm which might be from vijayb@linux.microsoft.com are
->>
->> mm-khugepaged-recalculate-min_free_kbytes-after-memory-hotplug-as-expected-by-khugepaged.patch
->> mm-khugepaged-avoid-overriding-min_free_kbytes-set-by-user.patch
-> 
