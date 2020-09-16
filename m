@@ -2,328 +2,351 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7503626B817
-	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 02:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3906126B930
+	for <lists+stable@lfdr.de>; Wed, 16 Sep 2020 03:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726650AbgIPAgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Sep 2020 20:36:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38684 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726625AbgIPAgP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Sep 2020 20:36:15 -0400
-Received: from X1 (unknown [67.22.170.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726239AbgIPBCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Sep 2020 21:02:03 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:40363 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726095AbgIPBCC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Sep 2020 21:02:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1600218118;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=wuCkIplHDDWOegyfaKtpNTc+1rbmvw3kxj8xozeQLdI=;
+        b=QRiVMjMYhY2KBOUXX/RzxsbZka/IOKHbDgjo7cTrIpvVCb43/Ne/CHAKit1tV17sfSBzwK
+        CGt6EAS5cRWchdl3jd6nrNmw++XL53Ii+ezO0FpqgVcXImct3Op520ykJG7xA/8+KagTxh
+        q+yEMFfO/T7zn0BOAtzgm6BG1XbVvxQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-358-libSzjEsNtOz6pBNLXpTvQ-1; Tue, 15 Sep 2020 21:01:54 -0400
+X-MC-Unique: libSzjEsNtOz6pBNLXpTvQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 215482078E;
-        Wed, 16 Sep 2020 00:36:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600216570;
-        bh=/FjpwMazlryP1/fZjXhNwEHhm4imm7WYgs/BQnDa1zE=;
-        h=Date:From:To:Subject:From;
-        b=tJgD4o5Oq48L0aHCbgRFpnB4s7/UNRtQAsCvN+dbH4uU0syIEpT25zwavLHhZILvx
-         lclJqzffeqZSe5esGcktzLFZV2JHSrwzruYmb/ekONijNV4c961fIsCnxlQ5LS5dHy
-         4FQ2X9SvLCUQnezC6FH0Z5kbppYZ9FxLHX/SgfAc=
-Date:   Tue, 15 Sep 2020 17:36:08 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, will@kernel.org,
-        torvalds@linux-foundation.org, tglx@linutronix.de,
-        stable@vger.kernel.org, rppt@linux.ibm.com, richard@nod.at,
-        peterz@infradead.org, paulus@samba.org, mpe@ellerman.id.au,
-        mingo@redhat.com, luto@kernel.org, linux@armlinux.org.uk,
-        jgg@nvidia.com, jdike@addtoit.com, imbrenda@linux.ibm.com,
-        hca@linux.ibm.com, gerald.schaefer@linux.ibm.com,
-        dave.hansen@linux.intel.com, dave.hansen@intel.com,
-        catalin.marinas@arm.com, bp@alien8.de, borntraeger@de.ibm.com,
-        benh@kernel.crashing.org, aryabinin@virtuozzo.com, arnd@arndb.de,
-        agordeev@linux.ibm.com, gor@linux.ibm.com
-Subject:  + mm-gup-fix-gup_fast-with-dynamic-page-table-folding.patch
- added to -mm tree
-Message-ID: <20200916003608.ib4Ln%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1118A10059A8
+        for <stable@vger.kernel.org>; Wed, 16 Sep 2020 01:01:54 +0000 (UTC)
+Received: from [10.128.3.190] (unknown [10.0.117.154])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C5F7919D61;
+        Wed, 16 Sep 2020 01:01:50 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.8.9-ae71415.cki
+ (stable-queue)
+Date:   Wed, 16 Sep 2020 01:01:50 -0000
+CC:     Yi Zhang <yi.zhang@redhat.com>, David Arcari <darcari@redhat.com>
+Message-ID: <cki.5F6C2E3B41.OH6PWJWDXR@redhat.com>
+X-Gitlab-Pipeline-ID: 613791
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/613791
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/gup: fix gup_fast with dynamic page table folding
-has been added to the -mm tree.  Its filename is
-     mm-gup-fix-gup_fast-with-dynamic-page-table-folding.patch
+Hello,
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-gup-fix-gup_fast-with-dynamic-page-table-folding.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-gup-fix-gup_fast-with-dynamic-page-table-folding.patch
+We ran automated tests on a recent commit from this kernel tree:
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: ae714154c122 - drm/msm/gpu: make ringbuffer readonly
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+The results of these automated tests are provided below.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-------------------------------------------------------
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: mm/gup: fix gup_fast with dynamic page table folding
+All kernel binaries, config files, and logs are available for download here:
 
-Currently to make sure that every page table entry is read just once
-gup_fast walks perform READ_ONCE and pass pXd value down to the next
-gup_pXd_range function by value e.g.:
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse/2020/09/15/613791
 
-static int gup_pud_range(p4d_t p4d, unsigned long addr, unsigned long end,
-                         unsigned int flags, struct page **pages, int *nr)
-...
-        pudp = pud_offset(&p4d, addr);
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-This function passes a reference on that local value copy to pXd_offset,
-and might get the very same pointer in return.  This happens when the
-level is folded (on most arches), and that pointer should not be iterated.
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-On s390 due to the fact that each task might have different 5,4 or 3-level
-address translation and hence different levels folded the logic is more
-complex and non-iteratable pointer to a local copy leads to severe
-problems.
+Compile testing
+---------------
 
-Here is an example of what happens with gup_fast on s390, for a task with
-3-levels paging, crossing a 2 GB pud boundary:
+We compiled the kernel for 4 architectures:
 
-// addr = 0x1007ffff000, end = 0x10080001000
-static int gup_pud_range(p4d_t p4d, unsigned long addr, unsigned long end,
-                         unsigned int flags, struct page **pages, int *nr)
-{
-        unsigned long next;
-        pud_t *pudp;
+    aarch64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-        // pud_offset returns &p4d itself (a pointer to a value on stack)
-        pudp = pud_offset(&p4d, addr);
-        do {
-                // on second iteratation reading "random" stack value
-                pud_t pud = READ_ONCE(*pudp);
+    ppc64le:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-                // next = 0x10080000000, due to PUD_SIZE/MASK != PGDIR_SIZE/MASK on s390
-                next = pud_addr_end(addr, end);
-                ...
-        } while (pudp++, addr = next, addr != end); // pudp++ iterating over stack
+    s390x:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-        return 1;
-}
+    x86_64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-This happens since s390 moved to common gup code with commit d1874a0c2805
-("s390/mm: make the pxd_offset functions more robust") and commit
-1a42010cdc26 ("s390/mm: convert to the generic get_user_pages_fast code").
-s390 tried to mimic static level folding by changing pXd_offset
-primitives to always calculate top level page table offset in pgd_offset
-and just return the value passed when pXd_offset has to act as folded.
 
-What is crucial for gup_fast and what has been overlooked is that
-PxD_SIZE/MASK and thus pXd_addr_end should also change correspondingly. 
-And the latter is not possible with dynamic folding.
 
-To fix the issue in addition to pXd values pass original pXdp pointers
-down to gup_pXd_range functions.  And introduce pXd_offset_lockless
-helpers, which take an additional pXd entry value parameter.  This has
-already been discussed in
-https://lkml.kernel.org/r/20190418100218.0a4afd51@mschwideX1
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
 
-Link: https://lkml.kernel.org/r/patch.git-943f1e5dcff2.your-ad-here.call-01599856292-ext-8676@work.hours
-Fixes: 1a42010cdc26 ("s390/mm: convert to the generic get_user_pages_fast code")
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: <stable@vger.kernel.org>	[5.2+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
 
- arch/s390/include/asm/pgtable.h |   42 +++++++++++++++++++++---------
- include/linux/pgtable.h         |   10 +++++++
- mm/gup.c                        |   18 ++++++------
- 3 files changed, 49 insertions(+), 21 deletions(-)
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
 
---- a/arch/s390/include/asm/pgtable.h~mm-gup-fix-gup_fast-with-dynamic-page-table-folding
-+++ a/arch/s390/include/asm/pgtable.h
-@@ -1260,26 +1260,44 @@ static inline pgd_t *pgd_offset_raw(pgd_
- 
- #define pgd_offset(mm, address) pgd_offset_raw(READ_ONCE((mm)->pgd), address)
- 
--static inline p4d_t *p4d_offset(pgd_t *pgd, unsigned long address)
-+static inline p4d_t *p4d_offset_lockless(pgd_t *pgdp, pgd_t pgd, unsigned long address)
- {
--	if ((pgd_val(*pgd) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R1)
--		return (p4d_t *) pgd_deref(*pgd) + p4d_index(address);
--	return (p4d_t *) pgd;
-+	if ((pgd_val(pgd) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R1)
-+		return (p4d_t *) pgd_deref(pgd) + p4d_index(address);
-+	return (p4d_t *) pgdp;
- }
-+#define p4d_offset_lockless p4d_offset_lockless
- 
--static inline pud_t *pud_offset(p4d_t *p4d, unsigned long address)
-+static inline p4d_t *p4d_offset(pgd_t *pgdp, unsigned long address)
- {
--	if ((p4d_val(*p4d) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R2)
--		return (pud_t *) p4d_deref(*p4d) + pud_index(address);
--	return (pud_t *) p4d;
-+	return p4d_offset_lockless(pgdp, *pgdp, address);
-+}
-+
-+static inline pud_t *pud_offset_lockless(p4d_t *p4dp, p4d_t p4d, unsigned long address)
-+{
-+	if ((p4d_val(p4d) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R2)
-+		return (pud_t *) p4d_deref(p4d) + pud_index(address);
-+	return (pud_t *) p4dp;
-+}
-+#define pud_offset_lockless pud_offset_lockless
-+
-+static inline pud_t *pud_offset(p4d_t *p4dp, unsigned long address)
-+{
-+	return pud_offset_lockless(p4dp, *p4dp, address);
- }
- #define pud_offset pud_offset
- 
--static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
-+static inline pmd_t *pmd_offset_lockless(pud_t *pudp, pud_t pud, unsigned long address)
-+{
-+	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R3)
-+		return (pmd_t *) pud_deref(pud) + pmd_index(address);
-+	return (pmd_t *) pudp;
-+}
-+#define pmd_offset_lockless pmd_offset_lockless
-+
-+static inline pmd_t *pmd_offset(pud_t *pudp, unsigned long address)
- {
--	if ((pud_val(*pud) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R3)
--		return (pmd_t *) pud_deref(*pud) + pmd_index(address);
--	return (pmd_t *) pud;
-+	return pmd_offset_lockless(pudp, *pudp, address);
- }
- #define pmd_offset pmd_offset
- 
---- a/include/linux/pgtable.h~mm-gup-fix-gup_fast-with-dynamic-page-table-folding
-+++ a/include/linux/pgtable.h
-@@ -1427,6 +1427,16 @@ typedef unsigned int pgtbl_mod_mask;
- #define mm_pmd_folded(mm)	__is_defined(__PAGETABLE_PMD_FOLDED)
- #endif
- 
-+#ifndef p4d_offset_lockless
-+#define p4d_offset_lockless(pgdp, pgd, address) p4d_offset(&(pgd), address)
-+#endif
-+#ifndef pud_offset_lockless
-+#define pud_offset_lockless(p4dp, p4d, address) pud_offset(&(p4d), address)
-+#endif
-+#ifndef pmd_offset_lockless
-+#define pmd_offset_lockless(pudp, pud, address) pmd_offset(&(pud), address)
-+#endif
-+
- /*
-  * p?d_leaf() - true if this entry is a final mapping to a physical address.
-  * This differs from p?d_huge() by the fact that they are always available (if
---- a/mm/gup.c~mm-gup-fix-gup_fast-with-dynamic-page-table-folding
-+++ a/mm/gup.c
-@@ -2485,13 +2485,13 @@ static int gup_huge_pgd(pgd_t orig, pgd_
- 	return 1;
- }
- 
--static int gup_pmd_range(pud_t pud, unsigned long addr, unsigned long end,
-+static int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr, unsigned long end,
- 		unsigned int flags, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	pmd_t *pmdp;
- 
--	pmdp = pmd_offset(&pud, addr);
-+	pmdp = pmd_offset_lockless(pudp, pud, addr);
- 	do {
- 		pmd_t pmd = READ_ONCE(*pmdp);
- 
-@@ -2528,13 +2528,13 @@ static int gup_pmd_range(pud_t pud, unsi
- 	return 1;
- }
- 
--static int gup_pud_range(p4d_t p4d, unsigned long addr, unsigned long end,
-+static int gup_pud_range(p4d_t *p4dp, p4d_t p4d, unsigned long addr, unsigned long end,
- 			 unsigned int flags, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	pud_t *pudp;
- 
--	pudp = pud_offset(&p4d, addr);
-+	pudp = pud_offset_lockless(p4dp, p4d, addr);
- 	do {
- 		pud_t pud = READ_ONCE(*pudp);
- 
-@@ -2549,20 +2549,20 @@ static int gup_pud_range(p4d_t p4d, unsi
- 			if (!gup_huge_pd(__hugepd(pud_val(pud)), addr,
- 					 PUD_SHIFT, next, flags, pages, nr))
- 				return 0;
--		} else if (!gup_pmd_range(pud, addr, next, flags, pages, nr))
-+		} else if (!gup_pmd_range(pudp, pud, addr, next, flags, pages, nr))
- 			return 0;
- 	} while (pudp++, addr = next, addr != end);
- 
- 	return 1;
- }
- 
--static int gup_p4d_range(pgd_t pgd, unsigned long addr, unsigned long end,
-+static int gup_p4d_range(pgd_t *pgdp, pgd_t pgd, unsigned long addr, unsigned long end,
- 			 unsigned int flags, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	p4d_t *p4dp;
- 
--	p4dp = p4d_offset(&pgd, addr);
-+	p4dp = p4d_offset_lockless(pgdp, pgd, addr);
- 	do {
- 		p4d_t p4d = READ_ONCE(*p4dp);
- 
-@@ -2574,7 +2574,7 @@ static int gup_p4d_range(pgd_t pgd, unsi
- 			if (!gup_huge_pd(__hugepd(p4d_val(p4d)), addr,
- 					 P4D_SHIFT, next, flags, pages, nr))
- 				return 0;
--		} else if (!gup_pud_range(p4d, addr, next, flags, pages, nr))
-+		} else if (!gup_pud_range(p4dp, p4d, addr, next, flags, pages, nr))
- 			return 0;
- 	} while (p4dp++, addr = next, addr != end);
- 
-@@ -2602,7 +2602,7 @@ static void gup_pgd_range(unsigned long
- 			if (!gup_huge_pd(__hugepd(pgd_val(pgd)), addr,
- 					 PGDIR_SHIFT, next, flags, pages, nr))
- 				return;
--		} else if (!gup_p4d_range(pgd, addr, next, flags, pages, nr))
-+		} else if (!gup_p4d_range(pgdp, pgd, addr, next, flags, pages, nr))
- 			return;
- 	} while (pgdp++, addr = next, addr != end);
- }
-_
+  ppc64le:
+    Host 1:
 
-Patches currently in -mm which might be from gor@linux.ibm.com are
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
 
-mm-gup-fix-gup_fast-with-dynamic-page-table-folding.patch
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - sysrq-c
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+    Host 4:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9D=8C Storage blktests
+       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+  x86_64:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/sa=
+nity test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
 
