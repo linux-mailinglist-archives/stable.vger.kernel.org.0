@@ -2,81 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B4926DE48
-	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 16:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B925326DE4D
+	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 16:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727473AbgIQObI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 10:31:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39116 "EHLO mail.kernel.org"
+        id S1727560AbgIQOcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 10:32:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727589AbgIQObD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 10:31:03 -0400
+        id S1727195AbgIQObp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 10:31:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90F0E20684;
-        Thu, 17 Sep 2020 14:30:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B8FE20684;
+        Thu, 17 Sep 2020 14:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600353046;
-        bh=oI259mpyrtE1FuIf0ohrhJ+YfhIrCCtcnhpQqYeYZBE=;
+        s=default; t=1600353070;
+        bh=6xKpUw7jkAlOJLQf8voJCk9CPr7e69UDWri5rQWbXRI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RVtyz10UpZJ5dti/zoEH1OaCzrpfv9R1u9sXrai4/fc6veUFG+APd4Enps0yvvOq+
-         RC1CilRuvccrkZdyUpTqMMlABccv7u0QCqQ7DEbc7mn/vDehQa2TaMGJc6aq48rLIZ
-         WDp4JxZw4zTS68BvjaqKmp5zN4jqFATcpWam3LZU=
-Date:   Thu, 17 Sep 2020 16:31:18 +0200
+        b=uXvvT/cVdPsfB+g5MZuc/qMTaVWmp8hfervNgHmYUWQUILdc1OuvYzQLSQDVFy6Xx
+         hwHZ0ycVrZ05msyUufMP+51YSKZIorB3FFklG25bya8r9BCS2Tlqj+PzKsJm5FWCGN
+         JMNfyB6U3ncKSe+AX7B9KyUddhjC0Al/zpD3aMfc=
+Date:   Thu, 17 Sep 2020 16:31:42 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        pavel@denx.de, stable@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 5.8 000/177] 5.8.10-rc1 review
-Message-ID: <20200917143118.GB3941575@kroah.com>
-References: <20200915140653.610388773@linuxfoundation.org>
- <4784c765af9d4be98276fb717f77d756@HQMAIL105.nvidia.com>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Takashi Iwai <tiwai@suse.de>, Dan Crawford <dnlcrwfrd@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: Sound regression in 5.8.8 caused by "ALSA: hda - Fix silent
+ audio output and corrupted input on MSI X570-A PRO"
+Message-ID: <20200917143142.GC3941575@kroah.com>
+References: <7efd2fe5-bf38-7f85-891a-eee3845d1493@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4784c765af9d4be98276fb717f77d756@HQMAIL105.nvidia.com>
+In-Reply-To: <7efd2fe5-bf38-7f85-891a-eee3845d1493@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 16, 2020 at 08:17:36AM +0000, Jon Hunter wrote:
-> On Tue, 15 Sep 2020 16:11:11 +0200, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.8.10 release.
-> > There are 177 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.10-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.8.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+On Wed, Sep 16, 2020 at 08:28:29AM +0200, Hans de Goede wrote:
+> Hi All,
 > 
-> All tests passing for Tegra ...
+> This bug got filed against Fedora last night:
+> https://bugzilla.redhat.com/show_bug.cgi?id=1879277
+> "1879277 - Audio ducking after Linux kernel 5.8.8 update, with headphones plugged in"
 > 
-> Test results for stable-v5.8:
->     14 builds:	14 pass, 0 fail
->     26 boots:	26 pass, 0 fail
->     60 tests:	60 pass, 0 fail
+> The system in the bug is using a MSI X570-A PRO motherboard. So this is almost
+> certainly (this has not been confirmed) caused by commit 8e83bd51016a in the
+> stable tree: "ALSA: hda - Fix silent audio output and corrupted input on MSI X570-A PRO".
 > 
-> Linux version:	5.8.10-rc1-g337aafeeb4cd
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
-> 
-> Tested-by: Jon Hunter <jonathanh@nvidia.com>
+> I'm not sure how to proceed with this one for the stable series,
+> I guess a revert is in order, but that may (re)break non headphone usage?
 
-Thanks for testing all of these and letting me know.
+If you revert, then 5.9-final will also cause the same problem, right?
+
+Or is all ok there?
+
+thanks,
 
 greg k-h
