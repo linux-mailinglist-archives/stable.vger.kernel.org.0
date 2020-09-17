@@ -2,90 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E6826D98D
-	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 12:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AACC26DAE4
+	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 13:58:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726605AbgIQKuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 06:50:25 -0400
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:39485 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726614AbgIQKuT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 06:50:19 -0400
-X-Greylist: delayed 1597 seconds by postgrey-1.27 at vger.kernel.org; Thu, 17 Sep 2020 06:50:17 EDT
-X-Originating-IP: 82.255.60.242
-Received: from [192.168.0.28] (lns-bzn-39-82-255-60-242.adsl.proxad.net [82.255.60.242])
-        (Authenticated sender: hadess@hadess.net)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 1F28940003;
-        Thu, 17 Sep 2020 10:49:46 +0000 (UTC)
-Message-ID: <a6e14983a8849d5f75a43f403c7cc721b6e4a420.camel@hadess.net>
-Subject: Re: [PATCH 1/2] usbcore/driver: Fix specific driver selection
-From:   Bastien Nocera <hadess@hadess.net>
-To:     "M. Vefa Bicakci" <m.v.b@runbox.com>, linux-usb@vger.kernel.org
-Cc:     Andrey Konovalov <andreyknvl@google.com>, stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        syzkaller@googlegroups.com
-Date:   Thu, 17 Sep 2020 12:49:46 +0200
-In-Reply-To: <0ce9fcb5-8684-cf5c-e8ad-02217848cbe7@runbox.com>
-References: <359d080c-5cbb-250a-0ebd-aaba5f5c530d@runbox.com>
-         <20200917095959.174378-1-m.v.b@runbox.com>
-         <2ee0f3922f54888acf3e0cafa47c3829a9b0de8f.camel@hadess.net>
-         <0ce9fcb5-8684-cf5c-e8ad-02217848cbe7@runbox.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.37.90 (3.37.90-1.fc33) 
+        id S1726952AbgIQL5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 07:57:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35242 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726958AbgIQL5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 07:57:45 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30689C06174A;
+        Thu, 17 Sep 2020 04:57:45 -0700 (PDT)
+Received: from zn.tnic (p200300ec2f1053009faf0a64ea33345c.dip0.t-ipconnect.de [IPv6:2003:ec:2f10:5300:9faf:a64:ea33:345c])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id B14D71EC0409;
+        Thu, 17 Sep 2020 13:57:41 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1600343861;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=KnBEYj+XMQPVfN01d6ZhpPkXbMTyDk8FrXgj70Nq8ik=;
+        b=hAB04Gr0GFVFRvmoABoDOoMjAMEX7d9BzfUWg8kmrjehlIDmDb/k0BOprboWaBD1kelh02
+        yNS3cqD7nv+1MXFhmfT6usY1K5jHusJT3YhDnuWXLyh7ckn1xeY/wg4jyiDD6PfAqGkMWP
+        6R8HZNjN+Cj7CwKsAAvERjzWXS7w76Y=
+Date:   Thu, 17 Sep 2020 13:57:33 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     David Laight <David.Laight@ACULAB.COM>
+Cc:     Andrew Cooper <andrew.cooper3@citrix.com>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Bill Wendling <morbo@google.com>,
+        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Greg Thelen <gthelen@google.com>,
+        John Sperbeck <jsperbeck@google.com>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Subject: Re: [PATCH] x86/smap: Fix the smap_save() asm
+Message-ID: <20200917115733.GH31960@zn.tnic>
+References: <CAKwvOdnjHbyamsW71FJ=Cd36YfVppp55ftcE_eSDO_z+KE9zeQ@mail.gmail.com>
+ <441AA771-A859-4145-9425-E9D041580FE4@amacapital.net>
+ <7233f4cf-5b1d-0fca-0880-f1cf2e6e765b@citrix.com>
+ <20200916082621.GB2643@zn.tnic>
+ <be498e49-b467-e04c-d833-372f7d83cb1f@citrix.com>
+ <20200917060432.GA31960@zn.tnic>
+ <ec617df229514fbaa9897683ac88dfda@AcuMS.aculab.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <ec617df229514fbaa9897683ac88dfda@AcuMS.aculab.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2020-09-17 at 13:39 +0300, M. Vefa Bicakci wrote:
-> On 17/09/2020 13.23, Bastien Nocera wrote:
-> > On Thu, 2020-09-17 at 12:59 +0300, M. Vefa Bicakci wrote:
-> > > This commit resolves two minor bugs in the selection/discovery of
-> > > more
-> > > specific USB device drivers for devices that are currently bound
-> > > to
-> > > generic USB device drivers.
-> > > 
-> > > The first bug is related to the way a candidate USB device driver
-> > > is
-> > > compared against the generic USB device driver. The code in
-> > > is_dev_usb_generic_driver() used to unconditionally use
-> > > to_usb_device_driver() on each device driver, without verifying
-> > > that
-> > > the device driver in question is a USB device driver (as opposed
-> > > to a
-> > > USB interface driver).
-> > 
-> > You could also return early if is_usb_device() fails in
-> > __usb_bus_reprobe_drivers(). Each of the interface and the device
-> > itself is a separate "struct device", and "non-interface" devices
-> > won't
-> > have interface devices assigned to them.
-> 
-> Will do! If I understand you correctly, you mean something like the
-> following:
-> 
-> static int __usb_bus_reprobe_drivers(struct device *dev, void *data)
-> {
->          struct usb_device_driver *new_udriver = data;
->          struct usb_device *udev;
->          int ret;
-> 
-> 	/* Proposed addition begins */
-> 
-> 	if (!is_usb_device(dev))
-> 		return 0;
-> 
-> 	/* Proposed addition ends */
-> 
->          if (!is_dev_usb_generic_driver(dev))
->                  return 0;
+On Thu, Sep 17, 2020 at 10:05:37AM +0000, David Laight wrote:
+> The 'red-zone' allows leaf function to use stack memory for locals
+> that is below (ie the wrong side of) the stack pointer.
 
-Or:
-	if (!is_usb_device(dev) ||
-            !is_dev_usb_generic_driver(dev))
- 		return 0;
+After looking at
 
+"Figure 3.3: Stack Frame with Base Pointer"
 
+in the x86-64 ABI doc, you're probably right:
+
+0(%rbp)
+-8(%rbp)
+...
+0(%rsp)
+.. red zone
+-128(%rsp)
+
+i.e., rsp-relative addresses with negative offsets are in the red zone.
+So it looks like the compiler actually knows very well what's going on
+here and allocates room on the stack for that 0x8(%rsp) slot.
+
+Good.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
