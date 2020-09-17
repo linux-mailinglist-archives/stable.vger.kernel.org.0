@@ -2,157 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD77526E2A3
-	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 19:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2BCB26E2D9
+	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 19:49:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726615AbgIQRkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 13:40:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41294 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726533AbgIQRkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 13:40:01 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EC50208E4;
-        Thu, 17 Sep 2020 17:39:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600364400;
-        bh=7HLpTU1NuW5mP5sx9uopdOJKdZeEuCHGzpDV/K4dqmk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lnI2rw1G2x+xqAUqX5Dp98Nq5DGUN5X0SWuku0RcErA8E5hCfJPTfHrfdzcm7tF6+
-         62LadmqKCifWGz9006fpB2vFukPDBfVfcrxfj0O6AWT1xtnJawBGCoyR0iVFIch3n4
-         i/JHhwGfgnHgebI6+Dcio+pzy3tym1KyP9j+AP/4=
-Date:   Thu, 17 Sep 2020 19:40:31 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Shuah Khan <skhan@linuxfoundation.org>
-Cc:     Prateek Sood <prsood@codeaurora.org>, Takashi Iwai <tiwai@suse.de>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 5.8 000/177] 5.8.10-rc1 review
-Message-ID: <20200917174031.GA867706@kroah.com>
-References: <b94c29b3-ef68-897b-25a8-e6fcc181a22a@linuxfoundation.org>
- <8277900f-d300-79fa-eac7-096686a6fbc3@linuxfoundation.org>
- <20200916062958.GH142621@kroah.com>
- <69e7c908-4332-91fd-bdb2-6be19fcbf126@linuxfoundation.org>
- <20200916152629.GD3018065@kroah.com>
- <09de87b0-8055-26ef-cc31-0c63e63e5d2a@linuxfoundation.org>
- <20200916172529.GA3056792@kroah.com>
- <9365ff94-2a28-cc5f-7487-a6d8d42de302@linuxfoundation.org>
- <20200917144645.GA275135@kroah.com>
- <72d215df-5087-18d5-13e1-301ea5ad037e@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <72d215df-5087-18d5-13e1-301ea5ad037e@linuxfoundation.org>
+        id S1726553AbgIQRtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 13:49:09 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36886 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726661AbgIQRtE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 13:49:04 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08HHVj6S017144;
+        Thu, 17 Sep 2020 13:48:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=L0d4AizRtjDKBJM6yo/trbmNT+QgmsfNN9pL2W8GtFA=;
+ b=k+lGzudsXwm43PlV41Qk60gsStFa11i0wnQ18HzuC5UgGsp6nNFNpVXBiK55IISrE46d
+ /GHgFY5z3M/o3Ejks6EbpmtYZ0v1GghHvW9LBaqUErf8D1NfSbP1B1zc4M9iHm+GeTCh
+ GYEvirHdllOzcAOzb6tCA9hQG9Q178ZMGhkeeDL5e5NuGyaJjlBg87/FmLYjE3mbMmg8
+ A+RoqheaakshwkzK24HnhGL1NXU6mSIfr8Z0xMYNodl68CxhDkJrnsEEFOoNdPpHklkP
+ qg+3NVSsbyIplmzuiAWR0kUW3RHCU5dHZToOWWnMVk+MRntdsFqFbO+7Mn4qZLHjP3za 6w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33m9wuna2m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Sep 2020 13:48:00 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08HHaobg032475;
+        Thu, 17 Sep 2020 13:48:00 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33m9wuna1w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Sep 2020 13:48:00 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08HHgN9d002494;
+        Thu, 17 Sep 2020 17:47:58 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma03ams.nl.ibm.com with ESMTP id 33k6esjby5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 17 Sep 2020 17:47:57 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08HHkLUR28115236
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 17 Sep 2020 17:46:21 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 872C54C040;
+        Thu, 17 Sep 2020 17:47:55 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CA65E4C046;
+        Thu, 17 Sep 2020 17:47:53 +0000 (GMT)
+Received: from sig-9-65-208-105.ibm.com (unknown [9.65.208.105])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 17 Sep 2020 17:47:53 +0000 (GMT)
+Message-ID: <a19576f23e7f9d3e7c546672d1335b324bf9ca9f.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 07/12] evm: Introduce EVM_RESET_STATUS atomic flag
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>,
+        "mjg59@google.com" <mjg59@google.com>,
+        John Johansen <john.johansen@canonical.com>
+Cc:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Silviu Vlasceanu <Silviu.Vlasceanu@huawei.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Date:   Thu, 17 Sep 2020 13:47:52 -0400
+In-Reply-To: <581966c47e94412ab3fd5b2ca9aacd3d@huawei.com>
+References: <20200904092339.19598-1-roberto.sassu@huawei.com>
+         <20200904092643.20013-3-roberto.sassu@huawei.com>
+         <5bbf2169cfa38bb7a3d696e582c1de954a82d5c6.camel@linux.ibm.com>
+         <581966c47e94412ab3fd5b2ca9aacd3d@huawei.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-17_12:2020-09-16,2020-09-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ impostorscore=0 clxscore=1015 adultscore=0 mlxscore=0 lowpriorityscore=0
+ suspectscore=3 bulkscore=0 priorityscore=1501 spamscore=0 mlxlogscore=999
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2009170127
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 17, 2020 at 11:06:05AM -0600, Shuah Khan wrote:
-> On 9/17/20 8:46 AM, Greg Kroah-Hartman wrote:
-> > On Thu, Sep 17, 2020 at 08:34:58AM -0600, Shuah Khan wrote:
-> > > On 9/16/20 11:25 AM, Greg Kroah-Hartman wrote:
-> > > > On Wed, Sep 16, 2020 at 09:34:52AM -0600, Shuah Khan wrote:
-> > > > > On 9/16/20 9:26 AM, Greg Kroah-Hartman wrote:
-> > > > > > On Wed, Sep 16, 2020 at 08:26:48AM -0600, Shuah Khan wrote:
-> > > > > > > On 9/16/20 12:29 AM, Greg Kroah-Hartman wrote:
-> > > > > > > > On Tue, Sep 15, 2020 at 08:54:24PM -0600, Shuah Khan wrote:
-> > > > > > > > > On 9/15/20 3:06 PM, Shuah Khan wrote:
-> > > > > > > > > > On 9/15/20 8:11 AM, Greg Kroah-Hartman wrote:
-> > > > > > > > > > > This is the start of the stable review cycle for the 5.8.10 release.
-> > > > > > > > > > > There are 177 patches in this series, all will be posted as a response
-> > > > > > > > > > > to this one.  If anyone has any issues with these being applied, please
-> > > > > > > > > > > let me know.
-> > > > > > > > > > > 
-> > > > > > > > > > > Responses should be made by Thu, 17 Sep 2020 14:06:12 +0000.
-> > > > > > > > > > > Anything received after that time might be too late.
-> > > > > > > > > > > 
-> > > > > > > > > > > The whole patch series can be found in one patch at:
-> > > > > > > > > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.10-rc1.gz
-> > > > > > > > > > > 
-> > > > > > > > > > > or in the git tree and branch at:
-> > > > > > > > > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> > > > > > > > > > > linux-5.8.y
-> > > > > > > > > > > and the diffstat can be found below.
-> > > > > > > > > > > 
-> > > > > > > > > > > thanks,
-> > > > > > > > > > > 
-> > > > > > > > > > > greg k-h
-> > > > > > > > > > > 
-> > > > > > > > > > 
-> > > > > > > > > > Compiled and booted fine. wifi died:
-> > > > > > > > > > 
-> > > > > > > > > > ath10k_pci 0000:02:00.0: could not init core (-110)
-> > > > > > > > > > ath10k_pci 0000:02:00.0: could not probe fw (-110)
-> > > > > > > > > > 
-> > > > > > > > > > This is regression from 5.8.9 and 5.9-rc5 works just fine.
-> > > > > > > > > > 
-> > > > > > > > > > I will try to bisect later this evening to see if I can isolate the
-> > > > > > > > > > commit.
-> > > > > > > > > > 
-> > > > > > > > > 
-> > > > > > > > > The following commit is what caused ath10k_pci driver problem
-> > > > > > > > > that killed wifi.
-> > > > > > > > > 
-> > > > > > > > > Prateek Sood <prsood@codeaurora.org>
-> > > > > > > > >         firmware_loader: fix memory leak for paged buffer
-> > > > > > > > > 
-> > > > > > > > > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.8.y&id=ec0a59266c9c9f46037efd3dcc0323973e102271
-> > > > > > > > 
-> > > > > > > > Ugh, that's not good, is this also a problem in 5.9-rc5 as well?  For
-> > > > > > > > reference, this is commit 4965b8cd1bc1 ("firmware_loader: fix memory
-> > > > > > > > leak for paged buffer") in Linus's tree.
-> > > > > > > > 
-> > > > > > > 
-> > > > > > > I am not seeing this on Linux 5.9-rc5 for sure.
-> > > > > > > 
-> > > > > > > > And it should be showing up in 5.4.y at the moment too, as this patch is
-> > > > > > > > in that tree right now...
-> > > > > > > > 
-> > > > > > > 
-> > > > > > > I don't see this patch in  4.19.146-rc1
-> > > > > > 
-> > > > > > It's not there, it's in 5.4.66-rc1, which worked for you somehow, right?
-> > > > > > 
-> > > > > > > Linus's tree works for with this patch in. I compared the two files
-> > > > > > > for differences in commit between Linus's tree and 5.8.10-rc1
-> > > > > > > 
-> > > > > > > Couldn't find anything obvious.
-> > > > > > 
-> > > > > > Again, really odd...
-> > > > > > 
-> > > > > > I don't have a problem dropping it, but I should drop it from both 5.4.y
-> > > > > > and 5.8.y, right?
-> > > > > > 
-> > > > > 
-> > > > > Sorry. Yes. Dropping from 5.8 and 5.4 would be great until we figure out
-> > > > > why this patch causes problems.
-> > > > > 
-> > > > > I will continue debugging and let you know what I find.
-> > > > 
-> > > 
-> > > With this it boots and wifi is good for me. I am very puzzled by why
-> > > this made a difference to make sure I am not narrowing in on the wrong
-> > > patch.
-> > > 
+On Thu, 2020-09-17 at 17:36 +0000, Roberto Sassu wrote:
+> > > diff --git a/security/integrity/evm/evm_main.c
+> > b/security/integrity/evm/evm_main.c
+> > > index 4e9f5e8b21d5..05be1ad3e6f3 100644
+> > > --- a/security/integrity/evm/evm_main.c
+> > > +++ b/security/integrity/evm/evm_main.c
+> > > @@ -221,8 +221,15 @@ static enum integrity_status
+> > evm_verify_hmac(struct dentry *dentry,
+> > >  		evm_status = (rc == -ENODATA) ?
+> > >  				INTEGRITY_NOXATTRS : INTEGRITY_FAIL;
+> > >  out:
+> > > -	if (iint)
+> > > +	if (iint) {
+> > > +		/*
+> > > +		 * EVM_RESET_STATUS can be cleared only by
+> > evm_verifyxattr()
+> > > +		 * when EVM_ALLOW_METADATA_WRITES is set. This
+> > guarantees that
+> > > +		 * IMA sees the EVM_RESET_STATUS flag set before it is
+> > cleared.
+> > > +		 */
+> > > +		clear_bit(EVM_RESET_STATUS, &iint->atomic_flags);
+> > >  		iint->evm_status = evm_status;
+> > 
+> > True IMA is currently the only caller of evm_verifyxattr() in the
+> > upstreamed kernel, but it is an exported function, which may be called
+> > from elsewhere.  The previous version crossed the boundary between EVM
+> > & IMA with EVM modifying the IMA flag directly.  This version assumes
+> > that IMA will be the only caller.  Otherwise, I like this version.
 > 
-> Update on this. I did a series of reboots and boots with the patch
-> I asked you to drop and I am not seeing the wifi problem.
+> Ok, I think it is better, as you suggested, to export a new EVM function
+> that tells if evm_reset_status() will be executed in the EVM post hooks, and
+> to call this function from IMA. IMA would then call ima_reset_appraise_flags()
+> also depending on the result of the new EVM function.
 > 
-> Prateek Sood <prsood@codeaurora.org>
->     firmware_loader: fix memory leak for paged buffer
-> 
-> With my testing, I think it is an unrelated issue and the error
-> messages from the fw load code path in the driver when wifi failed
-> through me off.
-> 
-> Sorry for making you drop the patch from 5.8.y and 5.4.y.
-> Please include them in the next rc.
+> ima_reset_appraise_flags() should be called in a post hook in IMA.
+> Should I introduce it?
 
-No worries, now added back, thanks for testing some more.
+Yes, so any callers of evm_verifyxattr() will need to implement the
+post hook as well.  As much as possible, please limit code duplication.
 
-greg k-h
+The last time I looked, there didn't seem to be a locking concern, but
+please make sure.
+
+thanks,
+
+Mimi
+
+
+
