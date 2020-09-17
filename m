@@ -2,121 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEEAF26D5EA
-	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 10:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D892F26D5B3
+	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 10:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726394AbgIQIK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 04:10:59 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50230 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726385AbgIQIKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 04:10:52 -0400
-X-Greylist: delayed 572 seconds by postgrey-1.27 at vger.kernel.org; Thu, 17 Sep 2020 04:10:50 EDT
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08H7XPUq001868;
-        Thu, 17 Sep 2020 04:00:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=c+wPm6PVQRdyk+z4PFiSPi8wp98j19QEEf9sb83BFjk=;
- b=nBVP99ZFRQzuQiov4ujQnU9FTg6WmWr6Ojly8I/DvM9JU8WGxDeP/D+c6BeygSB97X8t
- 5AVJS7t6+5LRGxK2RPm4Auvgv+BMjeqFc1vj9wGj1brTFkzoiowslOiT5ZJEjpcU/Vhz
- tGPIv+MkLf+clO/U7ikHnFvLYn2snJNHGYFNKda0iAiE5sZLEelzoONSgHl6bdjPLhND
- 2AwGiKfRDiPHu0GRj1ldi52mC++VPY7GpGXgBZk45iCtGy0fRL4oGa8TanVXzs07OC/i
- z/S6xCQ/C2t9hmxpxVozVBxyK2zX3p3Cu6SXMpmt6pHZu8Ie0gBD6Mw9gQnixYoRhlP4 6g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33m1he48fw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Sep 2020 04:00:36 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08H7aOxA014022;
-        Thu, 17 Sep 2020 04:00:36 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33m1he48ec-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Sep 2020 04:00:36 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08H80XPR014957;
-        Thu, 17 Sep 2020 08:00:33 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03ams.nl.ibm.com with ESMTP id 33k6eshv03-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 17 Sep 2020 08:00:33 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08H80U6u28639676
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Sep 2020 08:00:30 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8BC2542081;
-        Thu, 17 Sep 2020 08:00:27 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 19BC64207B;
-        Thu, 17 Sep 2020 08:00:27 +0000 (GMT)
-Received: from pomme.local (unknown [9.145.22.71])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 17 Sep 2020 08:00:27 +0000 (GMT)
-Subject: Re: [PATCH v3 1/3] mm: replace memmap_context by meminit_context
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Oscar Salvador <osalvador@suse.de>, mhocko@suse.com,
-        linux-mm@kvack.org, "Rafael J . Wysocki" <rafael@kernel.org>,
-        nathanl@linux.ibm.com, cheloha@linux.ibm.com,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20200915121541.GD4649@dhcp22.suse.cz>
- <20200915132624.9723-1-ldufour@linux.ibm.com>
- <20200916063325.GK142621@kroah.com>
- <0b3f2eb1-0efa-a491-c509-d16a7e18d8e8@linux.ibm.com>
- <20200916074047.GA189144@kroah.com>
- <9e8d38b9-3875-0fd8-5f28-3502f33c2c34@linux.ibm.com>
- <95005625-b159-0d49-8334-3c6cdbb7f27a@redhat.com>
- <f522bcb8-575e-0ac7-69cb-1064e8b38c58@linux.ibm.com>
- <20200916163756.af1bece4bbd1937a20a727df@linux-foundation.org>
-From:   Laurent Dufour <ldufour@linux.ibm.com>
-Message-ID: <10f4239f-290e-8ae5-0bef-f583197fafec@linux.ibm.com>
-Date:   Thu, 17 Sep 2020 10:00:26 +0200
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.12.0
+        id S1726403AbgIQIHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 04:07:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56074 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726455AbgIQIHu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 04:07:50 -0400
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC6B6C06174A
+        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 01:07:49 -0700 (PDT)
+Received: by mail-pl1-x631.google.com with SMTP id m15so710563pls.8
+        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 01:07:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=b/idwmBeeDiktp7fv44zTiwbxXrN5/7aAxLGsZR3M6g=;
+        b=WxhC6y8ymOV+P4xEbsRJdmsDpa5pmI4NAk5x+FmfjDSnMsXXyXhVH+5weQpp4HAgs7
+         QDVKDVOyBwcakK8bdjT2hYBAolob/mgQ5Kluz9JB80q/eZbwdYfnBW75AePj+O3+3NZD
+         T5azUzluXJgnBAnsFSdm7s5wSKIBsKZcf9NNK/a9AIXSYEIxq++3RMCtZrdCGazqLPhC
+         yub01gS517aJC2EaOswVh3/c8dpfwSm0KGPqCyKxtNAePf8FR9utYMYWdSYTTBY+rMHC
+         F6fDJygl6TPEK/pnG1stzKxrr6zRNkvXx6YzxCzD1rqO4T8Jk8Eo1+EsEzLO81e/nzcV
+         t7qg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=b/idwmBeeDiktp7fv44zTiwbxXrN5/7aAxLGsZR3M6g=;
+        b=cCk9nhQtcIXVj7zlhU3AIDnUuCk2X4JCBbmDBV/Oep+agOfqwEM/GoP7AriIxFIVLF
+         8M9G4p5MGb6wKnREJzZEVGpmlsY7EcbTjSIT/q9YWp5iJUjsAZK5PCnVdoNpC7qIlUiv
+         KrYrmOgtgh+EgqE8tCLb8F772nBHgcX15bYHWhmTVPjUYM5qMvOnskg9xHs9TTlVLcRw
+         KEFik4ahl0IgiGdULBOO5DfXbYAuP3MlP3j80dxUF7oNwmkYI2XgvrSfQObHRJVYdvd8
+         T4IGRiIe6OJo0qJrZaXWYahO6n/JlsrIY0lLZdwRnhedjjt3T4VQfYRga57Y93PLNdpC
+         iduw==
+X-Gm-Message-State: AOAM531KtNm6w07lL1/UVhFwQfaMvagf8Aq81F03e4tgEhNQXHZ3DEC1
+        /PBT0LOWwUP8BApc73gCvfyJKm0SP7DX9w==
+X-Google-Smtp-Source: ABdhPJxZ5cGOYuwkFOhuF1bWGV56Jx9FA3pPXi44InqWuO1LchK40th2Zhu3/mkYZiI7YLzrgzHhQQ==
+X-Received: by 2002:a17:90a:67cb:: with SMTP id g11mr7416598pjm.56.1600330068913;
+        Thu, 17 Sep 2020 01:07:48 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e13sm4861150pjy.38.2020.09.17.01.07.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Sep 2020 01:07:48 -0700 (PDT)
+Message-ID: <5f631954.1c69fb81.aebd3.b380@mx.google.com>
+Date:   Thu, 17 Sep 2020 01:07:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200916163756.af1bece4bbd1937a20a727df@linux-foundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-17_03:2020-09-16,2020-09-17 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- mlxscore=0 mlxlogscore=871 impostorscore=0 lowpriorityscore=0 bulkscore=0
- suspectscore=0 malwarescore=0 priorityscore=1501 adultscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009170051
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Kernel: v5.4.65-129-gf079af674800
+Subject: stable-rc/queue/5.4 baseline: 195 runs,
+ 2 regressions (v5.4.65-129-gf079af674800)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Le 17/09/2020 à 01:37, Andrew Morton a écrit :
-> On Wed, 16 Sep 2020 18:09:55 +0200 Laurent Dufour <ldufour@linux.ibm.com> wrote:
-> 
->>>>> It's up to the maintainer what they want, but as it is, this patch is
->>>>> not going to end up in stable kernel release (which it looks like is the
->>>>> right thing to do...)
->>>>
->>>> Thanks a lot Greg.
->>>>
->>>> I'll send that single patch again with the Cc: stable tag.
->>>
->>> I think Andrew can add that when sending upstream.
->>
->> Andrew, can you do that?
->>
-> 
-> I did.
-> 
-> Patches 1 & 2 are cc:stable, patch 3 is not.
-> 
-> I'll queue up 1 & 2 for a 5.9-rcX merge.
+stable-rc/queue/5.4 baseline: 195 runs, 2 regressions (v5.4.65-129-gf079af6=
+74800)
 
-Thanks a lot Andrew.
+Regressions Summary
+-------------------
 
+platform           | arch | lab          | compiler | defconfig         | r=
+esults
+-------------------+------+--------------+----------+-------------------+--=
+------
+bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 2=
+/4    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.65-129-gf079af674800/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.65-129-gf079af674800
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f079af674800d11c53834712587c0f3ba98e9868 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch | lab          | compiler | defconfig         | r=
+esults
+-------------------+------+--------------+----------+-------------------+--=
+------
+bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 2=
+/4    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f62defbfe9a10a02bbf9dc0
+
+  Results:     2 PASS, 2 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.65-12=
+9-gf079af674800/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
+pi-3-b-32.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.65-12=
+9-gf079af674800/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
+pi-3-b-32.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/5f62defbfe9a10a=
+02bbf9dc5
+      new failure (last pass: v5.4.65-129-ge31830c7a7a4)
+      4 lines
+
+    2020-09-17 03:58:39.975000  kern  :alert : Unable to handle kernel NULL=
+ pointer dereference at virtual address 00000015
+    2020-09-17 03:58:39.976000  kern  :alert : pgd =3D 326eaede
+    2020-09-17 03:58:39.976000  kern  :alert : [00000015] *pgd=3D2ae86835, =
+*pte=3D00000000, *ppte=3D00000000
+     * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f62defbfe9a=
+10a02bbf9dc6
+      new failure (last pass: v5.4.65-129-ge31830c7a7a4)
+      40 lines
+
+    2020-09-17 03:58:39.978000  kern  :emerg : Process udevd (pid: 93, stac=
+k limit =3D 0xa01e0e76)
+    2020-09-17 03:58:39.982000  kern  :emerg : Stack: (0xeaea5b88 to 0xeaea=
+6000)
+    2020-09-17 03:58:40.019000  kern  :emerg : 5b80:                   eaea=
+5ba4 eaea5b98 c0278d1c c0278cfc eaea5c6c eaea5ba8
+    2020-09-17 03:58:40.019000  kern  :emerg : 5ba0: c0279d04 c0278d18 eaea=
+5c88 00000000 00000001 eaea5c88 eaea5bec ec004368
+    2020-09-17 03:58:40.020000  kern  :emerg : 5bc0: 00000001 00000000 0001=
+2cc0 eaea5c40 00000001 ecf77280 00112cc0 00000000
+    2020-09-17 03:58:40.021000  kern  :emerg : 5be0: ec004278 00080000 0000=
+0002 00000000 00000002 00000000 00000001 00000000
+    2020-09-17 03:58:40.022000  kern  :emerg : 5c00: eaea5c24 eaea5c10 c01f=
+0598 c01ef78c ecf77280 c0d04248 eaea5c34 eaea5c28
+    2020-09-17 03:58:40.062000  kern  :emerg : 5c20: c01f0c8c c01f0588 eaea=
+5c6c eaea5c38 c01e54b0 c01f0c80 eaea5c40 10a2bff4
+    2020-09-17 03:58:40.063000  kern  :emerg : 5c40: 00000000 00000001 c0d0=
+4248 ecf77280 eaea5d8c ec004368 00000100 00000122
+    2020-09-17 03:58:40.063000  kern  :emerg : 5c60: eaea5d04 eaea5c70 c027=
+9fa8 c0279810 00000000 ecf77280 00000001 00000001
+    ... (29 line(s) more)
+      =20
