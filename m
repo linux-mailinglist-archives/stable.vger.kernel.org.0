@@ -2,100 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1688226E5DE
-	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 21:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 673EE26E5CB
+	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 21:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727265AbgIQOn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 10:43:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:29383 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727647AbgIQOmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 10:42:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1600353725;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=myovNycxMKo26Rju4GydiaUlBrxYAZeyD29wxfgC+ok=;
-        b=FbY01TRCFQKUa7lhGpOn4N6nCgo5YQvzKJCyjM/WY8QwEkAuKjd1NqyYzhIi0tA3C5HDZq
-        a7bSSALMu67t+Q+hx7HdyVWBNMbUBYZWXbJlmdVeCC5RRd+P1Aju4pNZrbYib08vF5SS0Y
-        sxM4hIP7tbwM+koq+0j5/v8Zezb3F9o=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-312-x3sgwBlWP_m3BS1zEtPHeA-1; Thu, 17 Sep 2020 10:42:04 -0400
-X-MC-Unique: x3sgwBlWP_m3BS1zEtPHeA-1
-Received: by mail-ej1-f69.google.com with SMTP id md9so968782ejb.8
-        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 07:42:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=myovNycxMKo26Rju4GydiaUlBrxYAZeyD29wxfgC+ok=;
-        b=bxNyOyT9WSSjaOBiKaDQfc4K+14e103baYYQwc1potEZJw/5Ldxmr2yki1zoCzGfsU
-         S5bLBNiCDE9BaTF6IlaYtu7bGbFvWvBQF3Ar6Oh18gXVNxC7ua5JCxyU7tCaB9B0R0rB
-         KYjRQyHu5RCr9e8EZ1WFCUcAMmUWWh5Ndz/cyJe3NYoxxRnWTUJHG/oEGc+0dtYYQqw3
-         Tjazb4XNfVsF7i1t7+obzrJk2FiXN3OXIX1AJGnKE7/utQE1lw8u07CHO0S7S0KpIAt6
-         PRbZr2gYEZWGyn5i//e3x91eEMbnG9XkbHqHCCHMVY1nKyjcDPEhYrLijbILdxpTYDqx
-         bOTA==
-X-Gm-Message-State: AOAM533yDFt99GtnVguRJ/do/gBqVcb6M1pplgQgEtMv7IjUEoDI4wEr
-        0QJFu6jTrfi9vlOKuRbG0kxI5VcUZ/EVachmh3bTgNc7uk6D211esn48zNo+AVM+P2jEGMXF0nB
-        60nLerBQ+iAW2UjCi
-X-Received: by 2002:a17:906:90d5:: with SMTP id v21mr30734483ejw.123.1600353722641;
-        Thu, 17 Sep 2020 07:42:02 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzFpZh53OeBv4+9I5bJfUa+XixMw9PWtv9RZJkVFjDuy42apsGEERMHatoCHZLmv2cPfL05DA==
-X-Received: by 2002:a17:906:90d5:: with SMTP id v21mr30734465ejw.123.1600353722453;
-        Thu, 17 Sep 2020 07:42:02 -0700 (PDT)
-Received: from x1.localdomain ([2a0e:5700:4:11:334c:7e36:8d57:40cb])
-        by smtp.gmail.com with ESMTPSA id b6sm16802199eds.46.2020.09.17.07.42.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Sep 2020 07:42:01 -0700 (PDT)
-Subject: Re: Sound regression in 5.8.8 caused by "ALSA: hda - Fix silent audio
- output and corrupted input on MSI X570-A PRO"
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Takashi Iwai <tiwai@suse.de>, Dan Crawford <dnlcrwfrd@gmail.com>,
-        stable@vger.kernel.org
-References: <7efd2fe5-bf38-7f85-891a-eee3845d1493@redhat.com>
- <20200917143142.GC3941575@kroah.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <5a58e0f2-b3d3-104e-73be-5f8a59178a7b@redhat.com>
-Date:   Thu, 17 Sep 2020 16:42:01 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726405AbgIQT4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 15:56:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43278 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727512AbgIQOpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 10:45:39 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0325C21582;
+        Thu, 17 Sep 2020 14:45:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600353902;
+        bh=PebSWXQKwXVcYAUHxdRQaN64t6YAf60XzC+pP27srAY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GFoqH90oTcBu9apcTAJzYnF+qJnUghZfdBsfz+bu3MF8YN5/FJc1akTVS43BtbyMA
+         9XMPgoHHVIUS/s95Oyl1ioYtUJ6f7hmyCuvzylcrWW1Ad5TBT92IEqDJXgOKqdhl95
+         mgQ91bWRGGx4I4tPpkmUAxvPv+UMJ6K0R6iq6bu4=
+Date:   Thu, 17 Sep 2020 16:45:29 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Bob Peterson <rpeterso@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Daniel Craig <Daniel.Craig@csiro.au>,
+        Nicolas Courtel <courtel@cena.fr>,
+        Salvatore Bonaccorso <carnil@debian.org>
+Subject: Re: [PATCH 4.19 142/206] gfs2: fix use-after-free on transaction ail
+ lists
+Message-ID: <20200917144529.GJ3941575@kroah.com>
+References: <20200623195316.864547658@linuxfoundation.org>
+ <20200623195323.968867013@linuxfoundation.org>
+ <20200910194319.GA131386@eldamar.local>
+ <20200911115816.GB3717176@kroah.com>
+ <942693093.16771250.1599826115915.JavaMail.zimbra@redhat.com>
+ <20200911122024.GA3758477@kroah.com>
+ <1542145456.16781948.1599828554609.JavaMail.zimbra@redhat.com>
+ <20200912064713.GA291675@eldamar.local>
+ <1934025224.17237499.1600188721184.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200917143142.GC3941575@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1934025224.17237499.1600188721184.JavaMail.zimbra@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-On 9/17/20 4:31 PM, Greg Kroah-Hartman wrote:
-> On Wed, Sep 16, 2020 at 08:28:29AM +0200, Hans de Goede wrote:
->> Hi All,
->>
->> This bug got filed against Fedora last night:
->> https://bugzilla.redhat.com/show_bug.cgi?id=1879277
->> "1879277 - Audio ducking after Linux kernel 5.8.8 update, with headphones plugged in"
->>
->> The system in the bug is using a MSI X570-A PRO motherboard. So this is almost
->> certainly (this has not been confirmed) caused by commit 8e83bd51016a in the
->> stable tree: "ALSA: hda - Fix silent audio output and corrupted input on MSI X570-A PRO".
->>
->> I'm not sure how to proceed with this one for the stable series,
->> I guess a revert is in order, but that may (re)break non headphone usage?
+On Tue, Sep 15, 2020 at 12:52:01PM -0400, Bob Peterson wrote:
+> ----- Original Message -----
+> > Hi Bob, hi Greg,
+> > 
+> > On Fri, Sep 11, 2020 at 08:49:14AM -0400, Bob Peterson wrote:
+> > > ----- Original Message -----
+> > > > On Fri, Sep 11, 2020 at 08:08:35AM -0400, Bob Peterson wrote:
+> > > > > ----- Original Message -----
+> > > > > > On Thu, Sep 10, 2020 at 09:43:19PM +0200, Salvatore Bonaccorso wrote:
+> > > > > > > Hi,
+> > > > > > > 
+> > > > > > > On Tue, Jun 23, 2020 at 09:57:50PM +0200, Greg Kroah-Hartman wrote:
+> > > > > > > > From: Bob Peterson <rpeterso@redhat.com>
+> > > > > > > > 
+> > > > > > > > [ Upstream commit 83d060ca8d90fa1e3feac227f995c013100862d3 ]
+> > > > > > > > 
+> > > > > > > > Before this patch, transactions could be merged into the system
+> > > > > > > > transaction by function gfs2_merge_trans(), but the transaction
+> > > > > > > > ail
+> > > > > > > > lists were never merged. Because the ail flushing mechanism can
+> > > > > > > > run
+> > > > > > > > separately, bd elements can be attached to the transaction's
+> > > > > > > > buffer
+> > > > > > > > list during the transaction (trans_add_meta, etc) but quickly
+> > > > > > > > moved
+> > > > > > > > to its ail lists. Later, in function gfs2_trans_end, the
+> > > > > > > > transaction
+> > > > > > > > can be freed (by gfs2_trans_end) while it still has bd elements
+> > > > > > > > queued to its ail lists, which can cause it to either lose track
+> > > > > > > > of
+> > > > > > > > the bd elements altogether (memory leak) or worse, reference the
+> > > > > > > > bd
+> > > > > > > > elements after the parent transaction has been freed.
+> > > > > > > > 
+> > > > > > > > Although I've not seen any serious consequences, the problem
+> > > > > > > > becomes
+> > > > > > > > apparent with the previous patch's addition of:
+> > > > > > > > 
+> > > > > > > > 	gfs2_assert_warn(sdp, list_empty(&tr->tr_ail1_list));
+> > > > > > > > 
+> > > > > > > > to function gfs2_trans_free().
+> > > > > > > > 
+> > > > > > > > This patch adds logic into gfs2_merge_trans() to move the merged
+> > > > > > > > transaction's ail lists to the sdp transaction. This prevents the
+> > > > > > > > use-after-free. To do this properly, we need to hold the ail
+> > > > > > > > lock,
+> > > > > > > > so we pass sdp into the function instead of the transaction
+> > > > > > > > itself.
+> > > > > > > > 
+> > > > > > > > Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+> > > > > > > > Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+> > > > > > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > > > (snip)
+> > > > > > > 
+> > > > > > > In Debian two user confirmed issues on writing on a GFS2 partition
+> > > > > > > with this commit applied. The initial Debian report is at
+> > > > > > > https://bugs.debian.org/968567 and Daniel Craig reported it into
+> > > > > > > Bugzilla at https://bugzilla.kernel.org/show_bug.cgi?id=209217 .
+> > > > > > > 
+> > > > > > > Writing to a gfs2 filesystem fails and results in a soft lookup of
+> > > > > > > the
+> > > > > > > machine for kernels with that commit applied. I cannot reporduce
+> > > > > > > the
+> > > > > > > issue myself due not having a respective setup available, but
+> > > > > > > Daniel
+> > > > > > > described a minimal serieos of steps to reproduce the issue.
+> > > > > > > 
+> > > > > > > This might affect as well other stable series where this commit was
+> > > > > > > applied, as there was a similar report for someone running 5.4.58
+> > > > > > > in
+> > > > > > > https://www.redhat.com/archives/linux-cluster/2020-August/msg00000.html
+> > > > > > 
+> > > > > > Can you report this to the gfs2 developers?
+> > > > > > 
+> > > > > > thanks,
+> > > > > > 
+> > > > > > greg k-h
+> > > > > 
+> > > > > Hi Greg,
+> > > > > 
+> > > > > No need. The patch came from the gfs2 developers. I think he just wants
+> > > > > it added to a stable release.
+> > > > 
+> > > > What commit needs to be added to a stable release?
+> > > > 
+> > > > confused,
+> > > > 
+> > > > greg k-h
+> > > 
+> > > Sorry Greg,
+> > > 
+> > > It's pretty early here and the caffeine hadn't quite hit my system.
+> > > The problem is most likely that 4.19.132 is missing this upstream patch:
+> > > 
+> > > cbcc89b630447ec7836aa2b9242d9bb1725f5a61
+> > > 
+> > > I'm not sure how or why 83d060ca8d90fa1e3feac227f995c013100862d3 got
+> > > put into stable without a stable CC but cbcc89b6304 is definitely
+> > > required.
+> > > 
+> > > I'd like to suggest Salvatore try cherry-picking this patch to see if
+> > > it fixes the problem, and if so, perhaps Greg can add it to stable.
+> > 
+> > I can confirm (Daniel was able to test): Applying cbcc89b63044 ("gfs2:
+> > initialize transaction tr_ailX_lists earlier") fixes the issue. So
+> > would be great if you can pick that up for stable for those series
+> > which had 83d060ca8d90 ("gfs2: fix use-after-free on transaction ail
+> > lists") as well.
+> > 
+> > Regards,
+> > Salvatore
+> > 
+> > 
 > 
-> If you revert, then 5.9-final will also cause the same problem, right?
+> Hi Greg,
 > 
-> Or is all ok there?
+> As per Salvatore's email above, can you please cherry-pick GFS2 patch
+> cbcc89b630447ec7836aa2b9242d9bb1725f5a61 to the stable releases like
+> 4.19 to which ("gfs2: fix use-after-free on transaction ail lists")
+> (83d060ca8d90fa1e3feac227f995c013100862d3) was applied? Thanks.
 
-The reporter has not tested 5.9, but I assume that 5.9 final will also have this problem.
+Now queued up, thanks.
 
-Regards,
-
-Hans
-
+greg k-h
