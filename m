@@ -2,89 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80FA126E40F
-	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 20:41:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87E926E47D
+	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 20:50:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726547AbgIQSiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 14:38:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41092 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726648AbgIQSgO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 14:36:14 -0400
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 222E4C061788
-        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 11:36:14 -0700 (PDT)
-Received: by mail-wr1-x442.google.com with SMTP id g4so3119254wrs.5
-        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 11:36:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=95zSQXucA3JVtCyytHmj0YY6t7Txi03VIMdUw17K6OY=;
-        b=dy8qrGfBrIm415C/AKe+zhxMSYXEPCm5p9tVIbpQLxrIuNdaArcxZmfXZ2+/RjNVSr
-         cePOmHKnEe8/oekKxsYVXhS0ri5fv0JFc85DA/dP2bKxJfQfndLjhVb+x/+zOD/HXyMn
-         rj45ayusWqqcbZXaaPYBr297PIQka5gcTb11rNycGtej9/l27rxbt4x+xnzUFOmN+/6d
-         QBYEM6og75J3XUgMb306Mumrb7sSofApnV8jTGgGvhykwNDPRHl3XBZwxQ9j+n/b/U/i
-         rkWlL9qDydk04KgRl65sEpqnbosBla5cYMC5Mom2JtamY9zp/HfqYT1X2z+PJDfr6d5F
-         Umlw==
+        id S1726473AbgIQSug (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 14:50:36 -0400
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:39477 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726180AbgIQSub (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 14:50:31 -0400
+Received: by mail-pj1-f67.google.com with SMTP id v14so1675596pjd.4
+        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 11:50:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=95zSQXucA3JVtCyytHmj0YY6t7Txi03VIMdUw17K6OY=;
-        b=kBe21Q+U2vA7z2HKGbLIqmsz8f82IUTF95Kb2FLib9I17qvDttFPu6qckiR3p2JT1L
-         FNlBDzOh4Jidq3+Jnjo98xxh7ATvx5mhQnimGwVKo6W2fzQ9lBsWoCGW/bYgg5Gpy8qg
-         YtzxO9sMYtuOQGTg9aOIYkfuqO7cd5tv5glRDAJ27SDCyzfl+hWgOwlhQsAkOqTG5dzA
-         Yn1nx3hN2dEGYAzCFwsh3D1cFgGVEW/qxMtdrIVUErwIS5mu2r1t/PC8GQQh2zbBk/2H
-         RnDapQX9TSS/FdJjr8hlZl2rjI/9ZWkS6G/aPcs/a292Hx90bQ9vh/BlSL1tP2Z8v1at
-         p+JQ==
-X-Gm-Message-State: AOAM530JWJ7lYs3DDedvr5z2Z/FV+iy7owH91OpJFuwn/pfnmOINyAxg
-        49U8kWvxgxWW5e7lLshitEzIKw==
-X-Google-Smtp-Source: ABdhPJyOLICoWIu3123UpyJexAwTB9qPRSR1qGn78IXm3kL9cpE2LR7gh5Zt/pUtPXnwu2PxLEAwlQ==
-X-Received: by 2002:a5d:5261:: with SMTP id l1mr33249298wrc.193.1600367772844;
-        Thu, 17 Sep 2020 11:36:12 -0700 (PDT)
-Received: from localhost.localdomain ([51.15.160.169])
-        by smtp.googlemail.com with ESMTPSA id x16sm571901wrq.62.2020.09.17.11.36.11
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 17 Sep 2020 11:36:12 -0700 (PDT)
-From:   Corentin Labbe <clabbe@baylibre.com>
-To:     arnd@arndb.de, davem@davemloft.net, herbert@gondor.apana.org.au,
-        mripard@kernel.org, wens@csie.org
-Cc:     linux-arm-kernel@lists.infradead.org, linux-crypto@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com,
-        Corentin Labbe <clabbe@baylibre.com>, stable@vger.kernel.org
-Subject: [PATCH 5/7] crypto: sun4i-ss: initialize need_fallback
-Date:   Thu, 17 Sep 2020 18:35:56 +0000
-Message-Id: <1600367758-28589-6-git-send-email-clabbe@baylibre.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1600367758-28589-1-git-send-email-clabbe@baylibre.com>
-References: <1600367758-28589-1-git-send-email-clabbe@baylibre.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=1GhABgMF2nYcMEfinK1VkEI+9P2lNW72Ze1I0ct4uU8=;
+        b=LUYAk+Tk+Ozt8lTcGOb0J+dQAf3S1ZG5GSTMePmCtn62LULZ38KleNauoRlIypJgTF
+         NscwgBUhStSHsiQdc/pRB9m88DmU+v5osz04ePoN0BfuXyLfkQkpxWn5A5ahBDAarH4V
+         ZzKsbEciVHDUFStsasS3EZ7aaVUPlEpuLzHwxxQz5XraFCCFfGfl0/mv5n6RwLV2qsZH
+         hOS1p2CZEkwpwbYG7mqWB16VRpL/DDsgyLX0uoKunGOJ4Mi3Jnqqf2m0bKPh4eezIKwL
+         6scXG8tn8r/o5eJImA2z1eGQu9SINbhZ3FEmD4woZYZ635WfpaEMlQMk6w/8QKEIQa1Y
+         1OKQ==
+X-Gm-Message-State: AOAM5300MvW6AZE5q9+jaV8Srt96JWYSzll9XBefYqd1nAZZUfzGW2Ag
+        n0a+r8lmP/tcec0M+CF66TQ=
+X-Google-Smtp-Source: ABdhPJyja4zeA1IwA2IeyAFLANI3Pq/v+5/jcT+J11TWsx057WpV7sCbVflvodzaZSb6ASOXspSxWg==
+X-Received: by 2002:a17:90a:e609:: with SMTP id j9mr9089476pjy.129.1600368629557;
+        Thu, 17 Sep 2020 11:50:29 -0700 (PDT)
+Received: from ?IPv6:2601:647:4802:9070:97b9:ed87:f308:cadd? ([2601:647:4802:9070:97b9:ed87:f308:cadd])
+        by smtp.gmail.com with ESMTPSA id i25sm374582pgi.9.2020.09.17.11.50.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 17 Sep 2020 11:50:28 -0700 (PDT)
+Subject: Re: Please apply commit "64d452b3560b nvme-loop: set ctrl state
+ connecting after init" to 5.8.9+
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Yi Zhang <yi.zhang@redhat.com>
+Cc:     stable@vger.kernel.org, chaitanya.kulkarni@wdc.com,
+        sashal@kernel.org
+References: <16579579.1342431.1600270596173.JavaMail.zimbra@redhat.com>
+ <1955465429.1342553.1600270677594.JavaMail.zimbra@redhat.com>
+ <20200917143425.GF3941575@kroah.com>
+From:   Sagi Grimberg <sagi@grimberg.me>
+Message-ID: <32a2f419-d29d-4835-3eb4-34c9b01191c1@grimberg.me>
+Date:   Thu, 17 Sep 2020 11:50:27 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20200917143425.GF3941575@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The need_fallback is never initialized and seem to be always true at runtime.
-So all hardware operations are always bypassed.
 
-Fixes: 0ae1f46c55f87 ("crypto: sun4i-ss - fallback when length is not multiple of blocksize")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
----
- drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+>> Hi,
+>>
+>> Please apply [1] to stable 5.8.9+, as it fixed nvme-loop connecting failure issue[2].
+>>
+>> [1]
+>> 64d452b3560b nvme-loop: set ctrl state connecting after init
+>>
+>> [2]
+>> https://lists.linaro.org/pipermail/linux-stable-mirror/2020-September/216482.html
+> 
+> So the "Fixes:" tag in the commit lies?
+> 
+> I would like to get an ack from the maintainers/developers on that patch
+> before I queue it up.
 
-diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-index d66bb9cf657c..c21a1a0a8b16 100644
---- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-@@ -181,7 +181,7 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 	unsigned int obo = 0;	/* offset in bufo*/
- 	unsigned int obl = 0;	/* length of data in bufo */
- 	unsigned long flags;
--	bool need_fallback;
-+	bool need_fallback = false;
- 
- 	if (!areq->cryptlen)
- 		return 0;
--- 
-2.26.2
+Acked-by: Sagi Grimberg <sagi@grimberg.me>
 
+This went in citing the wrong git hash, our mistake.
+
+Actually, the cited offending commit had a fixes tag itself that
+goes back further[1]... Which means that this needs to go with that,
+what's the procedure to take this along with that one?
+
+[1]:
+73a5379937ec ("nvme-fabrics: allow to queue requests for live queues")
+has:
+Fixes: 35897b920c8a ("nvme-fabrics: fix and refine state checks in 
+__nvmf_check_ready")
