@@ -2,116 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C30126E0F1
-	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 18:41:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CAC426E172
+	for <lists+stable@lfdr.de>; Thu, 17 Sep 2020 18:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728605AbgIQQlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 12:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50906 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728577AbgIQQiK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 12:38:10 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DDCC06174A
-        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 09:37:55 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id k15so1543049pfc.12
-        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 09:37:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3daj7onG80HgW16zu6AeFz2Pleyxxeh6+BgeEhbqx4w=;
-        b=Sjt38VZgBPPFWrOMKSRdNAdnLdQCQqtHyozrbh93vc/ZJjlog70L8NwOo6p98y0ExW
-         Xu9BBnJxDwDoM0ksdNqfGd3FfeDTk93YWycEOx+R6j8JBLeYGPt8oFqvqWHmhb5tIEQ6
-         PkBRU7vvfbuSfddzn2WKmMDwzrLtd4BTepr54SIkONFHVryCfEsNYlqMmXR9wbWEwNVH
-         avodmfO1mTensZjAeQjuKjwGneDJgTPWWM8EaMNBNkS6l/PTsVIJOlzvBppuq6tX2uHP
-         I1Bz2Ij1lPV49ATz9MXo0VwssEzkrA37yaxy95RIT7ixAq4EIQlwljYrqH1UGTn6fuKF
-         N3dg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3daj7onG80HgW16zu6AeFz2Pleyxxeh6+BgeEhbqx4w=;
-        b=Srsy9jEMWE2rwR0x4vkZtqyNd7CWzBxi94/Mb0kqSVPFg3FH+BBY1txNPPfP5nTOpO
-         SjEEXCS47nRySl0O5jIuMThNSY5ROeIy0cHM2CbOKsZOgK48mSD3RjRK1GnvoDDwOR9e
-         AMiAa4WMW9Wlog8Nr7eTnDxmmKKQfRmcRJKjbZBmnBr7An149AyF+m+VJsho+bUqYA52
-         0a79Ul6SedpTKHnCJcUAl0l0FUqFtUrbLTRN6ochca68vefgIvkHl7zT1HbpgtK1MOF1
-         R88ql330KC4CtqfTk3Zs2iBUYtYLi+d7Qf3QbzUwgbGPXeaeNW6iyHzSs8i5iXKdPHry
-         dIGA==
-X-Gm-Message-State: AOAM533uVaJ9sI8q8q5mdcgMxWwyQIDz1jMlsiV8uZLRuL5WbVXHH6ZN
-        prCFR0YY3fZmzj1trtP8LWOdADNdxG2crQ==
-X-Google-Smtp-Source: ABdhPJxQPqOKU3ys/egsRwqpvR1DkrmG186don9UOmH/L5dv4LW6SK5S5v4JoHZzPhhfO3HCw5s27w==
-X-Received: by 2002:a63:ec16:: with SMTP id j22mr13378406pgh.208.1600360675008;
-        Thu, 17 Sep 2020 09:37:55 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r144sm140072pfc.63.2020.09.17.09.37.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2020 09:37:54 -0700 (PDT)
-Message-ID: <5f6390e2.1c69fb81.28861.04d7@mx.google.com>
-Date:   Thu, 17 Sep 2020 09:37:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728699AbgIQQ6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 12:58:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39528 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728660AbgIQQ6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 12:58:04 -0400
+Received: from sol.localdomain (172-10-235-113.lightspeed.sntcca.sbcglobal.net [172.10.235.113])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9D1F2064B;
+        Thu, 17 Sep 2020 16:58:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600361883;
+        bh=NwlAyiLjTJ0j5yg6SRwHpbvNMgyHQjkW5kmX6FoEcgQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nEYszSBMEO+r1s7Q87HA5vDqSVUEgn1nbrHeN3LgU3NS8JFTSIsva3kppWcAcRj0g
+         LTACDMsv+T1mWYlEp+0ocMXZRXn49KPZf+8ARo80x7g4liUsUpkbluubWAYIIIzbxf
+         MeRfBXm6tWLug0LspHw7xYAr4R+FJNpU//N/jAB8=
+Date:   Thu, 17 Sep 2020 09:58:02 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Herbert Xu <herbert@gondor.apana.org.au>
+Cc:     tytso@mit.edu, linux-kernel@vger.kernel.org,
+        linux-crypto@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] random: use correct memory barriers for crng_node_pool
+Message-ID: <20200917165802.GC855@sol.localdomain>
+References: <20200916233042.51634-1-ebiggers@kernel.org>
+ <20200917072644.GA5311@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.146
-Subject: stable/linux-4.19.y baseline: 163 runs, 1 regressions (v4.19.146)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200917072644.GA5311@gondor.apana.org.au>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y baseline: 163 runs, 1 regressions (v4.19.146)
+On Thu, Sep 17, 2020 at 05:26:44PM +1000, Herbert Xu wrote:
+> Eric Biggers <ebiggers@kernel.org> wrote:
+> > From: Eric Biggers <ebiggers@google.com>
+> > 
+> > When a CPU selects which CRNG to use, it accesses crng_node_pool without
+> > a memory barrier.  That's wrong, because crng_node_pool can be set by
+> > another CPU concurrently.  Without a memory barrier, the crng_state that
+> > is used might not appear to be fully initialized.
+> 
+> The only architecture that requires a barrier for data dependency
+> is Alpha.  The correct primitive to ensure that barrier is present
+> is smp_barrier_depends, or you could just use READ_ONCE.
+> 
 
-Regressions Summary
--------------------
+smp_load_acquire() is obviously correct, whereas READ_ONCE() is an optimization
+that is difficult to tell whether it's correct or not.  For trivial data
+structures it's "easy" to tell.  But whenever there is a->b where b is an
+internal implementation detail of another kernel subsystem, the use of which
+could involve accesses to global or static data (for example, spin_lock()
+accessing lockdep stuff), a control dependency can slip in.
 
-platform | arch | lab          | compiler | defconfig      | results
----------+------+--------------+----------+----------------+--------
-hsdk     | arc  | lab-baylibre | gcc-8    | hsdk_defconfig | 0/1    =
+The last time I tried to use READ_ONCE(), it started a big controversy
+(https://lkml.kernel.org/linux-fsdevel/20200713033330.205104-1-ebiggers@kernel.org/T/#u,
+https://lkml.kernel.org/linux-fsdevel/20200717044427.68747-1-ebiggers@kernel.org/T/#u,
+https://lwn.net/Articles/827180/).  In the end, people refused to even allow the
+READ_ONCE() optimization to be documented, because they felt that
+smp_load_acquire() should just be used instead.
 
+So I think we should just go with smp_load_acquire()...
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
-/v4.19.146/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.19.y
-  Describe: v4.19.146
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      015e94d0e37b6860e4354ce3cac56bd7c39c8992 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab          | compiler | defconfig      | results
----------+------+--------------+----------+----------------+--------
-hsdk     | arc  | lab-baylibre | gcc-8    | hsdk_defconfig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f635ce8afa88a58aebf9dc8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: hsdk_defconfig
-  Compiler:    gcc-8 (arc-elf32-gcc (ARCompact/ARCv2 ISA elf32 toolchain 20=
-19.03-rc1) 8.3.1 20190225)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.146/=
-arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.146/=
-arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/arc/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f635ce8afa88a58aebf9=
-dc9
-      failing since 63 days (last pass: v4.19.124, first fail: v4.19.133)  =
-=20
+- Eric
