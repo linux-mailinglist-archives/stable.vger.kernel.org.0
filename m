@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B5326ED2A
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C6F26ED28
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729535AbgIRCR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729527AbgIRCR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:17:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727920AbgIRCRN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:17:13 -0400
+        id S1727890AbgIRCRO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:17:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F834235F7;
-        Fri, 18 Sep 2020 02:17:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FA63238EE;
+        Fri, 18 Sep 2020 02:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395432;
-        bh=duGUHUI68+zjWfjOjt8Rk40pFJO8d6hNFWX8+PyB2Ng=;
+        s=default; t=1600395433;
+        bh=87+WqOweEGv6JEXprGAxQOqHXrbLFDAJA78HEXX6/N0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PLO1D2oS93d30RbE5JUGj3PHKa/v++qZF4CB3pv3rZoueBlUb58z6ma3FzKc92sJl
-         1EdUG8vmykQzML2k8Y0SGHRt3d7cf3vtzbeoacyqqpI0+WMCw+2Aapd1axi8YSP2Is
-         IyYRzcjIqW/Uz4OMkihyVyZYtFqImVXmzDBqxoRw=
+        b=AusWUxJWtCc1wIfEUC1XeDi5NI6uXTUsv7uTy0qQGWKDQIcX9Nj/vxUVVty9XsD8y
+         zKNcddHDPqxlv0G5112u2ZwaHESB9fLjC+LjvramdKXuOPVnQglfo17uBtkn6Sfuk3
+         4cPSea35osF6pagfyrxxu4UuwKPmNU71CDFEu7kQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 23/64] skbuff: fix a data race in skb_queue_len()
-Date:   Thu, 17 Sep 2020 22:16:02 -0400
-Message-Id: <20200918021643.2067895-23-sashal@kernel.org>
+Cc:     Steve Grubb <sgrubb@redhat.com>, Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>, linux-audit@redhat.com
+Subject: [PATCH AUTOSEL 4.4 24/64] audit: CONFIG_CHANGE don't log internal bookkeeping as an event
+Date:   Thu, 17 Sep 2020 22:16:03 -0400
+Message-Id: <20200918021643.2067895-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021643.2067895-1-sashal@kernel.org>
 References: <20200918021643.2067895-1-sashal@kernel.org>
@@ -41,113 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Steve Grubb <sgrubb@redhat.com>
 
-[ Upstream commit 86b18aaa2b5b5bb48e609cd591b3d2d0fdbe0442 ]
+[ Upstream commit 70b3eeed49e8190d97139806f6fbaf8964306cdb ]
 
-sk_buff.qlen can be accessed concurrently as noticed by KCSAN,
+Common Criteria calls out for any action that modifies the audit trail to
+be recorded. That usually is interpreted to mean insertion or removal of
+rules. It is not required to log modification of the inode information
+since the watch is still in effect. Additionally, if the rule is a never
+rule and the underlying file is one they do not want events for, they
+get an event for this bookkeeping update against their wishes.
 
- BUG: KCSAN: data-race in __skb_try_recv_from_queue / unix_dgram_sendmsg
+Since no device/inode info is logged at insertion and no device/inode
+information is logged on update, there is nothing meaningful being
+communicated to the admin by the CONFIG_CHANGE updated_rules event. One
+can assume that the rule was not "modified" because it is still watching
+the intended target. If the device or inode cannot be resolved, then
+audit_panic is called which is sufficient.
 
- read to 0xffff8a1b1d8a81c0 of 4 bytes by task 5371 on cpu 96:
-  unix_dgram_sendmsg+0x9a9/0xb70 include/linux/skbuff.h:1821
-				 net/unix/af_unix.c:1761
-  ____sys_sendmsg+0x33e/0x370
-  ___sys_sendmsg+0xa6/0xf0
-  __sys_sendmsg+0x69/0xf0
-  __x64_sys_sendmsg+0x51/0x70
-  do_syscall_64+0x91/0xb47
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+The correct resolution is to drop logging config_update events since
+the watch is still in effect but just on another unknown inode.
 
- write to 0xffff8a1b1d8a81c0 of 4 bytes by task 1 on cpu 99:
-  __skb_try_recv_from_queue+0x327/0x410 include/linux/skbuff.h:2029
-  __skb_try_recv_datagram+0xbe/0x220
-  unix_dgram_recvmsg+0xee/0x850
-  ____sys_recvmsg+0x1fb/0x210
-  ___sys_recvmsg+0xa2/0xf0
-  __sys_recvmsg+0x66/0xf0
-  __x64_sys_recvmsg+0x51/0x70
-  do_syscall_64+0x91/0xb47
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Since only the read is operating as lockless, it could introduce a logic
-bug in unix_recvq_full() due to the load tearing. Fix it by adding
-a lockless variant of skb_queue_len() and unix_recvq_full() where
-READ_ONCE() is on the read while WRITE_ONCE() is on the write similar to
-the commit d7d16a89350a ("net: add skb_queue_empty_lockless()").
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Steve Grubb <sgrubb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h | 14 +++++++++++++-
- net/unix/af_unix.c     | 11 +++++++++--
- 2 files changed, 22 insertions(+), 3 deletions(-)
+ kernel/audit_watch.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 735ff1525f485..ffd698f70a84e 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1438,6 +1438,18 @@ static inline __u32 skb_queue_len(const struct sk_buff_head *list_)
- 	return list_->qlen;
- }
+diff --git a/kernel/audit_watch.c b/kernel/audit_watch.c
+index f45a9a5d3e47a..af453f3c2b3dd 100644
+--- a/kernel/audit_watch.c
++++ b/kernel/audit_watch.c
+@@ -316,8 +316,6 @@ static void audit_update_watch(struct audit_parent *parent,
+ 			if (oentry->rule.exe)
+ 				audit_remove_mark(oentry->rule.exe);
  
-+/**
-+ *	skb_queue_len_lockless	- get queue length
-+ *	@list_: list to measure
-+ *
-+ *	Return the length of an &sk_buff queue.
-+ *	This variant can be used in lockless contexts.
-+ */
-+static inline __u32 skb_queue_len_lockless(const struct sk_buff_head *list_)
-+{
-+	return READ_ONCE(list_->qlen);
-+}
-+
- /**
-  *	__skb_queue_head_init - initialize non-spinlock portions of sk_buff_head
-  *	@list: queue to initialize
-@@ -1641,7 +1653,7 @@ static inline void __skb_unlink(struct sk_buff *skb, struct sk_buff_head *list)
- {
- 	struct sk_buff *next, *prev;
- 
--	list->qlen--;
-+	WRITE_ONCE(list->qlen, list->qlen - 1);
- 	next	   = skb->next;
- 	prev	   = skb->prev;
- 	skb->next  = skb->prev = NULL;
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index b5e2ef242efe7..ac78c5ac82846 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -191,11 +191,17 @@ static inline int unix_may_send(struct sock *sk, struct sock *osk)
- 	return unix_peer(osk) == NULL || unix_our_peer(sk, osk);
- }
- 
--static inline int unix_recvq_full(struct sock const *sk)
-+static inline int unix_recvq_full(const struct sock *sk)
- {
- 	return skb_queue_len(&sk->sk_receive_queue) > sk->sk_max_ack_backlog;
- }
- 
-+static inline int unix_recvq_full_lockless(const struct sock *sk)
-+{
-+	return skb_queue_len_lockless(&sk->sk_receive_queue) >
-+		READ_ONCE(sk->sk_max_ack_backlog);
-+}
-+
- struct sock *unix_peer_get(struct sock *s)
- {
- 	struct sock *peer;
-@@ -1792,7 +1798,8 @@ restart_locked:
- 	 * - unix_peer(sk) == sk by time of get but disconnected before lock
- 	 */
- 	if (other != sk &&
--	    unlikely(unix_peer(other) != sk && unix_recvq_full(other))) {
-+	    unlikely(unix_peer(other) != sk &&
-+	    unix_recvq_full_lockless(other))) {
- 		if (timeo) {
- 			timeo = unix_wait_for_peer(other, timeo);
+-			audit_watch_log_rule_change(r, owatch, "updated_rules");
+-
+ 			call_rcu(&oentry->rcu, audit_free_rule_rcu);
+ 		}
  
 -- 
 2.25.1
