@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A24D026EF00
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA33326EF0D
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729025AbgIRCOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:14:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41776 "EHLO mail.kernel.org"
+        id S1729039AbgIRCco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:32:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729020AbgIRCOB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729019AbgIRCOB (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:14:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CA8523A01;
-        Fri, 18 Sep 2020 02:13:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD14B23977;
+        Fri, 18 Sep 2020 02:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395239;
-        bh=coewqD0ZjIG/fSjV2ryhd1Cfjd2vswYmnGMbu0EDkPg=;
+        s=default; t=1600395240;
+        bh=nY6s31o4Uapbgqv3OMmpaHn2wWQKiW94YW1DjcUH4Bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cT3eQE2sRrlHStccp+vUB69Fl6qdhf9zoXunndGnUktMIbt0c/hXvLzdxMcCbNYiW
-         ZyW0samaea72cD/oQGJeHs0g+sIFOWAdLEH5o5r64eSpnhHt9oh000mKrmhdSYhXst
-         z1YdiqiFRGbFOwYQqCYeNSV4xYYNyDzWoS+cWbNE=
+        b=1zFUqeysbzs6kfaHFQVqD00vqWwxVAmiQ6NXB3AUaHXQMXZCfbEmnMJ3A4dBVXSeD
+         v3Uiow/JV6S9/ui7e2Cps9yb2zgtCyRq383dpmp1f0vvdeZcbBW6/V4dzUCbt18Bkf
+         RCqebSg5Y6d063y1gwGpckfYzTJfaXrdqJTVU9A8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Andrew Morton <akpm@linux-foundation.org>,
-        Marco Elver <elver@google.com>,
+Cc:     Jaewon Kim <jaewon31.kim@samsung.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Matthew Wilcox <willy@infradead.org>,
+        Michel Lespinasse <walken@google.com>,
+        Borislav Petkov <bp@suse.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.14 083/127] mm/vmscan.c: fix data races using kswapd_classzone_idx
-Date:   Thu, 17 Sep 2020 22:11:36 -0400
-Message-Id: <20200918021220.2066485-83-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 084/127] mm/mmap.c: initialize align_offset explicitly for vm_unmapped_area
+Date:   Thu, 17 Sep 2020 22:11:37 -0400
+Message-Id: <20200918021220.2066485-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -44,201 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Jaewon Kim <jaewon31.kim@samsung.com>
 
-[ Upstream commit 5644e1fbbfe15ad06785502bbfe5751223e5841d ]
+[ Upstream commit 09ef5283fd96ac424ef0e569626f359bf9ab86c9 ]
 
-pgdat->kswapd_classzone_idx could be accessed concurrently in
-wakeup_kswapd().  Plain writes and reads without any lock protection
-result in data races.  Fix them by adding a pair of READ|WRITE_ONCE() as
-well as saving a branch (compilers might well optimize the original code
-in an unintentional way anyway).  While at it, also take care of
-pgdat->kswapd_order and non-kswapd threads in allow_direct_reclaim().  The
-data races were reported by KCSAN,
+On passing requirement to vm_unmapped_area, arch_get_unmapped_area and
+arch_get_unmapped_area_topdown did not set align_offset.  Internally on
+both unmapped_area and unmapped_area_topdown, if info->align_mask is 0,
+then info->align_offset was meaningless.
 
- BUG: KCSAN: data-race in wakeup_kswapd / wakeup_kswapd
+But commit df529cabb7a2 ("mm: mmap: add trace point of
+vm_unmapped_area") always prints info->align_offset even though it is
+uninitialized.
 
- write to 0xffff9f427ffff2dc of 4 bytes by task 7454 on cpu 13:
-  wakeup_kswapd+0xf1/0x400
-  wakeup_kswapd at mm/vmscan.c:3967
-  wake_all_kswapds+0x59/0xc0
-  wake_all_kswapds at mm/page_alloc.c:4241
-  __alloc_pages_slowpath+0xdcc/0x1290
-  __alloc_pages_slowpath at mm/page_alloc.c:4512
-  __alloc_pages_nodemask+0x3bb/0x450
-  alloc_pages_vma+0x8a/0x2c0
-  do_anonymous_page+0x16e/0x6f0
-  __handle_mm_fault+0xcd5/0xd40
-  handle_mm_fault+0xfc/0x2f0
-  do_page_fault+0x263/0x6f9
-  page_fault+0x34/0x40
+Fix this uninitialized value issue by setting it to 0 explicitly.
 
- 1 lock held by mtest01/7454:
-  #0: ffff9f425afe8808 (&mm->mmap_sem#2){++++}, at:
- do_page_fault+0x143/0x6f9
- do_user_addr_fault at arch/x86/mm/fault.c:1405
- (inlined by) do_page_fault at arch/x86/mm/fault.c:1539
- irq event stamp: 6944085
- count_memcg_event_mm+0x1a6/0x270
- count_memcg_event_mm+0x119/0x270
- __do_softirq+0x34c/0x57c
- irq_exit+0xa2/0xc0
+Before:
+  vm_unmapped_area: addr=0x755b155000 err=0 total_vm=0x15aaf0 flags=0x1 len=0x109000 lo=0x8000 hi=0x75eed48000 mask=0x0 ofs=0x4022
 
- read to 0xffff9f427ffff2dc of 4 bytes by task 7472 on cpu 38:
-  wakeup_kswapd+0xc8/0x400
-  wake_all_kswapds+0x59/0xc0
-  __alloc_pages_slowpath+0xdcc/0x1290
-  __alloc_pages_nodemask+0x3bb/0x450
-  alloc_pages_vma+0x8a/0x2c0
-  do_anonymous_page+0x16e/0x6f0
-  __handle_mm_fault+0xcd5/0xd40
-  handle_mm_fault+0xfc/0x2f0
-  do_page_fault+0x263/0x6f9
-  page_fault+0x34/0x40
+After:
+  vm_unmapped_area: addr=0x74a4ca1000 err=0 total_vm=0x168ab1 flags=0x1 len=0x9000 lo=0x8000 hi=0x753d94b000 mask=0x0 ofs=0x0
 
- 1 lock held by mtest01/7472:
-  #0: ffff9f425a9ac148 (&mm->mmap_sem#2){++++}, at:
- do_page_fault+0x143/0x6f9
- irq event stamp: 6793561
- count_memcg_event_mm+0x1a6/0x270
- count_memcg_event_mm+0x119/0x270
- __do_softirq+0x34c/0x57c
- irq_exit+0xa2/0xc0
-
- BUG: KCSAN: data-race in kswapd / wakeup_kswapd
-
- write to 0xffff90973ffff2dc of 4 bytes by task 820 on cpu 6:
-  kswapd+0x27c/0x8d0
-  kthread+0x1e0/0x200
-  ret_from_fork+0x27/0x50
-
- read to 0xffff90973ffff2dc of 4 bytes by task 6299 on cpu 0:
-  wakeup_kswapd+0xf3/0x450
-  wake_all_kswapds+0x59/0xc0
-  __alloc_pages_slowpath+0xdcc/0x1290
-  __alloc_pages_nodemask+0x3bb/0x450
-  alloc_pages_vma+0x8a/0x2c0
-  do_anonymous_page+0x170/0x700
-  __handle_mm_fault+0xc9f/0xd00
-  handle_mm_fault+0xfc/0x2f0
-  do_page_fault+0x263/0x6f9
-  page_fault+0x34/0x40
-
-Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Jaewon Kim <jaewon31.kim@samsung.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Link: http://lkml.kernel.org/r/1582749472-5171-1-git-send-email-cai@lca.pw
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Michel Lespinasse <walken@google.com>
+Cc: Borislav Petkov <bp@suse.de>
+Link: http://lkml.kernel.org/r/20200409094035.19457-1-jaewon31.kim@samsung.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/vmscan.c | 45 ++++++++++++++++++++++++++-------------------
- 1 file changed, 26 insertions(+), 19 deletions(-)
+ mm/mmap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index c6962aa5ddb40..5ee6fbdec8a8d 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2950,8 +2950,9 @@ static bool allow_direct_reclaim(pg_data_t *pgdat)
- 
- 	/* kswapd must be awake if processes are being throttled */
- 	if (!wmark_ok && waitqueue_active(&pgdat->kswapd_wait)) {
--		pgdat->kswapd_classzone_idx = min(pgdat->kswapd_classzone_idx,
--						(enum zone_type)ZONE_NORMAL);
-+		if (READ_ONCE(pgdat->kswapd_classzone_idx) > ZONE_NORMAL)
-+			WRITE_ONCE(pgdat->kswapd_classzone_idx, ZONE_NORMAL);
-+
- 		wake_up_interruptible(&pgdat->kswapd_wait);
- 	}
- 
-@@ -3451,9 +3452,9 @@ out:
- static enum zone_type kswapd_classzone_idx(pg_data_t *pgdat,
- 					   enum zone_type prev_classzone_idx)
- {
--	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
--		return prev_classzone_idx;
--	return pgdat->kswapd_classzone_idx;
-+	enum zone_type curr_idx = READ_ONCE(pgdat->kswapd_classzone_idx);
-+
-+	return curr_idx == MAX_NR_ZONES ? prev_classzone_idx : curr_idx;
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 724b7c4f1a5b5..c389fd258384f 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2034,6 +2034,7 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+ 	info.low_limit = mm->mmap_base;
+ 	info.high_limit = TASK_SIZE;
+ 	info.align_mask = 0;
++	info.align_offset = 0;
+ 	return vm_unmapped_area(&info);
  }
+ #endif
+@@ -2075,6 +2076,7 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
+ 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
+ 	info.high_limit = mm->mmap_base;
+ 	info.align_mask = 0;
++	info.align_offset = 0;
+ 	addr = vm_unmapped_area(&info);
  
- static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_order,
-@@ -3497,8 +3498,11 @@ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_o
- 		 * the previous request that slept prematurely.
- 		 */
- 		if (remaining) {
--			pgdat->kswapd_classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
--			pgdat->kswapd_order = max(pgdat->kswapd_order, reclaim_order);
-+			WRITE_ONCE(pgdat->kswapd_classzone_idx,
-+				   kswapd_classzone_idx(pgdat, classzone_idx));
-+
-+			if (READ_ONCE(pgdat->kswapd_order) < reclaim_order)
-+				WRITE_ONCE(pgdat->kswapd_order, reclaim_order);
- 		}
- 
- 		finish_wait(&pgdat->kswapd_wait, &wait);
-@@ -3580,12 +3584,12 @@ static int kswapd(void *p)
- 	tsk->flags |= PF_MEMALLOC | PF_SWAPWRITE | PF_KSWAPD;
- 	set_freezable();
- 
--	pgdat->kswapd_order = 0;
--	pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
-+	WRITE_ONCE(pgdat->kswapd_order, 0);
-+	WRITE_ONCE(pgdat->kswapd_classzone_idx, MAX_NR_ZONES);
- 	for ( ; ; ) {
- 		bool ret;
- 
--		alloc_order = reclaim_order = pgdat->kswapd_order;
-+		alloc_order = reclaim_order = READ_ONCE(pgdat->kswapd_order);
- 		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
- 
- kswapd_try_sleep:
-@@ -3593,10 +3597,10 @@ kswapd_try_sleep:
- 					classzone_idx);
- 
- 		/* Read the new order and classzone_idx */
--		alloc_order = reclaim_order = pgdat->kswapd_order;
-+		alloc_order = reclaim_order = READ_ONCE(pgdat->kswapd_order);
- 		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
--		pgdat->kswapd_order = 0;
--		pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
-+		WRITE_ONCE(pgdat->kswapd_order, 0);
-+		WRITE_ONCE(pgdat->kswapd_classzone_idx, MAX_NR_ZONES);
- 
- 		ret = try_to_freeze();
- 		if (kthread_should_stop())
-@@ -3638,20 +3642,23 @@ kswapd_try_sleep:
- void wakeup_kswapd(struct zone *zone, int order, enum zone_type classzone_idx)
- {
- 	pg_data_t *pgdat;
-+	enum zone_type curr_idx;
- 
- 	if (!managed_zone(zone))
- 		return;
- 
- 	if (!cpuset_zone_allowed(zone, GFP_KERNEL | __GFP_HARDWALL))
- 		return;
-+
- 	pgdat = zone->zone_pgdat;
-+	curr_idx = READ_ONCE(pgdat->kswapd_classzone_idx);
-+
-+	if (curr_idx == MAX_NR_ZONES || curr_idx < classzone_idx)
-+		WRITE_ONCE(pgdat->kswapd_classzone_idx, classzone_idx);
-+
-+	if (READ_ONCE(pgdat->kswapd_order) < order)
-+		WRITE_ONCE(pgdat->kswapd_order, order);
- 
--	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
--		pgdat->kswapd_classzone_idx = classzone_idx;
--	else
--		pgdat->kswapd_classzone_idx = max(pgdat->kswapd_classzone_idx,
--						  classzone_idx);
--	pgdat->kswapd_order = max(pgdat->kswapd_order, order);
- 	if (!waitqueue_active(&pgdat->kswapd_wait))
- 		return;
- 
+ 	/*
 -- 
 2.25.1
 
