@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C514226F49F
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:16:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A7926F49B
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:15:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726298AbgIRCBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726234AbgIRCBS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:01:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45304 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725886AbgIRCBO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:01:14 -0400
+        id S1726201AbgIRCBQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:01:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00491208DB;
-        Fri, 18 Sep 2020 02:01:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7062E2311D;
+        Fri, 18 Sep 2020 02:01:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394474;
-        bh=aDcAM/gxR7yP+qwe1sTnBSaa9O4JqXqOtG/6Dbmn17w=;
+        s=default; t=1600394475;
+        bh=EaE8uzh+V7InOu/IPtCdPhnQwn7PbKle9qLJQ30Qsfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ij5hKO67Z7RO/P04IT1jqnNtrDTPlM0ud+YuGRDSrWppAq5d4nCdGRTEfB1ebTxVB
-         C7kIExPEqMDHSEMcERWFdbVw5ChYnRFeyuHhcMjrzJSYPYnuzOb1Ch742hL+3PAyde
-         yEANWVwNZf0RzqgZQJ+5PqFpLyWpUYbYbU3/KXxA=
+        b=iSxW4PVzvl91ru15cAW4hq4MQmoovAlrBYlf4CC5CrZoC3DWqqnbB8XL7NTt99dF/
+         x6j88yTUJmql8B/EFb48fQZgu4DvXIFWbwvlq08pJUIrih7UW6Oi83VSbtv0AUHBrt
+         P9NMn+SJkHtKtUAk5+xUfw2AvLWNtLE+YgfNDkOc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Iurii Zaikin <yzaikin@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 002/330] kernel/sysctl-test: Add null pointer test for sysctl.c:proc_dointvec()
-Date:   Thu, 17 Sep 2020 21:55:42 -0400
-Message-Id: <20200918020110.2063155-2-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 003/330] scsi: lpfc: Fix pt2pt discovery on SLI3 HBAs
+Date:   Thu, 17 Sep 2020 21:55:43 -0400
+Message-Id: <20200918020110.2063155-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -47,462 +43,252 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Iurii Zaikin <yzaikin@google.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 2cb80dbbbaba4f2f86f686c34cb79ea5cbfb0edb ]
+[ Upstream commit 359e10f087dbb7b9c9f3035a8cc4391af45bd651 ]
 
-KUnit tests for initialized data behavior of proc_dointvec that is
-explicitly checked in the code. Includes basic parsing tests including
-int min/max overflow.
+After exchanging PLOGI on an SLI-3 adapter, the PRLI exchange failed.  Link
+trace showed the port was assigned a non-zero n_port_id, but didn't use the
+address on the PRLI. The assigned address is set on the port by the
+CONFIG_LINK mailbox command. The driver responded to the PRLI before the
+mailbox command completed. Thus the PRLI response used the old n_port_id.
 
-Signed-off-by: Iurii Zaikin <yzaikin@google.com>
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Defer the PRLI response until CONFIG_LINK completes.
+
+Link: https://lore.kernel.org/r/20190922035906.10977-2-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/Makefile      |   2 +
- kernel/sysctl-test.c | 392 +++++++++++++++++++++++++++++++++++++++++++
- lib/Kconfig.debug    |  11 ++
- 3 files changed, 405 insertions(+)
- create mode 100644 kernel/sysctl-test.c
+ drivers/scsi/lpfc/lpfc_nportdisc.c | 141 +++++++++++++++++++++++------
+ 1 file changed, 115 insertions(+), 26 deletions(-)
 
-diff --git a/kernel/Makefile b/kernel/Makefile
-index 42557f251fea6..f2cc0d118a0bc 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -115,6 +115,8 @@ obj-$(CONFIG_TORTURE_TEST) += torture.o
- obj-$(CONFIG_HAS_IOMEM) += iomem.o
- obj-$(CONFIG_RSEQ) += rseq.o
+diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
+index 6961713825585..2a340624bfc99 100644
+--- a/drivers/scsi/lpfc/lpfc_nportdisc.c
++++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
+@@ -279,6 +279,55 @@ lpfc_els_abort(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp)
+ 	lpfc_cancel_retry_delay_tmo(phba->pport, ndlp);
+ }
  
-+obj-$(CONFIG_SYSCTL_KUNIT_TEST) += sysctl-test.o
-+
- obj-$(CONFIG_GCC_PLUGIN_STACKLEAK) += stackleak.o
- KASAN_SANITIZE_stackleak.o := n
- KCOV_INSTRUMENT_stackleak.o := n
-diff --git a/kernel/sysctl-test.c b/kernel/sysctl-test.c
-new file mode 100644
-index 0000000000000..2a63241a8453b
---- /dev/null
-+++ b/kernel/sysctl-test.c
-@@ -0,0 +1,392 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * KUnit test of proc sysctl.
++/* lpfc_defer_pt2pt_acc - Complete SLI3 pt2pt processing on link up
++ * @phba: pointer to lpfc hba data structure.
++ * @link_mbox: pointer to CONFIG_LINK mailbox object
++ *
++ * This routine is only called if we are SLI3, direct connect pt2pt
++ * mode and the remote NPort issues the PLOGI after link up.
 + */
-+
-+#include <kunit/test.h>
-+#include <linux/sysctl.h>
-+
-+#define KUNIT_PROC_READ 0
-+#define KUNIT_PROC_WRITE 1
-+
-+static int i_zero;
-+static int i_one_hundred = 100;
-+
-+/*
-+ * Test that proc_dointvec will not try to use a NULL .data field even when the
-+ * length is non-zero.
-+ */
-+static void sysctl_test_api_dointvec_null_tbl_data(struct kunit *test)
++void
++lpfc_defer_pt2pt_acc(struct lpfc_hba *phba, LPFC_MBOXQ_t *link_mbox)
 +{
-+	struct ctl_table null_data_table = {
-+		.procname = "foo",
-+		/*
-+		 * Here we are testing that proc_dointvec behaves correctly when
-+		 * we give it a NULL .data field. Normally this would point to a
-+		 * piece of memory where the value would be stored.
++	LPFC_MBOXQ_t *login_mbox;
++	MAILBOX_t *mb = &link_mbox->u.mb;
++	struct lpfc_iocbq *save_iocb;
++	struct lpfc_nodelist *ndlp;
++	int rc;
++
++	ndlp = link_mbox->ctx_ndlp;
++	login_mbox = link_mbox->context3;
++	save_iocb = login_mbox->context3;
++	link_mbox->context3 = NULL;
++	login_mbox->context3 = NULL;
++
++	/* Check for CONFIG_LINK error */
++	if (mb->mbxStatus) {
++		lpfc_printf_log(phba, KERN_ERR, LOG_DISCOVERY,
++				"4575 CONFIG_LINK fails pt2pt discovery: %x\n",
++				mb->mbxStatus);
++		mempool_free(login_mbox, phba->mbox_mem_pool);
++		mempool_free(link_mbox, phba->mbox_mem_pool);
++		lpfc_sli_release_iocbq(phba, save_iocb);
++		return;
++	}
++
++	/* Now that CONFIG_LINK completed, and our SID is configured,
++	 * we can now proceed with sending the PLOGI ACC.
++	 */
++	rc = lpfc_els_rsp_acc(link_mbox->vport, ELS_CMD_PLOGI,
++			      save_iocb, ndlp, login_mbox);
++	if (rc) {
++		lpfc_printf_log(phba, KERN_ERR, LOG_DISCOVERY,
++				"4576 PLOGI ACC fails pt2pt discovery: %x\n",
++				rc);
++		mempool_free(login_mbox, phba->mbox_mem_pool);
++	}
++
++	mempool_free(link_mbox, phba->mbox_mem_pool);
++	lpfc_sli_release_iocbq(phba, save_iocb);
++}
++
+ static int
+ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 	       struct lpfc_iocbq *cmdiocb)
+@@ -291,10 +340,12 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 	IOCB_t *icmd;
+ 	struct serv_parm *sp;
+ 	uint32_t ed_tov;
+-	LPFC_MBOXQ_t *mbox;
++	LPFC_MBOXQ_t *link_mbox;
++	LPFC_MBOXQ_t *login_mbox;
++	struct lpfc_iocbq *save_iocb;
+ 	struct ls_rjt stat;
+ 	uint32_t vid, flag;
+-	int rc;
++	int rc, defer_acc;
+ 
+ 	memset(&stat, 0, sizeof (struct ls_rjt));
+ 	pcmd = (struct lpfc_dmabuf *) cmdiocb->context2;
+@@ -343,6 +394,7 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 	else
+ 		ndlp->nlp_fcp_info |= CLASS3;
+ 
++	defer_acc = 0;
+ 	ndlp->nlp_class_sup = 0;
+ 	if (sp->cls1.classValid)
+ 		ndlp->nlp_class_sup |= FC_COS_CLASS1;
+@@ -354,7 +406,6 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 		ndlp->nlp_class_sup |= FC_COS_CLASS4;
+ 	ndlp->nlp_maxframe =
+ 		((sp->cmn.bbRcvSizeMsb & 0x0F) << 8) | sp->cmn.bbRcvSizeLsb;
+-
+ 	/* if already logged in, do implicit logout */
+ 	switch (ndlp->nlp_state) {
+ 	case  NLP_STE_NPR_NODE:
+@@ -396,6 +447,10 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 	ndlp->nlp_fcp_info &= ~NLP_FCP_2_DEVICE;
+ 	ndlp->nlp_flag &= ~NLP_FIRSTBURST;
+ 
++	login_mbox = NULL;
++	link_mbox = NULL;
++	save_iocb = NULL;
++
+ 	/* Check for Nport to NPort pt2pt protocol */
+ 	if ((vport->fc_flag & FC_PT2PT) &&
+ 	    !(vport->fc_flag & FC_PT2PT_PLOGI)) {
+@@ -423,17 +478,22 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 		if (phba->sli_rev == LPFC_SLI_REV4)
+ 			lpfc_issue_reg_vfi(vport);
+ 		else {
+-			mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+-			if (mbox == NULL)
++			defer_acc = 1;
++			link_mbox = mempool_alloc(phba->mbox_mem_pool,
++						  GFP_KERNEL);
++			if (!link_mbox)
+ 				goto out;
+-			lpfc_config_link(phba, mbox);
+-			mbox->mbox_cmpl = lpfc_sli_def_mbox_cmpl;
+-			mbox->vport = vport;
+-			rc = lpfc_sli_issue_mbox(phba, mbox, MBX_NOWAIT);
+-			if (rc == MBX_NOT_FINISHED) {
+-				mempool_free(mbox, phba->mbox_mem_pool);
++			lpfc_config_link(phba, link_mbox);
++			link_mbox->mbox_cmpl = lpfc_defer_pt2pt_acc;
++			link_mbox->vport = vport;
++			link_mbox->ctx_ndlp = ndlp;
++
++			save_iocb = lpfc_sli_get_iocbq(phba);
++			if (!save_iocb)
+ 				goto out;
+-			}
++			/* Save info from cmd IOCB used in rsp */
++			memcpy((uint8_t *)save_iocb, (uint8_t *)cmdiocb,
++			       sizeof(struct lpfc_iocbq));
+ 		}
+ 
+ 		lpfc_can_disctmo(vport);
+@@ -448,8 +508,8 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 			ndlp->nlp_flag |= NLP_SUPPRESS_RSP;
+ 	}
+ 
+-	mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+-	if (!mbox)
++	login_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
++	if (!login_mbox)
+ 		goto out;
+ 
+ 	/* Registering an existing RPI behaves differently for SLI3 vs SLI4 */
+@@ -457,21 +517,19 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 		lpfc_unreg_rpi(vport, ndlp);
+ 
+ 	rc = lpfc_reg_rpi(phba, vport->vpi, icmd->un.rcvels.remoteID,
+-			    (uint8_t *) sp, mbox, ndlp->nlp_rpi);
+-	if (rc) {
+-		mempool_free(mbox, phba->mbox_mem_pool);
++			    (uint8_t *)sp, login_mbox, ndlp->nlp_rpi);
++	if (rc)
+ 		goto out;
+-	}
+ 
+ 	/* ACC PLOGI rsp command needs to execute first,
+-	 * queue this mbox command to be processed later.
++	 * queue this login_mbox command to be processed later.
+ 	 */
+-	mbox->mbox_cmpl = lpfc_mbx_cmpl_reg_login;
++	login_mbox->mbox_cmpl = lpfc_mbx_cmpl_reg_login;
+ 	/*
+-	 * mbox->ctx_ndlp = lpfc_nlp_get(ndlp) deferred until mailbox
++	 * login_mbox->ctx_ndlp = lpfc_nlp_get(ndlp) deferred until mailbox
+ 	 * command issued in lpfc_cmpl_els_acc().
+ 	 */
+-	mbox->vport = vport;
++	login_mbox->vport = vport;
+ 	spin_lock_irq(shost->host_lock);
+ 	ndlp->nlp_flag |= (NLP_ACC_REGLOGIN | NLP_RCV_PLOGI);
+ 	spin_unlock_irq(shost->host_lock);
+@@ -506,16 +564,47 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 		stat.un.b.lsRjtRsnCode = LSRJT_INVALID_CMD;
+ 		stat.un.b.lsRjtRsnCodeExp = LSEXP_NOTHING_MORE;
+ 		rc = lpfc_els_rsp_reject(vport, stat.un.lsRjtError, cmdiocb,
+-			ndlp, mbox);
++			ndlp, login_mbox);
+ 		if (rc)
+-			mempool_free(mbox, phba->mbox_mem_pool);
++			mempool_free(login_mbox, phba->mbox_mem_pool);
+ 		return 1;
+ 	}
+-	rc = lpfc_els_rsp_acc(vport, ELS_CMD_PLOGI, cmdiocb, ndlp, mbox);
++	if (defer_acc) {
++		/* So the order here should be:
++		 * Issue CONFIG_LINK mbox
++		 * CONFIG_LINK cmpl
++		 * Issue PLOGI ACC
++		 * PLOGI ACC cmpl
++		 * Issue REG_LOGIN mbox
 +		 */
-+		.data		= NULL,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &i_zero,
-+		.extra2         = &i_one_hundred,
-+	};
-+	/*
-+	 * proc_dointvec expects a buffer in user space, so we allocate one. We
-+	 * also need to cast it to __user so sparse doesn't get mad.
-+	 */
-+	void __user *buffer = (void __user *)kunit_kzalloc(test, sizeof(int),
-+							   GFP_USER);
-+	size_t len;
-+	loff_t pos;
 +
-+	/*
-+	 * We don't care what the starting length is since proc_dointvec should
-+	 * not try to read because .data is NULL.
-+	 */
-+	len = 1234;
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&null_data_table,
-+					       KUNIT_PROC_READ, buffer, &len,
-+					       &pos));
-+	KUNIT_EXPECT_EQ(test, (size_t)0, len);
++		/* Save the REG_LOGIN mbox for and rcv IOCB copy later */
++		link_mbox->context3 = login_mbox;
++		login_mbox->context3 = save_iocb;
 +
-+	/*
-+	 * See above.
-+	 */
-+	len = 1234;
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&null_data_table,
-+					       KUNIT_PROC_WRITE, buffer, &len,
-+					       &pos));
-+	KUNIT_EXPECT_EQ(test, (size_t)0, len);
-+}
++		/* Start the ball rolling by issuing CONFIG_LINK here */
++		rc = lpfc_sli_issue_mbox(phba, link_mbox, MBX_NOWAIT);
++		if (rc == MBX_NOT_FINISHED)
++			goto out;
++		return 1;
++	}
 +
-+/*
-+ * Similar to the previous test, we create a struct ctrl_table that has a .data
-+ * field that proc_dointvec cannot do anything with; however, this time it is
-+ * because we tell proc_dointvec that the size is 0.
-+ */
-+static void sysctl_test_api_dointvec_table_maxlen_unset(struct kunit *test)
-+{
-+	int data = 0;
-+	struct ctl_table data_maxlen_unset_table = {
-+		.procname = "foo",
-+		.data		= &data,
-+		/*
-+		 * So .data is no longer NULL, but we tell proc_dointvec its
-+		 * length is 0, so it still shouldn't try to use it.
-+		 */
-+		.maxlen		= 0,
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &i_zero,
-+		.extra2         = &i_one_hundred,
-+	};
-+	void __user *buffer = (void __user *)kunit_kzalloc(test, sizeof(int),
-+							   GFP_USER);
-+	size_t len;
-+	loff_t pos;
++	rc = lpfc_els_rsp_acc(vport, ELS_CMD_PLOGI, cmdiocb, ndlp, login_mbox);
+ 	if (rc)
+-		mempool_free(mbox, phba->mbox_mem_pool);
++		mempool_free(login_mbox, phba->mbox_mem_pool);
+ 	return 1;
+ out:
++	if (defer_acc)
++		lpfc_printf_log(phba, KERN_ERR, LOG_DISCOVERY,
++				"4577 pt2pt discovery failure: %p %p %p\n",
++				save_iocb, link_mbox, login_mbox);
++	if (save_iocb)
++		lpfc_sli_release_iocbq(phba, save_iocb);
++	if (link_mbox)
++		mempool_free(link_mbox, phba->mbox_mem_pool);
++	if (login_mbox)
++		mempool_free(login_mbox, phba->mbox_mem_pool);
 +
-+	/*
-+	 * As before, we don't care what buffer length is because proc_dointvec
-+	 * cannot do anything because its internal .data buffer has zero length.
-+	 */
-+	len = 1234;
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&data_maxlen_unset_table,
-+					       KUNIT_PROC_READ, buffer, &len,
-+					       &pos));
-+	KUNIT_EXPECT_EQ(test, (size_t)0, len);
-+
-+	/*
-+	 * See previous comment.
-+	 */
-+	len = 1234;
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&data_maxlen_unset_table,
-+					       KUNIT_PROC_WRITE, buffer, &len,
-+					       &pos));
-+	KUNIT_EXPECT_EQ(test, (size_t)0, len);
-+}
-+
-+/*
-+ * Here we provide a valid struct ctl_table, but we try to read and write from
-+ * it using a buffer of zero length, so it should still fail in a similar way as
-+ * before.
-+ */
-+static void sysctl_test_api_dointvec_table_len_is_zero(struct kunit *test)
-+{
-+	int data = 0;
-+	/* Good table. */
-+	struct ctl_table table = {
-+		.procname = "foo",
-+		.data		= &data,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &i_zero,
-+		.extra2         = &i_one_hundred,
-+	};
-+	void __user *buffer = (void __user *)kunit_kzalloc(test, sizeof(int),
-+							   GFP_USER);
-+	/*
-+	 * However, now our read/write buffer has zero length.
-+	 */
-+	size_t len = 0;
-+	loff_t pos;
-+
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&table, KUNIT_PROC_READ, buffer,
-+					       &len, &pos));
-+	KUNIT_EXPECT_EQ(test, (size_t)0, len);
-+
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&table, KUNIT_PROC_WRITE, buffer,
-+					       &len, &pos));
-+	KUNIT_EXPECT_EQ(test, (size_t)0, len);
-+}
-+
-+/*
-+ * Test that proc_dointvec refuses to read when the file position is non-zero.
-+ */
-+static void sysctl_test_api_dointvec_table_read_but_position_set(
-+		struct kunit *test)
-+{
-+	int data = 0;
-+	/* Good table. */
-+	struct ctl_table table = {
-+		.procname = "foo",
-+		.data		= &data,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &i_zero,
-+		.extra2         = &i_one_hundred,
-+	};
-+	void __user *buffer = (void __user *)kunit_kzalloc(test, sizeof(int),
-+							   GFP_USER);
-+	/*
-+	 * We don't care about our buffer length because we start off with a
-+	 * non-zero file position.
-+	 */
-+	size_t len = 1234;
-+	/*
-+	 * proc_dointvec should refuse to read into the buffer since the file
-+	 * pos is non-zero.
-+	 */
-+	loff_t pos = 1;
-+
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&table, KUNIT_PROC_READ, buffer,
-+					       &len, &pos));
-+	KUNIT_EXPECT_EQ(test, (size_t)0, len);
-+}
-+
-+/*
-+ * Test that we can read a two digit number in a sufficiently size buffer.
-+ * Nothing fancy.
-+ */
-+static void sysctl_test_dointvec_read_happy_single_positive(struct kunit *test)
-+{
-+	int data = 0;
-+	/* Good table. */
-+	struct ctl_table table = {
-+		.procname = "foo",
-+		.data		= &data,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &i_zero,
-+		.extra2         = &i_one_hundred,
-+	};
-+	size_t len = 4;
-+	loff_t pos = 0;
-+	char *buffer = kunit_kzalloc(test, len, GFP_USER);
-+	char __user *user_buffer = (char __user *)buffer;
-+	/* Store 13 in the data field. */
-+	*((int *)table.data) = 13;
-+
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&table, KUNIT_PROC_READ,
-+					       user_buffer, &len, &pos));
-+	KUNIT_ASSERT_EQ(test, (size_t)3, len);
-+	buffer[len] = '\0';
-+	/* And we read 13 back out. */
-+	KUNIT_EXPECT_STREQ(test, "13\n", buffer);
-+}
-+
-+/*
-+ * Same as previous test, just now with negative numbers.
-+ */
-+static void sysctl_test_dointvec_read_happy_single_negative(struct kunit *test)
-+{
-+	int data = 0;
-+	/* Good table. */
-+	struct ctl_table table = {
-+		.procname = "foo",
-+		.data		= &data,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &i_zero,
-+		.extra2         = &i_one_hundred,
-+	};
-+	size_t len = 5;
-+	loff_t pos = 0;
-+	char *buffer = kunit_kzalloc(test, len, GFP_USER);
-+	char __user *user_buffer = (char __user *)buffer;
-+	*((int *)table.data) = -16;
-+
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&table, KUNIT_PROC_READ,
-+					       user_buffer, &len, &pos));
-+	KUNIT_ASSERT_EQ(test, (size_t)4, len);
-+	buffer[len] = '\0';
-+	KUNIT_EXPECT_STREQ(test, "-16\n", (char *)buffer);
-+}
-+
-+/*
-+ * Test that a simple positive write works.
-+ */
-+static void sysctl_test_dointvec_write_happy_single_positive(struct kunit *test)
-+{
-+	int data = 0;
-+	/* Good table. */
-+	struct ctl_table table = {
-+		.procname = "foo",
-+		.data		= &data,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &i_zero,
-+		.extra2         = &i_one_hundred,
-+	};
-+	char input[] = "9";
-+	size_t len = sizeof(input) - 1;
-+	loff_t pos = 0;
-+	char *buffer = kunit_kzalloc(test, len, GFP_USER);
-+	char __user *user_buffer = (char __user *)buffer;
-+
-+	memcpy(buffer, input, len);
-+
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&table, KUNIT_PROC_WRITE,
-+					       user_buffer, &len, &pos));
-+	KUNIT_EXPECT_EQ(test, sizeof(input) - 1, len);
-+	KUNIT_EXPECT_EQ(test, sizeof(input) - 1, (size_t)pos);
-+	KUNIT_EXPECT_EQ(test, 9, *((int *)table.data));
-+}
-+
-+/*
-+ * Same as previous test, but now with negative numbers.
-+ */
-+static void sysctl_test_dointvec_write_happy_single_negative(struct kunit *test)
-+{
-+	int data = 0;
-+	struct ctl_table table = {
-+		.procname = "foo",
-+		.data		= &data,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &i_zero,
-+		.extra2         = &i_one_hundred,
-+	};
-+	char input[] = "-9";
-+	size_t len = sizeof(input) - 1;
-+	loff_t pos = 0;
-+	char *buffer = kunit_kzalloc(test, len, GFP_USER);
-+	char __user *user_buffer = (char __user *)buffer;
-+
-+	memcpy(buffer, input, len);
-+
-+	KUNIT_EXPECT_EQ(test, 0, proc_dointvec(&table, KUNIT_PROC_WRITE,
-+					       user_buffer, &len, &pos));
-+	KUNIT_EXPECT_EQ(test, sizeof(input) - 1, len);
-+	KUNIT_EXPECT_EQ(test, sizeof(input) - 1, (size_t)pos);
-+	KUNIT_EXPECT_EQ(test, -9, *((int *)table.data));
-+}
-+
-+/*
-+ * Test that writing a value smaller than the minimum possible value is not
-+ * allowed.
-+ */
-+static void sysctl_test_api_dointvec_write_single_less_int_min(
-+		struct kunit *test)
-+{
-+	int data = 0;
-+	struct ctl_table table = {
-+		.procname = "foo",
-+		.data		= &data,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &i_zero,
-+		.extra2         = &i_one_hundred,
-+	};
-+	size_t max_len = 32, len = max_len;
-+	loff_t pos = 0;
-+	char *buffer = kunit_kzalloc(test, max_len, GFP_USER);
-+	char __user *user_buffer = (char __user *)buffer;
-+	unsigned long abs_of_less_than_min = (unsigned long)INT_MAX
-+					     - (INT_MAX + INT_MIN) + 1;
-+
-+	/*
-+	 * We use this rigmarole to create a string that contains a value one
-+	 * less than the minimum accepted value.
-+	 */
-+	KUNIT_ASSERT_LT(test,
-+			(size_t)snprintf(buffer, max_len, "-%lu",
-+					 abs_of_less_than_min),
-+			max_len);
-+
-+	KUNIT_EXPECT_EQ(test, -EINVAL, proc_dointvec(&table, KUNIT_PROC_WRITE,
-+						     user_buffer, &len, &pos));
-+	KUNIT_EXPECT_EQ(test, max_len, len);
-+	KUNIT_EXPECT_EQ(test, 0, *((int *)table.data));
-+}
-+
-+/*
-+ * Test that writing the maximum possible value works.
-+ */
-+static void sysctl_test_api_dointvec_write_single_greater_int_max(
-+		struct kunit *test)
-+{
-+	int data = 0;
-+	struct ctl_table table = {
-+		.procname = "foo",
-+		.data		= &data,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= proc_dointvec,
-+		.extra1		= &i_zero,
-+		.extra2         = &i_one_hundred,
-+	};
-+	size_t max_len = 32, len = max_len;
-+	loff_t pos = 0;
-+	char *buffer = kunit_kzalloc(test, max_len, GFP_USER);
-+	char __user *user_buffer = (char __user *)buffer;
-+	unsigned long greater_than_max = (unsigned long)INT_MAX + 1;
-+
-+	KUNIT_ASSERT_GT(test, greater_than_max, (unsigned long)INT_MAX);
-+	KUNIT_ASSERT_LT(test, (size_t)snprintf(buffer, max_len, "%lu",
-+					       greater_than_max),
-+			max_len);
-+	KUNIT_EXPECT_EQ(test, -EINVAL, proc_dointvec(&table, KUNIT_PROC_WRITE,
-+						     user_buffer, &len, &pos));
-+	KUNIT_ASSERT_EQ(test, max_len, len);
-+	KUNIT_EXPECT_EQ(test, 0, *((int *)table.data));
-+}
-+
-+static struct kunit_case sysctl_test_cases[] = {
-+	KUNIT_CASE(sysctl_test_api_dointvec_null_tbl_data),
-+	KUNIT_CASE(sysctl_test_api_dointvec_table_maxlen_unset),
-+	KUNIT_CASE(sysctl_test_api_dointvec_table_len_is_zero),
-+	KUNIT_CASE(sysctl_test_api_dointvec_table_read_but_position_set),
-+	KUNIT_CASE(sysctl_test_dointvec_read_happy_single_positive),
-+	KUNIT_CASE(sysctl_test_dointvec_read_happy_single_negative),
-+	KUNIT_CASE(sysctl_test_dointvec_write_happy_single_positive),
-+	KUNIT_CASE(sysctl_test_dointvec_write_happy_single_negative),
-+	KUNIT_CASE(sysctl_test_api_dointvec_write_single_less_int_min),
-+	KUNIT_CASE(sysctl_test_api_dointvec_write_single_greater_int_max),
-+	{}
-+};
-+
-+static struct kunit_suite sysctl_test_suite = {
-+	.name = "sysctl_test",
-+	.test_cases = sysctl_test_cases,
-+};
-+
-+kunit_test_suite(sysctl_test_suite);
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 6118d99117daa..ee00c6c8a373e 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1939,6 +1939,17 @@ config TEST_SYSCTL
- 
- 	  If unsure, say N.
- 
-+config SYSCTL_KUNIT_TEST
-+	bool "KUnit test for sysctl"
-+	depends on KUNIT
-+	help
-+	  This builds the proc sysctl unit test, which runs on boot.
-+	  Tests the API contract and implementation correctness of sysctl.
-+	  For more information on KUnit and unit tests in general please refer
-+	  to the KUnit documentation in Documentation/dev-tools/kunit/.
-+
-+	  If unsure, say N.
-+
- config TEST_UDELAY
- 	tristate "udelay test driver"
- 	help
+ 	stat.un.b.lsRjtRsnCode = LSRJT_UNABLE_TPC;
+ 	stat.un.b.lsRjtRsnCodeExp = LSEXP_OUT_OF_RESOURCE;
+ 	lpfc_els_rsp_reject(vport, stat.un.lsRjtError, cmdiocb, ndlp, NULL);
 -- 
 2.25.1
 
