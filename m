@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A422426EECF
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:31:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B285826EECD
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:31:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727075AbgIRCbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:31:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42512 "EHLO mail.kernel.org"
+        id S1728971AbgIRCbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:31:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729073AbgIRCO0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:14:26 -0400
+        id S1728294AbgIRCO1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:14:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A44423976;
-        Fri, 18 Sep 2020 02:14:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA60D239E7;
+        Fri, 18 Sep 2020 02:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395265;
-        bh=UTqh39jOailWuuCiWBZyk3ZyhfGsx5+52kq13ciID+Y=;
+        s=default; t=1600395266;
+        bh=aywr7TN1jpqm1iKHFi8I8TzCMD28cUTGmIHxKNdZCo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c0A/bFEwxQ62NuhVFcIBhH5bGvzPSyYoITDRhEJco4GUxtC+1/IYVjZ90mQP3Z1FP
-         9sKe8Y3oIHkh43zVRED1AgjgN7X0qQGXxik8SwFCRKtbHT5lUO48ECASwMA0RLTD7M
-         59gcR5ZQRR+IFvygvp1GCeTmUOJ0xtpd/v/CPd4g=
+        b=g4Jx05NieqjvaOEOm/2NfgjOXoH+uz46zwC1GY2ep7yvfTwIjth2mxJliL9lL/ieY
+         dkD+gAH89GcYVtmVaycrIv8dIDMvTsbqWFwX/vHpvoEnLsrixqaP8MrKaBThMqNB8/
+         LRIiUDjvR/8J9gZKdIg2RY+M50jYwfdoPUIjm1f8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anshuman Khandual <anshuman.khandual@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 105/127] arm64/cpufeature: Drop TraceFilt feature exposure from ID_DFR0 register
-Date:   Thu, 17 Sep 2020 22:11:58 -0400
-Message-Id: <20200918021220.2066485-105-sashal@kernel.org>
+Cc:     Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        Maxim Zhukov <mussitantesmortem@gmail.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 106/127] e1000: Do not perform reset in reset_task if we are already down
+Date:   Thu, 17 Sep 2020 22:11:59 -0400
+Message-Id: <20200918021220.2066485-106-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -47,45 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 
-[ Upstream commit 1ed1b90a0594c8c9d31e8bb8be25a2b37717dc9e ]
+[ Upstream commit 49ee3c2ab5234757bfb56a0b3a3cb422f427e3a3 ]
 
-ID_DFR0 based TraceFilt feature should not be exposed to guests. Hence lets
-drop it.
+We are seeing a deadlock in e1000 down when NAPI is being disabled. Looking
+over the kernel function trace of the system it appears that the interface
+is being closed and then a reset is hitting which deadlocks the interface
+as the NAPI interface is already disabled.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
+To prevent this from happening I am disabling the reset task when
+__E1000_DOWN is already set. In addition code has been added so that we set
+the __E1000_DOWN while holding the __E1000_RESET flag in e1000_close in
+order to guarantee that the reset task will not run after we have started
+the close call.
 
-Suggested-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/1589881254-10082-3-git-send-email-anshuman.khandual@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Tested-by: Maxim Zhukov <mussitantesmortem@gmail.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpufeature.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e1000/e1000_main.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index b7d400a8921db..174aa12fb8b1f 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -272,7 +272,7 @@ static const struct arm64_ftr_bits ftr_id_pfr0[] = {
- };
+diff --git a/drivers/net/ethernet/intel/e1000/e1000_main.c b/drivers/net/ethernet/intel/e1000/e1000_main.c
+index 175681aa52607..8cc0e48738152 100644
+--- a/drivers/net/ethernet/intel/e1000/e1000_main.c
++++ b/drivers/net/ethernet/intel/e1000/e1000_main.c
+@@ -567,8 +567,13 @@ void e1000_reinit_locked(struct e1000_adapter *adapter)
+ 	WARN_ON(in_interrupt());
+ 	while (test_and_set_bit(__E1000_RESETTING, &adapter->flags))
+ 		msleep(1);
+-	e1000_down(adapter);
+-	e1000_up(adapter);
++
++	/* only run the task if not already down */
++	if (!test_bit(__E1000_DOWN, &adapter->flags)) {
++		e1000_down(adapter);
++		e1000_up(adapter);
++	}
++
+ 	clear_bit(__E1000_RESETTING, &adapter->flags);
+ }
  
- static const struct arm64_ftr_bits ftr_id_dfr0[] = {
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 28, 4, 0),
-+	/* [31:28] TraceFilt */
- 	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 24, 4, 0xf),	/* PerfMon */
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 20, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 16, 4, 0),
+@@ -1458,10 +1463,15 @@ int e1000_close(struct net_device *netdev)
+ 	struct e1000_hw *hw = &adapter->hw;
+ 	int count = E1000_CHECK_RESET_COUNT;
+ 
+-	while (test_bit(__E1000_RESETTING, &adapter->flags) && count--)
++	while (test_and_set_bit(__E1000_RESETTING, &adapter->flags) && count--)
+ 		usleep_range(10000, 20000);
+ 
+-	WARN_ON(test_bit(__E1000_RESETTING, &adapter->flags));
++	WARN_ON(count < 0);
++
++	/* signal that we're down so that the reset task will no longer run */
++	set_bit(__E1000_DOWN, &adapter->flags);
++	clear_bit(__E1000_RESETTING, &adapter->flags);
++
+ 	e1000_down(adapter);
+ 	e1000_power_down_phy(adapter);
+ 	e1000_free_irq(adapter);
 -- 
 2.25.1
 
