@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC17E26F02E
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:41:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9D4B26F033
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728606AbgIRCLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:11:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36670 "EHLO mail.kernel.org"
+        id S1728688AbgIRCle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:41:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728601AbgIRCLR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:11:17 -0400
+        id S1726708AbgIRCLS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:11:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A86C208DB;
-        Fri, 18 Sep 2020 02:11:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 517A623447;
+        Fri, 18 Sep 2020 02:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395076;
-        bh=wsW5bWA/0d2aGuBI+3kVFdiUF693X8BFYmlHJZMNYUQ=;
+        s=default; t=1600395078;
+        bh=DdvzAaC6J6nQLYIT469vWi39O8jo+T55pCFGjJn94oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YAxiUro4qiFqMv0n7xqdO+0PAJhBQ+6jfHYC1jUf3VuiAu01DSdAyYsZiw8NG+Yrz
-         iiLf7YXKhh+hHiEfdkBmpBTkC2B7BbqAc0v8SLBXbtGzyq6e0qCRyVBGdIzYDXMPw1
-         uzLWO1mAIBIDe4vEBOi9L1mqx3uH2DMs+gbKjDtI=
+        b=Nyms4stBkYziPgGYFQLc8VzzIEor4xI8RRfaJnIcuxFg+suWq8Dv118AVyz8P6ORw
+         2uge38LSkrlfrQdPmwf5ARWxN4yaAYvLSEXLowjt+vKC0Oq1WVB7ZVcBO9Mp4WA1GS
+         RvKSkYif4MVOR4BSJCkYRUhhdaRndhlGyXIS0BMQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sonny Sasaka <sonnysasaka@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 160/206] Bluetooth: Handle Inquiry Cancel error after Inquiry Complete
-Date:   Thu, 17 Sep 2020 22:07:16 -0400
-Message-Id: <20200918020802.2065198-160-sashal@kernel.org>
+Cc:     Tang Bin <tangbin@cmss.chinamobile.com>,
+        Zhang Shengju <zhangshengju@cmss.chinamobile.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 161/206] USB: EHCI: ehci-mv: fix error handling in mv_ehci_probe()
+Date:   Thu, 17 Sep 2020 22:07:17 -0400
+Message-Id: <20200918020802.2065198-161-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -43,75 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sonny Sasaka <sonnysasaka@chromium.org>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-[ Upstream commit adf1d6926444029396861413aba8a0f2a805742a ]
+[ Upstream commit c856b4b0fdb5044bca4c0acf9a66f3b5cc01a37a ]
 
-After sending Inquiry Cancel command to the controller, it is possible
-that Inquiry Complete event comes before Inquiry Cancel command complete
-event. In this case the Inquiry Cancel command will have status of
-Command Disallowed since there is no Inquiry session to be cancelled.
-This case should not be treated as error, otherwise we can reach an
-inconsistent state.
+If the function platform_get_irq() failed, the negative value
+returned will not be detected here. So fix error handling in
+mv_ehci_probe(). And when get irq failed, the function
+platform_get_irq() logs an error message, so remove redundant
+message here.
 
-Example of a btmon trace when this happened:
-
-< HCI Command: Inquiry Cancel (0x01|0x0002) plen 0
-> HCI Event: Inquiry Complete (0x01) plen 1
-        Status: Success (0x00)
-> HCI Event: Command Complete (0x0e) plen 4
-      Inquiry Cancel (0x01|0x0002) ncmd 1
-        Status: Command Disallowed (0x0c)
-
-Signed-off-by: Sonny Sasaka <sonnysasaka@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Link: https://lore.kernel.org/r/20200508114305.15740-1-tangbin@cmss.chinamobile.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/usb/host/ehci-mv.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index ec6b3a87b3e7f..310622086f74b 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -41,12 +41,27 @@
+diff --git a/drivers/usb/host/ehci-mv.c b/drivers/usb/host/ehci-mv.c
+index de764459e05a6..4edcd7536a01b 100644
+--- a/drivers/usb/host/ehci-mv.c
++++ b/drivers/usb/host/ehci-mv.c
+@@ -193,9 +193,8 @@ static int mv_ehci_probe(struct platform_device *pdev)
+ 	hcd->regs = ehci_mv->op_regs;
  
- /* Handle HCI Event packets */
+ 	hcd->irq = platform_get_irq(pdev, 0);
+-	if (!hcd->irq) {
+-		dev_err(&pdev->dev, "Cannot get irq.");
+-		retval = -ENODEV;
++	if (hcd->irq < 0) {
++		retval = hcd->irq;
+ 		goto err_disable_clk;
+ 	}
  
--static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb)
-+static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb,
-+				  u8 *new_status)
- {
- 	__u8 status = *((__u8 *) skb->data);
- 
- 	BT_DBG("%s status 0x%2.2x", hdev->name, status);
- 
-+	/* It is possible that we receive Inquiry Complete event right
-+	 * before we receive Inquiry Cancel Command Complete event, in
-+	 * which case the latter event should have status of Command
-+	 * Disallowed (0x0c). This should not be treated as error, since
-+	 * we actually achieve what Inquiry Cancel wants to achieve,
-+	 * which is to end the last Inquiry session.
-+	 */
-+	if (status == 0x0c && !test_bit(HCI_INQUIRY, &hdev->flags)) {
-+		bt_dev_warn(hdev, "Ignoring error of Inquiry Cancel command");
-+		status = 0x00;
-+	}
-+
-+	*new_status = status;
-+
- 	if (status)
- 		return;
- 
-@@ -3039,7 +3054,7 @@ static void hci_cmd_complete_evt(struct hci_dev *hdev, struct sk_buff *skb,
- 
- 	switch (*opcode) {
- 	case HCI_OP_INQUIRY_CANCEL:
--		hci_cc_inquiry_cancel(hdev, skb);
-+		hci_cc_inquiry_cancel(hdev, skb, status);
- 		break;
- 
- 	case HCI_OP_PERIODIC_INQ:
 -- 
 2.25.1
 
