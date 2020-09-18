@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B610D26EED6
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A422426EECF
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729264AbgIRCbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:31:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42514 "EHLO mail.kernel.org"
+        id S1727075AbgIRCbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:31:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729074AbgIRCO0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729073AbgIRCO0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:14:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D831239D1;
-        Fri, 18 Sep 2020 02:14:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A44423976;
+        Fri, 18 Sep 2020 02:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395264;
-        bh=Qnb7v+IqHLj39Yydb1cSs7Vz5UOoaqF/j5QMD0w0o8Y=;
+        s=default; t=1600395265;
+        bh=UTqh39jOailWuuCiWBZyk3ZyhfGsx5+52kq13ciID+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DaA19Hd/YvWUKPWLCcHvQMUFdFTQxgXjgOMnI7vBgx13Tg291iu2YuCnxssH13Zub
-         klb7Dn0jng2ut2HSVpKGFiCtRCKhjWOve06ZIIpHva8Fj22jDEyzjZRpR5uNvQISvV
-         3wYeQC8d3al7vdp+nrwgLv8y+dDx8PC37uzMjx1E=
+        b=c0A/bFEwxQ62NuhVFcIBhH5bGvzPSyYoITDRhEJco4GUxtC+1/IYVjZ90mQP3Z1FP
+         9sKe8Y3oIHkh43zVRED1AgjgN7X0qQGXxik8SwFCRKtbHT5lUO48ECASwMA0RLTD7M
+         59gcR5ZQRR+IFvygvp1GCeTmUOJ0xtpd/v/CPd4g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 104/127] USB: EHCI: ehci-mv: fix less than zero comparison of an unsigned int
-Date:   Thu, 17 Sep 2020 22:11:57 -0400
-Message-Id: <20200918021220.2066485-104-sashal@kernel.org>
+Cc:     Anshuman Khandual <anshuman.khandual@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 105/127] arm64/cpufeature: Drop TraceFilt feature exposure from ID_DFR0 register
+Date:   Thu, 17 Sep 2020 22:11:58 -0400
+Message-Id: <20200918021220.2066485-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -42,44 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit a7f40c233a6b0540d28743267560df9cfb571ca9 ]
+[ Upstream commit 1ed1b90a0594c8c9d31e8bb8be25a2b37717dc9e ]
 
-The comparison of hcd->irq to less than zero for an error check will
-never be true because hcd->irq is an unsigned int.  Fix this by
-assigning the int retval to the return of platform_get_irq and checking
-this for the -ve error condition and assigning hcd->irq to retval.
+ID_DFR0 based TraceFilt feature should not be exposed to guests. Hence lets
+drop it.
 
-Addresses-Coverity: ("Unsigned compared against 0")
-Fixes: c856b4b0fdb5 ("USB: EHCI: ehci-mv: fix error handling in mv_ehci_probe()")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20200515165453.104028-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+
+Suggested-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/1589881254-10082-3-git-send-email-anshuman.khandual@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-mv.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/arm64/kernel/cpufeature.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/ehci-mv.c b/drivers/usb/host/ehci-mv.c
-index 273736e1d33fa..b29610899c9f6 100644
---- a/drivers/usb/host/ehci-mv.c
-+++ b/drivers/usb/host/ehci-mv.c
-@@ -196,11 +196,10 @@ static int mv_ehci_probe(struct platform_device *pdev)
- 	hcd->rsrc_len = resource_size(r);
- 	hcd->regs = ehci_mv->op_regs;
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index b7d400a8921db..174aa12fb8b1f 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -272,7 +272,7 @@ static const struct arm64_ftr_bits ftr_id_pfr0[] = {
+ };
  
--	hcd->irq = platform_get_irq(pdev, 0);
--	if (hcd->irq < 0) {
--		retval = hcd->irq;
-+	retval = platform_get_irq(pdev, 0);
-+	if (retval < 0)
- 		goto err_disable_clk;
--	}
-+	hcd->irq = retval;
- 
- 	ehci = hcd_to_ehci(hcd);
- 	ehci->caps = (struct ehci_caps *) ehci_mv->cap_regs;
+ static const struct arm64_ftr_bits ftr_id_dfr0[] = {
+-	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 28, 4, 0),
++	/* [31:28] TraceFilt */
+ 	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 24, 4, 0xf),	/* PerfMon */
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 20, 4, 0),
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 16, 4, 0),
 -- 
 2.25.1
 
