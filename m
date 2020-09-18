@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5981126EB2B
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 009A326EB34
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:04:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726353AbgIRCDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:03:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50190 "EHLO mail.kernel.org"
+        id S1727137AbgIRCEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:04:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727120AbgIRCDl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:03:41 -0400
+        id S1727131AbgIRCDo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:03:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C5492371F;
-        Fri, 18 Sep 2020 02:03:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 344F12344C;
+        Fri, 18 Sep 2020 02:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394618;
-        bh=T6mR97KSK3mQAcRVINKVqt1yKOVBS7sfxQ4KrGiyM2M=;
+        s=default; t=1600394623;
+        bh=Xa7/DEZY6eKJkhsU1HYPKjFgFi2VUFJlKyNB2k76rTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbBU5DZVF8pm9xNpXtvqt50ZpjxNWR4QWxmjldl3W3AjUBJaDlLN4m/KI1pQ3CXFE
-         7FFTBT6rR1T9OeMI/Zxb0lOt+E72rWCehfSXL9voAUq24LVYxEAPwpl8A+rOWeYWG1
-         fd42caDgLtpymtukCxNiDinzF00WlacvpJBu74lk=
+        b=xQVRPQEZJrAzQ9MH4gFLQTeHn1KcdUkwRI///lCt2DlJEAkTcofwF6gjCT4j7Ivgk
+         25rGOzLtlGJ9QXjRYFv4pgJfePcWtF/8PgDRvPG7yjDQo//ZElaimRNtsfpqv40aJI
+         aBrRtl1DAZXdLs5Z/uE0mGv24CN3M/ikQhFoEat0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve Grubb <sgrubb@redhat.com>, Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, linux-audit@redhat.com
-Subject: [PATCH AUTOSEL 5.4 120/330] audit: CONFIG_CHANGE don't log internal bookkeeping as an event
-Date:   Thu, 17 Sep 2020 21:57:40 -0400
-Message-Id: <20200918020110.2063155-120-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 124/330] scsi: lpfc: Fix coverity errors in fmdi attribute handling
+Date:   Thu, 17 Sep 2020 21:57:44 -0400
+Message-Id: <20200918020110.2063155-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -41,47 +43,539 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Grubb <sgrubb@redhat.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 70b3eeed49e8190d97139806f6fbaf8964306cdb ]
+[ Upstream commit 4cb9e1ddaa145be9ed67b6a7de98ca705a43f998 ]
 
-Common Criteria calls out for any action that modifies the audit trail to
-be recorded. That usually is interpreted to mean insertion or removal of
-rules. It is not required to log modification of the inode information
-since the watch is still in effect. Additionally, if the rule is a never
-rule and the underlying file is one they do not want events for, they
-get an event for this bookkeeping update against their wishes.
+Coverity reported a memory corruption error for the fdmi attributes
+routines:
 
-Since no device/inode info is logged at insertion and no device/inode
-information is logged on update, there is nothing meaningful being
-communicated to the admin by the CONFIG_CHANGE updated_rules event. One
-can assume that the rule was not "modified" because it is still watching
-the intended target. If the device or inode cannot be resolved, then
-audit_panic is called which is sufficient.
+  CID 15768 [Memory Corruption] Out-of-bounds access on FDMI
 
-The correct resolution is to drop logging config_update events since
-the watch is still in effect but just on another unknown inode.
+Sloppy coding of the fmdi structures. In both the lpfc_fdmi_attr_def and
+lpfc_fdmi_reg_port_list structures, a field was placed at the start of
+payload that may have variable content. The field was given an arbitrary
+type (uint32_t). The code then uses the field name to derive an address,
+which it used in things such as memset and memcpy. The memset sizes or
+memcpy lengths were larger than the arbitrary type, thus coverity reported
+an error.
 
-Signed-off-by: Steve Grubb <sgrubb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Fix by replacing the arbitrary fields with the real field structures
+describing the payload.
+
+Link: https://lore.kernel.org/r/20200128002312.16346-8-jsmart2021@gmail.com
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit_watch.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_ct.c | 137 ++++++++++++++++++------------------
+ drivers/scsi/lpfc/lpfc_hw.h |  36 +++++-----
+ 2 files changed, 85 insertions(+), 88 deletions(-)
 
-diff --git a/kernel/audit_watch.c b/kernel/audit_watch.c
-index 4508d5e0cf696..8a8fd732ff6d0 100644
---- a/kernel/audit_watch.c
-+++ b/kernel/audit_watch.c
-@@ -302,8 +302,6 @@ static void audit_update_watch(struct audit_parent *parent,
- 			if (oentry->rule.exe)
- 				audit_remove_mark(oentry->rule.exe);
+diff --git a/drivers/scsi/lpfc/lpfc_ct.c b/drivers/scsi/lpfc/lpfc_ct.c
+index 4a09f21cb235f..e672fa9e842c9 100644
+--- a/drivers/scsi/lpfc/lpfc_ct.c
++++ b/drivers/scsi/lpfc/lpfc_ct.c
+@@ -2056,8 +2056,8 @@ lpfc_fdmi_hba_attr_wwnn(struct lpfc_vport *vport, struct lpfc_fdmi_attr_def *ad)
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
  
--			audit_watch_log_rule_change(r, owatch, "updated_rules");
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, sizeof(struct lpfc_name));
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	memcpy(&ae->un.AttrWWN, &vport->fc_sparam.nodeName,
+ 	       sizeof(struct lpfc_name));
+@@ -2073,8 +2073,8 @@ lpfc_fdmi_hba_attr_manufacturer(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	/* This string MUST be consistent with other FC platforms
+ 	 * supported by Broadcom.
+@@ -2098,8 +2098,8 @@ lpfc_fdmi_hba_attr_sn(struct lpfc_vport *vport, struct lpfc_fdmi_attr_def *ad)
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	strncpy(ae->un.AttrString, phba->SerialNumber,
+ 		sizeof(ae->un.AttrString));
+@@ -2120,8 +2120,8 @@ lpfc_fdmi_hba_attr_model(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	strncpy(ae->un.AttrString, phba->ModelName,
+ 		sizeof(ae->un.AttrString));
+@@ -2141,8 +2141,8 @@ lpfc_fdmi_hba_attr_description(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	strncpy(ae->un.AttrString, phba->ModelDesc,
+ 		sizeof(ae->un.AttrString));
+@@ -2164,8 +2164,8 @@ lpfc_fdmi_hba_attr_hdw_ver(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t i, j, incr, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	/* Convert JEDEC ID to ascii for hardware version */
+ 	incr = vp->rev.biuRev;
+@@ -2194,8 +2194,8 @@ lpfc_fdmi_hba_attr_drvr_ver(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	strncpy(ae->un.AttrString, lpfc_release_version,
+ 		sizeof(ae->un.AttrString));
+@@ -2216,8 +2216,8 @@ lpfc_fdmi_hba_attr_rom_ver(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	if (phba->sli_rev == LPFC_SLI_REV4)
+ 		lpfc_decode_firmware_rev(phba, ae->un.AttrString, 1);
+@@ -2241,8 +2241,8 @@ lpfc_fdmi_hba_attr_fmw_ver(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	lpfc_decode_firmware_rev(phba, ae->un.AttrString, 1);
+ 	len = strnlen(ae->un.AttrString,
+@@ -2261,8 +2261,8 @@ lpfc_fdmi_hba_attr_os_ver(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	snprintf(ae->un.AttrString, sizeof(ae->un.AttrString), "%s %s %s",
+ 		 init_utsname()->sysname,
+@@ -2284,7 +2284,7 @@ lpfc_fdmi_hba_attr_ct_len(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 
+ 	ae->un.AttrInt =  cpu_to_be32(LPFC_MAX_CT_SIZE);
+ 	size = FOURBYTES + sizeof(uint32_t);
+@@ -2300,8 +2300,8 @@ lpfc_fdmi_hba_attr_symbolic_name(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	len = lpfc_vport_symbolic_node_name(vport,
+ 				ae->un.AttrString, 256);
+@@ -2319,7 +2319,7 @@ lpfc_fdmi_hba_attr_vendor_info(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 
+ 	/* Nothing is defined for this currently */
+ 	ae->un.AttrInt =  cpu_to_be32(0);
+@@ -2336,7 +2336,7 @@ lpfc_fdmi_hba_attr_num_ports(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 
+ 	/* Each driver instance corresponds to a single port */
+ 	ae->un.AttrInt =  cpu_to_be32(1);
+@@ -2353,8 +2353,8 @@ lpfc_fdmi_hba_attr_fabric_wwnn(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, sizeof(struct lpfc_name));
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	memcpy(&ae->un.AttrWWN, &vport->fabric_nodename,
+ 	       sizeof(struct lpfc_name));
+@@ -2372,8 +2372,8 @@ lpfc_fdmi_hba_attr_bios_ver(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	strlcat(ae->un.AttrString, phba->BIOSVersion,
+ 		sizeof(ae->un.AttrString));
+@@ -2393,7 +2393,7 @@ lpfc_fdmi_hba_attr_bios_state(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 
+ 	/* Driver doesn't have access to this information */
+ 	ae->un.AttrInt =  cpu_to_be32(0);
+@@ -2410,8 +2410,8 @@ lpfc_fdmi_hba_attr_vendor_id(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	strncpy(ae->un.AttrString, "EMULEX",
+ 		sizeof(ae->un.AttrString));
+@@ -2433,8 +2433,8 @@ lpfc_fdmi_port_attr_fc4type(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 32);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	ae->un.AttrTypes[3] = 0x02; /* Type 0x1 - ELS */
+ 	ae->un.AttrTypes[2] = 0x01; /* Type 0x8 - FCP */
+@@ -2459,7 +2459,7 @@ lpfc_fdmi_port_attr_support_speed(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 
+ 	ae->un.AttrInt = 0;
+ 	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
+@@ -2513,7 +2513,7 @@ lpfc_fdmi_port_attr_speed(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 
+ 	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
+ 		switch (phba->fc_linkspeed) {
+@@ -2583,7 +2583,7 @@ lpfc_fdmi_port_attr_max_frame(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 
+ 	hsp = (struct serv_parm *)&vport->fc_sparam;
+ 	ae->un.AttrInt = (((uint32_t) hsp->cmn.bbRcvSizeMsb & 0x0F) << 8) |
+@@ -2603,8 +2603,8 @@ lpfc_fdmi_port_attr_os_devname(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	snprintf(ae->un.AttrString, sizeof(ae->un.AttrString),
+ 		 "/sys/class/scsi_host/host%d", shost->host_no);
+@@ -2624,8 +2624,8 @@ lpfc_fdmi_port_attr_host_name(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	scnprintf(ae->un.AttrString, sizeof(ae->un.AttrString), "%s",
+ 		  vport->phba->os_host_name);
+@@ -2645,8 +2645,8 @@ lpfc_fdmi_port_attr_wwnn(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0,  sizeof(struct lpfc_name));
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	memcpy(&ae->un.AttrWWN, &vport->fc_sparam.nodeName,
+ 	       sizeof(struct lpfc_name));
+@@ -2663,8 +2663,8 @@ lpfc_fdmi_port_attr_wwpn(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0,  sizeof(struct lpfc_name));
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	memcpy(&ae->un.AttrWWN, &vport->fc_sparam.portName,
+ 	       sizeof(struct lpfc_name));
+@@ -2681,8 +2681,8 @@ lpfc_fdmi_port_attr_symbolic_name(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	len = lpfc_vport_symbolic_port_name(vport, ae->un.AttrString, 256);
+ 	len += (len & 3) ? (4 - (len & 3)) : 4;
+@@ -2700,7 +2700,7 @@ lpfc_fdmi_port_attr_port_type(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 	if (phba->fc_topology == LPFC_TOPOLOGY_LOOP)
+ 		ae->un.AttrInt =  cpu_to_be32(LPFC_FDMI_PORTTYPE_NLPORT);
+ 	else
+@@ -2718,7 +2718,7 @@ lpfc_fdmi_port_attr_class(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 	ae->un.AttrInt = cpu_to_be32(FC_COS_CLASS2 | FC_COS_CLASS3);
+ 	size = FOURBYTES + sizeof(uint32_t);
+ 	ad->AttrLen = cpu_to_be16(size);
+@@ -2733,8 +2733,8 @@ lpfc_fdmi_port_attr_fabric_wwpn(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0,  sizeof(struct lpfc_name));
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	memcpy(&ae->un.AttrWWN, &vport->fabric_portname,
+ 	       sizeof(struct lpfc_name));
+@@ -2751,8 +2751,8 @@ lpfc_fdmi_port_attr_active_fc4type(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 32);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	ae->un.AttrTypes[3] = 0x02; /* Type 0x1 - ELS */
+ 	ae->un.AttrTypes[2] = 0x01; /* Type 0x8 - FCP */
+@@ -2775,7 +2775,7 @@ lpfc_fdmi_port_attr_port_state(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 	/* Link Up - operational */
+ 	ae->un.AttrInt =  cpu_to_be32(LPFC_FDMI_PORTSTATE_ONLINE);
+ 	size = FOURBYTES + sizeof(uint32_t);
+@@ -2791,7 +2791,7 @@ lpfc_fdmi_port_attr_num_disc(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 	vport->fdmi_num_disc = lpfc_find_map_node(vport);
+ 	ae->un.AttrInt = cpu_to_be32(vport->fdmi_num_disc);
+ 	size = FOURBYTES + sizeof(uint32_t);
+@@ -2807,7 +2807,7 @@ lpfc_fdmi_port_attr_nportid(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 	ae->un.AttrInt =  cpu_to_be32(vport->fc_myDID);
+ 	size = FOURBYTES + sizeof(uint32_t);
+ 	ad->AttrLen = cpu_to_be16(size);
+@@ -2822,8 +2822,8 @@ lpfc_fdmi_smart_attr_service(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	strncpy(ae->un.AttrString, "Smart SAN Initiator",
+ 		sizeof(ae->un.AttrString));
+@@ -2843,8 +2843,8 @@ lpfc_fdmi_smart_attr_guid(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	memcpy(&ae->un.AttrString, &vport->fc_sparam.nodeName,
+ 	       sizeof(struct lpfc_name));
+@@ -2864,8 +2864,8 @@ lpfc_fdmi_smart_attr_version(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	strncpy(ae->un.AttrString, "Smart SAN Version 2.0",
+ 		sizeof(ae->un.AttrString));
+@@ -2886,8 +2886,8 @@ lpfc_fdmi_smart_attr_model(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t len, size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+-	memset(ae, 0, 256);
++	ae = &ad->AttrValue;
++	memset(ae, 0, sizeof(*ae));
+ 
+ 	strncpy(ae->un.AttrString, phba->ModelName,
+ 		sizeof(ae->un.AttrString));
+@@ -2906,7 +2906,7 @@ lpfc_fdmi_smart_attr_port_info(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 
+ 	/* SRIOV (type 3) is not supported */
+ 	if (vport->vpi)
+@@ -2926,7 +2926,7 @@ lpfc_fdmi_smart_attr_qos(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 	ae->un.AttrInt =  cpu_to_be32(0);
+ 	size = FOURBYTES + sizeof(uint32_t);
+ 	ad->AttrLen = cpu_to_be16(size);
+@@ -2941,7 +2941,7 @@ lpfc_fdmi_smart_attr_security(struct lpfc_vport *vport,
+ 	struct lpfc_fdmi_attr_entry *ae;
+ 	uint32_t size;
+ 
+-	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
++	ae = &ad->AttrValue;
+ 	ae->un.AttrInt =  cpu_to_be32(1);
+ 	size = FOURBYTES + sizeof(uint32_t);
+ 	ad->AttrLen = cpu_to_be16(size);
+@@ -3089,7 +3089,8 @@ lpfc_fdmi_cmd(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 			/* Registered Port List */
+ 			/* One entry (port) per adapter */
+ 			rh->rpl.EntryCnt = cpu_to_be32(1);
+-			memcpy(&rh->rpl.pe, &phba->pport->fc_sparam.portName,
++			memcpy(&rh->rpl.pe.PortName,
++			       &phba->pport->fc_sparam.portName,
+ 			       sizeof(struct lpfc_name));
+ 
+ 			/* point to the HBA attribute block */
+diff --git a/drivers/scsi/lpfc/lpfc_hw.h b/drivers/scsi/lpfc/lpfc_hw.h
+index 436cdc8c5ef46..b5642c8725938 100644
+--- a/drivers/scsi/lpfc/lpfc_hw.h
++++ b/drivers/scsi/lpfc/lpfc_hw.h
+@@ -1340,25 +1340,8 @@ struct fc_rdp_res_frame {
+ /* lpfc_sli_ct_request defines the CT_IU preamble for FDMI commands */
+ #define  SLI_CT_FDMI_Subtypes     0x10	/* Management Service Subtype */
+ 
+-/*
+- * Registered Port List Format
+- */
+-struct lpfc_fdmi_reg_port_list {
+-	uint32_t EntryCnt;
+-	uint32_t pe;		/* Variable-length array */
+-};
 -
- 			call_rcu(&oentry->rcu, audit_free_rule_rcu);
- 		}
+-
+ /* Definitions for HBA / Port attribute entries */
  
+-struct lpfc_fdmi_attr_def { /* Defined in TLV format */
+-	/* Structure is in Big Endian format */
+-	uint32_t AttrType:16;
+-	uint32_t AttrLen:16;
+-	uint32_t AttrValue;  /* Marks start of Value (ATTRIBUTE_ENTRY) */
+-};
+-
+-
+ /* Attribute Entry */
+ struct lpfc_fdmi_attr_entry {
+ 	union {
+@@ -1369,7 +1352,13 @@ struct lpfc_fdmi_attr_entry {
+ 	} un;
+ };
+ 
+-#define LPFC_FDMI_MAX_AE_SIZE	sizeof(struct lpfc_fdmi_attr_entry)
++struct lpfc_fdmi_attr_def { /* Defined in TLV format */
++	/* Structure is in Big Endian format */
++	uint32_t AttrType:16;
++	uint32_t AttrLen:16;
++	/* Marks start of Value (ATTRIBUTE_ENTRY) */
++	struct lpfc_fdmi_attr_entry AttrValue;
++} __packed;
+ 
+ /*
+  * HBA Attribute Block
+@@ -1393,13 +1382,20 @@ struct lpfc_fdmi_hba_ident {
+ 	struct lpfc_name PortName;
+ };
+ 
++/*
++ * Registered Port List Format
++ */
++struct lpfc_fdmi_reg_port_list {
++	uint32_t EntryCnt;
++	struct lpfc_fdmi_port_entry pe;
++} __packed;
++
+ /*
+  * Register HBA(RHBA)
+  */
+ struct lpfc_fdmi_reg_hba {
+ 	struct lpfc_fdmi_hba_ident hi;
+-	struct lpfc_fdmi_reg_port_list rpl;	/* variable-length array */
+-/* struct lpfc_fdmi_attr_block   ab; */
++	struct lpfc_fdmi_reg_port_list rpl;
+ };
+ 
+ /*
 -- 
 2.25.1
 
