@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDB8826F22A
+	by mail.lfdr.de (Postfix) with ESMTP id 0E4F126F228
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:56:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728419AbgIRC42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:56:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57120 "EHLO mail.kernel.org"
+        id S1730211AbgIRC43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:56:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727183AbgIRCHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727830AbgIRCHF (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:07:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24150238E3;
-        Fri, 18 Sep 2020 02:06:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72BF82395B;
+        Fri, 18 Sep 2020 02:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394807;
-        bh=vORfWEwGIWUJYpllPBRP0IubscreZM5sP/sgXyGtGSY=;
+        s=default; t=1600394808;
+        bh=tLj9bbCmKARSDrqm3XIwE29GbyTs9y0er/D6N+vkrMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gzej2zwJ9U9vmlihdFrdQ3dZio62nMRk57MRBRJfNv9ATefU2qP9y7qdGXsQRiGq/
-         47Or8jbz8pVSc4k+eILnUvcd9r8uVP0xinkAGMPolXVLPF7nsxE3ksYF0xr7X52WjI
-         nu7YsL0YqwDlaV2MVOmFPsrsLyWUAWiRIIpZdFJ8=
+        b=11Q5Uxy0Qk6I1Az3NlA8Q/uvHwKLjDRLzAT4briOPPtWRqi/mC8xUh5e45X9W6CsY
+         wmuJJoOY1Sf7WfOBrjsGLBLv0oc3qZwMpt95ARdxh+WksVxuz7AB/C4SjVdY8bMEWz
+         XADMSRkeRjyzG2yq+gvMQ1dBa4xc+oZRfK74q8uk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     James Morse <james.morse@arm.com>,
+        Tyler Baicar <baicar@os.amperecomputing.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 275/330] coresight: etm4x: Fix use-after-free of per-cpu etm drvdata
-Date:   Thu, 17 Sep 2020 22:00:15 -0400
-Message-Id: <20200918020110.2063155-275-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 276/330] arm64: acpi: Make apei_claim_sea() synchronise with APEI's irq work
+Date:   Thu, 17 Sep 2020 22:00:16 -0400
+Message-Id: <20200918020110.2063155-276-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -46,135 +45,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit 3f4943d422c5febbb3c764670011a00eb2a86238 ]
+[ Upstream commit 8fcc4ae6faf8b455eeef00bc9ae70744e3b0f462 ]
 
-etm probe could be deferred due to the dependency in the trace
-path chain and may be retried. We need to clear the per-cpu
-etmdrvdata entry for the etm in case of a failure to avoid
-use-after-free cases as reported below:
+APEI is unable to do all of its error handling work in nmi-context, so
+it defers non-fatal work onto the irq_work queue. arch_irq_work_raise()
+sends an IPI to the calling cpu, but this is not guaranteed to be taken
+before returning to user-space.
 
-KASAN use-after-free bug in etm4_cpu_pm_notify():
+Unless the exception interrupted a context with irqs-masked,
+irq_work_run() can run immediately. Otherwise return -EINPROGRESS to
+indicate ghes_notify_sea() found some work to do, but it hasn't
+finished yet.
 
-[    8.574566] coresight etm0: CPU0: ETM v4.2 initialized
-[    8.581920] BUG: KASAN: use-after-free in etm4_cpu_pm_notify+0x580/0x2024
-[    8.581925] Read of size 8 at addr ffffff813304f8c8 by task swapper/3/0
-[    8.581927]
-[    8.581934] CPU: 3 PID: 0 Comm: swapper/3 Tainted: G S      W         5.4.28 #314
-[    8.587775] coresight etm1: CPU1: ETM v4.2 initialized
-[    8.594195] Call trace:
-[    8.594205]  dump_backtrace+0x0/0x188
-[    8.594209]  show_stack+0x20/0x2c
-[    8.594216]  dump_stack+0xdc/0x144
-[    8.594227]  print_address_description+0x3c/0x494
-[    8.594232]  __kasan_report+0x144/0x168
-[    8.601598] coresight etm2: CPU2: ETM v4.2 initialized
-[    8.602563]  kasan_report+0x10/0x18
-[    8.602568]  check_memory_region+0x1a4/0x1b4
-[    8.602572]  __kasan_check_read+0x18/0x24
-[    8.602577]  etm4_cpu_pm_notify+0x580/0x2024
-[    8.665945]  notifier_call_chain+0x5c/0x90
-[    8.670166]  __atomic_notifier_call_chain+0x90/0xf8
-[    8.675182]  cpu_pm_notify+0x40/0x6c
-[    8.678858]  cpu_pm_enter+0x38/0x80
-[    8.682451]  psci_enter_idle_state+0x34/0x70
-[    8.686844]  cpuidle_enter_state+0xb8/0x20c
-[    8.691143]  cpuidle_enter+0x38/0x4c
-[    8.694820]  call_cpuidle+0x3c/0x68
-[    8.698408]  do_idle+0x1a0/0x280
-[    8.701729]  cpu_startup_entry+0x24/0x28
-[    8.705768]  secondary_start_kernel+0x15c/0x170
-[    8.710423]
-[    8.711972] Allocated by task 242:
-[    8.715473]  __kasan_kmalloc+0xf0/0x1ac
-[    8.719426]  kasan_slab_alloc+0x14/0x1c
-[    8.723375]  __kmalloc_track_caller+0x23c/0x388
-[    8.728040]  devm_kmalloc+0x38/0x94
-[    8.731632]  etm4_probe+0x48/0x3c8
-[    8.735140]  amba_probe+0xbc/0x158
-[    8.738645]  really_probe+0x144/0x408
-[    8.742412]  driver_probe_device+0x70/0x140
-[    8.746716]  __device_attach_driver+0x9c/0x110
-[    8.751287]  bus_for_each_drv+0x90/0xd8
-[    8.755236]  __device_attach+0xb4/0x164
-[    8.759188]  device_initial_probe+0x20/0x2c
-[    8.763490]  bus_probe_device+0x34/0x94
-[    8.767436]  device_add+0x34c/0x3e0
-[    8.771029]  amba_device_try_add+0x68/0x440
-[    8.775332]  amba_deferred_retry_func+0x48/0xc8
-[    8.779997]  process_one_work+0x344/0x648
-[    8.784127]  worker_thread+0x2ac/0x47c
-[    8.787987]  kthread+0x128/0x138
-[    8.791313]  ret_from_fork+0x10/0x18
-[    8.794993]
-[    8.796532] Freed by task 242:
-[    8.799684]  __kasan_slab_free+0x15c/0x22c
-[    8.803897]  kasan_slab_free+0x10/0x1c
-[    8.807761]  kfree+0x25c/0x4bc
-[    8.810913]  release_nodes+0x240/0x2b0
-[    8.814767]  devres_release_all+0x3c/0x54
-[    8.818887]  really_probe+0x178/0x408
-[    8.822661]  driver_probe_device+0x70/0x140
-[    8.826963]  __device_attach_driver+0x9c/0x110
-[    8.831539]  bus_for_each_drv+0x90/0xd8
-[    8.835487]  __device_attach+0xb4/0x164
-[    8.839431]  device_initial_probe+0x20/0x2c
-[    8.843732]  bus_probe_device+0x34/0x94
-[    8.847678]  device_add+0x34c/0x3e0
-[    8.851274]  amba_device_try_add+0x68/0x440
-[    8.855576]  amba_deferred_retry_func+0x48/0xc8
-[    8.860240]  process_one_work+0x344/0x648
-[    8.864366]  worker_thread+0x2ac/0x47c
-[    8.868228]  kthread+0x128/0x138
-[    8.871557]  ret_from_fork+0x10/0x18
-[    8.875231]
-[    8.876782] The buggy address belongs to the object at ffffff813304f800
-[    8.876782]  which belongs to the cache kmalloc-1k of size 1024
-[    8.889632] The buggy address is located 200 bytes inside of
-[    8.889632]  1024-byte region [ffffff813304f800, ffffff813304fc00)
-[    8.901761] The buggy address belongs to the page:
-[    8.906695] page:ffffffff04ac1200 refcount:1 mapcount:0 mapping:ffffff8146c03800 index:0x0 compound_mapcount: 0
-[    8.917047] flags: 0x4000000000010200(slab|head)
-[    8.921799] raw: 4000000000010200 dead000000000100 dead000000000122 ffffff8146c03800
-[    8.929753] raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
-[    8.937703] page dumped because: kasan: bad access detected
-[    8.943433]
-[    8.944974] Memory state around the buggy address:
-[    8.949903]  ffffff813304f780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[    8.957320]  ffffff813304f800: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[    8.964742] >ffffff813304f880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[    8.972157]                                               ^
-[    8.977886]  ffffff813304f900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[    8.985298]  ffffff813304f980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[    8.992713] ==================================================================
+With this apei_claim_sea() returning '0' means this external-abort was
+also notification of a firmware-first RAS error, and that APEI has
+processed the CPER records.
 
-Fixes: f188b5e76aae ("coresight: etm4x: Save/restore state across CPU low power states")
-Reported-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20200518180242.7916-22-mathieu.poirier@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: James Morse <james.morse@arm.com>
+Tested-by: Tyler Baicar <baicar@os.amperecomputing.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kernel/acpi.c | 25 +++++++++++++++++++++++++
+ arch/arm64/mm/fault.c    | 12 +++++++-----
+ 2 files changed, 32 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
-index a128b5063f46c..83dccdeef9069 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-@@ -1184,6 +1184,7 @@ static int etm4_probe(struct amba_device *adev, const struct amba_id *id)
- 	return 0;
+diff --git a/arch/arm64/kernel/acpi.c b/arch/arm64/kernel/acpi.c
+index a100483b47c42..46ec402e97edc 100644
+--- a/arch/arm64/kernel/acpi.c
++++ b/arch/arm64/kernel/acpi.c
+@@ -19,6 +19,7 @@
+ #include <linux/init.h>
+ #include <linux/irq.h>
+ #include <linux/irqdomain.h>
++#include <linux/irq_work.h>
+ #include <linux/memblock.h>
+ #include <linux/of_fdt.h>
+ #include <linux/smp.h>
+@@ -269,6 +270,7 @@ pgprot_t __acpi_get_mem_attribute(phys_addr_t addr)
+ int apei_claim_sea(struct pt_regs *regs)
+ {
+ 	int err = -ENOENT;
++	bool return_to_irqs_enabled;
+ 	unsigned long current_flags;
  
- err_arch_supported:
-+	etmdrvdata[drvdata->cpu] = NULL;
- 	if (--etm4_count == 0) {
- 		cpuhp_remove_state_nocalls(CPUHP_AP_ARM_CORESIGHT_STARTING);
- 		if (hp_online)
+ 	if (!IS_ENABLED(CONFIG_ACPI_APEI_GHES))
+@@ -276,6 +278,12 @@ int apei_claim_sea(struct pt_regs *regs)
+ 
+ 	current_flags = local_daif_save_flags();
+ 
++	/* current_flags isn't useful here as daif doesn't tell us about pNMI */
++	return_to_irqs_enabled = !irqs_disabled_flags(arch_local_save_flags());
++
++	if (regs)
++		return_to_irqs_enabled = interrupts_enabled(regs);
++
+ 	/*
+ 	 * SEA can interrupt SError, mask it and describe this as an NMI so
+ 	 * that APEI defers the handling.
+@@ -284,6 +292,23 @@ int apei_claim_sea(struct pt_regs *regs)
+ 	nmi_enter();
+ 	err = ghes_notify_sea();
+ 	nmi_exit();
++
++	/*
++	 * APEI NMI-like notifications are deferred to irq_work. Unless
++	 * we interrupted irqs-masked code, we can do that now.
++	 */
++	if (!err) {
++		if (return_to_irqs_enabled) {
++			local_daif_restore(DAIF_PROCCTX_NOIRQ);
++			__irq_enter();
++			irq_work_run();
++			__irq_exit();
++		} else {
++			pr_warn_ratelimited("APEI work queued but not completed");
++			err = -EINPROGRESS;
++		}
++	}
++
+ 	local_daif_restore(current_flags);
+ 
+ 	return err;
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index d26e6cd289539..2a7339aeb1ad4 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -654,11 +654,13 @@ static int do_sea(unsigned long addr, unsigned int esr, struct pt_regs *regs)
+ 
+ 	inf = esr_to_fault_info(esr);
+ 
+-	/*
+-	 * Return value ignored as we rely on signal merging.
+-	 * Future patches will make this more robust.
+-	 */
+-	apei_claim_sea(regs);
++	if (user_mode(regs) && apei_claim_sea(regs) == 0) {
++		/*
++		 * APEI claimed this as a firmware-first notification.
++		 * Some processing deferred to task_work before ret_to_user().
++		 */
++		return 0;
++	}
+ 
+ 	if (esr & ESR_ELx_FnV)
+ 		siaddr = NULL;
 -- 
 2.25.1
 
