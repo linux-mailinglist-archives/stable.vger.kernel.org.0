@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C1B426F421
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C27926F3F4
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729515AbgIRDMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:12:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47164 "EHLO mail.kernel.org"
+        id S1726687AbgIRCCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:02:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726673AbgIRCCM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726682AbgIRCCM (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:02:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D36C23772;
-        Fri, 18 Sep 2020 02:02:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E848235F8;
+        Fri, 18 Sep 2020 02:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394531;
-        bh=VmeZ1DFYbzu3R/HAnt7aUFll3uASV6SeN1Pfm3K1Ubs=;
+        s=default; t=1600394532;
+        bh=K4nUaNmLvBiaHjCXtJrH4Xt4KeHX2wQF+A7iBLMQEo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YroPYyANOsL4L75k9AhXIgK/ERYEb0QHcM5lJkoPXbxaqTyeJrobbOldttBgrUVu8
-         gB+ncInKvBKqnJVb/6J2yzp5mYRNBOLEjDryZBY0ZxONPLJQUjpq71tlP6ilMqGaeh
-         iZULSRqurUCDfV6m9pe5jUhBy9ptiuQkY4hNSsz0=
+        b=xmPxTWLOzdN/DZOTBh8yGY6PAxc+Out6lzfUKlvEglLnrFGzKqm8T22PaAN4UzOMo
+         tOsWqrbR/9yXRTyX3iHslQHSClBrfE2ts+Dlyg036cDLry0qZi62ZtgMbJTLGFWvdQ
+         704M5zLTJyyHeL8cEkid+ELUTtjPtRkP7e02yEos=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
-        Kit Chow <kchow@gigaio.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 050/330] PCI: Avoid double hpmemsize MMIO window assignment
-Date:   Thu, 17 Sep 2020 21:56:30 -0400
-Message-Id: <20200918020110.2063155-50-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 051/330] fix dget_parent() fastpath race
+Date:   Thu, 17 Sep 2020 21:56:31 -0400
+Message-Id: <20200918020110.2063155-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -45,152 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit c13704f5685deb7d6eb21e293233e0901ed77377 ]
+[ Upstream commit e84009336711d2bba885fc9cea66348ddfce3758 ]
 
-Previously, the kernel sometimes assigned more MMIO or MMIO_PREF space than
-desired.  For example, if the user requested 128M of space with
-"pci=realloc,hpmemsize=128M", we sometimes assigned 256M:
+We are overoptimistic about taking the fast path there; seeing
+the same value in ->d_parent after having grabbed a reference
+to that parent does *not* mean that it has remained our parent
+all along.
 
-  pci 0000:06:01.0: BAR 14: assigned [mem 0x90100000-0xa00fffff] = 256M
-  pci 0000:06:04.0: BAR 14: assigned [mem 0xa0200000-0xb01fffff] = 256M
+That wouldn't be a big deal (in the end it is our parent and
+we have grabbed the reference we are about to return), but...
+the situation with barriers is messed up.
 
-With this patch applied:
+We might have hit the following sequence:
 
-  pci 0000:06:01.0: BAR 14: assigned [mem 0x90100000-0x980fffff] = 128M
-  pci 0000:06:04.0: BAR 14: assigned [mem 0x98200000-0xa01fffff] = 128M
+d is a dentry of /tmp/a/b
+CPU1:					CPU2:
+parent = d->d_parent (i.e. dentry of /tmp/a)
+					rename /tmp/a/b to /tmp/b
+					rmdir /tmp/a, making its dentry negative
+grab reference to parent,
+end up with cached parent->d_inode (NULL)
+					mkdir /tmp/a, rename /tmp/b to /tmp/a/b
+recheck d->d_parent, which is back to original
+decide that everything's fine and return the reference we'd got.
 
-This happened when in the first pass, the MMIO_PREF succeeded but the MMIO
-failed. In the next pass, because MMIO_PREF was already assigned, the
-attempt to assign MMIO_PREF returned an error code instead of success
-(nothing more to do, already allocated). Hence, the size which was actually
-allocated, but thought to have failed, was placed in the MMIO window.
+The trouble is, caller (on CPU1) will observe dget_parent()
+returning an apparently negative dentry.  It actually is positive,
+but CPU1 has stale ->d_inode cached.
 
-The bug resulted in the MMIO_PREF being added to the MMIO window, which
-meant doubling if MMIO_PREF size = MMIO size. With a large MMIO_PREF, the
-MMIO window would likely fail to be assigned altogether due to lack of
-32-bit address space.
+Use d->d_seq to see if it has been moved instead of rechecking ->d_parent.
+NOTE: we are *NOT* going to retry on any kind of ->d_seq mismatch;
+we just go into the slow path in such case.  We don't wait for ->d_seq
+to become even either - again, if we are racing with renames, we
+can bloody well go to slow path anyway.
 
-Change find_free_bus_resource() to do the following:
-
-  - Return first unassigned resource of the correct type.
-  - If there is none, return first assigned resource of the correct type.
-  - If none of the above, return NULL.
-
-Returning an assigned resource of the correct type allows the caller to
-distinguish between already assigned and no resource of the correct type.
-
-Add checks in pbus_size_io() and pbus_size_mem() to return success if
-resource returned from find_free_bus_resource() is already allocated.
-
-This avoids pbus_size_io() and pbus_size_mem() returning error code to
-__pci_bus_size_bridges() when a resource has been successfully assigned in
-a previous pass. This fixes the existing behaviour where space for a
-resource could be reserved multiple times in different parent bridge
-windows.
-
-Link: https://lore.kernel.org/lkml/20190531171216.20532-2-logang@deltatee.com/T/#u
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=203243
-Link: https://lore.kernel.org/r/PS2P216MB075563AA6AD242AA666EDC6A80760@PS2P216MB0755.KORP216.PROD.OUTLOOK.COM
-Reported-by: Kit Chow <kchow@gigaio.com>
-Reported-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
-Signed-off-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/setup-bus.c | 38 +++++++++++++++++++++++++++-----------
- 1 file changed, 27 insertions(+), 11 deletions(-)
+ fs/dcache.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
-index 5356630e0e483..44f4866d95d8c 100644
---- a/drivers/pci/setup-bus.c
-+++ b/drivers/pci/setup-bus.c
-@@ -752,24 +752,32 @@ static void pci_bridge_check_ranges(struct pci_bus *bus)
- }
- 
- /*
-- * Helper function for sizing routines: find first available bus resource
-- * of a given type.  Note: we intentionally skip the bus resources which
-- * have already been assigned (that is, have non-NULL parent resource).
-+ * Helper function for sizing routines.  Assigned resources have non-NULL
-+ * parent resource.
-+ *
-+ * Return first unassigned resource of the correct type.  If there is none,
-+ * return first assigned resource of the correct type.  If none of the
-+ * above, return NULL.
-+ *
-+ * Returning an assigned resource of the correct type allows the caller to
-+ * distinguish between already assigned and no resource of the correct type.
-  */
--static struct resource *find_free_bus_resource(struct pci_bus *bus,
--					       unsigned long type_mask,
--					       unsigned long type)
-+static struct resource *find_bus_resource_of_type(struct pci_bus *bus,
-+						  unsigned long type_mask,
-+						  unsigned long type)
+diff --git a/fs/dcache.c b/fs/dcache.c
+index e88cf0554e659..b2a7f1765f0b1 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -903,17 +903,19 @@ struct dentry *dget_parent(struct dentry *dentry)
  {
-+	struct resource *r, *r_assigned = NULL;
- 	int i;
--	struct resource *r;
+ 	int gotref;
+ 	struct dentry *ret;
++	unsigned seq;
  
- 	pci_bus_for_each_resource(bus, r, i) {
- 		if (r == &ioport_resource || r == &iomem_resource)
- 			continue;
- 		if (r && (r->flags & type_mask) == type && !r->parent)
- 			return r;
-+		if (r && (r->flags & type_mask) == type && !r_assigned)
-+			r_assigned = r;
+ 	/*
+ 	 * Do optimistic parent lookup without any
+ 	 * locking.
+ 	 */
+ 	rcu_read_lock();
++	seq = raw_seqcount_begin(&dentry->d_seq);
+ 	ret = READ_ONCE(dentry->d_parent);
+ 	gotref = lockref_get_not_zero(&ret->d_lockref);
+ 	rcu_read_unlock();
+ 	if (likely(gotref)) {
+-		if (likely(ret == READ_ONCE(dentry->d_parent)))
++		if (!read_seqcount_retry(&dentry->d_seq, seq))
+ 			return ret;
+ 		dput(ret);
  	}
--	return NULL;
-+	return r_assigned;
- }
- 
- static resource_size_t calculate_iosize(resource_size_t size,
-@@ -866,8 +874,8 @@ static void pbus_size_io(struct pci_bus *bus, resource_size_t min_size,
- 			 struct list_head *realloc_head)
- {
- 	struct pci_dev *dev;
--	struct resource *b_res = find_free_bus_resource(bus, IORESOURCE_IO,
--							IORESOURCE_IO);
-+	struct resource *b_res = find_bus_resource_of_type(bus, IORESOURCE_IO,
-+							   IORESOURCE_IO);
- 	resource_size_t size = 0, size0 = 0, size1 = 0;
- 	resource_size_t children_add_size = 0;
- 	resource_size_t min_align, align;
-@@ -875,6 +883,10 @@ static void pbus_size_io(struct pci_bus *bus, resource_size_t min_size,
- 	if (!b_res)
- 		return;
- 
-+	/* If resource is already assigned, nothing more to do */
-+	if (b_res->parent)
-+		return;
-+
- 	min_align = window_alignment(bus, IORESOURCE_IO);
- 	list_for_each_entry(dev, &bus->devices, bus_list) {
- 		int i;
-@@ -978,7 +990,7 @@ static int pbus_size_mem(struct pci_bus *bus, unsigned long mask,
- 	resource_size_t min_align, align, size, size0, size1;
- 	resource_size_t aligns[18]; /* Alignments from 1MB to 128GB */
- 	int order, max_order;
--	struct resource *b_res = find_free_bus_resource(bus,
-+	struct resource *b_res = find_bus_resource_of_type(bus,
- 					mask | IORESOURCE_PREFETCH, type);
- 	resource_size_t children_add_size = 0;
- 	resource_size_t children_add_align = 0;
-@@ -987,6 +999,10 @@ static int pbus_size_mem(struct pci_bus *bus, unsigned long mask,
- 	if (!b_res)
- 		return -ENOSPC;
- 
-+	/* If resource is already assigned, nothing more to do */
-+	if (b_res->parent)
-+		return 0;
-+
- 	memset(aligns, 0, sizeof(aligns));
- 	max_order = 0;
- 	size = 0;
 -- 
 2.25.1
 
