@@ -2,64 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C198D26FF9C
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 16:14:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23F4926FFEA
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 16:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726126AbgIROOs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Sep 2020 10:14:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53684 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725955AbgIROOr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 10:14:47 -0400
-Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FE96C0613CE
-        for <stable@vger.kernel.org>; Fri, 18 Sep 2020 07:14:47 -0700 (PDT)
-Received: by mail-il1-x143.google.com with SMTP id x18so3905695ila.7
-        for <stable@vger.kernel.org>; Fri, 18 Sep 2020 07:14:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=a6jlQWwmno+W82sllAyp896XZnSQufQAqkcbtgCAQcE=;
-        b=Wh8E9PGxJWdGjCQR6Tb4kHYetgzgFeKOQuuELm40Qkg2tQUtH0P1BCU/UU3mOSnktk
-         6+iatKtJBT91Zl8GFLYzHJ6/To2NPOcKdLk8vS8uqrt+Rq4gPiSxxlp2i3WLC0FzYPJA
-         ukKB7bawQmJcXSmMZl9YxSzJGPB+LbqecYg+NLvBPvRalvoTeZ6zbJYAyfOz92Q9PDj9
-         UeLZ4GbSW/0K4/MkD0cppK3j8rE0YJiE0LaxDWi+9AZdnJSt+2BnvjBB2Ko2C8JJmYRv
-         Nc621h2jBJwvsojpWVnDPMR+o0F8FtgrTFFWCWOgezHIpoT/+rPzFYFUH1wjl5q/9bKw
-         0kBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=a6jlQWwmno+W82sllAyp896XZnSQufQAqkcbtgCAQcE=;
-        b=TvPMCcx/nIOs8gtgjiFr3Or5SUHSr29o3fRCmw9AP3IqNIWDcgUDKuDNw3JAjYD6qD
-         K+C43e8KWC05ofd6EwdXlTqK0ZU7zfc++dEeOjgxlzewCbQXh/TdbkdMu5YvYjbz3TUU
-         CzKU2WqaUmitwCKiJB2/vfpXcn7b6dV7yOUCIXrDSd6+RcWh3TEBkgw/Aj2JI1pEvqlu
-         XFqNGrcuwP3T41wR2ADow22g7N7NtUbZezbflWh0BtO9PJaJuBFPkTk3nYiWJfCkISnA
-         4nz9HkR1rWDa0i/Sw3+dTcw4jP6B5fywfM5qukcn2GTDnwyLrN6L5EEy49/65n+qfK1l
-         AlHA==
-X-Gm-Message-State: AOAM530sRWImxP2r7qlermfeZH8lauOksPsoSdeRJbbosRraxJtcBcMw
-        ghFLaLuPzMmgNR5R3MT/uTpN/hdLe869qlssQOQ=
-X-Google-Smtp-Source: ABdhPJxD9M6k08KbIRvGhOqN+kyI5YW9sg37frvRGhgfvA0BQzjjKkClAhQmtBCvjhn32UAeB6qKyT9FhlZ8a0CrF7I=
-X-Received: by 2002:a92:5f94:: with SMTP id i20mr11061829ill.106.1600438486765;
- Fri, 18 Sep 2020 07:14:46 -0700 (PDT)
+        id S1726219AbgIRObo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Sep 2020 10:31:44 -0400
+Received: from aibo.runbox.com ([91.220.196.211]:39136 "EHLO aibo.runbox.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726129AbgIRObo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Sep 2020 10:31:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=runbox.com;
+         s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject;
+        bh=Ls2rWbdf6hbdI2AidJb29lGkM5H7xENCw+Tzom6K5Qs=; b=i/S2G34jgWtw4Gqr4fcTfux/mI
+        7AyakoNRudZ7RREDon/s7sTJQAmK+ty8GcHWIFylnyHKNZAAibiBXjs1wq9ee9v3INVovm/VcRK/j
+        /tu7Og2jFP973KMVn6Z7S5if4kI+fcNMhblMeqUIFOr//cQqlLYwu/D739UJOuwRt3CCFLCkBLkst
+        vL2yH+xypwcVdIapG8oDLa+vydlFMnXKpkur4iP8XSKpP8dRniidpkWvEnwnoDvzt0GgrqY4S3/Wd
+        t36rwhsYztwdbvd3i0rN58sJD6OADK4GEMkfzaZ/CvntUIMXKfu4RWgOp8DQQFdVcWsuDhiExk7vm
+        ATrDnGFg==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+        by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+        (envelope-from <m.v.b@runbox.com>)
+        id 1kJHQJ-00019z-9R; Fri, 18 Sep 2020 16:31:39 +0200
+Received: by submission02.runbox with esmtpsa  [Authenticated alias (536975)]  (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.90_1)
+        id 1kJHQA-0007Qs-U3; Fri, 18 Sep 2020 16:31:31 +0200
+Subject: Re: [PATCH 1/3] usbcore/driver: Fix specific driver selection
+To:     linux-usb@vger.kernel.org
+Cc:     Andrey Konovalov <andreyknvl@google.com>, stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Bastien Nocera <hadess@hadess.net>, syzkaller@googlegroups.com,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <a6e14983a8849d5f75a43f403c7cc721b6e4a420.camel@hadess.net>
+ <20200917144151.355848-1-m.v.b@runbox.com>
+From:   "M. Vefa Bicakci" <m.v.b@runbox.com>
+Message-ID: <363eab9a-c32a-4c60-4d6b-14ae8d873c52@runbox.com>
+Date:   Fri, 18 Sep 2020 17:31:26 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-Received: by 2002:ac0:d08e:0:0:0:0:0 with HTTP; Fri, 18 Sep 2020 07:14:46
- -0700 (PDT)
-Reply-To: aalihelp5@gmail.com
-From:   "Mr.Hui Ka Yan" <verma76666@gmail.com>
-Date:   Fri, 18 Sep 2020 07:14:46 -0700
-Message-ID: <CAFmNoviJ-qAJpSnVVh1WhLHvG9jbJVWGZAMPw-GdUAF+k8m0pw@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200917144151.355848-1-m.v.b@runbox.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-CA
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Bin Herr Hui Ka Yan. Ich spende Ihnen einen Zuschuss von 10.500.000
-USD. Kontaktieren Sie mich (aalihelp5@gmail.com) f=C3=BCr weitere Details.
+On 17/09/2020 17.41, M. Vefa Bicakci wrote:
+> This commit resolves a bug in the selection/discovery of more
+> specific USB device drivers for devices that are currently bound to
+> generic USB device drivers.
+> 
+> The bug is in the logic that determines whether a device currently
+> bound to a generic USB device driver should be re-probed by a
+> more specific USB device driver or not. The code in
+> __usb_bus_reprobe_drivers() used to have the following lines:
+> 
+>    if (usb_device_match_id(udev, new_udriver->id_table) == NULL &&
+>        (!new_udriver->match || new_udriver->match(udev) != 0))
+>   		return 0;
+> 
+>    ret = device_reprobe(dev);
+> 
+> As the reader will notice, the code checks whether the USB device in
+> consideration matches the identifier table (id_table) of a specific
+> USB device_driver (new_udriver), followed by a similar check, but this
+> time with the USB device driver's match function. However, the match
+> function's return value is not checked correctly. When match() returns
+> zero, it means that the specific USB device driver is *not* applicable
+> to the USB device in question, but the code then goes on to reprobe the
+> device with the new USB device driver under consideration. All this to
+> say, the logic is inverted.
+> 
+> This bug was found by code inspection and instrumentation after
+> Andrey Konovalov's report indicating USB/IP subsystem's misbehaviour
+> with the generic USB device driver matching code.
+> 
+> Reported-by: Andrey Konovalov <andreyknvl@google.com>
+> Fixes: d5643d2249 ("USB: Fix device driver race")
+> Link: https://lore.kernel.org/linux-usb/CAAeHK+zOrHnxjRFs=OE8T=O9208B9HP_oo8RZpyVOZ9AJ54pAA@mail.gmail.com/
+> Cc: <stable@vger.kernel.org> # 5.8
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Alan Stern <stern@rowland.harvard.edu>
+> Cc: Bastien Nocera <hadess@hadess.net>
+> Cc: <syzkaller@googlegroups.com>
+> Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+> ---
+>   drivers/usb/core/driver.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+> index c976ea9f9582..950044a6e77f 100644
+> --- a/drivers/usb/core/driver.c
+> +++ b/drivers/usb/core/driver.c
+> @@ -924,7 +924,7 @@ static int __usb_bus_reprobe_drivers(struct device *dev, void *data)
+>   
+>   	udev = to_usb_device(dev);
+>   	if (usb_device_match_id(udev, new_udriver->id_table) == NULL &&
+> -	    (!new_udriver->match || new_udriver->match(udev) != 0))
+> +	    (!new_udriver->match || new_udriver->match(udev) == 0))
+>   		return 0;
+>   
+>   	ret = device_reprobe(dev);
+> 
+> base-commit: 871e6496207c6aa94134448779c77631a11bfa2e
 
-Danke und Gott segne dich.
+Hello all,
+
+I noticed that applying this patch on its own to the kernel causes the following
+unexpected behaviour: As soon as the usbip_host module is loaded, all of the
+USB devices are re-probed() by their drivers, and this causes the USB devices
+connected to my system to be momentarily unavailable. This happens because
+*without* the third patch in this patch set, the match function for the usbip_host
+device driver unconditionally returns true.
+
+The third patch in this patch set [1] makes this unexpected behaviour go
+away, as it makes the usbip device driver's match function only match devices
+that were requested by user-space to be used with USB-IP.
+
+Is this something to be concerned about? I was thinking of people who might be
+using git-bisect, who might encounter this issue in an unexpected manner.
+
+As a potential solution, I can prepare another patch to revert commit
+7a2f2974f2 ("usbip: Implement a match function to fix usbip") so that this
+unexpected behaviour will not be observed. This revert would be placed as
+the first patch in the patch series.
+
+Thank you,
+
+Vefa
+
+[1] https://lore.kernel.org/linux-usb/20200917144151.355848-3-m.v.b@runbox.com/
