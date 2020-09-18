@@ -2,204 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A5B270107
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 17:30:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4CFE270151
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 17:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726134AbgIRPa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Sep 2020 11:30:58 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:48404 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726130AbgIRPa6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 11:30:58 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 08IFPkTY152993;
-        Fri, 18 Sep 2020 15:30:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=kUQjz2Re40tA/5C1b1LFXPGRgFS1zl/NIOUwyM7r4Fk=;
- b=NzzhcXtsWJ6FTi6voi/AhHr53VRnWz/jlS59bKqShRluIF3AkVM08s9vwAFJHhNTGD9d
- xfF5lTwOl+SuHL4M+WlFzERLT+yIvYq6FuT8zcTYG4y0jQo0zjVHICBYum4sG1ZZGD51
- ZCQRutU0HbHgQ/XO9yOzLNeP1CKXBxkX+8fo9QB85nachV2buCogeQR6x0aGdHQm9kmL
- fRO4Imm2Ok8nohsqmoY3vd1gx2RJNY4blxTK3/4GligiLk/5de8G1Og3tKHM5yugUNLM
- nIqS9hZFgjEXmsXIpAIvXmiq/3OtMCqi/koiU2lg5DR9E7gBYohUqrLCKWCe9TLvlQrm WQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 33gnrrfwp2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 18 Sep 2020 15:30:48 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 08IFQ4BM109038;
-        Fri, 18 Sep 2020 15:30:47 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3020.oracle.com with ESMTP id 33hm371cuc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 18 Sep 2020 15:30:47 +0000
-Received: from abhmp0015.oracle.com (abhmp0015.oracle.com [141.146.116.21])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 08IFUhOE005759;
-        Fri, 18 Sep 2020 15:30:44 GMT
-Received: from localhost (/67.169.218.210)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 18 Sep 2020 15:30:43 +0000
-Date:   Fri, 18 Sep 2020 08:30:41 -0700
-From:   "Darrick J. Wong" <darrick.wong@oracle.com>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     linux-nvdimm@lists.01.org, Jan Kara <jack@suse.cz>,
-        snitzer@redhat.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, dm-devel@redhat.com,
-        Adrian Huang <ahuang12@lenovo.com>, mpatocka@redhat.com,
-        ira.weiny@intel.com
-Subject: Re: [dm-devel] [PATCH v2] dm: Call proper helper to determine dax
- support
-Message-ID: <20200918153041.GN7954@magnolia>
-References: <160040692945.25320.13233625491405115889.stgit@dwillia2-desk3.amr.corp.intel.com>
+        id S1725941AbgIRPtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Sep 2020 11:49:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40062 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726121AbgIRPtP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 11:49:15 -0400
+Received: from mail-oo1-xc41.google.com (mail-oo1-xc41.google.com [IPv6:2607:f8b0:4864:20::c41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99248C0613CF
+        for <stable@vger.kernel.org>; Fri, 18 Sep 2020 08:49:15 -0700 (PDT)
+Received: by mail-oo1-xc41.google.com with SMTP id b12so1520536oop.13
+        for <stable@vger.kernel.org>; Fri, 18 Sep 2020 08:49:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=3ZCvvmPS8NZtzcruP7g025J2xlGm6Ho0jKBIcAsBZw8=;
+        b=FQcc71LXQzx71dmeeefd9NzMr960WhzjM+ML44qYvLf/kwepwfygyAnsLEa3l7CPmD
+         QBB7oIcSwiVCNe086MFRQ4Ff/JJqxAbZQztXfinVbDFX7jrtNcCtJ4C1QxafYK+9d1Qw
+         w5FYm+ijWZTrToN5m/arhmrFbwIRKgyKe9gm4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3ZCvvmPS8NZtzcruP7g025J2xlGm6Ho0jKBIcAsBZw8=;
+        b=acHCyvqBO7lURJJXv5hxhxV4MGrRDNECQ5GEX0TTzSFeFNDtvQ+/brQkdjp3WlxpQN
+         J9B3ObXUqlCrMOOOVGFGUA3XU+d17cs1MKfndmaSyjkxEefWA/BRTKJrGAlOPk3WbcNo
+         F5ITpPjPHJry4lffdquKOw4GcVN2XQM60oFt4/dDzC892xFDXRm0sGUUhUj20UlyvGRe
+         RRYVJFnMFs2CCVDSvPAqF+OsYzM7Y8WMy2ioh7M//Ppas77DLPjTwg8H8T+0mdcBNxNw
+         4paxvu9YXJaZgtUATfLYwLfoQdYL7NmE2Z3RkWVCgjUx4IT165XYOsGG32ZnVKg4RgkW
+         ysSw==
+X-Gm-Message-State: AOAM5315Zhn2SmWVp7m3S0YAG7yLvLIQjCnJue54+xsnQRbtxjJ35kQF
+        VMUHMcv5i1bz9kA6Qf1rpaHEcw==
+X-Google-Smtp-Source: ABdhPJzxEgRaV8FUuna5mSlVx3LEhW2+ch/5o+hyR0quWhQb+fauYLPUj1Ysu4SsHrEEoWKIX9DYRA==
+X-Received: by 2002:a4a:d04c:: with SMTP id x12mr24290524oor.61.1600444154765;
+        Fri, 18 Sep 2020 08:49:14 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id j24sm2518897otn.64.2020.09.18.08.49.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 18 Sep 2020 08:49:14 -0700 (PDT)
+Subject: Re: [PATCH 3/3] usbip: Make the driver's match function specific
+To:     "M. Vefa Bicakci" <m.v.b@runbox.com>, linux-usb@vger.kernel.org
+Cc:     Andrey Konovalov <andreyknvl@google.com>, stable@vger.kernel.org,
+        Bastien Nocera <hadess@hadess.net>,
+        Valentina Manea <valentina.manea.m@gmail.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        syzkaller@googlegroups.com, Shuah Khan <skhan@linuxfoundation.org>
+References: <a6e14983a8849d5f75a43f403c7cc721b6e4a420.camel@hadess.net>
+ <20200917144151.355848-1-m.v.b@runbox.com>
+ <20200917144151.355848-3-m.v.b@runbox.com>
+ <45badff8-53e9-359d-4bf2-b0f71b910b2f@linuxfoundation.org>
+ <e64f51b0-db05-e078-af58-b31a0be1e9ca@runbox.com>
+ <e6404ae3-4b4e-f8d4-4c92-a71410e20569@runbox.com>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <d6d43c46-3231-7e64-b708-d1fe8349e8a3@linuxfoundation.org>
+Date:   Fri, 18 Sep 2020 09:49:12 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <160040692945.25320.13233625491405115889.stgit@dwillia2-desk3.amr.corp.intel.com>
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9748 signatures=668679
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 bulkscore=0 mlxlogscore=999
- malwarescore=0 mlxscore=0 phishscore=0 adultscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2009180126
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9748 signatures=668679
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 spamscore=0
- lowpriorityscore=0 malwarescore=0 mlxscore=0 bulkscore=0 suspectscore=0
- clxscore=1011 mlxlogscore=999 adultscore=0 priorityscore=1501
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009180126
+In-Reply-To: <e6404ae3-4b4e-f8d4-4c92-a71410e20569@runbox.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 17, 2020 at 10:30:03PM -0700, Dan Williams wrote:
-> From: Jan Kara <jack@suse.cz>
+On 9/18/20 8:31 AM, M. Vefa Bicakci wrote:
+> On 18/09/2020 12.26, M. Vefa Bicakci wrote:
+>> On 17/09/2020 18.21, Shuah Khan wrote:
+>>> On 9/17/20 8:41 AM, M. Vefa Bicakci wrote:
+>>>> Prior to this commit, the USB-IP subsystem's USB device driver match
+>>>> function used to match all USB devices (by returning true
+>>>> unconditionally). Unfortunately, this is not correct behaviour and is
+>>>> likely the root cause of the bug reported by Andrey Konovalov.
+>>>>
+>>>> USB-IP should only match USB devices that the user-space asked the 
+>>>> kernel
+>>>> to handle via USB-IP, by writing to the match_busid sysfs file, 
+>>>> which is
+>>>> what this commit aims to achieve. This is done by making the match
+>>>> function check that the passed in USB device was indeed requested by 
+>>>> the
+>>>> user-space to be handled by USB-IP.
 > 
-> DM was calling generic_fsdax_supported() to determine whether a device
-> referenced in the DM table supports DAX. However this is a helper for "leaf" device drivers so that
-> they don't have to duplicate common generic checks. High level code
-> should call dax_supported() helper which that calls into appropriate
-> helper for the particular device. This problem manifested itself as
-> kernel messages:
+> [snipped by Vefa]
 > 
-> dm-3: error: dax access failed (-95)
+>>>> Reported-by: Andrey Konovalov <andreyknvl@google.com>
+>>>> Fixes: 7a2f2974f2 ("usbip: Implement a match function to fix usbip")
+>>>> Link: 
+>>>> https://lore.kernel.org/linux-usb/CAAeHK+zOrHnxjRFs=OE8T=O9208B9HP_oo8RZpyVOZ9AJ54pAA@mail.gmail.com/ 
+>>>>
+>>>> Cc: <stable@vger.kernel.org> # 5.8
+>>>> Cc: Bastien Nocera <hadess@hadess.net>
+>>>> Cc: Valentina Manea <valentina.manea.m@gmail.com>
+>>>> Cc: Shuah Khan <shuah@kernel.org>
+>>>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>>> Cc: Alan Stern <stern@rowland.harvard.edu>
+>>>> Cc: <syzkaller@googlegroups.com>
+>>>> Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+>>>> ---
+>>>>   drivers/usb/usbip/stub_dev.c | 15 ++++++++++++++-
+>>>>   1 file changed, 14 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/usb/usbip/stub_dev.c 
+>>>> b/drivers/usb/usbip/stub_dev.c
+>>>> index 9d7d642022d1..3d9c8ff6762e 100644
+>>>> --- a/drivers/usb/usbip/stub_dev.c
+>>>> +++ b/drivers/usb/usbip/stub_dev.c
+>>>> @@ -463,7 +463,20 @@ static void stub_disconnect(struct usb_device 
+>>>> *udev)
+>>>>   static bool usbip_match(struct usb_device *udev)
+>>>>   {
+>>>> -    return true;
+>>>> +    bool match;
+>>>> +    struct bus_id_priv *busid_priv;
+>>>> +    const char *udev_busid = dev_name(&udev->dev);
+>>>> +
+>>>> +    busid_priv = get_busid_priv(udev_busid);
+>>>> +    if (!busid_priv)
+>>>> +        return false;
+>>>> +
+>>>> +    match = (busid_priv->status != STUB_BUSID_REMOV &&
+>>>> +         busid_priv->status != STUB_BUSID_OTHER);
+>>>> +
+>>>> +    put_busid_priv(busid_priv);
+>>>> +
+>>>> +    return match;
+>>>>   }
+>>>>   #ifdef CONFIG_PM
+>>>>
+>>>
+>>> Did you happen to run the usbip test on this patch? If not, can you
+>>> please run tools/testing/selftests/drivers/usb/usbip/usbip_test.sh
+>>> and make sure there are no regressions.
+>>
+>> Ah, this is a very good point! I have been testing the patches on 
+>> Qubes OS,
+>> which uses usbip to forward USB devices between VMs. To be honest, I 
+>> was not
+>> aware of the self-tests for usbip, and I will run the self-tests prior to
+>> publishing the next version of the patch series.
 > 
-> when lvm2-testsuite run in cases where a DM device was stacked on top of
-> another DM device.
+> Hello Shuah,
+> 
+> I have just cleaned up the patches and run usbip_test.sh with a kernel 
+> without
+> the patches in this series and with a kernel in this series.
+> 
+> I noticed that there is a change in behaviour due to the fact that the new
+> match function (usbip_match) does not always return true. This causes the
+> stub device driver's probe() function to not get called at all, as the new
+> more selective match function will prevent the stub device driver from 
+> being
+> considered as a potential driver for the device under consideration.
+> 
 
-Is there somewhere where it is documented which of:
+Yes. This is the behavior I am concerned about and hence the reason
+to use the usbip test to verify this doesn't happen.
 
-bdev_dax_supported, generic_fsdax_supported, and dax_supported
+With the patch you have the usbip match behavior becomes restrictive
+which isn't desirable.
 
-one is supposed to use for a given circumstance?
+> All of this results in the following difference in the logs of the 
+> usbip_test.sh,
+> where the expected kernel log message "usbip-host 2-6: 2-6 is not in 
+> match_busid table... skip!"
+> is not printed by a kernel that includes the patches in this series.
+> 
+> --- unpatched_kernel_log.txt  2020-09-18 17:12:10.654000000 +0300
+> +++ patched_kernel_log.txt  2020-09-18 17:12:10.654000000 +0300
+> @@ -213,70 +213,69 @@
+>       |__ Port 1: Dev 2, If 0, Class=Human Interface Device, 
+> Driver=usbhid, 480M
+>   ==============================================================
+>   modprobe usbip_host - does it work?
+>   Should see -busid- is not in match_busid table... skip! dmesg
+>   ==============================================================
+> -usbip-host 2-6: 2-6 is not in match_busid table... skip!
+>   ==============================================================
+> 
+> Do you find this change in behaviour unacceptable?
 
-I guess the last two can test a given range w/ blocksize; the first one
-only does blocksize; and the middle one also checks with whatever fs
-might be mounted? <shrug>
+Yeah. This behavior isn't acceptable.
 
-(I ask because it took me a while to figure out how to revert correctly
-the brokenness in rc3-5 that broke my nightly dax fstesting.)
+If no, I can remove this
+> test case from usbip_test.sh with the same patch. If yes, then there is 
+> a need
+> for a different solution to resolve the unexpected negative interaction 
+> between
+> Bastien's work on generic/specific USB device driver selection and usbip
+> functionality.
+> 
 
---D
+I would recommend finding a different solution. Now that you have the
+usbip test handy, you can verify and test for regressions.
 
-> 
-> Fixes: 7bf7eac8d648 ("dax: Arrange for dax_supported check to span multiple devices")
-> Cc: <stable@vger.kernel.org>
-> Tested-by: Adrian Huang <ahuang12@lenovo.com>
-> Signed-off-by: Jan Kara <jack@suse.cz>
-> Acked-by: Mike Snitzer <snitzer@redhat.com>
-> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> ---
-> Changes since v1 [1]:
-> - Add missing dax_read_lock() around dax_supported()
-> 
-> [1]: http://lore.kernel.org/r/20200916151445.450-1-jack@suse.cz
-> 
->  drivers/dax/super.c   |    4 ++++
->  drivers/md/dm-table.c |   10 +++++++---
->  include/linux/dax.h   |   11 +++++++++--
->  3 files changed, 20 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-> index e5767c83ea23..b6284c5cae0a 100644
-> --- a/drivers/dax/super.c
-> +++ b/drivers/dax/super.c
-> @@ -325,11 +325,15 @@ EXPORT_SYMBOL_GPL(dax_direct_access);
->  bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
->  		int blocksize, sector_t start, sector_t len)
->  {
-> +	if (!dax_dev)
-> +		return false;
-> +
->  	if (!dax_alive(dax_dev))
->  		return false;
->  
->  	return dax_dev->ops->dax_supported(dax_dev, bdev, blocksize, start, len);
->  }
-> +EXPORT_SYMBOL_GPL(dax_supported);
->  
->  size_t dax_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
->  		size_t bytes, struct iov_iter *i)
-> diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-> index 5edc3079e7c1..229f461e7def 100644
-> --- a/drivers/md/dm-table.c
-> +++ b/drivers/md/dm-table.c
-> @@ -860,10 +860,14 @@ EXPORT_SYMBOL_GPL(dm_table_set_type);
->  int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
->  			sector_t start, sector_t len, void *data)
->  {
-> -	int blocksize = *(int *) data;
-> +	int blocksize = *(int *) data, id;
-> +	bool rc;
->  
-> -	return generic_fsdax_supported(dev->dax_dev, dev->bdev, blocksize,
-> -				       start, len);
-> +	id = dax_read_lock();
-> +	rc = dax_supported(dev->dax_dev, dev->bdev, blocksize, start, len);
-> +	dax_read_unlock(id);
-> +
-> +	return rc;
->  }
->  
->  /* Check devices support synchronous DAX */
-> diff --git a/include/linux/dax.h b/include/linux/dax.h
-> index 6904d4e0b2e0..9f916326814a 100644
-> --- a/include/linux/dax.h
-> +++ b/include/linux/dax.h
-> @@ -130,6 +130,8 @@ static inline bool generic_fsdax_supported(struct dax_device *dax_dev,
->  	return __generic_fsdax_supported(dax_dev, bdev, blocksize, start,
->  			sectors);
->  }
-> +bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
-> +		int blocksize, sector_t start, sector_t len);
->  
->  static inline void fs_put_dax(struct dax_device *dax_dev)
->  {
-> @@ -157,6 +159,13 @@ static inline bool generic_fsdax_supported(struct dax_device *dax_dev,
->  	return false;
->  }
->  
-> +static inline bool dax_supported(struct dax_device *dax_dev,
-> +		struct block_device *bdev, int blocksize, sector_t start,
-> +		sector_t len)
-> +{
-> +	return false;
-> +}
-> +
->  static inline void fs_put_dax(struct dax_device *dax_dev)
->  {
->  }
-> @@ -195,8 +204,6 @@ bool dax_alive(struct dax_device *dax_dev);
->  void *dax_get_private(struct dax_device *dax_dev);
->  long dax_direct_access(struct dax_device *dax_dev, pgoff_t pgoff, long nr_pages,
->  		void **kaddr, pfn_t *pfn);
-> -bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
-> -		int blocksize, sector_t start, sector_t len);
->  size_t dax_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
->  		size_t bytes, struct iov_iter *i);
->  size_t dax_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
-> 
-> --
-> dm-devel mailing list
-> dm-devel@redhat.com
-> https://www.redhat.com/mailman/listinfo/dm-devel
-> 
+thanks,
+-- Shuah
+
