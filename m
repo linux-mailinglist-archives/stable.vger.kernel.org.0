@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 684E226EE5B
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:28:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34C4126EE63
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729230AbgIRCP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:15:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43956 "EHLO mail.kernel.org"
+        id S1729227AbgIRCP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:15:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728688AbgIRCPQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:15:16 -0400
+        id S1727034AbgIRCPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:15:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D715B238E6;
-        Fri, 18 Sep 2020 02:15:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 477992399C;
+        Fri, 18 Sep 2020 02:15:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395315;
-        bh=sSXBrKnfvFxp02IRBIEvBTV7hKCLv23aDEhg+nMWbII=;
+        s=default; t=1600395317;
+        bh=36ND2MmTltSqR4U5avLiXByONROkFkTO7XP6GSV8vrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NVuzazYa+6Z88+5s0rIu8QUkVqZA2t4XAlb6U/wPHdscCvNaec4dH8kaUjCPEuVO4
-         wbvG0Y3LH5Mtn+pMPkK/Gv4i5QcYv4FPWzDtpoamZC84tY4J5QkGyKe9RGLVTnCJkQ
-         +3TdgbTxUT+Dj9Ge0eLfJDd7GeCsZVCZb9oeD6mc=
+        b=TNiBVC6MGptbLTTX0YcjOqfSDq2aNcQjwHQAQpX17okNLxGI9S9WjJGJkF2cOqHr1
+         ujPHr34CnKYx2mjBcvPjxXpiDislA5KcujI7RIE/QF5QpbpZzukjVqx7WLIZ1yKkNQ
+         cQi82DSwLmDMM6G98ug+1OhttBE0L2GGeqR2ZFaA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joe Perches <joe@perches.com>, Dan Carpenter <error27@gmail.com>,
-        Julia Lawall <julia.lawall@lip6.fr>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 17/90] kernel/sys.c: avoid copying possible padding bytes in copy_to_user
-Date:   Thu, 17 Sep 2020 22:13:42 -0400
-Message-Id: <20200918021455.2067301-17-sashal@kernel.org>
+Cc:     Vasily Averin <vvs@virtuozzo.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 18/90] neigh_stat_seq_next() should increase position index
+Date:   Thu, 17 Sep 2020 22:13:43 -0400
+Message-Id: <20200918021455.2067301-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021455.2067301-1-sashal@kernel.org>
 References: <20200918021455.2067301-1-sashal@kernel.org>
@@ -46,46 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Perches <joe@perches.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 5e1aada08cd19ea652b2d32a250501d09b02ff2e ]
+[ Upstream commit 1e3f9f073c47bee7c23e77316b07bc12338c5bba ]
 
-Initialization is not guaranteed to zero padding bytes so use an
-explicit memset instead to avoid leaking any kernel content in any
-possible padding bytes.
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-Link: http://lkml.kernel.org/r/dfa331c00881d61c8ee51577a082d8bebd61805c.camel@perches.com
-Signed-off-by: Joe Perches <joe@perches.com>
-Cc: Dan Carpenter <error27@gmail.com>
-Cc: Julia Lawall <julia.lawall@lip6.fr>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sys.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/neighbour.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 157277cbf83aa..546cdc911dad4 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1183,11 +1183,13 @@ SYSCALL_DEFINE1(uname, struct old_utsname __user *, name)
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 6578d1f8e6c4a..d267dc04d9f74 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -2797,6 +2797,7 @@ static void *neigh_stat_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+ 		*pos = cpu+1;
+ 		return per_cpu_ptr(tbl->stats, cpu);
+ 	}
++	(*pos)++;
+ 	return NULL;
+ }
  
- SYSCALL_DEFINE1(olduname, struct oldold_utsname __user *, name)
- {
--	struct oldold_utsname tmp = {};
-+	struct oldold_utsname tmp;
- 
- 	if (!name)
- 		return -EFAULT;
- 
-+	memset(&tmp, 0, sizeof(tmp));
-+
- 	down_read(&uts_sem);
- 	memcpy(&tmp.sysname, &utsname()->sysname, __OLD_UTS_LEN);
- 	memcpy(&tmp.nodename, &utsname()->nodename, __OLD_UTS_LEN);
 -- 
 2.25.1
 
