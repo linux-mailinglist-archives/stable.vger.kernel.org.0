@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6743126F498
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E3626F49D
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726279AbgIRCBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726267AbgIRCBS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:01:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45384 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726219AbgIRCBR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:01:17 -0400
+        id S1726221AbgIRCBS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:01:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1F2F2137B;
-        Fri, 18 Sep 2020 02:01:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D014A208E4;
+        Fri, 18 Sep 2020 02:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394476;
-        bh=ZnLj/QanGbny801H/qtAJkF9ao4X/iYTvxHzv8kHxjU=;
+        s=default; t=1600394477;
+        bh=WXxXPySre0YM/NS4OlELtHdlnYCawUYpcYb+CjbhLTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EhxEY5JypYHKYOdzTGsjWzrKYStU80Zax6/hlpsJWIZWhgHwADJANx/CuIyfyCsWu
-         q4D/ch7lUA7n7hWPIoK88WH1q4ZD61MAiiDVzpxbAk5AqFARzaCE9TRw1XEd4gVo3L
-         MdXWswwitmzHEeCnR2eUHXhzZmbaYFwMEZjgQU0I=
+        b=tEttgHxoPUXXUWIpumRTvAKHW5GFsImXG0+M7sWiri1iv8DhWPjo7lzhPK25wCNok
+         4yb7CeqZ/rJCPG8y5VcgryecUbNQTZ4VjkNf7FqqwmvQK9JI6HtKB50OunjLdEMxlD
+         y+uBKX5GOyHFTntNUqFN1njTT3p5cgeOR3fXGqyQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        MPT-FusionLinux.pdl@avagotech.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 004/330] scsi: mpt3sas: Free diag buffer without any status check
-Date:   Thu, 17 Sep 2020 21:55:44 -0400
-Message-Id: <20200918020110.2063155-4-sashal@kernel.org>
+Cc:     Jonathan Lebon <jlebon@redhat.com>,
+        Victor Kamensky <kamensky@cisco.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 005/330] selinux: allow labeling before policy is loaded
+Date:   Thu, 17 Sep 2020 21:55:45 -0400
+Message-Id: <20200918020110.2063155-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,42 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: Jonathan Lebon <jlebon@redhat.com>
 
-[ Upstream commit 764f472ba4a7a0c18107ebfbe1a9f1f5f5a1e411 ]
+[ Upstream commit 3e3e24b42043eceb97ed834102c2d094dfd7aaa6 ]
 
-Memory leak can happen when diag buffer is released but not unregistered
-(where buffer is deallocated) by the user. During module unload time driver
-is not deallocating the buffer if the buffer is in released state.
+Currently, the SELinux LSM prevents one from setting the
+`security.selinux` xattr on an inode without a policy first being
+loaded. However, this restriction is problematic: it makes it impossible
+to have newly created files with the correct label before actually
+loading the policy.
 
-Deallocate the diag buffer during module unload time without any diag
-buffer status checks.
+This is relevant in distributions like Fedora, where the policy is
+loaded by systemd shortly after pivoting out of the initrd. In such
+instances, all files created prior to pivoting will be unlabeled. One
+then has to relabel them after pivoting, an operation which inherently
+races with other processes trying to access those same files.
 
-Link: https://lore.kernel.org/r/1568379890-18347-5-git-send-email-sreekanth.reddy@broadcom.com
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Going further, there are use cases for creating the entire root
+filesystem on first boot from the initrd (e.g. Container Linux supports
+this today[1], and we'd like to support it in Fedora CoreOS as well[2]).
+One can imagine doing this in two ways: at the block device level (e.g.
+laying down a disk image), or at the filesystem level. In the former,
+labeling can simply be part of the image. But even in the latter
+scenario, one still really wants to be able to set the right labels when
+populating the new filesystem.
+
+This patch enables this by changing behaviour in the following two ways:
+1. allow `setxattr` if we're not initialized
+2. don't try to set the in-core inode SID if we're not initialized;
+   instead leave it as `LABEL_INVALID` so that revalidation may be
+   attempted at a later time
+
+Note the first hunk of this patch is mostly the same as a previously
+discussed one[3], though it was part of a larger series which wasn't
+accepted.
+
+[1] https://coreos.com/os/docs/latest/root-filesystem-placement.html
+[2] https://github.com/coreos/fedora-coreos-tracker/issues/94
+[3] https://www.spinics.net/lists/linux-initramfs/msg04593.html
+
+Co-developed-by: Victor Kamensky <kamensky@cisco.com>
+Signed-off-by: Victor Kamensky <kamensky@cisco.com>
+Signed-off-by: Jonathan Lebon <jlebon@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_ctl.c | 6 ------
- 1 file changed, 6 deletions(-)
+ security/selinux/hooks.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_ctl.c b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-index d5a62fea8fe3e..bae7cf70ee177 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_ctl.c
-@@ -3717,12 +3717,6 @@ mpt3sas_ctl_exit(ushort hbas_to_enumerate)
- 		for (i = 0; i < MPI2_DIAG_BUF_TYPE_COUNT; i++) {
- 			if (!ioc->diag_buffer[i])
- 				continue;
--			if (!(ioc->diag_buffer_status[i] &
--			    MPT3_DIAG_BUFFER_IS_REGISTERED))
--				continue;
--			if ((ioc->diag_buffer_status[i] &
--			    MPT3_DIAG_BUFFER_IS_RELEASED))
--				continue;
- 			dma_free_coherent(&ioc->pdev->dev,
- 					  ioc->diag_buffer_sz[i],
- 					  ioc->diag_buffer[i],
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 552e73d90fd25..212f48025db81 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3156,6 +3156,9 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+ 		return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
+ 	}
+ 
++	if (!selinux_state.initialized)
++		return (inode_owner_or_capable(inode) ? 0 : -EPERM);
++
+ 	sbsec = inode->i_sb->s_security;
+ 	if (!(sbsec->flags & SBLABEL_MNT))
+ 		return -EOPNOTSUPP;
+@@ -3239,6 +3242,15 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 		return;
+ 	}
+ 
++	if (!selinux_state.initialized) {
++		/* If we haven't even been initialized, then we can't validate
++		 * against a policy, so leave the label as invalid. It may
++		 * resolve to a valid label on the next revalidation try if
++		 * we've since initialized.
++		 */
++		return;
++	}
++
+ 	rc = security_context_to_sid_force(&selinux_state, value, size,
+ 					   &newsid);
+ 	if (rc) {
 -- 
 2.25.1
 
