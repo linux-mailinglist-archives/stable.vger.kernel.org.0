@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DACCF26F04B
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A101026F06B
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:44:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727590AbgIRCKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:10:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
+        id S1728713AbgIRCnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:43:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727964AbgIRCKu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728467AbgIRCKu (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:10:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73C1D235FA;
-        Fri, 18 Sep 2020 02:10:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAEA1235FC;
+        Fri, 18 Sep 2020 02:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395048;
-        bh=NM+pV2xFne5voKMEuTRmE4BSRip2u7Hd2NQ0ApveeOc=;
+        s=default; t=1600395049;
+        bh=r9GNCN1mMZ2mmSrYMyvHpFT99P4cCcj33Ml0g7pgzCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TqYJKtiQdpX+H3tFZ5P9iXv0d2qWqXercFCvqi3FyMduFXwtjGAH7jN7CchBbYNh2
-         dHhxQ4SqO+b1n8fX6kq9wAkOlRil1qDGeYNZ3ogqvehcNr9W9Dz4y+igxBRUGgNRn4
-         v8TOrWOAeLFeQUNvttsv8VjXUsRR6bmIFvu2I9VE=
+        b=EZpFCBnN91bHAE0SsvZJpgsT/wJxHMmlq491NSRtgSTu87ImTDXtbqRvKDCPxuYUD
+         7hDQKA5WRklY0Zr/m/asDdEuIBBZEHJ0xCBaA4RAwIxD+NhDooQcFrqdukurGQZHrz
+         k/E6q7YYAFlMX9r4EQfitYQQm7Kz1gTNHHMdcF9c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+Cc:     Xianting Tian <xianting_tian@126.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
+        yubin@h3c.com, Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.19 137/206] mm/kmemleak.c: use address-of operator on section symbols
-Date:   Thu, 17 Sep 2020 22:06:53 -0400
-Message-Id: <20200918020802.2065198-137-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 138/206] mm/filemap.c: clear page error before actual read
+Date:   Thu, 17 Sep 2020 22:06:54 -0400
+Message-Id: <20200918020802.2065198-138-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -45,48 +44,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Xianting Tian <xianting_tian@126.com>
 
-[ Upstream commit b0d14fc43d39203ae025f20ef4d5d25d9ccf4be1 ]
+[ Upstream commit faffdfa04fa11ccf048cebdde73db41ede0679e0 ]
 
-Clang warns:
+Mount failure issue happens under the scenario: Application forked dozens
+of threads to mount the same number of cramfs images separately in docker,
+but several mounts failed with high probability.  Mount failed due to the
+checking result of the page(read from the superblock of loop dev) is not
+uptodate after wait_on_page_locked(page) returned in function cramfs_read:
 
-  mm/kmemleak.c:1955:28: warning: array comparison always evaluates to a constant [-Wtautological-compare]
-        if (__start_ro_after_init < _sdata || __end_ro_after_init > _edata)
-                                  ^
-  mm/kmemleak.c:1955:60: warning: array comparison always evaluates to a constant [-Wtautological-compare]
-        if (__start_ro_after_init < _sdata || __end_ro_after_init > _edata)
+   wait_on_page_locked(page);
+   if (!PageUptodate(page)) {
+      ...
+   }
 
-These are not true arrays, they are linker defined symbols, which are just
-addresses.  Using the address of operator silences the warning and does
-not change the resulting assembly with either clang/ld.lld or gcc/ld
-(tested with diff + objdump -Dr).
+The reason of the checking result of the page not uptodate: systemd-udevd
+read the loopX dev before mount, because the status of loopX is Lo_unbound
+at this time, so loop_make_request directly trigger the calling of io_end
+handler end_buffer_async_read, which called SetPageError(page).  So It
+caused the page can't be set to uptodate in function
+end_buffer_async_read:
 
-Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+   if(page_uptodate && !PageError(page)) {
+      SetPageUptodate(page);
+   }
+
+Then mount operation is performed, it used the same page which is just
+accessed by systemd-udevd above, Because this page is not uptodate, it
+will launch a actual read via submit_bh, then wait on this page by calling
+wait_on_page_locked(page).  When the I/O of the page done, io_end handler
+end_buffer_async_read is called, because no one cleared the page
+error(during the whole read path of mount), which is caused by
+systemd-udevd reading, so this page is still in "PageError" status, which
+can't be set to uptodate in function end_buffer_async_read, then caused
+mount failure.
+
+But sometimes mount succeed even through systemd-udeved read loopX dev
+just before, The reason is systemd-udevd launched other loopX read just
+between step 3.1 and 3.2, the steps as below:
+
+1, loopX dev default status is Lo_unbound;
+2, systemd-udved read loopX dev (page is set to PageError);
+3, mount operation
+   1) set loopX status to Lo_bound;
+   ==>systemd-udevd read loopX dev<==
+   2) read loopX dev(page has no error)
+   3) mount succeed
+
+As the loopX dev status is set to Lo_bound after step 3.1, so the other
+loopX dev read by systemd-udevd will go through the whole I/O stack, part
+of the call trace as below:
+
+   SYS_read
+      vfs_read
+          do_sync_read
+              blkdev_aio_read
+                 generic_file_aio_read
+                     do_generic_file_read:
+                        ClearPageError(page);
+                        mapping->a_ops->readpage(filp, page);
+
+here, mapping->a_ops->readpage() is blkdev_readpage.  In latest kernel,
+some function name changed, the call trace as below:
+
+   blkdev_read_iter
+      generic_file_read_iter
+         generic_file_buffered_read:
+            /*
+             * A previous I/O error may have been due to temporary
+             * failures, eg. mutipath errors.
+             * Pg_error will be set again if readpage fails.
+             */
+            ClearPageError(page);
+            /* Start the actual read. The read will unlock the page*/
+            error=mapping->a_ops->readpage(flip, page);
+
+We can see ClearPageError(page) is called before the actual read,
+then the read in step 3.2 succeed.
+
+This patch is to add the calling of ClearPageError just before the actual
+read of read path of cramfs mount.  Without the patch, the call trace as
+below when performing cramfs mount:
+
+   do_mount
+      cramfs_read
+         cramfs_blkdev_read
+            read_cache_page
+               do_read_cache_page:
+                  filler(data, page);
+                  or
+                  mapping->a_ops->readpage(data, page);
+
+With the patch, the call trace as below when performing mount:
+
+   do_mount
+      cramfs_read
+         cramfs_blkdev_read
+            read_cache_page:
+               do_read_cache_page:
+                  ClearPageError(page); <== new add
+                  filler(data, page);
+                  or
+                  mapping->a_ops->readpage(data, page);
+
+With the patch, mount operation trigger the calling of
+ClearPageError(page) before the actual read, the page has no error if no
+additional page error happen when I/O done.
+
+Signed-off-by: Xianting Tian <xianting_tian@126.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/895
-Link: http://lkml.kernel.org/r/20200220051551.44000-1-natechancellor@gmail.com
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Jan Kara <jack@suse.cz>
+Cc: <yubin@h3c.com>
+Link: http://lkml.kernel.org/r/1583318844-22971-1-git-send-email-xianting_tian@126.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kmemleak.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/filemap.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/mm/kmemleak.c b/mm/kmemleak.c
-index 5eeabece0c178..f54734abf9466 100644
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -2039,7 +2039,7 @@ void __init kmemleak_init(void)
- 	create_object((unsigned long)__bss_start, __bss_stop - __bss_start,
- 		      KMEMLEAK_GREY, GFP_ATOMIC);
- 	/* only register .data..ro_after_init if not within .data */
--	if (__start_ro_after_init < _sdata || __end_ro_after_init > _edata)
-+	if (&__start_ro_after_init < &_sdata || &__end_ro_after_init > &_edata)
- 		create_object((unsigned long)__start_ro_after_init,
- 			      __end_ro_after_init - __start_ro_after_init,
- 			      KMEMLEAK_GREY, GFP_ATOMIC);
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 45f1c6d73b5b0..f2e777003b901 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2889,6 +2889,14 @@ filler:
+ 		unlock_page(page);
+ 		goto out;
+ 	}
++
++	/*
++	 * A previous I/O error may have been due to temporary
++	 * failures.
++	 * Clear page error before actual read, PG_error will be
++	 * set again if read page fails.
++	 */
++	ClearPageError(page);
+ 	goto filler;
+ 
+ out:
 -- 
 2.25.1
 
