@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5576B26F35B
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5395726F359
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:06:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727749AbgIRDGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728772AbgIRDGH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 23:06:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51126 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726456AbgIRCEH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:04:07 -0400
+        id S1727243AbgIRCEJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:04:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C44121734;
-        Fri, 18 Sep 2020 02:04:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68E672344C;
+        Fri, 18 Sep 2020 02:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394647;
-        bh=Hcyl6z3B1/m/mJGIPwQu7w5hswHWOPYrcDWuFQMM60k=;
+        s=default; t=1600394648;
+        bh=9LHSlaA2Hm05YczGqeSAK5+Erp4ymMiNdM7KFdW++2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RY4fdy3gLerpKO+sVX16hMNUXELWhutGcDpKiJnYmyhvgxirDjtzjM/GQIburxZW6
-         KoaMN1RtOqRbxCXATHUve6WTCg1IhvyJgaUgrQiRoo909ERzhkpjxOu8xKfFyE0/vr
-         IZjfAZffs93F+oT4D1OKgOYPT0JFXTHZSecM0TXQ=
+        b=MLpT9IkSiHjLxC/QmknJWWtREiFHe0hiSAM3zmT8MN3J35DiXOracPp+eHL1dPUHc
+         y/xeLnyuRmFdxnJwNhhpTKjP/ho4axqq0Wf726ZNbNn+ec/30oQ982rtlNp+tyuk0p
+         2Bql6sMS/zHfQNyMHLOkwLiTKqv7cui6YuvsIblY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+Cc:     Jiri Pirko <jiri@mellanox.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 144/330] drm/omap: dss: Cleanup DSS ports on initialisation failure
-Date:   Thu, 17 Sep 2020 21:58:04 -0400
-Message-Id: <20200918020110.2063155-144-sashal@kernel.org>
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 145/330] iavf: use tc_cls_can_offload_and_chain0() instead of chain check
+Date:   Thu, 17 Sep 2020 21:58:05 -0400
+Message-Id: <20200918020110.2063155-145-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -46,120 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Jiri Pirko <jiri@mellanox.com>
 
-[ Upstream commit 2a0a3ae17d36fa86dcf7c8e8d7b7f056ebd6c064 ]
+[ Upstream commit bb0858d8bc828ebc3eaa90be02a0f32bca3c2351 ]
 
-When the DSS initialises its output DPI and SDI ports, failures don't
-clean up previous successfully initialised ports. This can lead to
-resource leak or memory corruption. Fix it.
+Looks like the iavf code actually experienced a race condition, when a
+developer took code before the check for chain 0 was put to helper.
+So use tc_cls_can_offload_and_chain0() helper instead of direct check and
+move the check to _cb() so this is similar to i40e code.
 
-Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200226112514.12455-22-laurent.pinchart@ideasonboard.com
+Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/dss/dss.c | 43 +++++++++++++++++++------------
- 1 file changed, 26 insertions(+), 17 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/dss/dss.c b/drivers/gpu/drm/omapdrm/dss/dss.c
-index 4bdd63b571002..ac93dae2a9c84 100644
---- a/drivers/gpu/drm/omapdrm/dss/dss.c
-+++ b/drivers/gpu/drm/omapdrm/dss/dss.c
-@@ -1151,46 +1151,38 @@ static const struct dss_features dra7xx_dss_feats = {
- 	.has_lcd_clk_src	=	true,
- };
- 
--static int dss_init_ports(struct dss_device *dss)
-+static void __dss_uninit_ports(struct dss_device *dss, unsigned int num_ports)
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 34124c213d27c..222ae76809aa1 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -3077,9 +3077,6 @@ static int iavf_delete_clsflower(struct iavf_adapter *adapter,
+ static int iavf_setup_tc_cls_flower(struct iavf_adapter *adapter,
+ 				    struct flow_cls_offload *cls_flower)
  {
- 	struct platform_device *pdev = dss->pdev;
- 	struct device_node *parent = pdev->dev.of_node;
- 	struct device_node *port;
- 	unsigned int i;
--	int r;
- 
--	for (i = 0; i < dss->feat->num_ports; i++) {
-+	for (i = 0; i < num_ports; i++) {
- 		port = of_graph_get_port_by_id(parent, i);
- 		if (!port)
- 			continue;
- 
- 		switch (dss->feat->ports[i]) {
- 		case OMAP_DISPLAY_TYPE_DPI:
--			r = dpi_init_port(dss, pdev, port, dss->feat->model);
--			if (r)
--				return r;
-+			dpi_uninit_port(port);
- 			break;
+-	if (cls_flower->common.chain_index)
+-		return -EOPNOTSUPP;
 -
- 		case OMAP_DISPLAY_TYPE_SDI:
--			r = sdi_init_port(dss, pdev, port);
--			if (r)
--				return r;
-+			sdi_uninit_port(port);
- 			break;
--
- 		default:
- 			break;
- 		}
- 	}
--
--	return 0;
- }
- 
--static void dss_uninit_ports(struct dss_device *dss)
-+static int dss_init_ports(struct dss_device *dss)
+ 	switch (cls_flower->command) {
+ 	case FLOW_CLS_REPLACE:
+ 		return iavf_configure_clsflower(adapter, cls_flower);
+@@ -3103,6 +3100,11 @@ static int iavf_setup_tc_cls_flower(struct iavf_adapter *adapter,
+ static int iavf_setup_tc_block_cb(enum tc_setup_type type, void *type_data,
+ 				  void *cb_priv)
  {
- 	struct platform_device *pdev = dss->pdev;
- 	struct device_node *parent = pdev->dev.of_node;
- 	struct device_node *port;
--	int i;
-+	unsigned int i;
-+	int r;
- 
- 	for (i = 0; i < dss->feat->num_ports; i++) {
- 		port = of_graph_get_port_by_id(parent, i);
-@@ -1199,15 +1191,32 @@ static void dss_uninit_ports(struct dss_device *dss)
- 
- 		switch (dss->feat->ports[i]) {
- 		case OMAP_DISPLAY_TYPE_DPI:
--			dpi_uninit_port(port);
-+			r = dpi_init_port(dss, pdev, port, dss->feat->model);
-+			if (r)
-+				goto error;
- 			break;
++	struct iavf_adapter *adapter = cb_priv;
 +
- 		case OMAP_DISPLAY_TYPE_SDI:
--			sdi_uninit_port(port);
-+			r = sdi_init_port(dss, pdev, port);
-+			if (r)
-+				goto error;
- 			break;
++	if (!tc_cls_can_offload_and_chain0(adapter->netdev, type_data))
++		return -EOPNOTSUPP;
 +
- 		default:
- 			break;
- 		}
- 	}
-+
-+	return 0;
-+
-+error:
-+	__dss_uninit_ports(dss, i);
-+	return r;
-+}
-+
-+static void dss_uninit_ports(struct dss_device *dss)
-+{
-+	__dss_uninit_ports(dss, dss->feat->num_ports);
- }
- 
- static int dss_video_pll_probe(struct dss_device *dss)
+ 	switch (type) {
+ 	case TC_SETUP_CLSFLOWER:
+ 		return iavf_setup_tc_cls_flower(cb_priv, type_data);
 -- 
 2.25.1
 
