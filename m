@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFBE626EC2C
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:11:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01FAE26EC34
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:11:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728459AbgIRCKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:10:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35110 "EHLO mail.kernel.org"
+        id S1727063AbgIRCKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:10:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727063AbgIRCKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:10:30 -0400
+        id S1728467AbgIRCKg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:10:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 235BE238E6;
-        Fri, 18 Sep 2020 02:10:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5844D208DB;
+        Fri, 18 Sep 2020 02:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395029;
-        bh=aQq/XrNxqAThGtox7or18hiKFV/n0MaMqrF9FiZdhyU=;
+        s=default; t=1600395035;
+        bh=sMtUXiLrD2CTS5yhYpl994m8qcR94OVzzB4WmWh4BGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E3XRR5ygipiwwRM6NcAl7exd9n9mQj2u/wVLK8bVfPKuSBFCni6w9pUgk12/K01Ne
-         QTE/Z4AkwiXALz3KeaqpQqdgj4D9tfqd3TatXVW2LNmhNXThG8VPzkVQmbfpU3oGXz
-         yurCmy2PSzLScCeuFmcztzkTvpaIIgP/TqcVtiRg=
+        b=KYGrkOxaI08H7Wh6oct+PKPKBQfWJz4c/tfCnfXCDwpLbwT1KgkBSNnNYdIxBJXve
+         d6eAnuVGEZBi27/ldY/rniwsyAAyykghD75jcorKDsAyq6jLRBox364LNK8IOJtkdS
+         m9zVISpu5biWAnH/LpInRqJ+xqcpP7xGQl1AoA4E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vignesh Raghavendra <vigneshr@ti.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 122/206] serial: 8250: 8250_omap: Terminate DMA before pushing data on RX timeout
-Date:   Thu, 17 Sep 2020 22:06:38 -0400
-Message-Id: <20200918020802.2065198-122-sashal@kernel.org>
+Cc:     John Meneghini <johnm@netapp.com>, Christoph Hellwig <hch@lst.de>,
+        Hannes Reinecke <hare@suse.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 126/206] nvme-multipath: do not reset on unknown status
+Date:   Thu, 17 Sep 2020 22:06:42 -0400
+Message-Id: <20200918020802.2065198-126-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -42,50 +43,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Raghavendra <vigneshr@ti.com>
+From: John Meneghini <johnm@netapp.com>
 
-[ Upstream commit 7cf4df30a98175033e9849f7f16c46e96ba47f41 ]
+[ Upstream commit 764e9332098c0e60251386a507fe46ac91276120 ]
 
-Terminate and flush DMA internal buffers, before pushing RX data to
-higher layer. Otherwise, this will lead to data corruption, as driver
-would end up pushing stale buffer data to higher layer while actual data
-is still stuck inside DMA hardware and has yet not arrived at the
-memory.
-While at that, replace deprecated dmaengine_terminate_all() with
-dmaengine_terminate_async().
+The nvme multipath error handling defaults to controller reset if the
+error is unknown. There are, however, no existing nvme status codes that
+indicate a reset should be used, and resetting causes unnecessary
+disruption to the rest of IO.
 
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Link: https://lore.kernel.org/r/20200319110344.21348-2-vigneshr@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Change nvme's error handling to first check if failover should happen.
+If not, let the normal error handling take over rather than reset the
+controller.
+
+Based-on-a-patch-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: John Meneghini <johnm@netapp.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/nvme/host/core.c      |  5 +----
+ drivers/nvme/host/multipath.c | 21 +++++++++------------
+ drivers/nvme/host/nvme.h      |  5 +++--
+ 3 files changed, 13 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index a7e555e413a69..cbd006fb7fbb9 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -781,7 +781,10 @@ static void __dma_rx_do_complete(struct uart_8250_port *p)
- 	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 0d60f2f8f3eec..4b182ac15687e 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -255,11 +255,8 @@ void nvme_complete_rq(struct request *req)
+ 	trace_nvme_complete_rq(req);
  
- 	count = dma->rx_size - state.residue;
--
-+	if (count < dma->rx_size)
-+		dmaengine_terminate_async(dma->rxchan);
-+	if (!count)
-+		goto unlock;
- 	ret = tty_insert_flip_string(tty_port, dma->rx_buf, count);
+ 	if (unlikely(status != BLK_STS_OK && nvme_req_needs_retry(req))) {
+-		if ((req->cmd_flags & REQ_NVME_MPATH) &&
+-		    blk_path_error(status)) {
+-			nvme_failover_req(req);
++		if ((req->cmd_flags & REQ_NVME_MPATH) && nvme_failover_req(req))
+ 			return;
+-		}
  
- 	p->port.icount.rx += ret;
-@@ -843,7 +846,6 @@ static void omap_8250_rx_dma_flush(struct uart_8250_port *p)
- 	spin_unlock_irqrestore(&priv->rx_dma_lock, flags);
- 
- 	__dma_rx_do_complete(p);
--	dmaengine_terminate_all(dma->rxchan);
+ 		if (!blk_queue_dying(req->q)) {
+ 			nvme_req(req)->retries++;
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 2e63c1106030b..e71075338ff5c 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -73,17 +73,12 @@ void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
+ 	}
  }
  
- static int omap_8250_rx_dma(struct uart_8250_port *p)
+-void nvme_failover_req(struct request *req)
++bool nvme_failover_req(struct request *req)
+ {
+ 	struct nvme_ns *ns = req->q->queuedata;
+ 	u16 status = nvme_req(req)->status;
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&ns->head->requeue_lock, flags);
+-	blk_steal_bios(&ns->head->requeue_list, req);
+-	spin_unlock_irqrestore(&ns->head->requeue_lock, flags);
+-	blk_mq_end_request(req, 0);
+-
+ 	switch (status & 0x7ff) {
+ 	case NVME_SC_ANA_TRANSITION:
+ 	case NVME_SC_ANA_INACCESSIBLE:
+@@ -111,15 +106,17 @@ void nvme_failover_req(struct request *req)
+ 		nvme_mpath_clear_current_path(ns);
+ 		break;
+ 	default:
+-		/*
+-		 * Reset the controller for any non-ANA error as we don't know
+-		 * what caused the error.
+-		 */
+-		nvme_reset_ctrl(ns->ctrl);
+-		break;
++		/* This was a non-ANA error so follow the normal error path. */
++		return false;
+ 	}
+ 
++	spin_lock_irqsave(&ns->head->requeue_lock, flags);
++	blk_steal_bios(&ns->head->requeue_list, req);
++	spin_unlock_irqrestore(&ns->head->requeue_lock, flags);
++	blk_mq_end_request(req, 0);
++
+ 	kblockd_schedule_work(&ns->head->requeue_work);
++	return true;
+ }
+ 
+ void nvme_kick_requeue_lists(struct nvme_ctrl *ctrl)
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index cc4273f119894..31c1496f938fb 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -477,7 +477,7 @@ void nvme_mpath_wait_freeze(struct nvme_subsystem *subsys);
+ void nvme_mpath_start_freeze(struct nvme_subsystem *subsys);
+ void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
+ 			struct nvme_ctrl *ctrl, int *flags);
+-void nvme_failover_req(struct request *req);
++bool nvme_failover_req(struct request *req);
+ void nvme_kick_requeue_lists(struct nvme_ctrl *ctrl);
+ int nvme_mpath_alloc_disk(struct nvme_ctrl *ctrl,struct nvme_ns_head *head);
+ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id);
+@@ -521,8 +521,9 @@ static inline void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
+ 	sprintf(disk_name, "nvme%dn%d", ctrl->instance, ns->head->instance);
+ }
+ 
+-static inline void nvme_failover_req(struct request *req)
++static inline bool nvme_failover_req(struct request *req)
+ {
++	return false;
+ }
+ static inline void nvme_kick_requeue_lists(struct nvme_ctrl *ctrl)
+ {
 -- 
 2.25.1
 
