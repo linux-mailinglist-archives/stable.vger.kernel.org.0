@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C019A26EB65
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F7426EB70
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:06:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727401AbgIRCEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:04:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52578 "EHLO mail.kernel.org"
+        id S1727470AbgIRCFN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:05:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727392AbgIRCEv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:04:51 -0400
+        id S1727456AbgIRCFK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:05:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03F7C23600;
-        Fri, 18 Sep 2020 02:04:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB8CA23600;
+        Fri, 18 Sep 2020 02:05:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394690;
-        bh=edvpvBXgzkA1HGw8xxSPpBS1Btl6werh9kXB01ts0TM=;
+        s=default; t=1600394709;
+        bh=L5kmpAn79D/tXs9IeDbby86Z83ojvIcGboEfiX1DnFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOgOuLGNtK0lt/eN91s32G4fGuTD+sBixN3Gl0pmuhmhvEObUWgUCK0G1dKEbiltZ
-         1uZ8SwwwjXasnPpDc5GthRmlWKVIVPMEDuSW+/bpXsvWee/kf2YmL4C6XXww2QFxgL
-         2JxFjCNUPi6VnXokMWDOX/OVvKbvHZoGPJ0tLZCM=
+        b=Dk47Dm6gsY+/25QkwQTzdDqWqMOoZmi10EboJNLtWVW8uOfOnDzPetqGxeu9S1htY
+         VYR3trw5wQR5aMoyfMw9iVeTyHc9nwPXmYk8VHyyduULEQBMNlkUTSw9N+n9HZlrJf
+         tKpRLCWFK9mmZ5xsUnbDKL9l1v/NgaQYHWo+P5H4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 179/330] intel_th: Disallow multi mode on devices where it's broken
-Date:   Thu, 17 Sep 2020 21:58:39 -0400
-Message-Id: <20200918020110.2063155-179-sashal@kernel.org>
+Cc:     Andre Przywara <andre.przywara@arm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 194/330] net: axienet: Convert DMA error handler to a work queue
+Date:   Thu, 17 Sep 2020 21:58:54 -0400
+Message-Id: <20200918020110.2063155-194-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,121 +43,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit 397c7729665a3b07a7b4ce7215173df8e9112809 ]
+[ Upstream commit 24201a64770afe2e17050b2ab9e8c0e24e9c23b2 ]
 
-Some versions of Intel TH have an issue that prevents the multi mode of
-MSU from working correctly, resulting in no trace data and potentially
-stuck MSU pipeline.
+The DMA error handler routine is currently a tasklet, scheduled to run
+after the DMA error IRQ was handled.
+However it needs to take the MDIO mutex, which is not allowed to do in a
+tasklet. A kernel (with debug options) complains consequently:
+[  614.050361] net eth0: DMA Tx error 0x174019
+[  614.064002] net eth0: Current BD is at: 0x8f84aa0ce
+[  614.080195] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:935
+[  614.109484] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 40, name: kworker/u4:4
+[  614.135428] 3 locks held by kworker/u4:4/40:
+[  614.149075]  #0: ffff000879863328 ((wq_completion)rpciod){....}, at: process_one_work+0x1f0/0x6a8
+[  614.177528]  #1: ffff80001251bdf8 ((work_completion)(&task->u.tk_work)){....}, at: process_one_work+0x1f0/0x6a8
+[  614.209033]  #2: ffff0008784e0110 (sk_lock-AF_INET-RPC){....}, at: tcp_sendmsg+0x24/0x58
+[  614.235429] CPU: 0 PID: 40 Comm: kworker/u4:4 Not tainted 5.6.0-rc3-00926-g4a165a9d5921 #26
+[  614.260854] Hardware name: ARM Test FPGA (DT)
+[  614.274734] Workqueue: rpciod rpc_async_schedule
+[  614.289022] Call trace:
+[  614.296871]  dump_backtrace+0x0/0x1a0
+[  614.308311]  show_stack+0x14/0x20
+[  614.318751]  dump_stack+0xbc/0x100
+[  614.329403]  ___might_sleep+0xf0/0x140
+[  614.341018]  __might_sleep+0x4c/0x80
+[  614.352201]  __mutex_lock+0x5c/0x8a8
+[  614.363348]  mutex_lock_nested+0x1c/0x28
+[  614.375654]  axienet_dma_err_handler+0x38/0x388
+[  614.389999]  tasklet_action_common.isra.15+0x160/0x1a8
+[  614.405894]  tasklet_action+0x24/0x30
+[  614.417297]  efi_header_end+0xe0/0x494
+[  614.429020]  irq_exit+0xd0/0xd8
+[  614.439047]  __handle_domain_irq+0x60/0xb0
+[  614.451877]  gic_handle_irq+0xdc/0x2d0
+[  614.463486]  el1_irq+0xcc/0x180
+[  614.473451]  __tcp_transmit_skb+0x41c/0xb58
+[  614.486513]  tcp_write_xmit+0x224/0x10a0
+[  614.498792]  __tcp_push_pending_frames+0x38/0xc8
+[  614.513126]  tcp_rcv_established+0x41c/0x820
+[  614.526301]  tcp_v4_do_rcv+0x8c/0x218
+[  614.537784]  __release_sock+0x5c/0x108
+[  614.549466]  release_sock+0x34/0xa0
+[  614.560318]  tcp_sendmsg+0x40/0x58
+[  614.571053]  inet_sendmsg+0x40/0x68
+[  614.582061]  sock_sendmsg+0x18/0x30
+[  614.593074]  xs_sendpages+0x218/0x328
+[  614.604506]  xs_tcp_send_request+0xa0/0x1b8
+[  614.617461]  xprt_transmit+0xc8/0x4f0
+[  614.628943]  call_transmit+0x8c/0xa0
+[  614.640028]  __rpc_execute+0xbc/0x6f8
+[  614.651380]  rpc_async_schedule+0x28/0x48
+[  614.663846]  process_one_work+0x298/0x6a8
+[  614.676299]  worker_thread+0x40/0x490
+[  614.687687]  kthread+0x134/0x138
+[  614.697804]  ret_from_fork+0x10/0x18
+[  614.717319] xilinx_axienet 7fe00000.ethernet eth0: Link is Down
+[  615.748343] xilinx_axienet 7fe00000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
 
-Disable multi mode on such devices.
+Since tasklets are not really popular anymore anyway, lets convert this
+over to a work queue, which can sleep and thus can take the MDIO mutex.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20200317062215.15598-2-alexander.shishkin@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/intel_th/intel_th.h |  2 ++
- drivers/hwtracing/intel_th/msu.c      | 11 +++++++++--
- drivers/hwtracing/intel_th/pci.c      |  8 ++++++--
- 3 files changed, 17 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/xilinx/xilinx_axienet.h  |  2 +-
+ .../net/ethernet/xilinx/xilinx_axienet_main.c | 24 +++++++++----------
+ 2 files changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/hwtracing/intel_th/intel_th.h b/drivers/hwtracing/intel_th/intel_th.h
-index 6f4f5486fe6dc..5fe694708b7a3 100644
---- a/drivers/hwtracing/intel_th/intel_th.h
-+++ b/drivers/hwtracing/intel_th/intel_th.h
-@@ -47,11 +47,13 @@ struct intel_th_output {
- /**
-  * struct intel_th_drvdata - describes hardware capabilities and quirks
-  * @tscu_enable:	device needs SW to enable time stamping unit
-+ * @multi_is_broken:	device has multiblock mode is broken
-  * @has_mintctl:	device has interrupt control (MINTCTL) register
-  * @host_mode_only:	device can only operate in 'host debugger' mode
-  */
- struct intel_th_drvdata {
- 	unsigned int	tscu_enable        : 1,
-+			multi_is_broken    : 1,
- 			has_mintctl        : 1,
- 			host_mode_only     : 1;
- };
-diff --git a/drivers/hwtracing/intel_th/msu.c b/drivers/hwtracing/intel_th/msu.c
-index 255f8f41c8ff7..3cd2489d398c5 100644
---- a/drivers/hwtracing/intel_th/msu.c
-+++ b/drivers/hwtracing/intel_th/msu.c
-@@ -157,7 +157,8 @@ struct msc {
- 	/* config */
- 	unsigned int		enabled : 1,
- 				wrap	: 1,
--				do_irq	: 1;
-+				do_irq	: 1,
-+				multi_is_broken : 1;
- 	unsigned int		mode;
- 	unsigned int		burst_len;
- 	unsigned int		index;
-@@ -1665,7 +1666,7 @@ static int intel_th_msc_init(struct msc *msc)
- {
- 	atomic_set(&msc->user_count, -1);
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet.h b/drivers/net/ethernet/xilinx/xilinx_axienet.h
+index 2dacfc85b3baa..04e51af32178c 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet.h
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet.h
+@@ -435,7 +435,7 @@ struct axienet_local {
+ 	void __iomem *regs;
+ 	void __iomem *dma_regs;
  
--	msc->mode = MSC_MODE_MULTI;
-+	msc->mode = msc->multi_is_broken ? MSC_MODE_SINGLE : MSC_MODE_MULTI;
- 	mutex_init(&msc->buf_mutex);
- 	INIT_LIST_HEAD(&msc->win_list);
- 	INIT_LIST_HEAD(&msc->iter_list);
-@@ -1877,6 +1878,9 @@ mode_store(struct device *dev, struct device_attribute *attr, const char *buf,
- 	return -EINVAL;
+-	struct tasklet_struct dma_err_tasklet;
++	struct work_struct dma_err_task;
  
- found:
-+	if (i == MSC_MODE_MULTI && msc->multi_is_broken)
-+		return -EOPNOTSUPP;
-+
- 	mutex_lock(&msc->buf_mutex);
- 	ret = 0;
+ 	int tx_irq;
+ 	int rx_irq;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index 479325eeaf8a0..345a795666e92 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -806,7 +806,7 @@ static irqreturn_t axienet_tx_irq(int irq, void *_ndev)
+ 		/* Write to the Rx channel control register */
+ 		axienet_dma_out32(lp, XAXIDMA_RX_CR_OFFSET, cr);
  
-@@ -2083,6 +2087,9 @@ static int intel_th_msc_probe(struct intel_th_device *thdev)
- 	if (!res)
- 		msc->do_irq = 1;
+-		tasklet_schedule(&lp->dma_err_tasklet);
++		schedule_work(&lp->dma_err_task);
+ 		axienet_dma_out32(lp, XAXIDMA_TX_SR_OFFSET, status);
+ 	}
+ out:
+@@ -855,7 +855,7 @@ static irqreturn_t axienet_rx_irq(int irq, void *_ndev)
+ 		/* write to the Rx channel control register */
+ 		axienet_dma_out32(lp, XAXIDMA_RX_CR_OFFSET, cr);
  
-+	if (INTEL_TH_CAP(to_intel_th(thdev), multi_is_broken))
-+		msc->multi_is_broken = 1;
-+
- 	msc->index = thdev->id;
- 
- 	msc->thdev = thdev;
-diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
-index 0d26484d67955..21fdf0b935166 100644
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -120,6 +120,10 @@ static void intel_th_pci_remove(struct pci_dev *pdev)
- 	pci_free_irq_vectors(pdev);
+-		tasklet_schedule(&lp->dma_err_tasklet);
++		schedule_work(&lp->dma_err_task);
+ 		axienet_dma_out32(lp, XAXIDMA_RX_SR_OFFSET, status);
+ 	}
+ out:
+@@ -891,7 +891,7 @@ static irqreturn_t axienet_eth_irq(int irq, void *_ndev)
+ 	return IRQ_HANDLED;
  }
  
-+static const struct intel_th_drvdata intel_th_1x_multi_is_broken = {
-+	.multi_is_broken	= 1,
-+};
-+
- static const struct intel_th_drvdata intel_th_2x = {
- 	.tscu_enable	= 1,
- 	.has_mintctl	= 1,
-@@ -152,7 +156,7 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
- 	{
- 		/* Kaby Lake PCH-H */
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa2a6),
--		.driver_data = (kernel_ulong_t)0,
-+		.driver_data = (kernel_ulong_t)&intel_th_1x_multi_is_broken,
- 	},
- 	{
- 		/* Denverton */
-@@ -207,7 +211,7 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
- 	{
- 		/* Comet Lake PCH-V */
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa3a6),
--		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+		.driver_data = (kernel_ulong_t)&intel_th_1x_multi_is_broken,
- 	},
- 	{
- 		/* Ice Lake NNPI */
+-static void axienet_dma_err_handler(unsigned long data);
++static void axienet_dma_err_handler(struct work_struct *work);
+ 
+ /**
+  * axienet_open - Driver open routine.
+@@ -935,9 +935,8 @@ static int axienet_open(struct net_device *ndev)
+ 
+ 	phylink_start(lp->phylink);
+ 
+-	/* Enable tasklets for Axi DMA error handling */
+-	tasklet_init(&lp->dma_err_tasklet, axienet_dma_err_handler,
+-		     (unsigned long) lp);
++	/* Enable worker thread for Axi DMA error handling */
++	INIT_WORK(&lp->dma_err_task, axienet_dma_err_handler);
+ 
+ 	/* Enable interrupts for Axi DMA Tx */
+ 	ret = request_irq(lp->tx_irq, axienet_tx_irq, IRQF_SHARED,
+@@ -966,7 +965,7 @@ err_rx_irq:
+ err_tx_irq:
+ 	phylink_stop(lp->phylink);
+ 	phylink_disconnect_phy(lp->phylink);
+-	tasklet_kill(&lp->dma_err_tasklet);
++	cancel_work_sync(&lp->dma_err_task);
+ 	dev_err(lp->dev, "request_irq() failed\n");
+ 	return ret;
+ }
+@@ -1025,7 +1024,7 @@ static int axienet_stop(struct net_device *ndev)
+ 	axienet_mdio_enable(lp);
+ 	mutex_unlock(&lp->mii_bus->mdio_lock);
+ 
+-	tasklet_kill(&lp->dma_err_tasklet);
++	cancel_work_sync(&lp->dma_err_task);
+ 
+ 	if (lp->eth_irq > 0)
+ 		free_irq(lp->eth_irq, ndev);
+@@ -1505,17 +1504,18 @@ static const struct phylink_mac_ops axienet_phylink_ops = {
+ };
+ 
+ /**
+- * axienet_dma_err_handler - Tasklet handler for Axi DMA Error
+- * @data:	Data passed
++ * axienet_dma_err_handler - Work queue task for Axi DMA Error
++ * @work:	pointer to work_struct
+  *
+  * Resets the Axi DMA and Axi Ethernet devices, and reconfigures the
+  * Tx/Rx BDs.
+  */
+-static void axienet_dma_err_handler(unsigned long data)
++static void axienet_dma_err_handler(struct work_struct *work)
+ {
+ 	u32 axienet_status;
+ 	u32 cr, i;
+-	struct axienet_local *lp = (struct axienet_local *) data;
++	struct axienet_local *lp = container_of(work, struct axienet_local,
++						dma_err_task);
+ 	struct net_device *ndev = lp->ndev;
+ 	struct axidma_bd *cur_p;
+ 
 -- 
 2.25.1
 
