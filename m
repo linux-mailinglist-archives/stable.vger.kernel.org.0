@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF3926F10D
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68FE026F107
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727875AbgIRCsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:48:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60922 "EHLO mail.kernel.org"
+        id S1726528AbgIRCsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:48:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727241AbgIRCJT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:09:19 -0400
+        id S1727322AbgIRCJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:09:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 686FB2311A;
-        Fri, 18 Sep 2020 02:09:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B2FD235F9;
+        Fri, 18 Sep 2020 02:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394959;
-        bh=lkELpZy9Y12ASSKiv2e5CcnLv2YHI5t6jueN9U/7Ocs=;
+        s=default; t=1600394960;
+        bh=v1ywKTL+i+a9hYdP9thlSZcryxbdVaiCgD/tpqVL3/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OHXml0fgmGcXJb8344x3hogDUePTazNkVHZsol5vbEwevYnYhevCpZm9uF5RfiLVC
-         Gtv8CSRGncvHVTXj39WB/RmVAg1MImO0emXO7p2tXPc/xNu7yTwy1cggFWkpVQgRGe
-         0yQPVzMT1+4Uv+hIK+DeESdLOUNvZv27ge4tHSrg=
+        b=tZx48ntY1nd+7gkqSOEbYir5UafqSuVAN3MAFwSy+LBKMPb8ox6q4DUsRASu8dhV6
+         AEGoq3NtNGD6HSyUSXUyFCgUIX7xIQfANgXOTmDodzHDDzxaFlk9+iisCQCFS5OSxe
+         ESUI6B/GiK7tfs5qYZBGPMGFEgwjuylkFM/guoXc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manish Mandlik <mmandlik@google.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 065/206] Bluetooth: Fix refcount use-after-free issue
-Date:   Thu, 17 Sep 2020 22:05:41 -0400
-Message-Id: <20200918020802.2065198-65-sashal@kernel.org>
+Cc:     Vasily Averin <vvs@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jann Horn <jannh@google.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Kees Cook <keescook@chromium.org>,
+        Hugh Dickins <hughd@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.19 066/206] mm/swapfile.c: swap_next should increase position index
+Date:   Thu, 17 Sep 2020 22:05:42 -0400
+Message-Id: <20200918020802.2065198-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -43,200 +47,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Mandlik <mmandlik@google.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 6c08fc896b60893c5d673764b0668015d76df462 ]
+[ Upstream commit 10c8d69f314d557d94d74ec492575ae6a4f1eb1c ]
 
-There is no lock preventing both l2cap_sock_release() and
-chan->ops->close() from running at the same time.
+If seq_file .next fuction does not change position index, read after
+some lseek can generate unexpected output.
 
-If we consider Thread A running l2cap_chan_timeout() and Thread B running
-l2cap_sock_release(), expected behavior is:
-  A::l2cap_chan_timeout()->l2cap_chan_close()->l2cap_sock_teardown_cb()
-  A::l2cap_chan_timeout()->l2cap_sock_close_cb()->l2cap_sock_kill()
-  B::l2cap_sock_release()->sock_orphan()
-  B::l2cap_sock_release()->l2cap_sock_kill()
+In Aug 2018 NeilBrown noticed commit 1f4aace60b0e ("fs/seq_file.c:
+simplify seq_file iteration code and interface") "Some ->next functions
+do not increment *pos when they return NULL...  Note that such ->next
+functions are buggy and should be fixed.  A simple demonstration is
 
-where,
-sock_orphan() clears "sk->sk_socket" and l2cap_sock_teardown_cb() marks
-socket as SOCK_ZAPPED.
+  dd if=/proc/swaps bs=1000 skip=1
 
-In l2cap_sock_kill(), there is an "if-statement" that checks if both
-sock_orphan() and sock_teardown() has been run i.e. sk->sk_socket is NULL
-and socket is marked as SOCK_ZAPPED. Socket is killed if the condition is
-satisfied.
+Choose any block size larger than the size of /proc/swaps.  This will
+always show the whole last line of /proc/swaps"
 
-In the race condition, following occurs:
-  A::l2cap_chan_timeout()->l2cap_chan_close()->l2cap_sock_teardown_cb()
-  B::l2cap_sock_release()->sock_orphan()
-  B::l2cap_sock_release()->l2cap_sock_kill()
-  A::l2cap_chan_timeout()->l2cap_sock_close_cb()->l2cap_sock_kill()
+Described problem is still actual.  If you make lseek into middle of
+last output line following read will output end of last line and whole
+last line once again.
 
-In this scenario, "if-statement" is true in both B::l2cap_sock_kill() and
-A::l2cap_sock_kill() and we hit "refcount: underflow; use-after-free" bug.
+  $ dd if=/proc/swaps bs=1  # usual output
+  Filename				Type		Size	Used	Priority
+  /dev/dm-0                               partition	4194812	97536	-2
+  104+0 records in
+  104+0 records out
+  104 bytes copied
 
-Similar condition occurs at other places where teardown/sock_kill is
-happening:
-  l2cap_disconnect_rsp()->l2cap_chan_del()->l2cap_sock_teardown_cb()
-  l2cap_disconnect_rsp()->l2cap_sock_close_cb()->l2cap_sock_kill()
+  $ dd if=/proc/swaps bs=40 skip=1    # last line was generated twice
+  dd: /proc/swaps: cannot skip to specified offset
+  v/dm-0                               partition	4194812	97536	-2
+  /dev/dm-0                               partition	4194812	97536	-2
+  3+1 records in
+  3+1 records out
+  131 bytes copied
 
-  l2cap_conn_del()->l2cap_chan_del()->l2cap_sock_teardown_cb()
-  l2cap_conn_del()->l2cap_sock_close_cb()->l2cap_sock_kill()
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
 
-  l2cap_disconnect_req()->l2cap_chan_del()->l2cap_sock_teardown_cb()
-  l2cap_disconnect_req()->l2cap_sock_close_cb()->l2cap_sock_kill()
-
-  l2cap_sock_cleanup_listen()->l2cap_chan_close()->l2cap_sock_teardown_cb()
-  l2cap_sock_cleanup_listen()->l2cap_sock_kill()
-
-Protect teardown/sock_kill and orphan/sock_kill by adding hold_lock on
-l2cap channel to ensure that the socket is killed only after marked as
-zapped and orphan.
-
-Signed-off-by: Manish Mandlik <mmandlik@google.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Link: http://lkml.kernel.org/r/bd8cfd7b-ac95-9b91-f9e7-e8438bd5047d@virtuozzo.com
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 26 +++++++++++++++-----------
- net/bluetooth/l2cap_sock.c | 16 +++++++++++++---
- 2 files changed, 28 insertions(+), 14 deletions(-)
+ mm/swapfile.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 0d84d1f820d4c..b1f51cb007ea6 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -414,6 +414,9 @@ static void l2cap_chan_timeout(struct work_struct *work)
- 	BT_DBG("chan %p state %s", chan, state_to_string(chan->state));
+diff --git a/mm/swapfile.c b/mm/swapfile.c
+index 0047dcaf93697..c3684cfa9534e 100644
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -2738,10 +2738,10 @@ static void *swap_next(struct seq_file *swap, void *v, loff_t *pos)
+ 	else
+ 		type = si->type + 1;
  
- 	mutex_lock(&conn->chan_lock);
-+	/* __set_chan_timer() calls l2cap_chan_hold(chan) while scheduling
-+	 * this work. No need to call l2cap_chan_hold(chan) here again.
-+	 */
- 	l2cap_chan_lock(chan);
- 
- 	if (chan->state == BT_CONNECTED || chan->state == BT_CONFIG)
-@@ -426,12 +429,12 @@ static void l2cap_chan_timeout(struct work_struct *work)
- 
- 	l2cap_chan_close(chan, reason);
- 
--	l2cap_chan_unlock(chan);
--
- 	chan->ops->close(chan);
--	mutex_unlock(&conn->chan_lock);
- 
-+	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
-+
-+	mutex_unlock(&conn->chan_lock);
- }
- 
- struct l2cap_chan *l2cap_chan_create(void)
-@@ -1725,9 +1728,9 @@ static void l2cap_conn_del(struct hci_conn *hcon, int err)
- 
- 		l2cap_chan_del(chan, err);
- 
--		l2cap_chan_unlock(chan);
--
- 		chan->ops->close(chan);
-+
-+		l2cap_chan_unlock(chan);
- 		l2cap_chan_put(chan);
++	++(*pos);
+ 	for (; (si = swap_type_to_swap_info(type)); type++) {
+ 		if (!(si->flags & SWP_USED) || !si->swap_map)
+ 			continue;
+-		++*pos;
+ 		return si;
  	}
- 
-@@ -4337,6 +4340,7 @@ static inline int l2cap_disconnect_req(struct l2cap_conn *conn,
- 		return 0;
- 	}
- 
-+	l2cap_chan_hold(chan);
- 	l2cap_chan_lock(chan);
- 
- 	rsp.dcid = cpu_to_le16(chan->scid);
-@@ -4345,12 +4349,11 @@ static inline int l2cap_disconnect_req(struct l2cap_conn *conn,
- 
- 	chan->ops->set_shutdown(chan);
- 
--	l2cap_chan_hold(chan);
- 	l2cap_chan_del(chan, ECONNRESET);
- 
--	l2cap_chan_unlock(chan);
--
- 	chan->ops->close(chan);
-+
-+	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
- 
- 	mutex_unlock(&conn->chan_lock);
-@@ -4382,20 +4385,21 @@ static inline int l2cap_disconnect_rsp(struct l2cap_conn *conn,
- 		return 0;
- 	}
- 
-+	l2cap_chan_hold(chan);
- 	l2cap_chan_lock(chan);
- 
- 	if (chan->state != BT_DISCONN) {
- 		l2cap_chan_unlock(chan);
-+		l2cap_chan_put(chan);
- 		mutex_unlock(&conn->chan_lock);
- 		return 0;
- 	}
- 
--	l2cap_chan_hold(chan);
- 	l2cap_chan_del(chan, 0);
- 
--	l2cap_chan_unlock(chan);
--
- 	chan->ops->close(chan);
-+
-+	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
- 
- 	mutex_unlock(&conn->chan_lock);
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index a3a2cd55e23a9..d128750e47305 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -1039,7 +1039,7 @@ done:
- }
- 
- /* Kill socket (only if zapped and orphan)
-- * Must be called on unlocked socket.
-+ * Must be called on unlocked socket, with l2cap channel lock.
-  */
- static void l2cap_sock_kill(struct sock *sk)
- {
-@@ -1200,8 +1200,15 @@ static int l2cap_sock_release(struct socket *sock)
- 
- 	err = l2cap_sock_shutdown(sock, 2);
- 
-+	l2cap_chan_hold(l2cap_pi(sk)->chan);
-+	l2cap_chan_lock(l2cap_pi(sk)->chan);
-+
- 	sock_orphan(sk);
- 	l2cap_sock_kill(sk);
-+
-+	l2cap_chan_unlock(l2cap_pi(sk)->chan);
-+	l2cap_chan_put(l2cap_pi(sk)->chan);
-+
- 	return err;
- }
- 
-@@ -1219,12 +1226,15 @@ static void l2cap_sock_cleanup_listen(struct sock *parent)
- 		BT_DBG("child chan %p state %s", chan,
- 		       state_to_string(chan->state));
- 
-+		l2cap_chan_hold(chan);
- 		l2cap_chan_lock(chan);
-+
- 		__clear_chan_timer(chan);
- 		l2cap_chan_close(chan, ECONNRESET);
--		l2cap_chan_unlock(chan);
--
- 		l2cap_sock_kill(sk);
-+
-+		l2cap_chan_unlock(chan);
-+		l2cap_chan_put(chan);
- 	}
- }
  
 -- 
 2.25.1
