@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F88326F393
+	by mail.lfdr.de (Postfix) with ESMTP id AD05F26F394
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728228AbgIRDHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726658AbgIRDHi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 23:07:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50232 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727053AbgIRCDm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:03:42 -0400
+        id S1727154AbgIRCDr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:03:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8300235F7;
-        Fri, 18 Sep 2020 02:03:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 109D72344C;
+        Fri, 18 Sep 2020 02:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394621;
-        bh=T3ieBczVoOGtJ8Z+Ukuh2lyvCRGchjx8Grvfc97QzAQ=;
+        s=default; t=1600394626;
+        bh=9B85iJUhVDSboa+F3wPLvnpFiPXBa38iJOK81UXFYgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Akrq5vxDNAJkZaRGPZQfuQv4uZMLQOrralQW1Klx+ty9vCP/R5JwSRh3m5m15fdeg
-         JpuN0BDsW9SNR4AZmaZn0NYE+ooixMdkqfDaxP3U9hkEZ+b6DuHUD9UX7pZxzz5/Yx
-         hR2r8xYZKNRsgzJEf1jZ6Bmgo8nYkeWoZHtz+vj4=
+        b=k8rcC15xkga+N+/8z0uttaYQSnBcbLs5Picv1AkZfW3XCO5v3FtAA5Vls7sU02xkS
+         GW+Jxs46MXYBbss48tJhnhQ2eYdNzAFsbbDGNFsenOdscDHitLHG2cSK/dRJsbGUGD
+         BuhHg9sKlTpsJltO9gj/fqPox4Gv5V2a+vWSkrNU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 123/330] scsi: lpfc: Fix release of hwq to clear the eq relationship
-Date:   Thu, 17 Sep 2020 21:57:43 -0400
-Message-Id: <20200918020110.2063155-123-sashal@kernel.org>
+Cc:     Dinh Nguyen <dinguyen@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 127/330] clk: stratix10: use do_div() for 64-bit calculation
+Date:   Thu, 17 Sep 2020 21:57:47 -0400
+Message-Id: <20200918020110.2063155-127-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,40 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-[ Upstream commit 821bc882accaaaf1bbecf5c0ecef659443e3e8cb ]
+[ Upstream commit cc26ed7be46c5f5fa45f3df8161ed7ca3c4d318c ]
 
-When performing reset testing, the eq's list for related hwqs was getting
-corrupted.  In cases where there is not a 1:1 eq to hwq, the eq is
-shared. The eq maintains a list of hwqs utilizing it in case of cpu
-offlining and polling. During the reset, the hwqs are being torn down so
-they can be recreated. The recreation was getting confused by seeing a
-non-null eq assignment on the eq and the eq list became corrupt.
+do_div() macro to perform u64 division and guards against overflow if
+the result is too large for the unsigned long return type.
 
-Correct by clearing the hdwq eq assignment when the hwq is cleaned up.
-
-Link: https://lore.kernel.org/r/20200128002312.16346-6-jsmart2021@gmail.com
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Link: https://lkml.kernel.org/r/20200114160726.19771-1-dinguyen@kernel.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_init.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/socfpga/clk-pll-s10.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index 95abffd9ad100..d4c83eca0ad2c 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -9124,6 +9124,7 @@ lpfc_sli4_release_hdwq(struct lpfc_hba *phba)
- 		/* Free the CQ/WQ corresponding to the Hardware Queue */
- 		lpfc_sli4_queue_free(hdwq[idx].io_cq);
- 		lpfc_sli4_queue_free(hdwq[idx].io_wq);
-+		hdwq[idx].hba_eq = NULL;
- 		hdwq[idx].io_cq = NULL;
- 		hdwq[idx].io_wq = NULL;
- 		if (phba->cfg_xpsgl && !phba->nvmet_support)
+diff --git a/drivers/clk/socfpga/clk-pll-s10.c b/drivers/clk/socfpga/clk-pll-s10.c
+index 4705eb544f01b..8d7b1d0c46643 100644
+--- a/drivers/clk/socfpga/clk-pll-s10.c
++++ b/drivers/clk/socfpga/clk-pll-s10.c
+@@ -39,7 +39,9 @@ static unsigned long clk_pll_recalc_rate(struct clk_hw *hwclk,
+ 	/* read VCO1 reg for numerator and denominator */
+ 	reg = readl(socfpgaclk->hw.reg);
+ 	refdiv = (reg & SOCFPGA_PLL_REFDIV_MASK) >> SOCFPGA_PLL_REFDIV_SHIFT;
+-	vco_freq = (unsigned long long)parent_rate / refdiv;
++
++	vco_freq = parent_rate;
++	do_div(vco_freq, refdiv);
+ 
+ 	/* Read mdiv and fdiv from the fdbck register */
+ 	reg = readl(socfpgaclk->hw.reg + 0x4);
 -- 
 2.25.1
 
