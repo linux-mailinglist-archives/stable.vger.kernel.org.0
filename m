@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB5026EDBD
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09C4526ED18
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729461AbgIRCQz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729462AbgIRCQz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:16:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47050 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47051 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728842AbgIRCQz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729440AbgIRCQz (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:16:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 514CC2399C;
-        Fri, 18 Sep 2020 02:16:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A17B239D0;
+        Fri, 18 Sep 2020 02:16:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395411;
-        bh=WI/pjt1weQQ7po3ewfU8oddQZDYZsLZAP0LT5WBgph8=;
+        s=default; t=1600395412;
+        bh=TQVJNt/bVD6oxbkrcWUlYDbOjx04blkfjvwyasnhIXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HuCFps+Q27K8r7KIYa1eKFSXxwAwtRLhVDZz1zdyg1/f1NDZb1QR2mkUM8tQoaRWN
-         Yiq6lKALP2y9BiJuOmkqkxtM4EU0vnbbV46cW3kevROIeZsXgItgWvWH3Z364ouEQl
-         423fpkGUYc4nM/6CFdJ3pQFrGKGZoNFRuCY+puSc=
+        b=L3gLSi6gk+/5G+c5LhMb7qKDkLfU4pBdXd7aDPbK2Mmjf9Mc3wweQquJsswthm3HC
+         cM1Xof7r9duuwo07u4WET/i7qy7tZ414GNf9dG5C51upgOx05z7e45xVsctjU4vd4H
+         Vt9Nh5wpDK6ZUAupg/VP7S76XcpRlgxanUlzJNng=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Peter Geis <pgwipeout@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 06/64] PM / devfreq: tegra30: Fix integer overflow on CPU's freq max out
-Date:   Thu, 17 Sep 2020 22:15:45 -0400
-Message-Id: <20200918021643.2067895-6-sashal@kernel.org>
+Cc:     Hou Tao <houtao1@huawei.com>, Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.4 07/64] mtd: cfi_cmdset_0002: don't free cfi->cfiq in error path of cfi_amdstd_setup()
+Date:   Thu, 17 Sep 2020 22:15:46 -0400
+Message-Id: <20200918021643.2067895-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021643.2067895-1-sashal@kernel.org>
 References: <20200918021643.2067895-1-sashal@kernel.org>
@@ -44,45 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 53b4b2aeee26f42cde5ff2a16dd0d8590c51a55a ]
+[ Upstream commit 03976af89e3bd9489d542582a325892e6a8cacc0 ]
 
-There is another kHz-conversion bug in the code, resulting in integer
-overflow. Although, this time the resulting value is 4294966296 and it's
-close to ULONG_MAX, which is okay in this case.
+Else there may be a double-free problem, because cfi->cfiq will
+be freed by mtd_do_chip_probe() if both the two invocations of
+check_cmd_set() return failure.
 
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-Tested-by: Peter Geis <pgwipeout@gmail.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Reviewed-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/tegra-devfreq.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mtd/chips/cfi_cmdset_0002.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/devfreq/tegra-devfreq.c b/drivers/devfreq/tegra-devfreq.c
-index 64a2e02b87d78..0b0de6a049afb 100644
---- a/drivers/devfreq/tegra-devfreq.c
-+++ b/drivers/devfreq/tegra-devfreq.c
-@@ -79,6 +79,8 @@
+diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
+index 972935f1b2f7e..3a3da0eeef1fb 100644
+--- a/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -724,7 +724,6 @@ static struct mtd_info *cfi_amdstd_setup(struct mtd_info *mtd)
+ 	kfree(mtd->eraseregions);
+ 	kfree(mtd);
+ 	kfree(cfi->cmdset_priv);
+-	kfree(cfi->cfiq);
+ 	return NULL;
+ }
  
- #define KHZ							1000
- 
-+#define KHZ_MAX						(ULONG_MAX / KHZ)
-+
- /* Assume that the bus is saturated if the utilization is 25% */
- #define BUS_SATURATION_RATIO					25
- 
-@@ -179,7 +181,7 @@ struct tegra_actmon_emc_ratio {
- };
- 
- static struct tegra_actmon_emc_ratio actmon_emc_ratios[] = {
--	{ 1400000, ULONG_MAX },
-+	{ 1400000,    KHZ_MAX },
- 	{ 1200000,    750000 },
- 	{ 1100000,    600000 },
- 	{ 1000000,    500000 },
 -- 
 2.25.1
 
