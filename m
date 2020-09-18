@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DF0B26F43C
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:14:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E65026F45C
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726515AbgIRCBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:01:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46446 "EHLO mail.kernel.org"
+        id S1727028AbgIRDN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:13:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726496AbgIRCBu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726510AbgIRCBu (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:01:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88C9521734;
-        Fri, 18 Sep 2020 02:01:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD0C721D92;
+        Fri, 18 Sep 2020 02:01:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394509;
-        bh=VvOb9MOaCBEjlKScL5k0MHaYmhPul/awoDD2zE/EiUU=;
+        s=default; t=1600394510;
+        bh=N3ynWYmdV/p1XabRsM2S+M0ftLt27a+Mcw8vF35vnIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AkEOqIetbTswIJm2poc3JLoyMk2HxNJTuRWMTsosTRtgkgYFqqV0W2DklOyqUDBLw
-         KA+pvIS/sFD9ErP2xP0cnw108h0bs8KusRHb8xK4zbVcRpgmCg3Pu8cmbo0PLTpfZn
-         7suagIJ/jndfQDhlEW9kwf2rEGs+BZ79jkI7IPt8=
+        b=U0F6aGqP5HdwE0/PgAgCr+ISvwwzxxfebH1MnYuh4o+G3JVvXFAgAyo6BajaGUwh8
+         9nV9sHa39DBpNf/m5ogGqkpYdE9rOUvWqPZDGzXTUc4/58d3vKnE2kfWUnrpGhhzMq
+         +4T8Mlt3Sf0egKdJrRHzDdp8dtIze0yMlqh90fE8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        kbuild test robot <lkp@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 032/330] dax: Fix alloc_dax_region() compile warning
-Date:   Thu, 17 Sep 2020 21:56:12 -0400
-Message-Id: <20200918020110.2063155-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 033/330] iomap: Fix overflow in iomap_page_mkwrite
+Date:   Thu, 17 Sep 2020 21:56:13 -0400
+Message-Id: <20200918020110.2063155-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -44,66 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 460370ab20b6cc174256e46e192adf01e730faf6 ]
+[ Upstream commit add66fcbd3fbe5aa0dd4dddfa23e119c12989a27 ]
 
-PFN flags are (unsigned long long), fix the alloc_dax_region() calling
-convention to fix warnings of the form:
+On architectures where loff_t is wider than pgoff_t, the expression
+((page->index + 1) << PAGE_SHIFT) can overflow.  Rewrite to use the page
+offset, which we already compute here anyway.
 
->> include/linux/pfn_t.h:18:17: warning: large integer implicitly truncated to unsigned type [-Woverflow]
-    #define PFN_DEV (1ULL << (BITS_PER_LONG_LONG - 3))
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dax/bus.c         | 2 +-
- drivers/dax/bus.h         | 2 +-
- drivers/dax/dax-private.h | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ fs/iomap/buffered-io.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/dax/bus.c b/drivers/dax/bus.c
-index 8fafbeab510a8..eccdda1f7b71b 100644
---- a/drivers/dax/bus.c
-+++ b/drivers/dax/bus.c
-@@ -227,7 +227,7 @@ static void dax_region_unregister(void *region)
+diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
+index e25901ae3ff44..a30ea7ecb790a 100644
+--- a/fs/iomap/buffered-io.c
++++ b/fs/iomap/buffered-io.c
+@@ -1040,20 +1040,19 @@ vm_fault_t iomap_page_mkwrite(struct vm_fault *vmf, const struct iomap_ops *ops)
  
- struct dax_region *alloc_dax_region(struct device *parent, int region_id,
- 		struct resource *res, int target_node, unsigned int align,
--		unsigned long pfn_flags)
-+		unsigned long long pfn_flags)
- {
- 	struct dax_region *dax_region;
+ 	lock_page(page);
+ 	size = i_size_read(inode);
+-	if ((page->mapping != inode->i_mapping) ||
+-	    (page_offset(page) > size)) {
++	offset = page_offset(page);
++	if (page->mapping != inode->i_mapping || offset > size) {
+ 		/* We overload EFAULT to mean page got truncated */
+ 		ret = -EFAULT;
+ 		goto out_unlock;
+ 	}
  
-diff --git a/drivers/dax/bus.h b/drivers/dax/bus.h
-index 8619e32999436..9e4eba67e8b98 100644
---- a/drivers/dax/bus.h
-+++ b/drivers/dax/bus.h
-@@ -11,7 +11,7 @@ struct dax_region;
- void dax_region_put(struct dax_region *dax_region);
- struct dax_region *alloc_dax_region(struct device *parent, int region_id,
- 		struct resource *res, int target_node, unsigned int align,
--		unsigned long flags);
-+		unsigned long long flags);
+ 	/* page is wholly or partially inside EOF */
+-	if (((page->index + 1) << PAGE_SHIFT) > size)
++	if (offset > size - PAGE_SIZE)
+ 		length = offset_in_page(size);
+ 	else
+ 		length = PAGE_SIZE;
  
- enum dev_dax_subsys {
- 	DEV_DAX_BUS,
-diff --git a/drivers/dax/dax-private.h b/drivers/dax/dax-private.h
-index 6ccca3b890d6f..3107ce80e8090 100644
---- a/drivers/dax/dax-private.h
-+++ b/drivers/dax/dax-private.h
-@@ -32,7 +32,7 @@ struct dax_region {
- 	struct device *dev;
- 	unsigned int align;
- 	struct resource res;
--	unsigned long pfn_flags;
-+	unsigned long long pfn_flags;
- };
- 
- /**
+-	offset = page_offset(page);
+ 	while (length > 0) {
+ 		ret = iomap_apply(inode, offset, length,
+ 				IOMAP_WRITE | IOMAP_FAULT, ops, page,
 -- 
 2.25.1
 
