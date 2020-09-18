@@ -2,43 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8975226F304
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3915826F2FF
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:03:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728022AbgIRDDh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:03:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52904 "EHLO mail.kernel.org"
+        id S1726151AbgIRCFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:05:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727414AbgIRCFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:05:00 -0400
+        id S1727423AbgIRCFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:05:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5080B238EE;
-        Fri, 18 Sep 2020 02:04:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2923D2344C;
+        Fri, 18 Sep 2020 02:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394699;
-        bh=54q9jwXQM2ZlOMlWtE3Sa/lenqEuk2jlTO1voiYQku8=;
+        s=default; t=1600394700;
+        bh=cy6Vb+w8dw3c/JpKeFygjW4q0sjZBzO0mk4wcmcKE64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVvtQsJ96YcnzL355XoenMiGXeUuzD8liVRJxvVbY9rbpKG/DavM1oG7YwnrQta+D
-         Ym5t6PPdxKoVhmYdyd4DGSZWQ6uThzALskVDQzWrYhObIQDNcNrP493+Ihn3bGltkR
-         evctLt2lHubuaAUWO0giVgT9cCCD3TV2E7DnQge0=
+        b=xhwoS+HDOLJPbDKBAjEarxv5rMLa3kdoYCIUEvOwqRn1VE9fxPHfirFMNAZOuSh/J
+         Guv7cMSNTBDJ/DRKjYXs2qo+8HdhuHWZVyGAI6RiCYLjXmOinx2cUg4mEwbVbLtn8D
+         +/eXwO7W2BxKT7b8dhPRVi7HdlNMuAkkUmWwRdVs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        clang-built-linux@googlegroups.com,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 186/330] perf parse-events: Fix 3 use after frees found with clang ASAN
-Date:   Thu, 17 Sep 2020 21:58:46 -0400
-Message-Id: <20200918020110.2063155-186-sashal@kernel.org>
+Cc:     Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 187/330] btrfs: do not init a reloc root if we aren't relocating
+Date:   Thu, 17 Sep 2020 21:58:47 -0400
+Message-Id: <20200918020110.2063155-187-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -50,66 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit d4953f7ef1a2e87ef732823af35361404d13fea8 ]
+[ Upstream commit 2abc726ab4b83db774e315c660ab8da21477092f ]
 
-Reproducible with a clang asan build and then running perf test in
-particular 'Parse event definition strings'.
+We previously were checking if the root had a dead root before accessing
+root->reloc_root in order to avoid a use-after-free type bug.  However
+this scenario happens after we've unset the reloc control, so we would
+have been saved if we'd simply checked for fs_info->reloc_control.  At
+this point during relocation we no longer need to be creating new reloc
+roots, so simply move this check above the reloc_root checks to avoid
+any future races and confusion.
 
-Signed-off-by: Ian Rogers <irogers@google.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: clang-built-linux@googlegroups.com
-Link: http://lore.kernel.org/lkml/20200314170356.62914-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/evsel.c        | 1 +
- tools/perf/util/parse-events.c | 4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ fs/btrfs/relocation.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index a844715a352d8..dfc982baecab4 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -1254,6 +1254,7 @@ void perf_evsel__exit(struct evsel *evsel)
- 	perf_thread_map__put(evsel->core.threads);
- 	zfree(&evsel->group_name);
- 	zfree(&evsel->name);
-+	zfree(&evsel->pmu_name);
- 	perf_evsel__object.fini(evsel);
- }
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index af3605a0bf2e0..1313506a7ecb5 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1468,6 +1468,10 @@ int btrfs_init_reloc_root(struct btrfs_trans_handle *trans,
+ 	int clear_rsv = 0;
+ 	int ret;
  
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 422ad1888e74f..2a97a5e3aa91e 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -1344,7 +1344,7 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
- 		evsel = __add_event(list, &parse_state->idx, &attr, NULL, pmu, NULL,
- 				    auto_merge_stats, NULL);
- 		if (evsel) {
--			evsel->pmu_name = name;
-+			evsel->pmu_name = name ? strdup(name) : NULL;
- 			evsel->use_uncore_alias = use_uncore_alias;
- 			return 0;
- 		} else {
-@@ -1385,7 +1385,7 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
- 		evsel->snapshot = info.snapshot;
- 		evsel->metric_expr = info.metric_expr;
- 		evsel->metric_name = info.metric_name;
--		evsel->pmu_name = name;
-+		evsel->pmu_name = name ? strdup(name) : NULL;
- 		evsel->use_uncore_alias = use_uncore_alias;
- 		evsel->percore = config_term_percore(&evsel->config_terms);
++	if (!rc || !rc->create_reloc_tree ||
++	    root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID)
++		return 0;
++
+ 	/*
+ 	 * The subvolume has reloc tree but the swap is finished, no need to
+ 	 * create/update the dead reloc tree
+@@ -1481,10 +1485,6 @@ int btrfs_init_reloc_root(struct btrfs_trans_handle *trans,
+ 		return 0;
  	}
+ 
+-	if (!rc || !rc->create_reloc_tree ||
+-	    root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID)
+-		return 0;
+-
+ 	if (!trans->reloc_reserved) {
+ 		rsv = trans->block_rsv;
+ 		trans->block_rsv = rc->block_rsv;
+@@ -2336,6 +2336,18 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
+ 			trans = NULL;
+ 			goto out;
+ 		}
++
++		/*
++		 * At this point we no longer have a reloc_control, so we can't
++		 * depend on btrfs_init_reloc_root to update our last_trans.
++		 *
++		 * But that's ok, we started the trans handle on our
++		 * corresponding fs_root, which means it's been added to the
++		 * dirty list.  At commit time we'll still call
++		 * btrfs_update_reloc_root() and update our root item
++		 * appropriately.
++		 */
++		reloc_root->last_trans = trans->transid;
+ 		trans->block_rsv = rc->block_rsv;
+ 
+ 		replaced = 0;
 -- 
 2.25.1
 
