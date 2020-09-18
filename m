@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9005326F3BD
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:10:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7981026F3C5
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:10:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728235AbgIRDJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:09:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49086 "EHLO mail.kernel.org"
+        id S1730336AbgIRDJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:09:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726973AbgIRCDK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:03:10 -0400
+        id S1726979AbgIRCDJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:03:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B98D0221EC;
-        Fri, 18 Sep 2020 02:03:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E38972376F;
+        Fri, 18 Sep 2020 02:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394587;
-        bh=U9M+zpFCNePno53yzOpfFRwLAW3GwH5HlPJWAMAnOPI=;
+        s=default; t=1600394588;
+        bh=gK1pCVrS3EWbvsNEZcGrV7NFBFqJjT6F0+m+yH146Hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFQQILCZxrcqQ98kYeYKOFV6cZsa3rwkCH4+aIj1hOjEkfymcpnjY7Q/UxXopPzy2
-         zHKHJbE5kVE/0ZmKA6rwptQMPLAfasFV9p+qnE682GydMv3BM21s/BWL+xgVdiaLDF
-         tvHAoZbSS8OK+0MrIWKi7iRR/wEwCEmw8lYSpVMg=
+        b=jqbbOov9HCHoZwqDSi8pFi8iTvUT/E6EaUZtM4INr4UEFBAtwgyW651SZExb4YQNb
+         nwFyDgr4/DLpJo9Q1aJW5x3ZB2tbHtZsaJvfezdNkTo+EfTG5Z++O7yDRJz5sULQqS
+         3gxDnChkgqHcE5F+/pKomTjqE9ensSmeaaoHYx7k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Saravana Kannan <saravanak@google.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 096/330] efi/arm: Defer probe of PCIe backed efifb on DT systems
-Date:   Thu, 17 Sep 2020 21:57:16 -0400
-Message-Id: <20200918020110.2063155-96-sashal@kernel.org>
+Cc:     Qu Wenruo <wqu@suse.com>, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 097/330] btrfs: tree-checker: Check leaf chunk item size
+Date:   Thu, 17 Sep 2020 21:57:17 -0400
+Message-Id: <20200918020110.2063155-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,166 +42,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 64c8a0cd0a535891d5905c3a1651150f0f141439 ]
+[ Upstream commit f6d2a5c263afca84646cf3300dc13061bedbd99e ]
 
-The new of_devlink support breaks PCIe probing on ARM platforms booting
-via UEFI if the firmware exposes a EFI framebuffer that is backed by a
-PCI device. The reason is that the probing order gets reversed,
-resulting in a resource conflict on the framebuffer memory window when
-the PCIe probes last, causing it to give up entirely.
+Inspired by btrfs-progs github issue #208, where chunk item in chunk
+tree has invalid num_stripes (0).
 
-Given that we rely on PCI quirks to deal with EFI framebuffers that get
-moved around in memory, we cannot simply drop the memory reservation, so
-instead, let's use the device link infrastructure to register this
-dependency, and force the probing to occur in the expected order.
+Although that can already be caught by current btrfs_check_chunk_valid(),
+that function doesn't really check item size as it needs to handle chunk
+item in super block sys_chunk_array().
 
-Co-developed-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20200113172245.27925-9-ardb@kernel.org
+This patch will add two extra checks for chunk items in chunk tree:
+
+- Basic chunk item size
+  If the item is smaller than btrfs_chunk (which already contains one
+  stripe), exit right now as reading num_stripes may even go beyond
+  eb boundary.
+
+- Item size check against num_stripes
+  If item size doesn't match with calculated chunk size, then either the
+  item size or the num_stripes is corrupted. Error out anyway.
+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/arm-init.c | 107 ++++++++++++++++++++++++++++++--
- 1 file changed, 103 insertions(+), 4 deletions(-)
+ fs/btrfs/tree-checker.c | 40 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 39 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/efi/arm-init.c b/drivers/firmware/efi/arm-init.c
-index 311cd349a8628..f136b77e13d98 100644
---- a/drivers/firmware/efi/arm-init.c
-+++ b/drivers/firmware/efi/arm-init.c
-@@ -10,10 +10,12 @@
- #define pr_fmt(fmt)	"efi: " fmt
- 
- #include <linux/efi.h>
-+#include <linux/fwnode.h>
- #include <linux/init.h>
- #include <linux/memblock.h>
- #include <linux/mm_types.h>
- #include <linux/of.h>
-+#include <linux/of_address.h>
- #include <linux/of_fdt.h>
- #include <linux/platform_device.h>
- #include <linux/screen_info.h>
-@@ -267,15 +269,112 @@ void __init efi_init(void)
- 		efi_memmap_unmap();
+diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
+index 91ea38506fbb7..84b8d6ebf98f3 100644
+--- a/fs/btrfs/tree-checker.c
++++ b/fs/btrfs/tree-checker.c
+@@ -674,6 +674,44 @@ int btrfs_check_chunk_valid(struct extent_buffer *leaf,
+ 	return 0;
  }
  
-+static bool efifb_overlaps_pci_range(const struct of_pci_range *range)
-+{
-+	u64 fb_base = screen_info.lfb_base;
-+
-+	if (screen_info.capabilities & VIDEO_CAPABILITY_64BIT_BASE)
-+		fb_base |= (u64)(unsigned long)screen_info.ext_lfb_base << 32;
-+
-+	return fb_base >= range->cpu_addr &&
-+	       fb_base < (range->cpu_addr + range->size);
-+}
-+
-+static struct device_node *find_pci_overlap_node(void)
-+{
-+	struct device_node *np;
-+
-+	for_each_node_by_type(np, "pci") {
-+		struct of_pci_range_parser parser;
-+		struct of_pci_range range;
-+		int err;
-+
-+		err = of_pci_range_parser_init(&parser, np);
-+		if (err) {
-+			pr_warn("of_pci_range_parser_init() failed: %d\n", err);
-+			continue;
-+		}
-+
-+		for_each_of_pci_range(&parser, &range)
-+			if (efifb_overlaps_pci_range(&range))
-+				return np;
-+	}
-+	return NULL;
-+}
-+
 +/*
-+ * If the efifb framebuffer is backed by a PCI graphics controller, we have
-+ * to ensure that this relation is expressed using a device link when
-+ * running in DT mode, or the probe order may be reversed, resulting in a
-+ * resource reservation conflict on the memory window that the efifb
-+ * framebuffer steals from the PCIe host bridge.
++ * Enhanced version of chunk item checker.
++ *
++ * The common btrfs_check_chunk_valid() doesn't check item size since it needs
++ * to work on super block sys_chunk_array which doesn't have full item ptr.
 + */
-+static int efifb_add_links(const struct fwnode_handle *fwnode,
-+			   struct device *dev)
++static int check_leaf_chunk_item(struct extent_buffer *leaf,
++				 struct btrfs_chunk *chunk,
++				 struct btrfs_key *key, int slot)
 +{
-+	struct device_node *sup_np;
-+	struct device *sup_dev;
++	int num_stripes;
 +
-+	sup_np = find_pci_overlap_node();
++	if (btrfs_item_size_nr(leaf, slot) < sizeof(struct btrfs_chunk)) {
++		chunk_err(leaf, chunk, key->offset,
++			"invalid chunk item size: have %u expect [%zu, %u)",
++			btrfs_item_size_nr(leaf, slot),
++			sizeof(struct btrfs_chunk),
++			BTRFS_LEAF_DATA_SIZE(leaf->fs_info));
++		return -EUCLEAN;
++	}
 +
-+	/*
-+	 * If there's no PCI graphics controller backing the efifb, we are
-+	 * done here.
-+	 */
-+	if (!sup_np)
-+		return 0;
++	num_stripes = btrfs_chunk_num_stripes(leaf, chunk);
++	/* Let btrfs_check_chunk_valid() handle this error type */
++	if (num_stripes == 0)
++		goto out;
 +
-+	sup_dev = get_dev_from_fwnode(&sup_np->fwnode);
-+	of_node_put(sup_np);
-+
-+	/*
-+	 * Return -ENODEV if the PCI graphics controller device hasn't been
-+	 * registered yet.  This ensures that efifb isn't allowed to probe
-+	 * and this function is retried again when new devices are
-+	 * registered.
-+	 */
-+	if (!sup_dev)
-+		return -ENODEV;
-+
-+	/*
-+	 * If this fails, retrying this function at a later point won't
-+	 * change anything. So, don't return an error after this.
-+	 */
-+	if (!device_link_add(dev, sup_dev, 0))
-+		dev_warn(dev, "device_link_add() failed\n");
-+
-+	put_device(sup_dev);
-+
-+	return 0;
++	if (btrfs_chunk_item_size(num_stripes) !=
++	    btrfs_item_size_nr(leaf, slot)) {
++		chunk_err(leaf, chunk, key->offset,
++			"invalid chunk item size: have %u expect %lu",
++			btrfs_item_size_nr(leaf, slot),
++			btrfs_chunk_item_size(num_stripes));
++		return -EUCLEAN;
++	}
++out:
++	return btrfs_check_chunk_valid(leaf, chunk, key->offset);
 +}
 +
-+static const struct fwnode_operations efifb_fwnode_ops = {
-+	.add_links = efifb_add_links,
-+};
-+
-+static struct fwnode_handle efifb_fwnode = {
-+	.ops = &efifb_fwnode_ops,
-+};
-+
- static int __init register_gop_device(void)
- {
--	void *pd;
-+	struct platform_device *pd;
-+	int err;
- 
- 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI)
- 		return 0;
- 
--	pd = platform_device_register_data(NULL, "efi-framebuffer", 0,
--					   &screen_info, sizeof(screen_info));
--	return PTR_ERR_OR_ZERO(pd);
-+	pd = platform_device_alloc("efi-framebuffer", 0);
-+	if (!pd)
-+		return -ENOMEM;
-+
-+	if (IS_ENABLED(CONFIG_PCI))
-+		pd->dev.fwnode = &efifb_fwnode;
-+
-+	err = platform_device_add_data(pd, &screen_info, sizeof(screen_info));
-+	if (err)
-+		return err;
-+
-+	return platform_device_add(pd);
- }
- subsys_initcall(register_gop_device);
+ __printf(3, 4)
+ __cold
+ static void dev_item_err(const struct extent_buffer *eb, int slot,
+@@ -1265,7 +1303,7 @@ static int check_leaf_item(struct extent_buffer *leaf,
+ 		break;
+ 	case BTRFS_CHUNK_ITEM_KEY:
+ 		chunk = btrfs_item_ptr(leaf, slot, struct btrfs_chunk);
+-		ret = btrfs_check_chunk_valid(leaf, chunk, key->offset);
++		ret = check_leaf_chunk_item(leaf, chunk, key, slot);
+ 		break;
+ 	case BTRFS_DEV_ITEM_KEY:
+ 		ret = check_dev_item(leaf, key, slot);
 -- 
 2.25.1
 
