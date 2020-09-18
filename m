@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBD8926EDB2
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:23:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACF9526EDAC
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729452AbgIRCWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:22:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47294 "EHLO mail.kernel.org"
+        id S1728381AbgIRCWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:22:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729482AbgIRCRC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:17:02 -0400
+        id S1729490AbgIRCRD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:17:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95CE6239D4;
-        Fri, 18 Sep 2020 02:17:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87F9023772;
+        Fri, 18 Sep 2020 02:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395422;
-        bh=Bv4NdRNFNxCHZraeIsHJIIhSpe22g8VMRyLUvFVf5jY=;
+        s=default; t=1600395423;
+        bh=70QjCaOHpMZNXQETwGddEY2WVyd87achreBJ2LYAhVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjj2jfaekm3oDXIsWsWP/iFPNFxxdp7UakFCMr9DuL4aKQDtQApInnSs8qSS7BHWH
-         f4360xUBSyJ4JYtkKieUQp+KrMlaHJ73z9n8xD4xDZ3e6TtyOIgMdrunkjQZ1cnzUY
-         nPs+PpvVnIxPBfXYcxmUGJXXbAV/T5B8rsj6xHhU=
+        b=el8gIkB7196h+Tqi8sel/eRavA5hc9BbcP+ztS4xAJUNaZjXKBUtkJ/Brha2BXLND
+         v+OywVf2msGd0+5N9lreJry7AYl+fEh8OGcgJGrB/3JlOrbBz7CQLJtLxqqOcB4uqY
+         58XuRMEZpthWDs2cuwHJenm+4Znr33+RezhU4ziw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 16/64] ACPI: EC: Reference count query handlers under lock
-Date:   Thu, 17 Sep 2020 22:15:55 -0400
-Message-Id: <20200918021643.2067895-16-sashal@kernel.org>
+Cc:     Josef Bacik <jbacik@fb.com>, Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 17/64] tracing: Set kernel_stack's caller size properly
+Date:   Thu, 17 Sep 2020 22:15:56 -0400
+Message-Id: <20200918021643.2067895-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021643.2067895-1-sashal@kernel.org>
 References: <20200918021643.2067895-1-sashal@kernel.org>
@@ -41,63 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Josef Bacik <jbacik@fb.com>
 
-[ Upstream commit 3df663a147fe077a6ee8444ec626738946e65547 ]
+[ Upstream commit cbc3b92ce037f5e7536f6db157d185cd8b8f615c ]
 
-There is a race condition in acpi_ec_get_query_handler()
-theoretically allowing query handlers to go away before refernce
-counting them.
+I noticed when trying to use the trace-cmd python interface that reading the raw
+buffer wasn't working for kernel_stack events.  This is because it uses a
+stubbed version of __dynamic_array that doesn't do the __data_loc trick and
+encode the length of the array into the field.  Instead it just shows up as a
+size of 0.  So change this to __array and set the len to FTRACE_STACK_ENTRIES
+since this is what we actually do in practice and matches how user_stack_trace
+works.
 
-In order to avoid it, call kref_get() on query handlers under
-ec->mutex.
+Link: http://lkml.kernel.org/r/1411589652-1318-1-git-send-email-jbacik@fb.com
 
-Also simplify the code a bit while at it.
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Josef Bacik <jbacik@fb.com>
+[ Pulled from the archeological digging of my INBOX ]
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ kernel/trace/trace_entries.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index 43f20328f830e..3096c087b7328 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -943,29 +943,21 @@ void acpi_ec_unblock_transactions_early(void)
- /* --------------------------------------------------------------------------
-                                 Event Management
-    -------------------------------------------------------------------------- */
--static struct acpi_ec_query_handler *
--acpi_ec_get_query_handler(struct acpi_ec_query_handler *handler)
--{
--	if (handler)
--		kref_get(&handler->kref);
--	return handler;
--}
--
- static struct acpi_ec_query_handler *
- acpi_ec_get_query_handler_by_value(struct acpi_ec *ec, u8 value)
- {
- 	struct acpi_ec_query_handler *handler;
--	bool found = false;
+diff --git a/kernel/trace/trace_entries.h b/kernel/trace/trace_entries.h
+index ee7b94a4810af..246db27dbdc99 100644
+--- a/kernel/trace/trace_entries.h
++++ b/kernel/trace/trace_entries.h
+@@ -178,7 +178,7 @@ FTRACE_ENTRY(kernel_stack, stack_entry,
  
- 	mutex_lock(&ec->mutex);
- 	list_for_each_entry(handler, &ec->list, node) {
- 		if (value == handler->query_bit) {
--			found = true;
--			break;
-+			kref_get(&handler->kref);
-+			mutex_unlock(&ec->mutex);
-+			return handler;
- 		}
- 	}
- 	mutex_unlock(&ec->mutex);
--	return found ? acpi_ec_get_query_handler(handler) : NULL;
-+	return NULL;
- }
+ 	F_STRUCT(
+ 		__field(	int,		size	)
+-		__dynamic_array(unsigned long,	caller	)
++		__array(	unsigned long,	caller,	FTRACE_STACK_ENTRIES	)
+ 	),
  
- static void acpi_ec_query_handler_release(struct kref *kref)
+ 	F_printk("\t=> (" IP_FMT ")\n\t=> (" IP_FMT ")\n\t=> (" IP_FMT ")\n"
 -- 
 2.25.1
 
