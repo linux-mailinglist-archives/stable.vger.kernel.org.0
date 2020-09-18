@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5221026F220
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:56:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E24D626F219
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727780AbgIRC43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:56:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57128 "EHLO mail.kernel.org"
+        id S1728348AbgIRC4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:56:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726928AbgIRCHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:07:05 -0400
+        id S1727841AbgIRCHH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:07:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 749EA239E5;
-        Fri, 18 Sep 2020 02:06:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABE1D23770;
+        Fri, 18 Sep 2020 02:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394812;
-        bh=ZZNJK65ntMv3itHnvKIAkX4hgmrikXv/Ak/qwIrHRzs=;
+        s=default; t=1600394813;
+        bh=4RHDLPx1B2EiQrAj9Ccw67ednESdgfjPvKhBLY38m80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ykbfgYFye76ZD58NhLWPmz1KEC8nZ1SMLcrLQN/G3n4ZzfJFMhBstuwxFrax1oCs0
-         +ljBDbB4ENsZqmfiGf3LImKukxrsQxKl8gxnLMxojVUOW3t1Z2lZHARq8iiGkL6unU
-         vVURt9VgBmR+fPICBLKL4yck+CfC9K0Kz4PsnujY=
+        b=HkT2FPL/nK3v8sE/GuiV/dg+cbKwzLS2iVm+5bYQ1oM3MsgwTmc0s47oZ0COJdXz0
+         Rpj4YFClU7YlqE7+mRwDudUVHWJkcGtnv3oRFFf9EHPgSSkS4fZBDbxoihmEx0BiJw
+         T/2sIG0XO+eUBqE+y8SJTJYIaVH5qcGeoVJUeYo4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+Cc:     Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        Maxim Zhukov <mussitantesmortem@gmail.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 279/330] drm/amdkfd: fix restore worker race condition
-Date:   Thu, 17 Sep 2020 22:00:19 -0400
-Message-Id: <20200918020110.2063155-279-sashal@kernel.org>
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 280/330] e1000: Do not perform reset in reset_task if we are already down
+Date:   Thu, 17 Sep 2020 22:00:20 -0400
+Message-Id: <20200918020110.2063155-280-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -44,46 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 
-[ Upstream commit f7646585a30ed8ef5ab300d4dc3b0c1d6afbe71d ]
+[ Upstream commit 49ee3c2ab5234757bfb56a0b3a3cb422f427e3a3 ]
 
-In free memory of gpu path, remove bo from validate_list to make sure
-restore worker don't access the BO any more, then unregister bo MMU
-interval notifier. Otherwise, the restore worker will crash in the
-middle of validating BO user pages if MMU interval notifer is gone.
+We are seeing a deadlock in e1000 down when NAPI is being disabled. Looking
+over the kernel function trace of the system it appears that the interface
+is being closed and then a reset is hitting which deadlocks the interface
+as the NAPI interface is already disabled.
 
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+To prevent this from happening I am disabling the reset task when
+__E1000_DOWN is already set. In addition code has been added so that we set
+the __E1000_DOWN while holding the __E1000_RESET flag in e1000_close in
+order to guarantee that the reset task will not run after we have started
+the close call.
+
+Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Tested-by: Maxim Zhukov <mussitantesmortem@gmail.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/e1000/e1000_main.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index edb561baf8b90..f3fa271e3394c 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -1247,15 +1247,15 @@ int amdgpu_amdkfd_gpuvm_free_memory_of_gpu(
- 	 * be freed anyway
- 	 */
- 
--	/* No more MMU notifiers */
--	amdgpu_mn_unregister(mem->bo);
--
- 	/* Make sure restore workers don't access the BO any more */
- 	bo_list_entry = &mem->validate_list;
- 	mutex_lock(&process_info->lock);
- 	list_del(&bo_list_entry->head);
- 	mutex_unlock(&process_info->lock);
- 
-+	/* No more MMU notifiers */
-+	amdgpu_mn_unregister(mem->bo);
+diff --git a/drivers/net/ethernet/intel/e1000/e1000_main.c b/drivers/net/ethernet/intel/e1000/e1000_main.c
+index f93ed70709c65..a2ee28e487a6f 100644
+--- a/drivers/net/ethernet/intel/e1000/e1000_main.c
++++ b/drivers/net/ethernet/intel/e1000/e1000_main.c
+@@ -542,8 +542,13 @@ void e1000_reinit_locked(struct e1000_adapter *adapter)
+ 	WARN_ON(in_interrupt());
+ 	while (test_and_set_bit(__E1000_RESETTING, &adapter->flags))
+ 		msleep(1);
+-	e1000_down(adapter);
+-	e1000_up(adapter);
 +
- 	ret = reserve_bo_and_cond_vms(mem, NULL, BO_VM_ALL, &ctx);
- 	if (unlikely(ret))
- 		return ret;
++	/* only run the task if not already down */
++	if (!test_bit(__E1000_DOWN, &adapter->flags)) {
++		e1000_down(adapter);
++		e1000_up(adapter);
++	}
++
+ 	clear_bit(__E1000_RESETTING, &adapter->flags);
+ }
+ 
+@@ -1433,10 +1438,15 @@ int e1000_close(struct net_device *netdev)
+ 	struct e1000_hw *hw = &adapter->hw;
+ 	int count = E1000_CHECK_RESET_COUNT;
+ 
+-	while (test_bit(__E1000_RESETTING, &adapter->flags) && count--)
++	while (test_and_set_bit(__E1000_RESETTING, &adapter->flags) && count--)
+ 		usleep_range(10000, 20000);
+ 
+-	WARN_ON(test_bit(__E1000_RESETTING, &adapter->flags));
++	WARN_ON(count < 0);
++
++	/* signal that we're down so that the reset task will no longer run */
++	set_bit(__E1000_DOWN, &adapter->flags);
++	clear_bit(__E1000_RESETTING, &adapter->flags);
++
+ 	e1000_down(adapter);
+ 	e1000_power_down_phy(adapter);
+ 	e1000_free_irq(adapter);
 -- 
 2.25.1
 
