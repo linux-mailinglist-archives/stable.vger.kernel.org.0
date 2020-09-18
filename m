@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBBFF26F0C1
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7D2D26F0BF
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730155AbgIRCqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:46:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33866 "EHLO mail.kernel.org"
+        id S1729512AbgIRCqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:46:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726541AbgIRCJy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:09:54 -0400
+        id S1728379AbgIRCJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:09:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CF362395C;
-        Fri, 18 Sep 2020 02:09:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80570238A1;
+        Fri, 18 Sep 2020 02:09:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394994;
-        bh=6wXX2t7FYw63BCc7Y2kMBYltJqD0WILpuIFbROS0tqk=;
+        s=default; t=1600394996;
+        bh=AShoZ/zcsQ+0JyFsrrHuJ43dI7sw9OdznJeA6RIcGJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIKI1R16Tye/K8hNoF9neK/8GEKYFSPLzUu3WfV9as74v0Fx0oyYfNPePIugpqK4w
-         vbBA8DdtLUNSDV65ctCE8FLHOJbllgHVEMIwCo2gbNwGR/rzXE1BoT6th8kv0/6fam
-         Zej60DVfk9g3TI5wGc2PG8piA3s3NdJJfPRC8CN0=
+        b=NaTp9c1jujR+AcyiBkVbsK8kbWltASObltQo+4H6cWwBo7+GUzhJqwzs1oceGSIfa
+         y4qXNK78ofu7VV6LEgHd6Yzsub+cwsVlLVTWzIixWJnnQZJnQo5/Eu36hZ9RUpl6TS
+         GUDzOtXDOUwrBELNZZCUGP69l+7sF+5kYzgtFbnw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Theodore Ts'o <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 092/206] random: fix data races at timer_rand_state
-Date:   Thu, 17 Sep 2020 22:06:08 -0400
-Message-Id: <20200918020802.2065198-92-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        =?UTF-8?q?Josef=20M=C3=B6llers?= <josef.moellers@suse.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 094/206] media: go7007: Fix URB type for interrupt handling
+Date:   Thu, 17 Sep 2020 22:06:10 -0400
+Message-Id: <20200918020802.2065198-94-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -41,107 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit e00d996a4317aff5351c4338dd97d390225412c2 ]
+[ Upstream commit a3ea410cac41b19a5490aad7fe6d9a9a772e646e ]
 
-Fields in "struct timer_rand_state" could be accessed concurrently.
-Lockless plain reads and writes result in data races. Fix them by adding
-pairs of READ|WRITE_ONCE(). The data races were reported by KCSAN,
+Josef reported that his old-and-good Plextor ConvertX M402U video
+converter spews lots of WARNINGs on the recent kernels, and it turned
+out that the device uses a bulk endpoint for interrupt handling just
+like 2250 board.
 
- BUG: KCSAN: data-race in add_timer_randomness / add_timer_randomness
+For fixing it, generalize the check with the proper verification of
+the endpoint instead of hard-coded board type check.
 
- write to 0xffff9f320a0a01d0 of 8 bytes by interrupt on cpu 22:
-  add_timer_randomness+0x100/0x190
-  add_timer_randomness at drivers/char/random.c:1152
-  add_disk_randomness+0x85/0x280
-  scsi_end_request+0x43a/0x4a0
-  scsi_io_completion+0xb7/0x7e0
-  scsi_finish_command+0x1ed/0x2a0
-  scsi_softirq_done+0x1c9/0x1d0
-  blk_done_softirq+0x181/0x1d0
-  __do_softirq+0xd9/0x57c
-  irq_exit+0xa2/0xc0
-  do_IRQ+0x8b/0x190
-  ret_from_intr+0x0/0x42
-  cpuidle_enter_state+0x15e/0x980
-  cpuidle_enter+0x69/0xc0
-  call_cpuidle+0x23/0x40
-  do_idle+0x248/0x280
-  cpu_startup_entry+0x1d/0x1f
-  start_secondary+0x1b2/0x230
-  secondary_startup_64+0xb6/0xc0
+Fixes: 7e5219d18e93 ("[media] go7007: Fix 2250 urb type")
+Reported-and-tested-by: Josef Möllers <josef.moellers@suse.com>
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1162583
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206427
 
- no locks held by swapper/22/0.
- irq event stamp: 32871382
- _raw_spin_unlock_irqrestore+0x53/0x60
- _raw_spin_lock_irqsave+0x21/0x60
- _local_bh_enable+0x21/0x30
- irq_exit+0xa2/0xc0
-
- read to 0xffff9f320a0a01d0 of 8 bytes by interrupt on cpu 2:
-  add_timer_randomness+0xe8/0x190
-  add_disk_randomness+0x85/0x280
-  scsi_end_request+0x43a/0x4a0
-  scsi_io_completion+0xb7/0x7e0
-  scsi_finish_command+0x1ed/0x2a0
-  scsi_softirq_done+0x1c9/0x1d0
-  blk_done_softirq+0x181/0x1d0
-  __do_softirq+0xd9/0x57c
-  irq_exit+0xa2/0xc0
-  do_IRQ+0x8b/0x190
-  ret_from_intr+0x0/0x42
-  cpuidle_enter_state+0x15e/0x980
-  cpuidle_enter+0x69/0xc0
-  call_cpuidle+0x23/0x40
-  do_idle+0x248/0x280
-  cpu_startup_entry+0x1d/0x1f
-  start_secondary+0x1b2/0x230
-  secondary_startup_64+0xb6/0xc0
-
- no locks held by swapper/2/0.
- irq event stamp: 37846304
- _raw_spin_unlock_irqrestore+0x53/0x60
- _raw_spin_lock_irqsave+0x21/0x60
- _local_bh_enable+0x21/0x30
- irq_exit+0xa2/0xc0
-
- Reported by Kernel Concurrency Sanitizer on:
- Hardware name: HP ProLiant BL660c Gen9, BIOS I38 10/17/2018
-
-Link: https://lore.kernel.org/r/1582648024-13111-1-git-send-email-cai@lca.pw
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/media/usb/go7007/go7007-usb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 6a5d4dfafc474..80dedecfe15c5 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1150,14 +1150,14 @@ static void add_timer_randomness(struct timer_rand_state *state, unsigned num)
- 	 * We take into account the first, second and third-order deltas
- 	 * in order to make our estimate.
- 	 */
--	delta = sample.jiffies - state->last_time;
--	state->last_time = sample.jiffies;
-+	delta = sample.jiffies - READ_ONCE(state->last_time);
-+	WRITE_ONCE(state->last_time, sample.jiffies);
+diff --git a/drivers/media/usb/go7007/go7007-usb.c b/drivers/media/usb/go7007/go7007-usb.c
+index 19c6a0354ce00..b84a6f6548610 100644
+--- a/drivers/media/usb/go7007/go7007-usb.c
++++ b/drivers/media/usb/go7007/go7007-usb.c
+@@ -1052,6 +1052,7 @@ static int go7007_usb_probe(struct usb_interface *intf,
+ 	struct go7007_usb *usb;
+ 	const struct go7007_usb_board *board;
+ 	struct usb_device *usbdev = interface_to_usbdev(intf);
++	struct usb_host_endpoint *ep;
+ 	unsigned num_i2c_devs;
+ 	char *name;
+ 	int video_pipe, i, v_urb_len;
+@@ -1148,7 +1149,8 @@ static int go7007_usb_probe(struct usb_interface *intf,
+ 	if (usb->intr_urb->transfer_buffer == NULL)
+ 		goto allocfail;
  
--	delta2 = delta - state->last_delta;
--	state->last_delta = delta;
-+	delta2 = delta - READ_ONCE(state->last_delta);
-+	WRITE_ONCE(state->last_delta, delta);
- 
--	delta3 = delta2 - state->last_delta2;
--	state->last_delta2 = delta2;
-+	delta3 = delta2 - READ_ONCE(state->last_delta2);
-+	WRITE_ONCE(state->last_delta2, delta2);
- 
- 	if (delta < 0)
- 		delta = -delta;
+-	if (go->board_id == GO7007_BOARDID_SENSORAY_2250)
++	ep = usb->usbdev->ep_in[4];
++	if (usb_endpoint_type(&ep->desc) == USB_ENDPOINT_XFER_BULK)
+ 		usb_fill_bulk_urb(usb->intr_urb, usb->usbdev,
+ 			usb_rcvbulkpipe(usb->usbdev, 4),
+ 			usb->intr_urb->transfer_buffer, 2*sizeof(u16),
 -- 
 2.25.1
 
