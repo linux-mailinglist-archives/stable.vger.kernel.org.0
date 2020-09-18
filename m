@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 555FB26EB7C
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:06:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A50C26EB82
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727561AbgIRCFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:05:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53518 "EHLO mail.kernel.org"
+        id S1726365AbgIRCFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:05:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727552AbgIRCFb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:05:31 -0400
+        id S1726357AbgIRCFn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:05:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4468D238A0;
-        Fri, 18 Sep 2020 02:05:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7015235FD;
+        Fri, 18 Sep 2020 02:05:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394729;
-        bh=Ft50cF0MuhbQrKK3V7Zti76wllVU65zW4BxljG/MI9g=;
+        s=default; t=1600394742;
+        bh=o6s7ulN4ST66l2nBYhHeONyLKRBRDAvQpNO7rRxRfBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvLatr+v4bB2NL+gUcQHW9hrQzThnOigpjyktc6KxddR29mAuRIQKfWQAcHIBwH1f
-         Cz54MSuEc0wEtKgaiOYLxWjZtmcBDpeuWXquCoFsYl342J+2v9uobsTLmN+nk9gBdA
-         OhtlDHAJK3QY6GWQu89uMjTzd0NvEFNFotI2lW2M=
+        b=wXLpdrO6tvbKjvwJrLtBzY73ahb2o8SUQUuYu3tjMNEb3363YK4LfEUUa7UowhSTJ
+         ZuGCM9Aj1uSiCTzKDpt6RdLhLk2ehnzPXuApGruLlB/WchioZIr1QPZ+Cn7xOkxxYD
+         ySRYzIXkTGZfLsfNnpu0FY9GWzicxkd0R842Kfmg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Gorenko <sergeygo@mellanox.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 211/330] IB/iser: Always check sig MR before putting it to the free pool
-Date:   Thu, 17 Sep 2020 21:59:11 -0400
-Message-Id: <20200918020110.2063155-211-sashal@kernel.org>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 222/330] NFS: Fix races nfs_page_group_destroy() vs nfs_destroy_unlinked_subrequests()
+Date:   Thu, 17 Sep 2020 21:59:22 -0400
+Message-Id: <20200918020110.2063155-222-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,66 +41,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Gorenko <sergeygo@mellanox.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 26e28deb813eed908cf31a6052870b6493ec0e86 ]
+[ Upstream commit 08ca8b21f760c0ed5034a5c122092eec22ccf8f4 ]
 
-libiscsi calls the check_protection transport handler only if SCSI-Respose
-is received. So, the handler is never called if iSCSI task is completed
-for some other reason like a timeout or error handling. And this behavior
-looks correct. But the iSER does not handle this case properly because it
-puts a non-checked signature MR to the free pool. Then the error occurs at
-reusing the MR because it is not allowed to invalidate a signature MR
-without checking.
+When a subrequest is being detached from the subgroup, we want to
+ensure that it is not holding the group lock, or in the process
+of waiting for the group lock.
 
-This commit adds an extra check to iser_unreg_mem_fastreg(), which is a
-part of the task cleanup flow. Now the signature MR is checked there if it
-is needed.
-
-Link: https://lore.kernel.org/r/20200325151210.1548-1-sergeygo@mellanox.com
-Signed-off-by: Sergey Gorenko <sergeygo@mellanox.com>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 5b2b5187fa85 ("NFS: Fix nfs_page_group_destroy() and nfs_lock_and_join_requests() race cases")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/iser/iser_memory.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ fs/nfs/pagelist.c        | 67 +++++++++++++++++++++++++++-------------
+ fs/nfs/write.c           | 10 ++++--
+ include/linux/nfs_page.h |  2 ++
+ 3 files changed, 55 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/iser/iser_memory.c b/drivers/infiniband/ulp/iser/iser_memory.c
-index 2cc89a9b9e9bb..ea8e611397a3b 100644
---- a/drivers/infiniband/ulp/iser/iser_memory.c
-+++ b/drivers/infiniband/ulp/iser/iser_memory.c
-@@ -292,12 +292,27 @@ void iser_unreg_mem_fastreg(struct iscsi_iser_task *iser_task,
+diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
+index b736912098eee..f4407dd426bf0 100644
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -133,47 +133,70 @@ nfs_async_iocounter_wait(struct rpc_task *task, struct nfs_lock_context *l_ctx)
+ EXPORT_SYMBOL_GPL(nfs_async_iocounter_wait);
+ 
+ /*
+- * nfs_page_group_lock - lock the head of the page group
+- * @req - request in group that is to be locked
++ * nfs_page_set_headlock - set the request PG_HEADLOCK
++ * @req: request that is to be locked
+  *
+- * this lock must be held when traversing or modifying the page
+- * group list
++ * this lock must be held when modifying req->wb_head
+  *
+  * return 0 on success, < 0 on error
+  */
+ int
+-nfs_page_group_lock(struct nfs_page *req)
++nfs_page_set_headlock(struct nfs_page *req)
  {
- 	struct iser_device *device = iser_task->iser_conn->ib_conn.device;
- 	struct iser_mem_reg *reg = &iser_task->rdma_reg[cmd_dir];
-+	struct iser_fr_desc *desc;
-+	struct ib_mr_status mr_status;
+-	struct nfs_page *head = req->wb_head;
+-
+-	WARN_ON_ONCE(head != head->wb_head);
+-
+-	if (!test_and_set_bit(PG_HEADLOCK, &head->wb_flags))
++	if (!test_and_set_bit(PG_HEADLOCK, &req->wb_flags))
+ 		return 0;
  
--	if (!reg->mem_h)
-+	desc = reg->mem_h;
-+	if (!desc)
- 		return;
- 
--	device->reg_ops->reg_desc_put(&iser_task->iser_conn->ib_conn,
--				     reg->mem_h);
-+	/*
-+	 * The signature MR cannot be invalidated and reused without checking.
-+	 * libiscsi calls the check_protection transport handler only if
-+	 * SCSI-Response is received. And the signature MR is not checked if
-+	 * the task is completed for some other reason like a timeout or error
-+	 * handling. That's why we must check the signature MR here before
-+	 * putting it to the free pool.
-+	 */
-+	if (unlikely(desc->sig_protected)) {
-+		desc->sig_protected = false;
-+		ib_check_mr_status(desc->rsc.sig_mr, IB_MR_CHECK_SIG_STATUS,
-+				   &mr_status);
-+	}
-+	device->reg_ops->reg_desc_put(&iser_task->iser_conn->ib_conn, desc);
- 	reg->mem_h = NULL;
+-	set_bit(PG_CONTENDED1, &head->wb_flags);
++	set_bit(PG_CONTENDED1, &req->wb_flags);
+ 	smp_mb__after_atomic();
+-	return wait_on_bit_lock(&head->wb_flags, PG_HEADLOCK,
++	return wait_on_bit_lock(&req->wb_flags, PG_HEADLOCK,
+ 				TASK_UNINTERRUPTIBLE);
  }
  
+ /*
+- * nfs_page_group_unlock - unlock the head of the page group
+- * @req - request in group that is to be unlocked
++ * nfs_page_clear_headlock - clear the request PG_HEADLOCK
++ * @req: request that is to be locked
+  */
+ void
+-nfs_page_group_unlock(struct nfs_page *req)
++nfs_page_clear_headlock(struct nfs_page *req)
+ {
+-	struct nfs_page *head = req->wb_head;
+-
+-	WARN_ON_ONCE(head != head->wb_head);
+-
+ 	smp_mb__before_atomic();
+-	clear_bit(PG_HEADLOCK, &head->wb_flags);
++	clear_bit(PG_HEADLOCK, &req->wb_flags);
+ 	smp_mb__after_atomic();
+-	if (!test_bit(PG_CONTENDED1, &head->wb_flags))
++	if (!test_bit(PG_CONTENDED1, &req->wb_flags))
+ 		return;
+-	wake_up_bit(&head->wb_flags, PG_HEADLOCK);
++	wake_up_bit(&req->wb_flags, PG_HEADLOCK);
++}
++
++/*
++ * nfs_page_group_lock - lock the head of the page group
++ * @req: request in group that is to be locked
++ *
++ * this lock must be held when traversing or modifying the page
++ * group list
++ *
++ * return 0 on success, < 0 on error
++ */
++int
++nfs_page_group_lock(struct nfs_page *req)
++{
++	int ret;
++
++	ret = nfs_page_set_headlock(req);
++	if (ret || req->wb_head == req)
++		return ret;
++	return nfs_page_set_headlock(req->wb_head);
++}
++
++/*
++ * nfs_page_group_unlock - unlock the head of the page group
++ * @req: request in group that is to be unlocked
++ */
++void
++nfs_page_group_unlock(struct nfs_page *req)
++{
++	if (req != req->wb_head)
++		nfs_page_clear_headlock(req->wb_head);
++	nfs_page_clear_headlock(req);
+ }
+ 
+ /*
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 58c8317dd7d88..613c3ef23e07b 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -425,22 +425,28 @@ nfs_destroy_unlinked_subrequests(struct nfs_page *destroy_list,
+ 		destroy_list = (subreq->wb_this_page == old_head) ?
+ 				   NULL : subreq->wb_this_page;
+ 
++		/* Note: lock subreq in order to change subreq->wb_head */
++		nfs_page_set_headlock(subreq);
+ 		WARN_ON_ONCE(old_head != subreq->wb_head);
+ 
+ 		/* make sure old group is not used */
+ 		subreq->wb_this_page = subreq;
++		subreq->wb_head = subreq;
+ 
+ 		clear_bit(PG_REMOVE, &subreq->wb_flags);
+ 
+ 		/* Note: races with nfs_page_group_destroy() */
+ 		if (!kref_read(&subreq->wb_kref)) {
+ 			/* Check if we raced with nfs_page_group_destroy() */
+-			if (test_and_clear_bit(PG_TEARDOWN, &subreq->wb_flags))
++			if (test_and_clear_bit(PG_TEARDOWN, &subreq->wb_flags)) {
++				nfs_page_clear_headlock(subreq);
+ 				nfs_free_request(subreq);
++			} else
++				nfs_page_clear_headlock(subreq);
+ 			continue;
+ 		}
++		nfs_page_clear_headlock(subreq);
+ 
+-		subreq->wb_head = subreq;
+ 		nfs_release_request(old_head);
+ 
+ 		if (test_and_clear_bit(PG_INODE_REF, &subreq->wb_flags)) {
+diff --git a/include/linux/nfs_page.h b/include/linux/nfs_page.h
+index 0bbd587fac6a9..7e9419d74b86b 100644
+--- a/include/linux/nfs_page.h
++++ b/include/linux/nfs_page.h
+@@ -142,6 +142,8 @@ extern	void nfs_unlock_and_release_request(struct nfs_page *);
+ extern int nfs_page_group_lock(struct nfs_page *);
+ extern void nfs_page_group_unlock(struct nfs_page *);
+ extern bool nfs_page_group_sync_on_bit(struct nfs_page *, unsigned int);
++extern	int nfs_page_set_headlock(struct nfs_page *req);
++extern void nfs_page_clear_headlock(struct nfs_page *req);
+ extern bool nfs_async_iocounter_wait(struct rpc_task *, struct nfs_lock_context *);
+ 
+ /*
 -- 
 2.25.1
 
