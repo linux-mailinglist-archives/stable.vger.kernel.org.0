@@ -2,43 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B632026F08A
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:44:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1A126F08E
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729595AbgIRCoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726458AbgIRCoh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:44:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35010 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728452AbgIRCK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:10:27 -0400
+        id S1728454AbgIRCK2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:10:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E271239D3;
-        Fri, 18 Sep 2020 02:10:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBD37238A1;
+        Fri, 18 Sep 2020 02:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395026;
-        bh=hvO6V9NmBlWuTzXyZg4Gwl62pA+4zYjmCGrfy9xgBYc=;
+        s=default; t=1600395027;
+        bh=gvderARrpRnfGtjOgHdX2IEOm/oM9jcniUBqXQ3gp7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xKSkNGCKoR7be/X0Oc0dPh5eeVOsFt245TzvyC3EAXRcmZREYCrKut9k7/u4G+lnN
-         yt+oLDxu/cqgb0eK5qZnv5A5XPoFgDutuByZPbgC6X4goRWCfeWS0onwgsl2EkmT18
-         6AUOA/pWN1WLvnWa3rfU0Fh0kGSWW32F0d/u25p8=
+        b=tFZTh0iArAegXnPeHscez3G05ylxcuZ0/jOvXxTfyzSRr3Y5ct/FEMyza0V+zxOZG
+         q0ykKm90hXngOvPdyH0eMXzyLRbu4NMK0DQo+4GlI2hh9/1RTmVpiM9qOAruXBv6Pl
+         oBRWr+pVULBOIN0xLUkortdO1Z+M5HeTm8uVc06M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        clang-built-linux@googlegroups.com,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 119/206] perf parse-events: Fix 3 use after frees found with clang ASAN
-Date:   Thu, 17 Sep 2020 22:06:35 -0400
-Message-Id: <20200918020802.2065198-119-sashal@kernel.org>
+Cc:     Vignesh Raghavendra <vigneshr@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 120/206] serial: 8250_port: Don't service RX FIFO if throttled
+Date:   Thu, 17 Sep 2020 22:06:36 -0400
+Message-Id: <20200918020802.2065198-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -50,66 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Vignesh Raghavendra <vigneshr@ti.com>
 
-[ Upstream commit d4953f7ef1a2e87ef732823af35361404d13fea8 ]
+[ Upstream commit f19c3f6c8109b8bab000afd35580929958e087a9 ]
 
-Reproducible with a clang asan build and then running perf test in
-particular 'Parse event definition strings'.
+When port's throttle callback is called, it should stop pushing any more
+data into TTY buffer to avoid buffer overflow. This means driver has to
+stop HW from receiving more data and assert the HW flow control. For
+UARTs with auto HW flow control (such as 8250_omap) manual assertion of
+flow control line is not possible and only way is to allow RX FIFO to
+fill up, thus trigger auto HW flow control logic.
 
-Signed-off-by: Ian Rogers <irogers@google.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: clang-built-linux@googlegroups.com
-Link: http://lore.kernel.org/lkml/20200314170356.62914-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Therefore make sure that 8250 generic IRQ handler does not drain data
+when port is stopped (i.e UART_LSR_DR is unset in read_status_mask). Not
+servicing, RX FIFO would trigger auto HW flow control when FIFO
+occupancy reaches preset threshold, thus halting RX.
+Since, error conditions in UART_LSR register are cleared just by reading
+the register, data has to be drained in case there are FIFO errors, else
+error information will lost.
+
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20200319103230.16867-2-vigneshr@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/evsel.c        | 1 +
- tools/perf/util/parse-events.c | 4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_port.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index 4fad92213609f..68c5ab0e1800b 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -1290,6 +1290,7 @@ void perf_evsel__exit(struct perf_evsel *evsel)
- 	thread_map__put(evsel->threads);
- 	zfree(&evsel->group_name);
- 	zfree(&evsel->name);
-+	zfree(&evsel->pmu_name);
- 	perf_evsel__object.fini(evsel);
- }
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 09f0dc3b967b1..60ca19eca1f63 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1861,6 +1861,7 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
+ 	unsigned char status;
+ 	unsigned long flags;
+ 	struct uart_8250_port *up = up_to_u8250p(port);
++	bool skip_rx = false;
  
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 95043cae57740..6d087d9acd5ee 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -1261,7 +1261,7 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
- 		attr.type = pmu->type;
- 		evsel = __add_event(list, &parse_state->idx, &attr, NULL, pmu, NULL, auto_merge_stats);
- 		if (evsel) {
--			evsel->pmu_name = name;
-+			evsel->pmu_name = name ? strdup(name) : NULL;
- 			evsel->use_uncore_alias = use_uncore_alias;
- 			return 0;
- 		} else {
-@@ -1302,7 +1302,7 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
- 		evsel->snapshot = info.snapshot;
- 		evsel->metric_expr = info.metric_expr;
- 		evsel->metric_name = info.metric_name;
--		evsel->pmu_name = name;
-+		evsel->pmu_name = name ? strdup(name) : NULL;
- 		evsel->use_uncore_alias = use_uncore_alias;
+ 	if (iir & UART_IIR_NO_INT)
+ 		return 0;
+@@ -1869,7 +1870,20 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
+ 
+ 	status = serial_port_in(port, UART_LSR);
+ 
+-	if (status & (UART_LSR_DR | UART_LSR_BI)) {
++	/*
++	 * If port is stopped and there are no error conditions in the
++	 * FIFO, then don't drain the FIFO, as this may lead to TTY buffer
++	 * overflow. Not servicing, RX FIFO would trigger auto HW flow
++	 * control when FIFO occupancy reaches preset threshold, thus
++	 * halting RX. This only works when auto HW flow control is
++	 * available.
++	 */
++	if (!(status & (UART_LSR_FIFOE | UART_LSR_BRK_ERROR_BITS)) &&
++	    (port->status & (UPSTAT_AUTOCTS | UPSTAT_AUTORTS)) &&
++	    !(port->read_status_mask & UART_LSR_DR))
++		skip_rx = true;
++
++	if (status & (UART_LSR_DR | UART_LSR_BI) && !skip_rx) {
+ 		if (!up->dma || handle_rx_dma(up, iir))
+ 			status = serial8250_rx_chars(up, status);
  	}
- 
 -- 
 2.25.1
 
