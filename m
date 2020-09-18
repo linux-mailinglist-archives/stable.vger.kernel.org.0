@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82BFE26EC00
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:10:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CA1F26EC02
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:10:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728212AbgIRCJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:09:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60660 "EHLO mail.kernel.org"
+        id S1728234AbgIRCJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:09:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726759AbgIRCJA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:09:00 -0400
+        id S1728230AbgIRCJF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:09:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58E562389E;
-        Fri, 18 Sep 2020 02:08:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D03623770;
+        Fri, 18 Sep 2020 02:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394939;
-        bh=1S77m4row9Ck+TBXx2z25Pwb64xZDCNkJSlX5PfCtF4=;
+        s=default; t=1600394944;
+        bh=DzHwrWBV5+QKRm69+apCH4i6fgZjV1m1ozRGG54LsPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b54frm6rigxi28dU+rKEl+uD59iPOg/gn8qVMEsNymRG/dy8EefTne35Gr8C3dw4U
-         MjYrvjY/TL+ldGdFeRSu0JTNcn6d6hYPT9+Isxtb8nBKI0UVc80F0HvhtOCNOYfRez
-         QM7r9mzpLS9/THgnjNoSKKHRYMoxWBvAE1E1D+Nk=
+        b=BvccrEsBs17ftzJOyQyvl8Qx5xQu9JSLQNweCGGux2JlTRlNV1aUU+SAWoiYg6jf1
+         akLhlvFRwRRXQgLP5vKp/MiSgumc+9XREtpDjXe9RqtPi1mQRdaCHzrrnpzdACJHn3
+         qVkQE4GBTp3H/5dnHnWRv2RQ6JCPaEOBw7eCtCW0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kevin Kou <qdkevin.kou@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-sctp@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 048/206] sctp: move trace_sctp_probe_path into sctp_outq_sack
-Date:   Thu, 17 Sep 2020 22:05:24 -0400
-Message-Id: <20200918020802.2065198-48-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Saravana Kannan <saravanak@google.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 052/206] efi/arm: Defer probe of PCIe backed efifb on DT systems
+Date:   Thu, 17 Sep 2020 22:05:28 -0400
+Message-Id: <20200918020802.2065198-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -44,179 +43,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Kou <qdkevin.kou@gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit f643ee295c1c63bc117fb052d4da681354d6f732 ]
+[ Upstream commit 64c8a0cd0a535891d5905c3a1651150f0f141439 ]
 
-The original patch bringed in the "SCTP ACK tracking trace event"
-feature was committed at Dec.20, 2017, it replaced jprobe usage
-with trace events, and bringed in two trace events, one is
-TRACE_EVENT(sctp_probe), another one is TRACE_EVENT(sctp_probe_path).
-The original patch intended to trigger the trace_sctp_probe_path in
-TRACE_EVENT(sctp_probe) as below code,
+The new of_devlink support breaks PCIe probing on ARM platforms booting
+via UEFI if the firmware exposes a EFI framebuffer that is backed by a
+PCI device. The reason is that the probing order gets reversed,
+resulting in a resource conflict on the framebuffer memory window when
+the PCIe probes last, causing it to give up entirely.
 
-+TRACE_EVENT(sctp_probe,
-+
-+	TP_PROTO(const struct sctp_endpoint *ep,
-+		 const struct sctp_association *asoc,
-+		 struct sctp_chunk *chunk),
-+
-+	TP_ARGS(ep, asoc, chunk),
-+
-+	TP_STRUCT__entry(
-+		__field(__u64, asoc)
-+		__field(__u32, mark)
-+		__field(__u16, bind_port)
-+		__field(__u16, peer_port)
-+		__field(__u32, pathmtu)
-+		__field(__u32, rwnd)
-+		__field(__u16, unack_data)
-+	),
-+
-+	TP_fast_assign(
-+		struct sk_buff *skb = chunk->skb;
-+
-+		__entry->asoc = (unsigned long)asoc;
-+		__entry->mark = skb->mark;
-+		__entry->bind_port = ep->base.bind_addr.port;
-+		__entry->peer_port = asoc->peer.port;
-+		__entry->pathmtu = asoc->pathmtu;
-+		__entry->rwnd = asoc->peer.rwnd;
-+		__entry->unack_data = asoc->unack_data;
-+
-+		if (trace_sctp_probe_path_enabled()) {
-+			struct sctp_transport *sp;
-+
-+			list_for_each_entry(sp, &asoc->peer.transport_addr_list,
-+					    transports) {
-+				trace_sctp_probe_path(sp, asoc);
-+			}
-+		}
-+	),
+Given that we rely on PCI quirks to deal with EFI framebuffers that get
+moved around in memory, we cannot simply drop the memory reservation, so
+instead, let's use the device link infrastructure to register this
+dependency, and force the probing to occur in the expected order.
 
-But I found it did not work when I did testing, and trace_sctp_probe_path
-had no output, I finally found that there is trace buffer lock
-operation(trace_event_buffer_reserve) in include/trace/trace_events.h:
-
-static notrace void							\
-trace_event_raw_event_##call(void *__data, proto)			\
-{									\
-	struct trace_event_file *trace_file = __data;			\
-	struct trace_event_data_offsets_##call __maybe_unused __data_offsets;\
-	struct trace_event_buffer fbuffer;				\
-	struct trace_event_raw_##call *entry;				\
-	int __data_size;						\
-									\
-	if (trace_trigger_soft_disabled(trace_file))			\
-		return;							\
-									\
-	__data_size = trace_event_get_offsets_##call(&__data_offsets, args); \
-									\
-	entry = trace_event_buffer_reserve(&fbuffer, trace_file,	\
-				 sizeof(*entry) + __data_size);		\
-									\
-	if (!entry)							\
-		return;							\
-									\
-	tstruct								\
-									\
-	{ assign; }							\
-									\
-	trace_event_buffer_commit(&fbuffer);				\
-}
-
-The reason caused no output of trace_sctp_probe_path is that
-trace_sctp_probe_path written in TP_fast_assign part of
-TRACE_EVENT(sctp_probe), and it will be placed( { assign; } ) after the
-trace_event_buffer_reserve() when compiler expands Macro,
-
-        entry = trace_event_buffer_reserve(&fbuffer, trace_file,        \
-                                 sizeof(*entry) + __data_size);         \
-                                                                        \
-        if (!entry)                                                     \
-                return;                                                 \
-                                                                        \
-        tstruct                                                         \
-                                                                        \
-        { assign; }                                                     \
-
-so trace_sctp_probe_path finally can not acquire trace_event_buffer
-and return no output, that is to say the nest of tracepoint entry function
-is not allowed. The function call flow is:
-
-trace_sctp_probe()
--> trace_event_raw_event_sctp_probe()
- -> lock buffer
- -> trace_sctp_probe_path()
-   -> trace_event_raw_event_sctp_probe_path()  --nested
-   -> buffer has been locked and return no output.
-
-This patch is to remove trace_sctp_probe_path from the TP_fast_assign
-part of TRACE_EVENT(sctp_probe) to avoid the nest of entry function,
-and trigger sctp_probe_path_trace in sctp_outq_sack.
-
-After this patch, you can enable both events individually,
-  # cd /sys/kernel/debug/tracing
-  # echo 1 > events/sctp/sctp_probe/enable
-  # echo 1 > events/sctp/sctp_probe_path/enable
-
-Or, you can enable all the events under sctp.
-
-  # echo 1 > events/sctp/enable
-
-Signed-off-by: Kevin Kou <qdkevin.kou@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Co-developed-by: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20200113172245.27925-9-ardb@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/sctp.h | 9 ---------
- net/sctp/outqueue.c         | 6 ++++++
- 2 files changed, 6 insertions(+), 9 deletions(-)
+ drivers/firmware/efi/arm-init.c | 107 ++++++++++++++++++++++++++++++--
+ 1 file changed, 103 insertions(+), 4 deletions(-)
 
-diff --git a/include/trace/events/sctp.h b/include/trace/events/sctp.h
-index 7475c7be165aa..d4aac34365955 100644
---- a/include/trace/events/sctp.h
-+++ b/include/trace/events/sctp.h
-@@ -75,15 +75,6 @@ TRACE_EVENT(sctp_probe,
- 		__entry->pathmtu = asoc->pathmtu;
- 		__entry->rwnd = asoc->peer.rwnd;
- 		__entry->unack_data = asoc->unack_data;
--
--		if (trace_sctp_probe_path_enabled()) {
--			struct sctp_transport *sp;
--
--			list_for_each_entry(sp, &asoc->peer.transport_addr_list,
--					    transports) {
--				trace_sctp_probe_path(sp, asoc);
--			}
--		}
- 	),
+diff --git a/drivers/firmware/efi/arm-init.c b/drivers/firmware/efi/arm-init.c
+index 1a6a77df8a5e8..85533ec55396a 100644
+--- a/drivers/firmware/efi/arm-init.c
++++ b/drivers/firmware/efi/arm-init.c
+@@ -14,10 +14,12 @@
+ #define pr_fmt(fmt)	"efi: " fmt
  
- 	TP_printk("asoc=%#llx mark=%#x bind_port=%d peer_port=%d pathmtu=%d "
-diff --git a/net/sctp/outqueue.c b/net/sctp/outqueue.c
-index 7bb8e5603298d..d6e83a37a1adf 100644
---- a/net/sctp/outqueue.c
-+++ b/net/sctp/outqueue.c
-@@ -51,6 +51,7 @@
- #include <net/sctp/sctp.h>
- #include <net/sctp/sm.h>
- #include <net/sctp/stream_sched.h>
-+#include <trace/events/sctp.h>
+ #include <linux/efi.h>
++#include <linux/fwnode.h>
+ #include <linux/init.h>
+ #include <linux/memblock.h>
+ #include <linux/mm_types.h>
+ #include <linux/of.h>
++#include <linux/of_address.h>
+ #include <linux/of_fdt.h>
+ #include <linux/platform_device.h>
+ #include <linux/screen_info.h>
+@@ -271,15 +273,112 @@ void __init efi_init(void)
+ 		efi_memmap_unmap();
+ }
  
- /* Declare internal functions here.  */
- static int sctp_acked(struct sctp_sackhdr *sack, __u32 tsn);
-@@ -1257,6 +1258,11 @@ int sctp_outq_sack(struct sctp_outq *q, struct sctp_chunk *chunk)
- 	/* Grab the association's destination address list. */
- 	transport_list = &asoc->peer.transport_addr_list;
- 
-+	/* SCTP path tracepoint for congestion control debugging. */
-+	list_for_each_entry(transport, transport_list, transports) {
-+		trace_sctp_probe_path(transport, asoc);
-+	}
++static bool efifb_overlaps_pci_range(const struct of_pci_range *range)
++{
++	u64 fb_base = screen_info.lfb_base;
 +
- 	sack_ctsn = ntohl(sack->cum_tsn_ack);
- 	gap_ack_blocks = ntohs(sack->num_gap_ack_blocks);
- 	asoc->stats.gapcnt += gap_ack_blocks;
++	if (screen_info.capabilities & VIDEO_CAPABILITY_64BIT_BASE)
++		fb_base |= (u64)(unsigned long)screen_info.ext_lfb_base << 32;
++
++	return fb_base >= range->cpu_addr &&
++	       fb_base < (range->cpu_addr + range->size);
++}
++
++static struct device_node *find_pci_overlap_node(void)
++{
++	struct device_node *np;
++
++	for_each_node_by_type(np, "pci") {
++		struct of_pci_range_parser parser;
++		struct of_pci_range range;
++		int err;
++
++		err = of_pci_range_parser_init(&parser, np);
++		if (err) {
++			pr_warn("of_pci_range_parser_init() failed: %d\n", err);
++			continue;
++		}
++
++		for_each_of_pci_range(&parser, &range)
++			if (efifb_overlaps_pci_range(&range))
++				return np;
++	}
++	return NULL;
++}
++
++/*
++ * If the efifb framebuffer is backed by a PCI graphics controller, we have
++ * to ensure that this relation is expressed using a device link when
++ * running in DT mode, or the probe order may be reversed, resulting in a
++ * resource reservation conflict on the memory window that the efifb
++ * framebuffer steals from the PCIe host bridge.
++ */
++static int efifb_add_links(const struct fwnode_handle *fwnode,
++			   struct device *dev)
++{
++	struct device_node *sup_np;
++	struct device *sup_dev;
++
++	sup_np = find_pci_overlap_node();
++
++	/*
++	 * If there's no PCI graphics controller backing the efifb, we are
++	 * done here.
++	 */
++	if (!sup_np)
++		return 0;
++
++	sup_dev = get_dev_from_fwnode(&sup_np->fwnode);
++	of_node_put(sup_np);
++
++	/*
++	 * Return -ENODEV if the PCI graphics controller device hasn't been
++	 * registered yet.  This ensures that efifb isn't allowed to probe
++	 * and this function is retried again when new devices are
++	 * registered.
++	 */
++	if (!sup_dev)
++		return -ENODEV;
++
++	/*
++	 * If this fails, retrying this function at a later point won't
++	 * change anything. So, don't return an error after this.
++	 */
++	if (!device_link_add(dev, sup_dev, 0))
++		dev_warn(dev, "device_link_add() failed\n");
++
++	put_device(sup_dev);
++
++	return 0;
++}
++
++static const struct fwnode_operations efifb_fwnode_ops = {
++	.add_links = efifb_add_links,
++};
++
++static struct fwnode_handle efifb_fwnode = {
++	.ops = &efifb_fwnode_ops,
++};
++
+ static int __init register_gop_device(void)
+ {
+-	void *pd;
++	struct platform_device *pd;
++	int err;
+ 
+ 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI)
+ 		return 0;
+ 
+-	pd = platform_device_register_data(NULL, "efi-framebuffer", 0,
+-					   &screen_info, sizeof(screen_info));
+-	return PTR_ERR_OR_ZERO(pd);
++	pd = platform_device_alloc("efi-framebuffer", 0);
++	if (!pd)
++		return -ENOMEM;
++
++	if (IS_ENABLED(CONFIG_PCI))
++		pd->dev.fwnode = &efifb_fwnode;
++
++	err = platform_device_add_data(pd, &screen_info, sizeof(screen_info));
++	if (err)
++		return err;
++
++	return platform_device_add(pd);
+ }
+ subsys_initcall(register_gop_device);
 -- 
 2.25.1
 
