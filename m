@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E65026F45C
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:14:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D18BE26F45B
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:14:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727028AbgIRDN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:13:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46470 "EHLO mail.kernel.org"
+        id S1726546AbgIRDN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:13:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726510AbgIRCBu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:01:50 -0400
+        id S1726531AbgIRCBv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:01:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD0C721D92;
-        Fri, 18 Sep 2020 02:01:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6A4421D40;
+        Fri, 18 Sep 2020 02:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394510;
-        bh=N3ynWYmdV/p1XabRsM2S+M0ftLt27a+Mcw8vF35vnIg=;
+        s=default; t=1600394511;
+        bh=mjqv7wUdu/UKWJ1MhLtoyR1ppjj1NWDzdFz091vcFS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0F6aGqP5HdwE0/PgAgCr+ISvwwzxxfebH1MnYuh4o+G3JVvXFAgAyo6BajaGUwh8
-         9nV9sHa39DBpNf/m5ogGqkpYdE9rOUvWqPZDGzXTUc4/58d3vKnE2kfWUnrpGhhzMq
-         +4T8Mlt3Sf0egKdJrRHzDdp8dtIze0yMlqh90fE8=
+        b=IpNJ06cqrkCndteN1qMkqDOU02fRbfxaR0u6kuCCFui960QhxCAliC3z4ZGeFrv8P
+         J97hLB1pofCVi8BflIhQOAx1iLJf6IEJFb55XRyP50E1vAYw2VXfqXDOm7554aw+30
+         rWF3rTrCZcXJ7CagdAPu+RHGiy59K7kSiTxX74F8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 033/330] iomap: Fix overflow in iomap_page_mkwrite
-Date:   Thu, 17 Sep 2020 21:56:13 -0400
-Message-Id: <20200918020110.2063155-33-sashal@kernel.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <yuchao0@huawei.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.4 034/330] f2fs: avoid kernel panic on corruption test
+Date:   Thu, 17 Sep 2020 21:56:14 -0400
+Message-Id: <20200918020110.2063155-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,51 +42,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit add66fcbd3fbe5aa0dd4dddfa23e119c12989a27 ]
+[ Upstream commit bc005a4d5347da68e690f78d365d8927c87dc85a ]
 
-On architectures where loff_t is wider than pgoff_t, the expression
-((page->index + 1) << PAGE_SHIFT) can overflow.  Rewrite to use the page
-offset, which we already compute here anyway.
+xfstests/generic/475 complains kernel warn/panic while testing corrupted disk.
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/iomap/buffered-io.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ fs/f2fs/node.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
-index e25901ae3ff44..a30ea7ecb790a 100644
---- a/fs/iomap/buffered-io.c
-+++ b/fs/iomap/buffered-io.c
-@@ -1040,20 +1040,19 @@ vm_fault_t iomap_page_mkwrite(struct vm_fault *vmf, const struct iomap_ops *ops)
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index daeac4268c1ab..e6f1b1d0c3b68 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -2350,7 +2350,6 @@ static int __f2fs_build_free_nids(struct f2fs_sb_info *sbi,
  
- 	lock_page(page);
- 	size = i_size_read(inode);
--	if ((page->mapping != inode->i_mapping) ||
--	    (page_offset(page) > size)) {
-+	offset = page_offset(page);
-+	if (page->mapping != inode->i_mapping || offset > size) {
- 		/* We overload EFAULT to mean page got truncated */
- 		ret = -EFAULT;
- 		goto out_unlock;
- 	}
- 
- 	/* page is wholly or partially inside EOF */
--	if (((page->index + 1) << PAGE_SHIFT) > size)
-+	if (offset > size - PAGE_SIZE)
- 		length = offset_in_page(size);
- 	else
- 		length = PAGE_SIZE;
- 
--	offset = page_offset(page);
- 	while (length > 0) {
- 		ret = iomap_apply(inode, offset, length,
- 				IOMAP_WRITE | IOMAP_FAULT, ops, page,
+ 			if (ret) {
+ 				up_read(&nm_i->nat_tree_lock);
+-				f2fs_bug_on(sbi, !mount);
+ 				f2fs_err(sbi, "NAT is corrupt, run fsck to fix it");
+ 				return ret;
+ 			}
 -- 
 2.25.1
 
