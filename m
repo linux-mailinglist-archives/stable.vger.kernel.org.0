@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CC1F26F092
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:44:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B632026F08A
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:44:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727317AbgIRCos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:44:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34906 "EHLO mail.kernel.org"
+        id S1729595AbgIRCoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:44:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727875AbgIRCKY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:10:24 -0400
+        id S1728452AbgIRCK1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:10:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8A5D239EB;
-        Fri, 18 Sep 2020 02:10:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E271239D3;
+        Fri, 18 Sep 2020 02:10:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395023;
-        bh=uRiGKZ+zViAIJobc016XrptMJS8PKVaOd9ZE9tIKrnA=;
+        s=default; t=1600395026;
+        bh=hvO6V9NmBlWuTzXyZg4Gwl62pA+4zYjmCGrfy9xgBYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XhyvKrP/t7FXwK5llPSJM6wx329rG25l8PWDTzeFtSNgDHDUXtGZV5n3WeEFqZ9MU
-         iW0rRkZJ5yg0evduAJNsWBO0c0Jt2DneYE+TxujToz/TIAoy89exsFIk1l8IfPYzxO
-         0CYF0nn3KAl7KWLzoP8fX7XQvhs7knSMbaPPqV8I=
+        b=xKSkNGCKoR7be/X0Oc0dPh5eeVOsFt245TzvyC3EAXRcmZREYCrKut9k7/u4G+lnN
+         yt+oLDxu/cqgb0eK5qZnv5A5XPoFgDutuByZPbgC6X4goRWCfeWS0onwgsl2EkmT18
+         6AUOA/pWN1WLvnWa3rfU0Fh0kGSWW32F0d/u25p8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
+Cc:     Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Leo Yan <leo.yan@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        clang-built-linux@googlegroups.com,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 117/206] tracing: Use address-of operator on section symbols
-Date:   Thu, 17 Sep 2020 22:06:33 -0400
-Message-Id: <20200918020802.2065198-117-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 119/206] perf parse-events: Fix 3 use after frees found with clang ASAN
+Date:   Thu, 17 Sep 2020 22:06:35 -0400
+Message-Id: <20200918020802.2065198-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -43,46 +50,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit bf2cbe044da275021b2de5917240411a19e5c50d ]
+[ Upstream commit d4953f7ef1a2e87ef732823af35361404d13fea8 ]
 
-Clang warns:
+Reproducible with a clang asan build and then running perf test in
+particular 'Parse event definition strings'.
 
-../kernel/trace/trace.c:9335:33: warning: array comparison always
-evaluates to true [-Wtautological-compare]
-        if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
-                                       ^
-1 warning generated.
-
-These are not true arrays, they are linker defined symbols, which are
-just addresses. Using the address of operator silences the warning and
-does not change the runtime result of the check (tested with some print
-statements compiled in with clang + ld.lld and gcc + ld.bfd in QEMU).
-
-Link: http://lkml.kernel.org/r/20200220051011.26113-1-natechancellor@gmail.com
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/893
-Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: clang-built-linux@googlegroups.com
+Link: http://lore.kernel.org/lkml/20200314170356.62914-1-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/evsel.c        | 1 +
+ tools/perf/util/parse-events.c | 4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 17505a22d800b..6bf617ff03694 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -8529,7 +8529,7 @@ __init static int tracer_alloc_buffers(void)
- 		goto out_free_buffer_mask;
+diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+index 4fad92213609f..68c5ab0e1800b 100644
+--- a/tools/perf/util/evsel.c
++++ b/tools/perf/util/evsel.c
+@@ -1290,6 +1290,7 @@ void perf_evsel__exit(struct perf_evsel *evsel)
+ 	thread_map__put(evsel->threads);
+ 	zfree(&evsel->group_name);
+ 	zfree(&evsel->name);
++	zfree(&evsel->pmu_name);
+ 	perf_evsel__object.fini(evsel);
+ }
  
- 	/* Only allocate trace_printk buffers if a trace_printk exists */
--	if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
-+	if (&__stop___trace_bprintk_fmt != &__start___trace_bprintk_fmt)
- 		/* Must be called before global_trace.buffer is allocated */
- 		trace_printk_init_buffers();
+diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
+index 95043cae57740..6d087d9acd5ee 100644
+--- a/tools/perf/util/parse-events.c
++++ b/tools/perf/util/parse-events.c
+@@ -1261,7 +1261,7 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
+ 		attr.type = pmu->type;
+ 		evsel = __add_event(list, &parse_state->idx, &attr, NULL, pmu, NULL, auto_merge_stats);
+ 		if (evsel) {
+-			evsel->pmu_name = name;
++			evsel->pmu_name = name ? strdup(name) : NULL;
+ 			evsel->use_uncore_alias = use_uncore_alias;
+ 			return 0;
+ 		} else {
+@@ -1302,7 +1302,7 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
+ 		evsel->snapshot = info.snapshot;
+ 		evsel->metric_expr = info.metric_expr;
+ 		evsel->metric_name = info.metric_name;
+-		evsel->pmu_name = name;
++		evsel->pmu_name = name ? strdup(name) : NULL;
+ 		evsel->use_uncore_alias = use_uncore_alias;
+ 	}
  
 -- 
 2.25.1
