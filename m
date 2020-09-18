@@ -2,149 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF81A26F944
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 11:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E6C926FABA
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 12:37:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726426AbgIRJ1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Sep 2020 05:27:07 -0400
-Received: from aibo.runbox.com ([91.220.196.211]:58414 "EHLO aibo.runbox.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726119AbgIRJ1H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Sep 2020 05:27:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=runbox.com;
-         s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
-        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject;
-        bh=+658/XCWKhqnhXrinlJ6VzL+FcyuV3M5zKtRyB3ALqc=; b=RSX827nzK33bkOmLAPunXnUXkC
-        nxfI5vI+dHt923aTOrRY4iNw7+7uiQ5l/Pm+DZqQsuBejPOr/CRFzQ+HRwZ4XPsFLUN2gO2SjMD/5
-        XjmM70KqMeZQcANmZ/RitoCfMoMqDf3rnVPC4rT7L8fsDtNv8lVMQKBTpGGVuMWCdXRtTbeS/mBVK
-        EPlAUG9zjdftk9d6hbzh8Mg225RrDwcTzSvHGuPZVymiy0RHCPRUrG3zzcMLCT+F/1TymyJZF9tKa
-        U2/z6LSoui3FMvA/d2SAkxSb4UzYG3z1536wM1ib81a7JlLClCFGQLf+mqu36+E/tKu4DeBq/kcXm
-        zschSpIQ==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
-        by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-        (envelope-from <m.v.b@runbox.com>)
-        id 1kJCfW-0000Eu-Fj; Fri, 18 Sep 2020 11:27:02 +0200
-Received: by submission03.runbox with esmtpsa  [Authenticated alias (536975)]  (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.90_1)
-        id 1kJCfF-0000Zw-Tl; Fri, 18 Sep 2020 11:26:46 +0200
-Subject: Re: [PATCH 3/3] usbip: Make the driver's match function specific
-To:     Shuah Khan <skhan@linuxfoundation.org>, linux-usb@vger.kernel.org
-Cc:     Andrey Konovalov <andreyknvl@google.com>, stable@vger.kernel.org,
-        Bastien Nocera <hadess@hadess.net>,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        syzkaller@googlegroups.com
-References: <a6e14983a8849d5f75a43f403c7cc721b6e4a420.camel@hadess.net>
- <20200917144151.355848-1-m.v.b@runbox.com>
- <20200917144151.355848-3-m.v.b@runbox.com>
- <45badff8-53e9-359d-4bf2-b0f71b910b2f@linuxfoundation.org>
-From:   "M. Vefa Bicakci" <m.v.b@runbox.com>
-Message-ID: <e64f51b0-db05-e078-af58-b31a0be1e9ca@runbox.com>
-Date:   Fri, 18 Sep 2020 12:26:42 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
-MIME-Version: 1.0
-In-Reply-To: <45badff8-53e9-359d-4bf2-b0f71b910b2f@linuxfoundation.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        id S1725882AbgIRKhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Sep 2020 06:37:51 -0400
+Received: from m42-11.mailgun.net ([69.72.42.11]:34645 "EHLO
+        m42-11.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726168AbgIRKhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 06:37:51 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1600425470; h=Message-Id: Date: Subject: Cc: To: From:
+ Sender; bh=qb2WoD3uf4Yfjw2dRwpjc0+G2WvhyNMin/XBmb+tRQ4=; b=IuHll3edWqs/gCibEznXYpdhZWqHzTk/QKdndMfTNnsFdsOf4FhwoZZ+u1DouSpVz3DhplbH
+ NKpahd+tdgOnCz4kNej4hcABwb09gkIfrnlVhp1xadHJNtyl1FvqsAZ2WfuR/c+VpPlVUwK+
+ t/S2buIp3b1AouRaGKB9VbujGKE=
+X-Mailgun-Sending-Ip: 69.72.42.11
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n04.prod.us-west-2.postgun.com with SMTP id
+ 5f648ccdea858627d5e3c9de (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 18 Sep 2020 10:32:45
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id EF4A1C43391; Fri, 18 Sep 2020 10:32:44 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+Received: from charante-linux.qualcomm.com (unknown [202.46.22.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: charante)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 21028C43382;
+        Fri, 18 Sep 2020 10:32:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 21028C43382
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=charante@codeaurora.org
+From:   Charan Teja Reddy <charante@codeaurora.org>
+To:     sumit.semwal@linaro.org, christian.koenig@amd.com, arnd@arndb.de
+Cc:     linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
+        vinmenon@codeaurora.org,
+        Charan Teja Reddy <charante@codeaurora.org>,
+        <stable@vger.kernel.org>
+Subject: [PATCH] dmabuf: fix NULL pointer dereference in dma_buf_release()
+Date:   Fri, 18 Sep 2020 16:02:31 +0530
+Message-Id: <1600425151-27670-1-git-send-email-charante@codeaurora.org>
+X-Mailer: git-send-email 1.9.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 17/09/2020 18.21, Shuah Khan wrote:
-> On 9/17/20 8:41 AM, M. Vefa Bicakci wrote:
->> Prior to this commit, the USB-IP subsystem's USB device driver match
->> function used to match all USB devices (by returning true
->> unconditionally). Unfortunately, this is not correct behaviour and is
->> likely the root cause of the bug reported by Andrey Konovalov.
->>
->> USB-IP should only match USB devices that the user-space asked the kernel
->> to handle via USB-IP, by writing to the match_busid sysfs file, which is
->> what this commit aims to achieve. This is done by making the match
->> function check that the passed in USB device was indeed requested by the
->> user-space to be handled by USB-IP.
->>
-> 
-> I see two patches 2/2 and 3/3 back to back. What is the difference
-> between 2/2 and 3/3 versions? They look identical. Please include
-> changes if any from version to version to make it easier for me to
-> review.
+NULL pointer dereference is observed while exporting the dmabuf but
+failed to allocate the 'struct file' which results into the dropping of
+the allocated dentry corresponding to this file in the dmabuf fs, which
+is ending up in dma_buf_release() and accessing the uninitialzed
+dentry->d_fsdata.
 
-Hello Shuah,
+Call stack on 5.4 is below:
+ dma_buf_release+0x2c/0x254 drivers/dma-buf/dma-buf.c:88
+ __dentry_kill+0x294/0x31c fs/dcache.c:584
+ dentry_kill fs/dcache.c:673 [inline]
+ dput+0x250/0x380 fs/dcache.c:859
+ path_put+0x24/0x40 fs/namei.c:485
+ alloc_file_pseudo+0x1a4/0x200 fs/file_table.c:235
+ dma_buf_getfile drivers/dma-buf/dma-buf.c:473 [inline]
+ dma_buf_export+0x25c/0x3ec drivers/dma-buf/dma-buf.c:585
 
-Sorry for the delayed reply, and thank you for your interest! I realize
-that I did not add notes to the patch series regarding the changes between
-v1 and v2, and I forgot to label the second patch series as v2.
+Fix this by checking for the valid pointer in the dentry->d_fsdata.
 
-Patches 2/2 and 3/3 are the same, as you have mentioned. I was addressing
-Bastien's code review comments for patch 1/2, and I split that patch into
-two separate patches, which is why the second patch series had 3 patches
-as opposed to 2.
+Fixes: 4ab59c3c638c ("dma-buf: Move dma_buf_release() from fops to dentry_ops")
+Cc: <stable@vger.kernel.org> [5.7+]
+Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
+---
+ drivers/dma-buf/dma-buf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-I realize that you are missing the context; here is a link to the thread:
-   https://lore.kernel.org/linux-usb/359d080c-5cbb-250a-0ebd-aaba5f5c530d@runbox.com/T/
+diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+index 58564d82..844967f 100644
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -59,6 +59,8 @@ static void dma_buf_release(struct dentry *dentry)
+ 	struct dma_buf *dmabuf;
+ 
+ 	dmabuf = dentry->d_fsdata;
++	if (unlikely(!dmabuf))
++		return;
+ 
+ 	BUG_ON(dmabuf->vmapping_counter);
+ 
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a
+member of the Code Aurora Forum, hosted by The Linux Foundation
 
-I can copy all patches to you as well, if you would be interested.
-
-All this to say, I am sorry about this small mess, and I will rectify this
-with patches I publish in the future.
-
->> Reported-by: Andrey Konovalov <andreyknvl@google.com>
->> Fixes: 7a2f2974f2 ("usbip: Implement a match function to fix usbip")
->> Link: https://lore.kernel.org/linux-usb/CAAeHK+zOrHnxjRFs=OE8T=O9208B9HP_oo8RZpyVOZ9AJ54pAA@mail.gmail.com/
->> Cc: <stable@vger.kernel.org> # 5.8
->> Cc: Bastien Nocera <hadess@hadess.net>
->> Cc: Valentina Manea <valentina.manea.m@gmail.com>
->> Cc: Shuah Khan <shuah@kernel.org>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: Alan Stern <stern@rowland.harvard.edu>
->> Cc: <syzkaller@googlegroups.com>
->> Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
->> ---
->>   drivers/usb/usbip/stub_dev.c | 15 ++++++++++++++-
->>   1 file changed, 14 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/usb/usbip/stub_dev.c b/drivers/usb/usbip/stub_dev.c
->> index 9d7d642022d1..3d9c8ff6762e 100644
->> --- a/drivers/usb/usbip/stub_dev.c
->> +++ b/drivers/usb/usbip/stub_dev.c
->> @@ -463,7 +463,20 @@ static void stub_disconnect(struct usb_device *udev)
->>   static bool usbip_match(struct usb_device *udev)
->>   {
->> -    return true;
->> +    bool match;
->> +    struct bus_id_priv *busid_priv;
->> +    const char *udev_busid = dev_name(&udev->dev);
->> +
->> +    busid_priv = get_busid_priv(udev_busid);
->> +    if (!busid_priv)
->> +        return false;
->> +
->> +    match = (busid_priv->status != STUB_BUSID_REMOV &&
->> +         busid_priv->status != STUB_BUSID_OTHER);
->> +
->> +    put_busid_priv(busid_priv);
->> +
->> +    return match;
->>   }
->>   #ifdef CONFIG_PM
->>
-> 
-> Did you happen to run the usbip test on this patch? If not, can you
-> please run tools/testing/selftests/drivers/usb/usbip/usbip_test.sh
-> and make sure there are no regressions.
-
-Ah, this is a very good point! I have been testing the patches on Qubes OS,
-which uses usbip to forward USB devices between VMs. To be honest, I was not
-aware of the self-tests for usbip, and I will run the self-tests prior to
-publishing the next version of the patch series.
-
-> thanks,
-> -- Shuah
-
-Thank you!
-
-Vefa
