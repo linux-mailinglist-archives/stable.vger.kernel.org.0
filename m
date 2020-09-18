@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CF9626EFB1
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2C4E26EFCA
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:38:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728774AbgIRCM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:12:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38816 "EHLO mail.kernel.org"
+        id S1728776AbgIRCiW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:38:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728762AbgIRCM0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726841AbgIRCM0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:12:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E4AA208DB;
-        Fri, 18 Sep 2020 02:12:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EABB2388D;
+        Fri, 18 Sep 2020 02:12:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395137;
-        bh=5tWw8+7X8x+c5St1Qd4NjQqQ8m53+X3V+BbR4dkABlE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WufvMU3Qf8D+vjKo5URZrzwgxX2ehGgEjfjRvKFW+jxJqDJOw+VwJCAtG+kywj/pz
-         S94GbSkZ5lmANmCrBTCuj76S7ilCIQruaF11EYZbx+vho17Bdo9AelxiRXvf5EMFVH
-         iUjS60EslnVnXqaGJhTBvpKU7GzrJJTkGd/ZFrAU=
+        s=default; t=1600395142;
+        bh=GqACB4be1R3889Po8RnRysPSKKYnh/7Y2Rmgh6Hv12U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=dQADWAe0gKPkKEyXkAJj4ou3IsdwTUChGckO1SNdY3N8X+uA9gEoEQGm/IeJRKqQ6
+         kFpA03/57rBpDAlmrUpCVwf7YytLXCUzigHLzcMzACwjcTGdb3ncVBU0mx/5qyvNdT
+         nfE4EBcDUnHs/2us4LD9rXM6bVdMcbGuaVKcVC3Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anthony Iliopoulos <ailiop@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 206/206] nvme: explicitly update mpath disk capacity on revalidation
-Date:   Thu, 17 Sep 2020 22:08:02 -0400
-Message-Id: <20200918020802.2065198-206-sashal@kernel.org>
+Cc:     Jia He <justin.he@arm.com>, Yibo Cai <Yibo.Cai@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.14 001/127] mm: fix double page fault on arm64 if PTE_AF is cleared
+Date:   Thu, 17 Sep 2020 22:10:14 -0400
+Message-Id: <20200918021220.2066485-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
-References: <20200918020802.2065198-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,73 +41,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Iliopoulos <ailiop@suse.com>
+From: Jia He <justin.he@arm.com>
 
-[ Upstream commit 05b29021fba5e725dd385151ef00b6340229b500 ]
+[ Upstream commit 83d116c53058d505ddef051e90ab27f57015b025 ]
 
-Commit 3b4b19721ec652 ("nvme: fix possible deadlock when I/O is
-blocked") reverted multipath head disk revalidation due to deadlocks
-caused by holding the bd_mutex during revalidate.
+When we tested pmdk unit test [1] vmmalloc_fork TEST3 on arm64 guest, there
+will be a double page fault in __copy_from_user_inatomic of cow_user_page.
 
-Updating the multipath disk blockdev size is still required though for
-userspace to be able to observe any resizing while the device is
-mounted. Directly update the bdev inode size to avoid unnecessarily
-holding the bdev->bd_mutex.
+To reproduce the bug, the cmd is as follows after you deployed everything:
+make -C src/test/vmmalloc_fork/ TEST_TIME=60m check
 
-Fixes: 3b4b19721ec652 ("nvme: fix possible deadlock when I/O is
-blocked")
+Below call trace is from arm64 do_page_fault for debugging purpose:
+[  110.016195] Call trace:
+[  110.016826]  do_page_fault+0x5a4/0x690
+[  110.017812]  do_mem_abort+0x50/0xb0
+[  110.018726]  el1_da+0x20/0xc4
+[  110.019492]  __arch_copy_from_user+0x180/0x280
+[  110.020646]  do_wp_page+0xb0/0x860
+[  110.021517]  __handle_mm_fault+0x994/0x1338
+[  110.022606]  handle_mm_fault+0xe8/0x180
+[  110.023584]  do_page_fault+0x240/0x690
+[  110.024535]  do_mem_abort+0x50/0xb0
+[  110.025423]  el0_da+0x20/0x24
 
-Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+The pte info before __copy_from_user_inatomic is (PTE_AF is cleared):
+[ffff9b007000] pgd=000000023d4f8003, pud=000000023da9b003,
+               pmd=000000023d4b3003, pte=360000298607bd3
+
+As told by Catalin: "On arm64 without hardware Access Flag, copying from
+user will fail because the pte is old and cannot be marked young. So we
+always end up with zeroed page after fork() + CoW for pfn mappings. we
+don't always have a hardware-managed access flag on arm64."
+
+This patch fixes it by calling pte_mkyoung. Also, the parameter is
+changed because vmf should be passed to cow_user_page()
+
+Add a WARN_ON_ONCE when __copy_from_user_inatomic() returns error
+in case there can be some obscure use-case (by Kirill).
+
+[1] https://github.com/pmem/pmdk/tree/master/src/test/vmmalloc_fork
+
+Signed-off-by: Jia He <justin.he@arm.com>
+Reported-by: Yibo Cai <Yibo.Cai@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c |  1 +
- drivers/nvme/host/nvme.h | 13 +++++++++++++
- 2 files changed, 14 insertions(+)
+ mm/memory.c | 104 ++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 89 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 84fcfcdb8ba5f..33dad9774da01 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1599,6 +1599,7 @@ static void __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
- 	if (ns->head->disk) {
- 		nvme_update_disk_info(ns->head->disk, ns, id);
- 		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
-+		nvme_mpath_update_disk_size(ns->head->disk);
- 	}
+diff --git a/mm/memory.c b/mm/memory.c
+index e9bce27bc18c3..07188929a30a1 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -117,6 +117,18 @@ int randomize_va_space __read_mostly =
+ 					2;
  #endif
- }
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index a70b997060e68..9c2e7a151e400 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -504,6 +504,16 @@ static inline void nvme_mpath_check_last_path(struct nvme_ns *ns)
- 		kblockd_schedule_work(&head->requeue_work);
- }
  
-+static inline void nvme_mpath_update_disk_size(struct gendisk *disk)
++#ifndef arch_faults_on_old_pte
++static inline bool arch_faults_on_old_pte(void)
 +{
-+	struct block_device *bdev = bdget_disk(disk, 0);
-+
-+	if (bdev) {
-+		bd_set_size(bdev, get_capacity(disk) << SECTOR_SHIFT);
-+		bdput(bdev);
-+	}
++	/*
++	 * Those arches which don't have hw access flag feature need to
++	 * implement their own helper. By default, "true" means pagefault
++	 * will be hit on old pte.
++	 */
++	return true;
 +}
++#endif
 +
- extern struct device_attribute dev_attr_ana_grpid;
- extern struct device_attribute dev_attr_ana_state;
- 
-@@ -570,6 +580,9 @@ static inline void nvme_mpath_wait_freeze(struct nvme_subsystem *subsys)
- static inline void nvme_mpath_start_freeze(struct nvme_subsystem *subsys)
+ static int __init disable_randmaps(char *s)
  {
+ 	randomize_va_space = 0;
+@@ -2324,32 +2336,82 @@ static inline int pte_unmap_same(struct mm_struct *mm, pmd_t *pmd,
+ 	return same;
  }
-+static inline void nvme_mpath_update_disk_size(struct gendisk *disk)
-+{
-+}
- #endif /* CONFIG_NVME_MULTIPATH */
  
- #ifdef CONFIG_NVM
+-static inline void cow_user_page(struct page *dst, struct page *src, unsigned long va, struct vm_area_struct *vma)
++static inline bool cow_user_page(struct page *dst, struct page *src,
++				 struct vm_fault *vmf)
+ {
++	bool ret;
++	void *kaddr;
++	void __user *uaddr;
++	bool force_mkyoung;
++	struct vm_area_struct *vma = vmf->vma;
++	struct mm_struct *mm = vma->vm_mm;
++	unsigned long addr = vmf->address;
++
+ 	debug_dma_assert_idle(src);
+ 
++	if (likely(src)) {
++		copy_user_highpage(dst, src, addr, vma);
++		return true;
++	}
++
+ 	/*
+ 	 * If the source page was a PFN mapping, we don't have
+ 	 * a "struct page" for it. We do a best-effort copy by
+ 	 * just copying from the original user address. If that
+ 	 * fails, we just zero-fill it. Live with it.
+ 	 */
+-	if (unlikely(!src)) {
+-		void *kaddr = kmap_atomic(dst);
+-		void __user *uaddr = (void __user *)(va & PAGE_MASK);
++	kaddr = kmap_atomic(dst);
++	uaddr = (void __user *)(addr & PAGE_MASK);
++
++	/*
++	 * On architectures with software "accessed" bits, we would
++	 * take a double page fault, so mark it accessed here.
++	 */
++	force_mkyoung = arch_faults_on_old_pte() && !pte_young(vmf->orig_pte);
++	if (force_mkyoung) {
++		pte_t entry;
++
++		vmf->pte = pte_offset_map_lock(mm, vmf->pmd, addr, &vmf->ptl);
++		if (!likely(pte_same(*vmf->pte, vmf->orig_pte))) {
++			/*
++			 * Other thread has already handled the fault
++			 * and we don't need to do anything. If it's
++			 * not the case, the fault will be triggered
++			 * again on the same address.
++			 */
++			ret = false;
++			goto pte_unlock;
++		}
+ 
++		entry = pte_mkyoung(vmf->orig_pte);
++		if (ptep_set_access_flags(vma, addr, vmf->pte, entry, 0))
++			update_mmu_cache(vma, addr, vmf->pte);
++	}
++
++	/*
++	 * This really shouldn't fail, because the page is there
++	 * in the page tables. But it might just be unreadable,
++	 * in which case we just give up and fill the result with
++	 * zeroes.
++	 */
++	if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE)) {
+ 		/*
+-		 * This really shouldn't fail, because the page is there
+-		 * in the page tables. But it might just be unreadable,
+-		 * in which case we just give up and fill the result with
+-		 * zeroes.
++		 * Give a warn in case there can be some obscure
++		 * use-case
+ 		 */
+-		if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE))
+-			clear_page(kaddr);
+-		kunmap_atomic(kaddr);
+-		flush_dcache_page(dst);
+-	} else
+-		copy_user_highpage(dst, src, va, vma);
++		WARN_ON_ONCE(1);
++		clear_page(kaddr);
++	}
++
++	ret = true;
++
++pte_unlock:
++	if (force_mkyoung)
++		pte_unmap_unlock(vmf->pte, vmf->ptl);
++	kunmap_atomic(kaddr);
++	flush_dcache_page(dst);
++
++	return ret;
+ }
+ 
+ static gfp_t __get_fault_gfp_mask(struct vm_area_struct *vma)
+@@ -2503,7 +2565,19 @@ static int wp_page_copy(struct vm_fault *vmf)
+ 				vmf->address);
+ 		if (!new_page)
+ 			goto oom;
+-		cow_user_page(new_page, old_page, vmf->address, vma);
++
++		if (!cow_user_page(new_page, old_page, vmf)) {
++			/*
++			 * COW failed, if the fault was solved by other,
++			 * it's fine. If not, userspace would re-fault on
++			 * the same address and we will handle the fault
++			 * from the second attempt.
++			 */
++			put_page(new_page);
++			if (old_page)
++				put_page(old_page);
++			return 0;
++		}
+ 	}
+ 
+ 	if (mem_cgroup_try_charge(new_page, mm, GFP_KERNEL, &memcg, false))
 -- 
 2.25.1
 
