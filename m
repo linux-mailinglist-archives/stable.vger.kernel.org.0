@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D0BF26F3F6
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF12F26F408
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726760AbgIRCCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47708 "EHLO mail.kernel.org"
+        id S1726822AbgIRDLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:11:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726753AbgIRCCa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726755AbgIRCCa (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:02:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D789823731;
-        Fri, 18 Sep 2020 02:02:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11F8921734;
+        Fri, 18 Sep 2020 02:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394548;
-        bh=L/RPD5vnKSQDqRYPSE4OdlONRIwszqPQ8jg7XI6cdII=;
+        s=default; t=1600394549;
+        bh=aBFx1KcBL6iJWVBlTWXIiK8c5LFnK4N15P9qCKDqaGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CyoXwP1jSOVifoGU6ru/+ba8p8k5SRpxPz3yJSenh220EhaYr4aZlC7TVR0XWTmFC
-         kItfh6IwSYaatLlINHVe2H1GYSiccf98wmzKLvZjlxRyyrK29G6DF/P/gijtQvPxPn
-         Cs67RLG4Ztbj2ni1stlBIlm10eeuyI7KmCm5MOp4=
+        b=TjgOpr9cs9iGXrLnfqr5TjNZQcIXQr1+qHLrd5Hc4enl8KKpeUh4N3yj0pESMVwM4
+         zEx1kRzaois6XnlaLu34M7sgZGNHzX6Fy8n8yQaD+qL0pztbbF0SQmfW5AfwNFL6J7
+         bqUNozc3+jmV5i0LG1BRbuGWJcQHeh3yHmSt9e8E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tzung-Bi Shih <tzungbi@google.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 065/330] ASoC: max98090: remove msleep in PLL unlocked workaround
-Date:   Thu, 17 Sep 2020 21:56:45 -0400
-Message-Id: <20200918020110.2063155-65-sashal@kernel.org>
+Cc:     Max Filippov <jcmvbkbc@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        linux-xtensa@linux-xtensa.org
+Subject: [PATCH AUTOSEL 5.4 066/330] xtensa: fix system_call interaction with ptrace
+Date:   Thu, 17 Sep 2020 21:56:46 -0400
+Message-Id: <20200918020110.2063155-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,55 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzung-Bi Shih <tzungbi@google.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit acb874a7c049ec49d8fc66c893170fb42c01bdf7 ]
+[ Upstream commit 02ce94c229251555ac726ecfebe3458ef5905fa9 ]
 
-It was observed Baytrail-based chromebooks could cause continuous PLL
-unlocked when using playback stream and capture stream simultaneously.
-Specifically, starting a capture stream after started a playback stream.
-As a result, the audio data could corrupt or turn completely silent.
+Don't overwrite return value if system call was cancelled at entry by
+ptrace. Return status code from do_syscall_trace_enter so that
+pt_regs::syscall doesn't need to be changed to skip syscall.
 
-As the datasheet suggested, the maximum PLL lock time should be 7 msec.
-The workaround resets the codec softly by toggling SHDN off and on if
-PLL failed to lock for 10 msec.  Notably, there is no suggested hold
-time for SHDN off.
-
-On Baytrail-based chromebooks, it would easily happen continuous PLL
-unlocked if there is a 10 msec delay between SHDN off and on.  Removes
-the msleep().
-
-Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
-Link: https://lore.kernel.org/r/20191122073114.219945-2-tzungbi@google.com
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98090.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/xtensa/kernel/entry.S  |  4 ++--
+ arch/xtensa/kernel/ptrace.c | 18 ++++++++++++++++--
+ 2 files changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
-index 45da2b51543e7..6b9d326e11b07 100644
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -2112,10 +2112,16 @@ static void max98090_pll_work(struct max98090_priv *max98090)
+diff --git a/arch/xtensa/kernel/entry.S b/arch/xtensa/kernel/entry.S
+index 59671603c9c62..1f07876ea2ed7 100644
+--- a/arch/xtensa/kernel/entry.S
++++ b/arch/xtensa/kernel/entry.S
+@@ -1897,6 +1897,7 @@ ENTRY(system_call)
  
- 	dev_info_ratelimited(component->dev, "PLL unlocked\n");
+ 	mov	a6, a2
+ 	call4	do_syscall_trace_enter
++	beqz	a6, .Lsyscall_exit
+ 	l32i	a7, a2, PT_SYSCALL
  
-+	/*
-+	 * As the datasheet suggested, the maximum PLL lock time should be
-+	 * 7 msec.  The workaround resets the codec softly by toggling SHDN
-+	 * off and on if PLL failed to lock for 10 msec.  Notably, there is
-+	 * no suggested hold time for SHDN off.
-+	 */
+ 1:
+@@ -1911,8 +1912,6 @@ ENTRY(system_call)
+ 
+ 	addx4	a4, a7, a4
+ 	l32i	a4, a4, 0
+-	movi	a5, sys_ni_syscall;
+-	beq	a4, a5, 1f
+ 
+ 	/* Load args: arg0 - arg5 are passed via regs. */
+ 
+@@ -1932,6 +1931,7 @@ ENTRY(system_call)
+ 
+ 	s32i	a6, a2, PT_AREG2
+ 	bnez	a3, 1f
++.Lsyscall_exit:
+ 	abi_ret(4)
+ 
+ 1:
+diff --git a/arch/xtensa/kernel/ptrace.c b/arch/xtensa/kernel/ptrace.c
+index b964f0b2d8864..145742d70a9f2 100644
+--- a/arch/xtensa/kernel/ptrace.c
++++ b/arch/xtensa/kernel/ptrace.c
+@@ -542,14 +542,28 @@ long arch_ptrace(struct task_struct *child, long request,
+ 	return ret;
+ }
+ 
+-void do_syscall_trace_enter(struct pt_regs *regs)
++void do_syscall_trace_leave(struct pt_regs *regs);
++int do_syscall_trace_enter(struct pt_regs *regs)
+ {
++	if (regs->syscall == NO_SYSCALL)
++		regs->areg[2] = -ENOSYS;
 +
- 	/* Toggle shutdown OFF then ON */
- 	snd_soc_component_update_bits(component, M98090_REG_DEVICE_SHUTDOWN,
- 			    M98090_SHDNN_MASK, 0);
--	msleep(10);
- 	snd_soc_component_update_bits(component, M98090_REG_DEVICE_SHUTDOWN,
- 			    M98090_SHDNN_MASK, M98090_SHDNN_MASK);
+ 	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
+-	    tracehook_report_syscall_entry(regs))
++	    tracehook_report_syscall_entry(regs)) {
++		regs->areg[2] = -ENOSYS;
+ 		regs->syscall = NO_SYSCALL;
++		return 0;
++	}
++
++	if (regs->syscall == NO_SYSCALL) {
++		do_syscall_trace_leave(regs);
++		return 0;
++	}
  
+ 	if (test_thread_flag(TIF_SYSCALL_TRACEPOINT))
+ 		trace_sys_enter(regs, syscall_get_nr(current, regs));
++
++	return 1;
+ }
+ 
+ void do_syscall_trace_leave(struct pt_regs *regs)
 -- 
 2.25.1
 
