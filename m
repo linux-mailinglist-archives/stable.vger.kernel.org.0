@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C0FF26F33F
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC5B26F342
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727283AbgIRCET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:04:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51525 "EHLO mail.kernel.org"
+        id S1727287AbgIRCEU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:04:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727267AbgIRCET (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727264AbgIRCET (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:04:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3E1723600;
-        Fri, 18 Sep 2020 02:04:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03D3D2388D;
+        Fri, 18 Sep 2020 02:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394652;
-        bh=K8YFbiPi9jArRe8RYEmaRUiNBfLLK+iMBy+K9lLk7ok=;
+        s=default; t=1600394653;
+        bh=6Nq2HNEwR1KMNGLEz8HadXWVEGLF1X2YtNQ2rH4FjP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uK8PWcInO1WMeNq4wtmczq5BxJY/IVrRnyjZz+qD6f5qJYQL2EY/erK6eU+GpFmHL
-         oF5TurkOxi8Lu1Zoritgc995r0Tzxw1tOSQEyKMfgvi0Ajr0CHLhX7wozWA8ZPM1E5
-         tm4RyvKhKgDPbqGIHoGoCt8B3PkYvt/d9+lIZSoc=
+        b=otjPKHc+BSDp5kckWaxgE3N7vhvLAHEoXQUt8THgl0GSU8eQrPqtIYiMx59IWaLvh
+         AWFlRmpqyyIkh5DZ7np1f8d3baj8DCta3HuwJdRRLs3cIG2C7GDggwP0uDVPvWTmdh
+         Q31EA5xS+v8bpGrCYShIuI8vEIYkV/lQ97hyHO2c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaska Uimonen <jaska.uimonen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 149/330] ASoC: SOF: ipc: check ipc return value before data copy
-Date:   Thu, 17 Sep 2020 21:58:09 -0400
-Message-Id: <20200918020110.2063155-149-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        =?UTF-8?q?Josef=20M=C3=B6llers?= <josef.moellers@suse.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 150/330] media: go7007: Fix URB type for interrupt handling
+Date:   Thu, 17 Sep 2020 21:58:10 -0400
+Message-Id: <20200918020110.2063155-150-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,52 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaska Uimonen <jaska.uimonen@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 1919b42ca4ad75a2397081164661af3ce5a7b8f4 ]
+[ Upstream commit a3ea410cac41b19a5490aad7fe6d9a9a772e646e ]
 
-In tx_wait_done the ipc payload is copied before the DSP transaction
-error code is checked. This might lead to corrupted data in kernel side
-even though the error would be handled later. It is also pointless to
-copy the data in case of error. So change the order of error check and
-copy.
+Josef reported that his old-and-good Plextor ConvertX M402U video
+converter spews lots of WARNINGs on the recent kernels, and it turned
+out that the device uses a bulk endpoint for interrupt handling just
+like 2250 board.
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Jaska Uimonen <jaska.uimonen@linux.intel.com>
-Link: https://lore.kernel.org/r/20200228231850.9226-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+For fixing it, generalize the check with the proper verification of
+the endpoint instead of hard-coded board type check.
+
+Fixes: 7e5219d18e93 ("[media] go7007: Fix 2250 urb type")
+Reported-and-tested-by: Josef Möllers <josef.moellers@suse.com>
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1162583
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206427
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/ipc.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/media/usb/go7007/go7007-usb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/ipc.c b/sound/soc/sof/ipc.c
-index e7b1a80e2a14c..f38f651da2246 100644
---- a/sound/soc/sof/ipc.c
-+++ b/sound/soc/sof/ipc.c
-@@ -215,15 +215,17 @@ static int tx_wait_done(struct snd_sof_ipc *ipc, struct snd_sof_ipc_msg *msg,
- 		snd_sof_trace_notify_for_error(ipc->sdev);
- 		ret = -ETIMEDOUT;
- 	} else {
--		/* copy the data returned from DSP */
- 		ret = msg->reply_error;
--		if (msg->reply_size)
--			memcpy(reply_data, msg->reply_data, msg->reply_size);
--		if (ret < 0)
-+		if (ret < 0) {
- 			dev_err(sdev->dev, "error: ipc error for 0x%x size %zu\n",
- 				hdr->cmd, msg->reply_size);
--		else
-+		} else {
- 			ipc_log_header(sdev->dev, "ipc tx succeeded", hdr->cmd);
-+			if (msg->reply_size)
-+				/* copy the data returned from DSP */
-+				memcpy(reply_data, msg->reply_data,
-+				       msg->reply_size);
-+		}
- 	}
+diff --git a/drivers/media/usb/go7007/go7007-usb.c b/drivers/media/usb/go7007/go7007-usb.c
+index ff2aa057c1fbc..f889c9d740cd1 100644
+--- a/drivers/media/usb/go7007/go7007-usb.c
++++ b/drivers/media/usb/go7007/go7007-usb.c
+@@ -1044,6 +1044,7 @@ static int go7007_usb_probe(struct usb_interface *intf,
+ 	struct go7007_usb *usb;
+ 	const struct go7007_usb_board *board;
+ 	struct usb_device *usbdev = interface_to_usbdev(intf);
++	struct usb_host_endpoint *ep;
+ 	unsigned num_i2c_devs;
+ 	char *name;
+ 	int video_pipe, i, v_urb_len;
+@@ -1140,7 +1141,8 @@ static int go7007_usb_probe(struct usb_interface *intf,
+ 	if (usb->intr_urb->transfer_buffer == NULL)
+ 		goto allocfail;
  
- 	return ret;
+-	if (go->board_id == GO7007_BOARDID_SENSORAY_2250)
++	ep = usb->usbdev->ep_in[4];
++	if (usb_endpoint_type(&ep->desc) == USB_ENDPOINT_XFER_BULK)
+ 		usb_fill_bulk_urb(usb->intr_urb, usb->usbdev,
+ 			usb_rcvbulkpipe(usb->usbdev, 4),
+ 			usb->intr_urb->transfer_buffer, 2*sizeof(u16),
 -- 
 2.25.1
 
