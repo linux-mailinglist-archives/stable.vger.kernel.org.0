@@ -2,192 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6316026EA5F
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 03:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 608CA26EA70
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 03:26:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726009AbgIRBQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 21:16:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46272 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726007AbgIRBQm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 21:16:42 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1882C06174A
-        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 18:16:42 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id y1so2444328pgk.8
-        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 18:16:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=c//KXuLrmnjcdYdUSSJhMm/vbrWch+QSR67q3X5oLNk=;
-        b=JW50dEcbyyihx8i1nCIwLLHgyzft+hnHk5YO8PKmE5KYSuxqIrBdtgvATa8EuWpuy2
-         b5FNtcyCiJsQo738Y0Vh0/EYNPFylVnAZroTHpxO3ZcTRPUHnOBVg4oqyE7famvgAXc5
-         gVQntiXdZawYE/AhrXlGeG8AfuUvGZ7ykQoNTz27ZhGwt61ZTxS9/PigHOEEFe93cAwC
-         JuSk47cNDLBRJZCa9WyvPSMgli6uoUbfY4+fOgdVFvF4X6yZd5Pgp3f8CNHLqyOcwsq9
-         zYHvN5ba2jgdMuhoQxE0k3Ff9jKLb3kpGRxGrv8NebjMbwHN1E8gDoZqbhzWrrCc1Sqz
-         M5Cg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=c//KXuLrmnjcdYdUSSJhMm/vbrWch+QSR67q3X5oLNk=;
-        b=Y5v2gnG1rku+/lXiaG5cYTsar/aaQCudjyqFJmkBLco2OhrZ6CP12PHxXZTSj0mj+p
-         rF9C+IfxnloijEq4aO1xT4T+3KsjUcCDCpZH6dni3qG64w7Rd5CnL9S7O5qwC4JfCL01
-         yWEdTQAbCeF914yaHzx5n6X+ykc3AU3HLURmTaMtLbQCQq8bgfT/29Fgepb0MYdLKzvd
-         Bf2ciTLT6LMBmM/CCk87720jAlkPY3swwHXf/j7AJP0lDqowaVKOw4G8rbOHkPOJPjQ7
-         VglcN/02MGiYAiwiHIeIbBjYB7MQMTo+/w6TIDdQgw1lFw7+tYCOxw4wuGhqfMW1I7kz
-         DicA==
-X-Gm-Message-State: AOAM531Kpex1J7bdTE6yvIw7or3cerVyvgZaI4fmq3Ek5oLC4KM6dzs8
-        oeUhqE0Z/PrNtar4Y8+gqWzn5sqEvDVHWw==
-X-Google-Smtp-Source: ABdhPJyI36OOL5gOQY9+bAcejkMAGH6V249jIlObDz7/LJGd+nC5BUKZeALSnQSJ2DRmAdVdq4K5Tg==
-X-Received: by 2002:aa7:8197:0:b029:142:2501:3981 with SMTP id g23-20020aa781970000b029014225013981mr13602192pfi.70.1600391801737;
-        Thu, 17 Sep 2020 18:16:41 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m21sm894095pfo.13.2020.09.17.18.16.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2020 18:16:41 -0700 (PDT)
-Message-ID: <5f640a79.1c69fb81.e6908.2ac2@mx.google.com>
-Date:   Thu, 17 Sep 2020 18:16:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726040AbgIRB0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 21:26:35 -0400
+Received: from rcdn-iport-6.cisco.com ([173.37.86.77]:15803 "EHLO
+        rcdn-iport-6.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725987AbgIRB0f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 21:26:35 -0400
+X-Greylist: delayed 426 seconds by postgrey-1.27 at vger.kernel.org; Thu, 17 Sep 2020 21:26:34 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=cisco.com; i=@cisco.com; l=2613; q=dns/txt; s=iport;
+  t=1600392394; x=1601601994;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Lvffglabqyr6MEzUPhmZ2cUEKdNq8MacTKeEEyavhZU=;
+  b=O1Cmtn/eePjyhiD//EUYEoeQop16DTwk862eiGv12vHydViQJeW6cnt4
+   ae/5gMeN4mysngkSleL9rV/iYZdbUrvU3NWMisg2ZdWS7z8VY8s0ZwNQj
+   Qsf25J6LLt+ao/Am1uHX0z0/zvSIo6nHWJ/OWUfg+AHnOodvlDhg4aDIY
+   o=;
+X-IronPort-AV: E=Sophos;i="5.77,273,1596499200"; 
+   d="scan'208";a="828776718"
+Received: from alln-core-2.cisco.com ([173.36.13.135])
+  by rcdn-iport-6.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 18 Sep 2020 01:19:27 +0000
+Received: from sjc-ads-9087.cisco.com (sjc-ads-9087.cisco.com [10.30.208.97])
+        by alln-core-2.cisco.com (8.15.2/8.15.2) with ESMTP id 08I1JRJl021371;
+        Fri, 18 Sep 2020 01:19:27 GMT
+Received: by sjc-ads-9087.cisco.com (Postfix, from userid 396877)
+        id 99B7FC99; Thu, 17 Sep 2020 18:19:27 -0700 (PDT)
+From:   Julius Hemanth Pitti <jpitti@cisco.com>
+To:     akpm@linux-foundation.org, xlpang@linux.alibaba.com,
+        mhocko@suse.com, vdavydov.dev@gmail.com, ktkhai@virtuozzo.com,
+        hannes@cmpxchg.org
+Cc:     stable@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, xe-linux-external@cisco.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Julius Hemanth Pitti <jpitti@cisco.com>
+Subject: [PATCH stable v5.8] mm: memcg: fix memcg reclaim soft lockup
+Date:   Thu, 17 Sep 2020 18:19:13 -0700
+Message-Id: <20200918011913.57159-1-jpitti@cisco.com>
+X-Mailer: git-send-email 2.19.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Kernel: v4.4.236-28-g753a2b628a72
-Subject: stable-rc/queue/4.4 baseline: 111 runs,
- 3 regressions (v4.4.236-28-g753a2b628a72)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-Auto-Response-Suppress: DR, OOF, AutoReply
+X-Outbound-SMTP-Client: 10.30.208.97, sjc-ads-9087.cisco.com
+X-Outbound-Node: alln-core-2.cisco.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 111 runs, 3 regressions (v4.4.236-28-g753a2b6=
-28a72)
+From: Xunlei Pang <xlpang@linux.alibaba.com>
 
-Regressions Summary
--------------------
+commit e3336cab2579012b1e72b5265adf98e2d6e244ad upstream.
 
-platform   | arch | lab           | compiler | defconfig           | results
------------+------+---------------+----------+---------------------+--------
-beagle-xm  | arm  | lab-baylibre  | gcc-8    | omap2plus_defconfig | 1/4    =
+We've met softlockup with "CONFIG_PREEMPT_NONE=y", when the target memcg
+doesn't have any reclaimable memory.
 
-odroid-xu3 | arm  | lab-collabora | gcc-8    | exynos_defconfig    | 0/1    =
+It can be easily reproduced as below:
 
+  watchdog: BUG: soft lockup - CPU#0 stuck for 111s![memcg_test:2204]
+  CPU: 0 PID: 2204 Comm: memcg_test Not tainted 5.9.0-rc2+ #12
+  Call Trace:
+    shrink_lruvec+0x49f/0x640
+    shrink_node+0x2a6/0x6f0
+    do_try_to_free_pages+0xe9/0x3e0
+    try_to_free_mem_cgroup_pages+0xef/0x1f0
+    try_charge+0x2c1/0x750
+    mem_cgroup_charge+0xd7/0x240
+    __add_to_page_cache_locked+0x2fd/0x370
+    add_to_page_cache_lru+0x4a/0xc0
+    pagecache_get_page+0x10b/0x2f0
+    filemap_fault+0x661/0xad0
+    ext4_filemap_fault+0x2c/0x40
+    __do_fault+0x4d/0xf9
+    handle_mm_fault+0x1080/0x1790
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.236-28-g753a2b628a72/plan/baseline/
+It only happens on our 1-vcpu instances, because there's no chance for
+oom reaper to run to reclaim the to-be-killed process.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.236-28-g753a2b628a72
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      753a2b628a72795170d32ed7120a4382e2e98b80 =
+Add a cond_resched() at the upper shrink_node_memcgs() to solve this
+issue, this will mean that we will get a scheduling point for each memcg
+in the reclaimed hierarchy without any dependency on the reclaimable
+memory in that memcg thus making it more predictable.
 
+Suggested-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Xunlei Pang <xlpang@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Chris Down <chris@chrisdown.name>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Link: http://lkml.kernel.org/r/1598495549-67324-1-git-send-email-xlpang@linux.alibaba.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b0dedc49a2da ("mm/vmscan.c: iterate only over charged shrinkers during memcg shrink_slab()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Julius Hemanth Pitti <jpitti@cisco.com>
+---
+ mm/vmscan.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 749d239c62b2..8b97bc615d8c 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -2619,6 +2619,14 @@ static void shrink_node_memcgs(pg_data_t *pgdat, struct scan_control *sc)
+ 		unsigned long reclaimed;
+ 		unsigned long scanned;
+ 
++		/*
++		 * This loop can become CPU-bound when target memcgs
++		 * aren't eligible for reclaim - either because they
++		 * don't have any reclaimable pages, or because their
++		 * memory is explicitly protected. Avoid soft lockups.
++		 */
++		cond_resched();
++
+ 		switch (mem_cgroup_protected(target_memcg, memcg)) {
+ 		case MEMCG_PROT_MIN:
+ 			/*
+-- 
+2.17.1
 
-Test Regressions
----------------- =
-
-
-
-platform   | arch | lab           | compiler | defconfig           | results
------------+------+---------------+----------+---------------------+--------
-beagle-xm  | arm  | lab-baylibre  | gcc-8    | omap2plus_defconfig | 1/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f63d8948abe4faa3bbf9df4
-
-  Results:     1 PASS, 2 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.236-2=
-8-g753a2b628a72/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.236-2=
-8-g753a2b628a72/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f63d8948abe4faa=
-3bbf9df8
-      new failure (last pass: v4.4.236-28-gd232545e8fcc)
-      1 lines
-
-    2020-09-17 21:41:57.881000  Connected to omap3-beagle-xm console [chann=
-el connected] (~$quit to exit)
-    2020-09-17 21:41:57.881000  (user:khilman) is already connected
-    2020-09-17 21:41:57.882000  (user:) is already connected
-    2020-09-17 21:42:09.507000  =00
-    2020-09-17 21:42:09.513000  U-Boot SPL 2018.09-rc2-00001-ge6aa9785acb2 =
-(Aug 15 2018 - 09:41:52 -0700)
-    2020-09-17 21:42:09.517000  Trying to boot from MMC1
-    2020-09-17 21:42:09.707000  spl_load_image_fat_os: error reading image =
-args, err - -2
-    2020-09-17 21:42:09.947000  =
-
-    2020-09-17 21:42:09.947000  =
-
-    2020-09-17 21:42:09.954000  U-Boot 2018.09-rc2-00001-ge6aa9785acb2 (Aug=
- 15 2018 - 09:41:52 -0700)
-    ... (448 line(s) more)
-     * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f63d8948abe=
-4faa3bbf9dfa
-      new failure (last pass: v4.4.236-28-gd232545e8fcc)
-      28 lines
-
-    2020-09-17 21:43:43.463000  kern  :emerg : Stack: (0xcb9afd10 to 0xcb9b=
-0000)
-    2020-09-17 21:43:43.471000  kern  :emerg : fd00:                       =
-              bf02b8fc bf010b84 cb99ec10 bf02b988
-    2020-09-17 21:43:43.479000  kern  :emerg : fd20: cb99ec10 bf22e0a8 0000=
-0002 cb8ac010 cb99ec10 bf24fb54 cbcba510 cbcba510
-    2020-09-17 21:43:43.487000  kern  :emerg : fd40: 00000000 00000000 ce22=
-8930 c01fb390 ce228930 ce228930 c08595ac 00000001
-    2020-09-17 21:43:43.496000  kern  :emerg : fd60: ce228930 cbcba510 cbcb=
-a5d0 00000000 ce228930 c08595ac 00000001 c09632c0
-    2020-09-17 21:43:43.504000  kern  :emerg : fd80: ffffffed bf253ff4 ffff=
-fdfb 00000028 00000001 c00ce2e4 bf254188 c0406ee0
-    2020-09-17 21:43:43.512000  kern  :emerg : fda0: c09632c0 c120ea30 bf25=
-3ff4 00000000 00000028 c04053b4 c09632c0 c09632f4
-    2020-09-17 21:43:43.520000  kern  :emerg : fdc0: bf253ff4 00000000 0000=
-0000 c040555c 00000000 bf253ff4 c04054d0 c0403880
-    2020-09-17 21:43:43.528000  kern  :emerg : fde0: ce0b08a4 ce221910 bf25=
-3ff4 cbbe02c0 c09ddba8 c04049cc bf252b6c c0960460
-    2020-09-17 21:43:43.536000  kern  :emerg : fe00: cbce9780 bf253ff4 c096=
-0460 cbce9780 bf257000 c0405f94 c0960460 c0960460
-    ... (16 line(s) more)
-      =
-
-
-
-platform   | arch | lab           | compiler | defconfig           | results
------------+------+---------------+----------+---------------------+--------
-odroid-xu3 | arm  | lab-collabora | gcc-8    | exynos_defconfig    | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f63ebaab44ffdba04bf9db3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: exynos_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.236-2=
-8-g753a2b628a72/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-odroid-xu=
-3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.236-2=
-8-g753a2b628a72/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-odroid-xu=
-3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f63ebaab44ffdba04bf9=
-db4
-      new failure (last pass: v4.4.236-28-gd232545e8fcc)  =20
