@@ -2,36 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02FC526F381
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:09:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61A4B26F3AB
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727106AbgIRCDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:03:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49586 "EHLO mail.kernel.org"
+        id S1729863AbgIRDIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:08:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727059AbgIRCDX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:03:23 -0400
+        id S1727094AbgIRCDa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:03:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93DA921973;
-        Fri, 18 Sep 2020 02:03:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B50C21734;
+        Fri, 18 Sep 2020 02:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394603;
-        bh=aUC8huaqVrjSgI8hOO4erWpOFbAXmTFNbEcxZMThqmw=;
+        s=default; t=1600394610;
+        bh=K0Jb/HJHp6k0yVKYX+TdvC6Dq2XDis/IGQzEdz0SJ9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=javAv6nwBpjxfrCdi1p51ycNOQOD/t5KIm6KvJj19hS7u7rrReSKHjNeGwaoGrWWy
-         5WYKC916R6b9956CbxlL3gnPn5j6nXeCN2SDXnZO/dXpx4wEtbv3p1Q4g/BnRBmMAt
-         TMEVo7g0ZmXLEJ5PqlBL7M3e9L1KhlZYYplpHB4c=
+        b=kNnF/8rCRZjsvgFLNejdel++KyvyEyfrE1z6OYpMjNLc3nabsHeR26i4Z2L47diyH
+         9nqTiTYxJ61xNxGCbxtfPTFHVvaSGNiEFUTnEgjt/8yTmysjNNiunkwF8E8UVkTHcq
+         yfasCdK3/ZfRpJRxuALyNaPTw0R2OJQqUEQl1qHk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Doug Smythies <doug.smythies@gmail.com>,
-        Doug Smythies <dsmythies@telus.net>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 110/330] tools/power/x86/intel_pstate_tracer: changes for python 3 compatibility
-Date:   Thu, 17 Sep 2020 21:57:30 -0400
-Message-Id: <20200918020110.2063155-110-sashal@kernel.org>
+Cc:     Steven Price <steven.price@arm.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexandre Ghiti <alex@ghiti.fr>,
+        Andy Lutomirski <luto@kernel.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        James Hogan <jhogan@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Jerome Glisse <jglisse@redhat.com>,
+        "Liang, Kan" <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Burton <paul.burton@mips.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Will Deacon <will@kernel.org>, Zong Li <zong.li@sifive.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.4 113/330] mm: pagewalk: fix termination condition in walk_pte_range()
+Date:   Thu, 17 Sep 2020 21:57:33 -0400
+Message-Id: <20200918020110.2063155-113-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,111 +72,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Smythies <doug.smythies@gmail.com>
+From: Steven Price <steven.price@arm.com>
 
-[ Upstream commit e749e09db30c38f1a275945814b0109e530a07b0 ]
+[ Upstream commit c02a98753e0a36ba65a05818626fa6adeb4e7c97 ]
 
-Some syntax needs to be more rigorous for python 3.
-Backwards compatibility tested with python 2.7
+If walk_pte_range() is called with a 'end' argument that is beyond the
+last page of memory (e.g.  ~0UL) then the comparison between 'addr' and
+'end' will always fail and the loop will be infinite.  Instead change the
+comparison to >= while accounting for overflow.
 
-Signed-off-by: Doug Smythies <dsmythies@telus.net>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: http://lkml.kernel.org/r/20191218162402.45610-15-steven.price@arm.com
+Signed-off-by: Steven Price <steven.price@arm.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Alexandre Ghiti <alex@ghiti.fr>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: "Liang, Kan" <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Burton <paul.burton@mips.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Zong Li <zong.li@sifive.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../intel_pstate_tracer.py                    | 22 +++++++++----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ mm/pagewalk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py b/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py
-index 2d6d342b148f1..1351975d07699 100755
---- a/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py
-+++ b/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py
-@@ -11,11 +11,11 @@ then this utility enables and collects trace data for a user specified interval
- and generates performance plots.
+diff --git a/mm/pagewalk.c b/mm/pagewalk.c
+index d48c2a986ea3f..4eb09e0898817 100644
+--- a/mm/pagewalk.c
++++ b/mm/pagewalk.c
+@@ -16,9 +16,9 @@ static int walk_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
+ 		err = ops->pte_entry(pte, addr, addr + PAGE_SIZE, walk);
+ 		if (err)
+ 		       break;
+-		addr += PAGE_SIZE;
+-		if (addr == end)
++		if (addr >= end - PAGE_SIZE)
+ 			break;
++		addr += PAGE_SIZE;
+ 		pte++;
+ 	}
  
- Prerequisites:
--    Python version 2.7.x
-+    Python version 2.7.x or higher
-     gnuplot 5.0 or higher
--    gnuplot-py 1.8
-+    gnuplot-py 1.8 or higher
-     (Most of the distributions have these required packages. They may be called
--     gnuplot-py, phython-gnuplot. )
-+     gnuplot-py, phython-gnuplot or phython3-gnuplot, gnuplot-nox, ... )
- 
-     HWP (Hardware P-States are disabled)
-     Kernel config for Linux trace is enabled
-@@ -181,7 +181,7 @@ def plot_pstate_cpu_with_sample():
-         g_plot('set xlabel "Samples"')
-         g_plot('set ylabel "P-State"')
-         g_plot('set title "{} : cpu pstate vs. sample : {:%F %H:%M}"'.format(testname, datetime.now()))
--        title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+        title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-         plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_SAMPLE, C_TO)
-         g_plot('title_list = "{}"'.format(title_list))
-         g_plot(plot_str)
-@@ -198,7 +198,7 @@ def plot_pstate_cpu():
- #    the following command is really cool, but doesn't work with the CPU masking option because it aborts on the first missing file.
- #    plot_str = 'plot for [i=0:*] file=sprintf("cpu%03d.csv",i) title_s=sprintf("cpu%03d",i) file using 16:7 pt 7 ps 1 title title_s'
- #
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_TO)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -212,7 +212,7 @@ def plot_load_cpu():
-     g_plot('set ylabel "CPU load (percent)"')
-     g_plot('set title "{} : cpu loads : {:%F %H:%M}"'.format(testname, datetime.now()))
- 
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_LOAD)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -226,7 +226,7 @@ def plot_frequency_cpu():
-     g_plot('set ylabel "CPU Frequency (GHz)"')
-     g_plot('set title "{} : cpu frequencies : {:%F %H:%M}"'.format(testname, datetime.now()))
- 
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_FREQ)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -241,7 +241,7 @@ def plot_duration_cpu():
-     g_plot('set ylabel "Timer Duration (MilliSeconds)"')
-     g_plot('set title "{} : cpu durations : {:%F %H:%M}"'.format(testname, datetime.now()))
- 
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_DURATION)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -255,7 +255,7 @@ def plot_scaled_cpu():
-     g_plot('set ylabel "Scaled Busy (Unitless)"')
-     g_plot('set title "{} : cpu scaled busy : {:%F %H:%M}"'.format(testname, datetime.now()))
- 
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_SCALED)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -269,7 +269,7 @@ def plot_boost_cpu():
-     g_plot('set ylabel "CPU IO Boost (percent)"')
-     g_plot('set title "{} : cpu io boost : {:%F %H:%M}"'.format(testname, datetime.now()))
- 
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_BOOST)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -283,7 +283,7 @@ def plot_ghz_cpu():
-     g_plot('set ylabel "TSC Frequency (GHz)"')
-     g_plot('set title "{} : cpu TSC Frequencies (Sanity check calculation) : {:%F %H:%M}"'.format(testname, datetime.now()))
- 
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_GHZ)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
 -- 
 2.25.1
 
