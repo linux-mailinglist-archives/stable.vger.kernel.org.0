@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46EA226EF0C
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4747C26EF14
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726697AbgIRCcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:32:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41762 "EHLO mail.kernel.org"
+        id S1729001AbgIRCc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:32:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729018AbgIRCOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:14:02 -0400
+        id S1729017AbgIRCOB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:14:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB2C2208DB;
-        Fri, 18 Sep 2020 02:13:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC83E239EE;
+        Fri, 18 Sep 2020 02:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395235;
-        bh=zkaAA91lUk1zoVhUHdn8mM9FXUn61fVqzjB0/5Gz9Ks=;
+        s=default; t=1600395236;
+        bh=0u/2lLeQmbDvSCvC7de5B3F7KhtSvQEvgXMoKY3Pb0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OE4avWG5umEb47ieYd9ccgZ6vCXJieLmkosG+mML14b5qa8tTF0m+TMPQj31E6+di
-         MfqDpxxGnWaG6pxtSUMHLV3pp/KM/pUkprEGAeEld7c5SqPNKYIeau7RKOlQJABagC
-         7BZlyfpg2jKSxXubFwK36pF7wYDZpI68nU4okn7E=
+        b=FuK+Hx/R1155yxhwOrBA7df/dyV2RanJq5AAaqrBleHPhCpWMZYQTm8OQ5s9l2EKK
+         y4pdZWQVN6uwJzEotFud2umIg1yi7wNErteGZL2wpgxaECwOsDN4cYuJNnhVzkbi9/
+         ntMB0pGz6L6NXPaOt+fh+l4lIV3tecG0v/1RmPu0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 080/127] NFS: Fix races nfs_page_group_destroy() vs nfs_destroy_unlinked_subrequests()
-Date:   Thu, 17 Sep 2020 22:11:33 -0400
-Message-Id: <20200918021220.2066485-80-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.14 081/127] mm/kmemleak.c: use address-of operator on section symbols
+Date:   Thu, 17 Sep 2020 22:11:34 -0400
+Message-Id: <20200918021220.2066485-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -41,168 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 08ca8b21f760c0ed5034a5c122092eec22ccf8f4 ]
+[ Upstream commit b0d14fc43d39203ae025f20ef4d5d25d9ccf4be1 ]
 
-When a subrequest is being detached from the subgroup, we want to
-ensure that it is not holding the group lock, or in the process
-of waiting for the group lock.
+Clang warns:
 
-Fixes: 5b2b5187fa85 ("NFS: Fix nfs_page_group_destroy() and nfs_lock_and_join_requests() race cases")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+  mm/kmemleak.c:1955:28: warning: array comparison always evaluates to a constant [-Wtautological-compare]
+        if (__start_ro_after_init < _sdata || __end_ro_after_init > _edata)
+                                  ^
+  mm/kmemleak.c:1955:60: warning: array comparison always evaluates to a constant [-Wtautological-compare]
+        if (__start_ro_after_init < _sdata || __end_ro_after_init > _edata)
+
+These are not true arrays, they are linker defined symbols, which are just
+addresses.  Using the address of operator silences the warning and does
+not change the resulting assembly with either clang/ld.lld or gcc/ld
+(tested with diff + objdump -Dr).
+
+Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/895
+Link: http://lkml.kernel.org/r/20200220051551.44000-1-natechancellor@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pagelist.c        | 67 +++++++++++++++++++++++++++-------------
- fs/nfs/write.c           | 10 ++++--
- include/linux/nfs_page.h |  2 ++
- 3 files changed, 55 insertions(+), 24 deletions(-)
+ mm/kmemleak.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index 7c01936be7c70..37358dba3b033 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -132,47 +132,70 @@ nfs_async_iocounter_wait(struct rpc_task *task, struct nfs_lock_context *l_ctx)
- EXPORT_SYMBOL_GPL(nfs_async_iocounter_wait);
- 
- /*
-- * nfs_page_group_lock - lock the head of the page group
-- * @req - request in group that is to be locked
-+ * nfs_page_set_headlock - set the request PG_HEADLOCK
-+ * @req: request that is to be locked
-  *
-- * this lock must be held when traversing or modifying the page
-- * group list
-+ * this lock must be held when modifying req->wb_head
-  *
-  * return 0 on success, < 0 on error
-  */
- int
--nfs_page_group_lock(struct nfs_page *req)
-+nfs_page_set_headlock(struct nfs_page *req)
- {
--	struct nfs_page *head = req->wb_head;
--
--	WARN_ON_ONCE(head != head->wb_head);
--
--	if (!test_and_set_bit(PG_HEADLOCK, &head->wb_flags))
-+	if (!test_and_set_bit(PG_HEADLOCK, &req->wb_flags))
- 		return 0;
- 
--	set_bit(PG_CONTENDED1, &head->wb_flags);
-+	set_bit(PG_CONTENDED1, &req->wb_flags);
- 	smp_mb__after_atomic();
--	return wait_on_bit_lock(&head->wb_flags, PG_HEADLOCK,
-+	return wait_on_bit_lock(&req->wb_flags, PG_HEADLOCK,
- 				TASK_UNINTERRUPTIBLE);
- }
- 
- /*
-- * nfs_page_group_unlock - unlock the head of the page group
-- * @req - request in group that is to be unlocked
-+ * nfs_page_clear_headlock - clear the request PG_HEADLOCK
-+ * @req: request that is to be locked
-  */
- void
--nfs_page_group_unlock(struct nfs_page *req)
-+nfs_page_clear_headlock(struct nfs_page *req)
- {
--	struct nfs_page *head = req->wb_head;
--
--	WARN_ON_ONCE(head != head->wb_head);
--
- 	smp_mb__before_atomic();
--	clear_bit(PG_HEADLOCK, &head->wb_flags);
-+	clear_bit(PG_HEADLOCK, &req->wb_flags);
- 	smp_mb__after_atomic();
--	if (!test_bit(PG_CONTENDED1, &head->wb_flags))
-+	if (!test_bit(PG_CONTENDED1, &req->wb_flags))
- 		return;
--	wake_up_bit(&head->wb_flags, PG_HEADLOCK);
-+	wake_up_bit(&req->wb_flags, PG_HEADLOCK);
-+}
-+
-+/*
-+ * nfs_page_group_lock - lock the head of the page group
-+ * @req: request in group that is to be locked
-+ *
-+ * this lock must be held when traversing or modifying the page
-+ * group list
-+ *
-+ * return 0 on success, < 0 on error
-+ */
-+int
-+nfs_page_group_lock(struct nfs_page *req)
-+{
-+	int ret;
-+
-+	ret = nfs_page_set_headlock(req);
-+	if (ret || req->wb_head == req)
-+		return ret;
-+	return nfs_page_set_headlock(req->wb_head);
-+}
-+
-+/*
-+ * nfs_page_group_unlock - unlock the head of the page group
-+ * @req: request in group that is to be unlocked
-+ */
-+void
-+nfs_page_group_unlock(struct nfs_page *req)
-+{
-+	if (req != req->wb_head)
-+		nfs_page_clear_headlock(req->wb_head);
-+	nfs_page_clear_headlock(req);
- }
- 
- /*
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index 7b6bda68aa86a..767e46c09074b 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -406,22 +406,28 @@ nfs_destroy_unlinked_subrequests(struct nfs_page *destroy_list,
- 		destroy_list = (subreq->wb_this_page == old_head) ?
- 				   NULL : subreq->wb_this_page;
- 
-+		/* Note: lock subreq in order to change subreq->wb_head */
-+		nfs_page_set_headlock(subreq);
- 		WARN_ON_ONCE(old_head != subreq->wb_head);
- 
- 		/* make sure old group is not used */
- 		subreq->wb_this_page = subreq;
-+		subreq->wb_head = subreq;
- 
- 		clear_bit(PG_REMOVE, &subreq->wb_flags);
- 
- 		/* Note: races with nfs_page_group_destroy() */
- 		if (!kref_read(&subreq->wb_kref)) {
- 			/* Check if we raced with nfs_page_group_destroy() */
--			if (test_and_clear_bit(PG_TEARDOWN, &subreq->wb_flags))
-+			if (test_and_clear_bit(PG_TEARDOWN, &subreq->wb_flags)) {
-+				nfs_page_clear_headlock(subreq);
- 				nfs_free_request(subreq);
-+			} else
-+				nfs_page_clear_headlock(subreq);
- 			continue;
- 		}
-+		nfs_page_clear_headlock(subreq);
- 
--		subreq->wb_head = subreq;
- 		nfs_release_request(old_head);
- 
- 		if (test_and_clear_bit(PG_INODE_REF, &subreq->wb_flags)) {
-diff --git a/include/linux/nfs_page.h b/include/linux/nfs_page.h
-index ad69430fd0eb5..5162fc1533c2f 100644
---- a/include/linux/nfs_page.h
-+++ b/include/linux/nfs_page.h
-@@ -142,6 +142,8 @@ extern	void nfs_unlock_and_release_request(struct nfs_page *);
- extern int nfs_page_group_lock(struct nfs_page *);
- extern void nfs_page_group_unlock(struct nfs_page *);
- extern bool nfs_page_group_sync_on_bit(struct nfs_page *, unsigned int);
-+extern	int nfs_page_set_headlock(struct nfs_page *req);
-+extern void nfs_page_clear_headlock(struct nfs_page *req);
- extern bool nfs_async_iocounter_wait(struct rpc_task *, struct nfs_lock_context *);
- 
- /*
+diff --git a/mm/kmemleak.c b/mm/kmemleak.c
+index d779181bed4d8..706f705c2e0a4 100644
+--- a/mm/kmemleak.c
++++ b/mm/kmemleak.c
+@@ -2030,7 +2030,7 @@ void __init kmemleak_init(void)
+ 	create_object((unsigned long)__bss_start, __bss_stop - __bss_start,
+ 		      KMEMLEAK_GREY, GFP_ATOMIC);
+ 	/* only register .data..ro_after_init if not within .data */
+-	if (__start_ro_after_init < _sdata || __end_ro_after_init > _edata)
++	if (&__start_ro_after_init < &_sdata || &__end_ro_after_init > &_edata)
+ 		create_object((unsigned long)__start_ro_after_init,
+ 			      __end_ro_after_init - __start_ro_after_init,
+ 			      KMEMLEAK_GREY, GFP_ATOMIC);
 -- 
 2.25.1
 
