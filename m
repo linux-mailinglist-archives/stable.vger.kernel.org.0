@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1505726EBD9
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCCAB26EBDD
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:10:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727276AbgIRCHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:07:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58162 "EHLO mail.kernel.org"
+        id S1726192AbgIRCHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:07:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727022AbgIRCHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:07:40 -0400
+        id S1727994AbgIRCHs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:07:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B1692396E;
-        Fri, 18 Sep 2020 02:07:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35B3B23770;
+        Fri, 18 Sep 2020 02:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394859;
-        bh=DvhlGhzzX8PcM7OlB4/U7DuP+5s8e0AMYjhI8kVwK5c=;
+        s=default; t=1600394868;
+        bh=Ys4BXVQKu1BJf2pHka02imQW3nBiwA2HiB/Nyx5Sucg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCP02ThE33QzvVqwTW82zVHVt4+mupNV7Gc9O4JHtXZlGpeBFo8JlRjCCGZtsb3hA
-         KGBPQJLhwofBOrlRq/U0knMTDVgwHwCYqrUy0yL5dxOJEQ9wP5E/h4Z59FEaCKJVWb
-         hAJu2k8LhO0EjZVFtBywe/kN0MXKOWrGS5RHGvvc=
+        b=WBdqbFc1Ru9cGu1dijvY+bbvSiavp8g4isAcft4O0qViO5BilFkrVwIaOadQSfcpq
+         fde6Ri6cFjBiFBtdg/xkw9TR9NXCh9AlNPPL36onpeb0qCDGDvMurzbf35DGkJ29To
+         KiX2E0WUbC9+rSkprP8ELGq3oiCyuKWVOA5HjBaE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.4 313/330] cifs: Fix double add page to memcg when cifs_readpages
-Date:   Thu, 17 Sep 2020 22:00:53 -0400
-Message-Id: <20200918020110.2063155-313-sashal@kernel.org>
+Cc:     Qu Wenruo <wqu@suse.com>, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 320/330] btrfs: qgroup: fix data leak caused by race between writeback and truncate
+Date:   Thu, 17 Sep 2020 22:01:00 -0400
+Message-Id: <20200918020110.2063155-320-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -45,143 +42,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 95a3d8f3af9b0d63b43f221b630beaab9739d13a ]
+[ Upstream commit fa91e4aa1716004ea8096d5185ec0451e206aea0 ]
 
-When xfstests generic/451, there is an BUG at mm/memcontrol.c:
-  page:ffffea000560f2c0 refcount:2 mapcount:0 mapping:000000008544e0ea
-       index:0xf
-  mapping->aops:cifs_addr_ops dentry name:"tst-aio-dio-cycle-write.451"
-  flags: 0x2fffff80000001(locked)
-  raw: 002fffff80000001 ffffc90002023c50 ffffea0005280088 ffff88815cda0210
-  raw: 000000000000000f 0000000000000000 00000002ffffffff ffff88817287d000
-  page dumped because: VM_BUG_ON_PAGE(page->mem_cgroup)
-  page->mem_cgroup:ffff88817287d000
+[BUG]
+When running tests like generic/013 on test device with btrfs quota
+enabled, it can normally lead to data leak, detected at unmount time:
+
+  BTRFS warning (device dm-3): qgroup 0/5 has unreleased space, type 0 rsv 4096
   ------------[ cut here ]------------
-  kernel BUG at mm/memcontrol.c:2659!
-  invalid opcode: 0000 [#1] SMP
-  CPU: 2 PID: 2038 Comm: xfs_io Not tainted 5.8.0-rc1 #44
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_
-    073836-buildvm-ppc64le-16.ppc.4
-  RIP: 0010:commit_charge+0x35/0x50
-  Code: 0d 48 83 05 54 b2 02 05 01 48 89 77 38 c3 48 c7
-        c6 78 4a ea ba 48 83 05 38 b2 02 05 01 e8 63 0d9
-  RSP: 0018:ffffc90002023a50 EFLAGS: 00010202
-  RAX: 0000000000000000 RBX: ffff88817287d000 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: ffff88817ac97ea0 RDI: ffff88817ac97ea0
-  RBP: ffffea000560f2c0 R08: 0000000000000203 R09: 0000000000000005
-  R10: 0000000000000030 R11: ffffc900020237a8 R12: 0000000000000000
-  R13: 0000000000000001 R14: 0000000000000001 R15: ffff88815a1272c0
-  FS:  00007f5071ab0800(0000) GS:ffff88817ac80000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 000055efcd5ca000 CR3: 000000015d312000 CR4: 00000000000006e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  WARNING: CPU: 11 PID: 16386 at fs/btrfs/disk-io.c:4142 close_ctree+0x1dc/0x323 [btrfs]
+  RIP: 0010:close_ctree+0x1dc/0x323 [btrfs]
   Call Trace:
-   mem_cgroup_charge+0x166/0x4f0
-   __add_to_page_cache_locked+0x4a9/0x710
-   add_to_page_cache_locked+0x15/0x20
-   cifs_readpages+0x217/0x1270
-   read_pages+0x29a/0x670
-   page_cache_readahead_unbounded+0x24f/0x390
-   __do_page_cache_readahead+0x3f/0x60
-   ondemand_readahead+0x1f1/0x470
-   page_cache_async_readahead+0x14c/0x170
-   generic_file_buffered_read+0x5df/0x1100
-   generic_file_read_iter+0x10c/0x1d0
-   cifs_strict_readv+0x139/0x170
-   new_sync_read+0x164/0x250
-   __vfs_read+0x39/0x60
-   vfs_read+0xb5/0x1e0
-   ksys_pread64+0x85/0xf0
-   __x64_sys_pread64+0x22/0x30
-   do_syscall_64+0x69/0x150
+   btrfs_put_super+0x15/0x17 [btrfs]
+   generic_shutdown_super+0x72/0x110
+   kill_anon_super+0x18/0x30
+   btrfs_kill_super+0x17/0x30 [btrfs]
+   deactivate_locked_super+0x3b/0xa0
+   deactivate_super+0x40/0x50
+   cleanup_mnt+0x135/0x190
+   __cleanup_mnt+0x12/0x20
+   task_work_run+0x64/0xb0
+   __prepare_exit_to_usermode+0x1bc/0x1c0
+   __syscall_return_slowpath+0x47/0x230
+   do_syscall_64+0x64/0xb0
    entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f5071fcb1af
-  Code: Bad RIP value.
-  RSP: 002b:00007ffde2cdb8e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000011
-  RAX: ffffffffffffffda RBX: 00007ffde2cdb990 RCX: 00007f5071fcb1af
-  RDX: 0000000000001000 RSI: 000055efcd5ca000 RDI: 0000000000000003
-  RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000001000 R11: 0000000000000293 R12: 0000000000000001
-  R13: 000000000009f000 R14: 0000000000000000 R15: 0000000000001000
-  Modules linked in:
-  ---[ end trace 725fa14a3e1af65c ]---
+  ---[ end trace caf08beafeca2392 ]---
+  BTRFS error (device dm-3): qgroup reserved space leaked
 
-Since commit 3fea5a499d57 ("mm: memcontrol: convert page cache to a new
-mem_cgroup_charge() API") not cancel the page charge, the pages maybe
-double add to pagecache:
-thread1                       | thread2
-cifs_readpages
-readpages_get_pages
- add_to_page_cache_locked(head,index=n)=0
-                              | readpages_get_pages
-                              | add_to_page_cache_locked(head,index=n+1)=0
- add_to_page_cache_locked(head, index=n+1)=-EEXIST
- then, will next loop with list head page's
- index=n+1 and the page->mapping not NULL
-readpages_get_pages
-add_to_page_cache_locked(head, index=n+1)
- commit_charge
-  VM_BUG_ON_PAGE
+[CAUSE]
+In the offending case, the offending operations are:
+2/6: writev f2X[269 1 0 0 0 0] [1006997,67,288] 0
+2/7: truncate f2X[269 1 0 0 48 1026293] 18388 0
 
-So, we should not do the next loop when any page add to page cache
-failed.
+The following sequence of events could happen after the writev():
+	CPU1 (writeback)		|		CPU2 (truncate)
+-----------------------------------------------------------------
+btrfs_writepages()			|
+|- extent_write_cache_pages()		|
+   |- Got page for 1003520		|
+   |  1003520 is Dirty, no writeback	|
+   |  So (!clear_page_dirty_for_io())   |
+   |  gets called for it		|
+   |- Now page 1003520 is Clean.	|
+   |					| btrfs_setattr()
+   |					| |- btrfs_setsize()
+   |					|    |- truncate_setsize()
+   |					|       New i_size is 18388
+   |- __extent_writepage()		|
+   |  |- page_offset() > i_size		|
+      |- btrfs_invalidatepage()		|
+	 |- Page is clean, so no qgroup |
+	    callback executed
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+This means, the qgroup reserved data space is not properly released in
+btrfs_invalidatepage() as the page is Clean.
+
+[FIX]
+Instead of checking the dirty bit of a page, call
+btrfs_qgroup_free_data() unconditionally in btrfs_invalidatepage().
+
+As qgroup rsv are completely bound to the QGROUP_RESERVED bit of
+io_tree, not bound to page status, thus we won't cause double freeing
+anyway.
+
+Fixes: 0b34c261e235 ("btrfs: qgroup: Prevent qgroup->reserved from going subzero")
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ fs/btrfs/inode.c | 23 ++++++++++-------------
+ 1 file changed, 10 insertions(+), 13 deletions(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 14ae341755d47..31d578739341b 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -4269,7 +4269,8 @@ readpages_get_pages(struct address_space *mapping, struct list_head *page_list,
- 			break;
- 
- 		__SetPageLocked(page);
--		if (add_to_page_cache_locked(page, mapping, page->index, gfp)) {
-+		rc = add_to_page_cache_locked(page, mapping, page->index, gfp);
-+		if (rc) {
- 			__ClearPageLocked(page);
- 			break;
- 		}
-@@ -4285,6 +4286,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 	struct list_head *page_list, unsigned num_pages)
- {
- 	int rc;
-+	int err = 0;
- 	struct list_head tmplist;
- 	struct cifsFileInfo *open_file = file->private_data;
- 	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
-@@ -4329,7 +4331,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 	 * the order of declining indexes. When we put the pages in
- 	 * the rdata->pages, then we want them in increasing order.
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index e9787b7b943a2..182e93a5b11d5 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9044,20 +9044,17 @@ again:
+ 	/*
+ 	 * Qgroup reserved space handler
+ 	 * Page here will be either
+-	 * 1) Already written to disk
+-	 *    In this case, its reserved space is released from data rsv map
+-	 *    and will be freed by delayed_ref handler finally.
+-	 *    So even we call qgroup_free_data(), it won't decrease reserved
+-	 *    space.
+-	 * 2) Not written to disk
+-	 *    This means the reserved space should be freed here. However,
+-	 *    if a truncate invalidates the page (by clearing PageDirty)
+-	 *    and the page is accounted for while allocating extent
+-	 *    in btrfs_check_data_free_space() we let delayed_ref to
+-	 *    free the entire extent.
++	 * 1) Already written to disk or ordered extent already submitted
++	 *    Then its QGROUP_RESERVED bit in io_tree is already cleaned.
++	 *    Qgroup will be handled by its qgroup_record then.
++	 *    btrfs_qgroup_free_data() call will do nothing here.
++	 *
++	 * 2) Not written to disk yet
++	 *    Then btrfs_qgroup_free_data() call will clear the QGROUP_RESERVED
++	 *    bit of its io_tree, and free the qgroup reserved data space.
++	 *    Since the IO will never happen for this page.
  	 */
--	while (!list_empty(page_list)) {
-+	while (!list_empty(page_list) && !err) {
- 		unsigned int i, nr_pages, bytes, rsize;
- 		loff_t offset;
- 		struct page *page, *tpage;
-@@ -4362,9 +4364,10 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 			return 0;
- 		}
- 
--		rc = readpages_get_pages(mapping, page_list, rsize, &tmplist,
-+		nr_pages = 0;
-+		err = readpages_get_pages(mapping, page_list, rsize, &tmplist,
- 					 &nr_pages, &offset, &bytes);
--		if (rc) {
-+		if (!nr_pages) {
- 			add_credits_and_wake_if(server, credits, 0);
- 			break;
- 		}
+-	if (PageDirty(page))
+-		btrfs_qgroup_free_data(inode, NULL, page_start, PAGE_SIZE);
++	btrfs_qgroup_free_data(inode, NULL, page_start, PAGE_SIZE);
+ 	if (!inode_evicting) {
+ 		clear_extent_bit(tree, page_start, page_end, EXTENT_LOCKED |
+ 				 EXTENT_DELALLOC | EXTENT_DELALLOC_NEW |
 -- 
 2.25.1
 
