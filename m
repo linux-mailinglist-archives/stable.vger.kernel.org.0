@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3104A26EE9C
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:29:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235B226EE9E
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:29:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728695AbgIRC3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:29:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43566 "EHLO mail.kernel.org"
+        id S1729155AbgIRC3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729142AbgIRCPB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:15:01 -0400
+        id S1729166AbgIRCPC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:15:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 275962395C;
-        Fri, 18 Sep 2020 02:15:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C71623976;
+        Fri, 18 Sep 2020 02:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395300;
-        bh=BMzq0/0NCndOWOdqo2rIqMgNbKC5F0OgLFJz6fP2/1U=;
+        s=default; t=1600395302;
+        bh=gFlss6PyCs3bnuohTwxiu4BoJJVf65zcD8wTeN2q2ns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3BYl4BuScPIDrX+FfvztSsdIO+p5nQCJf7683gDhFyaJFKaUvlQuX0r3q/TH8q5i
-         gdh1f22Fg58h9Q5X3lwKFVYqQlKGJe/2QOqJIaZmHHKjKNrTAB5r5DZL5zEI61OG2O
-         H1Ohs++JvZIoLb4VqnnBVcWzRyh9IUWSXgDFbes0=
+        b=S90D1fMRXmZl5oLpEmasKVSTvsJox7KTjRJhp9ewyg4KCZA2RzrnSphjZKvriWlX3
+         spRxV6QRM9z7OkIuzqns8G9b3yJlIYflqkfit8Ed2lG4fT+Quzzt5q8bPjqGbMDMbZ
+         R0nEBqbm38gQ2rEp0rpovKxLnDVIIBi1DuAj4vkQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 04/90] ASoC: kirkwood: fix IRQ error handling
-Date:   Thu, 17 Sep 2020 22:13:29 -0400
-Message-Id: <20200918021455.2067301-4-sashal@kernel.org>
+Cc:     Jiri Slaby <jslaby@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        linux-ide@vger.kernel.org,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 05/90] ata: sata_mv, avoid trigerrable BUG_ON
+Date:   Thu, 17 Sep 2020 22:13:30 -0400
+Message-Id: <20200918021455.2067301-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021455.2067301-1-sashal@kernel.org>
 References: <20200918021455.2067301-1-sashal@kernel.org>
@@ -42,34 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 175fc928198236037174e5c5c066fe3c4691903e ]
+[ Upstream commit e9f691d899188679746eeb96e6cb520459eda9b4 ]
 
-Propagate the error code from request_irq(), rather than returning
--EBUSY.
+There are several reports that the BUG_ON on unsupported command in
+mv_qc_prep can be triggered under some circumstances:
+https://bugzilla.suse.com/show_bug.cgi?id=1110252
+https://serverfault.com/questions/888897/raid-problems-after-power-outage
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1652185
+https://bugs.centos.org/view.php?id=14998
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Link: https://lore.kernel.org/r/E1iNIqh-0000tW-EZ@rmk-PC.armlinux.org.uk
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Let sata_mv handle the failure gracefully: warn about that incl. the
+failed command number and return an AC_ERR_INVALID error. We can do that
+now thanks to the previous patch.
+
+Remove also the long-standing FIXME.
+
+[v2] use %.2x as commands are defined as hexa.
+
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: linux-ide@vger.kernel.org
+Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/kirkwood/kirkwood-dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/sata_mv.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/kirkwood/kirkwood-dma.c b/sound/soc/kirkwood/kirkwood-dma.c
-index dafd22e874e99..e655425e4819e 100644
---- a/sound/soc/kirkwood/kirkwood-dma.c
-+++ b/sound/soc/kirkwood/kirkwood-dma.c
-@@ -136,7 +136,7 @@ static int kirkwood_dma_open(struct snd_pcm_substream *substream)
- 		err = request_irq(priv->irq, kirkwood_dma_irq, IRQF_SHARED,
- 				  "kirkwood-i2s", priv);
- 		if (err)
--			return -EBUSY;
-+			return err;
- 
- 		/*
- 		 * Enable Error interrupts. We're only ack'ing them but
+diff --git a/drivers/ata/sata_mv.c b/drivers/ata/sata_mv.c
+index 2f32782cea6d9..2ec37a038eda8 100644
+--- a/drivers/ata/sata_mv.c
++++ b/drivers/ata/sata_mv.c
+@@ -2111,12 +2111,10 @@ static void mv_qc_prep(struct ata_queued_cmd *qc)
+ 		 * non-NCQ mode are: [RW] STREAM DMA and W DMA FUA EXT, none
+ 		 * of which are defined/used by Linux.  If we get here, this
+ 		 * driver needs work.
+-		 *
+-		 * FIXME: modify libata to give qc_prep a return value and
+-		 * return error here.
+ 		 */
+-		BUG_ON(tf->command);
+-		break;
++		ata_port_err(ap, "%s: unsupported command: %.2x\n", __func__,
++				tf->command);
++		return AC_ERR_INVALID;
+ 	}
+ 	mv_crqb_pack_cmd(cw++, tf->nsect, ATA_REG_NSECT, 0);
+ 	mv_crqb_pack_cmd(cw++, tf->hob_lbal, ATA_REG_LBAL, 0);
 -- 
 2.25.1
 
