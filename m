@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09C4526ED18
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 649F726EDC6
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729462AbgIRCQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:16:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47051 "EHLO mail.kernel.org"
+        id S1727177AbgIRCXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:23:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729440AbgIRCQz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729457AbgIRCQz (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:16:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A17B239D0;
-        Fri, 18 Sep 2020 02:16:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA4D6238A0;
+        Fri, 18 Sep 2020 02:16:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395412;
-        bh=TQVJNt/bVD6oxbkrcWUlYDbOjx04blkfjvwyasnhIXg=;
+        s=default; t=1600395413;
+        bh=oq4Ifd3K+fcOwKUUcipTw4Zh0R6ErPjG2I9+58wT2HU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L3gLSi6gk+/5G+c5LhMb7qKDkLfU4pBdXd7aDPbK2Mmjf9Mc3wweQquJsswthm3HC
-         cM1Xof7r9duuwo07u4WET/i7qy7tZ414GNf9dG5C51upgOx05z7e45xVsctjU4vd4H
-         Vt9Nh5wpDK6ZUAupg/VP7S76XcpRlgxanUlzJNng=
+        b=Ge4U74Od8340yJo+f6y984dp+hv+qHRShFtjenKFe+EpTELpsgtNZ0upOWOyZcc9n
+         QEjmUq/4wWvUDRglgPq1w40G4qIyazAqT0FIrose6DYzSdTMQjUqw+V0e3hPKiMwWE
+         3FwyB2HaeeB+XcKVF25nBLfKUgNvgmj4rmcANp3U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hou Tao <houtao1@huawei.com>, Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 07/64] mtd: cfi_cmdset_0002: don't free cfi->cfiq in error path of cfi_amdstd_setup()
-Date:   Thu, 17 Sep 2020 22:15:46 -0400
-Message-Id: <20200918021643.2067895-7-sashal@kernel.org>
+Cc:     Lee Jones <lee.jones@linaro.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 08/64] mfd: mfd-core: Protect against NULL call-back function pointer
+Date:   Thu, 17 Sep 2020 22:15:47 -0400
+Message-Id: <20200918021643.2067895-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021643.2067895-1-sashal@kernel.org>
 References: <20200918021643.2067895-1-sashal@kernel.org>
@@ -42,34 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit 03976af89e3bd9489d542582a325892e6a8cacc0 ]
+[ Upstream commit b195e101580db390f50b0d587b7f66f241d2bc88 ]
 
-Else there may be a double-free problem, because cfi->cfiq will
-be freed by mtd_do_chip_probe() if both the two invocations of
-check_cmd_set() return failure.
+If a child device calls mfd_cell_{en,dis}able() without an appropriate
+call-back being set, we are likely to encounter a panic.  Avoid this
+by adding suitable checking.
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Reviewed-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Reviewed-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/chips/cfi_cmdset_0002.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/mfd/mfd-core.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
-index 972935f1b2f7e..3a3da0eeef1fb 100644
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -724,7 +724,6 @@ static struct mtd_info *cfi_amdstd_setup(struct mtd_info *mtd)
- 	kfree(mtd->eraseregions);
- 	kfree(mtd);
- 	kfree(cfi->cmdset_priv);
--	kfree(cfi->cfiq);
- 	return NULL;
- }
+diff --git a/drivers/mfd/mfd-core.c b/drivers/mfd/mfd-core.c
+index 215bb5eeb5acf..c57e375fad6ed 100644
+--- a/drivers/mfd/mfd-core.c
++++ b/drivers/mfd/mfd-core.c
+@@ -31,6 +31,11 @@ int mfd_cell_enable(struct platform_device *pdev)
+ 	const struct mfd_cell *cell = mfd_get_cell(pdev);
+ 	int err = 0;
  
++	if (!cell->enable) {
++		dev_dbg(&pdev->dev, "No .enable() call-back registered\n");
++		return 0;
++	}
++
+ 	/* only call enable hook if the cell wasn't previously enabled */
+ 	if (atomic_inc_return(cell->usage_count) == 1)
+ 		err = cell->enable(pdev);
+@@ -48,6 +53,11 @@ int mfd_cell_disable(struct platform_device *pdev)
+ 	const struct mfd_cell *cell = mfd_get_cell(pdev);
+ 	int err = 0;
+ 
++	if (!cell->disable) {
++		dev_dbg(&pdev->dev, "No .disable() call-back registered\n");
++		return 0;
++	}
++
+ 	/* only disable if no other clients are using it */
+ 	if (atomic_dec_return(cell->usage_count) == 0)
+ 		err = cell->disable(pdev);
 -- 
 2.25.1
 
