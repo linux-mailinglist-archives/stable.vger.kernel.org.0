@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E1BA26F05B
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 384B526F054
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:44:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728672AbgIRCnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36188 "EHLO mail.kernel.org"
+        id S1729561AbgIRCmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:42:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727641AbgIRCLB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:11:01 -0400
+        id S1728557AbgIRCLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:11:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80D2E21D92;
-        Fri, 18 Sep 2020 02:11:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79ADD208DB;
+        Fri, 18 Sep 2020 02:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395061;
-        bh=2UQ9DFaxS2qeBIdJST9eYG/tl8Ou/LtUg3wFI3kjC04=;
+        s=default; t=1600395062;
+        bh=WMh+hFHx8/PpyJtt7K6aRDlS51HQqOpRAn+4f0iPX2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APVRsGXZdsyAG/hnRK6EAbpIAyb5E55Jhw62+MrndrT18teDq9RqBh23G2voy9/m1
-         ntAr2Iq4wg3un58Kd+u45UFAU39nZ3yhAWHS5ISXHW1LgcOXLDPQs0ktzMIR5fy/sF
-         7q1DSqVY3YAf3vSPzBtXu66gLgwnK2OD4uAi/4ik=
+        b=skUpET9Jd+5f14rv7rsw+L5uH7lNKH6P/qERaL8yrqpvvDlzRSRaWUKDZI2Tg4gbD
+         3YlnUZPSz4OASIEqL6wuZRkZPkmFkkKIIJNtmzTxBQ9HNKpCA/JCwYhjgqx4nckTv5
+         9UEkeujqpJH3p00J+MEsBgHk3Duu+WaWjCWv1lpI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 147/206] drivers: char: tlclk.c: Avoid data race between init and interrupt handler
-Date:   Thu, 17 Sep 2020 22:07:03 -0400
-Message-Id: <20200918020802.2065198-147-sashal@kernel.org>
+Cc:     Zenghui Yu <yuzenghui@huawei.com>, Marc Zyngier <maz@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 148/206] KVM: arm64: vgic-its: Fix memory leak on the error path of vgic_add_lpi()
+Date:   Thu, 17 Sep 2020 22:07:04 -0400
+Message-Id: <20200918020802.2065198-148-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -42,75 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-[ Upstream commit 44b8fb6eaa7c3fb770bf1e37619cdb3902cca1fc ]
+[ Upstream commit 57bdb436ce869a45881d8aa4bc5dac8e072dd2b6 ]
 
-After registering character device the file operation callbacks can be
-called. The open callback registers interrupt handler.
-Therefore interrupt handler can execute in parallel with rest of the init
-function. To avoid such data race initialize telclk_interrupt variable
-and struct alarm_events before registering character device.
+If we're going to fail out the vgic_add_lpi(), let's make sure the
+allocated vgic_irq memory is also freed. Though it seems that both
+cases are unlikely to fail.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lore.kernel.org/r/20200417153451.1551-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200414030349.625-3-yuzenghui@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tlclk.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ virt/kvm/arm/vgic/vgic-its.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/tlclk.c b/drivers/char/tlclk.c
-index 8eeb4190207d1..dce22b7fc5449 100644
---- a/drivers/char/tlclk.c
-+++ b/drivers/char/tlclk.c
-@@ -776,17 +776,21 @@ static int __init tlclk_init(void)
- {
- 	int ret;
- 
-+	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
-+
-+	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
-+	if (!alarm_events) {
-+		ret = -ENOMEM;
-+		goto out1;
+diff --git a/virt/kvm/arm/vgic/vgic-its.c b/virt/kvm/arm/vgic/vgic-its.c
+index 9295addea7ecf..f139b1c62ca38 100644
+--- a/virt/kvm/arm/vgic/vgic-its.c
++++ b/virt/kvm/arm/vgic/vgic-its.c
+@@ -107,14 +107,21 @@ out_unlock:
+ 	 * We "cache" the configuration table entries in our struct vgic_irq's.
+ 	 * However we only have those structs for mapped IRQs, so we read in
+ 	 * the respective config data from memory here upon mapping the LPI.
++	 *
++	 * Should any of these fail, behave as if we couldn't create the LPI
++	 * by dropping the refcount and returning the error.
+ 	 */
+ 	ret = update_lpi_config(kvm, irq, NULL, false);
+-	if (ret)
++	if (ret) {
++		vgic_put_irq(kvm, irq);
+ 		return ERR_PTR(ret);
 +	}
-+
- 	ret = register_chrdev(tlclk_major, "telco_clock", &tlclk_fops);
- 	if (ret < 0) {
- 		printk(KERN_ERR "tlclk: can't get major %d.\n", tlclk_major);
-+		kfree(alarm_events);
- 		return ret;
- 	}
- 	tlclk_major = ret;
--	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
--	if (!alarm_events) {
--		ret = -ENOMEM;
--		goto out1;
--	}
  
- 	/* Read telecom clock IRQ number (Set by BIOS) */
- 	if (!request_region(TLCLK_BASE, 8, "telco_clock")) {
-@@ -795,7 +799,6 @@ static int __init tlclk_init(void)
- 		ret = -EBUSY;
- 		goto out2;
- 	}
--	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
+ 	ret = vgic_v3_lpi_sync_pending_status(kvm, irq);
+-	if (ret)
++	if (ret) {
++		vgic_put_irq(kvm, irq);
+ 		return ERR_PTR(ret);
++	}
  
- 	if (0x0F == telclk_interrupt ) { /* not MCPBL0010 ? */
- 		printk(KERN_ERR "telclk_interrupt = 0x%x non-mcpbl0010 hw.\n",
-@@ -836,8 +839,8 @@ out3:
- 	release_region(TLCLK_BASE, 8);
- out2:
- 	kfree(alarm_events);
--out1:
- 	unregister_chrdev(tlclk_major, "telco_clock");
-+out1:
- 	return ret;
+ 	return irq;
  }
- 
 -- 
 2.25.1
 
