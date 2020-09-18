@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A7BA26EDEE
+	by mail.lfdr.de (Postfix) with ESMTP id 974FB26EDEF
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:24:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729143AbgIRCYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727570AbgIRCYk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:24:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46380 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729087AbgIRCQf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728749AbgIRCQf (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:16:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2505E235F7;
-        Fri, 18 Sep 2020 02:16:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F247238A0;
+        Fri, 18 Sep 2020 02:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395388;
-        bh=cUvrW7T36ipANE4OrMxt9kWnwTYvgZ785NdGSLcSUOU=;
+        s=default; t=1600395389;
+        bh=/A4JDOVvOmocHoeyKei5w3riMNJAwkGTiQ/9Jb6DdiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IuIb7xi5njSCzdVKlDGhBFTmUEQFKA6A4S4aCPOFSeMw5binZh9GEu9jggIN+EvkC
-         5Y8ZbpPsozaZTmXsT4Fvi7T+8liIGs448Jrh9oP89GyKScmOZ4mqb3Oip1E5G2nOnS
-         lAFV1faGzKYE1xBxy8CwQj7q6wQ4Spwbz3DNmgKk=
+        b=bcglZptl8mcf/da67c023IyMENjMLJ6zxdwH9N6N1AVmqQafR/OgJJIAG+uhS1TFT
+         8Ua2RL3Kl2SdbSUh6DmABkBxzHbMaG1hWd2RNbT9JvaMZy8DwCZLWJrnjDL9eg3Pgq
+         JW+nYRB4Iie1PG1TX8KHY9xsdRsb7yiKtz0GULBU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Sterba <dsterba@suse.com>, Sasha Levin <sashal@kernel.org>,
-        linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 79/90] btrfs: don't force read-only after error in drop snapshot
-Date:   Thu, 17 Sep 2020 22:14:44 -0400
-Message-Id: <20200918021455.2067301-79-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 80/90] vfio/pci: fix memory leaks of eventfd ctx
+Date:   Thu, 17 Sep 2020 22:14:45 -0400
+Message-Id: <20200918021455.2067301-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021455.2067301-1-sashal@kernel.org>
 References: <20200918021455.2067301-1-sashal@kernel.org>
@@ -41,43 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 7c09c03091ac562ddca2b393e5d65c1d37da79f1 ]
+[ Upstream commit 1518ac272e789cae8c555d69951b032a275b7602 ]
 
-Deleting a subvolume on a full filesystem leads to ENOSPC followed by a
-forced read-only. This is not a transaction abort and the filesystem is
-otherwise ok, so the error should be just propagated to the callers.
+Finished a qemu-kvm (-device vfio-pci,host=0001:01:00.0) triggers a few
+memory leaks after a while because vfio_pci_set_ctx_trigger_single()
+calls eventfd_ctx_fdget() without the matching eventfd_ctx_put() later.
+Fix it by calling eventfd_ctx_put() for those memory in
+vfio_pci_release() before vfio_device_release().
 
-This is caused by unnecessary call to btrfs_handle_fs_error for all
-errors, except EAGAIN. This does not make sense as the standard
-transaction abort mechanism is in btrfs_drop_snapshot so all relevant
-failures are handled.
+unreferenced object 0xebff008981cc2b00 (size 128):
+  comm "qemu-kvm", pid 4043, jiffies 4294994816 (age 9796.310s)
+  hex dump (first 32 bytes):
+    01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
+    ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
+  backtrace:
+    [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
+    [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
+    [<000000005fcec025>] do_eventfd+0x54/0x1ac
+    [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
+    [<00000000b819758c>] do_el0_svc+0x128/0x1dc
+    [<00000000b244e810>] el0_sync_handler+0xd0/0x268
+    [<00000000d495ef94>] el0_sync+0x164/0x180
+unreferenced object 0x29ff008981cc4180 (size 128):
+  comm "qemu-kvm", pid 4043, jiffies 4294994818 (age 9796.290s)
+  hex dump (first 32 bytes):
+    01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
+    ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
+  backtrace:
+    [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
+    [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
+    [<000000005fcec025>] do_eventfd+0x54/0x1ac
+    [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
+    [<00000000b819758c>] do_el0_svc+0x128/0x1dc
+    [<00000000b244e810>] el0_sync_handler+0xd0/0x268
+    [<00000000d495ef94>] el0_sync+0x164/0x180
 
-Originally in commit cb1b69f4508a ("Btrfs: forced readonly when
-btrfs_drop_snapshot() fails") there was no return value at all, so the
-btrfs_std_error made some sense but once the error handling and
-propagation has been implemented we don't need it anymore.
-
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent-tree.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/vfio/pci/vfio_pci.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index c0033a0d00787..b5bff1e760a34 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -9435,8 +9435,6 @@ out:
- 	 */
- 	if (!for_reloc && root_dropped == false)
- 		btrfs_add_dead_root(root);
--	if (err && err != -EAGAIN)
--		btrfs_handle_fs_error(fs_info, err, NULL);
- 	return err;
- }
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 2254c281cc766..c9c0af9a571f6 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -392,6 +392,10 @@ static void vfio_pci_release(void *device_data)
+ 	if (!(--vdev->refcnt)) {
+ 		vfio_spapr_pci_eeh_release(vdev->pdev);
+ 		vfio_pci_disable(vdev);
++		if (vdev->err_trigger)
++			eventfd_ctx_put(vdev->err_trigger);
++		if (vdev->req_trigger)
++			eventfd_ctx_put(vdev->req_trigger);
+ 	}
  
+ 	mutex_unlock(&driver_lock);
 -- 
 2.25.1
 
