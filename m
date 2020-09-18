@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD7AB26F140
+	by mail.lfdr.de (Postfix) with ESMTP id 70F7626F13F
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:49:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728183AbgIRCIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:08:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60492 "EHLO mail.kernel.org"
+        id S1726614AbgIRCtu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:49:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727569AbgIRCIy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:08:54 -0400
+        id S1728163AbgIRCIz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:08:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD35B2395C;
-        Fri, 18 Sep 2020 02:08:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6E342395A;
+        Fri, 18 Sep 2020 02:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394933;
-        bh=Aw4kfHxzkUH0lo6F2KmkpkhVf7og8us621qGC8fWFQA=;
+        s=default; t=1600394934;
+        bh=/RHTbVpcSZRNFlhkHPEVreQtKVkV/+iNtL07Cq+z1jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jXiq1MYT4NYFUgBLAEHZYZXvSKmfyh8Ax5jk0NGfkxWm4TL9eyykUZvf8ThSEUppY
-         GW4qWUYpw6OhoAPVhOOtWUdra6iCiZf0Zgnfy6u/EN70KZGRctT6666bZ9FpHCOely
-         PQBNeg89PQrdzmj1WetE4mGx/XbRB0tkVjRg4Sjo=
+        b=Lej6bXYxNjVekhfLqSi8kmFveGTlwM6cHou6arkSAF9q3kwBLnE/BM+0anrjWF7Fv
+         BW3Zya/Nnz5JFMZnjaeYUwpNudtbDWyWRukShrXJOZBGqcaSlGS3d1UgKL6zWFvJXY
+         tvNiXKfIQ+41SE2Fl1WhBvRyjz5nsGh+FDV0ghX8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vasily Averin <vvs@virtuozzo.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 043/206] neigh_stat_seq_next() should increase position index
-Date:   Thu, 17 Sep 2020 22:05:19 -0400
-Message-Id: <20200918020802.2065198-43-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 044/206] rt_cpu_seq_next should increase position index
+Date:   Thu, 17 Sep 2020 22:05:20 -0400
+Message-Id: <20200918020802.2065198-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 1e3f9f073c47bee7c23e77316b07bc12338c5bba ]
+[ Upstream commit a3ea86739f1bc7e121d921842f0f4a8ab1af94d9 ]
 
 if seq_file .next fuction does not change position index,
 read after some lseek can generate unexpected output.
@@ -54,21 +54,21 @@ Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 1 +
+ net/ipv4/route.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index bf738ec68cb53..6e890f51b7d86 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -2844,6 +2844,7 @@ static void *neigh_stat_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index f752d22cc8a59..248bfaf82fe06 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -274,6 +274,7 @@ static void *rt_cpu_seq_next(struct seq_file *seq, void *v, loff_t *pos)
  		*pos = cpu+1;
- 		return per_cpu_ptr(tbl->stats, cpu);
+ 		return &per_cpu(rt_cache_stat, cpu);
  	}
 +	(*pos)++;
  	return NULL;
- }
  
+ }
 -- 
 2.25.1
 
