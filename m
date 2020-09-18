@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 079E526EC20
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:11:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D3026EC2A
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:11:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728390AbgIRCKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:10:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34200 "EHLO mail.kernel.org"
+        id S1728453AbgIRCK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:10:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726290AbgIRCKC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:10:02 -0400
+        id S1728443AbgIRCKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:10:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01F0323977;
-        Fri, 18 Sep 2020 02:09:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E57EB238E6;
+        Fri, 18 Sep 2020 02:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395001;
-        bh=FeQYqQsSHPvxwXa7ydySBEf414GHhGDONhhCCY6olSE=;
+        s=default; t=1600395024;
+        bh=Ne3dh4tylcpIqw3gc57sWDEHi9qpHguAfHHfpVuiAqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEV7w+lxs4x5Yx7gzSoxdkGHHeLgb9xdNyB+6vh2bGxbSslSmEqDGfQR/Tq5FxjNK
-         psA/WKdwla7QSePV8cji6wR+nrEfJwlyLMOqx1woae8GmLTPcpdoFmzKBOW4O3226g
-         A64frUmU/WLUtBcwWft0LE1SbnjTkdgD15yYS8t8=
+        b=gCihhU9k8CGy/UgI9kMu+73WG1nN4My+d1x6i00QtNh+0IqhjAbDk5WrAHQnzI/5O
+         0WspJOkn46alP/vlLMD6EKUQUw02rtRHYMe2qHG3ZU1iFFKGJekayoSCf2RDcOSMow
+         1QrR/C4MAG5hjh09cnefMaQGb4ZePAc8+U7syYk8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Garry <john.garry@huawei.com>, Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        James Clark <james.clark@arm.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, linuxarm@huawei.com,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 098/206] perf jevents: Fix leak of mapfile memory
-Date:   Thu, 17 Sep 2020 22:06:14 -0400
-Message-Id: <20200918020802.2065198-98-sashal@kernel.org>
+Cc:     =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 118/206] thermal: rcar_thermal: Handle probe error gracefully
+Date:   Thu, 17 Sep 2020 22:06:34 -0400
+Message-Id: <20200918020802.2065198-118-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,81 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit 3f5777fbaf04c58d940526a22a2e0c813c837936 ]
+[ Upstream commit 39056e8a989ef52486e063e34b4822b341e47b0e ]
 
-The memory for global pointer is never freed during normal program
-execution, so let's do that in the main function exit as a good
-programming practice.
+If the common register memory resource is not available the driver needs
+to fail gracefully to disable PM. Instead of returning the error
+directly store it in ret and use the already existing error path.
 
-A stray blank line is also removed.
-
-Reported-by: Jiri Olsa <jolsa@redhat.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: James Clark <james.clark@arm.com>
-Cc: Joakim Zhang <qiangqing.zhang@nxp.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: linuxarm@huawei.com
-Link: http://lore.kernel.org/lkml/1583406486-154841-2-git-send-email-john.garry@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200310114709.1483860-1-niklas.soderlund+renesas@ragnatech.se
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/pmu-events/jevents.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/thermal/rcar_thermal.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
-index c17e594041712..6631970f96832 100644
---- a/tools/perf/pmu-events/jevents.c
-+++ b/tools/perf/pmu-events/jevents.c
-@@ -1064,10 +1064,9 @@ static int process_one_file(const char *fpath, const struct stat *sb,
-  */
- int main(int argc, char *argv[])
- {
--	int rc;
-+	int rc, ret = 0;
- 	int maxfds;
- 	char ldirname[PATH_MAX];
--
- 	const char *arch;
- 	const char *output_file;
- 	const char *start_dirname;
-@@ -1138,7 +1137,8 @@ int main(int argc, char *argv[])
- 		/* Make build fail */
- 		fclose(eventsfp);
- 		free_arch_std_events();
--		return 1;
-+		ret = 1;
-+		goto out_free_mapfile;
- 	} else if (rc) {
- 		goto empty_map;
- 	}
-@@ -1156,14 +1156,17 @@ int main(int argc, char *argv[])
- 		/* Make build fail */
- 		fclose(eventsfp);
- 		free_arch_std_events();
--		return 1;
-+		ret = 1;
- 	}
+diff --git a/drivers/thermal/rcar_thermal.c b/drivers/thermal/rcar_thermal.c
+index 4dc30e7890f6c..140386d7c75a3 100644
+--- a/drivers/thermal/rcar_thermal.c
++++ b/drivers/thermal/rcar_thermal.c
+@@ -505,8 +505,10 @@ static int rcar_thermal_probe(struct platform_device *pdev)
+ 			res = platform_get_resource(pdev, IORESOURCE_MEM,
+ 						    mres++);
+ 			common->base = devm_ioremap_resource(dev, res);
+-			if (IS_ERR(common->base))
+-				return PTR_ERR(common->base);
++			if (IS_ERR(common->base)) {
++				ret = PTR_ERR(common->base);
++				goto error_unregister;
++			}
  
--	return 0;
-+
-+	goto out_free_mapfile;
- 
- empty_map:
- 	fclose(eventsfp);
- 	create_empty_mapping(output_file);
- 	free_arch_std_events();
--	return 0;
-+out_free_mapfile:
-+	free(mapfile);
-+	return ret;
- }
+ 			idle = 0; /* polling delay is not needed */
+ 		}
 -- 
 2.25.1
 
