@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E71126EC39
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:11:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FB8826EC3E
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:11:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728509AbgIRCKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:10:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35770 "EHLO mail.kernel.org"
+        id S1728545AbgIRCK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:10:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727310AbgIRCKu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:10:50 -0400
+        id S1728538AbgIRCK5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:10:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A50121582;
-        Fri, 18 Sep 2020 02:10:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D105208E4;
+        Fri, 18 Sep 2020 02:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395043;
-        bh=wuwivKWk78F0qidLjLDtmuZIOTQvoh4rYToGzZ/ON+A=;
+        s=default; t=1600395056;
+        bh=xHtK5ZBofi48UebHt83K9iVMvxfhA+Cef7KXu2AT7wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H9mBgoBQpl5CUxWz6h4KKiKiUNmrxJmx/yzSLWvU51vzfOOvI+i7oo0VZYbKR3k81
-         RiqbcmpKapNYVZCfddTjAynfx5p+RJFQsrGSt8IIrjTrRcV4GwnYLt+iq/zbw9/51j
-         uv9yKI4TFJkjDVg7k6q6nPyZ0rZr3iYRbCEs9KZk=
+        b=i8STfrBv74RSSydk0KL9jnG89TMGse8gkpvJl+Vzl3lkxoR3dmmlDu+8dDlgZOtCW
+         1WpwSFCohKJjnI1q4sA3nwIvWZirwRMQVrszWoprvgqK4EiaXBqTYDlwEZfHEezvrq
+         WCOC7zJeyha7awxipp4U3k4lMbEAJhjRg3HhuBs8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liu Song <liu.song11@zte.com.cn>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 133/206] ubifs: Fix out-of-bounds memory access caused by abnormal value of node_len
-Date:   Thu, 17 Sep 2020 22:06:49 -0400
-Message-Id: <20200918020802.2065198-133-sashal@kernel.org>
+Cc:     Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
+        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 143/206] serial: uartps: Wait for tx_empty in console setup
+Date:   Thu, 17 Sep 2020 22:06:59 -0400
+Message-Id: <20200918020802.2065198-143-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,65 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Song <liu.song11@zte.com.cn>
+From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
 
-[ Upstream commit acc5af3efa303d5f36cc8c0f61716161f6ca1384 ]
+[ Upstream commit 42e11948ddf68b9f799cad8c0ddeab0a39da33e8 ]
 
-In “ubifs_check_node”, when the value of "node_len" is abnormal,
-the code will goto label of "out_len" for execution. Then, in the
-following "ubifs_dump_node", if inode type is "UBIFS_DATA_NODE",
-in "print_hex_dump", an out-of-bounds access may occur due to the
-wrong "ch->len".
+On some platforms, the log is corrupted while console is being
+registered. It is observed that when set_termios is called, there
+are still some bytes in the FIFO to be transmitted.
 
-Therefore, when the value of "node_len" is abnormal, data length
-should to be adjusted to a reasonable safe range. At this time,
-structured data is not credible, so dump the corrupted data directly
-for analysis.
+So, wait for tx_empty inside cdns_uart_console_setup before calling
+set_termios.
 
-Signed-off-by: Liu Song <liu.song11@zte.com.cn>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Link: https://lore.kernel.org/r/1586413563-29125-2-git-send-email-raviteja.narayanam@xilinx.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/io.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/tty/serial/xilinx_uartps.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/ubifs/io.c b/fs/ubifs/io.c
-index 099bec94b8207..fab29f899f913 100644
---- a/fs/ubifs/io.c
-+++ b/fs/ubifs/io.c
-@@ -237,7 +237,7 @@ int ubifs_is_mapped(const struct ubifs_info *c, int lnum)
- int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
- 		     int offs, int quiet, int must_chk_crc)
- {
--	int err = -EINVAL, type, node_len;
-+	int err = -EINVAL, type, node_len, dump_node = 1;
- 	uint32_t crc, node_crc, magic;
- 	const struct ubifs_ch *ch = buf;
+diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
+index 31950a38f0fb7..23f9b0cdff086 100644
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -1236,6 +1236,7 @@ static int cdns_uart_console_setup(struct console *co, char *options)
+ 	int bits = 8;
+ 	int parity = 'n';
+ 	int flow = 'n';
++	unsigned long time_out;
  
-@@ -290,10 +290,22 @@ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
- out_len:
- 	if (!quiet)
- 		ubifs_err(c, "bad node length %d", node_len);
-+	if (type == UBIFS_DATA_NODE && node_len > UBIFS_DATA_NODE_SZ)
-+		dump_node = 0;
- out:
- 	if (!quiet) {
- 		ubifs_err(c, "bad node at LEB %d:%d", lnum, offs);
--		ubifs_dump_node(c, buf);
-+		if (dump_node) {
-+			ubifs_dump_node(c, buf);
-+		} else {
-+			int safe_len = min3(node_len, c->leb_size - offs,
-+				(int)UBIFS_MAX_DATA_NODE_SZ);
-+			pr_err("\tprevent out-of-bounds memory access\n");
-+			pr_err("\ttruncated data node length      %d\n", safe_len);
-+			pr_err("\tcorrupted data node:\n");
-+			print_hex_dump(KERN_ERR, "\t", DUMP_PREFIX_OFFSET, 32, 1,
-+					buf, safe_len, 0);
-+		}
- 		dump_stack();
- 	}
- 	return err;
+ 	if (!port->membase) {
+ 		pr_debug("console on " CDNS_UART_TTY_NAME "%i not present\n",
+@@ -1246,6 +1247,13 @@ static int cdns_uart_console_setup(struct console *co, char *options)
+ 	if (options)
+ 		uart_parse_options(options, &baud, &parity, &bits, &flow);
+ 
++	/* Wait for tx_empty before setting up the console */
++	time_out = jiffies + usecs_to_jiffies(TX_TIMEOUT);
++
++	while (time_before(jiffies, time_out) &&
++	       cdns_uart_tx_empty(port) != TIOCSER_TEMT)
++		cpu_relax();
++
+ 	return uart_set_options(port, co, baud, parity, bits, flow);
+ }
+ 
 -- 
 2.25.1
 
