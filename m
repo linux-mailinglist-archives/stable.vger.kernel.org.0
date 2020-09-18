@@ -2,51 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E46B26F009
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:40:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4704226F00B
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:40:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729241AbgIRCkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728161AbgIRCkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:40:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37436 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728665AbgIRCLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:11:43 -0400
+        id S1727357AbgIRCLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:11:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C83D23119;
-        Fri, 18 Sep 2020 02:11:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A968B2388D;
+        Fri, 18 Sep 2020 02:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395102;
-        bh=7gT6ozM3I5vn2TytL2fIvxIy5739xDMcFQvEshQMweQ=;
+        s=default; t=1600395103;
+        bh=NAvfy6R2N95y25x9BweqMgt7j/jlalXTppH9dmmZkLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5+KBvilmfgK/j9N01ibpsatZMmy/EnatHVxp0pInaX7JCcbGYjty+uW6P/EJm2xc
-         wp85JLLgfBstkSri0fRSbkUh34TMx/n9gE1HQGhW4goFDcAuL/9NvXo4j4jFrpjtgC
-         HOKtvnDB/XhQVggqvy60MIJ6WzaivzakrY5tRklc=
+        b=pE0Nb/apsO6gqSg76q9LADAP9I07Mf+GeJJVBq6xUI9XNX7pt16X+nI02OUovGgE/
+         ujHhvt1hN7aDusVDnEqVocQdiKNRNUNCNqBR1DHgI2RqOIuiBChb4xKMsmisflP/UN
+         LmGJ7Ga4G5ljTDyESjP+sunUpxjdm6Cty3sdAvlU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
+Cc:     Jiri Olsa <jolsa@kernel.org>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
         Andi Kleen <ak@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Michael Petlan <mpetlan@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wei Li <liwei391@huawei.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 180/206] perf trace: Fix the selection for architectures to generate the errno name tables
-Date:   Thu, 17 Sep 2020 22:07:36 -0400
-Message-Id: <20200918020802.2065198-180-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 181/206] perf stat: Fix duration_time value for higher intervals
+Date:   Thu, 17 Sep 2020 22:07:37 -0400
+Message-Id: <20200918020802.2065198-181-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -58,57 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit 7597ce89b3ed239f7a3408b930d2a6c7a4c938a1 ]
+[ Upstream commit ea9eb1f456a08c18feb485894185f7a4e31cc8a4 ]
 
-Make the architecture test directory agree with the code comment.
+Joakim reported wrong duration_time value for interval bigger
+than 4000 [1].
 
-Committer notes:
+The problem is in the interval value we pass to update_stats
+function, which is typed as 'unsigned int' and overflows when
+we get over 2^32 (happens between intervals 4000 and 5000).
 
-This was split from a larger patch.
+Retyping the passed value to unsigned long long.
 
-The code was assuming the developer always worked from tools/perf/, so make sure we
-do the test -d having $toolsdir/perf/arch/$arch, to match the intent expressed in the comment,
-just above that loop.
+[1] https://www.spinics.net/lists/linux-perf-users/msg11777.html
 
-Signed-off-by: Ian Rogers <irogers@google.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: b90f1333ef08 ("perf stat: Update walltime_nsecs_stats in interval mode")
+Reported-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexios Zavras <alexios.zavras@intel.com>
 Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Igor Lubashev <ilubashe@akamai.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Michael Petlan <mpetlan@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Wei Li <liwei391@huawei.com>
-Link: http://lore.kernel.org/lkml/20200306071110.130202-4-irogers@google.com
+Link: http://lore.kernel.org/lkml/20200518131445.3745083-1-jolsa@kernel.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/trace/beauty/arch_errno_names.sh | 2 +-
+ tools/perf/builtin-stat.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/trace/beauty/arch_errno_names.sh b/tools/perf/trace/beauty/arch_errno_names.sh
-index 22c9fc900c847..f8c44a85650be 100755
---- a/tools/perf/trace/beauty/arch_errno_names.sh
-+++ b/tools/perf/trace/beauty/arch_errno_names.sh
-@@ -91,7 +91,7 @@ EoHEADER
- # in tools/perf/arch
- archlist=""
- for arch in $(find $toolsdir/arch -maxdepth 1 -mindepth 1 -type d -printf "%f\n" | grep -v x86 | sort); do
--	test -d arch/$arch && archlist="$archlist $arch"
-+	test -d $toolsdir/perf/arch/$arch && archlist="$archlist $arch"
- done
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index 6aae10ff954c7..adabe9d4dc866 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -422,7 +422,7 @@ static void process_interval(void)
+ 	}
  
- for arch in x86 $archlist generic; do
+ 	init_stats(&walltime_nsecs_stats);
+-	update_stats(&walltime_nsecs_stats, stat_config.interval * 1000000);
++	update_stats(&walltime_nsecs_stats, stat_config.interval * 1000000ULL);
+ 	print_counters(&rs, 0, NULL);
+ }
+ 
 -- 
 2.25.1
 
