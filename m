@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A45626EB25
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA09926EB2C
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726192AbgIRCD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49664 "EHLO mail.kernel.org"
+        id S1726621AbgIRCDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:03:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726174AbgIRCD0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:03:26 -0400
+        id S1727119AbgIRCDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:03:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D07D7208DB;
-        Fri, 18 Sep 2020 02:03:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 454D923600;
+        Fri, 18 Sep 2020 02:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394606;
-        bh=TO82qSTwghpzPIDY2QbkrSWqxVgQoKXVPz9boRqbIXM=;
+        s=default; t=1600394617;
+        bh=tWNmLNTC4xNwsIwyQ68ebsA5j2KIZRLstIrhjapgaXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uWL7aIC1lp3jPzKxqD/l+GKDkgSrkMdK+TYZOyjDIE3ZlvEwK0uz3EnyHCBS5YZfR
-         fLTHEqA3o1CiHqPGJrILrnFePZk8mcbEE1c4ILrMsKGoUpQN6V/h/hjTjhCC+h2Vl5
-         DqLZxTZuTjYwd3ZvA+HrZBxv0qN/D5NZ01RQGbKc=
+        b=sOQeA6mkfIT7pP4E34egmCAoMbS/OchyGJLUwmQGvAPUCtaCAVPBWWP52oZ8eHXRN
+         49LmYBxd6GmFpis5UN0ZtkKr6PLoW8yCqCkn5R85gp4f4XcYBBxbK7I5pGaGr3nC/C
+         nBKBJtp9YcV5ffp3Q5OugZqs1CD2zZKevjT2rz18=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jann Horn <jannh@google.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.4 112/330] mm/swapfile.c: swap_next should increase position index
-Date:   Thu, 17 Sep 2020 21:57:32 -0400
-Message-Id: <20200918020110.2063155-112-sashal@kernel.org>
+Cc:     Tony Cheng <tony.cheng@amd.com>,
+        Yongqiang Sun <yongqiang.sun@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 119/330] drm/amd/display: fix workaround for incorrect double buffer register for DLG ADL and TTU
+Date:   Thu, 17 Sep 2020 21:57:39 -0400
+Message-Id: <20200918020110.2063155-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -47,74 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Tony Cheng <tony.cheng@amd.com>
 
-[ Upstream commit 10c8d69f314d557d94d74ec492575ae6a4f1eb1c ]
+[ Upstream commit 85e148fb963d27152a14e6d399a47aed9bc99c15 ]
 
-If seq_file .next fuction does not change position index, read after
-some lseek can generate unexpected output.
+[Why]
+these registers should have been double buffered. SW workaround we will have SW program the more aggressive (lower) values
+whenever we are upating this register, so we will not have underflow at expense of less optimzal request pattern.
 
-In Aug 2018 NeilBrown noticed commit 1f4aace60b0e ("fs/seq_file.c:
-simplify seq_file iteration code and interface") "Some ->next functions
-do not increment *pos when they return NULL...  Note that such ->next
-functions are buggy and should be fixed.  A simple demonstration is
+[How]
+there is a driver bug where we don't check for 0, which is uninitialzed HW default.  since 0 is smaller than any value we need to program,
+driver end up with not programming these registers
 
-  dd if=/proc/swaps bs=1000 skip=1
-
-Choose any block size larger than the size of /proc/swaps.  This will
-always show the whole last line of /proc/swaps"
-
-Described problem is still actual.  If you make lseek into middle of
-last output line following read will output end of last line and whole
-last line once again.
-
-  $ dd if=/proc/swaps bs=1  # usual output
-  Filename				Type		Size	Used	Priority
-  /dev/dm-0                               partition	4194812	97536	-2
-  104+0 records in
-  104+0 records out
-  104 bytes copied
-
-  $ dd if=/proc/swaps bs=40 skip=1    # last line was generated twice
-  dd: /proc/swaps: cannot skip to specified offset
-  v/dm-0                               partition	4194812	97536	-2
-  /dev/dm-0                               partition	4194812	97536	-2
-  3+1 records in
-  3+1 records out
-  131 bytes copied
-
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-
-Link: http://lkml.kernel.org/r/bd8cfd7b-ac95-9b91-f9e7-e8438bd5047d@virtuozzo.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jann Horn <jannh@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Tony Cheng <tony.cheng@amd.com>
+Reviewed-by: Yongqiang Sun <yongqiang.sun@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/swapfile.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c | 35 +++++++++++++------
+ 1 file changed, 25 insertions(+), 10 deletions(-)
 
-diff --git a/mm/swapfile.c b/mm/swapfile.c
-index 891a3ef486511..646fd0a8e3202 100644
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -2737,10 +2737,10 @@ static void *swap_next(struct seq_file *swap, void *v, loff_t *pos)
- 	else
- 		type = si->type + 1;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
+index a00af513aa2b0..c8f77bd0ce8a6 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
+@@ -73,32 +73,47 @@ void apply_DEDCN21_142_wa_for_hostvm_deadline(
+ 		struct _vcs_dpi_display_dlg_regs_st *dlg_attr)
+ {
+ 	struct dcn21_hubp *hubp21 = TO_DCN21_HUBP(hubp);
+-	uint32_t cur_value;
++	uint32_t refcyc_per_vm_group_vblank;
++	uint32_t refcyc_per_vm_req_vblank;
++	uint32_t refcyc_per_vm_group_flip;
++	uint32_t refcyc_per_vm_req_flip;
++	const uint32_t uninitialized_hw_default = 0;
  
-+	++(*pos);
- 	for (; (si = swap_type_to_swap_info(type)); type++) {
- 		if (!(si->flags & SWP_USED) || !si->swap_map)
- 			continue;
--		++*pos;
- 		return si;
- 	}
+-	REG_GET(VBLANK_PARAMETERS_5, REFCYC_PER_VM_GROUP_VBLANK, &cur_value);
+-	if (cur_value > dlg_attr->refcyc_per_vm_group_vblank)
++	REG_GET(VBLANK_PARAMETERS_5,
++			REFCYC_PER_VM_GROUP_VBLANK, &refcyc_per_vm_group_vblank);
++
++	if (refcyc_per_vm_group_vblank == uninitialized_hw_default ||
++			refcyc_per_vm_group_vblank > dlg_attr->refcyc_per_vm_group_vblank)
+ 		REG_SET(VBLANK_PARAMETERS_5, 0,
+ 				REFCYC_PER_VM_GROUP_VBLANK, dlg_attr->refcyc_per_vm_group_vblank);
  
+ 	REG_GET(VBLANK_PARAMETERS_6,
+-			REFCYC_PER_VM_REQ_VBLANK,
+-			&cur_value);
+-	if (cur_value > dlg_attr->refcyc_per_vm_req_vblank)
++			REFCYC_PER_VM_REQ_VBLANK, &refcyc_per_vm_req_vblank);
++
++	if (refcyc_per_vm_req_vblank == uninitialized_hw_default ||
++			refcyc_per_vm_req_vblank > dlg_attr->refcyc_per_vm_req_vblank)
+ 		REG_SET(VBLANK_PARAMETERS_6, 0,
+ 				REFCYC_PER_VM_REQ_VBLANK, dlg_attr->refcyc_per_vm_req_vblank);
+ 
+-	REG_GET(FLIP_PARAMETERS_3, REFCYC_PER_VM_GROUP_FLIP, &cur_value);
+-	if (cur_value > dlg_attr->refcyc_per_vm_group_flip)
++	REG_GET(FLIP_PARAMETERS_3,
++			REFCYC_PER_VM_GROUP_FLIP, &refcyc_per_vm_group_flip);
++
++	if (refcyc_per_vm_group_flip == uninitialized_hw_default ||
++			refcyc_per_vm_group_flip > dlg_attr->refcyc_per_vm_group_flip)
+ 		REG_SET(FLIP_PARAMETERS_3, 0,
+ 				REFCYC_PER_VM_GROUP_FLIP, dlg_attr->refcyc_per_vm_group_flip);
+ 
+-	REG_GET(FLIP_PARAMETERS_4, REFCYC_PER_VM_REQ_FLIP, &cur_value);
+-	if (cur_value > dlg_attr->refcyc_per_vm_req_flip)
++	REG_GET(FLIP_PARAMETERS_4,
++			REFCYC_PER_VM_REQ_FLIP, &refcyc_per_vm_req_flip);
++
++	if (refcyc_per_vm_req_flip == uninitialized_hw_default ||
++			refcyc_per_vm_req_flip > dlg_attr->refcyc_per_vm_req_flip)
+ 		REG_SET(FLIP_PARAMETERS_4, 0,
+ 					REFCYC_PER_VM_REQ_FLIP, dlg_attr->refcyc_per_vm_req_flip);
+ 
+ 	REG_SET(FLIP_PARAMETERS_5, 0,
+ 			REFCYC_PER_PTE_GROUP_FLIP_C, dlg_attr->refcyc_per_pte_group_flip_c);
++
+ 	REG_SET(FLIP_PARAMETERS_6, 0,
+ 			REFCYC_PER_META_CHUNK_FLIP_C, dlg_attr->refcyc_per_meta_chunk_flip_c);
+ }
 -- 
 2.25.1
 
