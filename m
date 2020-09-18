@@ -2,222 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F38726F5DE
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 08:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C48A26F5F6
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 08:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726174AbgIRG0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Sep 2020 02:26:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58240 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725886AbgIRG0H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Sep 2020 02:26:07 -0400
-Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com [209.85.167.176])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C58C5208DB;
-        Fri, 18 Sep 2020 06:26:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600410366;
-        bh=u/eJ6TFCIf/fhVj5p/bfsI8cRKnKB9SGd2sw158iADI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=XJjlKArkJQ0t6XLyOD9SmaFP53lil63z4VNzQh10rzGl3GRdYIPUO+BbQXcNKp24w
-         jmmBzNjYdxJfKHLd3bK7JB9EULBZ87o2pSQz21uC51IOb8w+qSTAZr2RPyXQz0/D1N
-         z53wCLgvQwlqNscXttjEdyCOHBhU3kty09wBGKEI=
-Received: by mail-oi1-f176.google.com with SMTP id u126so5671989oif.13;
-        Thu, 17 Sep 2020 23:26:06 -0700 (PDT)
-X-Gm-Message-State: AOAM533Ya4OaThzKg+yZOUltsCRp8+MQQGi5WQwgC99xnKganFcWtqld
-        0A76IPqtaoqH1T0HNhGXVHKuMxtLwOUzR8iCd28=
-X-Google-Smtp-Source: ABdhPJyJpHt/enAmujpj3l8B6b0l/LGtHcOMS/5AR06YPfev4YAmduKtEKAy93B4ONSBcgTGhTsC7wVP0vdKcN4X5OQ=
-X-Received: by 2002:aca:d845:: with SMTP id p66mr8024864oig.47.1600410365979;
- Thu, 17 Sep 2020 23:26:05 -0700 (PDT)
+        id S1726285AbgIRGfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Sep 2020 02:35:20 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64302 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725886AbgIRGfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 02:35:19 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08I6Vtd1076891;
+        Fri, 18 Sep 2020 02:35:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=ElRNygLTk5cj/N20j1+KOLxchczmloacugV3rJOWm3A=;
+ b=dQV3RDvSXQwQbSWwF+ynPOAvOm2aEXjQiza8MydhlqtG9ArioM7nYuc4ZxaoYKCEsghu
+ qCGg6e1hRCRL2E6e3j+203AR1KoDmAdI9ydZkRJcqLIjFvuI/n424YMu5GGSVGyW3xuG
+ lR5Pu57Exi7UGo8Dv7ed5RDaksK5QPm6l2jCdTm6tuN7V0ibVcRxShNVcwX3g3OAcfAB
+ 0hiVlaVnFulbpy3z3QxOljhTZk0+uxXBdCuNKZOBaXUF/Fv1rxmJE8Ww9T4gl/cFcvEz
+ OOz1ojSqHYjUSsfbg3tT85UZ3muXUNU1EE1gVlrT9KXLA6Trn3Yt2y/lBEY+Z9RnCuh2 hg== 
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33mqp5g3cx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Sep 2020 02:35:11 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08I6SHkX001345;
+        Fri, 18 Sep 2020 06:35:09 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 33k9geaqcy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 18 Sep 2020 06:35:09 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08I6Z6xN20447668
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 18 Sep 2020 06:35:06 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E352FA4065;
+        Fri, 18 Sep 2020 06:35:06 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6E3F4A4064;
+        Fri, 18 Sep 2020 06:35:06 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.94.88])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 18 Sep 2020 06:35:06 +0000 (GMT)
+Subject: Re: [PATCH AUTOSEL 5.4 101/330] powerpc/powernv/ioda: Fix ref count
+ for devices with their own PE
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev@lists.ozlabs.org
+References: <20200918020110.2063155-1-sashal@kernel.org>
+ <20200918020110.2063155-101-sashal@kernel.org>
+From:   Frederic Barrat <fbarrat@linux.ibm.com>
+Message-ID: <52532d8a-8e90-8a68-07bd-5a3e08c58475@linux.ibm.com>
+Date:   Fri, 18 Sep 2020 08:35:06 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-References: <20200918021455.2067301-1-sashal@kernel.org> <20200918021455.2067301-23-sashal@kernel.org>
-In-Reply-To: <20200918021455.2067301-23-sashal@kernel.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Fri, 18 Sep 2020 09:25:54 +0300
-X-Gmail-Original-Message-ID: <CAMj1kXF4yyg02N8NuU4wMBJn1Aon4K_r54QAL7jbKZAa-cKyBQ@mail.gmail.com>
-Message-ID: <CAMj1kXF4yyg02N8NuU4wMBJn1Aon4K_r54QAL7jbKZAa-cKyBQ@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.9 23/90] efi/arm: Defer probe of PCIe backed
- efifb on DT systems
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Saravana Kannan <saravanak@google.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        linux-efi <linux-efi@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200918020110.2063155-101-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-18_06:2020-09-16,2020-09-18 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=978
+ impostorscore=0 suspectscore=0 priorityscore=1501 mlxscore=0 adultscore=0
+ clxscore=1031 lowpriorityscore=0 malwarescore=0 spamscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
+ definitions=main-2009180053
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 18 Sep 2020 at 05:15, Sasha Levin <sashal@kernel.org> wrote:
+
+
+Le 18/09/2020 à 03:57, Sasha Levin a écrit :
+> From: Frederic Barrat <fbarrat@linux.ibm.com>
+> 
+> [ Upstream commit 05dd7da76986937fb288b4213b1fa10dbe0d1b33 ]
 >
-> From: Ard Biesheuvel <ardb@kernel.org>
->
-> [ Upstream commit 64c8a0cd0a535891d5905c3a1651150f0f141439 ]
->
-> The new of_devlink support breaks PCIe probing on ARM platforms booting
-> via UEFI if the firmware exposes a EFI framebuffer that is backed by a
-> PCI device. The reason is that the probing order gets reversed,
-> resulting in a resource conflict on the framebuffer memory window when
-> the PCIe probes last, causing it to give up entirely.
->
-> Given that we rely on PCI quirks to deal with EFI framebuffers that get
-> moved around in memory, we cannot simply drop the memory reservation, so
-> instead, let's use the device link infrastructure to register this
-> dependency, and force the probing to occur in the expected order.
->
-> Co-developed-by: Saravana Kannan <saravanak@google.com>
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> Signed-off-by: Saravana Kannan <saravanak@google.com>
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> Link: https://lore.kernel.org/r/20200113172245.27925-9-ardb@kernel.org
+
+This patch is not desirable for stable, for 5.4 and 4.19 (it was already 
+flagged by autosel back in April. Not sure why it's showing again now)
+
+   Fred
+
+
+> The pci_dn structure used to store a pointer to the struct pci_dev, so
+> taking a reference on the device was required. However, the pci_dev
+> pointer was later removed from the pci_dn structure, but the reference
+> was kept for the npu device.
+> See commit 902bdc57451c ("powerpc/powernv/idoa: Remove unnecessary
+> pcidev from pci_dn").
+> 
+> We don't need to take a reference on the device when assigning the PE
+> as the struct pnv_ioda_pe is cleaned up at the same time as
+> the (physical) device is released. Doing so prevents the device from
+> being released, which is a problem for opencapi devices, since we want
+> to be able to remove them through PCI hotplug.
+> 
+> Now the ugly part: nvlink npu devices are not meant to be
+> released. Because of the above, we've always leaked a reference and
+> simply removing it now is dangerous and would likely require more
+> work. There's currently no release device callback for nvlink devices
+> for example. So to be safe, this patch leaks a reference on the npu
+> device, but only for nvlink and not opencapi.
+> 
+> Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
+> Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/20191121134918.7155-2-fbarrat@linux.ibm.com
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
-
-Same question as the previous time you proposed this patch for stable:
-is the of_devlink framework being backported in its entirety? If not,
-this patch does not belong in -stable.
-
-
 > ---
->  drivers/firmware/efi/arm-init.c | 107 ++++++++++++++++++++++++++++++--
->  1 file changed, 103 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/firmware/efi/arm-init.c b/drivers/firmware/efi/arm-init.c
-> index 8ee91777abce7..e4ddd6e6edb31 100644
-> --- a/drivers/firmware/efi/arm-init.c
-> +++ b/drivers/firmware/efi/arm-init.c
-> @@ -14,10 +14,12 @@
->  #define pr_fmt(fmt)    "efi: " fmt
->
->  #include <linux/efi.h>
-> +#include <linux/fwnode.h>
->  #include <linux/init.h>
->  #include <linux/memblock.h>
->  #include <linux/mm_types.h>
->  #include <linux/of.h>
-> +#include <linux/of_address.h>
->  #include <linux/of_fdt.h>
->  #include <linux/platform_device.h>
->  #include <linux/screen_info.h>
-> @@ -262,15 +264,112 @@ void __init efi_init(void)
->                 efi_memmap_unmap();
->  }
->
-> +static bool efifb_overlaps_pci_range(const struct of_pci_range *range)
-> +{
-> +       u64 fb_base = screen_info.lfb_base;
+>   arch/powerpc/platforms/powernv/pci-ioda.c | 19 ++++++++++++-------
+>   1 file changed, 12 insertions(+), 7 deletions(-)
+> 
+> diff --git a/arch/powerpc/platforms/powernv/pci-ioda.c b/arch/powerpc/platforms/powernv/pci-ioda.c
+> index 058223233088e..e9cda7e316a50 100644
+> --- a/arch/powerpc/platforms/powernv/pci-ioda.c
+> +++ b/arch/powerpc/platforms/powernv/pci-ioda.c
+> @@ -1062,14 +1062,13 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
+>   		return NULL;
+>   	}
+>   
+> -	/* NOTE: We get only one ref to the pci_dev for the pdn, not for the
+> -	 * pointer in the PE data structure, both should be destroyed at the
+> -	 * same time. However, this needs to be looked at more closely again
+> -	 * once we actually start removing things (Hotplug, SR-IOV, ...)
+> +	/* NOTE: We don't get a reference for the pointer in the PE
+> +	 * data structure, both the device and PE structures should be
+> +	 * destroyed at the same time. However, removing nvlink
+> +	 * devices will need some work.
+>   	 *
+>   	 * At some point we want to remove the PDN completely anyways
+>   	 */
+> -	pci_dev_get(dev);
+>   	pdn->pe_number = pe->pe_number;
+>   	pe->flags = PNV_IODA_PE_DEV;
+>   	pe->pdev = dev;
+> @@ -1084,7 +1083,6 @@ static struct pnv_ioda_pe *pnv_ioda_setup_dev_PE(struct pci_dev *dev)
+>   		pnv_ioda_free_pe(pe);
+>   		pdn->pe_number = IODA_INVALID_PE;
+>   		pe->pdev = NULL;
+> -		pci_dev_put(dev);
+>   		return NULL;
+>   	}
+>   
+> @@ -1205,6 +1203,14 @@ static struct pnv_ioda_pe *pnv_ioda_setup_npu_PE(struct pci_dev *npu_pdev)
+>   	struct pci_controller *hose = pci_bus_to_host(npu_pdev->bus);
+>   	struct pnv_phb *phb = hose->private_data;
+>   
+> +	/*
+> +	 * Intentionally leak a reference on the npu device (for
+> +	 * nvlink only; this is not an opencapi path) to make sure it
+> +	 * never goes away, as it's been the case all along and some
+> +	 * work is needed otherwise.
+> +	 */
+> +	pci_dev_get(npu_pdev);
 > +
-> +       if (screen_info.capabilities & VIDEO_CAPABILITY_64BIT_BASE)
-> +               fb_base |= (u64)(unsigned long)screen_info.ext_lfb_base << 32;
-> +
-> +       return fb_base >= range->cpu_addr &&
-> +              fb_base < (range->cpu_addr + range->size);
-> +}
-> +
-> +static struct device_node *find_pci_overlap_node(void)
-> +{
-> +       struct device_node *np;
-> +
-> +       for_each_node_by_type(np, "pci") {
-> +               struct of_pci_range_parser parser;
-> +               struct of_pci_range range;
-> +               int err;
-> +
-> +               err = of_pci_range_parser_init(&parser, np);
-> +               if (err) {
-> +                       pr_warn("of_pci_range_parser_init() failed: %d\n", err);
-> +                       continue;
-> +               }
-> +
-> +               for_each_of_pci_range(&parser, &range)
-> +                       if (efifb_overlaps_pci_range(&range))
-> +                               return np;
-> +       }
-> +       return NULL;
-> +}
-> +
-> +/*
-> + * If the efifb framebuffer is backed by a PCI graphics controller, we have
-> + * to ensure that this relation is expressed using a device link when
-> + * running in DT mode, or the probe order may be reversed, resulting in a
-> + * resource reservation conflict on the memory window that the efifb
-> + * framebuffer steals from the PCIe host bridge.
-> + */
-> +static int efifb_add_links(const struct fwnode_handle *fwnode,
-> +                          struct device *dev)
-> +{
-> +       struct device_node *sup_np;
-> +       struct device *sup_dev;
-> +
-> +       sup_np = find_pci_overlap_node();
-> +
-> +       /*
-> +        * If there's no PCI graphics controller backing the efifb, we are
-> +        * done here.
-> +        */
-> +       if (!sup_np)
-> +               return 0;
-> +
-> +       sup_dev = get_dev_from_fwnode(&sup_np->fwnode);
-> +       of_node_put(sup_np);
-> +
-> +       /*
-> +        * Return -ENODEV if the PCI graphics controller device hasn't been
-> +        * registered yet.  This ensures that efifb isn't allowed to probe
-> +        * and this function is retried again when new devices are
-> +        * registered.
-> +        */
-> +       if (!sup_dev)
-> +               return -ENODEV;
-> +
-> +       /*
-> +        * If this fails, retrying this function at a later point won't
-> +        * change anything. So, don't return an error after this.
-> +        */
-> +       if (!device_link_add(dev, sup_dev, 0))
-> +               dev_warn(dev, "device_link_add() failed\n");
-> +
-> +       put_device(sup_dev);
-> +
-> +       return 0;
-> +}
-> +
-> +static const struct fwnode_operations efifb_fwnode_ops = {
-> +       .add_links = efifb_add_links,
-> +};
-> +
-> +static struct fwnode_handle efifb_fwnode = {
-> +       .ops = &efifb_fwnode_ops,
-> +};
-> +
->  static int __init register_gop_device(void)
->  {
-> -       void *pd;
-> +       struct platform_device *pd;
-> +       int err;
->
->         if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI)
->                 return 0;
->
-> -       pd = platform_device_register_data(NULL, "efi-framebuffer", 0,
-> -                                          &screen_info, sizeof(screen_info));
-> -       return PTR_ERR_OR_ZERO(pd);
-> +       pd = platform_device_alloc("efi-framebuffer", 0);
-> +       if (!pd)
-> +               return -ENOMEM;
-> +
-> +       if (IS_ENABLED(CONFIG_PCI))
-> +               pd->dev.fwnode = &efifb_fwnode;
-> +
-> +       err = platform_device_add_data(pd, &screen_info, sizeof(screen_info));
-> +       if (err)
-> +               return err;
-> +
-> +       return platform_device_add(pd);
->  }
->  subsys_initcall(register_gop_device);
-> --
-> 2.25.1
->
+>   	/*
+>   	 * Due to a hardware errata PE#0 on the NPU is reserved for
+>   	 * error handling. This means we only have three PEs remaining
+> @@ -1228,7 +1234,6 @@ static struct pnv_ioda_pe *pnv_ioda_setup_npu_PE(struct pci_dev *npu_pdev)
+>   			 */
+>   			dev_info(&npu_pdev->dev,
+>   				"Associating to existing PE %x\n", pe_num);
+> -			pci_dev_get(npu_pdev);
+>   			npu_pdn = pci_get_pdn(npu_pdev);
+>   			rid = npu_pdev->bus->number << 8 | npu_pdn->devfn;
+>   			npu_pdn->pe_number = pe_num;
+> 
