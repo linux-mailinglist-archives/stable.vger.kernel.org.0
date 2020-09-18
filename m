@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E519926EFD8
+	by mail.lfdr.de (Postfix) with ESMTP id 76FFC26EFD7
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:38:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728999AbgIRCis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:38:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
+        id S1728708AbgIRCir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:38:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728746AbgIRCMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:12:12 -0400
+        id S1727012AbgIRCMN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:12:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB660235F9;
-        Fri, 18 Sep 2020 02:12:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E08BF22211;
+        Fri, 18 Sep 2020 02:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395131;
-        bh=pKvCOEWJAUQnHQZizbxl1KjIHkWsysFhsGXiYcN/2rs=;
+        s=default; t=1600395132;
+        bh=C4qFLAwNdpjh9f7UNEdMDeMXdEoFSVGD+a8VN+/fVqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpjAmmUhjb2TcaxGbaHGSjOb9OInyTgCcsQ4dTbAWSrLdIQmrQ3mk4qNEh96/Y87/
-         UQtkcWIpgzhX5bKJ3oC2b4hRrPigrO1aatTBYvQeRMi8jjjUeXiUU6iAn3fIERlNEr
-         yjRr6En7upADhE2L/aBaD0DMK3+ZFDLfG+sk/0PA=
+        b=czPWKyTPOIibtUkuwVWytVq8M+XKxtTwJdfVUklBJdwESv2MmACU7dTak2G7cMDwL
+         VTHeJAdZB14m+uUIlcGXcbnGlpcUS3Sd/4JtpRUdmMeHgK2VMfTknOo8Dycsc3kj+i
+         HJVqySf7khHdsQ7Dvo0/PgM+ogrvPFQitEh2gHnA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zeng Tao <prime.zeng@hisilicon.com>, Qian Cai <cai@lca.pw>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 201/206] vfio/pci: fix racy on error and request eventfd ctx
-Date:   Thu, 17 Sep 2020 22:07:57 -0400
-Message-Id: <20200918020802.2065198-201-sashal@kernel.org>
+Cc:     Qu Wenruo <wqu@suse.com>, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 202/206] btrfs: qgroup: fix data leak caused by race between writeback and truncate
+Date:   Thu, 17 Sep 2020 22:07:58 -0400
+Message-Id: <20200918020802.2065198-202-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -42,120 +42,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Tao <prime.zeng@hisilicon.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit b872d0640840018669032b20b6375a478ed1f923 ]
+[ Upstream commit fa91e4aa1716004ea8096d5185ec0451e206aea0 ]
 
-The vfio_pci_release call will free and clear the error and request
-eventfd ctx while these ctx could be in use at the same time in the
-function like vfio_pci_request, and it's expected to protect them under
-the vdev->igate mutex, which is missing in vfio_pci_release.
+[BUG]
+When running tests like generic/013 on test device with btrfs quota
+enabled, it can normally lead to data leak, detected at unmount time:
 
-This issue is introduced since commit 1518ac272e78 ("vfio/pci: fix memory
-leaks of eventfd ctx"),and since commit 5c5866c593bb ("vfio/pci: Clear
-error and request eventfd ctx after releasing"), it's very easily to
-trigger the kernel panic like this:
+  BTRFS warning (device dm-3): qgroup 0/5 has unreleased space, type 0 rsv 4096
+  ------------[ cut here ]------------
+  WARNING: CPU: 11 PID: 16386 at fs/btrfs/disk-io.c:4142 close_ctree+0x1dc/0x323 [btrfs]
+  RIP: 0010:close_ctree+0x1dc/0x323 [btrfs]
+  Call Trace:
+   btrfs_put_super+0x15/0x17 [btrfs]
+   generic_shutdown_super+0x72/0x110
+   kill_anon_super+0x18/0x30
+   btrfs_kill_super+0x17/0x30 [btrfs]
+   deactivate_locked_super+0x3b/0xa0
+   deactivate_super+0x40/0x50
+   cleanup_mnt+0x135/0x190
+   __cleanup_mnt+0x12/0x20
+   task_work_run+0x64/0xb0
+   __prepare_exit_to_usermode+0x1bc/0x1c0
+   __syscall_return_slowpath+0x47/0x230
+   do_syscall_64+0x64/0xb0
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  ---[ end trace caf08beafeca2392 ]---
+  BTRFS error (device dm-3): qgroup reserved space leaked
 
-[ 9513.904346] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
-[ 9513.913091] Mem abort info:
-[ 9513.915871]   ESR = 0x96000006
-[ 9513.918912]   EC = 0x25: DABT (current EL), IL = 32 bits
-[ 9513.924198]   SET = 0, FnV = 0
-[ 9513.927238]   EA = 0, S1PTW = 0
-[ 9513.930364] Data abort info:
-[ 9513.933231]   ISV = 0, ISS = 0x00000006
-[ 9513.937048]   CM = 0, WnR = 0
-[ 9513.940003] user pgtable: 4k pages, 48-bit VAs, pgdp=0000007ec7d12000
-[ 9513.946414] [0000000000000008] pgd=0000007ec7d13003, p4d=0000007ec7d13003, pud=0000007ec728c003, pmd=0000000000000000
-[ 9513.956975] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[ 9513.962521] Modules linked in: vfio_pci vfio_virqfd vfio_iommu_type1 vfio hclge hns3 hnae3 [last unloaded: vfio_pci]
-[ 9513.972998] CPU: 4 PID: 1327 Comm: bash Tainted: G        W         5.8.0-rc4+ #3
-[ 9513.980443] Hardware name: Huawei TaiShan 2280 V2/BC82AMDC, BIOS 2280-V2 CS V3.B270.01 05/08/2020
-[ 9513.989274] pstate: 80400089 (Nzcv daIf +PAN -UAO BTYPE=--)
-[ 9513.994827] pc : _raw_spin_lock_irqsave+0x48/0x88
-[ 9513.999515] lr : eventfd_signal+0x6c/0x1b0
-[ 9514.003591] sp : ffff800038a0b960
-[ 9514.006889] x29: ffff800038a0b960 x28: ffff007ef7f4da10
-[ 9514.012175] x27: ffff207eefbbfc80 x26: ffffbb7903457000
-[ 9514.017462] x25: ffffbb7912191000 x24: ffff007ef7f4d400
-[ 9514.022747] x23: ffff20be6e0e4c00 x22: 0000000000000008
-[ 9514.028033] x21: 0000000000000000 x20: 0000000000000000
-[ 9514.033321] x19: 0000000000000008 x18: 0000000000000000
-[ 9514.038606] x17: 0000000000000000 x16: ffffbb7910029328
-[ 9514.043893] x15: 0000000000000000 x14: 0000000000000001
-[ 9514.049179] x13: 0000000000000000 x12: 0000000000000002
-[ 9514.054466] x11: 0000000000000000 x10: 0000000000000a00
-[ 9514.059752] x9 : ffff800038a0b840 x8 : ffff007ef7f4de60
-[ 9514.065038] x7 : ffff007fffc96690 x6 : fffffe01faffb748
-[ 9514.070324] x5 : 0000000000000000 x4 : 0000000000000000
-[ 9514.075609] x3 : 0000000000000000 x2 : 0000000000000001
-[ 9514.080895] x1 : ffff007ef7f4d400 x0 : 0000000000000000
-[ 9514.086181] Call trace:
-[ 9514.088618]  _raw_spin_lock_irqsave+0x48/0x88
-[ 9514.092954]  eventfd_signal+0x6c/0x1b0
-[ 9514.096691]  vfio_pci_request+0x84/0xd0 [vfio_pci]
-[ 9514.101464]  vfio_del_group_dev+0x150/0x290 [vfio]
-[ 9514.106234]  vfio_pci_remove+0x30/0x128 [vfio_pci]
-[ 9514.111007]  pci_device_remove+0x48/0x108
-[ 9514.115001]  device_release_driver_internal+0x100/0x1b8
-[ 9514.120200]  device_release_driver+0x28/0x38
-[ 9514.124452]  pci_stop_bus_device+0x68/0xa8
-[ 9514.128528]  pci_stop_and_remove_bus_device+0x20/0x38
-[ 9514.133557]  pci_iov_remove_virtfn+0xb4/0x128
-[ 9514.137893]  sriov_disable+0x3c/0x108
-[ 9514.141538]  pci_disable_sriov+0x28/0x38
-[ 9514.145445]  hns3_pci_sriov_configure+0x48/0xb8 [hns3]
-[ 9514.150558]  sriov_numvfs_store+0x110/0x198
-[ 9514.154724]  dev_attr_store+0x44/0x60
-[ 9514.158373]  sysfs_kf_write+0x5c/0x78
-[ 9514.162018]  kernfs_fop_write+0x104/0x210
-[ 9514.166010]  __vfs_write+0x48/0x90
-[ 9514.169395]  vfs_write+0xbc/0x1c0
-[ 9514.172694]  ksys_write+0x74/0x100
-[ 9514.176079]  __arm64_sys_write+0x24/0x30
-[ 9514.179987]  el0_svc_common.constprop.4+0x110/0x200
-[ 9514.184842]  do_el0_svc+0x34/0x98
-[ 9514.188144]  el0_svc+0x14/0x40
-[ 9514.191185]  el0_sync_handler+0xb0/0x2d0
-[ 9514.195088]  el0_sync+0x140/0x180
-[ 9514.198389] Code: b9001020 d2800000 52800022 f9800271 (885ffe61)
-[ 9514.204455] ---[ end trace 648de00c8406465f ]---
-[ 9514.212308] note: bash[1327] exited with preempt_count 1
+[CAUSE]
+In the offending case, the offending operations are:
+2/6: writev f2X[269 1 0 0 0 0] [1006997,67,288] 0
+2/7: truncate f2X[269 1 0 0 48 1026293] 18388 0
 
-Cc: Qian Cai <cai@lca.pw>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Fixes: 1518ac272e78 ("vfio/pci: fix memory leaks of eventfd ctx")
-Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+The following sequence of events could happen after the writev():
+	CPU1 (writeback)		|		CPU2 (truncate)
+-----------------------------------------------------------------
+btrfs_writepages()			|
+|- extent_write_cache_pages()		|
+   |- Got page for 1003520		|
+   |  1003520 is Dirty, no writeback	|
+   |  So (!clear_page_dirty_for_io())   |
+   |  gets called for it		|
+   |- Now page 1003520 is Clean.	|
+   |					| btrfs_setattr()
+   |					| |- btrfs_setsize()
+   |					|    |- truncate_setsize()
+   |					|       New i_size is 18388
+   |- __extent_writepage()		|
+   |  |- page_offset() > i_size		|
+      |- btrfs_invalidatepage()		|
+	 |- Page is clean, so no qgroup |
+	    callback executed
+
+This means, the qgroup reserved data space is not properly released in
+btrfs_invalidatepage() as the page is Clean.
+
+[FIX]
+Instead of checking the dirty bit of a page, call
+btrfs_qgroup_free_data() unconditionally in btrfs_invalidatepage().
+
+As qgroup rsv are completely bound to the QGROUP_RESERVED bit of
+io_tree, not bound to page status, thus we won't cause double freeing
+anyway.
+
+Fixes: 0b34c261e235 ("btrfs: qgroup: Prevent qgroup->reserved from going subzero")
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/btrfs/inode.c | 23 ++++++++++-------------
+ 1 file changed, 10 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 94fad366312f1..58e7336b2748b 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -409,14 +409,19 @@ static void vfio_pci_release(void *device_data)
- 	if (!(--vdev->refcnt)) {
- 		vfio_spapr_pci_eeh_release(vdev->pdev);
- 		vfio_pci_disable(vdev);
-+		mutex_lock(&vdev->igate);
- 		if (vdev->err_trigger) {
- 			eventfd_ctx_put(vdev->err_trigger);
- 			vdev->err_trigger = NULL;
- 		}
-+		mutex_unlock(&vdev->igate);
-+
-+		mutex_lock(&vdev->igate);
- 		if (vdev->req_trigger) {
- 			eventfd_ctx_put(vdev->req_trigger);
- 			vdev->req_trigger = NULL;
- 		}
-+		mutex_unlock(&vdev->igate);
- 	}
- 
- 	mutex_unlock(&driver_lock);
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index bdfe159a60da6..64d459ca76d06 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8913,20 +8913,17 @@ again:
+ 	/*
+ 	 * Qgroup reserved space handler
+ 	 * Page here will be either
+-	 * 1) Already written to disk
+-	 *    In this case, its reserved space is released from data rsv map
+-	 *    and will be freed by delayed_ref handler finally.
+-	 *    So even we call qgroup_free_data(), it won't decrease reserved
+-	 *    space.
+-	 * 2) Not written to disk
+-	 *    This means the reserved space should be freed here. However,
+-	 *    if a truncate invalidates the page (by clearing PageDirty)
+-	 *    and the page is accounted for while allocating extent
+-	 *    in btrfs_check_data_free_space() we let delayed_ref to
+-	 *    free the entire extent.
++	 * 1) Already written to disk or ordered extent already submitted
++	 *    Then its QGROUP_RESERVED bit in io_tree is already cleaned.
++	 *    Qgroup will be handled by its qgroup_record then.
++	 *    btrfs_qgroup_free_data() call will do nothing here.
++	 *
++	 * 2) Not written to disk yet
++	 *    Then btrfs_qgroup_free_data() call will clear the QGROUP_RESERVED
++	 *    bit of its io_tree, and free the qgroup reserved data space.
++	 *    Since the IO will never happen for this page.
+ 	 */
+-	if (PageDirty(page))
+-		btrfs_qgroup_free_data(inode, NULL, page_start, PAGE_SIZE);
++	btrfs_qgroup_free_data(inode, NULL, page_start, PAGE_SIZE);
+ 	if (!inode_evicting) {
+ 		clear_extent_bit(tree, page_start, page_end,
+ 				 EXTENT_LOCKED | EXTENT_DIRTY |
 -- 
 2.25.1
 
