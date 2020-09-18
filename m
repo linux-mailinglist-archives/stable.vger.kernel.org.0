@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67FE326F257
+	by mail.lfdr.de (Postfix) with ESMTP id D797D26F258
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728208AbgIRC6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727001AbgIRC6B (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:58:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55594 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726669AbgIRCGU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:06:20 -0400
+        id S1727744AbgIRCGV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:06:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F205238E6;
-        Fri, 18 Sep 2020 02:06:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B1F8238D6;
+        Fri, 18 Sep 2020 02:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394779;
-        bh=L8y+vhogEVvfm7O+1ESUJ6UPFy9sxfuBATpoB0bq7lY=;
+        s=default; t=1600394781;
+        bh=jGhZISFgVL+/FUIGMcXqvuU+A9Nr5jP1pkKvf9EPlPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBSzXRcTEjb6IYzS2wPCnraRniOdYb6pgsXWEI8QKzsSPai8FltjLVzq5/sR/9kgC
-         RS9+JBSunIOk5d95OVZaYfn7zOJ0xF8Z1l6mCiTy5JpYDwgTr1drBpxZBk7dHD6pow
-         4HjxhgywWGjhtm7Vn0GGN9l7I6Xc+tZzqnml7dSA=
+        b=q8wBvW5rzrK2nll1jwR17lkQ+J1P//CnOpQwo182EFNLcAQKMTYzhH4Pne/RjVnmB
+         LSy8aNBHBFad9VnUnxMIBzDAM2v18Eie1g+8m377YvBSO+2zo+SuxGgtq8DfFrUfYf
+         hON4Hm+41mKezodA5b1gzr1eWx0mti0IpdrB3bks=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cong Wang <xiyou.wangcong@gmail.com>,
-        Gengming Liu <l.dmxcsnsbh@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 253/330] atm: fix a memory leak of vcc->user_back
-Date:   Thu, 17 Sep 2020 21:59:53 -0400
-Message-Id: <20200918020110.2063155-253-sashal@kernel.org>
+Cc:     Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 254/330] media: venus: vdec: Init registered list unconditionally
+Date:   Thu, 17 Sep 2020 21:59:54 -0400
+Message-Id: <20200918020110.2063155-254-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,57 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Stanimir Varbanov <stanimir.varbanov@linaro.org>
 
-[ Upstream commit 8d9f73c0ad2f20e9fed5380de0a3097825859d03 ]
+[ Upstream commit bc3d870e414b42d72cd386aa20a4fc3612e4feb7 ]
 
-In lec_arp_clear_vccs() only entry->vcc is freed, but vcc
-could be installed on entry->recv_vcc too in lec_vcc_added().
+Presently the list initialization is done only in
+dynamic-resolution-change state, which leads to list corruptions
+and use-after-free. Init list_head unconditionally in
+vdec_stop_capture called by vb2 stop_streaming without takeing
+into account current codec state.
 
-This fixes the following memory leak:
-
-unreferenced object 0xffff8880d9266b90 (size 16):
-  comm "atm2", pid 425, jiffies 4294907980 (age 23.488s)
-  hex dump (first 16 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 6b 6b 6b a5  ............kkk.
-  backtrace:
-    [<(____ptrval____)>] kmem_cache_alloc_trace+0x10e/0x151
-    [<(____ptrval____)>] lane_ioctl+0x4b3/0x569
-    [<(____ptrval____)>] do_vcc_ioctl+0x1ea/0x236
-    [<(____ptrval____)>] svc_ioctl+0x17d/0x198
-    [<(____ptrval____)>] sock_do_ioctl+0x47/0x12f
-    [<(____ptrval____)>] sock_ioctl+0x2f9/0x322
-    [<(____ptrval____)>] vfs_ioctl+0x1e/0x2b
-    [<(____ptrval____)>] ksys_ioctl+0x61/0x80
-    [<(____ptrval____)>] __x64_sys_ioctl+0x16/0x19
-    [<(____ptrval____)>] do_syscall_64+0x57/0x65
-    [<(____ptrval____)>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-Cc: Gengming Liu <l.dmxcsnsbh@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/atm/lec.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/media/platform/qcom/venus/vdec.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/atm/lec.c b/net/atm/lec.c
-index 5a77c235a212f..3625a04a6c701 100644
---- a/net/atm/lec.c
-+++ b/net/atm/lec.c
-@@ -1269,6 +1269,12 @@ static void lec_arp_clear_vccs(struct lec_arp_table *entry)
- 		entry->vcc = NULL;
+diff --git a/drivers/media/platform/qcom/venus/vdec.c b/drivers/media/platform/qcom/venus/vdec.c
+index 59ae7a1e63bc2..05b80a66e80ed 100644
+--- a/drivers/media/platform/qcom/venus/vdec.c
++++ b/drivers/media/platform/qcom/venus/vdec.c
+@@ -987,13 +987,14 @@ static int vdec_stop_capture(struct venus_inst *inst)
+ 		ret = hfi_session_flush(inst, HFI_FLUSH_OUTPUT);
+ 		vdec_cancel_dst_buffers(inst);
+ 		inst->codec_state = VENUS_DEC_STATE_CAPTURE_SETUP;
+-		INIT_LIST_HEAD(&inst->registeredbufs);
+ 		venus_helper_free_dpb_bufs(inst);
+ 		break;
+ 	default:
+-		return 0;
++		break;
  	}
- 	if (entry->recv_vcc) {
-+		struct atm_vcc *vcc = entry->recv_vcc;
-+		struct lec_vcc_priv *vpriv = LEC_VCC_PRIV(vcc);
+ 
++	INIT_LIST_HEAD(&inst->registeredbufs);
 +
-+		kfree(vpriv);
-+		vcc->user_back = NULL;
-+
- 		entry->recv_vcc->push = entry->old_recv_push;
- 		vcc_release_async(entry->recv_vcc, -EPIPE);
- 		entry->recv_vcc = NULL;
+ 	return ret;
+ }
+ 
 -- 
 2.25.1
 
