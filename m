@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF04426F0DB
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:46:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B505026F0CF
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:46:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728597AbgIRCqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33746 "EHLO mail.kernel.org"
+        id S1730263AbgIRCqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:46:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728356AbgIRCJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:09:48 -0400
+        id S1728363AbgIRCJt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:09:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8F22235F9;
-        Fri, 18 Sep 2020 02:09:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D167B238A1;
+        Fri, 18 Sep 2020 02:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394987;
-        bh=I5RSX6dfrllMtVP4vrgvF9MUZFSdKf2G1TCO0XX8umk=;
+        s=default; t=1600394988;
+        bh=eJUpK7/qw6BnJLNqvb7DTW1JHZGMyCW4pYM7azEwQjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qhwsbRFzOPZFYssvvQWtguKZT+bF4XWECzh3RphKmfv1jPDI1m6za27/QH9SJomFy
-         cvRzsAASe17r+feo6pnAE01HpFl5uzhg16lOJRR75FUXiOb4sQaqu/axX83hJMyWUr
-         9tcVZuACxW5QLpKPQ1hKRS+RBLzGhcHPgcLsb1UQ=
+        b=ewrq8rydFfRgXycQe2haog0kjuEqGQAoDdwvuSO2IGxKWmuPdPn2laN1uVWcKQqPc
+         kiKCiINulDTHF62V7KH0j50naYqpROtmUv+FLb7dIglHtY0xC20roLYqYCthG1l97m
+         aJcUmCGIh/AoR85xCuzbJtBXjpSIgOfeMs4PbWAU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Alex Shi <alex.shi@linux.alibaba.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 086/206] x86/pkeys: Add check for pkey "overflow"
-Date:   Thu, 17 Sep 2020 22:06:02 -0400
-Message-Id: <20200918020802.2065198-86-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 087/206] bpf: Remove recursion prevention from rcu free callback
+Date:   Thu, 17 Sep 2020 22:06:03 -0400
+Message-Id: <20200918020802.2065198-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -43,78 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Hansen <dave.hansen@linux.intel.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 16171bffc829272d5e6014bad48f680cb50943d9 ]
+[ Upstream commit 8a37963c7ac9ecb7f86f8ebda020e3f8d6d7b8a0 ]
 
-Alex Shi reported the pkey macros above arch_set_user_pkey_access()
-to be unused.  They are unused, and even refer to a nonexistent
-CONFIG option.
+If an element is freed via RCU then recursion into BPF instrumentation
+functions is not a concern. The element is already detached from the map
+and the RCU callback does not hold any locks on which a kprobe, perf event
+or tracepoint attached BPF program could deadlock.
 
-But, they might have served a good use, which was to ensure that
-the code does not try to set values that would not fit in the
-PKRU register.  As it stands, a too-large 'pkey' value would
-be likely to silently overflow the u32 new_pkru_bits.
-
-Add a check to look for overflows.  Also add a comment to remind
-any future developer to closely examine the types used to store
-pkey values if arch_max_pkey() ever changes.
-
-This boots and passes the x86 pkey selftests.
-
-Reported-by: Alex Shi <alex.shi@linux.alibaba.com>
-Signed-off-by: Dave Hansen <dave.hansen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200122165346.AD4DA150@viggo.jf.intel.com
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200224145643.259118710@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/pkeys.h | 5 +++++
- arch/x86/kernel/fpu/xstate.c | 9 +++++++--
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ kernel/bpf/hashtab.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/arch/x86/include/asm/pkeys.h b/arch/x86/include/asm/pkeys.h
-index 19b137f1b3beb..2ff9b98812b76 100644
---- a/arch/x86/include/asm/pkeys.h
-+++ b/arch/x86/include/asm/pkeys.h
-@@ -4,6 +4,11 @@
+diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
+index 1b28fb006763a..3f3ed33bd2fdc 100644
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -667,15 +667,7 @@ static void htab_elem_free_rcu(struct rcu_head *head)
+ 	struct htab_elem *l = container_of(head, struct htab_elem, rcu);
+ 	struct bpf_htab *htab = l->htab;
  
- #define ARCH_DEFAULT_PKEY	0
+-	/* must increment bpf_prog_active to avoid kprobe+bpf triggering while
+-	 * we're calling kfree, otherwise deadlock is possible if kprobes
+-	 * are placed somewhere inside of slub
+-	 */
+-	preempt_disable();
+-	__this_cpu_inc(bpf_prog_active);
+ 	htab_elem_free(htab, l);
+-	__this_cpu_dec(bpf_prog_active);
+-	preempt_enable();
+ }
  
-+/*
-+ * If more than 16 keys are ever supported, a thorough audit
-+ * will be necessary to ensure that the types that store key
-+ * numbers and masks have sufficient capacity.
-+ */
- #define arch_max_pkey() (boot_cpu_has(X86_FEATURE_OSPKE) ? 16 : 1)
- 
- extern int arch_set_user_pkey_access(struct task_struct *tsk, int pkey,
-diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
-index 4b900035f2202..601a5da1d196a 100644
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -907,8 +907,6 @@ const void *get_xsave_field_ptr(int xsave_state)
- 
- #ifdef CONFIG_ARCH_HAS_PKEYS
- 
--#define NR_VALID_PKRU_BITS (CONFIG_NR_PROTECTION_KEYS * 2)
--#define PKRU_VALID_MASK (NR_VALID_PKRU_BITS - 1)
- /*
-  * This will go out and modify PKRU register to set the access
-  * rights for @pkey to @init_val.
-@@ -927,6 +925,13 @@ int arch_set_user_pkey_access(struct task_struct *tsk, int pkey,
- 	if (!boot_cpu_has(X86_FEATURE_OSPKE))
- 		return -EINVAL;
- 
-+	/*
-+	 * This code should only be called with valid 'pkey'
-+	 * values originating from in-kernel users.  Complain
-+	 * if a bad value is observed.
-+	 */
-+	WARN_ON_ONCE(pkey >= arch_max_pkey());
-+
- 	/* Set the bits we need in PKRU:  */
- 	if (init_val & PKEY_DISABLE_ACCESS)
- 		new_pkru_bits |= PKRU_AD_BIT;
+ static void htab_put_fd_value(struct bpf_htab *htab, struct htab_elem *l)
 -- 
 2.25.1
 
