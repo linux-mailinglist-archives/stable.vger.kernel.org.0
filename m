@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 614CB26F27E
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58AD526F28E
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726847AbgIRCFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54172 "EHLO mail.kernel.org"
+        id S1727790AbgIRC7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:59:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727531AbgIRCFm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:05:42 -0400
+        id S1727651AbgIRCFv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:05:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41DB223600;
-        Fri, 18 Sep 2020 02:05:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 195CB2389E;
+        Fri, 18 Sep 2020 02:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394741;
-        bh=HcWzcq35jh/C3lXqHajszrBmo6BU0mltpavpAsqVF70=;
+        s=default; t=1600394750;
+        bh=wHtZbueycTbbLB8Awk689Ik5odqLTvQrjtKqrNYh7fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tScIUIorpI43JZWu2fZIiCob0OfJpWaoi44LyStrzKl+BKkbY/Jd1wV5KTuk8QqqK
-         fe9WrgG+NA7tipGyAgL+aKBgi4WGGk2SRHy86HHQsCpFcue0WUJ3MXazsTzwfYQvro
-         16VDMtsavad5AZGVUn0CtsPsMFIysKyswMMpALoQ=
+        b=rl0u8xyvEeKphSl7o00IdO6tTL1Np7/ptJ3fp4uNQuRv9AgQmgAyqbpkRmKdEUZ30
+         rBCpogRWi66AMiJ6pqCDPSMfO7Y5LuNuVSuZZqNXBpc2vil6L/MZo5Q85s57DbChal
+         2IAlSO9pr4clHB0CMu47RXurgNmJuzuOtZ20YZfk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stuart Hayes <stuart.w.hayes@gmail.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 221/330] PCI: pciehp: Fix MSI interrupt race
-Date:   Thu, 17 Sep 2020 21:59:21 -0400
-Message-Id: <20200918020110.2063155-221-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, Andrew Morton <akpm@linux-foundation.org>,
+        Marco Elver <elver@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.4 228/330] mm/vmscan.c: fix data races using kswapd_classzone_idx
+Date:   Thu, 17 Sep 2020 21:59:28 -0400
+Message-Id: <20200918020110.2063155-228-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -44,113 +44,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stuart Hayes <stuart.w.hayes@gmail.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 8edf5332c39340b9583cf9cba659eb7ec71f75b5 ]
+[ Upstream commit 5644e1fbbfe15ad06785502bbfe5751223e5841d ]
 
-Without this commit, a PCIe hotplug port can stop generating interrupts on
-hotplug events, so device adds and removals will not be seen:
+pgdat->kswapd_classzone_idx could be accessed concurrently in
+wakeup_kswapd().  Plain writes and reads without any lock protection
+result in data races.  Fix them by adding a pair of READ|WRITE_ONCE() as
+well as saving a branch (compilers might well optimize the original code
+in an unintentional way anyway).  While at it, also take care of
+pgdat->kswapd_order and non-kswapd threads in allow_direct_reclaim().  The
+data races were reported by KCSAN,
 
-The pciehp interrupt handler pciehp_isr() reads the Slot Status register
-and then writes back to it to clear the bits that caused the interrupt.  If
-a different interrupt event bit gets set between the read and the write,
-pciehp_isr() returns without having cleared all of the interrupt event
-bits.  If this happens when the MSI isn't masked (which by default it isn't
-in handle_edge_irq(), and which it will never be when MSI per-vector
-masking is not supported), we won't get any more hotplug interrupts from
-that device.
+ BUG: KCSAN: data-race in wakeup_kswapd / wakeup_kswapd
 
-That is expected behavior, according to the PCIe Base Spec r5.0, section
-6.7.3.4, "Software Notification of Hot-Plug Events".
+ write to 0xffff9f427ffff2dc of 4 bytes by task 7454 on cpu 13:
+  wakeup_kswapd+0xf1/0x400
+  wakeup_kswapd at mm/vmscan.c:3967
+  wake_all_kswapds+0x59/0xc0
+  wake_all_kswapds at mm/page_alloc.c:4241
+  __alloc_pages_slowpath+0xdcc/0x1290
+  __alloc_pages_slowpath at mm/page_alloc.c:4512
+  __alloc_pages_nodemask+0x3bb/0x450
+  alloc_pages_vma+0x8a/0x2c0
+  do_anonymous_page+0x16e/0x6f0
+  __handle_mm_fault+0xcd5/0xd40
+  handle_mm_fault+0xfc/0x2f0
+  do_page_fault+0x263/0x6f9
+  page_fault+0x34/0x40
 
-Because the Presence Detect Changed and Data Link Layer State Changed event
-bits can both get set at nearly the same time when a device is added or
-removed, this is more likely to happen than it might seem.  The issue was
-found (and can be reproduced rather easily) by connecting and disconnecting
-an NVMe storage device on at least one system model where the NVMe devices
-were being connected to an AMD PCIe port (PCI device 0x1022/0x1483).
+ 1 lock held by mtest01/7454:
+  #0: ffff9f425afe8808 (&mm->mmap_sem#2){++++}, at:
+ do_page_fault+0x143/0x6f9
+ do_user_addr_fault at arch/x86/mm/fault.c:1405
+ (inlined by) do_page_fault at arch/x86/mm/fault.c:1539
+ irq event stamp: 6944085
+ count_memcg_event_mm+0x1a6/0x270
+ count_memcg_event_mm+0x119/0x270
+ __do_softirq+0x34c/0x57c
+ irq_exit+0xa2/0xc0
 
-Fix the issue by modifying pciehp_isr() to loop back and re-read the Slot
-Status register immediately after writing to it, until it sees that all of
-the event status bits have been cleared.
+ read to 0xffff9f427ffff2dc of 4 bytes by task 7472 on cpu 38:
+  wakeup_kswapd+0xc8/0x400
+  wake_all_kswapds+0x59/0xc0
+  __alloc_pages_slowpath+0xdcc/0x1290
+  __alloc_pages_nodemask+0x3bb/0x450
+  alloc_pages_vma+0x8a/0x2c0
+  do_anonymous_page+0x16e/0x6f0
+  __handle_mm_fault+0xcd5/0xd40
+  handle_mm_fault+0xfc/0x2f0
+  do_page_fault+0x263/0x6f9
+  page_fault+0x34/0x40
 
-[lukas: drop loop count limitation, write "events" instead of "status",
-don't loop back in INTx and poll modes, tweak code comment & commit msg]
-Link: https://lore.kernel.org/r/78b4ced5072bfe6e369d20e8b47c279b8c7af12e.1582121613.git.lukas@wunner.de
-Tested-by: Stuart Hayes <stuart.w.hayes@gmail.com>
-Signed-off-by: Stuart Hayes <stuart.w.hayes@gmail.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
+ 1 lock held by mtest01/7472:
+  #0: ffff9f425a9ac148 (&mm->mmap_sem#2){++++}, at:
+ do_page_fault+0x143/0x6f9
+ irq event stamp: 6793561
+ count_memcg_event_mm+0x1a6/0x270
+ count_memcg_event_mm+0x119/0x270
+ __do_softirq+0x34c/0x57c
+ irq_exit+0xa2/0xc0
+
+ BUG: KCSAN: data-race in kswapd / wakeup_kswapd
+
+ write to 0xffff90973ffff2dc of 4 bytes by task 820 on cpu 6:
+  kswapd+0x27c/0x8d0
+  kthread+0x1e0/0x200
+  ret_from_fork+0x27/0x50
+
+ read to 0xffff90973ffff2dc of 4 bytes by task 6299 on cpu 0:
+  wakeup_kswapd+0xf3/0x450
+  wake_all_kswapds+0x59/0xc0
+  __alloc_pages_slowpath+0xdcc/0x1290
+  __alloc_pages_nodemask+0x3bb/0x450
+  alloc_pages_vma+0x8a/0x2c0
+  do_anonymous_page+0x170/0x700
+  __handle_mm_fault+0xc9f/0xd00
+  handle_mm_fault+0xfc/0x2f0
+  do_page_fault+0x263/0x6f9
+  page_fault+0x34/0x40
+
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Marco Elver <elver@google.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Link: http://lkml.kernel.org/r/1582749472-5171-1-git-send-email-cai@lca.pw
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/pciehp_hpc.c | 26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ mm/vmscan.c | 45 ++++++++++++++++++++++++++-------------------
+ 1 file changed, 26 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
-index 356786a3b7f4b..88b996764ff95 100644
---- a/drivers/pci/hotplug/pciehp_hpc.c
-+++ b/drivers/pci/hotplug/pciehp_hpc.c
-@@ -529,7 +529,7 @@ static irqreturn_t pciehp_isr(int irq, void *dev_id)
- 	struct controller *ctrl = (struct controller *)dev_id;
- 	struct pci_dev *pdev = ctrl_dev(ctrl);
- 	struct device *parent = pdev->dev.parent;
--	u16 status, events;
-+	u16 status, events = 0;
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 7fde5f904c8d3..d0404d8b37254 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -3160,8 +3160,9 @@ static bool allow_direct_reclaim(pg_data_t *pgdat)
  
- 	/*
- 	 * Interrupts only occur in D3hot or shallower and only if enabled
-@@ -554,6 +554,7 @@ static irqreturn_t pciehp_isr(int irq, void *dev_id)
+ 	/* kswapd must be awake if processes are being throttled */
+ 	if (!wmark_ok && waitqueue_active(&pgdat->kswapd_wait)) {
+-		pgdat->kswapd_classzone_idx = min(pgdat->kswapd_classzone_idx,
+-						(enum zone_type)ZONE_NORMAL);
++		if (READ_ONCE(pgdat->kswapd_classzone_idx) > ZONE_NORMAL)
++			WRITE_ONCE(pgdat->kswapd_classzone_idx, ZONE_NORMAL);
++
+ 		wake_up_interruptible(&pgdat->kswapd_wait);
+ 	}
+ 
+@@ -3793,9 +3794,9 @@ out:
+ static enum zone_type kswapd_classzone_idx(pg_data_t *pgdat,
+ 					   enum zone_type prev_classzone_idx)
+ {
+-	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
+-		return prev_classzone_idx;
+-	return pgdat->kswapd_classzone_idx;
++	enum zone_type curr_idx = READ_ONCE(pgdat->kswapd_classzone_idx);
++
++	return curr_idx == MAX_NR_ZONES ? prev_classzone_idx : curr_idx;
+ }
+ 
+ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_order,
+@@ -3839,8 +3840,11 @@ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_o
+ 		 * the previous request that slept prematurely.
+ 		 */
+ 		if (remaining) {
+-			pgdat->kswapd_classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
+-			pgdat->kswapd_order = max(pgdat->kswapd_order, reclaim_order);
++			WRITE_ONCE(pgdat->kswapd_classzone_idx,
++				   kswapd_classzone_idx(pgdat, classzone_idx));
++
++			if (READ_ONCE(pgdat->kswapd_order) < reclaim_order)
++				WRITE_ONCE(pgdat->kswapd_order, reclaim_order);
  		}
- 	}
  
-+read_status:
- 	pcie_capability_read_word(pdev, PCI_EXP_SLTSTA, &status);
- 	if (status == (u16) ~0) {
- 		ctrl_info(ctrl, "%s: no response from device\n", __func__);
-@@ -566,24 +567,37 @@ static irqreturn_t pciehp_isr(int irq, void *dev_id)
- 	 * Slot Status contains plain status bits as well as event
- 	 * notification bits; right now we only want the event bits.
- 	 */
--	events = status & (PCI_EXP_SLTSTA_ABP | PCI_EXP_SLTSTA_PFD |
--			   PCI_EXP_SLTSTA_PDC | PCI_EXP_SLTSTA_CC |
--			   PCI_EXP_SLTSTA_DLLSC);
-+	status &= PCI_EXP_SLTSTA_ABP | PCI_EXP_SLTSTA_PFD |
-+		  PCI_EXP_SLTSTA_PDC | PCI_EXP_SLTSTA_CC |
-+		  PCI_EXP_SLTSTA_DLLSC;
+ 		finish_wait(&pgdat->kswapd_wait, &wait);
+@@ -3917,12 +3921,12 @@ static int kswapd(void *p)
+ 	tsk->flags |= PF_MEMALLOC | PF_SWAPWRITE | PF_KSWAPD;
+ 	set_freezable();
  
- 	/*
- 	 * If we've already reported a power fault, don't report it again
- 	 * until we've done something to handle it.
- 	 */
- 	if (ctrl->power_fault_detected)
--		events &= ~PCI_EXP_SLTSTA_PFD;
-+		status &= ~PCI_EXP_SLTSTA_PFD;
+-	pgdat->kswapd_order = 0;
+-	pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
++	WRITE_ONCE(pgdat->kswapd_order, 0);
++	WRITE_ONCE(pgdat->kswapd_classzone_idx, MAX_NR_ZONES);
+ 	for ( ; ; ) {
+ 		bool ret;
  
-+	events |= status;
- 	if (!events) {
- 		if (parent)
- 			pm_runtime_put(parent);
- 		return IRQ_NONE;
- 	}
+-		alloc_order = reclaim_order = pgdat->kswapd_order;
++		alloc_order = reclaim_order = READ_ONCE(pgdat->kswapd_order);
+ 		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
  
--	pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, events);
-+	if (status) {
-+		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, events);
+ kswapd_try_sleep:
+@@ -3930,10 +3934,10 @@ kswapd_try_sleep:
+ 					classzone_idx);
+ 
+ 		/* Read the new order and classzone_idx */
+-		alloc_order = reclaim_order = pgdat->kswapd_order;
++		alloc_order = reclaim_order = READ_ONCE(pgdat->kswapd_order);
+ 		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
+-		pgdat->kswapd_order = 0;
+-		pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
++		WRITE_ONCE(pgdat->kswapd_order, 0);
++		WRITE_ONCE(pgdat->kswapd_classzone_idx, MAX_NR_ZONES);
+ 
+ 		ret = try_to_freeze();
+ 		if (kthread_should_stop())
+@@ -3977,20 +3981,23 @@ void wakeup_kswapd(struct zone *zone, gfp_t gfp_flags, int order,
+ 		   enum zone_type classzone_idx)
+ {
+ 	pg_data_t *pgdat;
++	enum zone_type curr_idx;
+ 
+ 	if (!managed_zone(zone))
+ 		return;
+ 
+ 	if (!cpuset_zone_allowed(zone, gfp_flags))
+ 		return;
 +
-+		/*
-+		 * In MSI mode, all event bits must be zero before the port
-+		 * will send a new interrupt (PCIe Base Spec r5.0 sec 6.7.3.4).
-+		 * So re-read the Slot Status register in case a bit was set
-+		 * between read and write.
-+		 */
-+		if (pci_dev_msi_enabled(pdev) && !pciehp_poll_mode)
-+			goto read_status;
-+	}
+ 	pgdat = zone->zone_pgdat;
++	curr_idx = READ_ONCE(pgdat->kswapd_classzone_idx);
 +
- 	ctrl_dbg(ctrl, "pending interrupts %#06x from Slot Status\n", events);
- 	if (parent)
- 		pm_runtime_put(parent);
++	if (curr_idx == MAX_NR_ZONES || curr_idx < classzone_idx)
++		WRITE_ONCE(pgdat->kswapd_classzone_idx, classzone_idx);
++
++	if (READ_ONCE(pgdat->kswapd_order) < order)
++		WRITE_ONCE(pgdat->kswapd_order, order);
+ 
+-	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
+-		pgdat->kswapd_classzone_idx = classzone_idx;
+-	else
+-		pgdat->kswapd_classzone_idx = max(pgdat->kswapd_classzone_idx,
+-						  classzone_idx);
+-	pgdat->kswapd_order = max(pgdat->kswapd_order, order);
+ 	if (!waitqueue_active(&pgdat->kswapd_wait))
+ 		return;
+ 
 -- 
 2.25.1
 
