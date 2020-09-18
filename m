@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5395726F359
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2FC126F35C
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:06:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728772AbgIRDGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727489AbgIRDGH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 23:06:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51182 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727243AbgIRCEJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727245AbgIRCEJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:04:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68E672344C;
-        Fri, 18 Sep 2020 02:04:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2006235F8;
+        Fri, 18 Sep 2020 02:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394648;
-        bh=9LHSlaA2Hm05YczGqeSAK5+Erp4ymMiNdM7KFdW++2E=;
+        s=default; t=1600394649;
+        bh=1421uzvkwaBdxLSU4zsKRga+Ar+Yd6i16Q6f6C1NZE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MLpT9IkSiHjLxC/QmknJWWtREiFHe0hiSAM3zmT8MN3J35DiXOracPp+eHL1dPUHc
-         y/xeLnyuRmFdxnJwNhhpTKjP/ho4axqq0Wf726ZNbNn+ec/30oQ982rtlNp+tyuk0p
-         2Bql6sMS/zHfQNyMHLOkwLiTKqv7cui6YuvsIblY=
+        b=l4I4PRBIaFCTudYenmXvP4cQ+aCmE0UBzq590Qtfy7Jmfm3Vii9wblfmG/F8t/bEX
+         GASuOrbAiXuQWOey7BG+aB0JPrlYGa45Gfx/heyc/kf1wu7BNYijObjpdm76T0b8Kc
+         dEUoB+5mhyQhiiG8Rl+EkaPC2ZKj21dnPTv2rL5k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Pirko <jiri@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 145/330] iavf: use tc_cls_can_offload_and_chain0() instead of chain check
-Date:   Thu, 17 Sep 2020 21:58:05 -0400
-Message-Id: <20200918020110.2063155-145-sashal@kernel.org>
+Cc:     James Morse <james.morse@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 146/330] firmware: arm_sdei: Use cpus_read_lock() to avoid races with cpuhp
+Date:   Thu, 17 Sep 2020 21:58:06 -0400
+Message-Id: <20200918020110.2063155-146-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,48 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Pirko <jiri@mellanox.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit bb0858d8bc828ebc3eaa90be02a0f32bca3c2351 ]
+[ Upstream commit 54f529a6806c9710947a4f2cdc15d6ea54121ccd ]
 
-Looks like the iavf code actually experienced a race condition, when a
-developer took code before the check for chain 0 was put to helper.
-So use tc_cls_can_offload_and_chain0() helper instead of direct check and
-move the check to _cb() so this is similar to i40e code.
+SDEI has private events that need registering and enabling on each CPU.
+CPUs can come and go while we are trying to do this. SDEI tries to avoid
+these problems by setting the reregister flag before the register call,
+so any CPUs that come online register the event too. Sticking plaster
+like this doesn't work, as if the register call fails, a CPU that
+subsequently comes online will register the event before reregister
+is cleared.
 
-Signed-off-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Take cpus_read_lock() around the register and enable calls. We don't
+want surprise CPUs to do the wrong thing if they race with these calls
+failing.
+
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/firmware/arm_sdei.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 34124c213d27c..222ae76809aa1 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3077,9 +3077,6 @@ static int iavf_delete_clsflower(struct iavf_adapter *adapter,
- static int iavf_setup_tc_cls_flower(struct iavf_adapter *adapter,
- 				    struct flow_cls_offload *cls_flower)
- {
--	if (cls_flower->common.chain_index)
--		return -EOPNOTSUPP;
+diff --git a/drivers/firmware/arm_sdei.c b/drivers/firmware/arm_sdei.c
+index eb2df89d4924f..e497785cd99fe 100644
+--- a/drivers/firmware/arm_sdei.c
++++ b/drivers/firmware/arm_sdei.c
+@@ -412,14 +412,19 @@ int sdei_event_enable(u32 event_num)
+ 		return -ENOENT;
+ 	}
+ 
+-	spin_lock(&sdei_list_lock);
+-	event->reenable = true;
+-	spin_unlock(&sdei_list_lock);
+ 
++	cpus_read_lock();
+ 	if (event->type == SDEI_EVENT_TYPE_SHARED)
+ 		err = sdei_api_event_enable(event->event_num);
+ 	else
+ 		err = sdei_do_cross_call(_local_event_enable, event);
++
++	if (!err) {
++		spin_lock(&sdei_list_lock);
++		event->reenable = true;
++		spin_unlock(&sdei_list_lock);
++	}
++	cpus_read_unlock();
+ 	mutex_unlock(&sdei_events_lock);
+ 
+ 	return err;
+@@ -621,21 +626,18 @@ int sdei_event_register(u32 event_num, sdei_event_callback *cb, void *arg)
+ 			break;
+ 		}
+ 
+-		spin_lock(&sdei_list_lock);
+-		event->reregister = true;
+-		spin_unlock(&sdei_list_lock);
 -
- 	switch (cls_flower->command) {
- 	case FLOW_CLS_REPLACE:
- 		return iavf_configure_clsflower(adapter, cls_flower);
-@@ -3103,6 +3100,11 @@ static int iavf_setup_tc_cls_flower(struct iavf_adapter *adapter,
- static int iavf_setup_tc_block_cb(enum tc_setup_type type, void *type_data,
- 				  void *cb_priv)
- {
-+	struct iavf_adapter *adapter = cb_priv;
-+
-+	if (!tc_cls_can_offload_and_chain0(adapter->netdev, type_data))
-+		return -EOPNOTSUPP;
-+
- 	switch (type) {
- 	case TC_SETUP_CLSFLOWER:
- 		return iavf_setup_tc_cls_flower(cb_priv, type_data);
++		cpus_read_lock();
+ 		err = _sdei_event_register(event);
+ 		if (err) {
+-			spin_lock(&sdei_list_lock);
+-			event->reregister = false;
+-			event->reenable = false;
+-			spin_unlock(&sdei_list_lock);
+-
+ 			sdei_event_destroy(event);
+ 			pr_warn("Failed to register event %u: %d\n", event_num,
+ 				err);
++		} else {
++			spin_lock(&sdei_list_lock);
++			event->reregister = true;
++			spin_unlock(&sdei_list_lock);
+ 		}
++		cpus_read_unlock();
+ 	} while (0);
+ 	mutex_unlock(&sdei_events_lock);
+ 
 -- 
 2.25.1
 
