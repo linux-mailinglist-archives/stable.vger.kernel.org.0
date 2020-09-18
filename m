@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5484F26ED65
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DAFC26ED61
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729200AbgIRCTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:19:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48624 "EHLO mail.kernel.org"
+        id S1729151AbgIRCTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:19:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729570AbgIRCRn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:17:43 -0400
+        id S1729574AbgIRCRo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:17:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEF0723772;
-        Fri, 18 Sep 2020 02:17:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D929D238E6;
+        Fri, 18 Sep 2020 02:17:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395462;
-        bh=ugSFzKxkxgqkHGdJE77qqLWjQsB1bCv2+wihC4OBFXw=;
+        s=default; t=1600395463;
+        bh=+rbdhmB+nELvAR5PBIrLE6yII0u3D4M+5+DERJ6SAOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xuuU1ZGFdOOaHUyaZJhBRJkWQYCX39fzIOvS45ctiW7GhhqxUOp9R3SOtfWoIbJZQ
-         G7wIUY0XdvRMIDDse1cWb8gah6aGzMxTDW5IYkZ9ztKHKIOQaijCmETH2I1tYXvikH
-         Uu8k9lQfaLrJ2PkBZyDtkmV05BRa8e0tcXNTr/QM=
+        b=KtmSdU9WfWSiJ3Yju7JULeo4dub65+glvyI421+3nFYeryMHVoRFD4SBt8nkJW99Q
+         tGKMMGrn29Iq2AODK35yTJMUkisHKMJZJLRta0yQmUfWMyyoCbzjZ9sm4dYgij0Kwu
+         KtWNAwZKnTfrqrLSFnBIXV2Uz7vcFVEQ88CxLeDg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonathan Bakker <xc-racer2@live.ca>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 48/64] phy: samsung: s5pv210-usb2: Add delay after reset
-Date:   Thu, 17 Sep 2020 22:16:27 -0400
-Message-Id: <20200918021643.2067895-48-sashal@kernel.org>
+Cc:     Sonny Sasaka <sonnysasaka@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 49/64] Bluetooth: Handle Inquiry Cancel error after Inquiry Complete
+Date:   Thu, 17 Sep 2020 22:16:28 -0400
+Message-Id: <20200918021643.2067895-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021643.2067895-1-sashal@kernel.org>
 References: <20200918021643.2067895-1-sashal@kernel.org>
@@ -42,41 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Sonny Sasaka <sonnysasaka@chromium.org>
 
-[ Upstream commit 05942b8c36c7eb5d3fc5e375d4b0d0c49562e85d ]
+[ Upstream commit adf1d6926444029396861413aba8a0f2a805742a ]
 
-The USB phy takes some time to reset, so make sure we give it to it. The
-delay length was taken from the 4x12 phy driver.
+After sending Inquiry Cancel command to the controller, it is possible
+that Inquiry Complete event comes before Inquiry Cancel command complete
+event. In this case the Inquiry Cancel command will have status of
+Command Disallowed since there is no Inquiry session to be cancelled.
+This case should not be treated as error, otherwise we can reach an
+inconsistent state.
 
-This manifested in issues with the DWC2 driver since commit fe369e1826b3
-("usb: dwc2: Make dwc2_readl/writel functions endianness-agnostic.")
-where the endianness check would read the DWC ID as 0 due to the phy still
-resetting, resulting in the wrong endian mode being chosen.
+Example of a btmon trace when this happened:
 
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Link: https://lore.kernel.org/r/BN6PR04MB06605D52502816E500683553A3D10@BN6PR04MB0660.namprd04.prod.outlook.com
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+< HCI Command: Inquiry Cancel (0x01|0x0002) plen 0
+> HCI Event: Inquiry Complete (0x01) plen 1
+        Status: Success (0x00)
+> HCI Event: Command Complete (0x0e) plen 4
+      Inquiry Cancel (0x01|0x0002) ncmd 1
+        Status: Command Disallowed (0x0c)
+
+Signed-off-by: Sonny Sasaka <sonnysasaka@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/phy-s5pv210-usb2.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/bluetooth/hci_event.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/phy-s5pv210-usb2.c b/drivers/phy/phy-s5pv210-usb2.c
-index 004d320767e4d..bb36cfd4e3e90 100644
---- a/drivers/phy/phy-s5pv210-usb2.c
-+++ b/drivers/phy/phy-s5pv210-usb2.c
-@@ -142,6 +142,10 @@ static void s5pv210_phy_pwr(struct samsung_usb2_phy_instance *inst, bool on)
- 		udelay(10);
- 		rst &= ~rstbits;
- 		writel(rst, drv->reg_phy + S5PV210_UPHYRST);
-+		/* The following delay is necessary for the reset sequence to be
-+		 * completed
-+		 */
-+		udelay(80);
- 	} else {
- 		pwr = readl(drv->reg_phy + S5PV210_UPHYPWR);
- 		pwr |= phypwr;
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 04c77747a768d..03319ab8a7c6e 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -41,12 +41,27 @@
+ 
+ /* Handle HCI Event packets */
+ 
+-static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb)
++static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb,
++				  u8 *new_status)
+ {
+ 	__u8 status = *((__u8 *) skb->data);
+ 
+ 	BT_DBG("%s status 0x%2.2x", hdev->name, status);
+ 
++	/* It is possible that we receive Inquiry Complete event right
++	 * before we receive Inquiry Cancel Command Complete event, in
++	 * which case the latter event should have status of Command
++	 * Disallowed (0x0c). This should not be treated as error, since
++	 * we actually achieve what Inquiry Cancel wants to achieve,
++	 * which is to end the last Inquiry session.
++	 */
++	if (status == 0x0c && !test_bit(HCI_INQUIRY, &hdev->flags)) {
++		bt_dev_warn(hdev, "Ignoring error of Inquiry Cancel command");
++		status = 0x00;
++	}
++
++	*new_status = status;
++
+ 	if (status)
+ 		return;
+ 
+@@ -2758,7 +2773,7 @@ static void hci_cmd_complete_evt(struct hci_dev *hdev, struct sk_buff *skb,
+ 
+ 	switch (*opcode) {
+ 	case HCI_OP_INQUIRY_CANCEL:
+-		hci_cc_inquiry_cancel(hdev, skb);
++		hci_cc_inquiry_cancel(hdev, skb, status);
+ 		break;
+ 
+ 	case HCI_OP_PERIODIC_INQ:
 -- 
 2.25.1
 
