@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E4326F0CD
+	by mail.lfdr.de (Postfix) with ESMTP id 51A5426F0CC
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728373AbgIRCqf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:46:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33866 "EHLO mail.kernel.org"
+        id S1727779AbgIRCq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:46:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726667AbgIRCJv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:09:51 -0400
+        id S1728373AbgIRCJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:09:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 089C823A03;
-        Fri, 18 Sep 2020 02:09:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44383235F9;
+        Fri, 18 Sep 2020 02:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394990;
-        bh=oeQh2faaJrkwcSxYRQm7EI3c0i3vlI+q5lipaebE1J4=;
+        s=default; t=1600394992;
+        bh=//ADPIBJVW5dyfiG5iHFZA/xCA2SvA5QdiLIX7CKf+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xp9MFmQqlEli2ZQQkg/Fog7tgj8K30nae/B6gpGiZlgEDKtJvG92xWFpFmLwQyq/+
-         cR2c6kf7lXPRFK7tpSnYO3O3nulVr788H3JHolCt68A5ipDbKp3jpLVXkvYjR4He6b
-         3mEYLZiRDMkF3cwTqGh+PtFIapP1Z0GjxYM4zGLQ=
+        b=gOmePQuRAm+sBObmsgixwoyGGyHDlha1rhrP2b+s0jNxF2Napr0ILhTrgslY6uygF
+         4VGv77gdQpnvg29dfIEJ6xLQFTP0+nwGkirw7Paiab2qbx3Q8zhyVZggwfVrbou16I
+         Hmsw6Re5/jpJjJriRWNm/NIrcdXUklfmm8Ra8hAY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 089/206] dmaengine: tegra-apb: Prevent race conditions on channel's freeing
-Date:   Thu, 17 Sep 2020 22:06:05 -0400
-Message-Id: <20200918020802.2065198-89-sashal@kernel.org>
+Cc:     Aric Cyr <aric.cyr@amd.com>,
+        Joshua Aberback <Joshua.Aberback@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 090/206] drm/amd/display: dal_ddc_i2c_payloads_create can fail causing panic
+Date:   Thu, 17 Sep 2020 22:06:06 -0400
+Message-Id: <20200918020802.2065198-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -43,37 +46,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Aric Cyr <aric.cyr@amd.com>
 
-[ Upstream commit 8e84172e372bdca20c305d92d51d33640d2da431 ]
+[ Upstream commit 6a6c4a4d459ecacc9013c45dcbf2bc9747fdbdbd ]
 
-It's incorrect to check the channel's "busy" state without taking a lock.
-That shouldn't cause any real troubles, nevertheless it's always better
-not to have any race conditions in the code.
+[Why]
+Since the i2c payload allocation can fail need to check return codes
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20200209163356.6439-5-digetx@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+[How]
+Clean up i2c payload allocations and check for errors
+
+Signed-off-by: Aric Cyr <aric.cyr@amd.com>
+Reviewed-by: Joshua Aberback <Joshua.Aberback@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/tegra20-apb-dma.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ .../gpu/drm/amd/display/dc/core/dc_link_ddc.c | 52 +++++++++----------
+ 1 file changed, 25 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/dma/tegra20-apb-dma.c b/drivers/dma/tegra20-apb-dma.c
-index 15481aeaeecd1..5ccd24a46e381 100644
---- a/drivers/dma/tegra20-apb-dma.c
-+++ b/drivers/dma/tegra20-apb-dma.c
-@@ -1225,8 +1225,7 @@ static void tegra_dma_free_chan_resources(struct dma_chan *dc)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
+index 46c9cb47a96e5..145af3bb2dfcb 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
+@@ -127,22 +127,16 @@ struct aux_payloads {
+ 	struct vector payloads;
+ };
  
- 	dev_dbg(tdc2dev(tdc), "Freeing channel %d\n", tdc->id);
+-static struct i2c_payloads *dal_ddc_i2c_payloads_create(struct dc_context *ctx, uint32_t count)
++static bool dal_ddc_i2c_payloads_create(
++		struct dc_context *ctx,
++		struct i2c_payloads *payloads,
++		uint32_t count)
+ {
+-	struct i2c_payloads *payloads;
+-
+-	payloads = kzalloc(sizeof(struct i2c_payloads), GFP_KERNEL);
+-
+-	if (!payloads)
+-		return NULL;
+-
+ 	if (dal_vector_construct(
+ 		&payloads->payloads, ctx, count, sizeof(struct i2c_payload)))
+-		return payloads;
+-
+-	kfree(payloads);
+-	return NULL;
++		return true;
  
--	if (tdc->busy)
--		tegra_dma_terminate_all(dc);
-+	tegra_dma_terminate_all(dc);
++	return false;
+ }
  
- 	spin_lock_irqsave(&tdc->lock, flags);
- 	list_splice_init(&tdc->pending_sg_req, &sg_req_list);
+ static struct i2c_payload *dal_ddc_i2c_payloads_get(struct i2c_payloads *p)
+@@ -155,14 +149,12 @@ static uint32_t dal_ddc_i2c_payloads_get_count(struct i2c_payloads *p)
+ 	return p->payloads.count;
+ }
+ 
+-static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads **p)
++static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads *p)
+ {
+-	if (!p || !*p)
++	if (!p)
+ 		return;
+-	dal_vector_destruct(&(*p)->payloads);
+-	kfree(*p);
+-	*p = NULL;
+ 
++	dal_vector_destruct(&p->payloads);
+ }
+ 
+ static struct aux_payloads *dal_ddc_aux_payloads_create(struct dc_context *ctx, uint32_t count)
+@@ -580,9 +572,13 @@ bool dal_ddc_service_query_ddc_data(
+ 
+ 	uint32_t payloads_num = write_payloads + read_payloads;
+ 
++
+ 	if (write_size > EDID_SEGMENT_SIZE || read_size > EDID_SEGMENT_SIZE)
+ 		return false;
+ 
++	if (!payloads_num)
++		return false;
++
+ 	/*TODO: len of payload data for i2c and aux is uint8!!!!,
+ 	 *  but we want to read 256 over i2c!!!!*/
+ 	if (dal_ddc_service_is_in_aux_transaction_mode(ddc)) {
+@@ -613,23 +609,25 @@ bool dal_ddc_service_query_ddc_data(
+ 		dal_ddc_aux_payloads_destroy(&payloads);
+ 
+ 	} else {
+-		struct i2c_payloads *payloads =
+-			dal_ddc_i2c_payloads_create(ddc->ctx, payloads_num);
++		struct i2c_command command = {0};
++		struct i2c_payloads payloads;
+ 
+-		struct i2c_command command = {
+-			.payloads = dal_ddc_i2c_payloads_get(payloads),
+-			.number_of_payloads = 0,
+-			.engine = DDC_I2C_COMMAND_ENGINE,
+-			.speed = ddc->ctx->dc->caps.i2c_speed_in_khz };
++		if (!dal_ddc_i2c_payloads_create(ddc->ctx, &payloads, payloads_num))
++			return false;
++
++		command.payloads = dal_ddc_i2c_payloads_get(&payloads);
++		command.number_of_payloads = 0;
++		command.engine = DDC_I2C_COMMAND_ENGINE;
++		command.speed = ddc->ctx->dc->caps.i2c_speed_in_khz;
+ 
+ 		dal_ddc_i2c_payloads_add(
+-			payloads, address, write_size, write_buf, true);
++			&payloads, address, write_size, write_buf, true);
+ 
+ 		dal_ddc_i2c_payloads_add(
+-			payloads, address, read_size, read_buf, false);
++			&payloads, address, read_size, read_buf, false);
+ 
+ 		command.number_of_payloads =
+-			dal_ddc_i2c_payloads_get_count(payloads);
++			dal_ddc_i2c_payloads_get_count(&payloads);
+ 
+ 		ret = dm_helpers_submit_i2c(
+ 				ddc->ctx,
 -- 
 2.25.1
 
