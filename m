@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 597EE26EF4A
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:34:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0135D26EF41
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:34:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726776AbgIRCef (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:34:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40788 "EHLO mail.kernel.org"
+        id S1728681AbgIRCeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:34:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728946AbgIRCNa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:13:30 -0400
+        id S1728539AbgIRCNc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:13:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14A02235F9;
-        Fri, 18 Sep 2020 02:13:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E61F235F8;
+        Fri, 18 Sep 2020 02:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395209;
-        bh=kdCZ4BrVF8ROU2kKd1mpNXDzuzgROfIDIy022cO2Ugs=;
+        s=default; t=1600395211;
+        bh=7ETnfqOca5n8Ebh8m1PqcKAltSBZPsj58SRvuEH7HM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WnURrsylcRGEXPcwgqlrf6BR1yV904J8oPmC+1c7DdnWkGt9pA0QuWuTp89TFDLV7
-         RVdHan8l7c2Wd8XMVAzCrsxzYlhI61B79LYEAIakpnq82w/c9UYhGTxOu8E7LJhKTS
-         2tlKGoQCt1qn7g4pxU88VvtZMw2/ySQ5bMmC5804=
+        b=kjX9gRnj8W+KNT3d3O7eV2IZbhyBqtSiefiQFiuAzdJf3jilkQXgGwh6+UUMG6uo0
+         QFHiWFnzsJkx/zQ13xB+PBVDgE2srF7WlwTdc7QMwzSNXi2ySTzg5fN+rtY5uroV5x
+         EXNUmL/36GJVIl9m6yTs+7eXKnG4TK88SPvUuZ5A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiujun Huang <hqjagain@gmail.com>, Theodore Ts'o <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 058/127] ext4: fix a data race at inode->i_disksize
-Date:   Thu, 17 Sep 2020 22:11:11 -0400
-Message-Id: <20200918021220.2066485-58-sashal@kernel.org>
+Cc:     "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Justin He <Justin.He@arm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.14 059/127] mm: avoid data corruption on CoW fault into PFN-mapped VMA
+Date:   Thu, 17 Sep 2020 22:11:12 -0400
+Message-Id: <20200918021220.2066485-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -41,70 +47,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: "Kirill A. Shutemov" <kirill@shutemov.name>
 
-[ Upstream commit dce8e237100f60c28cc66effb526ba65a01d8cb3 ]
+[ Upstream commit c3e5ea6ee574ae5e845a40ac8198de1fb63bb3ab ]
 
-KCSAN find inode->i_disksize could be accessed concurrently.
+Jeff Moyer has reported that one of xfstests triggers a warning when run
+on DAX-enabled filesystem:
 
-BUG: KCSAN: data-race in ext4_mark_iloc_dirty / ext4_write_end
+	WARNING: CPU: 76 PID: 51024 at mm/memory.c:2317 wp_page_copy+0xc40/0xd50
+	...
+	wp_page_copy+0x98c/0xd50 (unreliable)
+	do_wp_page+0xd8/0xad0
+	__handle_mm_fault+0x748/0x1b90
+	handle_mm_fault+0x120/0x1f0
+	__do_page_fault+0x240/0xd70
+	do_page_fault+0x38/0xd0
+	handle_page_fault+0x10/0x30
 
-write (marked) to 0xffff8b8932f40090 of 8 bytes by task 66792 on cpu 0:
- ext4_write_end+0x53f/0x5b0
- ext4_da_write_end+0x237/0x510
- generic_perform_write+0x1c4/0x2a0
- ext4_buffered_write_iter+0x13a/0x210
- ext4_file_write_iter+0xe2/0x9b0
- new_sync_write+0x29c/0x3a0
- __vfs_write+0x92/0xa0
- vfs_write+0xfc/0x2a0
- ksys_write+0xe8/0x140
- __x64_sys_write+0x4c/0x60
- do_syscall_64+0x8a/0x2a0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+The warning happens on failed __copy_from_user_inatomic() which tries to
+copy data into a CoW page.
 
-read to 0xffff8b8932f40090 of 8 bytes by task 14414 on cpu 1:
- ext4_mark_iloc_dirty+0x716/0x1190
- ext4_mark_inode_dirty+0xc9/0x360
- ext4_convert_unwritten_extents+0x1bc/0x2a0
- ext4_convert_unwritten_io_end_vec+0xc5/0x150
- ext4_put_io_end+0x82/0x130
- ext4_writepages+0xae7/0x16f0
- do_writepages+0x64/0x120
- __writeback_single_inode+0x7d/0x650
- writeback_sb_inodes+0x3a4/0x860
- __writeback_inodes_wb+0xc4/0x150
- wb_writeback+0x43f/0x510
- wb_workfn+0x3b2/0x8a0
- process_one_work+0x39b/0x7e0
- worker_thread+0x88/0x650
- kthread+0x1d4/0x1f0
- ret_from_fork+0x35/0x40
+This happens because of race between MADV_DONTNEED and CoW page fault:
 
-The plain read is outside of inode->i_data_sem critical section
-which results in a data race. Fix it by adding READ_ONCE().
+	CPU0					CPU1
+ handle_mm_fault()
+   do_wp_page()
+     wp_page_copy()
+       do_wp_page()
+					madvise(MADV_DONTNEED)
+					  zap_page_range()
+					    zap_pte_range()
+					      ptep_get_and_clear_full()
+					      <TLB flush>
+	 __copy_from_user_inatomic()
+	 sees empty PTE and fails
+	 WARN_ON_ONCE(1)
+	 clear_page()
 
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Link: https://lore.kernel.org/r/1582556566-3909-1-git-send-email-hqjagain@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+The solution is to re-try __copy_from_user_inatomic() under PTL after
+checking that PTE is matches the orig_pte.
+
+The second copy attempt can still fail, like due to non-readable PTE, but
+there's nothing reasonable we can do about, except clearing the CoW page.
+
+Reported-by: Jeff Moyer <jmoyer@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Tested-by: Jeff Moyer <jmoyer@redhat.com>
+Cc: <stable@vger.kernel.org>
+Cc: Justin He <Justin.He@arm.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Link: http://lkml.kernel.org/r/20200218154151.13349-1-kirill.shutemov@linux.intel.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/memory.c | 35 +++++++++++++++++++++++++++--------
+ 1 file changed, 27 insertions(+), 8 deletions(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 845b8620afcf6..34da8d341c0c4 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5179,7 +5179,7 @@ static int ext4_do_update_inode(handle_t *handle,
- 		raw_inode->i_file_acl_high =
- 			cpu_to_le16(ei->i_file_acl >> 32);
- 	raw_inode->i_file_acl_lo = cpu_to_le32(ei->i_file_acl);
--	if (ei->i_disksize != ext4_isize(inode->i_sb, raw_inode)) {
-+	if (READ_ONCE(ei->i_disksize) != ext4_isize(inode->i_sb, raw_inode)) {
- 		ext4_isize_set(raw_inode, ei->i_disksize);
- 		need_datasync = 1;
+diff --git a/mm/memory.c b/mm/memory.c
+index 07188929a30a1..caefa5526b20c 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -2342,7 +2342,7 @@ static inline bool cow_user_page(struct page *dst, struct page *src,
+ 	bool ret;
+ 	void *kaddr;
+ 	void __user *uaddr;
+-	bool force_mkyoung;
++	bool locked = false;
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long addr = vmf->address;
+@@ -2367,11 +2367,11 @@ static inline bool cow_user_page(struct page *dst, struct page *src,
+ 	 * On architectures with software "accessed" bits, we would
+ 	 * take a double page fault, so mark it accessed here.
+ 	 */
+-	force_mkyoung = arch_faults_on_old_pte() && !pte_young(vmf->orig_pte);
+-	if (force_mkyoung) {
++	if (arch_faults_on_old_pte() && !pte_young(vmf->orig_pte)) {
+ 		pte_t entry;
+ 
+ 		vmf->pte = pte_offset_map_lock(mm, vmf->pmd, addr, &vmf->ptl);
++		locked = true;
+ 		if (!likely(pte_same(*vmf->pte, vmf->orig_pte))) {
+ 			/*
+ 			 * Other thread has already handled the fault
+@@ -2395,18 +2395,37 @@ static inline bool cow_user_page(struct page *dst, struct page *src,
+ 	 * zeroes.
+ 	 */
+ 	if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE)) {
++		if (locked)
++			goto warn;
++
++		/* Re-validate under PTL if the page is still mapped */
++		vmf->pte = pte_offset_map_lock(mm, vmf->pmd, addr, &vmf->ptl);
++		locked = true;
++		if (!likely(pte_same(*vmf->pte, vmf->orig_pte))) {
++			/* The PTE changed under us. Retry page fault. */
++			ret = false;
++			goto pte_unlock;
++		}
++
+ 		/*
+-		 * Give a warn in case there can be some obscure
+-		 * use-case
++		 * The same page can be mapped back since last copy attampt.
++		 * Try to copy again under PTL.
+ 		 */
+-		WARN_ON_ONCE(1);
+-		clear_page(kaddr);
++		if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE)) {
++			/*
++			 * Give a warn in case there can be some obscure
++			 * use-case
++			 */
++warn:
++			WARN_ON_ONCE(1);
++			clear_page(kaddr);
++		}
  	}
+ 
+ 	ret = true;
+ 
+ pte_unlock:
+-	if (force_mkyoung)
++	if (locked)
+ 		pte_unmap_unlock(vmf->pte, vmf->ptl);
+ 	kunmap_atomic(kaddr);
+ 	flush_dcache_page(dst);
 -- 
 2.25.1
 
