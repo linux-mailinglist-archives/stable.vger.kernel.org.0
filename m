@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08C0726F48C
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:15:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23C7226F48A
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:15:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730672AbgIRDPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:15:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45806 "EHLO mail.kernel.org"
+        id S1728844AbgIRDPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:15:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726375AbgIRCB3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726371AbgIRCB3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:01:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7A682311D;
-        Fri, 18 Sep 2020 02:01:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D58AE2087D;
+        Fri, 18 Sep 2020 02:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394487;
-        bh=4dZeExV5m9YmaEEXt9XuEf/XrmsgGX7WgJ9Hprr9dkg=;
+        s=default; t=1600394488;
+        bh=TwUQv1EQxadIrvE+XResavrS6lTYVCHYXyvyB+aqY1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tsQt0YHosRtojE/1ptfYBfXYjAfV4hIzCFduwBUzTFfC5DY05yXPSFe4YTNkKmc23
-         uFscyjlllHsZqcKNaSuc2LFvIoeoY7OUFAB5oUd7GIx+qx16aJ0xBDc7TaCBQloIEF
-         Mp2RqcPd/CwKb7ogqp67gMzVA4zqmYAeLTsql478=
+        b=ZlPEtc+A4g7EHqTBiGz4ggKOsSydxBcA0h2DVZSEMGS8x5kqDD/fcveNi8qnsez3G
+         N7AsPVr0jU/4RREysy/PZuO8icMlbQT3UvKVglW/n4bIGm+LBPRI13+LOMzP3N9yim
+         7OOZBHpjBaL0d5oXuEkAdnYDUaA1vbG1lPycE/rU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Pierre=20Cr=C3=A9gut?= <pierre.cregut@orange.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 013/330] PCI/IOV: Serialize sysfs sriov_numvfs reads vs writes
-Date:   Thu, 17 Sep 2020 21:55:53 -0400
-Message-Id: <20200918020110.2063155-13-sashal@kernel.org>
+Cc:     Jia He <justin.he@arm.com>, Yibo Cai <Yibo.Cai@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.4 014/330] mm: fix double page fault on arm64 if PTE_AF is cleared
+Date:   Thu, 17 Sep 2020 21:55:54 -0400
+Message-Id: <20200918020110.2063155-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,49 +43,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre Crégut <pierre.cregut@orange.com>
+From: Jia He <justin.he@arm.com>
 
-[ Upstream commit 35ff867b76576e32f34c698ccd11343f7d616204 ]
+[ Upstream commit 83d116c53058d505ddef051e90ab27f57015b025 ]
 
-When sriov_numvfs is being updated, we call the driver->sriov_configure()
-function, which may enable VFs and call probe functions, which may make new
-devices visible.  This all happens before before sriov_numvfs_store()
-updates sriov->num_VFs, so previously, concurrent sysfs reads of
-sriov_numvfs returned stale values.
+When we tested pmdk unit test [1] vmmalloc_fork TEST3 on arm64 guest, there
+will be a double page fault in __copy_from_user_inatomic of cow_user_page.
 
-Serialize the sysfs read vs the write so the read returns the correct
-num_VFs value.
+To reproduce the bug, the cmd is as follows after you deployed everything:
+make -C src/test/vmmalloc_fork/ TEST_TIME=60m check
 
-[bhelgaas: hold device_lock instead of checking mutex_is_locked()]
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202991
-Link: https://lore.kernel.org/r/20190911072736.32091-1-pierre.cregut@orange.com
-Signed-off-by: Pierre Crégut <pierre.cregut@orange.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Below call trace is from arm64 do_page_fault for debugging purpose:
+[  110.016195] Call trace:
+[  110.016826]  do_page_fault+0x5a4/0x690
+[  110.017812]  do_mem_abort+0x50/0xb0
+[  110.018726]  el1_da+0x20/0xc4
+[  110.019492]  __arch_copy_from_user+0x180/0x280
+[  110.020646]  do_wp_page+0xb0/0x860
+[  110.021517]  __handle_mm_fault+0x994/0x1338
+[  110.022606]  handle_mm_fault+0xe8/0x180
+[  110.023584]  do_page_fault+0x240/0x690
+[  110.024535]  do_mem_abort+0x50/0xb0
+[  110.025423]  el0_da+0x20/0x24
+
+The pte info before __copy_from_user_inatomic is (PTE_AF is cleared):
+[ffff9b007000] pgd=000000023d4f8003, pud=000000023da9b003,
+               pmd=000000023d4b3003, pte=360000298607bd3
+
+As told by Catalin: "On arm64 without hardware Access Flag, copying from
+user will fail because the pte is old and cannot be marked young. So we
+always end up with zeroed page after fork() + CoW for pfn mappings. we
+don't always have a hardware-managed access flag on arm64."
+
+This patch fixes it by calling pte_mkyoung. Also, the parameter is
+changed because vmf should be passed to cow_user_page()
+
+Add a WARN_ON_ONCE when __copy_from_user_inatomic() returns error
+in case there can be some obscure use-case (by Kirill).
+
+[1] https://github.com/pmem/pmdk/tree/master/src/test/vmmalloc_fork
+
+Signed-off-by: Jia He <justin.he@arm.com>
+Reported-by: Yibo Cai <Yibo.Cai@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/iov.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ mm/memory.c | 104 ++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 89 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/pci/iov.c b/drivers/pci/iov.c
-index deec9f9e0b616..9c116cbaa95d8 100644
---- a/drivers/pci/iov.c
-+++ b/drivers/pci/iov.c
-@@ -253,8 +253,14 @@ static ssize_t sriov_numvfs_show(struct device *dev,
- 				 char *buf)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev);
-+	u16 num_vfs;
-+
-+	/* Serialize vs sriov_numvfs_store() so readers see valid num_VFs */
-+	device_lock(&pdev->dev);
-+	num_vfs = pdev->sriov->num_VFs;
-+	device_unlock(&pdev->dev);
+diff --git a/mm/memory.c b/mm/memory.c
+index cb7c940cf800c..9ea917e28ef4e 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -118,6 +118,18 @@ int randomize_va_space __read_mostly =
+ 					2;
+ #endif
  
--	return sprintf(buf, "%u\n", pdev->sriov->num_VFs);
-+	return sprintf(buf, "%u\n", num_vfs);
++#ifndef arch_faults_on_old_pte
++static inline bool arch_faults_on_old_pte(void)
++{
++	/*
++	 * Those arches which don't have hw access flag feature need to
++	 * implement their own helper. By default, "true" means pagefault
++	 * will be hit on old pte.
++	 */
++	return true;
++}
++#endif
++
+ static int __init disable_randmaps(char *s)
+ {
+ 	randomize_va_space = 0;
+@@ -2145,32 +2157,82 @@ static inline int pte_unmap_same(struct mm_struct *mm, pmd_t *pmd,
+ 	return same;
  }
  
- /*
+-static inline void cow_user_page(struct page *dst, struct page *src, unsigned long va, struct vm_area_struct *vma)
++static inline bool cow_user_page(struct page *dst, struct page *src,
++				 struct vm_fault *vmf)
+ {
++	bool ret;
++	void *kaddr;
++	void __user *uaddr;
++	bool force_mkyoung;
++	struct vm_area_struct *vma = vmf->vma;
++	struct mm_struct *mm = vma->vm_mm;
++	unsigned long addr = vmf->address;
++
+ 	debug_dma_assert_idle(src);
+ 
++	if (likely(src)) {
++		copy_user_highpage(dst, src, addr, vma);
++		return true;
++	}
++
+ 	/*
+ 	 * If the source page was a PFN mapping, we don't have
+ 	 * a "struct page" for it. We do a best-effort copy by
+ 	 * just copying from the original user address. If that
+ 	 * fails, we just zero-fill it. Live with it.
+ 	 */
+-	if (unlikely(!src)) {
+-		void *kaddr = kmap_atomic(dst);
+-		void __user *uaddr = (void __user *)(va & PAGE_MASK);
++	kaddr = kmap_atomic(dst);
++	uaddr = (void __user *)(addr & PAGE_MASK);
++
++	/*
++	 * On architectures with software "accessed" bits, we would
++	 * take a double page fault, so mark it accessed here.
++	 */
++	force_mkyoung = arch_faults_on_old_pte() && !pte_young(vmf->orig_pte);
++	if (force_mkyoung) {
++		pte_t entry;
++
++		vmf->pte = pte_offset_map_lock(mm, vmf->pmd, addr, &vmf->ptl);
++		if (!likely(pte_same(*vmf->pte, vmf->orig_pte))) {
++			/*
++			 * Other thread has already handled the fault
++			 * and we don't need to do anything. If it's
++			 * not the case, the fault will be triggered
++			 * again on the same address.
++			 */
++			ret = false;
++			goto pte_unlock;
++		}
+ 
++		entry = pte_mkyoung(vmf->orig_pte);
++		if (ptep_set_access_flags(vma, addr, vmf->pte, entry, 0))
++			update_mmu_cache(vma, addr, vmf->pte);
++	}
++
++	/*
++	 * This really shouldn't fail, because the page is there
++	 * in the page tables. But it might just be unreadable,
++	 * in which case we just give up and fill the result with
++	 * zeroes.
++	 */
++	if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE)) {
+ 		/*
+-		 * This really shouldn't fail, because the page is there
+-		 * in the page tables. But it might just be unreadable,
+-		 * in which case we just give up and fill the result with
+-		 * zeroes.
++		 * Give a warn in case there can be some obscure
++		 * use-case
+ 		 */
+-		if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE))
+-			clear_page(kaddr);
+-		kunmap_atomic(kaddr);
+-		flush_dcache_page(dst);
+-	} else
+-		copy_user_highpage(dst, src, va, vma);
++		WARN_ON_ONCE(1);
++		clear_page(kaddr);
++	}
++
++	ret = true;
++
++pte_unlock:
++	if (force_mkyoung)
++		pte_unmap_unlock(vmf->pte, vmf->ptl);
++	kunmap_atomic(kaddr);
++	flush_dcache_page(dst);
++
++	return ret;
+ }
+ 
+ static gfp_t __get_fault_gfp_mask(struct vm_area_struct *vma)
+@@ -2342,7 +2404,19 @@ static vm_fault_t wp_page_copy(struct vm_fault *vmf)
+ 				vmf->address);
+ 		if (!new_page)
+ 			goto oom;
+-		cow_user_page(new_page, old_page, vmf->address, vma);
++
++		if (!cow_user_page(new_page, old_page, vmf)) {
++			/*
++			 * COW failed, if the fault was solved by other,
++			 * it's fine. If not, userspace would re-fault on
++			 * the same address and we will handle the fault
++			 * from the second attempt.
++			 */
++			put_page(new_page);
++			if (old_page)
++				put_page(old_page);
++			return 0;
++		}
+ 	}
+ 
+ 	if (mem_cgroup_try_charge_delay(new_page, mm, GFP_KERNEL, &memcg, false))
 -- 
 2.25.1
 
