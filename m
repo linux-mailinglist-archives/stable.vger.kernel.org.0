@@ -2,138 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C69826E9D0
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 02:11:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6316026EA5F
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 03:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726101AbgIRALZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 20:11:25 -0400
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:44167 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726040AbgIRALY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 20:11:24 -0400
-X-Greylist: delayed 637 seconds by postgrey-1.27 at vger.kernel.org; Thu, 17 Sep 2020 20:11:24 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1600387891; x=1631923891;
-  h=from:to:cc:subject:date:message-id:references:
-   content-transfer-encoding:mime-version;
-  bh=X7a9WaOIOjFzeHUIeiShtn6z+X2bReOco7w+L/KdyIM=;
-  b=NQMy2QJ7EZqEMZzRp7zPGhjYFIU/CfF/gnIdDbR5zxZBRyOdCH7tFy2m
-   4M6VWG+uWBMVVViQN9a4YHPAmgciwvwgV+KnRCQKBk7HYX7RlgTLWWdwG
-   YXPfLxbpSLZZQkRwb9qj8p6SaFLx7Shd3psA0gw8D3iMdR0JgFEv24CmW
-   nKyLj6/sagdwxTT2D1lJNiqyJPw8PzhZXcpgdJ0J4VLXI+XFvVevp1oyZ
-   GHNOnPdVlCAnS5AQ+jOFIZzqc4HZ1PmGX16FAWCKQalnRMPHAfj+nvOG/
-   ln5ZoMdXyErfp+6ZRN1rUGRcSzi2Wj2QgMadUTxDz9uV1spgG/oQVaQ/V
-   A==;
-IronPort-SDR: O7vyrTd/kVzARrWOTlmWhTnu/u0u/aZXxpiCBXoaCUdzKJ25Ogai4jd3T7pgd6g8czB1g4YZyx
- nogZEdGvoRm1qqp9zhlu+MYZWS/CAVaSc4LDXVm0G9jBB8TKk5/v6UfO1PFwRmPO4bqehhMYYC
- KvRemId2Y9YSaef4lPvfgZlX8Z/VNaDmJnK3jgTYr0Y/iUpLhEEK3C3vuxSmkoF9+1VEe9Ej7G
- XxeM7Q60zJljCI3q44/eDM+L7oPRgHL+TAUOuoyuJ3cfSR2AjjKgz6qgGty3CBrQDEWrnnACF0
- i4I=
-X-IronPort-AV: E=Sophos;i="5.77,272,1596470400"; 
-   d="scan'208";a="251026492"
-Received: from mail-mw2nam10lp2107.outbound.protection.outlook.com (HELO NAM10-MW2-obe.outbound.protection.outlook.com) ([104.47.55.107])
-  by ob1.hgst.iphmx.com with ESMTP; 18 Sep 2020 07:50:53 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dwe+1AhmJZyru4869Tbb2MdlVgj/br5qnVzJoU//aT+sBNFwu57HcIs+MkbNRJik41+3E7kpkviJwydhAl3c+fC+cLoBT/mbIBHWlINKugt8XYuoATNtGNML7W844sZvNKVtQUgS6QBiYXt9WBkWok4gKt2vf+ZEDxN6FntPuubXSykRh+CWxU/V992j7wKIcd4G0LhFh+ZVYHRU20WerK3+jLBp1anRBw2IxUxZDrds/t9HtljS2X84zjR3T3sJ0qXdTNna58VnpW7htu076mBPuKUsNooODGUPhLTslHCDGcyMxbbO2yoj/6bWeZMODJhRqUOaScAjDrcMc5N0LQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8lMi3QJapMJED0kjBj6LLbBJL8keHFV/nYLife8+mk0=;
- b=gCQviaL4yuOJMw1Pp77qLs58xa4CWhLN8WYp1x8DTd2XHOsqjH9mxAgbK3NeKHu4OJPFBbc3amxeevtEzb+9RI/QBw3BqyT48yDQtnuhlA8dvolbQ2tSMEHpxFyQjwF14MNgxD7bviauPnsORhAjxGDUixmnOOdDHk9wjQTu4qckp86qfVC6hnC0GwUfgmUSUtdqKh8rBew3Ol1SQgfK158Qeo6tUtDUMobYGpggKSHkDIpk+XxcqCjN4+ehm0N7etfh/3Xjz7/RJM+oDuF4fIGzoeYKghmqhIbg3lm1b+eNXNDSofPRqMhTvEcvHlDVlboc8yX3HOxSMC7sE5dfVQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
+        id S1726009AbgIRBQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 21:16:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46272 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726007AbgIRBQm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Sep 2020 21:16:42 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1882C06174A
+        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 18:16:42 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id y1so2444328pgk.8
+        for <stable@vger.kernel.org>; Thu, 17 Sep 2020 18:16:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8lMi3QJapMJED0kjBj6LLbBJL8keHFV/nYLife8+mk0=;
- b=NqfsqC2jUeD4HS38qgOt8V8vQyDXaCsjHxonR1kJmqPY0lGjnnyIOch3f+JwttU9Fp6ZpRBoyFEi1+4/87A6EqM8NdwkqOqTRjEwC2KXeOAczjK6KZws8D9d4O+GxzvRzdb8dOGNhJQzALTmm8/5nby0FobMRMwFzT6JOmAPojM=
-Received: from CY4PR04MB3751.namprd04.prod.outlook.com (2603:10b6:903:ec::14)
- by CY4PR04MB0758.namprd04.prod.outlook.com (2603:10b6:903:e4::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3391.11; Thu, 17 Sep
- 2020 23:50:44 +0000
-Received: from CY4PR04MB3751.namprd04.prod.outlook.com
- ([fe80::9124:2453:fe9c:9a7]) by CY4PR04MB3751.namprd04.prod.outlook.com
- ([fe80::9124:2453:fe9c:9a7%12]) with mapi id 15.20.3391.015; Thu, 17 Sep 2020
- 23:50:44 +0000
-From:   Damien Le Moal <Damien.LeMoal@wdc.com>
-To:     Sasha Levin <sashal@kernel.org>,
-        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>
-CC:     "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v3 1/2] scsi: Fix handling of host-aware ZBC disks
-Thread-Topic: [PATCH v3 1/2] scsi: Fix handling of host-aware ZBC disks
-Thread-Index: AQHWizKYugjPQJBBvkOKOwpDX/vtCg==
-Date:   Thu, 17 Sep 2020 23:50:44 +0000
-Message-ID: <CY4PR04MB3751FEC907B8C0FD50B53624E73E0@CY4PR04MB3751.namprd04.prod.outlook.com>
-References: <20200915073347.832424-2-damien.lemoal@wdc.com>
- <20200917155335.19CBF21D24@mail.kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: kernel.org; dkim=none (message not signed)
- header.d=none;kernel.org; dmarc=none action=none header.from=wdc.com;
-x-originating-ip: [2400:2411:43c0:6000:c162:b6b0:12c6:8cc]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 416fd3c8-02bb-4d25-28cb-08d85b647e13
-x-ms-traffictypediagnostic: CY4PR04MB0758:
-x-microsoft-antispam-prvs: <CY4PR04MB075846E0E8381FF5EBE85E0EE73E0@CY4PR04MB0758.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:2512;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: M+UthBem+mHkC7Zsui1H/oE5DfhhMUzNGxxvwIR1JQFeFFpUC+YZmH3XKais74RBjlXZBnAdAhRJ6JChZyvfr/iIGJT7ZfMoXlF5sGnSUjyTDw5HLIhMkymFBT/PMbD6+eW6qV5LZaBlJpopbOEXuCXnzW1emwNTQq5bd6qPYJzuW/y3RprLzGmNNbCXMDnUnS4dTBleS1hq/PFTR/pI+H8i/smHNeUZjTLlHYzOpZdxYZHbVPn9NMGvi+PCXLqJCmbsQoIdEWq+gJbea4ByOfQmoBbUQoOJMJOKqg3dytSmrbe3Ovf6Ueh2xt1U7/c6ZaRFLuo08Pz38UCTAWmjZpfV2lKU7aDcyqkGbThMexqspMKeR21lijTMxm9Xcxjj
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY4PR04MB3751.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(396003)(376002)(366004)(346002)(136003)(86362001)(8936002)(64756008)(66446008)(66476007)(66556008)(66946007)(8676002)(33656002)(76116006)(2906002)(91956017)(4326008)(54906003)(110136005)(53546011)(7696005)(71200400001)(186003)(6506007)(4744005)(478600001)(5660300002)(83380400001)(316002)(52536014)(55016002)(9686003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: P7U27qeWfgQGo9KjPAOWQ52NKJME6JzPNu1pXcTcu31ju2QDualMqeXARESNiF7NWDkJVqAO7k8kyPVeqn2Ns0SgaBrEPNqcULUzBnn9AYQUZuXDQXo94eRXl1BG6i8A8Ycoi4hy8PzJPgSR6xbq7It26yhq6V17+p8ACmvfLRTG6GdVNs02BS6M97uzwJHFqkAPs5X0zDLioN/ZOydxUCmL+c7kQ/g+eQX8jxB4Uw1zSNsatRUaiqfnqKPb3R5vfImMVhhSLAk8npuHJT5zl+v6eWbMu1+VN64eQARoKOXerY7I8OIhv8qyfKyGVjQkeohvmPEp6lAYOALc7L0sEhq+70QbSmzsYnxPo6Hunl5kND+sMTyKrVV8XyBJ+nW6UFZI0PRUXW/3Aw1Qhg6ZyiKmmc7z54DBnzjkHWC2AHZoQ/v0dolgHPdJ2fiVdWPpUcoH+IHs2J9aLygBQTBz/u7RdV2vqLDTinokCXklrwQasnKgL/bT5U8+MRQiY5R/4IKhZ9Jox5oxpTwj5GoHeNgZU2v0FDm06wNfte7XloiAAMqccAqZ2GeR/dvHfEJ8KFOXMroYzVOigbhR7oN1dyJGijteNV6HkBFTYXWZsyPL89Yv5FGv6ro6e1GHwxby2vvMZzRas51pKt7SJnAr+kqOrQlrSQ4nQzqQnnl86sBaVcnjElFxIMfiI6doGvUa0xg53+DI7soDH6gaNTPKoQ==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=c//KXuLrmnjcdYdUSSJhMm/vbrWch+QSR67q3X5oLNk=;
+        b=JW50dEcbyyihx8i1nCIwLLHgyzft+hnHk5YO8PKmE5KYSuxqIrBdtgvATa8EuWpuy2
+         b5FNtcyCiJsQo738Y0Vh0/EYNPFylVnAZroTHpxO3ZcTRPUHnOBVg4oqyE7famvgAXc5
+         gVQntiXdZawYE/AhrXlGeG8AfuUvGZ7ykQoNTz27ZhGwt61ZTxS9/PigHOEEFe93cAwC
+         JuSk47cNDLBRJZCa9WyvPSMgli6uoUbfY4+fOgdVFvF4X6yZd5Pgp3f8CNHLqyOcwsq9
+         zYHvN5ba2jgdMuhoQxE0k3Ff9jKLb3kpGRxGrv8NebjMbwHN1E8gDoZqbhzWrrCc1Sqz
+         M5Cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=c//KXuLrmnjcdYdUSSJhMm/vbrWch+QSR67q3X5oLNk=;
+        b=Y5v2gnG1rku+/lXiaG5cYTsar/aaQCudjyqFJmkBLco2OhrZ6CP12PHxXZTSj0mj+p
+         rF9C+IfxnloijEq4aO1xT4T+3KsjUcCDCpZH6dni3qG64w7Rd5CnL9S7O5qwC4JfCL01
+         yWEdTQAbCeF914yaHzx5n6X+ykc3AU3HLURmTaMtLbQCQq8bgfT/29Fgepb0MYdLKzvd
+         Bf2ciTLT6LMBmM/CCk87720jAlkPY3swwHXf/j7AJP0lDqowaVKOw4G8rbOHkPOJPjQ7
+         VglcN/02MGiYAiwiHIeIbBjYB7MQMTo+/w6TIDdQgw1lFw7+tYCOxw4wuGhqfMW1I7kz
+         DicA==
+X-Gm-Message-State: AOAM531Kpex1J7bdTE6yvIw7or3cerVyvgZaI4fmq3Ek5oLC4KM6dzs8
+        oeUhqE0Z/PrNtar4Y8+gqWzn5sqEvDVHWw==
+X-Google-Smtp-Source: ABdhPJyI36OOL5gOQY9+bAcejkMAGH6V249jIlObDz7/LJGd+nC5BUKZeALSnQSJ2DRmAdVdq4K5Tg==
+X-Received: by 2002:aa7:8197:0:b029:142:2501:3981 with SMTP id g23-20020aa781970000b029014225013981mr13602192pfi.70.1600391801737;
+        Thu, 17 Sep 2020 18:16:41 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m21sm894095pfo.13.2020.09.17.18.16.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 17 Sep 2020 18:16:41 -0700 (PDT)
+Message-ID: <5f640a79.1c69fb81.e6908.2ac2@mx.google.com>
+Date:   Thu, 17 Sep 2020 18:16:41 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CY4PR04MB3751.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 416fd3c8-02bb-4d25-28cb-08d85b647e13
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Sep 2020 23:50:44.1467
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Lw2Isp04mU+YDdYO3W6ogJ43GEzMKWT68SEgv2Ec5HyhmNYE6/uA5iCknmHOa35HcfkUiPpas0kcr9B7qcOrOw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR04MB0758
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Kernel: v4.4.236-28-g753a2b628a72
+Subject: stable-rc/queue/4.4 baseline: 111 runs,
+ 3 regressions (v4.4.236-28-g753a2b628a72)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/09/18 0:53, Sasha Levin wrote:=0A=
-> Hi=0A=
-> =0A=
-> [This is an automated email]=0A=
-> =0A=
-> This commit has been processed because it contains a "Fixes:" tag=0A=
-> fixing commit: b72053072c0b ("block: allow partitions on host aware zone =
-devices").=0A=
-> =0A=
-> The bot has tested the following trees: v5.8.9.=0A=
-> =0A=
-> v5.8.9: Failed to apply! Possible dependencies:=0A=
->     a3d8a2573687 ("scsi: sd_zbc: Improve zone revalidation")=0A=
-> =0A=
-> =0A=
-> NOTE: The patch will not be queued to stable trees until it is upstream.=
-=0A=
-> =0A=
-> How should we proceed with this patch?=0A=
-> =0A=
-=0A=
-Usually, I wait for Greg's bots to ping me and then I send a fixed up backp=
-orted=0A=
-patch for stable. Would that work ? I can backport now if needed.=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+stable-rc/queue/4.4 baseline: 111 runs, 3 regressions (v4.4.236-28-g753a2b6=
+28a72)
+
+Regressions Summary
+-------------------
+
+platform   | arch | lab           | compiler | defconfig           | results
+-----------+------+---------------+----------+---------------------+--------
+beagle-xm  | arm  | lab-baylibre  | gcc-8    | omap2plus_defconfig | 1/4    =
+
+odroid-xu3 | arm  | lab-collabora | gcc-8    | exynos_defconfig    | 0/1    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.236-28-g753a2b628a72/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.236-28-g753a2b628a72
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      753a2b628a72795170d32ed7120a4382e2e98b80 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch | lab           | compiler | defconfig           | results
+-----------+------+---------------+----------+---------------------+--------
+beagle-xm  | arm  | lab-baylibre  | gcc-8    | omap2plus_defconfig | 1/4    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f63d8948abe4faa3bbf9df4
+
+  Results:     1 PASS, 2 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.236-2=
+8-g753a2b628a72/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.236-2=
+8-g753a2b628a72/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f63d8948abe4faa=
+3bbf9df8
+      new failure (last pass: v4.4.236-28-gd232545e8fcc)
+      1 lines
+
+    2020-09-17 21:41:57.881000  Connected to omap3-beagle-xm console [chann=
+el connected] (~$quit to exit)
+    2020-09-17 21:41:57.881000  (user:khilman) is already connected
+    2020-09-17 21:41:57.882000  (user:) is already connected
+    2020-09-17 21:42:09.507000  =00
+    2020-09-17 21:42:09.513000  U-Boot SPL 2018.09-rc2-00001-ge6aa9785acb2 =
+(Aug 15 2018 - 09:41:52 -0700)
+    2020-09-17 21:42:09.517000  Trying to boot from MMC1
+    2020-09-17 21:42:09.707000  spl_load_image_fat_os: error reading image =
+args, err - -2
+    2020-09-17 21:42:09.947000  =
+
+    2020-09-17 21:42:09.947000  =
+
+    2020-09-17 21:42:09.954000  U-Boot 2018.09-rc2-00001-ge6aa9785acb2 (Aug=
+ 15 2018 - 09:41:52 -0700)
+    ... (448 line(s) more)
+     * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f63d8948abe=
+4faa3bbf9dfa
+      new failure (last pass: v4.4.236-28-gd232545e8fcc)
+      28 lines
+
+    2020-09-17 21:43:43.463000  kern  :emerg : Stack: (0xcb9afd10 to 0xcb9b=
+0000)
+    2020-09-17 21:43:43.471000  kern  :emerg : fd00:                       =
+              bf02b8fc bf010b84 cb99ec10 bf02b988
+    2020-09-17 21:43:43.479000  kern  :emerg : fd20: cb99ec10 bf22e0a8 0000=
+0002 cb8ac010 cb99ec10 bf24fb54 cbcba510 cbcba510
+    2020-09-17 21:43:43.487000  kern  :emerg : fd40: 00000000 00000000 ce22=
+8930 c01fb390 ce228930 ce228930 c08595ac 00000001
+    2020-09-17 21:43:43.496000  kern  :emerg : fd60: ce228930 cbcba510 cbcb=
+a5d0 00000000 ce228930 c08595ac 00000001 c09632c0
+    2020-09-17 21:43:43.504000  kern  :emerg : fd80: ffffffed bf253ff4 ffff=
+fdfb 00000028 00000001 c00ce2e4 bf254188 c0406ee0
+    2020-09-17 21:43:43.512000  kern  :emerg : fda0: c09632c0 c120ea30 bf25=
+3ff4 00000000 00000028 c04053b4 c09632c0 c09632f4
+    2020-09-17 21:43:43.520000  kern  :emerg : fdc0: bf253ff4 00000000 0000=
+0000 c040555c 00000000 bf253ff4 c04054d0 c0403880
+    2020-09-17 21:43:43.528000  kern  :emerg : fde0: ce0b08a4 ce221910 bf25=
+3ff4 cbbe02c0 c09ddba8 c04049cc bf252b6c c0960460
+    2020-09-17 21:43:43.536000  kern  :emerg : fe00: cbce9780 bf253ff4 c096=
+0460 cbce9780 bf257000 c0405f94 c0960460 c0960460
+    ... (16 line(s) more)
+      =
+
+
+
+platform   | arch | lab           | compiler | defconfig           | results
+-----------+------+---------------+----------+---------------------+--------
+odroid-xu3 | arm  | lab-collabora | gcc-8    | exynos_defconfig    | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f63ebaab44ffdba04bf9db3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: exynos_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.236-2=
+8-g753a2b628a72/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-odroid-xu=
+3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.236-2=
+8-g753a2b628a72/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-odroid-xu=
+3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f63ebaab44ffdba04bf9=
+db4
+      new failure (last pass: v4.4.236-28-gd232545e8fcc)  =20
