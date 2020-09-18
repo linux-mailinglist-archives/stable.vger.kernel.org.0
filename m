@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E3626F49D
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:16:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 130E726F495
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726267AbgIRCBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:01:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
+        id S1726375AbgIRDPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:15:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726221AbgIRCBS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:01:18 -0400
+        id S1726201AbgIRCBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:01:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D014A208E4;
-        Fri, 18 Sep 2020 02:01:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 223C921707;
+        Fri, 18 Sep 2020 02:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394477;
-        bh=WXxXPySre0YM/NS4OlELtHdlnYCawUYpcYb+CjbhLTY=;
+        s=default; t=1600394479;
+        bh=ZWXCHAIhOxLvBohGGN9gIS4oL85Z+wVf83WCgrQzrfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tEttgHxoPUXXUWIpumRTvAKHW5GFsImXG0+M7sWiri1iv8DhWPjo7lzhPK25wCNok
-         4yb7CeqZ/rJCPG8y5VcgryecUbNQTZ4VjkNf7FqqwmvQK9JI6HtKB50OunjLdEMxlD
-         y+uBKX5GOyHFTntNUqFN1njTT3p5cgeOR3fXGqyQ=
+        b=KBZtwxDmCyiu3Dwwu7j6hBUw13b/Ao8djJ/WCUjbedcbZDdwGhXwMvH/6K4MLG4iV
+         QjFoD0+PDKCee6Mt2c8kmvpWNfGwWiFGszINg60V0APtJIB88/EHyalk8/VSPEmYx/
+         Idy+pxojTMifM2y5ZQmE+c1OtTnqPPlcJaGVCSSI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonathan Lebon <jlebon@redhat.com>,
-        Victor Kamensky <kamensky@cisco.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 005/330] selinux: allow labeling before policy is loaded
-Date:   Thu, 17 Sep 2020 21:55:45 -0400
-Message-Id: <20200918020110.2063155-5-sashal@kernel.org>
+Cc:     zhengbin <zhengbin13@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 006/330] media: mc-device.c: fix memleak in media_device_register_entity
+Date:   Thu, 17 Sep 2020 21:55:46 -0400
+Message-Id: <20200918020110.2063155-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -44,84 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Lebon <jlebon@redhat.com>
+From: zhengbin <zhengbin13@huawei.com>
 
-[ Upstream commit 3e3e24b42043eceb97ed834102c2d094dfd7aaa6 ]
+[ Upstream commit 713f871b30a66dc4daff4d17b760c9916aaaf2e1 ]
 
-Currently, the SELinux LSM prevents one from setting the
-`security.selinux` xattr on an inode without a policy first being
-loaded. However, this restriction is problematic: it makes it impossible
-to have newly created files with the correct label before actually
-loading the policy.
+In media_device_register_entity, if media_graph_walk_init fails,
+need to free the previously memory.
 
-This is relevant in distributions like Fedora, where the policy is
-loaded by systemd shortly after pivoting out of the initrd. In such
-instances, all files created prior to pivoting will be unlabeled. One
-then has to relabel them after pivoting, an operation which inherently
-races with other processes trying to access those same files.
-
-Going further, there are use cases for creating the entire root
-filesystem on first boot from the initrd (e.g. Container Linux supports
-this today[1], and we'd like to support it in Fedora CoreOS as well[2]).
-One can imagine doing this in two ways: at the block device level (e.g.
-laying down a disk image), or at the filesystem level. In the former,
-labeling can simply be part of the image. But even in the latter
-scenario, one still really wants to be able to set the right labels when
-populating the new filesystem.
-
-This patch enables this by changing behaviour in the following two ways:
-1. allow `setxattr` if we're not initialized
-2. don't try to set the in-core inode SID if we're not initialized;
-   instead leave it as `LABEL_INVALID` so that revalidation may be
-   attempted at a later time
-
-Note the first hunk of this patch is mostly the same as a previously
-discussed one[3], though it was part of a larger series which wasn't
-accepted.
-
-[1] https://coreos.com/os/docs/latest/root-filesystem-placement.html
-[2] https://github.com/coreos/fedora-coreos-tracker/issues/94
-[3] https://www.spinics.net/lists/linux-initramfs/msg04593.html
-
-Co-developed-by: Victor Kamensky <kamensky@cisco.com>
-Signed-off-by: Victor Kamensky <kamensky@cisco.com>
-Signed-off-by: Jonathan Lebon <jlebon@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/media/mc/mc-device.c | 65 ++++++++++++++++++------------------
+ 1 file changed, 33 insertions(+), 32 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 552e73d90fd25..212f48025db81 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3156,6 +3156,9 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
- 		return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
- 	}
+diff --git a/drivers/media/mc/mc-device.c b/drivers/media/mc/mc-device.c
+index e19df5165e78c..da80883511352 100644
+--- a/drivers/media/mc/mc-device.c
++++ b/drivers/media/mc/mc-device.c
+@@ -575,6 +575,38 @@ static void media_device_release(struct media_devnode *devnode)
+ 	dev_dbg(devnode->parent, "Media device released\n");
+ }
  
-+	if (!selinux_state.initialized)
-+		return (inode_owner_or_capable(inode) ? 0 : -EPERM);
++static void __media_device_unregister_entity(struct media_entity *entity)
++{
++	struct media_device *mdev = entity->graph_obj.mdev;
++	struct media_link *link, *tmp;
++	struct media_interface *intf;
++	unsigned int i;
 +
- 	sbsec = inode->i_sb->s_security;
- 	if (!(sbsec->flags & SBLABEL_MNT))
- 		return -EOPNOTSUPP;
-@@ -3239,6 +3242,15 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
- 		return;
- 	}
- 
-+	if (!selinux_state.initialized) {
-+		/* If we haven't even been initialized, then we can't validate
-+		 * against a policy, so leave the label as invalid. It may
-+		 * resolve to a valid label on the next revalidation try if
-+		 * we've since initialized.
-+		 */
-+		return;
++	ida_free(&mdev->entity_internal_idx, entity->internal_idx);
++
++	/* Remove all interface links pointing to this entity */
++	list_for_each_entry(intf, &mdev->interfaces, graph_obj.list) {
++		list_for_each_entry_safe(link, tmp, &intf->links, list) {
++			if (link->entity == entity)
++				__media_remove_intf_link(link);
++		}
 +	}
 +
- 	rc = security_context_to_sid_force(&selinux_state, value, size,
- 					   &newsid);
- 	if (rc) {
++	/* Remove all data links that belong to this entity */
++	__media_entity_remove_links(entity);
++
++	/* Remove all pads that belong to this entity */
++	for (i = 0; i < entity->num_pads; i++)
++		media_gobj_destroy(&entity->pads[i].graph_obj);
++
++	/* Remove the entity */
++	media_gobj_destroy(&entity->graph_obj);
++
++	/* invoke entity_notify callbacks to handle entity removal?? */
++
++	entity->graph_obj.mdev = NULL;
++}
++
+ /**
+  * media_device_register_entity - Register an entity with a media device
+  * @mdev:	The media device
+@@ -632,6 +664,7 @@ int __must_check media_device_register_entity(struct media_device *mdev,
+ 		 */
+ 		ret = media_graph_walk_init(&new, mdev);
+ 		if (ret) {
++			__media_device_unregister_entity(entity);
+ 			mutex_unlock(&mdev->graph_mutex);
+ 			return ret;
+ 		}
+@@ -644,38 +677,6 @@ int __must_check media_device_register_entity(struct media_device *mdev,
+ }
+ EXPORT_SYMBOL_GPL(media_device_register_entity);
+ 
+-static void __media_device_unregister_entity(struct media_entity *entity)
+-{
+-	struct media_device *mdev = entity->graph_obj.mdev;
+-	struct media_link *link, *tmp;
+-	struct media_interface *intf;
+-	unsigned int i;
+-
+-	ida_free(&mdev->entity_internal_idx, entity->internal_idx);
+-
+-	/* Remove all interface links pointing to this entity */
+-	list_for_each_entry(intf, &mdev->interfaces, graph_obj.list) {
+-		list_for_each_entry_safe(link, tmp, &intf->links, list) {
+-			if (link->entity == entity)
+-				__media_remove_intf_link(link);
+-		}
+-	}
+-
+-	/* Remove all data links that belong to this entity */
+-	__media_entity_remove_links(entity);
+-
+-	/* Remove all pads that belong to this entity */
+-	for (i = 0; i < entity->num_pads; i++)
+-		media_gobj_destroy(&entity->pads[i].graph_obj);
+-
+-	/* Remove the entity */
+-	media_gobj_destroy(&entity->graph_obj);
+-
+-	/* invoke entity_notify callbacks to handle entity removal?? */
+-
+-	entity->graph_obj.mdev = NULL;
+-}
+-
+ void media_device_unregister_entity(struct media_entity *entity)
+ {
+ 	struct media_device *mdev = entity->graph_obj.mdev;
 -- 
 2.25.1
 
