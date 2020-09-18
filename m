@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86CA126F299
+	by mail.lfdr.de (Postfix) with ESMTP id 0A51326F298
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728461AbgIRC76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727846AbgIRC76 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:59:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54274 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727623AbgIRCFq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727630AbgIRCFq (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:05:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB1852376F;
-        Fri, 18 Sep 2020 02:05:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8E1C235FD;
+        Fri, 18 Sep 2020 02:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394744;
-        bh=AjbrJZmdKW8Io62ezgRXv08rXauDQyVkXIB2fU8/tOE=;
+        s=default; t=1600394745;
+        bh=QAiz8SSQum+uE9f5y9GhZrE1+yZc4mXaQiOQ4zrSM/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SJdls+FVqCC4EQjPVPlrGC0CiKr8gUD2C7M9kowx5QRFAJVnnVlViM7gOUE3gJk2/
-         JnPWDeofHpvDicWE5CgF0vlviJIvOea4MmJZIcYPIGhXrEMgQ3efRucWPtiJjMrJig
-         3kOOqN+Jj876o35zWHEGRPMV+xETMwt4Gr5J4nLY=
+        b=uoNu841++zZsFkOFyY0wlu2VBBCQwfP99ljRm0LYF8o+OkA3VcJjxlUC1rlTJH9gw
+         p+q5dN06N7EITisaV+GAM0F7RcrfoXiosEQf14hDm97BJWAx4BJjMsQ5Pa6dEUGqLt
+         gBxFdHs4yNSa6tHJDqAR8gklx2IRg6vChZoriNHo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anju T Sudhakar <anju@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 224/330] powerpc/perf: Implement a global lock to avoid races between trace, core and thread imc events.
-Date:   Thu, 17 Sep 2020 21:59:24 -0400
-Message-Id: <20200918020110.2063155-224-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.4 225/330] mm/kmemleak.c: use address-of operator on section symbols
+Date:   Thu, 17 Sep 2020 21:59:25 -0400
+Message-Id: <20200918020110.2063155-225-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -42,337 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit a36e8ba60b991d563677227f172db69e030797e6 ]
+[ Upstream commit b0d14fc43d39203ae025f20ef4d5d25d9ccf4be1 ]
 
-IMC(In-memory Collection Counters) does performance monitoring in
-two different modes, i.e accumulation mode(core-imc and thread-imc events),
-and trace mode(trace-imc events). A cpu thread can either be in
-accumulation-mode or trace-mode at a time and this is done via the LDBAR
-register in POWER architecture. The current design does not address the
-races between thread-imc and trace-imc events.
+Clang warns:
 
-Patch implements a global id and lock to avoid the races between
-core, trace and thread imc events. With this global id-lock
-implementation, the system can either run core, thread or trace imc
-events at a time. i.e. to run any core-imc events, thread/trace imc events
-should not be enabled/monitored.
+  mm/kmemleak.c:1955:28: warning: array comparison always evaluates to a constant [-Wtautological-compare]
+        if (__start_ro_after_init < _sdata || __end_ro_after_init > _edata)
+                                  ^
+  mm/kmemleak.c:1955:60: warning: array comparison always evaluates to a constant [-Wtautological-compare]
+        if (__start_ro_after_init < _sdata || __end_ro_after_init > _edata)
 
-Signed-off-by: Anju T Sudhakar <anju@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200313055238.8656-1-anju@linux.vnet.ibm.com
+These are not true arrays, they are linker defined symbols, which are just
+addresses.  Using the address of operator silences the warning and does
+not change the resulting assembly with either clang/ld.lld or gcc/ld
+(tested with diff + objdump -Dr).
+
+Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/895
+Link: http://lkml.kernel.org/r/20200220051551.44000-1-natechancellor@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/imc-pmu.c | 173 +++++++++++++++++++++++++++++++-----
- 1 file changed, 149 insertions(+), 24 deletions(-)
+ mm/kmemleak.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
-index cb50a9e1fd2d7..eb82dda884e51 100644
---- a/arch/powerpc/perf/imc-pmu.c
-+++ b/arch/powerpc/perf/imc-pmu.c
-@@ -44,6 +44,16 @@ static DEFINE_PER_CPU(u64 *, trace_imc_mem);
- static struct imc_pmu_ref *trace_imc_refc;
- static int trace_imc_mem_size;
- 
-+/*
-+ * Global data structure used to avoid races between thread,
-+ * core and trace-imc
-+ */
-+static struct imc_pmu_ref imc_global_refc = {
-+	.lock = __MUTEX_INITIALIZER(imc_global_refc.lock),
-+	.id = 0,
-+	.refc = 0,
-+};
-+
- static struct imc_pmu *imc_event_to_pmu(struct perf_event *event)
- {
- 	return container_of(event->pmu, struct imc_pmu, pmu);
-@@ -698,6 +708,16 @@ static int ppc_core_imc_cpu_offline(unsigned int cpu)
- 			return -EINVAL;
- 
- 		ref->refc = 0;
-+		/*
-+		 * Reduce the global reference count, if this is the
-+		 * last cpu in this core and core-imc event running
-+		 * in this cpu.
-+		 */
-+		mutex_lock(&imc_global_refc.lock);
-+		if (imc_global_refc.id == IMC_DOMAIN_CORE)
-+			imc_global_refc.refc--;
-+
-+		mutex_unlock(&imc_global_refc.lock);
- 	}
- 	return 0;
- }
-@@ -710,6 +730,23 @@ static int core_imc_pmu_cpumask_init(void)
- 				 ppc_core_imc_cpu_offline);
- }
- 
-+static void reset_global_refc(struct perf_event *event)
-+{
-+		mutex_lock(&imc_global_refc.lock);
-+		imc_global_refc.refc--;
-+
-+		/*
-+		 * If no other thread is running any
-+		 * event for this domain(thread/core/trace),
-+		 * set the global id to zero.
-+		 */
-+		if (imc_global_refc.refc <= 0) {
-+			imc_global_refc.refc = 0;
-+			imc_global_refc.id = 0;
-+		}
-+		mutex_unlock(&imc_global_refc.lock);
-+}
-+
- static void core_imc_counters_release(struct perf_event *event)
- {
- 	int rc, core_id;
-@@ -759,6 +796,8 @@ static void core_imc_counters_release(struct perf_event *event)
- 		ref->refc = 0;
- 	}
- 	mutex_unlock(&ref->lock);
-+
-+	reset_global_refc(event);
- }
- 
- static int core_imc_event_init(struct perf_event *event)
-@@ -819,6 +858,29 @@ static int core_imc_event_init(struct perf_event *event)
- 	++ref->refc;
- 	mutex_unlock(&ref->lock);
- 
-+	/*
-+	 * Since the system can run either in accumulation or trace-mode
-+	 * of IMC at a time, core-imc events are allowed only if no other
-+	 * trace/thread imc events are enabled/monitored.
-+	 *
-+	 * Take the global lock, and check the refc.id
-+	 * to know whether any other trace/thread imc
-+	 * events are running.
-+	 */
-+	mutex_lock(&imc_global_refc.lock);
-+	if (imc_global_refc.id == 0 || imc_global_refc.id == IMC_DOMAIN_CORE) {
-+		/*
-+		 * No other trace/thread imc events are running in
-+		 * the system, so set the refc.id to core-imc.
-+		 */
-+		imc_global_refc.id = IMC_DOMAIN_CORE;
-+		imc_global_refc.refc++;
-+	} else {
-+		mutex_unlock(&imc_global_refc.lock);
-+		return -EBUSY;
-+	}
-+	mutex_unlock(&imc_global_refc.lock);
-+
- 	event->hw.event_base = (u64)pcmi->vbase + (config & IMC_EVENT_OFFSET_MASK);
- 	event->destroy = core_imc_counters_release;
- 	return 0;
-@@ -877,7 +939,23 @@ static int ppc_thread_imc_cpu_online(unsigned int cpu)
- 
- static int ppc_thread_imc_cpu_offline(unsigned int cpu)
- {
--	mtspr(SPRN_LDBAR, 0);
-+	/*
-+	 * Set the bit 0 of LDBAR to zero.
-+	 *
-+	 * If bit 0 of LDBAR is unset, it will stop posting
-+	 * the counter data to memory.
-+	 * For thread-imc, bit 0 of LDBAR will be set to 1 in the
-+	 * event_add function. So reset this bit here, to stop the updates
-+	 * to memory in the cpu_offline path.
-+	 */
-+	mtspr(SPRN_LDBAR, (mfspr(SPRN_LDBAR) & (~(1UL << 63))));
-+
-+	/* Reduce the refc if thread-imc event running on this cpu */
-+	mutex_lock(&imc_global_refc.lock);
-+	if (imc_global_refc.id == IMC_DOMAIN_THREAD)
-+		imc_global_refc.refc--;
-+	mutex_unlock(&imc_global_refc.lock);
-+
- 	return 0;
- }
- 
-@@ -916,7 +994,22 @@ static int thread_imc_event_init(struct perf_event *event)
- 	if (!target)
- 		return -EINVAL;
- 
-+	mutex_lock(&imc_global_refc.lock);
-+	/*
-+	 * Check if any other trace/core imc events are running in the
-+	 * system, if not set the global id to thread-imc.
-+	 */
-+	if (imc_global_refc.id == 0 || imc_global_refc.id == IMC_DOMAIN_THREAD) {
-+		imc_global_refc.id = IMC_DOMAIN_THREAD;
-+		imc_global_refc.refc++;
-+	} else {
-+		mutex_unlock(&imc_global_refc.lock);
-+		return -EBUSY;
-+	}
-+	mutex_unlock(&imc_global_refc.lock);
-+
- 	event->pmu->task_ctx_nr = perf_sw_context;
-+	event->destroy = reset_global_refc;
- 	return 0;
- }
- 
-@@ -1063,10 +1156,12 @@ static void thread_imc_event_del(struct perf_event *event, int flags)
- 	int core_id;
- 	struct imc_pmu_ref *ref;
- 
--	mtspr(SPRN_LDBAR, 0);
--
- 	core_id = smp_processor_id() / threads_per_core;
- 	ref = &core_imc_refc[core_id];
-+	if (!ref) {
-+		pr_debug("imc: Failed to get event reference count\n");
-+		return;
-+	}
- 
- 	mutex_lock(&ref->lock);
- 	ref->refc--;
-@@ -1082,6 +1177,10 @@ static void thread_imc_event_del(struct perf_event *event, int flags)
- 		ref->refc = 0;
- 	}
- 	mutex_unlock(&ref->lock);
-+
-+	/* Set bit 0 of LDBAR to zero, to stop posting updates to memory */
-+	mtspr(SPRN_LDBAR, (mfspr(SPRN_LDBAR) & (~(1UL << 63))));
-+
- 	/*
- 	 * Take a snapshot and calculate the delta and update
- 	 * the event counter values.
-@@ -1133,7 +1232,18 @@ static int ppc_trace_imc_cpu_online(unsigned int cpu)
- 
- static int ppc_trace_imc_cpu_offline(unsigned int cpu)
- {
--	mtspr(SPRN_LDBAR, 0);
-+	/*
-+	 * No need to set bit 0 of LDBAR to zero, as
-+	 * it is set to zero for imc trace-mode
-+	 *
-+	 * Reduce the refc if any trace-imc event running
-+	 * on this cpu.
-+	 */
-+	mutex_lock(&imc_global_refc.lock);
-+	if (imc_global_refc.id == IMC_DOMAIN_TRACE)
-+		imc_global_refc.refc--;
-+	mutex_unlock(&imc_global_refc.lock);
-+
- 	return 0;
- }
- 
-@@ -1226,15 +1336,14 @@ static int trace_imc_event_add(struct perf_event *event, int flags)
- 	local_mem = get_trace_imc_event_base_addr();
- 	ldbar_value = ((u64)local_mem & THREAD_IMC_LDBAR_MASK) | TRACE_IMC_ENABLE;
- 
--	if (core_imc_refc)
--		ref = &core_imc_refc[core_id];
-+	/* trace-imc reference count */
-+	if (trace_imc_refc)
-+		ref = &trace_imc_refc[core_id];
- 	if (!ref) {
--		/* If core-imc is not enabled, use trace-imc reference count */
--		if (trace_imc_refc)
--			ref = &trace_imc_refc[core_id];
--		if (!ref)
--			return -EINVAL;
-+		pr_debug("imc: Failed to get the event reference count\n");
-+		return -EINVAL;
- 	}
-+
- 	mtspr(SPRN_LDBAR, ldbar_value);
- 	mutex_lock(&ref->lock);
- 	if (ref->refc == 0) {
-@@ -1242,13 +1351,11 @@ static int trace_imc_event_add(struct perf_event *event, int flags)
- 				get_hard_smp_processor_id(smp_processor_id()))) {
- 			mutex_unlock(&ref->lock);
- 			pr_err("trace-imc: Unable to start the counters for core %d\n", core_id);
--			mtspr(SPRN_LDBAR, 0);
- 			return -EINVAL;
- 		}
- 	}
- 	++ref->refc;
- 	mutex_unlock(&ref->lock);
--
- 	return 0;
- }
- 
-@@ -1274,16 +1381,13 @@ static void trace_imc_event_del(struct perf_event *event, int flags)
- 	int core_id = smp_processor_id() / threads_per_core;
- 	struct imc_pmu_ref *ref = NULL;
- 
--	if (core_imc_refc)
--		ref = &core_imc_refc[core_id];
-+	if (trace_imc_refc)
-+		ref = &trace_imc_refc[core_id];
- 	if (!ref) {
--		/* If core-imc is not enabled, use trace-imc reference count */
--		if (trace_imc_refc)
--			ref = &trace_imc_refc[core_id];
--		if (!ref)
--			return;
-+		pr_debug("imc: Failed to get event reference count\n");
-+		return;
- 	}
--	mtspr(SPRN_LDBAR, 0);
-+
- 	mutex_lock(&ref->lock);
- 	ref->refc--;
- 	if (ref->refc == 0) {
-@@ -1297,6 +1401,7 @@ static void trace_imc_event_del(struct perf_event *event, int flags)
- 		ref->refc = 0;
- 	}
- 	mutex_unlock(&ref->lock);
-+
- 	trace_imc_event_stop(event, flags);
- }
- 
-@@ -1314,10 +1419,30 @@ static int trace_imc_event_init(struct perf_event *event)
- 	if (event->attr.sample_period == 0)
- 		return -ENOENT;
- 
-+	/*
-+	 * Take the global lock, and make sure
-+	 * no other thread is running any core/thread imc
-+	 * events
-+	 */
-+	mutex_lock(&imc_global_refc.lock);
-+	if (imc_global_refc.id == 0 || imc_global_refc.id == IMC_DOMAIN_TRACE) {
-+		/*
-+		 * No core/thread imc events are running in the
-+		 * system, so set the refc.id to trace-imc.
-+		 */
-+		imc_global_refc.id = IMC_DOMAIN_TRACE;
-+		imc_global_refc.refc++;
-+	} else {
-+		mutex_unlock(&imc_global_refc.lock);
-+		return -EBUSY;
-+	}
-+	mutex_unlock(&imc_global_refc.lock);
-+
- 	event->hw.idx = -1;
- 	target = event->hw.target;
- 
- 	event->pmu->task_ctx_nr = perf_hw_context;
-+	event->destroy = reset_global_refc;
- 	return 0;
- }
- 
-@@ -1429,10 +1554,10 @@ static void cleanup_all_core_imc_memory(void)
- static void thread_imc_ldbar_disable(void *dummy)
- {
- 	/*
--	 * By Zeroing LDBAR, we disable thread-imc
--	 * updates.
-+	 * By setting 0th bit of LDBAR to zero, we disable thread-imc
-+	 * updates to memory.
- 	 */
--	mtspr(SPRN_LDBAR, 0);
-+	mtspr(SPRN_LDBAR, (mfspr(SPRN_LDBAR) & (~(1UL << 63))));
- }
- 
- void thread_imc_disable(void)
+diff --git a/mm/kmemleak.c b/mm/kmemleak.c
+index 2446076633631..312942d784058 100644
+--- a/mm/kmemleak.c
++++ b/mm/kmemleak.c
+@@ -1947,7 +1947,7 @@ void __init kmemleak_init(void)
+ 	create_object((unsigned long)__bss_start, __bss_stop - __bss_start,
+ 		      KMEMLEAK_GREY, GFP_ATOMIC);
+ 	/* only register .data..ro_after_init if not within .data */
+-	if (__start_ro_after_init < _sdata || __end_ro_after_init > _edata)
++	if (&__start_ro_after_init < &_sdata || &__end_ro_after_init > &_edata)
+ 		create_object((unsigned long)__start_ro_after_init,
+ 			      __end_ro_after_init - __start_ro_after_init,
+ 			      KMEMLEAK_GREY, GFP_ATOMIC);
 -- 
 2.25.1
 
