@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73AEB26EBF5
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:10:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B368726EBFA
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:10:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728129AbgIRCIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:08:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60176 "EHLO mail.kernel.org"
+        id S1728171AbgIRCIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:08:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728121AbgIRCIk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:08:40 -0400
+        id S1728163AbgIRCIt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:08:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DE872388E;
-        Fri, 18 Sep 2020 02:08:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFCC8238E3;
+        Fri, 18 Sep 2020 02:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394920;
-        bh=4qTkj4l9xYshPGVL1jFCPD5HFJvEoHurIlP2Z06u938=;
+        s=default; t=1600394928;
+        bh=nnaW84s0ksnm0uWprDCOIlfvStGE40uUbmvnVaQENs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tMLUAxyvB/zXtFIY96sB+gxk0hBrhZ5Xe06fNfQ8pHUiMJ4r8u4ExNHb9YlGYSLgj
-         GjNaxOY1sqaRcMFAqMvGufXig5Xyw7yJHmtkBRgT7lMB1RbTjNF9cLXWLg92IE8MX0
-         L6sBfDAFVndAkq7xVxpGkNL0p1mvbcOw0DZSjGgA=
+        b=i5NJOQfO4iFu00NIfaUzf2O558oPvIFRTadbaI5jIKkZyxB2ZhDkXGjgcPbuzC7R6
+         aJ4ylS1T5CEJridXlbiFyZz5bKNnit2GWJlrVWA9OC2kxps4hNZpGcZIA7dpadltD5
+         oHR66uLbnY1V15G8PaMJ+TrcSc1BgYLYPqaKWO+o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 032/206] RDMA/iw_cgxb4: Fix an error handling path in 'c4iw_connect()'
-Date:   Thu, 17 Sep 2020 22:05:08 -0400
-Message-Id: <20200918020802.2065198-32-sashal@kernel.org>
+Cc:     Tzung-Bi Shih <tzungbi@google.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 039/206] ASoC: max98090: remove msleep in PLL unlocked workaround
+Date:   Thu, 17 Sep 2020 22:05:15 -0400
+Message-Id: <20200918020802.2065198-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -42,42 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit 9067f2f0b41d7e817fc8c5259bab1f17512b0147 ]
+[ Upstream commit acb874a7c049ec49d8fc66c893170fb42c01bdf7 ]
 
-We should jump to fail3 in order to undo the 'xa_insert_irq()' call.
+It was observed Baytrail-based chromebooks could cause continuous PLL
+unlocked when using playback stream and capture stream simultaneously.
+Specifically, starting a capture stream after started a playback stream.
+As a result, the audio data could corrupt or turn completely silent.
 
-Link: https://lore.kernel.org/r/20190923190746.10964-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+As the datasheet suggested, the maximum PLL lock time should be 7 msec.
+The workaround resets the codec softly by toggling SHDN off and on if
+PLL failed to lock for 10 msec.  Notably, there is no suggested hold
+time for SHDN off.
+
+On Baytrail-based chromebooks, it would easily happen continuous PLL
+unlocked if there is a 10 msec delay between SHDN off and on.  Removes
+the msleep().
+
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Link: https://lore.kernel.org/r/20191122073114.219945-2-tzungbi@google.com
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/max98090.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index 16145b0a14583..3fd3dfa3478b7 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -3293,7 +3293,7 @@ int c4iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
- 		if (raddr->sin_addr.s_addr == htonl(INADDR_ANY)) {
- 			err = pick_local_ipaddrs(dev, cm_id);
- 			if (err)
--				goto fail2;
-+				goto fail3;
- 		}
+diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
+index 89b6e187ac235..a5b0c40ee545f 100644
+--- a/sound/soc/codecs/max98090.c
++++ b/sound/soc/codecs/max98090.c
+@@ -2130,10 +2130,16 @@ static void max98090_pll_work(struct max98090_priv *max98090)
  
- 		/* find a route */
-@@ -3315,7 +3315,7 @@ int c4iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
- 		if (ipv6_addr_type(&raddr6->sin6_addr) == IPV6_ADDR_ANY) {
- 			err = pick_local_ip6addrs(dev, cm_id);
- 			if (err)
--				goto fail2;
-+				goto fail3;
- 		}
+ 	dev_info_ratelimited(component->dev, "PLL unlocked\n");
  
- 		/* find a route */
++	/*
++	 * As the datasheet suggested, the maximum PLL lock time should be
++	 * 7 msec.  The workaround resets the codec softly by toggling SHDN
++	 * off and on if PLL failed to lock for 10 msec.  Notably, there is
++	 * no suggested hold time for SHDN off.
++	 */
++
+ 	/* Toggle shutdown OFF then ON */
+ 	snd_soc_component_update_bits(component, M98090_REG_DEVICE_SHUTDOWN,
+ 			    M98090_SHDNN_MASK, 0);
+-	msleep(10);
+ 	snd_soc_component_update_bits(component, M98090_REG_DEVICE_SHUTDOWN,
+ 			    M98090_SHDNN_MASK, M98090_SHDNN_MASK);
+ 
 -- 
 2.25.1
 
