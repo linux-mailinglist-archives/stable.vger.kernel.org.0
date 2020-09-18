@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BCAB26F1CF
+	by mail.lfdr.de (Postfix) with ESMTP id 0C19926F1CE
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728819AbgIRCx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58298 "EHLO mail.kernel.org"
+        id S1729065AbgIRCx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:53:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727973AbgIRCHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727954AbgIRCHo (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:07:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B99A2395B;
-        Fri, 18 Sep 2020 02:07:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33AC5239EB;
+        Fri, 18 Sep 2020 02:07:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394861;
-        bh=KRKeUQKw05VcBoIIUdo4APnCM5j8pGKovFeyyHAl6Sk=;
+        s=default; t=1600394863;
+        bh=kI+Q5SOmffgbQzOQX7OB3OziOMeRo5CyadsI0mNFvD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o35x9ncgJWXWlAGJuX3WLH8/fqfjzGrRbAaALFiJIS05kHXMbU+VdM3xT0AqI58Q4
-         izUNuwYurDpwcD9pzoksmtyj7F76WcLLZRUbeW0cI8ADDQmGo4TEAOSYBIP8ZjUwuP
-         AtKCat8sg2/dY/udTpwdXVL+pzZDMvgxizxnofoA=
+        b=Loiq0XeUGh0Xea9mCJITa7NH0pWU1mUAD+jmNCDrLTmTDqjZwTiBeIkgAgqiq4JdJ
+         Xx9Fdga/mYEX2Jg20c5RzOuCTAFlUfxoRprnaEUfn9oVCrJVqlLfe5DDlkbgQtU8X0
+         Nn9PLjEGBkVKSw+UeI3yWfHjGRaS9ENk++rkD4P0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Markus Theil <markus.theil@tu-ilmenau.de>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 315/330] mac80211: skip mpath lookup also for control port tx
-Date:   Thu, 17 Sep 2020 22:00:55 -0400
-Message-Id: <20200918020110.2063155-315-sashal@kernel.org>
+Cc:     Javed Hasan <jhasan@marvell.com>,
+        Girish Basrur <gbasrur@marvell.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Shyam Sundar <ssundar@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, fcoe-devel@open-fcoe.org,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 316/330] scsi: libfc: Handling of extra kref
+Date:   Thu, 17 Sep 2020 22:00:56 -0400
+Message-Id: <20200918020110.2063155-316-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,57 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Theil <markus.theil@tu-ilmenau.de>
+From: Javed Hasan <jhasan@marvell.com>
 
-[ Upstream commit 5af7fef39d7952c0f5551afa7b821ee7b6c9dd3d ]
+[ Upstream commit 71f2bf85e90d938d4a9ef9dd9bfa8d9b0b6a03f7 ]
 
-When using 802.1X over mesh networks, at first an ordinary
-mesh peering is established, then the 802.1X EAPOL dialog
-happens, afterwards an authenticated mesh peering exchange
-(AMPE) happens, finally the peering is complete and we can
-set the STA authorized flag.
+Handling of extra kref which is done by lookup table in case rdata is
+already present in list.
 
-As 802.1X is an intermediate step here and key material is
-not yet exchanged for stations we have to skip mesh path lookup
-for these EAPOL frames. Otherwise the already configure mesh
-group encryption key would be used to send a mesh path request
-which no one can decipher, because we didn't already establish
-key material on both peers, like with SAE and directly using AMPE.
+This issue was leading to memory leak. Trace from KMEMLEAK tool:
 
-Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
-Link: https://lore.kernel.org/r/20200617082637.22670-2-markus.theil@tu-ilmenau.de
-[remove pointless braces, remove unnecessary local variable,
- the list can only process one such frame (or its fragments)]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+  unreferenced object 0xffff8888259e8780 (size 512):
+    comm "kworker/2:1", pid 182614, jiffies 4433237386 (age 113021.971s)
+    hex dump (first 32 bytes):
+    58 0a ec cf 83 88 ff ff 00 00 00 00 00 00 00 00
+    01 00 00 00 08 00 00 00 13 7d f0 1e 0e 00 00 10
+  backtrace:
+	[<000000006b25760f>] fc_rport_recv_req+0x3c6/0x18f0 [libfc]
+	[<00000000f208d994>] fc_lport_recv_els_req+0x120/0x8a0 [libfc]
+	[<00000000a9c437b8>] fc_lport_recv+0xb9/0x130 [libfc]
+	[<00000000ad5be37b>] qedf_ll2_process_skb+0x73d/0xad0 [qedf]
+	[<00000000e0eb6893>] process_one_work+0x382/0x6c0
+	[<000000002dfd9e21>] worker_thread+0x57/0x5c0
+	[<00000000b648204f>] kthread+0x1a0/0x1c0
+	[<0000000072f5ab20>] ret_from_fork+0x35/0x40
+	[<000000001d5c05d8>] 0xffffffffffffffff
+
+Below is the log sequence which leads to memory leak. Here we get the
+nested "Received PLOGI request" for same port and this request leads to
+call the fc_rport_create() twice for the same rport.
+
+	kernel: host1: rport fffce5: Received PLOGI request
+	kernel: host1: rport fffce5: Received PLOGI in INIT state
+	kernel: host1: rport fffce5: Port is Ready
+	kernel: host1: rport fffce5: Received PRLI request while in state Ready
+	kernel: host1: rport fffce5: PRLI rspp type 8 active 1 passive 0
+	kernel: host1: rport fffce5: Received LOGO request while in state Ready
+	kernel: host1: rport fffce5: Delete port
+	kernel: host1: rport fffce5: Received PLOGI request
+	kernel: host1: rport fffce5: Received PLOGI in state Delete - send busy
+
+Link: https://lore.kernel.org/r/20200622101212.3922-2-jhasan@marvell.com
+Reviewed-by: Girish Basrur <gbasrur@marvell.com>
+Reviewed-by: Saurav Kashyap <skashyap@marvell.com>
+Reviewed-by: Shyam Sundar <ssundar@marvell.com>
+Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/libfc/fc_rport.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 30201aeb426cf..f029e75ec815a 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -3913,6 +3913,9 @@ void __ieee80211_subif_start_xmit(struct sk_buff *skb,
- 		skb->prev = NULL;
- 		skb->next = NULL;
+diff --git a/drivers/scsi/libfc/fc_rport.c b/drivers/scsi/libfc/fc_rport.c
+index 6bb8917b99a19..aabf51df3c02f 100644
+--- a/drivers/scsi/libfc/fc_rport.c
++++ b/drivers/scsi/libfc/fc_rport.c
+@@ -133,8 +133,10 @@ struct fc_rport_priv *fc_rport_create(struct fc_lport *lport, u32 port_id)
+ 	lockdep_assert_held(&lport->disc.disc_mutex);
  
-+		if (skb->protocol == sdata->control_port_protocol)
-+			ctrl_flags |= IEEE80211_TX_CTRL_SKIP_MPATH_LOOKUP;
-+
- 		skb = ieee80211_build_hdr(sdata, skb, info_flags,
- 					  sta, ctrl_flags);
- 		if (IS_ERR(skb))
-@@ -5096,7 +5099,8 @@ int ieee80211_tx_control_port(struct wiphy *wiphy, struct net_device *dev,
- 		return -EINVAL;
+ 	rdata = fc_rport_lookup(lport, port_id);
+-	if (rdata)
++	if (rdata) {
++		kref_put(&rdata->kref, fc_rport_destroy);
+ 		return rdata;
++	}
  
- 	if (proto == sdata->control_port_protocol)
--		ctrl_flags |= IEEE80211_TX_CTRL_PORT_CTRL_PROTO;
-+		ctrl_flags |= IEEE80211_TX_CTRL_PORT_CTRL_PROTO |
-+			      IEEE80211_TX_CTRL_SKIP_MPATH_LOOKUP;
- 
- 	if (unencrypted)
- 		flags = IEEE80211_TX_INTFL_DONT_ENCRYPT;
+ 	if (lport->rport_priv_size > 0)
+ 		rport_priv_size = lport->rport_priv_size;
 -- 
 2.25.1
 
