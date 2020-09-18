@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0C026EB59
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:06:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B3F126EB5E
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727322AbgIRCEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:04:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51878 "EHLO mail.kernel.org"
+        id S1727349AbgIRCEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:04:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727264AbgIRCE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:04:29 -0400
+        id S1727343AbgIRCEg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:04:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7984723787;
-        Fri, 18 Sep 2020 02:04:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15F8F2376F;
+        Fri, 18 Sep 2020 02:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394668;
-        bh=Adt6RvK5imwNgQL791a9n50jRKgHUDzZKp9JlfVyb6k=;
+        s=default; t=1600394675;
+        bh=xxpODNml237vmDZDxhlu0H+y5oiY6Ei9aZoj7zrq/sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxYEuqAwsa/EBYtGiFrBhRJ9GCYx8/GlxzTEdxKVq+uaWI95POnpMeaiObce1ECyn
-         nV1bWvN0QTKSBkgzzqSCWL0vd39+l5UWvF8ElB26wkULujvVWd1FNW5lr/2w1fySfH
-         JhWGupSzPfUHTngb3SPGNk+rWvkL8WyecCXBX58s=
+        b=Y8IPasg4PZKaM3b/PDz7Rd8E+gG2ed+kA3kqok0Xf2zIrbODEujJmCb6cCkM07wR1
+         LyOw0pZfR3xXca2EjuO9jGVfsrSxJozrZcIUHwZZ6X9n3ZOXlGePVVQsFYCfGkgsZE
+         i7FEV4pptP4Lm2y8FhsFWKPKCXwN3axCGmiOBv5A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Huang <Anson.Huang@nxp.com>, Peng Fan <peng.fan@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 161/330] clk: imx: Fix division by zero warning on pfdv2
-Date:   Thu, 17 Sep 2020 21:58:21 -0400
-Message-Id: <20200918020110.2063155-161-sashal@kernel.org>
+Cc:     Wen Gong <wgong@codeaurora.org>, Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 166/330] ath10k: use kzalloc to read for ath10k_sdio_hif_diag_read
+Date:   Thu, 17 Sep 2020 21:58:26 -0400
+Message-Id: <20200918020110.2063155-166-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,62 +42,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Wen Gong <wgong@codeaurora.org>
 
-[ Upstream commit 28b2f82e0383e27476be8a5e13d2aea07ebeb275 ]
+[ Upstream commit 402f2992b4d62760cce7c689ff216ea3bf4d6e8a ]
 
-Fix below division by zero warning:
+When use command to read values, it crashed.
 
-[    3.176443] Division by zero in kernel.
-[    3.181809] CPU: 0 PID: 88 Comm: kworker/0:2 Not tainted 5.3.0-rc2-next-20190730-63758-ge08da51-dirty #124
-[    3.191817] Hardware name: Freescale i.MX7ULP (Device Tree)
-[    3.197821] Workqueue: events dbs_work_handler
-[    3.202849] [<c01127d8>] (unwind_backtrace) from [<c010cd80>] (show_stack+0x10/0x14)
-[    3.211058] [<c010cd80>] (show_stack) from [<c0c77e68>] (dump_stack+0xd8/0x110)
-[    3.218820] [<c0c77e68>] (dump_stack) from [<c0c753c0>] (Ldiv0_64+0x8/0x18)
-[    3.226263] [<c0c753c0>] (Ldiv0_64) from [<c05984b4>] (clk_pfdv2_set_rate+0x54/0xac)
-[    3.234487] [<c05984b4>] (clk_pfdv2_set_rate) from [<c059192c>] (clk_change_rate+0x1a4/0x698)
-[    3.243468] [<c059192c>] (clk_change_rate) from [<c0591a08>] (clk_change_rate+0x280/0x698)
-[    3.252180] [<c0591a08>] (clk_change_rate) from [<c0591fc0>] (clk_core_set_rate_nolock+0x1a0/0x278)
-[    3.261679] [<c0591fc0>] (clk_core_set_rate_nolock) from [<c05920c8>] (clk_set_rate+0x30/0x64)
-[    3.270743] [<c05920c8>] (clk_set_rate) from [<c089cb88>] (imx7ulp_set_target+0x184/0x2a4)
-[    3.279501] [<c089cb88>] (imx7ulp_set_target) from [<c0896358>] (__cpufreq_driver_target+0x188/0x514)
-[    3.289196] [<c0896358>] (__cpufreq_driver_target) from [<c0899b0c>] (od_dbs_update+0x130/0x15c)
-[    3.298438] [<c0899b0c>] (od_dbs_update) from [<c089a5d0>] (dbs_work_handler+0x2c/0x5c)
-[    3.306914] [<c089a5d0>] (dbs_work_handler) from [<c0156858>] (process_one_work+0x2ac/0x704)
-[    3.315826] [<c0156858>] (process_one_work) from [<c0156cdc>] (worker_thread+0x2c/0x574)
-[    3.324404] [<c0156cdc>] (worker_thread) from [<c015cfe8>] (kthread+0x134/0x148)
-[    3.332278] [<c015cfe8>] (kthread) from [<c01010b4>] (ret_from_fork+0x14/0x20)
-[    3.339858] Exception stack(0xe82d5fb0 to 0xe82d5ff8)
-[    3.345314] 5fa0:                                     00000000 00000000 00000000 00000000
-[    3.353926] 5fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-[    3.362519] 5fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+command:
+dd if=/sys/kernel/debug/ieee80211/phy0/ath10k/mem_value count=1 bs=4 skip=$((0x100233))
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+It will call to ath10k_sdio_hif_diag_read with address = 0x4008cc and buf_len = 4.
+
+Then system crash:
+[ 1786.013258] Unable to handle kernel paging request at virtual address ffffffc00bd45000
+[ 1786.013273] Mem abort info:
+[ 1786.013281]   ESR = 0x96000045
+[ 1786.013291]   Exception class = DABT (current EL), IL = 32 bits
+[ 1786.013299]   SET = 0, FnV = 0
+[ 1786.013307]   EA = 0, S1PTW = 0
+[ 1786.013314] Data abort info:
+[ 1786.013322]   ISV = 0, ISS = 0x00000045
+[ 1786.013330]   CM = 0, WnR = 1
+[ 1786.013342] swapper pgtable: 4k pages, 39-bit VAs, pgdp = 000000008542a60e
+[ 1786.013350] [ffffffc00bd45000] pgd=0000000000000000, pud=0000000000000000
+[ 1786.013368] Internal error: Oops: 96000045 [#1] PREEMPT SMP
+[ 1786.013609] Process swapper/0 (pid: 0, stack limit = 0x0000000084b153c6)
+[ 1786.013623] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.19.86 #137
+[ 1786.013631] Hardware name: MediaTek krane sku176 board (DT)
+[ 1786.013643] pstate: 80000085 (Nzcv daIf -PAN -UAO)
+[ 1786.013662] pc : __memcpy+0x94/0x180
+[ 1786.013678] lr : swiotlb_tbl_unmap_single+0x84/0x150
+[ 1786.013686] sp : ffffff8008003c60
+[ 1786.013694] x29: ffffff8008003c90 x28: ffffffae96411f80
+[ 1786.013708] x27: ffffffae960d2018 x26: ffffff8019a4b9a8
+[ 1786.013721] x25: 0000000000000000 x24: 0000000000000001
+[ 1786.013734] x23: ffffffae96567000 x22: 00000000000051d4
+[ 1786.013747] x21: 0000000000000000 x20: 00000000fe6e9000
+[ 1786.013760] x19: 0000000000000004 x18: 0000000000000020
+[ 1786.013773] x17: 0000000000000001 x16: 0000000000000000
+[ 1786.013787] x15: 00000000ffffffff x14: 00000000000044c0
+[ 1786.013800] x13: 0000000000365ba4 x12: 0000000000000000
+[ 1786.013813] x11: 0000000000000001 x10: 00000037be6e9000
+[ 1786.013826] x9 : ffffffc940000000 x8 : 000000000bd45000
+[ 1786.013839] x7 : 0000000000000000 x6 : ffffffc00bd45000
+[ 1786.013852] x5 : 0000000000000000 x4 : 0000000000000000
+[ 1786.013865] x3 : 0000000000000c00 x2 : 0000000000000004
+[ 1786.013878] x1 : fffffff7be6e9004 x0 : ffffffc00bd45000
+[ 1786.013891] Call trace:
+[ 1786.013903]  __memcpy+0x94/0x180
+[ 1786.013914]  unmap_single+0x6c/0x84
+[ 1786.013925]  swiotlb_unmap_sg_attrs+0x54/0x80
+[ 1786.013938]  __swiotlb_unmap_sg_attrs+0x8c/0xa4
+[ 1786.013952]  msdc_unprepare_data+0x6c/0x84
+[ 1786.013963]  msdc_request_done+0x58/0x84
+[ 1786.013974]  msdc_data_xfer_done+0x1a0/0x1c8
+[ 1786.013985]  msdc_irq+0x12c/0x17c
+[ 1786.013996]  __handle_irq_event_percpu+0xe4/0x250
+[ 1786.014006]  handle_irq_event_percpu+0x28/0x68
+[ 1786.014015]  handle_irq_event+0x48/0x78
+[ 1786.014026]  handle_fasteoi_irq+0xd0/0x1a0
+[ 1786.014039]  __handle_domain_irq+0x84/0xc4
+[ 1786.014050]  gic_handle_irq+0x124/0x1a4
+[ 1786.014059]  el1_irq+0xb0/0x128
+[ 1786.014072]  cpuidle_enter_state+0x298/0x328
+[ 1786.014082]  cpuidle_enter+0x30/0x40
+[ 1786.014094]  do_idle+0x190/0x268
+[ 1786.014104]  cpu_startup_entry+0x24/0x28
+[ 1786.014116]  rest_init+0xd4/0xe0
+[ 1786.014126]  start_kernel+0x30c/0x38c
+[ 1786.014139] Code: f8408423 f80084c3 36100062 b8404423 (b80044c3)
+[ 1786.014150] ---[ end trace 3b02ddb698ea69ee ]---
+[ 1786.015415] Kernel panic - not syncing: Fatal exception in interrupt
+[ 1786.015433] SMP: stopping secondary CPUs
+[ 1786.015447] Kernel Offset: 0x2e8d200000 from 0xffffff8008000000
+[ 1786.015458] CPU features: 0x0,2188200c
+[ 1786.015466] Memory Limit: none
+
+For sdio chip, it need the memory which is kmalloc, if it is
+vmalloc from ath10k_mem_value_read, then it have a memory error.
+kzalloc of ath10k_sdio_hif_diag_read32 is the correct type, so
+add kzalloc in ath10k_sdio_hif_diag_read to replace the buffer
+which is vmalloc from ath10k_mem_value_read.
+
+This patch only effect sdio chip.
+
+Tested with QCA6174 SDIO with firmware WLAN.RMH.4.4.1-00029.
+
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-pfdv2.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/wireless/ath/ath10k/sdio.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/imx/clk-pfdv2.c b/drivers/clk/imx/clk-pfdv2.c
-index a03bbed662c6b..2a46b9b61b466 100644
---- a/drivers/clk/imx/clk-pfdv2.c
-+++ b/drivers/clk/imx/clk-pfdv2.c
-@@ -139,6 +139,12 @@ static int clk_pfdv2_set_rate(struct clk_hw *hw, unsigned long rate,
- 	u32 val;
- 	u8 frac;
+diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
+index 9870d2d095c87..8fe626deadeb0 100644
+--- a/drivers/net/wireless/ath/ath10k/sdio.c
++++ b/drivers/net/wireless/ath/ath10k/sdio.c
+@@ -1582,23 +1582,33 @@ static int ath10k_sdio_hif_diag_read(struct ath10k *ar, u32 address, void *buf,
+ 				     size_t buf_len)
+ {
+ 	int ret;
++	void *mem;
++
++	mem = kzalloc(buf_len, GFP_KERNEL);
++	if (!mem)
++		return -ENOMEM;
  
-+	if (!rate)
-+		return -EINVAL;
+ 	/* set window register to start read cycle */
+ 	ret = ath10k_sdio_write32(ar, MBOX_WINDOW_READ_ADDR_ADDRESS, address);
+ 	if (ret) {
+ 		ath10k_warn(ar, "failed to set mbox window read address: %d", ret);
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	/* read the data */
+-	ret = ath10k_sdio_read(ar, MBOX_WINDOW_DATA_ADDRESS, buf, buf_len);
++	ret = ath10k_sdio_read(ar, MBOX_WINDOW_DATA_ADDRESS, mem, buf_len);
+ 	if (ret) {
+ 		ath10k_warn(ar, "failed to read from mbox window data address: %d\n",
+ 			    ret);
+-		return ret;
++		goto out;
+ 	}
+ 
+-	return 0;
++	memcpy(buf, mem, buf_len);
 +
-+	/* PFD can NOT change rate without gating */
-+	WARN_ON(clk_pfdv2_is_enabled(hw));
++out:
++	kfree(mem);
 +
- 	tmp = tmp * 18 + rate / 2;
- 	do_div(tmp, rate);
- 	frac = tmp;
++	return ret;
+ }
+ 
+ static int ath10k_sdio_hif_diag_read32(struct ath10k *ar, u32 address,
 -- 
 2.25.1
 
