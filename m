@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 958B426F40C
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D0626F40A
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729564AbgIRDL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:11:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47696 "EHLO mail.kernel.org"
+        id S1726767AbgIRDL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:11:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726751AbgIRCC3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726749AbgIRCC3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:02:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D04A821D40;
-        Fri, 18 Sep 2020 02:02:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 193D323770;
+        Fri, 18 Sep 2020 02:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394541;
-        bh=sqlLud8CEaAaBFbB3Brfhi39Fv7Pc8MrM/ur4dg+zwM=;
+        s=default; t=1600394542;
+        bh=xOd9QKWTSY2iyHQRA3tBBDFqWyLXobXanE1Ql2zUFvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZrAyOagF5rjmo7wqbC76FUFEPObc84DFE2g1BJ9gz1RKVe49bGVkAtcvsUYM29tYO
-         TdRA7aoN36hPqI6QxWEKQ0v9Jm8D/UsVgtkRDyGIomskqYmx/Ctv+Kn3JTkc/ZZWre
-         D/Ybk1o9Y9gQTGaHHs43f6KiNM/A5B2VWJ2Ku1ZY=
+        b=B9oJWY1ShEIR1aiSwKboSOLbyPWYpoa/36NqRETpK8uBxMMgvt7iQmdZsdn/MrZsY
+         ACpJ/SoOtcrI0PlE4DP41gCQ3iD0OYN88IYq667PO5/jQBC4Py1Xxkm/sW5KZuV4B6
+         EzxgFckLAV+2AUMChN5lp/4/lb7sVpiFMh0xE5Kc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 059/330] mt76: add missing locking around ampdu action
-Date:   Thu, 17 Sep 2020 21:56:39 -0400
-Message-Id: <20200918020110.2063155-59-sashal@kernel.org>
+Cc:     Kusanagi Kouichi <slash@ac.auone-net.jp>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 060/330] debugfs: Fix !DEBUG_FS debugfs_create_automount
+Date:   Thu, 17 Sep 2020 21:56:40 -0400
+Message-Id: <20200918020110.2063155-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,81 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Kusanagi Kouichi <slash@ac.auone-net.jp>
 
-[ Upstream commit 1a817fa73c3b27a593aadf0029de24db1bbc1a3e ]
+[ Upstream commit 4250b047039d324e0ff65267c8beb5bad5052a86 ]
 
-This is needed primarily to avoid races in dealing with rx aggregation
-related data structures
+If DEBUG_FS=n, compile fails with the following error:
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+kernel/trace/trace.c: In function 'tracing_init_dentry':
+kernel/trace/trace.c:8658:9: error: passing argument 3 of 'debugfs_create_automount' from incompatible pointer type [-Werror=incompatible-pointer-types]
+ 8658 |         trace_automount, NULL);
+      |         ^~~~~~~~~~~~~~~
+      |         |
+      |         struct vfsmount * (*)(struct dentry *, void *)
+In file included from kernel/trace/trace.c:24:
+./include/linux/debugfs.h:206:25: note: expected 'struct vfsmount * (*)(void *)' but argument is of type 'struct vfsmount * (*)(struct dentry *, void *)'
+  206 |      struct vfsmount *(*f)(void *),
+      |      ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+
+Signed-off-by: Kusanagi Kouichi <slash@ac.auone-net.jp>
+Link: https://lore.kernel.org/r/20191121102021787.MLMY.25002.ppp.dion.ne.jp@dmta0003.auone-net.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7603/main.c  | 2 ++
- drivers/net/wireless/mediatek/mt76/mt7615/main.c  | 2 ++
- drivers/net/wireless/mediatek/mt76/mt76x02_util.c | 2 ++
- 3 files changed, 6 insertions(+)
+ include/linux/debugfs.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/main.c b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
-index 25d5b1608bc91..0a5695c3d9241 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7603/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
-@@ -561,6 +561,7 @@ mt7603_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 
- 	mtxq = (struct mt76_txq *)txq->drv_priv;
- 
-+	mutex_lock(&dev->mt76.mutex);
- 	switch (action) {
- 	case IEEE80211_AMPDU_RX_START:
- 		mt76_rx_aggr_start(&dev->mt76, &msta->wcid, tid, ssn,
-@@ -590,6 +591,7 @@ mt7603_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 		ieee80211_stop_tx_ba_cb_irqsafe(vif, sta->addr, tid);
- 		break;
- 	}
-+	mutex_unlock(&dev->mt76.mutex);
- 
- 	return 0;
+diff --git a/include/linux/debugfs.h b/include/linux/debugfs.h
+index 58424eb3b3291..798f0b9b43aee 100644
+--- a/include/linux/debugfs.h
++++ b/include/linux/debugfs.h
+@@ -54,6 +54,8 @@ static const struct file_operations __fops = {				\
+ 	.llseek  = no_llseek,						\
  }
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-index 87c748715b5d7..38183aef0eb92 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-@@ -455,6 +455,7 @@ mt7615_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
  
- 	mtxq = (struct mt76_txq *)txq->drv_priv;
++typedef struct vfsmount *(*debugfs_automount_t)(struct dentry *, void *);
++
+ #if defined(CONFIG_DEBUG_FS)
  
-+	mutex_lock(&dev->mt76.mutex);
- 	switch (action) {
- 	case IEEE80211_AMPDU_RX_START:
- 		mt76_rx_aggr_start(&dev->mt76, &msta->wcid, tid, ssn,
-@@ -485,6 +486,7 @@ mt7615_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 		ieee80211_stop_tx_ba_cb_irqsafe(vif, sta->addr, tid);
- 		break;
- 	}
-+	mutex_unlock(&dev->mt76.mutex);
+ struct dentry *debugfs_lookup(const char *name, struct dentry *parent);
+@@ -75,7 +77,6 @@ struct dentry *debugfs_create_dir(const char *name, struct dentry *parent);
+ struct dentry *debugfs_create_symlink(const char *name, struct dentry *parent,
+ 				      const char *dest);
  
- 	return 0;
- }
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
-index aec73a0295e86..de0d6f21c621c 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
-@@ -371,6 +371,7 @@ int mt76x02_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+-typedef struct vfsmount *(*debugfs_automount_t)(struct dentry *, void *);
+ struct dentry *debugfs_create_automount(const char *name,
+ 					struct dentry *parent,
+ 					debugfs_automount_t f,
+@@ -203,7 +204,7 @@ static inline struct dentry *debugfs_create_symlink(const char *name,
  
- 	mtxq = (struct mt76_txq *)txq->drv_priv;
- 
-+	mutex_lock(&dev->mt76.mutex);
- 	switch (action) {
- 	case IEEE80211_AMPDU_RX_START:
- 		mt76_rx_aggr_start(&dev->mt76, &msta->wcid, tid,
-@@ -400,6 +401,7 @@ int mt76x02_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 		ieee80211_stop_tx_ba_cb_irqsafe(vif, sta->addr, tid);
- 		break;
- 	}
-+	mutex_unlock(&dev->mt76.mutex);
- 
- 	return 0;
- }
+ static inline struct dentry *debugfs_create_automount(const char *name,
+ 					struct dentry *parent,
+-					struct vfsmount *(*f)(void *),
++					debugfs_automount_t f,
+ 					void *data)
+ {
+ 	return ERR_PTR(-ENODEV);
 -- 
 2.25.1
 
