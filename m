@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D0626F40A
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE81926F3F7
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726767AbgIRDL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:11:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47694 "EHLO mail.kernel.org"
+        id S1726766AbgIRCCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:02:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726749AbgIRCC3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:02:29 -0400
+        id S1726748AbgIRCCa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:02:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 193D323770;
-        Fri, 18 Sep 2020 02:02:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CF2723600;
+        Fri, 18 Sep 2020 02:02:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394542;
-        bh=xOd9QKWTSY2iyHQRA3tBBDFqWyLXobXanE1Ql2zUFvk=;
+        s=default; t=1600394543;
+        bh=94AT0YPweooXiO7gK1/oiuOCZdrXc0s4UM0WFbWcmvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B9oJWY1ShEIR1aiSwKboSOLbyPWYpoa/36NqRETpK8uBxMMgvt7iQmdZsdn/MrZsY
-         ACpJ/SoOtcrI0PlE4DP41gCQ3iD0OYN88IYq667PO5/jQBC4Py1Xxkm/sW5KZuV4B6
-         EzxgFckLAV+2AUMChN5lp/4/lb7sVpiFMh0xE5Kc=
+        b=iS1Rxbc0CCY58xmRtYS5WrRfn0czB2PtDlF1nafb+/CDWODLtrsp6NhXS/0UkJVLR
+         rvVlzbU6IKFBfOxDrMgnnjdRJmqea2erbCi2TErmGZa0cexetY2nTWnoESx0PcX2mE
+         dgLPk3WAqIW1zWyFHPUj+AlWNMbkslPANvvorrXg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kusanagi Kouichi <slash@ac.auone-net.jp>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 060/330] debugfs: Fix !DEBUG_FS debugfs_create_automount
-Date:   Thu, 17 Sep 2020 21:56:40 -0400
-Message-Id: <20200918020110.2063155-60-sashal@kernel.org>
+Cc:     Chuck Lever <chuck.lever@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 061/330] SUNRPC: Capture completion of all RPC tasks
+Date:   Thu, 17 Sep 2020 21:56:41 -0400
+Message-Id: <20200918020110.2063155-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -42,61 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kusanagi Kouichi <slash@ac.auone-net.jp>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 4250b047039d324e0ff65267c8beb5bad5052a86 ]
+[ Upstream commit a264abad51d8ecb7954a2f6d9f1885b38daffc74 ]
 
-If DEBUG_FS=n, compile fails with the following error:
+RPC tasks on the backchannel never invoke xprt_complete_rqst(), so
+there is no way to report their tk_status at completion. Also, any
+RPC task that exits via rpc_exit_task() before it is replied to will
+also disappear without a trace.
 
-kernel/trace/trace.c: In function 'tracing_init_dentry':
-kernel/trace/trace.c:8658:9: error: passing argument 3 of 'debugfs_create_automount' from incompatible pointer type [-Werror=incompatible-pointer-types]
- 8658 |         trace_automount, NULL);
-      |         ^~~~~~~~~~~~~~~
-      |         |
-      |         struct vfsmount * (*)(struct dentry *, void *)
-In file included from kernel/trace/trace.c:24:
-./include/linux/debugfs.h:206:25: note: expected 'struct vfsmount * (*)(void *)' but argument is of type 'struct vfsmount * (*)(struct dentry *, void *)'
-  206 |      struct vfsmount *(*f)(void *),
-      |      ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+Introduce a trace point that is symmetrical with rpc_task_begin that
+captures the termination status of each RPC task.
 
-Signed-off-by: Kusanagi Kouichi <slash@ac.auone-net.jp>
-Link: https://lore.kernel.org/r/20191121102021787.MLMY.25002.ppp.dion.ne.jp@dmta0003.auone-net.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Sample trace output for callback requests initiated on the server:
+   kworker/u8:12-448   [003]   127.025240: rpc_task_end:         task:50@3 flags=ASYNC|DYNAMIC|SOFT|SOFTCONN|SENT runstate=RUNNING|ACTIVE status=0 action=rpc_exit_task
+   kworker/u8:12-448   [002]   127.567310: rpc_task_end:         task:51@3 flags=ASYNC|DYNAMIC|SOFT|SOFTCONN|SENT runstate=RUNNING|ACTIVE status=0 action=rpc_exit_task
+   kworker/u8:12-448   [001]   130.506817: rpc_task_end:         task:52@3 flags=ASYNC|DYNAMIC|SOFT|SOFTCONN|SENT runstate=RUNNING|ACTIVE status=0 action=rpc_exit_task
+
+Odd, though, that I never see trace_rpc_task_complete, either in the
+forward or backchannel. Should it be removed?
+
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/debugfs.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/trace/events/sunrpc.h | 1 +
+ net/sunrpc/sched.c            | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/include/linux/debugfs.h b/include/linux/debugfs.h
-index 58424eb3b3291..798f0b9b43aee 100644
---- a/include/linux/debugfs.h
-+++ b/include/linux/debugfs.h
-@@ -54,6 +54,8 @@ static const struct file_operations __fops = {				\
- 	.llseek  = no_llseek,						\
- }
+diff --git a/include/trace/events/sunrpc.h b/include/trace/events/sunrpc.h
+index ffa3c51dbb1a0..28df77a948e56 100644
+--- a/include/trace/events/sunrpc.h
++++ b/include/trace/events/sunrpc.h
+@@ -165,6 +165,7 @@ DECLARE_EVENT_CLASS(rpc_task_running,
+ DEFINE_RPC_RUNNING_EVENT(begin);
+ DEFINE_RPC_RUNNING_EVENT(run_action);
+ DEFINE_RPC_RUNNING_EVENT(complete);
++DEFINE_RPC_RUNNING_EVENT(end);
  
-+typedef struct vfsmount *(*debugfs_automount_t)(struct dentry *, void *);
-+
- #if defined(CONFIG_DEBUG_FS)
+ DECLARE_EVENT_CLASS(rpc_task_queued,
  
- struct dentry *debugfs_lookup(const char *name, struct dentry *parent);
-@@ -75,7 +77,6 @@ struct dentry *debugfs_create_dir(const char *name, struct dentry *parent);
- struct dentry *debugfs_create_symlink(const char *name, struct dentry *parent,
- 				      const char *dest);
- 
--typedef struct vfsmount *(*debugfs_automount_t)(struct dentry *, void *);
- struct dentry *debugfs_create_automount(const char *name,
- 					struct dentry *parent,
- 					debugfs_automount_t f,
-@@ -203,7 +204,7 @@ static inline struct dentry *debugfs_create_symlink(const char *name,
- 
- static inline struct dentry *debugfs_create_automount(const char *name,
- 					struct dentry *parent,
--					struct vfsmount *(*f)(void *),
-+					debugfs_automount_t f,
- 					void *data)
+diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
+index 987c4b1f0b174..9c79548c68474 100644
+--- a/net/sunrpc/sched.c
++++ b/net/sunrpc/sched.c
+@@ -824,6 +824,7 @@ rpc_reset_task_statistics(struct rpc_task *task)
+  */
+ void rpc_exit_task(struct rpc_task *task)
  {
- 	return ERR_PTR(-ENODEV);
++	trace_rpc_task_end(task, task->tk_action);
+ 	task->tk_action = NULL;
+ 	if (task->tk_ops->rpc_count_stats)
+ 		task->tk_ops->rpc_count_stats(task, task->tk_calldata);
 -- 
 2.25.1
 
