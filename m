@@ -2,65 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3D4926EC94
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:15:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBCEE26EC9D
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:15:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728880AbgIRCNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:13:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39936 "EHLO mail.kernel.org"
+        id S1728913AbgIRCNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:13:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728876AbgIRCNG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:13:06 -0400
+        id S1728898AbgIRCNM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:13:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 659AF2389E;
-        Fri, 18 Sep 2020 02:13:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E86B0238E6;
+        Fri, 18 Sep 2020 02:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395185;
-        bh=rQFtd9uni2xSkSA6SU4oZxNBYTMLlSBY9ce/IGPpjiU=;
+        s=default; t=1600395191;
+        bh=1A9kQmECskEl4gPJ+6UrYq13lluTiE+z2WhigvhzBpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZVqyax7PjYukSwhLVGy2ybdpGJRQz3IkyVmcB3zkspEY4viJTg/oxKDcwA2YVQkFl
-         mG+z4HPbEJE5mhR6O9qwj9TZjJ1AHm7CGRCgx0EhkIzsfbf9vybSMxl5ZlbapcIdj5
-         3DSPOJqzNYuJAv7U39/nxVmUdzXHhJGCNfgk4Q1U=
+        b=L2XDpTr+Jn947l4o5G85zq0JrH7mKXG5tFpoccwvtV/D54mtM6xfxUBHI8Pm2UXwD
+         2BJ0cjlW3QNhRDTNRBqvL0rlDmqoPUhz8d+COvaeUQDMdTMYcr4PvFEzNpUqP9SH2M
+         Oo+ImYsbTISMCvR8w2y97wqGjQ1tUtOuJmLC97MM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steven Price <steven.price@arm.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexandre Ghiti <alex@ghiti.fr>,
-        Andy Lutomirski <luto@kernel.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        James Hogan <jhogan@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Jerome Glisse <jglisse@redhat.com>,
-        "Liang, Kan" <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Burton <paul.burton@mips.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Will Deacon <will@kernel.org>, Zong Li <zong.li@sifive.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.14 038/127] mm: pagewalk: fix termination condition in walk_pte_range()
-Date:   Thu, 17 Sep 2020 22:10:51 -0400
-Message-Id: <20200918021220.2066485-38-sashal@kernel.org>
+Cc:     Steve Grubb <sgrubb@redhat.com>, Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>, linux-audit@redhat.com
+Subject: [PATCH AUTOSEL 4.14 043/127] audit: CONFIG_CHANGE don't log internal bookkeeping as an event
+Date:   Thu, 17 Sep 2020 22:10:56 -0400
+Message-Id: <20200918021220.2066485-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -72,70 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
+From: Steve Grubb <sgrubb@redhat.com>
 
-[ Upstream commit c02a98753e0a36ba65a05818626fa6adeb4e7c97 ]
+[ Upstream commit 70b3eeed49e8190d97139806f6fbaf8964306cdb ]
 
-If walk_pte_range() is called with a 'end' argument that is beyond the
-last page of memory (e.g.  ~0UL) then the comparison between 'addr' and
-'end' will always fail and the loop will be infinite.  Instead change the
-comparison to >= while accounting for overflow.
+Common Criteria calls out for any action that modifies the audit trail to
+be recorded. That usually is interpreted to mean insertion or removal of
+rules. It is not required to log modification of the inode information
+since the watch is still in effect. Additionally, if the rule is a never
+rule and the underlying file is one they do not want events for, they
+get an event for this bookkeeping update against their wishes.
 
-Link: http://lkml.kernel.org/r/20191218162402.45610-15-steven.price@arm.com
-Signed-off-by: Steven Price <steven.price@arm.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Alexandre Ghiti <alex@ghiti.fr>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: "Liang, Kan" <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Zong Li <zong.li@sifive.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Since no device/inode info is logged at insertion and no device/inode
+information is logged on update, there is nothing meaningful being
+communicated to the admin by the CONFIG_CHANGE updated_rules event. One
+can assume that the rule was not "modified" because it is still watching
+the intended target. If the device or inode cannot be resolved, then
+audit_panic is called which is sufficient.
+
+The correct resolution is to drop logging config_update events since
+the watch is still in effect but just on another unknown inode.
+
+Signed-off-by: Steve Grubb <sgrubb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/pagewalk.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/audit_watch.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/mm/pagewalk.c b/mm/pagewalk.c
-index 23a3e415ac2ce..84bdb2bac3dc6 100644
---- a/mm/pagewalk.c
-+++ b/mm/pagewalk.c
-@@ -15,9 +15,9 @@ static int walk_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
- 		err = walk->pte_entry(pte, addr, addr + PAGE_SIZE, walk);
- 		if (err)
- 		       break;
--		addr += PAGE_SIZE;
--		if (addr == end)
-+		if (addr >= end - PAGE_SIZE)
- 			break;
-+		addr += PAGE_SIZE;
- 		pte++;
- 	}
+diff --git a/kernel/audit_watch.c b/kernel/audit_watch.c
+index 35f1d706bd5b4..ac87820cc0825 100644
+--- a/kernel/audit_watch.c
++++ b/kernel/audit_watch.c
+@@ -316,8 +316,6 @@ static void audit_update_watch(struct audit_parent *parent,
+ 			if (oentry->rule.exe)
+ 				audit_remove_mark(oentry->rule.exe);
+ 
+-			audit_watch_log_rule_change(r, owatch, "updated_rules");
+-
+ 			call_rcu(&oentry->rcu, audit_free_rule_rcu);
+ 		}
  
 -- 
 2.25.1
