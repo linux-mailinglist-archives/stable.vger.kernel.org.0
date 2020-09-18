@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2782E26F301
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:03:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A1F526F303
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:03:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728196AbgIRDDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727464AbgIRDDY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 23:03:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53020 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727432AbgIRCFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:05:03 -0400
+        id S1727441AbgIRCFE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:05:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 647C923600;
-        Fri, 18 Sep 2020 02:05:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 791502389E;
+        Fri, 18 Sep 2020 02:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394703;
-        bh=OaIXy9pjhG6VdpJctz+9+sMtzA7P+US57dK2OhFZ3jE=;
+        s=default; t=1600394704;
+        bh=siXwj0rYJfM0A6UG/dYuL14jfRWRzsXpgV4XZWY0O6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBCg/h906DTP2M2PxPXt14uEbxwMSicm6zK99WmwS5RLDvtKVJJfOgvE/grjF/9O1
-         VN2Z2iTdYURVhvY60a0UmSVYJQTKtJ4b7lYiTLuI106ndzYj9nb67CN+p7CZv1AJfU
-         EaUQY5Q9Yd94st9AjfLQjQm/nql9+PFu5lndgh6Y=
+        b=i+aViYLjJyD68ZzH4MmGNweIMZMcHljzS7qzVzvjXP5Ytn2JGvXRsaS4DEPmkfHqj
+         3eHqefQdeuv0q85cOGyYRviqY4CFhPPgcwGyeEBd8RNSJogcDIMBrHl8ESyK7+63i4
+         dXclKS+7QbDBNwEQnCb6eGo1wg5fKd70/mmtv2zk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 189/330] r8169: improve RTL8168b FIFO overflow workaround
-Date:   Thu, 17 Sep 2020 21:58:49 -0400
-Message-Id: <20200918020110.2063155-189-sashal@kernel.org>
+Cc:     Vignesh Raghavendra <vigneshr@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 190/330] serial: 8250_port: Don't service RX FIFO if throttled
+Date:   Thu, 17 Sep 2020 21:58:50 -0400
+Message-Id: <20200918020110.2063155-190-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -42,36 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Vignesh Raghavendra <vigneshr@ti.com>
 
-[ Upstream commit 6b02e407cbf8d421477ebb7792cd6380affcd313 ]
+[ Upstream commit f19c3f6c8109b8bab000afd35580929958e087a9 ]
 
-So far only the reset bit it set, but the handler executing the reset
-is not scheduled. Therefore nothing will happen until some other action
-schedules the handler. Improve this by ensuring that the handler is
-scheduled.
+When port's throttle callback is called, it should stop pushing any more
+data into TTY buffer to avoid buffer overflow. This means driver has to
+stop HW from receiving more data and assert the HW flow control. For
+UARTs with auto HW flow control (such as 8250_omap) manual assertion of
+flow control line is not possible and only way is to allow RX FIFO to
+fill up, thus trigger auto HW flow control logic.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Therefore make sure that 8250 generic IRQ handler does not drain data
+when port is stopped (i.e UART_LSR_DR is unset in read_status_mask). Not
+servicing, RX FIFO would trigger auto HW flow control when FIFO
+occupancy reaches preset threshold, thus halting RX.
+Since, error conditions in UART_LSR register are cleared just by reading
+the register, data has to be drained in case there are FIFO errors, else
+error information will lost.
+
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20200319103230.16867-2-vigneshr@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_port.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 6fa9852e3f97f..903212ad9bb2f 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -6256,8 +6256,7 @@ static irqreturn_t rtl8169_interrupt(int irq, void *dev_instance)
- 	if (unlikely(status & RxFIFOOver &&
- 	    tp->mac_version == RTL_GIGA_MAC_VER_11)) {
- 		netif_stop_queue(tp->dev);
--		/* XXX - Hack alert. See rtl_task(). */
--		set_bit(RTL_FLAG_TASK_RESET_PENDING, tp->wk.flags);
-+		rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
- 	}
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 90f09ed6e5ad3..5b673077639ba 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1816,6 +1816,7 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
+ 	unsigned char status;
+ 	unsigned long flags;
+ 	struct uart_8250_port *up = up_to_u8250p(port);
++	bool skip_rx = false;
  
- 	rtl_irq_disable(tp);
+ 	if (iir & UART_IIR_NO_INT)
+ 		return 0;
+@@ -1824,7 +1825,20 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
+ 
+ 	status = serial_port_in(port, UART_LSR);
+ 
+-	if (status & (UART_LSR_DR | UART_LSR_BI)) {
++	/*
++	 * If port is stopped and there are no error conditions in the
++	 * FIFO, then don't drain the FIFO, as this may lead to TTY buffer
++	 * overflow. Not servicing, RX FIFO would trigger auto HW flow
++	 * control when FIFO occupancy reaches preset threshold, thus
++	 * halting RX. This only works when auto HW flow control is
++	 * available.
++	 */
++	if (!(status & (UART_LSR_FIFOE | UART_LSR_BRK_ERROR_BITS)) &&
++	    (port->status & (UPSTAT_AUTOCTS | UPSTAT_AUTORTS)) &&
++	    !(port->read_status_mask & UART_LSR_DR))
++		skip_rx = true;
++
++	if (status & (UART_LSR_DR | UART_LSR_BI) && !skip_rx) {
+ 		if (!up->dma || handle_rx_dma(up, iir))
+ 			status = serial8250_rx_chars(up, status);
+ 	}
 -- 
 2.25.1
 
