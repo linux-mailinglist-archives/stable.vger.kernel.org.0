@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C5826EB9E
+	by mail.lfdr.de (Postfix) with ESMTP id 18A2526EB9C
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727799AbgIRCGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:06:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56036 "EHLO mail.kernel.org"
+        id S1726236AbgIRCGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726205AbgIRCGg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:06:36 -0400
+        id S1727795AbgIRCGh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:06:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BCFD23770;
-        Fri, 18 Sep 2020 02:06:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38FC123772;
+        Fri, 18 Sep 2020 02:06:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394795;
-        bh=ffDT/WKFTgV67vs+6P5VHGIfYyVvsSViiPmyQrIFwe0=;
+        s=default; t=1600394797;
+        bh=qsmbx+LWYhW40jxyy4d6lzF0hG3ZSYrZoizFkJdgukA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbY0crE8KOFG/32kJXkzQyL1R8WNS+Q/niwTxJpKAxaWGHJ5gDm1fLNSdOfsrm+2u
-         pH/wmDPj5/sEQGd5PqMYwIAhXLxLx9nxzUHOUl0YFIZCsZnDq0tucZdiifFd9Pc1un
-         xC82E5N/MT29JsVD1V6G7hGLr3dEdeuCuhRPuNAQ=
+        b=YRKe1QWg/HpzTVo0CJdpwxKW62a4m34YjklMxkXF811TpKdw4AoeKMpA+n0mqzC3t
+         A1+j1+9QbOgiWYS3/rIDPdPrBBUMhDBwWcHo2JlmbdFLGvgKkj02kUm6yrTw229xO4
+         E3vMu5zFGG8y0RupoRoOm937lR9NPuGCOLKnlUog=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 265/330] drm/amd/powerplay: try to do a graceful shutdown on SW CTF
-Date:   Thu, 17 Sep 2020 22:00:05 -0400
-Message-Id: <20200918020110.2063155-265-sashal@kernel.org>
+Cc:     Jonathan Bakker <xc-racer2@live.ca>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 266/330] tty: serial: samsung: Correct clock selection logic
+Date:   Thu, 17 Sep 2020 22:00:06 -0400
+Message-Id: <20200918020110.2063155-266-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,101 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-[ Upstream commit 9495220577416632675959caf122e968469ffd16 ]
+[ Upstream commit 7d31676a8d91dd18e08853efd1cb26961a38c6a6 ]
 
-Normally this(SW CTF) should not happen. And by doing graceful
-shutdown we can prevent further damage.
+Some variants of the samsung tty driver can pick which clock
+to use for their baud rate generation.  In the DT conversion,
+a default clock was selected to be used if a specific one wasn't
+assigned and then a comparison of which clock rate worked better
+was done.  Unfortunately, the comparison was implemented in such
+a way that only the default clock was ever actually compared.
+Fix this by iterating through all possible clocks, except when a
+specific clock has already been picked via clk_sel (which is
+only possible via board files).
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/BN6PR04MB06604E63833EA41837EBF77BA3A30@BN6PR04MB0660.namprd04.prod.outlook.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/powerplay/hwmgr/smu_helper.c  | 21 +++++++++++++++----
- drivers/gpu/drm/amd/powerplay/smu_v11_0.c     |  7 +++++++
- 2 files changed, 24 insertions(+), 4 deletions(-)
+ drivers/tty/serial/samsung.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu_helper.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu_helper.c
-index d09690fca4520..414added3d02c 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu_helper.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu_helper.c
-@@ -22,6 +22,7 @@
-  */
+diff --git a/drivers/tty/serial/samsung.c b/drivers/tty/serial/samsung.c
+index 71f99e9217592..c7683beb3412a 100644
+--- a/drivers/tty/serial/samsung.c
++++ b/drivers/tty/serial/samsung.c
+@@ -1187,14 +1187,14 @@ static unsigned int s3c24xx_serial_getclk(struct s3c24xx_uart_port *ourport,
+ 	struct s3c24xx_uart_info *info = ourport->info;
+ 	struct clk *clk;
+ 	unsigned long rate;
+-	unsigned int cnt, baud, quot, clk_sel, best_quot = 0;
++	unsigned int cnt, baud, quot, best_quot = 0;
+ 	char clkname[MAX_CLK_NAME_LENGTH];
+ 	int calc_deviation, deviation = (1 << 30) - 1;
  
- #include <linux/pci.h>
-+#include <linux/reboot.h>
+-	clk_sel = (ourport->cfg->clk_sel) ? ourport->cfg->clk_sel :
+-			ourport->info->def_clk_sel;
+ 	for (cnt = 0; cnt < info->num_clks; cnt++) {
+-		if (!(clk_sel & (1 << cnt)))
++		/* Keep selected clock if provided */
++		if (ourport->cfg->clk_sel &&
++			!(ourport->cfg->clk_sel & (1 << cnt)))
+ 			continue;
  
- #include "hwmgr.h"
- #include "pp_debug.h"
-@@ -593,12 +594,18 @@ int phm_irq_process(struct amdgpu_device *adev,
- 	uint32_t src_id = entry->src_id;
- 
- 	if (client_id == AMDGPU_IRQ_CLIENTID_LEGACY) {
--		if (src_id == VISLANDS30_IV_SRCID_CG_TSS_THERMAL_LOW_TO_HIGH)
-+		if (src_id == VISLANDS30_IV_SRCID_CG_TSS_THERMAL_LOW_TO_HIGH) {
- 			pr_warn("GPU over temperature range detected on PCIe %d:%d.%d!\n",
- 						PCI_BUS_NUM(adev->pdev->devfn),
- 						PCI_SLOT(adev->pdev->devfn),
- 						PCI_FUNC(adev->pdev->devfn));
--		else if (src_id == VISLANDS30_IV_SRCID_CG_TSS_THERMAL_HIGH_TO_LOW)
-+			/*
-+			 * SW CTF just occurred.
-+			 * Try to do a graceful shutdown to prevent further damage.
-+			 */
-+			dev_emerg(adev->dev, "System is going to shutdown due to SW CTF!\n");
-+			orderly_poweroff(true);
-+		} else if (src_id == VISLANDS30_IV_SRCID_CG_TSS_THERMAL_HIGH_TO_LOW)
- 			pr_warn("GPU under temperature range detected on PCIe %d:%d.%d!\n",
- 					PCI_BUS_NUM(adev->pdev->devfn),
- 					PCI_SLOT(adev->pdev->devfn),
-@@ -609,12 +616,18 @@ int phm_irq_process(struct amdgpu_device *adev,
- 					PCI_SLOT(adev->pdev->devfn),
- 					PCI_FUNC(adev->pdev->devfn));
- 	} else if (client_id == SOC15_IH_CLIENTID_THM) {
--		if (src_id == 0)
-+		if (src_id == 0) {
- 			pr_warn("GPU over temperature range detected on PCIe %d:%d.%d!\n",
- 						PCI_BUS_NUM(adev->pdev->devfn),
- 						PCI_SLOT(adev->pdev->devfn),
- 						PCI_FUNC(adev->pdev->devfn));
--		else
-+			/*
-+			 * SW CTF just occurred.
-+			 * Try to do a graceful shutdown to prevent further damage.
-+			 */
-+			dev_emerg(adev->dev, "System is going to shutdown due to SW CTF!\n");
-+			orderly_poweroff(true);
-+		} else
- 			pr_warn("GPU under temperature range detected on PCIe %d:%d.%d!\n",
- 					PCI_BUS_NUM(adev->pdev->devfn),
- 					PCI_SLOT(adev->pdev->devfn),
-diff --git a/drivers/gpu/drm/amd/powerplay/smu_v11_0.c b/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
-index c4d8c52c6b9ca..6c4405622c9bb 100644
---- a/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
-+++ b/drivers/gpu/drm/amd/powerplay/smu_v11_0.c
-@@ -23,6 +23,7 @@
- #include <linux/firmware.h>
- #include <linux/module.h>
- #include <linux/pci.h>
-+#include <linux/reboot.h>
- 
- #include "pp_debug.h"
- #include "amdgpu.h"
-@@ -1538,6 +1539,12 @@ static int smu_v11_0_irq_process(struct amdgpu_device *adev,
- 				PCI_BUS_NUM(adev->pdev->devfn),
- 				PCI_SLOT(adev->pdev->devfn),
- 				PCI_FUNC(adev->pdev->devfn));
-+			/*
-+			 * SW CTF just occurred.
-+			 * Try to do a graceful shutdown to prevent further damage.
-+			 */
-+			dev_emerg(adev->dev, "System is going to shutdown due to SW CTF!\n");
-+			orderly_poweroff(true);
- 		break;
- 		case THM_11_0__SRCID__THM_DIG_THERM_H2L:
- 			pr_warn("GPU under temperature range detected on PCIe %d:%d.%d!\n",
+ 		sprintf(clkname, "clk_uart_baud%d", cnt);
 -- 
 2.25.1
 
