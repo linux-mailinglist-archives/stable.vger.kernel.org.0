@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93E8A26F454
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:14:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEFCE26F457
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:14:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730682AbgIRDNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727385AbgIRDNo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 23:13:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46538 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726546AbgIRCBx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:01:53 -0400
+        id S1726551AbgIRCBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:01:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6BD021973;
-        Fri, 18 Sep 2020 02:01:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16FD3208DB;
+        Fri, 18 Sep 2020 02:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394512;
-        bh=TbwRRcbFWiuMB8dfF8YlJolXDH48+LAChbI07sEfkpw=;
+        s=default; t=1600394513;
+        bh=QJ2dpRTbPRNUbz7iVhxRcALpzJs8tArsFex247QhvQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjtqmMaMvz67F9mJQ/qrGrmcar9QdL8HRSfFiQO3zB1gIkfanYyNNWdE+m2HQadSY
-         CPVO1rDRzG4E7d2hh3FMWCyKFYFhGKL0L5C5p9Vi74zcfMXnANUwtYKq7XLmOjL6wR
-         yvfkbLOPRf22NStlS4bPb2REbXr0bwKpeecnjRI8=
+        b=1FgVv5h92Z/PipQRzVY5im3rXfG5mxNGKecnAomgN+voUuyKB1cgXHrRPklTz5VzL
+         /QJbAtIaRtq049QMFOVvekF1P9GHuHuCq/lDrzpcbvgGFHSzplU8hQd7/Ds6uShTne
+         P90QyeRtmBMuOgcf8zmZIm//9e55Ok478BNcpwQc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Kitt <steve@sk2.org>, Tony Lindgren <tony@atomide.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 035/330] clk/ti/adpll: allocate room for terminating null
-Date:   Thu, 17 Sep 2020 21:56:15 -0400
-Message-Id: <20200918020110.2063155-35-sashal@kernel.org>
+Cc:     Alex Deucher <alexander.deucher@amd.com>,
+        Evan Quan <evan.quan@amd.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 036/330] drm/amdgpu/powerplay: fix AVFS handling with custom powerplay table
+Date:   Thu, 17 Sep 2020 21:56:16 -0400
+Message-Id: <20200918020110.2063155-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,45 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Kitt <steve@sk2.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 7f6ac72946b88b89ee44c1c527aa8591ac5ffcbe ]
+[ Upstream commit 53dbc27ad5a93932ff1892a8e4ef266827d74a0f ]
 
-The buffer allocated in ti_adpll_clk_get_name doesn't account for the
-terminating null. This patch switches to devm_kasprintf to avoid
-overflowing.
+When a custom powerplay table is provided, we need to update
+the OD VDDC flag to avoid AVFS being enabled when it shouldn't be.
 
-Signed-off-by: Stephen Kitt <steve@sk2.org>
-Link: https://lkml.kernel.org/r/20191019140634.15596-1-steve@sk2.org
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=205393
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ti/adpll.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/clk/ti/adpll.c b/drivers/clk/ti/adpll.c
-index fdfb90058504c..bb2f2836dab22 100644
---- a/drivers/clk/ti/adpll.c
-+++ b/drivers/clk/ti/adpll.c
-@@ -194,15 +194,8 @@ static const char *ti_adpll_clk_get_name(struct ti_adpll_data *d,
- 		if (err)
- 			return NULL;
- 	} else {
--		const char *base_name = "adpll";
--		char *buf;
--
--		buf = devm_kzalloc(d->dev, 8 + 1 + strlen(base_name) + 1 +
--				    strlen(postfix), GFP_KERNEL);
--		if (!buf)
--			return NULL;
--		sprintf(buf, "%08lx.%s.%s", d->pa, base_name, postfix);
--		name = buf;
-+		name = devm_kasprintf(d->dev, GFP_KERNEL, "%08lx.adpll.%s",
-+				      d->pa, postfix);
- 	}
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
+index beacfffbdc3eb..ecbc9daea57e0 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
+@@ -3691,6 +3691,13 @@ static int vega10_set_power_state_tasks(struct pp_hwmgr *hwmgr,
+ 	PP_ASSERT_WITH_CODE(!result,
+ 			"Failed to upload PPtable!", return result);
  
- 	return name;
++	/*
++	 * If a custom pp table is loaded, set DPMTABLE_OD_UPDATE_VDDC flag.
++	 * That effectively disables AVFS feature.
++	 */
++	if(hwmgr->hardcode_pp_table != NULL)
++		data->need_update_dpm_table |= DPMTABLE_OD_UPDATE_VDDC;
++
+ 	vega10_update_avfs(hwmgr);
+ 
+ 	/*
 -- 
 2.25.1
 
