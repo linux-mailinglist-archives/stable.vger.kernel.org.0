@@ -2,105 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1F362701E4
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 18:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2EBF2701F4
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 18:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726205AbgIRQPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Sep 2020 12:15:52 -0400
-Received: from mga11.intel.com ([192.55.52.93]:62825 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726200AbgIRQPw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Sep 2020 12:15:52 -0400
-IronPort-SDR: jkgQm8eCGE4IFWZjti0VCM6CAaLXUHVtxOJ7NlhaNmIQviGyWaZXNtf2GcAuapuv3f1geGTchr
- j/Djkyq/MkKg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9748"; a="157371539"
-X-IronPort-AV: E=Sophos;i="5.77,274,1596524400"; 
-   d="scan'208";a="157371539"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Sep 2020 09:15:49 -0700
-IronPort-SDR: RX8HhHWiI6IVzixkdl7mac6iA1gg5yNnS0nNUKcLnMYJ+o/B8lsV7gU+2yYDnNTq4nH6Yj+oY0
- x+tJRZljAsew==
-X-IronPort-AV: E=Sophos;i="5.77,274,1596524400"; 
-   d="scan'208";a="307920854"
-Received: from tsecasiu-mobl.amr.corp.intel.com (HELO pbossart-mobl3.intel.com) ([10.213.179.236])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Sep 2020 09:15:48 -0700
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org,
-        Jaska Uimonen <jaska.uimonen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH] ASoC: SOF: intel: hda: support also devices with 1 and 3 dmics
-Date:   Fri, 18 Sep 2020 11:15:33 -0500
-Message-Id: <20200918161533.166533-1-pierre-louis.bossart@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S1726461AbgIRQR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Sep 2020 12:17:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44472 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726444AbgIRQR4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 12:17:56 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0236BC0613CE
+        for <stable@vger.kernel.org>; Fri, 18 Sep 2020 09:17:55 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id d19so3257581pld.0
+        for <stable@vger.kernel.org>; Fri, 18 Sep 2020 09:17:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
+        b=mhW38tBbYMw2OT8C/pdoPzGUjrT39Y3J5K076PnZgGMt0iQ+yd0jWl7zmo3ZaWP8ua
+         zxtNa4m2hlnLlHqMfXDpmpHYroUN4C72npyh/TDh8P1FfvcsMvmaqOKarAZfAFOdQLmk
+         aWyz3Fgx0qbLrS3drO5anPUekapOWMgjva8+AjeRn0ncMjQV7Y6Hd9Sty3h/+apemzSG
+         CW4O/o+FXU5ADYH8+nWdGJX+9Lm4McldKhdUepjMxi9vPxffzTpq2N4gdQG1bfye4n9s
+         ++NxNHeHFt0ILcNREC7QTHf0Mb0JD+kj3TYM5gGU9FRuYxpPH93WTYpTtd/CG/ieQ52Q
+         OEyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
+        b=UfrERaSAPFN7plEreALw5qywffe5hb8s2yB1styg+MGmMnLDAMqxlkCBUTDE7r25Nm
+         wU3vwSn0zjL9VimVH1VgUK1AqtH4WGvN/9ymaKji8Mqo4OjeRO/4UkhacywE6wm0roci
+         E3N35CrjVICakL0wYWKWLCWyNIPNX72OEx2YOFkl6P7APOetW6gGhjUIT3aQdUQwfr5Z
+         PLGcN4n4FDTgBf/5VnVSdrIDOBQln8YMjf4yM6pFS/h7C6H82q2l4RPayMci/tM3+fHK
+         /yPXKQDZh9uSG/PaHDFgy06nVYL3UCXmwCWUr9tmK7HhevRy8gETBS0rK54s5ckyRsVQ
+         aM9Q==
+X-Gm-Message-State: AOAM531Ff/ijB1bjVArir+6dzq6th3vHwEUaFk309UgtZStqdwJarK19
+        6NNfJEdYlXMDcrPKq0i/rfcDEp3Hua6p55sEOYA=
+X-Google-Smtp-Source: ABdhPJxeANun3Fa+NUKHZCWUzvr2Np72IF+d4Kiv473hlLMfPhqTeneC6N6Od8c4J+Fo8aYJ7x2kYxbt6MXE5LJP1WU=
+X-Received: by 2002:a17:902:525:b029:d1:920c:c200 with SMTP id
+ 34-20020a1709020525b02900d1920cc200mr34183354plf.25.1600445875154; Fri, 18
+ Sep 2020 09:17:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a17:90a:d491:0:0:0:0 with HTTP; Fri, 18 Sep 2020 09:17:54
+ -0700 (PDT)
+Reply-To: mfdp@tlen.pl
+From:   Mr Bill T Winters <mrsfazal739@gmail.com>
+Date:   Fri, 18 Sep 2020 09:17:54 -0700
+Message-ID: <CAOvGKq57_o4wR0vTcNFFAw1RQYh7FUXEkTXiwZNzdMVgVryg-w@mail.gmail.com>
+Subject: Good Morning!
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaska Uimonen <jaska.uimonen@linux.intel.com>
-
-[ Backported from Upstream commit 3dca35e35b42b3405ddad7ee95c02a2d8cf28592]
-
-Currently the dmic check code supports only devices with 2 or 4 dmics.
-With other dmic counts the function will return 0. Lately we've seen
-devices with only 1 dmic thus enable also configurations with 1, and
-possibly 3, dmics. Add also topology postfix -1ch and -3ch for new dmic
-configuration.
-
-Signed-off-by: Jaska Uimonen <jaska.uimonen@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20200825235040.1586478-4-ranjani.sridharan@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
----
-
-Note to -stable maintainers:
-
-The Upstream commit 3dca35e35b42b3405ddad7ee95c02a2d8cf28592 can be
-cherry-picked as is for kernel 5.6+. For kernel 5.4 and 5.5, the
-backport provided in this patch is required (same functionality,
-different location). Let me know in case I missed required information
-(tags, etc).
-
- sound/soc/sof/intel/hda.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
-diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
-index 91bd88fddac7..a3465e857c59 100644
---- a/sound/soc/sof/intel/hda.c
-+++ b/sound/soc/sof/intel/hda.c
-@@ -305,7 +305,7 @@ static int check_nhlt_dmic(struct snd_sof_dev *sdev)
- 	if (nhlt) {
- 		dmic_num = intel_nhlt_get_dmic_geo(sdev->dev, nhlt);
- 		intel_nhlt_free(nhlt);
--		if (dmic_num == 2 || dmic_num == 4)
-+		if (dmic_num >= 1 || dmic_num <= 4)
- 			return dmic_num;
- 	}
- 
-@@ -442,9 +442,15 @@ static int hda_init_caps(struct snd_sof_dev *sdev)
- 				dmic_num = hda_dmic_num;
- 
- 			switch (dmic_num) {
-+			case 1:
-+				dmic_str = "-1ch";
-+				break;
- 			case 2:
- 				dmic_str = "-2ch";
- 				break;
-+			case 3:
-+				dmic_str = "-3ch";
-+				break;
- 			case 4:
- 				dmic_str = "-4ch";
- 				break;
 -- 
-2.25.1
+Greetings,
+I Mr Bill T, did you Receive the (FUND), that was paid to you?
+Let me know with your full name:...  immediately,
 
+Sincerely Yours, Respectfully,
+
+Mr Bill T Winters,
+Group Chief Executive Officer & Executive Director,
