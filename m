@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 729FF26ED33
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CF9126ED30
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729567AbgIRCRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:17:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47998 "EHLO mail.kernel.org"
+        id S1727127AbgIRCRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:17:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728970AbgIRCR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:17:29 -0400
+        id S1729539AbgIRCRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:17:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F793239D2;
-        Fri, 18 Sep 2020 02:17:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C670F23787;
+        Fri, 18 Sep 2020 02:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395448;
-        bh=l/Lc3v9SvXX1BUfrzvpCyFibGpf8UuFWkaCjJFPWNGA=;
+        s=default; t=1600395449;
+        bh=SSaOXops64YH+iEYehZFdcf3MoI3XiQPJjZDXrL47MM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnfhfazzQNUhl5GlQU40x4Nx/9mpkvU+PSu+tJ/LlxGqxzicX7LclgBZlqnCH+VnV
-         2jXG2jd9KvUj+729SJc18Y5HRT2VEmTqIlP+qjt6oXTP1fweo3T2mLBBplTAhzY6At
-         PSXFo9Fw6YgLNb5QvzDRBt/SvHLjcIAHIslWQLs4=
+        b=U+5nFVxuWgx4UckroKSHeuP89ddF1j4odLXPfGQrIcHtuWpDVsTFnsKawDVpuohnm
+         bGzi+mG3gkNkmK/R5UYuW/uR8FfwFeGdXQpGwUloWoME0dRX9dwgxUnmYCA0st9CiZ
+         Y9TaXrLpwmhXEjQ1NWIquIs/OeU1UH6+bvWe5DvY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 36/64] serial: 8250_omap: Fix sleeping function called from invalid context during probe
-Date:   Thu, 17 Sep 2020 22:16:15 -0400
-Message-Id: <20200918021643.2067895-36-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 37/64] SUNRPC: Fix a potential buffer overflow in 'svc_print_xprts()'
+Date:   Thu, 17 Sep 2020 22:16:16 -0400
+Message-Id: <20200918021643.2067895-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021643.2067895-1-sashal@kernel.org>
 References: <20200918021643.2067895-1-sashal@kernel.org>
@@ -43,85 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 4ce35a3617c0ac758c61122b2218b6c8c9ac9398 ]
+[ Upstream commit b25b60d7bfb02a74bc3c2d998e09aab159df8059 ]
 
-When booting j721e the following bug is printed:
+'maxlen' is the total size of the destination buffer. There is only one
+caller and this value is 256.
 
-[    1.154821] BUG: sleeping function called from invalid context at kernel/sched/completion.c:99
-[    1.154827] in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 12, name: kworker/0:1
-[    1.154832] 3 locks held by kworker/0:1/12:
-[    1.154836]  #0: ffff000840030728 ((wq_completion)events){+.+.}, at: process_one_work+0x1d4/0x6e8
-[    1.154852]  #1: ffff80001214fdd8 (deferred_probe_work){+.+.}, at: process_one_work+0x1d4/0x6e8
-[    1.154860]  #2: ffff00084060b170 (&dev->mutex){....}, at: __device_attach+0x38/0x138
-[    1.154872] irq event stamp: 63096
-[    1.154881] hardirqs last  enabled at (63095): [<ffff800010b74318>] _raw_spin_unlock_irqrestore+0x70/0x78
-[    1.154887] hardirqs last disabled at (63096): [<ffff800010b740d8>] _raw_spin_lock_irqsave+0x28/0x80
-[    1.154893] softirqs last  enabled at (62254): [<ffff800010080c88>] _stext+0x488/0x564
-[    1.154899] softirqs last disabled at (62247): [<ffff8000100fdb3c>] irq_exit+0x114/0x140
-[    1.154906] CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.6.0-rc6-next-20200318-00094-g45e4089b0bd3 #221
-[    1.154911] Hardware name: Texas Instruments K3 J721E SoC (DT)
-[    1.154917] Workqueue: events deferred_probe_work_func
-[    1.154923] Call trace:
-[    1.154928]  dump_backtrace+0x0/0x190
-[    1.154933]  show_stack+0x14/0x20
-[    1.154940]  dump_stack+0xe0/0x148
-[    1.154946]  ___might_sleep+0x150/0x1f0
-[    1.154952]  __might_sleep+0x4c/0x80
-[    1.154957]  wait_for_completion_timeout+0x40/0x140
-[    1.154964]  ti_sci_set_device_state+0xa0/0x158
-[    1.154969]  ti_sci_cmd_get_device_exclusive+0x14/0x20
-[    1.154977]  ti_sci_dev_start+0x34/0x50
-[    1.154984]  genpd_runtime_resume+0x78/0x1f8
-[    1.154991]  __rpm_callback+0x3c/0x140
-[    1.154996]  rpm_callback+0x20/0x80
-[    1.155001]  rpm_resume+0x568/0x758
-[    1.155007]  __pm_runtime_resume+0x44/0xb0
-[    1.155013]  omap8250_probe+0x2b4/0x508
-[    1.155019]  platform_drv_probe+0x50/0xa0
-[    1.155023]  really_probe+0xd4/0x318
-[    1.155028]  driver_probe_device+0x54/0xe8
-[    1.155033]  __device_attach_driver+0x80/0xb8
-[    1.155039]  bus_for_each_drv+0x74/0xc0
-[    1.155044]  __device_attach+0xdc/0x138
-[    1.155049]  device_initial_probe+0x10/0x18
-[    1.155053]  bus_probe_device+0x98/0xa0
-[    1.155058]  deferred_probe_work_func+0x74/0xb0
-[    1.155063]  process_one_work+0x280/0x6e8
-[    1.155068]  worker_thread+0x48/0x430
-[    1.155073]  kthread+0x108/0x138
-[    1.155079]  ret_from_fork+0x10/0x18
+When we compute the size already used and what we would like to add in
+the buffer, the trailling NULL character is not taken into account.
+However, this trailling character will be added by the 'strcat' once we
+have checked that we have enough place.
 
-To fix the bug we need to first call pm_runtime_enable() prior to any
-pm_runtime calls.
+So, there is a off-by-one issue and 1 byte of the stack could be
+erroneously overwridden.
 
-Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20200320125200.6772-1-peter.ujfalusi@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Take into account the trailling NULL, when checking if there is enough
+place in the destination buffer.
+
+While at it, also replace a 'sprintf' by a safer 'snprintf', check for
+output truncation and avoid a superfluous 'strlen'.
+
+Fixes: dc9a16e49dbba ("svc: Add /proc/sys/sunrpc/transport files")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+[ cel: very minor fix to documenting comment
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/svc_xprt.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index c4383573cf668..0377b35d62b80 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -1188,11 +1188,11 @@ static int omap8250_probe(struct platform_device *pdev)
- 	spin_lock_init(&priv->rx_dma_lock);
+diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
+index 2b8e80c721db1..a7cd031656801 100644
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -97,8 +97,17 @@ void svc_unreg_xprt_class(struct svc_xprt_class *xcl)
+ }
+ EXPORT_SYMBOL_GPL(svc_unreg_xprt_class);
  
- 	device_init_wakeup(&pdev->dev, true);
-+	pm_runtime_enable(&pdev->dev);
- 	pm_runtime_use_autosuspend(&pdev->dev);
- 	pm_runtime_set_autosuspend_delay(&pdev->dev, -1);
+-/*
+- * Format the transport list for printing
++/**
++ * svc_print_xprts - Format the transport list for printing
++ * @buf: target buffer for formatted address
++ * @maxlen: length of target buffer
++ *
++ * Fills in @buf with a string containing a list of transport names, each name
++ * terminated with '\n'. If the buffer is too small, some entries may be
++ * missing, but it is guaranteed that all lines in the output buffer are
++ * complete.
++ *
++ * Returns positive length of the filled-in string.
+  */
+ int svc_print_xprts(char *buf, int maxlen)
+ {
+@@ -111,9 +120,9 @@ int svc_print_xprts(char *buf, int maxlen)
+ 	list_for_each_entry(xcl, &svc_xprt_class_list, xcl_list) {
+ 		int slen;
  
- 	pm_runtime_irq_safe(&pdev->dev);
--	pm_runtime_enable(&pdev->dev);
- 
- 	pm_runtime_get_sync(&pdev->dev);
- 
+-		sprintf(tmpstr, "%s %d\n", xcl->xcl_name, xcl->xcl_max_payload);
+-		slen = strlen(tmpstr);
+-		if (len + slen > maxlen)
++		slen = snprintf(tmpstr, sizeof(tmpstr), "%s %d\n",
++				xcl->xcl_name, xcl->xcl_max_payload);
++		if (slen >= sizeof(tmpstr) || len + slen >= maxlen)
+ 			break;
+ 		len += slen;
+ 		strcat(buf, tmpstr);
 -- 
 2.25.1
 
