@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D7D26F01A
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03AB326F020
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:41:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727102AbgIRCkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730022AbgIRCkk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:40:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36940 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728015AbgIRCL3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:11:29 -0400
+        id S1726183AbgIRCLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:11:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8028208E4;
-        Fri, 18 Sep 2020 02:11:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A6C423119;
+        Fri, 18 Sep 2020 02:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395088;
-        bh=IelpxSo6eSQ4Ohc4G5ia7XY/wLOI0iM0FtZnmsY3T/M=;
+        s=default; t=1600395089;
+        bh=ANEvw/4pMtBeQ3ZLljniHBGPRo5wvvucV4VHXsHoqgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CilyxZ6qsjeFRoMIRSzoxDmZvfbpiQQAz9Y+VGfARx/onc40Z1VRMIDuxU4P307Ao
-         K4gsEqhaJSTDai3ztHxkKZRDsU2/frbVFAXaaN1jXfV/MCc0QSy3r+InI9xuCGD5iq
-         v90jmTNPmJoWkaPXFdAZTWSdx/8nolPx0jFNAaDc=
+        b=c8c5OO//fkV+d4Y7uXa2rU64rApO6/Bq/HHgoYrcgrV1YEJDh7uxmPkvqEaBDHS+a
+         M2mxiV8AbNqLx3Wz08MPC0K/NB6ZobIBfpUeQ8+KviyEo44qkIUdLfzR/uy/7wjh0Q
+         B28RtuF923hyJugRrD+HxzuCYJTSLK4EYurKMbt8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Duyck <alexander.h.duyck@linux.intel.com>,
-        Maxim Zhukov <mussitantesmortem@gmail.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 170/206] e1000: Do not perform reset in reset_task if we are already down
-Date:   Thu, 17 Sep 2020 22:07:26 -0400
-Message-Id: <20200918020802.2065198-170-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 171/206] drm/nouveau/debugfs: fix runtime pm imbalance on error
+Date:   Thu, 17 Sep 2020 22:07:27 -0400
+Message-Id: <20200918020802.2065198-171-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -44,67 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 49ee3c2ab5234757bfb56a0b3a3cb422f427e3a3 ]
+[ Upstream commit 00583fbe8031f69bba8b0a9a861efb75fb7131af ]
 
-We are seeing a deadlock in e1000 down when NAPI is being disabled. Looking
-over the kernel function trace of the system it appears that the interface
-is being closed and then a reset is hitting which deadlocks the interface
-as the NAPI interface is already disabled.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+the call returns an error code. Thus a pairing decrement is needed
+on the error handling path to keep the counter balanced.
 
-To prevent this from happening I am disabling the reset task when
-__E1000_DOWN is already set. In addition code has been added so that we set
-the __E1000_DOWN while holding the __E1000_RESET flag in e1000_close in
-order to guarantee that the reset task will not run after we have started
-the close call.
-
-Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Tested-by: Maxim Zhukov <mussitantesmortem@gmail.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000/e1000_main.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_debugfs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000/e1000_main.c b/drivers/net/ethernet/intel/e1000/e1000_main.c
-index 47b867c64b147..195108858f38f 100644
---- a/drivers/net/ethernet/intel/e1000/e1000_main.c
-+++ b/drivers/net/ethernet/intel/e1000/e1000_main.c
-@@ -542,8 +542,13 @@ void e1000_reinit_locked(struct e1000_adapter *adapter)
- 	WARN_ON(in_interrupt());
- 	while (test_and_set_bit(__E1000_RESETTING, &adapter->flags))
- 		msleep(1);
--	e1000_down(adapter);
--	e1000_up(adapter);
-+
-+	/* only run the task if not already down */
-+	if (!test_bit(__E1000_DOWN, &adapter->flags)) {
-+		e1000_down(adapter);
-+		e1000_up(adapter);
+diff --git a/drivers/gpu/drm/nouveau/nouveau_debugfs.c b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
+index 9635704a1d864..4561a786fab07 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_debugfs.c
++++ b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
+@@ -161,8 +161,11 @@ nouveau_debugfs_pstate_set(struct file *file, const char __user *ubuf,
+ 	}
+ 
+ 	ret = pm_runtime_get_sync(drm->dev);
+-	if (ret < 0 && ret != -EACCES)
++	if (ret < 0 && ret != -EACCES) {
++		pm_runtime_put_autosuspend(drm->dev);
+ 		return ret;
 +	}
 +
- 	clear_bit(__E1000_RESETTING, &adapter->flags);
- }
- 
-@@ -1433,10 +1438,15 @@ int e1000_close(struct net_device *netdev)
- 	struct e1000_hw *hw = &adapter->hw;
- 	int count = E1000_CHECK_RESET_COUNT;
- 
--	while (test_bit(__E1000_RESETTING, &adapter->flags) && count--)
-+	while (test_and_set_bit(__E1000_RESETTING, &adapter->flags) && count--)
- 		usleep_range(10000, 20000);
- 
--	WARN_ON(test_bit(__E1000_RESETTING, &adapter->flags));
-+	WARN_ON(count < 0);
-+
-+	/* signal that we're down so that the reset task will no longer run */
-+	set_bit(__E1000_DOWN, &adapter->flags);
-+	clear_bit(__E1000_RESETTING, &adapter->flags);
-+
- 	e1000_down(adapter);
- 	e1000_power_down_phy(adapter);
- 	e1000_free_irq(adapter);
+ 	ret = nvif_mthd(ctrl, NVIF_CONTROL_PSTATE_USER, &args, sizeof(args));
+ 	pm_runtime_put_autosuspend(drm->dev);
+ 	if (ret < 0)
 -- 
 2.25.1
 
