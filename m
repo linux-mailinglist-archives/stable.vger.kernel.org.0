@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F0B26EFC8
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:38:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F5526EFC0
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727446AbgIRCiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:38:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38818 "EHLO mail.kernel.org"
+        id S1729173AbgIRCiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:38:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728776AbgIRCM1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:12:27 -0400
+        id S1728779AbgIRCM3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:12:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B19C323447;
-        Fri, 18 Sep 2020 02:12:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE02222211;
+        Fri, 18 Sep 2020 02:12:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395147;
-        bh=xLEf58mjGmbH0CWWabSTZzpE4t32riFaLBMWYf6Q/rg=;
+        s=default; t=1600395148;
+        bh=LcRrcvlT5O5XjIJyOwW4jaDxXj8yTMOjRspd7FQ6sNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DOdF+riE7qKUapmyITFFm8EZSLGekRWDUKL1l9UAa1wzjJO/wqZOf4v4Q42JzTi3a
-         DC/DwClQzZVLbSVSaAlqeTLu/4U/k4sVohSx9lIP3lfQ+dmG7wpGNw6bgVyxffyWfZ
-         GD6WhSE8kM6QTUPbOWhPNBStbC5GK6Zpxv7ZY2SE=
+        b=u3hX1kZ5lMOASu07AlfC5b63VENcJ7s+tjBjzGvG/O9kEcHnNL6HwSad/YJary8ED
+         kgBRoTgpkGynQuE1eZ96S4PdWFlLfiRnkGxm4CQKGjiyHzChq1P4ck9dqeJY2BNd5i
+         gnLdSmcF89FngN6/diU0+oLgsEDGKoTb3KT+Jb7I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 006/127] media: smiapp: Fix error handling at NVM reading
-Date:   Thu, 17 Sep 2020 22:10:19 -0400
-Message-Id: <20200918021220.2066485-6-sashal@kernel.org>
+Cc:     Jiri Slaby <jslaby@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        linux-ide@vger.kernel.org,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 007/127] ata: sata_mv, avoid trigerrable BUG_ON
+Date:   Thu, 17 Sep 2020 22:10:20 -0400
+Message-Id: <20200918021220.2066485-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -42,37 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit a5b1d5413534607b05fb34470ff62bf395f5c8d0 ]
+[ Upstream commit e9f691d899188679746eeb96e6cb520459eda9b4 ]
 
-If NVM reading failed, the device was left powered on. Fix that.
+There are several reports that the BUG_ON on unsupported command in
+mv_qc_prep can be triggered under some circumstances:
+https://bugzilla.suse.com/show_bug.cgi?id=1110252
+https://serverfault.com/questions/888897/raid-problems-after-power-outage
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1652185
+https://bugs.centos.org/view.php?id=14998
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Let sata_mv handle the failure gracefully: warn about that incl. the
+failed command number and return an AC_ERR_INVALID error. We can do that
+now thanks to the previous patch.
+
+Remove also the long-standing FIXME.
+
+[v2] use %.2x as commands are defined as hexa.
+
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: linux-ide@vger.kernel.org
+Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/smiapp/smiapp-core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/ata/sata_mv.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/i2c/smiapp/smiapp-core.c b/drivers/media/i2c/smiapp/smiapp-core.c
-index e4d7f2febf00c..05b3974bd9202 100644
---- a/drivers/media/i2c/smiapp/smiapp-core.c
-+++ b/drivers/media/i2c/smiapp/smiapp-core.c
-@@ -2338,11 +2338,12 @@ smiapp_sysfs_nvm_read(struct device *dev, struct device_attribute *attr,
- 		if (rval < 0) {
- 			if (rval != -EBUSY && rval != -EAGAIN)
- 				pm_runtime_set_active(&client->dev);
--			pm_runtime_put(&client->dev);
-+			pm_runtime_put_noidle(&client->dev);
- 			return -ENODEV;
- 		}
- 
- 		if (smiapp_read_nvm(sensor, sensor->nvm)) {
-+			pm_runtime_put(&client->dev);
- 			dev_err(&client->dev, "nvm read failed\n");
- 			return -ENODEV;
- 		}
+diff --git a/drivers/ata/sata_mv.c b/drivers/ata/sata_mv.c
+index 3b2246dded74f..d897deb4bffbe 100644
+--- a/drivers/ata/sata_mv.c
++++ b/drivers/ata/sata_mv.c
+@@ -2111,12 +2111,10 @@ static void mv_qc_prep(struct ata_queued_cmd *qc)
+ 		 * non-NCQ mode are: [RW] STREAM DMA and W DMA FUA EXT, none
+ 		 * of which are defined/used by Linux.  If we get here, this
+ 		 * driver needs work.
+-		 *
+-		 * FIXME: modify libata to give qc_prep a return value and
+-		 * return error here.
+ 		 */
+-		BUG_ON(tf->command);
+-		break;
++		ata_port_err(ap, "%s: unsupported command: %.2x\n", __func__,
++				tf->command);
++		return AC_ERR_INVALID;
+ 	}
+ 	mv_crqb_pack_cmd(cw++, tf->nsect, ATA_REG_NSECT, 0);
+ 	mv_crqb_pack_cmd(cw++, tf->hob_lbal, ATA_REG_LBAL, 0);
 -- 
 2.25.1
 
