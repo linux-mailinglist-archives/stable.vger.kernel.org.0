@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 160C526F214
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:56:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B631D26F1F8
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:55:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726484AbgIRCzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:55:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57224 "EHLO mail.kernel.org"
+        id S1726732AbgIRCzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727854AbgIRCHI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:07:08 -0400
+        id S1727861AbgIRCHJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:07:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EB6F2388E;
-        Fri, 18 Sep 2020 02:07:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 881E623888;
+        Fri, 18 Sep 2020 02:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394827;
-        bh=dMHxrPz7Vugty7pq9fbMpWAu3aJ4+zZiqbt/XoxiBNQ=;
+        s=default; t=1600394828;
+        bh=6XU8vPkSLEwOa1GUgEOWTxPjC+wNJ5n4jec0uDYGkig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lbVdn7DAVoj1PcrTf1U6tfK6R4aZvW7wdNlEXkZW1AJSXquWM7LGx3hMF4VYcEM5z
-         jK1kDiDav5EVVs0WbwzUalaWqhexyAuptcTmsvQP9QbVt/VB6hDd8qifdzFFBa6G50
-         uBrVtLXi6fYCvPRYJ8PPDgEQ6dVYUZM0/vhiSH7M=
+        b=ekjKictkpoTkboZo996yLByJxagU2d6HgXaSQ2c6WwG75URHdmTuohjlRfZn5u4Y0
+         1ut/zXmDcyaxTF39vHOtJfMqW2Jni/Nvdka0gDt0Ewws2vjbGaJj1vj4sO0PVsMHin
+         FZbGjhq4/qcuED2UkiutNkpY9RtveP7vqteuBPco=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Ian Rogers <irogers@google.com>,
+Cc:     Ian Rogers <irogers@google.com>, Andi Kleen <ak@linux.intel.com>,
         Adrian Hunter <adrian.hunter@intel.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        clang-built-linux@googlegroups.com, Jiri Olsa <jolsa@kernel.org>,
-        Leo Yan <leo.yan@linaro.org>,
+        Jiri Olsa <jolsa@redhat.com>,
         Mark Rutland <mark.rutland@arm.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 291/330] perf parse-events: Fix incorrect conversion of 'if () free()' to 'zfree()'
-Date:   Thu, 17 Sep 2020 22:00:31 -0400
-Message-Id: <20200918020110.2063155-291-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 292/330] perf evsel: Fix 2 memory leaks
+Date:   Thu, 17 Sep 2020 22:00:32 -0400
+Message-Id: <20200918020110.2063155-292-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -51,55 +49,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit 7fcdccd4237724931d9773d1e3039bfe053a6f52 ]
+[ Upstream commit 3efc899d9afb3d03604f191a0be9669eabbfc4aa ]
 
-When applying a patch by Ian I incorrectly converted to zfree() an
-expression that involved testing some other struct member, not the one
-being freed, which lead to bugs reproduceable by:
+If allocated, perf_pkg_mask and metric_events need freeing.
 
-  $ perf stat -e i/bs,tsc,L2/o sleep 1
-  WARNING: multiple event parsing errors
-  Segmentation fault (core dumped)
-  $
-
-Fix it by restoring the test for pos->free_str before freeing
-pos->val.str, but continue using zfree(&pos->val.str) to set that member
-to NULL after freeing it.
-
-Reported-by: Ian Rogers <irogers@google.com>
-Fixes: e8dfb81838b1 ("perf parse-events: Fix memory leaks found on parse_events")
+Signed-off-by: Ian Rogers <irogers@google.com>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
 Cc: Adrian Hunter <adrian.hunter@intel.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: clang-built-linux@googlegroups.com
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200512235918.10732-1-irogers@google.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/parse-events.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/perf/util/evsel.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 5fadad158db59..f16748cfcb262 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -1370,7 +1370,8 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
+diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+index 12b1755b136d3..9dd9e3f4ef591 100644
+--- a/tools/perf/util/evsel.c
++++ b/tools/perf/util/evsel.c
+@@ -1255,6 +1255,8 @@ void perf_evsel__exit(struct evsel *evsel)
+ 	zfree(&evsel->group_name);
+ 	zfree(&evsel->name);
+ 	zfree(&evsel->pmu_name);
++	zfree(&evsel->per_pkg_mask);
++	zfree(&evsel->metric_events);
+ 	perf_evsel__object.fini(evsel);
+ }
  
- 		list_for_each_entry_safe(pos, tmp, &config_terms, list) {
- 			list_del_init(&pos->list);
--			zfree(&pos->val.str);
-+			if (pos->free_str)
-+				zfree(&pos->val.str);
- 			free(pos);
- 		}
- 		return -EINVAL;
 -- 
 2.25.1
 
