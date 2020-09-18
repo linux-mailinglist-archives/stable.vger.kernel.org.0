@@ -2,34 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDD6426EC92
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3D4926EC94
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728864AbgIRCNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:13:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39724 "EHLO mail.kernel.org"
+        id S1728880AbgIRCNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:13:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728851AbgIRCM5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:12:57 -0400
+        id S1728876AbgIRCNG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:13:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4FD8235F8;
-        Fri, 18 Sep 2020 02:12:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 659AF2389E;
+        Fri, 18 Sep 2020 02:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395176;
-        bh=luAx4X+I/dJfTAXORFZBzGx6TP/aQbWoHfjFpBNUjR8=;
+        s=default; t=1600395185;
+        bh=rQFtd9uni2xSkSA6SU4oZxNBYTMLlSBY9ce/IGPpjiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pshE66e/JYLwAm3TV92Vn2BZ3n5eEeXLTDjiYuvOHFVG/G9wEqJu74LDB7DMgWOxv
-         GlP1v3fLv/xP8JMTae8JnY2lO6Hm06ShylmatUL874eRJmXri+XqcQ/Id2nQYyOf/M
-         zd7W14bdtnBZaet+ckBX/dQaIbOEEhh30MjTxj04=
+        b=ZVqyax7PjYukSwhLVGy2ybdpGJRQz3IkyVmcB3zkspEY4viJTg/oxKDcwA2YVQkFl
+         mG+z4HPbEJE5mhR6O9qwj9TZjJ1AHm7CGRCgx0EhkIzsfbf9vybSMxl5ZlbapcIdj5
+         3DSPOJqzNYuJAv7U39/nxVmUdzXHhJGCNfgk4Q1U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <jbacik@fb.com>, Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 032/127] tracing: Set kernel_stack's caller size properly
-Date:   Thu, 17 Sep 2020 22:10:45 -0400
-Message-Id: <20200918021220.2066485-32-sashal@kernel.org>
+Cc:     Steven Price <steven.price@arm.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexandre Ghiti <alex@ghiti.fr>,
+        Andy Lutomirski <luto@kernel.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        James Hogan <jhogan@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Jerome Glisse <jglisse@redhat.com>,
+        "Liang, Kan" <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Burton <paul.burton@mips.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Will Deacon <will@kernel.org>, Zong Li <zong.li@sifive.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.14 038/127] mm: pagewalk: fix termination condition in walk_pte_range()
+Date:   Thu, 17 Sep 2020 22:10:51 -0400
+Message-Id: <20200918021220.2066485-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -41,41 +72,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <jbacik@fb.com>
+From: Steven Price <steven.price@arm.com>
 
-[ Upstream commit cbc3b92ce037f5e7536f6db157d185cd8b8f615c ]
+[ Upstream commit c02a98753e0a36ba65a05818626fa6adeb4e7c97 ]
 
-I noticed when trying to use the trace-cmd python interface that reading the raw
-buffer wasn't working for kernel_stack events.  This is because it uses a
-stubbed version of __dynamic_array that doesn't do the __data_loc trick and
-encode the length of the array into the field.  Instead it just shows up as a
-size of 0.  So change this to __array and set the len to FTRACE_STACK_ENTRIES
-since this is what we actually do in practice and matches how user_stack_trace
-works.
+If walk_pte_range() is called with a 'end' argument that is beyond the
+last page of memory (e.g.  ~0UL) then the comparison between 'addr' and
+'end' will always fail and the loop will be infinite.  Instead change the
+comparison to >= while accounting for overflow.
 
-Link: http://lkml.kernel.org/r/1411589652-1318-1-git-send-email-jbacik@fb.com
-
-Signed-off-by: Josef Bacik <jbacik@fb.com>
-[ Pulled from the archeological digging of my INBOX ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: http://lkml.kernel.org/r/20191218162402.45610-15-steven.price@arm.com
+Signed-off-by: Steven Price <steven.price@arm.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Alexandre Ghiti <alex@ghiti.fr>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: "Liang, Kan" <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Burton <paul.burton@mips.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Zong Li <zong.li@sifive.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_entries.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/pagewalk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_entries.h b/kernel/trace/trace_entries.h
-index e3a658bac10fe..ff91acff72946 100644
---- a/kernel/trace/trace_entries.h
-+++ b/kernel/trace/trace_entries.h
-@@ -179,7 +179,7 @@ FTRACE_ENTRY(kernel_stack, stack_entry,
+diff --git a/mm/pagewalk.c b/mm/pagewalk.c
+index 23a3e415ac2ce..84bdb2bac3dc6 100644
+--- a/mm/pagewalk.c
++++ b/mm/pagewalk.c
+@@ -15,9 +15,9 @@ static int walk_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
+ 		err = walk->pte_entry(pte, addr, addr + PAGE_SIZE, walk);
+ 		if (err)
+ 		       break;
+-		addr += PAGE_SIZE;
+-		if (addr == end)
++		if (addr >= end - PAGE_SIZE)
+ 			break;
++		addr += PAGE_SIZE;
+ 		pte++;
+ 	}
  
- 	F_STRUCT(
- 		__field(	int,		size	)
--		__dynamic_array(unsigned long,	caller	)
-+		__array(	unsigned long,	caller,	FTRACE_STACK_ENTRIES	)
- 	),
- 
- 	F_printk("\t=> (" IP_FMT ")\n\t=> (" IP_FMT ")\n\t=> (" IP_FMT ")\n"
 -- 
 2.25.1
 
