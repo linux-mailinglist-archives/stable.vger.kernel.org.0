@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 491B726F2E1
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:02:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D2A026F2DB
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:02:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727570AbgIRDCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:02:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53478 "EHLO mail.kernel.org"
+        id S1728402AbgIRDCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:02:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727517AbgIRCFV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:05:21 -0400
+        id S1727524AbgIRCFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:05:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C762E23770;
-        Fri, 18 Sep 2020 02:05:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1898238E3;
+        Fri, 18 Sep 2020 02:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394720;
-        bh=LIWOTdfHIdT6uVuD6J6B7XN5ftruP8Of0smGsGAHIvU=;
+        s=default; t=1600394721;
+        bh=qS/Xbq0Jpq56JcCfjAFHKQ6K9SV18Q3CkH5HI7LzysE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXqNIsqOsCooXzT6ohJ9cEJned5WaLe8xhBISR/AshEpS0U1JeFxGGogLPTGreoMf
-         uv21H82pQjGKTJA0SZ3mFO4AkEsmq2znvpFItWvCKOcJ38HSEuik+ZVKDJphQ4vtsn
-         SxfzIDBV6W37JtWTaFjcGj/88SZR6EQFmUEFpO8k=
+        b=rhyCJxHWMCbVx3Db4o3e5wCVJ5bi8S/2OkhuoboyLcHegzpLsLGYHMjFQGzdJ3i3H
+         J438xaOfGZPcdCdJqQRU1Njub3Kn9r10weOMq93w6zCJdaMaY01sVwNVZcxVHFvmhh
+         UdrHQnOQbswCUGtRPKVgayWuYIHJDS6I9FSKaAZk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bernd Edlinger <bernd.edlinger@hotmail.de>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 204/330] perf: Use new infrastructure to fix deadlocks in execve
-Date:   Thu, 17 Sep 2020 21:59:04 -0400
-Message-Id: <20200918020110.2063155-204-sashal@kernel.org>
+Cc:     John Meneghini <johnm@netapp.com>, Christoph Hellwig <hch@lst.de>,
+        Hannes Reinecke <hare@suse.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 205/330] nvme-multipath: do not reset on unknown status
+Date:   Thu, 17 Sep 2020 21:59:05 -0400
+Message-Id: <20200918020110.2063155-205-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -42,79 +43,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernd Edlinger <bernd.edlinger@hotmail.de>
+From: John Meneghini <johnm@netapp.com>
 
-[ Upstream commit 6914303824bb572278568330d72fc1f8f9814e67 ]
+[ Upstream commit 764e9332098c0e60251386a507fe46ac91276120 ]
 
-This changes perf_event_set_clock to use the new exec_update_mutex
-instead of cred_guard_mutex.
+The nvme multipath error handling defaults to controller reset if the
+error is unknown. There are, however, no existing nvme status codes that
+indicate a reset should be used, and resetting causes unnecessary
+disruption to the rest of IO.
 
-This should be safe, as the credentials are only used for reading.
+Change nvme's error handling to first check if failover should happen.
+If not, let the normal error handling take over rather than reset the
+controller.
 
-Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Based-on-a-patch-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: John Meneghini <johnm@netapp.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/nvme/host/core.c      |  5 +----
+ drivers/nvme/host/multipath.c | 21 +++++++++------------
+ drivers/nvme/host/nvme.h      |  5 +++--
+ 3 files changed, 13 insertions(+), 18 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index db1f5aa755f22..47646050efa0c 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -1253,7 +1253,7 @@ static void put_ctx(struct perf_event_context *ctx)
-  * function.
-  *
-  * Lock order:
-- *    cred_guard_mutex
-+ *    exec_update_mutex
-  *	task_struct::perf_event_mutex
-  *	  perf_event_context::mutex
-  *	    perf_event::child_mutex;
-@@ -11002,14 +11002,14 @@ SYSCALL_DEFINE5(perf_event_open,
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 3cb017fa3a790..05688fa579e81 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -288,11 +288,8 @@ void nvme_complete_rq(struct request *req)
+ 		nvme_req(req)->ctrl->comp_seen = true;
+ 
+ 	if (unlikely(status != BLK_STS_OK && nvme_req_needs_retry(req))) {
+-		if ((req->cmd_flags & REQ_NVME_MPATH) &&
+-		    blk_path_error(status)) {
+-			nvme_failover_req(req);
++		if ((req->cmd_flags & REQ_NVME_MPATH) && nvme_failover_req(req))
+ 			return;
+-		}
+ 
+ 		if (!blk_queue_dying(req->q)) {
+ 			nvme_retry_req(req);
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 0a458f7880887..3968f89f7855a 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -65,17 +65,12 @@ void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
+ 	}
+ }
+ 
+-void nvme_failover_req(struct request *req)
++bool nvme_failover_req(struct request *req)
+ {
+ 	struct nvme_ns *ns = req->q->queuedata;
+ 	u16 status = nvme_req(req)->status;
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&ns->head->requeue_lock, flags);
+-	blk_steal_bios(&ns->head->requeue_list, req);
+-	spin_unlock_irqrestore(&ns->head->requeue_lock, flags);
+-	blk_mq_end_request(req, 0);
+-
+ 	switch (status & 0x7ff) {
+ 	case NVME_SC_ANA_TRANSITION:
+ 	case NVME_SC_ANA_INACCESSIBLE:
+@@ -104,15 +99,17 @@ void nvme_failover_req(struct request *req)
+ 		nvme_mpath_clear_current_path(ns);
+ 		break;
+ 	default:
+-		/*
+-		 * Reset the controller for any non-ANA error as we don't know
+-		 * what caused the error.
+-		 */
+-		nvme_reset_ctrl(ns->ctrl);
+-		break;
++		/* This was a non-ANA error so follow the normal error path. */
++		return false;
  	}
  
- 	if (task) {
--		err = mutex_lock_interruptible(&task->signal->cred_guard_mutex);
-+		err = mutex_lock_interruptible(&task->signal->exec_update_mutex);
- 		if (err)
- 			goto err_task;
++	spin_lock_irqsave(&ns->head->requeue_lock, flags);
++	blk_steal_bios(&ns->head->requeue_list, req);
++	spin_unlock_irqrestore(&ns->head->requeue_lock, flags);
++	blk_mq_end_request(req, 0);
++
+ 	kblockd_schedule_work(&ns->head->requeue_work);
++	return true;
+ }
  
- 		/*
- 		 * Reuse ptrace permission checks for now.
- 		 *
--		 * We must hold cred_guard_mutex across this and any potential
-+		 * We must hold exec_update_mutex across this and any potential
- 		 * perf_install_in_context() call for this new event to
- 		 * serialize against exec() altering our credentials (and the
- 		 * perf_event_exit_task() that could imply).
-@@ -11298,7 +11298,7 @@ SYSCALL_DEFINE5(perf_event_open,
- 	mutex_unlock(&ctx->mutex);
+ void nvme_kick_requeue_lists(struct nvme_ctrl *ctrl)
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 056953bd8bd81..80bfffa943ccd 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -530,7 +530,7 @@ void nvme_mpath_wait_freeze(struct nvme_subsystem *subsys);
+ void nvme_mpath_start_freeze(struct nvme_subsystem *subsys);
+ void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
+ 			struct nvme_ctrl *ctrl, int *flags);
+-void nvme_failover_req(struct request *req);
++bool nvme_failover_req(struct request *req);
+ void nvme_kick_requeue_lists(struct nvme_ctrl *ctrl);
+ int nvme_mpath_alloc_disk(struct nvme_ctrl *ctrl,struct nvme_ns_head *head);
+ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id);
+@@ -579,8 +579,9 @@ static inline void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
+ 	sprintf(disk_name, "nvme%dn%d", ctrl->instance, ns->head->instance);
+ }
  
- 	if (task) {
--		mutex_unlock(&task->signal->cred_guard_mutex);
-+		mutex_unlock(&task->signal->exec_update_mutex);
- 		put_task_struct(task);
- 	}
- 
-@@ -11334,7 +11334,7 @@ err_alloc:
- 		free_event(event);
- err_cred:
- 	if (task)
--		mutex_unlock(&task->signal->cred_guard_mutex);
-+		mutex_unlock(&task->signal->exec_update_mutex);
- err_task:
- 	if (task)
- 		put_task_struct(task);
-@@ -11639,7 +11639,7 @@ static void perf_event_exit_task_context(struct task_struct *child, int ctxn)
- /*
-  * When a child task exits, feed back event values to parent events.
-  *
-- * Can be called with cred_guard_mutex held when called from
-+ * Can be called with exec_update_mutex held when called from
-  * install_exec_creds().
-  */
- void perf_event_exit_task(struct task_struct *child)
+-static inline void nvme_failover_req(struct request *req)
++static inline bool nvme_failover_req(struct request *req)
+ {
++	return false;
+ }
+ static inline void nvme_kick_requeue_lists(struct nvme_ctrl *ctrl)
+ {
 -- 
 2.25.1
 
