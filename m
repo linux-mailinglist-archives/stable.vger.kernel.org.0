@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA1EA26EF1E
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFD0D26EF19
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729824AbgIRCdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729739AbgIRCdK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:33:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41386 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729002AbgIRCNu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:13:50 -0400
+        id S1729005AbgIRCNw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:13:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A9D5235F7;
-        Fri, 18 Sep 2020 02:13:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CCC82389E;
+        Fri, 18 Sep 2020 02:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395230;
-        bh=pEocZdUoVNcT48AhOZV2wN7OAEKpeFRTRBWqmsjCs7M=;
+        s=default; t=1600395231;
+        bh=AVpRSkgj0eO6IkQtoEcXFT1DLNyNXuMgutww47Zi4pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A3O3AhSPRgHeYdFAAojEwsF/Wm4/4NMMJeSYOiylF25KXhftnwzPsLXxH15WTb29P
-         iOVk1/LviZVcu+Jhz63dML/U2stuWYpAsTGTn+boYsgCu8UsP/jc2P+PZpMIVj7OhG
-         H6x7Sm/dQ0Sf2EsWx5bWO308W6eyFOa3AjWMFr28=
+        b=L45HNhhWyX7lasyN39wxcLO2MrkIlO3lvaf4ZkuGLd7U9gOe217bGa3lBuFGzFMDE
+         a5A8Spa/Kc38jo7Kso/RjC+FYvDu+BiCB4eE2GlLfpqMWpMvfQb9qr4hHJN091E+3X
+         NL3On6BGHvWPqJPKzw2zjm6SmENVtgo0dyT8A24w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhu Yanjun <yanjunz@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 075/127] RDMA/rxe: Set sys_image_guid to be aligned with HW IB devices
-Date:   Thu, 17 Sep 2020 22:11:28 -0400
-Message-Id: <20200918021220.2066485-75-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 076/127] SUNRPC: Fix a potential buffer overflow in 'svc_print_xprts()'
+Date:   Thu, 17 Sep 2020 22:11:29 -0400
+Message-Id: <20200918021220.2066485-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -43,53 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjunz@mellanox.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d0ca2c35dd15a3d989955caec02beea02f735ee6 ]
+[ Upstream commit b25b60d7bfb02a74bc3c2d998e09aab159df8059 ]
 
-The RXE driver doesn't set sys_image_guid and user space applications see
-zeros. This causes to pyverbs tests to fail with the following traceback,
-because the IBTA spec requires to have valid sys_image_guid.
+'maxlen' is the total size of the destination buffer. There is only one
+caller and this value is 256.
 
- Traceback (most recent call last):
-   File "./tests/test_device.py", line 51, in test_query_device
-     self.verify_device_attr(attr)
-   File "./tests/test_device.py", line 74, in verify_device_attr
-     assert attr.sys_image_guid != 0
+When we compute the size already used and what we would like to add in
+the buffer, the trailling NULL character is not taken into account.
+However, this trailling character will be added by the 'strcat' once we
+have checked that we have enough place.
 
-In order to fix it, set sys_image_guid to be equal to node_guid.
+So, there is a off-by-one issue and 1 byte of the stack could be
+erroneously overwridden.
 
-Before:
- 5: rxe0: ... node_guid 5054:00ff:feaa:5363 sys_image_guid
- 0000:0000:0000:0000
+Take into account the trailling NULL, when checking if there is enough
+place in the destination buffer.
 
-After:
- 5: rxe0: ... node_guid 5054:00ff:feaa:5363 sys_image_guid
- 5054:00ff:feaa:5363
+While at it, also replace a 'sprintf' by a safer 'snprintf', check for
+output truncation and avoid a superfluous 'strlen'.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20200323112800.1444784-1-leon@kernel.org
-Signed-off-by: Zhu Yanjun <yanjunz@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: dc9a16e49dbba ("svc: Add /proc/sys/sunrpc/transport files")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+[ cel: very minor fix to documenting comment
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/sunrpc/svc_xprt.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe.c b/drivers/infiniband/sw/rxe/rxe.c
-index 8c3d30b3092d4..2c9e616cfe0e8 100644
---- a/drivers/infiniband/sw/rxe/rxe.c
-+++ b/drivers/infiniband/sw/rxe/rxe.c
-@@ -126,6 +126,8 @@ static int rxe_init_device_param(struct rxe_dev *rxe)
- 	rxe->attr.max_fast_reg_page_list_len	= RXE_MAX_FMR_PAGE_LIST_LEN;
- 	rxe->attr.max_pkeys			= RXE_MAX_PKEYS;
- 	rxe->attr.local_ca_ack_delay		= RXE_LOCAL_CA_ACK_DELAY;
-+	addrconf_addr_eui48((unsigned char *)&rxe->attr.sys_image_guid,
-+			rxe->ndev->dev_addr);
+diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
+index 7e5f849b44cdb..b293827b2a583 100644
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -103,8 +103,17 @@ void svc_unreg_xprt_class(struct svc_xprt_class *xcl)
+ }
+ EXPORT_SYMBOL_GPL(svc_unreg_xprt_class);
  
- 	rxe->max_ucontext			= RXE_MAX_UCONTEXT;
+-/*
+- * Format the transport list for printing
++/**
++ * svc_print_xprts - Format the transport list for printing
++ * @buf: target buffer for formatted address
++ * @maxlen: length of target buffer
++ *
++ * Fills in @buf with a string containing a list of transport names, each name
++ * terminated with '\n'. If the buffer is too small, some entries may be
++ * missing, but it is guaranteed that all lines in the output buffer are
++ * complete.
++ *
++ * Returns positive length of the filled-in string.
+  */
+ int svc_print_xprts(char *buf, int maxlen)
+ {
+@@ -117,9 +126,9 @@ int svc_print_xprts(char *buf, int maxlen)
+ 	list_for_each_entry(xcl, &svc_xprt_class_list, xcl_list) {
+ 		int slen;
  
+-		sprintf(tmpstr, "%s %d\n", xcl->xcl_name, xcl->xcl_max_payload);
+-		slen = strlen(tmpstr);
+-		if (len + slen > maxlen)
++		slen = snprintf(tmpstr, sizeof(tmpstr), "%s %d\n",
++				xcl->xcl_name, xcl->xcl_max_payload);
++		if (slen >= sizeof(tmpstr) || len + slen >= maxlen)
+ 			break;
+ 		len += slen;
+ 		strcat(buf, tmpstr);
 -- 
 2.25.1
 
