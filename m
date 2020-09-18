@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF8B926EC43
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:11:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47DA226EC46
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728571AbgIRCLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:11:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36126 "EHLO mail.kernel.org"
+        id S1728584AbgIRCLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:11:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728547AbgIRCK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:10:59 -0400
+        id S1728576AbgIRCLL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:11:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C360523730;
-        Fri, 18 Sep 2020 02:10:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 825312376E;
+        Fri, 18 Sep 2020 02:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395058;
-        bh=PlbMTgELfMRDsocIUTTiiLZI4p00Hr9pXfwZwKyCaNA=;
+        s=default; t=1600395070;
+        bh=VE3fSo3aAsqJCVY65T3BpwRXkibKi5NDJeqN25lw3VI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwuh0aHjxc+jAaEl158ImcZz7/AkMhrhVpybJqHAkk9TW4BtJO8yr9HJH6p+w6WGw
-         vfjxawG90GTD/z1bK6SmQ2snGrRw22BneFRbYmAqemF1hPPytnjqTagYPh7a7wmCBu
-         4G66Dq3ocQHI216IjeMDmfKzy14RHG6qrCW8iGBY=
+        b=xgUM4ABG7QrPbNVQc8LkefOkZ32mcFZUc8idzgprifKwO43HSLJKzRj+3yB8+kgu+
+         6OzFZSwPMYsvKNgzd8VX60cLrn+hiWc4dYbSp6i9qvFUqkF0j+11V9tJtz91KpSvGi
+         RAALGQn/ETSQDpfDzho8sHNiWw3LGGsbuua653XM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephane Eranian <eranian@google.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 145/206] perf stat: Force error in fallback on :k events
-Date:   Thu, 17 Sep 2020 22:07:01 -0400
-Message-Id: <20200918020802.2065198-145-sashal@kernel.org>
+Cc:     Cong Wang <xiyou.wangcong@gmail.com>,
+        Gengming Liu <l.dmxcsnsbh@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 155/206] atm: fix a memory leak of vcc->user_back
+Date:   Thu, 17 Sep 2020 22:07:11 -0400
+Message-Id: <20200918020802.2065198-155-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -47,117 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Eranian <eranian@google.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit bec49a9e05db3dbdca696fa07c62c52638fb6371 ]
+[ Upstream commit 8d9f73c0ad2f20e9fed5380de0a3097825859d03 ]
 
-When it is not possible for a non-privilege perf command to monitor at
-the kernel level (:k), the fallback code forces a :u. That works if the
-event was previously monitoring both levels.  But if the event was
-already constrained to kernel only, then it does not make sense to
-restrict it to user only.
+In lec_arp_clear_vccs() only entry->vcc is freed, but vcc
+could be installed on entry->recv_vcc too in lec_vcc_added().
 
-Given the code works by exclusion, a kernel only event would have:
+This fixes the following memory leak:
 
-  attr->exclude_user = 1
+unreferenced object 0xffff8880d9266b90 (size 16):
+  comm "atm2", pid 425, jiffies 4294907980 (age 23.488s)
+  hex dump (first 16 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 6b 6b 6b a5  ............kkk.
+  backtrace:
+    [<(____ptrval____)>] kmem_cache_alloc_trace+0x10e/0x151
+    [<(____ptrval____)>] lane_ioctl+0x4b3/0x569
+    [<(____ptrval____)>] do_vcc_ioctl+0x1ea/0x236
+    [<(____ptrval____)>] svc_ioctl+0x17d/0x198
+    [<(____ptrval____)>] sock_do_ioctl+0x47/0x12f
+    [<(____ptrval____)>] sock_ioctl+0x2f9/0x322
+    [<(____ptrval____)>] vfs_ioctl+0x1e/0x2b
+    [<(____ptrval____)>] ksys_ioctl+0x61/0x80
+    [<(____ptrval____)>] __x64_sys_ioctl+0x16/0x19
+    [<(____ptrval____)>] do_syscall_64+0x57/0x65
+    [<(____ptrval____)>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
 
-The fallback code would add:
-
-  attr->exclude_kernel = 1
-
-In the end the end would not monitor in either the user level or kernel
-level. In other words, it would count nothing.
-
-An event programmed to monitor kernel only cannot be switched to user
-only without seriously warning the user.
-
-This patch forces an error in this case to make it clear the request
-cannot really be satisfied.
-
-Behavior with paranoid 1:
-
-  $ sudo bash -c "echo 1 > /proc/sys/kernel/perf_event_paranoid"
-  $ perf stat -e cycles:k sleep 1
-
-   Performance counter stats for 'sleep 1':
-
-           1,520,413      cycles:k
-
-         1.002361664 seconds time elapsed
-
-         0.002480000 seconds user
-         0.000000000 seconds sys
-
-Old behavior with paranoid 2:
-
-  $ sudo bash -c "echo 2 > /proc/sys/kernel/perf_event_paranoid"
-  $ perf stat -e cycles:k sleep 1
-   Performance counter stats for 'sleep 1':
-
-                   0      cycles:ku
-
-         1.002358127 seconds time elapsed
-
-         0.002384000 seconds user
-         0.000000000 seconds sys
-
-New behavior with paranoid 2:
-
-  $ sudo bash -c "echo 2 > /proc/sys/kernel/perf_event_paranoid"
-  $ perf stat -e cycles:k sleep 1
-  Error:
-  You may not have permission to collect stats.
-
-  Consider tweaking /proc/sys/kernel/perf_event_paranoid,
-  which controls use of the performance events system by
-  unprivileged users (without CAP_PERFMON or CAP_SYS_ADMIN).
-
-  The current value is 2:
-
-    -1: Allow use of (almost) all events by all users
-        Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
-  >= 0: Disallow ftrace function tracepoint by users without CAP_PERFMON or CAP_SYS_ADMIN
-        Disallow raw tracepoint access by users without CAP_SYS_PERFMON or CAP_SYS_ADMIN
-  >= 1: Disallow CPU event access by users without CAP_PERFMON or CAP_SYS_ADMIN
-  >= 2: Disallow kernel profiling by users without CAP_PERFMON or CAP_SYS_ADMIN
-
-  To make this setting permanent, edit /etc/sysctl.conf too, e.g.:
-
-          kernel.perf_event_paranoid = -1
-
-v2 of this patch addresses the review feedback from jolsa@redhat.com.
-
-Signed-off-by: Stephane Eranian <eranian@google.com>
-Reviewed-by: Ian Rogers <irogers@google.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200414161550.225588-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Gengming Liu <l.dmxcsnsbh@gmail.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/evsel.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/atm/lec.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index 68c5ab0e1800b..e8586957562b3 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -2796,6 +2796,10 @@ bool perf_evsel__fallback(struct perf_evsel *evsel, int err,
- 		char *new_name;
- 		const char *sep = ":";
- 
-+		/* If event has exclude user then don't exclude kernel. */
-+		if (evsel->core.attr.exclude_user)
-+			return false;
+diff --git a/net/atm/lec.c b/net/atm/lec.c
+index ad4f829193f05..5a6186b809874 100644
+--- a/net/atm/lec.c
++++ b/net/atm/lec.c
+@@ -1270,6 +1270,12 @@ static void lec_arp_clear_vccs(struct lec_arp_table *entry)
+ 		entry->vcc = NULL;
+ 	}
+ 	if (entry->recv_vcc) {
++		struct atm_vcc *vcc = entry->recv_vcc;
++		struct lec_vcc_priv *vpriv = LEC_VCC_PRIV(vcc);
 +
- 		/* Is there already the separator in the name. */
- 		if (strchr(name, '/') ||
- 		    strchr(name, ':'))
++		kfree(vpriv);
++		vcc->user_back = NULL;
++
+ 		entry->recv_vcc->push = entry->old_recv_push;
+ 		vcc_release_async(entry->recv_vcc, -EPIPE);
+ 		entry->recv_vcc = NULL;
 -- 
 2.25.1
 
