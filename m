@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D765326F0CB
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:46:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBFF26F0C1
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727037AbgIRCq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:46:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33558 "EHLO mail.kernel.org"
+        id S1730155AbgIRCqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:46:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728338AbgIRCJx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:09:53 -0400
+        id S1726541AbgIRCJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:09:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92DFF2395A;
-        Fri, 18 Sep 2020 02:09:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CF362395C;
+        Fri, 18 Sep 2020 02:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394993;
-        bh=/SxPJUpqKhaxSW+fenMFVsuIVtuTWZGsuUoRBdV6OaA=;
+        s=default; t=1600394994;
+        bh=6wXX2t7FYw63BCc7Y2kMBYltJqD0WILpuIFbROS0tqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0uvDsgXT6wM+g2TXUAtAk2Q32Q06OXdgdDKhxXVYAauGDatWw9KBFevwMjD/fuphJ
-         b00wtwUfno1/U0F7DXhuioOV1ryVX5aUqvQNpiADTU/EYlhH0DeQSK1hEP8GCaQJbx
-         98xfN8e/A9zn5E41BgY/vHTH7Qy1r+OxGFp/Xn8M=
+        b=XIKI1R16Tye/K8hNoF9neK/8GEKYFSPLzUu3WfV9as74v0Fx0oyYfNPePIugpqK4w
+         vbBA8DdtLUNSDV65ctCE8FLHOJbllgHVEMIwCo2gbNwGR/rzXE1BoT6th8kv0/6fam
+         Zej60DVfk9g3TI5wGc2PG8piA3s3NdJJfPRC8CN0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+Cc:     Qian Cai <cai@lca.pw>, Theodore Ts'o <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 091/206] firmware: arm_sdei: Use cpus_read_lock() to avoid races with cpuhp
-Date:   Thu, 17 Sep 2020 22:06:07 -0400
-Message-Id: <20200918020802.2065198-91-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 092/206] random: fix data races at timer_rand_state
+Date:   Thu, 17 Sep 2020 22:06:08 -0400
+Message-Id: <20200918020802.2065198-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -42,84 +41,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 54f529a6806c9710947a4f2cdc15d6ea54121ccd ]
+[ Upstream commit e00d996a4317aff5351c4338dd97d390225412c2 ]
 
-SDEI has private events that need registering and enabling on each CPU.
-CPUs can come and go while we are trying to do this. SDEI tries to avoid
-these problems by setting the reregister flag before the register call,
-so any CPUs that come online register the event too. Sticking plaster
-like this doesn't work, as if the register call fails, a CPU that
-subsequently comes online will register the event before reregister
-is cleared.
+Fields in "struct timer_rand_state" could be accessed concurrently.
+Lockless plain reads and writes result in data races. Fix them by adding
+pairs of READ|WRITE_ONCE(). The data races were reported by KCSAN,
 
-Take cpus_read_lock() around the register and enable calls. We don't
-want surprise CPUs to do the wrong thing if they race with these calls
-failing.
+ BUG: KCSAN: data-race in add_timer_randomness / add_timer_randomness
 
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+ write to 0xffff9f320a0a01d0 of 8 bytes by interrupt on cpu 22:
+  add_timer_randomness+0x100/0x190
+  add_timer_randomness at drivers/char/random.c:1152
+  add_disk_randomness+0x85/0x280
+  scsi_end_request+0x43a/0x4a0
+  scsi_io_completion+0xb7/0x7e0
+  scsi_finish_command+0x1ed/0x2a0
+  scsi_softirq_done+0x1c9/0x1d0
+  blk_done_softirq+0x181/0x1d0
+  __do_softirq+0xd9/0x57c
+  irq_exit+0xa2/0xc0
+  do_IRQ+0x8b/0x190
+  ret_from_intr+0x0/0x42
+  cpuidle_enter_state+0x15e/0x980
+  cpuidle_enter+0x69/0xc0
+  call_cpuidle+0x23/0x40
+  do_idle+0x248/0x280
+  cpu_startup_entry+0x1d/0x1f
+  start_secondary+0x1b2/0x230
+  secondary_startup_64+0xb6/0xc0
+
+ no locks held by swapper/22/0.
+ irq event stamp: 32871382
+ _raw_spin_unlock_irqrestore+0x53/0x60
+ _raw_spin_lock_irqsave+0x21/0x60
+ _local_bh_enable+0x21/0x30
+ irq_exit+0xa2/0xc0
+
+ read to 0xffff9f320a0a01d0 of 8 bytes by interrupt on cpu 2:
+  add_timer_randomness+0xe8/0x190
+  add_disk_randomness+0x85/0x280
+  scsi_end_request+0x43a/0x4a0
+  scsi_io_completion+0xb7/0x7e0
+  scsi_finish_command+0x1ed/0x2a0
+  scsi_softirq_done+0x1c9/0x1d0
+  blk_done_softirq+0x181/0x1d0
+  __do_softirq+0xd9/0x57c
+  irq_exit+0xa2/0xc0
+  do_IRQ+0x8b/0x190
+  ret_from_intr+0x0/0x42
+  cpuidle_enter_state+0x15e/0x980
+  cpuidle_enter+0x69/0xc0
+  call_cpuidle+0x23/0x40
+  do_idle+0x248/0x280
+  cpu_startup_entry+0x1d/0x1f
+  start_secondary+0x1b2/0x230
+  secondary_startup_64+0xb6/0xc0
+
+ no locks held by swapper/2/0.
+ irq event stamp: 37846304
+ _raw_spin_unlock_irqrestore+0x53/0x60
+ _raw_spin_lock_irqsave+0x21/0x60
+ _local_bh_enable+0x21/0x30
+ irq_exit+0xa2/0xc0
+
+ Reported by Kernel Concurrency Sanitizer on:
+ Hardware name: HP ProLiant BL660c Gen9, BIOS I38 10/17/2018
+
+Link: https://lore.kernel.org/r/1582648024-13111-1-git-send-email-cai@lca.pw
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_sdei.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/char/random.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/firmware/arm_sdei.c b/drivers/firmware/arm_sdei.c
-index 05b528c7ed8fd..e809f4d9a9e93 100644
---- a/drivers/firmware/arm_sdei.c
-+++ b/drivers/firmware/arm_sdei.c
-@@ -410,14 +410,19 @@ int sdei_event_enable(u32 event_num)
- 		return -ENOENT;
- 	}
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 6a5d4dfafc474..80dedecfe15c5 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1150,14 +1150,14 @@ static void add_timer_randomness(struct timer_rand_state *state, unsigned num)
+ 	 * We take into account the first, second and third-order deltas
+ 	 * in order to make our estimate.
+ 	 */
+-	delta = sample.jiffies - state->last_time;
+-	state->last_time = sample.jiffies;
++	delta = sample.jiffies - READ_ONCE(state->last_time);
++	WRITE_ONCE(state->last_time, sample.jiffies);
  
--	spin_lock(&sdei_list_lock);
--	event->reenable = true;
--	spin_unlock(&sdei_list_lock);
+-	delta2 = delta - state->last_delta;
+-	state->last_delta = delta;
++	delta2 = delta - READ_ONCE(state->last_delta);
++	WRITE_ONCE(state->last_delta, delta);
  
-+	cpus_read_lock();
- 	if (event->type == SDEI_EVENT_TYPE_SHARED)
- 		err = sdei_api_event_enable(event->event_num);
- 	else
- 		err = sdei_do_cross_call(_local_event_enable, event);
-+
-+	if (!err) {
-+		spin_lock(&sdei_list_lock);
-+		event->reenable = true;
-+		spin_unlock(&sdei_list_lock);
-+	}
-+	cpus_read_unlock();
- 	mutex_unlock(&sdei_events_lock);
+-	delta3 = delta2 - state->last_delta2;
+-	state->last_delta2 = delta2;
++	delta3 = delta2 - READ_ONCE(state->last_delta2);
++	WRITE_ONCE(state->last_delta2, delta2);
  
- 	return err;
-@@ -619,21 +624,18 @@ int sdei_event_register(u32 event_num, sdei_event_callback *cb, void *arg)
- 			break;
- 		}
- 
--		spin_lock(&sdei_list_lock);
--		event->reregister = true;
--		spin_unlock(&sdei_list_lock);
--
-+		cpus_read_lock();
- 		err = _sdei_event_register(event);
- 		if (err) {
--			spin_lock(&sdei_list_lock);
--			event->reregister = false;
--			event->reenable = false;
--			spin_unlock(&sdei_list_lock);
--
- 			sdei_event_destroy(event);
- 			pr_warn("Failed to register event %u: %d\n", event_num,
- 				err);
-+		} else {
-+			spin_lock(&sdei_list_lock);
-+			event->reregister = true;
-+			spin_unlock(&sdei_list_lock);
- 		}
-+		cpus_read_unlock();
- 	} while (0);
- 	mutex_unlock(&sdei_events_lock);
- 
+ 	if (delta < 0)
+ 		delta = -delta;
 -- 
 2.25.1
 
