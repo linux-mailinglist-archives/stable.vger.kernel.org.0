@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C086426EF2C
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A587926EF30
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727769AbgIRCds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728593AbgIRCds (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:33:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41126 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726935AbgIRCNl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:13:41 -0400
+        id S1727960AbgIRCNm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:13:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFF4C235F8;
-        Fri, 18 Sep 2020 02:13:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA82F23977;
+        Fri, 18 Sep 2020 02:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395220;
-        bh=BK5x3yg1WtDHgsbiPOGElnw8lWh4BW1Nka4Uaa9FLUE=;
+        s=default; t=1600395221;
+        bh=Z8IHuZLsc5cY1jPzZYhol1bmEhwUKDZVsue0I66Qxlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=raP1D2N8cIf5/0O3cJm2k2Q6eFiLixY90gZA8tJvA+kOaUVExN6diYbrYnwzmeDT0
-         de2cnj66xKkpOdoNw8DYY1M+e1VdLfzlzrr1PSEyu7W7IXXuRFkJ/oHQoS1dRSMifw
-         cKQ5Tve9Dw4wgc5q10XsmAnmX0BF7zpkqrldfKYs=
+        b=fI8jyPBlTh1dAxLIpsODBgnEM08CaCMGW2Xxr/qTQGiDAPi41js3mM1klLo5DFDsQ
+         kjUoOHb9UxInmCG7O7rLgKexXvNpY3+vx2G8mV8XVOfROuf1ACGS5rkUUx3TuyK7z/
+         wVktZXyV9rT3ffvY+lhT90UKxIeE9tiGtqmv15Bs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, rtc-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 067/127] rtc: ds1374: fix possible race condition
-Date:   Thu, 17 Sep 2020 22:11:20 -0400
-Message-Id: <20200918021220.2066485-67-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 068/127] tracing: Use address-of operator on section symbols
+Date:   Thu, 17 Sep 2020 22:11:21 -0400
+Message-Id: <20200918021220.2066485-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -41,57 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit c11af8131a4e7ba1960faed731ee7e84c2c13c94 ]
+[ Upstream commit bf2cbe044da275021b2de5917240411a19e5c50d ]
 
-The RTC IRQ is requested before the struct rtc_device is allocated,
-this may lead to a NULL pointer dereference in the IRQ handler.
+Clang warns:
 
-To fix this issue, allocating the rtc_device struct before requesting
-the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
-to register the RTC device.
+../kernel/trace/trace.c:9335:33: warning: array comparison always
+evaluates to true [-Wtautological-compare]
+        if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
+                                       ^
+1 warning generated.
 
-Link: https://lore.kernel.org/r/20200306073404.56921-1-alexandre.belloni@bootlin.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+These are not true arrays, they are linker defined symbols, which are
+just addresses. Using the address of operator silences the warning and
+does not change the runtime result of the check (tested with some print
+statements compiled in with clang + ld.lld and gcc + ld.bfd in QEMU).
+
+Link: http://lkml.kernel.org/r/20200220051011.26113-1-natechancellor@gmail.com
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/893
+Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ds1374.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ kernel/trace/trace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-index 38a2e9e684df4..77a106e90124b 100644
---- a/drivers/rtc/rtc-ds1374.c
-+++ b/drivers/rtc/rtc-ds1374.c
-@@ -620,6 +620,10 @@ static int ds1374_probe(struct i2c_client *client,
- 	if (!ds1374)
- 		return -ENOMEM;
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 22759f5607192..19526297a5b1c 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -8346,7 +8346,7 @@ __init static int tracer_alloc_buffers(void)
+ 		goto out_free_buffer_mask;
  
-+	ds1374->rtc = devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(ds1374->rtc))
-+		return PTR_ERR(ds1374->rtc);
-+
- 	ds1374->client = client;
- 	i2c_set_clientdata(client, ds1374);
+ 	/* Only allocate trace_printk buffers if a trace_printk exists */
+-	if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
++	if (&__stop___trace_bprintk_fmt != &__start___trace_bprintk_fmt)
+ 		/* Must be called before global_trace.buffer is allocated */
+ 		trace_printk_init_buffers();
  
-@@ -641,12 +645,11 @@ static int ds1374_probe(struct i2c_client *client,
- 		device_set_wakeup_capable(&client->dev, 1);
- 	}
- 
--	ds1374->rtc = devm_rtc_device_register(&client->dev, client->name,
--						&ds1374_rtc_ops, THIS_MODULE);
--	if (IS_ERR(ds1374->rtc)) {
--		dev_err(&client->dev, "unable to register the class device\n");
--		return PTR_ERR(ds1374->rtc);
--	}
-+	ds1374->rtc->ops = &ds1374_rtc_ops;
-+
-+	ret = rtc_register_device(ds1374->rtc);
-+	if (ret)
-+		return ret;
- 
- #ifdef CONFIG_RTC_DRV_DS1374_WDT
- 	save_client = client;
 -- 
 2.25.1
 
