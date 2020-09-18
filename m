@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE81926F3F7
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 392BE26F3FA
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726766AbgIRCCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47700 "EHLO mail.kernel.org"
+        id S1726770AbgIRCCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:02:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726748AbgIRCCa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726752AbgIRCCa (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:02:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CF2723600;
-        Fri, 18 Sep 2020 02:02:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4746F2371F;
+        Fri, 18 Sep 2020 02:02:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394543;
-        bh=94AT0YPweooXiO7gK1/oiuOCZdrXc0s4UM0WFbWcmvc=;
+        s=default; t=1600394545;
+        bh=uLyab3reV9Cbu2r3VvlqvXJIVfiUsg5LorqQCGrHO9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iS1Rxbc0CCY58xmRtYS5WrRfn0czB2PtDlF1nafb+/CDWODLtrsp6NhXS/0UkJVLR
-         rvVlzbU6IKFBfOxDrMgnnjdRJmqea2erbCi2TErmGZa0cexetY2nTWnoESx0PcX2mE
-         dgLPk3WAqIW1zWyFHPUj+AlWNMbkslPANvvorrXg=
+        b=C7u4CnfpBS7T6jYpzgHQzWelVgo5zboB+DB6Dq5o7kSy/4JKiXWfIwkp30Hwq/8cu
+         vRVCDOZPrqa7ihBKIqdU3TMgO+XZzFTPsCSfOPku77h9eAGGxmOAf3+9P1PfUC+r8O
+         OMKptyNRMQA2PMi0DzEtBpaFY0PC/pk1bgP12op0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuck Lever <chuck.lever@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 061/330] SUNRPC: Capture completion of all RPC tasks
-Date:   Thu, 17 Sep 2020 21:56:41 -0400
-Message-Id: <20200918020110.2063155-61-sashal@kernel.org>
+Cc:     Markus Elfring <elfring@users.sourceforge.net>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.4 062/330] CIFS: Use common error handling code in smb2_ioctl_query_info()
+Date:   Thu, 17 Sep 2020 21:56:42 -0400
+Message-Id: <20200918020110.2063155-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -43,58 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Markus Elfring <elfring@users.sourceforge.net>
 
-[ Upstream commit a264abad51d8ecb7954a2f6d9f1885b38daffc74 ]
+[ Upstream commit 2b1116bbe898aefdf584838448c6869f69851e0f ]
 
-RPC tasks on the backchannel never invoke xprt_complete_rqst(), so
-there is no way to report their tk_status at completion. Also, any
-RPC task that exits via rpc_exit_task() before it is replied to will
-also disappear without a trace.
+Move the same error code assignments so that such exception handling
+can be better reused at the end of this function.
 
-Introduce a trace point that is symmetrical with rpc_task_begin that
-captures the termination status of each RPC task.
+This issue was detected by using the Coccinelle software.
 
-Sample trace output for callback requests initiated on the server:
-   kworker/u8:12-448   [003]   127.025240: rpc_task_end:         task:50@3 flags=ASYNC|DYNAMIC|SOFT|SOFTCONN|SENT runstate=RUNNING|ACTIVE status=0 action=rpc_exit_task
-   kworker/u8:12-448   [002]   127.567310: rpc_task_end:         task:51@3 flags=ASYNC|DYNAMIC|SOFT|SOFTCONN|SENT runstate=RUNNING|ACTIVE status=0 action=rpc_exit_task
-   kworker/u8:12-448   [001]   130.506817: rpc_task_end:         task:52@3 flags=ASYNC|DYNAMIC|SOFT|SOFTCONN|SENT runstate=RUNNING|ACTIVE status=0 action=rpc_exit_task
-
-Odd, though, that I never see trace_rpc_task_complete, either in the
-forward or backchannel. Should it be removed?
-
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/sunrpc.h | 1 +
- net/sunrpc/sched.c            | 1 +
- 2 files changed, 2 insertions(+)
+ fs/cifs/smb2ops.c | 45 +++++++++++++++++++++++----------------------
+ 1 file changed, 23 insertions(+), 22 deletions(-)
 
-diff --git a/include/trace/events/sunrpc.h b/include/trace/events/sunrpc.h
-index ffa3c51dbb1a0..28df77a948e56 100644
---- a/include/trace/events/sunrpc.h
-+++ b/include/trace/events/sunrpc.h
-@@ -165,6 +165,7 @@ DECLARE_EVENT_CLASS(rpc_task_running,
- DEFINE_RPC_RUNNING_EVENT(begin);
- DEFINE_RPC_RUNNING_EVENT(run_action);
- DEFINE_RPC_RUNNING_EVENT(complete);
-+DEFINE_RPC_RUNNING_EVENT(end);
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 7ccbfc6564787..318d805e74d40 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1565,35 +1565,32 @@ smb2_ioctl_query_info(const unsigned int xid,
+ 		if (le32_to_cpu(io_rsp->OutputCount) < qi.input_buffer_length)
+ 			qi.input_buffer_length = le32_to_cpu(io_rsp->OutputCount);
+ 		if (qi.input_buffer_length > 0 &&
+-		    le32_to_cpu(io_rsp->OutputOffset) + qi.input_buffer_length > rsp_iov[1].iov_len) {
+-			rc = -EFAULT;
+-			goto iqinf_exit;
+-		}
+-		if (copy_to_user(&pqi->input_buffer_length, &qi.input_buffer_length,
+-				 sizeof(qi.input_buffer_length))) {
+-			rc = -EFAULT;
+-			goto iqinf_exit;
+-		}
++		    le32_to_cpu(io_rsp->OutputOffset) + qi.input_buffer_length
++		    > rsp_iov[1].iov_len)
++			goto e_fault;
++
++		if (copy_to_user(&pqi->input_buffer_length,
++				 &qi.input_buffer_length,
++				 sizeof(qi.input_buffer_length)))
++			goto e_fault;
++
+ 		if (copy_to_user((void __user *)pqi + sizeof(struct smb_query_info),
+ 				 (const void *)io_rsp + le32_to_cpu(io_rsp->OutputOffset),
+-				 qi.input_buffer_length)) {
+-			rc = -EFAULT;
+-			goto iqinf_exit;
+-		}
++				 qi.input_buffer_length))
++			goto e_fault;
+ 	} else {
+ 		pqi = (struct smb_query_info __user *)arg;
+ 		qi_rsp = (struct smb2_query_info_rsp *)rsp_iov[1].iov_base;
+ 		if (le32_to_cpu(qi_rsp->OutputBufferLength) < qi.input_buffer_length)
+ 			qi.input_buffer_length = le32_to_cpu(qi_rsp->OutputBufferLength);
+-		if (copy_to_user(&pqi->input_buffer_length, &qi.input_buffer_length,
+-				 sizeof(qi.input_buffer_length))) {
+-			rc = -EFAULT;
+-			goto iqinf_exit;
+-		}
+-		if (copy_to_user(pqi + 1, qi_rsp->Buffer, qi.input_buffer_length)) {
+-			rc = -EFAULT;
+-			goto iqinf_exit;
+-		}
++		if (copy_to_user(&pqi->input_buffer_length,
++				 &qi.input_buffer_length,
++				 sizeof(qi.input_buffer_length)))
++			goto e_fault;
++
++		if (copy_to_user(pqi + 1, qi_rsp->Buffer,
++				 qi.input_buffer_length))
++			goto e_fault;
+ 	}
  
- DECLARE_EVENT_CLASS(rpc_task_queued,
+  iqinf_exit:
+@@ -1609,6 +1606,10 @@ smb2_ioctl_query_info(const unsigned int xid,
+ 	free_rsp_buf(resp_buftype[1], rsp_iov[1].iov_base);
+ 	free_rsp_buf(resp_buftype[2], rsp_iov[2].iov_base);
+ 	return rc;
++
++e_fault:
++	rc = -EFAULT;
++	goto iqinf_exit;
+ }
  
-diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
-index 987c4b1f0b174..9c79548c68474 100644
---- a/net/sunrpc/sched.c
-+++ b/net/sunrpc/sched.c
-@@ -824,6 +824,7 @@ rpc_reset_task_statistics(struct rpc_task *task)
-  */
- void rpc_exit_task(struct rpc_task *task)
- {
-+	trace_rpc_task_end(task, task->tk_action);
- 	task->tk_action = NULL;
- 	if (task->tk_ops->rpc_count_stats)
- 		task->tk_ops->rpc_count_stats(task, task->tk_calldata);
+ static ssize_t
 -- 
 2.25.1
 
