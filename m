@@ -2,98 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6C926FABA
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 12:37:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73A5E26FB31
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 13:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725882AbgIRKhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Sep 2020 06:37:51 -0400
-Received: from m42-11.mailgun.net ([69.72.42.11]:34645 "EHLO
-        m42-11.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726168AbgIRKhv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 06:37:51 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1600425470; h=Message-Id: Date: Subject: Cc: To: From:
- Sender; bh=qb2WoD3uf4Yfjw2dRwpjc0+G2WvhyNMin/XBmb+tRQ4=; b=IuHll3edWqs/gCibEznXYpdhZWqHzTk/QKdndMfTNnsFdsOf4FhwoZZ+u1DouSpVz3DhplbH
- NKpahd+tdgOnCz4kNej4hcABwb09gkIfrnlVhp1xadHJNtyl1FvqsAZ2WfuR/c+VpPlVUwK+
- t/S2buIp3b1AouRaGKB9VbujGKE=
-X-Mailgun-Sending-Ip: 69.72.42.11
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n04.prod.us-west-2.postgun.com with SMTP id
- 5f648ccdea858627d5e3c9de (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 18 Sep 2020 10:32:45
- GMT
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id EF4A1C43391; Fri, 18 Sep 2020 10:32:44 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
-Received: from charante-linux.qualcomm.com (unknown [202.46.22.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: charante)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 21028C43382;
-        Fri, 18 Sep 2020 10:32:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 21028C43382
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=charante@codeaurora.org
-From:   Charan Teja Reddy <charante@codeaurora.org>
-To:     sumit.semwal@linaro.org, christian.koenig@amd.com, arnd@arndb.de
-Cc:     linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
-        vinmenon@codeaurora.org,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        <stable@vger.kernel.org>
-Subject: [PATCH] dmabuf: fix NULL pointer dereference in dma_buf_release()
-Date:   Fri, 18 Sep 2020 16:02:31 +0530
-Message-Id: <1600425151-27670-1-git-send-email-charante@codeaurora.org>
-X-Mailer: git-send-email 1.9.1
+        id S1725882AbgIRLN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Sep 2020 07:13:28 -0400
+Received: from relmlor1.renesas.com ([210.160.252.171]:39877 "EHLO
+        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725941AbgIRLN2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 07:13:28 -0400
+X-Greylist: delayed 302 seconds by postgrey-1.27 at vger.kernel.org; Fri, 18 Sep 2020 07:13:27 EDT
+X-IronPort-AV: E=Sophos;i="5.77,274,1596466800"; 
+   d="scan'208";a="57634572"
+Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
+  by relmlie5.idc.renesas.com with ESMTP; 18 Sep 2020 20:08:24 +0900
+Received: from localhost.localdomain (unknown [172.29.53.56])
+        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 15BF540061BB;
+        Fri, 18 Sep 2020 20:08:20 +0900 (JST)
+From:   Biju Das <biju.das.jz@bp.renesas.com>
+To:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Chris Paterson <Chris.Paterson2@renesas.com>,
+        Biju Das <biju.das@bp.renesas.com>,
+        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm: rcar-du: Fix LVDS dual link mode kernel crash
+Date:   Fri, 18 Sep 2020 12:08:18 +0100
+Message-Id: <20200918110818.11303-1-biju.das.jz@bp.renesas.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-NULL pointer dereference is observed while exporting the dmabuf but
-failed to allocate the 'struct file' which results into the dropping of
-the allocated dentry corresponding to this file in the dmabuf fs, which
-is ending up in dma_buf_release() and accessing the uninitialzed
-dentry->d_fsdata.
+Kernel crash is observed when dual lvds link mode is activated
+along with HDMI. For this use case DU0 drives dual lvds output
+and DU1 drives hdmi output, but dot clock for DU1 is generated
+from lvds1.
 
-Call stack on 5.4 is below:
- dma_buf_release+0x2c/0x254 drivers/dma-buf/dma-buf.c:88
- __dentry_kill+0x294/0x31c fs/dcache.c:584
- dentry_kill fs/dcache.c:673 [inline]
- dput+0x250/0x380 fs/dcache.c:859
- path_put+0x24/0x40 fs/namei.c:485
- alloc_file_pseudo+0x1a4/0x200 fs/file_table.c:235
- dma_buf_getfile drivers/dma-buf/dma-buf.c:473 [inline]
- dma_buf_export+0x25c/0x3ec drivers/dma-buf/dma-buf.c:585
+[  585.890230] Unable to handle kernel paging request at virtual address ffffffffffffff18
+[  585.898534] Mem abort info:
+[  586.065713] x1 : 000000000839b680 x0 : ffffffffffffff20
+[  586.071038] Call trace:
+[  586.073490]  rcar_lvds_clk_enable+0x14/0xd0
+[  586.077682]  rcar_du_crtc_atomic_enable+0xe4/0xe8
+[  586.082403]  drm_atomic_helper_commit_modeset_enables+0x1f0/0x240
+[  586.088508]  rcar_du_atomic_commit_tail+0xac/0xd8
+[  586.093224]  commit_tail+0x9c/0x168
+[  586.096720]  drm_atomic_helper_commit+0x180/0x198
+[  586.101435]  drm_atomic_commit+0x48/0x58
+[  586.105370]  drm_client_modeset_commit_atomic+0x250/0x2b0
+[  586.110780]  drm_client_modeset_commit_locked+0x54/0x1e8
+[  586.116102]  drm_client_modeset_commit+0x2c/0x50
+[  586.120733]  __drm_fb_helper_restore_fbdev_mode_unlocked+0x88/0x120
+[  586.127013]  drm_fb_helper_set_par+0x38/0x70
+[  586.131291]  drm_fb_helper_hotplug_event.part.22+0xc4/0xd8
+[  586.136789]  drm_fbdev_client_hotplug+0xcc/0x1d8
+[  586.141415]  drm_client_dev_hotplug+0x7c/0xc0
+[  586.145781]  drm_kms_helper_hotplug_event+0x30/0x40
+[  586.150670]  tda998x_detect_work+0x14/0x28
+[  586.154781]  process_one_work+0x2a8/0x730
 
-Fix this by checking for the valid pointer in the dentry->d_fsdata.
-
-Fixes: 4ab59c3c638c ("dma-buf: Move dma_buf_release() from fops to dentry_ops")
-Cc: <stable@vger.kernel.org> [5.7+]
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
+Fixes: a6cc417d3eee ("drm: rcar-du: Turn LVDS clock output on/off for DPAD0
+output on D3/E3")
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Cc: stable@vger.kernel.org
 ---
- drivers/dma-buf/dma-buf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 14 ++++++++++++--
+ drivers/gpu/drm/rcar-du/rcar_lvds.c    |  6 ++++++
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-index 58564d82..844967f 100644
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -59,6 +59,8 @@ static void dma_buf_release(struct dentry *dentry)
- 	struct dma_buf *dmabuf;
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+index fe86a3e67757..2440df786b02 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+@@ -729,11 +729,16 @@ static void rcar_du_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	    rstate->outputs == BIT(RCAR_DU_OUTPUT_DPAD0)) {
+ 		struct rcar_du_encoder *encoder =
+ 			rcdu->encoders[RCAR_DU_OUTPUT_LVDS0 + rcrtc->index];
++		struct rcar_du_encoder *enc_dual_link =
++			rcdu->encoders[RCAR_DU_OUTPUT_LVDS0];
+ 		const struct drm_display_mode *mode =
+ 			&crtc->state->adjusted_mode;
+ 		struct drm_bridge *bridge;
  
- 	dmabuf = dentry->d_fsdata;
-+	if (unlikely(!dmabuf))
-+		return;
+-		bridge = drm_bridge_chain_get_first_bridge(&encoder->base);
++		bridge = drm_bridge_chain_get_first_bridge(&enc_dual_link->base);
++		if (!rcar_lvds_dual_link(bridge))
++			bridge = drm_bridge_chain_get_first_bridge(&encoder->base);
++
+ 		rcar_lvds_clk_enable(bridge, mode->clock * 1000);
+ 	}
  
- 	BUG_ON(dmabuf->vmapping_counter);
+@@ -761,13 +766,18 @@ static void rcar_du_crtc_atomic_disable(struct drm_crtc *crtc,
+ 	    rstate->outputs == BIT(RCAR_DU_OUTPUT_DPAD0)) {
+ 		struct rcar_du_encoder *encoder =
+ 			rcdu->encoders[RCAR_DU_OUTPUT_LVDS0 + rcrtc->index];
++		struct rcar_du_encoder *enc_dual_link =
++			rcdu->encoders[RCAR_DU_OUTPUT_LVDS0];
+ 		struct drm_bridge *bridge;
+ 
+ 		/*
+ 		 * Disable the LVDS clock output, see
+ 		 * rcar_du_crtc_atomic_enable().
+ 		 */
+-		bridge = drm_bridge_chain_get_first_bridge(&encoder->base);
++		bridge = drm_bridge_chain_get_first_bridge(&enc_dual_link->base);
++		if (!rcar_lvds_dual_link(bridge))
++			bridge = drm_bridge_chain_get_first_bridge(&encoder->base);
++
+ 		rcar_lvds_clk_disable(bridge);
+ 	}
+ 
+diff --git a/drivers/gpu/drm/rcar-du/rcar_lvds.c b/drivers/gpu/drm/rcar-du/rcar_lvds.c
+index ab0d49618cf9..588f2a16b8a5 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_lvds.c
++++ b/drivers/gpu/drm/rcar-du/rcar_lvds.c
+@@ -373,6 +373,9 @@ int rcar_lvds_clk_enable(struct drm_bridge *bridge, unsigned long freq)
+ 	struct rcar_lvds *lvds = bridge_to_rcar_lvds(bridge);
+ 	int ret;
+ 
++	if (lvds->link_type != RCAR_LVDS_SINGLE_LINK && lvds->companion)
++		lvds = bridge_to_rcar_lvds(lvds->companion);
++
+ 	if (WARN_ON(!(lvds->info->quirks & RCAR_LVDS_QUIRK_EXT_PLL)))
+ 		return -ENODEV;
+ 
+@@ -392,6 +395,9 @@ void rcar_lvds_clk_disable(struct drm_bridge *bridge)
+ {
+ 	struct rcar_lvds *lvds = bridge_to_rcar_lvds(bridge);
+ 
++	if (lvds->link_type != RCAR_LVDS_SINGLE_LINK && lvds->companion)
++		lvds = bridge_to_rcar_lvds(lvds->companion);
++
+ 	if (WARN_ON(!(lvds->info->quirks & RCAR_LVDS_QUIRK_EXT_PLL)))
+ 		return;
  
 -- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a
-member of the Code Aurora Forum, hosted by The Linux Foundation
+2.17.1
 
