@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A69926ED4B
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 181BA26F27C
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729347AbgIRCSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:18:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49166 "EHLO mail.kernel.org"
+        id S1727589AbgIRCFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:05:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729640AbgIRCSB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:18:01 -0400
+        id S1727529AbgIRCF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:05:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D71F23976;
-        Fri, 18 Sep 2020 02:18:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F13B2388A;
+        Fri, 18 Sep 2020 02:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395481;
-        bh=4YSqJcbK+OrMYeVr/8dvYuoPQNyRLVf13mBNwX8RGDs=;
+        s=default; t=1600394726;
+        bh=EOKQQMvHtGDuToV5vA6NpVz451QxopcYgrV0hmjBlQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hv28wQo54ti7xkv12wIDEK92kbj/QF/QNcWYymqTNMLNCgSn44ZXHPYuXLVMAWSYi
-         SIxz/xbtX01BKLAZAa5DYz1YfZnr5Jup/J4ubtqBaXGcFvxS0yx5yoAo57QzsdS25D
-         o9yYftEGCfk2OwhF7bDIMFgqnwRWSZBD4XvfL/As=
+        b=z/UXTg97Jr+oop1SAbUNC3MCiqRLf2AzOse60xcZfaf91pESt4XTlpWC/bU4G4Z4w
+         b5gBP4yRDCd9j6JC+ZzgWt8XhzUVeJne8ncPzTprI0umGP34m+R8rbOM6/YKZKJ7oO
+         ATeXtJIEaT0p+8w3J+piy3/gPmS7DR4c+5Q0vRHw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zeng Tao <prime.zeng@hisilicon.com>, Qian Cai <cai@lca.pw>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 64/64] vfio/pci: fix racy on error and request eventfd ctx
-Date:   Thu, 17 Sep 2020 22:16:43 -0400
-Message-Id: <20200918021643.2067895-64-sashal@kernel.org>
+Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, xfs@oss.sgi.com
+Subject: [PATCH AUTOSEL 5.4 209/330] xfs: prohibit fs freezing when using empty transactions
+Date:   Thu, 17 Sep 2020 21:59:09 -0400
+Message-Id: <20200918020110.2063155-209-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200918021643.2067895-1-sashal@kernel.org>
-References: <20200918021643.2067895-1-sashal@kernel.org>
+In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
+References: <20200918020110.2063155-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,120 +42,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Tao <prime.zeng@hisilicon.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit b872d0640840018669032b20b6375a478ed1f923 ]
+[ Upstream commit 27fb5a72f50aa770dd38b0478c07acacef97e3e7 ]
 
-The vfio_pci_release call will free and clear the error and request
-eventfd ctx while these ctx could be in use at the same time in the
-function like vfio_pci_request, and it's expected to protect them under
-the vdev->igate mutex, which is missing in vfio_pci_release.
+I noticed that fsfreeze can take a very long time to freeze an XFS if
+there happens to be a GETFSMAP caller running in the background.  I also
+happened to notice the following in dmesg:
 
-This issue is introduced since commit 1518ac272e78 ("vfio/pci: fix memory
-leaks of eventfd ctx"),and since commit 5c5866c593bb ("vfio/pci: Clear
-error and request eventfd ctx after releasing"), it's very easily to
-trigger the kernel panic like this:
+------------[ cut here ]------------
+WARNING: CPU: 2 PID: 43492 at fs/xfs/xfs_super.c:853 xfs_quiesce_attr+0x83/0x90 [xfs]
+Modules linked in: xfs libcrc32c ip6t_REJECT nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 ip_set_hash_ip ip_set_hash_net xt_tcpudp xt_set ip_set_hash_mac ip_set nfnetlink ip6table_filter ip6_tables bfq iptable_filter sch_fq_codel ip_tables x_tables nfsv4 af_packet [last unloaded: xfs]
+CPU: 2 PID: 43492 Comm: xfs_io Not tainted 5.6.0-rc4-djw #rc4
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.10.2-1ubuntu1 04/01/2014
+RIP: 0010:xfs_quiesce_attr+0x83/0x90 [xfs]
+Code: 7c 07 00 00 85 c0 75 22 48 89 df 5b e9 96 c1 00 00 48 c7 c6 b0 2d 38 a0 48 89 df e8 57 64 ff ff 8b 83 7c 07 00 00 85 c0 74 de <0f> 0b 48 89 df 5b e9 72 c1 00 00 66 90 0f 1f 44 00 00 41 55 41 54
+RSP: 0018:ffffc900030f3e28 EFLAGS: 00010202
+RAX: 0000000000000001 RBX: ffff88802ac54000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff81e4a6f0 RDI: 00000000ffffffff
+RBP: ffff88807859f070 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000010 R12: 0000000000000000
+R13: ffff88807859f388 R14: ffff88807859f4b8 R15: ffff88807859f5e8
+FS:  00007fad1c6c0fc0(0000) GS:ffff88807e000000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f0c7d237000 CR3: 0000000077f01003 CR4: 00000000001606a0
+Call Trace:
+ xfs_fs_freeze+0x25/0x40 [xfs]
+ freeze_super+0xc8/0x180
+ do_vfs_ioctl+0x70b/0x750
+ ? __fget_files+0x135/0x210
+ ksys_ioctl+0x3a/0xb0
+ __x64_sys_ioctl+0x16/0x20
+ do_syscall_64+0x50/0x1a0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-[ 9513.904346] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
-[ 9513.913091] Mem abort info:
-[ 9513.915871]   ESR = 0x96000006
-[ 9513.918912]   EC = 0x25: DABT (current EL), IL = 32 bits
-[ 9513.924198]   SET = 0, FnV = 0
-[ 9513.927238]   EA = 0, S1PTW = 0
-[ 9513.930364] Data abort info:
-[ 9513.933231]   ISV = 0, ISS = 0x00000006
-[ 9513.937048]   CM = 0, WnR = 0
-[ 9513.940003] user pgtable: 4k pages, 48-bit VAs, pgdp=0000007ec7d12000
-[ 9513.946414] [0000000000000008] pgd=0000007ec7d13003, p4d=0000007ec7d13003, pud=0000007ec728c003, pmd=0000000000000000
-[ 9513.956975] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[ 9513.962521] Modules linked in: vfio_pci vfio_virqfd vfio_iommu_type1 vfio hclge hns3 hnae3 [last unloaded: vfio_pci]
-[ 9513.972998] CPU: 4 PID: 1327 Comm: bash Tainted: G        W         5.8.0-rc4+ #3
-[ 9513.980443] Hardware name: Huawei TaiShan 2280 V2/BC82AMDC, BIOS 2280-V2 CS V3.B270.01 05/08/2020
-[ 9513.989274] pstate: 80400089 (Nzcv daIf +PAN -UAO BTYPE=--)
-[ 9513.994827] pc : _raw_spin_lock_irqsave+0x48/0x88
-[ 9513.999515] lr : eventfd_signal+0x6c/0x1b0
-[ 9514.003591] sp : ffff800038a0b960
-[ 9514.006889] x29: ffff800038a0b960 x28: ffff007ef7f4da10
-[ 9514.012175] x27: ffff207eefbbfc80 x26: ffffbb7903457000
-[ 9514.017462] x25: ffffbb7912191000 x24: ffff007ef7f4d400
-[ 9514.022747] x23: ffff20be6e0e4c00 x22: 0000000000000008
-[ 9514.028033] x21: 0000000000000000 x20: 0000000000000000
-[ 9514.033321] x19: 0000000000000008 x18: 0000000000000000
-[ 9514.038606] x17: 0000000000000000 x16: ffffbb7910029328
-[ 9514.043893] x15: 0000000000000000 x14: 0000000000000001
-[ 9514.049179] x13: 0000000000000000 x12: 0000000000000002
-[ 9514.054466] x11: 0000000000000000 x10: 0000000000000a00
-[ 9514.059752] x9 : ffff800038a0b840 x8 : ffff007ef7f4de60
-[ 9514.065038] x7 : ffff007fffc96690 x6 : fffffe01faffb748
-[ 9514.070324] x5 : 0000000000000000 x4 : 0000000000000000
-[ 9514.075609] x3 : 0000000000000000 x2 : 0000000000000001
-[ 9514.080895] x1 : ffff007ef7f4d400 x0 : 0000000000000000
-[ 9514.086181] Call trace:
-[ 9514.088618]  _raw_spin_lock_irqsave+0x48/0x88
-[ 9514.092954]  eventfd_signal+0x6c/0x1b0
-[ 9514.096691]  vfio_pci_request+0x84/0xd0 [vfio_pci]
-[ 9514.101464]  vfio_del_group_dev+0x150/0x290 [vfio]
-[ 9514.106234]  vfio_pci_remove+0x30/0x128 [vfio_pci]
-[ 9514.111007]  pci_device_remove+0x48/0x108
-[ 9514.115001]  device_release_driver_internal+0x100/0x1b8
-[ 9514.120200]  device_release_driver+0x28/0x38
-[ 9514.124452]  pci_stop_bus_device+0x68/0xa8
-[ 9514.128528]  pci_stop_and_remove_bus_device+0x20/0x38
-[ 9514.133557]  pci_iov_remove_virtfn+0xb4/0x128
-[ 9514.137893]  sriov_disable+0x3c/0x108
-[ 9514.141538]  pci_disable_sriov+0x28/0x38
-[ 9514.145445]  hns3_pci_sriov_configure+0x48/0xb8 [hns3]
-[ 9514.150558]  sriov_numvfs_store+0x110/0x198
-[ 9514.154724]  dev_attr_store+0x44/0x60
-[ 9514.158373]  sysfs_kf_write+0x5c/0x78
-[ 9514.162018]  kernfs_fop_write+0x104/0x210
-[ 9514.166010]  __vfs_write+0x48/0x90
-[ 9514.169395]  vfs_write+0xbc/0x1c0
-[ 9514.172694]  ksys_write+0x74/0x100
-[ 9514.176079]  __arm64_sys_write+0x24/0x30
-[ 9514.179987]  el0_svc_common.constprop.4+0x110/0x200
-[ 9514.184842]  do_el0_svc+0x34/0x98
-[ 9514.188144]  el0_svc+0x14/0x40
-[ 9514.191185]  el0_sync_handler+0xb0/0x2d0
-[ 9514.195088]  el0_sync+0x140/0x180
-[ 9514.198389] Code: b9001020 d2800000 52800022 f9800271 (885ffe61)
-[ 9514.204455] ---[ end trace 648de00c8406465f ]---
-[ 9514.212308] note: bash[1327] exited with preempt_count 1
+These two things appear to be related.  The assertion trips when another
+thread initiates a fsmap request (which uses an empty transaction) after
+the freezer waited for m_active_trans to hit zero but before the the
+freezer executes the WARN_ON just prior to calling xfs_log_quiesce.
 
-Cc: Qian Cai <cai@lca.pw>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Fixes: 1518ac272e78 ("vfio/pci: fix memory leaks of eventfd ctx")
-Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+The lengthy delays in freezing happen because the freezer calls
+xfs_wait_buftarg to clean out the buffer lru list.  Meanwhile, the
+GETFSMAP caller is continuing to grab and release buffers, which means
+that it can take a very long time for the buffer lru list to empty out.
+
+We fix both of these races by calling sb_start_write to obtain freeze
+protection while using empty transactions for GETFSMAP and for metadata
+scrubbing.  The other two users occur during mount, during which time we
+cannot fs freeze.
+
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/xfs/scrub/scrub.c | 9 +++++++++
+ fs/xfs/xfs_fsmap.c   | 9 +++++++++
+ fs/xfs/xfs_trans.c   | 5 +++++
+ 3 files changed, 23 insertions(+)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 662ea7ec82926..8276ef7f3e834 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -255,14 +255,19 @@ static void vfio_pci_release(void *device_data)
- 	if (!(--vdev->refcnt)) {
- 		vfio_spapr_pci_eeh_release(vdev->pdev);
- 		vfio_pci_disable(vdev);
-+		mutex_lock(&vdev->igate);
- 		if (vdev->err_trigger) {
- 			eventfd_ctx_put(vdev->err_trigger);
- 			vdev->err_trigger = NULL;
- 		}
-+		mutex_unlock(&vdev->igate);
-+
-+		mutex_lock(&vdev->igate);
- 		if (vdev->req_trigger) {
- 			eventfd_ctx_put(vdev->req_trigger);
- 			vdev->req_trigger = NULL;
- 		}
-+		mutex_unlock(&vdev->igate);
+diff --git a/fs/xfs/scrub/scrub.c b/fs/xfs/scrub/scrub.c
+index 15c8c5f3f688d..720bef5779989 100644
+--- a/fs/xfs/scrub/scrub.c
++++ b/fs/xfs/scrub/scrub.c
+@@ -167,6 +167,7 @@ xchk_teardown(
+ 			xfs_irele(sc->ip);
+ 		sc->ip = NULL;
  	}
++	sb_end_write(sc->mp->m_super);
+ 	if (sc->flags & XCHK_REAPING_DISABLED)
+ 		xchk_start_reaping(sc);
+ 	if (sc->flags & XCHK_HAS_QUOTAOFFLOCK) {
+@@ -489,6 +490,14 @@ xfs_scrub_metadata(
+ 	sc.ops = &meta_scrub_ops[sm->sm_type];
+ 	sc.sick_mask = xchk_health_mask_for_scrub_type(sm->sm_type);
+ retry_op:
++	/*
++	 * If freeze runs concurrently with a scrub, the freeze can be delayed
++	 * indefinitely as we walk the filesystem and iterate over metadata
++	 * buffers.  Freeze quiesces the log (which waits for the buffer LRU to
++	 * be emptied) and that won't happen while checking is running.
++	 */
++	sb_start_write(mp->m_super);
++
+ 	/* Set up for the operation. */
+ 	error = sc.ops->setup(&sc, ip);
+ 	if (error)
+diff --git a/fs/xfs/xfs_fsmap.c b/fs/xfs/xfs_fsmap.c
+index d082143feb5ab..c13754e119be1 100644
+--- a/fs/xfs/xfs_fsmap.c
++++ b/fs/xfs/xfs_fsmap.c
+@@ -895,6 +895,14 @@ xfs_getfsmap(
+ 	info.format_arg = arg;
+ 	info.head = head;
  
- 	mutex_unlock(&driver_lock);
++	/*
++	 * If fsmap runs concurrently with a scrub, the freeze can be delayed
++	 * indefinitely as we walk the rmapbt and iterate over metadata
++	 * buffers.  Freeze quiesces the log (which waits for the buffer LRU to
++	 * be emptied) and that won't happen while we're reading buffers.
++	 */
++	sb_start_write(mp->m_super);
++
+ 	/* For each device we support... */
+ 	for (i = 0; i < XFS_GETFSMAP_DEVS; i++) {
+ 		/* Is this device within the range the user asked for? */
+@@ -934,6 +942,7 @@ xfs_getfsmap(
+ 
+ 	if (tp)
+ 		xfs_trans_cancel(tp);
++	sb_end_write(mp->m_super);
+ 	head->fmh_oflags = FMH_OF_DEV_T;
+ 	return error;
+ }
+diff --git a/fs/xfs/xfs_trans.c b/fs/xfs/xfs_trans.c
+index f4795fdb7389c..b32a66452d441 100644
+--- a/fs/xfs/xfs_trans.c
++++ b/fs/xfs/xfs_trans.c
+@@ -306,6 +306,11 @@ xfs_trans_alloc(
+  *
+  * Note the zero-length reservation; this transaction MUST be cancelled
+  * without any dirty data.
++ *
++ * Callers should obtain freeze protection to avoid two conflicts with fs
++ * freezing: (1) having active transactions trip the m_active_trans ASSERTs;
++ * and (2) grabbing buffers at the same time that freeze is trying to drain
++ * the buffer LRU list.
+  */
+ int
+ xfs_trans_alloc_empty(
 -- 
 2.25.1
 
