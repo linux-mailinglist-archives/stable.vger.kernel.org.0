@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FEF026EF87
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:37:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A01C26EF80
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728086AbgIRCgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39752 "EHLO mail.kernel.org"
+        id S1729955AbgIRCgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:36:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728857AbgIRCM5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:12:57 -0400
+        id S1728861AbgIRCM7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:12:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D93822376E;
-        Fri, 18 Sep 2020 02:12:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5BCE208DB;
+        Fri, 18 Sep 2020 02:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395177;
-        bh=bfQLjtX0VTcjsk8579wkG6Q6EvF2coDfWVk/9ijALns=;
+        s=default; t=1600395178;
+        bh=SUsGi52iwz/b8+clppZmZarS0BghQQJ738U/7mWT4xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0FxISzLRSYfbvE5TOIRWeKJX9pG47tWF8liJjNRDbDyjlL+LSkSqG2HqXwRcRODTW
-         EzCCN4CO9YMnSMUYZ5xapPb/VhYO6gNyoG+kyJ6XIyqloT6sFdTDVWRZZ6Y117RK7P
-         CQTTkkiuJewk2Tl0ueyq2l0etx5Ik0eNhQ2MRDRU=
+        b=PYzf2ZDUjnWqZYxBcqFrurrHDcFslpTT11qXiFqY0IfQ9NTWfPf/2Rufq5hfZgiiT
+         Ny9vW0jxAMKaa7Xp/5ITXxS+E8MZPqPFUmcD1NsQyQDniHu+rGlE7d2XImdvOM/rh0
+         yStQ8Jguha39cYx94bsbhfRusrLtTjFsyUHG+VbA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 033/127] ext4: make dioread_nolock the default
-Date:   Thu, 17 Sep 2020 22:10:46 -0400
-Message-Id: <20200918021220.2066485-33-sashal@kernel.org>
+Cc:     Mert Dirik <mertdirik@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 034/127] ar5523: Add USB ID of SMCWUSBT-G2 wireless adapter
+Date:   Thu, 17 Sep 2020 22:10:47 -0400
+Message-Id: <20200918021220.2066485-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -41,52 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Mert Dirik <mertdirik@gmail.com>
 
-[ Upstream commit 244adf6426ee31a83f397b700d964cff12a247d3 ]
+[ Upstream commit 5b362498a79631f283578b64bf6f4d15ed4cc19a ]
 
-This fixes the direct I/O versus writeback race which can reveal stale
-data, and it improves the tail latency of commits on slow devices.
+Add the required USB ID for running SMCWUSBT-G2 wireless adapter (SMC
+"EZ Connect g").
 
-Link: https://lore.kernel.org/r/20200125022254.1101588-1-tytso@mit.edu
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This device uses ar5523 chipset and requires firmware to be loaded. Even
+though pid of the device is 4507, this patch adds it as 4506 so that
+AR5523_DEVICE_UG macro can set the AR5523_FLAG_PRE_FIRMWARE flag for pid
+4507.
+
+Signed-off-by: Mert Dirik <mertdirik@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ar5523/ar5523.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 634c822d1dc98..74516e7fa80f1 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1471,6 +1471,7 @@ static const match_table_t tokens = {
- 	{Opt_auto_da_alloc, "auto_da_alloc"},
- 	{Opt_noauto_da_alloc, "noauto_da_alloc"},
- 	{Opt_dioread_nolock, "dioread_nolock"},
-+	{Opt_dioread_lock, "nodioread_nolock"},
- 	{Opt_dioread_lock, "dioread_lock"},
- 	{Opt_discard, "discard"},
- 	{Opt_nodiscard, "nodiscard"},
-@@ -3633,6 +3634,7 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 		set_opt(sb, NO_UID32);
- 	/* xattr user namespace & acls are now defaulted on */
- 	set_opt(sb, XATTR_USER);
-+	set_opt(sb, DIOREAD_NOLOCK);
- #ifdef CONFIG_EXT4_FS_POSIX_ACL
- 	set_opt(sb, POSIX_ACL);
- #endif
-@@ -3770,9 +3772,8 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 		goto failed_mount;
- 
- 	if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_JOURNAL_DATA) {
--		printk_once(KERN_WARNING "EXT4-fs: Warning: mounting "
--			    "with data=journal disables delayed "
--			    "allocation and O_DIRECT support!\n");
-+		printk_once(KERN_WARNING "EXT4-fs: Warning: mounting with data=journal disables delayed allocation, dioread_nolock, and O_DIRECT support!\n");
-+		clear_opt(sb, DIOREAD_NOLOCK);
- 		if (test_opt2(sb, EXPLICIT_DELALLOC)) {
- 			ext4_msg(sb, KERN_ERR, "can't mount with "
- 				 "both data=journal and delalloc");
+diff --git a/drivers/net/wireless/ath/ar5523/ar5523.c b/drivers/net/wireless/ath/ar5523/ar5523.c
+index ad4a1efc57c97..e1a1d27427cc9 100644
+--- a/drivers/net/wireless/ath/ar5523/ar5523.c
++++ b/drivers/net/wireless/ath/ar5523/ar5523.c
+@@ -1771,6 +1771,8 @@ static const struct usb_device_id ar5523_id_table[] = {
+ 	AR5523_DEVICE_UX(0x0846, 0x4300),	/* Netgear / WG111U */
+ 	AR5523_DEVICE_UG(0x0846, 0x4250),	/* Netgear / WG111T */
+ 	AR5523_DEVICE_UG(0x0846, 0x5f00),	/* Netgear / WPN111 */
++	AR5523_DEVICE_UG(0x083a, 0x4506),	/* SMC / EZ Connect
++						   SMCWUSBT-G2 */
+ 	AR5523_DEVICE_UG(0x157e, 0x3006),	/* Umedia / AR5523_1 */
+ 	AR5523_DEVICE_UX(0x157e, 0x3205),	/* Umedia / AR5523_2 */
+ 	AR5523_DEVICE_UG(0x157e, 0x3006),	/* Umedia / TEW444UBEU */
 -- 
 2.25.1
 
