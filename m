@@ -2,124 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A13E727044B
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 20:46:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2426B2705BD
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 21:42:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726139AbgIRSq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Sep 2020 14:46:26 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:34583 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726115AbgIRSq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 14:46:26 -0400
-Received: by mail-pl1-f196.google.com with SMTP id r19so3454805pls.1;
-        Fri, 18 Sep 2020 11:46:25 -0700 (PDT)
+        id S1726241AbgIRTmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Sep 2020 15:42:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47664 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726236AbgIRTmX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 15:42:23 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D24DC0613CE
+        for <stable@vger.kernel.org>; Fri, 18 Sep 2020 12:42:23 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id d13so4067818pgl.6
+        for <stable@vger.kernel.org>; Fri, 18 Sep 2020 12:42:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=/ZQ5Zsw0qLZ1kzMLFNN+rkmGWWS5R799uwH5up0NkkI=;
+        b=rkB3EwTOHI7xML5s4CBXg28dJvyv47Odci6s0ZFhI84yEI9rmRm6j10IivLckwH83r
+         sxlkI9lKh5bUb7xKwA1DJIRxOv2WHd9FbIXu4OZBBBQtRZS2+Q0b136Tx3jzrqlaTzBZ
+         v1GpCcKvUCVMe3VcGDD9tbA0x2/JLK0XAQ8PztJPwJ99Df3Bs/NC722AmFG67q487H8y
+         Levg+24otDr9knw0dCsWYsQjZdpXShfLc0M5jtAU2ZTo5oqDPdpE2dNQDSjPdRRU/UZB
+         ibJvPoKpI9Ch8WttkFZO1kb4qXVjbPUrqPTmgWc6Ps1p5RN8qHBNwacoOB6wgX5D30r8
+         x4tw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ZxDJV2fJCIDNTsf7R64Vg/QpDh1T7h9NcEj6xPqhZnM=;
-        b=HkA6F4WXX9RfqnKCDglnDEximKIhdQLGPrQGKy1Ah8iw22ktluFUnPmgXCnkU/+OGc
-         ih0Bazk+4w/uuD6aEiW7+REidkPEaC24ptQsddmdnYo/FhJVW5YXA3RGZb1AAySh9jV7
-         2pIMvT0n+B6fk7IWLSCeiY2IMfqV2Ge+u5s6e8B1EIQfFWEtZTQBGHJTAPI5MzeAqS0X
-         VdkIRE06jw0TkFWoJFJRIhF8r0Dput8sAEU4kz6wzYxYPMv1iqmvv+hPaR2ofVBo90/y
-         bjKavLGSYuA/pGURcBVwjMpI2AKkkz2zoS/mv5xmuN/qHF/nhid24hDqhrH01Gtt8E7q
-         tD6A==
-X-Gm-Message-State: AOAM532D5tPZJXB3GCm+aO4wEbYnw5/hp1OeB++uyjwAHprLz7AmDNz7
-        yuSRwpgD5z8fACpTaqsLSE0=
-X-Google-Smtp-Source: ABdhPJxBg2A1FGDoSmleWQDmynLttpWsBXjCNrvlj6E6Zdj78d20Ir7/SLYdsxm5CRO3teA3ZbNS7A==
-X-Received: by 2002:a17:90b:1487:: with SMTP id js7mr13919908pjb.187.1600454785353;
-        Fri, 18 Sep 2020 11:46:25 -0700 (PDT)
-Received: from ?IPv6:2601:647:4802:9070:c1f8:eff6:9706:30c? ([2601:647:4802:9070:c1f8:eff6:9706:30c])
-        by smtp.gmail.com with ESMTPSA id gg19sm3424923pjb.49.2020.09.18.11.46.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Sep 2020 11:46:24 -0700 (PDT)
-Subject: Re: [PATCH AUTOSEL 4.19 127/206] nvme: Fix controller creation races
- with teardown flow
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Israel Rukshin <israelr@mellanox.com>,
-        linux-nvme@lists.infradead.org, Keith Busch <kbusch@kernel.org>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Christoph Hellwig <hch@lst.de>
-References: <20200918020802.2065198-1-sashal@kernel.org>
- <20200918020802.2065198-127-sashal@kernel.org>
-From:   Sagi Grimberg <sagi@grimberg.me>
-Message-ID: <47a9f0da-9fcd-ad17-d2bf-f79767745a39@grimberg.me>
-Date:   Fri, 18 Sep 2020 11:46:22 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/ZQ5Zsw0qLZ1kzMLFNN+rkmGWWS5R799uwH5up0NkkI=;
+        b=RkON8XOtg9hy16RKNIp2qmnRdHia8u3mv21beYuvKWgbfib3TkOL2+oShlcYWrh3y0
+         IRut8sGRP2Zmjtr/yfBw3KrMOWIHBIRrvHWYZrKWrv+s09Mn1gK7o/DxfuTgFZP4L8vs
+         eZz5Pjqd/1z7RmWTTtOrAHEmhD4/MUhleu3dSTJqKqCboBoZ59ZexFAYs8XzMJI5TrY7
+         p2xUvE0cvx6gmf6J1oY43yQLsiKNsUL7GqmAkn4rDOltajFBq4j/ZXXRetxzarPe20ow
+         q2zef1hpkhCYEFM+FUkuaFxJAvRBCHmmOt5mkrfH5FnXC6tibiW9aloURNbq0HerwIJU
+         WaXw==
+X-Gm-Message-State: AOAM532VyLxkcHRjk6vfGJpw0UJ4NelkrPLLVawWzf+cLTKYmUI36EoW
+        XO/NiKKb+6y5yY1FZhUIesbx7pHWx9dZSZ6lnQ/UMQ==
+X-Google-Smtp-Source: ABdhPJyLNUyjtcDtOhvzSyt8vCxgR8LpxlDA8Q8fhcLkShX7bpeD2SPPXNx5wsrwMjLb5x/3Gg4DNI8FELEY07zmHqg=
+X-Received: by 2002:a63:310a:: with SMTP id x10mr6317147pgx.10.1600458142520;
+ Fri, 18 Sep 2020 12:42:22 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200918020802.2065198-127-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200917061948.12403-1-ardb@kernel.org>
+In-Reply-To: <20200917061948.12403-1-ardb@kernel.org>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Fri, 18 Sep 2020 12:42:11 -0700
+Message-ID: <CAKwvOd=15gCywgZtC8=z4+rH29uG-a8Ghw9Aeyn5=LfZXDsASA@mail.gmail.com>
+Subject: Re: [PATCH] ARM: vfp: force non-conditional encoding for external
+ Thumb2 tail call
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Russell King <linux@armlinux.org.uk>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This causes a regression and was reverted upstream, just FYI.
+On Wed, Sep 16, 2020 at 11:19 PM Ard Biesheuvel <ardb@kernel.org> wrote:
+>
+> Nick reports that the following error is produced in some cases when
+> using GCC+ld.bfd to build the ARM defconfig with Thumb2 enabled:
+>
+>   arch/arm/vfp/vfphw.o: in function `vfp_support_entry':
+>   (.text+0xa): relocation truncated to fit: R_ARM_THM_JUMP19 against
+>   symbol `vfp_kmode_exception' defined in .text.unlikely section in
+>   arch/arm/vfp/vfpmodule.o
+>
+>   $ arm-linux-gnueabihf-ld --version
+>   GNU ld (GNU Binutils for Debian) 2.34
 
-On 9/17/20 7:06 PM, Sasha Levin wrote:
-> From: Israel Rukshin <israelr@mellanox.com>
-> 
-> [ Upstream commit ce1518139e6976cf19c133b555083354fdb629b8 ]
-> 
-> Calling nvme_sysfs_delete() when the controller is in the middle of
-> creation may cause several bugs. If the controller is in NEW state we
-> remove delete_controller file and don't delete the controller. The user
-> will not be able to use nvme disconnect command on that controller again,
-> although the controller may be active. Other bugs may happen if the
-> controller is in the middle of create_ctrl callback and
-> nvme_do_delete_ctrl() starts. For example, freeing I/O tagset at
-> nvme_do_delete_ctrl() before it was allocated at create_ctrl callback.
-> 
-> To fix all those races don't allow the user to delete the controller
-> before it was fully created.
-> 
-> Signed-off-by: Israel Rukshin <israelr@mellanox.com>
-> Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Signed-off-by: Keith Busch <kbusch@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+FWIW this was my compiler version, too:
+$ arm-linux-gnueabihf-gcc --version
+arm-linux-gnueabihf-gcc (Debian 9.3.0-8) 9.3.0
+
+>
+> Generally, the linker should be able to fix up out of range branches by
+> emitting veneers, but apparently, it fails to do so in this particular
+> case, i.e., a conditional 'tail call' to vfp_kmode_exception(), which
+> is not defined in the same object file.
+>
+> So let's force the use of a non-conditional encoding of the B instruction,
+> which has more space for an immediate offset.
+>
+> Cc: <stable@vger.kernel.org>
+> Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+> Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 > ---
->   drivers/nvme/host/core.c | 5 +++++
->   drivers/nvme/host/nvme.h | 1 +
->   2 files changed, 6 insertions(+)
-> 
-> diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-> index 4b182ac15687e..faa7feebb6095 100644
-> --- a/drivers/nvme/host/core.c
-> +++ b/drivers/nvme/host/core.c
-> @@ -2856,6 +2856,10 @@ static ssize_t nvme_sysfs_delete(struct device *dev,
->   {
->   	struct nvme_ctrl *ctrl = dev_get_drvdata(dev);
->   
-> +	/* Can't delete non-created controllers */
-> +	if (!ctrl->created)
-> +		return -EBUSY;
-> +
->   	if (device_remove_file_self(dev, attr))
->   		nvme_delete_ctrl_sync(ctrl);
->   	return count;
-> @@ -3576,6 +3580,7 @@ void nvme_start_ctrl(struct nvme_ctrl *ctrl)
->   		queue_work(nvme_wq, &ctrl->async_event_work);
->   		nvme_start_queues(ctrl);
->   	}
-> +	ctrl->created = true;
->   }
->   EXPORT_SYMBOL_GPL(nvme_start_ctrl);
->   
-> diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-> index 31c1496f938fb..a70b997060e68 100644
-> --- a/drivers/nvme/host/nvme.h
-> +++ b/drivers/nvme/host/nvme.h
-> @@ -206,6 +206,7 @@ struct nvme_ctrl {
->   	struct nvme_command ka_cmd;
->   	struct work_struct fw_act_work;
->   	unsigned long events;
-> +	bool created;
->   
->   #ifdef CONFIG_NVME_MULTIPATH
->   	/* asymmetric namespace access: */
-> 
+>  arch/arm/vfp/vfphw.S | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/arch/arm/vfp/vfphw.S b/arch/arm/vfp/vfphw.S
+> index 4fcff9f59947..f1468702fbc9 100644
+> --- a/arch/arm/vfp/vfphw.S
+> +++ b/arch/arm/vfp/vfphw.S
+> @@ -82,6 +82,7 @@ ENTRY(vfp_support_entry)
+>         ldr     r3, [sp, #S_PSR]        @ Neither lazy restore nor FP exceptions
+>         and     r3, r3, #MODE_MASK      @ are supported in kernel mode
+>         teq     r3, #USR_MODE
+> +THUMB( it      ne                      )
+>         bne     vfp_kmode_exception     @ Returns through lr
+>
+>         VFPFMRX r1, FPEXC               @ Is the VFP enabled?
+> --
+> 2.17.1
+>
+
+
+-- 
+Thanks,
+~Nick Desaulniers
