@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F3B26EE65
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:28:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E380526ECD9
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:16:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728515AbgIRCP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:15:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44022 "EHLO mail.kernel.org"
+        id S1729218AbgIRCPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:15:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729213AbgIRCPS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:15:18 -0400
+        id S1728471AbgIRCPT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:15:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5369A23977;
-        Fri, 18 Sep 2020 02:15:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E8E4239D4;
+        Fri, 18 Sep 2020 02:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395318;
-        bh=1QMLin64MVWTNPN6qqj3EmmEWt0wEi4HzuuQKU7Nb3E=;
+        s=default; t=1600395319;
+        bh=Zo2uLc/Y+r3V2Ie7ryEXo2hn4qfJANxyaiNT5MLxhSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KonTSGVf9FN98A++ZIaLfndJcxZ76kdznROTc77m87nd51D8IG/liUm0iq5slFIaH
-         Lesy1b65DbKt8kOTgNTt42x0Y+5dG5+Z8OTnOW9pJ5rZlG1hUKrT0hH9g+vCZyLNiC
-         KJUvEMgsJ3p8R1ESTL1LlcJdMRY8ktlG35RFzN9Y=
+        b=fqIFuZfifyxbVxrRFleQFlz/wcEcKSdRr7F94a5NgYK2EKzG6+EGjaPhfaQ05K6UC
+         RCJs++VZ/yoxGVjTMt/obWGQpdfHkoQV2AXKe1wz86/FvC+5SXtsqibj4isRUJOh6q
+         uQ+55uOEqZX5GzDo2F3v2KiFSb4Mquz/H5cXr/wc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@virtuozzo.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 19/90] rt_cpu_seq_next should increase position index
-Date:   Thu, 17 Sep 2020 22:13:44 -0400
-Message-Id: <20200918021455.2067301-19-sashal@kernel.org>
+Cc:     Marco Elver <elver@google.com>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 20/90] seqlock: Require WRITE_ONCE surrounding raw_seqcount_barrier
+Date:   Thu, 17 Sep 2020 22:13:45 -0400
+Message-Id: <20200918021455.2067301-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021455.2067301-1-sashal@kernel.org>
 References: <20200918021455.2067301-1-sashal@kernel.org>
@@ -42,33 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit a3ea86739f1bc7e121d921842f0f4a8ab1af94d9 ]
+[ Upstream commit bf07132f96d426bcbf2098227fb680915cf44498 ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+This patch proposes to require marked atomic accesses surrounding
+raw_write_seqcount_barrier. We reason that otherwise there is no way to
+guarantee propagation nor atomicity of writes before/after the barrier
+[1]. For example, consider the compiler tears stores either before or
+after the barrier; in this case, readers may observe a partial value,
+and because readers are unaware that writes are going on (writes are not
+in a seq-writer critical section), will complete the seq-reader critical
+section while having observed some partial state.
+[1] https://lwn.net/Articles/793253/
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This came up when designing and implementing KCSAN, because KCSAN would
+flag these accesses as data-races. After careful analysis, our reasoning
+as above led us to conclude that the best thing to do is to propose an
+amendment to the raw_seqcount_barrier usage.
+
+Signed-off-by: Marco Elver <elver@google.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/seqlock.h | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index c8c51bd2d695b..e9aae4686536a 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -271,6 +271,7 @@ static void *rt_cpu_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- 		*pos = cpu+1;
- 		return &per_cpu(rt_cache_stat, cpu);
- 	}
-+	(*pos)++;
- 	return NULL;
- 
- }
+diff --git a/include/linux/seqlock.h b/include/linux/seqlock.h
+index ead97654c4e9a..1613fe5c668e1 100644
+--- a/include/linux/seqlock.h
++++ b/include/linux/seqlock.h
+@@ -242,6 +242,13 @@ static inline void raw_write_seqcount_end(seqcount_t *s)
+  * usual consistency guarantee. It is one wmb cheaper, because we can
+  * collapse the two back-to-back wmb()s.
+  *
++ * Note that, writes surrounding the barrier should be declared atomic (e.g.
++ * via WRITE_ONCE): a) to ensure the writes become visible to other threads
++ * atomically, avoiding compiler optimizations; b) to document which writes are
++ * meant to propagate to the reader critical section. This is necessary because
++ * neither writes before and after the barrier are enclosed in a seq-writer
++ * critical section that would ensure readers are aware of ongoing writes.
++ *
+  *      seqcount_t seq;
+  *      bool X = true, Y = false;
+  *
+@@ -261,11 +268,11 @@ static inline void raw_write_seqcount_end(seqcount_t *s)
+  *
+  *      void write(void)
+  *      {
+- *              Y = true;
++ *              WRITE_ONCE(Y, true);
+  *
+  *              raw_write_seqcount_barrier(seq);
+  *
+- *              X = false;
++ *              WRITE_ONCE(X, false);
+  *      }
+  */
+ static inline void raw_write_seqcount_barrier(seqcount_t *s)
 -- 
 2.25.1
 
