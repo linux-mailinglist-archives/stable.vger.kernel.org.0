@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A50C26EB82
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9250E26EB81
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726365AbgIRCFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726559AbgIRCFp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:05:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54228 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726357AbgIRCFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:05:43 -0400
+        id S1727529AbgIRCFo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:05:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7015235FD;
-        Fri, 18 Sep 2020 02:05:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0A9F238A0;
+        Fri, 18 Sep 2020 02:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394742;
-        bh=o6s7ulN4ST66l2nBYhHeONyLKRBRDAvQpNO7rRxRfBM=;
+        s=default; t=1600394743;
+        bh=ToJvUGLBo9fJtsumdIgxhCynCagr4lQ5Wy1T4FYb43o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXLpdrO6tvbKjvwJrLtBzY73ahb2o8SUQUuYu3tjMNEb3363YK4LfEUUa7UowhSTJ
-         ZuGCM9Aj1uSiCTzKDpt6RdLhLk2ehnzPXuApGruLlB/WchioZIr1QPZ+Cn7xOkxxYD
-         ySRYzIXkTGZfLsfNnpu0FY9GWzicxkd0R842Kfmg=
+        b=Jl2rBUOM4n/E0r+yqEc66wMJ/Q7GeMEGpD16vlnBGsQh6NkEVZlMkz96US3jbF8TC
+         GgpkT8PUF1aagyEq83SqChNguOHTM0FXyThF2E7G2RAeeFlYyYC+Va982yDT9f/ONj
+         /Y6xHPPfWBcI+I85k1IixxUqks8Je+Y/51Xtd3j8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 222/330] NFS: Fix races nfs_page_group_destroy() vs nfs_destroy_unlinked_subrequests()
-Date:   Thu, 17 Sep 2020 21:59:22 -0400
-Message-Id: <20200918020110.2063155-222-sashal@kernel.org>
+Cc:     James Zhu <James.Zhu@amd.com>, Leo Liu <leo.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 223/330] drm/amdgpu/vcn2.0: stall DPG when WPTR/RPTR reset
+Date:   Thu, 17 Sep 2020 21:59:23 -0400
+Message-Id: <20200918020110.2063155-223-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -41,168 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: James Zhu <James.Zhu@amd.com>
 
-[ Upstream commit 08ca8b21f760c0ed5034a5c122092eec22ccf8f4 ]
+[ Upstream commit ef563ff403404ef2f234abe79bdd9f04ab6481c9 ]
 
-When a subrequest is being detached from the subgroup, we want to
-ensure that it is not holding the group lock, or in the process
-of waiting for the group lock.
+Add vcn dpg harware synchronization to fix race condition
+issue between vcn driver and hardware.
 
-Fixes: 5b2b5187fa85 ("NFS: Fix nfs_page_group_destroy() and nfs_lock_and_join_requests() race cases")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: James Zhu <James.Zhu@amd.com>
+Reviewed-by: Leo Liu <leo.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pagelist.c        | 67 +++++++++++++++++++++++++++-------------
- fs/nfs/write.c           | 10 ++++--
- include/linux/nfs_page.h |  2 ++
- 3 files changed, 55 insertions(+), 24 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index b736912098eee..f4407dd426bf0 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -133,47 +133,70 @@ nfs_async_iocounter_wait(struct rpc_task *task, struct nfs_lock_context *l_ctx)
- EXPORT_SYMBOL_GPL(nfs_async_iocounter_wait);
+diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
+index 36ad0c0e8efbc..cd2cbe760e883 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
+@@ -1026,6 +1026,10 @@ static int vcn_v2_0_start_dpg_mode(struct amdgpu_device *adev, bool indirect)
+ 	tmp = REG_SET_FIELD(tmp, UVD_RBC_RB_CNTL, RB_RPTR_WR_EN, 1);
+ 	WREG32_SOC15(UVD, 0, mmUVD_RBC_RB_CNTL, tmp);
  
- /*
-- * nfs_page_group_lock - lock the head of the page group
-- * @req - request in group that is to be locked
-+ * nfs_page_set_headlock - set the request PG_HEADLOCK
-+ * @req: request that is to be locked
-  *
-- * this lock must be held when traversing or modifying the page
-- * group list
-+ * this lock must be held when modifying req->wb_head
-  *
-  * return 0 on success, < 0 on error
-  */
- int
--nfs_page_group_lock(struct nfs_page *req)
-+nfs_page_set_headlock(struct nfs_page *req)
- {
--	struct nfs_page *head = req->wb_head;
--
--	WARN_ON_ONCE(head != head->wb_head);
--
--	if (!test_and_set_bit(PG_HEADLOCK, &head->wb_flags))
-+	if (!test_and_set_bit(PG_HEADLOCK, &req->wb_flags))
- 		return 0;
++	/* Stall DPG before WPTR/RPTR reset */
++	WREG32_P(SOC15_REG_OFFSET(UVD, 0, mmUVD_POWER_STATUS),
++		UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK,
++		~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
+ 	/* set the write pointer delay */
+ 	WREG32_SOC15(UVD, 0, mmUVD_RBC_RB_WPTR_CNTL, 0);
  
--	set_bit(PG_CONTENDED1, &head->wb_flags);
-+	set_bit(PG_CONTENDED1, &req->wb_flags);
- 	smp_mb__after_atomic();
--	return wait_on_bit_lock(&head->wb_flags, PG_HEADLOCK,
-+	return wait_on_bit_lock(&req->wb_flags, PG_HEADLOCK,
- 				TASK_UNINTERRUPTIBLE);
+@@ -1048,6 +1052,9 @@ static int vcn_v2_0_start_dpg_mode(struct amdgpu_device *adev, bool indirect)
+ 	WREG32_SOC15(UVD, 0, mmUVD_RBC_RB_WPTR,
+ 		lower_32_bits(ring->wptr));
+ 
++	/* Unstall DPG */
++	WREG32_P(SOC15_REG_OFFSET(UVD, 0, mmUVD_POWER_STATUS),
++		0, ~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
+ 	return 0;
  }
  
- /*
-- * nfs_page_group_unlock - unlock the head of the page group
-- * @req - request in group that is to be unlocked
-+ * nfs_page_clear_headlock - clear the request PG_HEADLOCK
-+ * @req: request that is to be locked
-  */
- void
--nfs_page_group_unlock(struct nfs_page *req)
-+nfs_page_clear_headlock(struct nfs_page *req)
- {
--	struct nfs_page *head = req->wb_head;
--
--	WARN_ON_ONCE(head != head->wb_head);
--
- 	smp_mb__before_atomic();
--	clear_bit(PG_HEADLOCK, &head->wb_flags);
-+	clear_bit(PG_HEADLOCK, &req->wb_flags);
- 	smp_mb__after_atomic();
--	if (!test_bit(PG_CONTENDED1, &head->wb_flags))
-+	if (!test_bit(PG_CONTENDED1, &req->wb_flags))
- 		return;
--	wake_up_bit(&head->wb_flags, PG_HEADLOCK);
-+	wake_up_bit(&req->wb_flags, PG_HEADLOCK);
-+}
-+
-+/*
-+ * nfs_page_group_lock - lock the head of the page group
-+ * @req: request in group that is to be locked
-+ *
-+ * this lock must be held when traversing or modifying the page
-+ * group list
-+ *
-+ * return 0 on success, < 0 on error
-+ */
-+int
-+nfs_page_group_lock(struct nfs_page *req)
-+{
-+	int ret;
-+
-+	ret = nfs_page_set_headlock(req);
-+	if (ret || req->wb_head == req)
-+		return ret;
-+	return nfs_page_set_headlock(req->wb_head);
-+}
-+
-+/*
-+ * nfs_page_group_unlock - unlock the head of the page group
-+ * @req: request in group that is to be unlocked
-+ */
-+void
-+nfs_page_group_unlock(struct nfs_page *req)
-+{
-+	if (req != req->wb_head)
-+		nfs_page_clear_headlock(req->wb_head);
-+	nfs_page_clear_headlock(req);
- }
+@@ -1357,8 +1364,13 @@ static int vcn_v2_0_pause_dpg_mode(struct amdgpu_device *adev,
+ 					   UVD_DPG_PAUSE__NJ_PAUSE_DPG_ACK_MASK,
+ 					   UVD_DPG_PAUSE__NJ_PAUSE_DPG_ACK_MASK, ret_code);
  
- /*
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index 58c8317dd7d88..613c3ef23e07b 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -425,22 +425,28 @@ nfs_destroy_unlinked_subrequests(struct nfs_page *destroy_list,
- 		destroy_list = (subreq->wb_this_page == old_head) ?
- 				   NULL : subreq->wb_this_page;
++				/* Stall DPG before WPTR/RPTR reset */
++				WREG32_P(SOC15_REG_OFFSET(UVD, 0, mmUVD_POWER_STATUS),
++					   UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK,
++					   ~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
+ 				/* Restore */
+ 				ring = &adev->vcn.inst->ring_enc[0];
++				ring->wptr = 0;
+ 				WREG32_SOC15(UVD, 0, mmUVD_RB_BASE_LO, ring->gpu_addr);
+ 				WREG32_SOC15(UVD, 0, mmUVD_RB_BASE_HI, upper_32_bits(ring->gpu_addr));
+ 				WREG32_SOC15(UVD, 0, mmUVD_RB_SIZE, ring->ring_size / 4);
+@@ -1366,6 +1378,7 @@ static int vcn_v2_0_pause_dpg_mode(struct amdgpu_device *adev,
+ 				WREG32_SOC15(UVD, 0, mmUVD_RB_WPTR, lower_32_bits(ring->wptr));
  
-+		/* Note: lock subreq in order to change subreq->wb_head */
-+		nfs_page_set_headlock(subreq);
- 		WARN_ON_ONCE(old_head != subreq->wb_head);
+ 				ring = &adev->vcn.inst->ring_enc[1];
++				ring->wptr = 0;
+ 				WREG32_SOC15(UVD, 0, mmUVD_RB_BASE_LO2, ring->gpu_addr);
+ 				WREG32_SOC15(UVD, 0, mmUVD_RB_BASE_HI2, upper_32_bits(ring->gpu_addr));
+ 				WREG32_SOC15(UVD, 0, mmUVD_RB_SIZE2, ring->ring_size / 4);
+@@ -1374,6 +1387,9 @@ static int vcn_v2_0_pause_dpg_mode(struct amdgpu_device *adev,
  
- 		/* make sure old group is not used */
- 		subreq->wb_this_page = subreq;
-+		subreq->wb_head = subreq;
+ 				WREG32_SOC15(UVD, 0, mmUVD_RBC_RB_WPTR,
+ 					   RREG32_SOC15(UVD, 0, mmUVD_SCRATCH2) & 0x7FFFFFFF);
++				/* Unstall DPG */
++				WREG32_P(SOC15_REG_OFFSET(UVD, 0, mmUVD_POWER_STATUS),
++					   0, ~UVD_POWER_STATUS__STALL_DPG_POWER_UP_MASK);
  
- 		clear_bit(PG_REMOVE, &subreq->wb_flags);
- 
- 		/* Note: races with nfs_page_group_destroy() */
- 		if (!kref_read(&subreq->wb_kref)) {
- 			/* Check if we raced with nfs_page_group_destroy() */
--			if (test_and_clear_bit(PG_TEARDOWN, &subreq->wb_flags))
-+			if (test_and_clear_bit(PG_TEARDOWN, &subreq->wb_flags)) {
-+				nfs_page_clear_headlock(subreq);
- 				nfs_free_request(subreq);
-+			} else
-+				nfs_page_clear_headlock(subreq);
- 			continue;
- 		}
-+		nfs_page_clear_headlock(subreq);
- 
--		subreq->wb_head = subreq;
- 		nfs_release_request(old_head);
- 
- 		if (test_and_clear_bit(PG_INODE_REF, &subreq->wb_flags)) {
-diff --git a/include/linux/nfs_page.h b/include/linux/nfs_page.h
-index 0bbd587fac6a9..7e9419d74b86b 100644
---- a/include/linux/nfs_page.h
-+++ b/include/linux/nfs_page.h
-@@ -142,6 +142,8 @@ extern	void nfs_unlock_and_release_request(struct nfs_page *);
- extern int nfs_page_group_lock(struct nfs_page *);
- extern void nfs_page_group_unlock(struct nfs_page *);
- extern bool nfs_page_group_sync_on_bit(struct nfs_page *, unsigned int);
-+extern	int nfs_page_set_headlock(struct nfs_page *req);
-+extern void nfs_page_clear_headlock(struct nfs_page *req);
- extern bool nfs_async_iocounter_wait(struct rpc_task *, struct nfs_lock_context *);
- 
- /*
+ 				SOC15_WAIT_ON_RREG(UVD, 0, mmUVD_POWER_STATUS,
+ 					   UVD_PGFSM_CONFIG__UVDM_UVDU_PWR_ON,
 -- 
 2.25.1
 
