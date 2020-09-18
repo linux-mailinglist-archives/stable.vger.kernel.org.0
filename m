@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7440726F152
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:50:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 808D926F14E
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728156AbgIRCu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:50:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60228 "EHLO mail.kernel.org"
+        id S1728142AbgIRCIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:08:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728107AbgIRCIn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:08:43 -0400
+        id S1728140AbgIRCIo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:08:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1722238E3;
-        Fri, 18 Sep 2020 02:08:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDB6523976;
+        Fri, 18 Sep 2020 02:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394922;
-        bh=RZEDZn5yhqikV8MmM00cB4OMsJcIOe9ajD/0Lno2pkk=;
+        s=default; t=1600394923;
+        bh=ngS+1Y2+NKJbTmEutQwT4xsvGK9vpdEfek0alqaCQuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wcCoGYYNBOqWRh0lKBvpTHVhaxZheVpr2fZqJmRxC0Gt7bvhNHrQDjTffKH3iwYCa
-         uxuGW9cKCE9YE2Z7XtOt8vf7CuB5t4GOdX3BuLD16zFaL2PhF3NlZZAf6E8avIAryT
-         M4+F0n+hP58ZlvluB1XtX6liOs2eXiJKmr2ja8+0=
+        b=rpQTPqK0tGlW9za6qCmfaDXrelaqNg5BHGHpecpgcF5ct6koO/7c+xw+JfzQ0AZdU
+         ViWQNPTc5OSoVK5V8aBy4159g7RH1enOPXOz3RWfEPYXA6DWH6MAbtG5FCX6HQ9/lv
+         DlEgO49lQWblR/2/aLOZHLJ6Wwr+7D2l1jjs2yyQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bradley Bolen <bradleybolen@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 034/206] mmc: core: Fix size overflow for mmc partitions
-Date:   Thu, 17 Sep 2020 22:05:10 -0400
-Message-Id: <20200918020802.2065198-34-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.19 035/206] gfs2: clean up iopen glock mess in gfs2_create_inode
+Date:   Thu, 17 Sep 2020 22:05:11 -0400
+Message-Id: <20200918020802.2065198-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -42,77 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bradley Bolen <bradleybolen@gmail.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit f3d7c2292d104519195fdb11192daec13229c219 ]
+[ Upstream commit 2c47c1be51fbded1f7baa2ceaed90f97932f79be ]
 
-With large eMMC cards, it is possible to create general purpose
-partitions that are bigger than 4GB.  The size member of the mmc_part
-struct is only an unsigned int which overflows for gp partitions larger
-than 4GB.  Change this to a u64 to handle the overflow.
+Before this patch, gfs2_create_inode had a use-after-free for the
+iopen glock in some error paths because it did this:
 
-Signed-off-by: Bradley Bolen <bradleybolen@gmail.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+	gfs2_glock_put(io_gl);
+fail_gunlock2:
+	if (io_gl)
+		clear_bit(GLF_INODE_CREATING, &io_gl->gl_flags);
+
+In some cases, the io_gl was used for create and only had one
+reference, so the glock might be freed before the clear_bit().
+This patch tries to straighten it out by only jumping to the
+error paths where iopen is properly set, and moving the
+gfs2_glock_put after the clear_bit.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/mmc.c   | 9 ++++-----
- include/linux/mmc/card.h | 2 +-
- 2 files changed, 5 insertions(+), 6 deletions(-)
+ fs/gfs2/inode.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index 5ca53e225382d..4b18034537f53 100644
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -300,7 +300,7 @@ static void mmc_manage_enhanced_area(struct mmc_card *card, u8 *ext_csd)
- 	}
- }
+diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
+index d968b5c5df217..a52b8b0dceeb9 100644
+--- a/fs/gfs2/inode.c
++++ b/fs/gfs2/inode.c
+@@ -715,7 +715,7 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
  
--static void mmc_part_add(struct mmc_card *card, unsigned int size,
-+static void mmc_part_add(struct mmc_card *card, u64 size,
- 			 unsigned int part_cfg, char *name, int idx, bool ro,
- 			 int area_type)
- {
-@@ -316,7 +316,7 @@ static void mmc_manage_gp_partitions(struct mmc_card *card, u8 *ext_csd)
- {
- 	int idx;
- 	u8 hc_erase_grp_sz, hc_wp_grp_sz;
--	unsigned int part_size;
-+	u64 part_size;
+ 	error = gfs2_trans_begin(sdp, blocks, 0);
+ 	if (error)
+-		goto fail_gunlock2;
++		goto fail_free_inode;
  
- 	/*
- 	 * General purpose partition feature support --
-@@ -346,8 +346,7 @@ static void mmc_manage_gp_partitions(struct mmc_card *card, u8 *ext_csd)
- 				(ext_csd[EXT_CSD_GP_SIZE_MULT + idx * 3 + 1]
- 				<< 8) +
- 				ext_csd[EXT_CSD_GP_SIZE_MULT + idx * 3];
--			part_size *= (size_t)(hc_erase_grp_sz *
--				hc_wp_grp_sz);
-+			part_size *= (hc_erase_grp_sz * hc_wp_grp_sz);
- 			mmc_part_add(card, part_size << 19,
- 				EXT_CSD_PART_CONFIG_ACC_GP0 + idx,
- 				"gp%d", idx, false,
-@@ -365,7 +364,7 @@ static void mmc_manage_gp_partitions(struct mmc_card *card, u8 *ext_csd)
- static int mmc_decode_ext_csd(struct mmc_card *card, u8 *ext_csd)
- {
- 	int err = 0, idx;
--	unsigned int part_size;
-+	u64 part_size;
- 	struct device_node *np;
- 	bool broken_hpi = false;
+ 	if (blocks > 1) {
+ 		ip->i_eattr = ip->i_no_addr + 1;
+@@ -726,7 +726,7 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
  
-diff --git a/include/linux/mmc/card.h b/include/linux/mmc/card.h
-index 8ef330027b134..3f8e84a80b4ad 100644
---- a/include/linux/mmc/card.h
-+++ b/include/linux/mmc/card.h
-@@ -227,7 +227,7 @@ struct mmc_queue_req;
-  * MMC Physical partitions
-  */
- struct mmc_part {
--	unsigned int	size;	/* partition size (in bytes) */
-+	u64		size;	/* partition size (in bytes) */
- 	unsigned int	part_cfg;	/* partition type */
- 	char	name[MAX_MMC_PART_NAME_LEN];
- 	bool	force_ro;	/* to make boot parts RO by default */
+ 	error = gfs2_glock_get(sdp, ip->i_no_addr, &gfs2_iopen_glops, CREATE, &io_gl);
+ 	if (error)
+-		goto fail_gunlock2;
++		goto fail_free_inode;
+ 
+ 	BUG_ON(test_and_set_bit(GLF_INODE_CREATING, &io_gl->gl_flags));
+ 
+@@ -735,7 +735,6 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
+ 		goto fail_gunlock2;
+ 
+ 	glock_set_object(ip->i_iopen_gh.gh_gl, ip);
+-	gfs2_glock_put(io_gl);
+ 	gfs2_set_iop(inode);
+ 	insert_inode_hash(inode);
+ 
+@@ -768,6 +767,8 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
+ 
+ 	mark_inode_dirty(inode);
+ 	d_instantiate(dentry, inode);
++	/* After instantiate, errors should result in evict which will destroy
++	 * both inode and iopen glocks properly. */
+ 	if (file) {
+ 		file->f_mode |= FMODE_CREATED;
+ 		error = finish_open(file, dentry, gfs2_open_common);
+@@ -775,15 +776,15 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
+ 	gfs2_glock_dq_uninit(ghs);
+ 	gfs2_glock_dq_uninit(ghs + 1);
+ 	clear_bit(GLF_INODE_CREATING, &io_gl->gl_flags);
++	gfs2_glock_put(io_gl);
+ 	return error;
+ 
+ fail_gunlock3:
+ 	glock_clear_object(io_gl, ip);
+ 	gfs2_glock_dq_uninit(&ip->i_iopen_gh);
+-	gfs2_glock_put(io_gl);
+ fail_gunlock2:
+-	if (io_gl)
+-		clear_bit(GLF_INODE_CREATING, &io_gl->gl_flags);
++	clear_bit(GLF_INODE_CREATING, &io_gl->gl_flags);
++	gfs2_glock_put(io_gl);
+ fail_free_inode:
+ 	if (ip->i_gl) {
+ 		glock_clear_object(ip->i_gl, ip);
 -- 
 2.25.1
 
