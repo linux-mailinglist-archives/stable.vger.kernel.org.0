@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BE1126EB08
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:03:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B7C26EB06
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:03:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726828AbgIRCCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:02:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47830 "EHLO mail.kernel.org"
+        id S1726808AbgIRCCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:02:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726792AbgIRCCf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:02:35 -0400
+        id S1726798AbgIRCCg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:02:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EB3B2087D;
-        Fri, 18 Sep 2020 02:02:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22F35221EC;
+        Fri, 18 Sep 2020 02:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394554;
-        bh=bGntpSaWDi7OAEf+yW0hQi9/JrZZmZPq0dcyzwjq8Xs=;
+        s=default; t=1600394555;
+        bh=A6iVWKRWFky6V91r7CvpkOKV8Ult2j1FeDLCBRix+y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TFdgv6+p8E3v7UzU2WRpvK4SwRsGAZuruXTDhJH2OcGoG3NHYeLX64d/iybjJE1QE
-         mErQ8U1fbFspEcPdhg+9HNYt68ngE+PXz//yuIc+FyA+jYJR32uSDazJYEb6LOC+EN
-         Z3zSAFAS1VTOswkmkWD3eYCbJHGTmMouSYxqqA9M=
+        b=PQPeJmPVdK57xBrSP1E/mHxNZ5vZMWD50xPgqcn34CPJiNFIjD5M4Qqh2LQSx4fRg
+         mf9QNVW/fi3VaR1D4yHMj9IhFnVx5JGRqBAJP9sBUqpfFJXyzXbbO99Khi9mJLk4iz
+         wEyfIVWgOKMbE7fpa1IakLEB9gg7uiu4812J15og=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Amit Daniel Kachhap <amit.kachhap@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Torsten Duwe <duwe@suse.de>, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 070/330] arm64: insn: consistently handle exit text
-Date:   Thu, 17 Sep 2020 21:56:50 -0400
-Message-Id: <20200918020110.2063155-70-sashal@kernel.org>
+Cc:     Stanislav Fomichev <sdf@google.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Lawrence Brakmo <brakmo@fb.com>,
+        Sasha Levin <sashal@kernel.org>, linux-api@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 071/330] selftests/bpf: De-flake test_tcpbpf
+Date:   Thu, 17 Sep 2020 21:56:51 -0400
+Message-Id: <20200918020110.2063155-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -46,174 +43,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit ca2ef4ffabbef25644e02a98b0f48869f8be0375 ]
+[ Upstream commit ef8c84effce3c7a0b8196fcda8f430c815ab511c ]
 
-A kernel built with KASAN && FTRACE_WITH_REGS && !MODULES, produces a
-boot-time splat in the bowels of ftrace:
+It looks like BPF program that handles BPF_SOCK_OPS_STATE_CB state
+can race with the bpf_map_lookup_elem("global_map"); I sometimes
+see the failures in this test and re-running helps.
 
-| [    0.000000] ftrace: allocating 32281 entries in 127 pages
-| [    0.000000] ------------[ cut here ]------------
-| [    0.000000] WARNING: CPU: 0 PID: 0 at kernel/trace/ftrace.c:2019 ftrace_bug+0x27c/0x328
-| [    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.4.0-rc3-00008-g7f08ae53a7e3 #13
-| [    0.000000] Hardware name: linux,dummy-virt (DT)
-| [    0.000000] pstate: 60000085 (nZCv daIf -PAN -UAO)
-| [    0.000000] pc : ftrace_bug+0x27c/0x328
-| [    0.000000] lr : ftrace_init+0x640/0x6cc
-| [    0.000000] sp : ffffa000120e7e00
-| [    0.000000] x29: ffffa000120e7e00 x28: ffff00006ac01b10
-| [    0.000000] x27: ffff00006ac898c0 x26: dfffa00000000000
-| [    0.000000] x25: ffffa000120ef290 x24: ffffa0001216df40
-| [    0.000000] x23: 000000000000018d x22: ffffa0001244c700
-| [    0.000000] x21: ffffa00011bf393c x20: ffff00006ac898c0
-| [    0.000000] x19: 00000000ffffffff x18: 0000000000001584
-| [    0.000000] x17: 0000000000001540 x16: 0000000000000007
-| [    0.000000] x15: 0000000000000000 x14: ffffa00010432770
-| [    0.000000] x13: ffff940002483519 x12: 1ffff40002483518
-| [    0.000000] x11: 1ffff40002483518 x10: ffff940002483518
-| [    0.000000] x9 : dfffa00000000000 x8 : 0000000000000001
-| [    0.000000] x7 : ffff940002483519 x6 : ffffa0001241a8c0
-| [    0.000000] x5 : ffff940002483519 x4 : ffff940002483519
-| [    0.000000] x3 : ffffa00011780870 x2 : 0000000000000001
-| [    0.000000] x1 : 1fffe0000d591318 x0 : 0000000000000000
-| [    0.000000] Call trace:
-| [    0.000000]  ftrace_bug+0x27c/0x328
-| [    0.000000]  ftrace_init+0x640/0x6cc
-| [    0.000000]  start_kernel+0x27c/0x654
-| [    0.000000] random: get_random_bytes called from print_oops_end_marker+0x30/0x60 with crng_init=0
-| [    0.000000] ---[ end trace 0000000000000000 ]---
-| [    0.000000] ftrace faulted on writing
-| [    0.000000] [<ffffa00011bf393c>] _GLOBAL__sub_D_65535_0___tracepoint_initcall_level+0x4/0x28
-| [    0.000000] Initializing ftrace call sites
-| [    0.000000] ftrace record flags: 0
-| [    0.000000]  (0)
-| [    0.000000]  expected tramp: ffffa000100b3344
+Since we know that we expect the callback to be called 3 times (one
+time for listener socket, two times for both ends of the connection),
+let's export this number and add simple retry logic around that.
 
-This is due to an unfortunate combination of several factors.
+Also, let's make EXPECT_EQ() not return on failure, but continue
+evaluating all conditions; that should make potential debugging
+easier.
 
-Building with KASAN results in the compiler generating anonymous
-functions to register/unregister global variables against the shadow
-memory. These functions are placed in .text.startup/.text.exit, and
-given mangled names like _GLOBAL__sub_{I,D}_65535_0_$OTHER_SYMBOL. The
-kernel linker script places these in .init.text and .exit.text
-respectively, which are both discarded at runtime as part of initmem.
+With this fix in place I don't observe the flakiness anymore.
 
-Building with FTRACE_WITH_REGS uses -fpatchable-function-entry=2, which
-also instruments KASAN's anonymous functions. When these are discarded
-with the rest of initmem, ftrace removes dangling references to these
-call sites.
-
-Building without MODULES implicitly disables STRICT_MODULE_RWX, and
-causes arm64's patch_map() function to treat any !core_kernel_text()
-symbol as something that can be modified in-place. As core_kernel_text()
-is only true for .text and .init.text, with the latter depending on
-system_state < SYSTEM_RUNNING, we'll treat .exit.text as something that
-can be patched in-place. However, .exit.text is mapped read-only.
-
-Hence in this configuration the ftrace init code blows up while trying
-to patch one of the functions generated by KASAN.
-
-We could try to filter out the call sites in .exit.text rather than
-initializing them, but this would be inconsistent with how we handle
-.init.text, and requires hooking into core bits of ftrace. The behaviour
-of patch_map() is also inconsistent today, so instead let's clean that
-up and have it consistently handle .exit.text.
-
-This patch teaches patch_map() to handle .exit.text at init time,
-preventing the boot-time splat above. The flow of patch_map() is
-reworked to make the logic clearer and minimize redundant
-conditionality.
-
-Fixes: 3b23e4991fb66f6d ("arm64: implement ftrace with regs")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Amit Daniel Kachhap <amit.kachhap@arm.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Torsten Duwe <duwe@suse.de>
-Cc: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Cc: Lawrence Brakmo <brakmo@fb.com>
+Link: https://lore.kernel.org/bpf/20191204190955.170934-1-sdf@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/sections.h |  1 +
- arch/arm64/kernel/insn.c          | 22 ++++++++++++++++++----
- arch/arm64/kernel/vmlinux.lds.S   |  3 +++
- 3 files changed, 22 insertions(+), 4 deletions(-)
+ .../selftests/bpf/progs/test_tcpbpf_kern.c    |  1 +
+ tools/testing/selftests/bpf/test_tcpbpf.h     |  1 +
+ .../testing/selftests/bpf/test_tcpbpf_user.c  | 25 +++++++++++++------
+ 3 files changed, 20 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/include/asm/sections.h b/arch/arm64/include/asm/sections.h
-index 788ae971f11c1..25a73aab438f9 100644
---- a/arch/arm64/include/asm/sections.h
-+++ b/arch/arm64/include/asm/sections.h
-@@ -15,6 +15,7 @@ extern char __hyp_text_start[], __hyp_text_end[];
- extern char __idmap_text_start[], __idmap_text_end[];
- extern char __initdata_begin[], __initdata_end[];
- extern char __inittext_begin[], __inittext_end[];
-+extern char __exittext_begin[], __exittext_end[];
- extern char __irqentry_text_start[], __irqentry_text_end[];
- extern char __mmuoff_data_start[], __mmuoff_data_end[];
- extern char __entry_tramp_text_start[], __entry_tramp_text_end[];
-diff --git a/arch/arm64/kernel/insn.c b/arch/arm64/kernel/insn.c
-index a612da533ea20..53bcf5386907f 100644
---- a/arch/arm64/kernel/insn.c
-+++ b/arch/arm64/kernel/insn.c
-@@ -21,6 +21,7 @@
- #include <asm/fixmap.h>
- #include <asm/insn.h>
- #include <asm/kprobes.h>
-+#include <asm/sections.h>
+diff --git a/tools/testing/selftests/bpf/progs/test_tcpbpf_kern.c b/tools/testing/selftests/bpf/progs/test_tcpbpf_kern.c
+index 2e233613d1fc0..7fa4595d2b66b 100644
+--- a/tools/testing/selftests/bpf/progs/test_tcpbpf_kern.c
++++ b/tools/testing/selftests/bpf/progs/test_tcpbpf_kern.c
+@@ -131,6 +131,7 @@ int bpf_testcb(struct bpf_sock_ops *skops)
+ 				g.bytes_received = skops->bytes_received;
+ 				g.bytes_acked = skops->bytes_acked;
+ 			}
++			g.num_close_events++;
+ 			bpf_map_update_elem(&global_map, &key, &g,
+ 					    BPF_ANY);
+ 		}
+diff --git a/tools/testing/selftests/bpf/test_tcpbpf.h b/tools/testing/selftests/bpf/test_tcpbpf.h
+index 7bcfa62070056..6220b95cbd02c 100644
+--- a/tools/testing/selftests/bpf/test_tcpbpf.h
++++ b/tools/testing/selftests/bpf/test_tcpbpf.h
+@@ -13,5 +13,6 @@ struct tcpbpf_globals {
+ 	__u64 bytes_received;
+ 	__u64 bytes_acked;
+ 	__u32 num_listen;
++	__u32 num_close_events;
+ };
+ #endif
+diff --git a/tools/testing/selftests/bpf/test_tcpbpf_user.c b/tools/testing/selftests/bpf/test_tcpbpf_user.c
+index 716b4e3be5813..3ae127620463d 100644
+--- a/tools/testing/selftests/bpf/test_tcpbpf_user.c
++++ b/tools/testing/selftests/bpf/test_tcpbpf_user.c
+@@ -16,6 +16,9 @@
  
- #define AARCH64_INSN_SF_BIT	BIT(31)
- #define AARCH64_INSN_N_BIT	BIT(22)
-@@ -78,16 +79,29 @@ bool aarch64_insn_is_branch_imm(u32 insn)
+ #include "test_tcpbpf.h"
  
- static DEFINE_RAW_SPINLOCK(patch_lock);
- 
-+static bool is_exit_text(unsigned long addr)
-+{
-+	/* discarded with init text/data */
-+	return system_state < SYSTEM_RUNNING &&
-+		addr >= (unsigned long)__exittext_begin &&
-+		addr < (unsigned long)__exittext_end;
-+}
++/* 3 comes from one listening socket + both ends of the connection */
++#define EXPECTED_CLOSE_EVENTS		3
 +
-+static bool is_image_text(unsigned long addr)
-+{
-+	return core_kernel_text(addr) || is_exit_text(addr);
-+}
-+
- static void __kprobes *patch_map(void *addr, int fixmap)
+ #define EXPECT_EQ(expected, actual, fmt)			\
+ 	do {							\
+ 		if ((expected) != (actual)) {			\
+@@ -23,13 +26,14 @@
+ 			       "    Actual: %" fmt "\n"		\
+ 			       "  Expected: %" fmt "\n",	\
+ 			       (actual), (expected));		\
+-			goto err;				\
++			ret--;					\
+ 		}						\
+ 	} while (0)
+ 
+ int verify_result(const struct tcpbpf_globals *result)
  {
- 	unsigned long uintaddr = (uintptr_t) addr;
--	bool module = !core_kernel_text(uintaddr);
-+	bool image = is_image_text(uintaddr);
- 	struct page *page;
+ 	__u32 expected_events;
++	int ret = 0;
  
--	if (module && IS_ENABLED(CONFIG_STRICT_MODULE_RWX))
--		page = vmalloc_to_page(addr);
--	else if (!module)
-+	if (image)
- 		page = phys_to_page(__pa_symbol(addr));
-+	else if (IS_ENABLED(CONFIG_STRICT_MODULE_RWX))
-+		page = vmalloc_to_page(addr);
- 	else
- 		return addr;
+ 	expected_events = ((1 << BPF_SOCK_OPS_TIMEOUT_INIT) |
+ 			   (1 << BPF_SOCK_OPS_RWND_INIT) |
+@@ -48,15 +52,15 @@ int verify_result(const struct tcpbpf_globals *result)
+ 	EXPECT_EQ(0x80, result->bad_cb_test_rv, PRIu32);
+ 	EXPECT_EQ(0, result->good_cb_test_rv, PRIu32);
+ 	EXPECT_EQ(1, result->num_listen, PRIu32);
++	EXPECT_EQ(EXPECTED_CLOSE_EVENTS, result->num_close_events, PRIu32);
  
-diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
-index 4f77de8ce1384..0bab37b1acbe9 100644
---- a/arch/arm64/kernel/vmlinux.lds.S
-+++ b/arch/arm64/kernel/vmlinux.lds.S
-@@ -170,9 +170,12 @@ SECTIONS
- 	__inittext_begin = .;
+-	return 0;
+-err:
+-	return -1;
++	return ret;
+ }
  
- 	INIT_TEXT_SECTION(8)
-+
-+	__exittext_begin = .;
- 	.exit.text : {
- 		ARM_EXIT_KEEP(EXIT_TEXT)
+ int verify_sockopt_result(int sock_map_fd)
+ {
+ 	__u32 key = 0;
++	int ret = 0;
+ 	int res;
+ 	int rv;
+ 
+@@ -69,9 +73,7 @@ int verify_sockopt_result(int sock_map_fd)
+ 	rv = bpf_map_lookup_elem(sock_map_fd, &key, &res);
+ 	EXPECT_EQ(0, rv, "d");
+ 	EXPECT_EQ(1, res, "d");
+-	return 0;
+-err:
+-	return -1;
++	return ret;
+ }
+ 
+ static int bpf_find_map(const char *test, struct bpf_object *obj,
+@@ -96,6 +98,7 @@ int main(int argc, char **argv)
+ 	int error = EXIT_FAILURE;
+ 	struct bpf_object *obj;
+ 	int cg_fd = -1;
++	int retry = 10;
+ 	__u32 key = 0;
+ 	int rv;
+ 
+@@ -134,12 +137,20 @@ int main(int argc, char **argv)
+ 	if (sock_map_fd < 0)
+ 		goto err;
+ 
++retry_lookup:
+ 	rv = bpf_map_lookup_elem(map_fd, &key, &g);
+ 	if (rv != 0) {
+ 		printf("FAILED: bpf_map_lookup_elem returns %d\n", rv);
+ 		goto err;
  	}
-+	__exittext_end = .;
  
- 	. = ALIGN(4);
- 	.altinstructions : {
++	if (g.num_close_events != EXPECTED_CLOSE_EVENTS && retry--) {
++		printf("Unexpected number of close events (%d), retrying!\n",
++		       g.num_close_events);
++		usleep(100);
++		goto retry_lookup;
++	}
++
+ 	if (verify_result(&g)) {
+ 		printf("FAILED: Wrong stats\n");
+ 		goto err;
 -- 
 2.25.1
 
