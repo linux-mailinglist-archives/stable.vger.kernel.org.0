@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 235B226EE9E
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:29:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8F7626EE97
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:29:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729155AbgIRC3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:29:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43652 "EHLO mail.kernel.org"
+        id S1729172AbgIRC3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:29:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729166AbgIRCPC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:15:02 -0400
+        id S1729173AbgIRCPH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:15:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C71623976;
-        Fri, 18 Sep 2020 02:15:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61130239A1;
+        Fri, 18 Sep 2020 02:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395302;
-        bh=gFlss6PyCs3bnuohTwxiu4BoJJVf65zcD8wTeN2q2ns=;
+        s=default; t=1600395303;
+        bh=z6WH/dxbI5lzFkCLiIYwfprIJLDsUsAMekmZzPTs7iQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S90D1fMRXmZl5oLpEmasKVSTvsJox7KTjRJhp9ewyg4KCZA2RzrnSphjZKvriWlX3
-         spRxV6QRM9z7OkIuzqns8G9b3yJlIYflqkfit8Ed2lG4fT+Quzzt5q8bPjqGbMDMbZ
-         R0nEBqbm38gQ2rEp0rpovKxLnDVIIBi1DuAj4vkQ=
+        b=vAttXVLKoCfIomZQHtNBjVhqAGB2cRNHSRugASytujjbCh0bLNIVNFurzK5gSxvbQ
+         lyjqFgakh1DhMyUexqaEptrwkra+hrKBYa5LIqsYnrQOKDLq6DjYw9shQGxNEwfxSg
+         AeRxvhqeuIaX+h1/EEI7FtoeDpbe780ffU6pHfzI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Slaby <jslaby@suse.cz>, Jens Axboe <axboe@kernel.dk>,
-        linux-ide@vger.kernel.org,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 05/90] ata: sata_mv, avoid trigerrable BUG_ON
-Date:   Thu, 17 Sep 2020 22:13:30 -0400
-Message-Id: <20200918021455.2067301-5-sashal@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Peter Geis <pgwipeout@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 06/90] PM / devfreq: tegra30: Fix integer overflow on CPU's freq max out
+Date:   Thu, 17 Sep 2020 22:13:31 -0400
+Message-Id: <20200918021455.2067301-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021455.2067301-1-sashal@kernel.org>
 References: <20200918021455.2067301-1-sashal@kernel.org>
@@ -43,55 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit e9f691d899188679746eeb96e6cb520459eda9b4 ]
+[ Upstream commit 53b4b2aeee26f42cde5ff2a16dd0d8590c51a55a ]
 
-There are several reports that the BUG_ON on unsupported command in
-mv_qc_prep can be triggered under some circumstances:
-https://bugzilla.suse.com/show_bug.cgi?id=1110252
-https://serverfault.com/questions/888897/raid-problems-after-power-outage
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1652185
-https://bugs.centos.org/view.php?id=14998
+There is another kHz-conversion bug in the code, resulting in integer
+overflow. Although, this time the resulting value is 4294966296 and it's
+close to ULONG_MAX, which is okay in this case.
 
-Let sata_mv handle the failure gracefully: warn about that incl. the
-failed command number and return an AC_ERR_INVALID error. We can do that
-now thanks to the previous patch.
-
-Remove also the long-standing FIXME.
-
-[v2] use %.2x as commands are defined as hexa.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: linux-ide@vger.kernel.org
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Tested-by: Peter Geis <pgwipeout@gmail.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/sata_mv.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/devfreq/tegra-devfreq.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ata/sata_mv.c b/drivers/ata/sata_mv.c
-index 2f32782cea6d9..2ec37a038eda8 100644
---- a/drivers/ata/sata_mv.c
-+++ b/drivers/ata/sata_mv.c
-@@ -2111,12 +2111,10 @@ static void mv_qc_prep(struct ata_queued_cmd *qc)
- 		 * non-NCQ mode are: [RW] STREAM DMA and W DMA FUA EXT, none
- 		 * of which are defined/used by Linux.  If we get here, this
- 		 * driver needs work.
--		 *
--		 * FIXME: modify libata to give qc_prep a return value and
--		 * return error here.
- 		 */
--		BUG_ON(tf->command);
--		break;
-+		ata_port_err(ap, "%s: unsupported command: %.2x\n", __func__,
-+				tf->command);
-+		return AC_ERR_INVALID;
- 	}
- 	mv_crqb_pack_cmd(cw++, tf->nsect, ATA_REG_NSECT, 0);
- 	mv_crqb_pack_cmd(cw++, tf->hob_lbal, ATA_REG_LBAL, 0);
+diff --git a/drivers/devfreq/tegra-devfreq.c b/drivers/devfreq/tegra-devfreq.c
+index fe9dce0245bf0..a20267d93f8a4 100644
+--- a/drivers/devfreq/tegra-devfreq.c
++++ b/drivers/devfreq/tegra-devfreq.c
+@@ -79,6 +79,8 @@
+ 
+ #define KHZ							1000
+ 
++#define KHZ_MAX						(ULONG_MAX / KHZ)
++
+ /* Assume that the bus is saturated if the utilization is 25% */
+ #define BUS_SATURATION_RATIO					25
+ 
+@@ -179,7 +181,7 @@ struct tegra_actmon_emc_ratio {
+ };
+ 
+ static struct tegra_actmon_emc_ratio actmon_emc_ratios[] = {
+-	{ 1400000, ULONG_MAX },
++	{ 1400000,    KHZ_MAX },
+ 	{ 1200000,    750000 },
+ 	{ 1100000,    600000 },
+ 	{ 1000000,    500000 },
 -- 
 2.25.1
 
