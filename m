@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27E2826EF31
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38AC626EF2F
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728852AbgIRCd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:33:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40966 "EHLO mail.kernel.org"
+        id S1727960AbgIRCdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:33:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728967AbgIRCNi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:13:38 -0400
+        id S1728972AbgIRCNk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:13:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99C42208E4;
-        Fri, 18 Sep 2020 02:13:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAD302389E;
+        Fri, 18 Sep 2020 02:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395218;
-        bh=UMADY/onW6UpxBDJgJFpd53DCmN5biqNx9tSn5B50o0=;
+        s=default; t=1600395219;
+        bh=ebj9lJkI57ng6Tqyc3i4ARW/ZirUUSd+psChkdtWmhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cn7FmID4YSEBY4voa7ST7B3060Vl4rfKz97KB8TyyBJYRss2kPh3oAwXTXHagbp3i
-         iru45VgT1PDc86lfBFfvkEzrXgdwgDCTcDN4JSNCnKYTdpfIxu4KB9VpOHn31BUOHt
-         6PlZMTqmmdJyxPSLchDO8ghvZJv278cxWa7nskWE=
+        b=YHxDr40m2su52PZLXHbYadSjJcsoghd9lVFNAwQAMb63s4zLO3ecG7AiAx7oMlFm4
+         fRa3JglQGfpG7A8DrQF6T6iY6vVc4BfPvRdsO3X9lS9GyxAPUmj+b8UG57PLoTE83i
+         TnDdP4TcL9MykHDsnfpm/hQ0dBCnqYaT8Xxcjh2A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, xfs@oss.sgi.com
-Subject: [PATCH AUTOSEL 4.14 065/127] xfs: don't ever return a stale pointer from __xfs_dir3_free_read
-Date:   Thu, 17 Sep 2020 22:11:18 -0400
-Message-Id: <20200918021220.2066485-65-sashal@kernel.org>
+Cc:     Stefan Berger <stefanb@linux.ibm.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        tpmdd-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.14 066/127] tpm: ibmvtpm: Wait for buffer to be set before proceeding
+Date:   Thu, 17 Sep 2020 22:11:19 -0400
+Message-Id: <20200918021220.2066485-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -42,39 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-[ Upstream commit 1cb5deb5bc095c070c09a4540c45f9c9ba24be43 ]
+[ Upstream commit d8d74ea3c00214aee1e1826ca18e77944812b9b4 ]
 
-If we decide that a directory free block is corrupt, we must take care
-not to leak a buffer pointer to the caller.  After xfs_trans_brelse
-returns, the buffer can be freed or reused, which means that we have to
-set *bpp back to NULL.
+Synchronize with the results from the CRQs before continuing with
+the initialization. This avoids trying to send TPM commands while
+the rtce buffer has not been allocated, yet.
 
-Callers are supposed to notice the nonzero return value and not use the
-buffer pointer, but we should code more defensively, even if all current
-callers handle this situation correctly.
+This patch fixes an existing race condition that may occurr if the
+hypervisor does not quickly respond to the VTPM_GET_RTCE_BUFFER_SIZE
+request sent during initialization and therefore the ibmvtpm->rtce_buf
+has not been allocated at the time the first TPM command is sent.
 
-Fixes: de14c5f541e7 ("xfs: verify free block header fields")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Fixes: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM")
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Acked-by: Nayna Jain <nayna@linux.ibm.com>
+Tested-by: Nayna Jain <nayna@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_dir2_node.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/tpm/tpm_ibmvtpm.c | 9 +++++++++
+ drivers/char/tpm/tpm_ibmvtpm.h | 1 +
+ 2 files changed, 10 insertions(+)
 
-diff --git a/fs/xfs/libxfs/xfs_dir2_node.c b/fs/xfs/libxfs/xfs_dir2_node.c
-index 682e2bf370c72..ee4ebc2dd7492 100644
---- a/fs/xfs/libxfs/xfs_dir2_node.c
-+++ b/fs/xfs/libxfs/xfs_dir2_node.c
-@@ -212,6 +212,7 @@ __xfs_dir3_free_read(
- 		xfs_buf_ioerror(*bpp, -EFSCORRUPTED);
- 		xfs_verifier_error(*bpp);
- 		xfs_trans_brelse(tp, *bpp);
-+		*bpp = NULL;
- 		return -EFSCORRUPTED;
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
+index 569e93e1f06cc..3ba67bc6baba0 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.c
++++ b/drivers/char/tpm/tpm_ibmvtpm.c
+@@ -588,6 +588,7 @@ static irqreturn_t ibmvtpm_interrupt(int irq, void *vtpm_instance)
+ 	 */
+ 	while ((crq = ibmvtpm_crq_get_next(ibmvtpm)) != NULL) {
+ 		ibmvtpm_crq_process(crq, ibmvtpm);
++		wake_up_interruptible(&ibmvtpm->crq_queue.wq);
+ 		crq->valid = 0;
+ 		smp_wmb();
+ 	}
+@@ -635,6 +636,7 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
  	}
  
+ 	crq_q->num_entry = CRQ_RES_BUF_SIZE / sizeof(*crq_q->crq_addr);
++	init_waitqueue_head(&crq_q->wq);
+ 	ibmvtpm->crq_dma_handle = dma_map_single(dev, crq_q->crq_addr,
+ 						 CRQ_RES_BUF_SIZE,
+ 						 DMA_BIDIRECTIONAL);
+@@ -687,6 +689,13 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
+ 	if (rc)
+ 		goto init_irq_cleanup;
+ 
++	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
++				ibmvtpm->rtce_buf != NULL,
++				HZ)) {
++		dev_err(dev, "CRQ response timed out\n");
++		goto init_irq_cleanup;
++	}
++
+ 	return tpm_chip_register(chip);
+ init_irq_cleanup:
+ 	do {
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
+index 91dfe766d0800..4f6a124601db4 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.h
++++ b/drivers/char/tpm/tpm_ibmvtpm.h
+@@ -31,6 +31,7 @@ struct ibmvtpm_crq_queue {
+ 	struct ibmvtpm_crq *crq_addr;
+ 	u32 index;
+ 	u32 num_entry;
++	wait_queue_head_t wq;
+ };
+ 
+ struct ibmvtpm_dev {
 -- 
 2.25.1
 
