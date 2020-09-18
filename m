@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6613326F17F
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C7BF26F1AA
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728005AbgIRCIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:08:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58734 "EHLO mail.kernel.org"
+        id S1728206AbgIRCw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:52:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728020AbgIRCH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:07:57 -0400
+        id S1727381AbgIRCIF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:08:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1865323770;
-        Fri, 18 Sep 2020 02:07:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 075A423770;
+        Fri, 18 Sep 2020 02:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394876;
-        bh=6JSglhZ8wTAzwbZlUymn5+InbH5SDe6l4YfVkyfb++Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jnan5oY2WxlRnnQhR0/uhkDbc7YgHondUy3ycyn9IL+TC/StPcGCsI70XAxFGB9KO
-         reoiDTeP3hs5vq4UeD7MmWhu1N6KKc3n8GHmaNmzGNHHrpR952ML1By4rFgGyeXhtY
-         TDCVPjarsYNpbGo3kPnU6bmCCkxGjrF+7lOA5/do=
+        s=default; t=1600394884;
+        bh=Ck6fc4SttpI6j9QYpn6//UUfsHchD6fGEC7acmbMEqY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=INXt6hFkJ8Gikce6p7QV+rtyyW08RNMjZlLzIP47yvljFax+dqTm9ThzJjTtuI+7H
+         RkHl+cUlwZSQUa2fb2DZSMu2uqBfNcnYAOSQgyDqR6O7nl8iOrNThj5wKNLupG4A/C
+         2pKys7vZffLNBRQISGqxMu7UsE5EVIK2UyROeGlE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 327/330] ALSA: hda: Always use jackpoll helper for jack update after resume
-Date:   Thu, 17 Sep 2020 22:01:07 -0400
-Message-Id: <20200918020110.2063155-327-sashal@kernel.org>
+Cc:     Jonathan Lebon <jlebon@redhat.com>,
+        Victor Kamensky <kamensky@cisco.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 001/206] selinux: allow labeling before policy is loaded
+Date:   Thu, 17 Sep 2020 22:04:37 -0400
+Message-Id: <20200918020802.2065198-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
-References: <20200918020110.2063155-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,134 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jonathan Lebon <jlebon@redhat.com>
 
-[ Upstream commit 8d6762af302d69f76fa788a277a56a9d9cd275d5 ]
+[ Upstream commit 3e3e24b42043eceb97ed834102c2d094dfd7aaa6 ]
 
-HD-audio codec driver applies a tricky procedure to forcibly perform
-the runtime resume by mimicking the usage count even if the device has
-been runtime-suspended beforehand.  This was needed to assure to
-trigger the jack detection update after the system resume.
+Currently, the SELinux LSM prevents one from setting the
+`security.selinux` xattr on an inode without a policy first being
+loaded. However, this restriction is problematic: it makes it impossible
+to have newly created files with the correct label before actually
+loading the policy.
 
-And recently we also applied the similar logic to the HD-audio
-controller side.  However this seems leading to some inconsistency,
-and eventually PCI controller gets screwed up.
+This is relevant in distributions like Fedora, where the policy is
+loaded by systemd shortly after pivoting out of the initrd. In such
+instances, all files created prior to pivoting will be unlabeled. One
+then has to relabel them after pivoting, an operation which inherently
+races with other processes trying to access those same files.
 
-This patch is an attempt to fix and clean up those behavior: instead
-of the tricky runtime resume procedure, the existing jackpoll work is
-scheduled when such a forced codec resume is required.  The jackpoll
-work will power up the codec, and this alone should suffice for the
-jack status update in usual cases.  If the extra polling is requested
-(by checking codec->jackpoll_interval), the manual update is invoked
-after that, and the codec is powered down again.
+Going further, there are use cases for creating the entire root
+filesystem on first boot from the initrd (e.g. Container Linux supports
+this today[1], and we'd like to support it in Fedora CoreOS as well[2]).
+One can imagine doing this in two ways: at the block device level (e.g.
+laying down a disk image), or at the filesystem level. In the former,
+labeling can simply be part of the image. But even in the latter
+scenario, one still really wants to be able to set the right labels when
+populating the new filesystem.
 
-Also, we filter the spurious wake up of the codec from the controller
-runtime resume by checking codec->relaxed_resume flag.  If this flag
-is set, basically we don't need to wake up explicitly, but it's
-supposed to be done via the audio component notifier.
+This patch enables this by changing behaviour in the following two ways:
+1. allow `setxattr` if we're not initialized
+2. don't try to set the in-core inode SID if we're not initialized;
+   instead leave it as `LABEL_INVALID` so that revalidation may be
+   attempted at a later time
 
-Fixes: c4c8dd6ef807 ("ALSA: hda: Skip controller resume if not needed")
-Link: https://lore.kernel.org/r/20200422203744.26299-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Note the first hunk of this patch is mostly the same as a previously
+discussed one[3], though it was part of a larger series which wasn't
+accepted.
+
+[1] https://coreos.com/os/docs/latest/root-filesystem-placement.html
+[2] https://github.com/coreos/fedora-coreos-tracker/issues/94
+[3] https://www.spinics.net/lists/linux-initramfs/msg04593.html
+
+Co-developed-by: Victor Kamensky <kamensky@cisco.com>
+Signed-off-by: Victor Kamensky <kamensky@cisco.com>
+Signed-off-by: Jonathan Lebon <jlebon@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_codec.c | 28 +++++++++++++++++-----------
- sound/pci/hda/hda_intel.c | 17 ++---------------
- 2 files changed, 19 insertions(+), 26 deletions(-)
+ security/selinux/hooks.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 12da263fb02ba..6da296def283e 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -641,8 +641,18 @@ static void hda_jackpoll_work(struct work_struct *work)
- 	struct hda_codec *codec =
- 		container_of(work, struct hda_codec, jackpoll_work.work);
- 
--	snd_hda_jack_set_dirty_all(codec);
--	snd_hda_jack_poll_all(codec);
-+	/* for non-polling trigger: we need nothing if already powered on */
-+	if (!codec->jackpoll_interval && snd_hdac_is_power_on(&codec->core))
-+		return;
-+
-+	/* the power-up/down sequence triggers the runtime resume */
-+	snd_hda_power_up_pm(codec);
-+	/* update jacks manually if polling is required, too */
-+	if (codec->jackpoll_interval) {
-+		snd_hda_jack_set_dirty_all(codec);
-+		snd_hda_jack_poll_all(codec);
-+	}
-+	snd_hda_power_down_pm(codec);
- 
- 	if (!codec->jackpoll_interval)
- 		return;
-@@ -2958,18 +2968,14 @@ static int hda_codec_runtime_resume(struct device *dev)
- static int hda_codec_force_resume(struct device *dev)
- {
- 	struct hda_codec *codec = dev_to_hda_codec(dev);
--	bool forced_resume = hda_codec_need_resume(codec);
- 	int ret;
- 
--	/* The get/put pair below enforces the runtime resume even if the
--	 * device hasn't been used at suspend time.  This trick is needed to
--	 * update the jack state change during the sleep.
--	 */
--	if (forced_resume)
--		pm_runtime_get_noresume(dev);
- 	ret = pm_runtime_force_resume(dev);
--	if (forced_resume)
--		pm_runtime_put(dev);
-+	/* schedule jackpoll work for jack detection update */
-+	if (codec->jackpoll_interval ||
-+	    (pm_runtime_suspended(dev) && hda_codec_need_resume(codec)))
-+		schedule_delayed_work(&codec->jackpoll_work,
-+				      codec->jackpoll_interval);
- 	return ret;
- }
- 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index a6e8aaa091c7d..754e4d1a86b57 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1002,7 +1002,8 @@ static void __azx_runtime_resume(struct azx *chip, bool from_rt)
- 
- 	if (status && from_rt) {
- 		list_for_each_codec(codec, &chip->bus)
--			if (status & (1 << codec->addr))
-+			if (!codec->relaxed_resume &&
-+			    (status & (1 << codec->addr)))
- 				schedule_delayed_work(&codec->jackpoll_work,
- 						      codec->jackpoll_interval);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 452254fd89f87..250b725f5754c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3304,6 +3304,9 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+ 		return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
  	}
-@@ -1041,9 +1042,7 @@ static int azx_suspend(struct device *dev)
- static int azx_resume(struct device *dev)
- {
- 	struct snd_card *card = dev_get_drvdata(dev);
--	struct hda_codec *codec;
- 	struct azx *chip;
--	bool forced_resume = false;
  
- 	if (!azx_is_pm_ready(card))
- 		return 0;
-@@ -1055,19 +1054,7 @@ static int azx_resume(struct device *dev)
- 	if (azx_acquire_irq(chip, 1) < 0)
- 		return -EIO;
++	if (!selinux_state.initialized)
++		return (inode_owner_or_capable(inode) ? 0 : -EPERM);
++
+ 	sbsec = inode->i_sb->s_security;
+ 	if (!(sbsec->flags & SBLABEL_MNT))
+ 		return -EOPNOTSUPP;
+@@ -3387,6 +3390,15 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 		return;
+ 	}
  
--	/* check for the forced resume */
--	list_for_each_codec(codec, &chip->bus) {
--		if (hda_codec_need_resume(codec)) {
--			forced_resume = true;
--			break;
--		}
--	}
--
--	if (forced_resume)
--		pm_runtime_get_noresume(dev);
- 	pm_runtime_force_resume(dev);
--	if (forced_resume)
--		pm_runtime_put(dev);
- 	snd_power_change_state(card, SNDRV_CTL_POWER_D0);
- 
- 	trace_azx_resume(chip);
++	if (!selinux_state.initialized) {
++		/* If we haven't even been initialized, then we can't validate
++		 * against a policy, so leave the label as invalid. It may
++		 * resolve to a valid label on the next revalidation try if
++		 * we've since initialized.
++		 */
++		return;
++	}
++
+ 	rc = security_context_to_sid_force(&selinux_state, value, size,
+ 					   &newsid);
+ 	if (rc) {
 -- 
 2.25.1
 
