@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3D9726F415
+	by mail.lfdr.de (Postfix) with ESMTP id 3680E26F414
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:12:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729870AbgIRDLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:11:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47382 "EHLO mail.kernel.org"
+        id S1726755AbgIRDLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:11:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726728AbgIRCCU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:02:20 -0400
+        id S1726734AbgIRCCV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:02:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21C28208DB;
-        Fri, 18 Sep 2020 02:02:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 866A3235FD;
+        Fri, 18 Sep 2020 02:02:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394539;
-        bh=c/L8j8VEhAr71cncFsoYSautMCqDG9hga+JTrHmg8Kg=;
+        s=default; t=1600394540;
+        bh=JABLUdjNq2imK1wjeCunrhCzek4I+Lgbd0ewlVoivLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bVjdW9zRG7kNKZqrBHMEInABoYE4qiZ8R1s4IuaNNPkv8uHq6DXZDW+kfLPiVNdci
-         63AgPapz5P5wsttXVVSNxknKroWjoWzDXQARKYo90kXNkL7V+2XlWNEBqoeaLapu6E
-         MfyEb/DTTFUJ0xFr0bITSyQDzBNCfrMtsfOWZUA0=
+        b=KH9k5XVOfAQpnXr8hpao/KyqO8RSUO8JZhFP8zojlpHBinJS7/5xaK8BrFOBYKjXl
+         rP4WkIPtKrtl+vMnZRPDVvq77/VqeOO/nltI1fh8UUK2D3jImolZDjIYbz38ypXBN4
+         HouTW19P9zfVGwrG2y85v7bH/eWRd68p147z1KVI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     peter chang <dpf@google.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Deepak Ukey <deepak.ukey@microchip.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, pmchba@pmcs.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 057/330] scsi: pm80xx: Cleanup command when a reset times out
-Date:   Thu, 17 Sep 2020 21:56:37 -0400
-Message-Id: <20200918020110.2063155-57-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 058/330] mt76: do not use devm API for led classdev
+Date:   Thu, 17 Sep 2020 21:56:38 -0400
+Message-Id: <20200918020110.2063155-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -46,103 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: peter chang <dpf@google.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 51c1c5f6ed64c2b65a8cf89dac136273d25ca540 ]
+[ Upstream commit 36f7e2b2bb1de86f0072cd49ca93d82b9e8fd894 ]
 
-Added the fix so the if driver properly sent the abort it tries to remove
-it from the firmware's list of outstanding commands regardless of the abort
-status. This means that the task gets freed 'now' rather than possibly
-getting freed later when the scsi layer thinks it's leaked but still valid.
+With the devm API, the unregister happens after the device cleanup is done,
+after which the struct mt76_dev which contains the led_cdev has already been
+freed. This leads to a use-after-free bug that can crash the system.
 
-Link: https://lore.kernel.org/r/20191114100910.6153-10-deepak.ukey@microchip.com
-Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: peter chang <dpf@google.com>
-Signed-off-by: Deepak Ukey <deepak.ukey@microchip.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_sas.c | 50 +++++++++++++++++++++++---------
- 1 file changed, 37 insertions(+), 13 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mac80211.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
-index 7e48154e11c36..7912ed64d3b9c 100644
---- a/drivers/scsi/pm8001/pm8001_sas.c
-+++ b/drivers/scsi/pm8001/pm8001_sas.c
-@@ -1202,8 +1202,8 @@ int pm8001_abort_task(struct sas_task *task)
- 	pm8001_dev = dev->lldd_dev;
- 	pm8001_ha = pm8001_find_ha_by_dev(dev);
- 	phy_id = pm8001_dev->attached_phy;
--	rc = pm8001_find_tag(task, &tag);
--	if (rc == 0) {
-+	ret = pm8001_find_tag(task, &tag);
-+	if (ret == 0) {
- 		pm8001_printk("no tag for task:%p\n", task);
- 		return TMF_RESP_FUNC_FAILED;
+diff --git a/drivers/net/wireless/mediatek/mt76/mac80211.c b/drivers/net/wireless/mediatek/mt76/mac80211.c
+index 1a2c143b34d01..7be5806a1c398 100644
+--- a/drivers/net/wireless/mediatek/mt76/mac80211.c
++++ b/drivers/net/wireless/mediatek/mt76/mac80211.c
+@@ -105,7 +105,15 @@ static int mt76_led_init(struct mt76_dev *dev)
+ 		dev->led_al = of_property_read_bool(np, "led-active-low");
  	}
-@@ -1241,26 +1241,50 @@ int pm8001_abort_task(struct sas_task *task)
  
- 			/* 2. Send Phy Control Hard Reset */
- 			reinit_completion(&completion);
-+			phy->port_reset_status = PORT_RESET_TMO;
- 			phy->reset_success = false;
- 			phy->enable_completion = &completion;
- 			phy->reset_completion = &completion_reset;
- 			ret = PM8001_CHIP_DISP->phy_ctl_req(pm8001_ha, phy_id,
- 				PHY_HARD_RESET);
--			if (ret)
--				goto out;
--			PM8001_MSG_DBG(pm8001_ha,
--				pm8001_printk("Waiting for local phy ctl\n"));
--			wait_for_completion(&completion);
--			if (!phy->reset_success)
-+			if (ret) {
-+				phy->enable_completion = NULL;
-+				phy->reset_completion = NULL;
- 				goto out;
-+			}
+-	return devm_led_classdev_register(dev->dev, &dev->led_cdev);
++	return led_classdev_register(dev->dev, &dev->led_cdev);
++}
++
++static void mt76_led_cleanup(struct mt76_dev *dev)
++{
++	if (!dev->led_cdev.brightness_set && !dev->led_cdev.blink_set)
++		return;
++
++	led_classdev_unregister(&dev->led_cdev);
+ }
  
--			/* 3. Wait for Port Reset complete / Port reset TMO */
-+			/* In the case of the reset timeout/fail we still
-+			 * abort the command at the firmware. The assumption
-+			 * here is that the drive is off doing something so
-+			 * that it's not processing requests, and we want to
-+			 * avoid getting a completion for this and either
-+			 * leaking the task in libsas or losing the race and
-+			 * getting a double free.
-+			 */
- 			PM8001_MSG_DBG(pm8001_ha,
-+				pm8001_printk("Waiting for local phy ctl\n"));
-+			ret = wait_for_completion_timeout(&completion,
-+					PM8001_TASK_TIMEOUT * HZ);
-+			if (!ret || !phy->reset_success) {
-+				phy->enable_completion = NULL;
-+				phy->reset_completion = NULL;
-+			} else {
-+				/* 3. Wait for Port Reset complete or
-+				 * Port reset TMO
-+				 */
-+				PM8001_MSG_DBG(pm8001_ha,
- 				pm8001_printk("Waiting for Port reset\n"));
--			wait_for_completion(&completion_reset);
--			if (phy->port_reset_status) {
--				pm8001_dev_gone_notify(dev);
--				goto out;
-+				ret = wait_for_completion_timeout(
-+					&completion_reset,
-+					PM8001_TASK_TIMEOUT * HZ);
-+				if (!ret)
-+					phy->reset_completion = NULL;
-+				WARN_ON(phy->port_reset_status ==
-+						PORT_RESET_TMO);
-+				if (phy->port_reset_status == PORT_RESET_TMO) {
-+					pm8001_dev_gone_notify(dev);
-+					goto out;
-+				}
- 			}
+ static void mt76_init_stream_cap(struct mt76_dev *dev,
+@@ -360,6 +368,7 @@ void mt76_unregister_device(struct mt76_dev *dev)
+ {
+ 	struct ieee80211_hw *hw = dev->hw;
  
- 			/*
++	mt76_led_cleanup(dev);
+ 	mt76_tx_status_check(dev, NULL, true);
+ 	ieee80211_unregister_hw(hw);
+ }
 -- 
 2.25.1
 
