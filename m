@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3AAE26F30D
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:04:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FC0026F306
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727838AbgIRDDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:03:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52754 "EHLO mail.kernel.org"
+        id S1728153AbgIRDDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:03:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726690AbgIRCE4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:04:56 -0400
+        id S1727392AbgIRCE5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:04:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9D0B23770;
-        Fri, 18 Sep 2020 02:04:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0173923718;
+        Fri, 18 Sep 2020 02:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394695;
-        bh=30aueBxnLewts4sm1SeRzuk0NwIdhEbuLDPo3L7enzg=;
+        s=default; t=1600394696;
+        bh=KgF/AJpqk+vmKHHC+vNBhLCqFwnLbqJ92CG2r6+ZfDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehD15/++NYHpWWy5D4UYJ7ytSAvLA+uXR7lpJv7AMnsVPlimiBk+aIJtew/KDpTnE
-         aCEXhGSXeT7Pb5gSPUvYhnyOSQ6+IHCwCsppmtFWQGMceunFJPmKZ2KSmXbYf9muNM
-         EhqT9Zl61xYb9u5T4Yhu2rHAM8yy2EY376LXlUEc=
+        b=pXUD0sjRJU4rnMr2cYMyurEmXIn6XvAxdapxvTkvWRUTldMU8XzI7zSwZ7aZ9HocK
+         IOrOeQ+T9n0WfIHUoSpGm9/cZSS6xx+ViiPGjADv7ysue1M+qf3rfZ0uyzWHa2nM83
+         /wBjlmzm/rWBI0OwLSbkhaGTttJC83Sau5HlRNRU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 183/330] tracing: Use address-of operator on section symbols
-Date:   Thu, 17 Sep 2020 21:58:43 -0400
-Message-Id: <20200918020110.2063155-183-sashal@kernel.org>
+Cc:     =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 184/330] thermal: rcar_thermal: Handle probe error gracefully
+Date:   Thu, 17 Sep 2020 21:58:44 -0400
+Message-Id: <20200918020110.2063155-184-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,47 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit bf2cbe044da275021b2de5917240411a19e5c50d ]
+[ Upstream commit 39056e8a989ef52486e063e34b4822b341e47b0e ]
 
-Clang warns:
+If the common register memory resource is not available the driver needs
+to fail gracefully to disable PM. Instead of returning the error
+directly store it in ret and use the already existing error path.
 
-../kernel/trace/trace.c:9335:33: warning: array comparison always
-evaluates to true [-Wtautological-compare]
-        if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
-                                       ^
-1 warning generated.
-
-These are not true arrays, they are linker defined symbols, which are
-just addresses. Using the address of operator silences the warning and
-does not change the runtime result of the check (tested with some print
-statements compiled in with clang + ld.lld and gcc + ld.bfd in QEMU).
-
-Link: http://lkml.kernel.org/r/20200220051011.26113-1-natechancellor@gmail.com
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/893
-Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200310114709.1483860-1-niklas.soderlund+renesas@ragnatech.se
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/rcar_thermal.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 9007f5edbb207..db8162b34ef64 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -9146,7 +9146,7 @@ __init static int tracer_alloc_buffers(void)
- 		goto out_free_buffer_mask;
+diff --git a/drivers/thermal/rcar_thermal.c b/drivers/thermal/rcar_thermal.c
+index d0873de718da9..43f0cd2bd0ae6 100644
+--- a/drivers/thermal/rcar_thermal.c
++++ b/drivers/thermal/rcar_thermal.c
+@@ -526,8 +526,10 @@ static int rcar_thermal_probe(struct platform_device *pdev)
+ 			res = platform_get_resource(pdev, IORESOURCE_MEM,
+ 						    mres++);
+ 			common->base = devm_ioremap_resource(dev, res);
+-			if (IS_ERR(common->base))
+-				return PTR_ERR(common->base);
++			if (IS_ERR(common->base)) {
++				ret = PTR_ERR(common->base);
++				goto error_unregister;
++			}
  
- 	/* Only allocate trace_printk buffers if a trace_printk exists */
--	if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
-+	if (&__stop___trace_bprintk_fmt != &__start___trace_bprintk_fmt)
- 		/* Must be called before global_trace.buffer is allocated */
- 		trace_printk_init_buffers();
- 
+ 			idle = 0; /* polling delay is not needed */
+ 		}
 -- 
 2.25.1
 
