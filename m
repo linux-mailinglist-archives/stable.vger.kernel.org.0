@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 719BC26EC66
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:15:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7000226EC68
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728640AbgIRCL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:11:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36834 "EHLO mail.kernel.org"
+        id S1728649AbgIRCLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:11:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728636AbgIRCLZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:11:25 -0400
+        id S1728642AbgIRCL0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:11:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 374E92311C;
-        Fri, 18 Sep 2020 02:11:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A949208DB;
+        Fri, 18 Sep 2020 02:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395084;
-        bh=aWLWRDXTPVtOl+4fi6ZSpPtT6elC4qoGlPuzJAweLow=;
+        s=default; t=1600395086;
+        bh=YdXmMUMcrIidM4jJ5bBCr8dU2Vox3/LTnIzsgfEFBrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FfmOlmPxGCpqSTRXMtjGNNh9EXeyiYRgiUA3h3uPkE4UVnwUk2mYBCNOrNJuwnm1X
-         XBXy10eQ0iXzM9eKIx2mxQj7fddy9Xwt44LMicSN22YrkdljVbfYk7xJ3ryEN5KoGZ
-         ao9SAXEm4ax65qUTbYbXzI5jrY/Q9oeydOuEGCBw=
+        b=Aa65o8pSdeqww05bSybePijfbgPRsyaboY3sl7nhfLRzqtujQj/Z4gQzcsatm3TEO
+         skMvHaJ7lZAMl5Ay9+GtdIn7fOBxTgnYzXesPR1/goKKpt+ovFgJfP2dTgdJXFQxLC
+         2Uvv85L8DKU45WK4Zt5SElQvgXq32wJupugi9isM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 167/206] USB: EHCI: ehci-mv: fix less than zero comparison of an unsigned int
-Date:   Thu, 17 Sep 2020 22:07:23 -0400
-Message-Id: <20200918020802.2065198-167-sashal@kernel.org>
+Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
+        "Matthew R . Ochs" <mrochs@linux.ibm.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 168/206] scsi: cxlflash: Fix error return code in cxlflash_probe()
+Date:   Thu, 17 Sep 2020 22:07:24 -0400
+Message-Id: <20200918020802.2065198-168-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -42,44 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit a7f40c233a6b0540d28743267560df9cfb571ca9 ]
+[ Upstream commit d0b1e4a638d670a09f42017a3e567dc846931ba8 ]
 
-The comparison of hcd->irq to less than zero for an error check will
-never be true because hcd->irq is an unsigned int.  Fix this by
-assigning the int retval to the return of platform_get_irq and checking
-this for the -ve error condition and assigning hcd->irq to retval.
+Fix to return negative error code -ENOMEM from create_afu error handling
+case instead of 0, as done elsewhere in this function.
 
-Addresses-Coverity: ("Unsigned compared against 0")
-Fixes: c856b4b0fdb5 ("USB: EHCI: ehci-mv: fix error handling in mv_ehci_probe()")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20200515165453.104028-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200428141855.88704-1-weiyongjun1@huawei.com
+Acked-by: Matthew R. Ochs <mrochs@linux.ibm.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-mv.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/scsi/cxlflash/main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/ehci-mv.c b/drivers/usb/host/ehci-mv.c
-index 4edcd7536a01b..9d93e7441bbca 100644
---- a/drivers/usb/host/ehci-mv.c
-+++ b/drivers/usb/host/ehci-mv.c
-@@ -192,11 +192,10 @@ static int mv_ehci_probe(struct platform_device *pdev)
- 	hcd->rsrc_len = resource_size(r);
- 	hcd->regs = ehci_mv->op_regs;
+diff --git a/drivers/scsi/cxlflash/main.c b/drivers/scsi/cxlflash/main.c
+index f987c40c47a13..443813feaef47 100644
+--- a/drivers/scsi/cxlflash/main.c
++++ b/drivers/scsi/cxlflash/main.c
+@@ -3749,6 +3749,7 @@ static int cxlflash_probe(struct pci_dev *pdev,
+ 	cfg->afu_cookie = cfg->ops->create_afu(pdev);
+ 	if (unlikely(!cfg->afu_cookie)) {
+ 		dev_err(dev, "%s: create_afu failed\n", __func__);
++		rc = -ENOMEM;
+ 		goto out_remove;
+ 	}
  
--	hcd->irq = platform_get_irq(pdev, 0);
--	if (hcd->irq < 0) {
--		retval = hcd->irq;
-+	retval = platform_get_irq(pdev, 0);
-+	if (retval < 0)
- 		goto err_disable_clk;
--	}
-+	hcd->irq = retval;
- 
- 	ehci = hcd_to_ehci(hcd);
- 	ehci->caps = (struct ehci_caps *) ehci_mv->cap_regs;
 -- 
 2.25.1
 
