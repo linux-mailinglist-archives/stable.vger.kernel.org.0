@@ -2,133 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBFFB26FB38
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 13:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8526426FB7A
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 13:30:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726115AbgIRLQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Sep 2020 07:16:26 -0400
-Received: from mail-dm6nam12on2075.outbound.protection.outlook.com ([40.107.243.75]:56352
-        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725941AbgIRLQZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Sep 2020 07:16:25 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=DpmUgzbsKNr2bLIM1sB0XjmglxCSpD5dBu6wotMb64yGCC2IsPsHYvjTK62FOE5EkVZ1ySv/D+ARoWtqGgkU9cng9SSrf02tB/zw38Qjecu29I4X9dsrZWCpg4xb38yKDc4k1zeeHTHKcV6blO31yuyL4coI+nEyW9BjVYFL+44c0Go2jbraNI1PFSkgrKKSd6JzW8xqM2+zruPwftfU9QneazoxhaT9U8Yz7bSAcvZV0keAaV99RZFNBdU5GoteufJaVeWqw4N8ixakUO7mMuq93VWnFXjlEbnFvhBQvT83qpqmHHov+irxxL++Uq2cWZ3ks56j435seTtEiDn1QQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Iiv3/44FtgnlymSQClCT8RVI8qwKcRv+ssElx6pYhuo=;
- b=R300IIsZTdM0M2FvRoIvqNMCJLrMnSPmf6/Z/E3d6E1sc/PkthZqT408ybBSEUV1DYtUsB0Wzulh4ipsbi71ftjIkxcHU5ehs/dDMlH05K/ZJ2RpqbNj2FVPUHazV2Guc8Fdhy7MNEvamtLaDYOsk3GWZXFyhI1u3zh78TeWPYUWvbonyG8z7HQOIio1maqSkiUv6IGolqbCNMeDmyY5mNvZ+mxHs2K/OiztHJGb3/zbfje+SaZYXNvZvqSjuOKpFkM4bgLo8sN0Vpvhhvb26164iPyLHsEjpE7ns3h3AhEpGnHFtlzBAYFflEVRMO+sZy14jkbBzGy7FZPspRdLAQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Iiv3/44FtgnlymSQClCT8RVI8qwKcRv+ssElx6pYhuo=;
- b=UByYjychr0hPLAApfzC0VesRvB/0jxFHfS/M7uWwb5K9n3SKemhu/AOmbo3TpSFZzy7PvclKOKBV7Yxhi9Ca/l6JOa6v6meRsUImcCYibA60mDPDy09BCaEJWb1BfwsiEGpRqgUhCNNU9v4l86kmDn3fuoogtcw/kS2KBADqZeA=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=amd.com;
-Received: from MN2PR12MB3775.namprd12.prod.outlook.com (2603:10b6:208:159::19)
- by MN2PR12MB3677.namprd12.prod.outlook.com (2603:10b6:208:15a::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3391.15; Fri, 18 Sep
- 2020 11:16:22 +0000
-Received: from MN2PR12MB3775.namprd12.prod.outlook.com
- ([fe80::f8f7:7403:1c92:3a60]) by MN2PR12MB3775.namprd12.prod.outlook.com
- ([fe80::f8f7:7403:1c92:3a60%6]) with mapi id 15.20.3391.014; Fri, 18 Sep 2020
- 11:16:22 +0000
-Subject: Re: [PATCH] dmabuf: fix NULL pointer dereference in dma_buf_release()
-To:     Charan Teja Reddy <charante@codeaurora.org>,
-        sumit.semwal@linaro.org, arnd@arndb.de
-Cc:     linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
-        vinmenon@codeaurora.org, stable@vger.kernel.org
-References: <1600425151-27670-1-git-send-email-charante@codeaurora.org>
-From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-Message-ID: <7a4a51fb-008b-cd64-35e7-2a2765b2c3a6@amd.com>
-Date:   Fri, 18 Sep 2020 13:16:16 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-In-Reply-To: <1600425151-27670-1-git-send-email-charante@codeaurora.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-ClientProxiedBy: AM0PR10CA0073.EURPRD10.PROD.OUTLOOK.COM
- (2603:10a6:208:15::26) To MN2PR12MB3775.namprd12.prod.outlook.com
- (2603:10b6:208:159::19)
+        id S1726205AbgIRLaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Sep 2020 07:30:01 -0400
+Received: from sonic306-19.consmr.mail.ir2.yahoo.com ([77.238.176.205]:34319
+        "EHLO sonic306-19.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726394AbgIRL3l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Sep 2020 07:29:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1600428573; bh=Wbb5kU9+nuXHtr27nxpSCllVwLyRvN526jc5ol4mfd0=; h=Date:From:Reply-To:Subject:References:From:Subject; b=R3EB/FCs0Y6Byqk4NQ3y46breMEYK3B+YpRExp3k1irTmNokhRHdH1k7/q3uudJKZyeLK4PBPt2drbX52A28z9y7BaeOz3gKjQv/zFDM3CL554x8R4b6xntYjnZFF+0Q+rPWmhMhpGC3/NujcGU6f70U1IlzYF3Y1PEXGzzoYr/btFkkWRgrtlfcc9AKY0QcYzinzq7TD3i6UmtK6wyW6E0t8it8oYJqSPjUCZ9BspgL76zMJsPhIenJIL3PC6N8URNp0qGYnHnxx9H6OY7VNJykWEmsyP558UIth6kTtJzptc+4w06UsbYJCt2zw+HZkPWNTxa2eawKHe1dpwGTgA==
+X-YMail-OSG: Rw48g24VM1nIdmdeXoE7Quj0xZkmNm3W.g_TTrPtD0QUwJW1BI4bsRBCD2Q5NJ.
+ U8..3YubmEnNgrxUKT4vwaVL9suy_Xj.T1RplaCBvZl1C22yW5irPpRHG.td7CyEsFnH3MiUbmqI
+ ivmU1EDyTmRRliWV4vHZUfvUMSKLmkutB5.DmQyvP1TOV7BlJMC3XYOTnshHeq2rLxHLnvjcVJ0K
+ pKdUAVMb8x7IFZc6qCu6KNO.k6cNeaJEKWfcqDko0AE1vYBURpoW9w3YMjlB874hYIKoUQWS5_C9
+ f5oRbkptaLzpi7dFB8CrIZiPzo3y83_UNw9zJiMSK10oMzxMKDRD0ArYFpvIlfkXQ31ebfd4DnH5
+ p4w3UfhElTuZZDNSx5EbqvsUivoLrHu5Zr5HzjXyZMcQYKKqcnMRJx_5.ASsax0t4fpjxO3t4rn2
+ xsjZ2yECjCE4c1lLYMyoZs94Tw6isFj56DbiNoNipUB4578fA74ysnyE2bwKKXKFhso0Sh8agejy
+ OGpbsYwWllsm9Vi3liVaKYs3ymxVbULzPMkQN8jitYhKQ.I_GxfaN10GA7CfsMggb.6hlZKRpivd
+ fvXd37IokTO0EutU9DOEgj.YObmf1v9omTtgvm7hJ6P0Q52kRZ.usR.PsDOnKj7DIfQ7Ce4Y7cuk
+ a7YFSYKP85.dFjwmz8O3ny3ru.ti5YtZEVRVKu7ksh8cX_3sJsP25wo_yJdQoYgJwS08HlpE8AUi
+ 2jqZICTKZudSokTx1Tuekh9WWyJkYiLt8VRgo7Kxz.Mdg11FBsLPDdIZChD1Ua167inJ3eX.n7qs
+ ulZPDmE.a.jiGVQrUFhJ8tpG.WtyRWggn4wLU7PYDp9u.QzIjs2Ln9mVut8DHD3e57Oc3ZLkcnym
+ Gsi3e7M_NvfaA49feJI.n94iTD_uisrEF.jbjDw_9B313M2gbNWGmpTJIuIYUaV_NGocU71OWpYH
+ EmPbMCVFIdm0sgbXtDQLmpoZnuAZBC.TfTUlwRJyOdiejPpnEdiyT8nrDO7HzI7pPKhsdC5cluYH
+ od6qLeQVyCZPhcMr1F81njLGmk3zngPthNIkjoFtHVvgTjTS6oQCHZ1veUQKembuThDA9vUhGpGG
+ 5JrBpSNhosw6MctEPY5P.UW9qrTy9C3gNQBuD3Axek.vjjXYW82QZ0HEZ8msm7GA..0ulMA7aGiS
+ hKmu7gRIEdT1LyJj1gM.KVmqo450i1lz36csR0GmciTD.kwrMFfKP.xPZOIdjzxU9v7_CHi.SlU6
+ Bzxh_AiNRZouN2F1hrEqV0bZe7SXjgqdNroKBNaEDHwzcactz0rhT3p9fu3ru0tnth.aZvSbC0ih
+ pXxyeEJj_mNSgSm.PgOqw2X_VkwBmAwgoqEc.8udwJjU4SVhG1xylAqlL_OTLzfam2G.a.fRsDBe
+ phTc_JD2rjK.CI1Rk0K68PEh5eR9vB9QnJbhpetRWw19XJN7b
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ir2.yahoo.com with HTTP; Fri, 18 Sep 2020 11:29:33 +0000
+Date:   Fri, 18 Sep 2020 11:29:32 +0000 (UTC)
+From:   "Mr.Sawadogo Michel" <sawadogomichel38@gmail.com>
+Reply-To: mr.sawadogomichel1@gmail.com
+Message-ID: <555605376.1662739.1600428572210@mail.yahoo.com>
+Subject: Hello Dear Friend,
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [IPv6:2a02:908:1252:fb60:be8a:bd56:1f94:86e7] (2a02:908:1252:fb60:be8a:bd56:1f94:86e7) by AM0PR10CA0073.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:208:15::26) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3391.11 via Frontend Transport; Fri, 18 Sep 2020 11:16:20 +0000
-X-Originating-IP: [2a02:908:1252:fb60:be8a:bd56:1f94:86e7]
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: 693b83d4-143e-4fd1-827b-08d85bc445fb
-X-MS-TrafficTypeDiagnostic: MN2PR12MB3677:
-X-Microsoft-Antispam-PRVS: <MN2PR12MB3677429DEB345A0F2266AF96833F0@MN2PR12MB3677.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:7219;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: bsRO7dNULjTkpwp4SMFbIK/VLH5SnEm6LxiM4Hjiv81/eHL7YjJOnYPpRHDQ9tw1fUXFFNyCAaxjD2/LQIs//CyoMyva4BZaF96AG+pl3buPQXqTb4s9qv/kUCxdyCt56QSFxyQz61cREfY7ktzw8oYg0Xjm/eO09nxp8IzXEvvlgs6CBgUjOk8k3g7BIYXGECkoMzw/+kMoxwiYHnV5bfCDk98DnUQznFZvqqGnK5Zii1Etj1EFTBe91ytQV/7wK5K27uxobE1AIcuz5xvEHjwkC8z+2PqQgk1DkQXv67nQYcv8VtZpUswqG1yFmZ+NE+mVUsoM8cgW8PoaNxglTM4ZS/WTDYvyeEkpcgtOz2aTN4eaLz97Fe5ycIe2yHBq
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB3775.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(396003)(39860400002)(366004)(346002)(136003)(376002)(83380400001)(52116002)(31686004)(4326008)(31696002)(6666004)(186003)(5660300002)(16526019)(6486002)(316002)(86362001)(66556008)(66476007)(66946007)(36756003)(478600001)(2906002)(8936002)(8676002)(2616005)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: flkrJMG51H99fX9atJL9h5v6kNohjt9FMa1mv8R/gnHg0NusOCiJF5NuN2/gVnY3aIo5v+TYrcpPCv5iZ+L9T8qElMonq/IKsmtEbhpcjssFBOtm3wWwoSP9y5aHol60ZWaIPevrvDHPqZWwF58vmPY7xJxi4GVo058a2JhuWO9ZhzrQC5EJc0t2vLxVm+yyG4qhWpZfsgm1kPwUWz1qY6RI28PyozuoVfjY+3qOPQ+g+BN0/7cW+FUpd08pFXw0tt+fnaaXSj7Yx7APFBTBDM+9M0YvJ+7BAtp+aMURR1NKPoCHiY3KrNnj6sj9urbo9QEdAcqQQKwkvBf6UYFgjbkJ05O1P/2MduiQi02lSr+k/bRaEtNcJxUEDrpKEQo03XbyE4cO6B7bDgRsMPFBFn2McIBlpKjXMCnQGcijY3BW5x6C0L6MLHh/VZx1kbF3AVdtXmo9tyDoBSq1aHR+hyVzYhLYQgPFRiBHjeQFxIT/CE8kLmzr3SnMaTfW/23/ZDm7xIPrjxj7B1g/Y89U/es6PhsEGqACmEl1esiY21WqaZL9psvnaUd0xCfQFHiJMZDrsRqCfjibkWmapbQzsYosCVSk9p6vnhLRmUPEwFwE70eVWvSvbO49fe38BiJ/3k17gBr2XVzPGaIhxGl1rapKfqIb/5oL3kCIJmz8IlGNCFqijPal7cDBe9FZdfM/AwRjxM0K8cGu2ELYvp8PHw==
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 693b83d4-143e-4fd1-827b-08d85bc445fb
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3775.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Sep 2020 11:16:22.3191
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: vweHaVDvbAc724l/x8T48pepFdJfqPjPuQbnAtGy2/paOW9SUTv5d4jm3dyUcgaD
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3677
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <555605376.1662739.1600428572210.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16583 YMailNodin Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 18.09.20 um 12:32 schrieb Charan Teja Reddy:
-> NULL pointer dereference is observed while exporting the dmabuf but
-> failed to allocate the 'struct file' which results into the dropping of
-> the allocated dentry corresponding to this file in the dmabuf fs, which
-> is ending up in dma_buf_release() and accessing the uninitialzed
-> dentry->d_fsdata.
->
-> Call stack on 5.4 is below:
->   dma_buf_release+0x2c/0x254 drivers/dma-buf/dma-buf.c:88
->   __dentry_kill+0x294/0x31c fs/dcache.c:584
->   dentry_kill fs/dcache.c:673 [inline]
->   dput+0x250/0x380 fs/dcache.c:859
->   path_put+0x24/0x40 fs/namei.c:485
->   alloc_file_pseudo+0x1a4/0x200 fs/file_table.c:235
->   dma_buf_getfile drivers/dma-buf/dma-buf.c:473 [inline]
->   dma_buf_export+0x25c/0x3ec drivers/dma-buf/dma-buf.c:585
->
-> Fix this by checking for the valid pointer in the dentry->d_fsdata.
->
-> Fixes: 4ab59c3c638c ("dma-buf: Move dma_buf_release() from fops to dentry_ops")
-> Cc: <stable@vger.kernel.org> [5.7+]
-> Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
+Hello Dear Friend,
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
+My name is Mr.Sawadogo Michel. I have decided to seek a confidential co-operation  with you in the execution of the deal described here-under for our both  mutual benefit and I hope you will keep it a top secret because of the nature  of the transaction, During the course of our bank year auditing, I discovered  an unclaimed/abandoned fund, sum total of {US$19.3 Million United State  Dollars} in the bank account that belongs to a Saudi Arabia businessman Who unfortunately lost his life and entire family in a Motor Accident.
 
-Going to pick this up for inclusion into drm-misc-next as well.
+Now our bank has been waiting for any of the relatives to come-up for the claim but nobody has done that. I personally has been unsuccessful in locating any of the relatives, now, I sincerely seek your consent to present you as the next of kin / Will Beneficiary to the deceased so that the proceeds of this account valued at {US$19.3 Million United State Dollars} can be paid to you, which we will share in these percentages ratio, 60% to me and 40% to you. All I request is your utmost sincere co-operation; trust and maximum confidentiality to achieve this project successfully. I have carefully mapped out the moralities for execution of this transaction under a legitimate arrangement to protect you from any breach of the law both in your country and here in Burkina Faso when the fund is being transferred to your bank account.
 
-> ---
->   drivers/dma-buf/dma-buf.c | 2 ++
->   1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-> index 58564d82..844967f 100644
-> --- a/drivers/dma-buf/dma-buf.c
-> +++ b/drivers/dma-buf/dma-buf.c
-> @@ -59,6 +59,8 @@ static void dma_buf_release(struct dentry *dentry)
->   	struct dma_buf *dmabuf;
->   
->   	dmabuf = dentry->d_fsdata;
-> +	if (unlikely(!dmabuf))
-> +		return;
->   
->   	BUG_ON(dmabuf->vmapping_counter);
->   
+I will have to provide all the relevant document that will be requested to indicate that you are the rightful beneficiary of this legacy and our bank will release the fund to you without any further delay, upon your consideration and acceptance of this offer, please send me the following information as stated below so we can proceed and get this fund transferred to your designated bank account immediately.
 
+-Your Full Name:
+-Your Contact Address:
+-Your direct Mobile telephone Number:
+-Your Date of Birth:
+-Your occupation:
+
+I await your swift response and re-assurance.
+
+Best regards,
+Mr.Sawadogo Michel.
