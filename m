@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80B6626EE08
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:25:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3552126ECF1
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:16:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729366AbgIRCQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:16:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45590 "EHLO mail.kernel.org"
+        id S1728704AbgIRCQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:16:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729360AbgIRCQK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:16:10 -0400
+        id S1729369AbgIRCQL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:16:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C00E23600;
-        Fri, 18 Sep 2020 02:16:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B384A23787;
+        Fri, 18 Sep 2020 02:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395369;
-        bh=PWJoFyWXi9FUGuL8u12xFhZ5WsG351DUUpYY5Ucv+F8=;
+        s=default; t=1600395370;
+        bh=JuUO/LAQki3vuHxqPqUSPGw+B0wpIrEOZt7xATwMrwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nIojSqublnLNnBGmoBcwtLlW5eb8jaUIacbjIGV4V5t/M9Ts5z2kwSdUAmwFn7DTE
-         wKTnVr6Brs7D3U+RAlEnRqWj88rwmxjwca387p/dzu667OqeHqDUFpuA+IHUmPHnkk
-         qO/Ja1EUCeRDoT2l+9uMaxpQuwNhJa0pffVIgbtc=
+        b=cW6vxxHnbnQwyAl1s2UhstJ07HldSbN3VlrSU4TOGdpMB8IBhtbbk9NyGZfEL/Z7v
+         nsMJrdfJWK13gSzUftvn9pn8sXlhy8LcyoBzdhazjGCZ0f7c4tuI7htV7/iVCPKdcn
+         e0oBZoXC7u3rT5UvV92BLXT2xb5ePuNUnlQOkndk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xianting Tian <xianting_tian@126.com>,
+Cc:     Jaewon Kim <jaewon31.kim@samsung.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
-        yubin@h3c.com, Linus Torvalds <torvalds@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Michel Lespinasse <walken@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.9 62/90] mm/filemap.c: clear page error before actual read
-Date:   Thu, 17 Sep 2020 22:14:27 -0400
-Message-Id: <20200918021455.2067301-62-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 63/90] mm/mmap.c: initialize align_offset explicitly for vm_unmapped_area
+Date:   Thu, 17 Sep 2020 22:14:28 -0400
+Message-Id: <20200918021455.2067301-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021455.2067301-1-sashal@kernel.org>
 References: <20200918021455.2067301-1-sashal@kernel.org>
@@ -44,145 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting_tian@126.com>
+From: Jaewon Kim <jaewon31.kim@samsung.com>
 
-[ Upstream commit faffdfa04fa11ccf048cebdde73db41ede0679e0 ]
+[ Upstream commit 09ef5283fd96ac424ef0e569626f359bf9ab86c9 ]
 
-Mount failure issue happens under the scenario: Application forked dozens
-of threads to mount the same number of cramfs images separately in docker,
-but several mounts failed with high probability.  Mount failed due to the
-checking result of the page(read from the superblock of loop dev) is not
-uptodate after wait_on_page_locked(page) returned in function cramfs_read:
+On passing requirement to vm_unmapped_area, arch_get_unmapped_area and
+arch_get_unmapped_area_topdown did not set align_offset.  Internally on
+both unmapped_area and unmapped_area_topdown, if info->align_mask is 0,
+then info->align_offset was meaningless.
 
-   wait_on_page_locked(page);
-   if (!PageUptodate(page)) {
-      ...
-   }
+But commit df529cabb7a2 ("mm: mmap: add trace point of
+vm_unmapped_area") always prints info->align_offset even though it is
+uninitialized.
 
-The reason of the checking result of the page not uptodate: systemd-udevd
-read the loopX dev before mount, because the status of loopX is Lo_unbound
-at this time, so loop_make_request directly trigger the calling of io_end
-handler end_buffer_async_read, which called SetPageError(page).  So It
-caused the page can't be set to uptodate in function
-end_buffer_async_read:
+Fix this uninitialized value issue by setting it to 0 explicitly.
 
-   if(page_uptodate && !PageError(page)) {
-      SetPageUptodate(page);
-   }
+Before:
+  vm_unmapped_area: addr=0x755b155000 err=0 total_vm=0x15aaf0 flags=0x1 len=0x109000 lo=0x8000 hi=0x75eed48000 mask=0x0 ofs=0x4022
 
-Then mount operation is performed, it used the same page which is just
-accessed by systemd-udevd above, Because this page is not uptodate, it
-will launch a actual read via submit_bh, then wait on this page by calling
-wait_on_page_locked(page).  When the I/O of the page done, io_end handler
-end_buffer_async_read is called, because no one cleared the page
-error(during the whole read path of mount), which is caused by
-systemd-udevd reading, so this page is still in "PageError" status, which
-can't be set to uptodate in function end_buffer_async_read, then caused
-mount failure.
+After:
+  vm_unmapped_area: addr=0x74a4ca1000 err=0 total_vm=0x168ab1 flags=0x1 len=0x9000 lo=0x8000 hi=0x753d94b000 mask=0x0 ofs=0x0
 
-But sometimes mount succeed even through systemd-udeved read loopX dev
-just before, The reason is systemd-udevd launched other loopX read just
-between step 3.1 and 3.2, the steps as below:
-
-1, loopX dev default status is Lo_unbound;
-2, systemd-udved read loopX dev (page is set to PageError);
-3, mount operation
-   1) set loopX status to Lo_bound;
-   ==>systemd-udevd read loopX dev<==
-   2) read loopX dev(page has no error)
-   3) mount succeed
-
-As the loopX dev status is set to Lo_bound after step 3.1, so the other
-loopX dev read by systemd-udevd will go through the whole I/O stack, part
-of the call trace as below:
-
-   SYS_read
-      vfs_read
-          do_sync_read
-              blkdev_aio_read
-                 generic_file_aio_read
-                     do_generic_file_read:
-                        ClearPageError(page);
-                        mapping->a_ops->readpage(filp, page);
-
-here, mapping->a_ops->readpage() is blkdev_readpage.  In latest kernel,
-some function name changed, the call trace as below:
-
-   blkdev_read_iter
-      generic_file_read_iter
-         generic_file_buffered_read:
-            /*
-             * A previous I/O error may have been due to temporary
-             * failures, eg. mutipath errors.
-             * Pg_error will be set again if readpage fails.
-             */
-            ClearPageError(page);
-            /* Start the actual read. The read will unlock the page*/
-            error=mapping->a_ops->readpage(flip, page);
-
-We can see ClearPageError(page) is called before the actual read,
-then the read in step 3.2 succeed.
-
-This patch is to add the calling of ClearPageError just before the actual
-read of read path of cramfs mount.  Without the patch, the call trace as
-below when performing cramfs mount:
-
-   do_mount
-      cramfs_read
-         cramfs_blkdev_read
-            read_cache_page
-               do_read_cache_page:
-                  filler(data, page);
-                  or
-                  mapping->a_ops->readpage(data, page);
-
-With the patch, the call trace as below when performing mount:
-
-   do_mount
-      cramfs_read
-         cramfs_blkdev_read
-            read_cache_page:
-               do_read_cache_page:
-                  ClearPageError(page); <== new add
-                  filler(data, page);
-                  or
-                  mapping->a_ops->readpage(data, page);
-
-With the patch, mount operation trigger the calling of
-ClearPageError(page) before the actual read, the page has no error if no
-additional page error happen when I/O done.
-
-Signed-off-by: Xianting Tian <xianting_tian@126.com>
+Signed-off-by: Jaewon Kim <jaewon31.kim@samsung.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Jan Kara <jack@suse.cz>
-Cc: <yubin@h3c.com>
-Link: http://lkml.kernel.org/r/1583318844-22971-1-git-send-email-xianting_tian@126.com
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Michel Lespinasse <walken@google.com>
+Cc: Borislav Petkov <bp@suse.de>
+Link: http://lkml.kernel.org/r/20200409094035.19457-1-jaewon31.kim@samsung.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/filemap.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ mm/mmap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/mm/filemap.c b/mm/filemap.c
-index b046d8f147e20..05af91f495f53 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2474,6 +2474,14 @@ filler:
- 		unlock_page(page);
- 		goto out;
- 	}
-+
-+	/*
-+	 * A previous I/O error may have been due to temporary
-+	 * failures.
-+	 * Clear page error before actual read, PG_error will be
-+	 * set again if read page fails.
-+	 */
-+	ClearPageError(page);
- 	goto filler;
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 7109f886e739e..7c8815636c482 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2028,6 +2028,7 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+ 	info.low_limit = mm->mmap_base;
+ 	info.high_limit = TASK_SIZE;
+ 	info.align_mask = 0;
++	info.align_offset = 0;
+ 	return vm_unmapped_area(&info);
+ }
+ #endif
+@@ -2069,6 +2070,7 @@ arch_get_unmapped_area_topdown(struct file *filp, const unsigned long addr0,
+ 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
+ 	info.high_limit = mm->mmap_base;
+ 	info.align_mask = 0;
++	info.align_offset = 0;
+ 	addr = vm_unmapped_area(&info);
  
- out:
+ 	/*
 -- 
 2.25.1
 
