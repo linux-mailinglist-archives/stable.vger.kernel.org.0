@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F0B26EE28
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:26:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F18F26EE24
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:26:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729832AbgIRC0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:26:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45334 "EHLO mail.kernel.org"
+        id S1729323AbgIRCQC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:16:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729320AbgIRCQA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729318AbgIRCQA (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 17 Sep 2020 22:16:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 517032399C;
-        Fri, 18 Sep 2020 02:15:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E3E1239D1;
+        Fri, 18 Sep 2020 02:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395357;
-        bh=muIuyhP/cJjVwo+TG7Ox+ClqqRg1N6YBSaL2OCN8hIk=;
+        s=default; t=1600395358;
+        bh=ts8SWlom9Ok1hRvpZEBIubVtwrk+rjAs3Bi/lvQxV3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1E51t8IgHC2WACRdM5iyYNKtmfKWXogy258U3mDkSkqCQcRwMUAEMUtT+51EkPkNJ
-         5WvLgxt6iIPmu9U3kw7ni05XzY0mdpvd90WrWdbpJt2o8U1+mnEOWv/2CzMQmbvzCj
-         JF4KyVnm9POyqzyXQoyhJJSsZEJwtSTXJnMITkfQ=
+        b=XjA/9KS1qDxrjOvBTcY03ahlhyynLgesFns3y11S1jf7Jo09MXw71SAj5agv6KYh1
+         nbJiyvMSBEyd++wmk6UuYsMRtE1OpNHePcTujXKoFgwH73sgj7PqqP0iSeEcqy9ZHe
+         2dPUpIWTvmq9iAUp/XTFhx5A/p4fl3vY7iH6Lljw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Berger <stefanb@linux.ibm.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        tpmdd-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.9 51/90] tpm: ibmvtpm: Wait for buffer to be set before proceeding
-Date:   Thu, 17 Sep 2020 22:14:16 -0400
-Message-Id: <20200918021455.2067301-51-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 52/90] tracing: Use address-of operator on section symbols
+Date:   Thu, 17 Sep 2020 22:14:17 -0400
+Message-Id: <20200918021455.2067301-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021455.2067301-1-sashal@kernel.org>
 References: <20200918021455.2067301-1-sashal@kernel.org>
@@ -44,77 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit d8d74ea3c00214aee1e1826ca18e77944812b9b4 ]
+[ Upstream commit bf2cbe044da275021b2de5917240411a19e5c50d ]
 
-Synchronize with the results from the CRQs before continuing with
-the initialization. This avoids trying to send TPM commands while
-the rtce buffer has not been allocated, yet.
+Clang warns:
 
-This patch fixes an existing race condition that may occurr if the
-hypervisor does not quickly respond to the VTPM_GET_RTCE_BUFFER_SIZE
-request sent during initialization and therefore the ibmvtpm->rtce_buf
-has not been allocated at the time the first TPM command is sent.
+../kernel/trace/trace.c:9335:33: warning: array comparison always
+evaluates to true [-Wtautological-compare]
+        if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
+                                       ^
+1 warning generated.
 
-Fixes: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM")
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Acked-by: Nayna Jain <nayna@linux.ibm.com>
-Tested-by: Nayna Jain <nayna@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+These are not true arrays, they are linker defined symbols, which are
+just addresses. Using the address of operator silences the warning and
+does not change the runtime result of the check (tested with some print
+statements compiled in with clang + ld.lld and gcc + ld.bfd in QEMU).
+
+Link: http://lkml.kernel.org/r/20200220051011.26113-1-natechancellor@gmail.com
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/893
+Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c | 9 +++++++++
- drivers/char/tpm/tpm_ibmvtpm.h | 1 +
- 2 files changed, 10 insertions(+)
+ kernel/trace/trace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
-index 84eca4f93b828..0fad6cf37bab4 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -550,6 +550,7 @@ static irqreturn_t ibmvtpm_interrupt(int irq, void *vtpm_instance)
- 	 */
- 	while ((crq = ibmvtpm_crq_get_next(ibmvtpm)) != NULL) {
- 		ibmvtpm_crq_process(crq, ibmvtpm);
-+		wake_up_interruptible(&ibmvtpm->crq_queue.wq);
- 		crq->valid = 0;
- 		smp_wmb();
- 	}
-@@ -596,6 +597,7 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
- 	}
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 67cee2774a6b8..2388fb50d1885 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -7696,7 +7696,7 @@ __init static int tracer_alloc_buffers(void)
+ 		goto out_free_buffer_mask;
  
- 	crq_q->num_entry = CRQ_RES_BUF_SIZE / sizeof(*crq_q->crq_addr);
-+	init_waitqueue_head(&crq_q->wq);
- 	ibmvtpm->crq_dma_handle = dma_map_single(dev, crq_q->crq_addr,
- 						 CRQ_RES_BUF_SIZE,
- 						 DMA_BIDIRECTIONAL);
-@@ -648,6 +650,13 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
- 	if (rc)
- 		goto init_irq_cleanup;
+ 	/* Only allocate trace_printk buffers if a trace_printk exists */
+-	if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
++	if (&__stop___trace_bprintk_fmt != &__start___trace_bprintk_fmt)
+ 		/* Must be called before global_trace.buffer is allocated */
+ 		trace_printk_init_buffers();
  
-+	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
-+				ibmvtpm->rtce_buf != NULL,
-+				HZ)) {
-+		dev_err(dev, "CRQ response timed out\n");
-+		goto init_irq_cleanup;
-+	}
-+
- 	return tpm_chip_register(chip);
- init_irq_cleanup:
- 	do {
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
-index 91dfe766d0800..4f6a124601db4 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.h
-+++ b/drivers/char/tpm/tpm_ibmvtpm.h
-@@ -31,6 +31,7 @@ struct ibmvtpm_crq_queue {
- 	struct ibmvtpm_crq *crq_addr;
- 	u32 index;
- 	u32 num_entry;
-+	wait_queue_head_t wq;
- };
- 
- struct ibmvtpm_dev {
 -- 
 2.25.1
 
