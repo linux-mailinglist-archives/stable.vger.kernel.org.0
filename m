@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 222F826ED16
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4084426EDD4
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728824AbgIRCQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:16:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46564 "EHLO mail.kernel.org"
+        id S1727383AbgIRCX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:23:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729440AbgIRCQm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:16:42 -0400
+        id S1729442AbgIRCQq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:16:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90A09238A0;
-        Fri, 18 Sep 2020 02:16:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEA66235F7;
+        Fri, 18 Sep 2020 02:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395402;
-        bh=riTm1g5Y3WFp4sj+q01W+RzDbN8hR5XQOrtSFTUzxlo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n7nvrEz/057eMc2mgnCYDHlqYYSXdWU8CWv8/SP36m1xu6CSPYTphDQfM2F1SVLGA
-         Inl6ISWC/kCjj7YUAY9hwT1tDeIAgl+HDubQHBCVsy+BRaxOVdJHq8Ebq/xLVzkwBd
-         SzD/HUQWYpdKUcGOUEhk+7X8ci6A0ntOpm/SwZxE=
+        s=default; t=1600395405;
+        bh=KZz5/GEJRjnSLNW7zLad0z702KP6WTlUtH0qtgQvhH0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JTttQceD2d5A1M5wTog4h1F1vAKTjD7NoVrc64KO7Tq2EtuWcpO6NRPJFNoohdR1G
+         ZUnyExzsEIL2gR4cg2m39UXOXaePYNuxr4TrJ+R34Y8lW1u6H6uJJcXEC8FpW77cNq
+         9NQR8wIX9EIuOJE7zrSWf1VmJLN97MiRT917d6cs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zeng Tao <prime.zeng@hisilicon.com>, Qian Cai <cai@lca.pw>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 90/90] vfio/pci: fix racy on error and request eventfd ctx
-Date:   Thu, 17 Sep 2020 22:14:55 -0400
-Message-Id: <20200918021455.2067301-90-sashal@kernel.org>
+Cc:     Balsundar P <balsundar.p@microsemi.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 01/64] scsi: aacraid: fix illegal IO beyond last LBA
+Date:   Thu, 17 Sep 2020 22:15:40 -0400
+Message-Id: <20200918021643.2067895-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200918021455.2067301-1-sashal@kernel.org>
-References: <20200918021455.2067301-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,120 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zeng Tao <prime.zeng@hisilicon.com>
+From: Balsundar P <balsundar.p@microsemi.com>
 
-[ Upstream commit b872d0640840018669032b20b6375a478ed1f923 ]
+[ Upstream commit c86fbe484c10b2cd1e770770db2d6b2c88801c1d ]
 
-The vfio_pci_release call will free and clear the error and request
-eventfd ctx while these ctx could be in use at the same time in the
-function like vfio_pci_request, and it's expected to protect them under
-the vdev->igate mutex, which is missing in vfio_pci_release.
+The driver fails to handle data when read or written beyond device reported
+LBA, which triggers kernel panic
 
-This issue is introduced since commit 1518ac272e78 ("vfio/pci: fix memory
-leaks of eventfd ctx"),and since commit 5c5866c593bb ("vfio/pci: Clear
-error and request eventfd ctx after releasing"), it's very easily to
-trigger the kernel panic like this:
-
-[ 9513.904346] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
-[ 9513.913091] Mem abort info:
-[ 9513.915871]   ESR = 0x96000006
-[ 9513.918912]   EC = 0x25: DABT (current EL), IL = 32 bits
-[ 9513.924198]   SET = 0, FnV = 0
-[ 9513.927238]   EA = 0, S1PTW = 0
-[ 9513.930364] Data abort info:
-[ 9513.933231]   ISV = 0, ISS = 0x00000006
-[ 9513.937048]   CM = 0, WnR = 0
-[ 9513.940003] user pgtable: 4k pages, 48-bit VAs, pgdp=0000007ec7d12000
-[ 9513.946414] [0000000000000008] pgd=0000007ec7d13003, p4d=0000007ec7d13003, pud=0000007ec728c003, pmd=0000000000000000
-[ 9513.956975] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[ 9513.962521] Modules linked in: vfio_pci vfio_virqfd vfio_iommu_type1 vfio hclge hns3 hnae3 [last unloaded: vfio_pci]
-[ 9513.972998] CPU: 4 PID: 1327 Comm: bash Tainted: G        W         5.8.0-rc4+ #3
-[ 9513.980443] Hardware name: Huawei TaiShan 2280 V2/BC82AMDC, BIOS 2280-V2 CS V3.B270.01 05/08/2020
-[ 9513.989274] pstate: 80400089 (Nzcv daIf +PAN -UAO BTYPE=--)
-[ 9513.994827] pc : _raw_spin_lock_irqsave+0x48/0x88
-[ 9513.999515] lr : eventfd_signal+0x6c/0x1b0
-[ 9514.003591] sp : ffff800038a0b960
-[ 9514.006889] x29: ffff800038a0b960 x28: ffff007ef7f4da10
-[ 9514.012175] x27: ffff207eefbbfc80 x26: ffffbb7903457000
-[ 9514.017462] x25: ffffbb7912191000 x24: ffff007ef7f4d400
-[ 9514.022747] x23: ffff20be6e0e4c00 x22: 0000000000000008
-[ 9514.028033] x21: 0000000000000000 x20: 0000000000000000
-[ 9514.033321] x19: 0000000000000008 x18: 0000000000000000
-[ 9514.038606] x17: 0000000000000000 x16: ffffbb7910029328
-[ 9514.043893] x15: 0000000000000000 x14: 0000000000000001
-[ 9514.049179] x13: 0000000000000000 x12: 0000000000000002
-[ 9514.054466] x11: 0000000000000000 x10: 0000000000000a00
-[ 9514.059752] x9 : ffff800038a0b840 x8 : ffff007ef7f4de60
-[ 9514.065038] x7 : ffff007fffc96690 x6 : fffffe01faffb748
-[ 9514.070324] x5 : 0000000000000000 x4 : 0000000000000000
-[ 9514.075609] x3 : 0000000000000000 x2 : 0000000000000001
-[ 9514.080895] x1 : ffff007ef7f4d400 x0 : 0000000000000000
-[ 9514.086181] Call trace:
-[ 9514.088618]  _raw_spin_lock_irqsave+0x48/0x88
-[ 9514.092954]  eventfd_signal+0x6c/0x1b0
-[ 9514.096691]  vfio_pci_request+0x84/0xd0 [vfio_pci]
-[ 9514.101464]  vfio_del_group_dev+0x150/0x290 [vfio]
-[ 9514.106234]  vfio_pci_remove+0x30/0x128 [vfio_pci]
-[ 9514.111007]  pci_device_remove+0x48/0x108
-[ 9514.115001]  device_release_driver_internal+0x100/0x1b8
-[ 9514.120200]  device_release_driver+0x28/0x38
-[ 9514.124452]  pci_stop_bus_device+0x68/0xa8
-[ 9514.128528]  pci_stop_and_remove_bus_device+0x20/0x38
-[ 9514.133557]  pci_iov_remove_virtfn+0xb4/0x128
-[ 9514.137893]  sriov_disable+0x3c/0x108
-[ 9514.141538]  pci_disable_sriov+0x28/0x38
-[ 9514.145445]  hns3_pci_sriov_configure+0x48/0xb8 [hns3]
-[ 9514.150558]  sriov_numvfs_store+0x110/0x198
-[ 9514.154724]  dev_attr_store+0x44/0x60
-[ 9514.158373]  sysfs_kf_write+0x5c/0x78
-[ 9514.162018]  kernfs_fop_write+0x104/0x210
-[ 9514.166010]  __vfs_write+0x48/0x90
-[ 9514.169395]  vfs_write+0xbc/0x1c0
-[ 9514.172694]  ksys_write+0x74/0x100
-[ 9514.176079]  __arm64_sys_write+0x24/0x30
-[ 9514.179987]  el0_svc_common.constprop.4+0x110/0x200
-[ 9514.184842]  do_el0_svc+0x34/0x98
-[ 9514.188144]  el0_svc+0x14/0x40
-[ 9514.191185]  el0_sync_handler+0xb0/0x2d0
-[ 9514.195088]  el0_sync+0x140/0x180
-[ 9514.198389] Code: b9001020 d2800000 52800022 f9800271 (885ffe61)
-[ 9514.204455] ---[ end trace 648de00c8406465f ]---
-[ 9514.212308] note: bash[1327] exited with preempt_count 1
-
-Cc: Qian Cai <cai@lca.pw>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Fixes: 1518ac272e78 ("vfio/pci: fix memory leaks of eventfd ctx")
-Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Link: https://lore.kernel.org/r/1571120524-6037-2-git-send-email-balsundar.p@microsemi.com
+Signed-off-by: Balsundar P <balsundar.p@microsemi.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/scsi/aacraid/aachba.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index c08cff0ca08df..237d5aceb302d 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -392,14 +392,19 @@ static void vfio_pci_release(void *device_data)
- 	if (!(--vdev->refcnt)) {
- 		vfio_spapr_pci_eeh_release(vdev->pdev);
- 		vfio_pci_disable(vdev);
-+		mutex_lock(&vdev->igate);
- 		if (vdev->err_trigger) {
- 			eventfd_ctx_put(vdev->err_trigger);
- 			vdev->err_trigger = NULL;
- 		}
-+		mutex_unlock(&vdev->igate);
-+
-+		mutex_lock(&vdev->igate);
- 		if (vdev->req_trigger) {
- 			eventfd_ctx_put(vdev->req_trigger);
- 			vdev->req_trigger = NULL;
- 		}
-+		mutex_unlock(&vdev->igate);
+diff --git a/drivers/scsi/aacraid/aachba.c b/drivers/scsi/aacraid/aachba.c
+index de33801ca31ea..0614d05a990a6 100644
+--- a/drivers/scsi/aacraid/aachba.c
++++ b/drivers/scsi/aacraid/aachba.c
+@@ -1938,13 +1938,13 @@ static int aac_read(struct scsi_cmnd * scsicmd)
+ 		scsicmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8 |
+ 			SAM_STAT_CHECK_CONDITION;
+ 		set_sense(&dev->fsa_dev[cid].sense_data,
+-			  HARDWARE_ERROR, SENCODE_INTERNAL_TARGET_FAILURE,
++			  ILLEGAL_REQUEST, SENCODE_LBA_OUT_OF_RANGE,
+ 			  ASENCODE_INTERNAL_TARGET_FAILURE, 0, 0);
+ 		memcpy(scsicmd->sense_buffer, &dev->fsa_dev[cid].sense_data,
+ 		       min_t(size_t, sizeof(dev->fsa_dev[cid].sense_data),
+ 			     SCSI_SENSE_BUFFERSIZE));
+ 		scsicmd->scsi_done(scsicmd);
+-		return 1;
++		return 0;
  	}
  
- 	mutex_unlock(&driver_lock);
+ 	dprintk((KERN_DEBUG "aac_read[cpu %d]: lba = %llu, t = %ld.\n",
+@@ -2035,13 +2035,13 @@ static int aac_write(struct scsi_cmnd * scsicmd)
+ 		scsicmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8 |
+ 			SAM_STAT_CHECK_CONDITION;
+ 		set_sense(&dev->fsa_dev[cid].sense_data,
+-			  HARDWARE_ERROR, SENCODE_INTERNAL_TARGET_FAILURE,
++			  ILLEGAL_REQUEST, SENCODE_LBA_OUT_OF_RANGE,
+ 			  ASENCODE_INTERNAL_TARGET_FAILURE, 0, 0);
+ 		memcpy(scsicmd->sense_buffer, &dev->fsa_dev[cid].sense_data,
+ 		       min_t(size_t, sizeof(dev->fsa_dev[cid].sense_data),
+ 			     SCSI_SENSE_BUFFERSIZE));
+ 		scsicmd->scsi_done(scsicmd);
+-		return 1;
++		return 0;
+ 	}
+ 
+ 	dprintk((KERN_DEBUG "aac_write[cpu %d]: lba = %llu, t = %ld.\n",
 -- 
 2.25.1
 
