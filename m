@@ -2,34 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A07C26ECB4
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8431426ECBD
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729022AbgIRCOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:14:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41764 "EHLO mail.kernel.org"
+        id S1729076AbgIRCO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:14:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728031AbgIRCOB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:14:01 -0400
+        id S1728190AbgIRCOP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:14:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A664E2399C;
-        Fri, 18 Sep 2020 02:13:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AACF8239E5;
+        Fri, 18 Sep 2020 02:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395234;
-        bh=tuojgmS46utuo0qPVhvteAxqUcE65vAv9kEyAtWaweQ=;
+        s=default; t=1600395254;
+        bh=/XHGCzAB/FTa+gGNhK2elMfk4FIE+JYjTVaK8RQbqr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k7dMtuPeLDFyCFY98m8EIyj+jBlWArx2BHo7yviU2UMV8/dqyWki1BhSpfV0jYmqV
-         VxQqFuY6CV/YJonKomPzLy3B/Iu4FNIeOH3k6hHLlW29HW7aDaY94TQFoo3IHXwxzI
-         PNPIvswMW21ymxQM8az0EY4opWi1m9SeYcVsOHXA=
+        b=DGsUuKeWLuBTrV5Ij1bU71e76rfVBJ15RwNAMVFBzGaT/0+eh1O/nn57zQBjj56+V
+         ztLEOo3AI7iRmFg1F772yuL3FWicao0CVX5rT/vI4H+zWR3cozFnTGFR9zNSF3zKs7
+         SYOlkR3Csv2K+dAjQ6YYj3G20AZ4oggcRuYW3WUY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Steinmetz <ast@domdv.de>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 079/127] ALSA: usb-audio: Fix case when USB MIDI interface has more than one extra endpoint descriptor
-Date:   Thu, 17 Sep 2020 22:11:32 -0400
-Message-Id: <20200918021220.2066485-79-sashal@kernel.org>
+Cc:     Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Leo Yan <leo.yan@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        clang-built-linux@googlegroups.com,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 095/127] perf parse-events: Fix memory leaks found on parse_events
+Date:   Thu, 17 Sep 2020 22:11:48 -0400
+Message-Id: <20200918021220.2066485-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -41,78 +50,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Steinmetz <ast@domdv.de>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit 5c6cd7021a05a02fcf37f360592d7c18d4d807fb ]
+[ Upstream commit e8dfb81838b14f82521968343884665b996646ef ]
 
-The Miditech MIDIFACE 16x16 (USB ID 1290:1749) has more than one extra
-endpoint descriptor.
+Fix a memory leak found by applying LLVM's libfuzzer on parse_events().
 
-The first extra descriptor is: 0x06 0x30 0x00 0x00 0x00 0x00
-
-As the code in snd_usbmidi_get_ms_info() looks only at the
-first extra descriptor to find USB_DT_CS_ENDPOINT the device
-as such is recognized but there is neither input nor output
-configured.
-
-The patch iterates through the extra descriptors to find the
-proper one. With this patch the device is correctly configured.
-
-Signed-off-by: Andreas Steinmetz <ast@domdv.de>
-Link: https://lore.kernel.org/r/1c3b431a86f69e1d60745b6110cdb93c299f120b.camel@domdv.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: clang-built-linux@googlegroups.com
+Link: http://lore.kernel.org/lkml/20200319023101.82458-1-irogers@google.com
+[ split from a larger patch, use zfree() ]
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/midi.c | 29 ++++++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+ tools/perf/util/parse-events.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/usb/midi.c b/sound/usb/midi.c
-index 1bfae7a1c32f1..a3d1c0c1b4a67 100644
---- a/sound/usb/midi.c
-+++ b/sound/usb/midi.c
-@@ -1805,6 +1805,28 @@ static int snd_usbmidi_create_endpoints(struct snd_usb_midi *umidi,
- 	return 0;
- }
+diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
+index 096c52f296d77..2733cdfdf04c6 100644
+--- a/tools/perf/util/parse-events.c
++++ b/tools/perf/util/parse-events.c
+@@ -1258,6 +1258,7 @@ static int __parse_events_add_pmu(struct parse_events_state *parse_state,
  
-+static struct usb_ms_endpoint_descriptor *find_usb_ms_endpoint_descriptor(
-+					struct usb_host_endpoint *hostep)
-+{
-+	unsigned char *extra = hostep->extra;
-+	int extralen = hostep->extralen;
-+
-+	while (extralen > 3) {
-+		struct usb_ms_endpoint_descriptor *ms_ep =
-+				(struct usb_ms_endpoint_descriptor *)extra;
-+
-+		if (ms_ep->bLength > 3 &&
-+		    ms_ep->bDescriptorType == USB_DT_CS_ENDPOINT &&
-+		    ms_ep->bDescriptorSubtype == UAC_MS_GENERAL)
-+			return ms_ep;
-+		if (!extra[0])
-+			break;
-+		extralen -= extra[0];
-+		extra += extra[0];
-+	}
-+	return NULL;
-+}
-+
- /*
-  * Returns MIDIStreaming device capabilities.
-  */
-@@ -1842,11 +1864,8 @@ static int snd_usbmidi_get_ms_info(struct snd_usb_midi *umidi,
- 		ep = get_ep_desc(hostep);
- 		if (!usb_endpoint_xfer_bulk(ep) && !usb_endpoint_xfer_int(ep))
- 			continue;
--		ms_ep = (struct usb_ms_endpoint_descriptor *)hostep->extra;
--		if (hostep->extralen < 4 ||
--		    ms_ep->bLength < 4 ||
--		    ms_ep->bDescriptorType != USB_DT_CS_ENDPOINT ||
--		    ms_ep->bDescriptorSubtype != UAC_MS_GENERAL)
-+		ms_ep = find_usb_ms_endpoint_descriptor(hostep);
-+		if (!ms_ep)
- 			continue;
- 		if (usb_endpoint_dir_out(ep)) {
- 			if (endpoints[epidx].out_ep) {
+ 		list_for_each_entry_safe(pos, tmp, &config_terms, list) {
+ 			list_del_init(&pos->list);
++			zfree(&pos->val.str);
+ 			free(pos);
+ 		}
+ 		return -EINVAL;
 -- 
 2.25.1
 
