@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C54C526EAFA
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:03:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96DA626EB00
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726705AbgIRCCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:02:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47242 "EHLO mail.kernel.org"
+        id S1726757AbgIRCCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:02:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726698AbgIRCCO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:02:14 -0400
+        id S1726746AbgIRCC3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:02:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1E062311B;
-        Fri, 18 Sep 2020 02:02:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C91F323741;
+        Fri, 18 Sep 2020 02:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394534;
-        bh=pRNGbiRoRgPMYVV1IBDeNhpUaUDuxTENbvyEKeYl//k=;
+        s=default; t=1600394547;
+        bh=gIhC3ilpTfqrolrhepjUWk2QSeVf3R4QWY5CuNHCfWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fH4wSrX+n/8JKSb8ofsSpdml8sg1f2ioLk+vzVI8gf0sG9uXezurcpKtYwE3BMXr9
-         XlrgidgmHQg85XZ0K/ZZD2lch3CD8c0ne4+OnEWAr3e4kXZ3Uc20iGAbcuJrJVSO9w
-         Ggq7QRtCKkk+sSVpzGvSqppiYAIfzV+y96/uwuLo=
+        b=LOO6QKLYLr+xCVL7uFXInMt1joP5edQIJgjXgL65MsZFwzRwxA20BdOPyJtlqfuqf
+         SjndfXVgQAUT26vyPFq7xCqMoGbmLKxiBe5uKR0iudcv38w41+GVOcEJCxh0FS1Mgm
+         tMHZQO6F2Mpn3z7rWmwvwsC9i379ySgVs6u+EL4k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 053/330] RDMA/iw_cgxb4: Fix an error handling path in 'c4iw_connect()'
-Date:   Thu, 17 Sep 2020 21:56:33 -0400
-Message-Id: <20200918020110.2063155-53-sashal@kernel.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Ramon Pantin <pantin@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.4 064/330] f2fs: stop GC when the victim becomes fully valid
+Date:   Thu, 17 Sep 2020 21:56:44 -0400
+Message-Id: <20200918020110.2063155-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -42,42 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 9067f2f0b41d7e817fc8c5259bab1f17512b0147 ]
+[ Upstream commit 803e74be04b32f7785742dcabfc62116718fbb06 ]
 
-We should jump to fail3 in order to undo the 'xa_insert_irq()' call.
+We must stop GC, once the segment becomes fully valid. Otherwise, it can
+produce another dirty segments by moving valid blocks in the segment partially.
 
-Link: https://lore.kernel.org/r/20190923190746.10964-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Ramon hit no free segment panic sometimes and saw this case happens when
+validating reliable file pinning feature.
+
+Signed-off-by: Ramon Pantin <pantin@google.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/f2fs/gc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index 6b4e7235d2f56..30e08bcc9afb5 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -3382,7 +3382,7 @@ int c4iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
- 		if (raddr->sin_addr.s_addr == htonl(INADDR_ANY)) {
- 			err = pick_local_ipaddrs(dev, cm_id);
- 			if (err)
--				goto fail2;
-+				goto fail3;
- 		}
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index e611d768efde3..a78aa5480454f 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1012,8 +1012,14 @@ next_step:
+ 		block_t start_bidx;
+ 		nid_t nid = le32_to_cpu(entry->nid);
  
- 		/* find a route */
-@@ -3404,7 +3404,7 @@ int c4iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
- 		if (ipv6_addr_type(&raddr6->sin6_addr) == IPV6_ADDR_ANY) {
- 			err = pick_local_ip6addrs(dev, cm_id);
- 			if (err)
--				goto fail2;
-+				goto fail3;
- 		}
+-		/* stop BG_GC if there is not enough free sections. */
+-		if (gc_type == BG_GC && has_not_enough_free_secs(sbi, 0, 0))
++		/*
++		 * stop BG_GC if there is not enough free sections.
++		 * Or, stop GC if the segment becomes fully valid caused by
++		 * race condition along with SSR block allocation.
++		 */
++		if ((gc_type == BG_GC && has_not_enough_free_secs(sbi, 0, 0)) ||
++				get_valid_blocks(sbi, segno, false) ==
++							sbi->blocks_per_seg)
+ 			return submitted;
  
- 		/* find a route */
+ 		if (check_valid_map(sbi, segno, off) == 0)
 -- 
 2.25.1
 
