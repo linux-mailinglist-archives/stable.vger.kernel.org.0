@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A184B26EEF0
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:32:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC7826EEF9
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:32:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729929AbgIRCcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729777AbgIRCcB (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42006 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729039AbgIRCOI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:14:08 -0400
+        id S1729020AbgIRCOJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:14:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 408B323787;
-        Fri, 18 Sep 2020 02:14:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A8C2238E6;
+        Fri, 18 Sep 2020 02:14:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395247;
-        bh=/bcd0jQMlT29A2Sh5lZOPbG+3Nq5bj6MKELIeujLM9E=;
+        s=default; t=1600395248;
+        bh=lVG0d6wPGSDQKOc16I8PEI+vekJhX9d2zaV6R5LF1jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRv7s5EgAoptQtTcB6JDSTMpU+MYBfI5XgwyzJLUtieWqWx7NcEvSKnuPuPgwRLPp
-         FogaqRxMv61pPsbeXkqaSELT61DmXQzaFKqgYPkNKZVBpeVm1NEAfVR04RJ9FmLm4l
-         LAayilYviK8S6s21FjLULHfrM/K55dsGISVGHtxg=
+        b=qzQjCV38t0ILxhbl/T9Q5+WcESeJn3B5dqMZzMhPKyo5kMdvhGwbBZIh25PaLUfBk
+         kw9c36VxG1r85+SlCDmTERWKgP7zJw/fWDRPIZ8/L4bORWZomUE9qr8Jia00zJ4Oq7
+         v+Z7kBryvxO4m9hHuMRnjnsd6OKiv3vuquZRyHSE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ivan Safonov <insafonov@gmail.com>,
+Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.14 090/127] staging:r8188eu: avoid skb_clone for amsdu to msdu conversion
-Date:   Thu, 17 Sep 2020 22:11:43 -0400
-Message-Id: <20200918021220.2066485-90-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 091/127] sparc64: vcc: Fix error return code in vcc_probe()
+Date:   Thu, 17 Sep 2020 22:11:44 -0400
+Message-Id: <20200918021220.2066485-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -42,53 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Safonov <insafonov@gmail.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 628cbd971a927abe6388d44320e351c337b331e4 ]
+[ Upstream commit ff62255a2a5c1228a28f2bb063646f948115a309 ]
 
-skb clones use same data buffer,
-so tail of one skb is corrupted by beginning of next skb.
+Fix to return negative error code -ENOMEM from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Signed-off-by: Ivan Safonov <insafonov@gmail.com>
-Link: https://lore.kernel.org/r/20200423191404.12028-1-insafonov@gmail.com
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20200427122415.47416-1-weiyongjun1@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8188eu/core/rtw_recv.c | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ drivers/tty/vcc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/rtl8188eu/core/rtw_recv.c b/drivers/staging/rtl8188eu/core/rtw_recv.c
-index afb9dadc1cfe9..77685bae21eda 100644
---- a/drivers/staging/rtl8188eu/core/rtw_recv.c
-+++ b/drivers/staging/rtl8188eu/core/rtw_recv.c
-@@ -1541,21 +1541,14 @@ static int amsdu_to_msdu(struct adapter *padapter, struct recv_frame *prframe)
+diff --git a/drivers/tty/vcc.c b/drivers/tty/vcc.c
+index ef01d24858cd6..4e795353192bc 100644
+--- a/drivers/tty/vcc.c
++++ b/drivers/tty/vcc.c
+@@ -612,6 +612,7 @@ static int vcc_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+ 	port->index = vcc_table_add(port);
+ 	if (port->index == -1) {
+ 		pr_err("VCC: no more TTY indices left for allocation\n");
++		rv = -ENOMEM;
+ 		goto free_ldc;
+ 	}
  
- 		/* Allocate new skb for releasing to upper layer */
- 		sub_skb = dev_alloc_skb(nSubframe_Length + 12);
--		if (sub_skb) {
--			skb_reserve(sub_skb, 12);
--			skb_put_data(sub_skb, pdata, nSubframe_Length);
--		} else {
--			sub_skb = skb_clone(prframe->pkt, GFP_ATOMIC);
--			if (sub_skb) {
--				sub_skb->data = pdata;
--				sub_skb->len = nSubframe_Length;
--				skb_set_tail_pointer(sub_skb, nSubframe_Length);
--			} else {
--				DBG_88E("skb_clone() Fail!!! , nr_subframes=%d\n", nr_subframes);
--				break;
--			}
-+		if (!sub_skb) {
-+			DBG_88E("dev_alloc_skb() Fail!!! , nr_subframes=%d\n", nr_subframes);
-+			break;
- 		}
- 
-+		skb_reserve(sub_skb, 12);
-+		skb_put_data(sub_skb, pdata, nSubframe_Length);
-+
- 		subframes[nr_subframes++] = sub_skb;
- 
- 		if (nr_subframes >= MAX_SUBFRAME_COUNT) {
 -- 
 2.25.1
 
