@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C60A926F328
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:04:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A58326F31D
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727599AbgIRDEn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:04:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52352 "EHLO mail.kernel.org"
+        id S1729051AbgIRDEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:04:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727364AbgIRCEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:04:42 -0400
+        id S1726382AbgIRCEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:04:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C55123741;
-        Fri, 18 Sep 2020 02:04:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EDFD23731;
+        Fri, 18 Sep 2020 02:04:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394681;
-        bh=6h79j8puL8SLvyo0lXEikZ6F+2drafI4FcFwqp8XkYI=;
+        s=default; t=1600394682;
+        bh=a3KtIY3zS5tFGMw/4re3J0MkdSRhsoocIYujeU5Ijgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2X2HGwOBK4ld9QFwqt4W6tjlM2L8hNmHnijgIu5cosUCGMTwSUeCo+brNAWbafUa
-         zJ7Iyag7edODvgAWveOFDvKK8T+K+AH9yhdkHVmXjfkQPpALP5vuVQGNXpDyfGZuc6
-         UiY3Zt0pxMUcvNz9UKLcnPBH17wBxtPSJQStoTr4=
+        b=rSYmj3Rd09vzCtk6Y1ljYdeR93aknvKd7cuijxdq0G5zi7cmkn82yGEJG5VQraqmu
+         pV9uStMslnO188s7iaulFw/TvtjYndjETYv9FKAMbgdN8BN0wsJnxEfsLa4Xpbi25h
+         wyArt+A5YrexKNgxrkCFVvYx28wZW+ekz2LWPhGM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
         Dave Chinner <dchinner@redhat.com>,
         Sasha Levin <sashal@kernel.org>, xfs@oss.sgi.com
-Subject: [PATCH AUTOSEL 5.4 171/330] xfs: don't ever return a stale pointer from __xfs_dir3_free_read
-Date:   Thu, 17 Sep 2020 21:58:31 -0400
-Message-Id: <20200918020110.2063155-171-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 172/330] xfs: mark dir corrupt when lookup-by-hash fails
+Date:   Thu, 17 Sep 2020 21:58:32 -0400
+Message-Id: <20200918020110.2063155-172-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -44,37 +44,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit 1cb5deb5bc095c070c09a4540c45f9c9ba24be43 ]
+[ Upstream commit 2e107cf869eecc770e3f630060bb4e5f547d0fd8 ]
 
-If we decide that a directory free block is corrupt, we must take care
-not to leak a buffer pointer to the caller.  After xfs_trans_brelse
-returns, the buffer can be freed or reused, which means that we have to
-set *bpp back to NULL.
+In xchk_dir_actor, we attempt to validate the directory hash structures
+by performing a directory entry lookup by (hashed) name.  If the lookup
+returns ENOENT, that means that the hash information is corrupt.  The
+_process_error functions don't catch this, so we have to add that
+explicitly.
 
-Callers are supposed to notice the nonzero return value and not use the
-buffer pointer, but we should code more defensively, even if all current
-callers handle this situation correctly.
-
-Fixes: de14c5f541e7 ("xfs: verify free block header fields")
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_dir2_node.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/xfs/scrub/dir.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/xfs/libxfs/xfs_dir2_node.c b/fs/xfs/libxfs/xfs_dir2_node.c
-index 705c4f5627582..99d5b2ed67f2e 100644
---- a/fs/xfs/libxfs/xfs_dir2_node.c
-+++ b/fs/xfs/libxfs/xfs_dir2_node.c
-@@ -210,6 +210,7 @@ __xfs_dir3_free_read(
- 	if (fa) {
- 		xfs_verifier_error(*bpp, -EFSCORRUPTED, fa);
- 		xfs_trans_brelse(tp, *bpp);
-+		*bpp = NULL;
- 		return -EFSCORRUPTED;
- 	}
+diff --git a/fs/xfs/scrub/dir.c b/fs/xfs/scrub/dir.c
+index 1e2e11721eb99..20eca2d8e7c77 100644
+--- a/fs/xfs/scrub/dir.c
++++ b/fs/xfs/scrub/dir.c
+@@ -152,6 +152,9 @@ xchk_dir_actor(
+ 	xname.type = XFS_DIR3_FT_UNKNOWN;
  
+ 	error = xfs_dir_lookup(sdc->sc->tp, ip, &xname, &lookup_ino, NULL);
++	/* ENOENT means the hash lookup failed and the dir is corrupt */
++	if (error == -ENOENT)
++		error = -EFSCORRUPTED;
+ 	if (!xchk_fblock_process_error(sdc->sc, XFS_DATA_FORK, offset,
+ 			&error))
+ 		goto out;
 -- 
 2.25.1
 
