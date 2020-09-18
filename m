@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEBD126ED11
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD7D26EDFE
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:25:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728315AbgIRCQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:16:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46022 "EHLO mail.kernel.org"
+        id S1727691AbgIRCZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:25:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728750AbgIRCQX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:16:23 -0400
+        id S1729398AbgIRCQY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:16:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1D202396E;
-        Fri, 18 Sep 2020 02:16:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D9FA23787;
+        Fri, 18 Sep 2020 02:16:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395383;
-        bh=eiz7aoc8IANfM5Zam+W3qobqu1VmS3mANYdwlS2WVIc=;
+        s=default; t=1600395384;
+        bh=hW6fRqiJnoP0f/soN1MX0TjBN2a7bTw19nIOCeIaSt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JI8RTCMGN/STIMSraZM4CNCmYKbmyw0pPnxYtkK90mt7CxHe3mGvsJLqO+GM6zZrO
-         G0C6FEaCBuiw8Wpm75YM0yxKUl0EfmpXvmop8T0AhaIClx70nSMCezYgXbCGZgd63D
-         8LgxLK20Jr5rbgwElYiy54d2umEZQgPurR8MvbDI=
+        b=pPvbVm3Qpr5+0jD79tIkHRts26zDPXG0rAuR5I2hYMZ+x7OVcdF/DAUnPxWPVxLYo
+         IUVCrYP9JuoMnd/dVZ/kaotYfUFu/PAd9Ee7RjgZiPRXghs7E2FEJtL5lG4T7ZsPm6
+         BK/vc57z+4nmSyMkcwREPEExrlnhV0CpIVPVEGw8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.9 74/90] ALSA: hda: Fix potential race in unsol event handler
-Date:   Thu, 17 Sep 2020 22:14:39 -0400
-Message-Id: <20200918021455.2067301-74-sashal@kernel.org>
+Cc:     Miklos Szeredi <mszeredi@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        fuse-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.9 75/90] fuse: don't check refcount after stealing page
+Date:   Thu, 17 Sep 2020 22:14:40 -0400
+Message-Id: <20200918021455.2067301-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021455.2067301-1-sashal@kernel.org>
 References: <20200918021455.2067301-1-sashal@kernel.org>
@@ -41,53 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit c637fa151259c0f74665fde7cba5b7eac1417ae5 ]
+[ Upstream commit 32f98877c57bee6bc27f443a96f49678a2cd6a50 ]
 
-The unsol event handling code has a loop retrieving the read/write
-indices and the arrays without locking while the append to the array
-may happen concurrently.  This may lead to some inconsistency.
-Although there hasn't been any proof of this bad results, it's still
-safer to protect the racy accesses.
+page_count() is unstable.  Unless there has been an RCU grace period
+between when the page was removed from the page cache and now, a
+speculative reference may exist from the page cache.
 
-This patch adds the spinlock protection around the unsol handling loop
-for addressing it.  Here we take bus->reg_lock as the writer side
-snd_hdac_bus_queue_event() is also protected by that lock.
-
-Link: https://lore.kernel.org/r/20200516062556.30951-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdac_bus.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/fuse/dev.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/hda/hdac_bus.c b/sound/hda/hdac_bus.c
-index 0e81ea89a5965..e3f68a76d90eb 100644
---- a/sound/hda/hdac_bus.c
-+++ b/sound/hda/hdac_bus.c
-@@ -155,6 +155,7 @@ static void process_unsol_events(struct work_struct *work)
- 	struct hdac_driver *drv;
- 	unsigned int rp, caddr, res;
- 
-+	spin_lock_irq(&bus->reg_lock);
- 	while (bus->unsol_rp != bus->unsol_wp) {
- 		rp = (bus->unsol_rp + 1) % HDA_UNSOL_QUEUE_SIZE;
- 		bus->unsol_rp = rp;
-@@ -166,10 +167,13 @@ static void process_unsol_events(struct work_struct *work)
- 		codec = bus->caddr_tbl[caddr & 0x0f];
- 		if (!codec || !codec->dev.driver)
- 			continue;
-+		spin_unlock_irq(&bus->reg_lock);
- 		drv = drv_to_hdac_driver(codec->dev.driver);
- 		if (drv->unsol_event)
- 			drv->unsol_event(codec, res);
-+		spin_lock_irq(&bus->reg_lock);
- 	}
-+	spin_unlock_irq(&bus->reg_lock);
- }
- 
- /**
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index b99225e117120..f0129c033bd66 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -825,7 +825,6 @@ static int fuse_check_page(struct page *page)
+ {
+ 	if (page_mapcount(page) ||
+ 	    page->mapping != NULL ||
+-	    page_count(page) != 1 ||
+ 	    (page->flags & PAGE_FLAGS_CHECK_AT_PREP &
+ 	     ~(1 << PG_locked |
+ 	       1 << PG_referenced |
 -- 
 2.25.1
 
