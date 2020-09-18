@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B0CB26EEB3
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:30:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9660D26EE92
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:29:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728509AbgIRCaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:30:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43188 "EHLO mail.kernel.org"
+        id S1727131AbgIRCPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729109AbgIRCOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:14:48 -0400
+        id S1728384AbgIRCOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:14:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEE8423976;
-        Fri, 18 Sep 2020 02:14:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E4BE239A1;
+        Fri, 18 Sep 2020 02:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395287;
-        bh=BxAR5DR8sOCt1ML4LtPIcTgM9jluZ75FBve6Fih/zyY=;
+        s=default; t=1600395289;
+        bh=q4MqQEMeVjXUteqrkCzOYQn50fCqKwcytNOP0ZMrXrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFs2VtC35OuO1YGPgb56uqssuAlIw4OFxU445n689IGYelBMj+3UKyphpoFR30JhU
-         gDxJ1j1wvKrORBZVvuhaQx0LMreNfJGqaM+i/5VZKusdHv7cnUWW5VMKsKLV+LNU0x
-         QgmEorDJNsIbVW9Mv55Dm9eqq2Oh8Pj1ftERoSJA=
+        b=hVYNGLhTbkpfzlsgaAJgquve3ac+L0pYJF7ZgPq9kHwZLNVQx7yUUkyLeoVc/t02s
+         rljZc4YvbyreB3xxvY1sP69NJ1OAgfKtzBVgfKAEVVxiA/nhWWMz1rDpXRK1WoAgt+
+         mrDt75CjMXttyh3HMPBrm/vebyt/ZK6WF9sko6dM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.14 122/127] cifs: Fix double add page to memcg when cifs_readpages
-Date:   Thu, 17 Sep 2020 22:12:15 -0400
-Message-Id: <20200918021220.2066485-122-sashal@kernel.org>
+Cc:     Javed Hasan <jhasan@marvell.com>,
+        Girish Basrur <gbasrur@marvell.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Shyam Sundar <ssundar@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, fcoe-devel@open-fcoe.org,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 123/127] scsi: libfc: Handling of extra kref
+Date:   Thu, 17 Sep 2020 22:12:16 -0400
+Message-Id: <20200918021220.2066485-123-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -45,143 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Javed Hasan <jhasan@marvell.com>
 
-[ Upstream commit 95a3d8f3af9b0d63b43f221b630beaab9739d13a ]
+[ Upstream commit 71f2bf85e90d938d4a9ef9dd9bfa8d9b0b6a03f7 ]
 
-When xfstests generic/451, there is an BUG at mm/memcontrol.c:
-  page:ffffea000560f2c0 refcount:2 mapcount:0 mapping:000000008544e0ea
-       index:0xf
-  mapping->aops:cifs_addr_ops dentry name:"tst-aio-dio-cycle-write.451"
-  flags: 0x2fffff80000001(locked)
-  raw: 002fffff80000001 ffffc90002023c50 ffffea0005280088 ffff88815cda0210
-  raw: 000000000000000f 0000000000000000 00000002ffffffff ffff88817287d000
-  page dumped because: VM_BUG_ON_PAGE(page->mem_cgroup)
-  page->mem_cgroup:ffff88817287d000
-  ------------[ cut here ]------------
-  kernel BUG at mm/memcontrol.c:2659!
-  invalid opcode: 0000 [#1] SMP
-  CPU: 2 PID: 2038 Comm: xfs_io Not tainted 5.8.0-rc1 #44
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_
-    073836-buildvm-ppc64le-16.ppc.4
-  RIP: 0010:commit_charge+0x35/0x50
-  Code: 0d 48 83 05 54 b2 02 05 01 48 89 77 38 c3 48 c7
-        c6 78 4a ea ba 48 83 05 38 b2 02 05 01 e8 63 0d9
-  RSP: 0018:ffffc90002023a50 EFLAGS: 00010202
-  RAX: 0000000000000000 RBX: ffff88817287d000 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: ffff88817ac97ea0 RDI: ffff88817ac97ea0
-  RBP: ffffea000560f2c0 R08: 0000000000000203 R09: 0000000000000005
-  R10: 0000000000000030 R11: ffffc900020237a8 R12: 0000000000000000
-  R13: 0000000000000001 R14: 0000000000000001 R15: ffff88815a1272c0
-  FS:  00007f5071ab0800(0000) GS:ffff88817ac80000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 000055efcd5ca000 CR3: 000000015d312000 CR4: 00000000000006e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   mem_cgroup_charge+0x166/0x4f0
-   __add_to_page_cache_locked+0x4a9/0x710
-   add_to_page_cache_locked+0x15/0x20
-   cifs_readpages+0x217/0x1270
-   read_pages+0x29a/0x670
-   page_cache_readahead_unbounded+0x24f/0x390
-   __do_page_cache_readahead+0x3f/0x60
-   ondemand_readahead+0x1f1/0x470
-   page_cache_async_readahead+0x14c/0x170
-   generic_file_buffered_read+0x5df/0x1100
-   generic_file_read_iter+0x10c/0x1d0
-   cifs_strict_readv+0x139/0x170
-   new_sync_read+0x164/0x250
-   __vfs_read+0x39/0x60
-   vfs_read+0xb5/0x1e0
-   ksys_pread64+0x85/0xf0
-   __x64_sys_pread64+0x22/0x30
-   do_syscall_64+0x69/0x150
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f5071fcb1af
-  Code: Bad RIP value.
-  RSP: 002b:00007ffde2cdb8e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000011
-  RAX: ffffffffffffffda RBX: 00007ffde2cdb990 RCX: 00007f5071fcb1af
-  RDX: 0000000000001000 RSI: 000055efcd5ca000 RDI: 0000000000000003
-  RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000001000 R11: 0000000000000293 R12: 0000000000000001
-  R13: 000000000009f000 R14: 0000000000000000 R15: 0000000000001000
-  Modules linked in:
-  ---[ end trace 725fa14a3e1af65c ]---
+Handling of extra kref which is done by lookup table in case rdata is
+already present in list.
 
-Since commit 3fea5a499d57 ("mm: memcontrol: convert page cache to a new
-mem_cgroup_charge() API") not cancel the page charge, the pages maybe
-double add to pagecache:
-thread1                       | thread2
-cifs_readpages
-readpages_get_pages
- add_to_page_cache_locked(head,index=n)=0
-                              | readpages_get_pages
-                              | add_to_page_cache_locked(head,index=n+1)=0
- add_to_page_cache_locked(head, index=n+1)=-EEXIST
- then, will next loop with list head page's
- index=n+1 and the page->mapping not NULL
-readpages_get_pages
-add_to_page_cache_locked(head, index=n+1)
- commit_charge
-  VM_BUG_ON_PAGE
+This issue was leading to memory leak. Trace from KMEMLEAK tool:
 
-So, we should not do the next loop when any page add to page cache
-failed.
+  unreferenced object 0xffff8888259e8780 (size 512):
+    comm "kworker/2:1", pid 182614, jiffies 4433237386 (age 113021.971s)
+    hex dump (first 32 bytes):
+    58 0a ec cf 83 88 ff ff 00 00 00 00 00 00 00 00
+    01 00 00 00 08 00 00 00 13 7d f0 1e 0e 00 00 10
+  backtrace:
+	[<000000006b25760f>] fc_rport_recv_req+0x3c6/0x18f0 [libfc]
+	[<00000000f208d994>] fc_lport_recv_els_req+0x120/0x8a0 [libfc]
+	[<00000000a9c437b8>] fc_lport_recv+0xb9/0x130 [libfc]
+	[<00000000ad5be37b>] qedf_ll2_process_skb+0x73d/0xad0 [qedf]
+	[<00000000e0eb6893>] process_one_work+0x382/0x6c0
+	[<000000002dfd9e21>] worker_thread+0x57/0x5c0
+	[<00000000b648204f>] kthread+0x1a0/0x1c0
+	[<0000000072f5ab20>] ret_from_fork+0x35/0x40
+	[<000000001d5c05d8>] 0xffffffffffffffff
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Below is the log sequence which leads to memory leak. Here we get the
+nested "Received PLOGI request" for same port and this request leads to
+call the fc_rport_create() twice for the same rport.
+
+	kernel: host1: rport fffce5: Received PLOGI request
+	kernel: host1: rport fffce5: Received PLOGI in INIT state
+	kernel: host1: rport fffce5: Port is Ready
+	kernel: host1: rport fffce5: Received PRLI request while in state Ready
+	kernel: host1: rport fffce5: PRLI rspp type 8 active 1 passive 0
+	kernel: host1: rport fffce5: Received LOGO request while in state Ready
+	kernel: host1: rport fffce5: Delete port
+	kernel: host1: rport fffce5: Received PLOGI request
+	kernel: host1: rport fffce5: Received PLOGI in state Delete - send busy
+
+Link: https://lore.kernel.org/r/20200622101212.3922-2-jhasan@marvell.com
+Reviewed-by: Girish Basrur <gbasrur@marvell.com>
+Reviewed-by: Saurav Kashyap <skashyap@marvell.com>
+Reviewed-by: Shyam Sundar <ssundar@marvell.com>
+Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/scsi/libfc/fc_rport.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 0981731132ec0..6c77a96437e61 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3753,7 +3753,8 @@ readpages_get_pages(struct address_space *mapping, struct list_head *page_list,
- 			break;
+diff --git a/drivers/scsi/libfc/fc_rport.c b/drivers/scsi/libfc/fc_rport.c
+index 0e964ce75406b..a9137f64befa0 100644
+--- a/drivers/scsi/libfc/fc_rport.c
++++ b/drivers/scsi/libfc/fc_rport.c
+@@ -145,8 +145,10 @@ struct fc_rport_priv *fc_rport_create(struct fc_lport *lport, u32 port_id)
+ 	size_t rport_priv_size = sizeof(*rdata);
  
- 		__SetPageLocked(page);
--		if (add_to_page_cache_locked(page, mapping, page->index, gfp)) {
-+		rc = add_to_page_cache_locked(page, mapping, page->index, gfp);
-+		if (rc) {
- 			__ClearPageLocked(page);
- 			break;
- 		}
-@@ -3769,6 +3770,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 	struct list_head *page_list, unsigned num_pages)
- {
- 	int rc;
-+	int err = 0;
- 	struct list_head tmplist;
- 	struct cifsFileInfo *open_file = file->private_data;
- 	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
-@@ -3809,7 +3811,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 	 * the order of declining indexes. When we put the pages in
- 	 * the rdata->pages, then we want them in increasing order.
- 	 */
--	while (!list_empty(page_list)) {
-+	while (!list_empty(page_list) && !err) {
- 		unsigned int i, nr_pages, bytes, rsize;
- 		loff_t offset;
- 		struct page *page, *tpage;
-@@ -3832,9 +3834,10 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 			return 0;
- 		}
+ 	rdata = fc_rport_lookup(lport, port_id);
+-	if (rdata)
++	if (rdata) {
++		kref_put(&rdata->kref, fc_rport_destroy);
+ 		return rdata;
++	}
  
--		rc = readpages_get_pages(mapping, page_list, rsize, &tmplist,
-+		nr_pages = 0;
-+		err = readpages_get_pages(mapping, page_list, rsize, &tmplist,
- 					 &nr_pages, &offset, &bytes);
--		if (rc) {
-+		if (!nr_pages) {
- 			add_credits_and_wake_if(server, credits, 0);
- 			break;
- 		}
+ 	if (lport->rport_priv_size > 0)
+ 		rport_priv_size = lport->rport_priv_size;
 -- 
 2.25.1
 
