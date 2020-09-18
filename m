@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24F4E26EF57
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F44F26EF54
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728888AbgIRCfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:35:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
+        id S1728929AbgIRCN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:13:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728912AbgIRCNU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:13:20 -0400
+        id S1728508AbgIRCN1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:13:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDE3223447;
-        Fri, 18 Sep 2020 02:13:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 409C0238EE;
+        Fri, 18 Sep 2020 02:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395200;
-        bh=QIcUD7pcq/WoQm+jLDDTMgOtimxs82zZtwkuebuplto=;
+        s=default; t=1600395203;
+        bh=ZcY01G8CNGtt+E8vou5hC/ttOyMXMLrRERQUhf5GrdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rEYxoYYYLfn3DVc7elkXLGrrJFb5/EpoQceUQByAgl6pzfXmUyiXvKDAaCaojuQyc
-         IvJ7pxt77PvCV+0rE5Qi24QYk5GaKvXoYWRV5BUFRPmslxxqD4pdurOL1y9hpgsWZL
-         6ihBG/AGyfiI10lTjlpcRwpCtyrL7uUqEbt+d9o4=
+        b=iaqJ/a1bsHH/KhiSJrGkRtuNLU3CtVW7slTjAIJXb3lTPEV6kBeX22D1bWq3T3i+5
+         JKNAculN0RwZIMgA/siri+JxMuT1TgZi+bKz3rqdeU2O3to9neEfDQwWI/pbK95ltw
+         1aXXNBFutnbIGuYLsuIqh0Kst3+2FNdzMIuUoDGM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 050/127] KVM: x86: fix incorrect comparison in trace event
-Date:   Thu, 17 Sep 2020 22:11:03 -0400
-Message-Id: <20200918021220.2066485-50-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 053/127] bpf: Remove recursion prevention from rcu free callback
+Date:   Thu, 17 Sep 2020 22:11:06 -0400
+Message-Id: <20200918021220.2066485-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -41,32 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 147f1a1fe5d7e6b01b8df4d0cbd6f9eaf6b6c73b ]
+[ Upstream commit 8a37963c7ac9ecb7f86f8ebda020e3f8d6d7b8a0 ]
 
-The "u" field in the event has three states, -1/0/1.  Using u8 however means that
-comparison with -1 will always fail, so change to signed char.
+If an element is freed via RCU then recursion into BPF instrumentation
+functions is not a concern. The element is already detached from the map
+and the RCU callback does not hold any locks on which a kprobe, perf event
+or tracepoint attached BPF program could deadlock.
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200224145643.259118710@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmutrace.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/bpf/hashtab.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/arch/x86/kvm/mmutrace.h b/arch/x86/kvm/mmutrace.h
-index 918b0d5bf2724..1c1c2649829ba 100644
---- a/arch/x86/kvm/mmutrace.h
-+++ b/arch/x86/kvm/mmutrace.h
-@@ -339,7 +339,7 @@ TRACE_EVENT(
- 		/* These depend on page entry type, so compute them now.  */
- 		__field(bool, r)
- 		__field(bool, x)
--		__field(u8, u)
-+		__field(signed char, u)
- 	),
+diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
+index 6cc090d015f66..ecc58137525bc 100644
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -645,15 +645,7 @@ static void htab_elem_free_rcu(struct rcu_head *head)
+ 	struct htab_elem *l = container_of(head, struct htab_elem, rcu);
+ 	struct bpf_htab *htab = l->htab;
  
- 	TP_fast_assign(
+-	/* must increment bpf_prog_active to avoid kprobe+bpf triggering while
+-	 * we're calling kfree, otherwise deadlock is possible if kprobes
+-	 * are placed somewhere inside of slub
+-	 */
+-	preempt_disable();
+-	__this_cpu_inc(bpf_prog_active);
+ 	htab_elem_free(htab, l);
+-	__this_cpu_dec(bpf_prog_active);
+-	preempt_enable();
+ }
+ 
+ static void htab_put_fd_value(struct bpf_htab *htab, struct htab_elem *l)
 -- 
 2.25.1
 
