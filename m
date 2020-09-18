@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF9126ED30
+	by mail.lfdr.de (Postfix) with ESMTP id 8A9D226ED31
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:21:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727127AbgIRCRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729559AbgIRCRl (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:17:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729539AbgIRCRa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:17:30 -0400
+        id S1729177AbgIRCRb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:17:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C670F23787;
-        Fri, 18 Sep 2020 02:17:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E74032396F;
+        Fri, 18 Sep 2020 02:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395449;
-        bh=SSaOXops64YH+iEYehZFdcf3MoI3XiQPJjZDXrL47MM=;
+        s=default; t=1600395450;
+        bh=nV2hnbKtkB2BlDOC4qeSSeGMkvJWmVGMRnEvR21pAkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+5nFVxuWgx4UckroKSHeuP89ddF1j4odLXPfGQrIcHtuWpDVsTFnsKawDVpuohnm
-         bGzi+mG3gkNkmK/R5UYuW/uR8FfwFeGdXQpGwUloWoME0dRX9dwgxUnmYCA0st9CiZ
-         Y9TaXrLpwmhXEjQ1NWIquIs/OeU1UH6+bvWe5DvY=
+        b=lOOr4LTuMquWCRq//sZqeGeD3aXOrOd8tfZzzIUfcJOEdz3Q3Z0BzjyRVqkneVD4W
+         Hay4uScr+5H6QfuMHl4tI2P8WdCsbODt7yp0xFJ5xEo5OUwdLcBUVLTG9IB5mD9sQa
+         MbnhjIu+GgYODIiR805DKf6l1mjUOJTEL2r/lJzw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 37/64] SUNRPC: Fix a potential buffer overflow in 'svc_print_xprts()'
-Date:   Thu, 17 Sep 2020 22:16:16 -0400
-Message-Id: <20200918021643.2067895-37-sashal@kernel.org>
+Cc:     Liu Song <liu.song11@zte.com.cn>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.4 38/64] ubifs: Fix out-of-bounds memory access caused by abnormal value of node_len
+Date:   Thu, 17 Sep 2020 22:16:17 -0400
+Message-Id: <20200918021643.2067895-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021643.2067895-1-sashal@kernel.org>
 References: <20200918021643.2067895-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,73 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Liu Song <liu.song11@zte.com.cn>
 
-[ Upstream commit b25b60d7bfb02a74bc3c2d998e09aab159df8059 ]
+[ Upstream commit acc5af3efa303d5f36cc8c0f61716161f6ca1384 ]
 
-'maxlen' is the total size of the destination buffer. There is only one
-caller and this value is 256.
+In “ubifs_check_node”, when the value of "node_len" is abnormal,
+the code will goto label of "out_len" for execution. Then, in the
+following "ubifs_dump_node", if inode type is "UBIFS_DATA_NODE",
+in "print_hex_dump", an out-of-bounds access may occur due to the
+wrong "ch->len".
 
-When we compute the size already used and what we would like to add in
-the buffer, the trailling NULL character is not taken into account.
-However, this trailling character will be added by the 'strcat' once we
-have checked that we have enough place.
+Therefore, when the value of "node_len" is abnormal, data length
+should to be adjusted to a reasonable safe range. At this time,
+structured data is not credible, so dump the corrupted data directly
+for analysis.
 
-So, there is a off-by-one issue and 1 byte of the stack could be
-erroneously overwridden.
-
-Take into account the trailling NULL, when checking if there is enough
-place in the destination buffer.
-
-While at it, also replace a 'sprintf' by a safer 'snprintf', check for
-output truncation and avoid a superfluous 'strlen'.
-
-Fixes: dc9a16e49dbba ("svc: Add /proc/sys/sunrpc/transport files")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-[ cel: very minor fix to documenting comment
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Liu Song <liu.song11@zte.com.cn>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/svc_xprt.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ fs/ubifs/io.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
-index 2b8e80c721db1..a7cd031656801 100644
---- a/net/sunrpc/svc_xprt.c
-+++ b/net/sunrpc/svc_xprt.c
-@@ -97,8 +97,17 @@ void svc_unreg_xprt_class(struct svc_xprt_class *xcl)
- }
- EXPORT_SYMBOL_GPL(svc_unreg_xprt_class);
- 
--/*
-- * Format the transport list for printing
-+/**
-+ * svc_print_xprts - Format the transport list for printing
-+ * @buf: target buffer for formatted address
-+ * @maxlen: length of target buffer
-+ *
-+ * Fills in @buf with a string containing a list of transport names, each name
-+ * terminated with '\n'. If the buffer is too small, some entries may be
-+ * missing, but it is guaranteed that all lines in the output buffer are
-+ * complete.
-+ *
-+ * Returns positive length of the filled-in string.
-  */
- int svc_print_xprts(char *buf, int maxlen)
+diff --git a/fs/ubifs/io.c b/fs/ubifs/io.c
+index 97be412153328..9213a9e046ae0 100644
+--- a/fs/ubifs/io.c
++++ b/fs/ubifs/io.c
+@@ -237,7 +237,7 @@ int ubifs_is_mapped(const struct ubifs_info *c, int lnum)
+ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
+ 		     int offs, int quiet, int must_chk_crc)
  {
-@@ -111,9 +120,9 @@ int svc_print_xprts(char *buf, int maxlen)
- 	list_for_each_entry(xcl, &svc_xprt_class_list, xcl_list) {
- 		int slen;
+-	int err = -EINVAL, type, node_len;
++	int err = -EINVAL, type, node_len, dump_node = 1;
+ 	uint32_t crc, node_crc, magic;
+ 	const struct ubifs_ch *ch = buf;
  
--		sprintf(tmpstr, "%s %d\n", xcl->xcl_name, xcl->xcl_max_payload);
--		slen = strlen(tmpstr);
--		if (len + slen > maxlen)
-+		slen = snprintf(tmpstr, sizeof(tmpstr), "%s %d\n",
-+				xcl->xcl_name, xcl->xcl_max_payload);
-+		if (slen >= sizeof(tmpstr) || len + slen >= maxlen)
- 			break;
- 		len += slen;
- 		strcat(buf, tmpstr);
+@@ -290,10 +290,22 @@ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
+ out_len:
+ 	if (!quiet)
+ 		ubifs_err(c, "bad node length %d", node_len);
++	if (type == UBIFS_DATA_NODE && node_len > UBIFS_DATA_NODE_SZ)
++		dump_node = 0;
+ out:
+ 	if (!quiet) {
+ 		ubifs_err(c, "bad node at LEB %d:%d", lnum, offs);
+-		ubifs_dump_node(c, buf);
++		if (dump_node) {
++			ubifs_dump_node(c, buf);
++		} else {
++			int safe_len = min3(node_len, c->leb_size - offs,
++				(int)UBIFS_MAX_DATA_NODE_SZ);
++			pr_err("\tprevent out-of-bounds memory access\n");
++			pr_err("\ttruncated data node length      %d\n", safe_len);
++			pr_err("\tcorrupted data node:\n");
++			print_hex_dump(KERN_ERR, "\t", DUMP_PREFIX_OFFSET, 32, 1,
++					buf, safe_len, 0);
++		}
+ 		dump_stack();
+ 	}
+ 	return err;
 -- 
 2.25.1
 
