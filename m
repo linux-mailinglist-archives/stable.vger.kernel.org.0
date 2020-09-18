@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4704226F00B
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:40:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC0C26F008
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728161AbgIRCkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:40:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37514 "EHLO mail.kernel.org"
+        id S1728636AbgIRCkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:40:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727357AbgIRCLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:11:44 -0400
+        id S1726490AbgIRCLp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:11:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A968B2388D;
-        Fri, 18 Sep 2020 02:11:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30BB1238E6;
+        Fri, 18 Sep 2020 02:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395103;
-        bh=NAvfy6R2N95y25x9BweqMgt7j/jlalXTppH9dmmZkLs=;
+        s=default; t=1600395105;
+        bh=hmulrnIkEYI8JDSnMLlamNVyn1HLJuvqeL0H9PVOlVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pE0Nb/apsO6gqSg76q9LADAP9I07Mf+GeJJVBq6xUI9XNX7pt16X+nI02OUovGgE/
-         ujHhvt1hN7aDusVDnEqVocQdiKNRNUNCNqBR1DHgI2RqOIuiBChb4xKMsmisflP/UN
-         LmGJ7Ga4G5ljTDyESjP+sunUpxjdm6Cty3sdAvlU=
+        b=GKau1jnNv7dyitQK7++vEizED1s3vNSxH8NXi/0BZs9rJXkewRRW7Y0Zlz1asVraK
+         lA6sf6I/AIMoXpxqq6ULF9m3uj5eiRHTshr1vBPbRx7QyY3GJYmCuPqxSHZnB2uqrn
+         DKGmIzf4vEfG6ja59NdQBKZ3pU3l+Fps+i6+D8jg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Olsa <jolsa@kernel.org>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
+Cc:     Xie XiuQi <xiexiuqi@huawei.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Michael Petlan <mpetlan@redhat.com>,
+        Hongbo Yao <yaohongbo@huawei.com>,
+        Jiri Olsa <jolsa@redhat.com>, Li Bin <huawei.libin@huawei.com>,
+        Mark Rutland <mark.rutland@arm.com>,
         Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 181/206] perf stat: Fix duration_time value for higher intervals
-Date:   Thu, 17 Sep 2020 22:07:37 -0400
-Message-Id: <20200918020802.2065198-181-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 182/206] perf util: Fix memory leak of prefix_if_not_in
+Date:   Thu, 17 Sep 2020 22:07:38 -0400
+Message-Id: <20200918020802.2065198-182-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
 References: <20200918020802.2065198-1-sashal@kernel.org>
@@ -48,49 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Xie XiuQi <xiexiuqi@huawei.com>
 
-[ Upstream commit ea9eb1f456a08c18feb485894185f7a4e31cc8a4 ]
+[ Upstream commit 07e9a6f538cbeecaf5c55b6f2991416f873cdcbd ]
 
-Joakim reported wrong duration_time value for interval bigger
-than 4000 [1].
+Need to free "str" before return when asprintf() failed to avoid memory
+leak.
 
-The problem is in the interval value we pass to update_stats
-function, which is typed as 'unsigned int' and overflows when
-we get over 2^32 (happens between intervals 4000 and 5000).
-
-Retyping the passed value to unsigned long long.
-
-[1] https://www.spinics.net/lists/linux-perf-users/msg11777.html
-
-Fixes: b90f1333ef08 ("perf stat: Update walltime_nsecs_stats in interval mode")
-Reported-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Hongbo Yao <yaohongbo@huawei.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Li Bin <huawei.libin@huawei.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200518131445.3745083-1-jolsa@kernel.org
+Link: http://lore.kernel.org/lkml/20200521133218.30150-4-liwei391@huawei.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c | 2 +-
+ tools/perf/util/sort.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index 6aae10ff954c7..adabe9d4dc866 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -422,7 +422,7 @@ static void process_interval(void)
- 	}
+diff --git a/tools/perf/util/sort.c b/tools/perf/util/sort.c
+index 46daa22b86e3b..85ff4f68adc00 100644
+--- a/tools/perf/util/sort.c
++++ b/tools/perf/util/sort.c
+@@ -2690,7 +2690,7 @@ static char *prefix_if_not_in(const char *pre, char *str)
+ 		return str;
  
- 	init_stats(&walltime_nsecs_stats);
--	update_stats(&walltime_nsecs_stats, stat_config.interval * 1000000);
-+	update_stats(&walltime_nsecs_stats, stat_config.interval * 1000000ULL);
- 	print_counters(&rs, 0, NULL);
- }
+ 	if (asprintf(&n, "%s,%s", pre, str) < 0)
+-		return NULL;
++		n = NULL;
  
+ 	free(str);
+ 	return n;
 -- 
 2.25.1
 
