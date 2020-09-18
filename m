@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BFFE26EBE9
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:10:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E28D926EBE8
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:10:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728061AbgIRCIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727175AbgIRCIR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:08:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58712 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728015AbgIRCH4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:07:56 -0400
+        id S1728023AbgIRCH6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:07:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86405238A1;
-        Fri, 18 Sep 2020 02:07:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17D5B238E5;
+        Fri, 18 Sep 2020 02:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394875;
-        bh=F54G469FFZBl8VA47b1OkQvsJsjS5tT4Y+JSvZv5ZAk=;
+        s=default; t=1600394877;
+        bh=VoN+RQMBRpIUqEdv7Xp17lu0pF70gd7NbulkG0Oq4Dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n0OCyrMrh09SQvaam+6EIS0TEH1cFBCIcWtaZWyyIxkYyixnh4W8jF1s4KWxlX1Pe
-         cL5ap2IWIfLj76LpR55t2eC+sFb63mTFS8zhJ/RN/WvOGahK9yyQW83Na2Uazn8VY7
-         lgRK+CDz+MPahNjr8h6hP6yfmec6uB4bmSc7rWQ0=
+        b=Y+SGjgu8Mou5JPHM/SVJEIfinspfMqvzeSL0dm7XStez56XLvJWRhzwnijKzoWQBe
+         eRu3Qir280+wpxAwdCM4GlXpYzevO8whO2E/5vyqqQco21o4h5I+ZWtk0z5asReRgS
+         sESgEwZMtKdndDfWqE+aRs8qkL+cbSxt8vHKv83Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jin Yao <yao.jin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 326/330] perf parse-events: Use strcmp() to compare the PMU name
-Date:   Thu, 17 Sep 2020 22:01:06 -0400
-Message-Id: <20200918020110.2063155-326-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 328/330] ALSA: hda: Workaround for spurious wakeups on some Intel platforms
+Date:   Thu, 17 Sep 2020 22:01:08 -0400
+Message-Id: <20200918020110.2063155-328-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -46,78 +41,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jin Yao <yao.jin@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 8510895bafdbf7c4dd24c22946d925691135c2b2 ]
+[ Upstream commit a6630529aecb5a3e84370c376ed658e892e6261e ]
 
-A big uncore event group is split into multiple small groups which only
-include the uncore events from the same PMU. This has been supported in
-the commit 3cdc5c2cb924a ("perf parse-events: Handle uncore event
-aliases in small groups properly").
+We've received a regression report on Intel HD-audio controller that
+wakes up immediately after S3 suspend.  The bisection leads to the
+commit c4c8dd6ef807 ("ALSA: hda: Skip controller resume if not
+needed").  This commit replaces the system-suspend to use
+pm_runtime_force_suspend() instead of the direct call of
+__azx_runtime_suspend().  However, by some really mysterious reason,
+pm_runtime_force_suspend() causes a spurious wakeup (although it calls
+the same __azx_runtime_suspend() internally).
 
-If the event's PMU name starts to repeat, it must be a new event.
-That can be used to distinguish the leader from other members.
-But now it only compares the pointer of pmu_name
-(leader->pmu_name == evsel->pmu_name).
+As an ugly workaround for now, revert the behavior to call
+__azx_runtime_suspend() and __azx_runtime_resume() for those old Intel
+platforms that may exhibit such a problem, while keeping the new
+standard pm_runtime_force_suspend() and pm_runtime_force_resume()
+pair for the remaining chips.
 
-If we use "perf stat -M LLC_MISSES.PCIE_WRITE -a" on cascadelakex,
-the event list is:
-
-  evsel->name					evsel->pmu_name
-  ---------------------------------------------------------------
-  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_4 (as leader)
-  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_2
-  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_0
-  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_5
-  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_3
-  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_1
-  unc_iio_data_req_of_cpu.mem_write.part1		uncore_iio_4
-  ......
-
-For the event "unc_iio_data_req_of_cpu.mem_write.part1" with
-"uncore_iio_4", it should be the event from PMU "uncore_iio_4".
-It's not a new leader for this PMU.
-
-But if we use "(leader->pmu_name == evsel->pmu_name)", the check
-would be failed and the event is stored to leaders[] as a new
-PMU leader.
-
-So this patch uses strcmp to compare the PMU name between events.
-
-Fixes: d4953f7ef1a2 ("perf parse-events: Fix 3 use after frees found with clang ASAN")
-Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jin Yao <yao.jin@intel.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200430003618.17002-1-yao.jin@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: c4c8dd6ef807 ("ALSA: hda: Skip controller resume if not needed")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208649
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200727164443.4233-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/parse-events.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/pci/hda/hda_controller.h |  2 +-
+ sound/pci/hda/hda_intel.c      | 17 ++++++++++++++---
+ 2 files changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index f16748cfcb262..3fb9d53666d15 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -1507,12 +1507,11 @@ parse_events__set_leader_for_uncore_aliase(char *name, struct list_head *list,
- 		 * event. That can be used to distinguish the leader from
- 		 * other members, even they have the same event name.
- 		 */
--		if ((leader != evsel) && (leader->pmu_name == evsel->pmu_name)) {
-+		if ((leader != evsel) &&
-+		    !strcmp(leader->pmu_name, evsel->pmu_name)) {
- 			is_leader = false;
- 			continue;
- 		}
--		/* The name is always alias name */
--		WARN_ON(strcmp(leader->name, evsel->name));
+diff --git a/sound/pci/hda/hda_controller.h b/sound/pci/hda/hda_controller.h
+index 82e26442724ba..a356fb0e57738 100644
+--- a/sound/pci/hda/hda_controller.h
++++ b/sound/pci/hda/hda_controller.h
+@@ -41,7 +41,7 @@
+ /* 24 unused */
+ #define AZX_DCAPS_COUNT_LPIB_DELAY  (1 << 25)	/* Take LPIB as delay */
+ #define AZX_DCAPS_PM_RUNTIME	(1 << 26)	/* runtime PM support */
+-/* 27 unused */
++#define AZX_DCAPS_SUSPEND_SPURIOUS_WAKEUP (1 << 27) /* Workaround for spurious wakeups after suspend */
+ #define AZX_DCAPS_CORBRP_SELF_CLEAR (1 << 28)	/* CORBRP clears itself after reset */
+ #define AZX_DCAPS_NO_MSI64      (1 << 29)	/* Stick to 32-bit MSIs */
+ #define AZX_DCAPS_SEPARATE_STREAM_TAG	(1 << 30) /* capture and playback use separate stream tag */
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 754e4d1a86b57..590ea262f2e20 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -295,7 +295,8 @@ enum {
+ /* PCH for HSW/BDW; with runtime PM */
+ /* no i915 binding for this as HSW/BDW has another controller for HDMI */
+ #define AZX_DCAPS_INTEL_PCH \
+-	(AZX_DCAPS_INTEL_PCH_BASE | AZX_DCAPS_PM_RUNTIME)
++	(AZX_DCAPS_INTEL_PCH_BASE | AZX_DCAPS_PM_RUNTIME |\
++	 AZX_DCAPS_SUSPEND_SPURIOUS_WAKEUP)
  
- 		/* Store the leader event for each PMU */
- 		leaders[nr_pmu++] = (uintptr_t) evsel;
+ /* HSW HDMI */
+ #define AZX_DCAPS_INTEL_HASWELL \
+@@ -1026,7 +1027,14 @@ static int azx_suspend(struct device *dev)
+ 	chip = card->private_data;
+ 	bus = azx_bus(chip);
+ 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+-	pm_runtime_force_suspend(dev);
++	/* An ugly workaround: direct call of __azx_runtime_suspend() and
++	 * __azx_runtime_resume() for old Intel platforms that suffer from
++	 * spurious wakeups after S3 suspend
++	 */
++	if (chip->driver_caps & AZX_DCAPS_SUSPEND_SPURIOUS_WAKEUP)
++		__azx_runtime_suspend(chip);
++	else
++		pm_runtime_force_suspend(dev);
+ 	if (bus->irq >= 0) {
+ 		free_irq(bus->irq, chip);
+ 		bus->irq = -1;
+@@ -1054,7 +1062,10 @@ static int azx_resume(struct device *dev)
+ 	if (azx_acquire_irq(chip, 1) < 0)
+ 		return -EIO;
+ 
+-	pm_runtime_force_resume(dev);
++	if (chip->driver_caps & AZX_DCAPS_SUSPEND_SPURIOUS_WAKEUP)
++		__azx_runtime_resume(chip, false);
++	else
++		pm_runtime_force_resume(dev);
+ 	snd_power_change_state(card, SNDRV_CTL_POWER_D0);
+ 
+ 	trace_azx_resume(chip);
 -- 
 2.25.1
 
