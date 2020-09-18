@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEFCE26F457
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:14:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B29926F451
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 05:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727385AbgIRDNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 23:13:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46566 "EHLO mail.kernel.org"
+        id S1727193AbgIRDNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 23:13:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726551AbgIRCBy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:01:54 -0400
+        id S1726434AbgIRCBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:01:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16FD3208DB;
-        Fri, 18 Sep 2020 02:01:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2576521D92;
+        Fri, 18 Sep 2020 02:01:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394513;
-        bh=QJ2dpRTbPRNUbz7iVhxRcALpzJs8tArsFex247QhvQI=;
+        s=default; t=1600394515;
+        bh=GqoM6cRd9EYADEHXrQ0iozMlUKV4gzbkkS4fqV+rltY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1FgVv5h92Z/PipQRzVY5im3rXfG5mxNGKecnAomgN+voUuyKB1cgXHrRPklTz5VzL
-         /QJbAtIaRtq049QMFOVvekF1P9GHuHuCq/lDrzpcbvgGFHSzplU8hQd7/Ds6uShTne
-         P90QyeRtmBMuOgcf8zmZIm//9e55Ok478BNcpwQc=
+        b=JKx2c7Cm7qHejxsLG2SOrb0/Bur2fExCQw5zXSIYoXGKEIfQhQ6MFOMyFGz4vQvGm
+         4AYE6pXs6bd7awwKXamQFw3Sn61tsTtLnTxmBGsPo7RxMXYT3ztAZ+bn/LjuIQni2g
+         o2u6e3L3RcEZiSMjDEer4GXpi+txc+W3hCnaPqtQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        Evan Quan <evan.quan@amd.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 036/330] drm/amdgpu/powerplay: fix AVFS handling with custom powerplay table
-Date:   Thu, 17 Sep 2020 21:56:16 -0400
-Message-Id: <20200918020110.2063155-36-sashal@kernel.org>
+Cc:     Usha Ketineni <usha.k.ketineni@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 037/330] ice: Fix to change Rx/Tx ring descriptor size via ethtool with DCBx
+Date:   Thu, 17 Sep 2020 21:56:17 -0400
+Message-Id: <20200918020110.2063155-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -42,39 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Usha Ketineni <usha.k.ketineni@intel.com>
 
-[ Upstream commit 53dbc27ad5a93932ff1892a8e4ef266827d74a0f ]
+[ Upstream commit c0a3665f71a2f086800abea4d9d14d28269089d6 ]
 
-When a custom powerplay table is provided, we need to update
-the OD VDDC flag to avoid AVFS being enabled when it shouldn't be.
+This patch fixes the call trace caused by the kernel when the Rx/Tx
+descriptor size change request is initiated via ethtool when DCB is
+configured. ice_set_ringparam() should use vsi->num_txq instead of
+vsi->alloc_txq as it represents the queues that are enabled in the
+driver when DCB is enabled/disabled. Otherwise, queue index being
+used can go out of range.
 
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=205393
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+For example, when vsi->alloc_txq has 104 queues and with 3 TCS enabled
+via DCB, each TC gets 34 queues, vsi->num_txq will be 102 and only 102
+queues will be enabled.
+
+Signed-off-by: Usha Ketineni <usha.k.ketineni@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
-index beacfffbdc3eb..ecbc9daea57e0 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
-@@ -3691,6 +3691,13 @@ static int vega10_set_power_state_tasks(struct pp_hwmgr *hwmgr,
- 	PP_ASSERT_WITH_CODE(!result,
- 			"Failed to upload PPtable!", return result);
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index 62673e27af0e8..fc9ff985a62bd 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -2635,14 +2635,14 @@ ice_set_ringparam(struct net_device *netdev, struct ethtool_ringparam *ring)
+ 	netdev_info(netdev, "Changing Tx descriptor count from %d to %d\n",
+ 		    vsi->tx_rings[0]->count, new_tx_cnt);
  
-+	/*
-+	 * If a custom pp table is loaded, set DPMTABLE_OD_UPDATE_VDDC flag.
-+	 * That effectively disables AVFS feature.
-+	 */
-+	if(hwmgr->hardcode_pp_table != NULL)
-+		data->need_update_dpm_table |= DPMTABLE_OD_UPDATE_VDDC;
-+
- 	vega10_update_avfs(hwmgr);
+-	tx_rings = devm_kcalloc(&pf->pdev->dev, vsi->alloc_txq,
++	tx_rings = devm_kcalloc(&pf->pdev->dev, vsi->num_txq,
+ 				sizeof(*tx_rings), GFP_KERNEL);
+ 	if (!tx_rings) {
+ 		err = -ENOMEM;
+ 		goto done;
+ 	}
  
- 	/*
+-	for (i = 0; i < vsi->alloc_txq; i++) {
++	ice_for_each_txq(vsi, i) {
+ 		/* clone ring and setup updated count */
+ 		tx_rings[i] = *vsi->tx_rings[i];
+ 		tx_rings[i].count = new_tx_cnt;
+@@ -2667,14 +2667,14 @@ process_rx:
+ 	netdev_info(netdev, "Changing Rx descriptor count from %d to %d\n",
+ 		    vsi->rx_rings[0]->count, new_rx_cnt);
+ 
+-	rx_rings = devm_kcalloc(&pf->pdev->dev, vsi->alloc_rxq,
++	rx_rings = devm_kcalloc(&pf->pdev->dev, vsi->num_rxq,
+ 				sizeof(*rx_rings), GFP_KERNEL);
+ 	if (!rx_rings) {
+ 		err = -ENOMEM;
+ 		goto done;
+ 	}
+ 
+-	for (i = 0; i < vsi->alloc_rxq; i++) {
++	ice_for_each_rxq(vsi, i) {
+ 		/* clone ring and setup updated count */
+ 		rx_rings[i] = *vsi->rx_rings[i];
+ 		rx_rings[i].count = new_rx_cnt;
+@@ -2712,7 +2712,7 @@ process_link:
+ 		ice_down(vsi);
+ 
+ 		if (tx_rings) {
+-			for (i = 0; i < vsi->alloc_txq; i++) {
++			ice_for_each_txq(vsi, i) {
+ 				ice_free_tx_ring(vsi->tx_rings[i]);
+ 				*vsi->tx_rings[i] = tx_rings[i];
+ 			}
+@@ -2720,7 +2720,7 @@ process_link:
+ 		}
+ 
+ 		if (rx_rings) {
+-			for (i = 0; i < vsi->alloc_rxq; i++) {
++			ice_for_each_rxq(vsi, i) {
+ 				ice_free_rx_ring(vsi->rx_rings[i]);
+ 				/* copy the real tail offset */
+ 				rx_rings[i].tail = vsi->rx_rings[i]->tail;
+@@ -2744,7 +2744,7 @@ process_link:
+ free_tx:
+ 	/* error cleanup if the Rx allocations failed after getting Tx */
+ 	if (tx_rings) {
+-		for (i = 0; i < vsi->alloc_txq; i++)
++		ice_for_each_txq(vsi, i)
+ 			ice_free_tx_ring(&tx_rings[i]);
+ 		devm_kfree(&pf->pdev->dev, tx_rings);
+ 	}
 -- 
 2.25.1
 
