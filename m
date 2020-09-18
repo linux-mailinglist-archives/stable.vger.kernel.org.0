@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07A1E26F254
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A288026F251
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:58:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727812AbgIRC6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:58:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55682 "EHLO mail.kernel.org"
+        id S1728041AbgIRC5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:57:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727718AbgIRCGX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:06:23 -0400
+        id S1727751AbgIRCGZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:06:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AD7E2376F;
-        Fri, 18 Sep 2020 02:06:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3ECFC23977;
+        Fri, 18 Sep 2020 02:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600394782;
-        bh=83MNxDNgiNFO2tB3IzunfvUoedfzU3c65MHiEWcfxQU=;
+        s=default; t=1600394784;
+        bh=v1AshLKQV0xOuh+08E+uQcfHlVlSimqpQhxYu6ZqGQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fzuem9H6qo3BzuGv/OXMs3ApLD7tavtt6T1hy3co0gDUVgB2ZAFoE+y1t0CwcCUVR
-         GEqKe1kBgwmux6DzgtMmwLPLlTOkmLJJp168+GQ5kl0GikHxE47FaIaqZ+SiMQpIHK
-         68KdbRHhqJoeNE91q6mDWrZ5W/M/RMLPvDulUdLA=
+        b=dm7dCAbyRxk1BKj9PjEIred0wbXSeujWvVpJZSssXeftOzge1gXjR7Kgwh1rCkZKP
+         1EjPXr8w7C6oWgTI0Zv9lcDfFtFpTWT5u+kZu9fZYUo15hM926AN+tO1u/ACaK6SOe
+         xJQFDd2R0YNAngz+5zyPXDAGScjb85LoTAypHo80=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Leo Yan <leo.yan@linaro.org>,
         Mark Rutland <mark.rutland@arm.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
@@ -36,9 +34,9 @@ Cc:     Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
         clang-built-linux@googlegroups.com,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 255/330] perf parse-events: Fix memory leaks found on parse_events
-Date:   Thu, 17 Sep 2020 21:59:55 -0400
-Message-Id: <20200918020110.2063155-255-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 256/330] perf mem2node: Avoid double free related to realloc
+Date:   Thu, 17 Sep 2020 21:59:56 -0400
+Message-Id: <20200918020110.2063155-256-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
 References: <20200918020110.2063155-1-sashal@kernel.org>
@@ -52,41 +50,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit e8dfb81838b14f82521968343884665b996646ef ]
+[ Upstream commit 266150c94c69429cf6d18e130237224a047f5061 ]
 
-Fix a memory leak found by applying LLVM's libfuzzer on parse_events().
+Realloc of size zero is a free not an error, avoid this causing a double
+free. Caught by clang's address sanitizer:
+
+==2634==ERROR: AddressSanitizer: attempting double-free on 0x6020000015f0 in thread T0:
+    #0 0x5649659297fd in free llvm/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:123:3
+    #1 0x5649659e9251 in __zfree tools/lib/zalloc.c:13:2
+    #2 0x564965c0f92c in mem2node__exit tools/perf/util/mem2node.c:114:2
+    #3 0x564965a08b4c in perf_c2c__report tools/perf/builtin-c2c.c:2867:2
+    #4 0x564965a0616a in cmd_c2c tools/perf/builtin-c2c.c:2989:10
+    #5 0x564965944348 in run_builtin tools/perf/perf.c:312:11
+    #6 0x564965943235 in handle_internal_command tools/perf/perf.c:364:8
+    #7 0x5649659440c4 in run_argv tools/perf/perf.c:408:2
+    #8 0x564965942e41 in main tools/perf/perf.c:538:3
+
+0x6020000015f0 is located 0 bytes inside of 1-byte region [0x6020000015f0,0x6020000015f1)
+freed by thread T0 here:
+    #0 0x564965929da3 in realloc third_party/llvm/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:164:3
+    #1 0x564965c0f55e in mem2node__init tools/perf/util/mem2node.c:97:16
+    #2 0x564965a08956 in perf_c2c__report tools/perf/builtin-c2c.c:2803:8
+    #3 0x564965a0616a in cmd_c2c tools/perf/builtin-c2c.c:2989:10
+    #4 0x564965944348 in run_builtin tools/perf/perf.c:312:11
+    #5 0x564965943235 in handle_internal_command tools/perf/perf.c:364:8
+    #6 0x5649659440c4 in run_argv tools/perf/perf.c:408:2
+    #7 0x564965942e41 in main tools/perf/perf.c:538:3
+
+previously allocated by thread T0 here:
+    #0 0x564965929c42 in calloc third_party/llvm/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:154:3
+    #1 0x5649659e9220 in zalloc tools/lib/zalloc.c:8:9
+    #2 0x564965c0f32d in mem2node__init tools/perf/util/mem2node.c:61:12
+    #3 0x564965a08956 in perf_c2c__report tools/perf/builtin-c2c.c:2803:8
+    #4 0x564965a0616a in cmd_c2c tools/perf/builtin-c2c.c:2989:10
+    #5 0x564965944348 in run_builtin tools/perf/perf.c:312:11
+    #6 0x564965943235 in handle_internal_command tools/perf/perf.c:364:8
+    #7 0x5649659440c4 in run_argv tools/perf/perf.c:408:2
+    #8 0x564965942e41 in main tools/perf/perf.c:538:3
+
+v2: add a WARN_ON_ONCE when the free condition arises.
 
 Signed-off-by: Ian Rogers <irogers@google.com>
 Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Leo Yan <leo.yan@linaro.org>
 Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Stephane Eranian <eranian@google.com>
 Cc: clang-built-linux@googlegroups.com
-Link: http://lore.kernel.org/lkml/20200319023101.82458-1-irogers@google.com
-[ split from a larger patch, use zfree() ]
+Link: http://lore.kernel.org/lkml/20200320182347.87675-1-irogers@google.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/parse-events.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/util/mem2node.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 2a97a5e3aa91e..5fadad158db59 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -1370,6 +1370,7 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
+diff --git a/tools/perf/util/mem2node.c b/tools/perf/util/mem2node.c
+index 797d86a1ab095..c84f5841c7abd 100644
+--- a/tools/perf/util/mem2node.c
++++ b/tools/perf/util/mem2node.c
+@@ -1,5 +1,6 @@
+ #include <errno.h>
+ #include <inttypes.h>
++#include <asm/bug.h>
+ #include <linux/bitmap.h>
+ #include <linux/kernel.h>
+ #include <linux/zalloc.h>
+@@ -95,7 +96,7 @@ int mem2node__init(struct mem2node *map, struct perf_env *env)
  
- 		list_for_each_entry_safe(pos, tmp, &config_terms, list) {
- 			list_del_init(&pos->list);
-+			zfree(&pos->val.str);
- 			free(pos);
- 		}
- 		return -EINVAL;
+ 	/* Cut unused entries, due to merging. */
+ 	tmp_entries = realloc(entries, sizeof(*entries) * j);
+-	if (tmp_entries)
++	if (tmp_entries || WARN_ON_ONCE(j == 0))
+ 		entries = tmp_entries;
+ 
+ 	for (i = 0; i < j; i++) {
 -- 
 2.25.1
 
