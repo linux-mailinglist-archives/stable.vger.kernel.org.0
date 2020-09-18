@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF10E26ED80
+	by mail.lfdr.de (Postfix) with ESMTP id 41F9D26ED7F
 	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:22:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728050AbgIRCVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726469AbgIRCVd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 17 Sep 2020 22:21:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48078 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727991AbgIRCRZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:17:25 -0400
+        id S1729215AbgIRCR0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:17:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D0B8235F7;
-        Fri, 18 Sep 2020 02:17:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67658238A0;
+        Fri, 18 Sep 2020 02:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395445;
-        bh=DjjZnuXmxG8+DQetD0b8tSgVwIQADmWBtrQyC0jnWBU=;
+        s=default; t=1600395446;
+        bh=nivr5uKabFiDxArYXNE7/ak5J5omCb8fcQonRumIVTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJvkZ8o/rrJcLoQ4gSMhgsqoziMQDdkHKGzvny6iatkQ5UsYrBGtgCrfI/r6xCiRR
-         TUmDK+VCi/yRDrZNv/GlsJBPiQDTZU/gDDnkis7qcshUel7iXaCLHpVeFVVel8N+yu
-         XX/wyrOt8/t3X1XJGgh+I3Rxfr+8lQTmjflp/lF8=
+        b=zTVV5u7nJTatxOSWVsss4vWnOij+SLSigXW+b3tKRMoA4a0qllXS6vBM9G0J9rR0x
+         nWoK+7sOpNL/ebokvUdan29WBiNaPL5IlPuW9Ov06sTpPw+akVqezx0tfTMfBto3fL
+         hVlTp8wh3Z52+xJuImc27g5PuHSn+fdKziqWW9WI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 33/64] media: tda10071: fix unsigned sign extension overflow
-Date:   Thu, 17 Sep 2020 22:16:12 -0400
-Message-Id: <20200918021643.2067895-33-sashal@kernel.org>
+Cc:     Stefan Berger <stefanb@linux.ibm.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        tpmdd-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.4 34/64] tpm: ibmvtpm: Wait for buffer to be set before proceeding
+Date:   Thu, 17 Sep 2020 22:16:13 -0400
+Message-Id: <20200918021643.2067895-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021643.2067895-1-sashal@kernel.org>
 References: <20200918021643.2067895-1-sashal@kernel.org>
@@ -43,50 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-[ Upstream commit a7463e2dc698075132de9905b89f495df888bb79 ]
+[ Upstream commit d8d74ea3c00214aee1e1826ca18e77944812b9b4 ]
 
-The shifting of buf[3] by 24 bits to the left will be promoted to
-a 32 bit signed int and then sign-extended to an unsigned long. In
-the unlikely event that the the top bit of buf[3] is set then all
-then all the upper bits end up as also being set because of
-the sign-extension and this affect the ev->post_bit_error sum.
-Fix this by using the temporary u32 variable bit_error to avoid
-the sign-extension promotion. This also removes the need to do the
-computation twice.
+Synchronize with the results from the CRQs before continuing with
+the initialization. This avoids trying to send TPM commands while
+the rtce buffer has not been allocated, yet.
 
-Addresses-Coverity: ("Unintended sign extension")
+This patch fixes an existing race condition that may occurr if the
+hypervisor does not quickly respond to the VTPM_GET_RTCE_BUFFER_SIZE
+request sent during initialization and therefore the ibmvtpm->rtce_buf
+has not been allocated at the time the first TPM command is sent.
 
-Fixes: 267897a4708f ("[media] tda10071: implement DVBv5 statistics")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM")
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Acked-by: Nayna Jain <nayna@linux.ibm.com>
+Tested-by: Nayna Jain <nayna@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/tda10071.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/char/tpm/tpm_ibmvtpm.c | 9 +++++++++
+ drivers/char/tpm/tpm_ibmvtpm.h | 1 +
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/media/dvb-frontends/tda10071.c b/drivers/media/dvb-frontends/tda10071.c
-index 119d47596ac81..b81887c4f72a9 100644
---- a/drivers/media/dvb-frontends/tda10071.c
-+++ b/drivers/media/dvb-frontends/tda10071.c
-@@ -483,10 +483,11 @@ static int tda10071_read_status(struct dvb_frontend *fe, enum fe_status *status)
- 			goto error;
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
+index 3e6a22658b63b..d4cc1a1ac1f73 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.c
++++ b/drivers/char/tpm/tpm_ibmvtpm.c
+@@ -543,6 +543,7 @@ static irqreturn_t ibmvtpm_interrupt(int irq, void *vtpm_instance)
+ 	 */
+ 	while ((crq = ibmvtpm_crq_get_next(ibmvtpm)) != NULL) {
+ 		ibmvtpm_crq_process(crq, ibmvtpm);
++		wake_up_interruptible(&ibmvtpm->crq_queue.wq);
+ 		crq->valid = 0;
+ 		smp_wmb();
+ 	}
+@@ -589,6 +590,7 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
+ 	}
  
- 		if (dev->delivery_system == SYS_DVBS) {
--			dev->dvbv3_ber = buf[0] << 24 | buf[1] << 16 |
--					 buf[2] << 8 | buf[3] << 0;
--			dev->post_bit_error += buf[0] << 24 | buf[1] << 16 |
--					       buf[2] << 8 | buf[3] << 0;
-+			u32 bit_error = buf[0] << 24 | buf[1] << 16 |
-+					buf[2] << 8 | buf[3] << 0;
+ 	crq_q->num_entry = CRQ_RES_BUF_SIZE / sizeof(*crq_q->crq_addr);
++	init_waitqueue_head(&crq_q->wq);
+ 	ibmvtpm->crq_dma_handle = dma_map_single(dev, crq_q->crq_addr,
+ 						 CRQ_RES_BUF_SIZE,
+ 						 DMA_BIDIRECTIONAL);
+@@ -641,6 +643,13 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
+ 	if (rc)
+ 		goto init_irq_cleanup;
+ 
++	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
++				ibmvtpm->rtce_buf != NULL,
++				HZ)) {
++		dev_err(dev, "CRQ response timed out\n");
++		goto init_irq_cleanup;
++	}
 +
-+			dev->dvbv3_ber = bit_error;
-+			dev->post_bit_error += bit_error;
- 			c->post_bit_error.stat[0].scale = FE_SCALE_COUNTER;
- 			c->post_bit_error.stat[0].uvalue = dev->post_bit_error;
- 			dev->block_error += buf[4] << 8 | buf[5] << 0;
+ 	return tpm_chip_register(chip);
+ init_irq_cleanup:
+ 	do {
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
+index 6af92890518f8..1a8c3b698f104 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.h
++++ b/drivers/char/tpm/tpm_ibmvtpm.h
+@@ -31,6 +31,7 @@ struct ibmvtpm_crq_queue {
+ 	struct ibmvtpm_crq *crq_addr;
+ 	u32 index;
+ 	u32 num_entry;
++	wait_queue_head_t wq;
+ };
+ 
+ struct ibmvtpm_dev {
 -- 
 2.25.1
 
