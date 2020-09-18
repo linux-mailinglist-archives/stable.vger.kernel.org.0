@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38AC626EF2F
-	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C086426EF2C
+	for <lists+stable@lfdr.de>; Fri, 18 Sep 2020 04:33:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727960AbgIRCdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Sep 2020 22:33:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41114 "EHLO mail.kernel.org"
+        id S1727769AbgIRCds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Sep 2020 22:33:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728972AbgIRCNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:13:40 -0400
+        id S1726935AbgIRCNl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:13:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAD302389E;
-        Fri, 18 Sep 2020 02:13:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFF4C235F8;
+        Fri, 18 Sep 2020 02:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600395219;
-        bh=ebj9lJkI57ng6Tqyc3i4ARW/ZirUUSd+psChkdtWmhU=;
+        s=default; t=1600395220;
+        bh=BK5x3yg1WtDHgsbiPOGElnw8lWh4BW1Nka4Uaa9FLUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YHxDr40m2su52PZLXHbYadSjJcsoghd9lVFNAwQAMb63s4zLO3ecG7AiAx7oMlFm4
-         fRa3JglQGfpG7A8DrQF6T6iY6vVc4BfPvRdsO3X9lS9GyxAPUmj+b8UG57PLoTE83i
-         TnDdP4TcL9MykHDsnfpm/hQ0dBCnqYaT8Xxcjh2A=
+        b=raP1D2N8cIf5/0O3cJm2k2Q6eFiLixY90gZA8tJvA+kOaUVExN6diYbrYnwzmeDT0
+         de2cnj66xKkpOdoNw8DYY1M+e1VdLfzlzrr1PSEyu7W7IXXuRFkJ/oHQoS1dRSMifw
+         cKQ5Tve9Dw4wgc5q10XsmAnmX0BF7zpkqrldfKYs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Berger <stefanb@linux.ibm.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        tpmdd-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.14 066/127] tpm: ibmvtpm: Wait for buffer to be set before proceeding
-Date:   Thu, 17 Sep 2020 22:11:19 -0400
-Message-Id: <20200918021220.2066485-66-sashal@kernel.org>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, rtc-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 067/127] rtc: ds1374: fix possible race condition
+Date:   Thu, 17 Sep 2020 22:11:20 -0400
+Message-Id: <20200918021220.2066485-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200918021220.2066485-1-sashal@kernel.org>
 References: <20200918021220.2066485-1-sashal@kernel.org>
@@ -44,77 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit d8d74ea3c00214aee1e1826ca18e77944812b9b4 ]
+[ Upstream commit c11af8131a4e7ba1960faed731ee7e84c2c13c94 ]
 
-Synchronize with the results from the CRQs before continuing with
-the initialization. This avoids trying to send TPM commands while
-the rtce buffer has not been allocated, yet.
+The RTC IRQ is requested before the struct rtc_device is allocated,
+this may lead to a NULL pointer dereference in the IRQ handler.
 
-This patch fixes an existing race condition that may occurr if the
-hypervisor does not quickly respond to the VTPM_GET_RTCE_BUFFER_SIZE
-request sent during initialization and therefore the ibmvtpm->rtce_buf
-has not been allocated at the time the first TPM command is sent.
+To fix this issue, allocating the rtc_device struct before requesting
+the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
+to register the RTC device.
 
-Fixes: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM")
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Acked-by: Nayna Jain <nayna@linux.ibm.com>
-Tested-by: Nayna Jain <nayna@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200306073404.56921-1-alexandre.belloni@bootlin.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c | 9 +++++++++
- drivers/char/tpm/tpm_ibmvtpm.h | 1 +
- 2 files changed, 10 insertions(+)
+ drivers/rtc/rtc-ds1374.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
-index 569e93e1f06cc..3ba67bc6baba0 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -588,6 +588,7 @@ static irqreturn_t ibmvtpm_interrupt(int irq, void *vtpm_instance)
- 	 */
- 	while ((crq = ibmvtpm_crq_get_next(ibmvtpm)) != NULL) {
- 		ibmvtpm_crq_process(crq, ibmvtpm);
-+		wake_up_interruptible(&ibmvtpm->crq_queue.wq);
- 		crq->valid = 0;
- 		smp_wmb();
- 	}
-@@ -635,6 +636,7 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
- 	}
+diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
+index 38a2e9e684df4..77a106e90124b 100644
+--- a/drivers/rtc/rtc-ds1374.c
++++ b/drivers/rtc/rtc-ds1374.c
+@@ -620,6 +620,10 @@ static int ds1374_probe(struct i2c_client *client,
+ 	if (!ds1374)
+ 		return -ENOMEM;
  
- 	crq_q->num_entry = CRQ_RES_BUF_SIZE / sizeof(*crq_q->crq_addr);
-+	init_waitqueue_head(&crq_q->wq);
- 	ibmvtpm->crq_dma_handle = dma_map_single(dev, crq_q->crq_addr,
- 						 CRQ_RES_BUF_SIZE,
- 						 DMA_BIDIRECTIONAL);
-@@ -687,6 +689,13 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
- 	if (rc)
- 		goto init_irq_cleanup;
- 
-+	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
-+				ibmvtpm->rtce_buf != NULL,
-+				HZ)) {
-+		dev_err(dev, "CRQ response timed out\n");
-+		goto init_irq_cleanup;
-+	}
++	ds1374->rtc = devm_rtc_allocate_device(&client->dev);
++	if (IS_ERR(ds1374->rtc))
++		return PTR_ERR(ds1374->rtc);
 +
- 	return tpm_chip_register(chip);
- init_irq_cleanup:
- 	do {
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
-index 91dfe766d0800..4f6a124601db4 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.h
-+++ b/drivers/char/tpm/tpm_ibmvtpm.h
-@@ -31,6 +31,7 @@ struct ibmvtpm_crq_queue {
- 	struct ibmvtpm_crq *crq_addr;
- 	u32 index;
- 	u32 num_entry;
-+	wait_queue_head_t wq;
- };
+ 	ds1374->client = client;
+ 	i2c_set_clientdata(client, ds1374);
  
- struct ibmvtpm_dev {
+@@ -641,12 +645,11 @@ static int ds1374_probe(struct i2c_client *client,
+ 		device_set_wakeup_capable(&client->dev, 1);
+ 	}
+ 
+-	ds1374->rtc = devm_rtc_device_register(&client->dev, client->name,
+-						&ds1374_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(ds1374->rtc)) {
+-		dev_err(&client->dev, "unable to register the class device\n");
+-		return PTR_ERR(ds1374->rtc);
+-	}
++	ds1374->rtc->ops = &ds1374_rtc_ops;
++
++	ret = rtc_register_device(ds1374->rtc);
++	if (ret)
++		return ret;
+ 
+ #ifdef CONFIG_RTC_DRV_DS1374_WDT
+ 	save_client = client;
 -- 
 2.25.1
 
