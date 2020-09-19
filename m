@@ -2,104 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40017270F20
-	for <lists+stable@lfdr.de>; Sat, 19 Sep 2020 17:36:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDA9E270F65
+	for <lists+stable@lfdr.de>; Sat, 19 Sep 2020 18:19:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726681AbgISPgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Sep 2020 11:36:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:21361 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726670AbgISPgI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Sep 2020 11:36:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1600529767;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XnnTTEIYoAMS908w1ROcklMBcFclX4Kd46b1r/IPFT0=;
-        b=I052Qi2ZARwS+K0kkr/CV4GfFGb88M/Petg4y8scSjswNDzGsmzR3NkIm67gYXHCc7xV9X
-        Uh+brti7945OsCRQvv/LyvIOq/Mo7GPP1tKaSCUxEnPFIxxUyP+//0a1/QZp3unJuP7Mvw
-        yfKb8jbLDWsNN6yFCV/n2rgYuKZxiR8=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-278-M-lUEJmmMm2fmQslArGz-w-1; Sat, 19 Sep 2020 11:36:05 -0400
-X-MC-Unique: M-lUEJmmMm2fmQslArGz-w-1
-Received: by mail-wr1-f70.google.com with SMTP id d9so3561529wrv.16
-        for <stable@vger.kernel.org>; Sat, 19 Sep 2020 08:36:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=XnnTTEIYoAMS908w1ROcklMBcFclX4Kd46b1r/IPFT0=;
-        b=rvJD7O95IfwOwTqGmpoXdFJfp1hiwWeao4jZQdg8mreBS+5eiHl3DaUHbnji0VK5l/
-         cNC23ZePEDwAck2G/rTgH/j1pSxBvtEIefJ1VBSZ5tlvFa1C//tTxrq+LsiRUpVYieqe
-         0pyEkSGNMWlYm+EcZArMBD1sLjWLw0jRgeVEjpksQMF61rxUQglwvBngf+O1Xj/jVE9t
-         8idWMz4+8yf6yo9aPPIprml0uI4jaGh4fZHw17uV5kXWPbjYoTwVAagP8UzMXN4XTyAP
-         HiOvydPMoKtyQOGKoErtJbwDfRG44+RClFCXwmMhHr51zzlo/2JfeeNjH4aNIQv7vCbJ
-         AFnA==
-X-Gm-Message-State: AOAM532nqfSyuETusDU8lzQsY39wbJHN5oyx34NQjZIOlDLigNUraXTc
-        Y6KQsUSF6Mih8tdQ1vrenAftGshYKu8cOT/Kz7fl+kh7o9Lm5VuHexqJ6K8+QZVA4HQgBWjbehr
-        C32m5TW0aHWvIT4c9
-X-Received: by 2002:adf:d4c7:: with SMTP id w7mr44311886wrk.263.1600529763970;
-        Sat, 19 Sep 2020 08:36:03 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzVGDEQuwZFSFM7b48KqNUPZW/rcdMmRJHBVwzymzEmhdRP2MHpLJ2JvhoMk9zYGbmu6d8Tvg==
-X-Received: by 2002:adf:d4c7:: with SMTP id w7mr44311854wrk.263.1600529763724;
-        Sat, 19 Sep 2020 08:36:03 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:b20a:b600:521c:512d? ([2001:b07:6468:f312:b20a:b600:521c:512d])
-        by smtp.gmail.com with ESMTPSA id m4sm12529789wro.18.2020.09.19.08.36.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 19 Sep 2020 08:36:03 -0700 (PDT)
-Subject: Re: [PATCH] KVM: MIPS: Change the definition of kvm type
-To:     Thomas Huth <thuth@redhat.com>, Huacai Chen <chenhc@lemote.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <f4bug@amsat.org>
-Cc:     kvm@vger.kernel.org, linux-mips@vger.kernel.org,
-        Fuxin Zhang <zhangfx@lemote.com>,
-        Huacai Chen <chenhuacai@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>, stable@vger.kernel.org
-References: <1599734031-28746-1-git-send-email-chenhc@lemote.com>
- <45a71ce2-42d2-ba49-72a3-155dacede289@redhat.com>
- <dc709e46-1daf-98f2-8eb1-436096bb3274@redhat.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <3359152a-627a-162f-8731-75c39d46ef40@redhat.com>
-Date:   Sat, 19 Sep 2020 17:36:01 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+        id S1726629AbgISQTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Sep 2020 12:19:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41366 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726463AbgISQTJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Sep 2020 12:19:09 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87AF0C0613CE;
+        Sat, 19 Sep 2020 09:19:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=UtLIhuknFyVgzypgVMrilrLbQcc//rMRWCAqNplTMFw=; b=i6jr004Sx1Q6M4lYER+1trw9PV
+        UJHcGIjVJMAmfeQG+N56N2SDIeDrPL0XfrYQ/+FmoKrJc3yo8Glyvc99/wgfIrpz//tP0I5pYQBPt
+        9JMHDBzXu5rDdb3nkSRDCdlTtn+47LLgN+39dg+qMyTkTVDBUmfwzQrTKhKP3gPBkNTf0X4qQ7MBH
+        x5BnfatJ8xgm4CMQxPz2usJsz+isLKnW6hnLInP9WX/t2444SR9BgoXJVGJaTYdZ3bjiBYd8+owWT
+        ZEKPl4qX5Dsdi5Q2PylRHQ/398TFCV6jHU26MTmGw78Vqx10ZhrbwDyK7NHpFY9uBdkiOJp8XGDvh
+        CzyJ/u6w==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kJfZX-00028j-Be; Sat, 19 Sep 2020 16:18:47 +0000
+Date:   Sat, 19 Sep 2020 17:18:47 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        alex.shi@linux.alibaba.com, cai@lca.pw, hannes@cmpxchg.org,
+        linux-mm@kvack.org, mhocko@suse.com, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, shakeelb@google.com,
+        shy828301@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject: Re: [patch 04/15] shmem: shmem_writepage() split unlikely i915 THP
+Message-ID: <20200919161847.GN32101@casper.infradead.org>
+References: <20200918211925.7e97f0ef63d92f5cfe5ccbc5@linux-foundation.org>
+ <20200919042009.bomzxmrg7%akpm@linux-foundation.org>
+ <20200919044408.GL32101@casper.infradead.org>
+ <alpine.LSU.2.11.2009182208210.13525@eggly.anvils>
 MIME-Version: 1.0
-In-Reply-To: <dc709e46-1daf-98f2-8eb1-436096bb3274@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.LSU.2.11.2009182208210.13525@eggly.anvils>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 19/09/20 11:18, Thomas Huth wrote:
->>>
->>> So I define like this:
->>>
->>>  #define KVM_VM_MIPS_AUTO        0
->>>  #define KVM_VM_MIPS_VZ          1
->>>  #define KVM_VM_MIPS_TE          2
->>>
->>> Since VZ and TE cannot co-exists, using type 0 on a TE platform will
->>> still return success (so old user-space tools have no problems on new
->>> kernels); the advantage is that using type 0 on a VZ platform will not
->>> return failure. So, the only problem is "new user-space tools use type
->>> 2 on old kernels", but if we treat this as a kernel bug, we can backport
->>> this patch to old stable kernels.
->> I'm a bit wary to do that.  However it's not an issue for QEMU since it
->> generally updates the kernel headers.
-> Are there any other userspace programs beside QEMU that use KVM on MIPS?
-> If there aren't any other serious userspace programs, I think we should
-> go ahead with this patch here. Otherwise, what are the other programs
-> that could be affected?
+On Fri, Sep 18, 2020 at 10:44:32PM -0700, Hugh Dickins wrote:
+> It behaves a lot better with this patch in than without it; but you're
+> right, only the head will get written to swap, and the tails left in
+> memory; with dirty cleared, so they may be left indefinitely (I've
+> not yet looked to see when if ever PageDirty might get set later).
+> 
+> Hmm. It may just be a matter of restyling the i915 code with
+> 
+> 		if (!page_mapped(page)) {
+> 			clear_page_dirty_for_io(page);
+> 
+> but I don't want to rush to that conclusion - there might turn
+> out to be a good way of doing it at the shmem_writepage() end, but
+> probably only hacks available.  I'll mull it over: it deserves some
+> thought about what would suit, if a THP arrived here some other way.
 
-kvmtool (aka lkvm) I guess.  I don't know if it is affected but I
-wouldn't be worried.
+I think the ultimate solution is to do as I have done for iomap and make
+->writepage handle arbitrary sized pages.  However, I don't know the
+swap I/O path particularly well, and I would rather not learn it just yet.
 
-Paolo
+How about this for a band-aid until we sort that out properly?  Just mark
+the page as dirty before splitting it so subsequent iterations see the
+subpages as dirty.  Arguably, we should use set_page_dirty() instead of
+SetPageDirty, but I don't think i915 cares.  In particular, it uses
+an untagged iteration instead of searching for PAGECACHE_TAG_DIRTY.
+
+diff --git a/mm/shmem.c b/mm/shmem.c
+index 271548ca20f3..6231207ab1eb 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -1362,8 +1362,21 @@ static int shmem_writepage(struct page *page, struct writeback_control *wbc)
+ 	swp_entry_t swap;
+ 	pgoff_t index;
+ 
+-	VM_BUG_ON_PAGE(PageCompound(page), page);
+ 	BUG_ON(!PageLocked(page));
++
++	/*
++	 * If /sys/kernel/mm/transparent_hugepage/shmem_enabled is "force",
++	 * then drivers/gpu/drm/i915/gem/i915_gem_shmem.c gets huge pages,
++	 * and its shmem_writeback() needs them to be split when swapping.
++	 */
++	if (PageTransCompound(page)) {
++		/* Ensure the subpages are still dirty */
++		SetPageDirty(page);
++		if (split_huge_page(page) < 0)
++			goto redirty;
++		ClearPageDirty(page);
++	}
++
+ 	mapping = page->mapping;
+ 	index = page->index;
+ 	inode = mapping->host;
 
