@@ -2,144 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 326AC270A8A
-	for <lists+stable@lfdr.de>; Sat, 19 Sep 2020 06:20:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E5B0270ABD
+	for <lists+stable@lfdr.de>; Sat, 19 Sep 2020 06:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726249AbgISEUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Sep 2020 00:20:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55052 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726009AbgISEUc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Sep 2020 00:20:32 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60A0E21D43;
-        Sat, 19 Sep 2020 04:20:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600489231;
-        bh=IsciPojv2+hUVaVLTM3iG2V5aNsBJRVuhcx6O3Zlqb4=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=MS7RHm7OEKbcYwFHjMHeJNRK/fMtJkcTsTZb1qTpZMX/Bej7Kqt0xAsNEfJnGqHfr
-         7MOrFC7eN1N3J3ou/2+CNApAvrqkARe/90F5/mD9yXNO2ROvByO1AA2Xf8koVdlflb
-         cPV9iTUFwxqtGlt97mSJ4pGf+hzgRc+Iemfi4p8c=
-Date:   Fri, 18 Sep 2020 21:20:31 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, david@redhat.com, linux-mm@kvack.org,
-        mhocko@suse.com, mm-commits@vger.kernel.org, osalvador@suse.de,
-        pasha.tatashin@soleen.com, richard.weiyang@gmail.com,
-        rientjes@google.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vbabka@suse.cz
-Subject:  [patch 11/15] mm/memory_hotplug: drain per-cpu pages
- again during memory offline
-Message-ID: <20200919042031.EJlTFXy4s%akpm@linux-foundation.org>
-In-Reply-To: <20200918211925.7e97f0ef63d92f5cfe5ccbc5@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726202AbgISEor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Sep 2020 00:44:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46592 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726054AbgISEor (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Sep 2020 00:44:47 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10855C0613CE;
+        Fri, 18 Sep 2020 21:44:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=eUq4iAXCgmFRQuJG0LnzSDMdVRozT7gWX2kuRsCkalg=; b=gSbClo97rMqgVp1lVlT/Lan5kn
+        Sk7fMmRclfGNJfh6EwNI7gK7TPAkF+1VBfLHxRIw9+vRa6CNbD6YslYLCWU6924xhBw3i1+VLFOBo
+        KLTOtV/e08d0DyTIMNhi3QRsy7x7TImPyd58y/0fenwah9pZwpPRAoN19ri40HdQGc35cenMxHm/t
+        hnQtHXyznv+NLgXHNvhOmwVRoVN7obH3346uF7Mq2gGO6yCCe7GypOD1THHY+mhE/6rbY8RzFLy0I
+        oHqg1NvQUyEltMq3Qubls05CH3qGElWTCqCPVExyOJcOCwf0X6Wa3kSbl9QQWcjSkpvX+Kq9KnnaJ
+        ZHEQx8Ug==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kJUjI-0006WP-L8; Sat, 19 Sep 2020 04:44:08 +0000
+Date:   Sat, 19 Sep 2020 05:44:08 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     alex.shi@linux.alibaba.com, cai@lca.pw, hannes@cmpxchg.org,
+        hughd@google.com, linux-mm@kvack.org, mhocko@suse.com,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        shakeelb@google.com, shy828301@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject: Re: [patch 04/15] shmem: shmem_writepage() split unlikely i915 THP
+Message-ID: <20200919044408.GL32101@casper.infradead.org>
+References: <20200918211925.7e97f0ef63d92f5cfe5ccbc5@linux-foundation.org>
+ <20200919042009.bomzxmrg7%akpm@linux-foundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200919042009.bomzxmrg7%akpm@linux-foundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
-Subject: mm/memory_hotplug: drain per-cpu pages again during memory offline
+On Fri, Sep 18, 2020 at 09:20:09PM -0700, Andrew Morton wrote:
+> LRU page reclaim always splits the shmem huge page first: I'd prefer not
+> to demand that of i915, so check and split compound in shmem_writepage().
 
-There is a race during page offline that can lead to infinite loop:
-a page never ends up on a buddy list and __offline_pages() keeps
-retrying infinitely or until a termination signal is received.
+Sorry for not checking this earlier, but I don't think this is right.
 
-Thread#1 - a new process:
+        for (i = 0; i < obj->base.size >> PAGE_SHIFT; i++) {
+...
+                if (!page_mapped(page) && clear_page_dirty_for_io(page)) {
+...
+                        ret = mapping->a_ops->writepage(page, &wbc);
 
-load_elf_binary
- begin_new_exec
-  exec_mmap
-   mmput
-    exit_mmap
-     tlb_finish_mmu
-      tlb_flush_mmu
-       release_pages
-        free_unref_page_list
-         free_unref_page_prepare
-          set_pcppage_migratetype(page, migratetype);
-             // Set page->index migration type below  MIGRATE_PCPTYPES
+so we cleared the dirty bit on the entire hugepage, but then split
+it after clearing the dirty bit, so the subpages are now not dirty.
+I think we'll lose writes as a result?  At least we won't swap pages
+out that deserve to be paged out.
 
-Thread#2 - hot-removes memory
-__offline_pages
-  start_isolate_page_range
-    set_migratetype_isolate
-      set_pageblock_migratetype(page, MIGRATE_ISOLATE);
-        Set migration type to MIGRATE_ISOLATE-> set
-        drain_all_pages(zone);
-             // drain per-cpu page lists to buddy allocator.
-
-Thread#1 - continue
-         free_unref_page_commit
-           migratetype = get_pcppage_migratetype(page);
-              // get old migration type
-           list_add(&page->lru, &pcp->lists[migratetype]);
-              // add new page to already drained pcp list
-
-Thread#2
-Never drains pcp again, and therefore gets stuck in the loop.
-
-The fix is to try to drain per-cpu lists again after
-check_pages_isolated_cb() fails.
-
-Link: https://lkml.kernel.org/r/20200903140032.380431-1-pasha.tatashin@soleen.com
-Link: https://lkml.kernel.org/r/20200904151448.100489-2-pasha.tatashin@soleen.com
-Link: http://lkml.kernel.org/r/20200904070235.GA15277@dhcp22.suse.cz
-Fixes: c52e75935f8d ("mm: remove extra drain pages on pcp list")
-Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memory_hotplug.c |   14 ++++++++++++++
- mm/page_isolation.c |    8 ++++++++
- 2 files changed, 22 insertions(+)
-
---- a/mm/memory_hotplug.c~mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline
-+++ a/mm/memory_hotplug.c
-@@ -1575,6 +1575,20 @@ static int __ref __offline_pages(unsigne
- 		/* check again */
- 		ret = walk_system_ram_range(start_pfn, end_pfn - start_pfn,
- 					    NULL, check_pages_isolated_cb);
-+		/*
-+		 * per-cpu pages are drained in start_isolate_page_range, but if
-+		 * there are still pages that are not free, make sure that we
-+		 * drain again, because when we isolated range we might
-+		 * have raced with another thread that was adding pages to pcp
-+		 * list.
-+		 *
-+		 * Forward progress should be still guaranteed because
-+		 * pages on the pcp list can only belong to MOVABLE_ZONE
-+		 * because has_unmovable_pages explicitly checks for
-+		 * PageBuddy on freed pages on other zones.
-+		 */
-+		if (ret)
-+			drain_all_pages(zone);
- 	} while (ret);
- 
- 	/* Ok, all of our target is isolated.
---- a/mm/page_isolation.c~mm-memory_hotplug-drain-per-cpu-pages-again-during-memory-offline
-+++ a/mm/page_isolation.c
-@@ -170,6 +170,14 @@ __first_valid_page(unsigned long pfn, un
-  * pageblocks we may have modified and return -EBUSY to caller. This
-  * prevents two threads from simultaneously working on overlapping ranges.
-  *
-+ * Please note that there is no strong synchronization with the page allocator
-+ * either. Pages might be freed while their page blocks are marked ISOLATED.
-+ * In some cases pages might still end up on pcp lists and that would allow
-+ * for their allocation even when they are in fact isolated already. Depending
-+ * on how strong of a guarantee the caller needs drain_all_pages might be needed
-+ * (e.g. __offline_pages will need to call it after check for isolated range for
-+ * a next retry).
-+ *
-  * Return: the number of isolated pageblocks on success and -EBUSY if any part
-  * of range cannot be isolated.
-  */
-_
+>  
+> -	VM_BUG_ON_PAGE(PageCompound(page), page);
+> +	/*
+> +	 * If /sys/kernel/mm/transparent_hugepage/shmem_enabled is "force",
+> +	 * then drivers/gpu/drm/i915/gem/i915_gem_shmem.c gets huge pages,
+> +	 * and its shmem_writeback() needs them to be split when swapping.
+> +	 */
+> +	if (PageTransCompound(page))
+> +		if (split_huge_page(page) < 0)
+> +			goto redirty;
+> +
+>  	BUG_ON(!PageLocked(page));
+>  	mapping = page->mapping;
+>  	index = page->index;
+> _
+> 
