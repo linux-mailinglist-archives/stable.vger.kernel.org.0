@@ -2,73 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4461327135E
-	for <lists+stable@lfdr.de>; Sun, 20 Sep 2020 13:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA9352714C3
+	for <lists+stable@lfdr.de>; Sun, 20 Sep 2020 16:05:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726293AbgITLDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Sep 2020 07:03:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43358 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726280AbgITLDd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Sep 2020 07:03:33 -0400
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09AC1C061755
-        for <stable@vger.kernel.org>; Sun, 20 Sep 2020 04:03:33 -0700 (PDT)
-Received: by mail-vs1-xe43.google.com with SMTP id a16so6413610vsp.12
-        for <stable@vger.kernel.org>; Sun, 20 Sep 2020 04:03:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=UThaOfazySwKmdqM61PbVu6ieZnjOdT2RaJmyKpIZAw=;
-        b=O7ej18gCGq0WxY1QQCN+sNtGYsphBUGP3Tz+T//XlcHFjnOsKUtE3330ER6+sbBb3m
-         AZ+3xEqSBohbQCXUWbt2fR1OFahIYw1p3Vm2t/DmLJKsKDUd5HOcTbZ36v3WypE9g5EE
-         oYvMzpQqvdCVkPc67Y+BhRD9nK/j/klgPViDgf0etX1nyEQZewuqsAM7GdXXBErSHhMw
-         jrz57JOnbyIuq9jn9gWr4FwArfwDZ5/UuVmsh1WGerePS8HH3CvPRqQwIld8PaqGkjQW
-         O4fyzXJu5t9sCE+IEP45zgYAIuVfBcRafu2FJeqzWfpNzFO+YeJhqdTYQPWNCHGRh70z
-         T4RA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=UThaOfazySwKmdqM61PbVu6ieZnjOdT2RaJmyKpIZAw=;
-        b=Qkde5OTxw+GkZ+NSQktBAYzsaeUm/dQMpKCCNKFzIWAYEIKbzRyTlc9JFpBhJNehOQ
-         O40ETfQ6NJksdKi7Xzti7kylg5/B8QJKbLV9aoMlYYpDRsUhqoSIEL+0oUtsJJI5n4sr
-         wIy4n5girDPKFc1gnQiJYb2fGVCpnhuE9jCpjT475tRL9p8xrKMnQZfXfbMP39y/8C7v
-         MW4j7YocIgEaRy7NS8WnYWaHYDk2zq4ZS3fHTukE2cPrGb0iu7183uoYw2Wq1gkZyZcu
-         rHapHyBoCCCL/0XiYBA+3dIqxYdlJ9HHQ1hsjrvEec6+uE6fKd9QJ8lCmRHuqr6qUsvE
-         KP9w==
-X-Gm-Message-State: AOAM533saBFx5xApxIyTdG9gVNzhupOTeAlpVGwXy7W6WbrBfGSsLk6l
-        uA8lEjMt02q+PSZajeaPhe6wbWc2UNOKCPkFHRw=
-X-Google-Smtp-Source: ABdhPJxE9CsdN3mIXPUBmwI/HwQJoNsuPtMCDCrJPbmf2els55ME3qC/yaQH0ET4W1Igfbb0H0/8C+e9MYUa8hZpvaY=
-X-Received: by 2002:a67:e991:: with SMTP id b17mr25892170vso.16.1600599811406;
- Sun, 20 Sep 2020 04:03:31 -0700 (PDT)
+        id S1726305AbgITOFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Sep 2020 10:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33308 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726267AbgITOFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 20 Sep 2020 10:05:36 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE4F32073A;
+        Sun, 20 Sep 2020 14:05:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600610736;
+        bh=Z9d9tah8JqHOP5pL4YoUeFKHAnNfZixgM4oEIn6E09o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=t1rWOtUIWoQhkhK+H8uAHB/270vd84ch2gS+q+T01vLu2Hzs4ShnDXVb38Eehh7S1
+         XFOpt9uaDn+Caqd4yEVGc1R1mBZzociuhUb6HHlIHtqZS974z2SM6Z4XdMPHZwYOPF
+         tKmjbC0qD0gQp3tcXanrLTgucXcmaoWVSEZ3dKik=
+Date:   Sun, 20 Sep 2020 10:05:34 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Vincent Whitchurch <vincent.whitchurch@axis.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH AUTOSEL 4.14 05/15] regulator: pwm: Fix machine
+ constraints application
+Message-ID: <20200920140534.GK2431@sasha-vm>
+References: <20200914130526.1804913-1-sashal@kernel.org>
+ <20200914130526.1804913-5-sashal@kernel.org>
+ <20200915075508.jddoubwnptjcqtru@axis.com>
 MIME-Version: 1.0
-Received: by 2002:a67:d189:0:0:0:0:0 with HTTP; Sun, 20 Sep 2020 04:03:31
- -0700 (PDT)
-Reply-To: drtracywilliam09@gmail.com
-From:   Dr Tracy William <tracylabosolove2020@gmail.com>
-Date:   Sun, 20 Sep 2020 11:03:31 +0000
-Message-ID: <CAA+ky9fLyHq3fx7D5vkH5d-6EdeUzSuc69zoMe=_iRggUCwVpQ@mail.gmail.com>
-Subject: how are you doing.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200915075508.jddoubwnptjcqtru@axis.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Sep 15, 2020 at 09:55:08AM +0200, Vincent Whitchurch wrote:
+>On Mon, Sep 14, 2020 at 03:05:16PM +0200, Sasha Levin wrote:
+>> From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+>>
+>> [ Upstream commit 59ae97a7a9e1499c2070e29841d1c4be4ae2994a ]
+>>
+>> If the zero duty cycle doesn't correspond to any voltage in the voltage
+>> table, the PWM regulator returns an -EINVAL from get_voltage_sel() which
+>> results in the core erroring out with a "failed to get the current
+>> voltage" and ending up not applying the machine constraints.
+>>
+>> Instead, return -ENOTRECOVERABLE which makes the core set the voltage
+>> since it's at an unknown value.
+>
+>For this patch to work it needs 84b3a7c9c6befe5ab4d49070fe7 ("regulator:
+>core: Allow for regulators that can't be read at bootup") which was
+>merged in v4.18.  Without that this patch is not going to have any
+>effect so it probably shouldn't be backported to older kernels.
+
+Dropped for those older kernels, thanks!
+
 -- 
-how are you doing.
-Its my pleasure to contact you for a long term relationship. I was
-just surfing through the Internet when i found your email address.
-I want to make a new and special friend. Lets keep in touch and get to
-know more about each other and see what
-happens in future.
-
-My name is Tracy William,I am from the United States of America,but
-presently live and work in England. Pls reply to my personal
-email(drtracywilliam09@gmail.com)
-I will send my details and pictures as soon as i hear from you
-bye
-Tracy
-
-Dr Tracy William
+Thanks,
+Sasha
