@@ -2,79 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 402DB2712ED
-	for <lists+stable@lfdr.de>; Sun, 20 Sep 2020 10:38:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4461327135E
+	for <lists+stable@lfdr.de>; Sun, 20 Sep 2020 13:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726375AbgITIi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Sep 2020 04:38:26 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:59824 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726370AbgITIi0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Sep 2020 04:38:26 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id BE7501C0B94; Sun, 20 Sep 2020 10:28:39 +0200 (CEST)
-Date:   Sun, 20 Sep 2020 10:28:38 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, dan.j.williams@intel.com,
-        vkoul@kernel.org, ludovic.desroches@microchip.com,
-        stable@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: [PATCH 4.19] dmaengine: at_hdmac: Fix memory leak
-Message-ID: <20200920082838.GA813@amd>
+        id S1726293AbgITLDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Sep 2020 07:03:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43358 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726280AbgITLDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Sep 2020 07:03:33 -0400
+Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09AC1C061755
+        for <stable@vger.kernel.org>; Sun, 20 Sep 2020 04:03:33 -0700 (PDT)
+Received: by mail-vs1-xe43.google.com with SMTP id a16so6413610vsp.12
+        for <stable@vger.kernel.org>; Sun, 20 Sep 2020 04:03:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=UThaOfazySwKmdqM61PbVu6ieZnjOdT2RaJmyKpIZAw=;
+        b=O7ej18gCGq0WxY1QQCN+sNtGYsphBUGP3Tz+T//XlcHFjnOsKUtE3330ER6+sbBb3m
+         AZ+3xEqSBohbQCXUWbt2fR1OFahIYw1p3Vm2t/DmLJKsKDUd5HOcTbZ36v3WypE9g5EE
+         oYvMzpQqvdCVkPc67Y+BhRD9nK/j/klgPViDgf0etX1nyEQZewuqsAM7GdXXBErSHhMw
+         jrz57JOnbyIuq9jn9gWr4FwArfwDZ5/UuVmsh1WGerePS8HH3CvPRqQwIld8PaqGkjQW
+         O4fyzXJu5t9sCE+IEP45zgYAIuVfBcRafu2FJeqzWfpNzFO+YeJhqdTYQPWNCHGRh70z
+         T4RA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=UThaOfazySwKmdqM61PbVu6ieZnjOdT2RaJmyKpIZAw=;
+        b=Qkde5OTxw+GkZ+NSQktBAYzsaeUm/dQMpKCCNKFzIWAYEIKbzRyTlc9JFpBhJNehOQ
+         O40ETfQ6NJksdKi7Xzti7kylg5/B8QJKbLV9aoMlYYpDRsUhqoSIEL+0oUtsJJI5n4sr
+         wIy4n5girDPKFc1gnQiJYb2fGVCpnhuE9jCpjT475tRL9p8xrKMnQZfXfbMP39y/8C7v
+         MW4j7YocIgEaRy7NS8WnYWaHYDk2zq4ZS3fHTukE2cPrGb0iu7183uoYw2Wq1gkZyZcu
+         rHapHyBoCCCL/0XiYBA+3dIqxYdlJ9HHQ1hsjrvEec6+uE6fKd9QJ8lCmRHuqr6qUsvE
+         KP9w==
+X-Gm-Message-State: AOAM533saBFx5xApxIyTdG9gVNzhupOTeAlpVGwXy7W6WbrBfGSsLk6l
+        uA8lEjMt02q+PSZajeaPhe6wbWc2UNOKCPkFHRw=
+X-Google-Smtp-Source: ABdhPJxE9CsdN3mIXPUBmwI/HwQJoNsuPtMCDCrJPbmf2els55ME3qC/yaQH0ET4W1Igfbb0H0/8C+e9MYUa8hZpvaY=
+X-Received: by 2002:a67:e991:: with SMTP id b17mr25892170vso.16.1600599811406;
+ Sun, 20 Sep 2020 04:03:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Received: by 2002:a67:d189:0:0:0:0:0 with HTTP; Sun, 20 Sep 2020 04:03:31
+ -0700 (PDT)
+Reply-To: drtracywilliam09@gmail.com
+From:   Dr Tracy William <tracylabosolove2020@gmail.com>
+Date:   Sun, 20 Sep 2020 11:03:31 +0000
+Message-ID: <CAA+ky9fLyHq3fx7D5vkH5d-6EdeUzSuc69zoMe=_iRggUCwVpQ@mail.gmail.com>
+Subject: how are you doing.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+how are you doing.
+Its my pleasure to contact you for a long term relationship. I was
+just surfing through the Internet when i found your email address.
+I want to make a new and special friend. Lets keep in touch and get to
+know more about each other and see what
+happens in future.
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+My name is Tracy William,I am from the United States of America,but
+presently live and work in England. Pls reply to my personal
+email(drtracywilliam09@gmail.com)
+I will send my details and pictures as soon as i hear from you
+bye
+Tracy
 
-
-This fixes memory leak in at_hdmac. Mainline does not have the same
-problem.
-
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-
-diff --git a/drivers/dma/at_hdmac.c b/drivers/dma/at_hdmac.c
-index 86427f6ba78c..0847b2055857 100644
---- a/drivers/dma/at_hdmac.c
-+++ b/drivers/dma/at_hdmac.c
-@@ -1714,8 +1714,10 @@ static struct dma_chan *at_dma_xlate(struct of_phand=
-le_args *dma_spec,
- 	atslave->dma_dev =3D &dmac_pdev->dev;
-=20
- 	chan =3D dma_request_channel(mask, at_dma_filter, atslave);
--	if (!chan)
-+	if (!chan) {
-+		kfree(atslave);
- 		return NULL;
-+	}
-=20
- 	atchan =3D to_at_dma_chan(chan);
- 	atchan->per_if =3D dma_spec->args[0] & 0xff;
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---XsQoSWH+UP9D9v3l
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl9nErYACgkQMOfwapXb+vI9BACgw3g6qlJ65PvDed0Jfrfa0voB
-nFMAoIHRW+dHA2qeUSnIg4WPsR58F/K2
-=U2YD
------END PGP SIGNATURE-----
-
---XsQoSWH+UP9D9v3l--
+Dr Tracy William
