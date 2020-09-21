@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D342127308E
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:06:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C832727301D
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:03:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728568AbgIUQdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:33:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58916 "EHLO mail.kernel.org"
+        id S1730231AbgIURCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 13:02:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728557AbgIUQdB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:33:01 -0400
+        id S1728789AbgIUQiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:38:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 055B72399C;
-        Mon, 21 Sep 2020 16:32:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3B88238EE;
+        Mon, 21 Sep 2020 16:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600705973;
-        bh=toxpiCs541mFXqnbYYRXvxXpCq2dj5tqD33uJsEyZ7g=;
+        s=default; t=1600706279;
+        bh=nGWOFiyoLHjQQRIgkjpq618G+pU8kcwBYByeFgmUjag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+guYuYpT7rqmaNArokn18mR+hhgbr9q20yJAKhnK4GieNfCZE2exobAECP/Dy1xR
-         xuuSYpR/hR5nxalAixG1ATW5Rd2uAWb3zEax42kExESYdY9dTAzmuAp4NkPnj48oKy
-         tUQrwymB/ij3Ftn2IhEV4RiaI/a8i0JfJk7FbTcI=
+        b=yMqFGbiMTbBmOOTThqTUBAxkRi1RK8e1OLreRPCwXiNbNCmqk0CmHBJZpY0f23Tj1
+         p/cWR2YabW1Nf2J0yecWITs7kPkLL9HyJZigBRtN51fTSr//PcqpxUOnclr+r571zv
+         UV39iOYBHj9JCgv9auygKuvg6p+yxeMtu8V7MLr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
-        Xie He <xie.he.0141@gmail.com>,
-        Krzysztof Halasa <khc@pm.waw.pl>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 07/46] drivers/net/wan/hdlc_cisco: Add hard_header_len
-Date:   Mon, 21 Sep 2020 18:27:23 +0200
-Message-Id: <20200921162033.700922943@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald <pmeerw@pmeerw.net>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 4.14 37/94] iio:accel:mma8452: Fix timestamp alignment and prevent data leak.
+Date:   Mon, 21 Sep 2020 18:27:24 +0200
+Message-Id: <20200921162037.247236916@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
-References: <20200921162033.346434578@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 1a545ebe380bf4c1433e3c136e35a77764fda5ad ]
+commit 89226a296d816727405d3fea684ef69e7d388bd8 upstream.
 
-This driver didn't set hard_header_len. This patch sets hard_header_len
-for it according to its header_ops->create function.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 16 byte u8 array on the stack.  As Lars also noted
+this anti pattern can involve a leak of data to userspace and that
+indeed can happen here.  We close both issues by moving to
+a suitable structure in the iio_priv() data with alignment
+ensured by use of an explicit c structure.  This data is allocated
+with kzalloc so no data can leak appart from previous readings.
 
-This driver's header_ops->create function (cisco_hard_header) creates
-a header of (struct hdlc_header), so hard_header_len should be set to
-sizeof(struct hdlc_header).
+The additional forcing of the 8 byte alignment of the timestamp
+is not strictly necessary but makes the code less fragile by
+making this explicit.
 
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Acked-by: Krzysztof Halasa <khc@pm.waw.pl>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c7eeea93ac60 ("iio: Add Freescale MMA8452Q 3-axis accelerometer driver")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wan/hdlc_cisco.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/accel/mma8452.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wan/hdlc_cisco.c b/drivers/net/wan/hdlc_cisco.c
-index 3f20808b5ff82..f8ed079d8bc3e 100644
---- a/drivers/net/wan/hdlc_cisco.c
-+++ b/drivers/net/wan/hdlc_cisco.c
-@@ -377,6 +377,7 @@ static int cisco_ioctl(struct net_device *dev, struct ifreq *ifr)
- 		memcpy(&state(hdlc)->settings, &new_settings, size);
- 		spin_lock_init(&state(hdlc)->lock);
- 		dev->header_ops = &cisco_header_ops;
-+		dev->hard_header_len = sizeof(struct hdlc_header);
- 		dev->type = ARPHRD_CISCO;
- 		netif_dormant_on(dev);
- 		return 0;
--- 
-2.25.1
-
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -105,6 +105,12 @@ struct mma8452_data {
+ 	u8 ctrl_reg1;
+ 	u8 data_cfg;
+ 	const struct mma_chip_info *chip_info;
++
++	/* Ensure correct alignment of time stamp when present */
++	struct {
++		__be16 channels[3];
++		s64 ts __aligned(8);
++	} buffer;
+ };
+ 
+ /**
+@@ -1003,14 +1009,13 @@ static irqreturn_t mma8452_trigger_handl
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct mma8452_data *data = iio_priv(indio_dev);
+-	u8 buffer[16]; /* 3 16-bit channels + padding + ts */
+ 	int ret;
+ 
+-	ret = mma8452_read(data, (__be16 *)buffer);
++	ret = mma8452_read(data, data->buffer.channels);
+ 	if (ret < 0)
+ 		goto done;
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->buffer,
+ 					   iio_get_time_ns(indio_dev));
+ 
+ done:
 
 
