@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3917272DB9
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:42:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89AC1272E4F
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729491AbgIUQmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:42:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46374 "EHLO mail.kernel.org"
+        id S1728268AbgIUQsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:48:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728673AbgIUQmV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:42:21 -0400
+        id S1729785AbgIUQro (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:47:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA253235F9;
-        Mon, 21 Sep 2020 16:42:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8914920874;
+        Mon, 21 Sep 2020 16:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706540;
-        bh=+Hl0YBs/9utIV16UpKBcDuyGwpz2oOC/MgeEPAGwuuk=;
+        s=default; t=1600706864;
+        bh=KoiQewurUmTji65mVdc6Lfdy0c2nwr0m75yeBPHoyiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5KU/FoNWqnVJIbeySmWkUnSgUqtqcY9nngQDl73AaTbbtRwpCwCYcbh6RMlCHCH0
-         wWmRq7vfiwelDBIFefXInXzqvl4AhU3mLIDMt8WlLg0NPsIWzivqRtgX0PH5MCRkl4
-         4s1FIo8mQobD8w1VZH1GMgttZp5kTGXMw62/3+d8=
+        b=0Pv0BG14BG5OpbqASd3XtdDyn2C68mvfvfCSFuXgbZ7ApGKRkJBC5tZfiX7Bqg30A
+         2ukLV5qLjRwphpMwibwst2WbYJYJmcgKznxWqCZuUAq33NUltZE5uiWIzDWZ07+jkO
+         SxDwoP/QbCenDQr9txFniNFDnL4xJWFYD1lhuM5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Vincent Huang <vincent.huang@tw.synaptics.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 43/49] Input: trackpoint - add new trackpoint variant IDs
-Date:   Mon, 21 Sep 2020 18:28:27 +0200
-Message-Id: <20200921162036.567357303@linuxfoundation.org>
+Subject: [PATCH 5.8 096/118] Input: trackpoint - add new trackpoint variant IDs
+Date:   Mon, 21 Sep 2020 18:28:28 +0200
+Message-Id: <20200921162040.825467744@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
-References: <20200921162034.660953761@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,7 +63,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/input/mouse/trackpoint.c
 +++ b/drivers/input/mouse/trackpoint.c
-@@ -20,10 +20,12 @@
+@@ -17,10 +17,12 @@
  #include "trackpoint.h"
  
  static const char * const trackpoint_variants[] = {
@@ -82,7 +82,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /*
 --- a/drivers/input/mouse/trackpoint.h
 +++ b/drivers/input/mouse/trackpoint.h
-@@ -27,10 +27,12 @@
+@@ -24,10 +24,12 @@
   * 0x01 was the original IBM trackpoint, others implement very limited
   * subset of trackpoint features.
   */
