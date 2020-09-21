@@ -2,104 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D68D272673
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:00:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A00A2726B9
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726496AbgIUOAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 10:00:05 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:40367 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727212AbgIUOAE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 10:00:04 -0400
-Received: by mail-lj1-f195.google.com with SMTP id s205so11170317lja.7;
-        Mon, 21 Sep 2020 07:00:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Hb+hvNgCGvB638VQzdE3NIGwCfs5oVJCLR3se4p/iOQ=;
-        b=mmArRY58tz1JUoF4Mt13TyuEU2tR1XntFGnzjmQZIURnM8V4zoV+WGF4Go2XSqQe6f
-         IKc40KM285evvj9AiLc66SixWYy5Fb0rqiwyEKe9nYSqvH8NKx9+VxGl9h8RzXYqHB95
-         J0L5K4WiVm0VUo7tarqlkVaSnKdRJGEZUi3/F1WbbAjUOq1siiNlGn71SjBPpjqmmSn7
-         n0cbYDN7sMVrMj6y8TgvTfdjBvnXc3rGXCXSz4gUq4BdxdsmwEp17jBPl4Hiuoy74EMp
-         8QFwGpZaG6bCMc3gdx9CRQl4TbMZiZ8aCC5qEkTOKYvOz1iAhfDUFBCAKFQHNAgVXt+L
-         5dLw==
-X-Gm-Message-State: AOAM530RPtuzKJjdOevWz0D+fUvTMpq/Zh/GsJVxNqlkK5sKeHYhs+gd
-        aFHur82lGooDK3R3+pzJKfE=
-X-Google-Smtp-Source: ABdhPJz7LguBTd+8s7pivgoffUS7JzHCqg1FrpvAy9NmuriFUwh+MTpgAq7UPuAEvXTmBIZ/FLMscg==
-X-Received: by 2002:a2e:7215:: with SMTP id n21mr16504713ljc.438.1600696801854;
-        Mon, 21 Sep 2020 07:00:01 -0700 (PDT)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id k205sm2594711lfk.19.2020.09.21.07.00.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2020 07:00:01 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@xi.terra>)
-        id 1kKMMF-0006Gu-2Q; Mon, 21 Sep 2020 15:59:55 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Oliver Neukum <oneukum@suse.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org,
-        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
-        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2 2/4] USB: cdc-acm: handle broken union descriptors
-Date:   Mon, 21 Sep 2020 15:59:49 +0200
-Message-Id: <20200921135951.24045-3-johan@kernel.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200921135951.24045-1-johan@kernel.org>
-References: <20200921135951.24045-1-johan@kernel.org>
+        id S1726456AbgIUOOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 10:14:49 -0400
+Received: from mail6.tencent.com ([220.249.245.26]:41972 "EHLO
+        mail6.tencent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726419AbgIUOOt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 10:14:49 -0400
+Received: from EX-SZ018.tencent.com (unknown [10.28.6.39])
+        by mail6.tencent.com (Postfix) with ESMTP id BEFBECC3F9;
+        Mon, 21 Sep 2020 22:16:05 +0800 (CST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tencent.com;
+        s=s202002; t=1600697765;
+        bh=FK1IIdsbjRSobOVqq+8Otfj2MX1TAYm1sfaSUJdAB5w=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To;
+        b=Tg3Wvmpldq8qTEW5pZC+A/gA40gfHxy0JzKJQZ5qygxkRCdmB2YL7TfISmJ4hSs/9
+         2tDAihvfixTZ4/E1NwNdN/8nTpLRzAqzlaL8pNZOofW6Z3XSPJwuTorr/p+zizjUCX
+         LhacLDBeqvMuThhvbhZP7ajst9RGR67P2jvLPs3Y=
+Received: from EX-SZ037.tencent.com (10.28.6.119) by EX-SZ018.tencent.com
+ (10.28.6.39) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2; Mon, 21 Sep
+ 2020 22:14:41 +0800
+Received: from EX-SZ030.tencent.com (10.28.6.105) by EX-SZ037.tencent.com
+ (10.28.6.119) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2; Mon, 21 Sep
+ 2020 22:14:41 +0800
+Received: from EX-SZ030.tencent.com ([fe80::d886:80d1:7745:55f2]) by
+ EX-SZ030.tencent.com ([fe80::d886:80d1:7745:55f2%5]) with mapi id
+ 15.01.2106.002; Mon, 21 Sep 2020 22:14:41 +0800
+From:   =?utf-8?B?bGloYWl3ZWko5p2O5rW35LyfKQ==?= <lihaiwei@tencent.com>
+To:     Sasha Levin <sashal@kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "stable-commits@vger.kernel.org" <stable-commits@vger.kernel.org>
+Subject: Re: Patch "KVM: Check the allocation of pv cpu mask" has been added
+ to the 5.8-stable tree
+Thread-Topic: Patch "KVM: Check the allocation of pv cpu mask" has been added
+ to the 5.8-stable tree
+Thread-Index: AQHWkCGMYy80ZEVhl0ms/7ooRLtFsw==
+Date:   Mon, 21 Sep 2020 14:14:41 +0000
+Message-ID: <E0D58EE6-0CA2-4594-877B-FDE2C1806272@tencent.com>
+References: <20200921104234.9C539216C4@mail.kernel.org>
+ <EE2DABCA-2B97-4D46-8AFB-7F94DED675F8@tencent.com>
+ <20200921132850.GM2431@sasha-vm>
+In-Reply-To: <20200921132850.GM2431@sasha-vm>
+Accept-Language: en-US, zh-CN
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [9.19.161.105]
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <44136985A202674788A10FA4C2651589@tencent.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Handle broken union functional descriptors where the master-interface
-doesn't exist or where its class is of neither Communication or Data
-type (as required by the specification) by falling back to
-"combined-interface" probing.
-
-Note that this still allows for handling union descriptors with switched
-interfaces.
-
-This specifically makes the Whistler radio scanners TRX series devices
-work with the driver without adding further quirks to the device-id
-table.
-
-Link: https://lore.kernel.org/r/5f4ca4f8.1c69fb81.a4487.0f5f@mx.google.com
-Reported-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/class/cdc-acm.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index e28ac640ff9c..f42ade505569 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1240,9 +1240,21 @@ static int acm_probe(struct usb_interface *intf,
- 			}
- 		}
- 	} else {
-+		int class = -1;
-+
- 		data_intf_num = union_header->bSlaveInterface0;
- 		control_interface = usb_ifnum_to_if(usb_dev, union_header->bMasterInterface0);
- 		data_interface = usb_ifnum_to_if(usb_dev, data_intf_num);
-+
-+		if (control_interface)
-+			class = control_interface->cur_altsetting->desc.bInterfaceClass;
-+
-+		if (class != USB_CLASS_COMM && class != USB_CLASS_CDC_DATA) {
-+			dev_dbg(&intf->dev, "Broken union descriptor, assuming single interface\n");
-+			combined_interfaces = 1;
-+			control_interface = data_interface = intf;
-+			goto look_for_collapsed_interface;
-+		}
- 	}
- 
- 	if (!control_interface || !data_interface) {
--- 
-2.26.2
-
+DQo+IE9uIFNlcCAyMSwgMjAyMCwgYXQgMjE6MjgsIFNhc2hhIExldmluIDxzYXNoYWxAa2VybmVs
+Lm9yZz4gd3JvdGU6DQo+IA0KPiBPbiBNb24sIFNlcCAyMSwgMjAyMCBhdCAxMDo1NDozOEFNICsw
+MDAwLCBsaWhhaXdlaSjmnY7mtbfkvJ8pIHdyb3RlOg0KPj4gDQo+Pj4gT24gU2VwIDIxLCAyMDIw
+LCBhdCAxODo0MiwgU2FzaGEgTGV2aW4gPHNhc2hhbEBrZXJuZWwub3JnPiB3cm90ZToNCj4+PiAN
+Cj4+PiBUaGlzIGlzIGEgbm90ZSB0byBsZXQgeW91IGtub3cgdGhhdCBJJ3ZlIGp1c3QgYWRkZWQg
+dGhlIHBhdGNoIHRpdGxlZA0KPj4+IA0KPj4+ICAgS1ZNOiBDaGVjayB0aGUgYWxsb2NhdGlvbiBv
+ZiBwdiBjcHUgbWFzaw0KPj4+IA0KPj4+IHRvIHRoZSA1Ljgtc3RhYmxlIHRyZWUgd2hpY2ggY2Fu
+IGJlIGZvdW5kIGF0Og0KPj4+ICAgaHR0cDovL3d3dy5rZXJuZWwub3JnL2dpdC8/cD1saW51eC9r
+ZXJuZWwvZ2l0L3N0YWJsZS9zdGFibGUtcXVldWUuZ2l0O2E9c3VtbWFyeQ0KPj4+IA0KPj4+IFRo
+ZSBmaWxlbmFtZSBvZiB0aGUgcGF0Y2ggaXM6DQo+Pj4gICAga3ZtLWNoZWNrLXRoZS1hbGxvY2F0
+aW9uLW9mLXB2LWNwdS1tYXNrLnBhdGNoDQo+Pj4gYW5kIGl0IGNhbiBiZSBmb3VuZCBpbiB0aGUg
+cXVldWUtNS44IHN1YmRpcmVjdG9yeS4NCj4+PiANCj4+PiBJZiB5b3UsIG9yIGFueW9uZSBlbHNl
+LCBmZWVscyBpdCBzaG91bGQgbm90IGJlIGFkZGVkIHRvIHRoZSBzdGFibGUgdHJlZSwNCj4+PiBw
+bGVhc2UgbGV0IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPiBrbm93IGFib3V0IGl0Lg0KPj4+IA0K
+Pj4gDQo+PiBUaGlzIHBhdGNoIGlzIG5vdCBhIGNvcnJlY3QgdmVyc2lvbiwgc28gcGxlYXNlIGRv
+buKAmXQgYWRkIHRoaXMgdG8gdGhlIHN0YWJsZSB0cmVlLCB0aGFua3MuDQo+IA0KPiBXaGF0J3Mg
+d3Jvbmcgd2l0aCBpdD8gVGhhdCdzIHdoYXQgbGFuZGVkIHVwc3RyZWFtLg0KPiANCg0KVGhlIHBh
+dGNoIGxhbmRlZCB1cHN0cmVhbSBpcyB0aGUgdjEgdmVyc2lvbi4gVGhlcmUgYXJlIHNvbWUgbWlz
+dGFrZXMgYW5kIHNob3J0Y29taW5ncy4gVGhlIG1lc3NhZ2UgZGlzY3Vzc2VkIGlzDQoNCmh0dHBz
+Oi8vbG9yZS5rZXJuZWwub3JnL2t2bS9kNTlmMDVkZi1lNmQzLTNkMzEtYTAzNi1jYzI1YTJiMmYz
+M2ZAZ21haWwuY29tLw0KDQpUaGVuLCBhIHJldmVydCBjb21taXQgd2FzIHB1c2hlZC4gSGVyZSwg
+DQoNCmh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2t2bS9DQUI1S2RPYko0XzBvSmYrcndHWFdOazZN
+c0ttMWowZHFyY0dRa3pRNjNlazFMWT16TVFAbWFpbC5nbWFpbC5jb20vDQoNCkFuZCBpIHdpbGwg
+cmUtc3VibWl0LiBUaGUgZGlzY3Vzc2VkIGlzDQoNCmh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2t2
+bS8yMDIwMDkxNDA5MTE0OC45NTY1NC0xLWxpaGFpd2VpLmtlcm5lbEBnbWFpbC5jb20vVC8jbTli
+MzllZjFiMjQ0MDNmOTBjZjk0NDhmNzRiOWRmNTYwNTNkZjY0YWMNCg0KLS0NClRoYW5rcywNCkhh
+aXdlaQ0KDQo=
