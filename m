@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BBBE272E66
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:49:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B4EB272E59
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729616AbgIUQsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:48:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55198 "EHLO mail.kernel.org"
+        id S1729039AbgIUQsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:48:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729319AbgIUQsA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:48:00 -0400
+        id S1728256AbgIUQsD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:48:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B03F238EE;
-        Mon, 21 Sep 2020 16:47:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDB97238A1;
+        Mon, 21 Sep 2020 16:48:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706880;
-        bh=Znj6Ys0c5jRV6GwNvsGEzPyhBwAFXhnTPfn0h1uiGBI=;
+        s=default; t=1600706882;
+        bh=nZmhz7Uay+BXhaZ3w0/AhY7bK+1aE+dQvrdG9JQkNFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cY0Ef/WJKCTZfp4m5MCyQjeJkchFrFrxkLv7BLp35li5dj64rKfsJfTvCJznyi+97
-         gNjQZ11tqlE3O+mJ1tr0OVBMP/iUxP751hNJoVfT4PmqyWQ2yOZr/9brMI5hIGfPta
-         tx21TVUv7wkXPHrWQyG4HVExXK6hmTxhZmt1fKBA=
+        b=WzhHgWKe4I8hSC42wDfVHMg6aON8Ny0/77uuljSEpjRFxB2v93H0jcVUb+1Q3pfWG
+         tYjQeciF2H7+kpOXREUjwmz64DH16PCukHn11JBlGWv8YNPAWIQAdCoE2TlptvBL5f
+         ViUaTIMdB4qpLS7J/YUtxlp7nIsLG4yjuujsWE88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/72] spi: spi-loopback-test: Fix out-of-bounds read
-Date:   Mon, 21 Sep 2020 18:30:52 +0200
-Message-Id: <20200921163122.511650470@linuxfoundation.org>
+Subject: [PATCH 5.4 14/72] NFS: Zero-stateid SETATTR should first return delegation
+Date:   Mon, 21 Sep 2020 18:30:53 +0200
+Message-Id: <20200921163122.552516178@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -44,63 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 837ba18dfcd4db21ad58107c65bfe89753aa56d7 ]
+[ Upstream commit 644c9f40cf71969f29add32f32349e71d4995c0b ]
 
-The "tx/rx-transfer - crossing PAGE_SIZE" test always fails when
-len=131071 and rx_offset >= 5:
+If a write delegation isn't available, the Linux NFS client uses
+a zero-stateid when performing a SETATTR.
 
- spi-loopback-test spi0.0: Running test tx/rx-transfer - crossing PAGE_SIZE
- ...
-   with iteration values: len = 131071, tx_off = 0, rx_off = 3
-   with iteration values: len = 131071, tx_off = 0, rx_off = 4
-   with iteration values: len = 131071, tx_off = 0, rx_off = 5
- loopback strangeness - rx changed outside of allowed range at: ...a4321000
-   spi_msg@ffffffd5a4157690
-     frame_length:  131071
-     actual_length: 131071
-     spi_transfer@ffffffd5a41576f8
-       len:    131071
-       tx_buf: ffffffd5a4340ffc
+NFSv4.0 provides no mechanism for an NFS server to match such a
+request to a particular client. It recalls all delegations for that
+file, even delegations held by the client issuing the request. If
+that client happens to hold a read delegation, the server will
+recall it immediately, resulting in an NFS4ERR_DELAY/CB_RECALL/
+DELEGRETURN sequence.
 
-Note that rx_offset > 3 can only occur if the SPI controller driver sets
-->dma_alignment to a higher value than 4, so most SPI controller drivers
-are not affect.
+Optimize out this pipeline bubble by having the client return any
+delegations it may hold on a file before it issues a
+SETATTR(zero-stateid) on that file.
 
-The allocated Rx buffer is of size SPI_TEST_MAX_SIZE_PLUS, which is 132
-KiB (assuming 4 KiB pages).  This test uses an initial offset into the
-rx_buf of PAGE_SIZE - 4, and a len of 131071, so the range expected to
-be written in this transfer ends at (4096 - 4) + 5 + 131071 == 132 KiB,
-which is also the end of the allocated buffer.  But the code which
-verifies the content of the buffer reads a byte beyond the allocated
-buffer and spuriously fails because this out-of-bounds read doesn't
-return the expected value.
-
-Fix this by using ITERATE_LEN instead of ITERATE_MAX_LEN to avoid
-testing sizes which cause out-of-bounds reads.
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20200902132341.7079-1-vincent.whitchurch@axis.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-loopback-test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-loopback-test.c b/drivers/spi/spi-loopback-test.c
-index 6f18d49527673..51633b2b64371 100644
---- a/drivers/spi/spi-loopback-test.c
-+++ b/drivers/spi/spi-loopback-test.c
-@@ -90,7 +90,7 @@ static struct spi_test spi_tests[] = {
- 	{
- 		.description	= "tx/rx-transfer - crossing PAGE_SIZE",
- 		.fill_option	= FILL_COUNT_8,
--		.iterate_len    = { ITERATE_MAX_LEN },
-+		.iterate_len    = { ITERATE_LEN },
- 		.iterate_tx_align = ITERATE_ALIGN,
- 		.iterate_rx_align = ITERATE_ALIGN,
- 		.transfer_count = 1,
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 16414ae02c089..00435556db0ce 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -3257,8 +3257,10 @@ static int _nfs4_do_setattr(struct inode *inode,
+ 
+ 	/* Servers should only apply open mode checks for file size changes */
+ 	truncate = (arg->iap->ia_valid & ATTR_SIZE) ? true : false;
+-	if (!truncate)
++	if (!truncate) {
++		nfs4_inode_make_writeable(inode);
+ 		goto zero_stateid;
++	}
+ 
+ 	if (nfs4_copy_delegation_stateid(inode, FMODE_WRITE, &arg->stateid, &delegation_cred)) {
+ 		/* Use that stateid */
 -- 
 2.25.1
 
