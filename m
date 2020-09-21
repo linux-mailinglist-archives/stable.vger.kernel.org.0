@@ -2,108 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2427C271FA2
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 12:04:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C43BC271FB3
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 12:08:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726435AbgIUKEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 06:04:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56558 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726384AbgIUKEp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 06:04:45 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 199E7C061755;
-        Mon, 21 Sep 2020 03:04:45 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id j2so12073308wrx.7;
-        Mon, 21 Sep 2020 03:04:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=UkuH/WWP5BM2+/HjFiAZ6z/l7IuHecE85iZQkNm/w4E=;
-        b=feXCk+RYG8aagpwCWUKrBf5bu0pOD+rXTbio6MrX74CO7k3r/KWMqCta7XbsOmjON5
-         wOm/xLi4/wTOU51UQ6AvYik5TSds1ylXsBOCy7ha6l4Bt4M6SiAO9BKGeIWkevRFI7kQ
-         mgIEYC8kwG1RB6D4kiE10tx871uAGkH1V6MTDIIeWX2rl7pLUW1bgnl+NlbOYfzLDUas
-         B5Cy3gQ50wXh2qOnksL3gJL/Ujdeo2hyO7Lv1xNLi5HBH8VvVjo3Q3X7IqD8+H0K0/R0
-         qJITPaGA+d3JXjETXHKW4wK/vPoO930uvrtyyDKK5wbLbB8G27IEYFtI9GQpcpWDxfm4
-         eibw==
+        id S1726406AbgIUKIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 06:08:55 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:33681 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726333AbgIUKIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 06:08:55 -0400
+Received: by mail-ot1-f67.google.com with SMTP id m12so11846725otr.0;
+        Mon, 21 Sep 2020 03:08:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=UkuH/WWP5BM2+/HjFiAZ6z/l7IuHecE85iZQkNm/w4E=;
-        b=KjRHm1f7Nkv2NMnU/SaDoI0b5CEKP5pPcn6qQmYkoSgMxEv46lkWJwUCuFBatOZUu+
-         rDvelzU3fL25G73dU/tn3uljhmKJKRiKHrnCWxmcXm13mOsaXJb3ixaf4A9gLNt83sSJ
-         ZfLbW7aDn77baUhokK6BU6hJXZswfC6gGh7sxHjaKCD5+rFQ8Ep0nKSCHZs/jFM9qqNj
-         F/OU5+dt5nuD2sLA7h2WCzeAMyN7VwlmRkPSx4kCKj+fF9FFretSFYb3a1lOYBdkwzLU
-         CJvM72WSS950P0ndrIOFx3IoNf6G1krqJhqVI7jwWLjLhl1ocBloCOCzbaI5dfRbGhDG
-         JLRA==
-X-Gm-Message-State: AOAM5301ACVCfxII/YHKNkF8/OWzwxXIMhPYVvBCUi3LOrRJ6SC/6WKV
-        2EoZfFJsN3NindAubxO/QdOO0rCBz0waOQ==
-X-Google-Smtp-Source: ABdhPJxpykmsqM5GSWO6ureL2EshNJp7ZQNhv3665VbXJ7PZglq45TWDJTqLgbCKs4hA13A2IaFJ6w==
-X-Received: by 2002:adf:ea0f:: with SMTP id q15mr36632145wrm.371.1600682683621;
-        Mon, 21 Sep 2020 03:04:43 -0700 (PDT)
-Received: from ziggy.stardust ([213.195.113.201])
-        by smtp.gmail.com with ESMTPSA id n3sm2582093wmn.28.2020.09.21.03.04.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Sep 2020 03:04:42 -0700 (PDT)
-Subject: Re: [PATCH] arm: dts: mt7623: add missing pause for switchport
-To:     Frank Wunderlich <linux@fw-web.de>,
-        linux-mediatek@lists.infradead.org
-Cc:     Frank Wunderlich <frank-w@public-files.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Landen Chao <landen.chao@mediatek.com>,
-        Qingfang DENG <dqfext@gmail.com>,
-        =?UTF-8?Q?Ren=c3=a9_van_Dorst?= <opensource@vdorst.com>,
-        Sean Wang <sean.wang@mediatek.com>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20200907070517.51715-1-linux@fw-web.de>
-From:   Matthias Brugger <matthias.bgg@gmail.com>
-Message-ID: <ae04ff83-f9f5-ecb0-1221-854d21fc9cfd@gmail.com>
-Date:   Mon, 21 Sep 2020 12:04:41 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=C2U9zgdNA+W5z39mxrnSClctTCx07o8njSeYRiDkxUQ=;
+        b=Yqxg09ua1Uy5BCg8cI8sGidSWA2aFGehIXKrSXMUuazueRBHbwEXLFYDRhMTqr+QDp
+         EjsrvAW7g6Q6aUz8qO/uBaX+XP32wAvF4aoL7E+VJIEKO92Atx8OceBpvlYgWMsjBlxg
+         PvOOBUDAItswpoTDmKepsnqjU7mji/TNm5q1IkjPES0IlHOGpaAH3F7UtywhcESbBN7n
+         7oR2WXqWH7aaFkoTN2BIPvZubw1woY0FBhyxPMUO1OANcb8Fpzymfl2ILZtgENdbsuoY
+         1iKjVYiBITudVKYovtcbUHHWmu6Jf0IPC7zX8LY4S0d0nVL15q7FwEg3aNlOroYeWBbs
+         iw2g==
+X-Gm-Message-State: AOAM530HfDpxLbNJsEY3UF15tZgTeQRt/1XndP5YRpDMCv0xXfhu8uuc
+        021nB3emnXGEsGGIM9fa2tu/KEamvmLgSHNtqf2JPdZh
+X-Google-Smtp-Source: ABdhPJx0z6nJuof9O9shP/JtBfaIqTwWgK7RVeG7KPf2KNQd6Y85WoyMiJQvHvcs+fN+TsY5UDMK5YpXqSLo0OHyosg=
+X-Received: by 2002:a9d:3b76:: with SMTP id z109mr31653937otb.250.1600682934646;
+ Mon, 21 Sep 2020 03:08:54 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200907070517.51715-1-linux@fw-web.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200921010359.GO3027113@arch-chirva.localdomain>
+ <CA+G9fYtCg2KjdB2oBUDJ2DKAzUxq3u8ZnMY9Et-RG9Pnrmuf9w@mail.gmail.com>
+ <20200921073218.GA3142611@kroah.com> <20200921095035.GC5862@quack2.suse.cz>
+In-Reply-To: <20200921095035.GC5862@quack2.suse.cz>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 21 Sep 2020 12:08:43 +0200
+Message-ID: <CAMuHMdX871H5zqgb877Tw3N6PczpXTvnbCGRt++4udNpf8Oftg@mail.gmail.com>
+Subject: =?UTF-8?B?UmU6IFBST0JMRU06IDUuOS4wLXJjNiBmYWlscyB0byBjb21waWxlIGR1ZSB0byAncmVkZQ==?=
+        =?UTF-8?B?ZmluaXRpb24gb2Yg4oCYZGF4X3N1cHBvcnRlZOKAmSc=?=
+To:     Jan Kara <jack@suse.cz>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Stuart Little <achirvasub@gmail.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        "linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Adrian Huang <ahuang12@lenovo.com>,
+        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
+        Ira Weiny <ira.weiny@intel.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Honza,
 
+On Mon, Sep 21, 2020 at 11:54 AM Jan Kara <jack@suse.cz> wrote:
+> On Mon 21-09-20 09:32:18, Greg KH wrote:
+> > On Mon, Sep 21, 2020 at 11:34:17AM +0530, Naresh Kamboju wrote:
+> > > On Mon, 21 Sep 2020 at 06:34, Stuart Little <achirvasub@gmail.com> wrote:
+> > > > I am trying to compile for an x86_64 machine (Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz). The config file I am currently using is at
+> > > >
+> > > > https://termbin.com/xin7
+> > > >
+> > > > The build for 5.9.0-rc6 fails with the following errors:
+> > > >
+> > >
+> > > arm and mips allmodconfig build breaks due to this error.
+> >
+> > all my local builds are breaking now too with this :(
+> >
+> > Was there a proposed patch anywhere for this?
+>
+> Attached patch should fix the build breakage. I'm sorry for that.
 
-On 07/09/2020 09:05, Frank Wunderlich wrote:
-> From: Frank Wunderlich <frank-w@public-files.de>
-> 
-> port6 of mt7530 switch (= cpu port 0) on bananapi-r2 misses pause option
-> which causes rx drops on running iperf.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: f4ff257cd160 ("arm: dts: mt7623: add support for Bananapi R2 (BPI-R2) board")
-> Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Thanks, this fixes my m68k build issues:
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Applied to v5.9-next/dts32
+Gr{oetje,eeting}s,
 
-Thanks!
+                        Geert
 
-> ---
->   arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts b/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts
-> index 2b760f90f38c..5375c6699843 100644
-> --- a/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts
-> +++ b/arch/arm/boot/dts/mt7623n-bananapi-bpi-r2.dts
-> @@ -192,6 +192,7 @@ port@6 {
->   					fixed-link {
->   						speed = <1000>;
->   						full-duplex;
-> +						pause;
->   					};
->   				};
->   			};
-> 
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
