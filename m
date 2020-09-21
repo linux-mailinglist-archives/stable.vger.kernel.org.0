@@ -2,113 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1BFE271E94
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 11:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C165B271EF3
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 11:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726427AbgIUJKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 05:10:31 -0400
-Received: from mx2.suse.de ([195.135.220.15]:51542 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726366AbgIUJKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 05:10:31 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1600679428;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=k4aBzKLf83FphbFoSfruU9Nn+4qpdItMXvRpp/xUVks=;
-        b=OxosJFYRwr9WxHZcW6cdnc1Zi99hmASZEtnYYVPZeAXQJ0xRBd1CaL0ZVk7Fopzs+9VYFa
-        66Gfu2UN52ymIVr9BDTk24tGFfWLkHUJrNDJq2o33Tb5tTGDWSmViGrBE2e5bAcFJY9EbD
-        V5WddnBt+zTW/qL607TltTN7KLHd/lU=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 9AC44AC2B;
-        Mon, 21 Sep 2020 09:11:04 +0000 (UTC)
-Message-ID: <1600679414.2424.62.camel@suse.com>
-Subject: Re: [PATCH] [Patch v2] usbtv: Fix refcounting mixup
-From:   Oliver Neukum <oneukum@suse.com>
-To:     Hans Verkuil <hverkuil@xs4all.nl>, ben.hutchings@codethink.co.uk,
-        gregkh@linuxfoundation.org, linux-media@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Date:   Mon, 21 Sep 2020 11:10:14 +0200
-In-Reply-To: <4550f8e2-38a9-b1f4-0277-25e79fed2e14@xs4all.nl>
-References: <20180515130744.19342-1-oneukum@suse.com>
-         <85dd974b-c251-47a5-600d-77b009e2dfcd@xs4all.nl>
-         <1526399190.31771.2.camel@suse.com>
-         <1ee4b00d-9a55-92cf-e708-1e0c60ca4bfd@xs4all.nl>
-         <1526462623.25281.5.camel@suse.com>
-         <4550f8e2-38a9-b1f4-0277-25e79fed2e14@xs4all.nl>
-Content-Type: multipart/mixed; boundary="=-kk7jchXK1/63f2PKt/n3"
-X-Mailer: Evolution 3.26.6 
-Mime-Version: 1.0
+        id S1726419AbgIUJbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 05:31:55 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:38135 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726326AbgIUJbz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 05:31:55 -0400
+Received: by mail-lf1-f67.google.com with SMTP id y11so13231794lfl.5;
+        Mon, 21 Sep 2020 02:31:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=55QioiSplUcE4qCeCvoYiw01/9Vs+h44i8mvhWegEas=;
+        b=JsyDOPZccLmUkMFnQQmvHqAHGZ8dtZI5dedzK7sRb5tWYM5zFbTDfaACe3qfb0kNOZ
+         Gs5X514HenL8wYarmxa0KvPXkKR33EOikhfKOoP6wu64/csU/UGo5lk+ax95v/j/rxIp
+         i2fTz8WBc6wnkFrOxHMq2mhxT1XU6UR2P6uLZnd2QoI3R/LcID2Cq/fofNOQ24+iNIlJ
+         4f3B1KD4gJ15dNVy/tOOyTdIoW1B5pTFG0MlwHl2YajWMttzpJ31l6rqAM+IRTLRfcYc
+         orl28kOXfYltIxSv8LBl0R/BvgkF5XbmcfvvmH3KyUtgR6yxpfCmmVzxdAqUFoqhdTYZ
+         RhCg==
+X-Gm-Message-State: AOAM532tkF+p6GtNatgv/qBtHWeyneJtuKAay3U44EuUhOIllWWEfgb+
+        XVNxmF6jrkEQuDd7Cobbn2I=
+X-Google-Smtp-Source: ABdhPJzm04IFIPfQsaNJgA7AhzyTz0+o1ulYaqtG0KWB006xZTul99XLmVE0Qpkb3IbOiz4bhMcYBA==
+X-Received: by 2002:ac2:5217:: with SMTP id a23mr14224631lfl.509.1600680713449;
+        Mon, 21 Sep 2020 02:31:53 -0700 (PDT)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id a14sm2411104lfi.136.2020.09.21.02.31.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2020 02:31:52 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1kKIAj-0001r1-UK; Mon, 21 Sep 2020 11:31:45 +0200
+Date:   Mon, 21 Sep 2020 11:31:45 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Oliver Neukum <oneukum@suse.com>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org,
+        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] USB: cdc-acm: add Whistler radio scanners TRX series
+ support
+Message-ID: <20200921093145.GS24441@localhost>
+References: <20200921081022.6881-1-johan@kernel.org>
+ <1600677792.2424.61.camel@suse.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1600677792.2424.61.camel@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---=-kk7jchXK1/63f2PKt/n3
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-
-Am Mittwoch, den 16.05.2018, 12:27 +0200 schrieb Hans Verkuil:
-> On 05/16/18 11:23, Oliver Neukum wrote:
-> > Am Dienstag, den 15.05.2018, 18:01 +0200 schrieb Hans Verkuil:
-> > > On 05/15/2018 05:46 PM, Oliver Neukum wrote:
-> > > > Am Dienstag, den 15.05.2018, 16:28 +0200 schrieb Hans Verkuil:
-> > > > > On 05/15/18 15:07, Oliver Neukum wrote:
-> > Eh, but we cannot create a V4L device before the first device
-> > is connected and we must certainly create multiple V4L devices if
-> > multiple physical devices are connected.
+On Mon, Sep 21, 2020 at 10:43:12AM +0200, Oliver Neukum wrote:
+> Am Montag, den 21.09.2020, 10:10 +0200 schrieb Johan Hovold:
+> > Add support for Whistler radio scanners TRX series, which have a union
+> > descriptor that designates a mass-storage interface as master. Handle
+> > that by generalising the NO_DATA_INTERFACE quirk to allow us to fall
+> > back to using the combined-interface detection.
 > 
-> v4l2_device_register is a terrible name. It does not create devices
-> or register with anything, it just initializes a root data structure. I have
-> proposed renaming this to v4l2_root_init() in the past, but people didn't
-> want a big rename action.
+> Hi,
 > 
-> BTW, with 'global data structure' I meant a data structure in struct usbtv.
-> All I meant to say is that v4l2_device_register should be called in probe(),
-> not in usbtv_video_init().
+> it amazes me what solutions people can come up with. Yet in this case
+> using a quirk looks like an inferior solution. If your master
+> is a storage interface, you will have a condition on the device you
+> can test for without the need for a quirk.
 
-Hi,
+Sure, and I mentioned that as an alternative, another would be checking
+for a control interface with three endpoints directly.
 
-Sorry for thread necromancy I am cleaning up electronically.
-This patch has fallen through the cracks. As far as I can see the issue
-is still open. I screwed this up. So do you want me to do a major
-redesign? If not, what is to be done?
+My fear is that any change in this direction risk introducing regression
+if there are devices out there with broken descriptors that we currently
+happen to support by chance. Then again, probably better to try to
+handle any such breakage if/when reported.
 
-	Regards
-		Oliver
+I'll respin.
 
-
-
---=-kk7jchXK1/63f2PKt/n3
-Content-Disposition: attachment; filename="0001-Patch-v2-usbtv-Fix-refcounting-mixup.patch"
-Content-Type: text/x-patch; name="0001-Patch-v2-usbtv-Fix-refcounting-mixup.patch";
-	charset="UTF-8"
-Content-Transfer-Encoding: base64
-
-RnJvbSBjNjA0MDYxODY1MWQ2NzBiODk1MTk4MDk2ZTNmYTQ0MmI2Y2Y4YTI2IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBPbGl2ZXIgTmV1a3VtIDxvbmV1a3VtQHN1c2UuY29tPgpEYXRl
-OiBUdWUsIDE1IE1heSAyMDE4IDEyOjE2OjI2ICswMjAwClN1YmplY3Q6IFtQQVRDSF0gW1BhdGNo
-IHYyXSB1c2J0djogRml4IHJlZmNvdW50aW5nIG1peHVwCgpUaGUgcHJlbWF0dXJlIGZyZWUgaW4g
-dGhlIGVycm9yIHBhdGggaXMgYmxvY2tlZCBieSBWNEwKcmVmY291bnRpbmcsIG5vdCBVU0IgcmVm
-Y291bnRpbmcuIFRoYW5rcyB0bwpCZW4gSHV0Y2hpbmdzIGZvciByZXZpZXcuCgpbdjJdIGNvcnJl
-Y3RlZCBhdHRyaWJ1dGlvbnMKClNpZ25lZC1vZmYtYnk6IE9saXZlciBOZXVrdW0gPG9uZXVrdW1A
-c3VzZS5jb20+CkZpeGVzOiA1MGU3MDQ0NTM1NTMgKCJtZWRpYTogdXNidHY6IHByZXZlbnQgZG91
-YmxlIGZyZWUgaW4gZXJyb3IgY2FzZSIpCkNDOiBzdGFibGVAdmdlci5rZXJuZWwub3JnClJlcG9y
-dGVkLWJ5OiBCZW4gSHV0Y2hpbmdzIDxiZW4uaHV0Y2hpbmdzQGNvZGV0aGluay5jby51az4KLS0t
-CiBkcml2ZXJzL21lZGlhL3VzYi91c2J0di91c2J0di1jb3JlLmMgfCAzICsrLQogMSBmaWxlIGNo
-YW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvbWVkaWEvdXNiL3VzYnR2L3VzYnR2LWNvcmUuYyBiL2RyaXZlcnMvbWVkaWEvdXNiL3VzYnR2
-L3VzYnR2LWNvcmUuYwppbmRleCBlZTljNjU2ZDEyMWYuLjIzMDhjMGI0ZjVlNyAxMDA2NDQKLS0t
-IGEvZHJpdmVycy9tZWRpYS91c2IvdXNidHYvdXNidHYtY29yZS5jCisrKyBiL2RyaXZlcnMvbWVk
-aWEvdXNiL3VzYnR2L3VzYnR2LWNvcmUuYwpAQCAtMTEzLDcgKzExMyw4IEBAIHN0YXRpYyBpbnQg
-dXNidHZfcHJvYmUoc3RydWN0IHVzYl9pbnRlcmZhY2UgKmludGYsCiAKIHVzYnR2X2F1ZGlvX2Zh
-aWw6CiAJLyogd2UgbXVzdCBub3QgZnJlZSBhdCB0aGlzIHBvaW50ICovCi0JdXNiX2dldF9kZXYo
-dXNidHYtPnVkZXYpOworCXY0bDJfZGV2aWNlX2dldCgmdXNidHYtPnY0bDJfZGV2KTsKKwkvKiB0
-aGlzIHdpbGwgdW5kbyB0aGUgdjRsMl9kZXZpY2VfZ2V0KCkgKi8KIAl1c2J0dl92aWRlb19mcmVl
-KHVzYnR2KTsKIAogdXNidHZfdmlkZW9fZmFpbDoKLS0gCjIuMTYuNAoK
-
-
---=-kk7jchXK1/63f2PKt/n3--
-
+Johan
