@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2110D272F73
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B96F272C95
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729249AbgIUQ5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:57:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49052 "EHLO mail.kernel.org"
+        id S1728617AbgIUQdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:33:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729662AbgIUQoD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:44:03 -0400
+        id S1728571AbgIUQdH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:33:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2126E2076B;
-        Mon, 21 Sep 2020 16:44:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C218223998;
+        Mon, 21 Sep 2020 16:33:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706641;
-        bh=FJGrFZh/wSlG57bHCjvhePW4NhaqITwdnUviTd90E1o=;
+        s=default; t=1600705986;
+        bh=ZnMOBF5X9pk7vKlo2wALEivGY4W8rWnFNiX4BpkSnLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OZ3BDEAE6XOtJXRFgqPVZdLiEopPOfi6gYrVVso/iElayoQCPRdyyzE6v34SfOT3J
-         YOHEILxEI4WwwyUIT6XeqPA9wQfQpAzunoIOrLJQy366l2/90X38MKaSbslg+dwrl3
-         fRk1L9IsP0c1ORB/hf4gJ0QokWX/oGsfAwdR3SOg=
+        b=XcNX6QFm4pxOjoXlOy9UkrMIGLkzmygPI8Ftt663W8Ss3Lhp1IzUvchwXj1gVLhp0
+         uRR3Vfd4A8lL8a2j0dDLtLOwgZD18xsOLbs5WEX52ocXwnxnTtIb7RKpGGJzOrWvnx
+         uOtITsHLGFjzlGNC4VlKYHdIfRRF9CKzOt3e6jVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 035/118] KVM: MIPS: Change the definition of kvm type
-Date:   Mon, 21 Sep 2020 18:27:27 +0200
-Message-Id: <20200921162037.942712069@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 4.4 12/46] iio:light:ltr501 Fix timestamp alignment issue.
+Date:   Mon, 21 Sep 2020 18:27:28 +0200
+Message-Id: <20200921162033.923131993@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
+References: <20200921162033.346434578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 15e9e35cd1dec2bc138464de6bf8ef828df19235 ]
+commit 2684d5003490df5398aeafe2592ba9d4a4653998 upstream.
 
-MIPS defines two kvm types:
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+Here we use a structure on the stack.  The driver already did an
+explicit memset so no data leak was possible.
 
- #define KVM_VM_MIPS_TE          0
- #define KVM_VM_MIPS_VZ          1
+Forced alignment of ts is not strictly necessary but probably makes
+the code slightly less fragile.
 
-In Documentation/virt/kvm/api.rst it is said that "You probably want to
-use 0 as machine type", which implies that type 0 be the "automatic" or
-"default" type. And, in user-space libvirt use the null-machine (with
-type 0) to detect the kvm capability, which returns "KVM not supported"
-on a VZ platform.
+Note there has been some rework in this driver of the years, so no
+way this will apply cleanly all the way back.
 
-I try to fix it in QEMU but it is ugly:
-https://lists.nongnu.org/archive/html/qemu-devel/2020-08/msg05629.html
+Fixes: 2690be905123 ("iio: Add Lite-On ltr501 ambient light / proximity sensor driver")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-And Thomas Huth suggests me to change the definition of kvm type:
-https://lists.nongnu.org/archive/html/qemu-devel/2020-09/msg03281.html
-
-So I define like this:
-
- #define KVM_VM_MIPS_AUTO        0
- #define KVM_VM_MIPS_VZ          1
- #define KVM_VM_MIPS_TE          2
-
-Since VZ and TE cannot co-exists, using type 0 on a TE platform will
-still return success (so old user-space tools have no problems on new
-kernels); the advantage is that using type 0 on a VZ platform will not
-return failure. So, the only problem is "new user-space tools use type
-2 on old kernels", but if we treat this as a kernel bug, we can backport
-this patch to old stable kernels.
-
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Message-Id: <1599734031-28746-1-git-send-email-chenhc@lemote.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kvm/mips.c     | 2 ++
- include/uapi/linux/kvm.h | 5 +++--
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/iio/light/ltr501.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-index 666d3350b4ac1..6c6836669ce16 100644
---- a/arch/mips/kvm/mips.c
-+++ b/arch/mips/kvm/mips.c
-@@ -137,6 +137,8 @@ extern void kvm_init_loongson_ipi(struct kvm *kvm);
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- {
- 	switch (type) {
-+	case KVM_VM_MIPS_AUTO:
-+		break;
- #ifdef CONFIG_KVM_MIPS_VZ
- 	case KVM_VM_MIPS_VZ:
- #else
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 4fdf303165827..65fd95f9784ce 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -789,9 +789,10 @@ struct kvm_ppc_resize_hpt {
- #define KVM_VM_PPC_HV 1
- #define KVM_VM_PPC_PR 2
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -1218,13 +1218,16 @@ static irqreturn_t ltr501_trigger_handle
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct ltr501_data *data = iio_priv(indio_dev);
+-	u16 buf[8];
++	struct {
++		u16 channels[3];
++		s64 ts __aligned(8);
++	} scan;
+ 	__le16 als_buf[2];
+ 	u8 mask = 0;
+ 	int j = 0;
+ 	int ret, psdata;
  
--/* on MIPS, 0 forces trap & emulate, 1 forces VZ ASE */
--#define KVM_VM_MIPS_TE		0
-+/* on MIPS, 0 indicates auto, 1 forces VZ ASE, 2 forces trap & emulate */
-+#define KVM_VM_MIPS_AUTO	0
- #define KVM_VM_MIPS_VZ		1
-+#define KVM_VM_MIPS_TE		2
+-	memset(buf, 0, sizeof(buf));
++	memset(&scan, 0, sizeof(scan));
  
- #define KVM_S390_SIE_PAGE_OFFSET 1
+ 	/* figure out which data needs to be ready */
+ 	if (test_bit(0, indio_dev->active_scan_mask) ||
+@@ -1243,9 +1246,9 @@ static irqreturn_t ltr501_trigger_handle
+ 		if (ret < 0)
+ 			return ret;
+ 		if (test_bit(0, indio_dev->active_scan_mask))
+-			buf[j++] = le16_to_cpu(als_buf[1]);
++			scan.channels[j++] = le16_to_cpu(als_buf[1]);
+ 		if (test_bit(1, indio_dev->active_scan_mask))
+-			buf[j++] = le16_to_cpu(als_buf[0]);
++			scan.channels[j++] = le16_to_cpu(als_buf[0]);
+ 	}
  
--- 
-2.25.1
-
+ 	if (mask & LTR501_STATUS_PS_RDY) {
+@@ -1253,10 +1256,10 @@ static irqreturn_t ltr501_trigger_handle
+ 				       &psdata, 2);
+ 		if (ret < 0)
+ 			goto done;
+-		buf[j++] = psdata & LTR501_PS_DATA_MASK;
++		scan.channels[j++] = psdata & LTR501_PS_DATA_MASK;
+ 	}
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf, iio_get_time_ns());
++	iio_push_to_buffers_with_timestamp(indio_dev, &scan, iio_get_time_ns());
+ 
+ done:
+ 	iio_trigger_notify_done(indio_dev->trig);
 
 
