@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41AA6272F56
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96F69272CB2
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728109AbgIUQ4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:56:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50798 "EHLO mail.kernel.org"
+        id S1728731AbgIUQeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:34:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729224AbgIUQpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:45:04 -0400
+        id S1728729AbgIUQeS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:34:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E32723976;
-        Mon, 21 Sep 2020 16:45:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 297202396F;
+        Mon, 21 Sep 2020 16:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706703;
-        bh=x7TMu42l2iyUZ9WwWu72BNXvkgmZ15HkeM+3qESgTwA=;
+        s=default; t=1600706056;
+        bh=Jc1usuQYePYwelIwFEz7MACswEmum+bY+dZXAThvxyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z3eXAeVMXGlx8mwpDKtMOYYhRTsuGc+z6Et2AmW2+cVdgefrCM7Lp5Ns1YqOBoq+1
-         TQBvib0gFt2GJdwwHWpoEFJ4JV5SwOAteD75aOOFz3IpjCoAdsi7iJN1nmTaw+sYEH
-         nzyo9UZkeeiYqfk30DmEs1hH7/h/MhJGWTH9iPMs=
+        b=dW1qotIVlz6GL/CIoiIgV2cfinti/p6+v9HkubWHYODh6iTggBvkwzm8Oae3Dxb4P
+         T7yIi5TlEzfR+UrrAU8XDoco0EkSDsNJibhWwi9bgBjMqyFpPeL9bdFPrriR+ISYco
+         T0z2CPO5X3zTfrPsA9jSP0hOa/wvVcZO2y2/o9YQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 030/118] f2fs: fix indefinite loop scanning for free nid
+        stable@vger.kernel.org,
+        Sandhya Bankar <bankarsandhya512@gmail.com>,
+        Jonathan Cameron <jic23@kernel.org>
+Subject: [PATCH 4.9 22/70] drivers: iio: magnetometer: Fix sparse endianness warnings cast to restricted __be16
 Date:   Mon, 21 Sep 2020 18:27:22 +0200
-Message-Id: <20200921162037.717047554@linuxfoundation.org>
+Message-Id: <20200921162036.137321132@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sahitya Tummala <stummala@codeaurora.org>
+From: Sandhya Bankar <bankarsandhya512@gmail.com>
 
-[ Upstream commit e2cab031ba7b5003cd12185b3ef38f1a75e3dae8 ]
+commit 69c72ec9c80bbd206c6fac73874d73e69cc623b4 upstream.
 
-If the sbi->ckpt->next_free_nid is not NAT block aligned and if there
-are free nids in that NAT block between the start of the block and
-next_free_nid, then those free nids will not be scanned in scan_nat_page().
-This results into mismatch between nm_i->available_nids and the sum of
-nm_i->free_nid_count of all NAT blocks scanned. And nm_i->available_nids
-will always be greater than the sum of free nids in all the blocks.
-Under this condition, if we use all the currently scanned free nids,
-then it will loop forever in f2fs_alloc_nid() as nm_i->available_nids
-is still not zero but nm_i->free_nid_count of that partially scanned
-NAT block is zero.
+Fix the following sparse endianness warnings:
 
-Fix this to align the nm_i->next_scan_nid to the first nid of the
-corresponding NAT block.
+drivers/iio/magnetometer/ak8975.c:716:16: warning: cast to restricted __le16
+drivers/iio/magnetometer/ak8975.c:837:19: warning: cast to restricted __le16
+drivers/iio/magnetometer/ak8975.c:838:19: warning: cast to restricted __le16
+drivers/iio/magnetometer/ak8975.c:839:19: warning: cast to restricted __le16
 
-Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sandhya Bankar <bankarsandhya512@gmail.com>
+Signed-off-by: Jonathan Cameron <jic23@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/f2fs/node.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/magnetometer/ak8975.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 98736d0598b8d..0fde35611df18 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -2375,6 +2375,9 @@ static int __f2fs_build_free_nids(struct f2fs_sb_info *sbi,
- 	if (unlikely(nid >= nm_i->max_nid))
- 		nid = 0;
+--- a/drivers/iio/magnetometer/ak8975.c
++++ b/drivers/iio/magnetometer/ak8975.c
+@@ -690,6 +690,7 @@ static int ak8975_read_axis(struct iio_d
+ 	struct ak8975_data *data = iio_priv(indio_dev);
+ 	const struct i2c_client *client = data->client;
+ 	const struct ak_def *def = data->def;
++	__le16 rval;
+ 	u16 buff;
+ 	int ret;
  
-+	if (unlikely(nid % NAT_ENTRY_PER_BLOCK))
-+		nid = NAT_BLOCK_OFFSET(nid) * NAT_ENTRY_PER_BLOCK;
-+
- 	/* Enough entries */
- 	if (nm_i->nid_cnt[FREE_NID] >= NAT_ENTRY_PER_BLOCK)
- 		return 0;
--- 
-2.25.1
-
+@@ -703,7 +704,7 @@ static int ak8975_read_axis(struct iio_d
+ 
+ 	ret = i2c_smbus_read_i2c_block_data_or_emulated(
+ 			client, def->data_regs[index],
+-			sizeof(buff), (u8*)&buff);
++			sizeof(rval), (u8*)&rval);
+ 	if (ret < 0)
+ 		goto exit;
+ 
+@@ -713,7 +714,7 @@ static int ak8975_read_axis(struct iio_d
+ 	pm_runtime_put_autosuspend(&data->client->dev);
+ 
+ 	/* Swap bytes and convert to valid range. */
+-	buff = le16_to_cpu(buff);
++	buff = le16_to_cpu(rval);
+ 	*val = clamp_t(s16, buff, -def->range, def->range);
+ 	return IIO_VAL_INT;
+ 
+@@ -813,6 +814,7 @@ static void ak8975_fill_buffer(struct ii
+ 	const struct ak_def *def = data->def;
+ 	int ret;
+ 	s16 buff[8]; /* 3 x 16 bits axis values + 1 aligned 64 bits timestamp */
++	__le16 fval[3];
+ 
+ 	mutex_lock(&data->lock);
+ 
+@@ -826,17 +828,17 @@ static void ak8975_fill_buffer(struct ii
+ 	 */
+ 	ret = i2c_smbus_read_i2c_block_data_or_emulated(client,
+ 							def->data_regs[0],
+-							3 * sizeof(buff[0]),
+-							(u8 *)buff);
++							3 * sizeof(fval[0]),
++							(u8 *)fval);
+ 	if (ret < 0)
+ 		goto unlock;
+ 
+ 	mutex_unlock(&data->lock);
+ 
+ 	/* Clamp to valid range. */
+-	buff[0] = clamp_t(s16, le16_to_cpu(buff[0]), -def->range, def->range);
+-	buff[1] = clamp_t(s16, le16_to_cpu(buff[1]), -def->range, def->range);
+-	buff[2] = clamp_t(s16, le16_to_cpu(buff[2]), -def->range, def->range);
++	buff[0] = clamp_t(s16, le16_to_cpu(fval[0]), -def->range, def->range);
++	buff[1] = clamp_t(s16, le16_to_cpu(fval[1]), -def->range, def->range);
++	buff[2] = clamp_t(s16, le16_to_cpu(fval[2]), -def->range, def->range);
+ 
+ 	iio_push_to_buffers_with_timestamp(indio_dev, buff,
+ 					   iio_get_time_ns(indio_dev));
 
 
