@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8949D272F8D
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4750F272D54
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730221AbgIUQ5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:57:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46866 "EHLO mail.kernel.org"
+        id S1728396AbgIUQjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:39:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729274AbgIUQmj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:42:39 -0400
+        id S1728857AbgIUQjS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:39:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2661523A34;
-        Mon, 21 Sep 2020 16:42:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D23EF206DC;
+        Mon, 21 Sep 2020 16:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706558;
-        bh=KyBewu4rqNQvL0E8Ij9C6evBSZUlxIIxfZdxMbppqz8=;
+        s=default; t=1600706357;
+        bh=E2UGo2sQGtP/cvqzed6Qm48vWtNdhAPdX997cI1qKDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zy/a0qHVC6aNH1qlHxByacf6ETBREfFmKlU8oWKa7CjUSO4pPhB9pG5jZdyDRmxAb
-         A6k2tQYKtaY+PQq9xYjo5ZO3+9BTRds7OYRKbZpuNL3S6GTZ9Lm2rDdn2o3N3/pd8K
-         h0sMLkh4Rz5mmT0VRTuZoq2pmF5imOQ46BUUFfjg=
+        b=bVWplTit2f6vCCwdLYx3Ex3URNjeesruki/gUEoXm1Bz8lIBIHKTvm6KZ/Qger+Km
+         qjLQbY6ncGP+H6AIomqAZdaCaXNr0pwzYsd5x+jRfhxwwtns+hGYRovwjyzNkSFuno
+         QLtJHar0Cye7au33DJ8pw2rlRevr/MsgiiQIt3Ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Javed Hasan <jhasan@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 11/49] scsi: libfc: Fix for double free()
+Subject: [PATCH 4.14 68/94] spi: spi-loopback-test: Fix out-of-bounds read
 Date:   Mon, 21 Sep 2020 18:27:55 +0200
-Message-Id: <20200921162035.181075189@linuxfoundation.org>
+Message-Id: <20200921162038.649036624@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
-References: <20200921162034.660953761@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 5a5b80f98534416b3b253859897e2ba1dc241e70 ]
+[ Upstream commit 837ba18dfcd4db21ad58107c65bfe89753aa56d7 ]
 
-Fix for '&fp->skb' double free.
+The "tx/rx-transfer - crossing PAGE_SIZE" test always fails when
+len=131071 and rx_offset >= 5:
 
-Link:
-https://lore.kernel.org/r/20200825093940.19612-1-jhasan@marvell.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+ spi-loopback-test spi0.0: Running test tx/rx-transfer - crossing PAGE_SIZE
+ ...
+   with iteration values: len = 131071, tx_off = 0, rx_off = 3
+   with iteration values: len = 131071, tx_off = 0, rx_off = 4
+   with iteration values: len = 131071, tx_off = 0, rx_off = 5
+ loopback strangeness - rx changed outside of allowed range at: ...a4321000
+   spi_msg@ffffffd5a4157690
+     frame_length:  131071
+     actual_length: 131071
+     spi_transfer@ffffffd5a41576f8
+       len:    131071
+       tx_buf: ffffffd5a4340ffc
+
+Note that rx_offset > 3 can only occur if the SPI controller driver sets
+->dma_alignment to a higher value than 4, so most SPI controller drivers
+are not affect.
+
+The allocated Rx buffer is of size SPI_TEST_MAX_SIZE_PLUS, which is 132
+KiB (assuming 4 KiB pages).  This test uses an initial offset into the
+rx_buf of PAGE_SIZE - 4, and a len of 131071, so the range expected to
+be written in this transfer ends at (4096 - 4) + 5 + 131071 == 132 KiB,
+which is also the end of the allocated buffer.  But the code which
+verifies the content of the buffer reads a byte beyond the allocated
+buffer and spuriously fails because this out-of-bounds read doesn't
+return the expected value.
+
+Fix this by using ITERATE_LEN instead of ITERATE_MAX_LEN to avoid
+testing sizes which cause out-of-bounds reads.
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/20200902132341.7079-1-vincent.whitchurch@axis.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libfc/fc_disc.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/spi/spi-loopback-test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/libfc/fc_disc.c b/drivers/scsi/libfc/fc_disc.c
-index 78cf5b32bca67..0b3f4538c1d4d 100644
---- a/drivers/scsi/libfc/fc_disc.c
-+++ b/drivers/scsi/libfc/fc_disc.c
-@@ -646,8 +646,6 @@ free_fp:
- 	fc_frame_free(fp);
- out:
- 	kref_put(&rdata->kref, fc_rport_destroy);
--	if (!IS_ERR(fp))
--		fc_frame_free(fp);
- }
- 
- /**
+diff --git a/drivers/spi/spi-loopback-test.c b/drivers/spi/spi-loopback-test.c
+index bed7403bb6b3a..b9a7117b6dce3 100644
+--- a/drivers/spi/spi-loopback-test.c
++++ b/drivers/spi/spi-loopback-test.c
+@@ -99,7 +99,7 @@ static struct spi_test spi_tests[] = {
+ 	{
+ 		.description	= "tx/rx-transfer - crossing PAGE_SIZE",
+ 		.fill_option	= FILL_COUNT_8,
+-		.iterate_len    = { ITERATE_MAX_LEN },
++		.iterate_len    = { ITERATE_LEN },
+ 		.iterate_tx_align = ITERATE_ALIGN,
+ 		.iterate_rx_align = ITERATE_ALIGN,
+ 		.transfer_count = 1,
 -- 
 2.25.1
 
