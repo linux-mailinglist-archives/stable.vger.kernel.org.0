@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8BD4272E16
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:46:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB52D272F96
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729488AbgIUQqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:46:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52262 "EHLO mail.kernel.org"
+        id S1728940AbgIUQ60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:58:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727824AbgIUQqL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:46:11 -0400
+        id S1729469AbgIUQlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:41:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FA6820874;
-        Mon, 21 Sep 2020 16:46:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CE59235F9;
+        Mon, 21 Sep 2020 16:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706770;
-        bh=AhN4QZWvk+lWeRI3C59MK5A0TKBlb9Ah+gcQ4bpwLoQ=;
+        s=default; t=1600706514;
+        bh=d3XFlJeZ5FcVRMjyET295KfplhHWKUPA6e5DSv4GAcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkxBJvSFQww8FtDY3myu9cJ97HaRLzQYwbztgCdQ7goRZTl52n08dvym9W9MMjji1
-         y/mZmXhZJUv4SJtCP3wik9Hcr3ygJitkOsYBUWl/s8gSWo4yRgjRVtv3WLNPiyfiME
-         FtBS0G5yWVuY2+nhQOBGgtwT8N4T/V6vogNq3lXo=
+        b=Xo/BhlMQ+xa6jwH45nRco+AQO/wz3qXZ07cyC5Ona2at+raur/ftMng/PbBRW6A6k
+         fJ6tNrsU2kGN+LcNPumMF9sRxwJaQkV6nA7XDaOVpgIC+7w9KknCulR8qWUnY1Ll1K
+         scITFrolLwjlTAuENybIx46LDYRLVsGT7Y2rkWMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Penghao <penghao@uniontech.com>
-Subject: [PATCH 5.8 086/118] USB: quirks: Add USB_QUIRK_IGNORE_REMOTE_WAKEUP quirk for BYD zhaoxin notebook
+        stable@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 34/49] MIPS: SNI: Fix spurious interrupts
 Date:   Mon, 21 Sep 2020 18:28:18 +0200
-Message-Id: <20200921162040.345518799@linuxfoundation.org>
+Message-Id: <20200921162036.167479232@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
+References: <20200921162034.660953761@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Penghao <penghao@uniontech.com>
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 
-commit bcea6dafeeef7d1a6a8320a249aabf981d63b881 upstream.
+[ Upstream commit b959b97860d0fee8c8f6a3e641d3c2ad76eab6be ]
 
-Add a USB_QUIRK_IGNORE_REMOTE_WAKEUP quirk for the BYD zhaoxin notebook.
-This notebook come with usb touchpad. And we would like to disable
-touchpad wakeup on this notebook by default.
+On A20R machines the interrupt pending bits in cause register need to be
+updated by requesting the chipset to do it. This needs to be done to
+find the interrupt cause and after interrupt service. In
+commit 0b888c7f3a03 ("MIPS: SNI: Convert to new irq_chip functions") the
+function to do after service update got lost, which caused spurious
+interrupts.
 
-Signed-off-by: Penghao <penghao@uniontech.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200907023026.28189-1-penghao@uniontech.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 0b888c7f3a03 ("MIPS: SNI: Convert to new irq_chip functions")
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/mips/sni/a20r.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -397,6 +397,10 @@ static const struct usb_device_id usb_qu
- 	/* Generic RTL8153 based ethernet adapters */
- 	{ USB_DEVICE(0x0bda, 0x8153), .driver_info = USB_QUIRK_NO_LPM },
+diff --git a/arch/mips/sni/a20r.c b/arch/mips/sni/a20r.c
+index f9407e1704762..c6af7047eb0d2 100644
+--- a/arch/mips/sni/a20r.c
++++ b/arch/mips/sni/a20r.c
+@@ -143,7 +143,10 @@ static struct platform_device sc26xx_pdev = {
+ 	},
+ };
  
-+	/* SONiX USB DEVICE Touchpad */
-+	{ USB_DEVICE(0x0c45, 0x7056), .driver_info =
-+			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
+-static u32 a20r_ack_hwint(void)
++/*
++ * Trigger chipset to update CPU's CAUSE IP field
++ */
++static u32 a20r_update_cause_ip(void)
+ {
+ 	u32 status = read_c0_status();
+ 
+@@ -205,12 +208,14 @@ static void a20r_hwint(void)
+ 	int irq;
+ 
+ 	clear_c0_status(IE_IRQ0);
+-	status = a20r_ack_hwint();
++	status = a20r_update_cause_ip();
+ 	cause = read_c0_cause();
+ 
+ 	irq = ffs(((cause & status) >> 8) & 0xf8);
+ 	if (likely(irq > 0))
+ 		do_IRQ(SNI_A20R_IRQ_BASE + irq - 1);
 +
- 	/* Action Semiconductor flash disk */
- 	{ USB_DEVICE(0x10d6, 0x2200), .driver_info =
- 			USB_QUIRK_STRING_FETCH_255 },
++	a20r_update_cause_ip();
+ 	set_c0_status(IE_IRQ0);
+ }
+ 
+-- 
+2.25.1
+
 
 
