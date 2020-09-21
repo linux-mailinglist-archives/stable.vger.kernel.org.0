@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A5BB272C9D
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D959272F47
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728647AbgIUQdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:33:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59700 "EHLO mail.kernel.org"
+        id S1729976AbgIUQz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:55:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728637AbgIUQd3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:33:29 -0400
+        id S1729512AbgIUQpO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:45:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79A6B239D0;
-        Mon, 21 Sep 2020 16:33:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 292C5235F9;
+        Mon, 21 Sep 2020 16:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706009;
-        bh=CD6PsofLoeKEjoaySeMOD1zS5O/GIWyJ3Er++gagnKU=;
+        s=default; t=1600706713;
+        bh=zjqmn0qMJtChbblkPVMBQbxmFuRNa/WbsVt4ChA/Wt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+QcPtlRhXBpW5AyLi+Rtj0/Z9e14zsJgJ86LXZsW5TMNYAq5VtDacaL801M4FSom
-         Xxy+ZY4nK2RC8XEGTewU/ao4HsiA8ZiP6YjfYq4UPYRGEoeA5FtCvZ3HiY/n19+Baz
-         9/Joh5WkPkTgNnjDQcIskQGeMqnyhyS/Z0u/+yro=
+        b=fr+6BV09CyfuiavktgGEFnx+VCpratXVO12CtByCjGrubyLy6roPmj+rTIA2V32yO
+         z4gdq3xfGMo+h1b87YL3OZbkDhKFDgfFNlW7fRvHekEiF5oUlNYN4lEq8MORLAR+QL
+         wO5XLVwYSc82SQP06fhzm6sR4VqFImG2uwUHp8rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 41/46] usblp: fix race between disconnect() and read()
+        stable@vger.kernel.org,
+        syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        George Kennedy <george.kennedy@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 065/118] fbcon: Fix user font detection test at fbcon_resize().
 Date:   Mon, 21 Sep 2020 18:27:57 +0200
-Message-Id: <20200921162035.162662168@linuxfoundation.org>
+Message-Id: <20200921162039.375315206@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
-References: <20200921162033.346434578@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 9cdabcb3ef8c24ca3a456e4db7b012befb688e73 upstream.
+[ Upstream commit ec0972adecb391a8d8650832263a4790f3bfb4df ]
 
-read() needs to check whether the device has been
-disconnected before it tries to talk to the device.
+syzbot is reporting OOB read at fbcon_resize() [1], for
+commit 39b3cffb8cf31117 ("fbcon: prevent user font height or width change
+ from causing potential out-of-bounds access") is by error using
+registered_fb[con2fb_map[vc->vc_num]]->fbcon_par->p->userfont (which was
+set to non-zero) instead of fb_display[vc->vc_num].userfont (which remains
+zero for that display).
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20200917103427.15740-1-oneukum@suse.com
-Cc: stable <stable@vger.kernel.org>
+We could remove tricky userfont flag [2], for we can determine it by
+comparing address of the font data and addresses of built-in font data.
+But since that commit is failing to fix the original OOB read [3], this
+patch keeps the change minimal in case we decide to revert altogether.
+
+[1] https://syzkaller.appspot.com/bug?id=ebcbbb6576958a496500fee9cf7aa83ea00b5920
+[2] https://syzkaller.appspot.com/text?tag=Patch&x=14030853900000
+[3] https://syzkaller.appspot.com/bug?id=6fba8c186d97cf1011ab17660e633b1cc4e080c9
+
+Reported-by: syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 39b3cffb8cf31117 ("fbcon: prevent user font height or width change from causing potential out-of-bounds access")
+Cc: George Kennedy <george.kennedy@oracle.com>
+Link: https://lore.kernel.org/r/f6e3e611-8704-1263-d163-f52c906a4f06@I-love.SAKURA.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/usblp.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/video/fbdev/core/fbcon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/class/usblp.c
-+++ b/drivers/usb/class/usblp.c
-@@ -840,6 +840,11 @@ static ssize_t usblp_read(struct file *f
- 	if (rv < 0)
- 		return rv;
+diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
+index b36bfe10c712c..09cb46e94f405 100644
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2018,7 +2018,7 @@ static int fbcon_resize(struct vc_data *vc, unsigned int width,
+ 	struct fb_var_screeninfo var = info->var;
+ 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
  
-+	if (!usblp->present) {
-+		count = -ENODEV;
-+		goto done;
-+	}
-+
- 	if ((avail = usblp->rstatus) < 0) {
- 		printk(KERN_ERR "usblp%d: error %d reading from printer\n",
- 		    usblp->minor, (int)avail);
+-	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
++	if (p->userfont && FNTSIZE(vc->vc_font.data)) {
+ 		int size;
+ 		int pitch = PITCH(vc->vc_font.width);
+ 
+-- 
+2.25.1
+
 
 
