@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF720272D3E
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F747272DF2
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:45:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729175AbgIUQig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:38:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39240 "EHLO mail.kernel.org"
+        id S1729448AbgIUQof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:44:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728626AbgIUQiR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:38:17 -0400
+        id S1729670AbgIUQoJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:44:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B01AE206B7;
-        Mon, 21 Sep 2020 16:38:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18BDF23998;
+        Mon, 21 Sep 2020 16:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706296;
-        bh=wOGQmjX4h89ENxZdVhJDy72GEdbI3DlGxhw+F2HHsW0=;
+        s=default; t=1600706648;
+        bh=4v8q9J/9fwWug1dfX+6rl1pBaG1KGfGEq1QFjK0EsXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alVltCbwKQaaOSkibqAwTJl4g/RSI+DHbvg/hs0TQbcrmP97YWOPp2XZtNt3oLlTn
-         tRh8jPfyUDLatxmrC/wx3/z0SqotZgchmwKpgGYPqT/SlyD8goFeqwwnfOoDF4cVMW
-         C3P/8XdMOrNrr34lsGhozyODO7Uyhi1vvxZK/GUE=
+        b=HHNRx92Pj+wwo2+ajxcKL5s83ihAEyoImXqpQzgHfItUXcfRuVA74OeyerwiXJMI0
+         nTmB2ZVp7BCwuacD6TPE9onitYvtHRemTPtypO3M7aZ2dsk/eKeIso2KWGxWp9cZf8
+         1GNBGzx36jgJ++VJJRa54ivMHYlnOYDZ2ZTKSWvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mike Christie <michael.christie@oralce.com>,
-        Varun Prakash <varun@chelsio.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 43/94] scsi: target: iscsi: Fix data digest calculation
+        Mateusz Gorski <mateusz.gorski@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 038/118] ASoC: Intel: skl_hda_dsp_generic: Fix NULLptr dereference in autosuspend delay
 Date:   Mon, 21 Sep 2020 18:27:30 +0200
-Message-Id: <20200921162037.524819462@linuxfoundation.org>
+Message-Id: <20200921162038.067119767@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Mateusz Gorski <mateusz.gorski@linux.intel.com>
 
-commit 5528d03183fe5243416c706f64b1faa518b05130 upstream.
+[ Upstream commit 5610921a4435ef45c33702073e64f835f3dca7f1 ]
 
-Current code does not consider 'page_off' in data digest calculation. To
-fix this, add a local variable 'first_sg' and set first_sg.offset to
-sg->offset + page_off.
+Different modules for HDMI codec are used depending on the
+"hda_codec_use_common_hdmi" option being enabled or not. Driver private
+context for both of them is different.
+This leads to null-pointer dereference error when driver tries to set
+autosuspend delay for HDMI codec while the option is off (hdac_hdmi
+module is used for HDMI).
 
-Link: https://lore.kernel.org/r/1598358910-3052-1-git-send-email-varun@chelsio.com
-Fixes: e48354ce078c ("iscsi-target: Add iSCSI fabric support for target v4.1")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Mike Christie <michael.christie@oralce.com>
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Change the string in conditional statement to "ehdaudio0D0" to ensure
+that only the HDAudio codec is handled by this function.
 
+Fixes: 5bf73b1b1dec ("ASoC: intel/skl/hda - fix oops on systems without i915 audio codec")
+Signed-off-by: Mateusz Gorski <mateusz.gorski@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200722173524.30161-1-mateusz.gorski@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/iscsi/iscsi_target.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ sound/soc/intel/boards/skl_hda_dsp_generic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/target/iscsi/iscsi_target.c
-+++ b/drivers/target/iscsi/iscsi_target.c
-@@ -1382,14 +1382,27 @@ static u32 iscsit_do_crypto_hash_sg(
- 	sg = cmd->first_data_sg;
- 	page_off = cmd->first_data_sg_off;
+diff --git a/sound/soc/intel/boards/skl_hda_dsp_generic.c b/sound/soc/intel/boards/skl_hda_dsp_generic.c
+index ca4900036ead9..bc50eda297ab7 100644
+--- a/sound/soc/intel/boards/skl_hda_dsp_generic.c
++++ b/sound/soc/intel/boards/skl_hda_dsp_generic.c
+@@ -181,7 +181,7 @@ static void skl_set_hda_codec_autosuspend_delay(struct snd_soc_card *card)
+ 	struct snd_soc_dai *dai;
  
-+	if (data_length && page_off) {
-+		struct scatterlist first_sg;
-+		u32 len = min_t(u32, data_length, sg->length - page_off);
-+
-+		sg_init_table(&first_sg, 1);
-+		sg_set_page(&first_sg, sg_page(sg), len, sg->offset + page_off);
-+
-+		ahash_request_set_crypt(hash, &first_sg, NULL, len);
-+		crypto_ahash_update(hash);
-+
-+		data_length -= len;
-+		sg = sg_next(sg);
-+	}
-+
- 	while (data_length) {
--		u32 cur_len = min_t(u32, data_length, (sg->length - page_off));
-+		u32 cur_len = min_t(u32, data_length, sg->length);
- 
- 		ahash_request_set_crypt(hash, sg, NULL, cur_len);
- 		crypto_ahash_update(hash);
- 
- 		data_length -= cur_len;
--		page_off = 0;
- 		/* iscsit_map_iovec has already checked for invalid sg pointers */
- 		sg = sg_next(sg);
- 	}
+ 	for_each_card_rtds(card, rtd) {
+-		if (!strstr(rtd->dai_link->codecs->name, "ehdaudio"))
++		if (!strstr(rtd->dai_link->codecs->name, "ehdaudio0D0"))
+ 			continue;
+ 		dai = asoc_rtd_to_codec(rtd, 0);
+ 		hda_pvt = snd_soc_component_get_drvdata(dai->component);
+-- 
+2.25.1
+
 
 
