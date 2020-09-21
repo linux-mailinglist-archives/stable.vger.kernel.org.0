@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39BD9273020
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B845273078
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:05:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729125AbgIURCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 13:02:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38516 "EHLO mail.kernel.org"
+        id S1729421AbgIURFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 13:05:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729104AbgIUQhr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:37:47 -0400
+        id S1728705AbgIUQeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:34:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01E9D23998;
-        Mon, 21 Sep 2020 16:37:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12884239A1;
+        Mon, 21 Sep 2020 16:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706266;
-        bh=P7jqaOAApyzqqrUZrsopvtD81Sgcku1U3iZX28GTxMU=;
+        s=default; t=1600706046;
+        bh=V+hMxe2Lwr/FAnvCw25sVauwGTJ4DqBLe1JJIdJzaaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fb6cotHyP/E4/pMs9yeLqzpiF/VzwnUSmx08LlYxsFklOl1JW7oV3+psgHQZgij6f
-         kDCJdqPSLbYbGPQmX0GZJIjSkPcA+zHYVcE0dMDJmKRwzxDBJmvoyoTF0QAtFzzEUo
-         LbXtnozzqeoYjKDMSLJBHai7EoLDJC3lWr16gMTQ=
+        b=zrITKK4M51DdGpIEcb5Cl448zstGXxBMyYLSgfhbiDnngmLA2N++4gcjsygP9Xdnw
+         n2Z6RwvjJFldugOdi2vdercut+vqhjLtC8tGYkZ54kJ4XfLAcmuBpeH2fdAfNv8ECN
+         rl1afqzkoYSLvkOn6RaCbN0ycDJr4hmzUZ8wdDNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Gregor Boirie <gregor.boirie@parrot.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Stable@vger.kernel.org
-Subject: [PATCH 4.14 32/94] iio:magnetometer:ak8975 Fix alignment and data leak issues.
+Subject: [PATCH 4.9 19/70] iio:accel:bmc150-accel: Fix timestamp alignment and prevent data leak.
 Date:   Mon, 21 Sep 2020 18:27:19 +0200
-Message-Id: <20200921162037.022542525@linuxfoundation.org>
+Message-Id: <20200921162036.012927073@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,76 +47,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit 02ad21cefbac4d89ac443866f25b90449527737b upstream.
+commit a6f86f724394de3629da63fe5e1b7a4ab3396efe upstream.
 
 One of a class of bugs pointed out by Lars in a recent review.
 iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
 to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
+this driver which uses a 16 byte array of smaller elements on the stack.
 As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data.
+userspace and that indeed can happen here.  We close both issues by moving
+to a suitable structure in the iio_priv() data with alignment
+ensured by use of an explicit c structure.  This data is allocated
+with kzalloc so no data can leak appart from previous readings.
 
-This data is allocated with kzalloc so no data can leak apart from
-previous readings.
+Fixes tag is beyond some major refactoring so likely manual backporting
+would be needed to get that far back.
 
-The explicit alignment of ts is not necessary in this case as by
-coincidence the padding will end up the same, however I consider
-it to make the code less fragile and have included it.
+Whilst the force alignment of the ts is not strictly necessary, it
+does make the code less fragile.
 
-Fixes: bc11ca4a0b84 ("iio:magnetometer:ak8975: triggered buffer support")
+Fixes: 3bbec9773389 ("iio: bmc150_accel: add support for hardware fifo")
 Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Gregor Boirie <gregor.boirie@parrot.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/magnetometer/ak8975.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/iio/accel/bmc150-accel-core.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/magnetometer/ak8975.c
-+++ b/drivers/iio/magnetometer/ak8975.c
-@@ -381,6 +381,12 @@ struct ak8975_data {
- 	struct iio_mount_matrix orientation;
- 	struct regulator	*vdd;
- 	struct regulator	*vid;
-+
-+	/* Ensure natural alignment of timestamp */
+--- a/drivers/iio/accel/bmc150-accel-core.c
++++ b/drivers/iio/accel/bmc150-accel-core.c
+@@ -197,6 +197,14 @@ struct bmc150_accel_data {
+ 	struct mutex mutex;
+ 	u8 fifo_mode, watermark;
+ 	s16 buffer[8];
++	/*
++	 * Ensure there is sufficient space and correct alignment for
++	 * the timestamp if enabled
++	 */
 +	struct {
-+		s16 channels[3];
++		__le16 channels[3];
 +		s64 ts __aligned(8);
 +	} scan;
- };
+ 	u8 bw_bits;
+ 	u32 slope_dur;
+ 	u32 slope_thres;
+@@ -933,15 +941,16 @@ static int __bmc150_accel_fifo_flush(str
+ 	 * now.
+ 	 */
+ 	for (i = 0; i < count; i++) {
+-		u16 sample[8];
+ 		int j, bit;
  
- /* Enable attached power regulator if any. */
-@@ -815,7 +821,6 @@ static void ak8975_fill_buffer(struct ii
- 	const struct i2c_client *client = data->client;
- 	const struct ak_def *def = data->def;
- 	int ret;
--	s16 buff[8]; /* 3 x 16 bits axis values + 1 aligned 64 bits timestamp */
- 	__le16 fval[3];
+ 		j = 0;
+ 		for_each_set_bit(bit, indio_dev->active_scan_mask,
+ 				 indio_dev->masklength)
+-			memcpy(&sample[j++], &buffer[i * 3 + bit], 2);
++			memcpy(&data->scan.channels[j++], &buffer[i * 3 + bit],
++			       sizeof(data->scan.channels[0]));
  
- 	mutex_lock(&data->lock);
-@@ -838,12 +843,13 @@ static void ak8975_fill_buffer(struct ii
- 	mutex_unlock(&data->lock);
+-		iio_push_to_buffers_with_timestamp(indio_dev, sample, tstamp);
++		iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
++						   tstamp);
  
- 	/* Clamp to valid range. */
--	buff[0] = clamp_t(s16, le16_to_cpu(fval[0]), -def->range, def->range);
--	buff[1] = clamp_t(s16, le16_to_cpu(fval[1]), -def->range, def->range);
--	buff[2] = clamp_t(s16, le16_to_cpu(fval[2]), -def->range, def->range);
-+	data->scan.channels[0] = clamp_t(s16, le16_to_cpu(fval[0]), -def->range, def->range);
-+	data->scan.channels[1] = clamp_t(s16, le16_to_cpu(fval[1]), -def->range, def->range);
-+	data->scan.channels[2] = clamp_t(s16, le16_to_cpu(fval[2]), -def->range, def->range);
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buff,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   iio_get_time_ns(indio_dev));
-+
- 	return;
- 
- unlock:
+ 		tstamp += sample_period;
+ 	}
 
 
