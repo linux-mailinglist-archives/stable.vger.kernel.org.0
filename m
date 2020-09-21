@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9AA7272FD2
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:00:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70988272F25
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729576AbgIUQ74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:59:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43428 "EHLO mail.kernel.org"
+        id S1728908AbgIUQya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:54:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729004AbgIUQkd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:40:33 -0400
+        id S1727197AbgIUQqJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:46:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA7F72067D;
-        Mon, 21 Sep 2020 16:40:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9B942223E;
+        Mon, 21 Sep 2020 16:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706433;
-        bh=c7WJvowXCtWhwktSRSJ/S+jIIYMsvWean99rX7ldJZ4=;
+        s=default; t=1600706768;
+        bh=8CgClc7n9JrrvXiLpWN8REZOBT57fFtY5L9Gom4cG6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vBjVB38YPPhNHlRL3Mwa+ymSfQg+l5setQO8793nu7jhSYuq7uwUtkUngjEaX5nP+
-         vMzUHKGxlC8YXOSQs+cP+b3t8g6/txUvv9M2l8wTi8L9CA9Bxp8IRullr2v1Sk/tzS
-         VE2Z4k5U4TJXKRdLaAm5210EKEqDajphz6YZC8uk=
+        b=l3iHKQ/tl2lWJ+EQ55uhp84Cdkxi+UzIYc72fvh4ySp0KIlD73unT4LFbh2VScyW0
+         UjneeH0inc8kdC0ZEiK8qUz7VtYQeygTJV6sHCE6+phsDN3XiVZBsJNGq5AaNfTHwn
+         SBEX3vqxYSu6I3WWnQdqgUxwE40gn7DfuZYgiX1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.14 90/94] Input: i8042 - add Entroware Proteus EL07R4 to nomux and reset lists
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.8 085/118] drm/i915: Filter wake_flags passed to default_wake_function
 Date:   Mon, 21 Sep 2020 18:28:17 +0200
-Message-Id: <20200921162039.681519738@linuxfoundation.org>
+Message-Id: <20200921162040.295019326@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit c4440b8a457779adeec42c5e181cb4016f19ce0f upstream.
+commit 20612303a0b45de748d31331407e84300c38e497 upstream.
 
-The keyboard drops keypresses early during boot unless both the nomux
-and reset quirks are set. Add DMI table entries for this.
+(NOTE: This is the minimal backportable fix, a full fix is being
+developed at https://patchwork.freedesktop.org/patch/388048/)
 
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1806085
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200907095656.13155-1-hdegoede@redhat.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+The flags passed to the wait_entry.func are passed onwards to
+try_to_wake_up(), which has a very particular interpretation for its
+wake_flags. In particular, beyond the published WF_SYNC, it has a few
+internal flags as well. Since we passed the fence->error down the chain
+via the flags argument, these ended up in the default_wake_function
+confusing the kernel/sched.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2110
+Fixes: ef4688497512 ("drm/i915: Propagate fence errors")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200728152144.1100-1-chris@chris-wilson.co.uk
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+[Joonas: Rebased and reordered into drm-intel-gt-next branch]
+[Joonas: Added a note and link about more complete fix]
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+(cherry picked from commit f4b3c395540aa3d4f5a6275c5bdd83ab89034806)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/serio/i8042-x86ia64io.h |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/gpu/drm/i915/i915_sw_fence.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -552,6 +552,14 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
- 		},
- 	},
-+	{
-+		/* Entroware Proteus */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Entroware"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Proteus"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "EL07R4"),
-+		},
-+	},
- 	{ }
- };
+--- a/drivers/gpu/drm/i915/i915_sw_fence.c
++++ b/drivers/gpu/drm/i915/i915_sw_fence.c
+@@ -164,9 +164,13 @@ static void __i915_sw_fence_wake_up_all(
  
-@@ -680,6 +688,14 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
- 		},
- 	},
-+	{
-+		/* Entroware Proteus */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Entroware"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Proteus"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "EL07R4"),
-+		},
-+	},
- 	{ }
- };
+ 		do {
+ 			list_for_each_entry_safe(pos, next, &x->head, entry) {
+-				pos->func(pos,
+-					  TASK_NORMAL, fence->error,
+-					  &extra);
++				int wake_flags;
++
++				wake_flags = fence->error;
++				if (pos->func == autoremove_wake_function)
++					wake_flags = 0;
++
++				pos->func(pos, TASK_NORMAL, wake_flags, &extra);
+ 			}
  
+ 			if (list_empty(&extra))
 
 
