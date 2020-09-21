@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29145272D28
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:38:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C3D272DFD
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:45:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbgIUQhu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:37:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38392 "EHLO mail.kernel.org"
+        id S1729197AbgIUQo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:44:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728789AbgIUQho (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:37:44 -0400
+        id S1729711AbgIUQo5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:44:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04ACD238EE;
-        Mon, 21 Sep 2020 16:37:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3532E23976;
+        Mon, 21 Sep 2020 16:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706263;
-        bh=p7jydHRi2UcpgGqpxPC294TEpk0O700BEyFJFD72Stg=;
+        s=default; t=1600706696;
+        bh=jE+KNy6sH2GYUyNViDM63N8Nh9eGlpSBcc4XAXHGl3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UglwgWwMvQ3lyyYZVv4XHDQR+meiWFN38/9BGxvOkRVnO9hqm0bXqm1DDQDXvCUF6
-         VXYByUVa2QMq9CWGulUUPQVSN2JrHokH7lr/Uv7ZG0CzbPYvDsACbbaSVOfyiXJT/h
-         FcccKqjkNba5dATbNSjuwXIPXOi7kyr2vkWyX4jw=
+        b=jflbdDLfomV1ZEKOHJ5LlhG4PC5DZ97YJDRUQtamVd5BjmCCqZ2TrxWP3yfH91Iaa
+         9O0KSa2SUsEpfsEMOYOBJq2LA79Bqui9dBznQm9Ld58hocqQ3Uwq9yzfxewj9aNBjf
+         el+CXAZIZ8Me5k9t9s2TXxVMuo7cS3jeZjaRdcto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.14 31/94] iio:adc:ti-adc081c Fix alignment and data leak issues
-Date:   Mon, 21 Sep 2020 18:27:18 +0200
-Message-Id: <20200921162036.981421718@linuxfoundation.org>
+        stable@vger.kernel.org, David Milburn <dmilburn@redhat.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 027/118] nvme-rdma: cancel async events before freeing event struct
+Date:   Mon, 21 Sep 2020 18:27:19 +0200
+Message-Id: <20200921162037.576388687@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: David Milburn <dmilburn@redhat.com>
 
-commit 54f82df2ba86e2a8e9cbf4036d192366e3905c89 upstream.
+[ Upstream commit 925dd04c1f9825194b9e444c12478084813b2b5d ]
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv().
+Cancel async event work in case async event has been queued up, and
+nvme_rdma_submit_async_event() runs after event has been freed.
 
-This data is allocated with kzalloc so no data can leak apart
-from previous readings.
-
-The eplicit alignment of ts is necessary to ensure correct padding
-on x86_32 where s64 is only aligned to 4 bytes.
-
-Fixes: 08e05d1fce5c ("ti-adc081c: Initial triggered buffer support")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: David Milburn <dmilburn@redhat.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ti-adc081c.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/nvme/host/rdma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/adc/ti-adc081c.c
-+++ b/drivers/iio/adc/ti-adc081c.c
-@@ -36,6 +36,12 @@ struct adc081c {
- 
- 	/* 8, 10 or 12 */
- 	int bits;
-+
-+	/* Ensure natural alignment of buffer elements */
-+	struct {
-+		u16 channel;
-+		s64 ts __aligned(8);
-+	} scan;
- };
- 
- #define REG_CONV_RES 0x00
-@@ -132,14 +138,13 @@ static irqreturn_t adc081c_trigger_handl
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct adc081c *data = iio_priv(indio_dev);
--	u16 buf[8]; /* 2 bytes data + 6 bytes padding + 8 bytes timestamp */
- 	int ret;
- 
- 	ret = i2c_smbus_read_word_swapped(data->i2c, REG_CONV_RES);
- 	if (ret < 0)
- 		goto out;
--	buf[0] = ret;
--	iio_push_to_buffers_with_timestamp(indio_dev, buf,
-+	data->scan.channel = ret;
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   iio_get_time_ns(indio_dev));
- out:
- 	iio_trigger_notify_done(indio_dev->trig);
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 6c07bb55b0f83..4a0bc8927048a 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -809,6 +809,7 @@ static void nvme_rdma_destroy_admin_queue(struct nvme_rdma_ctrl *ctrl,
+ 		blk_mq_free_tag_set(ctrl->ctrl.admin_tagset);
+ 	}
+ 	if (ctrl->async_event_sqe.data) {
++		cancel_work_sync(&ctrl->ctrl.async_event_work);
+ 		nvme_rdma_free_qe(ctrl->device->dev, &ctrl->async_event_sqe,
+ 				sizeof(struct nvme_command), DMA_TO_DEVICE);
+ 		ctrl->async_event_sqe.data = NULL;
+-- 
+2.25.1
+
 
 
