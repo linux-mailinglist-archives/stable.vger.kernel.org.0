@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 137B0272FA0
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:59:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5BB272C9D
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730256AbgIUQ61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:58:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45450 "EHLO mail.kernel.org"
+        id S1728647AbgIUQdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729021AbgIUQlo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:41:44 -0400
+        id S1728637AbgIUQd3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:33:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5142F23976;
-        Mon, 21 Sep 2020 16:41:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79A6B239D0;
+        Mon, 21 Sep 2020 16:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706502;
-        bh=VhAKm7/Wt9X1ioKpd2cDViKZseRDrXx25umwKfvJkaw=;
+        s=default; t=1600706009;
+        bh=CD6PsofLoeKEjoaySeMOD1zS5O/GIWyJ3Er++gagnKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BdZCHLwFIJ5ARiSTkuJlgQ0Re7FZKBLin5mYHssvtX/nV/ReMvxNDOELfr/2hY9Je
-         iteONSKpq7DjV91JTY+h6yGWm/2voXCfsLB1VqjDkggXEk5M6CMo8WSYwq4LCnqxf7
-         JCh5z+fe+Zk8C+K90UoWaBnEcuLiqCd3Gt9rqUFs=
+        b=q+QcPtlRhXBpW5AyLi+Rtj0/Z9e14zsJgJ86LXZsW5TMNYAq5VtDacaL801M4FSom
+         Xxy+ZY4nK2RC8XEGTewU/ao4HsiA8ZiP6YjfYq4UPYRGEoeA5FtCvZ3HiY/n19+Baz
+         9/Joh5WkPkTgNnjDQcIskQGeMqnyhyS/Z0u/+yro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/49] regulator: pwm: Fix machine constraints application
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 41/46] usblp: fix race between disconnect() and read()
 Date:   Mon, 21 Sep 2020 18:27:57 +0200
-Message-Id: <20200921162035.250314532@linuxfoundation.org>
+Message-Id: <20200921162035.162662168@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
-References: <20200921162034.660953761@linuxfoundation.org>
+In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
+References: <20200921162033.346434578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 59ae97a7a9e1499c2070e29841d1c4be4ae2994a ]
+commit 9cdabcb3ef8c24ca3a456e4db7b012befb688e73 upstream.
 
-If the zero duty cycle doesn't correspond to any voltage in the voltage
-table, the PWM regulator returns an -EINVAL from get_voltage_sel() which
-results in the core erroring out with a "failed to get the current
-voltage" and ending up not applying the machine constraints.
+read() needs to check whether the device has been
+disconnected before it tries to talk to the device.
 
-Instead, return -ENOTRECOVERABLE which makes the core set the voltage
-since it's at an unknown value.
-
-For example, with this device tree:
-
-	fooregulator {
-		compatible = "pwm-regulator";
-		pwms = <&foopwm 0 100000>;
-		regulator-min-microvolt = <2250000>;
-		regulator-max-microvolt = <2250000>;
-		regulator-name = "fooregulator";
-		regulator-always-on;
-		regulator-boot-on;
-		voltage-table = <2250000 30>;
-	};
-
-Before this patch:
-
-  fooregulator: failed to get the current voltage(-22)
-
-After this patch:
-
-  fooregulator: Setting 2250000-2250000uV
-  fooregulator: 2250 mV
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20200902130952.24880-1-vincent.whitchurch@axis.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20200917103427.15740-1-oneukum@suse.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/pwm-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/class/usblp.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/regulator/pwm-regulator.c b/drivers/regulator/pwm-regulator.c
-index a2fd140eff81a..34f3b9778ffa1 100644
---- a/drivers/regulator/pwm-regulator.c
-+++ b/drivers/regulator/pwm-regulator.c
-@@ -285,7 +285,7 @@ static int pwm_regulator_init_table(struct platform_device *pdev,
- 		return ret;
- 	}
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -840,6 +840,11 @@ static ssize_t usblp_read(struct file *f
+ 	if (rv < 0)
+ 		return rv;
  
--	drvdata->state			= -EINVAL;
-+	drvdata->state			= -ENOTRECOVERABLE;
- 	drvdata->duty_cycle_table	= duty_cycle_table;
- 	memcpy(&drvdata->ops, &pwm_regulator_voltage_table_ops,
- 	       sizeof(drvdata->ops));
--- 
-2.25.1
-
++	if (!usblp->present) {
++		count = -ENODEV;
++		goto done;
++	}
++
+ 	if ((avail = usblp->rstatus) < 0) {
+ 		printk(KERN_ERR "usblp%d: error %d reading from printer\n",
+ 		    usblp->minor, (int)avail);
 
 
