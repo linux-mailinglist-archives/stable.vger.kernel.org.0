@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB1D2272EB6
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AFAB272EA8
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728414AbgIUQvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:51:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59434 "EHLO mail.kernel.org"
+        id S1729293AbgIUQvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:51:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730050AbgIUQut (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:50:49 -0400
+        id S1729127AbgIUQuw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:50:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0B4D206DC;
-        Mon, 21 Sep 2020 16:50:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82F3C2076E;
+        Mon, 21 Sep 2020 16:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600707048;
-        bh=pZ9XKBV4bjV4gb1MvqglbOrxAjNWqoN60Q88LXWBJms=;
+        s=default; t=1600707051;
+        bh=i5WffOCsO+5XAahvHV341hGS2Z0prgEMACs56qYCb5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EW9buf3Q8jLcc9pnCxiLGQ0DNyQBhI/YlJaz2l/QJfoEJrZrrsvDKjjpLWWsrF0tk
-         4LPCO9HMqYgNFz8m6S8Jxaksh75dbCZfWr8/dMZrmoeePXl6uB/x1VwIxXJiZrshv5
-         jchXr94zcg4Cs2g+ZY2Txm6wpq3r/M3OM0xgeuQQ=
+        b=h2bqRg1nHdYRHDSnhKpPCwO7s9H6ZhiZ3uplVmu3ve5ckEXRtr+S7trmVnef6fgtN
+         BRsAaFeAEYyMB7skqf0jGZcTDIb6aec8+33pDSjO1DLJew3/AwACPWZ6ZuP9zjsFmF
+         m5WKwm/8esIRR1mf4w5Haco2VvpmsjeABhzwWSWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luke D Jones <luke@ljones.dev>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 58/72] ALSA: hda: fixup headset for ASUS GX502 laptop
-Date:   Mon, 21 Sep 2020 18:31:37 +0200
-Message-Id: <20200921163124.636751548@linuxfoundation.org>
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 59/72] ALSA: hda/realtek - The Mic on a RedmiBook doesnt work
+Date:   Mon, 21 Sep 2020 18:31:38 +0200
+Message-Id: <20200921163124.682429543@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -42,120 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D Jones <luke@ljones.dev>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit c3cdf189276c2a63da62ee250615bd55e3fb680d upstream.
+commit fc19d559b0d31b5b831fd468b10d7dadafc0d0ec upstream.
 
-The GX502 requires a few steps to enable the headset i/o: pincfg,
-verbs to enable and unmute the amp used for headpone out, and
-a jacksense callback to toggle output via internal or jack using
-a verb.
+The Mic connects to the Nid 0x19, but the configuration of Nid 0x19
+is not defined to Mic, and also need to set the coeff to enable the
+auto detection on the Nid 0x19. After this change, the Mic plugging
+in or plugging out could be detected and could record the sound from
+the Mic.
 
-Signed-off-by: Luke D Jones <luke@ljones.dev>
+And the coeff value is suggested by Kailang of Realtek.
+
+Cc: Kailang Yang <kailang@realtek.com>
 Cc: <stable@vger.kernel.org>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208005
-Link: https://lore.kernel.org/r/20200907081959.56186-1-luke@ljones.dev
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20200909020041.8967-1-hui.wang@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   65 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 65 insertions(+)
+ sound/pci/hda/patch_realtek.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -5974,6 +5974,40 @@ static void alc_fixup_disable_mic_vref(s
- 		snd_hda_codec_set_pin_target(codec, 0x19, PIN_VREFHIZ);
- }
+@@ -6209,6 +6209,7 @@ enum {
+ 	ALC269_FIXUP_LEMOTE_A1802,
+ 	ALC269_FIXUP_LEMOTE_A190X,
+ 	ALC256_FIXUP_INTEL_NUC8_RUGGED,
++	ALC255_FIXUP_XIAOMI_HEADSET_MIC,
+ };
  
-+
-+static void alc294_gx502_toggle_output(struct hda_codec *codec,
-+					struct hda_jack_callback *cb)
-+{
-+	/* The Windows driver sets the codec up in a very different way where
-+	 * it appears to leave 0x10 = 0x8a20 set. For Linux we need to toggle it
-+	 */
-+	if (snd_hda_jack_detect_state(codec, 0x21) == HDA_JACK_PRESENT)
-+		alc_write_coef_idx(codec, 0x10, 0x8a20);
-+	else
-+		alc_write_coef_idx(codec, 0x10, 0x0a20);
-+}
-+
-+static void alc294_fixup_gx502_hp(struct hda_codec *codec,
-+					const struct hda_fixup *fix, int action)
-+{
-+	/* Pin 0x21: headphones/headset mic */
-+	if (!is_jack_detectable(codec, 0x21))
-+		return;
-+
-+	switch (action) {
-+	case HDA_FIXUP_ACT_PRE_PROBE:
-+		snd_hda_jack_detect_enable_callback(codec, 0x21,
-+				alc294_gx502_toggle_output);
-+		break;
-+	case HDA_FIXUP_ACT_INIT:
-+		/* Make sure to start in a correct state, i.e. if
-+		 * headphones have been plugged in before powering up the system
-+		 */
-+		alc294_gx502_toggle_output(codec, NULL);
-+		break;
-+	}
-+}
-+
- static void  alc285_fixup_hp_gpio_amp_init(struct hda_codec *codec,
- 			      const struct hda_fixup *fix, int action)
- {
-@@ -6154,6 +6188,9 @@ enum {
- 	ALC285_FIXUP_THINKPAD_HEADSET_JACK,
- 	ALC294_FIXUP_ASUS_HPE,
- 	ALC294_FIXUP_ASUS_COEF_1B,
-+	ALC294_FIXUP_ASUS_GX502_HP,
-+	ALC294_FIXUP_ASUS_GX502_PINS,
-+	ALC294_FIXUP_ASUS_GX502_VERBS,
- 	ALC285_FIXUP_HP_GPIO_LED,
- 	ALC285_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_MUTE_LED,
-@@ -7319,6 +7356,33 @@ static const struct hda_fixup alc269_fix
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7572,6 +7573,16 @@ static const struct hda_fixup alc269_fix
  		.chained = true,
- 		.chain_id = ALC294_FIXUP_ASUS_HEADSET_MIC
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE
  	},
-+	[ALC294_FIXUP_ASUS_GX502_PINS] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x03a11050 }, /* front HP mic */
-+			{ 0x1a, 0x01a11830 }, /* rear external mic */
-+			{ 0x21, 0x03211020 }, /* front HP out */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC294_FIXUP_ASUS_GX502_VERBS
-+	},
-+	[ALC294_FIXUP_ASUS_GX502_VERBS] = {
++	[ALC255_FIXUP_XIAOMI_HEADSET_MIC] = {
 +		.type = HDA_FIXUP_VERBS,
 +		.v.verbs = (const struct hda_verb[]) {
-+			/* set 0x15 to HP-OUT ctrl */
-+			{ 0x15, AC_VERB_SET_PIN_WIDGET_CONTROL, 0xc0 },
-+			/* unmute the 0x15 amp */
-+			{ 0x15, AC_VERB_SET_AMP_GAIN_MUTE, 0xb000 },
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x45 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x5089 },
 +			{ }
 +		},
 +		.chained = true,
-+		.chain_id = ALC294_FIXUP_ASUS_GX502_HP
++		.chain_id = ALC289_FIXUP_ASUS_GA401
 +	},
-+	[ALC294_FIXUP_ASUS_GX502_HP] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc294_fixup_gx502_hp,
-+	},
- 	[ALC294_FIXUP_ASUS_COEF_1B] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -7692,6 +7756,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
- 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
-+	SND_PCI_QUIRK(0x1043, 0x1881, "ASUS Zephyrus S/M", ALC294_FIXUP_ASUS_GX502_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
- 	SND_PCI_QUIRK(0x1043, 0x831a, "ASUS P901", ALC269_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x1043, 0x834a, "ASUS S101", ALC269_FIXUP_STEREO_DMIC),
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7869,6 +7880,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1b35, 0x1236, "CZC TMI", ALC269_FIXUP_CZC_TMI),
+ 	SND_PCI_QUIRK(0x1b35, 0x1237, "CZC L101", ALC269_FIXUP_CZC_L101),
+ 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
++	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
+@@ -8046,6 +8058,7 @@ static const struct hda_model_fixup alc2
+ 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
+ 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
+ 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
++	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
+ 	{}
+ };
+ #define ALC225_STANDARD_PINS \
 
 
