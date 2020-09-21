@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA4127245B
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 14:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09C2927245C
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 14:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727055AbgIUMzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 08:55:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60686 "EHLO mail.kernel.org"
+        id S1727110AbgIUMzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 08:55:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727061AbgIUMzB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 08:55:01 -0400
+        id S1727090AbgIUMzE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 08:55:04 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D37F52220C;
-        Mon, 21 Sep 2020 12:55:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8A1E21789;
+        Mon, 21 Sep 2020 12:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600692901;
+        s=default; t=1600692902;
         bh=jEPUMnMNEhxcA9p47EsJfqeURv7EsDLkgiABrGWl3EY=;
         h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=ZJmoq4ehiFhkLCp0188eyx/IBC/7gMvsie2P4//uiqKeCa2YUGjFw34msDHuMrT/k
-         5uI2nKogzTrNBREtAzQcIkrE+89dnNGm6UAUfK2UNtkSpO7ZVUmmc7K2L4XoY4Heco
-         Rzvf4pbUg3w8efkzAuc4+/FhEUFkKXu4YXrA3HGs=
-Date:   Mon, 21 Sep 2020 12:55:00 +0000
+        b=JDeiMHR3ucc6DelQiKsEUU7xYMHRLnfupudCnSsgo9Kq3g4JT7pKC4FJOlBV71Wpg
+         LzKM/LlTPAofjBiuW22+vdPC2ZxbV2cPsneWuyd6hd/q6aCRtRC/5hCwQvbbUNASoJ
+         TOQtWSanRUGOXzPUUPjNL2Zc/wH1RIRrSxULHRyI=
+Date:   Mon, 21 Sep 2020 12:55:01 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
 To:     Vijay Balakrishna <vijayb@linux.microsoft.com>
@@ -31,10 +31,10 @@ To:     Andrew Morton <akpm@linux-foundation.org>
 Cc:     linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [v3 1/2] mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
-In-Reply-To: <1600305709-2319-2-git-send-email-vijayb@linux.microsoft.com>
-References: <1600305709-2319-2-git-send-email-vijayb@linux.microsoft.com>
-Message-Id: <20200921125500.D37F52220C@mail.kernel.org>
+Subject: Re: [v2 1/2] mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
+In-Reply-To: <1600204258-13683-1-git-send-email-vijayb@linux.microsoft.com>
+References: <1600204258-13683-1-git-send-email-vijayb@linux.microsoft.com>
+Message-Id: <20200921125501.C8A1E21789@mail.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
