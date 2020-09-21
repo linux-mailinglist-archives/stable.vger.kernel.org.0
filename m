@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36BD4272D03
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0EE7272D62
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:40:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728426AbgIUQgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:36:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36354 "EHLO mail.kernel.org"
+        id S1728805AbgIUQjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:39:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727248AbgIUQgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:36:32 -0400
+        id S1728797AbgIUQjn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:39:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E98C238E6;
-        Mon, 21 Sep 2020 16:36:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 667C6238E6;
+        Mon, 21 Sep 2020 16:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706191;
-        bh=vxsrXq1iVCVPmn3PdUADQGC7/PKbgbGJOPvJNxxLMyE=;
+        s=default; t=1600706382;
+        bh=S94IViP3uOA7hn+c/uvNQhG2xCHnCJi1/+xBEnWvALo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gpNkqRCft9X/W9HwztKJSejjToQ08UV04GuQLlMQWHse1W60SVWFUfRSPMEh+IZmw
-         uXs3M882lF+RQo1jq6ICYhtZicpbxJGi/65daIbxDLKRSnpr3jBmhpiiCYyga3jwV/
-         7bvDbp7+dYZwxCtECH7zA0ktiUZ9jzYAJu3cgPbM=
+        b=MG655zLAF+NI6En9oCGbypVQVYLtjZUP14SSzgotNNgPKMjhHTQgSlAX5d3U9Pt5I
+         lXEJ8uRgtHiSy9xUx/7WCPFC7pIlo3R8Y3xSsVTzQMN9tXjUdDiiO5PxnCUXs0xuX3
+         yo+iWNJIoE3DcEzg9H6MTmcP4ZqEEJhAYUrmuGEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.9 64/70] USB: UAS: fix disconnect by unplugging a hub
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 77/94] Drivers: hv: vmbus: Add timeout to vmbus_wait_for_unload
 Date:   Mon, 21 Sep 2020 18:28:04 +0200
-Message-Id: <20200921162038.058971659@linuxfoundation.org>
+Message-Id: <20200921162039.064901893@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
-References: <20200921162035.136047591@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-commit 325b008723b2dd31de020e85ab9d2e9aa4637d35 upstream.
+[ Upstream commit 911e1987efc8f3e6445955fbae7f54b428b92bd3 ]
 
-The SCSI layer can go into an ugly loop if you ignore that a device is
-gone. You need to report an error in the command rather than in the
-return value of the queue method.
+vmbus_wait_for_unload() looks for a CHANNELMSG_UNLOAD_RESPONSE message
+coming from Hyper-V.  But if the message isn't found for some reason,
+the panic path gets hung forever.  Add a timeout of 10 seconds to prevent
+this.
 
-We need to specifically check for ENODEV. The issue goes back to the
-introduction of the driver.
-
-Fixes: 115bb1ffa54c3 ("USB: Add UAS driver")
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200916094026.30085-2-oneukum@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 415719160de3 ("Drivers: hv: vmbus: avoid scheduling in interrupt context in vmbus_initiate_unload()")
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Link: https://lore.kernel.org/r/1600026449-23651-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/uas.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/hv/channel_mgmt.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -670,8 +670,7 @@ static int uas_queuecommand_lck(struct s
- 	if (devinfo->resetting) {
- 		cmnd->result = DID_ERROR << 16;
- 		cmnd->scsi_done(cmnd);
--		spin_unlock_irqrestore(&devinfo->lock, flags);
--		return 0;
-+		goto zombie;
- 	}
+diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
+index 462f7f363faab..5bf633c15cd4b 100644
+--- a/drivers/hv/channel_mgmt.c
++++ b/drivers/hv/channel_mgmt.c
+@@ -774,7 +774,7 @@ static void vmbus_wait_for_unload(void)
+ 	void *page_addr;
+ 	struct hv_message *msg;
+ 	struct vmbus_channel_message_header *hdr;
+-	u32 message_type;
++	u32 message_type, i;
  
- 	/* Find a free uas-tag */
-@@ -706,6 +705,16 @@ static int uas_queuecommand_lck(struct s
- 		cmdinfo->state &= ~(SUBMIT_DATA_IN_URB | SUBMIT_DATA_OUT_URB);
+ 	/*
+ 	 * CHANNELMSG_UNLOAD_RESPONSE is always delivered to the CPU which was
+@@ -784,8 +784,11 @@ static void vmbus_wait_for_unload(void)
+ 	 * functional and vmbus_unload_response() will complete
+ 	 * vmbus_connection.unload_event. If not, the last thing we can do is
+ 	 * read message pages for all CPUs directly.
++	 *
++	 * Wait no more than 10 seconds so that the panic path can't get
++	 * hung forever in case the response message isn't seen.
+ 	 */
+-	while (1) {
++	for (i = 0; i < 1000; i++) {
+ 		if (completion_done(&vmbus_connection.unload_event))
+ 			break;
  
- 	err = uas_submit_urbs(cmnd, devinfo);
-+	/*
-+	 * in case of fatal errors the SCSI layer is peculiar
-+	 * a command that has finished is a success for the purpose
-+	 * of queueing, no matter how fatal the error
-+	 */
-+	if (err == -ENODEV) {
-+		cmnd->result = DID_ERROR << 16;
-+		cmnd->scsi_done(cmnd);
-+		goto zombie;
-+	}
- 	if (err) {
- 		/* If we did nothing, give up now */
- 		if (cmdinfo->state & SUBMIT_STATUS_URB) {
-@@ -716,6 +725,7 @@ static int uas_queuecommand_lck(struct s
- 	}
- 
- 	devinfo->cmnd[idx] = cmnd;
-+zombie:
- 	spin_unlock_irqrestore(&devinfo->lock, flags);
- 	return 0;
- }
+-- 
+2.25.1
+
 
 
