@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A0E272FB5
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:59:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA3F272D79
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730295AbgIUQ7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:59:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45344 "EHLO mail.kernel.org"
+        id S1729037AbgIUQkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:40:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729451AbgIUQlk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:41:40 -0400
+        id S1729285AbgIUQkG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:40:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58CA3239A1;
-        Mon, 21 Sep 2020 16:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6DB6239D3;
+        Mon, 21 Sep 2020 16:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706494;
-        bh=3fFjhSXkEdvGu2sCrP0+hIy37eBYx+itDtAIC9dTxFo=;
+        s=default; t=1600706405;
+        bh=vxsrXq1iVCVPmn3PdUADQGC7/PKbgbGJOPvJNxxLMyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eev3k/dLldLZffX5VCFJmo+WoxEi454U+2zYTUvrQm7FuJU+WKehVBZePJbOb+cGH
-         UswBzgWpOEwkeZxtsvtvZwqPpeT7/+J7lxjiSg02ov5HEzfOzf97Iuw8OpdhppSalM
-         qYdDR3fUg4aM48ZdW4v6ANC9x/P9lJPhlxAAemi8=
+        b=WuqrDNWDk+89AhxcK5ycua8CexwtV2TTGlMN8HbclByb2FC2riChavywFME5fqkI1
+         Y+jqGGope9dE20ZgFnOxx2oMLQse9THlM9yarfkKwLam6mZDa3/DusvmopYpyCvYHq
+         BrgwbBHPU9PmtevKkcH+6Ijk3l0PPwp+9qQ3gwsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/49] ASoC: qcom: Set card->owner to avoid warnings
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.14 85/94] USB: UAS: fix disconnect by unplugging a hub
 Date:   Mon, 21 Sep 2020 18:28:12 +0200
-Message-Id: <20200921162035.897165856@linuxfoundation.org>
+Message-Id: <20200921162039.444103084@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
-References: <20200921162034.660953761@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,96 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 3c27ea23ffb43262da6c64964163895951aaed4e ]
+commit 325b008723b2dd31de020e85ab9d2e9aa4637d35 upstream.
 
-On Linux 5.9-rc1 I get the following warning with apq8016-sbc:
+The SCSI layer can go into an ugly loop if you ignore that a device is
+gone. You need to report an error in the command rather than in the
+return value of the queue method.
 
-WARNING: CPU: 2 PID: 69 at sound/core/init.c:207 snd_card_new+0x36c/0x3b0 [snd]
-CPU: 2 PID: 69 Comm: kworker/2:1 Not tainted 5.9.0-rc1 #1
-Workqueue: events deferred_probe_work_func
-pc : snd_card_new+0x36c/0x3b0 [snd]
-lr : snd_card_new+0xf4/0x3b0 [snd]
-Call trace:
- snd_card_new+0x36c/0x3b0 [snd]
- snd_soc_bind_card+0x340/0x9a0 [snd_soc_core]
- snd_soc_register_card+0xf4/0x110 [snd_soc_core]
- devm_snd_soc_register_card+0x44/0xa0 [snd_soc_core]
- apq8016_sbc_platform_probe+0x11c/0x140 [snd_soc_apq8016_sbc]
+We need to specifically check for ENODEV. The issue goes back to the
+introduction of the driver.
 
-This warning was introduced in
-commit 81033c6b584b ("ALSA: core: Warn on empty module").
-It looks like we are supposed to set card->owner to THIS_MODULE.
+Fixes: 115bb1ffa54c3 ("USB: Add UAS driver")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200916094026.30085-2-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fix this for all the qcom ASoC drivers.
-
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Fixes: 79119c798649 ("ASoC: qcom: Add Storm machine driver")
-Fixes: bdb052e81f62 ("ASoC: qcom: add apq8016 sound card support")
-Fixes: a6f933f63f2f ("ASoC: qcom: apq8096: Add db820c machine driver")
-Fixes: 6b1687bf76ef ("ASoC: qcom: add sdm845 sound card support")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20200820154511.203072-1-stephan@gerhold.net
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/apq8016_sbc.c | 1 +
- sound/soc/qcom/apq8096.c     | 1 +
- sound/soc/qcom/sdm845.c      | 1 +
- sound/soc/qcom/storm.c       | 1 +
- 4 files changed, 4 insertions(+)
+ drivers/usb/storage/uas.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/qcom/apq8016_sbc.c b/sound/soc/qcom/apq8016_sbc.c
-index 4b559932adc33..121460db8eacf 100644
---- a/sound/soc/qcom/apq8016_sbc.c
-+++ b/sound/soc/qcom/apq8016_sbc.c
-@@ -233,6 +233,7 @@ static int apq8016_sbc_platform_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	card->dev = dev;
-+	card->owner = THIS_MODULE;
- 	card->dapm_widgets = apq8016_sbc_dapm_widgets;
- 	card->num_dapm_widgets = ARRAY_SIZE(apq8016_sbc_dapm_widgets);
- 	data = apq8016_sbc_parse_of(card);
-diff --git a/sound/soc/qcom/apq8096.c b/sound/soc/qcom/apq8096.c
-index 1543e85629f80..04f814a0a7d51 100644
---- a/sound/soc/qcom/apq8096.c
-+++ b/sound/soc/qcom/apq8096.c
-@@ -46,6 +46,7 @@ static int apq8096_platform_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	card->dev = dev;
-+	card->owner = THIS_MODULE;
- 	dev_set_drvdata(dev, card);
- 	ret = qcom_snd_parse_of(card);
- 	if (ret) {
-diff --git a/sound/soc/qcom/sdm845.c b/sound/soc/qcom/sdm845.c
-index 2a781d87ee65e..5fdbfa363ab16 100644
---- a/sound/soc/qcom/sdm845.c
-+++ b/sound/soc/qcom/sdm845.c
-@@ -226,6 +226,7 @@ static int sdm845_snd_platform_probe(struct platform_device *pdev)
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -670,8 +670,7 @@ static int uas_queuecommand_lck(struct s
+ 	if (devinfo->resetting) {
+ 		cmnd->result = DID_ERROR << 16;
+ 		cmnd->scsi_done(cmnd);
+-		spin_unlock_irqrestore(&devinfo->lock, flags);
+-		return 0;
++		goto zombie;
  	}
  
- 	card->dev = dev;
-+	card->owner = THIS_MODULE;
- 	dev_set_drvdata(dev, card);
- 	ret = qcom_snd_parse_of(card);
- 	if (ret) {
-diff --git a/sound/soc/qcom/storm.c b/sound/soc/qcom/storm.c
-index a9fa972466ad1..00a3f4c1b6fed 100644
---- a/sound/soc/qcom/storm.c
-+++ b/sound/soc/qcom/storm.c
-@@ -99,6 +99,7 @@ static int storm_platform_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+ 	/* Find a free uas-tag */
+@@ -706,6 +705,16 @@ static int uas_queuecommand_lck(struct s
+ 		cmdinfo->state &= ~(SUBMIT_DATA_IN_URB | SUBMIT_DATA_OUT_URB);
  
- 	card->dev = &pdev->dev;
-+	card->owner = THIS_MODULE;
+ 	err = uas_submit_urbs(cmnd, devinfo);
++	/*
++	 * in case of fatal errors the SCSI layer is peculiar
++	 * a command that has finished is a success for the purpose
++	 * of queueing, no matter how fatal the error
++	 */
++	if (err == -ENODEV) {
++		cmnd->result = DID_ERROR << 16;
++		cmnd->scsi_done(cmnd);
++		goto zombie;
++	}
+ 	if (err) {
+ 		/* If we did nothing, give up now */
+ 		if (cmdinfo->state & SUBMIT_STATUS_URB) {
+@@ -716,6 +725,7 @@ static int uas_queuecommand_lck(struct s
+ 	}
  
- 	ret = snd_soc_of_parse_card_name(card, "qcom,model");
- 	if (ret) {
--- 
-2.25.1
-
+ 	devinfo->cmnd[idx] = cmnd;
++zombie:
+ 	spin_unlock_irqrestore(&devinfo->lock, flags);
+ 	return 0;
+ }
 
 
