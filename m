@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B58D1272D15
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:37:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 993FE272DC6
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728624AbgIUQhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:37:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37494 "EHLO mail.kernel.org"
+        id S1729178AbgIUQnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:43:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727237AbgIUQhP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:37:15 -0400
+        id S1729549AbgIUQnK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:43:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0514F2396F;
-        Mon, 21 Sep 2020 16:37:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3500923998;
+        Mon, 21 Sep 2020 16:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706234;
-        bh=EkH6MQz3FU4tXo3GW7Er5MP1iP/BVcBcob0potnqXoI=;
+        s=default; t=1600706589;
+        bh=kK9BT5mjTQ8XF5WRbFDzOIgCtUNac6wLSe0z0LkB2mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZzG5o+mvtcGD0bOrBzVufPiN+5+fs1MOU0qNkCz1ywvozGrR+PDUqvaWxjjJ54xD+
-         ysKG2lHCILGMITeoYtf9F6eZtPZ8O5npwkjlbA2XrL5ofJ0HySIKms34cupD+vCGfA
-         FA1Ulp2ZASEc7gaqUomnIcmz357bOUfo9iBDdVZk=
+        b=xg2Ifxr6tMO+yrpb3h3/8NqVgkMLlwvlFUi2QEpWF6yUh+dY1fMGgzdxvZyrgWxCD
+         DxV7XVcnUuniJdoWKtoX2/nfiiAvCK96sWd5hWmgl6TBXYWHrXiyerRrrtJV4pQ6Ie
+         TlU0uJaVwR/M8GnqYrf9+ztbKHM+SKqx/NR3vQFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeniy Didin <Evgeniy.Didin@synopsys.com>,
-        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 19/94] ARC: [plat-hsdk]: Switch ethernet phy-mode to rgmii-id
+Subject: [PATCH 5.8 014/118] scsi: pm8001: Fix memleak in pm8001_exec_internal_task_abort
 Date:   Mon, 21 Sep 2020 18:27:06 +0200
-Message-Id: <20200921162036.426435187@linuxfoundation.org>
+Message-Id: <20200921162036.993726776@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeniy Didin <Evgeniy.Didin@synopsys.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 26907eb605fbc3ba9dbf888f21d9d8d04471271d ]
+[ Upstream commit ea403fde7552bd61bad6ea45e3feb99db77cb31e ]
 
-HSDK board has Micrel KSZ9031, recent commit
-bcf3440c6dd ("net: phy: micrel: add phy-mode support for the KSZ9031 PHY")
-caused a breakdown of Ethernet.
-Using 'phy-mode = "rgmii"' is not correct because accodring RGMII
-specification it is necessary to have delay on RX (PHY to MAX)
-which is not generated in case of "rgmii".
-Using "rgmii-id" adds necessary delay and solves the issue.
+When pm8001_tag_alloc() fails, task should be freed just like it is done in
+the subsequent error paths.
 
-Also adding name of PHY placed on HSDK board.
-
-Signed-off-by: Evgeniy Didin <Evgeniy.Didin@synopsys.com>
-Cc: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
-Cc: Alexey Brodkin <abrodkin@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Link: https://lore.kernel.org/r/20200823091453.4782-1-dinghao.liu@zju.edu.cn
+Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/boot/dts/hsdk.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/pm8001/pm8001_sas.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arc/boot/dts/hsdk.dts b/arch/arc/boot/dts/hsdk.dts
-index aeacea148793c..75aa3a8f9fdc9 100644
---- a/arch/arc/boot/dts/hsdk.dts
-+++ b/arch/arc/boot/dts/hsdk.dts
-@@ -163,7 +163,7 @@
- 			reg = <0x8000 0x2000>;
- 			interrupts = <10>;
- 			interrupt-names = "macirq";
--			phy-mode = "rgmii";
-+			phy-mode = "rgmii-id";
- 			snps,pbl = <32>;
- 			snps,multicast-filter-bins = <256>;
- 			clocks = <&gmacclk>;
-@@ -179,7 +179,7 @@
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				compatible = "snps,dwmac-mdio";
--				phy0: ethernet-phy@0 {
-+				phy0: ethernet-phy@0 { /* Micrel KSZ9031 */
- 					reg = <0>;
- 					ti,rx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
- 					ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_00_NS>;
+diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
+index b7cbc312843e9..da9fd8a5f8cae 100644
+--- a/drivers/scsi/pm8001/pm8001_sas.c
++++ b/drivers/scsi/pm8001/pm8001_sas.c
+@@ -818,7 +818,7 @@ pm8001_exec_internal_task_abort(struct pm8001_hba_info *pm8001_ha,
+ 
+ 		res = pm8001_tag_alloc(pm8001_ha, &ccb_tag);
+ 		if (res)
+-			return res;
++			goto ex_err;
+ 		ccb = &pm8001_ha->ccb_info[ccb_tag];
+ 		ccb->device = pm8001_dev;
+ 		ccb->ccb_tag = ccb_tag;
 -- 
 2.25.1
 
