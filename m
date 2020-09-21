@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25AE2272CCB
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:36:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC048272D13
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:37:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728804AbgIUQep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:34:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33258 "EHLO mail.kernel.org"
+        id S1728334AbgIUQhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:37:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728769AbgIUQed (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:34:33 -0400
+        id S1729034AbgIUQhJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:37:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D33A5239D0;
-        Mon, 21 Sep 2020 16:34:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2696E206DC;
+        Mon, 21 Sep 2020 16:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706072;
-        bh=BBbo8/ziU6asjVcbtlPGEKdIIiwmfsiKuMsFgA9S9mg=;
+        s=default; t=1600706228;
+        bh=Y7DfL2QIoK+7AlOig5I7K0jPWLIoatifmL4WfTHq3TM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxQLA1ZXKIQS5EJ5n82/pc4sf6V7lkJmiQB4sJooW7z5yLVgwymAXhxfiHox9U/ev
-         nG8mXD1HybGQMBK7gqz4kj3aQ9gcJtXVQ2ECa6YsYtg0CbzNFztEUVm/0djRvt2j2X
-         NJKmjqC5QNHl19IigjcT9fonXNydfaxcnLuj2qG0=
+        b=PiNFUrfH6TZmu+ZeTMhrmM4szmyh0XyUARs5klJCGgTBKyqig2/4DCZ3s+NQPrkhZ
+         jfYCX7c0Zz2oNJ5VQuyqwurpnnmWuSQdgqNQdiSe0NXJTSY9LOxyQqZwHhqd7C4a5K
+         4Jbri4A1LBFqJ07wIjK6tylkIx32tzr3VFrkQvwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>,
-        Luo Jiaxing <luojiaxing@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/70] scsi: libsas: Set data_dir as DMA_NONE if libata marks qc as NODATA
+Subject: [PATCH 4.14 17/94] irqchip/eznps: Fix build error for !ARC700 builds
 Date:   Mon, 21 Sep 2020 18:27:04 +0200
-Message-Id: <20200921162035.325075477@linuxfoundation.org>
+Message-Id: <20200921162036.345007680@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
-References: <20200921162035.136047591@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Jiaxing <luojiaxing@huawei.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit 53de092f47ff40e8d4d78d590d95819d391bf2e0 ]
+[ Upstream commit 89d29997f103d08264b0685796b420d911658b96 ]
 
-It was discovered that sdparm will fail when attempting to disable write
-cache on a SATA disk connected via libsas.
+eznps driver is supposed to be platform independent however it ends up
+including stuff from inside arch/arc headers leading to rand config
+build errors.
 
-In the ATA command set the write cache state is controlled through the SET
-FEATURES operation. This is roughly corresponds to MODE SELECT in SCSI and
-the latter command is what is used in the SCSI-ATA translation layer. A
-subtle difference is that a MODE SELECT carries data whereas SET FEATURES
-is defined as a non-data command in ATA.
+The quick hack to fix this (proper fix is too much chrun for non active
+user-base) is to add following to nps platform agnostic header.
+ - copy AUX_IENABLE from arch/arc header
+ - move CTOP_AUX_IACK from arch/arc/plat-eznps/*/**
 
-Set the DMA data direction to DMA_NONE if the requested ATA command is
-identified as non-data.
-
-[mkp: commit desc]
-
-Fixes: fa1c1e8f1ece ("[SCSI] Add SATA support to libsas")
-Link: https://lore.kernel.org/r/1598426666-54544-1-git-send-email-luojiaxing@huawei.com
-Reviewed-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Link: https://lkml.kernel.org/r/20200824095831.5lpkmkafelnvlpi2@linutronix.de
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libsas/sas_ata.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arc/plat-eznps/include/plat/ctop.h | 1 -
+ include/soc/nps/common.h                | 6 ++++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
-index 87f5e694dbedd..b820c3a022eac 100644
---- a/drivers/scsi/libsas/sas_ata.c
-+++ b/drivers/scsi/libsas/sas_ata.c
-@@ -227,7 +227,10 @@ static unsigned int sas_ata_qc_issue(struct ata_queued_cmd *qc)
- 		task->num_scatter = si;
- 	}
+diff --git a/arch/arc/plat-eznps/include/plat/ctop.h b/arch/arc/plat-eznps/include/plat/ctop.h
+index 4f6a1673b3a6e..ddfca2c3357a0 100644
+--- a/arch/arc/plat-eznps/include/plat/ctop.h
++++ b/arch/arc/plat-eznps/include/plat/ctop.h
+@@ -43,7 +43,6 @@
+ #define CTOP_AUX_DPC				(CTOP_AUX_BASE + 0x02C)
+ #define CTOP_AUX_LPC				(CTOP_AUX_BASE + 0x030)
+ #define CTOP_AUX_EFLAGS				(CTOP_AUX_BASE + 0x080)
+-#define CTOP_AUX_IACK				(CTOP_AUX_BASE + 0x088)
+ #define CTOP_AUX_GPA1				(CTOP_AUX_BASE + 0x08C)
+ #define CTOP_AUX_UDMC				(CTOP_AUX_BASE + 0x300)
  
--	task->data_dir = qc->dma_dir;
-+	if (qc->tf.protocol == ATA_PROT_NODATA)
-+		task->data_dir = DMA_NONE;
-+	else
-+		task->data_dir = qc->dma_dir;
- 	task->scatter = qc->sg;
- 	task->ata_task.retry_count = 1;
- 	task->task_state_flags = SAS_TASK_STATE_PENDING;
+diff --git a/include/soc/nps/common.h b/include/soc/nps/common.h
+index 9b1d43d671a3f..8c18dc6d3fde5 100644
+--- a/include/soc/nps/common.h
++++ b/include/soc/nps/common.h
+@@ -45,6 +45,12 @@
+ #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_INST	0x5B60
+ #define CTOP_INST_MOV2B_FLIP_R3_B1_B2_LIMM	0x00010422
+ 
++#ifndef AUX_IENABLE
++#define AUX_IENABLE				0x40c
++#endif
++
++#define CTOP_AUX_IACK				(0xFFFFF800 + 0x088)
++
+ #ifndef __ASSEMBLY__
+ 
+ /* In order to increase compilation test coverage */
 -- 
 2.25.1
 
