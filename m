@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9061C272F63
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:57:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A389272C68
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729066AbgIUQ4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:56:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49872 "EHLO mail.kernel.org"
+        id S1728379AbgIUQcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:32:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729682AbgIUQoc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:44:32 -0400
+        id S1728316AbgIUQcD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:32:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01F6B239D0;
-        Mon, 21 Sep 2020 16:44:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4697E20757;
+        Mon, 21 Sep 2020 16:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706653;
-        bh=A+/EOSHJaXLjM6V0dnwVJ52JZI+Vj+l6h0uzHaaqO2M=;
+        s=default; t=1600705922;
+        bh=IzsgTk2a0yzPVRGmFj4voj4B2GLluXvUHK4Yna+JArA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsyPIk1/SFFvbu5QHPWn0mssuZuLGVfPQMbbFb21wSfDO1Q2V/SnSgjYe0Hhx+pqA
-         djWnOEWaZrfp9yHZnoUkeATiwJcc45vtlTLCHFFrfuIuWg5J1ZE28ZDlAniGosdKGO
-         8xY2lP29ZcMbIulR7/lCi4WmAlTJ9FUEG7+RWOXo=
+        b=OUoNlqZFMbs4Vlausk5l54IVKQwW1Lvn4astHTb6HxS8g6dvl06+/mQrKClviYIE/
+         iJyAfQiaODDLxU3q1g6xL4IKgALwZUCFCKboBMVc0ZluB+FnVSNYbG6c8s2yMUe34B
+         dWGOFLJjpsHmumomUzQu6PrFsvlmKlgUac6yyibM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Vinod Koul <vkoul@kernel.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 040/118] ASoC: rt1308-sdw: Fix return check for devm_regmap_init_sdw()
-Date:   Mon, 21 Sep 2020 18:27:32 +0200
-Message-Id: <20200921162038.166669705@linuxfoundation.org>
+        stable@vger.kernel.org, A L <mail@lechevalier.se>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.4 17/46] btrfs: fix wrong address when faulting in pages in the search ioctl
+Date:   Mon, 21 Sep 2020 18:27:33 +0200
+Message-Id: <20200921162034.130067558@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
+References: <20200921162033.346434578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 344850d93c098e1b17e6f89d5e436893e9762ef3 ]
+commit 1c78544eaa4660096aeb6a57ec82b42cdb3bfe5a upstream.
 
-devm_regmap_init_sdw() returns a valid pointer on success or ERR_PTR on
-failure which should be checked with IS_ERR. Also use PTR_ERR for
-returning error codes.
+When faulting in the pages for the user supplied buffer for the search
+ioctl, we are passing only the base address of the buffer to the function
+fault_in_pages_writeable(). This means that after the first iteration of
+the while loop that searches for leaves, when we have a non-zero offset,
+stored in 'sk_offset', we try to fault in a wrong page range.
 
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Fixes: a87a6653a28c ("ASoC: rt1308-sdw: add rt1308 SdW amplifier driver")
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200826163340.3249608-3-vkoul@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So fix this by adding the offset in 'sk_offset' to the base address of the
+user supplied buffer when calling fault_in_pages_writeable().
+
+Several users have reported that the applications compsize and bees have
+started to operate incorrectly since commit a48b73eca4ceb9 ("btrfs: fix
+potential deadlock in the search ioctl") was added to stable trees, and
+these applications make heavy use of the search ioctls. This fixes their
+issues.
+
+Link: https://lore.kernel.org/linux-btrfs/632b888d-a3c3-b085-cdf5-f9bb61017d92@lechevalier.se/
+Link: https://github.com/kilobyte/compsize/issues/34
+Fixes: a48b73eca4ceb9 ("btrfs: fix potential deadlock in the search ioctl")
+CC: stable@vger.kernel.org # 4.4+
+Tested-by: A L <mail@lechevalier.se>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/codecs/rt1308-sdw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/ioctl.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt1308-sdw.c b/sound/soc/codecs/rt1308-sdw.c
-index b0ba0d2acbdd6..56e952a904a39 100644
---- a/sound/soc/codecs/rt1308-sdw.c
-+++ b/sound/soc/codecs/rt1308-sdw.c
-@@ -684,8 +684,8 @@ static int rt1308_sdw_probe(struct sdw_slave *slave,
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -2129,7 +2129,8 @@ static noinline int search_ioctl(struct
+ 	key.offset = sk->min_offset;
  
- 	/* Regmap Initialization */
- 	regmap = devm_regmap_init_sdw(slave, &rt1308_sdw_regmap);
--	if (!regmap)
--		return -EINVAL;
-+	if (IS_ERR(regmap))
-+		return PTR_ERR(regmap);
+ 	while (1) {
+-		ret = fault_in_pages_writeable(ubuf, *buf_size - sk_offset);
++		ret = fault_in_pages_writeable(ubuf + sk_offset,
++					       *buf_size - sk_offset);
+ 		if (ret)
+ 			break;
  
- 	rt1308_sdw_init(&slave->dev, regmap, slave);
- 
--- 
-2.25.1
-
 
 
