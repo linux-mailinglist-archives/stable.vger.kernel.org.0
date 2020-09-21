@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1B2F272823
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C900F272825
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727995AbgIUOlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727993AbgIUOlM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 21 Sep 2020 10:41:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49988 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727942AbgIUOlC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:41:02 -0400
+        id S1727369AbgIUOlD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C92812389E;
-        Mon, 21 Sep 2020 14:41:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B0E12389F;
+        Mon, 21 Sep 2020 14:41:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699261;
-        bh=Mvp27jXAUA961Wpq7Px/syL4hfJjcknjgb34/tfBJWg=;
+        s=default; t=1600699262;
+        bh=GmXUaK7KDx5Au+pQK6GEf2o0wJ5SeLpezqoStuF2LQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMv9FtvxGoIVTLn8c5lH6F/O5rbbxfo+K3t92Ly8qRqY6n0V7pnlRo6a/4IELY4or
-         N2/douVg1hMxkRUWsgGuavjOklYKXU/5j4sDTCzc9aDYt7Ve1LTgn3O5rzBLjBW0q6
-         rrYbMwoThSyi/0lTCwEYoa2WV5y+hG5jo+TOCEp8=
+        b=BwkNdHhxkr5j4jtYNcAuvzg4sZpIyXh25+lu64E9VlrtxKs++sLFxz8Wwg4JquP7R
+         PqhbvUk5vkQsU7ZPDov3gH17HxGO1Tu0GPOBNFaMw9Dq7fvYS9/zw97T0WMcR/eKvG
+         HVDnHUpvxJkZwNZ7Sw6+3XR/Auo8fszwdloWVLyU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 05/15] ASoC: Intel: bytcr_rt5640: Add quirk for MPMAN Converter9 2-in-1
-Date:   Mon, 21 Sep 2020 10:40:44 -0400
-Message-Id: <20200921144054.2135602-5-sashal@kernel.org>
+Cc:     Palmer Dabbelt <palmerdabbelt@google.com>,
+        Guo Ren <guoren@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 06/15] RISC-V: Take text_mutex in ftrace_init_nop()
+Date:   Mon, 21 Sep 2020 10:40:45 -0400
+Message-Id: <20200921144054.2135602-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200921144054.2135602-1-sashal@kernel.org>
 References: <20200921144054.2135602-1-sashal@kernel.org>
@@ -43,46 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Palmer Dabbelt <palmerdabbelt@google.com>
 
-[ Upstream commit 6a0137101f47301fff2da6ba4b9048383d569909 ]
+[ Upstream commit 66d18dbda8469a944dfec6c49d26d5946efba218 ]
 
-The MPMAN Converter9 2-in-1 almost fully works with out default settings.
-The only problem is that it has only 1 speaker so any sounds only playing
-on the right channel get lost.
+Without this we get lockdep failures.  They're spurious failures as SMP isn't
+up when ftrace_init_nop() is called.  As far as I can tell the easiest fix is
+to just take the lock, which also seems like the safest fix.
 
-Add a quirk for this model using the default settings + MONO_SPEAKER.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200901080623.4987-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Acked-by: Guo Ren <guoren@kernel.org>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/riscv/include/asm/ftrace.h |  7 +++++++
+ arch/riscv/kernel/ftrace.c      | 19 +++++++++++++++++++
+ 2 files changed, 26 insertions(+)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index f7964d1ec486f..6012367f6fe48 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -591,6 +591,16 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF1 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{	/* MPMAN Converter 9, similar hw as the I.T.Works TW891 2-in-1 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MPMAN"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Converter9"),
-+		},
-+		.driver_data = (void *)(BYTCR_INPUT_DEFAULTS |
-+					BYT_RT5640_MONO_SPEAKER |
-+					BYT_RT5640_SSP0_AIF1 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{
- 		/* MPMAN MPWIN895CL */
- 		.matches = {
+diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
+index c6dcc5291f972..02fbc175142e2 100644
+--- a/arch/riscv/include/asm/ftrace.h
++++ b/arch/riscv/include/asm/ftrace.h
+@@ -63,4 +63,11 @@ do {									\
+  * Let auipc+jalr be the basic *mcount unit*, so we make it 8 bytes here.
+  */
+ #define MCOUNT_INSN_SIZE 8
++
++#ifndef __ASSEMBLY__
++struct dyn_ftrace;
++int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec);
++#define ftrace_init_nop ftrace_init_nop
++#endif
++
+ #endif
+diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
+index c40fdcdeb950a..291c579e12457 100644
+--- a/arch/riscv/kernel/ftrace.c
++++ b/arch/riscv/kernel/ftrace.c
+@@ -88,6 +88,25 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
+ 	return __ftrace_modify_call(rec->ip, addr, false);
+ }
+ 
++
++/*
++ * This is called early on, and isn't wrapped by
++ * ftrace_arch_code_modify_{prepare,post_process}() and therefor doesn't hold
++ * text_mutex, which triggers a lockdep failure.  SMP isn't running so we could
++ * just directly poke the text, but it's simpler to just take the lock
++ * ourselves.
++ */
++int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec)
++{
++	int out;
++
++	ftrace_arch_code_modify_prepare();
++	out = ftrace_make_nop(mod, rec, MCOUNT_ADDR);
++	ftrace_arch_code_modify_post_process();
++
++	return out;
++}
++
+ int ftrace_update_ftrace_func(ftrace_func_t func)
+ {
+ 	int ret = __ftrace_modify_call((unsigned long)&ftrace_call,
 -- 
 2.25.1
 
