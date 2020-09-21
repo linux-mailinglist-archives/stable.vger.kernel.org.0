@@ -2,179 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 943422723DD
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 14:26:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09662272440
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 14:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726641AbgIUM0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 08:26:19 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:54875 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726510AbgIUM0T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 08:26:19 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 73C231940EF1;
-        Mon, 21 Sep 2020 08:26:18 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 21 Sep 2020 08:26:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=DYM+SD
-        4Czx7F3tyuRP4URLQ4HA1Bi09xEechnxJH03A=; b=T7NElau9I1So6JTmT30xKk
-        XPEuC56S2/YfxAYfscLtCcFLO+Ea1fGKETxU6pdL0OOILV+MtFXFIDIiB4uS0kSu
-        wRDaKyj6acc7QNYXxdpOCUyHX+9TOoyYZWtqrZBEnREi42UFTas5/ubgigz5z8UM
-        2bAbg3wo1EeVZg0gahiMZUNQFFJ6aCLksiC6VGT5Z/vd8iXKExhw7weV7OcsGR0t
-        i4lEtBJB1/i6MuRmoHZOt+Z1LBgBCBVJY6JXPmb5njG+PNzFaqr5oV97vrOirRqH
-        GX3fbiIE18/u5AFUSU45066fKvzhWMiSyYf7nEZZCPn3VFJ+F6Xsua/MjMOqqTzA
-        ==
-X-ME-Sender: <xms:6ptoX0HGujUTxUDH2L-aVvfUtZGb3sOhoFxJmJcdMksjd0YWRzwRwg>
-    <xme:6ptoX9Xrhhjz0DbIiS_MQMWgMaRTS1AiVQyhbT2V0jXWAUItXsOjub0AEdnqyAVwu
-    V4ZVFbzskWCOQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddvgdehgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:6ptoX-IfEL9IMU81BmWl5-lhR_ASwqOdiYCTJedPdZ644ZgbDVvgTQ>
-    <xmx:6ptoX2ELvnvbgQ4CmA1qZWBaw54YrJyd4Frb9vupj0t8DvCPSb1eMQ>
-    <xmx:6ptoX6XC00UEyBmhmNJQDPOcsTd6HFsP70G2v3-rTQ7ZCrMqydQ-5g>
-    <xmx:6ptoXxOY4siDGHbYFaXfaVrdoIH6USpArBWmyxnyNYaD1BG-ljKjr3OT7Bw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E9BE23280063;
-        Mon, 21 Sep 2020 08:26:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/thp: fix __split_huge_pmd_locked() for migration PMD" failed to apply to 4.14-stable tree
-To:     rcampbell@nvidia.com, akpm@linux-foundation.org,
-        apopple@nvidia.com, bharata@linux.ibm.com, bskeggs@redhat.com,
-        hch@lst.de, jgg@nvidia.com, jglisse@redhat.com,
-        jhubbard@nvidia.com, shuah@kernel.org, shy828301@gmail.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        ziy@nvidia.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Sep 2020 14:26:41 +0200
-Message-ID: <1600691201239220@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1726419AbgIUMyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 08:54:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59962 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726395AbgIUMyp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 08:54:45 -0400
+Received: from localhost (unknown [70.37.104.77])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 250D920874;
+        Mon, 21 Sep 2020 12:54:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600692885;
+        bh=3HQubua1JVZSbuiksHja1yPDGgphBllup5nvb5XngtM=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=1ym5/lRxm2lnN2eYU+cWZxzt8wO4hrOs7K30FDk4I4A/Ga31se+Pqnd5VCuDpGNXr
+         MtIg7E/fN3MJmGOzjuYFI8pVkqYThNs2DTQl96a01Z8YpU8CKdfFIIi1Ssn0Ec7qxP
+         sPcW1Owx5fzuqMkqXUHD+ejqana03DBUUmfS+KXk=
+Date:   Mon, 21 Sep 2020 12:54:44 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 2/3] drm/i915: Break up error capture compression loops with cond_resched()
+In-Reply-To: <20200916090059.3189-2-chris@chris-wilson.co.uk>
+References: <20200916090059.3189-2-chris@chris-wilson.co.uk>
+Message-Id: <20200921125445.250D920874@mail.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[This is an automated email]
 
-thanks,
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-greg k-h
+The bot has tested the following trees: v5.8.10, v5.4.66, v4.19.146, v4.14.198, v4.9.236, v4.4.236.
 
------------------- original commit in Linus's tree ------------------
+v5.8.10: Build OK!
+v5.4.66: Build OK!
+v4.19.146: Build OK!
+v4.14.198: Build OK!
+v4.9.236: Failed to apply! Possible dependencies:
+    0a97015d45ee ("drm/i915: Compress GPU objects in error state")
+    83bc0f5b432f ("drm/i915: Handle incomplete Z_FINISH for compressed error states")
+    95374d759ac7 ("drm/i915: Always use the GTT for error capture")
+    98a2f411671f ("drm/i915: Allow disabling error capture")
+    9f267eb8d2ea ("drm/i915: Stop the machine whilst capturing the GPU crash dump")
+    d636951ec01b ("drm/i915: Cleanup instdone collection")
+    fc4c79c37e82 ("drm/i915: Consolidate error object printing")
 
-From ec0abae6dcdf7ef88607c869bf35a4b63ce1b370 Mon Sep 17 00:00:00 2001
-From: Ralph Campbell <rcampbell@nvidia.com>
-Date: Fri, 18 Sep 2020 21:20:24 -0700
-Subject: [PATCH] mm/thp: fix __split_huge_pmd_locked() for migration PMD
+v4.4.236: Failed to apply! Possible dependencies:
+    0a97015d45ee ("drm/i915: Compress GPU objects in error state")
+    0bc40be85f33 ("drm/i915: Rename intel_engine_cs function parameters")
+    688e6c725816 ("drm/i915: Slaughter the thundering i915_wait_request herd")
+    755412e29c77 ("drm/i915: Add an optional selection from i915 of CONFIG_MMU_NOTIFIER")
+    98a2f411671f ("drm/i915: Allow disabling error capture")
+    ca82580c9cea ("drm/i915: Do not call API requiring struct_mutex where it is not available")
+    cbdc12a9fc9d ("drm/i915: make A0 wa's applied to A1")
+    e87a005d90c3 ("drm/i915: add helpers for platform specific revision id range checks")
+    ef712bb4b700 ("drm/i915: remove parens around revision ids")
+    fffda3f4fb49 ("drm/i915/bxt: add revision id for A1 stepping and use it")
 
-A migrating transparent huge page has to already be unmapped.  Otherwise,
-the page could be modified while it is being copied to a new page and data
-could be lost.  The function __split_huge_pmd() checks for a PMD migration
-entry before calling __split_huge_pmd_locked() leading one to think that
-__split_huge_pmd_locked() can handle splitting a migrating PMD.
 
-However, the code always increments the page->_mapcount and adjusts the
-memory control group accounting assuming the page is mapped.
+NOTE: The patch will not be queued to stable trees until it is upstream.
 
-Also, if the PMD entry is a migration PMD entry, the call to
-is_huge_zero_pmd(*pmd) is incorrect because it calls pmd_pfn(pmd) instead
-of migration_entry_to_pfn(pmd_to_swp_entry(pmd)).  Fix these problems by
-checking for a PMD migration entry.
+How should we proceed with this patch?
 
-Fixes: 84c3fc4e9c56 ("mm: thp: check pmd migration entry in common path")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: Zi Yan <ziy@nvidia.com>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Bharata B Rao <bharata@linux.ibm.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: <stable@vger.kernel.org>	[4.14+]
-Link: https://lkml.kernel.org/r/20200903183140.19055-1-rcampbell@nvidia.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 7ff29cc3d55c..faadc449cca5 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2022,7 +2022,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
- 		put_page(page);
- 		add_mm_counter(mm, mm_counter_file(page), -HPAGE_PMD_NR);
- 		return;
--	} else if (is_huge_zero_pmd(*pmd)) {
-+	} else if (pmd_trans_huge(*pmd) && is_huge_zero_pmd(*pmd)) {
- 		/*
- 		 * FIXME: Do we want to invalidate secondary mmu by calling
- 		 * mmu_notifier_invalidate_range() see comments below inside
-@@ -2116,30 +2116,34 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
- 		pte = pte_offset_map(&_pmd, addr);
- 		BUG_ON(!pte_none(*pte));
- 		set_pte_at(mm, addr, pte, entry);
--		atomic_inc(&page[i]._mapcount);
--		pte_unmap(pte);
--	}
--
--	/*
--	 * Set PG_double_map before dropping compound_mapcount to avoid
--	 * false-negative page_mapped().
--	 */
--	if (compound_mapcount(page) > 1 && !TestSetPageDoubleMap(page)) {
--		for (i = 0; i < HPAGE_PMD_NR; i++)
-+		if (!pmd_migration)
- 			atomic_inc(&page[i]._mapcount);
-+		pte_unmap(pte);
- 	}
- 
--	lock_page_memcg(page);
--	if (atomic_add_negative(-1, compound_mapcount_ptr(page))) {
--		/* Last compound_mapcount is gone. */
--		__dec_lruvec_page_state(page, NR_ANON_THPS);
--		if (TestClearPageDoubleMap(page)) {
--			/* No need in mapcount reference anymore */
-+	if (!pmd_migration) {
-+		/*
-+		 * Set PG_double_map before dropping compound_mapcount to avoid
-+		 * false-negative page_mapped().
-+		 */
-+		if (compound_mapcount(page) > 1 &&
-+		    !TestSetPageDoubleMap(page)) {
- 			for (i = 0; i < HPAGE_PMD_NR; i++)
--				atomic_dec(&page[i]._mapcount);
-+				atomic_inc(&page[i]._mapcount);
-+		}
-+
-+		lock_page_memcg(page);
-+		if (atomic_add_negative(-1, compound_mapcount_ptr(page))) {
-+			/* Last compound_mapcount is gone. */
-+			__dec_lruvec_page_state(page, NR_ANON_THPS);
-+			if (TestClearPageDoubleMap(page)) {
-+				/* No need in mapcount reference anymore */
-+				for (i = 0; i < HPAGE_PMD_NR; i++)
-+					atomic_dec(&page[i]._mapcount);
-+			}
- 		}
-+		unlock_page_memcg(page);
- 	}
--	unlock_page_memcg(page);
- 
- 	smp_wmb(); /* make pte visible before pmd */
- 	pmd_populate(mm, pmd, pgtable);
-
+-- 
+Thanks
+Sasha
