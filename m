@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C1E2272F41
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A202272D5E
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728206AbgIUQpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:45:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51170 "EHLO mail.kernel.org"
+        id S1728857AbgIUQjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:39:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729032AbgIUQpT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:45:19 -0400
+        id S1729279AbgIUQjd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:39:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1728723998;
-        Mon, 21 Sep 2020 16:45:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4ED65206DC;
+        Mon, 21 Sep 2020 16:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706718;
-        bh=z/ffxFJFSkBTieCOO7Z4rdWZaAoFjf95X+Dji5IxViM=;
+        s=default; t=1600706372;
+        bh=a8FIL44GDurr+687Ha2e2Ma98fqZA7yHRGY+R4Ty8Ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DXWoi9evuMFQaqS6ahHThJA17i6HDNJgdEzUmkihLW/vXoJGblDDgk8q8bu7QlEBg
-         METxMeUDmZSsVllyVaehzeecSrPAX84lJhGF2dYrD+8/9YH4WTuUiYUawWkwWOtgwk
-         XtrWOWjqPZEhG4ve2oa6w5OEreQOTGKABNLwn/W8=
+        b=ud2cIXSEf3DNiplt9+NZWV+Dq/sUl1ASzV0zFClKnmC0WHDLc7VhDc6jO7ZvDzJg7
+         XsKqXUTILwyAKBJ+SNo5xzFiUE0zwmfr+H/tolVPE7pX8kZUb8UZ/I4pf47JW1ak8J
+         tTUsNQZLn8DsMizaS6nKdXvWFM/ZFDFWgrlx2TNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 067/118] drm/mediatek: Use CPU when fail to get cmdq event
-Date:   Mon, 21 Sep 2020 18:27:59 +0200
-Message-Id: <20200921162039.465490829@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 73/94] i2c: algo: pca: Reapply i2c bus settings after reset
+Date:   Mon, 21 Sep 2020 18:28:00 +0200
+Message-Id: <20200921162038.883026332@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +45,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+From: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
 
-[ Upstream commit f85acdad07fe36b91f2244263a890bf372528326 ]
+[ Upstream commit 0a355aeb24081e4538d4d424cd189f16c0bbd983 ]
 
-Even though cmdq client is created successfully, without the cmdq event,
-cmdq could not work correctly, so use CPU when fail to get cmdq event.
+If something goes wrong (such as the SCL being stuck low) then we need
+to reset the PCA chip. The issue with this is that on reset we lose all
+config settings and the chip ends up in a disabled state which results
+in a lock up/high CPU usage. We need to re-apply any configuration that
+had previously been set and re-enable the chip.
 
-Fixes: 60fa8c13ab1a ("drm/mediatek: Move gce event property to mutex device node")
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Signed-off-by: Evan Nimmo <evan.nimmo@alliedtelesis.co.nz>
+Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/i2c/algos/i2c-algo-pca.c | 35 +++++++++++++++++++++-----------
+ include/linux/i2c-algo-pca.h     | 15 ++++++++++++++
+ 2 files changed, 38 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-index 7cd8f415fd029..d8b43500f12d1 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-@@ -834,13 +834,19 @@ int mtk_drm_crtc_create(struct drm_device *drm_dev,
- 			drm_crtc_index(&mtk_crtc->base));
- 		mtk_crtc->cmdq_client = NULL;
- 	}
--	ret = of_property_read_u32_index(priv->mutex_node,
--					 "mediatek,gce-events",
--					 drm_crtc_index(&mtk_crtc->base),
--					 &mtk_crtc->cmdq_event);
--	if (ret)
--		dev_dbg(dev, "mtk_crtc %d failed to get mediatek,gce-events property\n",
--			drm_crtc_index(&mtk_crtc->base));
+diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
+index 3a9db4626cb60..1886588b9ea3e 100644
+--- a/drivers/i2c/algos/i2c-algo-pca.c
++++ b/drivers/i2c/algos/i2c-algo-pca.c
+@@ -50,8 +50,22 @@ static void pca_reset(struct i2c_algo_pca_data *adap)
+ 		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_IPRESET);
+ 		pca_outw(adap, I2C_PCA_IND, 0xA5);
+ 		pca_outw(adap, I2C_PCA_IND, 0x5A);
 +
-+	if (mtk_crtc->cmdq_client) {
-+		ret = of_property_read_u32_index(priv->mutex_node,
-+						 "mediatek,gce-events",
-+						 drm_crtc_index(&mtk_crtc->base),
-+						 &mtk_crtc->cmdq_event);
-+		if (ret) {
-+			dev_dbg(dev, "mtk_crtc %d failed to get mediatek,gce-events property\n",
-+				drm_crtc_index(&mtk_crtc->base));
-+			cmdq_mbox_destroy(mtk_crtc->cmdq_client);
-+			mtk_crtc->cmdq_client = NULL;
-+		}
-+	}
- #endif
- 	return 0;
++		/*
++		 * After a reset we need to re-apply any configuration
++		 * (calculated in pca_init) to get the bus in a working state.
++		 */
++		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_IMODE);
++		pca_outw(adap, I2C_PCA_IND, adap->bus_settings.mode);
++		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_ISCLL);
++		pca_outw(adap, I2C_PCA_IND, adap->bus_settings.tlow);
++		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_ISCLH);
++		pca_outw(adap, I2C_PCA_IND, adap->bus_settings.thi);
++
++		pca_set_con(adap, I2C_PCA_CON_ENSIO);
+ 	} else {
+ 		adap->reset_chip(adap->data);
++		pca_set_con(adap, I2C_PCA_CON_ENSIO | adap->bus_settings.clock_freq);
+ 	}
  }
+ 
+@@ -435,13 +449,14 @@ static int pca_init(struct i2c_adapter *adap)
+ 				" Use the nominal frequency.\n", adap->name);
+ 		}
+ 
+-		pca_reset(pca_data);
+-
+ 		clock = pca_clock(pca_data);
+ 		printk(KERN_INFO "%s: Clock frequency is %dkHz\n",
+ 		     adap->name, freqs[clock]);
+ 
+-		pca_set_con(pca_data, I2C_PCA_CON_ENSIO | clock);
++		/* Store settings as these will be needed when the PCA chip is reset */
++		pca_data->bus_settings.clock_freq = clock;
++
++		pca_reset(pca_data);
+ 	} else {
+ 		int clock;
+ 		int mode;
+@@ -508,19 +523,15 @@ static int pca_init(struct i2c_adapter *adap)
+ 			thi = tlow * min_thi / min_tlow;
+ 		}
+ 
++		/* Store settings as these will be needed when the PCA chip is reset */
++		pca_data->bus_settings.mode = mode;
++		pca_data->bus_settings.tlow = tlow;
++		pca_data->bus_settings.thi = thi;
++
+ 		pca_reset(pca_data);
+ 
+ 		printk(KERN_INFO
+ 		     "%s: Clock frequency is %dHz\n", adap->name, clock * 100);
+-
+-		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_IMODE);
+-		pca_outw(pca_data, I2C_PCA_IND, mode);
+-		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_ISCLL);
+-		pca_outw(pca_data, I2C_PCA_IND, tlow);
+-		pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_ISCLH);
+-		pca_outw(pca_data, I2C_PCA_IND, thi);
+-
+-		pca_set_con(pca_data, I2C_PCA_CON_ENSIO);
+ 	}
+ 	udelay(500); /* 500 us for oscillator to stabilise */
+ 
+diff --git a/include/linux/i2c-algo-pca.h b/include/linux/i2c-algo-pca.h
+index d03071732db4a..7c522fdd9ea73 100644
+--- a/include/linux/i2c-algo-pca.h
++++ b/include/linux/i2c-algo-pca.h
+@@ -53,6 +53,20 @@
+ #define I2C_PCA_CON_SI		0x08 /* Serial Interrupt */
+ #define I2C_PCA_CON_CR		0x07 /* Clock Rate (MASK) */
+ 
++/**
++ * struct pca_i2c_bus_settings - The configured PCA i2c bus settings
++ * @mode: Configured i2c bus mode
++ * @tlow: Configured SCL LOW period
++ * @thi: Configured SCL HIGH period
++ * @clock_freq: The configured clock frequency
++ */
++struct pca_i2c_bus_settings {
++	int mode;
++	int tlow;
++	int thi;
++	int clock_freq;
++};
++
+ struct i2c_algo_pca_data {
+ 	void 				*data;	/* private low level data */
+ 	void (*write_byte)		(void *data, int reg, int val);
+@@ -64,6 +78,7 @@ struct i2c_algo_pca_data {
+ 	 * For PCA9665, use the frequency you want here. */
+ 	unsigned int			i2c_clock;
+ 	unsigned int			chip;
++	struct pca_i2c_bus_settings		bus_settings;
+ };
+ 
+ int i2c_pca_add_bus(struct i2c_adapter *);
 -- 
 2.25.1
 
