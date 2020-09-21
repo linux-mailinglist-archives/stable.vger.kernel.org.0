@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A9D272D34
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:38:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2110D272F73
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729141AbgIUQiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:38:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39048 "EHLO mail.kernel.org"
+        id S1729249AbgIUQ5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:57:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729138AbgIUQiK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:38:10 -0400
+        id S1729662AbgIUQoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:44:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD416238E6;
-        Mon, 21 Sep 2020 16:38:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2126E2076B;
+        Mon, 21 Sep 2020 16:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706289;
-        bh=bW0EaXRL4JdEPEJ5iKs6YM/ztqLoKsKmydV899itcz4=;
+        s=default; t=1600706641;
+        bh=FJGrFZh/wSlG57bHCjvhePW4NhaqITwdnUviTd90E1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIYc9sTi6RMy/98sCCEgXj14f7mkqYdI2PYfNL2s4KQRdb1TWcic5plAjam4cIcnk
-         6sa0HUwY/y5pix3X6wYsASSBX3vzr7Ec6Q5h3tk7wEoeIRzdEwZtEbiF2EK58YNdNS
-         zRcQIk7I000Az8C6esMTRBtjAn0/4YCOyMwaaiiQ=
+        b=OZ3BDEAE6XOtJXRFgqPVZdLiEopPOfi6gYrVVso/iElayoQCPRdyyzE6v34SfOT3J
+         YOHEILxEI4WwwyUIT6XeqPA9wQfQpAzunoIOrLJQy366l2/90X38MKaSbslg+dwrl3
+         fRk1L9IsP0c1ORB/hf4gJ0QokWX/oGsfAwdR3SOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 40/94] btrfs: fix lockdep splat in add_missing_dev
+        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 035/118] KVM: MIPS: Change the definition of kvm type
 Date:   Mon, 21 Sep 2020 18:27:27 +0200
-Message-Id: <20200921162037.384206634@linuxfoundation.org>
+Message-Id: <20200921162037.942712069@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,185 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-commit fccc0007b8dc952c6bc0805cdf842eb8ea06a639 upstream.
+[ Upstream commit 15e9e35cd1dec2bc138464de6bf8ef828df19235 ]
 
-Nikolay reported a lockdep splat in generic/476 that I could reproduce
-with btrfs/187.
+MIPS defines two kvm types:
 
-  ======================================================
-  WARNING: possible circular locking dependency detected
-  5.9.0-rc2+ #1 Tainted: G        W
-  ------------------------------------------------------
-  kswapd0/100 is trying to acquire lock:
-  ffff9e8ef38b6268 (&delayed_node->mutex){+.+.}-{3:3}, at: __btrfs_release_delayed_node.part.0+0x3f/0x330
+ #define KVM_VM_MIPS_TE          0
+ #define KVM_VM_MIPS_VZ          1
 
-  but task is already holding lock:
-  ffffffffa9d74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
+In Documentation/virt/kvm/api.rst it is said that "You probably want to
+use 0 as machine type", which implies that type 0 be the "automatic" or
+"default" type. And, in user-space libvirt use the null-machine (with
+type 0) to detect the kvm capability, which returns "KVM not supported"
+on a VZ platform.
 
-  which lock already depends on the new lock.
+I try to fix it in QEMU but it is ugly:
+https://lists.nongnu.org/archive/html/qemu-devel/2020-08/msg05629.html
 
-  the existing dependency chain (in reverse order) is:
+And Thomas Huth suggests me to change the definition of kvm type:
+https://lists.nongnu.org/archive/html/qemu-devel/2020-09/msg03281.html
 
-  -> #2 (fs_reclaim){+.+.}-{0:0}:
-	 fs_reclaim_acquire+0x65/0x80
-	 slab_pre_alloc_hook.constprop.0+0x20/0x200
-	 kmem_cache_alloc_trace+0x3a/0x1a0
-	 btrfs_alloc_device+0x43/0x210
-	 add_missing_dev+0x20/0x90
-	 read_one_chunk+0x301/0x430
-	 btrfs_read_sys_array+0x17b/0x1b0
-	 open_ctree+0xa62/0x1896
-	 btrfs_mount_root.cold+0x12/0xea
-	 legacy_get_tree+0x30/0x50
-	 vfs_get_tree+0x28/0xc0
-	 vfs_kern_mount.part.0+0x71/0xb0
-	 btrfs_mount+0x10d/0x379
-	 legacy_get_tree+0x30/0x50
-	 vfs_get_tree+0x28/0xc0
-	 path_mount+0x434/0xc00
-	 __x64_sys_mount+0xe3/0x120
-	 do_syscall_64+0x33/0x40
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+So I define like this:
 
-  -> #1 (&fs_info->chunk_mutex){+.+.}-{3:3}:
-	 __mutex_lock+0x7e/0x7e0
-	 btrfs_chunk_alloc+0x125/0x3a0
-	 find_free_extent+0xdf6/0x1210
-	 btrfs_reserve_extent+0xb3/0x1b0
-	 btrfs_alloc_tree_block+0xb0/0x310
-	 alloc_tree_block_no_bg_flush+0x4a/0x60
-	 __btrfs_cow_block+0x11a/0x530
-	 btrfs_cow_block+0x104/0x220
-	 btrfs_search_slot+0x52e/0x9d0
-	 btrfs_lookup_inode+0x2a/0x8f
-	 __btrfs_update_delayed_inode+0x80/0x240
-	 btrfs_commit_inode_delayed_inode+0x119/0x120
-	 btrfs_evict_inode+0x357/0x500
-	 evict+0xcf/0x1f0
-	 vfs_rmdir.part.0+0x149/0x160
-	 do_rmdir+0x136/0x1a0
-	 do_syscall_64+0x33/0x40
-	 entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ #define KVM_VM_MIPS_AUTO        0
+ #define KVM_VM_MIPS_VZ          1
+ #define KVM_VM_MIPS_TE          2
 
-  -> #0 (&delayed_node->mutex){+.+.}-{3:3}:
-	 __lock_acquire+0x1184/0x1fa0
-	 lock_acquire+0xa4/0x3d0
-	 __mutex_lock+0x7e/0x7e0
-	 __btrfs_release_delayed_node.part.0+0x3f/0x330
-	 btrfs_evict_inode+0x24c/0x500
-	 evict+0xcf/0x1f0
-	 dispose_list+0x48/0x70
-	 prune_icache_sb+0x44/0x50
-	 super_cache_scan+0x161/0x1e0
-	 do_shrink_slab+0x178/0x3c0
-	 shrink_slab+0x17c/0x290
-	 shrink_node+0x2b2/0x6d0
-	 balance_pgdat+0x30a/0x670
-	 kswapd+0x213/0x4c0
-	 kthread+0x138/0x160
-	 ret_from_fork+0x1f/0x30
+Since VZ and TE cannot co-exists, using type 0 on a TE platform will
+still return success (so old user-space tools have no problems on new
+kernels); the advantage is that using type 0 on a VZ platform will not
+return failure. So, the only problem is "new user-space tools use type
+2 on old kernels", but if we treat this as a kernel bug, we can backport
+this patch to old stable kernels.
 
-  other info that might help us debug this:
-
-  Chain exists of:
-    &delayed_node->mutex --> &fs_info->chunk_mutex --> fs_reclaim
-
-   Possible unsafe locking scenario:
-
-	 CPU0                    CPU1
-	 ----                    ----
-    lock(fs_reclaim);
-				 lock(&fs_info->chunk_mutex);
-				 lock(fs_reclaim);
-    lock(&delayed_node->mutex);
-
-   *** DEADLOCK ***
-
-  3 locks held by kswapd0/100:
-   #0: ffffffffa9d74700 (fs_reclaim){+.+.}-{0:0}, at: __fs_reclaim_acquire+0x5/0x30
-   #1: ffffffffa9d65c50 (shrinker_rwsem){++++}-{3:3}, at: shrink_slab+0x115/0x290
-   #2: ffff9e8e9da260e0 (&type->s_umount_key#48){++++}-{3:3}, at: super_cache_scan+0x38/0x1e0
-
-  stack backtrace:
-  CPU: 1 PID: 100 Comm: kswapd0 Tainted: G        W         5.9.0-rc2+ #1
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  Call Trace:
-   dump_stack+0x92/0xc8
-   check_noncircular+0x12d/0x150
-   __lock_acquire+0x1184/0x1fa0
-   lock_acquire+0xa4/0x3d0
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
-   __mutex_lock+0x7e/0x7e0
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
-   ? __btrfs_release_delayed_node.part.0+0x3f/0x330
-   ? lock_acquire+0xa4/0x3d0
-   ? btrfs_evict_inode+0x11e/0x500
-   ? find_held_lock+0x2b/0x80
-   __btrfs_release_delayed_node.part.0+0x3f/0x330
-   btrfs_evict_inode+0x24c/0x500
-   evict+0xcf/0x1f0
-   dispose_list+0x48/0x70
-   prune_icache_sb+0x44/0x50
-   super_cache_scan+0x161/0x1e0
-   do_shrink_slab+0x178/0x3c0
-   shrink_slab+0x17c/0x290
-   shrink_node+0x2b2/0x6d0
-   balance_pgdat+0x30a/0x670
-   kswapd+0x213/0x4c0
-   ? _raw_spin_unlock_irqrestore+0x46/0x60
-   ? add_wait_queue_exclusive+0x70/0x70
-   ? balance_pgdat+0x670/0x670
-   kthread+0x138/0x160
-   ? kthread_create_worker_on_cpu+0x40/0x40
-   ret_from_fork+0x1f/0x30
-
-This is because we are holding the chunk_mutex when we call
-btrfs_alloc_device, which does a GFP_KERNEL allocation.  We don't want
-to switch that to a GFP_NOFS lock because this is the only place where
-it matters.  So instead use memalloc_nofs_save() around the allocation
-in order to avoid the lockdep splat.
-
-Reported-by: Nikolay Borisov <nborisov@suse.com>
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Message-Id: <1599734031-28746-1-git-send-email-chenhc@lemote.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/mips/kvm/mips.c     | 2 ++
+ include/uapi/linux/kvm.h | 5 +++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -16,6 +16,7 @@
-  * Boston, MA 021110-1307, USA.
-  */
- #include <linux/sched.h>
-+#include <linux/sched/mm.h>
- #include <linux/bio.h>
- #include <linux/slab.h>
- #include <linux/buffer_head.h>
-@@ -6278,8 +6279,17 @@ static struct btrfs_device *add_missing_
- 					    u64 devid, u8 *dev_uuid)
+diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+index 666d3350b4ac1..6c6836669ce16 100644
+--- a/arch/mips/kvm/mips.c
++++ b/arch/mips/kvm/mips.c
+@@ -137,6 +137,8 @@ extern void kvm_init_loongson_ipi(struct kvm *kvm);
+ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
  {
- 	struct btrfs_device *device;
-+	unsigned int nofs_flag;
+ 	switch (type) {
++	case KVM_VM_MIPS_AUTO:
++		break;
+ #ifdef CONFIG_KVM_MIPS_VZ
+ 	case KVM_VM_MIPS_VZ:
+ #else
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 4fdf303165827..65fd95f9784ce 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -789,9 +789,10 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_VM_PPC_HV 1
+ #define KVM_VM_PPC_PR 2
  
-+	/*
-+	 * We call this under the chunk_mutex, so we want to use NOFS for this
-+	 * allocation, however we don't want to change btrfs_alloc_device() to
-+	 * always do NOFS because we use it in a lot of other GFP_KERNEL safe
-+	 * places.
-+	 */
-+	nofs_flag = memalloc_nofs_save();
- 	device = btrfs_alloc_device(NULL, &devid, dev_uuid);
-+	memalloc_nofs_restore(nofs_flag);
- 	if (IS_ERR(device))
- 		return NULL;
+-/* on MIPS, 0 forces trap & emulate, 1 forces VZ ASE */
+-#define KVM_VM_MIPS_TE		0
++/* on MIPS, 0 indicates auto, 1 forces VZ ASE, 2 forces trap & emulate */
++#define KVM_VM_MIPS_AUTO	0
+ #define KVM_VM_MIPS_VZ		1
++#define KVM_VM_MIPS_TE		2
  
+ #define KVM_S390_SIE_PAGE_OFFSET 1
+ 
+-- 
+2.25.1
+
 
 
