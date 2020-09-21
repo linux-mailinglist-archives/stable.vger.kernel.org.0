@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C3D272E01
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:45:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33424272D77
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729726AbgIUQpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:45:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50484 "EHLO mail.kernel.org"
+        id S1729033AbgIUQka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:40:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729179AbgIUQow (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:44:52 -0400
+        id S1728444AbgIUQkN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:40:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B51C235F9;
-        Mon, 21 Sep 2020 16:44:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1AB823998;
+        Mon, 21 Sep 2020 16:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706692;
-        bh=Gx8ysEEc8dEDyDobsWAYRbCgslU4BB8f31Oe+6ZlwYc=;
+        s=default; t=1600706413;
+        bh=Cm7zi0oycO/VORlrjs1Rf7bW3IHMkcejIpXZaKzDbZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwmcGcJMpFwW3Pe/y7hl2867KlwjNFqBYhwZ/jxR6c+x8/jPosChcaOZbWIsFxt29
-         BA6GEVZLl/A7ezHc7Zwwf6yuQYNANM+t49KgngEQf0q0Z6gvJP2MgINWjOFiBFCtHJ
-         p0dAn0ZJYmCbR2PZg+IaYKnefS2Qo/bzhPL+pU0M=
+        b=vU9DBIPtIoXHKZZxnIqadFP06nG9GpS5B/nDOkJbetZQKsABVPjWgeuHLRjiyBD7c
+         k6GUcloO9SLyVX4zl3PMtH7z9xQEP1IzYG9LLeouP8sbULCweo3PBhPFGclls+CR04
+         bJkXv41ZU9hl/JGAjPG470KiISFqrTeoIXvNAqfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 054/118] arm64: Allow CPUs unffected by ARM erratum 1418040 to come in late
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 4.14 59/94] usb: typec: ucsi: acpi: Check the _DEP dependencies
 Date:   Mon, 21 Sep 2020 18:27:46 +0200
-Message-Id: <20200921162038.848253516@linuxfoundation.org>
+Message-Id: <20200921162038.260737209@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-[ Upstream commit ed888cb0d1ebce69f12794e89fbd5e2c86d40b8d ]
+commit 1f3546ff3f0a1000971daef58406954bad3f7061 upstream.
 
-Now that we allow CPUs affected by erratum 1418040 to come in late,
-this prevents their unaffected sibblings from coming in late (or
-coming back after a suspend or hotplug-off, which amounts to the
-same thing).
+Failing probe with -EPROBE_DEFER until all dependencies
+listed in the _DEP (Operation Region Dependencies) object
+have been met.
 
-To allow this, we need to add ARM64_CPUCAP_OPTIONAL_FOR_LATE_CPU,
-which amounts to set .type to ARM64_CPUCAP_WEAK_LOCAL_CPU_FEATURE.
+This will fix an issue where on some platforms UCSI ACPI
+driver fails to probe because the address space handler for
+the operation region that the UCSI ACPI interface uses has
+not been loaded yet.
 
-Fixes: bf87bb0881d0 ("arm64: Allow booting of late CPUs affected by erratum 1418040")
-Reported-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Acked-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20200911181611.2073183-1-maz@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8243edf44152 ("usb: typec: ucsi: Add ACPI driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20200904110918.51546-1-heikki.krogerus@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/kernel/cpu_errata.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/typec/ucsi/ucsi_acpi.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index 2c0b82db825ba..422ed2e38a6c8 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -910,8 +910,12 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 		.desc = "ARM erratum 1418040",
- 		.capability = ARM64_WORKAROUND_1418040,
- 		ERRATA_MIDR_RANGE_LIST(erratum_1418040_list),
--		.type = (ARM64_CPUCAP_SCOPE_LOCAL_CPU |
--			 ARM64_CPUCAP_PERMITTED_FOR_LATE_CPU),
-+		/*
-+		 * We need to allow affected CPUs to come in late, but
-+		 * also need the non-affected CPUs to be able to come
-+		 * in at any point in time. Wonderful.
-+		 */
-+		.type = ARM64_CPUCAP_WEAK_LOCAL_CPU_FEATURE,
- 	},
- #endif
- #ifdef CONFIG_ARM64_WORKAROUND_SPECULATIVE_AT
--- 
-2.25.1
-
+--- a/drivers/usb/typec/ucsi/ucsi_acpi.c
++++ b/drivers/usb/typec/ucsi/ucsi_acpi.c
+@@ -67,11 +67,15 @@ static void ucsi_acpi_notify(acpi_handle
+ 
+ static int ucsi_acpi_probe(struct platform_device *pdev)
+ {
++	struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
+ 	struct ucsi_acpi *ua;
+ 	struct resource *res;
+ 	acpi_status status;
+ 	int ret;
+ 
++	if (adev->dep_unmet)
++		return -EPROBE_DEFER;
++
+ 	ua = devm_kzalloc(&pdev->dev, sizeof(*ua), GFP_KERNEL);
+ 	if (!ua)
+ 		return -ENOMEM;
 
 
