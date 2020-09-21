@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 124A4272ECC
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:52:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F618272E7C
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:49:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729773AbgIUQwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:52:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57634 "EHLO mail.kernel.org"
+        id S1728640AbgIUQtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:49:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729031AbgIUQtf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:49:35 -0400
+        id S1729927AbgIUQtk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:49:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 203A920874;
-        Mon, 21 Sep 2020 16:49:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FDD22388B;
+        Mon, 21 Sep 2020 16:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706974;
-        bh=fI2aKDivCX+waYHUpVfEfNfFRJSy3ULPsS5Vk61gPrs=;
+        s=default; t=1600706979;
+        bh=1ya3yrQSk/M53ajfX2YlTzCSYkjx9qcGQc4WmmUa9X0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dvgsazQZNeG20VsKCUvjKk1sSOeDQsbVn17rpPtcZeVNXgJ26BOa/qhEmdx5pzefS
-         35i/3CGFpEAbMcVw2H3DgBw3ish/+DjEjjfHLCXEOhYUR3Qpx+6Mw93Z4EajDt6Mbh
-         FoV9TbGfa/wdMDAuc1GfKJPM1WgCwmF29TIQ1kvs=
+        b=uakYjCqvsCo7CFrnfba+j1oqNlgVaUwbTlq3eKMiZG+zH58vTJFFrb78X6pKuH4IG
+         5zMlLh5twel6c1Sl2OAutRrQ9M4SNu2Wb717JVI7M3j3f/VkzgXFVtHvpAokgejg5k
+         3A8a1qNMoay0Rf7E3jCTA4TfNMNI+G4MhW2GA5xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 48/72] iommu/amd: Fix potential @entry null deref
-Date:   Mon, 21 Sep 2020 18:31:27 +0200
-Message-Id: <20200921163124.164393341@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 49/72] i2c: mxs: use MXS_DMA_CTRL_WAIT4END instead of DMA_CTRL_ACK
+Date:   Mon, 21 Sep 2020 18:31:28 +0200
+Message-Id: <20200921163124.211804204@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -44,51 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joao Martins <joao.m.martins@oracle.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-[ Upstream commit 14c4acc5ed22c21f9821103be7c48efdf9763584 ]
+[ Upstream commit 6eb158ec0a45dbfd98bc6971c461b7d4d5bf61b3 ]
 
-After commit 26e495f34107 ("iommu/amd: Restore IRTE.RemapEn bit after
-programming IRTE"), smatch warns:
+The driver-specific usage of the DMA_CTRL_ACK flag was replaced with a
+custom flag in commit ceeeb99cd821 ("dmaengine: mxs: rename custom flag"),
+but i2c-mxs was not updated to use the new flag, completely breaking I2C
+transactions using DMA.
 
-	drivers/iommu/amd/iommu.c:3870 amd_iommu_deactivate_guest_mode()
-        warn: variable dereferenced before check 'entry' (see line 3867)
-
-Fix this by moving the @valid assignment to after @entry has been checked
-for NULL.
-
-Fixes: 26e495f34107 ("iommu/amd: Restore IRTE.RemapEn bit after programming IRTE")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Joao Martins <joao.m.martins@oracle.com>
-Reviewed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Cc: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Link: https://lore.kernel.org/r/20200910171621.12879-1-joao.m.martins@oracle.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: ceeeb99cd821 ("dmaengine: mxs: rename custom flag")
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mxs.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index cdafc652d9d1a..fa91d856a43ee 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -4431,12 +4431,14 @@ int amd_iommu_deactivate_guest_mode(void *data)
- 	struct amd_ir_data *ir_data = (struct amd_ir_data *)data;
- 	struct irte_ga *entry = (struct irte_ga *) ir_data->entry;
- 	struct irq_cfg *cfg = ir_data->cfg;
--	u64 valid = entry->lo.fields_remap.valid;
-+	u64 valid;
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 89224913f578b..081a1169ecea3 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -25,6 +25,7 @@
+ #include <linux/of_device.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/dmaengine.h>
++#include <linux/dma/mxs-dma.h>
  
- 	if (!AMD_IOMMU_GUEST_IR_VAPIC(amd_iommu_guest_ir) ||
- 	    !entry || !entry->lo.fields_vapic.guest_mode)
- 		return 0;
+ #define DRIVER_NAME "mxs-i2c"
  
-+	valid = entry->lo.fields_remap.valid;
-+
- 	entry->lo.val = 0;
- 	entry->hi.val = 0;
- 
+@@ -200,7 +201,8 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+ 		dma_map_sg(i2c->dev, &i2c->sg_io[0], 1, DMA_TO_DEVICE);
+ 		desc = dmaengine_prep_slave_sg(i2c->dmach, &i2c->sg_io[0], 1,
+ 					DMA_MEM_TO_DEV,
+-					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
++					DMA_PREP_INTERRUPT |
++					MXS_DMA_CTRL_WAIT4END);
+ 		if (!desc) {
+ 			dev_err(i2c->dev,
+ 				"Failed to get DMA data write descriptor.\n");
+@@ -228,7 +230,8 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+ 		dma_map_sg(i2c->dev, &i2c->sg_io[1], 1, DMA_FROM_DEVICE);
+ 		desc = dmaengine_prep_slave_sg(i2c->dmach, &i2c->sg_io[1], 1,
+ 					DMA_DEV_TO_MEM,
+-					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
++					DMA_PREP_INTERRUPT |
++					MXS_DMA_CTRL_WAIT4END);
+ 		if (!desc) {
+ 			dev_err(i2c->dev,
+ 				"Failed to get DMA data write descriptor.\n");
+@@ -260,7 +263,8 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+ 		dma_map_sg(i2c->dev, i2c->sg_io, 2, DMA_TO_DEVICE);
+ 		desc = dmaengine_prep_slave_sg(i2c->dmach, i2c->sg_io, 2,
+ 					DMA_MEM_TO_DEV,
+-					DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
++					DMA_PREP_INTERRUPT |
++					MXS_DMA_CTRL_WAIT4END);
+ 		if (!desc) {
+ 			dev_err(i2c->dev,
+ 				"Failed to get DMA data write descriptor.\n");
 -- 
 2.25.1
 
