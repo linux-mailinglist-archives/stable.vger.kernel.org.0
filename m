@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA3F272D79
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92759272F32
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729037AbgIUQkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:40:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42614 "EHLO mail.kernel.org"
+        id S1729181AbgIUQzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:55:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729285AbgIUQkG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:40:06 -0400
+        id S1727665AbgIUQpx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:45:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6DB6239D3;
-        Mon, 21 Sep 2020 16:40:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 474BE20874;
+        Mon, 21 Sep 2020 16:45:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706405;
-        bh=vxsrXq1iVCVPmn3PdUADQGC7/PKbgbGJOPvJNxxLMyE=;
+        s=default; t=1600706752;
+        bh=xdeqEMggzB4FvlJF3TTpzHbNj9IqrUdNiNTNJo4ZUfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuqrDNWDk+89AhxcK5ycua8CexwtV2TTGlMN8HbclByb2FC2riChavywFME5fqkI1
-         Y+jqGGope9dE20ZgFnOxx2oMLQse9THlM9yarfkKwLam6mZDa3/DusvmopYpyCvYHq
-         BrgwbBHPU9PmtevKkcH+6Ijk3l0PPwp+9qQ3gwsY=
+        b=O979cFsWmcFiiAX8J8ddP3eBBXruGgC51G1JkGfI182QGoa8gLSZbybwqHUaeuXxw
+         L/7TJortzon0n0AxiNn7fv8yUSiAas9TGsh6Ht38taoLPTwecx+6CfmZ+HOvxRyVXD
+         iBaBJfaz5KRwssZM/ltx3jvLLp7JUSvYXF1Yqw3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 4.14 85/94] USB: UAS: fix disconnect by unplugging a hub
+        stable@vger.kernel.org, Branden Sherrell <sherrellbc@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 080/118] efi: efibc: check for efivars write capability
 Date:   Mon, 21 Sep 2020 18:28:12 +0200
-Message-Id: <20200921162039.444103084@linuxfoundation.org>
+Message-Id: <20200921162040.049943315@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 325b008723b2dd31de020e85ab9d2e9aa4637d35 upstream.
+[ Upstream commit 46908326c6b801201f1e46f5ed0db6e85bef74ae ]
 
-The SCSI layer can go into an ugly loop if you ignore that a device is
-gone. You need to report an error in the command rather than in the
-return value of the queue method.
+Branden reports that commit
 
-We need to specifically check for ENODEV. The issue goes back to the
-introduction of the driver.
+  f88814cc2578c1 ("efi/efivars: Expose RT service availability via efivars abstraction")
 
-Fixes: 115bb1ffa54c3 ("USB: Add UAS driver")
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200916094026.30085-2-oneukum@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+regresses UEFI platforms that implement GetVariable but not SetVariable
+when booting kernels that have EFIBC (bootloader control) enabled.
 
+The reason is that EFIBC is a user of the efivars abstraction, which was
+updated to permit users that rely only on the read capability, but not on
+the write capability. EFIBC is in the latter category, so it has to check
+explicitly whether efivars supports writes.
+
+Fixes: f88814cc2578c1 ("efi/efivars: Expose RT service availability via efivars abstraction")
+Tested-by: Branden Sherrell <sherrellbc@gmail.com>
+Link: https://lore.kernel.org/linux-efi/AE217103-C96F-4AFC-8417-83EC11962004@gmail.com/
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/uas.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/efibc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -670,8 +670,7 @@ static int uas_queuecommand_lck(struct s
- 	if (devinfo->resetting) {
- 		cmnd->result = DID_ERROR << 16;
- 		cmnd->scsi_done(cmnd);
--		spin_unlock_irqrestore(&devinfo->lock, flags);
--		return 0;
-+		goto zombie;
- 	}
+diff --git a/drivers/firmware/efi/efibc.c b/drivers/firmware/efi/efibc.c
+index 35dccc88ac0af..15a47539dc563 100644
+--- a/drivers/firmware/efi/efibc.c
++++ b/drivers/firmware/efi/efibc.c
+@@ -84,7 +84,7 @@ static int __init efibc_init(void)
+ {
+ 	int ret;
  
- 	/* Find a free uas-tag */
-@@ -706,6 +705,16 @@ static int uas_queuecommand_lck(struct s
- 		cmdinfo->state &= ~(SUBMIT_DATA_IN_URB | SUBMIT_DATA_OUT_URB);
+-	if (!efi_enabled(EFI_RUNTIME_SERVICES))
++	if (!efivars_kobject() || !efivar_supports_writes())
+ 		return -ENODEV;
  
- 	err = uas_submit_urbs(cmnd, devinfo);
-+	/*
-+	 * in case of fatal errors the SCSI layer is peculiar
-+	 * a command that has finished is a success for the purpose
-+	 * of queueing, no matter how fatal the error
-+	 */
-+	if (err == -ENODEV) {
-+		cmnd->result = DID_ERROR << 16;
-+		cmnd->scsi_done(cmnd);
-+		goto zombie;
-+	}
- 	if (err) {
- 		/* If we did nothing, give up now */
- 		if (cmdinfo->state & SUBMIT_STATUS_URB) {
-@@ -716,6 +725,7 @@ static int uas_queuecommand_lck(struct s
- 	}
- 
- 	devinfo->cmnd[idx] = cmnd;
-+zombie:
- 	spin_unlock_irqrestore(&devinfo->lock, flags);
- 	return 0;
- }
+ 	ret = register_reboot_notifier(&efibc_reboot_notifier);
+-- 
+2.25.1
+
 
 
