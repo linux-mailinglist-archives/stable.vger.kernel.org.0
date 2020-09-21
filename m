@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B006272D51
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFAE5272D21
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728651AbgIUQjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:39:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40526 "EHLO mail.kernel.org"
+        id S1729094AbgIUQhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:37:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729215AbgIUQi7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:38:59 -0400
+        id S1729091AbgIUQhj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:37:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADD49239D0;
-        Mon, 21 Sep 2020 16:38:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D45C6206B7;
+        Mon, 21 Sep 2020 16:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706339;
-        bh=s0Mo5u+brxlYU38Nh/VQSLjrk4n3pEAdmA+E2c66PFo=;
+        s=default; t=1600706258;
+        bh=0AsOqjbBkPZykoJS/EiWyx0FA+xrH0LXRfn/2dLrtzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AV4YstBitza6ozJhQ2etu3oMYygNsdRrJqjFsn90ASYwUgVuws7LacZDxwz7CikJ/
-         gxtQHut08JDlR5h5s10LiOPw7ZC/bPv8AUJmNPaNwJIct8ChH+ZqkmuyZRsCATBnIn
-         Zixou0fw3hqKX7ScVGdONSIZ18S7JLVodiq6IE9w=
+        b=EaWXP88RKv/xtjuAWXKpu+EUjPGipgLE62AIqIVnqDACbMKlAQ2ncdzcrj+74PkHf
+         SIKgkaFCnRyKTppSIbq5hT0k0q4Yqxb37HPvicoChf9EnrHjxqZqz2FFhVPBgYaEIh
+         B8ls6whm8r4blUP8/I1P3IWDORidoofmhe56U2qs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 20/94] cpufreq: intel_pstate: Refuse to turn off with HWP enabled
-Date:   Mon, 21 Sep 2020 18:27:07 +0200
-Message-Id: <20200921162036.476048041@linuxfoundation.org>
+        stable@vger.kernel.org, Rander Wang <rander.wang@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 21/94] ALSA: hda: fix a runtime pm issue in SOF when integrated GPU is disabled
+Date:   Mon, 21 Sep 2020 18:27:08 +0200
+Message-Id: <20200921162036.518984044@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
 References: <20200921162035.541285330@linuxfoundation.org>
@@ -44,50 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Rander Wang <rander.wang@intel.com>
 
-[ Upstream commit 43298db3009f06fe5c69e1ca8b6cfc2565772fa1 ]
+[ Upstream commit 13774d81f38538c5fa2924bdcdfa509155480fa6 ]
 
-After commit f6ebbcf08f37 ("cpufreq: intel_pstate: Implement passive
-mode with HWP enabled") it is possible to change the driver status
-to "off" via sysfs with HWP enabled, which effectively causes the
-driver to unregister itself, but HWP remains active and it forces the
-minimum performance, so even if another cpufreq driver is loaded,
-it will not be able to control the CPU frequency.
+In snd_hdac_device_init pm_runtime_set_active is called to
+increase child_count in parent device. But when it is failed
+to build connection with GPU for one case that integrated
+graphic gpu is disabled, snd_hdac_ext_bus_device_exit will be
+invoked to clean up a HD-audio extended codec base device. At
+this time the child_count of parent is not decreased, which
+makes parent device can't get suspended.
 
-For this reason, make the driver refuse to change the status to
-"off" with HWP enabled.
+This patch calls pm_runtime_set_suspended to decrease child_count
+in parent device in snd_hdac_device_exit to match with
+snd_hdac_device_init. pm_runtime_set_suspended can make sure that
+it will not decrease child_count if the device is already suspended.
 
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200902154218.1440441-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ sound/hda/hdac_device.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index 5c41dc9aaa46d..be1a7bb0b4011 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -2098,9 +2098,15 @@ static int intel_pstate_update_status(const char *buf, size_t size)
+diff --git a/sound/hda/hdac_device.c b/sound/hda/hdac_device.c
+index 19deb306facb7..4a843eb7cc940 100644
+--- a/sound/hda/hdac_device.c
++++ b/sound/hda/hdac_device.c
+@@ -123,6 +123,8 @@ EXPORT_SYMBOL_GPL(snd_hdac_device_init);
+ void snd_hdac_device_exit(struct hdac_device *codec)
  {
- 	int ret;
- 
--	if (size == 3 && !strncmp(buf, "off", size))
--		return intel_pstate_driver ?
--			intel_pstate_unregister_driver() : -EINVAL;
-+	if (size == 3 && !strncmp(buf, "off", size)) {
-+		if (!intel_pstate_driver)
-+			return -EINVAL;
-+
-+		if (hwp_active)
-+			return -EBUSY;
-+
-+		return intel_pstate_unregister_driver();
-+	}
- 
- 	if (size == 6 && !strncmp(buf, "active", size)) {
- 		if (intel_pstate_driver) {
+ 	pm_runtime_put_noidle(&codec->dev);
++	/* keep balance of runtime PM child_count in parent device */
++	pm_runtime_set_suspended(&codec->dev);
+ 	snd_hdac_bus_remove_device(codec->bus, codec);
+ 	kfree(codec->vendor_name);
+ 	kfree(codec->chip_name);
 -- 
 2.25.1
 
