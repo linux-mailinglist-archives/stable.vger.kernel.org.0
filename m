@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34226272DD2
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:43:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33BFF272DE1
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:44:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729019AbgIUQn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:43:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47994 "EHLO mail.kernel.org"
+        id S1729618AbgIUQni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:43:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728822AbgIUQn0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:43:26 -0400
+        id S1729617AbgIUQnd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:43:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C59F523976;
-        Mon, 21 Sep 2020 16:43:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41C4B23A1E;
+        Mon, 21 Sep 2020 16:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706605;
-        bh=8levo4MoopQaue4g/FT6w+WjBnkfLjjUK2zGVSjvYug=;
+        s=default; t=1600706612;
+        bh=DopP0TXFS0MBEU+sZLrZgDrgeACAe7ZZZdRuOn1hAGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mlr4X4NYDf1ncO+uleAnLY8Se1NxFXj4ll0S+nveMwBz/JbhbuhE1/9JDIp26mJZ3
-         tzwOaTFum2T1BIKsUrKfBGOl/A3Ld+q9sABchcbS+lDiG3Rjz6IGJcZ80dKEc9K1Fi
-         PJxF/2Oo/vqzmbfIFmtTIEtBOm1KsYmyREEpklOo=
+        b=BW0tqI9R91nI2swdLdep9V1p8LhEhhQjr5c1cuBXuGQ5X5a1k+iZGHemqdofJ7aO3
+         BVNeAHwfeXqZzYCuJ/byxBOsM1TkPlg7RyR8hys/+CazXx0Jl/JSYjtnQQ9YnByjLr
+         yFosKdhObpZFArb3ROo0ySiXjEALr5QqUzrquv+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.8 002/118] dt-bindings: spi: Fix spi-bcm-qspi compatible ordering
-Date:   Mon, 21 Sep 2020 18:26:54 +0200
-Message-Id: <20200921162036.451956243@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.8 003/118] mptcp: sendmsg: reset iter on error
+Date:   Mon, 21 Sep 2020 18:26:55 +0200
+Message-Id: <20200921162036.501567458@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
 References: <20200921162036.324813383@linuxfoundation.org>
@@ -42,83 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit fcd2e4b9ca20faf6de959f67df5b454a5b055c56 upstream.
+commit 35759383133f64d90eba120a0d3efe8f71241650 upstream.
 
-The binding is currently incorrectly defining the compatible strings
-from least specifice to most specific instead of the converse. Re-order
-them from most specific (left) to least specific (right) and fix the
-examples as well.
+Once we've copied data from the iterator we need to revert in case we
+end up not sending any data.
 
-Fixes: 5fc78f4c842a ("spi: Broadcom BRCMSTB, NSP, NS2 SoC bindings")
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+This bug doesn't trigger with normal 'poll' based tests, because
+we only feed a small chunk of data to kernel after poll indicated
+POLLOUT.  With blocking IO and large writes this triggers. Receiver
+ends up with less data than it should get.
+
+Fixes: 72511aab95c94d ("mptcp: avoid blocking in tcp_sendpages")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/devicetree/bindings/spi/brcm,spi-bcm-qspi.txt |   16 ++++++------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/mptcp/protocol.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/Documentation/devicetree/bindings/spi/brcm,spi-bcm-qspi.txt
-+++ b/Documentation/devicetree/bindings/spi/brcm,spi-bcm-qspi.txt
-@@ -23,8 +23,8 @@ Required properties:
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -605,8 +605,10 @@ static int mptcp_sendmsg_frag(struct soc
+ 		if (!psize)
+ 			return -EINVAL;
  
- - compatible:
-     Must be one of :
--    "brcm,spi-bcm-qspi", "brcm,spi-brcmstb-qspi" : MSPI+BSPI on BRCMSTB SoCs
--    "brcm,spi-bcm-qspi", "brcm,spi-brcmstb-mspi" : Second Instance of MSPI
-+    "brcm,spi-brcmstb-qspi", "brcm,spi-bcm-qspi" : MSPI+BSPI on BRCMSTB SoCs
-+    "brcm,spi-brcmstb-mspi", "brcm,spi-bcm-qspi" : Second Instance of MSPI
- 						   BRCMSTB  SoCs
-     "brcm,spi-bcm7425-qspi", "brcm,spi-bcm-qspi", "brcm,spi-brcmstb-mspi" : Second Instance of MSPI
-     			     			  			    BRCMSTB  SoCs
-@@ -36,8 +36,8 @@ Required properties:
-     			     			  			    BRCMSTB  SoCs
-     "brcm,spi-bcm7278-qspi", "brcm,spi-bcm-qspi", "brcm,spi-brcmstb-mspi" : Second Instance of MSPI
-     			     			  			    BRCMSTB  SoCs
--    "brcm,spi-bcm-qspi", "brcm,spi-nsp-qspi"     : MSPI+BSPI on Cygnus, NSP
--    "brcm,spi-bcm-qspi", "brcm,spi-ns2-qspi"     : NS2 SoCs
-+    "brcm,spi-nsp-qspi", "brcm,spi-bcm-qspi"     : MSPI+BSPI on Cygnus, NSP
-+    "brcm,spi-ns2-qspi", "brcm,spi-bcm-qspi"     : NS2 SoCs
+-		if (!sk_wmem_schedule(sk, psize + dfrag->overhead))
++		if (!sk_wmem_schedule(sk, psize + dfrag->overhead)) {
++			iov_iter_revert(&msg->msg_iter, psize);
+ 			return -ENOMEM;
++		}
+ 	} else {
+ 		offset = dfrag->offset;
+ 		psize = min_t(size_t, dfrag->data_len, avail_size);
+@@ -617,8 +619,10 @@ static int mptcp_sendmsg_frag(struct soc
+ 	 */
+ 	ret = do_tcp_sendpages(ssk, page, offset, psize,
+ 			       msg->msg_flags | MSG_SENDPAGE_NOTLAST | MSG_DONTWAIT);
+-	if (ret <= 0)
++	if (ret <= 0) {
++		iov_iter_revert(&msg->msg_iter, psize);
+ 		return ret;
++	}
  
- - reg:
-     Define the bases and ranges of the associated I/O address spaces.
-@@ -86,7 +86,7 @@ BRCMSTB SoC Example:
-     spi@f03e3400 {
- 		#address-cells = <0x1>;
- 		#size-cells = <0x0>;
--		compatible = "brcm,spi-brcmstb-qspi", "brcm,spi-brcmstb-qspi";
-+		compatible = "brcm,spi-brcmstb-qspi", "brcm,spi-bcm-qspi";
- 		reg = <0xf03e0920 0x4 0xf03e3400 0x188 0xf03e3200 0x50>;
- 		reg-names = "cs_reg", "mspi", "bspi";
- 		interrupts = <0x6 0x5 0x4 0x3 0x2 0x1 0x0>;
-@@ -149,7 +149,7 @@ BRCMSTB SoC Example:
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		clocks = <&upg_fixed>;
--		compatible = "brcm,spi-brcmstb-qspi", "brcm,spi-brcmstb-mspi";
-+		compatible = "brcm,spi-brcmstb-mspi", "brcm,spi-bcm-qspi";
- 		reg = <0xf0416000 0x180>;
- 		reg-names = "mspi";
- 		interrupts = <0x14>;
-@@ -160,7 +160,7 @@ BRCMSTB SoC Example:
- iProc SoC Example:
- 
-     qspi: spi@18027200 {
--	compatible = "brcm,spi-bcm-qspi", "brcm,spi-nsp-qspi";
-+	compatible = "brcm,spi-nsp-qspi", "brcm,spi-bcm-qspi";
- 	reg = <0x18027200 0x184>,
- 	      <0x18027000 0x124>,
- 	      <0x1811c408 0x004>,
-@@ -191,7 +191,7 @@ iProc SoC Example:
-  NS2 SoC Example:
- 
- 	       qspi: spi@66470200 {
--		       compatible = "brcm,spi-bcm-qspi", "brcm,spi-ns2-qspi";
-+		       compatible = "brcm,spi-ns2-qspi", "brcm,spi-bcm-qspi";
- 		       reg = <0x66470200 0x184>,
- 			     <0x66470000 0x124>,
- 			     <0x67017408 0x004>,
+ 	frag_truesize += ret;
+ 	if (!retransmission) {
 
 
