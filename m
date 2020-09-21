@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DB0827306F
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:05:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9AD82730A0
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728944AbgIURFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 13:05:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34180 "EHLO mail.kernel.org"
+        id S1728466AbgIUQca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:32:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728827AbgIUQfG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:35:06 -0400
+        id S1728457AbgIUQc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:32:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF524239D0;
-        Mon, 21 Sep 2020 16:35:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DF952399C;
+        Mon, 21 Sep 2020 16:32:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706106;
-        bh=vGAAuVJ8G2tTaHOJzaFxvLOe6hHBRYasILCwvRjyMXc=;
+        s=default; t=1600705947;
+        bh=xXsQf780KKxrWSyvuZzMQJDEBPImRjRuT0OFaeDNp3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGS0UDAM5O5guEKjNyLy2ag0I04OOlHbHUnN4gY9gLQUdTWYkiKueZ2Sgbimn+evj
-         E6mdywvq/+wl63+0FKS+TzRCSNcFN2pkwsT2PS1K8rbqynQUMLf/6KONidjrS7/zuj
-         6/f59MrFX0TI2x/Xf/yAvT3SvXPhPeT5/4lK9U8c=
+        b=US6Wx9fauJGiegCyYjrxNEwafqxHLqkw3uYnJQg/EnTw6lqn9oHxtZrgmyrxQFsGw
+         yj4cQlTAtGFyOxGdOuYScP+WF7GNlrZo5fDOGCncNWR4fH7fCQpNpygc/E1V8Tp4C1
+         OjDn6clVBvWfNJGuheLTyVemrPUe1slrynrGCwUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Patrick Riphagen <patrick.riphagen@xsens.com>,
+        Aleksander Morgado <aleksander@aleksander.es>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 42/70] USB: serial: ftdi_sio: add IDs for Xsens Mti USB converter
+Subject: [PATCH 4.4 26/46] USB: serial: option: add support for SIM7070/SIM7080/SIM7090 modules
 Date:   Mon, 21 Sep 2020 18:27:42 +0200
-Message-Id: <20200921162037.040767454@linuxfoundation.org>
+Message-Id: <20200921162034.517313011@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
-References: <20200921162035.136047591@linuxfoundation.org>
+In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
+References: <20200921162033.346434578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Riphagen <patrick.riphagen@xsens.com>
+From: Aleksander Morgado <aleksander@aleksander.es>
 
-commit 6ccc48e0eb2f3a5f3bd39954a21317e5f8874726 upstream.
+commit 1ac698790819b83f39fd7ea4f6cdabee9bdd7b38 upstream.
 
-The device added has an FTDI chip inside.
-The device is used to connect Xsens USB Motion Trackers.
+These modules have 2 different USB layouts:
 
+The default layout with PID 0x9205 (AT+CUSBSELNV=1) exposes 4 TTYs and
+an ECM interface:
+
+  T:  Bus=02 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  6 Spd=480 MxCh= 0
+  D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+  P:  Vendor=1e0e ProdID=9205 Rev=00.00
+  S:  Manufacturer=SimTech, Incorporated
+  S:  Product=SimTech SIM7080
+  S:  SerialNumber=1234567890ABCDEF
+  C:  #Ifs= 6 Cfg#= 1 Atr=e0 MxPwr=500mA
+  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x4 Alt= 0 #EPs= 1 Cls=02(commc) Sub=06 Prot=00 Driver=cdc_ether
+  I:  If#=0x5 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+
+The purpose of each TTY is as follows:
+ * ttyUSB0: DIAG/QCDM port.
+ * ttyUSB1: GNSS data.
+ * ttyUSB2: AT-capable port (control).
+ * ttyUSB3: AT-capable port (data).
+
+In the secondary layout with PID=0x9206 (AT+CUSBSELNV=86) the module
+exposes 6 TTY ports:
+
+  T:  Bus=02 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  8 Spd=480 MxCh= 0
+  D:  Ver= 2.00 Cls=02(commc) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+  P:  Vendor=1e0e ProdID=9206 Rev=00.00
+  S:  Manufacturer=SimTech, Incorporated
+  S:  Product=SimTech SIM7080
+  S:  SerialNumber=1234567890ABCDEF
+  C:  #Ifs= 6 Cfg#= 1 Atr=e0 MxPwr=500mA
+  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+
+The purpose of each TTY is as follows:
+ * ttyUSB0: DIAG/QCDM port.
+ * ttyUSB1: GNSS data.
+ * ttyUSB2: AT-capable port (control).
+ * ttyUSB3: QFLOG interface.
+ * ttyUSB4: DAM interface.
+ * ttyUSB5: AT-capable port (data).
+
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
 Cc: stable@vger.kernel.org
-Signed-off-by: Patrick Riphagen <patrick.riphagen@xsens.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/ftdi_sio.c     |    1 +
- drivers/usb/serial/ftdi_sio_ids.h |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -708,6 +708,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(XSENS_VID, XSENS_AWINDA_STATION_PID) },
- 	{ USB_DEVICE(XSENS_VID, XSENS_CONVERTER_PID) },
- 	{ USB_DEVICE(XSENS_VID, XSENS_MTDEVBOARD_PID) },
-+	{ USB_DEVICE(XSENS_VID, XSENS_MTIUSBCONVERTER_PID) },
- 	{ USB_DEVICE(XSENS_VID, XSENS_MTW_PID) },
- 	{ USB_DEVICE(FTDI_VID, FTDI_OMNI1509) },
- 	{ USB_DEVICE(MOBILITY_VID, MOBILITY_USB_SERIAL_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -159,6 +159,7 @@
- #define XSENS_AWINDA_DONGLE_PID 0x0102
- #define XSENS_MTW_PID		0x0200	/* Xsens MTw */
- #define XSENS_MTDEVBOARD_PID	0x0300	/* Motion Tracker Development Board */
-+#define XSENS_MTIUSBCONVERTER_PID	0x0301	/* MTi USB converter */
- #define XSENS_CONVERTER_PID	0xD00D	/* Xsens USB-serial converter */
- 
- /* Xsens devices using FTDI VID */
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1808,6 +1808,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9003, 0xff) },	/* Simcom SIM7500/SIM7600 MBIM mode */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9011, 0xff),	/* Simcom SIM7500/SIM7600 RNDIS mode */
+ 	  .driver_info = RSVD(7) },
++	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9205, 0xff) },	/* Simcom SIM7070/SIM7080/SIM7090 AT+ECM mode */
++	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9206, 0xff) },	/* Simcom SIM7070/SIM7080/SIM7090 AT-only mode */
+ 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X060S_X200),
+ 	  .driver_info = NCTRL(0) | NCTRL(1) | RSVD(4) },
+ 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X220_X500D),
 
 
