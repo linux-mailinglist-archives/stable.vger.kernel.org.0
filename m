@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5A4C27285C
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE50F272858
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727405AbgIUOmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 10:42:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
+        id S1728030AbgIUOmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 10:42:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727989AbgIUOlM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:41:12 -0400
+        id S1727998AbgIUOlN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B4522388E;
-        Mon, 21 Sep 2020 14:41:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDA5923718;
+        Mon, 21 Sep 2020 14:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699271;
-        bh=BCGAqlWnO6+8kS1OsNDT/8VjpLmM3QQVmJ1VQfwz5i0=;
+        s=default; t=1600699272;
+        bh=lvWXTjqEtX4tVeRkz5R6kR7ZQS2JVMCI3uTA9lD3JE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QJEjVGubG/78feDv0n5GvoPhGJcI3gCbVAlSDLLAbf5KeJHMm07Pwcuo3cBvLqK2L
-         FP2zwo/khPo/YZDvdRWzm4p0Zu99z2W54k1dIkGt2xDS4H1/RIl1KeySucuIASon35
-         T8MDd1Gk0jnNwziWcFQvSD7SaqfacLUKJpzh3JD8=
+        b=DVw1jjbW7eC5Kjd5q7MNtCKuISK55net5bEOlpyOfZL5w0eJFgh0aaY9mqa6Plzj4
+         jHpLhyS5AZ3YgQ3fW3edmDslsmx9DsFZFXLc2QLJm69Nxx2/73MxEhJ69tBgOD2Tam
+         T6MeKAwtIvADkV1ZS1Exd/L5ycn9Bu3Omn1dZ4m4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 13/15] drm/amdgpu/dc: Require primary plane to be enabled whenever the CRTC is
-Date:   Mon, 21 Sep 2020 10:40:52 -0400
-Message-Id: <20200921144054.2135602-13-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 14/15] i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
+Date:   Mon, 21 Sep 2020 10:40:53 -0400
+Message-Id: <20200921144054.2135602-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200921144054.2135602-1-sashal@kernel.org>
 References: <20200921144054.2135602-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,99 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michel Dänzer <mdaenzer@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2f228aab21bbc74e90e267a721215ec8be51daf7 ]
+[ Upstream commit 21653a4181ff292480599dad996a2b759ccf050f ]
 
-Don't check drm_crtc_state::active for this either, per its
-documentation in include/drm/drm_crtc.h:
+Some ACPI i2c-devices _STA method (which is used to detect if the device
+is present) use autodetection code which probes which device is present
+over i2c. This requires the I2C ACPI OpRegion handler to be registered
+before we enumerate i2c-clients under the i2c-adapter.
 
- * Hence drivers must not consult @active in their various
- * &drm_mode_config_funcs.atomic_check callback to reject an atomic
- * commit.
+This fixes the i2c touchpad on the Lenovo ThinkBook 14-IIL and
+ThinkBook 15 IIL not getting an i2c-client instantiated and thus not
+working.
 
-atomic_remove_fb disables the CRTC as needed for disabling the primary
-plane.
-
-This prevents at least the following problems if the primary plane gets
-disabled (e.g. due to destroying the FB assigned to the primary plane,
-as happens e.g. with mutter in Wayland mode):
-
-* The legacy cursor ioctl returned EINVAL for a non-0 cursor FB ID
-  (which enables the cursor plane).
-* If the cursor plane was enabled, changing the legacy DPMS property
-  value from off to on returned EINVAL.
-
-v2:
-* Minor changes to code comment and commit log, per review feedback.
-
-GitLab: https://gitlab.gnome.org/GNOME/mutter/-/issues/1108
-GitLab: https://gitlab.gnome.org/GNOME/mutter/-/issues/1165
-GitLab: https://gitlab.gnome.org/GNOME/mutter/-/issues/1344
-Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1842039
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 32 ++++++-------------
- 1 file changed, 10 insertions(+), 22 deletions(-)
+ drivers/i2c/i2c-core-base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 60e50181f6d39..2384aa018993d 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -4299,19 +4299,6 @@ static void dm_crtc_helper_disable(struct drm_crtc *crtc)
- {
- }
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index def62d5b42ca7..2dfe2ffcf8825 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1385,8 +1385,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
  
--static bool does_crtc_have_active_cursor(struct drm_crtc_state *new_crtc_state)
--{
--	struct drm_device *dev = new_crtc_state->crtc->dev;
--	struct drm_plane *plane;
--
--	drm_for_each_plane_mask(plane, dev, new_crtc_state->plane_mask) {
--		if (plane->type == DRM_PLANE_TYPE_CURSOR)
--			return true;
--	}
--
--	return false;
--}
--
- static int count_crtc_active_planes(struct drm_crtc_state *new_crtc_state)
- {
- 	struct drm_atomic_state *state = new_crtc_state->state;
-@@ -4391,19 +4378,20 @@ static int dm_crtc_helper_atomic_check(struct drm_crtc *crtc,
- 		return ret;
- 	}
+ 	/* create pre-declared device nodes */
+ 	of_i2c_register_devices(adap);
+-	i2c_acpi_register_devices(adap);
+ 	i2c_acpi_install_space_handler(adap);
++	i2c_acpi_register_devices(adap);
  
--	/* In some use cases, like reset, no stream is attached */
--	if (!dm_crtc_state->stream)
--		return 0;
--
- 	/*
--	 * We want at least one hardware plane enabled to use
--	 * the stream with a cursor enabled.
-+	 * We require the primary plane to be enabled whenever the CRTC is, otherwise
-+	 * drm_mode_cursor_universal may end up trying to enable the cursor plane while all other
-+	 * planes are disabled, which is not supported by the hardware. And there is legacy
-+	 * userspace which stops using the HW cursor altogether in response to the resulting EINVAL.
- 	 */
--	if (state->enable && state->active &&
--	    does_crtc_have_active_cursor(state) &&
--	    dm_crtc_state->active_planes == 0)
-+	if (state->enable &&
-+	    !(state->plane_mask & drm_plane_mask(crtc->primary)))
- 		return -EINVAL;
- 
-+	/* In some use cases, like reset, no stream is attached */
-+	if (!dm_crtc_state->stream)
-+		return 0;
-+
- 	if (dc_validate_stream(dc, dm_crtc_state->stream) == DC_OK)
- 		return 0;
- 
+ 	if (adap->nr < __i2c_first_dynamic_bus_num)
+ 		i2c_scan_static_board_info(adap);
 -- 
 2.25.1
 
