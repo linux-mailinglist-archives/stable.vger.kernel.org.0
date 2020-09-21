@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24DE7272DF0
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB56272CA6
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728951AbgIUQoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:44:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48138 "EHLO mail.kernel.org"
+        id S1728687AbgIUQd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:33:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728395AbgIUQna (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:43:30 -0400
+        id S1728200AbgIUQdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:33:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B31CB235F9;
-        Mon, 21 Sep 2020 16:43:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C043E2396F;
+        Mon, 21 Sep 2020 16:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706610;
-        bh=4VDGPZbOkg6QfLEfi1JhpBbDvYsDwUwHOlmUDXP8ahc=;
+        s=default; t=1600706034;
+        bh=NQKH7qV+mvGMmdYVsn+drBg78YJ7yUGWecvlsGgCjo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xo9rx4l892Yx+EPr7ySfxbhWWdBWo9IIbI3+M2u/6Qzyv0fTlIZvWXwi0L63oGB23
-         Gi6dwuA1/T20anAbj76oMw4MWtRFOpYACF6h+LuxU5N+UxXhX+ope/ubclkIYHEKFT
-         F919Enwwv5R9f4IJoiTzujvegS9I+wM35CW+cgFk=
+        b=Tk7GpVA3uMdEmegD+tqexXNlb+yR1DztZlB66rzujSL6XYZEWdJdTCb4cYbZxc81r
+         MpGZldGWfBqrS2bUf3pSjQ0ijroEtbzHRiuaj/ocGVxa5V3XYijTEZyMGYDd7Q4z/4
+         nzHDANBu18G73bQVhedc19/NIaWflvDo0Qrzm8Zw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 021/118] NFS: Zero-stateid SETATTR should first return delegation
-Date:   Mon, 21 Sep 2020 18:27:13 +0200
-Message-Id: <20200921162037.300996211@linuxfoundation.org>
+Subject: [PATCH 4.9 14/70] gcov: Disable gcov build with GCC 10
+Date:   Mon, 21 Sep 2020 18:27:14 +0200
+Message-Id: <20200921162035.774299621@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 644c9f40cf71969f29add32f32349e71d4995c0b ]
+[ Upstream commit cfc905f158eaa099d6258031614d11869e7ef71c ]
 
-If a write delegation isn't available, the Linux NFS client uses
-a zero-stateid when performing a SETATTR.
+GCOV built with GCC 10 doesn't initialize n_function variable.  This
+produces different kernel panics as was seen by Colin in Ubuntu and me
+in FC 32.
 
-NFSv4.0 provides no mechanism for an NFS server to match such a
-request to a particular client. It recalls all delegations for that
-file, even delegations held by the client issuing the request. If
-that client happens to hold a read delegation, the server will
-recall it immediately, resulting in an NFS4ERR_DELAY/CB_RECALL/
-DELEGRETURN sequence.
+As a workaround, let's disable GCOV build for broken GCC 10 version.
 
-Optimize out this pipeline bubble by having the client return any
-delegations it may hold on a file before it issues a
-SETATTR(zero-stateid) on that file.
-
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1891288
+Link: https://lore.kernel.org/lkml/20200827133932.3338519-1-leon@kernel.org
+Link: https://lore.kernel.org/lkml/CAHk-=whbijeSdSvx-Xcr0DPMj0BiwhJ+uiNnDSVZcr_h_kg7UA@mail.gmail.com/
+Cc: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/gcov/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 7f337188a2829..08b1fb0a9225a 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -3272,8 +3272,10 @@ static int _nfs4_do_setattr(struct inode *inode,
- 
- 	/* Servers should only apply open mode checks for file size changes */
- 	truncate = (arg->iap->ia_valid & ATTR_SIZE) ? true : false;
--	if (!truncate)
-+	if (!truncate) {
-+		nfs4_inode_make_writeable(inode);
- 		goto zero_stateid;
-+	}
- 
- 	if (nfs4_copy_delegation_stateid(inode, FMODE_WRITE, &arg->stateid, &delegation_cred)) {
- 		/* Use that stateid */
+diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
+index 1276aabaab550..1d78ed19a3512 100644
+--- a/kernel/gcov/Kconfig
++++ b/kernel/gcov/Kconfig
+@@ -3,6 +3,7 @@ menu "GCOV-based kernel profiling"
+ config GCOV_KERNEL
+ 	bool "Enable gcov-based kernel profiling"
+ 	depends on DEBUG_FS
++	depends on !CC_IS_GCC || GCC_VERSION < 100000
+ 	select CONSTRUCTORS if !UML
+ 	default n
+ 	---help---
 -- 
 2.25.1
 
