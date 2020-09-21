@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66099272EFC
+	by mail.lfdr.de (Postfix) with ESMTP id D3BFF272EFD
 	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:53:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729631AbgIUQr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729290AbgIUQr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 21 Sep 2020 12:47:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54206 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728576AbgIUQrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:47:23 -0400
+        id S1728955AbgIUQrY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:47:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D398023888;
-        Mon, 21 Sep 2020 16:47:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 275602223E;
+        Mon, 21 Sep 2020 16:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706841;
-        bh=HqGhaZOrV/fvlOdkuznf58lF8tBY9lsqo3KdrJ7Cz18=;
+        s=default; t=1600706843;
+        bh=IMKosS4jtrY102X+h47hgsWXTzCkkvPOzN0nyzCo/OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VYvpZBag1Y0RIoLOgJ+Bn6YmVRA99fnreLpYsO/EvRdYZ0sRLXDym49iWYbM7DEMC
-         i/h+xaC7AutIx6+zpNow7GAWb7aYSegzmY50vfN1ZLRuKynWM0L/OABA7126dc9FDc
-         ZmH0MPwdfx2SKQ/3nXmDCbUKUDQxZI8kdHopD/TU=
+        b=nzXmq/n+RiFJ0CTJHu/qAdtSzq1G+USvBkrpCliY0vNMOBqv9fVX8EQDB2L1CkPAG
+         jDaks8+ArcOjz2pxmOcM7QPnGOWzwR5kD0EgriU0/QFH6u3AYw//y+CEFKmkjg2d5R
+         i7wr/ALAsu3sgAdsZGe3NiPNsH5hcHXrUvyY+0kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Huang <ahuang12@lenovo.com>,
-        Jan Kara <jack@suse.cz>, Mike Snitzer <snitzer@redhat.com>,
-        kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        kernel test robot <lkp@intel.com>, Jan Kara <jack@suse.cz>,
         Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.8 115/118] dm: Call proper helper to determine dax support
-Date:   Mon, 21 Sep 2020 18:28:47 +0200
-Message-Id: <20200921162041.736094189@linuxfoundation.org>
+Subject: [PATCH 5.8 116/118] dax: Fix compilation for CONFIG_DAX && !CONFIG_FS_DAX
+Date:   Mon, 21 Sep 2020 18:28:48 +0200
+Message-Id: <20200921162041.784022784@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
 References: <20200921162036.324813383@linuxfoundation.org>
@@ -46,124 +46,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit e2ec5128254518cae320d5dc631b71b94160f663 upstream.
+commit 88b67edd7247466bc47f01e1dc539b0d0d4b931e upstream.
 
-DM was calling generic_fsdax_supported() to determine whether a device
-referenced in the DM table supports DAX. However this is a helper for "leaf" device drivers so that
-they don't have to duplicate common generic checks. High level code
-should call dax_supported() helper which that calls into appropriate
-helper for the particular device. This problem manifested itself as
-kernel messages:
+dax_supported() is defined whenever CONFIG_DAX is enabled. So dummy
+implementation should be defined only in !CONFIG_DAX case, not in
+!CONFIG_FS_DAX case.
 
-dm-3: error: dax access failed (-95)
-
-when lvm2-testsuite run in cases where a DM device was stacked on top of
-another DM device.
-
-Fixes: 7bf7eac8d648 ("dax: Arrange for dax_supported check to span multiple devices")
+Fixes: e2ec51282545 ("dm: Call proper helper to determine dax support")
 Cc: <stable@vger.kernel.org>
-Tested-by: Adrian Huang <ahuang12@lenovo.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Acked-by: Mike Snitzer <snitzer@redhat.com>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
 Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/160061715195.13131.5503173247632041975.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dax/super.c   |    4 ++++
- drivers/md/dm-table.c |   10 +++++++---
- include/linux/dax.h   |   22 ++++++++++++++++++++--
- 3 files changed, 31 insertions(+), 5 deletions(-)
+ include/linux/dax.h |   17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -318,11 +318,15 @@ EXPORT_SYMBOL_GPL(dax_direct_access);
- bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
- 		int blocksize, sector_t start, sector_t len)
- {
-+	if (!dax_dev)
-+		return false;
-+
- 	if (!dax_alive(dax_dev))
- 		return false;
- 
- 	return dax_dev->ops->dax_supported(dax_dev, bdev, blocksize, start, len);
- }
-+EXPORT_SYMBOL_GPL(dax_supported);
- 
- size_t dax_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
- 		size_t bytes, struct iov_iter *i)
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -865,10 +865,14 @@ EXPORT_SYMBOL_GPL(dm_table_set_type);
- int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
- 			sector_t start, sector_t len, void *data)
- {
--	int blocksize = *(int *) data;
-+	int blocksize = *(int *) data, id;
-+	bool rc;
- 
--	return generic_fsdax_supported(dev->dax_dev, dev->bdev, blocksize,
--				       start, len);
-+	id = dax_read_lock();
-+	rc = dax_supported(dev->dax_dev, dev->bdev, blocksize, start, len);
-+	dax_read_unlock(id);
-+
-+	return rc;
- }
- 
- /* Check devices support synchronous DAX */
 --- a/include/linux/dax.h
 +++ b/include/linux/dax.h
-@@ -130,6 +130,8 @@ static inline bool generic_fsdax_support
- 	return __generic_fsdax_supported(dax_dev, bdev, blocksize, start,
- 			sectors);
+@@ -58,6 +58,8 @@ static inline void set_dax_synchronous(s
+ {
+ 	__set_dax_synchronous(dax_dev);
  }
 +bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
 +		int blocksize, sector_t start, sector_t len);
- 
- static inline void fs_put_dax(struct dax_device *dax_dev)
+ /*
+  * Check if given mapping is supported by the file / underlying device.
+  */
+@@ -104,6 +106,12 @@ static inline bool dax_synchronous(struc
+ static inline void set_dax_synchronous(struct dax_device *dax_dev)
  {
-@@ -157,6 +159,13 @@ static inline bool generic_fsdax_support
- 	return false;
  }
- 
 +static inline bool dax_supported(struct dax_device *dax_dev,
 +		struct block_device *bdev, int blocksize, sector_t start,
 +		sector_t len)
 +{
 +	return false;
 +}
-+
- static inline void fs_put_dax(struct dax_device *dax_dev)
+ static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+ 				struct dax_device *dax_dev)
  {
+@@ -130,8 +138,6 @@ static inline bool generic_fsdax_support
+ 	return __generic_fsdax_supported(dax_dev, bdev, blocksize, start,
+ 			sectors);
  }
-@@ -189,14 +198,23 @@ static inline void dax_unlock_page(struc
- }
- #endif
- 
-+#if IS_ENABLED(CONFIG_DAX)
- int dax_read_lock(void);
- void dax_read_unlock(int id);
-+#else
-+static inline int dax_read_lock(void)
-+{
-+	return 0;
-+}
-+
-+static inline void dax_read_unlock(int id)
-+{
-+}
-+#endif /* CONFIG_DAX */
- bool dax_alive(struct dax_device *dax_dev);
- void *dax_get_private(struct dax_device *dax_dev);
- long dax_direct_access(struct dax_device *dax_dev, pgoff_t pgoff, long nr_pages,
- 		void **kaddr, pfn_t *pfn);
 -bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
 -		int blocksize, sector_t start, sector_t len);
- size_t dax_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
- 		size_t bytes, struct iov_iter *i);
- size_t dax_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff, void *addr,
+ 
+ static inline void fs_put_dax(struct dax_device *dax_dev)
+ {
+@@ -158,13 +164,6 @@ static inline bool generic_fsdax_support
+ {
+ 	return false;
+ }
+-
+-static inline bool dax_supported(struct dax_device *dax_dev,
+-		struct block_device *bdev, int blocksize, sector_t start,
+-		sector_t len)
+-{
+-	return false;
+-}
+ 
+ static inline void fs_put_dax(struct dax_device *dax_dev)
+ {
 
 
