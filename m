@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D959272F47
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:56:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4832272CEA
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:36:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729976AbgIUQz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:55:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51032 "EHLO mail.kernel.org"
+        id S1728923AbgIUQf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:35:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729512AbgIUQpO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:45:14 -0400
+        id S1728910AbgIUQfx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:35:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 292C5235F9;
-        Mon, 21 Sep 2020 16:45:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F03123730;
+        Mon, 21 Sep 2020 16:35:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706713;
-        bh=zjqmn0qMJtChbblkPVMBQbxmFuRNa/WbsVt4ChA/Wt8=;
+        s=default; t=1600706152;
+        bh=nKV5jGSlzRTtHqUmL6x11wPhOMpYHhqYLelYf+4zgAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fr+6BV09CyfuiavktgGEFnx+VCpratXVO12CtByCjGrubyLy6roPmj+rTIA2V32yO
-         z4gdq3xfGMo+h1b87YL3OZbkDhKFDgfFNlW7fRvHekEiF5oUlNYN4lEq8MORLAR+QL
-         wO5XLVwYSc82SQP06fhzm6sR4VqFImG2uwUHp8rs=
+        b=VxEM9aMCaUkLBFlXgKasxUx85+6iobBpYAfpWQOkMf4GWHRFcS3h2e7b72LBlHaNz
+         ppcGQ1svjkO2/vOZrB1OcZCMuKkdud3AckD2NoknteVWKb/gREcG5Evl/iFLaqRB85
+         I2vICZi16rOgLMH4HnxkzQ8oJm6OiV907YMcOU8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        George Kennedy <george.kennedy@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 065/118] fbcon: Fix user font detection test at fbcon_resize().
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 57/70] Drivers: hv: vmbus: Add timeout to vmbus_wait_for_unload
 Date:   Mon, 21 Sep 2020 18:27:57 +0200
-Message-Id: <20200921162039.375315206@linuxfoundation.org>
+Message-Id: <20200921162037.741941703@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit ec0972adecb391a8d8650832263a4790f3bfb4df ]
+[ Upstream commit 911e1987efc8f3e6445955fbae7f54b428b92bd3 ]
 
-syzbot is reporting OOB read at fbcon_resize() [1], for
-commit 39b3cffb8cf31117 ("fbcon: prevent user font height or width change
- from causing potential out-of-bounds access") is by error using
-registered_fb[con2fb_map[vc->vc_num]]->fbcon_par->p->userfont (which was
-set to non-zero) instead of fb_display[vc->vc_num].userfont (which remains
-zero for that display).
+vmbus_wait_for_unload() looks for a CHANNELMSG_UNLOAD_RESPONSE message
+coming from Hyper-V.  But if the message isn't found for some reason,
+the panic path gets hung forever.  Add a timeout of 10 seconds to prevent
+this.
 
-We could remove tricky userfont flag [2], for we can determine it by
-comparing address of the font data and addresses of built-in font data.
-But since that commit is failing to fix the original OOB read [3], this
-patch keeps the change minimal in case we decide to revert altogether.
-
-[1] https://syzkaller.appspot.com/bug?id=ebcbbb6576958a496500fee9cf7aa83ea00b5920
-[2] https://syzkaller.appspot.com/text?tag=Patch&x=14030853900000
-[3] https://syzkaller.appspot.com/bug?id=6fba8c186d97cf1011ab17660e633b1cc4e080c9
-
-Reported-by: syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 39b3cffb8cf31117 ("fbcon: prevent user font height or width change from causing potential out-of-bounds access")
-Cc: George Kennedy <george.kennedy@oracle.com>
-Link: https://lore.kernel.org/r/f6e3e611-8704-1263-d163-f52c906a4f06@I-love.SAKURA.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 415719160de3 ("Drivers: hv: vmbus: avoid scheduling in interrupt context in vmbus_initiate_unload()")
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Link: https://lore.kernel.org/r/1600026449-23651-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hv/channel_mgmt.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index b36bfe10c712c..09cb46e94f405 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2018,7 +2018,7 @@ static int fbcon_resize(struct vc_data *vc, unsigned int width,
- 	struct fb_var_screeninfo var = info->var;
- 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
+diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
+index 9360cdce740e8..7bf5e2fe17516 100644
+--- a/drivers/hv/channel_mgmt.c
++++ b/drivers/hv/channel_mgmt.c
+@@ -681,7 +681,7 @@ static void vmbus_wait_for_unload(void)
+ 	void *page_addr;
+ 	struct hv_message *msg;
+ 	struct vmbus_channel_message_header *hdr;
+-	u32 message_type;
++	u32 message_type, i;
  
--	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
-+	if (p->userfont && FNTSIZE(vc->vc_font.data)) {
- 		int size;
- 		int pitch = PITCH(vc->vc_font.width);
+ 	/*
+ 	 * CHANNELMSG_UNLOAD_RESPONSE is always delivered to the CPU which was
+@@ -691,8 +691,11 @@ static void vmbus_wait_for_unload(void)
+ 	 * functional and vmbus_unload_response() will complete
+ 	 * vmbus_connection.unload_event. If not, the last thing we can do is
+ 	 * read message pages for all CPUs directly.
++	 *
++	 * Wait no more than 10 seconds so that the panic path can't get
++	 * hung forever in case the response message isn't seen.
+ 	 */
+-	while (1) {
++	for (i = 0; i < 1000; i++) {
+ 		if (completion_done(&vmbus_connection.unload_event))
+ 			break;
  
 -- 
 2.25.1
