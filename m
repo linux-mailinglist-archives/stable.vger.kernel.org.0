@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B96272C9F
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AC05272F7F
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728654AbgIUQdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:33:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60044 "EHLO mail.kernel.org"
+        id S1728941AbgIUQ5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:57:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728615AbgIUQdm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:33:42 -0400
+        id S1728881AbgIUQnA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:43:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 562D6239D1;
-        Mon, 21 Sep 2020 16:33:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E24312076B;
+        Mon, 21 Sep 2020 16:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706021;
-        bh=k8YBnN1r1rH8qmEGW9LpgFbjNqcXscr5A5DztCGEcJg=;
+        s=default; t=1600706579;
+        bh=lej9QhMUZOEJoSIhmR5Ga6B7vctYMZVw0Fpwlb1LJ90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nF8aySSlWJCBvh6R7rq1F6Webs8MXs/7qYKMDggbd9SHS+Y4gEtVd7i/XpuOaDKCJ
-         HXqWKCbCncnEn2h1/4o4bk6QDAnHF9vAzQG1KaZQ+T4kiKIzGy60hIWsP6RKWm8nB7
-         we2i7KfVSSSVm2Xi5ldBZ/sBQiJb6UBOx85B1QM4=
+        b=KH2rg/Cmiw+w/kbQcozXOuFn5f45C0bnnucurJNfKrWkGBKwvnQxZZyAYDThy+/ta
+         S5bsPryxcAKCCOcF/Vl61LoPNM2rw3UM9a4xt3F58X2qA8/GgVKp6HTvsDoLDG8dW+
+         pn0Y3hLXmiBkUWT2FZwRTZIkQlFASCR6+hivmtUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 01/70] ARM: dts: socfpga: fix register entry for timer3 on Arria10
-Date:   Mon, 21 Sep 2020 18:27:01 +0200
-Message-Id: <20200921162035.196082132@linuxfoundation.org>
+Subject: [PATCH 5.8 010/118] NFSv4.1 handle ERR_DELAY error reclaiming locking state on delegation recall
+Date:   Mon, 21 Sep 2020 18:27:02 +0200
+Message-Id: <20200921162036.810585110@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
-References: <20200921162035.136047591@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,32 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 0ff5a4812be4ebd4782bbb555d369636eea164f7 ]
+[ Upstream commit 3d7a9520f0c3e6a68b6de8c5812fc8b6d7a52626 ]
 
-Fixes the register address for the timer3 entry on Arria10.
+A client should be able to handle getting an ERR_DELAY error
+while doing a LOCK call to reclaim state due to delegation being
+recalled. This is a transient error that can happen due to server
+moving its volumes and invalidating its file location cache and
+upon reference to it during the LOCK call needing to do an
+expensive lookup (leading to an ERR_DELAY error on a PUTFH).
 
-Fixes: 475dc86d08de4 ("arm: dts: socfpga: Add a base DTSI for Altera's Arria10 SOC")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/socfpga_arria10.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/socfpga_arria10.dtsi b/arch/arm/boot/dts/socfpga_arria10.dtsi
-index 4d496479e1353..342ae7ef9f08c 100644
---- a/arch/arm/boot/dts/socfpga_arria10.dtsi
-+++ b/arch/arm/boot/dts/socfpga_arria10.dtsi
-@@ -710,7 +710,7 @@
- 		timer3: timer3@ffd00100 {
- 			compatible = "snps,dw-apb-timer";
- 			interrupts = <0 118 IRQ_TYPE_LEVEL_HIGH>;
--			reg = <0xffd01000 0x100>;
-+			reg = <0xffd00100 0x100>;
- 			clocks = <&l4_sys_free_clk>;
- 			clock-names = "timer";
- 		};
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 45e0585e0667c..7f337188a2829 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -7271,7 +7271,12 @@ int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state,
+ 	err = nfs4_set_lock_state(state, fl);
+ 	if (err != 0)
+ 		return err;
+-	err = _nfs4_do_setlk(state, F_SETLK, fl, NFS_LOCK_NEW);
++	do {
++		err = _nfs4_do_setlk(state, F_SETLK, fl, NFS_LOCK_NEW);
++		if (err != -NFS4ERR_DELAY)
++			break;
++		ssleep(1);
++	} while (err == -NFS4ERR_DELAY);
+ 	return nfs4_handle_delegation_recall_error(server, state, stateid, fl, err);
+ }
+ 
 -- 
 2.25.1
 
