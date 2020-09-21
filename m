@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7317027244A
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 14:54:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16A2427244D
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 14:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726353AbgIUMyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 08:54:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60206 "EHLO mail.kernel.org"
+        id S1727012AbgIUMyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 08:54:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726977AbgIUMyv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 08:54:51 -0400
+        id S1727009AbgIUMyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 08:54:52 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 408A521789;
-        Mon, 21 Sep 2020 12:54:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32E0E21D7A;
+        Mon, 21 Sep 2020 12:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600692891;
-        bh=6BpQfGWNq5AeSmB8Rcsu/mpwu6St8WiO7qawdNRIpwI=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=bd4CEumbLMYlcCESTe6qemij0oropUhVI8oqyCDTtmaevDJT+2YQI2azPF5tgaJnr
-         Cqz+W8GXioR3y8xnncYH5jKpdznKTRZTtmNTvhpAYmkZC8qLKabULo8uPxgHG5YqZg
-         ArXLdU2UDmqCltboQ6AUnYEeWbwJYKSPOd5gDzyQ=
-Date:   Mon, 21 Sep 2020 12:54:50 +0000
+        s=default; t=1600692892;
+        bh=fxZsZ0yO4kvbV8sxqbzkWyHlk5R9/YttlJa1PJCl+9Q=;
+        h=Date:From:To:To:To:Cc:CC:Cc:Subject:In-Reply-To:References:From;
+        b=0gz+15C6uE9Cni3bTj6HBmpSL44Kd6LtFtjXpr44V/+bsLrhKgqTDNa8QXo1BvSLY
+         jKoO7CQp5PI9ynwOy++1itK5ecTfZSKtNpChXk6Asum8dUAUFMDSvVjFwyeCEyHSic
+         TOJWAeJn8bF+GjmQ9kCxtpb4TUaoTzn5iMYNU/OY=
+Date:   Mon, 21 Sep 2020 12:54:51 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Marc Zyngier <maz@kernel.org>
-To:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu
-Cc:     kernel-team@android.com, Will Deacon <will@kernel.org>
+To:     Tony Ambardar <tony.ambardar@gmail.com>
+To:     Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Tony Ambardar <Tony.Ambardar@gmail.com>
+CC:     Stable <stable@vger.kernel.org>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] KVM: arm64: Assume write fault on S1PTW permission fault on instruction fetch
-In-Reply-To: <20200915104218.1284701-2-maz@kernel.org>
-References: <20200915104218.1284701-2-maz@kernel.org>
-Message-Id: <20200921125451.408A521789@mail.kernel.org>
+Subject: Re: [PATCH v3] powerpc: fix EDEADLOCK redefinition error in uapi/asm/errno.h
+In-Reply-To: <20200917135437.1238787-1-Tony.Ambardar@gmail.com>
+References: <20200917135437.1238787-1-Tony.Ambardar@gmail.com>
+Message-Id: <20200921125452.32E0E21D7A@mail.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -48,89 +48,55 @@ The stable tag indicates that it's relevant for the following trees: all
 
 The bot has tested the following trees: v5.8.10, v5.4.66, v4.19.146, v4.14.198, v4.9.236, v4.4.236.
 
-v5.8.10: Failed to apply! Possible dependencies:
-    09cf57eba304 ("KVM: arm64: Split hyp/switch.c to VHE/nVHE")
-    208243c752a7 ("KVM: arm64: Move hyp-init.S to nVHE")
-    3a949f4c9354 ("KVM: arm64: Rename HSR to ESR")
-    7621712918ad ("KVM: arm64: Add build rules for separate VHE/nVHE object files")
-    7b2399ea5640 ("KVM: arm64: Move __smccc_workaround_1_smc to .rodata")
-    b877e9849d41 ("KVM: arm64: Build hyp-entry.S separately for VHE/nVHE")
-    f50b6f6ae131 ("KVM: arm64: Handle calls to prefixed hyp functions")
-
-v5.4.66: Failed to apply! Possible dependencies:
-    0492747c72a3 ("arm64: KVM: Invoke compute_layout() before alternatives are applied")
-    0e20f5e25556 ("KVM: arm/arm64: Cleanup MMIO handling")
-    29eb5a3c57f7 ("KVM: arm64: Handle PtrAuth traps early")
-    3a949f4c9354 ("KVM: arm64: Rename HSR to ESR")
-    5c37f1ae1c33 ("KVM: arm64: Ask the compiler to __always_inline functions used at HYP")
-    8e01d9a396e6 ("KVM: arm64: vgic-v4: Move the GICv4 residency flow to be driven by vcpu_load/put")
-    c726200dd106 ("KVM: arm/arm64: Allow reporting non-ISV data aborts to userspace")
-
-v4.19.146: Failed to apply! Possible dependencies:
-    0e20f5e25556 ("KVM: arm/arm64: Cleanup MMIO handling")
-    3a949f4c9354 ("KVM: arm64: Rename HSR to ESR")
-    5c37f1ae1c33 ("KVM: arm64: Ask the compiler to __always_inline functions used at HYP")
-    5ffdfaedfa0a ("arm64: mm: Support Common Not Private translations")
-    86d0dd34eaff ("arm64: cpufeature: add feature for CRC32 instructions")
-    caab277b1de0 ("treewide: Replace GPLv2 boilerplate/reference with SPDX - rule 234")
-    d94d71cb45fd ("treewide: Replace GPLv2 boilerplate/reference with SPDX - rule 266")
-
+v5.8.10: Build OK!
+v5.4.66: Build OK!
+v4.19.146: Build OK!
 v4.14.198: Failed to apply! Possible dependencies:
-    1fc5dce78ad1 ("arm64/sve: Low-level SVE architectural state manipulation functions")
-    2e0f2478ea37 ("arm64/sve: Probe SVE capabilities and usable vector lengths")
-    3a949f4c9354 ("KVM: arm64: Rename HSR to ESR")
-    43994d824e84 ("arm64/sve: Detect SVE and activate runtime support")
-    5c37f1ae1c33 ("KVM: arm64: Ask the compiler to __always_inline functions used at HYP")
-    611a7bc74ed2 ("arm64: docs: describe ELF hwcaps")
-    746647c75afb ("arm64: entry.S convert el0_sync")
-    7582e22038a2 ("arm64/sve: Backend logic for setting the vector length")
-    79ab047c75d6 ("arm64/sve: Support vector length resetting for new processes")
-    94ef7ecbdf6f ("arm64: fpsimd: Correctly annotate exception helpers called from asm")
-    bc0ee4760364 ("arm64/sve: Core task context handling")
-    ddd25ad1fde8 ("arm64/sve: Kconfig update and conditional compilation support")
+    7af7919f0f4b ("tools include s390: Grab a copy of arch/s390/include/uapi/asm/unistd.h")
+    95f28190aa01 ("tools include arch: Grab a copy of errno.h for arch's supported by perf")
+    a3f22d505f56 ("s390/perf: add callback to perf to enable using AUX buffer")
+    a81c42136604 ("perf s390: add regs_query_register_offset()")
+    a9fc2db0a8ab ("s390/perf: define common DWARF register string table")
+    f704ef44602f ("s390/perf: add support for perf_regs and libdw")
 
 v4.9.236: Failed to apply! Possible dependencies:
-    016f98afd050 ("irqchip/gic-v3: Use nops macro for Cavium ThunderX erratum 23154")
-    0e9884fe63c6 ("arm64: sysreg: subsume GICv3 sysreg definitions")
-    328191c05ed7 ("irqchip/gic-v3-its: Specialise flush_dcache operation")
-    38fd94b0275c ("arm64: Work around Falkor erratum 1003")
-    3a949f4c9354 ("KVM: arm64: Rename HSR to ESR")
-    43994d824e84 ("arm64/sve: Detect SVE and activate runtime support")
-    47863d41ecf8 ("arm64: sysreg: sort by encoding")
-    4aa8a472c33f ("arm64: Documentation - Expose CPU feature registers")
-    5c37f1ae1c33 ("KVM: arm64: Ask the compiler to __always_inline functions used at HYP")
-    611a7bc74ed2 ("arm64: docs: describe ELF hwcaps")
-    6e01398fe450 ("arm64: arch_timer: document Hisilicon erratum 161010101")
-    b20d1ba3cf4b ("arm64: cpufeature: allow for version discrepancy in PMU implementations")
-    b389d7997acb ("arm64: cpufeature: treat unknown fields as RES0")
-    bca8f17f57bd ("arm64: Get rid of asm/opcodes.h")
-    c7a3c61fc606 ("arm64: sysreg: add performance monitor registers")
-    cd9e1927a525 ("arm64: Work around broken .inst when defective gas is detected")
-    d9ff80f83ecb ("arm64: Work around Falkor erratum 1009")
-    eab43e88734f ("arm64: cpufeature: Cleanup feature bit tables")
-    eeb1efbcb83c ("arm64: cpu_errata: Add capability to advertise Cortex-A73 erratum 858921")
-    f31deaadff0d ("arm64: cpufeature: Don't enforce system-wide SPE capability")
-    fe4fbdbcddea ("arm64: cpufeature: Track user visible fields")
+    0c744ea4f77d ("Linux 4.10-rc2")
+    2bd6bf03f4c1 ("Linux 4.14-rc1")
+    2ea659a9ef48 ("Linux 4.12-rc1")
+    49def1853334 ("Linux 4.10-rc4")
+    566cf877a1fc ("Linux 4.10-rc6")
+    5771a8c08880 ("Linux v4.13-rc1")
+    7089db84e356 ("Linux 4.10-rc8")
+    7a308bb3016f ("Linux 4.10-rc5")
+    7af7919f0f4b ("tools include s390: Grab a copy of arch/s390/include/uapi/asm/unistd.h")
+    7ce7d89f4883 ("Linux 4.10-rc1")
+    95f28190aa01 ("tools include arch: Grab a copy of errno.h for arch's supported by perf")
+    a121103c9228 ("Linux 4.10-rc3")
+    a81c42136604 ("perf s390: add regs_query_register_offset()")
+    a9fc2db0a8ab ("s390/perf: define common DWARF register string table")
+    b24413180f56 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
+    c1ae3cfa0e89 ("Linux 4.11-rc1")
+    c470abd4fde4 ("Linux 4.10")
+    d5adbfcd5f7b ("Linux 4.10-rc7")
 
 v4.4.236: Failed to apply! Possible dependencies:
-    06282fd2c2bf ("arm64: KVM: Implement vgic-v2 save/restore")
-    0e9884fe63c6 ("arm64: sysreg: subsume GICv3 sysreg definitions")
-    1b8e83c04ee2 ("arm64: KVM: vgic-v3: Avoid accessing ICH registers")
-    2d81d425b6d5 ("irqchip/gicv3-its: Introduce two helper functions for accessing BASERn")
-    328191c05ed7 ("irqchip/gic-v3-its: Specialise flush_dcache operation")
-    3a949f4c9354 ("KVM: arm64: Rename HSR to ESR")
-    3c13b8f435ac ("KVM: arm/arm64: vgic-v3: Make the LR indexing macro public")
-    3faf24ea894a ("irqchip/gicv3-its: Implement two-level(indirect) device table support")
-    466b7d168881 ("irqchip/gicv3-its: Don't allow devices whose ID is outside range")
-    4b75c4598b5b ("irqchip/gicv3-its: Add a new function for parsing device table BASERn")
-    5c37f1ae1c33 ("KVM: arm64: Ask the compiler to __always_inline functions used at HYP")
-    91ef84428a86 ("irqchip/gic-v3: Reset BPR during initialization")
-    9347359ad0ae ("irqchip/gicv3-its: Split its_alloc_tables() into two functions")
-    b5525ce898eb ("arm64: KVM: Move GIC accessors to arch_gicv3.h")
-    c76a0a6695c6 ("arm64: KVM: Add a HYP-specific header file")
-    d44ffa5ae70a ("irqchip/gic-v3: Convert arm64 GIC accessors to {read,write}_sysreg_s")
-    f68d2b1b73cc ("arm64: KVM: Implement vgic-v3 save/restore")
-    fd451b90e78c ("arm64: KVM: vgic-v3: Restore ICH_APR0Rn_EL2 before ICH_APR1Rn_EL2")
+    0c4d40d58075 ("tools build: Add BPF feature check to test-all")
+    1925459b4d92 ("tools build: Fix feature Makefile issues with 'O='")
+    58683600dfe3 ("perf build: Use FEATURE-DUMP in bpf subproject")
+    76ee2ff34274 ("tools build feature: Move dwarf post unwind choice output into perf")
+    7af7919f0f4b ("tools include s390: Grab a copy of arch/s390/include/uapi/asm/unistd.h")
+    8ee4646038e4 ("perf build: Add libcrypto feature detection")
+    95f28190aa01 ("tools include arch: Grab a copy of errno.h for arch's supported by perf")
+    96b9e70b8e6c ("perf build: Introduce FEATURES_DUMP make variable")
+    9fd4186ac19a ("tools build: Allow subprojects select all feature checkers")
+    abb26210a395 ("perf tools: Force fixdep compilation at the start of the build")
+    aeafd623f866 ("perf tools: Move headers check into bash script")
+    c053a1506fae ("perf build: Select all feature checkers for feature-dump")
+    d4dfdf00d43e ("perf jvmti: Plug compilation into perf build")
+    d58ac0bf8d1e ("perf build: Add clang and llvm compile and linking support")
+    d8ad6a15cc3a ("tools lib bpf: Don't do a feature check when cleaning")
+    e12b202f8fb9 ("perf jitdump: Build only on supported archs")
+    e26e63be64a1 ("perf build: Add sdt feature detection")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
