@@ -2,95 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 151BE27292E
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58864272982
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 17:08:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727314AbgIUOyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 10:54:47 -0400
-Received: from mail.netline.ch ([148.251.143.178]:45749 "EHLO
-        netline-mail3.netline.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727285AbgIUOyr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 10:54:47 -0400
-X-Greylist: delayed 396 seconds by postgrey-1.27 at vger.kernel.org; Mon, 21 Sep 2020 10:54:45 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by netline-mail3.netline.ch (Postfix) with ESMTP id CDC412A6045;
-        Mon, 21 Sep 2020 16:48:07 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at netline-mail3.netline.ch
-Received: from netline-mail3.netline.ch ([127.0.0.1])
-        by localhost (netline-mail3.netline.ch [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id n-6O19CCSCnF; Mon, 21 Sep 2020 16:48:07 +0200 (CEST)
-Received: from thor (212.174.63.188.dynamic.wline.res.cust.swisscom.ch [188.63.174.212])
-        by netline-mail3.netline.ch (Postfix) with ESMTPSA id 192B92A6016;
-        Mon, 21 Sep 2020 16:48:06 +0200 (CEST)
-Received: from localhost ([::1])
-        by thor with esmtp (Exim 4.94)
-        (envelope-from <michel@daenzer.net>)
-        id 1kKN6w-000aC1-Sy; Mon, 21 Sep 2020 16:48:05 +0200
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-References: <20200921144054.2135602-1-sashal@kernel.org>
- <20200921144054.2135602-13-sashal@kernel.org>
-From:   =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>
-Subject: Re: [PATCH AUTOSEL 5.4 13/15] drm/amdgpu/dc: Require primary plane to
- be enabled whenever the CRTC is
-Message-ID: <1ee666b4-f1af-a19f-e03a-fdfc00698d2f@daenzer.net>
-Date:   Mon, 21 Sep 2020 16:48:05 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.2.2
+        id S1727386AbgIUPIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 11:08:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36648 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726584AbgIUPHy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 11:07:54 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E25DA2076E;
+        Mon, 21 Sep 2020 15:07:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600700874;
+        bh=CrIwS1xYozSl7U4DdOij9bK6ssn3A331CEG0ka0admY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gQ8sjHjBXZo+vNEWDNum3/lDMUIxQ5EI5VLGzt5Pl5kby/naiCoM79B8dR9dOAjgM
+         KcvEeJlAli4UXuLjhwveDzf8fr/gX6A+SVmjUBNN0gUUp9ZP4TFE6snymN1TOX5b41
+         Cq72zKQhVaI0NUQVDcvbRBSZgfSF/3CPAc6sKfp4=
+Date:   Mon, 21 Sep 2020 16:07:01 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        patches@opensource.cirrus.com, alsa-devel@alsa-project.org
+Subject: Re: [PATCH AUTOSEL 5.8 03/20] ASoC: wm8994: Skip setting of the
+ WM8994_MICBIAS register for WM1811
+Message-ID: <20200921150701.GA12231@sirena.org.uk>
+References: <20200921144027.2135390-1-sashal@kernel.org>
+ <20200921144027.2135390-3-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20200921144054.2135602-13-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-CA
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
+In-Reply-To: <20200921144027.2135390-3-sashal@kernel.org>
+X-Cookie: Alimony is the high cost of leaving.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-09-21 4:40 p.m., Sasha Levin wrote:
-> From: Michel Dänzer <mdaenzer@redhat.com>
-> 
-> [ Upstream commit 2f228aab21bbc74e90e267a721215ec8be51daf7 ]
-> 
-> Don't check drm_crtc_state::active for this either, per its
-> documentation in include/drm/drm_crtc.h:
-> 
->   * Hence drivers must not consult @active in their various
->   * &drm_mode_config_funcs.atomic_check callback to reject an atomic
->   * commit.
-> 
-> atomic_remove_fb disables the CRTC as needed for disabling the primary
-> plane.
-> 
-> This prevents at least the following problems if the primary plane gets
-> disabled (e.g. due to destroying the FB assigned to the primary plane,
-> as happens e.g. with mutter in Wayland mode):
-> 
-> * The legacy cursor ioctl returned EINVAL for a non-0 cursor FB ID
->    (which enables the cursor plane).
-> * If the cursor plane was enabled, changing the legacy DPMS property
->    value from off to on returned EINVAL.
-> 
-> v2:
-> * Minor changes to code comment and commit log, per review feedback.
-> 
-> GitLab: https://gitlab.gnome.org/GNOME/mutter/-/issues/1108
-> GitLab: https://gitlab.gnome.org/GNOME/mutter/-/issues/1165
-> GitLab: https://gitlab.gnome.org/GNOME/mutter/-/issues/1344
-> Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-> Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
-> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-I'm a bit nervous about this getting backported so far back so quickly. 
-I'd prefer waiting for 5.9 final first at least.
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Mon, Sep 21, 2020 at 10:40:10AM -0400, Sasha Levin wrote:
 
--- 
-Earthling Michel Dänzer               |               https://redhat.com
-Libre software enthusiast             |             Mesa and X developer
+> The WM8994_MICBIAS register is not available in the WM1811 CODEC so skip
+> initialization of that register for that device.
+> This suppresses an error during boot:
+> "wm8994-codec: ASoC: error at snd_soc_component_update_bits on wm8994-codec"
+
+This is pretty much a cosmetic change - previously we were silently not
+reading the register, this just removes the attempt to read it since we
+added an error message in the core.
+
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl9owZQACgkQJNaLcl1U
+h9DuEAf9E4btRI0NX2oe8V1deZw2buPvoKQPGvwseEr3w1FrbC1fM6nn3sirDyae
+RdfP/1qR3WXfI5SZOztv8kG+g88mHWaT2Y1cDv6zZkBJs9+OicUPftZgBS7C30zU
+m8avzwevF96pjt70HMjxEPUya2ogLChAFrYA0CMGV1pwEkzOIxl7yv3aEfu0wdv6
+eIbwwwrlcs+HDAkwbptYy5sC2xMPRpn2rCBJG290M3x99Xbdy0ShUR+Ac3iuhERy
+zVLQgPtt/tj6spPaEXN+mBLw/vshwSwMX5ueJG6TLL6iNlY74l7Wli9u2fbUIAKP
+rDH9KHoSSnjFFGNpN31VNuUdi7x8BQ==
+=7sIW
+-----END PGP SIGNATURE-----
+
+--EeQfGwPcQSOJBaQU--
