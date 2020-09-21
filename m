@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0E627308A
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:05:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AEAF27305A
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:04:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728148AbgIUQdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:33:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59160 "EHLO mail.kernel.org"
+        id S1728883AbgIUQfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:35:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728583AbgIUQdL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:33:11 -0400
+        id S1728533AbgIUQfh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:35:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6701A2399A;
-        Mon, 21 Sep 2020 16:33:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EC392389F;
+        Mon, 21 Sep 2020 16:35:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600705990;
-        bh=8aEWztFlDPl8H4sUn50FItF7gUpoIkj/vErTpfXsnpA=;
+        s=default; t=1600706137;
+        bh=RkDGxihzRJRoD9St/O84o4RrJ097bB39FvwlFUeYZhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mnlhlvkB1sIGfejS8KGkDSExup3fB5UsT8nfTXfzXM0TVaojHFEJxFJzJWg2B3VfK
-         VOzyUyiWbLWOU9YgN/CUxiQgczm8sJTJO5j6nOkMQ4e29PGqRHSMWUvB7qG4+gdzdc
-         lSbuqIdfGNBw9woQACBAUODES9OapGl2PMHh85jU=
+        b=ef9Qq6Cw4073N31i1gAR7UIp4uRAJEettdNFbYBNp4reURGsg3CKRqq92WSi/j5sE
+         eMXCCv3IXrTSz8k6vdpepe/eEjR7hDd3ndNZOHSHcs7u97je0UuJUqTiySytbZKS8t
+         SmXLyT9ucm4WWxmohpFwJxIhyYzfimVOrHFtA89w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 36/46] perf test: Free formats for perf pmu parse test
+Subject: [PATCH 4.9 52/70] spi: spi-loopback-test: Fix out-of-bounds read
 Date:   Mon, 21 Sep 2020 18:27:52 +0200
-Message-Id: <20200921162034.943332447@linuxfoundation.org>
+Message-Id: <20200921162037.502380625@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
-References: <20200921162033.346434578@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,92 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit d26383dcb2b4b8629fde05270b4e3633be9e3d4b ]
+[ Upstream commit 837ba18dfcd4db21ad58107c65bfe89753aa56d7 ]
 
-The following leaks were detected by ASAN:
+The "tx/rx-transfer - crossing PAGE_SIZE" test always fails when
+len=131071 and rx_offset >= 5:
 
-  Indirect leak of 360 byte(s) in 9 object(s) allocated from:
-    #0 0x7fecc305180e in calloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10780e)
-    #1 0x560578f6dce5 in perf_pmu__new_format util/pmu.c:1333
-    #2 0x560578f752fc in perf_pmu_parse util/pmu.y:59
-    #3 0x560578f6a8b7 in perf_pmu__format_parse util/pmu.c:73
-    #4 0x560578e07045 in test__pmu tests/pmu.c:155
-    #5 0x560578de109b in run_test tests/builtin-test.c:410
-    #6 0x560578de109b in test_and_print tests/builtin-test.c:440
-    #7 0x560578de401a in __cmd_test tests/builtin-test.c:661
-    #8 0x560578de401a in cmd_test tests/builtin-test.c:807
-    #9 0x560578e49354 in run_builtin /home/namhyung/project/linux/tools/perf/perf.c:312
-    #10 0x560578ce71a8 in handle_internal_command /home/namhyung/project/linux/tools/perf/perf.c:364
-    #11 0x560578ce71a8 in run_argv /home/namhyung/project/linux/tools/perf/perf.c:408
-    #12 0x560578ce71a8 in main /home/namhyung/project/linux/tools/perf/perf.c:538
-    #13 0x7fecc2b7acc9 in __libc_start_main ../csu/libc-start.c:308
+ spi-loopback-test spi0.0: Running test tx/rx-transfer - crossing PAGE_SIZE
+ ...
+   with iteration values: len = 131071, tx_off = 0, rx_off = 3
+   with iteration values: len = 131071, tx_off = 0, rx_off = 4
+   with iteration values: len = 131071, tx_off = 0, rx_off = 5
+ loopback strangeness - rx changed outside of allowed range at: ...a4321000
+   spi_msg@ffffffd5a4157690
+     frame_length:  131071
+     actual_length: 131071
+     spi_transfer@ffffffd5a41576f8
+       len:    131071
+       tx_buf: ffffffd5a4340ffc
 
-Fixes: cff7f956ec4a1 ("perf tests: Move pmu tests into separate object")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20200915031819.386559-12-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Note that rx_offset > 3 can only occur if the SPI controller driver sets
+->dma_alignment to a higher value than 4, so most SPI controller drivers
+are not affect.
+
+The allocated Rx buffer is of size SPI_TEST_MAX_SIZE_PLUS, which is 132
+KiB (assuming 4 KiB pages).  This test uses an initial offset into the
+rx_buf of PAGE_SIZE - 4, and a len of 131071, so the range expected to
+be written in this transfer ends at (4096 - 4) + 5 + 131071 == 132 KiB,
+which is also the end of the allocated buffer.  But the code which
+verifies the content of the buffer reads a byte beyond the allocated
+buffer and spuriously fails because this out-of-bounds read doesn't
+return the expected value.
+
+Fix this by using ITERATE_LEN instead of ITERATE_MAX_LEN to avoid
+testing sizes which cause out-of-bounds reads.
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/20200902132341.7079-1-vincent.whitchurch@axis.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/pmu.c |  1 +
- tools/perf/util/pmu.c  | 11 +++++++++++
- tools/perf/util/pmu.h  |  1 +
- 3 files changed, 13 insertions(+)
+ drivers/spi/spi-loopback-test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/tests/pmu.c b/tools/perf/tests/pmu.c
-index b776831ceeeac..4ca6d4dc86612 100644
---- a/tools/perf/tests/pmu.c
-+++ b/tools/perf/tests/pmu.c
-@@ -169,6 +169,7 @@ int test__pmu(void)
- 		ret = 0;
- 	} while (0);
- 
-+	perf_pmu__del_formats(&formats);
- 	test_format_dir_put(format);
- 	return ret;
- }
-diff --git a/tools/perf/util/pmu.c b/tools/perf/util/pmu.c
-index 5245fbd091067..8d99b6d9c36ae 100644
---- a/tools/perf/util/pmu.c
-+++ b/tools/perf/util/pmu.c
-@@ -921,6 +921,17 @@ void perf_pmu__set_format(unsigned long *bits, long from, long to)
- 		set_bit(b, bits);
- }
- 
-+void perf_pmu__del_formats(struct list_head *formats)
-+{
-+	struct perf_pmu_format *fmt, *tmp;
-+
-+	list_for_each_entry_safe(fmt, tmp, formats, list) {
-+		list_del(&fmt->list);
-+		free(fmt->name);
-+		free(fmt);
-+	}
-+}
-+
- static int sub_non_neg(int a, int b)
- {
- 	if (b > a)
-diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
-index 5d7e84466bee5..6789b1efc7d6e 100644
---- a/tools/perf/util/pmu.h
-+++ b/tools/perf/util/pmu.h
-@@ -66,6 +66,7 @@ int perf_pmu__new_format(struct list_head *list, char *name,
- 			 int config, unsigned long *bits);
- void perf_pmu__set_format(unsigned long *bits, long from, long to);
- int perf_pmu__format_parse(char *dir, struct list_head *head);
-+void perf_pmu__del_formats(struct list_head *formats);
- 
- struct perf_pmu *perf_pmu__scan(struct perf_pmu *pmu);
- 
+diff --git a/drivers/spi/spi-loopback-test.c b/drivers/spi/spi-loopback-test.c
+index 50e620f4e8fe2..7120083fe7610 100644
+--- a/drivers/spi/spi-loopback-test.c
++++ b/drivers/spi/spi-loopback-test.c
+@@ -74,7 +74,7 @@ static struct spi_test spi_tests[] = {
+ 	{
+ 		.description	= "tx/rx-transfer - crossing PAGE_SIZE",
+ 		.fill_option	= FILL_COUNT_8,
+-		.iterate_len    = { ITERATE_MAX_LEN },
++		.iterate_len    = { ITERATE_LEN },
+ 		.iterate_tx_align = ITERATE_ALIGN,
+ 		.iterate_rx_align = ITERATE_ALIGN,
+ 		.transfers		= {
 -- 
 2.25.1
 
