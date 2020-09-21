@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5BC6272F1A
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A309272F14
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728915AbgIUQxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:53:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53360 "EHLO mail.kernel.org"
+        id S1728600AbgIUQq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:46:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729750AbgIUQqw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:46:52 -0400
+        id S1728040AbgIUQqz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:46:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED3A52223E;
-        Mon, 21 Sep 2020 16:46:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EBDC20874;
+        Mon, 21 Sep 2020 16:46:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706811;
-        bh=bsM2ZZAYSVxxRVUa1+U+KJ9VruWG1WgnYmFSrTI7X/c=;
+        s=default; t=1600706813;
+        bh=g0eIw4QVUS+fNOYsDML67aQbyemYA5pFREW/IRWYI10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qr+GxdM44Xf+H5HIS1gRH5OveVNhlleGNisPzA7BJiwW+oq1w70w4CEmebEDF6+BY
-         VpuObnjPLHGH/qqD3nQhIQU4MtVlC/HZWeUn9d9dXBczSFakiFnA/bBLvVgZKSglG4
-         A8emaEo9NJnI9yLD+76zs0zI7ZFYcRYmxHZOlz+k=
+        b=cn4XKJb1f6aFfAuAyWiRLMAkAxSYnyMrsqfwT3rSQ+JwOaDO6GrdcPJFf4cR0+3TV
+         //sjApvMxf5yXv5lqv5K63Jfmz7dHfyPZ3y6knepzx14QCM3Hllz7SqCeEXvoj/8m1
+         VPViTCKGZT1m6Wdmw1bH/nzbO65nGPMNOvT0PqyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
+        stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Song Liu <songliubraving@fb.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
+        Yang Shi <shy828301@gmail.com>, Zi Yan <ziy@nvidia.com>,
+        Jerome Glisse <jglisse@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Bharata B Rao <bharata@linux.ibm.com>,
+        Ben Skeggs <bskeggs@redhat.com>, Shuah Khan <shuah@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 104/118] kprobes: fix kill kprobe which has been marked as gone
-Date:   Mon, 21 Sep 2020 18:28:36 +0200
-Message-Id: <20200921162041.210437979@linuxfoundation.org>
+Subject: [PATCH 5.8 105/118] mm/thp: fix __split_huge_pmd_locked() for migration PMD
+Date:   Mon, 21 Sep 2020 18:28:37 +0200
+Message-Id: <20200921162041.253386412@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
 References: <20200921162036.324813383@linuxfoundation.org>
@@ -50,66 +51,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Ralph Campbell <rcampbell@nvidia.com>
 
-commit b0399092ccebd9feef68d4ceb8d6219a8c0caa05 upstream.
+commit ec0abae6dcdf7ef88607c869bf35a4b63ce1b370 upstream.
 
-If a kprobe is marked as gone, we should not kill it again.  Otherwise, we
-can disarm the kprobe more than once.  In that case, the statistics of
-kprobe_ftrace_enabled can unbalance which can lead to that kprobe do not
-work.
+A migrating transparent huge page has to already be unmapped.  Otherwise,
+the page could be modified while it is being copied to a new page and data
+could be lost.  The function __split_huge_pmd() checks for a PMD migration
+entry before calling __split_huge_pmd_locked() leading one to think that
+__split_huge_pmd_locked() can handle splitting a migrating PMD.
 
-Fixes: e8386a0cb22f ("kprobes: support probing module __exit function")
-Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+However, the code always increments the page->_mapcount and adjusts the
+memory control group accounting assuming the page is mapped.
+
+Also, if the PMD entry is a migration PMD entry, the call to
+is_huge_zero_pmd(*pmd) is incorrect because it calls pmd_pfn(pmd) instead
+of migration_entry_to_pfn(pmd_to_swp_entry(pmd)).  Fix these problems by
+checking for a PMD migration entry.
+
+Fixes: 84c3fc4e9c56 ("mm: thp: check pmd migration entry in common path")
+Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200822030055.32383-1-songmuchun@bytedance.com
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Bharata B Rao <bharata@linux.ibm.com>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.14+]
+Link: https://lkml.kernel.org/r/20200903183140.19055-1-rcampbell@nvidia.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/kprobes.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ mm/huge_memory.c |   42 +++++++++++++++++++++++-------------------
+ 1 file changed, 23 insertions(+), 19 deletions(-)
 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2108,6 +2108,9 @@ static void kill_kprobe(struct kprobe *p
- 
- 	lockdep_assert_held(&kprobe_mutex);
- 
-+	if (WARN_ON_ONCE(kprobe_gone(p)))
-+		return;
-+
- 	p->flags |= KPROBE_FLAG_GONE;
- 	if (kprobe_aggrprobe(p)) {
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2048,7 +2048,7 @@ static void __split_huge_pmd_locked(stru
+ 		put_page(page);
+ 		add_mm_counter(mm, mm_counter_file(page), -HPAGE_PMD_NR);
+ 		return;
+-	} else if (is_huge_zero_pmd(*pmd)) {
++	} else if (pmd_trans_huge(*pmd) && is_huge_zero_pmd(*pmd)) {
  		/*
-@@ -2365,7 +2368,10 @@ static int kprobes_module_callback(struc
- 	mutex_lock(&kprobe_mutex);
- 	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
- 		head = &kprobe_table[i];
--		hlist_for_each_entry(p, head, hlist)
-+		hlist_for_each_entry(p, head, hlist) {
-+			if (kprobe_gone(p))
-+				continue;
-+
- 			if (within_module_init((unsigned long)p->addr, mod) ||
- 			    (checkcore &&
- 			     within_module_core((unsigned long)p->addr, mod))) {
-@@ -2382,6 +2388,7 @@ static int kprobes_module_callback(struc
- 				 */
- 				kill_kprobe(p);
- 			}
-+		}
+ 		 * FIXME: Do we want to invalidate secondary mmu by calling
+ 		 * mmu_notifier_invalidate_range() see comments below inside
+@@ -2142,30 +2142,34 @@ static void __split_huge_pmd_locked(stru
+ 		pte = pte_offset_map(&_pmd, addr);
+ 		BUG_ON(!pte_none(*pte));
+ 		set_pte_at(mm, addr, pte, entry);
+-		atomic_inc(&page[i]._mapcount);
+-		pte_unmap(pte);
+-	}
+-
+-	/*
+-	 * Set PG_double_map before dropping compound_mapcount to avoid
+-	 * false-negative page_mapped().
+-	 */
+-	if (compound_mapcount(page) > 1 && !TestSetPageDoubleMap(page)) {
+-		for (i = 0; i < HPAGE_PMD_NR; i++)
++		if (!pmd_migration)
+ 			atomic_inc(&page[i]._mapcount);
++		pte_unmap(pte);
  	}
- 	if (val == MODULE_STATE_GOING)
- 		remove_module_kprobe_blacklist(mod);
+ 
+-	lock_page_memcg(page);
+-	if (atomic_add_negative(-1, compound_mapcount_ptr(page))) {
+-		/* Last compound_mapcount is gone. */
+-		__dec_lruvec_page_state(page, NR_ANON_THPS);
+-		if (TestClearPageDoubleMap(page)) {
+-			/* No need in mapcount reference anymore */
++	if (!pmd_migration) {
++		/*
++		 * Set PG_double_map before dropping compound_mapcount to avoid
++		 * false-negative page_mapped().
++		 */
++		if (compound_mapcount(page) > 1 &&
++		    !TestSetPageDoubleMap(page)) {
+ 			for (i = 0; i < HPAGE_PMD_NR; i++)
+-				atomic_dec(&page[i]._mapcount);
++				atomic_inc(&page[i]._mapcount);
++		}
++
++		lock_page_memcg(page);
++		if (atomic_add_negative(-1, compound_mapcount_ptr(page))) {
++			/* Last compound_mapcount is gone. */
++			__dec_lruvec_page_state(page, NR_ANON_THPS);
++			if (TestClearPageDoubleMap(page)) {
++				/* No need in mapcount reference anymore */
++				for (i = 0; i < HPAGE_PMD_NR; i++)
++					atomic_dec(&page[i]._mapcount);
++			}
+ 		}
++		unlock_page_memcg(page);
+ 	}
+-	unlock_page_memcg(page);
+ 
+ 	smp_wmb(); /* make pte visible before pmd */
+ 	pmd_populate(mm, pmd, pgtable);
 
 
