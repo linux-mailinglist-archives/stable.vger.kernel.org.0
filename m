@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC474272FAC
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:59:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CA25272D0B
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:37:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729688AbgIUQ7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:59:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44968 "EHLO mail.kernel.org"
+        id S1728530AbgIUQg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:36:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36601 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729137AbgIUQlZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:41:25 -0400
+        id S1728642AbgIUQgn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:36:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAD662399A;
-        Mon, 21 Sep 2020 16:41:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74E5D238E6;
+        Mon, 21 Sep 2020 16:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706485;
-        bh=1Pc+8kuK6JSFDckznXLJCEEkO2/fb968mCbD/xiDKZI=;
+        s=default; t=1600706202;
+        bh=t5qeN+stjGPNG6sn8aIddhIRBpgtz8iDOmvyk88XO1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cK0jbY5J8B5U1jV2Ju4y8VdH0vK4Gk3ClkAfcKgT4ULEV3C6xny6AwFz6dgCkMLD5
-         gnADzm14cSbSspOH2ykB9N/ErJ9RUNfHH5C7oEdcIMzwye7fqWXFL7Jja2s5qU0xHW
-         wYlL0AWqR0LilsW/25CNk/AnSZQ7DFixx5jTxgdM=
+        b=SWnBTqKBgGmdYSHMSuTDXbC19ND6+lszAxhWjaXh+TCq5g2dh+bCOEtqqZalm59NQ
+         4iU2oQn+lMTtlBcNLjhBBKhUtPdRRIZCNf8yE99YpAUlppx7jR5I/e5T3CBQyYH1sq
+         hdwsZ5yZ2v7FBdvcskiSYio6Wuw1lxqXrH2uCIJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gustav Wiklander <gustavwi@axis.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/49] spi: Fix memory leak on splited transfers
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Quentin Perret <qperret@google.com>
+Subject: [PATCH 4.9 68/70] ehci-hcd: Move include to keep CRC stable
 Date:   Mon, 21 Sep 2020 18:28:08 +0200
-Message-Id: <20200921162035.721679705@linuxfoundation.org>
+Message-Id: <20200921162038.248462929@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
-References: <20200921162034.660953761@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +42,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustav Wiklander <gustavwi@axis.com>
+From: Quentin Perret <qperret@google.com>
 
-[ Upstream commit b59a7ca15464c78ea1ba3b280cfc5ac5ece11ade ]
+commit 29231826f3bd65500118c473fccf31c0cf14dbc0 upstream.
 
-In the prepare_message callback the bus driver has the
-opportunity to split a transfer into smaller chunks.
-spi_map_msg is done after prepare_message.
+The CRC calculation done by genksyms is triggered when the parser hits
+EXPORT_SYMBOL*() macros. At this point, genksyms recursively expands the
+types of the function parameters, and uses that as the input for the CRC
+calculation. In the case of forward-declared structs, the type expands
+to 'UNKNOWN'. Following this, it appears that the result of the
+expansion of each type is cached somewhere, and seems to be re-used
+when/if the same type is seen again for another exported symbol in the
+same C file.
 
-Function spi_res_release releases the splited transfers
-in the message. Therefore spi_res_release should be called
-after spi_map_msg.
+Unfortunately, this can cause CRC 'stability' issues when a struct
+definition becomes visible in the middle of a C file. For example, let's
+assume code with the following pattern:
 
-The previous try at this was commit c9ba7a16d0f1
-which released the splited transfers after
-spi_finalize_current_message had been called.
-This introduced a race since the message struct could be
-out of scope because the spi_sync call got completed.
+    struct foo;
 
-Fixes this leak on spi bus driver spi-bcm2835.c when transfer
-size is greater than 65532:
+    int bar(struct foo *arg)
+    {
+	/* Do work ... */
+    }
+    EXPORT_SYMBOL_GPL(bar);
 
-Kmemleak:
-sg_alloc_table+0x28/0xc8
-spi_map_buf+0xa4/0x300
-__spi_pump_messages+0x370/0x748
-__spi_sync+0x1d4/0x270
-spi_sync+0x34/0x58
-spi_test_execute_msg+0x60/0x340 [spi_loopback_test]
-spi_test_run_iter+0x548/0x578 [spi_loopback_test]
-spi_test_run_test+0x94/0x140 [spi_loopback_test]
-spi_test_run_tests+0x150/0x180 [spi_loopback_test]
-spi_loopback_test_probe+0x50/0xd0 [spi_loopback_test]
-spi_drv_probe+0x84/0xe0
+    /* This contains struct foo's definition */
+    #include "foo.h"
 
-Signed-off-by: Gustav Wiklander <gustavwi@axis.com>
-Link: https://lore.kernel.org/r/20200908151129.15915-1-gustav.wiklander@axis.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    int baz(struct foo *arg)
+    {
+	/* Do more work ... */
+    }
+    EXPORT_SYMBOL_GPL(baz);
+
+Here, baz's CRC will be computed using the expansion of struct foo that
+was cached after bar's CRC calculation ('UNKOWN' here). But if
+EXPORT_SYMBOL_GPL(bar) is removed from the file (because of e.g. symbol
+trimming using CONFIG_TRIM_UNUSED_KSYMS), struct foo will be expanded
+late, during baz's CRC calculation, which now has visibility over the
+full struct definition, hence resulting in a different CRC for baz.
+
+The proper fix for this certainly is in genksyms, but that will take me
+some time to get right. In the meantime, we have seen one occurrence of
+this in the ehci-hcd code which hits this problem because of the way it
+includes C files halfway through the code together with an unlucky mix
+of symbol trimming.
+
+In order to workaround this, move the include done in ehci-hub.c early
+in ehci-hcd.c, hence making sure the struct definitions are visible to
+the entire file. This improves CRC stability of the ehci-hcd exports
+even when symbol trimming is enabled.
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Quentin Perret <qperret@google.com>
+Link: https://lore.kernel.org/r/20200916171825.3228122-1-qperret@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/host/ehci-hcd.c |    1 +
+ drivers/usb/host/ehci-hub.c |    1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 92e6b6774d98e..1fd529a2d2f6b 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -1116,8 +1116,6 @@ out:
- 	if (msg->status && ctlr->handle_err)
- 		ctlr->handle_err(ctlr, msg);
+--- a/drivers/usb/host/ehci-hcd.c
++++ b/drivers/usb/host/ehci-hcd.c
+@@ -35,6 +35,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/usb.h>
+ #include <linux/usb/hcd.h>
++#include <linux/usb/otg.h>
+ #include <linux/moduleparam.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/debugfs.h>
+--- a/drivers/usb/host/ehci-hub.c
++++ b/drivers/usb/host/ehci-hub.c
+@@ -27,7 +27,6 @@
+  */
  
--	spi_res_release(ctlr, msg);
--
- 	spi_finalize_current_message(ctlr);
+ /*-------------------------------------------------------------------------*/
+-#include <linux/usb/otg.h>
  
- 	return ret;
-@@ -1375,6 +1373,13 @@ void spi_finalize_current_message(struct spi_controller *ctlr)
+ #define	PORT_WAKE_BITS	(PORT_WKOC_E|PORT_WKDISC_E|PORT_WKCONN_E)
  
- 	spi_unmap_msg(ctlr, mesg);
- 
-+	/* In the prepare_messages callback the spi bus has the opportunity to
-+	 * split a transfer to smaller chunks.
-+	 * Release splited transfers here since spi_map_msg is done on the
-+	 * splited transfers.
-+	 */
-+	spi_res_release(ctlr, mesg);
-+
- 	if (ctlr->cur_msg_prepared && ctlr->unprepare_message) {
- 		ret = ctlr->unprepare_message(ctlr, mesg);
- 		if (ret) {
--- 
-2.25.1
-
 
 
