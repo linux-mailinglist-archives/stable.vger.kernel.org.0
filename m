@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27038272C72
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E8C8272CB4
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728459AbgIUQca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:32:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57700 "EHLO mail.kernel.org"
+        id S1728739AbgIUQeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:34:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728437AbgIUQcS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:32:18 -0400
+        id S1728720AbgIUQeO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:34:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FE2D23976;
-        Mon, 21 Sep 2020 16:32:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADBB023976;
+        Mon, 21 Sep 2020 16:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600705937;
-        bh=WR+g6BJmosRtwJSoMvEhD8ZZWYEATjLLIsh6e4mzX3M=;
+        s=default; t=1600706054;
+        bh=p7jydHRi2UcpgGqpxPC294TEpk0O700BEyFJFD72Stg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s5MJhiasE486khI8/3p+wtGZrEAMWRF8wvpPJDa9RL7jj4LfFYkDNNDP+jXICh9nF
-         SD1j9Yyl9CJoBVqzlAoRdB8S0/jMFSjbNdRG+FXqSSGjvZ7I7inpu6W55A8n5gPLfO
-         c0Delyx/0820DOg9SnlZC7Bn/aTYynbxil2hgmBo=
+        b=FnkTuMZrTAsKalrb3gpPd/dnFTJSHEOke7r7tVYlyAi+to8PIPDUvfUTDdg7P+0nN
+         dX8yluJ1CxonVs6jCeVyll0S0rQm8PmxUx69f6uzO9wLbiH+mUrQ9BuQzhrj26ilyI
+         /QsZWdgf31/fKFAjoYHcGtqm2I0kTkvhkqfAZoWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
-        Xie He <xie.he.0141@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 05/46] drivers/net/wan/lapbether: Set network_header before transmitting
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 4.9 21/70] iio:adc:ti-adc081c Fix alignment and data leak issues
 Date:   Mon, 21 Sep 2020 18:27:21 +0200
-Message-Id: <20200921162033.607039773@linuxfoundation.org>
+Message-Id: <20200921162036.086090915@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
-References: <20200921162033.346434578@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 91244d108441013b7367b3b4dcc6869998676473 ]
+commit 54f82df2ba86e2a8e9cbf4036d192366e3905c89 upstream.
 
-Set the skb's network_header before it is passed to the underlying
-Ethernet device for transmission.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv().
 
-This patch fixes the following issue:
+This data is allocated with kzalloc so no data can leak apart
+from previous readings.
 
-When we use this driver with AF_PACKET sockets, there would be error
-messages of:
-   protocol 0805 is buggy, dev (Ethernet interface name)
-printed in the system "dmesg" log.
+The eplicit alignment of ts is necessary to ensure correct padding
+on x86_32 where s64 is only aligned to 4 bytes.
 
-This is because skbs passed down to the Ethernet device for transmission
-don't have their network_header properly set, and the dev_queue_xmit_nit
-function in net/core/dev.c complains about this.
+Fixes: 08e05d1fce5c ("ti-adc081c: Initial triggered buffer support")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reason of setting the network_header to this place (at the end of the
-Ethernet header, and at the beginning of the Ethernet payload):
-
-Because when this driver receives an skb from the Ethernet device, the
-network_header is also set at this place.
-
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/lapbether.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/adc/ti-adc081c.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index 5befc7f3f0e7a..c6db9a4e7c457 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -213,6 +213,8 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
+--- a/drivers/iio/adc/ti-adc081c.c
++++ b/drivers/iio/adc/ti-adc081c.c
+@@ -36,6 +36,12 @@ struct adc081c {
  
- 	skb->dev = dev = lapbeth->ethdev;
- 
-+	skb_reset_network_header(skb);
+ 	/* 8, 10 or 12 */
+ 	int bits;
 +
- 	dev_hard_header(skb, dev, ETH_P_DEC, bcast_addr, NULL, 0);
++	/* Ensure natural alignment of buffer elements */
++	struct {
++		u16 channel;
++		s64 ts __aligned(8);
++	} scan;
+ };
  
- 	dev_queue_xmit(skb);
--- 
-2.25.1
-
+ #define REG_CONV_RES 0x00
+@@ -132,14 +138,13 @@ static irqreturn_t adc081c_trigger_handl
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct adc081c *data = iio_priv(indio_dev);
+-	u16 buf[8]; /* 2 bytes data + 6 bytes padding + 8 bytes timestamp */
+ 	int ret;
+ 
+ 	ret = i2c_smbus_read_word_swapped(data->i2c, REG_CONV_RES);
+ 	if (ret < 0)
+ 		goto out;
+-	buf[0] = ret;
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf,
++	data->scan.channel = ret;
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 					   iio_get_time_ns(indio_dev));
+ out:
+ 	iio_trigger_notify_done(indio_dev->trig);
 
 
