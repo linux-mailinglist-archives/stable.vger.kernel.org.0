@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D83272EB7
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:51:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87700273030
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728365AbgIUQvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:51:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59222 "EHLO mail.kernel.org"
+        id S1729042AbgIUQhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:37:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730027AbgIUQui (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:50:38 -0400
+        id S1728681AbgIUQhT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:37:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FEE2206DC;
-        Mon, 21 Sep 2020 16:50:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74250206B7;
+        Mon, 21 Sep 2020 16:37:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600707037;
-        bh=+6aP1lae2mlckBCyDMj5DfB0+r5R9BvgSCVao3VHqnU=;
+        s=default; t=1600706239;
+        bh=a/DBhDU9dITUGcVCZ0xcp0swSwSVyTH4WRKPaXBO/UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xW1HqDfEqSPOZOwrhDt3Z+rtQMtXYRTnXnqTyluOJF+lSYhEsuIwBl5tSzuK3jasV
-         y++uOwmZFBA49VgGPw3ulvNf4l3JP6gLhGZ7RiVXtRsP95NSQkqBo1wSzJ+QFeVdNe
-         XTigu06a4zolBkzbGA53guLbRZMTmKwQg0iUza8A=
+        b=yxoaUElT5dCg0M6MsW39kAoxY3QxPrPkQ4fMXYi0smP6rKuJrWVX9+gGQU6LucOQ7
+         eWwjCPcpOSk6pKFKdRRuH5Hg2WwAbuWKAd5i5sYXU4CnHkz5NwIF0TqrSz/MygkrLf
+         Dkmb3A9BA/uEh5wqF9wYQcxDBXVUCh1BTTsrJj2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        kernel test robot <lkp@intel.com>, Jan Kara <jack@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.4 72/72] dax: Fix compilation for CONFIG_DAX && !CONFIG_FS_DAX
-Date:   Mon, 21 Sep 2020 18:31:51 +0200
-Message-Id: <20200921163125.284953643@linuxfoundation.org>
+        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 03/94] RDMA/rxe: Drop pointless checks in rxe_init_ports
+Date:   Mon, 21 Sep 2020 18:26:50 +0200
+Message-Id: <20200921162035.704780710@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
-References: <20200921163121.870386357@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-commit 88b67edd7247466bc47f01e1dc539b0d0d4b931e upstream.
+[ Upstream commit 6112ef62826e91afbae5446d5d47b38e25f47e3f ]
 
-dax_supported() is defined whenever CONFIG_DAX is enabled. So dummy
-implementation should be defined only in !CONFIG_DAX case, not in
-!CONFIG_FS_DAX case.
+Both pkey_tbl_len and gid_tbl_len are set in rxe_init_port_param() - so no
+need to check if they aren't set.
 
-Fixes: e2ec51282545 ("dm: Call proper helper to determine dax support")
-Cc: <stable@vger.kernel.org>
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20200705104313.283034-2-kamalheib1@gmail.com
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/dax.h |   17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/infiniband/sw/rxe/rxe.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/include/linux/dax.h
-+++ b/include/linux/dax.h
-@@ -56,6 +56,8 @@ static inline void set_dax_synchronous(s
- {
- 	__set_dax_synchronous(dax_dev);
- }
-+bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
-+		int blocksize, sector_t start, sector_t len);
- /*
-  * Check if given mapping is supported by the file / underlying device.
-  */
-@@ -102,6 +104,12 @@ static inline bool dax_synchronous(struc
- static inline void set_dax_synchronous(struct dax_device *dax_dev)
- {
- }
-+static inline bool dax_supported(struct dax_device *dax_dev,
-+		struct block_device *bdev, int blocksize, sector_t start,
-+		sector_t len)
-+{
-+	return false;
-+}
- static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
- 				struct dax_device *dax_dev)
- {
-@@ -128,8 +136,6 @@ static inline bool generic_fsdax_support
- 	return __generic_fsdax_supported(dax_dev, bdev, blocksize, start,
- 			sectors);
- }
--bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
--		int blocksize, sector_t start, sector_t len);
+diff --git a/drivers/infiniband/sw/rxe/rxe.c b/drivers/infiniband/sw/rxe/rxe.c
+index 8c3d30b3092d4..25267a620e0b5 100644
+--- a/drivers/infiniband/sw/rxe/rxe.c
++++ b/drivers/infiniband/sw/rxe/rxe.c
+@@ -170,9 +170,6 @@ static int rxe_init_ports(struct rxe_dev *rxe)
  
- static inline struct dax_device *fs_dax_get_by_host(const char *host)
- {
-@@ -167,13 +173,6 @@ static inline struct dax_device *fs_dax_
- 	return NULL;
- }
+ 	rxe_init_port_param(port);
  
--static inline bool dax_supported(struct dax_device *dax_dev,
--		struct block_device *bdev, int blocksize, sector_t start,
--		sector_t len)
--{
--	return false;
--}
+-	if (!port->attr.pkey_tbl_len || !port->attr.gid_tbl_len)
+-		return -EINVAL;
 -
- static inline void fs_put_dax(struct dax_device *dax_dev)
- {
- }
+ 	port->pkey_tbl = kcalloc(port->attr.pkey_tbl_len,
+ 			sizeof(*port->pkey_tbl), GFP_KERNEL);
+ 
+-- 
+2.25.1
+
 
 
