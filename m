@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE084272F98
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41226272D86
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729379AbgIUQ62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:58:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45716 "EHLO mail.kernel.org"
+        id S1729388AbgIUQk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:40:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729467AbgIUQlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:41:52 -0400
+        id S1729356AbgIUQkg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:40:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E9022076B;
-        Mon, 21 Sep 2020 16:41:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57845206DC;
+        Mon, 21 Sep 2020 16:40:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706512;
-        bh=0K8unwuVdEnitQmmbzXtHLrjYn+jgY5egNSiHxqrTng=;
+        s=default; t=1600706435;
+        bh=poiixR4animJ/XwiqEJ7P+19+f3quN0zfv/0mYgbqpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYA2DiGdWjI4v9Tba1aoIx7Qf9tI9iIVmaKxIcXtXF3jMzTxv4mFEXnqJqTo+h7DW
-         n7xbmAsk6Y2OISy+ni60F6FaSPWt5kKO6s+TgkD9OMqurt9aK7OLJTxA2pJIdFYwGv
-         sYVCKBykwJ/SMFR6XJLN4hXkpErnkYzwPYq/0zB4=
+        b=HmUzAKppVrYggFa/njK62Q1dOOqry1BwIP4ntxAE58uXtAmwKUAKuvrNhCbQx2Bq6
+         XMZ0OpGhSTA+fW3AOq+mwT2ZdSs1qLrG4OiJiDpHybNmO123EI7dk3bP+Lg8GGZq8O
+         6rmwOTjyZ9YPtAkY3MVLXtTnzIBreMFqrmMdVv+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        George Kennedy <george.kennedy@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 33/49] fbcon: Fix user font detection test at fbcon_resize().
-Date:   Mon, 21 Sep 2020 18:28:17 +0200
-Message-Id: <20200921162036.118784075@linuxfoundation.org>
+        stable@vger.kernel.org, Tobias Diedrich <tobiasdiedrich@gmail.com>
+Subject: [PATCH 4.14 91/94] serial: 8250_pci: Add Realtek 816a and 816b
+Date:   Mon, 21 Sep 2020 18:28:18 +0200
+Message-Id: <20200921162039.730571604@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
-References: <20200921162034.660953761@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +41,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Tobias Diedrich <tobiasdiedrich@gmail.com>
 
-[ Upstream commit ec0972adecb391a8d8650832263a4790f3bfb4df ]
+commit 3c5a87be170aba8ac40982182f812dcff6ed1ad1 upstream.
 
-syzbot is reporting OOB read at fbcon_resize() [1], for
-commit 39b3cffb8cf31117 ("fbcon: prevent user font height or width change
- from causing potential out-of-bounds access") is by error using
-registered_fb[con2fb_map[vc->vc_num]]->fbcon_par->p->userfont (which was
-set to non-zero) instead of fb_display[vc->vc_num].userfont (which remains
-zero for that display).
+These serial ports are exposed by the OOB-management-engine on
+RealManage-enabled network cards (e.g. AMD DASH enabled systems using
+Realtek cards).
 
-We could remove tricky userfont flag [2], for we can determine it by
-comparing address of the font data and addresses of built-in font data.
-But since that commit is failing to fix the original OOB read [3], this
-patch keeps the change minimal in case we decide to revert altogether.
+Because these have 3 BARs, they fail the "num_iomem <= 1" check in
+serial_pci_guess_board.
 
-[1] https://syzkaller.appspot.com/bug?id=ebcbbb6576958a496500fee9cf7aa83ea00b5920
-[2] https://syzkaller.appspot.com/text?tag=Patch&x=14030853900000
-[3] https://syzkaller.appspot.com/bug?id=6fba8c186d97cf1011ab17660e633b1cc4e080c9
+I've manually checked the two IOMEM regions and BAR 2 doesn't seem to
+respond to reads, but BAR 4 seems to be an MMIO version of the IO ports
+(untested).
 
-Reported-by: syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 39b3cffb8cf31117 ("fbcon: prevent user font height or width change from causing potential out-of-bounds access")
-Cc: George Kennedy <george.kennedy@oracle.com>
-Link: https://lore.kernel.org/r/f6e3e611-8704-1263-d163-f52c906a4f06@I-love.SAKURA.ne.jp
+With this change, the ports are detected:
+0000:02:00.1: ttyS0 at I/O 0x2200 (irq = 82, base_baud = 115200) is a 16550A
+0000:02:00.2: ttyS1 at I/O 0x2100 (irq = 55, base_baud = 115200) is a 16550A
+
+lspci output:
+02:00.1 0700: 10ec:816a (rev 0e) (prog-if 02 [16550])
+        Subsystem: 17aa:5082
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort+ <TAbort- <MAbort- >SERR- <PERR- INTx-
+        Interrupt: pin B routed to IRQ 82
+        IOMMU group: 11
+        Region 0: I/O ports at 2200 [size=256]
+        Region 2: Memory at fd715000 (64-bit, non-prefetchable) [size=4K]
+        Region 4: Memory at fd704000 (64-bit, non-prefetchable) [size=16K]
+        Capabilities: [40] Power Management version 3
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [50] MSI: Enable- Count=1/1 Maskable- 64bit+
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [70] Express (v2) Endpoint, MSI 01
+                DevCap: MaxPayload 128 bytes, PhantFunc 0, Latency L0s unlimited, L1 <64us
+                        ExtTag- AttnBtn- AttnInd- PwrInd- RBE+ FLReset- SlotPowerLimit 0.000W
+                DevCtl: CorrErr- NonFatalErr- FatalErr- UnsupReq-
+                        RlxdOrd+ ExtTag- PhantFunc- AuxPwr- NoSnoop-
+                        MaxPayload 128 bytes, MaxReadReq 512 bytes
+                DevSta: CorrErr+ NonFatalErr- FatalErr- UnsupReq+ AuxPwr+ TransPend-
+                LnkCap: Port #0, Speed 2.5GT/s, Width x1, ASPM L0s L1, Exit Latency L0s unlimited, L1 <64us
+                        ClockPM+ Surprise- LLActRep- BwNot- ASPMOptComp+
+                LnkCtl: ASPM L1 Enabled; RCB 64 bytes, Disabled- CommClk+
+                        ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+                LnkSta: Speed 2.5GT/s (ok), Width x1 (ok)
+                        TrErr- Train- SlotClk+ DLActive- BWMgmt- ABWMgmt-
+                DevCap2: Completion Timeout: Range ABCD, TimeoutDis+ NROPrPrP- LTR+
+                         10BitTagComp- 10BitTagReq- OBFF Via message/WAKE#, ExtFmt- EETLPPrefix-
+                         EmergencyPowerReduction Not Supported, EmergencyPowerReductionInit-
+                         FRS- TPHComp- ExtTPHComp-
+                         AtomicOpsCap: 32bit- 64bit- 128bitCAS-
+                DevCtl2: Completion Timeout: 50us to 50ms, TimeoutDis- LTR- OBFF Disabled,
+                         AtomicOpsCtl: ReqEn-
+                LnkSta2: Current De-emphasis Level: -6dB, EqualizationComplete- EqualizationPhase1-
+                         EqualizationPhase2- EqualizationPhase3- LinkEqualizationRequest-
+                         Retimer- 2Retimers- CrosslinkRes: unsupported
+        Capabilities: [b0] MSI-X: Enable- Count=4 Masked-
+                Vector table: BAR=4 offset=00000000
+                PBA: BAR=4 offset=00000800
+        Capabilities: [d0] Vital Product Data
+                Not readable
+        Capabilities: [100 v2] Advanced Error Reporting
+                UESta:  DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
+                UEMsk:  DLP- SDES- TLP- FCP- CmpltTO- CmpltAbrt- UnxCmplt- RxOF- MalfTLP- ECRC- UnsupReq- ACSViol-
+                UESvrt: DLP+ SDES+ TLP- FCP+ CmpltTO- CmpltAbrt- UnxCmplt- RxOF+ MalfTLP+ ECRC- UnsupReq- ACSViol-
+                CESta:  RxErr- BadTLP- BadDLLP- Rollover- Timeout- AdvNonFatalErr+
+                CEMsk:  RxErr- BadTLP- BadDLLP- Rollover- Timeout- AdvNonFatalErr+
+                AERCap: First Error Pointer: 00, ECRCGenCap+ ECRCGenEn- ECRCChkCap+ ECRCChkEn-
+                        MultHdrRecCap- MultHdrRecEn- TLPPfxPres- HdrLogCap-
+                HeaderLog: 00000000 00000000 00000000 00000000
+        Capabilities: [160 v1] Device Serial Number 00-00-00-00-00-00-00-00
+        Capabilities: [170 v1] Latency Tolerance Reporting
+                Max snoop latency: 0ns
+                Max no snoop latency: 0ns
+        Capabilities: [178 v1] L1 PM Substates
+                L1SubCap: PCI-PM_L1.2+ PCI-PM_L1.1+ ASPM_L1.2+ ASPM_L1.1+ L1_PM_Substates+
+                          PortCommonModeRestoreTime=150us PortTPowerOnTime=150us
+                L1SubCtl1: PCI-PM_L1.2- PCI-PM_L1.1- ASPM_L1.2- ASPM_L1.1-
+                           T_CommonMode=0us LTR1.2_Threshold=0ns
+                L1SubCtl2: T_PwrOn=10us
+02:00.2 0700: 10ec:816b (rev 0e)
+[...same...]
+
+Signed-off-by: Tobias Diedrich <tobiasdiedrich@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200914173628.GA22508@yamamaya.is-a-geek.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/video/fbdev/core/fbcon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_pci.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index 29226b6cb632d..0bf5ea518558c 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -1979,7 +1979,7 @@ static int fbcon_resize(struct vc_data *vc, unsigned int width,
- 	struct fb_var_screeninfo var = info->var;
- 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -5247,6 +5247,17 @@ static const struct pci_device_id serial
+ 		PCI_ANY_ID, PCI_ANY_ID,
+ 		0, 0, pbn_wch384_4 },
  
--	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
-+	if (p->userfont && FNTSIZE(vc->vc_font.data)) {
- 		int size;
- 		int pitch = PITCH(vc->vc_font.width);
- 
--- 
-2.25.1
-
++	/*
++	 * Realtek RealManage
++	 */
++	{	PCI_VENDOR_ID_REALTEK, 0x816a,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0, pbn_b0_1_115200 },
++
++	{	PCI_VENDOR_ID_REALTEK, 0x816b,
++		PCI_ANY_ID, PCI_ANY_ID,
++		0, 0, pbn_b0_1_115200 },
++
+ 	/* Fintek PCI serial cards */
+ 	{ PCI_DEVICE(0x1c29, 0x1104), .driver_data = pbn_fintek_4 },
+ 	{ PCI_DEVICE(0x1c29, 0x1108), .driver_data = pbn_fintek_8 },
 
 
