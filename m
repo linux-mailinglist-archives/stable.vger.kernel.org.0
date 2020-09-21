@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ED11272451
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 14:54:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE1B6272457
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 14:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727039AbgIUMyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 08:54:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60382 "EHLO mail.kernel.org"
+        id S1726803AbgIUMy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 08:54:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727028AbgIUMyz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 08:54:55 -0400
+        id S1727048AbgIUMy5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 08:54:57 -0400
 Received: from localhost (unknown [70.37.104.77])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D5A12193E;
-        Mon, 21 Sep 2020 12:54:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03C71218AC;
+        Mon, 21 Sep 2020 12:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600692895;
-        bh=tUOAi7nnQKKX4YJUGYChn0wreuaQBIIRVFl7Y4wIK6k=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=vSHT1gzPexSvQ7tnIQAh0ez4pEvU9irsSNwi17EjSf3lkvouHtna52btAsVnlaCpO
-         euhxkkbxj8S4QMuXa4RsOj5TgfsZnOTeKsmKUW4DpAXEU65q3sOSmmfLV66l1M4/qg
-         mUzu+Rrnfe8h1/PXgEFLcJahWE5Dq7E1NzbnAKRk=
-Date:   Mon, 21 Sep 2020 12:54:54 +0000
+        s=default; t=1600692896;
+        bh=WT8BUuGkQbBbADczGnO26fqsByS/9yUtHE6jBj8ZmdY=;
+        h=Date:From:To:To:To:To:CC:Cc:Cc:Subject:In-Reply-To:References:
+         From;
+        b=yN3f6QLevzkHmZncB7sOIZ6LgKTTMeQ8nwMzn1zdIv7RWCWw2pQZl3EtX63vEVa6Z
+         Wq8zTnCXzfLWen+EE5L+THc564Kth8IubWZC0gJKDY2xhNIzOGoa7yaK4qmSTX3Afa
+         al0gZjABNt7e79YBSFzLoxbD9+A8WhmxyF3+pwSc=
+Date:   Mon, 21 Sep 2020 12:54:55 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Vijay Balakrishna <vijayb@linux.microsoft.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org
+To:     Qingqing Zhuo <qingqing.zhuo@amd.com>
+To:     Wesley Chalmers <Wesley.Chalmers@amd.com>
+To:     <amd-gfx@lists.freedesktop.org>
+CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>
+Cc:     <stable@vger.kernel.org>
 Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [v3 2/2] mm: khugepaged: avoid overriding min_free_kbytes set by user
-In-Reply-To: <1600305709-2319-3-git-send-email-vijayb@linux.microsoft.com>
-References: <1600305709-2319-3-git-send-email-vijayb@linux.microsoft.com>
-Message-Id: <20200921125455.0D5A12193E@mail.kernel.org>
+Subject: Re: [PATCH 07/15] drm/amd/display: Fix ODM policy implementation
+In-Reply-To: <20200916193635.5169-8-qingqing.zhuo@amd.com>
+References: <20200916193635.5169-8-qingqing.zhuo@amd.com>
+Message-Id: <20200921125456.03C71218AC@mail.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -48,62 +50,91 @@ The stable tag indicates that it's relevant for the following trees: all
 
 The bot has tested the following trees: v5.8.10, v5.4.66, v4.19.146, v4.14.198, v4.9.236, v4.4.236.
 
-v5.8.10: Build OK!
-v5.4.66: Build OK!
+v5.4.66: Failed to apply! Possible dependencies:
+    2b77dcc5e5aa ("drm/amd/display: rename core_dc to dc")
+    48af9b91b129 ("drm/amd/display: Don't allocate payloads if link lost")
+    4c1a1335dfe0 ("drm/amd/display: Driverside changes to support PSR in DMCUB")
+    7f7652ee8c8c ("drm/amd/display: enable single dp seamless boot")
+    904fb6e0f4e8 ("drm/amd/display: move panel power seq to new panel struct")
+    9ae1b27f31d0 ("drm/amd/display: fix hotplug during display off")
+    9dac88d8792a ("drm/amd/display: Add driver support for enabling PSR on DMCUB")
+    ab4a4072f260 ("drm/amd/display: exit PSR during detection")
+    b739ab3a4fe6 ("drm/amd/display: Fix incorrect backlight register offset for DCN")
+    d4252eee1f7c ("drm/amd/display: Add debugfs entry to force YUV420 output")
+    d462fcf5012b ("drm/amd/display: Update hdcp display config")
+    e0d08a40a63b ("drm/amd/display: Add debugfs entry for reading psr state")
+    e78a312f81c8 ("drm/amd/display: use requested_dispclk_khz instead of clk")
+    ef5a7d266e82 ("drm/amd/display: skip enable stream on disconnected display")
+
 v4.19.146: Failed to apply! Possible dependencies:
-    1c30844d2dfe ("mm: reclaim small amounts of memory when an external fragmentation event occurs")
-    24512228b7a3 ("mm: do not boost watermarks to avoid fragmentation for the DISCONTIG memory model")
-    426dcd4b600f ("hexagon: switch to NO_BOOTMEM")
-    6471f52af786 ("alpha: switch to NO_BOOTMEM")
-    6bb154504f8b ("mm, page_alloc: spread allocations across zones before introducing fragmentation")
-    9705bea5f833 ("mm: convert zone->managed_pages to atomic variable")
-    a921444382b4 ("mm: move zone watermark accesses behind an accessor")
-    b4a991ec584b ("mm: remove CONFIG_NO_BOOTMEM")
-    bc3ec75de545 ("dma-mapping: merge direct and noncoherent ops")
-    bda49a81164a ("mm: remove nobootmem")
-    c32e64e852f3 ("csky: Build infrastructure")
-    e0a9317d9004 ("hexagon: use generic dma_noncoherent_ops")
-    f406f222d4b2 ("hexagon: implement the sync_sg_for_device DMA operation")
+    1f6010a96273 ("drm/amd/display: Improve spelling, grammar, and formatting of amdgpu_dm.c comments")
+    813d20dccf93 ("drm/amd/display: Fix multi-thread writing to 1 state")
+    8c3db1284a01 ("drm/amdgpu: fill in amdgpu_dm_remove_sink_from_freesync_module")
+    904fb6e0f4e8 ("drm/amd/display: move panel power seq to new panel struct")
+    98e6436d3af5 ("drm/amd/display: Refactor FreeSync module")
+    a87fa9938749 ("drm/amd/display: Build stream update and plane updates in dm")
+    a94d5569b232 ("drm/amd: Add DM DMCU support")
+    b739ab3a4fe6 ("drm/amd/display: Fix incorrect backlight register offset for DCN")
+    b8592b48450b ("drm/amd/display: Initial documentation for AMDgpu DC")
+    dc88b4a684d2 ("drm/amd/display: make clk mgr soc specific")
+    eb3dc8978596 ("drm/amd/display: Use private obj helpers for dm_atomic_state")
 
 v4.14.198: Failed to apply! Possible dependencies:
-    1c30844d2dfe ("mm: reclaim small amounts of memory when an external fragmentation event occurs")
-    1d47a3ec09b5 ("mm/cma: remove ALLOC_CMA")
-    24512228b7a3 ("mm: do not boost watermarks to avoid fragmentation for the DISCONTIG memory model")
-    3d2054ad8c2d ("ARM: CMA: avoid double mapping to the CMA area if CONFIG_HIGHMEM=y")
-    453f85d43fa9 ("mm: remove __GFP_COLD")
-    6bb154504f8b ("mm, page_alloc: spread allocations across zones before introducing fragmentation")
-    85ccc8fa81af ("mm/page_alloc: make sure __rmqueue() etc are always inline")
-    a921444382b4 ("mm: move zone watermark accesses behind an accessor")
-    bad8c6c0b114 ("mm/cma: manage the memory of the CMA area by using the ZONE_MOVABLE")
+    1296423bf23c ("drm/amd/display: define DC_LOGGER for logger")
+    1b0c0f9dc5ca ("drm/amdgpu: move userptr BOs to CPU domain during CS v2")
+    3fe89771cb0a ("drm/amdgpu: stop reserving the BO in the MMU callback v3")
+    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+    60de1c1740f3 ("drm/amdgpu: use a rw_semaphore for MMU notifiers")
+    74c49c7ac14f ("drm/amdgpu/display: Add calcs code for DCN")
+    904fb6e0f4e8 ("drm/amd/display: move panel power seq to new panel struct")
+    9a18999640fa ("drm/amdgpu: move MMU notifier related defines to amdgpu_mn.h")
+    9cca0b8e5df0 ("drm/amdgpu: move amdgpu_cs_sysvm_access_required into find_mapping")
+    a216ab09955d ("drm/amdgpu: fix userptr put_page handling")
+    b72cf4fca2bb ("drm/amdgpu: move taking mmap_sem into get_user_pages v2")
+    b739ab3a4fe6 ("drm/amd/display: Fix incorrect backlight register offset for DCN")
+    ca666a3c298f ("drm/amdgpu: stop using BO status for user pages")
+    dc88b4a684d2 ("drm/amd/display: make clk mgr soc specific")
+    f3efec54ed6a ("drm/amd/display: Allow option to use worst-case watermark")
 
 v4.9.236: Failed to apply! Possible dependencies:
-    14b468791fa9 ("mm: workingset: move shadow entry tracking to radix tree exceptional tracking")
-    1c30844d2dfe ("mm: reclaim small amounts of memory when an external fragmentation event occurs")
-    24512228b7a3 ("mm: do not boost watermarks to avoid fragmentation for the DISCONTIG memory model")
-    2a2e48854d70 ("mm: vmscan: fix IO/refault regression in cache workingset transition")
-    31176c781508 ("mm: memcontrol: clean up memory.events counting function")
-    6bb154504f8b ("mm, page_alloc: spread allocations across zones before introducing fragmentation")
-    8e675f7af507 ("mm/oom_kill: count global and memory cgroup oom kills")
-    9d998b4f1e39 ("mm, vmscan: add active list aging tracepoint")
-    a921444382b4 ("mm: move zone watermark accesses behind an accessor")
-    cd04ae1e2dc8 ("mm, oom: do not rely on TIF_MEMDIE for memory reserves access")
-    d6622f6365db ("mm/vmscan: more restrictive condition for retry in do_try_to_free_pages")
-    dcec0b60a821 ("mm, vmscan: add mm_vmscan_inactive_list_is_low tracepoint")
-    df0e53d0619e ("mm: memcontrol: re-use global VM event enum")
-    f7942430e40f ("lib: radix-tree: native accounting of exceptional entries")
+    1296423bf23c ("drm/amd/display: define DC_LOGGER for logger")
+    1cec20f0ea0e ("dma-buf: Restart reservation_object_wait_timeout_rcu() after writes")
+    248a1d6f1ac4 ("drm/amd: fix include notation and remove -Iinclude/drm flag")
+    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+    74c49c7ac14f ("drm/amdgpu/display: Add calcs code for DCN")
+    78010cd9736e ("dma-buf/fence: add an lockdep_assert_held()")
+    904fb6e0f4e8 ("drm/amd/display: move panel power seq to new panel struct")
+    b739ab3a4fe6 ("drm/amd/display: Fix incorrect backlight register offset for DCN")
+    dc88b4a684d2 ("drm/amd/display: make clk mgr soc specific")
+    f3efec54ed6a ("drm/amd/display: Allow option to use worst-case watermark")
+    f54d1867005c ("dma-buf: Rename struct fence to dma_fence")
+    fedf54132d24 ("dma-buf: Restart reservation_object_get_fences_rcu() after writes")
 
 v4.4.236: Failed to apply! Possible dependencies:
-    0b57d6ba0bd1 ("mm/mmap.c: remove redundant local variables for may_expand_vm()")
-    1170532bb49f ("mm: convert printk(KERN_<LEVEL> to pr_<level>")
-    5a6e75f8110c ("shmem: prepare huge= mount option and sysfs knob")
-    756a025f0009 ("mm: coalesce split strings")
-    84638335900f ("mm: rework virtual memory accounting")
-    8cee852ec53f ("mm, procfs: breakdown RSS for anon, shmem and file in /proc/pid/status")
-    b46e756f5e47 ("thp: extract khugepaged from mm/huge_memory.c")
-    d07e22597d1d ("mm: mmap: add new /proc tunable for mmap_base ASLR")
-    d977d56ce5b3 ("mm: warn about VmData over RLIMIT_DATA")
-    d9fe4fab1197 ("x86/mm/pat: Add untrack_pfn_moved for mremap")
-    eca56ff906bd ("mm, shmem: add internal shmem resident memory accounting")
+    0f477c6dea70 ("staging/android/sync: add sync_fence_create_dma")
+    1296423bf23c ("drm/amd/display: define DC_LOGGER for logger")
+    1f7371b2a5fa ("drm/amd/powerplay: add basic powerplay framework")
+    248a1d6f1ac4 ("drm/amd: fix include notation and remove -Iinclude/drm flag")
+    288912cb95d1 ("drm/amdgpu: use $(src) in Makefile (v2)")
+    375fb53ec1be ("staging: android: replace explicit NULL comparison")
+    395dec6f6bc5 ("Documentation: add doc for sync_file_get_fence()")
+    4325198180e5 ("drm/amdgpu: remove GART page addr array")
+    4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+    62304fb1fc08 ("dma-buf/sync_file: de-stage sync_file")
+    74c49c7ac14f ("drm/amdgpu/display: Add calcs code for DCN")
+    904fb6e0f4e8 ("drm/amd/display: move panel power seq to new panel struct")
+    a1d29476d666 ("drm/amdgpu: optionally enable GART debugfs file")
+    a8fe58cec351 ("drm/amd: add ACP driver support")
+    b70f014d58b9 ("drm/amdgpu: change default sched jobs to 32")
+    b739ab3a4fe6 ("drm/amd/display: Fix incorrect backlight register offset for DCN")
+    c784c82a3fd6 ("Documentation: add Sync File doc")
+    d4cab38e153d ("staging/android: prepare sync_file for de-staging")
+    d7fdb0ae9d11 ("staging/android: rename sync_fence to sync_file")
+    dc88b4a684d2 ("drm/amd/display: make clk mgr soc specific")
+    f3efec54ed6a ("drm/amd/display: Allow option to use worst-case watermark")
+    f54d1867005c ("dma-buf: Rename struct fence to dma_fence")
+    fac8434dab96 ("Documentation: Fix some grammar mistakes in sync_file.txt")
+    fdba11f4079e ("drm/amdgpu: move all Kconfig options to amdgpu/Kconfig")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
