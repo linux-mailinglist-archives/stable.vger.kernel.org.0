@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE50F272858
+	by mail.lfdr.de (Postfix) with ESMTP id 4C688272857
 	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728030AbgIUOmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 10:42:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50342 "EHLO mail.kernel.org"
+        id S1726641AbgIUOmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 10:42:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727998AbgIUOlN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:41:13 -0400
+        id S1728003AbgIUOlO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDA5923718;
-        Mon, 21 Sep 2020 14:41:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28412235F8;
+        Mon, 21 Sep 2020 14:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699272;
-        bh=lvWXTjqEtX4tVeRkz5R6kR7ZQS2JVMCI3uTA9lD3JE0=;
+        s=default; t=1600699273;
+        bh=kdHRcq3EG9jPL5PimFZc3zEHwD/Gj7kxr/jNsQtN2ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVw1jjbW7eC5Kjd5q7MNtCKuISK55net5bEOlpyOfZL5w0eJFgh0aaY9mqa6Plzj4
-         jHpLhyS5AZ3YgQ3fW3edmDslsmx9DsFZFXLc2QLJm69Nxx2/73MxEhJ69tBgOD2Tam
-         T6MeKAwtIvADkV1ZS1Exd/L5ycn9Bu3Omn1dZ4m4=
+        b=JPugEoKDMht9+G1iVU5w+g9usRgHK9C3uUk7X+4bG6NEXfBg5AbIFPjxvzm6Rq01i
+         l8TFLg9F1Q7SWn1FrYKJSKEpLz+NfyIvWJcqloo3EU4qGiPsb/Kw/1meReTTPHd7Y5
+         DSOP6oQojowvv7Z0IIpfDWwD2pHKqe7YRtj8P3PI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 14/15] i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
-Date:   Mon, 21 Sep 2020 10:40:53 -0400
-Message-Id: <20200921144054.2135602-14-sashal@kernel.org>
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 15/15] objtool: Fix noreturn detection for ignored functions
+Date:   Mon, 21 Sep 2020 10:40:54 -0400
+Message-Id: <20200921144054.2135602-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200921144054.2135602-1-sashal@kernel.org>
 References: <20200921144054.2135602-1-sashal@kernel.org>
@@ -43,42 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 21653a4181ff292480599dad996a2b759ccf050f ]
+[ Upstream commit db6c6a0df840e3f52c84cc302cc1a08ba11a4416 ]
 
-Some ACPI i2c-devices _STA method (which is used to detect if the device
-is present) use autodetection code which probes which device is present
-over i2c. This requires the I2C ACPI OpRegion handler to be registered
-before we enumerate i2c-clients under the i2c-adapter.
+When a function is annotated with STACK_FRAME_NON_STANDARD, objtool
+doesn't validate its code paths.  It also skips sibling call detection
+within the function.
 
-This fixes the i2c touchpad on the Lenovo ThinkBook 14-IIL and
-ThinkBook 15 IIL not getting an i2c-client instantiated and thus not
-working.
+But sibling call detection is actually needed for the case where the
+ignored function doesn't have any return instructions.  Otherwise
+objtool naively marks the function as implicit static noreturn, which
+affects the reachability of its callers, resulting in "unreachable
+instruction" warnings.
 
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1842039
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fix it by just enabling sibling call detection for ignored functions.
+The 'insn->ignore' check in add_jump_destinations() is no longer needed
+after
+
+  e6da9567959e ("objtool: Don't use ignore flag for fake jumps").
+
+Fixes the following warning:
+
+  arch/x86/kvm/vmx/vmx.o: warning: objtool: vmx_handle_exit_irqoff()+0x142: unreachable instruction
+
+which triggers on an allmodconfig with CONFIG_GCOV_KERNEL unset.
+
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lkml.kernel.org/r/5b1e2536cdbaa5246b60d7791b76130a74082c62.1599751464.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 2 +-
+ tools/objtool/check.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index def62d5b42ca7..2dfe2ffcf8825 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1385,8 +1385,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 48b234d8f251e..1b7e748170e54 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -556,7 +556,7 @@ static int add_jump_destinations(struct objtool_file *file)
+ 		    insn->type != INSN_JUMP_UNCONDITIONAL)
+ 			continue;
  
- 	/* create pre-declared device nodes */
- 	of_i2c_register_devices(adap);
--	i2c_acpi_register_devices(adap);
- 	i2c_acpi_install_space_handler(adap);
-+	i2c_acpi_register_devices(adap);
+-		if (insn->ignore || insn->offset == FAKE_JUMP_OFFSET)
++		if (insn->offset == FAKE_JUMP_OFFSET)
+ 			continue;
  
- 	if (adap->nr < __i2c_first_dynamic_bus_num)
- 		i2c_scan_static_board_info(adap);
+ 		rela = find_rela_by_dest_range(insn->sec, insn->offset,
 -- 
 2.25.1
 
