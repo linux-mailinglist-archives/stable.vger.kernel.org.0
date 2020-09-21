@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AEAF27305A
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:04:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AD0527308B
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728883AbgIUQfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:35:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34964 "EHLO mail.kernel.org"
+        id S1727298AbgIURFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 13:05:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728533AbgIUQfh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:35:37 -0400
+        id S1728607AbgIUQdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:33:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EC392389F;
-        Mon, 21 Sep 2020 16:35:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AFFE23998;
+        Mon, 21 Sep 2020 16:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706137;
-        bh=RkDGxihzRJRoD9St/O84o4RrJ097bB39FvwlFUeYZhM=;
+        s=default; t=1600705998;
+        bh=/5yopNgNTzTJ/Y/a1Sg7nEBbV/9aQf7h0GGC4tzQgkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ef9Qq6Cw4073N31i1gAR7UIp4uRAJEettdNFbYBNp4reURGsg3CKRqq92WSi/j5sE
-         eMXCCv3IXrTSz8k6vdpepe/eEjR7hDd3ndNZOHSHcs7u97je0UuJUqTiySytbZKS8t
-         SmXLyT9ucm4WWxmohpFwJxIhyYzfimVOrHFtA89w=
+        b=nQVGBDA5gmDtrRpFFEBZMkamhGCcK1YWg2SpFJX+tHCsjYpxgIkgXYGPDOAsj7EdE
+         NY6kQCF4jbP038M8yvEA3t5tGgpktflYsbyyJ3b0+MCRxxW0ANbDd8ZaiSvpEjtSl6
+         RmvOZxJ3Hrt7Ie4OQohA4d0NvRcRyx23lY0+J7hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Mark Brown <broonie@kernel.org>,
+        syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        George Kennedy <george.kennedy@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 52/70] spi: spi-loopback-test: Fix out-of-bounds read
-Date:   Mon, 21 Sep 2020 18:27:52 +0200
-Message-Id: <20200921162037.502380625@linuxfoundation.org>
+Subject: [PATCH 4.4 37/46] fbcon: Fix user font detection test at fbcon_resize().
+Date:   Mon, 21 Sep 2020 18:27:53 +0200
+Message-Id: <20200921162034.993799030@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
-References: <20200921162035.136047591@linuxfoundation.org>
+In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
+References: <20200921162033.346434578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 837ba18dfcd4db21ad58107c65bfe89753aa56d7 ]
+[ Upstream commit ec0972adecb391a8d8650832263a4790f3bfb4df ]
 
-The "tx/rx-transfer - crossing PAGE_SIZE" test always fails when
-len=131071 and rx_offset >= 5:
+syzbot is reporting OOB read at fbcon_resize() [1], for
+commit 39b3cffb8cf31117 ("fbcon: prevent user font height or width change
+ from causing potential out-of-bounds access") is by error using
+registered_fb[con2fb_map[vc->vc_num]]->fbcon_par->p->userfont (which was
+set to non-zero) instead of fb_display[vc->vc_num].userfont (which remains
+zero for that display).
 
- spi-loopback-test spi0.0: Running test tx/rx-transfer - crossing PAGE_SIZE
- ...
-   with iteration values: len = 131071, tx_off = 0, rx_off = 3
-   with iteration values: len = 131071, tx_off = 0, rx_off = 4
-   with iteration values: len = 131071, tx_off = 0, rx_off = 5
- loopback strangeness - rx changed outside of allowed range at: ...a4321000
-   spi_msg@ffffffd5a4157690
-     frame_length:  131071
-     actual_length: 131071
-     spi_transfer@ffffffd5a41576f8
-       len:    131071
-       tx_buf: ffffffd5a4340ffc
+We could remove tricky userfont flag [2], for we can determine it by
+comparing address of the font data and addresses of built-in font data.
+But since that commit is failing to fix the original OOB read [3], this
+patch keeps the change minimal in case we decide to revert altogether.
 
-Note that rx_offset > 3 can only occur if the SPI controller driver sets
-->dma_alignment to a higher value than 4, so most SPI controller drivers
-are not affect.
+[1] https://syzkaller.appspot.com/bug?id=ebcbbb6576958a496500fee9cf7aa83ea00b5920
+[2] https://syzkaller.appspot.com/text?tag=Patch&x=14030853900000
+[3] https://syzkaller.appspot.com/bug?id=6fba8c186d97cf1011ab17660e633b1cc4e080c9
 
-The allocated Rx buffer is of size SPI_TEST_MAX_SIZE_PLUS, which is 132
-KiB (assuming 4 KiB pages).  This test uses an initial offset into the
-rx_buf of PAGE_SIZE - 4, and a len of 131071, so the range expected to
-be written in this transfer ends at (4096 - 4) + 5 + 131071 == 132 KiB,
-which is also the end of the allocated buffer.  But the code which
-verifies the content of the buffer reads a byte beyond the allocated
-buffer and spuriously fails because this out-of-bounds read doesn't
-return the expected value.
-
-Fix this by using ITERATE_LEN instead of ITERATE_MAX_LEN to avoid
-testing sizes which cause out-of-bounds reads.
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20200902132341.7079-1-vincent.whitchurch@axis.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 39b3cffb8cf31117 ("fbcon: prevent user font height or width change from causing potential out-of-bounds access")
+Cc: George Kennedy <george.kennedy@oracle.com>
+Link: https://lore.kernel.org/r/f6e3e611-8704-1263-d163-f52c906a4f06@I-love.SAKURA.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-loopback-test.c | 2 +-
+ drivers/video/console/fbcon.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-loopback-test.c b/drivers/spi/spi-loopback-test.c
-index 50e620f4e8fe2..7120083fe7610 100644
---- a/drivers/spi/spi-loopback-test.c
-+++ b/drivers/spi/spi-loopback-test.c
-@@ -74,7 +74,7 @@ static struct spi_test spi_tests[] = {
- 	{
- 		.description	= "tx/rx-transfer - crossing PAGE_SIZE",
- 		.fill_option	= FILL_COUNT_8,
--		.iterate_len    = { ITERATE_MAX_LEN },
-+		.iterate_len    = { ITERATE_LEN },
- 		.iterate_tx_align = ITERATE_ALIGN,
- 		.iterate_rx_align = ITERATE_ALIGN,
- 		.transfers		= {
+diff --git a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
+index c62db94cf945e..e57fa26bcff19 100644
+--- a/drivers/video/console/fbcon.c
++++ b/drivers/video/console/fbcon.c
+@@ -1943,7 +1943,7 @@ static int fbcon_resize(struct vc_data *vc, unsigned int width,
+ 	struct fb_var_screeninfo var = info->var;
+ 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
+ 
+-	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
++	if (p->userfont && FNTSIZE(vc->vc_font.data)) {
+ 		int size;
+ 		int pitch = PITCH(vc->vc_font.width);
+ 
 -- 
 2.25.1
 
