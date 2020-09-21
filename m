@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F402272F30
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 043C3272FA4
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729395AbgIUQzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:55:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51876 "EHLO mail.kernel.org"
+        id S1729394AbgIUQ6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:58:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729503AbgIUQps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:45:48 -0400
+        id S1729453AbgIUQlk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:41:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 624DF20874;
-        Mon, 21 Sep 2020 16:45:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7EC52076B;
+        Mon, 21 Sep 2020 16:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706747;
-        bh=4BJVieK2MQpsQrM3gMlFxZYQf6Qf6grauSn0niykwFw=;
+        s=default; t=1600706492;
+        bh=aTHqhn0lUC0NXQGAZZOLZCbL2Oc38gXnDqkF637fn9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUmneEljdTisIMjpLOD1znhj/Q00B/+FXmlySKXMO2uoh9gWbSGPPbzm7Y7RLNW0B
-         46WxiKMLMc3MRehtQV14+5tv1DWPg5NfZ4PG4k2bSUExfrVumxg+IxZYzat4Hr4YHL
-         +sB1iCWgtORHrDEUSDzFm7McD+NRNVOaWLqOZFK4=
+        b=iJNYIiW/C3HfMU0jGVbrcOGi3Rtb9LLAXgiuD0nGeg/IYbIKgps+tWp9Bc0oo9Md5
+         uZHiHMt7BfrVPfL+b+6qlIoFl+GB3agATXoCuxuMi4opfqL8eCgA97+ITPN5NG7Nf3
+         zaioP7mFGI9TWxlau7hlq2+ixIPFKfoDRKFeBboE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Syven Wang <syven.wang@sifive.com>,
-        Greentime Hu <greentime.hu@sifive.com>,
-        Anup Patel <anup@brainfault.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        =?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 078/118] riscv: Add sfence.vma after early page table changes
-Date:   Mon, 21 Sep 2020 18:28:10 +0200
-Message-Id: <20200921162039.961172891@linuxfoundation.org>
+Subject: [PATCH 4.19 27/49] clk: rockchip: Fix initialization of mux_pll_src_4plls_p
+Date:   Mon, 21 Sep 2020 18:28:11 +0200
+Message-Id: <20200921162035.859265191@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
+References: <20200921162034.660953761@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greentime Hu <greentime.hu@sifive.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 21190b74bcf3a36ebab9a715088c29f59877e1f3 ]
+[ Upstream commit e9c006bc782c488f485ffe50de20b44e1e3daa18 ]
 
-This invalidates local TLB after modifying the page tables during early init as
-it's too early to handle suprious faults as we otherwise do.
+A new warning in Clang points out that the initialization of
+mux_pll_src_4plls_p appears incorrect:
 
-Fixes: f2c17aabc917 ("RISC-V: Implement compile-time fixed mappings")
-Reported-by: Syven Wang <syven.wang@sifive.com>
-Signed-off-by: Syven Wang <syven.wang@sifive.com>
-Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-[Palmer: Cleaned up the commit text]
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+../drivers/clk/rockchip/clk-rk3228.c:140:58: warning: suspicious
+concatenation of string literals in an array initialization; did you
+mean to separate the elements with a comma? [-Wstring-concatenation]
+PNAME(mux_pll_src_4plls_p)      = { "cpll", "gpll", "hdmiphy" "usb480m" };
+                                                              ^
+                                                             ,
+../drivers/clk/rockchip/clk-rk3228.c:140:48: note: place parentheses
+around the string literal to silence warning
+PNAME(mux_pll_src_4plls_p)      = { "cpll", "gpll", "hdmiphy" "usb480m" };
+                                                    ^
+1 warning generated.
+
+Given the name of the variable and the same variable name in rv1108, it
+seems that this should have been four distinct elements. Fix it up by
+adding the comma as suggested.
+
+Fixes: 307a2e9ac524 ("clk: rockchip: add clock controller for rk3228")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1123
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lore.kernel.org/r/20200810044020.2063350-1-natechancellor@gmail.com
+Reviewed-by: Heiko Stübner <heiko@sntech.de>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/init.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/clk/rockchip/clk-rk3228.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 79e9d55bdf1ac..e229d95f470b8 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -226,12 +226,11 @@ void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t prot)
+diff --git a/drivers/clk/rockchip/clk-rk3228.c b/drivers/clk/rockchip/clk-rk3228.c
+index 04f4f3739e3be..8d11d76e1db7c 100644
+--- a/drivers/clk/rockchip/clk-rk3228.c
++++ b/drivers/clk/rockchip/clk-rk3228.c
+@@ -144,7 +144,7 @@ PNAME(mux_usb480m_p)		= { "usb480m_phy", "xin24m" };
+ PNAME(mux_hdmiphy_p)		= { "hdmiphy_phy", "xin24m" };
+ PNAME(mux_aclk_cpu_src_p)	= { "cpll_aclk_cpu", "gpll_aclk_cpu", "hdmiphy_aclk_cpu" };
  
- 	ptep = &fixmap_pte[pte_index(addr)];
- 
--	if (pgprot_val(prot)) {
-+	if (pgprot_val(prot))
- 		set_pte(ptep, pfn_pte(phys >> PAGE_SHIFT, prot));
--	} else {
-+	else
- 		pte_clear(&init_mm, addr, ptep);
--		local_flush_tlb_page(addr);
--	}
-+	local_flush_tlb_page(addr);
- }
- 
- static pte_t *__init get_pte_virt(phys_addr_t pa)
+-PNAME(mux_pll_src_4plls_p)	= { "cpll", "gpll", "hdmiphy" "usb480m" };
++PNAME(mux_pll_src_4plls_p)	= { "cpll", "gpll", "hdmiphy", "usb480m" };
+ PNAME(mux_pll_src_3plls_p)	= { "cpll", "gpll", "hdmiphy" };
+ PNAME(mux_pll_src_2plls_p)	= { "cpll", "gpll" };
+ PNAME(mux_sclk_hdmi_cec_p)	= { "cpll", "gpll", "xin24m" };
 -- 
 2.25.1
 
