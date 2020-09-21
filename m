@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39F1C272E0E
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD448272CF8
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:37:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727741AbgIUQpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:45:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51244 "EHLO mail.kernel.org"
+        id S1728941AbgIUQgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:36:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727338AbgIUQpV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:45:21 -0400
+        id S1728950AbgIUQgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:36:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAC3E2399A;
-        Mon, 21 Sep 2020 16:45:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 401582396F;
+        Mon, 21 Sep 2020 16:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706721;
-        bh=xjZXQcpiIWSbrq4vUTAl/BD54Tv1jv4rLS9iNd3uiJk=;
+        s=default; t=1600706175;
+        bh=+OOrdhldkbOwXGbhXZnFEBxmS8ERh3cGw8dgn8ouTXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rI4ecV6psF8RabxVgCXrwRMe95yzGgPWe+LMOCrYvHIOWcTl38bSdn3xqSqpYvpWK
-         Rn+TSiXk6SAiHYhKc2cVQxe4/L/GXCy0IuN0GZcaEMiGY41cYC8tnvcGpU18S3t4kL
-         deoW3mmMWgTCl0A3qAzV/bd9ep6gV9IBFQLxe/go=
+        b=AQLQ8LLGN/fjPHsWRCagCm2d8p/kevHmz2JH39Hs00lnT52vU6QzzjD1VSYrt+/C+
+         ZeFKG74ErWG0P40AwwHgzji6tPUTjhYWUg3IQy0qYrAgQkVwCcIAIVPyB4nV363smL
+         /XzVvw5aH44bR9ziq5g8YTTFk2yEzaB3rqvxyVZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        George Kennedy <george.kennedy@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 068/118] drm/mediatek: Add missing put_device() call in mtk_ddp_comp_init()
+Subject: [PATCH 4.9 60/70] fbcon: Fix user font detection test at fbcon_resize().
 Date:   Mon, 21 Sep 2020 18:28:00 +0200
-Message-Id: <20200921162039.505702820@linuxfoundation.org>
+Message-Id: <20200921162037.878641922@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit d494c257271153633a05c11e6dec85ddfc7700ee ]
+[ Upstream commit ec0972adecb391a8d8650832263a4790f3bfb4df ]
 
-if of_find_device_by_node() succeed, mtk_ddp_comp_init() doesn't have
-a corresponding put_device(). Thus add put_device() to fix the exception
-handling for this function implementation.
+syzbot is reporting OOB read at fbcon_resize() [1], for
+commit 39b3cffb8cf31117 ("fbcon: prevent user font height or width change
+ from causing potential out-of-bounds access") is by error using
+registered_fb[con2fb_map[vc->vc_num]]->fbcon_par->p->userfont (which was
+set to non-zero) instead of fb_display[vc->vc_num].userfont (which remains
+zero for that display).
 
-Fixes: d0afe37f5209 ("drm/mediatek: support CMDQ interface in ddp component")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+We could remove tricky userfont flag [2], for we can determine it by
+comparing address of the font data and addresses of built-in font data.
+But since that commit is failing to fix the original OOB read [3], this
+patch keeps the change minimal in case we decide to revert altogether.
+
+[1] https://syzkaller.appspot.com/bug?id=ebcbbb6576958a496500fee9cf7aa83ea00b5920
+[2] https://syzkaller.appspot.com/text?tag=Patch&x=14030853900000
+[3] https://syzkaller.appspot.com/bug?id=6fba8c186d97cf1011ab17660e633b1cc4e080c9
+
+Reported-by: syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 39b3cffb8cf31117 ("fbcon: prevent user font height or width change from causing potential out-of-bounds access")
+Cc: George Kennedy <george.kennedy@oracle.com>
+Link: https://lore.kernel.org/r/f6e3e611-8704-1263-d163-f52c906a4f06@I-love.SAKURA.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/console/fbcon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c b/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
-index 57c88de9a3293..526648885b97e 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
-@@ -496,6 +496,7 @@ int mtk_ddp_comp_init(struct device *dev, struct device_node *node,
- #if IS_REACHABLE(CONFIG_MTK_CMDQ)
- 	if (of_address_to_resource(node, 0, &res) != 0) {
- 		dev_err(dev, "Missing reg in %s node\n", node->full_name);
-+		put_device(&larb_pdev->dev);
- 		return -EINVAL;
- 	}
- 	comp->regs_pa = res.start;
+diff --git a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
+index fedf50e091bab..4b7d0f9a820aa 100644
+--- a/drivers/video/console/fbcon.c
++++ b/drivers/video/console/fbcon.c
+@@ -1943,7 +1943,7 @@ static int fbcon_resize(struct vc_data *vc, unsigned int width,
+ 	struct fb_var_screeninfo var = info->var;
+ 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
+ 
+-	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
++	if (p->userfont && FNTSIZE(vc->vc_font.data)) {
+ 		int size;
+ 		int pitch = PITCH(vc->vc_font.width);
+ 
 -- 
 2.25.1
 
