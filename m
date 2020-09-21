@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ECC1272F45
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87BDA272D68
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729296AbgIUQzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:55:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51414 "EHLO mail.kernel.org"
+        id S1728997AbgIUQkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:40:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729307AbgIUQp3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:45:29 -0400
+        id S1728293AbgIUQjk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:39:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1312923998;
-        Mon, 21 Sep 2020 16:45:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3381206DC;
+        Mon, 21 Sep 2020 16:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706728;
-        bh=6AovKmixp/XkjlNLYCnK4Tn3EsCKjq4UKUkbPrRSzCk=;
+        s=default; t=1600706380;
+        bh=aTHqhn0lUC0NXQGAZZOLZCbL2Oc38gXnDqkF637fn9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BroCUCCujGLzzhWqh7UgrTMDZ7MWRKNqRX6+564jrNfePIqnrbxmOz3BDZJ/AAk7P
-         8ig4X/3DUd7d0DeEZkLzHmBGj2Qskb9lKPXD+JN0JJjVTzDOTKbZyQQomYZ/VhHaSS
-         +ZtJNBBMGON2CsURPDSJUUlnSFGbiJOymAGguqgI=
+        b=ClWq+IT126WgTuQt1sIcxS2i476UOFU73D+8+h3qDJ86a5Kdj3U0DclN+o/m06OpM
+         XQ2CJmEAO3EXnOCkF9Ez0b6Crj9leB0YvGMFm45P7UdIk6i36h0b0Vl07PvN248+R9
+         9S41lcdLykHpvm7wHTOB4JgPi4N2f3UOjFjDheTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        =?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 071/118] drm/mediatek: Add missing put_device() call in mtk_hdmi_dt_parse_pdata()
+Subject: [PATCH 4.14 76/94] clk: rockchip: Fix initialization of mux_pll_src_4plls_p
 Date:   Mon, 21 Sep 2020 18:28:03 +0200
-Message-Id: <20200921162039.625667927@linuxfoundation.org>
+Message-Id: <20200921162039.018426836@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,89 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 0680a622318b8d657323b94082f4b9a44038dfee ]
+[ Upstream commit e9c006bc782c488f485ffe50de20b44e1e3daa18 ]
 
-if of_find_device_by_node() succeed, mtk_drm_kms_init() doesn't have
-a corresponding put_device(). Thus add jump target to fix the exception
-handling for this function implementation.
+A new warning in Clang points out that the initialization of
+mux_pll_src_4plls_p appears incorrect:
 
-Fixes: 8f83f26891e1 ("drm/mediatek: Add HDMI support")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+../drivers/clk/rockchip/clk-rk3228.c:140:58: warning: suspicious
+concatenation of string literals in an array initialization; did you
+mean to separate the elements with a comma? [-Wstring-concatenation]
+PNAME(mux_pll_src_4plls_p)      = { "cpll", "gpll", "hdmiphy" "usb480m" };
+                                                              ^
+                                                             ,
+../drivers/clk/rockchip/clk-rk3228.c:140:48: note: place parentheses
+around the string literal to silence warning
+PNAME(mux_pll_src_4plls_p)      = { "cpll", "gpll", "hdmiphy" "usb480m" };
+                                                    ^
+1 warning generated.
+
+Given the name of the variable and the same variable name in rv1108, it
+seems that this should have been four distinct elements. Fix it up by
+adding the comma as suggested.
+
+Fixes: 307a2e9ac524 ("clk: rockchip: add clock controller for rk3228")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1123
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lore.kernel.org/r/20200810044020.2063350-1-natechancellor@gmail.com
+Reviewed-by: Heiko Stübner <heiko@sntech.de>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_hdmi.c | 26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ drivers/clk/rockchip/clk-rk3228.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_hdmi.c b/drivers/gpu/drm/mediatek/mtk_hdmi.c
-index 1eebe310470af..a9704822c0334 100644
---- a/drivers/gpu/drm/mediatek/mtk_hdmi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_hdmi.c
-@@ -1507,25 +1507,30 @@ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
- 		dev_err(dev,
- 			"Failed to get system configuration registers: %d\n",
- 			ret);
--		return ret;
-+		goto put_device;
- 	}
- 	hdmi->sys_regmap = regmap;
+diff --git a/drivers/clk/rockchip/clk-rk3228.c b/drivers/clk/rockchip/clk-rk3228.c
+index 04f4f3739e3be..8d11d76e1db7c 100644
+--- a/drivers/clk/rockchip/clk-rk3228.c
++++ b/drivers/clk/rockchip/clk-rk3228.c
+@@ -144,7 +144,7 @@ PNAME(mux_usb480m_p)		= { "usb480m_phy", "xin24m" };
+ PNAME(mux_hdmiphy_p)		= { "hdmiphy_phy", "xin24m" };
+ PNAME(mux_aclk_cpu_src_p)	= { "cpll_aclk_cpu", "gpll_aclk_cpu", "hdmiphy_aclk_cpu" };
  
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	hdmi->regs = devm_ioremap_resource(dev, mem);
--	if (IS_ERR(hdmi->regs))
--		return PTR_ERR(hdmi->regs);
-+	if (IS_ERR(hdmi->regs)) {
-+		ret = PTR_ERR(hdmi->regs);
-+		goto put_device;
-+	}
- 
- 	remote = of_graph_get_remote_node(np, 1, 0);
--	if (!remote)
--		return -EINVAL;
-+	if (!remote) {
-+		ret = -EINVAL;
-+		goto put_device;
-+	}
- 
- 	if (!of_device_is_compatible(remote, "hdmi-connector")) {
- 		hdmi->next_bridge = of_drm_find_bridge(remote);
- 		if (!hdmi->next_bridge) {
- 			dev_err(dev, "Waiting for external bridge\n");
- 			of_node_put(remote);
--			return -EPROBE_DEFER;
-+			ret = -EPROBE_DEFER;
-+			goto put_device;
- 		}
- 	}
- 
-@@ -1534,7 +1539,8 @@ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
- 		dev_err(dev, "Failed to find ddc-i2c-bus node in %pOF\n",
- 			remote);
- 		of_node_put(remote);
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_device;
- 	}
- 	of_node_put(remote);
- 
-@@ -1542,10 +1548,14 @@ static int mtk_hdmi_dt_parse_pdata(struct mtk_hdmi *hdmi,
- 	of_node_put(i2c_np);
- 	if (!hdmi->ddc_adpt) {
- 		dev_err(dev, "Failed to get ddc i2c adapter by node\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_device;
- 	}
- 
- 	return 0;
-+put_device:
-+	put_device(hdmi->cec_dev);
-+	return ret;
- }
- 
- /*
+-PNAME(mux_pll_src_4plls_p)	= { "cpll", "gpll", "hdmiphy" "usb480m" };
++PNAME(mux_pll_src_4plls_p)	= { "cpll", "gpll", "hdmiphy", "usb480m" };
+ PNAME(mux_pll_src_3plls_p)	= { "cpll", "gpll", "hdmiphy" };
+ PNAME(mux_pll_src_2plls_p)	= { "cpll", "gpll" };
+ PNAME(mux_sclk_hdmi_cec_p)	= { "cpll", "gpll", "xin24m" };
 -- 
 2.25.1
 
