@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FE43272EF9
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:53:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01326272F92
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:58:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728035AbgIUQrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:47:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54510 "EHLO mail.kernel.org"
+        id S1729347AbgIUQ6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:58:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728576AbgIUQre (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:47:34 -0400
+        id S1726501AbgIUQmI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:42:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66E282223E;
-        Mon, 21 Sep 2020 16:47:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD778235F9;
+        Mon, 21 Sep 2020 16:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706852;
-        bh=2rs8eb9EJlhp2pZtnu8luvIlNE/S4asWeLrkFEF6i3w=;
+        s=default; t=1600706527;
+        bh=QU/rYNK5ZWfAGwkV1ONkej1Q4wjmHW8zt57NH1e/R7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFboQbRH92A4qo6fMHO3oxX3jbOKQk9daKbqGo3SJuot1gZfupHp/zsju9fRb5s9V
-         NJ+83UqcsOw61s9z40WdBIe36AP5Rj1y2necPBh/f79WNw7dhVRRr81a2nfOcf5u0t
-         QFdEca7dDfvJ7NbLjQcZLH6z8eTNOMsU8uNCYdU4=
+        b=zoPIXvKHyKZWxOUGyS2t/kQA6cmeQ42NnViB+/kD/1FbZYk+G2VbnfKf4BZdbUezS
+         0X5cMA6Mq/OrHmaayxP8gaDQou8ytc7Fzaunp21Mk1HT8JeJTRAsyj2Fkwhat0PbMX
+         Q9BpMyL8QGnqR9v9KjCksZJFHYcxOhxgOTDuNeU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Volker=20R=C3=BCmelin?= <vr_qemu@t-online.de>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.8 091/118] i2c: i801: Fix resume bug
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 39/49] usblp: fix race between disconnect() and read()
 Date:   Mon, 21 Sep 2020 18:28:23 +0200
-Message-Id: <20200921162040.586151198@linuxfoundation.org>
+Message-Id: <20200921162036.396740249@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
+References: <20200921162034.660953761@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,70 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Volker Rümelin <vr_qemu@t-online.de>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 66d402e2e9455cf0213c42b97f22a0493372d7cc upstream.
+commit 9cdabcb3ef8c24ca3a456e4db7b012befb688e73 upstream.
 
-On suspend the original host configuration gets restored. The
-resume routine has to undo this, otherwise the SMBus master
-may be left in disabled state or in i2c mode.
+read() needs to check whether the device has been
+disconnected before it tries to talk to the device.
 
-[JD: Rebased on v5.8, moved the write into i801_setup_hstcfg.]
-
-Signed-off-by: Volker Rümelin <vr_qemu@t-online.de>
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Cc: stable@vger.kernel.org
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20200917103427.15740-1-oneukum@suse.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/i2c/busses/i2c-i801.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/usb/class/usblp.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1706,6 +1706,16 @@ static inline int i801_acpi_probe(struct
- static inline void i801_acpi_remove(struct i801_priv *priv) { }
- #endif
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -827,6 +827,11 @@ static ssize_t usblp_read(struct file *f
+ 	if (rv < 0)
+ 		return rv;
  
-+static unsigned char i801_setup_hstcfg(struct i801_priv *priv)
-+{
-+	unsigned char hstcfg = priv->original_hstcfg;
++	if (!usblp->present) {
++		count = -ENODEV;
++		goto done;
++	}
 +
-+	hstcfg &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
-+	hstcfg |= SMBHSTCFG_HST_EN;
-+	pci_write_config_byte(priv->pci_dev, SMBHSTCFG, hstcfg);
-+	return hstcfg;
-+}
-+
- static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
- 	unsigned char temp;
-@@ -1826,14 +1836,10 @@ static int i801_probe(struct pci_dev *de
- 		return err;
- 	}
- 
--	pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &temp);
--	priv->original_hstcfg = temp;
--	temp &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
--	if (!(temp & SMBHSTCFG_HST_EN)) {
-+	pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &priv->original_hstcfg);
-+	temp = i801_setup_hstcfg(priv);
-+	if (!(priv->original_hstcfg & SMBHSTCFG_HST_EN))
- 		dev_info(&dev->dev, "Enabling SMBus device\n");
--		temp |= SMBHSTCFG_HST_EN;
--	}
--	pci_write_config_byte(priv->pci_dev, SMBHSTCFG, temp);
- 
- 	if (temp & SMBHSTCFG_SMB_SMI_EN) {
- 		dev_dbg(&dev->dev, "SMBus using interrupt SMI#\n");
-@@ -1959,6 +1965,7 @@ static int i801_resume(struct device *de
- {
- 	struct i801_priv *priv = dev_get_drvdata(dev);
- 
-+	i801_setup_hstcfg(priv);
- 	i801_enable_host_notify(&priv->adapter);
- 
- 	return 0;
+ 	if ((avail = usblp->rstatus) < 0) {
+ 		printk(KERN_ERR "usblp%d: error %d reading from printer\n",
+ 		    usblp->minor, (int)avail);
 
 
