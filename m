@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2EF6272CE4
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:36:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CB7E272E0A
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:46:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728856AbgIUQf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:35:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34632 "EHLO mail.kernel.org"
+        id S1727794AbgIUQpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:45:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728522AbgIUQf1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:35:27 -0400
+        id S1729743AbgIUQpM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:45:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70A9423998;
-        Mon, 21 Sep 2020 16:35:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBFF62399A;
+        Mon, 21 Sep 2020 16:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706126;
-        bh=s1CN8NiTuVeOtQkil4T0RiTnIYYFRLx0tWVRHZgcBQo=;
+        s=default; t=1600706711;
+        bh=ycVIKcfHuW1l9SRJXTqpu8EivAe91T0jHo0k/qpj5mU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QR67cTioSRmlxwPAKRUEMYWVdRiBK2Bmss/NbvpVf9WMVW/xjAKnMkmRiyWFdzX2s
-         CAsh7qWfYF5C87+380VouEVE9kGV5ifaXfZ3WcO1gSQcxd8niu04FFoUde6OXJo/MO
-         LmWcRTli9P78EH741sZ8u4NS0DdPH5BI1fZNsgek=
+        b=q3lnc02hNUwvXOnsuAsrDdQX6qJy+GDWutLc/32ktiv1nF2Q1qY73TsMADzffMQ84
+         ZJcvmCYd7MAVMt2/Sl+7/llezXtAtrkajf+3pWpoI7esPiI/JPAvcOyPch1PjYC4rN
+         bxr9Qz7gmuoD+qcZhLnDpGp03JnW7Rxw5O8PQDHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 48/70] net: handle the return value of pskb_carve_frag_list() correctly
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Wang Nan <wangnan0@huawei.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 056/118] perf test: Fix the "signal" test inline assembly
 Date:   Mon, 21 Sep 2020 18:27:48 +0200
-Message-Id: <20200921162037.312330516@linuxfoundation.org>
+Message-Id: <20200921162038.947881580@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
-References: <20200921162035.136047591@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +47,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-commit eabe861881a733fc84f286f4d5a1ffaddd4f526f upstream.
+[ Upstream commit 8a39e8c4d9baf65d88f66d49ac684df381e30055 ]
 
-pskb_carve_frag_list() may return -ENOMEM in pskb_carve_inside_nonlinear().
-we should handle this correctly or we would get wrong sk_buff.
+When compiling with DEBUG=1 on Fedora 32 I'm getting crash for 'perf
+test signal':
 
-Fixes: 6fa01ccd8830 ("skbuff: Add pskb_extract() helper function")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  Program received signal SIGSEGV, Segmentation fault.
+  0x0000000000c68548 in __test_function ()
+  (gdb) bt
+  #0  0x0000000000c68548 in __test_function ()
+  #1  0x00000000004d62e9 in test_function () at tests/bp_signal.c:61
+  #2  0x00000000004d689a in test__bp_signal (test=0xa8e280 <generic_ ...
+  #3  0x00000000004b7d49 in run_test (test=0xa8e280 <generic_tests+1 ...
+  #4  0x00000000004b7e7f in test_and_print (t=0xa8e280 <generic_test ...
+  #5  0x00000000004b8927 in __cmd_test (argc=1, argv=0x7fffffffdce0, ...
+  ...
 
+It's caused by the symbol __test_function being in the ".bss" section:
+
+  $ readelf -a ./perf | less
+    [Nr] Name              Type             Address           Offset
+         Size              EntSize          Flags  Link  Info  Align
+    ...
+    [28] .bss              NOBITS           0000000000c356a0  008346a0
+         00000000000511f8  0000000000000000  WA       0     0     32
+
+  $ nm perf | grep __test_function
+  0000000000c68548 B __test_function
+
+I guess most of the time we're just lucky the inline asm ended up in the
+".text" section, so making it specific explicit with push and pop
+section clauses.
+
+  $ readelf -a ./perf | less
+    [Nr] Name              Type             Address           Offset
+         Size              EntSize          Flags  Link  Info  Align
+    ...
+    [13] .text             PROGBITS         0000000000431240  00031240
+         0000000000306faa  0000000000000000  AX       0     0     16
+
+  $ nm perf | grep __test_function
+  00000000004d62c8 T __test_function
+
+Committer testing:
+
+  $ readelf -wi ~/bin/perf | grep producer -m1
+    <c>   DW_AT_producer    : (indirect string, offset: 0x254a): GNU C99 10.2.1 20200723 (Red Hat 10.2.1-1) -mtune=generic -march=x86-64 -ggdb3 -std=gnu99 -fno-omit-frame-pointer -funwind-tables -fstack-protector-all
+                                                                                                                                         ^^^^^
+                                                                                                                                         ^^^^^
+                                                                                                                                         ^^^^^
+  $
+
+Before:
+
+  $ perf test signal
+  20: Breakpoint overflow signal handler                    : FAILED!
+  $
+
+After:
+
+  $ perf test signal
+  20: Breakpoint overflow signal handler                    : Ok
+  $
+
+Fixes: 8fd34e1cce18 ("perf test: Improve bp_signal")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Wang Nan <wangnan0@huawei.com>
+Link: http://lore.kernel.org/lkml/20200911130005.1842138-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ tools/perf/tests/bp_signal.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -4990,9 +4990,13 @@ static int pskb_carve_inside_nonlinear(s
- 	if (skb_has_frag_list(skb))
- 		skb_clone_fraglist(skb);
- 
--	if (k == 0) {
--		/* split line is in frag list */
--		pskb_carve_frag_list(skb, shinfo, off - pos, gfp_mask);
-+	/* split line is in frag list */
-+	if (k == 0 && pskb_carve_frag_list(skb, shinfo, off - pos, gfp_mask)) {
-+		/* skb_frag_unref() is not needed here as shinfo->nr_frags = 0. */
-+		if (skb_has_frag_list(skb))
-+			kfree_skb_list(skb_shinfo(skb)->frag_list);
-+		kfree(data);
-+		return -ENOMEM;
- 	}
- 	skb_release_data(skb);
- 
+diff --git a/tools/perf/tests/bp_signal.c b/tools/perf/tests/bp_signal.c
+index da8ec1e8e0648..cc9fbcedb3646 100644
+--- a/tools/perf/tests/bp_signal.c
++++ b/tools/perf/tests/bp_signal.c
+@@ -45,10 +45,13 @@ volatile long the_var;
+ #if defined (__x86_64__)
+ extern void __test_function(volatile long *ptr);
+ asm (
++	".pushsection .text;"
+ 	".globl __test_function\n"
++	".type __test_function, @function;"
+ 	"__test_function:\n"
+ 	"incq (%rdi)\n"
+-	"ret\n");
++	"ret\n"
++	".popsection\n");
+ #else
+ static void __test_function(volatile long *ptr)
+ {
+-- 
+2.25.1
+
 
 
