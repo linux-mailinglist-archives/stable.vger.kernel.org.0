@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C3C8272D2B
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:38:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26903272DD3
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:43:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728617AbgIUQh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:37:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
+        id S1729623AbgIUQnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:43:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729079AbgIUQhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:37:34 -0400
+        id S1729616AbgIUQni (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:43:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34360238EE;
-        Mon, 21 Sep 2020 16:37:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A08F23998;
+        Mon, 21 Sep 2020 16:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706253;
-        bh=OphiMRy2Sjj+l4Bu93avxMyTCq0TIBoUcuvwzCXgTPw=;
+        s=default; t=1600706617;
+        bh=gMBtvEME0kpMwgrfz6h+ibQod2yLncPhPCjk5Ye35xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjvIG3D9TSLNN9Pz9nz+v7RdYcwAG3UQYO0ayRkvuAIPVyrZbqFUPAV7aFxMxVX0m
-         Pvv5aFqEyFZBId1dSHQ5bMZvFB4TBkPfnaOdiI10L3i1xrOAmTRJYirSJY/gC6tnb6
-         R/wwUc2o+ctCMNMpWv06stgYLJn5RUhlZ9RJvrRY=
+        b=PZ69crFNUYwZ1VYrcYMMuw2LwztwOb2wXCi5Iq6nWlrBffwE/aaDIWC8BnG24Aa3h
+         TPYoH6+ALVZtkk8+kXXD//qpqBy0Q2qHyv396zQ5WB5dd+X+tPnwgxSLjroSdDaDPL
+         V5VoeztmnuisxpEkj1ctnwFQ2Adj+kkMAPhH1/RQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/94] ARC: HSDK: wireup perf irq
-Date:   Mon, 21 Sep 2020 18:26:56 +0200
-Message-Id: <20200921162035.970573949@linuxfoundation.org>
+        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        linux-pci@vger.kernel.org,
+        Dilip Kota <eswara.kota@linux.intel.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.8 005/118] dt-bindings: PCI: intel,lgm-pcie: Fix matching on all snps,dw-pcie instances
+Date:   Mon, 21 Sep 2020 18:26:57 +0200
+Message-Id: <20200921162036.594717224@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit fe81d927b78c4f0557836661d32e41ebc957b024 ]
+commit a326462cba6ae7398a5c997dddf3bea39555a825 upstream.
 
-Newer version of HSDK aka HSDK-4xD (with dual issue HS48x4 CPU) wired up
-the perf interrupt, so enable that in DT.
-This is OK for old HSDK where this irq is ignored because pct irq is not
-wired up in hardware.
+The intel,lgm-pcie binding is matching on all snps,dw-pcie instances
+which is wrong. Add a custom 'select' entry to fix this.
 
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e54ea45a4955 ("dt-bindings: PCI: intel: Add YAML schemas for the PCIe RC controller")
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org
+Reviewed-by: Dilip Kota <eswara.kota@linux.intel.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arc/boot/dts/hsdk.dts | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/devicetree/bindings/pci/intel-gw-pcie.yaml |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arc/boot/dts/hsdk.dts b/arch/arc/boot/dts/hsdk.dts
-index 57d81c6aa379d..aeacea148793c 100644
---- a/arch/arc/boot/dts/hsdk.dts
-+++ b/arch/arc/boot/dts/hsdk.dts
-@@ -79,6 +79,8 @@
+--- a/Documentation/devicetree/bindings/pci/intel-gw-pcie.yaml
++++ b/Documentation/devicetree/bindings/pci/intel-gw-pcie.yaml
+@@ -9,6 +9,14 @@ title: PCIe RC controller on Intel Gatew
+ maintainers:
+   - Dilip Kota <eswara.kota@linux.intel.com>
  
- 	arcpct: pct {
- 		compatible = "snps,archs-pct";
-+		interrupt-parent = <&cpu_intc>;
-+		interrupts = <20>;
- 	};
- 
- 	/* TIMER0 with interrupt for clockevent */
--- 
-2.25.1
-
++select:
++  properties:
++    compatible:
++      contains:
++        const: intel,lgm-pcie
++  required:
++    - compatible
++
+ properties:
+   compatible:
+     items:
 
 
