@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C3D272DFD
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:45:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B08F272C94
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729197AbgIUQo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:44:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50600 "EHLO mail.kernel.org"
+        id S1728614AbgIUQdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:33:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729711AbgIUQo5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:44:57 -0400
+        id S1728580AbgIUQdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:33:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3532E23976;
-        Mon, 21 Sep 2020 16:44:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DC6B2399C;
+        Mon, 21 Sep 2020 16:33:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706696;
-        bh=jE+KNy6sH2GYUyNViDM63N8Nh9eGlpSBcc4XAXHGl3I=;
+        s=default; t=1600705988;
+        bh=HPVoBkwWM2VEuHSnaDmJ4BHUWkB/Y6RRhjh/6SvnQNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jflbdDLfomV1ZEKOHJ5LlhG4PC5DZ97YJDRUQtamVd5BjmCCqZ2TrxWP3yfH91Iaa
-         9O0KSa2SUsEpfsEMOYOBJq2LA79Bqui9dBznQm9Ld58hocqQ3Uwq9yzfxewj9aNBjf
-         el+CXAZIZ8Me5k9t9s2TXxVMuo7cS3jeZjaRdcto=
+        b=2O1nVnKnj/1qhYK3rvHVgFV/kOZMIDsCbcYBCMoAxg6FXODXfWsDP3TdfaGE+MFw/
+         q7pofdtvoL2JOGw+o7+YUQJ+zLHxQNMpL2ABPdpTNEEGJxolWM+NMQWyckx8OvevzC
+         14q+wLEExWYL8gMvsBEF4eM/jcqm6UiCCajEMkMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Milburn <dmilburn@redhat.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 027/118] nvme-rdma: cancel async events before freeing event struct
+        stable@vger.kernel.org,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 03/46] drivers/net/wan/lapbether: Added needed_tailroom
 Date:   Mon, 21 Sep 2020 18:27:19 +0200
-Message-Id: <20200921162037.576388687@linuxfoundation.org>
+Message-Id: <20200921162033.512856614@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
+References: <20200921162033.346434578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Milburn <dmilburn@redhat.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 925dd04c1f9825194b9e444c12478084813b2b5d ]
+[ Upstream commit 1ee39c1448c4e0d480c5b390e2db1987561fb5c2 ]
 
-Cancel async event work in case async event has been queued up, and
-nvme_rdma_submit_async_event() runs after event has been freed.
+The underlying Ethernet device may request necessary tailroom to be
+allocated by setting needed_tailroom. This driver should also set
+needed_tailroom to request the tailroom needed by the underlying
+Ethernet device to be allocated.
 
-Signed-off-by: David Milburn <dmilburn@redhat.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/rdma.c | 1 +
+ drivers/net/wan/lapbether.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 6c07bb55b0f83..4a0bc8927048a 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -809,6 +809,7 @@ static void nvme_rdma_destroy_admin_queue(struct nvme_rdma_ctrl *ctrl,
- 		blk_mq_free_tag_set(ctrl->ctrl.admin_tagset);
- 	}
- 	if (ctrl->async_event_sqe.data) {
-+		cancel_work_sync(&ctrl->ctrl.async_event_work);
- 		nvme_rdma_free_qe(ctrl->device->dev, &ctrl->async_event_sqe,
- 				sizeof(struct nvme_command), DMA_TO_DEVICE);
- 		ctrl->async_event_sqe.data = NULL;
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 6eb0f7a85e531..5befc7f3f0e7a 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -343,6 +343,7 @@ static int lapbeth_new_device(struct net_device *dev)
+ 	 */
+ 	ndev->needed_headroom = -1 + 3 + 2 + dev->hard_header_len
+ 					   + dev->needed_headroom;
++	ndev->needed_tailroom = dev->needed_tailroom;
+ 
+ 	lapbeth = netdev_priv(ndev);
+ 	lapbeth->axdev = ndev;
 -- 
 2.25.1
 
