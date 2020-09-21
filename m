@@ -2,207 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10166272517
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 15:14:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA97B272531
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 15:16:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727560AbgIUNOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 09:14:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57744 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727207AbgIUNOG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 09:14:06 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27BE9C061755;
-        Mon, 21 Sep 2020 06:14:06 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id k18so12627948wmj.5;
-        Mon, 21 Sep 2020 06:14:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=wLc0I+gr3bbTgUnHLxgw23apPJqDNVY2tpCF/LCfrZw=;
-        b=YNVt0hlXjAbrKgboq6q8k+gGktriN5nklkYfCPG4g72C+OUZyAusB50caFlwWb38p6
-         YLJXBWs5+K2IE94h+hwiudmFUSCFVNqLwh4/e1ZREonVYexA6SquKhIeeGeURtqhXLJ2
-         uoPDB3tyXsseGt57dMCjh2HlztklrHuMCI8YAMKzozSQYLYfStq8iNrp85COoY78fvuZ
-         +NwMhzbO4o+b3A1TpM448oAW/Tb6LruCAEBc16xaKLrnwWZgpLOPA0aCVsqsRbZQ0ArC
-         tilyb1tMYZKrRJy1aSu60sSI45g2H4ISuldrLDuiHdOrgauXaDtt8jUIs8MmK3jT7HI8
-         EX0w==
+        id S1727056AbgIUNQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 09:16:32 -0400
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:44675 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726749AbgIUNQc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 09:16:32 -0400
+Received: by mail-oi1-f194.google.com with SMTP id 185so16850602oie.11;
+        Mon, 21 Sep 2020 06:16:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=wLc0I+gr3bbTgUnHLxgw23apPJqDNVY2tpCF/LCfrZw=;
-        b=ElTmpZADYRLu6waGZH5vY3xyPkauXk31eBRZQTfvkthyaY3L0aZ27AZczNUa8A/BAW
-         2VQuexQXmOwoUVkxJ/S0zTIadg7CHYjYvv/fUHHGT8cJJUpqaVIx4HWJAiaW6/Pfcb8i
-         sNGcaU/twJWnmw92xEW7ho3HHK23dNVr8gEV2LVFkjdI0lb84y2MGrIHTE8YQKcbQxf/
-         igYbwkCqkhUm27lANT7tXlOoS7jrg2VCSOlsAjqhecozmlz30doiOtr3HWWY6R0+snGP
-         vsYzhfz+N/+AfZK8wmi7/ae1nX3gOg/AeEX8DgDKWzoBqdWSPRlAJICb0U8bCHHAR+bk
-         F8NQ==
-X-Gm-Message-State: AOAM53080eZau9lphxlRXE5ZPv9RYtknD2TazNspl7RQD54LFpi9U9RH
-        8/G65aJSF4/3sdHI9L6y2h4=
-X-Google-Smtp-Source: ABdhPJzT+zzaKejpCfixWbdhj6IU4/+8I0Vfx/pTYVA45F0nlLUI6KZYV8CIB3xZ59O508TUsibSLw==
-X-Received: by 2002:a1c:e256:: with SMTP id z83mr32396469wmg.137.1600694044841;
-        Mon, 21 Sep 2020 06:14:04 -0700 (PDT)
-Received: from localhost ([217.111.27.204])
-        by smtp.gmail.com with ESMTPSA id b84sm21458987wmd.0.2020.09.21.06.14.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2020 06:14:03 -0700 (PDT)
-Date:   Mon, 21 Sep 2020 15:14:01 +0200
-From:   Thierry Reding <thierry.reding@gmail.com>
-To:     Nicolas Chauvet <kwizart@gmail.com>
-Cc:     Jonathan Hunter <jonathanh@nvidia.com>,
-        linux-tegra@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4/4] ARM: tegra: Avoid setting edp_irq when not relevant
-Message-ID: <20200921131401.GA3955907@ulmo>
-References: <20200914133739.60020-1-kwizart@gmail.com>
- <20200914133739.60020-5-kwizart@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=55UvncN9emgCCrmaj1gu4vYImqn+PFIM+sAMY5GaIow=;
+        b=KTdft9EKjB0kw3Nw+3ByxYKU+kGeTwppqnKGEOAG31zZeO5gTMLLGeGTJrjh1RzHar
+         tJQe0ZK8ZI8Tc4HnvgYBJTv23Ha7wj3Gl7yPP/SDksUD8Jmu7rjOECP7PwVN+DG/6IfA
+         JOZ0Bbq3Xgzb3anR006FdpBzHZyRuRbmGO/A0EZ2QWFnmR+8mLhomkddjgbuXvp55Son
+         Ug+u4bg2dbe73kVvLHaStNaLv/Pcq37QpdEjHbxvnO5ivDDwBWEMs3JH9X6wUiLIsjKc
+         73DWhG8V2aR1AfhHuQpbsmbySYbkYHbuCAGr3TyoIQa118KEMe/5Pl8ihRpoSPSu9sSe
+         J5Zg==
+X-Gm-Message-State: AOAM530WRmOtWJrxT6OGShHAOYrbLqt8d+FjCy2w22Wg30Ki9qKIiHff
+        Z8ALta3M+I2WiSccS/NnA2x58IiJYc8RyzhYfQqZfHkaZzM=
+X-Google-Smtp-Source: ABdhPJwBot/z+//SxjF/p/w/MPDhBPmStMLHpdg1bc++OIc5oQKRLtdTF88aoYZXnqoQmx6TfIOw90wDYUVKOp3L5vY=
+X-Received: by 2002:aca:4441:: with SMTP id r62mr16539084oia.153.1600694191169;
+ Mon, 21 Sep 2020 06:16:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
-Content-Disposition: inline
-In-Reply-To: <20200914133739.60020-5-kwizart@gmail.com>
-User-Agent: Mutt/1.14.6 (2020-07-11)
+References: <20200820094307.3977-1-ashiduka@fujitsu.com> <CAMuHMdXns4N=pUW=iq=CJz8dtNObt1jAOhAaxQ2UA4bTqQ9AwA@mail.gmail.com>
+In-Reply-To: <CAMuHMdXns4N=pUW=iq=CJz8dtNObt1jAOhAaxQ2UA4bTqQ9AwA@mail.gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 21 Sep 2020 15:16:19 +0200
+Message-ID: <CAMuHMdWxNHKUX+4DRZZMjvN0CdRu98SV4QTvgFokeFDu4vJfJA@mail.gmail.com>
+Subject: Re: [PATCH v3] ravb: Fixed to be able to unload modules
+To:     Yuusuke Ashizuka <ashiduka@fujitsu.com>
+Cc:     Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        netdev <netdev@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 16, 2020 at 11:31 AM Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+> On Thu, Aug 20, 2020 at 2:55 PM Yuusuke Ashizuka <ashiduka@fujitsu.com> wrote:
+> > When this driver is built as a module, I cannot rmmod it after insmoding
+> > it.
+> > This is because that this driver calls ravb_mdio_init() at the time of
+> > probe, and module->refcnt is incremented by alloc_mdio_bitbang() called
+> > after that.
+> > Therefore, even if ifup is not performed, the driver is in use and rmmod
+> > cannot be performed.
+> >
+> > $ lsmod
+> > Module                  Size  Used by
+> > ravb                   40960  1
+> > $ rmmod ravb
+> > rmmod: ERROR: Module ravb is in use
+> >
+> > Call ravb_mdio_init() at open and free_mdio_bitbang() at close, thereby
+> > rmmod is possible in the ifdown state.
+> >
+> > Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+> > Signed-off-by: Yuusuke Ashizuka <ashiduka@fujitsu.com>
+> > Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+>
+> Thanks for your patch, which is now commit 1838d6c62f578366 ("ravb:
+> Fixed to be able to unload modules") in v5.9-rc4 (backported to stable
+> v4.4, v4.9, v4.14, v4.19, v5.4, and v5.8).
+>
+> This is causing a regression during resume from s2idle/s2ram on (at
+> least) Salvator-X(S) and Ebisu.  Reverting that commit fixes this.
+>
+> During boot, the Micrel PHY is detected correctly:
+>
+>     Micrel KSZ9031 Gigabit PHY e6800000.ethernet-ffffffff:00: attached
+> PHY driver [Micrel KSZ9031 Gigabit PHY]
+> (mii_bus:phy_addr=e6800000.ethernet-ffffffff:00, irq=228)
+>     ravb e6800000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
 
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+phy_device_register() calls device_add(), which is immediately bound to
+the micrel driver.
 
-On Mon, Sep 14, 2020 at 03:37:39PM +0200, Nicolas Chauvet wrote:
-> According to the binding, the edp_irq is not available on tegra124/132
->=20
-> This commit moves the initialization of tegra->edp_irq after the
-> introduced SoCs condition. This will have the following effects:
->  - soctherm_interrupts_init will not return prematurely with unfinished
-> thermal_irq initialization on tegra124 and tegra132
->  - edp_irq initialization will be bypassed when not relevant
->=20
-> As a result, this will clear the following error when loading the driver:
->   kernel: tegra_soctherm 700e2000.thermal-sensor: IRQ index 1 not found
->=20
-> Fixes: 4a04beb1bf2e (thermal: tegra: add support for EDP IRQ)
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Nicolas Chauvet <kwizart@gmail.com>
-> ---
->  drivers/thermal/tegra/soctherm.c | 17 +++++++++++------
->  1 file changed, 11 insertions(+), 6 deletions(-)
+> During resume, if CONFIG_MODULES=n, it falls back to the Generic PHY
+> (case A):
+>
+>     Generic PHY e6800000.ethernet-ffffffff:00: attached PHY driver
+> [Generic PHY] (mii_bus:phy_addr=e6800000.ethernet-ffffffff:00,
+> irq=POLL)
+>     ravb e6800000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+>
+> and Ethernet still works (degraded, due to polling).
+>
+> During resume, if CONFIG_MODULES=y, MDIO initialization fails (case B):
+>
+>     mdio_bus e6800000.ethernet-ffffffff:00: error -16 loading PHY
+> driver module for ID 0x00221622
+>     ravb e6800000.ethernet eth0: failed to initialize MDIO
+>     PM: dpm_run_callback(): ravb_resume+0x0/0x1b8 returns -16
+>     PM: Device e6800000.ethernet failed to resume: error -16
+>
+> and Ethernet no longer works.
+>
+> Case B happens because usermodehelper_disabled is set to UMH_DISABLED
+> during system suspend, causing request_module() to return -EBUSY.
+> Ignoring -EBUSY in phy_request_driver_module(), like was done for
+> -ENOENT in commit 21e194425abd65b5 ("net: phy: fix issue with loading
+> PHY driver w/o initramfs"), makes it fall back to the Generic PHY, cfr.
+> case A.
+>
+> For case A, I haven't found out yet why it falls back to the Generic PHY.
 
-Your subject needs a different prefix. As it is this looks like
-something to apply to the Tegra tree, but it actually needs to go
-through Zhang's and Daniel's thermal tree. Also make sure to send
-patches To: the maintainers of the subsystem.
+During system suspend, defer_all_probes is set to true, to avoid drivers
+being probed while suspended.  Hence phy_device_register() calling
+device_add() merely adds the device, but does not probe it yet
+(really_probe() returns early)"
 
->=20
-> diff --git a/drivers/thermal/tegra/soctherm.c b/drivers/thermal/tegra/soc=
-therm.c
-> index 66e0639da4bf..0a7dc988f25f 100644
-> --- a/drivers/thermal/tegra/soctherm.c
-> +++ b/drivers/thermal/tegra/soctherm.c
-> @@ -2025,12 +2025,6 @@ static int soctherm_interrupts_init(struct platfor=
-m_device *pdev,
->  		return 0;
->  	}
-> =20
-> -	tegra->edp_irq =3D platform_get_irq(pdev, 1);
-> -	if (tegra->edp_irq < 0) {
-> -		dev_dbg(&pdev->dev, "get 'edp_irq' failed.\n");
-> -		return 0;
-> -	}
-> -
->  	ret =3D devm_request_threaded_irq(&pdev->dev,
->  					tegra->thermal_irq,
->  					soctherm_thermal_isr,
-> @@ -2043,6 +2037,17 @@ static int soctherm_interrupts_init(struct platfor=
-m_device *pdev,
->  		return ret;
->  	}
-> =20
-> +	/* None of the tegra124 and tegra132 SoCs have edp_irq */
-> +	if (of_machine_is_compatible("nvidia,tegra124") ||
-> +		of_machine_is_compatible("nvidia,tegra132"))
-> +			return 0;
-> +
+   dpm_resume+0x128/0x4f8
+     device_resume+0xcc/0x1b0
+       dpm_run_callback+0x74/0x340
+         ravb_resume+0x190/0x1b8
+           ravb_open+0x84/0x770
+             of_mdiobus_register+0x1e0/0x468
+               of_mdiobus_register_phy+0x1b8/0x250
+                 of_mdiobus_phy_device_register+0x178/0x1e8
+                   phy_device_register+0x114/0x1b8
+                     device_add+0x3d4/0x798
+                       bus_probe_device+0x98/0xa0
+                         device_initial_probe+0x10/0x18
+                           __device_attach+0xe4/0x140
+                             bus_for_each_drv+0x64/0xc8
+                               __device_attach_driver+0xb8/0xe0
+                                 driver_probe_device.part.11+0xc4/0xd8
+                                   really_probe+0x32c/0x3b8
 
-I'd prefer to turn this into a per-SoC capability flag. You can add
-something like this:
 
-	struct tegra_soctherm_soc {
-		...
-		bool has_edp_irq;
-	};
+Hence registering PHY devices from a net_device's ndo_open() call back
+must not be done.
 
-	...
+I will send a formal revert later today.
 
-	const struct tegra_soctherm_soc tegra124_soctherm =3D {
-		...
-		.has_edp_irq =3D false,
-	};
+Gr{oetje,eeting}s,
 
-	...
+                        Geert
 
-	const struct tegra_soctherm_soc tegra210_soctherm =3D {
-		...
-		.has_edp_irq =3D true,
-	};
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-	...
-
-and so on. This makes it more obvious why you conditionalize certain
-code segments and avoids complicated conditionals.
-
-Also, please avoid returning success early. That's very confusing
-because it can lead to people adding code to the end of this function
-that will never be run on the chips that you've excluded above.
-
-So I think a better way to write this would be:
-
-	if (tegra->soc->has_edp_irq) {
-		/* get IRQ */
-
-		/* request IRQ */
-	}
-
-That way people can simply continue adding to the bottom of the function
-and that code will get executed, which is much more straightforward than
-if you invert the condition.
-
-Thierry
-
-> +	tegra->edp_irq =3D platform_get_irq(pdev, 1);
-> +	if (tegra->edp_irq < 0) {
-> +		dev_dbg(&pdev->dev, "get 'edp_irq' failed.\n");
-> +		return 0;
-> +	}
-> +
->  	ret =3D devm_request_threaded_irq(&pdev->dev,
->  					tegra->edp_irq,
->  					soctherm_edp_isr,
-> --=20
-> 2.25.4
->=20
-
---rwEMma7ioTxnRzrJ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl9opxcACgkQ3SOs138+
-s6F/4g//R/FWTeyXe9H8sKZKeg1mh4ng6gwewJUQJms4T3FYN4PxupCieCEWY1li
-ZlN7KQFwXiyGyHuNqib2nPKCXWy4inPAnXzy3LTeBX1xKsVtYQHHy2frp735FWWT
-1AZ4sful5sSiQWW3UEyCbv01XAONhuDJeuIsoqAlp4lR21Pv1UaTiFSD1wrix+My
-xVyNEB/dGZzAx09P56zF49lKHAmhkGGaYtGsCUkGpNQGplQRP3T3uB1g1frvIjm7
-3RH+NFwDifMuaNdcjYn2BBLjzuiHsibZW5jSDv+28FC9/hb/fMeFfZ1AWS9PfWOW
-wpF6TQ+XptH2HKuTDcs65JUlSPWYnf4vPglj7StpTv1vEpB5IE0f/hee7R5MOuyH
-HnDU98xpv0ky2eYGeXQ+NmyQbJbI4r9kjH5/NukR/j4qG7cHoG8g5m3QnYDkXBvY
-qd+sNT4xSXLI16Qx8qFVLQdFuoR3dsYLUSq2vpeVZCW614OKg5vZk5keM21GrMqP
-4CaJ7iRcUQW6CSCXYwnnBmliGG6/JnExTtllqVM5BnTYcVQGQTR/X+GPDK7nkCXC
-jmuTrgvCSi17e/ty9OX/VLU/ZstVZ814rTbGu++A4Wnn+pFrD5gcpAKrQVGQuLAn
-V2ImAK0UIQLs6upgXV2UT7Jg1F28xjyzFikrsWthX1K9zeyelSU=
-=Av8i
------END PGP SIGNATURE-----
-
---rwEMma7ioTxnRzrJ--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
