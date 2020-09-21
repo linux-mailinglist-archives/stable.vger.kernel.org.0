@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD8CE272DF6
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F278272CD9
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:36:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729707AbgIUQoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:44:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50204 "EHLO mail.kernel.org"
+        id S1728509AbgIUQfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:35:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729702AbgIUQon (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:44:43 -0400
+        id S1728841AbgIUQfM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:35:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC8DF2076B;
-        Mon, 21 Sep 2020 16:44:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87B8D2399C;
+        Mon, 21 Sep 2020 16:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706682;
-        bh=QkzFQtbOcFPW+YmrwgpR1H5unI/XIA0Ur6NRyF5Tddo=;
+        s=default; t=1600706111;
+        bh=xXsQf780KKxrWSyvuZzMQJDEBPImRjRuT0OFaeDNp3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/nHvgxE+JSF96kDAZ7QergbT3FkdprpdnexYBNtStEXaCTxh6DeC5q9SqblXVNPi
-         3N1Wv0GD2aCvvb4sSDUfyixx1J8+5ZMx7iuCB+EHi38sbnyGcsl7MAKrCguMwY02/r
-         gKhJqONMCVeHpac1JvA6SC2ZYn9FA7vb6YQaS3Us=
+        b=1qMSCtP6TebNzrKO4yE2fEb2cvQkyQMJCicvnf+/w8MXcGo8A+GcQLMyEeWNRMA0z
+         UkVCMovM5HHOp9aHgdMYp1q67fbFjL2NY6yx7tvJvE4uhkSvc60h3EIIXvi9bMkXYS
+         TKW8yw1fEuoIZa4xV0WPW+ERQV7z0NW8BNiRgtNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 051/118] ASoC: core: Do not cleanup uninitialized dais on soc_pcm_open failure
+        Aleksander Morgado <aleksander@aleksander.es>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 43/70] USB: serial: option: add support for SIM7070/SIM7080/SIM7090 modules
 Date:   Mon, 21 Sep 2020 18:27:43 +0200
-Message-Id: <20200921162038.697814598@linuxfoundation.org>
+Message-Id: <20200921162037.086301065@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Aleksander Morgado <aleksander@aleksander.es>
 
-[ Upstream commit 20244b2a8a8728c63233d33146e007dcacbcc5c4 ]
+commit 1ac698790819b83f39fd7ea4f6cdabee9bdd7b38 upstream.
 
-Introduce for_each_rtd_dais_rollback macro which behaves exactly like
-for_each_codec_dais_rollback and its cpu_dais equivalent but for all
-dais instead.
+These modules have 2 different USB layouts:
 
-Use newly added macro to fix soc_pcm_open error path and prevent
-uninitialized dais from being cleaned-up.
+The default layout with PID 0x9205 (AT+CUSBSELNV=1) exposes 4 TTYs and
+an ECM interface:
 
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Fixes: 5d9fa03e6c35 ("ASoC: soc-pcm: tidyup soc_pcm_open() order")
-Acked-by: Liam Girdwood <liam.r.girdwood@linux.intel.com>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20200907111939.16169-1-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  T:  Bus=02 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  6 Spd=480 MxCh= 0
+  D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+  P:  Vendor=1e0e ProdID=9205 Rev=00.00
+  S:  Manufacturer=SimTech, Incorporated
+  S:  Product=SimTech SIM7080
+  S:  SerialNumber=1234567890ABCDEF
+  C:  #Ifs= 6 Cfg#= 1 Atr=e0 MxPwr=500mA
+  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x4 Alt= 0 #EPs= 1 Cls=02(commc) Sub=06 Prot=00 Driver=cdc_ether
+  I:  If#=0x5 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+
+The purpose of each TTY is as follows:
+ * ttyUSB0: DIAG/QCDM port.
+ * ttyUSB1: GNSS data.
+ * ttyUSB2: AT-capable port (control).
+ * ttyUSB3: AT-capable port (data).
+
+In the secondary layout with PID=0x9206 (AT+CUSBSELNV=86) the module
+exposes 6 TTY ports:
+
+  T:  Bus=02 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  8 Spd=480 MxCh= 0
+  D:  Ver= 2.00 Cls=02(commc) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+  P:  Vendor=1e0e ProdID=9206 Rev=00.00
+  S:  Manufacturer=SimTech, Incorporated
+  S:  Product=SimTech SIM7080
+  S:  SerialNumber=1234567890ABCDEF
+  C:  #Ifs= 6 Cfg#= 1 Atr=e0 MxPwr=500mA
+  I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+  I:  If#=0x5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+
+The purpose of each TTY is as follows:
+ * ttyUSB0: DIAG/QCDM port.
+ * ttyUSB1: GNSS data.
+ * ttyUSB2: AT-capable port (control).
+ * ttyUSB3: QFLOG interface.
+ * ttyUSB4: DAM interface.
+ * ttyUSB5: AT-capable port (data).
+
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/sound/soc.h | 2 ++
- sound/soc/soc-pcm.c | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/sound/soc.h b/include/sound/soc.h
-index bc6ecb10c7649..ca765062787b0 100644
---- a/include/sound/soc.h
-+++ b/include/sound/soc.h
-@@ -1205,6 +1205,8 @@ struct snd_soc_pcm_runtime {
- 	     ((i) < (rtd)->num_cpus + (rtd)->num_codecs) &&		\
- 		     ((dai) = (rtd)->dais[i]);				\
- 	     (i)++)
-+#define for_each_rtd_dais_rollback(rtd, i, dai)		\
-+	for (; (--(i) >= 0) && ((dai) = (rtd)->dais[i]);)
- 
- void snd_soc_close_delayed_work(struct snd_soc_pcm_runtime *rtd);
- 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 74baf1fce053f..918ed77726cc0 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -811,7 +811,7 @@ dynamic:
- 	return 0;
- 
- config_err:
--	for_each_rtd_dais(rtd, i, dai)
-+	for_each_rtd_dais_rollback(rtd, i, dai)
- 		snd_soc_dai_shutdown(dai, substream);
- 
- 	snd_soc_link_shutdown(substream);
--- 
-2.25.1
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1808,6 +1808,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9003, 0xff) },	/* Simcom SIM7500/SIM7600 MBIM mode */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9011, 0xff),	/* Simcom SIM7500/SIM7600 RNDIS mode */
+ 	  .driver_info = RSVD(7) },
++	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9205, 0xff) },	/* Simcom SIM7070/SIM7080/SIM7090 AT+ECM mode */
++	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9206, 0xff) },	/* Simcom SIM7070/SIM7080/SIM7090 AT-only mode */
+ 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X060S_X200),
+ 	  .driver_info = NCTRL(0) | NCTRL(1) | RSVD(4) },
+ 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X220_X500D),
 
 
