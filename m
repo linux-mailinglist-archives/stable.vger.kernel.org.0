@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70408272D4D
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27DB5272CAB
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728614AbgIUQi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:38:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40380 "EHLO mail.kernel.org"
+        id S1728701AbgIUQeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:34:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729202AbgIUQi4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:38:56 -0400
+        id S1728674AbgIUQd5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:33:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE1A4238E6;
-        Mon, 21 Sep 2020 16:38:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C9CA23976;
+        Mon, 21 Sep 2020 16:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706334;
-        bh=xWfbtvQi6jRbi8I/P0rqnE1igmz3Uiqjn4b6VweDl4k=;
+        s=default; t=1600706036;
+        bh=UQ9uhk9yESmpsuclrVoey/brZ5TMAsHuztHElWFK4Kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VMBw+NxRFQkp3Jm56pdYKgZ3rTGydrgGlsw5Jc32fncFDC8v40lini5NpbVTkhb5M
-         GOjX94mk8JRyiVZ44bdJtc6SVWBz+qMaBJeYVhV5FpeuIExzqfZbPiQeGAmemV1XKs
-         3zgQdpOjuzFKeUk5W0W+Kk3fuMrkDo+uOfsrieHM=
+        b=J5GdkIkZoA/5J+wUyykNv++OWvFVHVTz7HsB01a7ToUiDr7XuBHBAnuWRdQJz3/eW
+         Rap4zl3EYb6PQaWvsYENqTcG8f4XMFmVlWwHq5fsKV0cuuXuYWnobjW6YiXeJkIN0W
+         hIAX3I5+ZQ1igYvbjZBR+mfUEDDOnzLhql1Q8Yuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        =?UTF-8?q?M=C3=A5rten=20Lindahl?= <martenli@axis.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.14 28/94] iio:adc:ti-adc084s021 Fix alignment and data leak issues.
+        stable@vger.kernel.org,
+        Angelo Compagnucci <angelo.compagnucci@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 15/70] iio: adc: mcp3422: fix locking scope
 Date:   Mon, 21 Sep 2020 18:27:15 +0200
-Message-Id: <20200921162036.847880785@linuxfoundation.org>
+Message-Id: <20200921162035.825651264@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Angelo Compagnucci <angelo.compagnucci@gmail.com>
 
-commit a661b571e3682705cb402a5cd1e970586a3ec00f upstream.
+commit 3f1093d83d7164e4705e4232ccf76da54adfda85 upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv().
+Locking should be held for the entire reading sequence involving setting
+the channel, waiting for the channel switch and reading from the
+channel.
+If not, reading from a channel can result mixing with the reading from
+another channel.
 
-This data is allocated with kzalloc so no data can leak apart from
-previous readings.
-
-The force alignment of ts is not strictly necessary in this case
-but reduces the fragility of the code.
-
-Fixes: 3691e5a69449 ("iio: adc: add driver for the ti-adc084s021 chip")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Mårten Lindahl <martenli@axis.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Fixes: 07914c84ba30 ("iio: adc: Add driver for Microchip MCP3422/3/4 high resolution ADC")
+Signed-off-by: Angelo Compagnucci <angelo.compagnucci@gmail.com>
+Link: https://lore.kernel.org/r/20200819075525.1395248-1-angelo.compagnucci@gmail.com
 Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/ti-adc084s021.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/iio/adc/mcp3422.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/iio/adc/ti-adc084s021.c
-+++ b/drivers/iio/adc/ti-adc084s021.c
-@@ -28,6 +28,11 @@ struct adc084s021 {
- 	struct spi_transfer spi_trans;
- 	struct regulator *reg;
- 	struct mutex lock;
-+	/* Buffer used to align data */
-+	struct {
-+		__be16 channels[4];
-+		s64 ts __aligned(8);
-+	} scan;
- 	/*
- 	 * DMA (thus cache coherency maintenance) requires the
- 	 * transfer buffers to live in their own cache line.
-@@ -143,14 +148,13 @@ static irqreturn_t adc084s021_buffer_tri
- 	struct iio_poll_func *pf = pollfunc;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct adc084s021 *adc = iio_priv(indio_dev);
--	__be16 data[8] = {0}; /* 4 * 16-bit words of data + 8 bytes timestamp */
+--- a/drivers/iio/adc/mcp3422.c
++++ b/drivers/iio/adc/mcp3422.c
+@@ -99,16 +99,12 @@ static int mcp3422_update_config(struct
+ {
+ 	int ret;
  
- 	mutex_lock(&adc->lock);
+-	mutex_lock(&adc->lock);
+-
+ 	ret = i2c_master_send(adc->i2c, &newconfig, 1);
+ 	if (ret > 0) {
+ 		adc->config = newconfig;
+ 		ret = 0;
+ 	}
  
--	if (adc084s021_adc_conversion(adc, &data) < 0)
-+	if (adc084s021_adc_conversion(adc, adc->scan.channels) < 0)
- 		dev_err(&adc->spi->dev, "Failed to read data\n");
+-	mutex_unlock(&adc->lock);
+-
+ 	return ret;
+ }
  
--	iio_push_to_buffers_with_timestamp(indio_dev, data,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &adc->scan,
- 					   iio_get_time_ns(indio_dev));
- 	mutex_unlock(&adc->lock);
- 	iio_trigger_notify_done(indio_dev->trig);
+@@ -141,6 +137,8 @@ static int mcp3422_read_channel(struct m
+ 	u8 config;
+ 	u8 req_channel = channel->channel;
+ 
++	mutex_lock(&adc->lock);
++
+ 	if (req_channel != MCP3422_CHANNEL(adc->config)) {
+ 		config = adc->config;
+ 		config &= ~MCP3422_CHANNEL_MASK;
+@@ -153,7 +151,11 @@ static int mcp3422_read_channel(struct m
+ 		msleep(mcp3422_read_times[MCP3422_SAMPLE_RATE(adc->config)]);
+ 	}
+ 
+-	return mcp3422_read(adc, value, &config);
++	ret = mcp3422_read(adc, value, &config);
++
++	mutex_unlock(&adc->lock);
++
++	return ret;
+ }
+ 
+ static int mcp3422_read_raw(struct iio_dev *iio,
 
 
