@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34B4C272EE3
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E49B1272ED6
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728984AbgIUQwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:52:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56566 "EHLO mail.kernel.org"
+        id S1729880AbgIUQtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:49:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729861AbgIUQsx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:48:53 -0400
+        id S1729867AbgIUQs4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:48:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7344B2395C;
-        Mon, 21 Sep 2020 16:48:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 451652396F;
+        Mon, 21 Sep 2020 16:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706933;
-        bh=FeYjiB+entckR72hBsWpw60Z9H9cdzxYU6XfU6kPkOA=;
+        s=default; t=1600706935;
+        bh=gGDHczpz8r2zceftid4pkqX/Ns6RtjqZI6MZyWdcknA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fzQjsu34lmcMHG36VMli05xFhzK4ZM7qcqGHkGyUwx7UT6jNWStHJqNjQct+h30el
-         NddykAXqFKQrK+sX1J1LTze9Rr9GyQatlZC1RhjPp2fbBsSwglTOWgH9ZLzdWS6MCu
-         0oFIibETmhniWk8Gyt6/RkIYTYjUmvkwdMsJ9wGE=
+        b=JZCB8JGoQ7NsFAjcKWdaaHtNCuCUjvROeXQrmAtjrqeA7a2ipF0R3eFKXlHIStqOu
+         P/7cAPfEsfiDyXUARPpDHGOpibevoYjszg+utjz94dn4F/eKi9HSwHKzXbLy4s5WJR
+         B/5FjP0QW2hKnC/G0sBBVwKgGAL5n49rBvdOSxJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Belin <nbelin@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/72] ASoC: meson: axg-toddr: fix channel order on g12 platforms
-Date:   Mon, 21 Sep 2020 18:31:12 +0200
-Message-Id: <20200921163123.442974475@linuxfoundation.org>
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 34/72] Drivers: hv: vmbus: hibernation: do not hang forever in vmbus_bus_resume()
+Date:   Mon, 21 Sep 2020 18:31:13 +0200
+Message-Id: <20200921163123.491352784@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -44,75 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit 9c4b205a20f483d8a5d1208cfec33e339347d4bd ]
+[ Upstream commit 19873eec7e13fda140a0ebc75d6664e57c00bfb1 ]
 
-On g12 and following platforms, The first channel of record with more than
-2 channels ends being placed randomly on an even channel of the output.
+After we Stop and later Start a VM that uses Accelerated Networking (NIC
+SR-IOV), currently the VF vmbus device's Instance GUID can change, so after
+vmbus_bus_resume() -> vmbus_request_offers(), vmbus_onoffer() can not find
+the original vmbus channel of the VF, and hence we can't complete()
+vmbus_connection.ready_for_resume_event in check_ready_for_resume_event(),
+and the VM hangs in vmbus_bus_resume() forever.
 
-On these SoCs, a bit was added to force the first channel to be placed at
-the beginning of the output. Apparently the behavior if the bit is not set
-is not easily predictable. According to the documentation, this bit is not
-present on the axg series.
+Fix the issue by adding a timeout, so the resuming can still succeed, and
+the saved state is not lost, and according to my test, the user can disable
+Accelerated Networking and then will be able to SSH into the VM for
+further recovery. Also prevent the VM in question from suspending again.
 
-Set the bit on g12 and fix the problem.
+The host will be fixed so in future the Instance GUID will stay the same
+across hibernation.
 
-Fixes: a3c23a8ad4dc ("ASoC: meson: axg-toddr: add g12a support")
-Reported-by: Nicolas Belin <nbelin@baylibre.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20200828151438.350974-1-jbrunet@baylibre.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d8bd2d442bb2 ("Drivers: hv: vmbus: Resume after fixing up old primary channels")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20200905025555.45614-1-decui@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/meson/axg-toddr.c | 24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ drivers/hv/vmbus_drv.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/meson/axg-toddr.c b/sound/soc/meson/axg-toddr.c
-index ecf41c7549a65..32b9fd59353a4 100644
---- a/sound/soc/meson/axg-toddr.c
-+++ b/sound/soc/meson/axg-toddr.c
-@@ -18,6 +18,7 @@
- #define CTRL0_TODDR_SEL_RESAMPLE	BIT(30)
- #define CTRL0_TODDR_EXT_SIGNED		BIT(29)
- #define CTRL0_TODDR_PP_MODE		BIT(28)
-+#define CTRL0_TODDR_SYNC_CH		BIT(27)
- #define CTRL0_TODDR_TYPE_MASK		GENMASK(15, 13)
- #define CTRL0_TODDR_TYPE(x)		((x) << 13)
- #define CTRL0_TODDR_MSB_POS_MASK	GENMASK(12, 8)
-@@ -184,10 +185,31 @@ static const struct axg_fifo_match_data axg_toddr_match_data = {
- 	.dai_drv		= &axg_toddr_dai_drv
- };
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 24c38e44ed3bc..2d2568dac2a66 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -2231,7 +2231,10 @@ static int vmbus_bus_suspend(struct device *dev)
+ 	if (atomic_read(&vmbus_connection.nr_chan_close_on_suspend) > 0)
+ 		wait_for_completion(&vmbus_connection.ready_for_suspend_event);
  
-+static int g12a_toddr_dai_startup(struct snd_pcm_substream *substream,
-+				 struct snd_soc_dai *dai)
-+{
-+	struct axg_fifo *fifo = snd_soc_dai_get_drvdata(dai);
-+	int ret;
-+
-+	ret = axg_toddr_dai_startup(substream, dai);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Make sure the first channel ends up in the at beginning of the output
-+	 * As weird as it looks, without this the first channel may be misplaced
-+	 * in memory, with a random shift of 2 channels.
-+	 */
-+	regmap_update_bits(fifo->map, FIFO_CTRL0, CTRL0_TODDR_SYNC_CH,
-+			   CTRL0_TODDR_SYNC_CH);
-+
-+	return 0;
-+}
-+
- static const struct snd_soc_dai_ops g12a_toddr_ops = {
- 	.prepare	= g12a_toddr_dai_prepare,
- 	.hw_params	= axg_toddr_dai_hw_params,
--	.startup	= axg_toddr_dai_startup,
-+	.startup	= g12a_toddr_dai_startup,
- 	.shutdown	= axg_toddr_dai_shutdown,
- };
+-	WARN_ON(atomic_read(&vmbus_connection.nr_chan_fixup_on_resume) != 0);
++	if (atomic_read(&vmbus_connection.nr_chan_fixup_on_resume) != 0) {
++		pr_err("Can not suspend due to a previous failed resuming\n");
++		return -EBUSY;
++	}
  
+ 	mutex_lock(&vmbus_connection.channel_mutex);
+ 
+@@ -2305,7 +2308,9 @@ static int vmbus_bus_resume(struct device *dev)
+ 
+ 	vmbus_request_offers();
+ 
+-	wait_for_completion(&vmbus_connection.ready_for_resume_event);
++	if (wait_for_completion_timeout(
++		&vmbus_connection.ready_for_resume_event, 10 * HZ) == 0)
++		pr_err("Some vmbus device is missing after suspending?\n");
+ 
+ 	/* Reset the event for the next suspend. */
+ 	reinit_completion(&vmbus_connection.ready_for_suspend_event);
 -- 
 2.25.1
 
