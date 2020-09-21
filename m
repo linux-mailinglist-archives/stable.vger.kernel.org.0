@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2979272DED
+	by mail.lfdr.de (Postfix) with ESMTP id 54760272DEC
 	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:45:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729434AbgIUQoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:44:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48536 "EHLO mail.kernel.org"
+        id S1729046AbgIUQoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:44:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729617AbgIUQnq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:43:46 -0400
+        id S1729180AbgIUQns (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:43:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6213235F9;
-        Mon, 21 Sep 2020 16:43:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1289023976;
+        Mon, 21 Sep 2020 16:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706625;
-        bh=d5XIaRljVwM3B1wOOuQiNn/RI/rtsJyv5oYD7QUfQG4=;
+        s=default; t=1600706627;
+        bh=J3gXBR/Gjl3DzX0hS0PTmUv2pIWLYi4Gy2GOp/A5aj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P44afJqgyn4aJvCmng9lbk94/oXG4UQXJJ16d14+25aXGs9ySHg3oyMIncRaDJ3ND
-         htyaNed0f4AgJMTEnisye8ucWBuu6hQZEduiUUtXJTRFn8CdSOqtFMuYjJt3MIVeyb
-         r/KsPklRgUehOgSS7pkqtqUeVfdc0ewfpApmvaxU=
+        b=mVcU5j2kIW1+spWYo4kPJTkcfdRzTJt037Y6Y+wO/XJa2n+oX8a51+tou1ImW0wjL
+         GP3tvqq8U1qx204Yu0pToLFl0d/yAneEJE119jZmF8jJDrE9H7ZUZhQoeIfrTo4f+8
+         lgDhEOJMukHQTaIP2PG6m2A+oPbN+pFRlJ8hcu6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prateek Sood <prsood@codeaurora.org>,
-        Takashi Iwai <tiwai@suse.de>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.8 008/118] firmware_loader: fix memory leak for paged buffer
-Date:   Mon, 21 Sep 2020 18:27:00 +0200
-Message-Id: <20200921162036.725971208@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Aloni <dan@kernelim.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 009/118] xprtrdma: Release in-flight MRs on disconnect
+Date:   Mon, 21 Sep 2020 18:27:01 +0200
+Message-Id: <20200921162036.774749872@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
 References: <20200921162036.324813383@linuxfoundation.org>
@@ -43,92 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prateek Sood <prsood@codeaurora.org>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 4965b8cd1bc1ffb017e5c58e622da82b55e49414 upstream.
+[ Upstream commit 5de55ce951a1466e31ff68a7bc6b0a7ce3cb5947 ]
 
-vfree() is being called on paged buffer allocated
-using alloc_page() and mapped using vmap().
+Dan Aloni reports that when a server disconnects abruptly, a few
+memory regions are left DMA mapped. Over time this leak could pin
+enough I/O resources to slow or even deadlock an NFS/RDMA client.
 
-Freeing of pages in vfree() relies on nr_pages of
-struct vm_struct. vmap() does not update nr_pages.
-It can lead to memory leaks.
+I found that if a transport disconnects before pending Send and
+FastReg WRs can be posted, the to-be-registered MRs are stranded on
+the req's rl_registered list and never released -- since they
+weren't posted, there's no Send completion to DMA unmap them.
 
-Fixes: ddaf29fd9bb6 ("firmware: Free temporary page table after vmapping")
-Signed-off-by: Prateek Sood <prsood@codeaurora.org>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1597957070-27185-1-git-send-email-prsood@codeaurora.org
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Dan Aloni <dan@kernelim.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/firmware_loader/firmware.h |    2 ++
- drivers/base/firmware_loader/main.c     |   17 +++++++++++------
- 2 files changed, 13 insertions(+), 6 deletions(-)
+ net/sunrpc/xprtrdma/verbs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/base/firmware_loader/firmware.h
-+++ b/drivers/base/firmware_loader/firmware.h
-@@ -142,10 +142,12 @@ int assign_fw(struct firmware *fw, struc
- void fw_free_paged_buf(struct fw_priv *fw_priv);
- int fw_grow_paged_buf(struct fw_priv *fw_priv, int pages_needed);
- int fw_map_paged_buf(struct fw_priv *fw_priv);
-+bool fw_is_paged_buf(struct fw_priv *fw_priv);
- #else
- static inline void fw_free_paged_buf(struct fw_priv *fw_priv) {}
- static inline int fw_grow_paged_buf(struct fw_priv *fw_priv, int pages_needed) { return -ENXIO; }
- static inline int fw_map_paged_buf(struct fw_priv *fw_priv) { return -ENXIO; }
-+static inline bool fw_is_paged_buf(struct fw_priv *fw_priv) { return false; }
- #endif
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index 75c646743df3e..ca89f24a1590b 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -933,6 +933,8 @@ static void rpcrdma_req_reset(struct rpcrdma_req *req)
  
- #endif /* __FIRMWARE_LOADER_H */
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -252,9 +252,11 @@ static void __free_fw_priv(struct kref *
- 	list_del(&fw_priv->list);
- 	spin_unlock(&fwc->lock);
- 
--	fw_free_paged_buf(fw_priv); /* free leftover pages */
--	if (!fw_priv->allocated_size)
-+	if (fw_is_paged_buf(fw_priv))
-+		fw_free_paged_buf(fw_priv);
-+	else if (!fw_priv->allocated_size)
- 		vfree(fw_priv->data);
+ 	rpcrdma_regbuf_dma_unmap(req->rl_sendbuf);
+ 	rpcrdma_regbuf_dma_unmap(req->rl_recvbuf);
 +
- 	kfree_const(fw_priv->fw_name);
- 	kfree(fw_priv);
- }
-@@ -268,6 +270,11 @@ static void free_fw_priv(struct fw_priv
++	frwr_reset(req);
  }
  
- #ifdef CONFIG_FW_LOADER_PAGED_BUF
-+bool fw_is_paged_buf(struct fw_priv *fw_priv)
-+{
-+	return fw_priv->is_paged_buf;
-+}
-+
- void fw_free_paged_buf(struct fw_priv *fw_priv)
- {
- 	int i;
-@@ -275,6 +282,8 @@ void fw_free_paged_buf(struct fw_priv *f
- 	if (!fw_priv->pages)
- 		return;
- 
-+	vunmap(fw_priv->data);
-+
- 	for (i = 0; i < fw_priv->nr_pages; i++)
- 		__free_page(fw_priv->pages[i]);
- 	kvfree(fw_priv->pages);
-@@ -328,10 +337,6 @@ int fw_map_paged_buf(struct fw_priv *fw_
- 	if (!fw_priv->data)
- 		return -ENOMEM;
- 
--	/* page table is no longer needed after mapping, let's free */
--	kvfree(fw_priv->pages);
--	fw_priv->pages = NULL;
--
- 	return 0;
- }
- #endif
+ /* ASSUMPTION: the rb_allreqs list is stable for the duration,
+-- 
+2.25.1
+
 
 
