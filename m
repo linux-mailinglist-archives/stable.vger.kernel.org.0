@@ -2,28 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6648271DE1
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 10:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3868B271E32
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 10:41:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726405AbgIUIZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 04:25:38 -0400
-Received: from mx2.suse.de ([195.135.220.15]:58060 "EHLO mx2.suse.de"
+        id S1726353AbgIUIl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 04:41:56 -0400
+Received: from mx2.suse.de ([195.135.220.15]:50582 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726318AbgIUIZi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 04:25:38 -0400
+        id S1726236AbgIUIlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 04:41:55 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 4D189ADD2;
-        Mon, 21 Sep 2020 08:26:10 +0000 (UTC)
-Date:   Mon, 21 Sep 2020 10:25:33 +0200
-Message-ID: <s5hzh5jpmde.wl-tiwai@suse.de>
+        by mx2.suse.de (Postfix) with ESMTP id B6621B535;
+        Mon, 21 Sep 2020 08:42:30 +0000 (UTC)
+Date:   Mon, 21 Sep 2020 10:41:54 +0200
+Message-ID: <s5hr1qvplm5.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
-To:     Hui Wang <hui.wang@canonical.com>
-Cc:     alsa-devel@alsa-project.org, kailang@realtek.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] ALSA: hda/realtek - Couldn't detect Mic if booting with headset plugged
-In-Reply-To: <20200914065118.19238-1-hui.wang@canonical.com>
-References: <20200914065118.19238-1-hui.wang@canonical.com>
+To:     Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Cc:     <alsa-devel@alsa-project.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] ALSA: usb-audio: Add delay quirk for H570e USB headsets
+In-Reply-To: <20200910085328.19188-1-joakim.tjernlund@infinera.com>
+References: <20200910085328.19188-1-joakim.tjernlund@infinera.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -33,25 +32,13 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 14 Sep 2020 08:51:18 +0200,
-Hui Wang wrote:
+On Thu, 10 Sep 2020 10:53:28 +0200,
+Joakim Tjernlund wrote:
 > 
-> We found a Mic detection issue on many Lenovo laptops, those laptops
-> belong to differnt models and they have different audio design like
-> internal mic connects to the codec or PCH, they all have this problem,
-> the problem is if plugging a headset before powerup/reboot the
-> machine, after booting up, the headphone could be detected but Mic
-> couldn't. If we plug out and plug in the headset, both headphone and
-> Mic could be detected then.
+> Needs the same delay as H650e
 > 
-> Through debugging we found the codec on those laptops are same, it is
-> alc257, and if we don't disable the 3k pulldown in alc256_shutup(),
-> the issue will be fixed. So far there is no pop noise or power
-> consumption regression on those laptops after this change.
-> 
-> Cc: Kailang Yang <kailang@realtek.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Hui Wang <hui.wang@canonical.com>
+> Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+> Cc: stable@vger.kernel.org
 
 Applied now.  Thanks.
 
