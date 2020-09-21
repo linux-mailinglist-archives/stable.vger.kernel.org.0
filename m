@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BA59272FE1
+	by mail.lfdr.de (Postfix) with ESMTP id 7A9A8272FE2
 	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:01:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729894AbgIURA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729333AbgIURA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 21 Sep 2020 13:00:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41742 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728260AbgIUQjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:39:35 -0400
+        id S1729300AbgIUQjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:39:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6E6A239D1;
-        Mon, 21 Sep 2020 16:39:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9DE8206DC;
+        Mon, 21 Sep 2020 16:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706375;
-        bh=hoiopHNqBwCuXdRZ+e3IEFnmXrmN6DQJtXVKc2zkBnE=;
+        s=default; t=1600706390;
+        bh=268MGWFGNSGhF8vkfmMrcswiJWzPyJTIJ6eoxKK2zLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cQCslyK7E349bcie7A29O3RQcV2kOjhyBxsqn78+Dq9LVYk0czpvG6cElQ6vXRZ+9
-         L3fi5t/CZBgyNUndbs75NHAUbdu+WT5haXBXCulTqXgVqxXfpvyrUOZo4rDyO+Z8KQ
-         Gs9YtfLG2lKEe0biaYsAr7fkHtF3rVcG5Ej/uAN0=
+        b=K+vQhCPEfIOdTXKbBTE1f/O/NJ7D4VxYfERlQPRZzKu417mSulkRifC9CXoIiTy+5
+         doAnvscOJcBfCsAB3ghUHbi8yJ6rc0Xe0VEKtRNzTKlBV5lJxNJAdM6Pcww+5wjDBa
+         LA+qUUf7bBwXNDhvdTj9ADoan/Bnvi3mhfgspJE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gustav Wiklander <gustavwi@axis.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        George Kennedy <george.kennedy@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 74/94] spi: Fix memory leak on splited transfers
-Date:   Mon, 21 Sep 2020 18:28:01 +0200
-Message-Id: <20200921162038.931588593@linuxfoundation.org>
+Subject: [PATCH 4.14 80/94] fbcon: Fix user font detection test at fbcon_resize().
+Date:   Mon, 21 Sep 2020 18:28:07 +0200
+Message-Id: <20200921162039.200305379@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
 References: <20200921162035.541285330@linuxfoundation.org>
@@ -43,75 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustav Wiklander <gustavwi@axis.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit b59a7ca15464c78ea1ba3b280cfc5ac5ece11ade ]
+[ Upstream commit ec0972adecb391a8d8650832263a4790f3bfb4df ]
 
-In the prepare_message callback the bus driver has the
-opportunity to split a transfer into smaller chunks.
-spi_map_msg is done after prepare_message.
+syzbot is reporting OOB read at fbcon_resize() [1], for
+commit 39b3cffb8cf31117 ("fbcon: prevent user font height or width change
+ from causing potential out-of-bounds access") is by error using
+registered_fb[con2fb_map[vc->vc_num]]->fbcon_par->p->userfont (which was
+set to non-zero) instead of fb_display[vc->vc_num].userfont (which remains
+zero for that display).
 
-Function spi_res_release releases the splited transfers
-in the message. Therefore spi_res_release should be called
-after spi_map_msg.
+We could remove tricky userfont flag [2], for we can determine it by
+comparing address of the font data and addresses of built-in font data.
+But since that commit is failing to fix the original OOB read [3], this
+patch keeps the change minimal in case we decide to revert altogether.
 
-The previous try at this was commit c9ba7a16d0f1
-which released the splited transfers after
-spi_finalize_current_message had been called.
-This introduced a race since the message struct could be
-out of scope because the spi_sync call got completed.
+[1] https://syzkaller.appspot.com/bug?id=ebcbbb6576958a496500fee9cf7aa83ea00b5920
+[2] https://syzkaller.appspot.com/text?tag=Patch&x=14030853900000
+[3] https://syzkaller.appspot.com/bug?id=6fba8c186d97cf1011ab17660e633b1cc4e080c9
 
-Fixes this leak on spi bus driver spi-bcm2835.c when transfer
-size is greater than 65532:
-
-Kmemleak:
-sg_alloc_table+0x28/0xc8
-spi_map_buf+0xa4/0x300
-__spi_pump_messages+0x370/0x748
-__spi_sync+0x1d4/0x270
-spi_sync+0x34/0x58
-spi_test_execute_msg+0x60/0x340 [spi_loopback_test]
-spi_test_run_iter+0x548/0x578 [spi_loopback_test]
-spi_test_run_test+0x94/0x140 [spi_loopback_test]
-spi_test_run_tests+0x150/0x180 [spi_loopback_test]
-spi_loopback_test_probe+0x50/0xd0 [spi_loopback_test]
-spi_drv_probe+0x84/0xe0
-
-Signed-off-by: Gustav Wiklander <gustavwi@axis.com>
-Link: https://lore.kernel.org/r/20200908151129.15915-1-gustav.wiklander@axis.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: syzbot <syzbot+b38b1ef6edf0c74a8d97@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 39b3cffb8cf31117 ("fbcon: prevent user font height or width change from causing potential out-of-bounds access")
+Cc: George Kennedy <george.kennedy@oracle.com>
+Link: https://lore.kernel.org/r/f6e3e611-8704-1263-d163-f52c906a4f06@I-love.SAKURA.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/core/fbcon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index ab6a4f85bcde7..acc8eeed73f07 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -1125,8 +1125,6 @@ out:
- 	if (msg->status && ctlr->handle_err)
- 		ctlr->handle_err(ctlr, msg);
+diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
+index 9f12d8e512aa3..5825f057fb4b1 100644
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -1957,7 +1957,7 @@ static int fbcon_resize(struct vc_data *vc, unsigned int width,
+ 	struct fb_var_screeninfo var = info->var;
+ 	int x_diff, y_diff, virt_w, virt_h, virt_fw, virt_fh;
  
--	spi_res_release(ctlr, msg);
--
- 	spi_finalize_current_message(ctlr);
+-	if (ops->p && ops->p->userfont && FNTSIZE(vc->vc_font.data)) {
++	if (p->userfont && FNTSIZE(vc->vc_font.data)) {
+ 		int size;
+ 		int pitch = PITCH(vc->vc_font.width);
  
- 	return ret;
-@@ -1384,6 +1382,13 @@ void spi_finalize_current_message(struct spi_controller *ctlr)
- 
- 	spi_unmap_msg(ctlr, mesg);
- 
-+	/* In the prepare_messages callback the spi bus has the opportunity to
-+	 * split a transfer to smaller chunks.
-+	 * Release splited transfers here since spi_map_msg is done on the
-+	 * splited transfers.
-+	 */
-+	spi_res_release(ctlr, mesg);
-+
- 	if (ctlr->cur_msg_prepared && ctlr->unprepare_message) {
- 		ret = ctlr->unprepare_message(ctlr, mesg);
- 		if (ret) {
 -- 
 2.25.1
 
