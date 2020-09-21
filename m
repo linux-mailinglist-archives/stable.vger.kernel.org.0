@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2227272F21
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF192272F85
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727113AbgIUQyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:54:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52884 "EHLO mail.kernel.org"
+        id S1730218AbgIUQ5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:57:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727808AbgIUQqd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:46:33 -0400
+        id S1728956AbgIUQmo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:42:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FCB723888;
-        Mon, 21 Sep 2020 16:46:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 631C123976;
+        Mon, 21 Sep 2020 16:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706792;
-        bh=dBCgVmzrvsbF1tx3duVFTA0bIAr5Uw/A6TKgbxt3XVw=;
+        s=default; t=1600706563;
+        bh=rNiWjmW70ZzjJzIF8efbR/VjEyRCpozTf42Ez/2euoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zHlRpXOZSDtZVSRu0/53wT85mKXIhP6OD0YRpxvP8B5gqqYdc+qU8ydrrje0tTQRw
-         SwG2fHDx/EXl4qgbtWWqJXohy2ROlPvukx9LO0eKLfUN/akndPdJqc2745919iVVwV
-         +HgO5qTHO98GsEXb/MPAziIiNB9w7+0+vZKm+NPo=
+        b=z8kYMFFLgapV1OqAS/aRGS1W6CldQANvRpCeBNCFyNMarLXwZUBo0J+SnN87jYthC
+         ITXO3SYJqi3Y1Fk4tuyix/hlfx1RAl3/HwjJLCVnzXE+azB3ktCfGuyIai0ClWJqhD
+         a5nYcw3J4s83OfIr5B6pGBxDthqzEQ+TUK0kCRI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.8 097/118] Input: i8042 - add Entroware Proteus EL07R4 to nomux and reset lists
-Date:   Mon, 21 Sep 2020 18:28:29 +0200
-Message-Id: <20200921162040.877044849@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.19 46/49] x86/boot/compressed: Disable relocation relaxation
+Date:   Mon, 21 Sep 2020 18:28:30 +0200
+Message-Id: <20200921162036.697581863@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
+References: <20200921162034.660953761@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-commit c4440b8a457779adeec42c5e181cb4016f19ce0f upstream.
+commit 09e43968db40c33a73e9ddbfd937f46d5c334924 upstream.
 
-The keyboard drops keypresses early during boot unless both the nomux
-and reset quirks are set. Add DMI table entries for this.
+The x86-64 psABI [0] specifies special relocation types
+(R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
+Table, semantically equivalent to R_X86_64_GOTPCREL, which the linker
+can take advantage of for optimization (relaxation) at link time. This
+is supported by LLD and binutils versions 2.26 onwards.
 
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1806085
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20200907095656.13155-1-hdegoede@redhat.com
+The compressed kernel is position-independent code, however, when using
+LLD or binutils versions before 2.27, it must be linked without the -pie
+option. In this case, the linker may optimize certain instructions into
+a non-position-independent form, by converting foo@GOTPCREL(%rip) to $foo.
+
+This potential issue has been present with LLD and binutils-2.26 for a
+long time, but it has never manifested itself before now:
+
+- LLD and binutils-2.26 only relax
+	movq	foo@GOTPCREL(%rip), %reg
+  to
+	leaq	foo(%rip), %reg
+  which is still position-independent, rather than
+	mov	$foo, %reg
+  which is permitted by the psABI when -pie is not enabled.
+
+- GCC happens to only generate GOTPCREL relocations on mov instructions.
+
+- CLang does generate GOTPCREL relocations on non-mov instructions, but
+  when building the compressed kernel, it uses its integrated assembler
+  (due to the redefinition of KBUILD_CFLAGS dropping -no-integrated-as),
+  which has so far defaulted to not generating the GOTPCRELX
+  relocations.
+
+Nick Desaulniers reports [1,2]:
+
+  "A recent change [3] to a default value of configuration variable
+   (ENABLE_X86_RELAX_RELOCATIONS OFF -> ON) in LLVM now causes Clang's
+   integrated assembler to emit R_X86_64_GOTPCRELX/R_X86_64_REX_GOTPCRELX
+   relocations. LLD will relax instructions with these relocations based
+   on whether the image is being linked as position independent or not.
+   When not, then LLD will relax these instructions to use absolute
+   addressing mode (R_RELAX_GOT_PC_NOPIC). This causes kernels built with
+   Clang and linked with LLD to fail to boot."
+
+Patch series [4] is a solution to allow the compressed kernel to be
+linked with -pie unconditionally, but even if merged is unlikely to be
+backported. As a simple solution that can be applied to stable as well,
+prevent the assembler from generating the relaxed relocation types using
+the -mrelax-relocations=no option. For ease of backporting, do this
+unconditionally.
+
+[0] https://gitlab.com/x86-psABIs/x86-64-ABI/-/blob/master/x86-64-ABI/linker-optimization.tex#L65
+[1] https://lore.kernel.org/lkml/20200807194100.3570838-1-ndesaulniers@google.com/
+[2] https://github.com/ClangBuiltLinux/linux/issues/1121
+[3] https://reviews.llvm.org/rGc41a18cf61790fc898dcda1055c3efbf442c14c0
+[4] https://lore.kernel.org/lkml/20200731202738.2577854-1-nivedita@alum.mit.edu/
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://lore.kernel.org/r/20200812004308.1448603-1-nivedita@alum.mit.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/serio/i8042-x86ia64io.h |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ arch/x86/boot/compressed/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -548,6 +548,14 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
- 		},
- 	},
-+	{
-+		/* Entroware Proteus */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Entroware"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Proteus"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "EL07R4"),
-+		},
-+	},
- 	{ }
- };
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -38,6 +38,8 @@ KBUILD_CFLAGS += $(call cc-option,-fno-s
+ KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
+ KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
+ KBUILD_CFLAGS += -Wno-pointer-sign
++# Disable relocation relaxation in case the link is not PIE.
++KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
  
-@@ -676,6 +684,14 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
- 		},
- 	},
-+	{
-+		/* Entroware Proteus */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Entroware"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Proteus"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "EL07R4"),
-+		},
-+	},
- 	{ }
- };
- 
+ KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
+ GCOV_PROFILE := n
 
 
