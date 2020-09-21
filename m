@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D2C5272F08
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0807E272F0B
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728975AbgIUQqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728429AbgIUQqH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 21 Sep 2020 12:46:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52046 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728448AbgIUQp4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:45:56 -0400
+        id S1727302AbgIUQp7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:45:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5ACCE2223E;
-        Mon, 21 Sep 2020 16:45:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7875206B2;
+        Mon, 21 Sep 2020 16:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706755;
-        bh=awV9qEtlN3RW3XQCr+gKb4y+X76hYG80ePS0CIgFqHk=;
+        s=default; t=1600706758;
+        bh=zRnzcd8ZM9DjUcGJxi3Jq0JAUPtuMZiw6U8QenmZGaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzPBO90htO4b2Yj5STRZbP6LMz1QF9HRTL1/vj8sNNcX6CpXfVgFF/HA+4/Kp3z0o
-         bASsH9EbQeNkklGOuhAy+8BPjshkp8uvPiMgse2MFHykOKKk4CaLdFuT14aq95U/nu
-         YVFGZJhOHo4tJjZ/pnHlnG8xtzl65lINr44VneR0=
+        b=Mj/eBapIaXy6teW4glIWiayfLhz/2JBzXL59FRwgGJfG4WDZDS4JgRmiEs+fKokF1
+         0vViPvxM50gAzTPM7OOcf4EaTmFgaQMG7GyfTEISMDAPiEJiW3kWvBOXnlpMHJmJxY
+         /QhLq9aH06z9Sfjgz0iOi105boPxtpA7DU8+8o58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 081/118] locking/percpu-rwsem: Use this_cpu_{inc,dec}() for read_count
-Date:   Mon, 21 Sep 2020 18:28:13 +0200
-Message-Id: <20200921162040.097611100@linuxfoundation.org>
+Subject: [PATCH 5.8 082/118] x86/unwind/fp: Fix FP unwinding in ret_from_fork
+Date:   Mon, 21 Sep 2020 18:28:14 +0200
+Message-Id: <20200921162040.146732002@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
 References: <20200921162036.324813383@linuxfoundation.org>
@@ -44,98 +47,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit e6b1a44eccfcab5e5e280be376f65478c3b2c7a2 ]
+[ Upstream commit 6f9885a36c006d798319661fa849f9c2922223b9 ]
 
-The __this_cpu*() accessors are (in general) IRQ-unsafe which, given
-that percpu-rwsem is a blocking primitive, should be just fine.
+There have been some reports of "bad bp value" warnings printed by the
+frame pointer unwinder:
 
-However, file_end_write() is used from IRQ context and will cause
-load-store issues on architectures where the per-cpu accessors are not
-natively irq-safe.
+  WARNING: kernel stack regs at 000000005bac7112 in sh:1014 has bad 'bp' value 0000000000000000
 
-Fix it by using the IRQ-safe this_cpu_*() for operations on
-read_count. This will generate more expensive code on a number of
-platforms, which might cause a performance regression for some of the
-other percpu-rwsem users.
+This warning happens when unwinding from an interrupt in
+ret_from_fork(). If entry code gets interrupted, the state of the
+frame pointer (rbp) may be undefined, which can confuse the unwinder,
+resulting in warnings like the above.
 
-If any such is reported, we can consider alternative solutions.
+There's an in_entry_code() check which normally silences such
+warnings for entry code. But in this case, ret_from_fork() is getting
+interrupted. It recently got moved out of .entry.text, so the
+in_entry_code() check no longer works.
 
-Fixes: 70fe2f48152e ("aio: fix freeze protection of aio writes")
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Will Deacon <will@kernel.org>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Link: https://lkml.kernel.org/r/20200915140750.137881-1-houtao1@huawei.com
+It could be moved back into .entry.text, but that would break the
+noinstr validation because of the call to schedule_tail().
+
+Instead, initialize each new task's RBP to point to the task's entry
+regs via an encoded frame pointer.  That will allow the unwinder to
+reach the end of the stack gracefully.
+
+Fixes: b9f6976bfb94 ("x86/entry/64: Move non entry code into .text section")
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reported-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/f366bbf5a8d02e2318ee312f738112d0af74d16f.1600103007.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/percpu-rwsem.h  | 8 ++++----
- kernel/locking/percpu-rwsem.c | 4 ++--
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/frame.h | 19 +++++++++++++++++++
+ arch/x86/kernel/process.c    |  3 ++-
+ 2 files changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/percpu-rwsem.h b/include/linux/percpu-rwsem.h
-index 5e033fe1ff4e9..5fda40f97fe91 100644
---- a/include/linux/percpu-rwsem.h
-+++ b/include/linux/percpu-rwsem.h
-@@ -60,7 +60,7 @@ static inline void percpu_down_read(struct percpu_rw_semaphore *sem)
- 	 * anything we did within this RCU-sched read-size critical section.
- 	 */
- 	if (likely(rcu_sync_is_idle(&sem->rss)))
--		__this_cpu_inc(*sem->read_count);
-+		this_cpu_inc(*sem->read_count);
- 	else
- 		__percpu_down_read(sem, false); /* Unconditional memory barrier */
- 	/*
-@@ -79,7 +79,7 @@ static inline bool percpu_down_read_trylock(struct percpu_rw_semaphore *sem)
- 	 * Same as in percpu_down_read().
- 	 */
- 	if (likely(rcu_sync_is_idle(&sem->rss)))
--		__this_cpu_inc(*sem->read_count);
-+		this_cpu_inc(*sem->read_count);
- 	else
- 		ret = __percpu_down_read(sem, true); /* Unconditional memory barrier */
- 	preempt_enable();
-@@ -103,7 +103,7 @@ static inline void percpu_up_read(struct percpu_rw_semaphore *sem)
- 	 * Same as in percpu_down_read().
- 	 */
- 	if (likely(rcu_sync_is_idle(&sem->rss))) {
--		__this_cpu_dec(*sem->read_count);
-+		this_cpu_dec(*sem->read_count);
- 	} else {
- 		/*
- 		 * slowpath; reader will only ever wake a single blocked
-@@ -115,7 +115,7 @@ static inline void percpu_up_read(struct percpu_rw_semaphore *sem)
- 		 * aggregate zero, as that is the only time it matters) they
- 		 * will also see our critical section.
- 		 */
--		__this_cpu_dec(*sem->read_count);
-+		this_cpu_dec(*sem->read_count);
- 		rcuwait_wake_up(&sem->writer);
- 	}
- 	preempt_enable();
-diff --git a/kernel/locking/percpu-rwsem.c b/kernel/locking/percpu-rwsem.c
-index 8bbafe3e5203d..70a32a576f3f2 100644
---- a/kernel/locking/percpu-rwsem.c
-+++ b/kernel/locking/percpu-rwsem.c
-@@ -45,7 +45,7 @@ EXPORT_SYMBOL_GPL(percpu_free_rwsem);
+diff --git a/arch/x86/include/asm/frame.h b/arch/x86/include/asm/frame.h
+index 296b346184b27..fb42659f6e988 100644
+--- a/arch/x86/include/asm/frame.h
++++ b/arch/x86/include/asm/frame.h
+@@ -60,12 +60,26 @@
+ #define FRAME_END "pop %" _ASM_BP "\n"
  
- static bool __percpu_down_read_trylock(struct percpu_rw_semaphore *sem)
- {
--	__this_cpu_inc(*sem->read_count);
-+	this_cpu_inc(*sem->read_count);
+ #ifdef CONFIG_X86_64
++
+ #define ENCODE_FRAME_POINTER			\
+ 	"lea 1(%rsp), %rbp\n\t"
++
++static inline unsigned long encode_frame_pointer(struct pt_regs *regs)
++{
++	return (unsigned long)regs + 1;
++}
++
+ #else /* !CONFIG_X86_64 */
++
+ #define ENCODE_FRAME_POINTER			\
+ 	"movl %esp, %ebp\n\t"			\
+ 	"andl $0x7fffffff, %ebp\n\t"
++
++static inline unsigned long encode_frame_pointer(struct pt_regs *regs)
++{
++	return (unsigned long)regs & 0x7fffffff;
++}
++
+ #endif /* CONFIG_X86_64 */
  
- 	/*
- 	 * Due to having preemption disabled the decrement happens on
-@@ -71,7 +71,7 @@ static bool __percpu_down_read_trylock(struct percpu_rw_semaphore *sem)
- 	if (likely(!atomic_read_acquire(&sem->block)))
- 		return true;
+ #endif /* __ASSEMBLY__ */
+@@ -83,6 +97,11 @@
  
--	__this_cpu_dec(*sem->read_count);
-+	this_cpu_dec(*sem->read_count);
+ #define ENCODE_FRAME_POINTER
  
- 	/* Prod writer to re-evaluate readers_active_check() */
- 	rcuwait_wake_up(&sem->writer);
++static inline unsigned long encode_frame_pointer(struct pt_regs *regs)
++{
++	return 0;
++}
++
+ #endif
+ 
+ #define FRAME_BEGIN
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index fe67dbd76e517..bff502e779e44 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -42,6 +42,7 @@
+ #include <asm/spec-ctrl.h>
+ #include <asm/io_bitmap.h>
+ #include <asm/proto.h>
++#include <asm/frame.h>
+ 
+ #include "process.h"
+ 
+@@ -133,7 +134,7 @@ int copy_thread_tls(unsigned long clone_flags, unsigned long sp,
+ 	fork_frame = container_of(childregs, struct fork_frame, regs);
+ 	frame = &fork_frame->frame;
+ 
+-	frame->bp = 0;
++	frame->bp = encode_frame_pointer(childregs);
+ 	frame->ret_addr = (unsigned long) ret_from_fork;
+ 	p->thread.sp = (unsigned long) fork_frame;
+ 	p->thread.io_bitmap = NULL;
 -- 
 2.25.1
 
