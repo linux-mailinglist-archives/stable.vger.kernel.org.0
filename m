@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73601272C8E
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC01D272F46
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:56:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728592AbgIUQdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:33:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59242 "EHLO mail.kernel.org"
+        id S1727804AbgIUQz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:55:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726898AbgIUQdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:33:14 -0400
+        id S1727939AbgIUQp1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:45:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFBEE239D1;
-        Mon, 21 Sep 2020 16:33:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B834C2076B;
+        Mon, 21 Sep 2020 16:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600705993;
-        bh=jFxCiZ44NXmk11inWlUxj2I0OFZ6rhbVv5VMfpK1ONo=;
+        s=default; t=1600706726;
+        bh=sw/fWsgM3s2NVqfVCcC9QdPZrbGrFpV00b5iqhj5Kug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d7ELhOYrEAwAV44xgLwivB1yYWbm5kh8lADd6kpQjwgYG5L+a7KpDASIvKFvKX+7l
-         ysAHTI2uinRRbSscaf59lE5YExMrBhQ2IMVECQj3nXjfbF387COgJKLekEnboKRr2c
-         A7wvIXqIL19JtYFG5i/2q6xypAgp8SkrYLJsN+Zw=
+        b=wAlIV26MpY4Cu0dRi5i799rqZ4JCwt9QjzOqpUbt9/lhgr1aRAfN50lL6dLwY67xm
+         I9Pgv96rlTgnbQjxDKkuCa3UHnx9f2hbV1PPrq4CMdYh3GQr+VcJGpg7jzpQO8OPtc
+         LnWLuB0LF6PwVVv+bq2/ZeZWN+7MJpFBfgRE0ot4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.4 45/46] powerpc/dma: Fix dma_map_ops::get_required_mask
-Date:   Mon, 21 Sep 2020 18:28:01 +0200
-Message-Id: <20200921162035.345306742@linuxfoundation.org>
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 070/118] drm/mediatek: Add missing put_device() call in mtk_drm_kms_init()
+Date:   Mon, 21 Sep 2020 18:28:02 +0200
+Message-Id: <20200921162039.589715174@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
-References: <20200921162033.346434578@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 437ef802e0adc9f162a95213a3488e8646e5fc03 upstream.
+[ Upstream commit 2132940f2192824acf160d115192755f7c58a847 ]
 
-There are 2 problems with it:
-  1. "<" vs expected "<<"
-  2. the shift number is an IOMMU page number mask, not an address
-  mask as the IOMMU page shift is missing.
+if of_find_device_by_node() succeed, mtk_drm_kms_init() doesn't have
+a corresponding put_device(). Thus add jump target to fix the exception
+handling for this function implementation.
 
-This did not hit us before f1565c24b596 ("powerpc: use the generic
-dma_ops_bypass mode") because we had additional code to handle bypass
-mask so this chunk (almost?) never executed.However there were
-reports that aacraid does not work with "iommu=nobypass".
-
-After f1565c24b596, aacraid (and probably others which call
-dma_get_required_mask() before setting the mask) was unable to enable
-64bit DMA and fall back to using IOMMU which was known not to work,
-one of the problems is double free of an IOMMU page.
-
-This fixes DMA for aacraid, both with and without "iommu=nobypass" in
-the kernel command line. Verified with "stress-ng -d 4".
-
-Fixes: 6a5c7be5e484 ("powerpc: Override dma_get_required_mask by platform hook and ops")
-Cc: stable@vger.kernel.org # v3.2+
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200908015106.79661-1-aik@ozlabs.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 119f5173628a ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/dma-iommu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/kernel/dma-iommu.c
-+++ b/arch/powerpc/kernel/dma-iommu.c
-@@ -99,7 +99,8 @@ static u64 dma_iommu_get_required_mask(s
- 	if (!tbl)
- 		return 0;
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+index 7ad0433539f45..b77dc36be4224 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+@@ -165,7 +165,7 @@ static int mtk_drm_kms_init(struct drm_device *drm)
  
--	mask = 1ULL < (fls_long(tbl->it_offset + tbl->it_size) - 1);
-+	mask = 1ULL << (fls_long(tbl->it_offset + tbl->it_size) +
-+			tbl->it_page_shift - 1);
- 	mask += mask - 1;
+ 	ret = drmm_mode_config_init(drm);
+ 	if (ret)
+-		return ret;
++		goto put_mutex_dev;
  
- 	return mask;
+ 	drm->mode_config.min_width = 64;
+ 	drm->mode_config.min_height = 64;
+@@ -182,7 +182,7 @@ static int mtk_drm_kms_init(struct drm_device *drm)
+ 
+ 	ret = component_bind_all(drm->dev, drm);
+ 	if (ret)
+-		return ret;
++		goto put_mutex_dev;
+ 
+ 	/*
+ 	 * We currently support two fixed data streams, each optional,
+@@ -229,7 +229,7 @@ static int mtk_drm_kms_init(struct drm_device *drm)
+ 	}
+ 	if (!dma_dev->dma_parms) {
+ 		ret = -ENOMEM;
+-		goto err_component_unbind;
++		goto put_dma_dev;
+ 	}
+ 
+ 	ret = dma_set_max_seg_size(dma_dev, (unsigned int)DMA_BIT_MASK(32));
+@@ -256,9 +256,12 @@ static int mtk_drm_kms_init(struct drm_device *drm)
+ err_unset_dma_parms:
+ 	if (private->dma_parms_allocated)
+ 		dma_dev->dma_parms = NULL;
++put_dma_dev:
++	put_device(private->dma_dev);
+ err_component_unbind:
+ 	component_unbind_all(drm->dev, drm);
+-
++put_mutex_dev:
++	put_device(private->mutex_dev);
+ 	return ret;
+ }
+ 
+-- 
+2.25.1
+
 
 
