@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4733D272DF9
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67BFA272C80
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:33:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729702AbgIUQot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:44:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50334 "EHLO mail.kernel.org"
+        id S1728541AbgIUQcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:32:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729179AbgIUQos (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:44:48 -0400
+        id S1728488AbgIUQcd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:32:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3FB82076B;
-        Mon, 21 Sep 2020 16:44:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B2C22399C;
+        Mon, 21 Sep 2020 16:32:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706687;
-        bh=frpCff4hC2Qu/ydTpqxpklOQSlr6ycnYLx3ohZwClOk=;
+        s=default; t=1600705953;
+        bh=0T9A2vS3EgCx7mMbINIZB7rlmmiUXGqbIW/pd8eX46s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+PHKQIwdVFJie9vOhtpKoJRwZPYtFbE/8hU0nfxANNm46qi/y0z1NxYza553IQ2j
-         40bmlsdd7NZmmSsA6cYiJHjnKVdxQsC4dJX/e3aCmhjLJJb9NFuP0G9Eg13D4mGKil
-         38Oxk+9t61BAHpkuzoMCiq3XWD5Ve7meJbdBj2q8=
+        b=15uniIATJUxoNH5CCdxmf/j93rtqMRwYlw0iwpPmWofduoZWKo91VmNJ3SG9Ei/UK
+         7SWLa21QBNpwjRisJHmWYUWwgyTKC0165Y1Hng6JrwuJVXjn76gs6obh2dljTnlg3e
+         jPIE/lpTFtdYIGEAmeQwxV1uGODvF1DtVwjIzMAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 052/118] Drivers: hv: vmbus: hibernation: do not hang forever in vmbus_bus_resume()
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 28/46] gcov: add support for GCC 10.1
 Date:   Mon, 21 Sep 2020 18:27:44 +0200
-Message-Id: <20200921162038.744929562@linuxfoundation.org>
+Message-Id: <20200921162034.599261898@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
+References: <20200921162033.346434578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Peter Oberparleiter <oberpar@linux.ibm.com>
 
-[ Upstream commit 19873eec7e13fda140a0ebc75d6664e57c00bfb1 ]
+[ Upstream commit 40249c6962075c040fd071339acae524f18bfac9 ]
 
-After we Stop and later Start a VM that uses Accelerated Networking (NIC
-SR-IOV), currently the VF vmbus device's Instance GUID can change, so after
-vmbus_bus_resume() -> vmbus_request_offers(), vmbus_onoffer() can not find
-the original vmbus channel of the VF, and hence we can't complete()
-vmbus_connection.ready_for_resume_event in check_ready_for_resume_event(),
-and the VM hangs in vmbus_bus_resume() forever.
+Using gcov to collect coverage data for kernels compiled with GCC 10.1
+causes random malfunctions and kernel crashes.  This is the result of a
+changed GCOV_COUNTERS value in GCC 10.1 that causes a mismatch between
+the layout of the gcov_info structure created by GCC profiling code and
+the related structure used by the kernel.
 
-Fix the issue by adding a timeout, so the resuming can still succeed, and
-the saved state is not lost, and according to my test, the user can disable
-Accelerated Networking and then will be able to SSH into the VM for
-further recovery. Also prevent the VM in question from suspending again.
+Fix this by updating the in-kernel GCOV_COUNTERS value.  Also re-enable
+config GCOV_KERNEL for use with GCC 10.
 
-The host will be fixed so in future the Instance GUID will stay the same
-across hibernation.
-
-Fixes: d8bd2d442bb2 ("Drivers: hv: vmbus: Resume after fixing up old primary channels")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20200905025555.45614-1-decui@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Reported-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Tested-by: Leon Romanovsky <leonro@nvidia.com>
+Tested-and-Acked-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/vmbus_drv.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ kernel/gcov/Kconfig   | 1 -
+ kernel/gcov/gcc_4_7.c | 4 +++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index d69f4efa37198..dacdd8d2eb1b3 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -2383,7 +2383,10 @@ static int vmbus_bus_suspend(struct device *dev)
- 	if (atomic_read(&vmbus_connection.nr_chan_close_on_suspend) > 0)
- 		wait_for_completion(&vmbus_connection.ready_for_suspend_event);
+diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
+index 1d78ed19a3512..1276aabaab550 100644
+--- a/kernel/gcov/Kconfig
++++ b/kernel/gcov/Kconfig
+@@ -3,7 +3,6 @@ menu "GCOV-based kernel profiling"
+ config GCOV_KERNEL
+ 	bool "Enable gcov-based kernel profiling"
+ 	depends on DEBUG_FS
+-	depends on !CC_IS_GCC || GCC_VERSION < 100000
+ 	select CONSTRUCTORS if !UML
+ 	default n
+ 	---help---
+diff --git a/kernel/gcov/gcc_4_7.c b/kernel/gcov/gcc_4_7.c
+index 46a18e72bce61..6d5ef6220afe7 100644
+--- a/kernel/gcov/gcc_4_7.c
++++ b/kernel/gcov/gcc_4_7.c
+@@ -18,7 +18,9 @@
+ #include <linux/vmalloc.h>
+ #include "gcov.h"
  
--	WARN_ON(atomic_read(&vmbus_connection.nr_chan_fixup_on_resume) != 0);
-+	if (atomic_read(&vmbus_connection.nr_chan_fixup_on_resume) != 0) {
-+		pr_err("Can not suspend due to a previous failed resuming\n");
-+		return -EBUSY;
-+	}
- 
- 	mutex_lock(&vmbus_connection.channel_mutex);
- 
-@@ -2459,7 +2462,9 @@ static int vmbus_bus_resume(struct device *dev)
- 
- 	vmbus_request_offers();
- 
--	wait_for_completion(&vmbus_connection.ready_for_resume_event);
-+	if (wait_for_completion_timeout(
-+		&vmbus_connection.ready_for_resume_event, 10 * HZ) == 0)
-+		pr_err("Some vmbus device is missing after suspending?\n");
- 
- 	/* Reset the event for the next suspend. */
- 	reinit_completion(&vmbus_connection.ready_for_suspend_event);
+-#if (__GNUC__ >= 7)
++#if (__GNUC__ >= 10)
++#define GCOV_COUNTERS			8
++#elif (__GNUC__ >= 7)
+ #define GCOV_COUNTERS			9
+ #elif (__GNUC__ > 5) || (__GNUC__ == 5 && __GNUC_MINOR__ >= 1)
+ #define GCOV_COUNTERS			10
 -- 
 2.25.1
 
