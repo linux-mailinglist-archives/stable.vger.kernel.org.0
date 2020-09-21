@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34D98273069
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:05:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BFA1272FFA
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729805AbgIUREr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 13:04:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34172 "EHLO mail.kernel.org"
+        id S1729246AbgIURBn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 13:01:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728829AbgIUQfG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:35:06 -0400
+        id S1729188AbgIUQin (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:38:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94575239D3;
-        Mon, 21 Sep 2020 16:34:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F598239D1;
+        Mon, 21 Sep 2020 16:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706099;
+        s=default; t=1600706321;
         bh=/6ABPznMbPJMPHwQ9dNfrnIj4B/bBpl7xDMTEHxTExI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uj5XvRwlyklPYQhHQmjF45ss2yNmN8kel3E/ClQJ6lhHndLjhf8SM6EmGV2tDEUPl
-         DBRiP9+cdKJ2NaQEvkC/77bDsY7kUVBWIHEJRBRKpvXA63EaVlrV3MZqu0LjwXDbx2
-         8OjMU7GIp0g2q0XeQZtGwiIjYVW7lI0frn1P2LiM=
+        b=zw6qimoBsr/FPurID+ol1Vt3OHjSwovTSgAS5ZHWJhWBrcIYKI2sGuMGI2I9K1+WN
+         UMy8tXAZoha4kuuMfTfeigHTTSqo++XklGS5inX31BxeSwsewHMM0CjlPObhhqt1vg
+         d0kEA6bHTq0aWtvzvd/l0b6ugnWRL8EWNra7+T1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         syzbot <syzbot+69fbd3e01470f169c8c4@syzkaller.appspotmail.com>,
         Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 4.9 39/70] video: fbdev: fix OOB read in vga_8planes_imageblit()
+Subject: [PATCH 4.14 52/94] video: fbdev: fix OOB read in vga_8planes_imageblit()
 Date:   Mon, 21 Sep 2020 18:27:39 +0200
-Message-Id: <20200921162036.902193432@linuxfoundation.org>
+Message-Id: <20200921162037.950110055@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
-References: <20200921162035.136047591@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
