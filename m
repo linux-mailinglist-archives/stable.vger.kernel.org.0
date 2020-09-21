@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A4B4272F64
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85103272C75
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729378AbgIUQ4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:56:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49874 "EHLO mail.kernel.org"
+        id S1728478AbgIUQcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:32:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729681AbgIUQob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:44:31 -0400
+        id S1728427AbgIUQcR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:32:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A033023A05;
-        Mon, 21 Sep 2020 16:44:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3DCA235F9;
+        Mon, 21 Sep 2020 16:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706670;
-        bh=HMu/HokD/40n5wtsJzDHKfGBoJ+UQNB7FtxnSHWbdGo=;
+        s=default; t=1600705935;
+        bh=mUB9LSDkQjmKRBhMpYIZ5OSZkr77dosOFdY2iOxg0ZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zxLBe2BGb4B8yZhWIPVCeueA7uvwXYzdJusI9jSqosjuBPFtjoTLHCDiOUamIQF7m
-         ZFvA8sjV+YO3wU8IS90omQ6sXp2wgDlqexs5EZ7rL70VrKcLpgFe0Y8ZYr/I4l+8Ih
-         YSzl1aGEDTjDNw0u+0GwkiiXMyr3ZgswJlc2OSU0=
+        b=vKQWfDrFn+RrJNJlxCvLcqAoF9cAgMPWIcsBHtPTAB+pCPtSsy6mAuEA5o7SvdHYE
+         NjZG+VbItl6KcjB66H19ufdqG8KmgdrIerZX4Kanrm4p1D2ejUaOOk6O0JBD2b8ASx
+         F806H00jiHPxgERCsUsT4Rz2BjkpMMVse+kvXLYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 046/118] powerpc/book3s64/radix: Fix boot failure with large amount of guest memory
+        stable@vger.kernel.org, NopNop Nop <nopitydays@gmail.com>,
+        Willy Tarreau <w@1wt.eu>,
+        =?UTF-8?q?=E5=BC=A0=E4=BA=91=E6=B5=B7?= <zhangyunhai@nsfocus.com>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 22/46] vgacon: remove software scrollback support
 Date:   Mon, 21 Sep 2020 18:27:38 +0200
-Message-Id: <20200921162038.446609098@linuxfoundation.org>
+Message-Id: <20200921162034.333966952@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
+References: <20200921162033.346434578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,136 +45,319 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 103a8542cb35b5130f732d00b0419a594ba1b517 ]
+commit 973c096f6a85e5b5f2a295126ba6928d9a6afd45 upstream.
 
-If the hypervisor doesn't support hugepages, the kernel ends up allocating a large
-number of page table pages. The early page table allocation was wrongly
-setting the max memblock limit to ppc64_rma_size with radix translation
-which resulted in boot failure as shown below.
+Yunhai Zhang recently fixed a VGA software scrollback bug in commit
+ebfdfeeae8c0 ("vgacon: Fix for missing check in scrollback handling"),
+but that then made people look more closely at some of this code, and
+there were more problems on the vgacon side, but also the fbcon software
+scrollback.
 
-Kernel panic - not syncing:
-early_alloc_pgtable: Failed to allocate 16777216 bytes align=0x1000000 nid=-1 from=0x0000000000000000 max_addr=0xffffffffffffffff
- CPU: 0 PID: 0 Comm: swapper Not tainted 5.8.0-24.9-default+ #2
- Call Trace:
- [c0000000016f3d00] [c0000000007c6470] dump_stack+0xc4/0x114 (unreliable)
- [c0000000016f3d40] [c00000000014c78c] panic+0x164/0x418
- [c0000000016f3dd0] [c000000000098890] early_alloc_pgtable+0xe0/0xec
- [c0000000016f3e60] [c0000000010a5440] radix__early_init_mmu+0x360/0x4b4
- [c0000000016f3ef0] [c000000001099bac] early_init_mmu+0x1c/0x3c
- [c0000000016f3f10] [c00000000109a320] early_setup+0x134/0x170
+We don't really have anybody who maintains this code - probably because
+nobody actually _uses_ it any more.  Sure, people still use both VGA and
+the framebuffer consoles, but they are no longer the main user
+interfaces to the kernel, and haven't been for decades, so these kinds
+of extra features end up bitrotting and not really being used.
 
-This was because the kernel was checking for the radix feature before we enable the
-feature via mmu_features. This resulted in the kernel using hash restrictions on
-radix.
+So rather than try to maintain a likely unused set of code, I'll just
+aggressively remove it, and see if anybody even notices.  Maybe there
+are people who haven't jumped on the whole GUI badnwagon yet, and think
+it's just a fad.  And maybe those people use the scrollback code.
 
-Rework the early init code such that the kernel boot with memblock restrictions
-as imposed by hash. At that point, the kernel still hasn't finalized the
-translation the kernel will end up using.
+If that turns out to be the case, we can resurrect this again, once
+we've found the sucker^Wmaintainer for it who actually uses it.
 
-We have three different ways of detecting radix.
+Reported-by: NopNop Nop <nopitydays@gmail.com>
+Tested-by: Willy Tarreau <w@1wt.eu>
+Cc: 张云海 <zhangyunhai@nsfocus.com>
+Acked-by: Andy Lutomirski <luto@amacapital.net>
+Acked-by: Willy Tarreau <w@1wt.eu>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-1. dt_cpu_ftrs_scan -> used only in case of PowerNV
-2. ibm,pa-features -> Used when we don't use cpu_dt_ftr_scan
-3. CAS -> Where we negotiate with hypervisor about the supported translation.
-
-We look at 1 or 2 early in the boot and after that, we look at the CAS vector to
-finalize the translation the kernel will use. We also support a kernel command
-line option (disable_radix) to switch to hash.
-
-Update the memblock limit after mmu_early_init_devtree() if the kernel is going
-to use radix translation. This forces some of the memblock allocations we do before
-mmu_early_init_devtree() to be within the RMA limit.
-
-Fixes: 2bfd65e45e87 ("powerpc/mm/radix: Add radix callbacks for early init routines")
-Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reviewed-by: Hari Bathini <hbathini@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200828100852.426575-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/book3s/64/mmu.h | 10 +++++-----
- arch/powerpc/mm/book3s64/radix_pgtable.c | 15 ---------------
- arch/powerpc/mm/init_64.c                | 11 +++++++++--
- 3 files changed, 14 insertions(+), 22 deletions(-)
+ arch/powerpc/configs/pasemi_defconfig |    1 
+ arch/powerpc/configs/ppc6xx_defconfig |    1 
+ arch/x86/configs/i386_defconfig       |    1 
+ arch/x86/configs/x86_64_defconfig     |    1 
+ drivers/video/console/Kconfig         |   25 -----
+ drivers/video/console/vgacon.c        |  161 ----------------------------------
+ 6 files changed, 1 insertion(+), 189 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/book3s/64/mmu.h b/arch/powerpc/include/asm/book3s/64/mmu.h
-index 5393a535240c7..dfbbffa0eb2e2 100644
---- a/arch/powerpc/include/asm/book3s/64/mmu.h
-+++ b/arch/powerpc/include/asm/book3s/64/mmu.h
-@@ -228,14 +228,14 @@ static inline void early_init_mmu_secondary(void)
+--- a/arch/powerpc/configs/pasemi_defconfig
++++ b/arch/powerpc/configs/pasemi_defconfig
+@@ -115,7 +115,6 @@ CONFIG_FB_NVIDIA=y
+ CONFIG_FB_NVIDIA_I2C=y
+ CONFIG_FB_RADEON=y
+ # CONFIG_LCD_CLASS_DEVICE is not set
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_LOGO=y
+ CONFIG_SOUND=y
+ CONFIG_SND=y
+--- a/arch/powerpc/configs/ppc6xx_defconfig
++++ b/arch/powerpc/configs/ppc6xx_defconfig
+@@ -797,7 +797,6 @@ CONFIG_FB_TRIDENT=m
+ CONFIG_FB_SM501=m
+ CONFIG_FB_IBM_GXT4500=y
+ CONFIG_LCD_PLATFORM=m
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_FRAMEBUFFER_CONSOLE=y
+ CONFIG_FRAMEBUFFER_CONSOLE_ROTATION=y
+ CONFIG_LOGO=y
+--- a/arch/x86/configs/i386_defconfig
++++ b/arch/x86/configs/i386_defconfig
+@@ -218,7 +218,6 @@ CONFIG_FB_MODE_HELPERS=y
+ CONFIG_FB_TILEBLITTING=y
+ CONFIG_FB_EFI=y
+ # CONFIG_LCD_CLASS_DEVICE is not set
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_LOGO=y
+ # CONFIG_LOGO_LINUX_MONO is not set
+ # CONFIG_LOGO_LINUX_VGA16 is not set
+--- a/arch/x86/configs/x86_64_defconfig
++++ b/arch/x86/configs/x86_64_defconfig
+@@ -212,7 +212,6 @@ CONFIG_FB_MODE_HELPERS=y
+ CONFIG_FB_TILEBLITTING=y
+ CONFIG_FB_EFI=y
+ # CONFIG_LCD_CLASS_DEVICE is not set
+-CONFIG_VGACON_SOFT_SCROLLBACK=y
+ CONFIG_LOGO=y
+ # CONFIG_LOGO_LINUX_MONO is not set
+ # CONFIG_LOGO_LINUX_VGA16 is not set
+--- a/drivers/video/console/Kconfig
++++ b/drivers/video/console/Kconfig
+@@ -22,31 +22,6 @@ config VGA_CONSOLE
  
- extern void hash__setup_initial_memory_limit(phys_addr_t first_memblock_base,
- 					 phys_addr_t first_memblock_size);
--extern void radix__setup_initial_memory_limit(phys_addr_t first_memblock_base,
--					 phys_addr_t first_memblock_size);
- static inline void setup_initial_memory_limit(phys_addr_t first_memblock_base,
- 					      phys_addr_t first_memblock_size)
- {
--	if (early_radix_enabled())
--		return radix__setup_initial_memory_limit(first_memblock_base,
--						   first_memblock_size);
-+	/*
-+	 * Hash has more strict restrictions. At this point we don't
-+	 * know which translations we will pick. Hence go with hash
-+	 * restrictions.
-+	 */
- 	return hash__setup_initial_memory_limit(first_memblock_base,
- 					   first_memblock_size);
- }
-diff --git a/arch/powerpc/mm/book3s64/radix_pgtable.c b/arch/powerpc/mm/book3s64/radix_pgtable.c
-index c2989c1718839..1e9a298020a63 100644
---- a/arch/powerpc/mm/book3s64/radix_pgtable.c
-+++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
-@@ -654,21 +654,6 @@ void radix__mmu_cleanup_all(void)
- 	}
- }
+ 	  Say Y.
  
--void radix__setup_initial_memory_limit(phys_addr_t first_memblock_base,
--				phys_addr_t first_memblock_size)
--{
--	/*
--	 * We don't currently support the first MEMBLOCK not mapping 0
--	 * physical on those processors
--	 */
--	BUG_ON(first_memblock_base != 0);
+-config VGACON_SOFT_SCROLLBACK
+-       bool "Enable Scrollback Buffer in System RAM"
+-       depends on VGA_CONSOLE
+-       default n
+-       help
+-         The scrollback buffer of the standard VGA console is located in
+-	 the VGA RAM.  The size of this RAM is fixed and is quite small.
+-	 If you require a larger scrollback buffer, this can be placed in
+-	 System RAM which is dynamically allocated during initialization.
+-	 Placing the scrollback buffer in System RAM will slightly slow
+-	 down the console.
 -
--	/*
--	 * Radix mode is not limited by RMA / VRMA addressing.
--	 */
--	ppc64_rma_size = ULONG_MAX;
+-	 If you want this feature, say 'Y' here and enter the amount of
+-	 RAM to allocate for this buffer.  If unsure, say 'N'.
+-
+-config VGACON_SOFT_SCROLLBACK_SIZE
+-       int "Scrollback Buffer Size (in KB)"
+-       depends on VGACON_SOFT_SCROLLBACK
+-       range 1 1024
+-       default "64"
+-       help
+-         Enter the amount of System RAM to allocate for the scrollback
+-	 buffer.  Each 64KB will give you approximately 16 80x25
+-	 screenfuls of scrollback buffer
+-
+ config MDA_CONSOLE
+ 	depends on !M68K && !PARISC && ISA
+ 	tristate "MDA text console (dual-headed)"
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -180,159 +180,6 @@ static inline void vga_set_mem_top(struc
+ 	write_vga(12, (c->vc_visible_origin - vga_vram_base) / 2);
+ }
+ 
+-#ifdef CONFIG_VGACON_SOFT_SCROLLBACK
+-/* software scrollback */
+-static void *vgacon_scrollback;
+-static int vgacon_scrollback_tail;
+-static int vgacon_scrollback_size;
+-static int vgacon_scrollback_rows;
+-static int vgacon_scrollback_cnt;
+-static int vgacon_scrollback_cur;
+-static int vgacon_scrollback_save;
+-static int vgacon_scrollback_restore;
+-
+-static void vgacon_scrollback_init(int pitch)
+-{
+-	int rows = CONFIG_VGACON_SOFT_SCROLLBACK_SIZE * 1024/pitch;
+-
+-	if (vgacon_scrollback) {
+-		vgacon_scrollback_cnt  = 0;
+-		vgacon_scrollback_tail = 0;
+-		vgacon_scrollback_cur  = 0;
+-		vgacon_scrollback_rows = rows - 1;
+-		vgacon_scrollback_size = rows * pitch;
+-	}
 -}
 -
- #ifdef CONFIG_MEMORY_HOTPLUG
- static void free_pte_table(pte_t *pte_start, pmd_t *pmd)
+-static void vgacon_scrollback_startup(void)
+-{
+-	vgacon_scrollback = kcalloc(CONFIG_VGACON_SOFT_SCROLLBACK_SIZE, 1024, GFP_NOWAIT);
+-	vgacon_scrollback_init(vga_video_num_columns * 2);
+-}
+-
+-static void vgacon_scrollback_update(struct vc_data *c, int t, int count)
+-{
+-	void *p;
+-
+-	if (!vgacon_scrollback_size || c->vc_num != fg_console)
+-		return;
+-
+-	p = (void *) (c->vc_origin + t * c->vc_size_row);
+-
+-	while (count--) {
+-		if ((vgacon_scrollback_tail + c->vc_size_row) >
+-		    vgacon_scrollback_size)
+-			vgacon_scrollback_tail = 0;
+-
+-		scr_memcpyw(vgacon_scrollback + vgacon_scrollback_tail,
+-			    p, c->vc_size_row);
+-		vgacon_scrollback_cnt++;
+-		p += c->vc_size_row;
+-		vgacon_scrollback_tail += c->vc_size_row;
+-
+-		if (vgacon_scrollback_tail >= vgacon_scrollback_size)
+-			vgacon_scrollback_tail = 0;
+-
+-		if (vgacon_scrollback_cnt > vgacon_scrollback_rows)
+-			vgacon_scrollback_cnt = vgacon_scrollback_rows;
+-
+-		vgacon_scrollback_cur = vgacon_scrollback_cnt;
+-	}
+-}
+-
+-static void vgacon_restore_screen(struct vc_data *c)
+-{
+-	vgacon_scrollback_save = 0;
+-
+-	if (!vga_is_gfx && !vgacon_scrollback_restore) {
+-		scr_memcpyw((u16 *) c->vc_origin, (u16 *) c->vc_screenbuf,
+-			    c->vc_screenbuf_size > vga_vram_size ?
+-			    vga_vram_size : c->vc_screenbuf_size);
+-		vgacon_scrollback_restore = 1;
+-		vgacon_scrollback_cur = vgacon_scrollback_cnt;
+-	}
+-}
+-
+-static int vgacon_scrolldelta(struct vc_data *c, int lines)
+-{
+-	int start, end, count, soff;
+-
+-	if (!lines) {
+-		c->vc_visible_origin = c->vc_origin;
+-		vga_set_mem_top(c);
+-		return 1;
+-	}
+-
+-	if (!vgacon_scrollback)
+-		return 1;
+-
+-	if (!vgacon_scrollback_save) {
+-		vgacon_cursor(c, CM_ERASE);
+-		vgacon_save_screen(c);
+-		vgacon_scrollback_save = 1;
+-	}
+-
+-	vgacon_scrollback_restore = 0;
+-	start = vgacon_scrollback_cur + lines;
+-	end = start + abs(lines);
+-
+-	if (start < 0)
+-		start = 0;
+-
+-	if (start > vgacon_scrollback_cnt)
+-		start = vgacon_scrollback_cnt;
+-
+-	if (end < 0)
+-		end = 0;
+-
+-	if (end > vgacon_scrollback_cnt)
+-		end = vgacon_scrollback_cnt;
+-
+-	vgacon_scrollback_cur = start;
+-	count = end - start;
+-	soff = vgacon_scrollback_tail - ((vgacon_scrollback_cnt - end) *
+-					 c->vc_size_row);
+-	soff -= count * c->vc_size_row;
+-
+-	if (soff < 0)
+-		soff += vgacon_scrollback_size;
+-
+-	count = vgacon_scrollback_cnt - start;
+-
+-	if (count > c->vc_rows)
+-		count = c->vc_rows;
+-
+-	if (count) {
+-		int copysize;
+-
+-		int diff = c->vc_rows - count;
+-		void *d = (void *) c->vc_origin;
+-		void *s = (void *) c->vc_screenbuf;
+-
+-		count *= c->vc_size_row;
+-		/* how much memory to end of buffer left? */
+-		copysize = min(count, vgacon_scrollback_size - soff);
+-		scr_memcpyw(d, vgacon_scrollback + soff, copysize);
+-		d += copysize;
+-		count -= copysize;
+-
+-		if (count) {
+-			scr_memcpyw(d, vgacon_scrollback, count);
+-			d += count;
+-		}
+-
+-		if (diff)
+-			scr_memcpyw(d, s, diff * c->vc_size_row);
+-	} else
+-		vgacon_cursor(c, CM_MOVE);
+-
+-	return 1;
+-}
+-#else
+-#define vgacon_scrollback_startup(...) do { } while (0)
+-#define vgacon_scrollback_init(...)    do { } while (0)
+-#define vgacon_scrollback_update(...)  do { } while (0)
+-
+ static void vgacon_restore_screen(struct vc_data *c)
  {
-diff --git a/arch/powerpc/mm/init_64.c b/arch/powerpc/mm/init_64.c
-index bc73abf0bc25e..ef566fc43933e 100644
---- a/arch/powerpc/mm/init_64.c
-+++ b/arch/powerpc/mm/init_64.c
-@@ -431,9 +431,16 @@ void __init mmu_early_init_devtree(void)
- 	if (!(mfmsr() & MSR_HV))
- 		early_check_vec5();
- 
--	if (early_radix_enabled())
-+	if (early_radix_enabled()) {
- 		radix__early_init_devtree();
--	else
-+		/*
-+		 * We have finalized the translation we are going to use by now.
-+		 * Radix mode is not limited by RMA / VRMA addressing.
-+		 * Hence don't limit memblock allocations.
-+		 */
-+		ppc64_rma_size = ULONG_MAX;
-+		memblock_set_current_limit(MEMBLOCK_ALLOC_ANYWHERE);
-+	} else
- 		hash__early_init_devtree();
+ 	if (c->vc_origin != c->vc_visible_origin)
+@@ -369,7 +216,6 @@ static int vgacon_scrolldelta(struct vc_
+ 	vga_set_mem_top(c);
+ 	return 1;
  }
- #endif /* CONFIG_PPC_BOOK3S_64 */
--- 
-2.25.1
-
+-#endif /* CONFIG_VGACON_SOFT_SCROLLBACK */
+ 
+ static const char *vgacon_startup(void)
+ {
+@@ -566,10 +412,7 @@ static const char *vgacon_startup(void)
+ 	vgacon_xres = screen_info.orig_video_cols * VGA_FONTWIDTH;
+ 	vgacon_yres = vga_scan_lines;
+ 
+-	if (!vga_init_done) {
+-		vgacon_scrollback_startup();
+-		vga_init_done = 1;
+-	}
++	vga_init_done = 1;
+ 
+ 	return display_desc;
+ }
+@@ -865,7 +708,6 @@ static int vgacon_switch(struct vc_data
+ 			vgacon_doresize(c, c->vc_cols, c->vc_rows);
+ 	}
+ 
+-	vgacon_scrollback_init(c->vc_size_row);
+ 	return 0;		/* Redrawing not needed */
+ }
+ 
+@@ -1398,7 +1240,6 @@ static int vgacon_scroll(struct vc_data
+ 	oldo = c->vc_origin;
+ 	delta = lines * c->vc_size_row;
+ 	if (dir == SM_UP) {
+-		vgacon_scrollback_update(c, t, lines);
+ 		if (c->vc_scr_end + delta >= vga_vram_end) {
+ 			scr_memcpyw((u16 *) vga_vram_base,
+ 				    (u16 *) (oldo + delta),
 
 
