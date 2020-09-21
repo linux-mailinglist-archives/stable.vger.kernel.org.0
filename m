@@ -2,112 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A7A271C73
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 09:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CE05271D10
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 10:04:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726236AbgIUH7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 03:59:01 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44146 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726211AbgIUH7B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 03:59:01 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08L7XDJH114862;
-        Mon, 21 Sep 2020 03:58:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Czy5IBsuKiL63vGY+kb5VPoSw3OgpqoynUddwtmiVVk=;
- b=LxMRd0uxg+OdPFZVq40IpVSGbeUGGd61o4PllGcPo1MWLStTxphpPgNqAgFXBoFmC6n3
- pahcHEg/pzTCbhyBpISm7h7RTjU0kPendhi/dqxaQGi+uCbi/hP7ML0gc1bgdNogJIw/
- KrLtKvZjxg35/xmLtqaYCL9W4fvspIgAvyrbbMXcAZZ4DrAUJQ+E06vGnMQXdoO1lgxS
- 8wbUIu/y1TASrZqq5wyacuxqTRnI/AucHoTnq1n3N05pQyWyzzbHDanPVzv0NoBl2AUF
- UrToXtClOI8WWDC2JKFR+seGIlD6ARI2zGTXXNI4X+emt44kLsOySQKgQuguxerS65nj Eg== 
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 33pqnbrxbv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Sep 2020 03:58:49 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08L7vln8027027;
-        Mon, 21 Sep 2020 07:58:47 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06fra.de.ibm.com with ESMTP id 33n98grx0e-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 21 Sep 2020 07:58:47 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08L7wjtB17105312
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 21 Sep 2020 07:58:45 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 077785205A;
-        Mon, 21 Sep 2020 07:58:45 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.145.187.68])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CE65952050;
-        Mon, 21 Sep 2020 07:58:44 +0000 (GMT)
-Subject: Re: [PATCH AUTOSEL 5.4 101/330] powerpc/powernv/ioda: Fix ref count
- for devices with their own PE
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev@lists.ozlabs.org
-References: <20200918020110.2063155-1-sashal@kernel.org>
- <20200918020110.2063155-101-sashal@kernel.org>
- <52532d8a-8e90-8a68-07bd-5a3e08c58475@linux.ibm.com>
- <20200919181029.GI2431@sasha-vm>
-From:   Frederic Barrat <fbarrat@linux.ibm.com>
-Message-ID: <8eaefe77-8cdf-1da5-f573-633713598eb6@linux.ibm.com>
-Date:   Mon, 21 Sep 2020 09:58:44 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+        id S1726605AbgIUIEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 04:04:30 -0400
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:41545 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726475AbgIUIEa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 04:04:30 -0400
+X-Greylist: delayed 426 seconds by postgrey-1.27 at vger.kernel.org; Mon, 21 Sep 2020 04:04:29 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1600675470; x=1632211470;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=48HiImodvOyQMEz7h4Vt1pdh1Eg+kT48TxB7yfvS/j8=;
+  b=X40IOBq3zeofJIk5rtqLgWCqQmB/qTYSj1a3t5Y1Upg7nYyPHOQSn2id
+   eiRZWhQoVVkjKCeE4AV/xCBqpSN5+LhJqfZZdPL48KuNz2AtiiaZeoHbb
+   zN16uz2yOWNH3WbHJ6pXEY08OUWTojUoiP7K8tbKVhbx2+83iRJn79eQl
+   E9bC1RVQcS8qXXUVozKjkWBd4PdyhFSa14DILEtQlgdaoyp+8YlN/3zD5
+   HVdQMe12++j77J8tBTBOwTBiAWnKJdgchoyuVgK/bVHJJdMprIUqrsg4Q
+   nw6pdlDWcVACuTbFQis4tU1TRwMeVr3YDG0MW3NEUI+kNKTbWLCNUVpNH
+   A==;
+IronPort-SDR: smNwlxYx6Xk2+AYcY8h+mgP/WJMHdjzuafnj/bNIf+y6L1lFSgiySBOSnu8diLswooiNhv5JhY
+ XAmK9QneTn8XW6uieXJ1wR0ejHfyK0GIKVCByVM8GyjjbPDq9/mhhy6nSzmUud0KGdGQrVc1aJ
+ 0AuNd+iyObYDTTZeyYNyTGW+nHphg4BmuhVvsqZgw+gYGJ+RKChr/9mdxyBnES21paTgvvQW4i
+ vx0oAbJh77jauJaIXssPuZfndwVaxiwGIr7alyQ2otByyAGns3qUIptTkjoTcx9IV0pkIPTPHC
+ iCI=
+X-IronPort-AV: E=Sophos;i="5.77,286,1596470400"; 
+   d="scan'208";a="147887197"
+Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 21 Sep 2020 15:57:23 +0800
+IronPort-SDR: F6LhAAYkTHbv4hVC553iNYOTv8IbyMQVr2bEU6U3YWF4bmkUKRb/e0qpq5iwgqRxj3eUEp/GIp
+ jZ6e23YVQy+A==
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Sep 2020 00:44:26 -0700
+IronPort-SDR: Utobc2A7Y4Qgxtsg05gMASCQgQT/JPQ9lIlvv+FZM1kTu8OLJqqtrJy4R+Y6so77wLNFyKkSIU
+ Z78PCXx5ptog==
+WDCIronportException: Internal
+Received: from unknown (HELO redsun60.ssa.fujisawa.hgst.com) ([10.149.66.36])
+  by uls-op-cesaip02.wdc.com with ESMTP; 21 Sep 2020 00:57:22 -0700
+From:   Johannes Thumshirn <johannes.thumshirn@wdc.com>
+To:     David Sterba <dsterba@suse.com>
+Cc:     linux-btrfs@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com,
+        stable@vger.kernel.org
+Subject: [PATCH v2] btrfs: fix overflow when copying corrupt csums for a message
+Date:   Mon, 21 Sep 2020 16:57:14 +0900
+Message-Id: <20200921075714.33372-1-johannes.thumshirn@wdc.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-In-Reply-To: <20200919181029.GI2431@sasha-vm>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-21_01:2020-09-21,2020-09-20 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- mlxlogscore=999 priorityscore=1501 spamscore=0 impostorscore=0
- suspectscore=0 bulkscore=0 malwarescore=0 phishscore=0 adultscore=0
- clxscore=1031 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009210054
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Syzkaller reported a buffer overflow in btree_readpage_end_io_hook()
+when loop mounting a crafted image:
 
+  detected buffer overflow in memcpy
+  ------------[ cut here ]------------
+  kernel BUG at lib/string.c:1129!
+  invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+  CPU: 1 PID: 26 Comm: kworker/u4:2 Not tainted 5.9.0-rc4-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Workqueue: btrfs-endio-meta btrfs_work_helper
+  RIP: 0010:fortify_panic+0xf/0x20 lib/string.c:1129
+  RSP: 0018:ffffc90000e27980 EFLAGS: 00010286
+  RAX: 0000000000000022 RBX: ffff8880a80dca64 RCX: 0000000000000000
+  RDX: ffff8880a90860c0 RSI: ffffffff815dba07 RDI: fffff520001c4f22
+  RBP: ffff8880a80dca00 R08: 0000000000000022 R09: ffff8880ae7318e7
+  R10: 0000000000000000 R11: 0000000000077578 R12: 00000000ffffff6e
+  R13: 0000000000000008 R14: ffffc90000e27a40 R15: 1ffff920001c4f3c
+  FS:  0000000000000000(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000557335f440d0 CR3: 000000009647d000 CR4: 00000000001506e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   memcpy include/linux/string.h:405 [inline]
+   btree_readpage_end_io_hook.cold+0x206/0x221 fs/btrfs/disk-io.c:642
+   end_bio_extent_readpage+0x4de/0x10c0 fs/btrfs/extent_io.c:2854
+   bio_endio+0x3cf/0x7f0 block/bio.c:1449
+   end_workqueue_fn+0x114/0x170 fs/btrfs/disk-io.c:1695
+   btrfs_work_helper+0x221/0xe20 fs/btrfs/async-thread.c:318
+   process_one_work+0x94c/0x1670 kernel/workqueue.c:2269
+   worker_thread+0x64c/0x1120 kernel/workqueue.c:2415
+   kthread+0x3b5/0x4a0 kernel/kthread.c:292
+   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+  Modules linked in:
+  ---[ end trace b68924293169feef ]---
+  RIP: 0010:fortify_panic+0xf/0x20 lib/string.c:1129
+  RSP: 0018:ffffc90000e27980 EFLAGS: 00010286
+  RAX: 0000000000000022 RBX: ffff8880a80dca64 RCX: 0000000000000000
+  RDX: ffff8880a90860c0 RSI: ffffffff815dba07 RDI: fffff520001c4f22
+  RBP: ffff8880a80dca00 R08: 0000000000000022 R09: ffff8880ae7318e7
+  R10: 0000000000000000 R11: 0000000000077578 R12: 00000000ffffff6e
+  R13: 0000000000000008 R14: ffffc90000e27a40 R15: 1ffff920001c4f3c
+  FS:  0000000000000000(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f95b7c4d008 CR3: 000000009647d000 CR4: 00000000001506e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-Le 19/09/2020 à 20:10, Sasha Levin a écrit :
-> On Fri, Sep 18, 2020 at 08:35:06AM +0200, Frederic Barrat wrote:
->>
->>
->> Le 18/09/2020 à 03:57, Sasha Levin a écrit :
->>> From: Frederic Barrat <fbarrat@linux.ibm.com>
->>>
->>> [ Upstream commit 05dd7da76986937fb288b4213b1fa10dbe0d1b33 ]
->>>
->>
->> This patch is not desirable for stable, for 5.4 and 4.19 (it was 
->> already flagged by autosel back in April. Not sure why it's showing 
->> again now)
-> 
-> Hey Fred,
-> 
-> This was a bit of a "lie", it wasn't a run of AUTOSEL, but rather an
-> audit of patches that went into distro/vendor trees but not into the
-> upstream stable trees.
-> 
-> I can see that this patch was pulled into Ubuntu's 5.4 tree, is it not
-> needed in the upstream stable tree?
+The overflow happens, because in btree_readpage_end_io_hook() we assume
+that we have found a 4 byte checksum instead of the real possible 32
+bytes we have for the checksums.
 
+With the fix applied:
 
-That patch in itself is useless (it replaces a ref counter leak by 
-another one). It was part of a longer series that we backported to 
-Ubuntu's 5.4 tree.
-So it's really not needed on the stable trees. It likely wouldn't hurt 
-or break anything, but there's really no point.
+[   35.726623] BTRFS: device fsid 815caf9a-dc43-4d2a-ac54-764b8333d765 devid 1 transid 5 /dev/loop0 scanned by syz-repro (215)
+[   35.738994] BTRFS info (device loop0): disk space caching is enabled
+[   35.738998] BTRFS info (device loop0): has skinny extents
+[   35.743337] BTRFS warning (device loop0): loop0 checksum verify failed on 1052672 wanted 0xf9c035fc8d239a54 found 0x67a25c14b7eabcf9 level 0
+[   35.743420] BTRFS error (device loop0): failed to read chunk root
+[   35.745899] BTRFS error (device loop0): open_ctree failed
 
-   Fred
+Reported-by: syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com
+Fixes: d5178578bcd4 ("btrfs: directly call into crypto framework for checksumming")
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+
+---
+Changes to v1:
+- Use CSUM_FMT (David)
+- Fix the 2nd possible overflow (David)
+- Remove some unnecessary local variables and memcpy (David)
+- Update commit log to have the now correct new log entries
+---
+ fs/btrfs/disk-io.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 160b485d2cc0..53b588a7e150 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -586,16 +586,15 @@ static int btree_readpage_end_io_hook(struct btrfs_io_bio *io_bio,
+ 	csum_tree_block(eb, result);
+ 
+ 	if (memcmp_extent_buffer(eb, result, 0, csum_size)) {
+-		u32 val;
+-		u32 found = 0;
+-
+-		memcpy(&found, result, csum_size);
++		u8 val[BTRFS_CSUM_SIZE] = { 0 };
+ 
+ 		read_extent_buffer(eb, &val, 0, csum_size);
+ 		btrfs_warn_rl(fs_info,
+-		"%s checksum verify failed on %llu wanted %x found %x level %d",
++	"%s checksum verify failed on %llu wanted " CSUM_FMT " found " CSUM_FMT " level %d",
+ 			      fs_info->sb->s_id, eb->start,
+-			      val, found, btrfs_header_level(eb));
++			      CSUM_FMT_VALUE(csum_size, val),
++			      CSUM_FMT_VALUE(csum_size, result),
++			      btrfs_header_level(eb));
+ 		ret = -EUCLEAN;
+ 		goto err;
+ 	}
+-- 
+2.26.2
 
