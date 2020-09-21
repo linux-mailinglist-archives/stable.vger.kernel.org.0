@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE8D272E6F
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B4C272EE3
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729881AbgIUQtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56562 "EHLO mail.kernel.org"
+        id S1728984AbgIUQwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:52:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729864AbgIUQsz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:48:55 -0400
+        id S1729861AbgIUQsx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:48:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3FC32395B;
-        Mon, 21 Sep 2020 16:48:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7344B2395C;
+        Mon, 21 Sep 2020 16:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706930;
-        bh=7rj8zjWgKWHTNhgZ+bnEeAZgm4/IhqpFvMUEAB7BThE=;
+        s=default; t=1600706933;
+        bh=FeYjiB+entckR72hBsWpw60Z9H9cdzxYU6XfU6kPkOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n68rSkcMi++zjlHmP9peeUf31S6n44px7ywGT4oQYef6Kw48PKsYcMciUv5kn4nzr
-         0TmG5GsTXjT0nRCeiQKJDGj2H9SoaOt7WbFLcXXG7hLWeCgWIMMrapLCDPcOjJuBfL
-         Ujq9/EDl7yplyhfhOZ6BhYBIrCVhFIl7Ftkcd2dA=
+        b=fzQjsu34lmcMHG36VMli05xFhzK4ZM7qcqGHkGyUwx7UT6jNWStHJqNjQct+h30el
+         NddykAXqFKQrK+sX1J1LTze9Rr9GyQatlZC1RhjPp2fbBsSwglTOWgH9ZLzdWS6MCu
+         0oFIibETmhniWk8Gyt6/RkIYTYjUmvkwdMsJ9wGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirisha Ganta <shiganta@in.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Nicolas Belin <nbelin@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/72] powerpc/book3s64/radix: Fix boot failure with large amount of guest memory
-Date:   Mon, 21 Sep 2020 18:31:11 +0200
-Message-Id: <20200921163123.393448417@linuxfoundation.org>
+Subject: [PATCH 5.4 33/72] ASoC: meson: axg-toddr: fix channel order on g12 platforms
+Date:   Mon, 21 Sep 2020 18:31:12 +0200
+Message-Id: <20200921163123.442974475@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -45,134 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 103a8542cb35b5130f732d00b0419a594ba1b517 ]
+[ Upstream commit 9c4b205a20f483d8a5d1208cfec33e339347d4bd ]
 
-If the hypervisor doesn't support hugepages, the kernel ends up allocating a large
-number of page table pages. The early page table allocation was wrongly
-setting the max memblock limit to ppc64_rma_size with radix translation
-which resulted in boot failure as shown below.
+On g12 and following platforms, The first channel of record with more than
+2 channels ends being placed randomly on an even channel of the output.
 
-Kernel panic - not syncing:
-early_alloc_pgtable: Failed to allocate 16777216 bytes align=0x1000000 nid=-1 from=0x0000000000000000 max_addr=0xffffffffffffffff
- CPU: 0 PID: 0 Comm: swapper Not tainted 5.8.0-24.9-default+ #2
- Call Trace:
- [c0000000016f3d00] [c0000000007c6470] dump_stack+0xc4/0x114 (unreliable)
- [c0000000016f3d40] [c00000000014c78c] panic+0x164/0x418
- [c0000000016f3dd0] [c000000000098890] early_alloc_pgtable+0xe0/0xec
- [c0000000016f3e60] [c0000000010a5440] radix__early_init_mmu+0x360/0x4b4
- [c0000000016f3ef0] [c000000001099bac] early_init_mmu+0x1c/0x3c
- [c0000000016f3f10] [c00000000109a320] early_setup+0x134/0x170
+On these SoCs, a bit was added to force the first channel to be placed at
+the beginning of the output. Apparently the behavior if the bit is not set
+is not easily predictable. According to the documentation, this bit is not
+present on the axg series.
 
-This was because the kernel was checking for the radix feature before we enable the
-feature via mmu_features. This resulted in the kernel using hash restrictions on
-radix.
+Set the bit on g12 and fix the problem.
 
-Rework the early init code such that the kernel boot with memblock restrictions
-as imposed by hash. At that point, the kernel still hasn't finalized the
-translation the kernel will end up using.
-
-We have three different ways of detecting radix.
-
-1. dt_cpu_ftrs_scan -> used only in case of PowerNV
-2. ibm,pa-features -> Used when we don't use cpu_dt_ftr_scan
-3. CAS -> Where we negotiate with hypervisor about the supported translation.
-
-We look at 1 or 2 early in the boot and after that, we look at the CAS vector to
-finalize the translation the kernel will use. We also support a kernel command
-line option (disable_radix) to switch to hash.
-
-Update the memblock limit after mmu_early_init_devtree() if the kernel is going
-to use radix translation. This forces some of the memblock allocations we do before
-mmu_early_init_devtree() to be within the RMA limit.
-
-Fixes: 2bfd65e45e87 ("powerpc/mm/radix: Add radix callbacks for early init routines")
-Reported-by: Shirisha Ganta <shiganta@in.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reviewed-by: Hari Bathini <hbathini@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200828100852.426575-1-aneesh.kumar@linux.ibm.com
+Fixes: a3c23a8ad4dc ("ASoC: meson: axg-toddr: add g12a support")
+Reported-by: Nicolas Belin <nbelin@baylibre.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20200828151438.350974-1-jbrunet@baylibre.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/book3s/64/mmu.h | 10 +++++-----
- arch/powerpc/mm/book3s64/radix_pgtable.c | 15 ---------------
- arch/powerpc/mm/init_64.c                | 11 +++++++++--
- 3 files changed, 14 insertions(+), 22 deletions(-)
+ sound/soc/meson/axg-toddr.c | 24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/book3s/64/mmu.h b/arch/powerpc/include/asm/book3s/64/mmu.h
-index bb3deb76c951b..2f4ddc802fe9d 100644
---- a/arch/powerpc/include/asm/book3s/64/mmu.h
-+++ b/arch/powerpc/include/asm/book3s/64/mmu.h
-@@ -225,14 +225,14 @@ static inline void early_init_mmu_secondary(void)
+diff --git a/sound/soc/meson/axg-toddr.c b/sound/soc/meson/axg-toddr.c
+index ecf41c7549a65..32b9fd59353a4 100644
+--- a/sound/soc/meson/axg-toddr.c
++++ b/sound/soc/meson/axg-toddr.c
+@@ -18,6 +18,7 @@
+ #define CTRL0_TODDR_SEL_RESAMPLE	BIT(30)
+ #define CTRL0_TODDR_EXT_SIGNED		BIT(29)
+ #define CTRL0_TODDR_PP_MODE		BIT(28)
++#define CTRL0_TODDR_SYNC_CH		BIT(27)
+ #define CTRL0_TODDR_TYPE_MASK		GENMASK(15, 13)
+ #define CTRL0_TODDR_TYPE(x)		((x) << 13)
+ #define CTRL0_TODDR_MSB_POS_MASK	GENMASK(12, 8)
+@@ -184,10 +185,31 @@ static const struct axg_fifo_match_data axg_toddr_match_data = {
+ 	.dai_drv		= &axg_toddr_dai_drv
+ };
  
- extern void hash__setup_initial_memory_limit(phys_addr_t first_memblock_base,
- 					 phys_addr_t first_memblock_size);
--extern void radix__setup_initial_memory_limit(phys_addr_t first_memblock_base,
--					 phys_addr_t first_memblock_size);
- static inline void setup_initial_memory_limit(phys_addr_t first_memblock_base,
- 					      phys_addr_t first_memblock_size)
- {
--	if (early_radix_enabled())
--		return radix__setup_initial_memory_limit(first_memblock_base,
--						   first_memblock_size);
++static int g12a_toddr_dai_startup(struct snd_pcm_substream *substream,
++				 struct snd_soc_dai *dai)
++{
++	struct axg_fifo *fifo = snd_soc_dai_get_drvdata(dai);
++	int ret;
++
++	ret = axg_toddr_dai_startup(substream, dai);
++	if (ret)
++		return ret;
++
 +	/*
-+	 * Hash has more strict restrictions. At this point we don't
-+	 * know which translations we will pick. Hence go with hash
-+	 * restrictions.
++	 * Make sure the first channel ends up in the at beginning of the output
++	 * As weird as it looks, without this the first channel may be misplaced
++	 * in memory, with a random shift of 2 channels.
 +	 */
- 	return hash__setup_initial_memory_limit(first_memblock_base,
- 					   first_memblock_size);
- }
-diff --git a/arch/powerpc/mm/book3s64/radix_pgtable.c b/arch/powerpc/mm/book3s64/radix_pgtable.c
-index 6ee17d09649c3..770542ccdb468 100644
---- a/arch/powerpc/mm/book3s64/radix_pgtable.c
-+++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
-@@ -643,21 +643,6 @@ void radix__mmu_cleanup_all(void)
- 	}
- }
++	regmap_update_bits(fifo->map, FIFO_CTRL0, CTRL0_TODDR_SYNC_CH,
++			   CTRL0_TODDR_SYNC_CH);
++
++	return 0;
++}
++
+ static const struct snd_soc_dai_ops g12a_toddr_ops = {
+ 	.prepare	= g12a_toddr_dai_prepare,
+ 	.hw_params	= axg_toddr_dai_hw_params,
+-	.startup	= axg_toddr_dai_startup,
++	.startup	= g12a_toddr_dai_startup,
+ 	.shutdown	= axg_toddr_dai_shutdown,
+ };
  
--void radix__setup_initial_memory_limit(phys_addr_t first_memblock_base,
--				phys_addr_t first_memblock_size)
--{
--	/*
--	 * We don't currently support the first MEMBLOCK not mapping 0
--	 * physical on those processors
--	 */
--	BUG_ON(first_memblock_base != 0);
--
--	/*
--	 * Radix mode is not limited by RMA / VRMA addressing.
--	 */
--	ppc64_rma_size = ULONG_MAX;
--}
--
- #ifdef CONFIG_MEMORY_HOTPLUG
- static void free_pte_table(pte_t *pte_start, pmd_t *pmd)
- {
-diff --git a/arch/powerpc/mm/init_64.c b/arch/powerpc/mm/init_64.c
-index 4e08246acd79a..210f1c28b8e41 100644
---- a/arch/powerpc/mm/init_64.c
-+++ b/arch/powerpc/mm/init_64.c
-@@ -415,9 +415,16 @@ void __init mmu_early_init_devtree(void)
- 	if (!(mfmsr() & MSR_HV))
- 		early_check_vec5();
- 
--	if (early_radix_enabled())
-+	if (early_radix_enabled()) {
- 		radix__early_init_devtree();
--	else
-+		/*
-+		 * We have finalized the translation we are going to use by now.
-+		 * Radix mode is not limited by RMA / VRMA addressing.
-+		 * Hence don't limit memblock allocations.
-+		 */
-+		ppc64_rma_size = ULONG_MAX;
-+		memblock_set_current_limit(MEMBLOCK_ALLOC_ANYWHERE);
-+	} else
- 		hash__early_init_devtree();
- }
- #endif /* CONFIG_PPC_BOOK3S_64 */
 -- 
 2.25.1
 
