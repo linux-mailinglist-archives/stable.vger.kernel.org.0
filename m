@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75276272E51
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83BB7272F91
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:58:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729633AbgIUQsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:48:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54590 "EHLO mail.kernel.org"
+        id S1730062AbgIUQ6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:58:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729644AbgIUQrf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:47:35 -0400
+        id S1728467AbgIUQmK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:42:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9568620874;
-        Mon, 21 Sep 2020 16:47:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8359823998;
+        Mon, 21 Sep 2020 16:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706855;
-        bh=VC8TXcLX5XPFt4hAW36lxuH2pwpdMUISsTqqSdZ1a2Y=;
+        s=default; t=1600706530;
+        bh=as6jgWqCIPmLHQCB1DLUTGItG7xuB8XLrAePeyebm3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Bb4xb2D4Rm5+PZ4MpxbdKWm9F53VC9rKSu/RXPPYMLq3BuVhzgMwpSUm+dxVNK/Q
-         OlcelbHCpLq58NCYxKjibFcsTfCERKhgFxMqcbVEUUBdIWAGA8Q5KsmOLy6Biendn0
-         8AhyvszycFX7s7wN5pGgYZbMAWQvRIe265QKWhbk=
+        b=cGw6D9HohwtfeZJxpRjHmuzNoI24PHwsypjn/GpLCU4q9ssnZ/fJqzYe4drJBIlAl
+         u8+W/8KC6IUg/7w/EofzJEEphafem9pTFo9ni48k5h8wOb9Ns5/Dwji+Sghg5eR81Y
+         HVJFdcc2hhtel25MgYdx1ZUKvg0XGJWEuWyJbwjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dan Crawford <dnlcrwfrd@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.8 092/118] Revert "ALSA: hda - Fix silent audio output and corrupted input on MSI X570-A PRO"
+        stable@vger.kernel.org,
+        =?UTF-8?q?Volker=20R=C3=BCmelin?= <vr_qemu@t-online.de>,
+        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.19 40/49] i2c: i801: Fix resume bug
 Date:   Mon, 21 Sep 2020 18:28:24 +0200
-Message-Id: <20200921162040.633765174@linuxfoundation.org>
+Message-Id: <20200921162036.437945375@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
+References: <20200921162034.660953761@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Volker Rümelin <vr_qemu@t-online.de>
 
-This reverts commit 8e83bd51016a35492c58e28312420e60ba8873f1 which is
-commit 15cbff3fbbc631952c346744f862fb294504b5e2 upstream.
+commit 66d402e2e9455cf0213c42b97f22a0493372d7cc upstream.
 
-It causes know regressions and will be reverted in Linus's tree soon.
+On suspend the original host configuration gets restored. The
+resume routine has to undo this, otherwise the SMBus master
+may be left in disabled state or in i2c mode.
 
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Cc: Dan Crawford <dnlcrwfrd@gmail.com>
-Cc: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/7efd2fe5-bf38-7f85-891a-eee3845d1493@redhat.com
+[JD: Rebased on v5.8, moved the write into i801_setup_hstcfg.]
+
+Signed-off-by: Volker Rümelin <vr_qemu@t-online.de>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- sound/pci/hda/patch_realtek.c |    1 -
- 1 file changed, 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2467,7 +2467,6 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x7350, "MSI-7350", ALC889_FIXUP_CD),
--	SND_PCI_QUIRK(0x1462, 0x9c37, "MSI X570-A PRO", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0xda57, "MSI Z270-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK_VENDOR(0x1462, "MSI", ALC882_FIXUP_GPIO3),
- 	SND_PCI_QUIRK(0x147b, 0x107a, "Abit AW9D-MAX", ALC882_FIXUP_ABIT_AW9D_MAX),
+---
+ drivers/i2c/busses/i2c-i801.c |   21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
+
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1506,6 +1506,16 @@ static inline int i801_acpi_probe(struct
+ static inline void i801_acpi_remove(struct i801_priv *priv) { }
+ #endif
+ 
++static unsigned char i801_setup_hstcfg(struct i801_priv *priv)
++{
++	unsigned char hstcfg = priv->original_hstcfg;
++
++	hstcfg &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
++	hstcfg |= SMBHSTCFG_HST_EN;
++	pci_write_config_byte(priv->pci_dev, SMBHSTCFG, hstcfg);
++	return hstcfg;
++}
++
+ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+ 	unsigned char temp;
+@@ -1611,14 +1621,10 @@ static int i801_probe(struct pci_dev *de
+ 		return err;
+ 	}
+ 
+-	pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &temp);
+-	priv->original_hstcfg = temp;
+-	temp &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
+-	if (!(temp & SMBHSTCFG_HST_EN)) {
++	pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &priv->original_hstcfg);
++	temp = i801_setup_hstcfg(priv);
++	if (!(priv->original_hstcfg & SMBHSTCFG_HST_EN))
+ 		dev_info(&dev->dev, "Enabling SMBus device\n");
+-		temp |= SMBHSTCFG_HST_EN;
+-	}
+-	pci_write_config_byte(priv->pci_dev, SMBHSTCFG, temp);
+ 
+ 	if (temp & SMBHSTCFG_SMB_SMI_EN) {
+ 		dev_dbg(&dev->dev, "SMBus using interrupt SMI#\n");
+@@ -1745,6 +1751,7 @@ static int i801_resume(struct device *de
+ 	struct pci_dev *pci_dev = to_pci_dev(dev);
+ 	struct i801_priv *priv = pci_get_drvdata(pci_dev);
+ 
++	i801_setup_hstcfg(priv);
+ 	i801_enable_host_notify(&priv->adapter);
+ 
+ 	return 0;
 
 
