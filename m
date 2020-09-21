@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED8D272ECB
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:52:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60D0C272ECF
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:52:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729151AbgIUQtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:49:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57372 "EHLO mail.kernel.org"
+        id S1729948AbgIUQwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:52:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728998AbgIUQtZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:49:25 -0400
+        id S1729905AbgIUQt1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:49:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9E0120874;
-        Mon, 21 Sep 2020 16:49:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 771B1238A1;
+        Mon, 21 Sep 2020 16:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706964;
-        bh=d3XFlJeZ5FcVRMjyET295KfplhHWKUPA6e5DSv4GAcE=;
+        s=default; t=1600706967;
+        bh=Riijk3UqEecBsw4LVr/zzFLEEcR9pY8INu7hzuIN+yE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A68YGqss3ZpmL43n27IMBKTvZXySx5Ry/sTaZyYPQ5KBq4+V8ELyLE2dW/2rYcira
-         NnKdSjXp7lzZq/3IM3CgJFX6YNN6sLonR8RDCuXa8UHTfuzvwhsSVm/2H0olRkUB3W
-         HU+nHEbBdXTCCYFDEbuYyKzkf4AK3O/yxxNT8frs=
+        b=V4b9W65bGExv6mUkHbqqmQs13bEgGtmFC2K0ILe67zuphmTnTFqh5w3qK244Sbv5/
+         75tVimUGl4TxGGgf9cEMeEOTSJb9b9qX0CxfZIIBrSVCVPSqua2HsBIYvVVeU+Jxhu
+         ijc5KZUZVN0R80GUsBx/faGOsQ2s6At1NCx725j4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/72] MIPS: SNI: Fix spurious interrupts
-Date:   Mon, 21 Sep 2020 18:31:23 +0200
-Message-Id: <20200921163123.968737611@linuxfoundation.org>
+Subject: [PATCH 5.4 45/72] drm/mediatek: Add exception handing in mtk_drm_probe() if component init fail
+Date:   Mon, 21 Sep 2020 18:31:24 +0200
+Message-Id: <20200921163124.017779167@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -43,54 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit b959b97860d0fee8c8f6a3e641d3c2ad76eab6be ]
+[ Upstream commit 64c194c00789889b0f9454f583712f079ba414ee ]
 
-On A20R machines the interrupt pending bits in cause register need to be
-updated by requesting the chipset to do it. This needs to be done to
-find the interrupt cause and after interrupt service. In
-commit 0b888c7f3a03 ("MIPS: SNI: Convert to new irq_chip functions") the
-function to do after service update got lost, which caused spurious
-interrupts.
+mtk_ddp_comp_init() is called in a loop in mtk_drm_probe(), if it
+fail, previous successive init component is not proccessed.
 
-Fixes: 0b888c7f3a03 ("MIPS: SNI: Convert to new irq_chip functions")
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Thus uninitialize valid component and put their device if component
+init failed.
+
+Fixes: 119f5173628a ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/sni/a20r.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/sni/a20r.c b/arch/mips/sni/a20r.c
-index f9407e1704762..c6af7047eb0d2 100644
---- a/arch/mips/sni/a20r.c
-+++ b/arch/mips/sni/a20r.c
-@@ -143,7 +143,10 @@ static struct platform_device sc26xx_pdev = {
- 	},
- };
- 
--static u32 a20r_ack_hwint(void)
-+/*
-+ * Trigger chipset to update CPU's CAUSE IP field
-+ */
-+static u32 a20r_update_cause_ip(void)
- {
- 	u32 status = read_c0_status();
- 
-@@ -205,12 +208,14 @@ static void a20r_hwint(void)
- 	int irq;
- 
- 	clear_c0_status(IE_IRQ0);
--	status = a20r_ack_hwint();
-+	status = a20r_update_cause_ip();
- 	cause = read_c0_cause();
- 
- 	irq = ffs(((cause & status) >> 8) & 0xf8);
- 	if (likely(irq > 0))
- 		do_IRQ(SNI_A20R_IRQ_BASE + irq - 1);
-+
-+	a20r_update_cause_ip();
- 	set_c0_status(IE_IRQ0);
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+index 352b81a7a6702..f98bb2e263723 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+@@ -594,8 +594,13 @@ err_pm:
+ 	pm_runtime_disable(dev);
+ err_node:
+ 	of_node_put(private->mutex_node);
+-	for (i = 0; i < DDP_COMPONENT_ID_MAX; i++)
++	for (i = 0; i < DDP_COMPONENT_ID_MAX; i++) {
+ 		of_node_put(private->comp_node[i]);
++		if (private->ddp_comp[i]) {
++			put_device(private->ddp_comp[i]->larb_dev);
++			private->ddp_comp[i] = NULL;
++		}
++	}
+ 	return ret;
  }
  
 -- 
