@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA133273208
+	by mail.lfdr.de (Postfix) with ESMTP id 3D711273207
 	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 20:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727430AbgIUSgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727614AbgIUSgE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 21 Sep 2020 14:36:04 -0400
-Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:55449 "EHLO
+Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:45879 "EHLO
         wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727475AbgIUSgE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 14:36:04 -0400
+        by vger.kernel.org with ESMTP id S1727430AbgIUSgD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 14:36:03 -0400
+X-Greylist: delayed 534 seconds by postgrey-1.27 at vger.kernel.org; Mon, 21 Sep 2020 14:36:03 EDT
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailnew.west.internal (Postfix) with ESMTP id 34F584FB;
-        Mon, 21 Sep 2020 14:27:08 -0400 (EDT)
+        by mailnew.west.internal (Postfix) with ESMTP id DFEE5528;
+        Mon, 21 Sep 2020 14:27:51 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 21 Sep 2020 14:27:09 -0400
+  by compute4.internal (MEProxy); Mon, 21 Sep 2020 14:27:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sent.com; h=from
         :to:cc:subject:date:message-id:reply-to:mime-version
-        :content-transfer-encoding; s=fm1; bh=IzZB//QV9JGG+wl/WkCMJlU/R7
-        ILM8c5yMDxhwndAiE=; b=Q93p3HxRPYJlxODgTKlvWduim8lyTqBOSdtrLqPrv6
-        KvBRygqXUHkbum6d1OLpK4j6o0Gxv9quD64C9KgZDtVvBCgp7I8LlZdohq8QQ0ru
-        uUaldSqTwn7HnPikNL+yoBMOix5LXVTUpdQe3cQKQ73m4pq0+80SqHSbpnYeg4e8
-        IIWVphhmuWOr2OGOu7GloYQGDAHxHYMY2gpfSKp+HgwPJWmM8rMpgn4NfpEr+/O1
-        XoAFqUO54kqXokqsBQWIF/rbpj19Wqmc0wOL0W/KVF7C83Az4ucBhpr8x9zWN+M4
-        W88VLY18Zd/aTo2ItFB4fiwc4jEBwWNxrsQHQ2Q25pAA==
+        :content-transfer-encoding; s=fm1; bh=vQz78zLug2nPyonhBdza0iCKZ2
+        6zPALkAv9v8mHBXS8=; b=f5GtoI4rxECtP2jM9MIQ4i8e6eMxPsWI3BY2y0ZzGW
+        JBxR2GwLgzmBp2a9vmHtLcfdbvJnSdD2OWM4L8/AHgzTsIe7I0SC4DAhcNZW9QEl
+        02+JeYi7Eh0S+f9KXKN1xbrm3kI3SRLYxx3XJkIIsvHm9UZjXuGvnHmUEh94NsRk
+        2qwppymaqzVJ67jOGgCKpTk62v59i5dwrYhQsXsuuRsDNLZf0SS1hI4ImeD256tx
+        EjDI59xvBcvvwDZcakkieyUw/ZZ85QyH2pOke7KiZWZSFSHdUiAFMBXbdU8ErbHe
+        F+zJXmRH922EAktRfFRIiM7QzAJauqwL27wJuPZkYWXA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:date:from
         :message-id:mime-version:reply-to:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=IzZB//
-        QV9JGG+wl/WkCMJlU/R7ILM8c5yMDxhwndAiE=; b=f5OKr/kwuid2APqztPS9ZH
-        f3Sw4930DEo7cDH77vKdc039IjguzdDqGzHTyRqM6c+s9jn69tKY2LFZZ7E27P0N
-        LyZfCibpdNoZfDiLIu+Y3eGEE9zn/L/JKn+TvLVulRHI+bLPmZfvDg4h+f2JqHnc
-        Gs0h+M0WRcP953zeWiDb2mqppKLFbZyWxbYjef6Ppg3fdAxVhRmVG6s9IlF9ra42
-        DJHWVjhDk55bG0yzC2ly14hLDZddiTAa7xbfHMiahUwXu4XODn7nw6GsANEjvMxe
-        CfK6H5pWpVTpRUG7InyfwM7iHs2FT0J+V5+M5wvoufHQyV5UwR3ZHV05AGLN+ASA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=vQz78z
+        Lug2nPyonhBdza0iCKZ26zPALkAv9v8mHBXS8=; b=BCcQ2vhfTqqbWAzFLz1rba
+        3UInQ+XuQQccQcqEujY5pWcvtgBTL1SFu6PMveHeztkXrtQUTPlm8S9QMb3M02os
+        rzifCsWRz51qrKvtFAnc+XOt7js+qUb1I+vAW0FY1JLDNgoMCLE1Sm1N5gU3IO4P
+        SHuCNg8FJn3xkR3cqN5+TpY0dE5syeocT6MXvOJ5xdzONf6TfcS/LwUDjuKEx0Qy
+        r4kOPjKk58lPKGE4XonAv+U/IjoPwr3y/0HQCZtzbYjH941ttPsscrAZ2UsGsKcm
+        uLmwOxML5tTq15nBYuyouhuwhd0memg9kcNXUxkBjSqlLfx/P66rnVORBsWf2XrA
         ==
-X-ME-Sender: <xms:e_BoX2FGNpXLKd9ygAgjvgVG3oOlLTx4BhL95woVeWshZ4c2oMFP1w>
-    <xme:e_BoX3U5uZL1vkFKNKJdq17aLMtiLuPqjJaPYWeRcNJXTVy_lRPMxJgkn_79gb0dI
-    hqzKFiEc4KQhs6qlA>
+X-ME-Sender: <xms:pvBoX8tDKEpQzzDe8RA2gXK6uF7W0utvfzc25nVaCREo4mmfEMRNHg>
+    <xme:pvBoX5dbJ5EMrk24irpkK73WkIhL2jQ09bph5CgEs2wzluZdZ2_6228DS_TjWcVCf
+    RKck9bSqGKodxYXQQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddvgdduvdejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
@@ -46,15 +47,15 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddvgdduvdejucetufdoteggod
     uceoiihirdihrghnsehsvghnthdrtghomheqnecuggftrfgrthhtvghrnheptedvkedthf
     fgvedufeeuuedvteevjeejleffkefhgeevgfegieffhfduveeiledtnecuffhomhgrihhn
     pehkvghrnhgvlhdrohhrghenucfkphepuddvrdegiedruddtiedrudeigeenucevlhhush
-    htvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpeiiihdrhigrnhesshgv
+    htvghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpeiiihdrhigrnhesshgv
     nhhtrdgtohhm
-X-ME-Proxy: <xmx:e_BoXwLtuEcmK251oY9Hl2CSYMfXQjHJB2sA1GiayIwcrkEO6Z6J4w>
-    <xmx:e_BoXwEiaC02XG2-Zo5x0-widg2yqhaSp_mmGdc14KP7ueBYHdcEIg>
-    <xmx:e_BoX8UkE1ckzVXo7488a1cyJvGqdD3MYWbhAeMR6vF0GEP00NvbJQ>
-    <xmx:e_BoX7NHefGWm9WrlMIGoukJeeZORquEK_8qhipd5eEmPShf9Z3gvQ5014o>
+X-ME-Proxy: <xmx:pvBoX3wBoIK1fJsKTItrnI-eQk3TmerghWa-mNukamk24uBsVTt6ww>
+    <xmx:pvBoX_N1qYq6KdmwMO13j7ssc08J6SjXAHgFzflHErTq0WuHfBAEhw>
+    <xmx:pvBoX89OZ_y3kiSIH-alrKIFAoqc8eGYz1q1p3HnxYCCIQbMkAsraw>
+    <xmx:p_BoX3U-sUFooMPiijd37W1rZYlAIgmBPapQjTc3jcT2sDNE6GiPCCYuGeY>
 Received: from nvrsysarch6.NVidia.COM (unknown [12.46.106.164])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D2CEA3064610;
-        Mon, 21 Sep 2020 14:27:06 -0400 (EDT)
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9097F306467D;
+        Mon, 21 Sep 2020 14:27:50 -0400 (EDT)
 From:   Zi Yan <zi.yan@sent.com>
 To:     stable@vger.kernel.org
 Cc:     Zi Yan <ziy@nvidia.com>, Ralph Campbell <rcampbell@nvidia.com>,
@@ -69,8 +70,8 @@ Cc:     Zi Yan <ziy@nvidia.com>, Ralph Campbell <rcampbell@nvidia.com>,
         Ben Skeggs <bskeggs@redhat.com>, Shuah Khan <shuah@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
 Subject: [PATCH] mm/thp: fix __split_huge_pmd_locked() for migration PMD
-Date:   Mon, 21 Sep 2020 14:27:01 -0400
-Message-Id: <20200921182701.2617910-1-zi.yan@sent.com>
+Date:   Mon, 21 Sep 2020 14:27:48 -0400
+Message-Id: <20200921182748.2618107-1-zi.yan@sent.com>
 X-Mailer: git-send-email 2.28.0
 Reply-To: Zi Yan <ziy@nvidia.com>
 MIME-Version: 1.0
@@ -81,7 +82,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zi Yan <ziy@nvidia.com>
 
-For 4.14.
+For 4.19.
 
 [Upstream commitid ec0abae6dcdf7ef88607c869bf35a4b63ce1b370]
 
@@ -124,19 +125,19 @@ Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
  1 file changed, 20 insertions(+), 17 deletions(-)
 
 diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 9f3d4f84032b..0aeadebb6f79 100644
+index 1443ae6fee9b..811fb2477ecd 100644
 --- a/mm/huge_memory.c
 +++ b/mm/huge_memory.c
-@@ -2078,7 +2078,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+@@ -2145,7 +2145,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
  		put_page(page);
- 		add_mm_counter(mm, MM_FILEPAGES, -HPAGE_PMD_NR);
+ 		add_mm_counter(mm, mm_counter_file(page), -HPAGE_PMD_NR);
  		return;
 -	} else if (is_huge_zero_pmd(*pmd)) {
 +	} else if (pmd_trans_huge(*pmd) && is_huge_zero_pmd(*pmd)) {
- 		return __split_huge_zero_page_pmd(vma, haddr, pmd);
- 	}
- 
-@@ -2131,26 +2131,29 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+ 		/*
+ 		 * FIXME: Do we want to invalidate secondary mmu by calling
+ 		 * mmu_notifier_invalidate_range() see comments below inside
+@@ -2233,26 +2233,29 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
  		pte = pte_offset_map(&_pmd, addr);
  		BUG_ON(!pte_none(*pte));
  		set_pte_at(mm, addr, pte, entry);
