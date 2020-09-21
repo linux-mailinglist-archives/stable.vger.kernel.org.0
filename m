@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6FB3272EBE
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:51:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D63D9272E92
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729837AbgIUQua (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730009AbgIUQua (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 21 Sep 2020 12:50:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58772 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730000AbgIUQuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:50:20 -0400
+        id S1730002AbgIUQuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:50:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E674239D0;
-        Mon, 21 Sep 2020 16:50:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F3C82388B;
+        Mon, 21 Sep 2020 16:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600707019;
-        bh=xZPIUDxZ6XjiG2PBxafL20G65Jt35WLLPvkj6a2Hvb0=;
+        s=default; t=1600707021;
+        bh=P03xTyf2oEsYBu/7PbrLbijGc2Igq62DU0HigGMaYcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TA0Tp9qIiWE/mBXC0ggwCiwU5FOceqzoTvVNwhQmmA5vcfbgAIzKdfzMP7wUO9w56
-         EPXcGMQvsm4Sy5SBRPYKza1MCyL3dl/qHYCdKAOL3/u+VZuwNdedgtWpm717QFeJ7v
-         nM4X+TgSXz8lPCnB8q/XTQRbnJTLHBTVaDNgkHFE=
+        b=lh0T3GaAbeJ5D7pvAHGKjnDpe4Ux90A9z0CmVNWsBiYEREPPBsO4ys+IBvM4cAUfC
+         YYHXpZ8p98fV/2kBewZgSXtriRjKa5vrOcZ7+RVHZ6VxzW2y8/cuByr9/2J8PAAO/J
+         8S6RzXIuEoLBAmO6j+GjSoKDYP57eocfooGv9xTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Quentin Perret <qperret@google.com>
-Subject: [PATCH 5.4 66/72] ehci-hcd: Move include to keep CRC stable
-Date:   Mon, 21 Sep 2020 18:31:45 +0200
-Message-Id: <20200921163125.007588338@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 67/72] powerpc/dma: Fix dma_map_ops::get_required_mask
+Date:   Mon, 21 Sep 2020 18:31:46 +0200
+Message-Id: <20200921163125.047858247@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -42,88 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Perret <qperret@google.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit 29231826f3bd65500118c473fccf31c0cf14dbc0 upstream.
+commit 437ef802e0adc9f162a95213a3488e8646e5fc03 upstream.
 
-The CRC calculation done by genksyms is triggered when the parser hits
-EXPORT_SYMBOL*() macros. At this point, genksyms recursively expands the
-types of the function parameters, and uses that as the input for the CRC
-calculation. In the case of forward-declared structs, the type expands
-to 'UNKNOWN'. Following this, it appears that the result of the
-expansion of each type is cached somewhere, and seems to be re-used
-when/if the same type is seen again for another exported symbol in the
-same C file.
+There are 2 problems with it:
+  1. "<" vs expected "<<"
+  2. the shift number is an IOMMU page number mask, not an address
+  mask as the IOMMU page shift is missing.
 
-Unfortunately, this can cause CRC 'stability' issues when a struct
-definition becomes visible in the middle of a C file. For example, let's
-assume code with the following pattern:
+This did not hit us before f1565c24b596 ("powerpc: use the generic
+dma_ops_bypass mode") because we had additional code to handle bypass
+mask so this chunk (almost?) never executed.However there were
+reports that aacraid does not work with "iommu=nobypass".
 
-    struct foo;
+After f1565c24b596, aacraid (and probably others which call
+dma_get_required_mask() before setting the mask) was unable to enable
+64bit DMA and fall back to using IOMMU which was known not to work,
+one of the problems is double free of an IOMMU page.
 
-    int bar(struct foo *arg)
-    {
-	/* Do work ... */
-    }
-    EXPORT_SYMBOL_GPL(bar);
+This fixes DMA for aacraid, both with and without "iommu=nobypass" in
+the kernel command line. Verified with "stress-ng -d 4".
 
-    /* This contains struct foo's definition */
-    #include "foo.h"
-
-    int baz(struct foo *arg)
-    {
-	/* Do more work ... */
-    }
-    EXPORT_SYMBOL_GPL(baz);
-
-Here, baz's CRC will be computed using the expansion of struct foo that
-was cached after bar's CRC calculation ('UNKOWN' here). But if
-EXPORT_SYMBOL_GPL(bar) is removed from the file (because of e.g. symbol
-trimming using CONFIG_TRIM_UNUSED_KSYMS), struct foo will be expanded
-late, during baz's CRC calculation, which now has visibility over the
-full struct definition, hence resulting in a different CRC for baz.
-
-The proper fix for this certainly is in genksyms, but that will take me
-some time to get right. In the meantime, we have seen one occurrence of
-this in the ehci-hcd code which hits this problem because of the way it
-includes C files halfway through the code together with an unlucky mix
-of symbol trimming.
-
-In order to workaround this, move the include done in ehci-hub.c early
-in ehci-hcd.c, hence making sure the struct definitions are visible to
-the entire file. This improves CRC stability of the ehci-hcd exports
-even when symbol trimming is enabled.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Quentin Perret <qperret@google.com>
-Link: https://lore.kernel.org/r/20200916171825.3228122-1-qperret@google.com
+Fixes: 6a5c7be5e484 ("powerpc: Override dma_get_required_mask by platform hook and ops")
+Cc: stable@vger.kernel.org # v3.2+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200908015106.79661-1-aik@ozlabs.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/ehci-hcd.c |    1 +
- drivers/usb/host/ehci-hub.c |    1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/dma-iommu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/ehci-hcd.c
-+++ b/drivers/usb/host/ehci-hcd.c
-@@ -22,6 +22,7 @@
- #include <linux/interrupt.h>
- #include <linux/usb.h>
- #include <linux/usb/hcd.h>
-+#include <linux/usb/otg.h>
- #include <linux/moduleparam.h>
- #include <linux/dma-mapping.h>
- #include <linux/debugfs.h>
---- a/drivers/usb/host/ehci-hub.c
-+++ b/drivers/usb/host/ehci-hub.c
-@@ -14,7 +14,6 @@
-  */
+--- a/arch/powerpc/kernel/dma-iommu.c
++++ b/arch/powerpc/kernel/dma-iommu.c
+@@ -160,7 +160,8 @@ u64 dma_iommu_get_required_mask(struct d
+ 			return bypass_mask;
+ 	}
  
- /*-------------------------------------------------------------------------*/
--#include <linux/usb/otg.h>
+-	mask = 1ULL < (fls_long(tbl->it_offset + tbl->it_size) - 1);
++	mask = 1ULL << (fls_long(tbl->it_offset + tbl->it_size) +
++			tbl->it_page_shift - 1);
+ 	mask += mask - 1;
  
- #define	PORT_WAKE_BITS	(PORT_WKOC_E|PORT_WKDISC_E|PORT_WKCONN_E)
- 
+ 	return mask;
 
 
