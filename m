@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B37A3272D08
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:37:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47281272D14
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:37:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729012AbgIUQgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:36:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
+        id S1728451AbgIUQhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:37:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729007AbgIUQgr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:36:47 -0400
+        id S1728300AbgIUQhR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:37:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83242238E6;
-        Mon, 21 Sep 2020 16:36:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33A40238E6;
+        Mon, 21 Sep 2020 16:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706207;
-        bh=90afgub8iWbgLpmOgjXNjlcBv1zQ7dExnTHIGd9uBdo=;
+        s=default; t=1600706236;
+        bh=QlXvnEx3gR+qHv3YvlrbAM27HUv4H3+mUytXmg86+r4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pzTTCIX3+HUcx2Owvoyb8PziYU5SW44Nosit3WJolFCnGejfilYYh1O1qrT9LGuvw
-         HQCtzeBf80F/98q3vO6cWkm6ZZc6Sr4udqRVbct9mrdPp0t/nYyTqszYnHszhZzcMe
-         tjSVI6MqfOnuZjgKBqIMLIBc9Z2223p8/F7JSEKc=
+        b=xxQJk1b/zDiByo5YZjmz/aQXY6wHYeJlorKKRq1XfPs18KjymE1zKh5lX1CZoQ+LS
+         8/ys+s5uAirO/ZLzrVAkCLesUBiTdjVdCWCI2efVHh4yk4mVpPoujLkMaRHplRQzcs
+         SQpD3FDb3vQbb9iGbU7TW4ecmrF+OPTpIDKuXnIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/94] ARM: dts: socfpga: fix register entry for timer3 on Arria10
-Date:   Mon, 21 Sep 2020 18:26:48 +0200
-Message-Id: <20200921162035.619383995@linuxfoundation.org>
+Subject: [PATCH 4.14 02/94] RDMA/rxe: Fix memleak in rxe_mem_init_user
+Date:   Mon, 21 Sep 2020 18:26:49 +0200
+Message-Id: <20200921162035.664295298@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
 References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,32 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 0ff5a4812be4ebd4782bbb555d369636eea164f7 ]
+[ Upstream commit e3ddd6067ee62f6e76ebcf61ff08b2c729ae412b ]
 
-Fixes the register address for the timer3 entry on Arria10.
+When page_address() fails, umem should be freed just like when
+rxe_mem_alloc() fails.
 
-Fixes: 475dc86d08de4 ("arm: dts: socfpga: Add a base DTSI for Altera's Arria10 SOC")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20200819075632.22285-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/socfpga_arria10.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/sw/rxe/rxe_mr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/socfpga_arria10.dtsi b/arch/arm/boot/dts/socfpga_arria10.dtsi
-index 672e73e35228c..64f30676b285d 100644
---- a/arch/arm/boot/dts/socfpga_arria10.dtsi
-+++ b/arch/arm/boot/dts/socfpga_arria10.dtsi
-@@ -779,7 +779,7 @@
- 		timer3: timer3@ffd00100 {
- 			compatible = "snps,dw-apb-timer";
- 			interrupts = <0 118 IRQ_TYPE_LEVEL_HIGH>;
--			reg = <0xffd01000 0x100>;
-+			reg = <0xffd00100 0x100>;
- 			clocks = <&l4_sys_free_clk>;
- 			clock-names = "timer";
- 		};
+diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
+index 5c2684bf430f8..a0d2a2350c7e5 100644
+--- a/drivers/infiniband/sw/rxe/rxe_mr.c
++++ b/drivers/infiniband/sw/rxe/rxe_mr.c
+@@ -203,6 +203,7 @@ int rxe_mem_init_user(struct rxe_dev *rxe, struct rxe_pd *pd, u64 start,
+ 			vaddr = page_address(sg_page(sg));
+ 			if (!vaddr) {
+ 				pr_warn("null vaddr\n");
++				ib_umem_release(umem);
+ 				err = -ENOMEM;
+ 				goto err1;
+ 			}
 -- 
 2.25.1
 
