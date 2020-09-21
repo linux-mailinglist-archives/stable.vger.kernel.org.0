@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC53272837
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F37EA27283F
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728065AbgIUOlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 10:41:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50946 "EHLO mail.kernel.org"
+        id S1728109AbgIUOlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 10:41:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728061AbgIUOlc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:41:32 -0400
+        id S1728073AbgIUOle (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C38D5221EC;
-        Mon, 21 Sep 2020 14:41:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EE9E2311D;
+        Mon, 21 Sep 2020 14:41:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699291;
-        bh=jhXXHiBwabz0eO6Y6MDYyI2GS5Y/LweyJRvHgKRcuMc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWYDI/qzirM7SgbvfjK745ncPh3d/BrNn96m8KNeX6J4CCGVnHZXagNAJ1x+GfSWm
-         WAyWo0vJI5jCBaotlrz5SU4oPH+yEjAlBVFsbe6FokPGKKTqt8u8zs0lDKam0sfMsr
-         bS8whiFmtucpUq0eicArQp5qEwaYG4JgVnT9PMbs=
+        s=default; t=1600699294;
+        bh=y2rnfhnxpWlFVztN7chK05aa0bL7kLddsCgaa2wztrI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=KNKwI7nsghcc0zY3piJa9QfsI4ypLnLE0LUW5rKUfnCDlT3TT1av2SsQ6+OaPCR5i
+         K8pQFUOLvDlv/lhfMsjQyi4RlV7CNRI+ksZZdxBne4GeL1PpGrob1H05d0mgSheKaX
+         bNFA1a8KHxgoyNYPzkEzuyXqLVEWIBWyhibSLNO0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 3/3] objtool: Fix noreturn detection for ignored functions
-Date:   Mon, 21 Sep 2020 10:41:27 -0400
-Message-Id: <20200921144127.2135896-3-sashal@kernel.org>
+Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 1/3] s390/init: add missing __init annotations
+Date:   Mon, 21 Sep 2020 10:41:29 -0400
+Message-Id: <20200921144132.2135971-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200921144127.2135896-1-sashal@kernel.org>
-References: <20200921144127.2135896-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,55 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit db6c6a0df840e3f52c84cc302cc1a08ba11a4416 ]
+[ Upstream commit fcb2b70cdb194157678fb1a75f9ff499aeba3d2a ]
 
-When a function is annotated with STACK_FRAME_NON_STANDARD, objtool
-doesn't validate its code paths.  It also skips sibling call detection
-within the function.
+Add __init to reserve_memory_end, reserve_oldmem and remove_oldmem.
+Sometimes these functions are not inlined, and then the build
+complains about section mismatch.
 
-But sibling call detection is actually needed for the case where the
-ignored function doesn't have any return instructions.  Otherwise
-objtool naively marks the function as implicit static noreturn, which
-affects the reachability of its callers, resulting in "unreachable
-instruction" warnings.
-
-Fix it by just enabling sibling call detection for ignored functions.
-The 'insn->ignore' check in add_jump_destinations() is no longer needed
-after
-
-  e6da9567959e ("objtool: Don't use ignore flag for fake jumps").
-
-Fixes the following warning:
-
-  arch/x86/kvm/vmx/vmx.o: warning: objtool: vmx_handle_exit_irqoff()+0x142: unreachable instruction
-
-which triggers on an allmodconfig with CONFIG_GCOV_KERNEL unset.
-
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Link: https://lkml.kernel.org/r/5b1e2536cdbaa5246b60d7791b76130a74082c62.1599751464.git.jpoimboe@redhat.com
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/setup.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 247fbb5f6a389..2c8e2dae17016 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -502,7 +502,7 @@ static int add_jump_destinations(struct objtool_file *file)
- 		    insn->type != INSN_JUMP_UNCONDITIONAL)
- 			continue;
- 
--		if (insn->ignore || insn->offset == FAKE_JUMP_OFFSET)
-+		if (insn->offset == FAKE_JUMP_OFFSET)
- 			continue;
- 
- 		rela = find_rela_by_dest_range(insn->sec, insn->offset,
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index a559908d180ec..ce49c2b9db7ee 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -529,7 +529,7 @@ static struct notifier_block kdump_mem_nb = {
+ /*
+  * Make sure that the area behind memory_end is protected
+  */
+-static void reserve_memory_end(void)
++static void __init reserve_memory_end(void)
+ {
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (ipl_info.type == IPL_TYPE_FCP_DUMP &&
+@@ -547,7 +547,7 @@ static void reserve_memory_end(void)
+ /*
+  * Make sure that oldmem, where the dump is stored, is protected
+  */
+-static void reserve_oldmem(void)
++static void __init reserve_oldmem(void)
+ {
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (OLDMEM_BASE)
+@@ -559,7 +559,7 @@ static void reserve_oldmem(void)
+ /*
+  * Make sure that oldmem, where the dump is stored, is protected
+  */
+-static void remove_oldmem(void)
++static void __init remove_oldmem(void)
+ {
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (OLDMEM_BASE)
 -- 
 2.25.1
 
