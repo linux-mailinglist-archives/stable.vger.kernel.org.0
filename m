@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3BFF272EFD
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:53:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC86E272EFB
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729290AbgIUQr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:47:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54268 "EHLO mail.kernel.org"
+        id S1728178AbgIUQx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:53:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728955AbgIUQrY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:47:24 -0400
+        id S1729089AbgIUQr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:47:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 275602223E;
-        Mon, 21 Sep 2020 16:47:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A900220874;
+        Mon, 21 Sep 2020 16:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706843;
-        bh=IMKosS4jtrY102X+h47hgsWXTzCkkvPOzN0nyzCo/OE=;
+        s=default; t=1600706848;
+        bh=7qjXt93LqJLtIYJoIL/cVsDmkkZU509KBhIGTT13k6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzXmq/n+RiFJ0CTJHu/qAdtSzq1G+USvBkrpCliY0vNMOBqv9fVX8EQDB2L1CkPAG
-         jDaks8+ArcOjz2pxmOcM7QPnGOWzwR5kD0EgriU0/QFH6u3AYw//y+CEFKmkjg2d5R
-         i7wr/ALAsu3sgAdsZGe3NiPNsH5hcHXrUvyY+0kk=
+        b=RPHbx9PnYJvQerDca+fNsqK9z26k3l8xwVyoUSiJjFl3tu8aXXGyPt1QX1boabonC
+         5aFGi/YsuqpGOzz+c47VmmoOzmg2rbZF0QXm/qy5VQYQUM28crEhQoyHs2GKYkBGQf
+         z9gdE4zl9wNc/iq69VZl08BeyX0a4hFc6lHJbTck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        kernel test robot <lkp@intel.com>, Jan Kara <jack@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.8 116/118] dax: Fix compilation for CONFIG_DAX && !CONFIG_FS_DAX
-Date:   Mon, 21 Sep 2020 18:28:48 +0200
-Message-Id: <20200921162041.784022784@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+        Xunlei Pang <xlpang@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Chris Down <chris@chrisdown.name>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Julius Hemanth Pitti <jpitti@cisco.com>
+Subject: [PATCH 5.8 117/118] mm: memcg: fix memcg reclaim soft lockup
+Date:   Mon, 21 Sep 2020 18:28:49 +0200
+Message-Id: <20200921162041.829915522@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
 References: <20200921162036.324813383@linuxfoundation.org>
@@ -44,73 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Xunlei Pang <xlpang@linux.alibaba.com>
 
-commit 88b67edd7247466bc47f01e1dc539b0d0d4b931e upstream.
+commit e3336cab2579012b1e72b5265adf98e2d6e244ad upstream.
 
-dax_supported() is defined whenever CONFIG_DAX is enabled. So dummy
-implementation should be defined only in !CONFIG_DAX case, not in
-!CONFIG_FS_DAX case.
+We've met softlockup with "CONFIG_PREEMPT_NONE=y", when the target memcg
+doesn't have any reclaimable memory.
 
-Fixes: e2ec51282545 ("dm: Call proper helper to determine dax support")
-Cc: <stable@vger.kernel.org>
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+It can be easily reproduced as below:
+
+  watchdog: BUG: soft lockup - CPU#0 stuck for 111s![memcg_test:2204]
+  CPU: 0 PID: 2204 Comm: memcg_test Not tainted 5.9.0-rc2+ #12
+  Call Trace:
+    shrink_lruvec+0x49f/0x640
+    shrink_node+0x2a6/0x6f0
+    do_try_to_free_pages+0xe9/0x3e0
+    try_to_free_mem_cgroup_pages+0xef/0x1f0
+    try_charge+0x2c1/0x750
+    mem_cgroup_charge+0xd7/0x240
+    __add_to_page_cache_locked+0x2fd/0x370
+    add_to_page_cache_lru+0x4a/0xc0
+    pagecache_get_page+0x10b/0x2f0
+    filemap_fault+0x661/0xad0
+    ext4_filemap_fault+0x2c/0x40
+    __do_fault+0x4d/0xf9
+    handle_mm_fault+0x1080/0x1790
+
+It only happens on our 1-vcpu instances, because there's no chance for
+oom reaper to run to reclaim the to-be-killed process.
+
+Add a cond_resched() at the upper shrink_node_memcgs() to solve this
+issue, this will mean that we will get a scheduling point for each memcg
+in the reclaimed hierarchy without any dependency on the reclaimable
+memory in that memcg thus making it more predictable.
+
+Suggested-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Xunlei Pang <xlpang@linux.alibaba.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Chris Down <chris@chrisdown.name>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Link: http://lkml.kernel.org/r/1598495549-67324-1-git-send-email-xlpang@linux.alibaba.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b0dedc49a2da ("mm/vmscan.c: iterate only over charged shrinkers during memcg shrink_slab()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Julius Hemanth Pitti <jpitti@cisco.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/dax.h |   17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ mm/vmscan.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/include/linux/dax.h
-+++ b/include/linux/dax.h
-@@ -58,6 +58,8 @@ static inline void set_dax_synchronous(s
- {
- 	__set_dax_synchronous(dax_dev);
- }
-+bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
-+		int blocksize, sector_t start, sector_t len);
- /*
-  * Check if given mapping is supported by the file / underlying device.
-  */
-@@ -104,6 +106,12 @@ static inline bool dax_synchronous(struc
- static inline void set_dax_synchronous(struct dax_device *dax_dev)
- {
- }
-+static inline bool dax_supported(struct dax_device *dax_dev,
-+		struct block_device *bdev, int blocksize, sector_t start,
-+		sector_t len)
-+{
-+	return false;
-+}
- static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
- 				struct dax_device *dax_dev)
- {
-@@ -130,8 +138,6 @@ static inline bool generic_fsdax_support
- 	return __generic_fsdax_supported(dax_dev, bdev, blocksize, start,
- 			sectors);
- }
--bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
--		int blocksize, sector_t start, sector_t len);
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -2619,6 +2619,14 @@ static void shrink_node_memcgs(pg_data_t
+ 		unsigned long reclaimed;
+ 		unsigned long scanned;
  
- static inline void fs_put_dax(struct dax_device *dax_dev)
- {
-@@ -158,13 +164,6 @@ static inline bool generic_fsdax_support
- {
- 	return false;
- }
--
--static inline bool dax_supported(struct dax_device *dax_dev,
--		struct block_device *bdev, int blocksize, sector_t start,
--		sector_t len)
--{
--	return false;
--}
- 
- static inline void fs_put_dax(struct dax_device *dax_dev)
- {
++		/*
++		 * This loop can become CPU-bound when target memcgs
++		 * aren't eligible for reclaim - either because they
++		 * don't have any reclaimable pages, or because their
++		 * memory is explicitly protected. Avoid soft lockups.
++		 */
++		cond_resched();
++
+ 		switch (mem_cgroup_protected(target_memcg, memcg)) {
+ 		case MEMCG_PROT_MIN:
+ 			/*
 
 
