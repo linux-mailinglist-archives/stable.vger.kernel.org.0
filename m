@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F44272E84
+	by mail.lfdr.de (Postfix) with ESMTP id 2C562272E83
 	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729966AbgIUQt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729538AbgIUQt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 21 Sep 2020 12:49:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58162 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729959AbgIUQt4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:49:56 -0400
+        id S1729965AbgIUQt6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:49:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D69B0238D7;
-        Mon, 21 Sep 2020 16:49:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52CDD23888;
+        Mon, 21 Sep 2020 16:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706995;
-        bh=+sTokfCQUFuAxxfT2aS0ULBOBokfHodhbydyvtCsxhc=;
+        s=default; t=1600706997;
+        bh=CecopbIxRuxj/S1S8shXfRQpmD8h2mSpBBGt+VGBdOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uI6py1b6vS8e6NSBJ33UIznRCl8Romr1T6Yj5tDHvhuBexhlNEdCiD1loRL1ovAQq
-         uJ/6htEvbRZKEGqSHZWNTzGE/d5xJZoUZbjUKqq1eg2NZDv3C4AD7VeIZZ1+17MMAB
-         /QWopMMRZf4Zb0W/k6ewjbthsagI78N0H7piOQ/s=
+        b=kzQOogQSfj4eYeU0siIZ15gNc4G1tvWo/wIVa1jvkP2hXB9IWI+4P/4WeQhT5sT36
+         UxVy33aZDU5/1QDyS+INliTvy3V2F0wjGt7OtOAlLkBQGQal6t879XDnRRQGe6Kn2z
+         ObCmiU9DsV+ie9sd+knXECfySMPEgRNWBW+t4r7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gustav Wiklander <gustavwi@axis.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 26/72] spi: Fix memory leak on splited transfers
-Date:   Mon, 21 Sep 2020 18:31:05 +0200
-Message-Id: <20200921163123.109782358@linuxfoundation.org>
+Subject: [PATCH 5.4 27/72] KVM: MIPS: Change the definition of kvm type
+Date:   Mon, 21 Sep 2020 18:31:06 +0200
+Message-Id: <20200921163123.157413083@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -43,75 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustav Wiklander <gustavwi@axis.com>
+From: Huacai Chen <chenhc@lemote.com>
 
-[ Upstream commit b59a7ca15464c78ea1ba3b280cfc5ac5ece11ade ]
+[ Upstream commit 15e9e35cd1dec2bc138464de6bf8ef828df19235 ]
 
-In the prepare_message callback the bus driver has the
-opportunity to split a transfer into smaller chunks.
-spi_map_msg is done after prepare_message.
+MIPS defines two kvm types:
 
-Function spi_res_release releases the splited transfers
-in the message. Therefore spi_res_release should be called
-after spi_map_msg.
+ #define KVM_VM_MIPS_TE          0
+ #define KVM_VM_MIPS_VZ          1
 
-The previous try at this was commit c9ba7a16d0f1
-which released the splited transfers after
-spi_finalize_current_message had been called.
-This introduced a race since the message struct could be
-out of scope because the spi_sync call got completed.
+In Documentation/virt/kvm/api.rst it is said that "You probably want to
+use 0 as machine type", which implies that type 0 be the "automatic" or
+"default" type. And, in user-space libvirt use the null-machine (with
+type 0) to detect the kvm capability, which returns "KVM not supported"
+on a VZ platform.
 
-Fixes this leak on spi bus driver spi-bcm2835.c when transfer
-size is greater than 65532:
+I try to fix it in QEMU but it is ugly:
+https://lists.nongnu.org/archive/html/qemu-devel/2020-08/msg05629.html
 
-Kmemleak:
-sg_alloc_table+0x28/0xc8
-spi_map_buf+0xa4/0x300
-__spi_pump_messages+0x370/0x748
-__spi_sync+0x1d4/0x270
-spi_sync+0x34/0x58
-spi_test_execute_msg+0x60/0x340 [spi_loopback_test]
-spi_test_run_iter+0x548/0x578 [spi_loopback_test]
-spi_test_run_test+0x94/0x140 [spi_loopback_test]
-spi_test_run_tests+0x150/0x180 [spi_loopback_test]
-spi_loopback_test_probe+0x50/0xd0 [spi_loopback_test]
-spi_drv_probe+0x84/0xe0
+And Thomas Huth suggests me to change the definition of kvm type:
+https://lists.nongnu.org/archive/html/qemu-devel/2020-09/msg03281.html
 
-Signed-off-by: Gustav Wiklander <gustavwi@axis.com>
-Link: https://lore.kernel.org/r/20200908151129.15915-1-gustav.wiklander@axis.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So I define like this:
+
+ #define KVM_VM_MIPS_AUTO        0
+ #define KVM_VM_MIPS_VZ          1
+ #define KVM_VM_MIPS_TE          2
+
+Since VZ and TE cannot co-exists, using type 0 on a TE platform will
+still return success (so old user-space tools have no problems on new
+kernels); the advantage is that using type 0 on a VZ platform will not
+return failure. So, the only problem is "new user-space tools use type
+2 on old kernels", but if we treat this as a kernel bug, we can backport
+this patch to old stable kernels.
+
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Message-Id: <1599734031-28746-1-git-send-email-chenhc@lemote.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/mips/kvm/mips.c     | 2 ++
+ include/uapi/linux/kvm.h | 5 +++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 6a81b2a33cb4b..982753ac1bf6c 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -1241,8 +1241,6 @@ out:
- 	if (msg->status && ctlr->handle_err)
- 		ctlr->handle_err(ctlr, msg);
+diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+index 1109924560d8c..b22a3565e1330 100644
+--- a/arch/mips/kvm/mips.c
++++ b/arch/mips/kvm/mips.c
+@@ -131,6 +131,8 @@ int kvm_arch_check_processor_compat(void)
+ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ {
+ 	switch (type) {
++	case KVM_VM_MIPS_AUTO:
++		break;
+ #ifdef CONFIG_KVM_MIPS_VZ
+ 	case KVM_VM_MIPS_VZ:
+ #else
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index e735bc4075dc7..1b6b8e05868dd 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -768,9 +768,10 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_VM_PPC_HV 1
+ #define KVM_VM_PPC_PR 2
  
--	spi_res_release(ctlr, msg);
--
- 	spi_finalize_current_message(ctlr);
+-/* on MIPS, 0 forces trap & emulate, 1 forces VZ ASE */
+-#define KVM_VM_MIPS_TE		0
++/* on MIPS, 0 indicates auto, 1 forces VZ ASE, 2 forces trap & emulate */
++#define KVM_VM_MIPS_AUTO	0
+ #define KVM_VM_MIPS_VZ		1
++#define KVM_VM_MIPS_TE		2
  
- 	return ret;
-@@ -1525,6 +1523,13 @@ void spi_finalize_current_message(struct spi_controller *ctlr)
+ #define KVM_S390_SIE_PAGE_OFFSET 1
  
- 	spi_unmap_msg(ctlr, mesg);
- 
-+	/* In the prepare_messages callback the spi bus has the opportunity to
-+	 * split a transfer to smaller chunks.
-+	 * Release splited transfers here since spi_map_msg is done on the
-+	 * splited transfers.
-+	 */
-+	spi_res_release(ctlr, mesg);
-+
- 	if (ctlr->cur_msg_prepared && ctlr->unprepare_message) {
- 		ret = ctlr->unprepare_message(ctlr, mesg);
- 		if (ret) {
 -- 
 2.25.1
 
