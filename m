@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F393F273170
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 20:05:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5710273175
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 20:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727317AbgIUSFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 14:05:22 -0400
-Received: from rcdn-iport-9.cisco.com ([173.37.86.80]:17335 "EHLO
-        rcdn-iport-9.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726436AbgIUSFW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 14:05:22 -0400
+        id S1727531AbgIUSGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 14:06:18 -0400
+Received: from alln-iport-1.cisco.com ([173.37.142.88]:63403 "EHLO
+        alln-iport-1.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726436AbgIUSGQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 14:06:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=cisco.com; i=@cisco.com; l=2779; q=dns/txt; s=iport;
-  t=1600711521; x=1601921121;
+  d=cisco.com; i=@cisco.com; l=2781; q=dns/txt; s=iport;
+  t=1600711575; x=1601921175;
   h=from:to:cc:subject:date:message-id:mime-version:
    content-transfer-encoding;
-  bh=55OSFt5kaSEbClnnpjCew/8FmYUswx3xHzShH3i3E8s=;
-  b=EiNz9yIXnvORF69Rd5WrayIhB5E7zBychkC155+ODFSfeVqcEjnllCRs
-   vCUP5K1Pk5laZhp54/14OFRiFZIlWFdcsFAKCuONcR5CHBlbdu7Bxvllj
-   9WhRIwK7g2bf9oyokGGoXtnYbaZ+5Ad9tzW/+7wPObKgjvbGbJVxn79zm
-   4=;
+  bh=GFYSntlMbW/qItAAXl9Nwbk/9D2EBJzUVKqIAKTYdWw=;
+  b=VOnsLu89PEkr+BQl1nHFyTl/MG3z3n1uC7AtwippNg0YdtGL5wuYDJ1m
+   vtqu2oBu1qnmhYOBKAzAX9mVz/1Msr2704sWF1t3f09VWNRrTzfu/iwCb
+   R75uB4CRsXHcNsdbVZfgz2sadvAgADNJ9rbQumCuCOPhiTRNso5cy1tw3
+   Y=;
 X-IronPort-AV: E=Sophos;i="5.77,287,1596499200"; 
-   d="scan'208";a="736845470"
+   d="scan'208";a="546077107"
 Received: from alln-core-11.cisco.com ([173.36.13.133])
-  by rcdn-iport-9.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 21 Sep 2020 18:05:21 +0000
+  by alln-iport-1.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 21 Sep 2020 18:06:13 +0000
 Received: from sjc-ads-9087.cisco.com (sjc-ads-9087.cisco.com [10.30.208.97])
-        by alln-core-11.cisco.com (8.15.2/8.15.2) with ESMTP id 08LI5Kmu015951;
-        Mon, 21 Sep 2020 18:05:21 GMT
+        by alln-core-11.cisco.com (8.15.2/8.15.2) with ESMTP id 08LI6CwR018277;
+        Mon, 21 Sep 2020 18:06:13 GMT
 Received: by sjc-ads-9087.cisco.com (Postfix, from userid 396877)
-        id A404EBAE; Mon, 21 Sep 2020 11:05:20 -0700 (PDT)
+        id CA57FB66; Mon, 21 Sep 2020 11:06:12 -0700 (PDT)
 From:   Julius Hemanth Pitti <jpitti@cisco.com>
 To:     gregkh@linuxfoundation.org, akpm@linux-foundation.org,
         xlpang@linux.alibaba.com, mhocko@suse.com, vdavydov.dev@gmail.com,
@@ -38,9 +38,9 @@ Cc:     stable@vger.kernel.org, linux-mm@kvack.org,
         linux-kernel@vger.kernel.org, xe-linux-external@cisco.com,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Julius Hemanth Pitti <jpitti@cisco.com>
-Subject: [PATCH stable v5.4] mm: memcg: fix memcg reclaim soft lockup
-Date:   Mon, 21 Sep 2020 11:05:08 -0700
-Message-Id: <20200921180508.61905-1-jpitti@cisco.com>
+Subject: [PATCH stable v4.19] mm: memcg: fix memcg reclaim soft lockup
+Date:   Mon, 21 Sep 2020 11:06:10 -0700
+Message-Id: <20200921180610.62242-1-jpitti@cisco.com>
 X-Mailer: git-send-email 2.19.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -86,9 +86,9 @@ in the reclaimed hierarchy without any dependency on the reclaimable
 memory in that memcg thus making it more predictable.
 
 [jpitti@cisco.com:
-   - backported to v5.4.y
+   - backported to v4.19.y
    - Upstream patch applies fix in shrink_node_memcgs(), which
-     is not present to v5.4.y. Appled to shrink_node()]
+     is not present to v4.19.y. Appled to shrink_node()]
 
 Suggested-by: Michal Hocko <mhocko@suse.com>
 Signed-off-by: Xunlei Pang <xlpang@linux.alibaba.com>
@@ -106,10 +106,10 @@ Signed-off-by: Julius Hemanth Pitti <jpitti@cisco.com>
  1 file changed, 8 insertions(+)
 
 diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 7fde5f904c8d..6db9176d8c63 100644
+index bc2ecd43251a..b93dc8fc6007 100644
 --- a/mm/vmscan.c
 +++ b/mm/vmscan.c
-@@ -2775,6 +2775,14 @@ static bool shrink_node(pg_data_t *pgdat, struct scan_control *sc)
+@@ -2708,6 +2708,14 @@ static bool shrink_node(pg_data_t *pgdat, struct scan_control *sc)
  			unsigned long reclaimed;
  			unsigned long scanned;
  
