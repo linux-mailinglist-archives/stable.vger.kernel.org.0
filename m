@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D8C272FF8
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:01:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5678827308F
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730190AbgIURBl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 13:01:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40980 "EHLO mail.kernel.org"
+        id S1728662AbgIURFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 13:05:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728689AbgIUQjN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:39:13 -0400
+        id S1728599AbgIUQdV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:33:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8583A239D2;
-        Mon, 21 Sep 2020 16:39:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9108C2399C;
+        Mon, 21 Sep 2020 16:33:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706352;
-        bh=UzQ0uvPCt7nfrpRWYyvNauFRanS9fD4G9NDc5o03kRY=;
+        s=default; t=1600706001;
+        bh=d3XFlJeZ5FcVRMjyET295KfplhHWKUPA6e5DSv4GAcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FpV1PuA6nMYoZEA1zC1ETAFu33uSDgq2JR1nOMWqUjOuu7PUF4oswKem/5TGPOIqI
-         VlmSmUGQCmIeQYPzncX5QYpaWg2bVAnvdwBa5pq7kKnMpGOTFYMUH2Be6ZDkeZ4pjo
-         /x/m8gIsCVWXkZ0fZbrwdxQbuANy8q9aqM5x+gTE=
+        b=k8Ex2r1tXdmvxlywiOYVkp+7d+0ZjBMgNWrEFMwrhQe6TWd3CRE8c1DIIPZlOOQmI
+         VgNSa1/nPyrtoOfeU/cOysIgztJBKHvlsSpTc/8bzJKfQAM1cXAuWNGTU/Z+95lc8T
+         BuL7c8JJXsfb8uPcGl1a27V45QaAYlqBKxd9NFmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Javed Hasan <jhasan@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 66/94] scsi: libfc: Fix for double free()
-Date:   Mon, 21 Sep 2020 18:27:53 +0200
-Message-Id: <20200921162038.556287384@linuxfoundation.org>
+Subject: [PATCH 4.4 38/46] MIPS: SNI: Fix spurious interrupts
+Date:   Mon, 21 Sep 2020 18:27:54 +0200
+Message-Id: <20200921162035.034931409@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
+References: <20200921162033.346434578@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 
-[ Upstream commit 5a5b80f98534416b3b253859897e2ba1dc241e70 ]
+[ Upstream commit b959b97860d0fee8c8f6a3e641d3c2ad76eab6be ]
 
-Fix for '&fp->skb' double free.
+On A20R machines the interrupt pending bits in cause register need to be
+updated by requesting the chipset to do it. This needs to be done to
+find the interrupt cause and after interrupt service. In
+commit 0b888c7f3a03 ("MIPS: SNI: Convert to new irq_chip functions") the
+function to do after service update got lost, which caused spurious
+interrupts.
 
-Link:
-https://lore.kernel.org/r/20200825093940.19612-1-jhasan@marvell.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 0b888c7f3a03 ("MIPS: SNI: Convert to new irq_chip functions")
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libfc/fc_disc.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/mips/sni/a20r.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/libfc/fc_disc.c b/drivers/scsi/libfc/fc_disc.c
-index 62f83cc151b22..0db0d0ad9f966 100644
---- a/drivers/scsi/libfc/fc_disc.c
-+++ b/drivers/scsi/libfc/fc_disc.c
-@@ -658,8 +658,6 @@ free_fp:
- 	fc_frame_free(fp);
- out:
- 	kref_put(&rdata->kref, fc_rport_destroy);
--	if (!IS_ERR(fp))
--		fc_frame_free(fp);
+diff --git a/arch/mips/sni/a20r.c b/arch/mips/sni/a20r.c
+index f9407e1704762..c6af7047eb0d2 100644
+--- a/arch/mips/sni/a20r.c
++++ b/arch/mips/sni/a20r.c
+@@ -143,7 +143,10 @@ static struct platform_device sc26xx_pdev = {
+ 	},
+ };
+ 
+-static u32 a20r_ack_hwint(void)
++/*
++ * Trigger chipset to update CPU's CAUSE IP field
++ */
++static u32 a20r_update_cause_ip(void)
+ {
+ 	u32 status = read_c0_status();
+ 
+@@ -205,12 +208,14 @@ static void a20r_hwint(void)
+ 	int irq;
+ 
+ 	clear_c0_status(IE_IRQ0);
+-	status = a20r_ack_hwint();
++	status = a20r_update_cause_ip();
+ 	cause = read_c0_cause();
+ 
+ 	irq = ffs(((cause & status) >> 8) & 0xf8);
+ 	if (likely(irq > 0))
+ 		do_IRQ(SNI_A20R_IRQ_BASE + irq - 1);
++
++	a20r_update_cause_ip();
+ 	set_c0_status(IE_IRQ0);
  }
  
- /**
 -- 
 2.25.1
 
