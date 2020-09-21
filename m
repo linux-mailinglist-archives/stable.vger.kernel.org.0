@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C208E272865
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EC6427280F
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727070AbgIUOm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 10:42:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49800 "EHLO mail.kernel.org"
+        id S1727943AbgIUOk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 10:40:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727845AbgIUOk5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727837AbgIUOk5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 21 Sep 2020 10:40:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDA5423787;
-        Mon, 21 Sep 2020 14:40:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B391523888;
+        Mon, 21 Sep 2020 14:40:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699253;
-        bh=FmF/pbUJKzdSITSRYqcFNxLSTZy8+HviO1AYZWdz6Y4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Np9xI6HEtyAPHhyAQjaKte+AqInv4ee4nuCQ3q8acZYja8DHC9y8a8nPq2SjmB4yn
-         0n3H1bYpLkbtzTZr9GGx2tvN33SI/ccW8ykXZiQyHWm28rk8IoVPql5IgG4/AjTzyW
-         HP+4XcIm9ToBfSbRfkltX0AWXDnL5rNVF+ac5YRM=
+        s=default; t=1600699256;
+        bh=3wKhPCJK4e88PuLvX2Hp1ADWTWdm1mMqRIpGDGZjUag=;
+        h=From:To:Cc:Subject:Date:From;
+        b=prEX5My8a6UDJq2KfhZDacmShbvTu2g/0DTFx57j4nsBs5fm4FY6qshPhWGVl6jNP
+         pB8S8ISXjBmGSxv1wg/lZPM7PV5NsGqVGv0gZuNjMuRiXl95ry+eZja0jwMH6Z9eIo
+         I8ziqG3dBjYtvu/f6WO2EADVeTHIukAm/q/Iaurc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Damien Le Moal <damien.lemoal@wdc.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 20/20] riscv: Fix Kendryte K210 device tree
-Date:   Mon, 21 Sep 2020 10:40:27 -0400
-Message-Id: <20200921144027.2135390-20-sashal@kernel.org>
+Cc:     Amol Grover <frextrite@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 01/15] device_cgroup: Fix RCU list debugging warning
+Date:   Mon, 21 Sep 2020 10:40:40 -0400
+Message-Id: <20200921144054.2135602-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200921144027.2135390-1-sashal@kernel.org>
-References: <20200921144027.2135390-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,51 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Amol Grover <frextrite@gmail.com>
 
-[ Upstream commit f025d9d9934b84cd03b7796072d10686029c408e ]
+[ Upstream commit bc62d68e2a0a69fcdcf28aca8edb01abf306b698 ]
 
-The Kendryte K210 SoC CLINT is compatible with Sifive clint v0
-(sifive,clint0). Fix the Kendryte K210 device tree clint entry to be
-inline with the sifive timer definition documented in
-Documentation/devicetree/bindings/timer/sifive,clint.yaml.
-The device tree clint entry is renamed similarly to u-boot device tree
-definition to improve compatibility with u-boot defined device tree.
-To ensure correct initialization, the interrup-cells attribute is added
-and the interrupt-extended attribute definition fixed.
+exceptions may be traversed using list_for_each_entry_rcu()
+outside of an RCU read side critical section BUT under the
+protection of decgroup_mutex. Hence add the corresponding
+lockdep expression to fix the following false-positive
+warning:
 
-This fixes boot failures with Kendryte K210 SoC boards.
+[    2.304417] =============================
+[    2.304418] WARNING: suspicious RCU usage
+[    2.304420] 5.5.4-stable #17 Tainted: G            E
+[    2.304422] -----------------------------
+[    2.304424] security/device_cgroup.c:355 RCU-list traversed in non-reader section!!
 
-Note that the clock referenced is kept as K210_CLK_ACLK, which does not
-necessarilly match the clint MTIME increment rate. This however does not
-seem to cause any problem for now.
-
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Amol Grover <frextrite@gmail.com>
+Signed-off-by: James Morris <jmorris@namei.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/kendryte/k210.dtsi | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ security/device_cgroup.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/boot/dts/kendryte/k210.dtsi b/arch/riscv/boot/dts/kendryte/k210.dtsi
-index c1df56ccb8d55..d2d0ff6456325 100644
---- a/arch/riscv/boot/dts/kendryte/k210.dtsi
-+++ b/arch/riscv/boot/dts/kendryte/k210.dtsi
-@@ -95,10 +95,12 @@ sysctl: sysctl@50440000 {
- 			#clock-cells = <1>;
- 		};
+diff --git a/security/device_cgroup.c b/security/device_cgroup.c
+index 725674f3276d3..5d7bb91c64876 100644
+--- a/security/device_cgroup.c
++++ b/security/device_cgroup.c
+@@ -352,7 +352,8 @@ static bool match_exception_partial(struct list_head *exceptions, short type,
+ {
+ 	struct dev_exception_item *ex;
  
--		clint0: interrupt-controller@2000000 {
-+		clint0: clint@2000000 {
-+			#interrupt-cells = <1>;
- 			compatible = "riscv,clint0";
- 			reg = <0x2000000 0xC000>;
--			interrupts-extended = <&cpu0_intc 3>,  <&cpu1_intc 3>;
-+			interrupts-extended =  <&cpu0_intc 3 &cpu0_intc 7
-+						&cpu1_intc 3 &cpu1_intc 7>;
- 			clocks = <&sysctl K210_CLK_ACLK>;
- 		};
- 
+-	list_for_each_entry_rcu(ex, exceptions, list) {
++	list_for_each_entry_rcu(ex, exceptions, list,
++				lockdep_is_held(&devcgroup_mutex)) {
+ 		if ((type & DEVCG_DEV_BLOCK) && !(ex->type & DEVCG_DEV_BLOCK))
+ 			continue;
+ 		if ((type & DEVCG_DEV_CHAR) && !(ex->type & DEVCG_DEV_CHAR))
 -- 
 2.25.1
 
