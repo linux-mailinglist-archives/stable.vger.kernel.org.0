@@ -2,95 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD7F2736F2
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 01:55:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C022736DE
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 01:52:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728732AbgIUXzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 19:55:48 -0400
-Received: from mail.rusoil.net ([188.128.114.25]:49378 "EHLO mail.rusoil.net"
+        id S1728962AbgIUXvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 19:51:44 -0400
+Received: from helcar.hmeau.com ([216.24.177.18]:41180 "EHLO fornost.hmeau.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726913AbgIUXzr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 19:55:47 -0400
-X-Greylist: delayed 606 seconds by postgrey-1.27 at vger.kernel.org; Mon, 21 Sep 2020 19:55:46 EDT
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by mail.rusoil.net (Postfix) with ESMTP id 4F41B41318;
-        Tue, 22 Sep 2020 04:48:04 +0500 (YEKT)
-Received: from mail.rusoil.net ([127.0.0.1])
-        by localhost (mail.rusoil.net [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id cYsSBEWApeM8; Tue, 22 Sep 2020 04:48:03 +0500 (YEKT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by mail.rusoil.net (Postfix) with ESMTP id 371EF4136E;
-        Tue, 22 Sep 2020 04:48:02 +0500 (YEKT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.rusoil.net 371EF4136E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rusoil.net;
-        s=maildkim; t=1600732082;
-        bh=6R3BgBYiA7fkqGiiNDuwPskBnpH9JXyNAW/l3ZEA+wY=;
-        h=Date:From:Message-ID:MIME-Version;
-        b=yFEETbL8Vnl7Xl+9XhiSIJmoqaSGHZx67rHQU6Vr0iAwQZ2z67rRG7GxVDC2ijuOI
-         okbxC9XlzBr8rhlyPcOmOs/JV9JJUTEzqi2V7lbVtGznvLAo/eo8a3AfCp1KH+KZAo
-         9HSql+WEPfdnYKca1zx+w/YG2PFwXtnRujWUPpK4=
-X-Virus-Scanned: amavisd-new at mail.rusoil.net
-Received: from mail.rusoil.net ([127.0.0.1])
-        by localhost (mail.rusoil.net [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 6ObrlzZX-Gar; Tue, 22 Sep 2020 04:48:01 +0500 (YEKT)
-Received: from mail.rusoil.net (mail.rusoil.net [172.16.7.34])
-        by mail.rusoil.net (Postfix) with ESMTP id 4A2CF411E3;
-        Tue, 22 Sep 2020 04:47:57 +0500 (YEKT)
-Date:   Tue, 22 Sep 2020 04:47:56 +0500 (YEKT)
-From:   Blue Oak Mortgage and Loans <em@rusoil.net>
-Reply-To: Blue Oak Mortgage and Loans <info@bluelmtg.net>
-Message-ID: <2143271143.908972.1600732076548.JavaMail.zimbra@rusoil.net>
-Subject: Wir finanzieren Projekte und Unternehmen
+        id S1727124AbgIUXvo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 19:51:44 -0400
+Received: from gwarestrin.arnor.me.apana.org.au ([192.168.0.7])
+        by fornost.hmeau.com with smtp (Exim 4.92 #5 (Debian))
+        id 1kKVaq-0007nf-Gx; Tue, 22 Sep 2020 09:51:37 +1000
+Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Tue, 22 Sep 2020 09:51:36 +1000
+Date:   Tue, 22 Sep 2020 09:51:36 +1000
+From:   Herbert Xu <herbert@gondor.apana.org.au>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     Eric Biggers <ebiggers@kernel.org>, tytso@mit.edu,
+        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH] random: use correct memory barriers for crng_node_pool
+Message-ID: <20200921235136.GA6796@gondor.apana.org.au>
+References: <20200916233042.51634-1-ebiggers@kernel.org>
+ <20200917072644.GA5311@gondor.apana.org.au>
+ <20200917165802.GC855@sol.localdomain>
+ <20200921081939.GA4193@gondor.apana.org.au>
+ <20200921152714.GC29330@paulmck-ThinkPad-P72>
+ <20200921221104.GA6556@gondor.apana.org.au>
+ <20200921232639.GK29330@paulmck-ThinkPad-P72>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Originating-IP: [192.210.183.69]
-X-Mailer: Zimbra 8.8.12_GA_3803 (ZimbraWebClient - FF79 (Win)/8.8.12_GA_3794)
-Thread-Index: EwI0CXZDL3t2J9kpvV+g4SgSZvKrmg==
-Thread-Topic: Wir finanzieren Projekte und Unternehmen
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200921232639.GK29330@paulmck-ThinkPad-P72>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Sep 21, 2020 at 04:26:39PM -0700, Paul E. McKenney wrote:
+>
+> > But this reasoning could apply to any data structure that contains
+> > a spin lock, in particular ones that are dereferenced through RCU.
+> 
+> I lost you on this one.  What is special about a spin lock?
 
+I don't know, that was Eric's concern.  He is inferring that
+spin locks through lockdep debugging may trigger dependencies
+that require smp_load_acquire.
 
-Dies ist ein Newsletter von Blue Oak Mortgage and Loans. Bitte melden Sie s=
-ich ab, wenn Sie keine E-Mail mehr von uns erhalten m=C3=B6chten.
+Anyway, my point is if it applies to crng_node_pool then it
+would equally apply to RCU in general.
 
+> > So my question if this reasoning is valid, then why aren't we first
+> > converting rcu_dereference to use smp_load_acquire?
+> 
+> For LTO in ARM, rumor has it that Will is doing so.  Which was what
+> motivated the BoF on this topic at Linux Plumbers Conference.
 
-Eine kurze Einf=C3=BChrung.
+Sure, if RCU switches over to smp_load_acquire then I would have
+no problems with everybody else following in its footsteps.
 
-Wir sind ein f=C3=BChrendes Finanzierungsunternehmen in Europa. Wir finanzi=
-eren Startups / etablierte Unternehmen, finanzieren Gro=C3=9Fprojekte (Bau,=
- Landwirtschaft, Immobilien und dergleichen) zu einem niedrigen Zinssatz vo=
-n 2% pro Jahr.
+Here is the original patch in question:
 
+https://lore.kernel.org/lkml/20200916233042.51634-1-ebiggers@kernel.org/
 
-Darlehensverfahren
-
-1. Sie m=C3=BCssen das Online-Bewerbungsformular ausf=C3=BCllen und eine or=
-dnungsgem=C3=A4=C3=9F unterschriebene Kopie an uns zur=C3=BCcksenden.
-
-2. M=C3=B6glicherweise m=C3=BCssen Sie Finanzdokumente als unterst=C3=BCtze=
-nden Nachweis f=C3=BCr die F=C3=A4higkeit zur R=C3=BCckzahlung von Krediten=
- vorlegen.
-
-3. Wenn Ihr Darlehen genehmigt wurde, m=C3=BCssen Sie eine Versicherungsgar=
-antie f=C3=BCr die Darlehenssicherheit vorlegen. Wir empfehlen eine Versich=
-erungsgesellschaft. Sie sind allein verantwortlich f=C3=BCr die Zahlung und=
- den Erwerb der Anleihe, die als Sicherheit dienen. Die H=C3=B6he der Anlei=
-he h=C3=A4ngt von Ihrem Darlehensbetrag ab. Die Versicherungsgesellschaft w=
-ird Sie durch den Prozess f=C3=BChren. (F=C3=BCr Gro=C3=9Fprojekte)
-
-4. Ihr =C3=9Cberweisungsprozess wird eingeleitet, sobald die Versicherungsa=
-nleihe =C3=BCberpr=C3=BCft wurde. Ihr Darlehensr=C3=BCckzahlungsplan wird i=
-m NC-Darlehensvertragsformular aufgef=C3=BChrt.
-
-Wenn die Bedingungen Sie beruhigen, k=C3=B6nnen Sie uns =C3=BCber die Whats=
-App-Nummer / E-Mail kontaktieren und auch unsere Website besuchen, um weite=
-re Informationen zu erhalten. Wir freuen uns darauf, von Ihnen zu h=C3=B6re=
-n.
-
-WhatsApp: + 90-552-365-3483
-E-Mail: info@bluelmtg.net
+Cheers,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
