@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A219D272F6E
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2140F272D46
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:39:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729212AbgIUQ46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:56:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49884 "EHLO mail.kernel.org"
+        id S1728647AbgIUQiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:38:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729617AbgIUQob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:44:31 -0400
+        id S1729062AbgIUQih (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:38:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF3D223A04;
-        Mon, 21 Sep 2020 16:44:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 414F7239D2;
+        Mon, 21 Sep 2020 16:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706667;
-        bh=uBF2/c2bhx9oi+u3CpjY461LL7HH2GrF/2D9W+2eY/o=;
+        s=default; t=1600706316;
+        bh=P0JuG+HB1WWaD+bvHV44AE9IfntFRybUYzhVclNDKvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CkDDtNlgI/VjjZfG3iFCUAbopfpOqogclat2U26LnrLV95VVd45cvrQuUXiX7eWKE
-         WM4j26fmmm0q45hpcw9Kj+uxfW07b/0Y7h70JcJOKlE9p2pGuo3Ao/iL1yFZEBkMD1
-         lvdCzuu794cjjwwAg+Ef+IRrd8uT9NJnMTKAxHnM=
+        b=f1vySdEoh5NaZ5l6QAAfWuM7sQLsDiV3d1anat/JNT9KFrdNV9M2NCsglyYcwt2gi
+         KAUzqmrV1xvjbF479sxPAJ+h1nj6oz0E2BRCWXcoecXYn5SgJIHbEm1lpsWmHWgsuf
+         gXKUvbeNMd/2SGI6+ApH7JRKVq6liQJXQxWNK4g4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jitao Shi <jitao.shi@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 045/118] drm/mediatek: dsi: Fix scrolling of panel with small hfp or hbp
+        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 50/94] KVM: VMX: Dont freeze guest when event delivery causes an APIC-access exit
 Date:   Mon, 21 Sep 2020 18:27:37 +0200
-Message-Id: <20200921162038.407019155@linuxfoundation.org>
+Message-Id: <20200921162037.856804133@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jitao Shi <jitao.shi@mediatek.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit 35bf948f1edbf507f6e57e0879fa6ea36d2d2930 ]
+commit 99b82a1437cb31340dbb2c437a2923b9814a7b15 upstream.
 
-horizontal_backporch_byte should be hbp * bpp - hbp extra bytes.
-So remove the wrong subtraction 10.
+According to SDM 27.2.4, Event delivery causes an APIC-access VM exit.
+Don't report internal error and freeze guest when event delivery causes
+an APIC-access exit, it is handleable and the event will be re-injected
+during the next vmentry.
 
-Fixes: 7a5bc4e22ecf ("drm/mediatek: change the dsi phytiming calculate method")
-Signed-off-by: Jitao Shi <jitao.shi@mediatek.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1597827327-25055-2-git-send-email-wanpengli@tencent.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/mediatek/mtk_dsi.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/x86/kvm/vmx.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
-index 02ac55c13a80b..ee011a0633841 100644
---- a/drivers/gpu/drm/mediatek/mtk_dsi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
-@@ -470,14 +470,13 @@ static void mtk_dsi_config_vdo_timing(struct mtk_dsi *dsi)
- 	horizontal_sync_active_byte = (vm->hsync_len * dsi_tmp_buf_bpp - 10);
- 
- 	if (dsi->mode_flags & MIPI_DSI_MODE_VIDEO_SYNC_PULSE)
--		horizontal_backporch_byte =
--			(vm->hback_porch * dsi_tmp_buf_bpp - 10);
-+		horizontal_backporch_byte = vm->hback_porch * dsi_tmp_buf_bpp;
- 	else
--		horizontal_backporch_byte = ((vm->hback_porch + vm->hsync_len) *
--			dsi_tmp_buf_bpp - 10);
-+		horizontal_backporch_byte = (vm->hback_porch + vm->hsync_len) *
-+					    dsi_tmp_buf_bpp;
- 
- 	data_phy_cycles = timing->lpx + timing->da_hs_prepare +
--			  timing->da_hs_zero + timing->da_hs_exit + 3;
-+			  timing->da_hs_zero + timing->da_hs_exit;
- 
- 	if (dsi->mode_flags & MIPI_DSI_MODE_VIDEO_BURST) {
- 		if ((vm->hfront_porch + vm->hback_porch) * dsi_tmp_buf_bpp >
--- 
-2.25.1
-
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -9144,6 +9144,7 @@ static int vmx_handle_exit(struct kvm_vc
+ 			(exit_reason != EXIT_REASON_EXCEPTION_NMI &&
+ 			exit_reason != EXIT_REASON_EPT_VIOLATION &&
+ 			exit_reason != EXIT_REASON_PML_FULL &&
++			exit_reason != EXIT_REASON_APIC_ACCESS &&
+ 			exit_reason != EXIT_REASON_TASK_SWITCH)) {
+ 		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+ 		vcpu->run->internal.suberror = KVM_INTERNAL_ERROR_DELIVERY_EV;
 
 
