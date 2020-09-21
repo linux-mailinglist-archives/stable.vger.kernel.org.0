@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9215D272C7C
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90287272CDB
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728530AbgIUQcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:32:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58324 "EHLO mail.kernel.org"
+        id S1728516AbgIUQf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:35:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728453AbgIUQci (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:32:38 -0400
+        id S1728409AbgIUQfZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:35:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9404823976;
-        Mon, 21 Sep 2020 16:32:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EF4C2399C;
+        Mon, 21 Sep 2020 16:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600705958;
-        bh=drZYiRmwOVUnvr3J1YCJlIMxqcOH5GZK3mbze+Ex65E=;
+        s=default; t=1600706124;
+        bh=0T9A2vS3EgCx7mMbINIZB7rlmmiUXGqbIW/pd8eX46s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smvN8+HZG6dhO9+FZaoWed+rzjWBjzdOBNM9rM6hscEkmruyEyb1c1ykHbEeZrwt4
-         RR0mxRxrqj5ZGlrk0Vg+W0xRRzjJmwjFwgpBURE+27D/W4nRLJzhUPQfEbOA7GJnZk
-         eX6MzJpG9z9w5ZTlGtYjhua0XgExWZk9dOPOxgIc=
+        b=XYoUbvNajWHVjY/VfNyFZISspu8UC7wEmjBGL8J+RRI61XYqtdFgPT8/7xG6jVFTC
+         1/MzSGWCUkid698RbmrC+FF4B7zrmu+FpOuo66feNdxLoBkqGyG1PuUtL0lZZj2z8D
+         zn1MEYUaqcDVkCJGd48c6qw9MLfcrJOfxsOLpeqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 30/46] scsi: pm8001: Fix memleak in pm8001_exec_internal_task_abort
-Date:   Mon, 21 Sep 2020 18:27:46 +0200
-Message-Id: <20200921162034.699647556@linuxfoundation.org>
+Subject: [PATCH 4.9 47/70] gcov: add support for GCC 10.1
+Date:   Mon, 21 Sep 2020 18:27:47 +0200
+Message-Id: <20200921162037.274861556@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
-References: <20200921162033.346434578@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Peter Oberparleiter <oberpar@linux.ibm.com>
 
-[ Upstream commit ea403fde7552bd61bad6ea45e3feb99db77cb31e ]
+[ Upstream commit 40249c6962075c040fd071339acae524f18bfac9 ]
 
-When pm8001_tag_alloc() fails, task should be freed just like it is done in
-the subsequent error paths.
+Using gcov to collect coverage data for kernels compiled with GCC 10.1
+causes random malfunctions and kernel crashes.  This is the result of a
+changed GCOV_COUNTERS value in GCC 10.1 that causes a mismatch between
+the layout of the gcov_info structure created by GCC profiling code and
+the related structure used by the kernel.
 
-Link: https://lore.kernel.org/r/20200823091453.4782-1-dinghao.liu@zju.edu.cn
-Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix this by updating the in-kernel GCOV_COUNTERS value.  Also re-enable
+config GCOV_KERNEL for use with GCC 10.
+
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Reported-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Tested-by: Leon Romanovsky <leonro@nvidia.com>
+Tested-and-Acked-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_sas.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/gcov/Kconfig   | 1 -
+ kernel/gcov/gcc_4_7.c | 4 +++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
-index 3862d8b1defe3..ee6c941123e10 100644
---- a/drivers/scsi/pm8001/pm8001_sas.c
-+++ b/drivers/scsi/pm8001/pm8001_sas.c
-@@ -792,7 +792,7 @@ pm8001_exec_internal_task_abort(struct pm8001_hba_info *pm8001_ha,
+diff --git a/kernel/gcov/Kconfig b/kernel/gcov/Kconfig
+index 1d78ed19a3512..1276aabaab550 100644
+--- a/kernel/gcov/Kconfig
++++ b/kernel/gcov/Kconfig
+@@ -3,7 +3,6 @@ menu "GCOV-based kernel profiling"
+ config GCOV_KERNEL
+ 	bool "Enable gcov-based kernel profiling"
+ 	depends on DEBUG_FS
+-	depends on !CC_IS_GCC || GCC_VERSION < 100000
+ 	select CONSTRUCTORS if !UML
+ 	default n
+ 	---help---
+diff --git a/kernel/gcov/gcc_4_7.c b/kernel/gcov/gcc_4_7.c
+index 46a18e72bce61..6d5ef6220afe7 100644
+--- a/kernel/gcov/gcc_4_7.c
++++ b/kernel/gcov/gcc_4_7.c
+@@ -18,7 +18,9 @@
+ #include <linux/vmalloc.h>
+ #include "gcov.h"
  
- 		res = pm8001_tag_alloc(pm8001_ha, &ccb_tag);
- 		if (res)
--			return res;
-+			goto ex_err;
- 		ccb = &pm8001_ha->ccb_info[ccb_tag];
- 		ccb->device = pm8001_dev;
- 		ccb->ccb_tag = ccb_tag;
+-#if (__GNUC__ >= 7)
++#if (__GNUC__ >= 10)
++#define GCOV_COUNTERS			8
++#elif (__GNUC__ >= 7)
+ #define GCOV_COUNTERS			9
+ #elif (__GNUC__ > 5) || (__GNUC__ == 5 && __GNUC_MINOR__ >= 1)
+ #define GCOV_COUNTERS			10
 -- 
 2.25.1
 
