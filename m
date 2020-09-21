@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8C9272E90
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:50:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF558272E8D
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:50:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729970AbgIUQuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:50:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58602 "EHLO mail.kernel.org"
+        id S1729988AbgIUQuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:50:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729988AbgIUQuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:50:14 -0400
+        id S1729983AbgIUQuR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:50:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D170238A1;
-        Mon, 21 Sep 2020 16:50:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3FB5238D7;
+        Mon, 21 Sep 2020 16:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600707013;
-        bh=rNiWjmW70ZzjJzIF8efbR/VjEyRCpozTf42Ez/2euoo=;
+        s=default; t=1600707016;
+        bh=m1aOmsMaItO9yjnr5jAW7/k4QrlW3pciU/xLdgcq+Ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZ3AQT2jNUq/3eGjdnKoeAc2y9lbM7PKbX2087Q5dXzARdXqKmdXp6lO/woLYXLb8
-         YjQaW4vzJVGsnqtb+hxPJC6ZWhEdmkxfFWQEnky0NEQ+zFeSlAWMKVN96lAfiibD3l
-         /YL9WLT2NWcFs/qKBLKgDFqYWFBlrBlRQ+x7iR54=
+        b=vqM7oCzabJ4GJ4trxAUlJYU18t8cF+3fo1Bn6/2hH8/6nq8pjwOl4XP052r+79IRo
+         cKtyazX13ZcBIifsv/V39kHoNJcnYZQgidKb//QegczHkLGR5ALgLOneeTLXEavD5c
+         Lo42j3N5Qk1JyInBRfWPloD/XlxwwRPao7okSYK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.4 64/72] x86/boot/compressed: Disable relocation relaxation
-Date:   Mon, 21 Sep 2020 18:31:43 +0200
-Message-Id: <20200921163124.913173056@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Ingo Franzki <ifranzki@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 65/72] s390/zcrypt: fix kmalloc 256k failure
+Date:   Mon, 21 Sep 2020 18:31:44 +0200
+Message-Id: <20200921163124.961788267@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -45,89 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-commit 09e43968db40c33a73e9ddbfd937f46d5c334924 upstream.
+commit b6186d7fb53349efd274263a45f0b08749ccaa2d upstream.
 
-The x86-64 psABI [0] specifies special relocation types
-(R_X86_64_[REX_]GOTPCRELX) for indirection through the Global Offset
-Table, semantically equivalent to R_X86_64_GOTPCREL, which the linker
-can take advantage of for optimization (relaxation) at link time. This
-is supported by LLD and binutils versions 2.26 onwards.
+Tests showed that under stress conditions the kernel may
+temporary fail to allocate 256k with kmalloc. However,
+this fix reworks the related code in the cca_findcard2()
+function to use kvmalloc instead.
 
-The compressed kernel is position-independent code, however, when using
-LLD or binutils versions before 2.27, it must be linked without the -pie
-option. In this case, the linker may optimize certain instructions into
-a non-position-independent form, by converting foo@GOTPCREL(%rip) to $foo.
-
-This potential issue has been present with LLD and binutils-2.26 for a
-long time, but it has never manifested itself before now:
-
-- LLD and binutils-2.26 only relax
-	movq	foo@GOTPCREL(%rip), %reg
-  to
-	leaq	foo(%rip), %reg
-  which is still position-independent, rather than
-	mov	$foo, %reg
-  which is permitted by the psABI when -pie is not enabled.
-
-- GCC happens to only generate GOTPCREL relocations on mov instructions.
-
-- CLang does generate GOTPCREL relocations on non-mov instructions, but
-  when building the compressed kernel, it uses its integrated assembler
-  (due to the redefinition of KBUILD_CFLAGS dropping -no-integrated-as),
-  which has so far defaulted to not generating the GOTPCRELX
-  relocations.
-
-Nick Desaulniers reports [1,2]:
-
-  "A recent change [3] to a default value of configuration variable
-   (ENABLE_X86_RELAX_RELOCATIONS OFF -> ON) in LLVM now causes Clang's
-   integrated assembler to emit R_X86_64_GOTPCRELX/R_X86_64_REX_GOTPCRELX
-   relocations. LLD will relax instructions with these relocations based
-   on whether the image is being linked as position independent or not.
-   When not, then LLD will relax these instructions to use absolute
-   addressing mode (R_RELAX_GOT_PC_NOPIC). This causes kernels built with
-   Clang and linked with LLD to fail to boot."
-
-Patch series [4] is a solution to allow the compressed kernel to be
-linked with -pie unconditionally, but even if merged is unlikely to be
-backported. As a simple solution that can be applied to stable as well,
-prevent the assembler from generating the relaxed relocation types using
-the -mrelax-relocations=no option. For ease of backporting, do this
-unconditionally.
-
-[0] https://gitlab.com/x86-psABIs/x86-64-ABI/-/blob/master/x86-64-ABI/linker-optimization.tex#L65
-[1] https://lore.kernel.org/lkml/20200807194100.3570838-1-ndesaulniers@google.com/
-[2] https://github.com/ClangBuiltLinux/linux/issues/1121
-[3] https://reviews.llvm.org/rGc41a18cf61790fc898dcda1055c3efbf442c14c0
-[4] https://lore.kernel.org/lkml/20200731202738.2577854-1-nivedita@alum.mit.edu/
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200812004308.1448603-1-nivedita@alum.mit.edu
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Reviewed-by: Ingo Franzki <ifranzki@linux.ibm.com>
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/boot/compressed/Makefile |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/crypto/zcrypt_ccamisc.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -38,6 +38,8 @@ KBUILD_CFLAGS += $(call cc-option,-fno-s
- KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
- KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
- KBUILD_CFLAGS += -Wno-pointer-sign
-+# Disable relocation relaxation in case the link is not PIE.
-+KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
+--- a/drivers/s390/crypto/zcrypt_ccamisc.c
++++ b/drivers/s390/crypto/zcrypt_ccamisc.c
+@@ -1684,9 +1684,9 @@ int cca_findcard2(u32 **apqns, u32 *nr_a
+ 	*nr_apqns = 0;
  
- KBUILD_AFLAGS  := $(KBUILD_CFLAGS) -D__ASSEMBLY__
- GCOV_PROFILE := n
+ 	/* fetch status of all crypto cards */
+-	device_status = kmalloc_array(MAX_ZDEV_ENTRIES_EXT,
+-				      sizeof(struct zcrypt_device_status_ext),
+-				      GFP_KERNEL);
++	device_status = kvmalloc_array(MAX_ZDEV_ENTRIES_EXT,
++				       sizeof(struct zcrypt_device_status_ext),
++				       GFP_KERNEL);
+ 	if (!device_status)
+ 		return -ENOMEM;
+ 	zcrypt_device_status_mask_ext(device_status);
+@@ -1754,7 +1754,7 @@ int cca_findcard2(u32 **apqns, u32 *nr_a
+ 		verify = 0;
+ 	}
+ 
+-	kfree(device_status);
++	kvfree(device_status);
+ 	return rc;
+ }
+ EXPORT_SYMBOL(cca_findcard2);
 
 
