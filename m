@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77C40272DAB
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:42:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B71FB272E4B
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:48:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729203AbgIUQmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:42:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45872 "EHLO mail.kernel.org"
+        id S1729798AbgIUQrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:47:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729475AbgIUQl5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:41:57 -0400
+        id S1728669AbgIUQrr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:47:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D117238E6;
-        Mon, 21 Sep 2020 16:41:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B874820874;
+        Mon, 21 Sep 2020 16:47:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706517;
-        bh=Kr/P0uRJ7+elaXq9uS0DpM4PsjGS8tLYatiuM8Tr35A=;
+        s=default; t=1600706866;
+        bh=LIlwq97RYKpjoA7GnwEpLDHMzxCCJqryTtrt0PN+AMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qO7EZhMSstUkWAjxOC+wXFC1W8IHaJUBcviSUgKdqSeFQaTS3lgxKlsBf0yKIbR7E
-         3O1zbvE6XQrY/sCe0uVeksAuMOud6+9ErlqaV2Ej25nwkwW8me4bHayoU6R7dWEP4U
-         VVx0ObUCeqtF22Jj3Hfm6hI3kNh7agEOZsljtwCU=
+        b=qEk6VCf4nEpDXvAtOxmf1ElHVKkG/jQrmT5H2QAQPWZSUU43gt6jmTZozhwMl42cD
+         i5nTAoZy/CsGQHK3JcxGoUovyxJnxDup5/kbk13Q6N8Ebs+XtAlXm58lbMf2qSjP7W
+         Xk9b7q+h5RAmaVuwxW/B4MLPnUA4M1ccIR8oq7V8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/49] drm/mediatek: Add exception handing in mtk_drm_probe() if component init fail
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.8 087/118] USB: UAS: fix disconnect by unplugging a hub
 Date:   Mon, 21 Sep 2020 18:28:19 +0200
-Message-Id: <20200921162036.209603125@linuxfoundation.org>
+Message-Id: <20200921162040.395257799@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
-References: <20200921162034.660953761@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 64c194c00789889b0f9454f583712f079ba414ee ]
+commit 325b008723b2dd31de020e85ab9d2e9aa4637d35 upstream.
 
-mtk_ddp_comp_init() is called in a loop in mtk_drm_probe(), if it
-fail, previous successive init component is not proccessed.
+The SCSI layer can go into an ugly loop if you ignore that a device is
+gone. You need to report an error in the command rather than in the
+return value of the queue method.
 
-Thus uninitialize valid component and put their device if component
-init failed.
+We need to specifically check for ENODEV. The issue goes back to the
+introduction of the driver.
 
-Fixes: 119f5173628a ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 115bb1ffa54c3 ("USB: Add UAS driver")
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200916094026.30085-2-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/mediatek/mtk_drm_drv.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/usb/storage/uas.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-index 947bc6d623020..d143217636071 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
-@@ -600,8 +600,13 @@ err_pm:
- 	pm_runtime_disable(dev);
- err_node:
- 	of_node_put(private->mutex_node);
--	for (i = 0; i < DDP_COMPONENT_ID_MAX; i++)
-+	for (i = 0; i < DDP_COMPONENT_ID_MAX; i++) {
- 		of_node_put(private->comp_node[i]);
-+		if (private->ddp_comp[i]) {
-+			put_device(private->ddp_comp[i]->larb_dev);
-+			private->ddp_comp[i] = NULL;
-+		}
-+	}
- 	return ret;
- }
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -662,8 +662,7 @@ static int uas_queuecommand_lck(struct s
+ 	if (devinfo->resetting) {
+ 		cmnd->result = DID_ERROR << 16;
+ 		cmnd->scsi_done(cmnd);
+-		spin_unlock_irqrestore(&devinfo->lock, flags);
+-		return 0;
++		goto zombie;
+ 	}
  
--- 
-2.25.1
-
+ 	/* Find a free uas-tag */
+@@ -699,6 +698,16 @@ static int uas_queuecommand_lck(struct s
+ 		cmdinfo->state &= ~(SUBMIT_DATA_IN_URB | SUBMIT_DATA_OUT_URB);
+ 
+ 	err = uas_submit_urbs(cmnd, devinfo);
++	/*
++	 * in case of fatal errors the SCSI layer is peculiar
++	 * a command that has finished is a success for the purpose
++	 * of queueing, no matter how fatal the error
++	 */
++	if (err == -ENODEV) {
++		cmnd->result = DID_ERROR << 16;
++		cmnd->scsi_done(cmnd);
++		goto zombie;
++	}
+ 	if (err) {
+ 		/* If we did nothing, give up now */
+ 		if (cmdinfo->state & SUBMIT_STATUS_URB) {
+@@ -709,6 +718,7 @@ static int uas_queuecommand_lck(struct s
+ 	}
+ 
+ 	devinfo->cmnd[idx] = cmnd;
++zombie:
+ 	spin_unlock_irqrestore(&devinfo->lock, flags);
+ 	return 0;
+ }
 
 
