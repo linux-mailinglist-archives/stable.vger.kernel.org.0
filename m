@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 805C0272DCA
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C19DD272CD3
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:36:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729568AbgIUQnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:43:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47762 "EHLO mail.kernel.org"
+        id S1728307AbgIUQfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:35:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729562AbgIUQnP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:43:15 -0400
+        id S1728802AbgIUQen (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:34:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 782DE235F9;
-        Mon, 21 Sep 2020 16:43:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 451362399C;
+        Mon, 21 Sep 2020 16:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706595;
-        bh=3oTBHsTFSaSjiAFuk1w5MRsRzcO9Ats6ervYAEvAuDQ=;
+        s=default; t=1600706082;
+        bh=A1GglWH/Xqi80/BCeRtvDldnvRBNc1Oeew/+yalEkgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wRcyUtRXALsW7+bkVdy8MuUCcgMVOZRLlG150YlZeNwvsSNFVKCSVkCa/BEmmtymh
-         BnvPHCRFjaj3XPyEeVzGM8tK/yArMf08x+JLdLT69KL3PeClxGwCuYkWkACAvtf0Rl
-         489xCUbINsCWt75+YySBgPJloCiWvBp53ZwdcL08=
+        b=Pw/OQsiJP5Bi6vQbMMAMsqmeSPczODwJkAlOBc5ze/UvMFTu9KecLWrnGbdENyrs6
+         tyTCBBPVEU4I2hTr01LugFVbzqsqeU0ds4BpIsToCFuS4EXKpaDdEp1gPl12tHdZqh
+         aDUMPDcuzccv7gpvd7moOyUf+bJsq/5TaZfbhxO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <james.smart@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Mohan Kumar <mkumard@nvidia.com>,
+        Sameer Pujar <spujar@nvidia.com>, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 016/118] scsi: lpfc: Fix FLOGI/PLOGI receive race condition in pt2pt discovery
+Subject: [PATCH 4.9 08/70] ALSA: hda: Fix 2 channel swapping for Tegra
 Date:   Mon, 21 Sep 2020 18:27:08 +0200
-Message-Id: <20200921162037.086175129@linuxfoundation.org>
+Message-Id: <20200921162035.506612220@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <james.smart@broadcom.com>
+From: Mohan Kumar <mkumard@nvidia.com>
 
-[ Upstream commit 7b08e89f98cee9907895fabb64cf437bc505ce9a ]
+[ Upstream commit 216116eae43963c662eb84729507bad95214ca6b ]
 
-The driver is unable to successfully login with remote device. During pt2pt
-login, the driver completes its FLOGI request with the remote device having
-WWN precedence.  The remote device issues its own (delayed) FLOGI after
-accepting the driver's and, upon transmitting the FLOGI, immediately
-recognizes it has already processed the driver's FLOGI thus it transitions
-to sending a PLOGI before waiting for an ACC to its FLOGI.
+The Tegra HDA codec HW implementation has an issue related to not
+swapping the 2 channel Audio Sample Packet(ASP) channel mapping.
+Whatever the FL and FR mapping specified the left channel always
+comes out of left speaker and right channel on right speaker. So
+add condition to disallow the swapping of FL,FR during the playback.
 
-In the driver, the FLOGI is received and an ACC sent, followed by the PLOGI
-being received and an ACC sent. The issue is that the PLOGI reception
-occurs before the response from the adapter from the FLOGI ACC is
-received. Processing of the PLOGI sets state flags to perform the REG_RPI
-mailbox command and proceed with the rest of discovery on the port. The
-same completion routine used by both FLOGI and PLOGI is generic in
-nature. One of the things it does is clear flags, and those flags happen to
-drive the rest of discovery.  So what happened was the PLOGI processing set
-the flags, the FLOGI ACC completion cleared them, thus when the PLOGI ACC
-completes it doesn't see the flags and stops.
-
-Fix by modifying the generic completion routine to not clear the rest of
-discovery flag (NLP_ACC_REGLOGIN) unless the completion is also associated
-with performing a mailbox command as part of its handling.  For things such
-as FLOGI ACC, there isn't a subsequent action to perform with the adapter,
-thus there is no mailbox cmd ptr. PLOGI ACC though will perform REG_RPI
-upon completion, thus there is a mailbox cmd ptr.
-
-Link: https://lore.kernel.org/r/20200828175332.130300-3-james.smart@broadcom.com
-Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
+Acked-by: Sameer Pujar <spujar@nvidia.com>
+Link: https://lore.kernel.org/r/20200825052415.20626-2-mkumard@nvidia.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_hdmi.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 3d670568a2760..7b6a210825677 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -4644,7 +4644,9 @@ lpfc_cmpl_els_rsp(struct lpfc_hba *phba, struct lpfc_iocbq *cmdiocb,
- out:
- 	if (ndlp && NLP_CHK_NODE_ACT(ndlp) && shost) {
- 		spin_lock_irq(shost->host_lock);
--		ndlp->nlp_flag &= ~(NLP_ACC_REGLOGIN | NLP_RM_DFLT_RPI);
-+		if (mbox)
-+			ndlp->nlp_flag &= ~NLP_ACC_REGLOGIN;
-+		ndlp->nlp_flag &= ~NLP_RM_DFLT_RPI;
- 		spin_unlock_irq(shost->host_lock);
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index 2def4ad579ccf..4f8dd558af48f 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -3224,6 +3224,7 @@ static int tegra_hdmi_build_pcms(struct hda_codec *codec)
  
- 		/* If the node is not being used by another discovery thread,
+ static int patch_tegra_hdmi(struct hda_codec *codec)
+ {
++	struct hdmi_spec *spec;
+ 	int err;
+ 
+ 	err = patch_generic_hdmi(codec);
+@@ -3231,6 +3232,10 @@ static int patch_tegra_hdmi(struct hda_codec *codec)
+ 		return err;
+ 
+ 	codec->patch_ops.build_pcms = tegra_hdmi_build_pcms;
++	spec = codec->spec;
++	spec->chmap.ops.chmap_cea_alloc_validate_get_type =
++		nvhdmi_chmap_cea_alloc_validate_get_type;
++	spec->chmap.ops.chmap_validate = nvhdmi_chmap_validate;
+ 
+ 	return 0;
+ }
 -- 
 2.25.1
 
