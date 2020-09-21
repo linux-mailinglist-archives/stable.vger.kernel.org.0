@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E82527282E
+	by mail.lfdr.de (Postfix) with ESMTP id EC322272830
 	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728049AbgIUOl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728045AbgIUOl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 21 Sep 2020 10:41:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50730 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728029AbgIUOlZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728032AbgIUOlZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 21 Sep 2020 10:41:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9AC52389F;
-        Mon, 21 Sep 2020 14:41:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0765238D6;
+        Mon, 21 Sep 2020 14:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699280;
-        bh=MdUKsgIK7/XLrFbqnswTNRxhEGOstKAHiiyS57mqC18=;
+        s=default; t=1600699281;
+        bh=HO7op/bteOe67ODkuL6tPlndNI5QxHwjelK/GFMC8RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4Bfoo1ZWu+aC/1H+Lk6I2oAfYGP5NGbjgFcfBqgqx9Miv58+7u9HJ8KP+YUsLAFT
-         Sm8vnooGYhM4uLbm1UlZxvhlhZL462WaqDdCSdYffZEBdcktDq/3rLI8Lcthswa1gR
-         UYlzF0qvYX//2MJdAbgsgFmTMw7L36uxtFT2GpJo=
+        b=bcSxx9mjwarST0i4ERMLuXkE7RX5B5TfiH8OBfNqNINmwLxg5pR5jaogDQQX1Bb6w
+         1RUH0HX4lyfXswYkQbW/qn+aa1TYy6cDHUigKOFP/R7xdd+HiaDD77ESSdwq0rc4Tz
+         9TrPys2nqVVtNPSzgf8sIDcKzXsCmsgX1TCmz6Jc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Palmer Dabbelt <palmerdabbelt@google.com>,
-        Guo Ren <guoren@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 4/9] RISC-V: Take text_mutex in ftrace_init_nop()
-Date:   Mon, 21 Sep 2020 10:41:09 -0400
-Message-Id: <20200921144114.2135773-4-sashal@kernel.org>
+Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 5/9] s390/init: add missing __init annotations
+Date:   Mon, 21 Sep 2020 10:41:10 -0400
+Message-Id: <20200921144114.2135773-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200921144114.2135773-1-sashal@kernel.org>
 References: <20200921144114.2135773-1-sashal@kernel.org>
@@ -42,69 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmerdabbelt@google.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 66d18dbda8469a944dfec6c49d26d5946efba218 ]
+[ Upstream commit fcb2b70cdb194157678fb1a75f9ff499aeba3d2a ]
 
-Without this we get lockdep failures.  They're spurious failures as SMP isn't
-up when ftrace_init_nop() is called.  As far as I can tell the easiest fix is
-to just take the lock, which also seems like the safest fix.
+Add __init to reserve_memory_end, reserve_oldmem and remove_oldmem.
+Sometimes these functions are not inlined, and then the build
+complains about section mismatch.
 
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Acked-by: Guo Ren <guoren@kernel.org>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/ftrace.h |  7 +++++++
- arch/riscv/kernel/ftrace.c      | 19 +++++++++++++++++++
- 2 files changed, 26 insertions(+)
+ arch/s390/kernel/setup.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
-index c6dcc5291f972..02fbc175142e2 100644
---- a/arch/riscv/include/asm/ftrace.h
-+++ b/arch/riscv/include/asm/ftrace.h
-@@ -63,4 +63,11 @@ do {									\
-  * Let auipc+jalr be the basic *mcount unit*, so we make it 8 bytes here.
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 5f85e0dfa66d1..4bda9055daefa 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -537,7 +537,7 @@ static struct notifier_block kdump_mem_nb = {
+ /*
+  * Make sure that the area behind memory_end is protected
   */
- #define MCOUNT_INSN_SIZE 8
-+
-+#ifndef __ASSEMBLY__
-+struct dyn_ftrace;
-+int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec);
-+#define ftrace_init_nop ftrace_init_nop
-+#endif
-+
- #endif
-diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
-index 6d39f64e4dce4..fa8530f05ed4f 100644
---- a/arch/riscv/kernel/ftrace.c
-+++ b/arch/riscv/kernel/ftrace.c
-@@ -88,6 +88,25 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
- 	return __ftrace_modify_call(rec->ip, addr, false);
- }
- 
-+
-+/*
-+ * This is called early on, and isn't wrapped by
-+ * ftrace_arch_code_modify_{prepare,post_process}() and therefor doesn't hold
-+ * text_mutex, which triggers a lockdep failure.  SMP isn't running so we could
-+ * just directly poke the text, but it's simpler to just take the lock
-+ * ourselves.
-+ */
-+int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec)
-+{
-+	int out;
-+
-+	ftrace_arch_code_modify_prepare();
-+	out = ftrace_make_nop(mod, rec, MCOUNT_ADDR);
-+	ftrace_arch_code_modify_post_process();
-+
-+	return out;
-+}
-+
- int ftrace_update_ftrace_func(ftrace_func_t func)
+-static void reserve_memory_end(void)
++static void __init reserve_memory_end(void)
  {
- 	int ret = __ftrace_modify_call((unsigned long)&ftrace_call,
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (ipl_info.type == IPL_TYPE_FCP_DUMP &&
+@@ -555,7 +555,7 @@ static void reserve_memory_end(void)
+ /*
+  * Make sure that oldmem, where the dump is stored, is protected
+  */
+-static void reserve_oldmem(void)
++static void __init reserve_oldmem(void)
+ {
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (OLDMEM_BASE)
+@@ -567,7 +567,7 @@ static void reserve_oldmem(void)
+ /*
+  * Make sure that oldmem, where the dump is stored, is protected
+  */
+-static void remove_oldmem(void)
++static void __init remove_oldmem(void)
+ {
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (OLDMEM_BASE)
 -- 
 2.25.1
 
