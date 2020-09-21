@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E8C8272CB4
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41AA6272F56
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728739AbgIUQeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:34:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60894 "EHLO mail.kernel.org"
+        id S1728109AbgIUQ4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:56:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728720AbgIUQeO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:34:14 -0400
+        id S1729224AbgIUQpE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:45:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADBB023976;
-        Mon, 21 Sep 2020 16:34:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E32723976;
+        Mon, 21 Sep 2020 16:45:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706054;
-        bh=p7jydHRi2UcpgGqpxPC294TEpk0O700BEyFJFD72Stg=;
+        s=default; t=1600706703;
+        bh=x7TMu42l2iyUZ9WwWu72BNXvkgmZ15HkeM+3qESgTwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FnkTuMZrTAsKalrb3gpPd/dnFTJSHEOke7r7tVYlyAi+to8PIPDUvfUTDdg7P+0nN
-         dX8yluJ1CxonVs6jCeVyll0S0rQm8PmxUx69f6uzO9wLbiH+mUrQ9BuQzhrj26ilyI
-         /QsZWdgf31/fKFAjoYHcGtqm2I0kTkvhkqfAZoWI=
+        b=Z3eXAeVMXGlx8mwpDKtMOYYhRTsuGc+z6Et2AmW2+cVdgefrCM7Lp5Ns1YqOBoq+1
+         TQBvib0gFt2GJdwwHWpoEFJ4JV5SwOAteD75aOOFz3IpjCoAdsi7iJN1nmTaw+sYEH
+         nzyo9UZkeeiYqfk30DmEs1hH7/h/MhJGWTH9iPMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.9 21/70] iio:adc:ti-adc081c Fix alignment and data leak issues
-Date:   Mon, 21 Sep 2020 18:27:21 +0200
-Message-Id: <20200921162036.086090915@linuxfoundation.org>
+        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 030/118] f2fs: fix indefinite loop scanning for free nid
+Date:   Mon, 21 Sep 2020 18:27:22 +0200
+Message-Id: <20200921162037.717047554@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
-References: <20200921162035.136047591@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Sahitya Tummala <stummala@codeaurora.org>
 
-commit 54f82df2ba86e2a8e9cbf4036d192366e3905c89 upstream.
+[ Upstream commit e2cab031ba7b5003cd12185b3ef38f1a75e3dae8 ]
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv().
+If the sbi->ckpt->next_free_nid is not NAT block aligned and if there
+are free nids in that NAT block between the start of the block and
+next_free_nid, then those free nids will not be scanned in scan_nat_page().
+This results into mismatch between nm_i->available_nids and the sum of
+nm_i->free_nid_count of all NAT blocks scanned. And nm_i->available_nids
+will always be greater than the sum of free nids in all the blocks.
+Under this condition, if we use all the currently scanned free nids,
+then it will loop forever in f2fs_alloc_nid() as nm_i->available_nids
+is still not zero but nm_i->free_nid_count of that partially scanned
+NAT block is zero.
 
-This data is allocated with kzalloc so no data can leak apart
-from previous readings.
+Fix this to align the nm_i->next_scan_nid to the first nid of the
+corresponding NAT block.
 
-The eplicit alignment of ts is necessary to ensure correct padding
-on x86_32 where s64 is only aligned to 4 bytes.
-
-Fixes: 08e05d1fce5c ("ti-adc081c: Initial triggered buffer support")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ti-adc081c.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ fs/f2fs/node.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/iio/adc/ti-adc081c.c
-+++ b/drivers/iio/adc/ti-adc081c.c
-@@ -36,6 +36,12 @@ struct adc081c {
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index 98736d0598b8d..0fde35611df18 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -2375,6 +2375,9 @@ static int __f2fs_build_free_nids(struct f2fs_sb_info *sbi,
+ 	if (unlikely(nid >= nm_i->max_nid))
+ 		nid = 0;
  
- 	/* 8, 10 or 12 */
- 	int bits;
++	if (unlikely(nid % NAT_ENTRY_PER_BLOCK))
++		nid = NAT_BLOCK_OFFSET(nid) * NAT_ENTRY_PER_BLOCK;
 +
-+	/* Ensure natural alignment of buffer elements */
-+	struct {
-+		u16 channel;
-+		s64 ts __aligned(8);
-+	} scan;
- };
- 
- #define REG_CONV_RES 0x00
-@@ -132,14 +138,13 @@ static irqreturn_t adc081c_trigger_handl
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct adc081c *data = iio_priv(indio_dev);
--	u16 buf[8]; /* 2 bytes data + 6 bytes padding + 8 bytes timestamp */
- 	int ret;
- 
- 	ret = i2c_smbus_read_word_swapped(data->i2c, REG_CONV_RES);
- 	if (ret < 0)
- 		goto out;
--	buf[0] = ret;
--	iio_push_to_buffers_with_timestamp(indio_dev, buf,
-+	data->scan.channel = ret;
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   iio_get_time_ns(indio_dev));
- out:
- 	iio_trigger_notify_done(indio_dev->trig);
+ 	/* Enough entries */
+ 	if (nm_i->nid_cnt[FREE_NID] >= NAT_ENTRY_PER_BLOCK)
+ 		return 0;
+-- 
+2.25.1
+
 
 
