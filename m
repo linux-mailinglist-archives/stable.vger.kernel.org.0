@@ -2,151 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9EFC27229D
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 13:35:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDDFD2722A1
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 13:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726384AbgIULf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 07:35:58 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:33015 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726326AbgIULf5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 07:35:57 -0400
-X-Greylist: delayed 310 seconds by postgrey-1.27 at vger.kernel.org; Mon, 21 Sep 2020 07:35:57 EDT
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id C72D7A9C;
-        Mon, 21 Sep 2020 07:30:46 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 21 Sep 2020 07:30:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=AXcPvl
-        9mq8NaLpPu95552MxmWKoiC0ilXCF1Mxomuwo=; b=D4SexDYWWPrMY2EUc3LfmH
-        +3gSiSVz239M5V5mNbHhjDRZggjfprpaLCJcSl11WBgmnb6FBm8KSCshKNDYNVuR
-        3pHkT/IWiRGd6VZOpFFR9PCIykmkoqs2ECVw2hqlNdC8XxTfzEcnjARh+sxcIrZN
-        JFY+wAEA/42nlDYSQGbBioWxO5D+Z6rmcKlcT+XGb8KPIx/LP/8xVlzF3UrjeevP
-        oc8ZWpXe5XMsFToekkrCCFo1DjE/jW2PJjIxA8MoZ/R8pNixonG4VdCYtGvCIYf5
-        Kozwu/NifT0mbAW73Ldwn9pn2LlMHicHIV5nol9lmTNBvTtkR1UzIu6inyedDzMA
-        ==
-X-ME-Sender: <xms:5Y5oX1RHy11apQwL5qDeO9vntWKeeHnp9_PyhKD1TmGPoG0FcLe0mw>
-    <xme:5Y5oX-zyCHMuScK0me-dLD8OeR30JpY_HDssJv-n1--m0XFrW9zJDX9ymgAX6OxP3
-    -ZSdzJM9qPVVQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedruddvgdegudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtudeuje
-    fhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
-    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
-    grmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:5Y5oX63O_5U3hTib2dVKXDVPM0F5Wjte62u4BnA6C0B8OmsX4vxJsQ>
-    <xmx:5Y5oX9DZ-YN3kaWTG40N57d7LotL91yYlQZtZuxH7iQbibCEwm0jzg>
-    <xmx:5Y5oX-hhFhOF0qot4zOa9uGc6ygT5OaxqZZWAugW6e2MGj-FuyAoSg>
-    <xmx:5o5oXwYi42KI_Hzi7z7EkiySgET4gUQEWZ0UeDpt8Vgo0FRrgKoJzF063sw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 054D83064674;
-        Mon, 21 Sep 2020 07:30:44 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/gem: Delay tracking the GEM context until it is" failed to apply to 5.4-stable tree
-To:     chris@chris-wilson.co.uk, cq.tang@intel.com, jani.nikula@intel.com,
-        joonas.lahtinen@linux.intel.com, mika.kuoppala@linux.intel.com,
-        rodrigo.vivi@intel.com, stable@vger.kernel.org,
-        tvrtko.ursulin@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 21 Sep 2020 13:31:09 +0200
-Message-ID: <1600687869951@kroah.com>
+        id S1726457AbgIULgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 07:36:13 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:40199 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726326AbgIULgM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 07:36:12 -0400
+Received: by mail-lj1-f196.google.com with SMTP id s205so10751413lja.7;
+        Mon, 21 Sep 2020 04:36:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=kd3iMKnixtZzfCsALrdkM+rA5qkShZbR4dY98v7k9JI=;
+        b=qp4n7gj72VH5om8bC3n6he3nAoHnOQDM8lTXIck/wPHaveSzEC1jKt3QOqysdTLA3b
+         xpRQ9bAcf/Glp0H4GGTsInBfZ2KIAIhV03+U8lfs3sIcPCH7bDaCvRxCBdH/vWUHEEAz
+         e+sqMLbLmaf5hrdKRJXMeHMGp+PeC1BGW3L0PtP8sqh/cO/Hgs6pq2ZEczMw8r3w2Pkk
+         5S40tOwm0Mqhd+R+dIWNzSl2hb/5hDszv+xeMm5alb3WDnNYMWGJ4jUnN1gPKjWRziMM
+         kKFnzGfqGIEBBOwQwaZf8kTBnkEoqABtd2WITsOPVzfbDSVghc+NQ5j1gEAtrmn90WtQ
+         NlOQ==
+X-Gm-Message-State: AOAM5331qgSXHT9Zs77TcIOpoBAIMGqzhzapP+0Cfoj+KBH7fKyi880I
+        QPgg53ML+BaP9TBxXyRqD84=
+X-Google-Smtp-Source: ABdhPJwdk6FBblDCoPl9mOit9wQxOLYXq/8FPmzqGRPHLy/OW+Z1gPPsZH0K02YBkq7HfneJihxwWg==
+X-Received: by 2002:a2e:3215:: with SMTP id y21mr14853686ljy.52.1600688170047;
+        Mon, 21 Sep 2020 04:36:10 -0700 (PDT)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id m20sm2633088ljp.132.2020.09.21.04.36.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2020 04:36:09 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1kKK6z-0008O2-Py; Mon, 21 Sep 2020 13:36:02 +0200
+Date:   Mon, 21 Sep 2020 13:36:01 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Oliver Neukum <oneukum@suse.com>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org,
+        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] USB: cdc-acm: add Whistler radio scanners TRX series
+ support
+Message-ID: <20200921113601.GT24441@localhost>
+References: <20200921081022.6881-1-johan@kernel.org>
+ <1600677792.2424.61.camel@suse.com>
+ <20200921093145.GS24441@localhost>
+ <1600684156.2424.65.camel@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1600684156.2424.65.camel@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Sep 21, 2020 at 12:29:16PM +0200, Oliver Neukum wrote:
+> Am Montag, den 21.09.2020, 11:31 +0200 schrieb Johan Hovold:
+> > On Mon, Sep 21, 2020 at 10:43:12AM +0200, Oliver Neukum wrote:
+> > > Am Montag, den 21.09.2020, 10:10 +0200 schrieb Johan Hovold:
+> > > > Add support for Whistler radio scanners TRX series, which have a union
+> > > > descriptor that designates a mass-storage interface as master. Handle
+> > > > that by generalising the NO_DATA_INTERFACE quirk to allow us to fall
+> > > > back to using the combined-interface detection.
+> > > 
+> > > Hi,
+> 
+> Hi,
+> 
+> > > 
+> > > it amazes me what solutions people can come up with. Yet in this case
+> > > using a quirk looks like an inferior solution. If your master
+> > > is a storage interface, you will have a condition on the device you
+> > > can test for without the need for a quirk.
+> > 
+> > Sure, and I mentioned that as an alternative, another would be checking
+> > for a control interface with three endpoints directly.
+> 
+> These tests are not mutually exclusive. You can check for both
+> conditions being met. In fact you have to, it seems to me.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I meant that instead of falling back to "combined-interface" probing we
+could assume that all interfaces with three endpoints are "combined" and
+simply ignore the union and call management descriptors and all the ways
+that devices may have gotten those wrong.
 
-thanks,
+I'll include that as an RFC.
 
-greg k-h
+> > My fear is that any change in this direction risk introducing regression
+> > if there are devices out there with broken descriptors that we currently
+> > happen to support by chance. Then again, probably better to try to
+> > handle any such breakage if/when reported.
+> 
+> Well, I guess the chance that we break devices which claim to be
+> storage devices we will simply have to take. Those devices are
+> quite broken in any case.
 
------------------- original commit in Linus's tree ------------------
+I was thinking more of the individual entries in the device-id table
+whose control interfaces may not even be of the Communication class. But
+hopefully that was verified when adding them.
 
-From e7d95527f27a6d9edcffbd74eee38e5cb6b91785 Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Thu, 30 Jul 2020 10:28:56 +0100
-Subject: [PATCH] drm/i915/gem: Delay tracking the GEM context until it is
- registered
-
-Avoid exposing a partially constructed context by deferring the
-list_add() from the initial construction to the end of registration.
-Otherwise, if we peek into the list of contexts from inside debugfs, we
-may see the partially constructed context and chase down some dangling
-incomplete pointers.
-
-Reported-by: CQ Tang <cq.tang@intel.com>
-Fixes: 3aa9945a528e ("drm/i915: Separate GEM context construction and registration to userspace")
-References: f6e8aa387171 ("drm/i915: Report the number of closed vma held by each context in debugfs")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: CQ Tang <cq.tang@intel.com>
-Cc: <stable@vger.kernel.org> # v5.2+
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200730092856.23615-1-chris@chris-wilson.co.uk
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-(cherry picked from commit eb4dedae920a07c485328af3da2202ec5184fb17)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-index d0bdb6d447ed..efc4ba34c06e 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-@@ -713,6 +713,7 @@ __create_context(struct drm_i915_private *i915)
- 	ctx->i915 = i915;
- 	ctx->sched.priority = I915_USER_PRIORITY(I915_PRIORITY_NORMAL);
- 	mutex_init(&ctx->mutex);
-+	INIT_LIST_HEAD(&ctx->link);
- 
- 	spin_lock_init(&ctx->stale.lock);
- 	INIT_LIST_HEAD(&ctx->stale.engines);
-@@ -740,10 +741,6 @@ __create_context(struct drm_i915_private *i915)
- 	for (i = 0; i < ARRAY_SIZE(ctx->hang_timestamp); i++)
- 		ctx->hang_timestamp[i] = jiffies - CONTEXT_FAST_HANG_JIFFIES;
- 
--	spin_lock(&i915->gem.contexts.lock);
--	list_add_tail(&ctx->link, &i915->gem.contexts.list);
--	spin_unlock(&i915->gem.contexts.lock);
--
- 	return ctx;
- 
- err_free:
-@@ -931,6 +928,7 @@ static int gem_context_register(struct i915_gem_context *ctx,
- 				struct drm_i915_file_private *fpriv,
- 				u32 *id)
- {
-+	struct drm_i915_private *i915 = ctx->i915;
- 	struct i915_address_space *vm;
- 	int ret;
- 
-@@ -949,8 +947,16 @@ static int gem_context_register(struct i915_gem_context *ctx,
- 	/* And finally expose ourselves to userspace via the idr */
- 	ret = xa_alloc(&fpriv->context_xa, id, ctx, xa_limit_32b, GFP_KERNEL);
- 	if (ret)
--		put_pid(fetch_and_zero(&ctx->pid));
-+		goto err_pid;
-+
-+	spin_lock(&i915->gem.contexts.lock);
-+	list_add_tail(&ctx->link, &i915->gem.contexts.list);
-+	spin_unlock(&i915->gem.contexts.lock);
-+
-+	return 0;
- 
-+err_pid:
-+	put_pid(fetch_and_zero(&ctx->pid));
- 	return ret;
- }
- 
-
+Johan
