@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C688272857
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C09B272853
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726641AbgIUOmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 10:42:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50386 "EHLO mail.kernel.org"
+        id S1728154AbgIUOmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 10:42:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728003AbgIUOlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:41:14 -0400
+        id S1728011AbgIUOlR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28412235F8;
-        Mon, 21 Sep 2020 14:41:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4578221EC;
+        Mon, 21 Sep 2020 14:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699273;
-        bh=kdHRcq3EG9jPL5PimFZc3zEHwD/Gj7kxr/jNsQtN2ac=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JPugEoKDMht9+G1iVU5w+g9usRgHK9C3uUk7X+4bG6NEXfBg5AbIFPjxvzm6Rq01i
-         l8TFLg9F1Q7SWn1FrYKJSKEpLz+NfyIvWJcqloo3EU4qGiPsb/Kw/1meReTTPHd7Y5
-         DSOP6oQojowvv7Z0IIpfDWwD2pHKqe7YRtj8P3PI=
+        s=default; t=1600699276;
+        bh=n4ccT9AAlLEmEj4CplM7KOfPW9h4l6di6si+GpkT5jE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=V1yKOsJLd/QYngFzExG4KW39pDoq4D3D5s6hgNPwq594atkmgmpZ3n/y/s/knJ5Aq
+         vYlL+VygxEuPctkzxntnhvLfNw7Jr8/yXu1q5tEjLFAw4quY7cfbvSyNgJt6EEXYka
+         T/G29s1aj0YaJpsAHbnmzETi5sfyUd+7AJXInZfw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 15/15] objtool: Fix noreturn detection for ignored functions
-Date:   Mon, 21 Sep 2020 10:40:54 -0400
-Message-Id: <20200921144054.2135602-15-sashal@kernel.org>
+Cc:     Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 1/9] ASoC: wm8994: Skip setting of the WM8994_MICBIAS register for WM1811
+Date:   Mon, 21 Sep 2020 10:41:06 -0400
+Message-Id: <20200921144114.2135773-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200921144054.2135602-1-sashal@kernel.org>
-References: <20200921144054.2135602-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,55 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-[ Upstream commit db6c6a0df840e3f52c84cc302cc1a08ba11a4416 ]
+[ Upstream commit 811c5494436789e7149487c06e0602b507ce274b ]
 
-When a function is annotated with STACK_FRAME_NON_STANDARD, objtool
-doesn't validate its code paths.  It also skips sibling call detection
-within the function.
+The WM8994_MICBIAS register is not available in the WM1811 CODEC so skip
+initialization of that register for that device.
+This suppresses an error during boot:
+"wm8994-codec: ASoC: error at snd_soc_component_update_bits on wm8994-codec"
 
-But sibling call detection is actually needed for the case where the
-ignored function doesn't have any return instructions.  Otherwise
-objtool naively marks the function as implicit static noreturn, which
-affects the reachability of its callers, resulting in "unreachable
-instruction" warnings.
-
-Fix it by just enabling sibling call detection for ignored functions.
-The 'insn->ignore' check in add_jump_destinations() is no longer needed
-after
-
-  e6da9567959e ("objtool: Don't use ignore flag for fake jumps").
-
-Fixes the following warning:
-
-  arch/x86/kvm/vmx/vmx.o: warning: objtool: vmx_handle_exit_irqoff()+0x142: unreachable instruction
-
-which triggers on an allmodconfig with CONFIG_GCOV_KERNEL unset.
-
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Link: https://lkml.kernel.org/r/5b1e2536cdbaa5246b60d7791b76130a74082c62.1599751464.git.jpoimboe@redhat.com
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200827173357.31891-1-s.nawrocki@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/wm8994.c  | 2 ++
+ sound/soc/codecs/wm_hubs.c | 3 +++
+ sound/soc/codecs/wm_hubs.h | 1 +
+ 3 files changed, 6 insertions(+)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 48b234d8f251e..1b7e748170e54 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -556,7 +556,7 @@ static int add_jump_destinations(struct objtool_file *file)
- 		    insn->type != INSN_JUMP_UNCONDITIONAL)
- 			continue;
+diff --git a/sound/soc/codecs/wm8994.c b/sound/soc/codecs/wm8994.c
+index 01acb8da2f48e..cd089b4143029 100644
+--- a/sound/soc/codecs/wm8994.c
++++ b/sound/soc/codecs/wm8994.c
+@@ -4051,11 +4051,13 @@ static int wm8994_component_probe(struct snd_soc_component *component)
+ 			wm8994->hubs.dcs_readback_mode = 2;
+ 			break;
+ 		}
++		wm8994->hubs.micd_scthr = true;
+ 		break;
  
--		if (insn->ignore || insn->offset == FAKE_JUMP_OFFSET)
-+		if (insn->offset == FAKE_JUMP_OFFSET)
- 			continue;
+ 	case WM8958:
+ 		wm8994->hubs.dcs_readback_mode = 1;
+ 		wm8994->hubs.hp_startup_mode = 1;
++		wm8994->hubs.micd_scthr = true;
  
- 		rela = find_rela_by_dest_range(insn->sec, insn->offset,
+ 		switch (control->revision) {
+ 		case 0:
+diff --git a/sound/soc/codecs/wm_hubs.c b/sound/soc/codecs/wm_hubs.c
+index fed6ea9b019f7..da7fa6f5459e6 100644
+--- a/sound/soc/codecs/wm_hubs.c
++++ b/sound/soc/codecs/wm_hubs.c
+@@ -1227,6 +1227,9 @@ int wm_hubs_handle_analogue_pdata(struct snd_soc_component *component,
+ 		snd_soc_component_update_bits(component, WM8993_ADDITIONAL_CONTROL,
+ 				    WM8993_LINEOUT2_FB, WM8993_LINEOUT2_FB);
+ 
++	if (!hubs->micd_scthr)
++		return 0;
++
+ 	snd_soc_component_update_bits(component, WM8993_MICBIAS,
+ 			    WM8993_JD_SCTHR_MASK | WM8993_JD_THR_MASK |
+ 			    WM8993_MICB1_LVL | WM8993_MICB2_LVL,
+diff --git a/sound/soc/codecs/wm_hubs.h b/sound/soc/codecs/wm_hubs.h
+index ee339ad8514d1..1433d73e09bf8 100644
+--- a/sound/soc/codecs/wm_hubs.h
++++ b/sound/soc/codecs/wm_hubs.h
+@@ -31,6 +31,7 @@ struct wm_hubs_data {
+ 	int hp_startup_mode;
+ 	int series_startup;
+ 	int no_series_update;
++	bool micd_scthr;
+ 
+ 	bool no_cache_dac_hp_direct;
+ 	struct list_head dcs_cache;
 -- 
 2.25.1
 
