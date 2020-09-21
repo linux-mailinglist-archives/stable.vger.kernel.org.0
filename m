@@ -2,123 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13A5C271F1D
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 11:44:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28A79271F46
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 11:50:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726375AbgIUJoA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 05:44:00 -0400
-Received: from mx2.suse.de ([195.135.220.15]:51124 "EHLO mx2.suse.de"
+        id S1726413AbgIUJui (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 05:50:38 -0400
+Received: from mx2.suse.de ([195.135.220.15]:57642 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726358AbgIUJn7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 05:43:59 -0400
+        id S1726384AbgIUJui (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 05:50:38 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 791C9AB0E;
-        Mon, 21 Sep 2020 09:44:33 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id 20095DA6E0; Mon, 21 Sep 2020 11:42:42 +0200 (CEST)
-Date:   Mon, 21 Sep 2020 11:42:41 +0200
-From:   David Sterba <dsterba@suse.cz>
-To:     Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Cc:     David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
-        Anand Jain <anand.jain@oracle.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] btrfs: fix overflow when copying corrupt csums for a
- message
-Message-ID: <20200921094241.GH6756@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
-        Anand Jain <anand.jain@oracle.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com,
-        stable@vger.kernel.org
-References: <20200921075714.33372-1-johannes.thumshirn@wdc.com>
+        by mx2.suse.de (Postfix) with ESMTP id 42C96AF0B;
+        Mon, 21 Sep 2020 09:51:12 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id DE1BB1E12E1; Mon, 21 Sep 2020 11:50:35 +0200 (CEST)
+Date:   Mon, 21 Sep 2020 11:50:35 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Stuart Little <achirvasub@gmail.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org,
+        kernel list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Adrian Huang <ahuang12@lenovo.com>,
+        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
+        Ira Weiny <ira.weiny@intel.com>, mpatocka@redhat.com,
+        lkft-triage@lists.linaro.org, Jan Kara <jack@suse.cz>
+Subject: Re: PROBLEM: 5.9.0-rc6 fails =?utf-8?Q?to_?=
+ =?utf-8?Q?compile_due_to_'redefinition_of_=E2=80=98dax=5Fsupported?=
+ =?utf-8?B?4oCZJw==?=
+Message-ID: <20200921095035.GC5862@quack2.suse.cz>
+References: <20200921010359.GO3027113@arch-chirva.localdomain>
+ <CA+G9fYtCg2KjdB2oBUDJ2DKAzUxq3u8ZnMY9Et-RG9Pnrmuf9w@mail.gmail.com>
+ <20200921073218.GA3142611@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="CE+1k2dSO48ffgeK"
 Content-Disposition: inline
-In-Reply-To: <20200921075714.33372-1-johannes.thumshirn@wdc.com>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+In-Reply-To: <20200921073218.GA3142611@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 21, 2020 at 04:57:14PM +0900, Johannes Thumshirn wrote:
-> Syzkaller reported a buffer overflow in btree_readpage_end_io_hook()
-> when loop mounting a crafted image:
-> 
->   detected buffer overflow in memcpy
->   ------------[ cut here ]------------
->   kernel BUG at lib/string.c:1129!
->   invalid opcode: 0000 [#1] PREEMPT SMP KASAN
->   CPU: 1 PID: 26 Comm: kworker/u4:2 Not tainted 5.9.0-rc4-syzkaller #0
->   Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
->   Workqueue: btrfs-endio-meta btrfs_work_helper
->   RIP: 0010:fortify_panic+0xf/0x20 lib/string.c:1129
->   RSP: 0018:ffffc90000e27980 EFLAGS: 00010286
->   RAX: 0000000000000022 RBX: ffff8880a80dca64 RCX: 0000000000000000
->   RDX: ffff8880a90860c0 RSI: ffffffff815dba07 RDI: fffff520001c4f22
->   RBP: ffff8880a80dca00 R08: 0000000000000022 R09: ffff8880ae7318e7
->   R10: 0000000000000000 R11: 0000000000077578 R12: 00000000ffffff6e
->   R13: 0000000000000008 R14: ffffc90000e27a40 R15: 1ffff920001c4f3c
->   FS:  0000000000000000(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
->   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->   CR2: 0000557335f440d0 CR3: 000000009647d000 CR4: 00000000001506e0
->   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->   Call Trace:
->    memcpy include/linux/string.h:405 [inline]
->    btree_readpage_end_io_hook.cold+0x206/0x221 fs/btrfs/disk-io.c:642
->    end_bio_extent_readpage+0x4de/0x10c0 fs/btrfs/extent_io.c:2854
->    bio_endio+0x3cf/0x7f0 block/bio.c:1449
->    end_workqueue_fn+0x114/0x170 fs/btrfs/disk-io.c:1695
->    btrfs_work_helper+0x221/0xe20 fs/btrfs/async-thread.c:318
->    process_one_work+0x94c/0x1670 kernel/workqueue.c:2269
->    worker_thread+0x64c/0x1120 kernel/workqueue.c:2415
->    kthread+0x3b5/0x4a0 kernel/kthread.c:292
->    ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
->   Modules linked in:
->   ---[ end trace b68924293169feef ]---
->   RIP: 0010:fortify_panic+0xf/0x20 lib/string.c:1129
->   RSP: 0018:ffffc90000e27980 EFLAGS: 00010286
->   RAX: 0000000000000022 RBX: ffff8880a80dca64 RCX: 0000000000000000
->   RDX: ffff8880a90860c0 RSI: ffffffff815dba07 RDI: fffff520001c4f22
->   RBP: ffff8880a80dca00 R08: 0000000000000022 R09: ffff8880ae7318e7
->   R10: 0000000000000000 R11: 0000000000077578 R12: 00000000ffffff6e
->   R13: 0000000000000008 R14: ffffc90000e27a40 R15: 1ffff920001c4f3c
->   FS:  0000000000000000(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
->   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->   CR2: 00007f95b7c4d008 CR3: 000000009647d000 CR4: 00000000001506e0
->   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> 
-> The overflow happens, because in btree_readpage_end_io_hook() we assume
-> that we have found a 4 byte checksum instead of the real possible 32
-> bytes we have for the checksums.
-> 
-> With the fix applied:
-> 
-> [   35.726623] BTRFS: device fsid 815caf9a-dc43-4d2a-ac54-764b8333d765 devid 1 transid 5 /dev/loop0 scanned by syz-repro (215)
-> [   35.738994] BTRFS info (device loop0): disk space caching is enabled
-> [   35.738998] BTRFS info (device loop0): has skinny extents
-> [   35.743337] BTRFS warning (device loop0): loop0 checksum verify failed on 1052672 wanted 0xf9c035fc8d239a54 found 0x67a25c14b7eabcf9 level 0
-> [   35.743420] BTRFS error (device loop0): failed to read chunk root
-> [   35.745899] BTRFS error (device loop0): open_ctree failed
-> 
-> Reported-by: syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com
-> Fixes: d5178578bcd4 ("btrfs: directly call into crypto framework for checksumming")
-> CC: stable@vger.kernel.org # 5.4+
-> Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-> 
-> ---
-> Changes to v1:
-> - Use CSUM_FMT (David)
-> - Fix the 2nd possible overflow (David)
-> - Remove some unnecessary local variables and memcpy (David)
-> - Update commit log to have the now correct new log entries
 
-Thanks, I'll take this as-is so it's the obvious minimal fix, there are
-a few more cleanups possible.
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Mon 21-09-20 09:32:18, Greg KH wrote:
+> On Mon, Sep 21, 2020 at 11:34:17AM +0530, Naresh Kamboju wrote:
+> > On Mon, 21 Sep 2020 at 06:34, Stuart Little <achirvasub@gmail.com> wrote:
+> > >
+> > > I am trying to compile for an x86_64 machine (Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz). The config file I am currently using is at
+> > >
+> > > https://termbin.com/xin7
+> > >
+> > > The build for 5.9.0-rc6 fails with the following errors:
+> > >
+> > 
+> > arm and mips allmodconfig build breaks due to this error.
+> 
+> all my local builds are breaking now too with this :(
+> 
+> Was there a proposed patch anywhere for this?
+
+Attached patch should fix the build breakage. I'm sorry for that.
+
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
+
+--CE+1k2dSO48ffgeK
+Content-Type: text/x-patch; charset=us-ascii
+Content-Disposition: attachment; filename="0001-dax-Fix-compilation-for-CONFIG_DAX-CONFIG_FS_DAX.patch"
+
+From 8b8c7d6148bc1bab3cf88cac49038a05db7dd938 Mon Sep 17 00:00:00 2001
+From: Jan Kara <jack@suse.cz>
+Date: Mon, 21 Sep 2020 11:33:23 +0200
+Subject: [PATCH] dax: Fix compilation for CONFIG_DAX && !CONFIG_FS_DAX
+
+dax_supported() is defined whenever CONFIG_DAX is enabled. So dummy
+implementation should be defined only in !CONFIG_DAX case, not in
+!CONFIG_FS_DAX case.
+
+Fixes: e2ec51282545 ("dm: Call proper helper to determine dax support")
+Cc: <stable@vger.kernel.org>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ include/linux/dax.h | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/include/linux/dax.h b/include/linux/dax.h
+index 497031392e0a..43b39ab9de1a 100644
+--- a/include/linux/dax.h
++++ b/include/linux/dax.h
+@@ -58,6 +58,8 @@ static inline void set_dax_synchronous(struct dax_device *dax_dev)
+ {
+ 	__set_dax_synchronous(dax_dev);
+ }
++bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
++		int blocksize, sector_t start, sector_t len);
+ /*
+  * Check if given mapping is supported by the file / underlying device.
+  */
+@@ -104,6 +106,12 @@ static inline bool dax_synchronous(struct dax_device *dax_dev)
+ static inline void set_dax_synchronous(struct dax_device *dax_dev)
+ {
+ }
++static inline bool dax_supported(struct dax_device *dax_dev,
++		struct block_device *bdev, int blocksize, sector_t start,
++		sector_t len)
++{
++	return false;
++}
+ static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+ 				struct dax_device *dax_dev)
+ {
+@@ -130,8 +138,6 @@ static inline bool generic_fsdax_supported(struct dax_device *dax_dev,
+ 	return __generic_fsdax_supported(dax_dev, bdev, blocksize, start,
+ 			sectors);
+ }
+-bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
+-		int blocksize, sector_t start, sector_t len);
+ 
+ static inline void fs_put_dax(struct dax_device *dax_dev)
+ {
+@@ -159,13 +165,6 @@ static inline bool generic_fsdax_supported(struct dax_device *dax_dev,
+ 	return false;
+ }
+ 
+-static inline bool dax_supported(struct dax_device *dax_dev,
+-		struct block_device *bdev, int blocksize, sector_t start,
+-		sector_t len)
+-{
+-	return false;
+-}
+-
+ static inline void fs_put_dax(struct dax_device *dax_dev)
+ {
+ }
+-- 
+2.16.4
+
+
+--CE+1k2dSO48ffgeK--
