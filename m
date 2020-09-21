@@ -2,80 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7796A271CF4
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 10:03:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 031B0271D90
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 10:10:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726413AbgIUIDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 04:03:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37844 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727039AbgIUIDX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 04:03:23 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5C77C061755
-        for <stable@vger.kernel.org>; Mon, 21 Sep 2020 01:03:22 -0700 (PDT)
-Received: from zn.tnic (p200300ec2f07e300bb1cec778fd9588d.dip0.t-ipconnect.de [IPv6:2003:ec:2f07:e300:bb1c:ec77:8fd9:588d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 25AA91EC0323;
-        Mon, 21 Sep 2020 10:03:05 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1600675385;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=u0PtQQQAXwkJj9Jp5bddDDAFJrRvVWthWJTVhvKTM7s=;
-        b=etuMCjtHT365s0kjpzNibtHMLsfFTib1t+oubn7NL5L+cPtT/CKb30gyZr1Uu8P8/cqP5c
-        +pGho+L/5ItOAc1KLuBZm8FMGKk/ykiQ8swoBW45OgVUbww/2GhytoFn171dVogeGW+lVo
-        RKMHi5MCgnCm7uN1XEUkmzJ+vn8GslY=
-Date:   Mon, 21 Sep 2020 10:02:58 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Stuart Little <achirvasub@gmail.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>, linux-nvdimm@lists.01.org,
-        kernel list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Adrian Huang <ahuang12@lenovo.com>,
-        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
-        Ira Weiny <ira.weiny@intel.com>, mpatocka@redhat.com,
-        lkft-triage@lists.linaro.org, Jan Kara <jack@suse.cz>
-Subject: Re: PROBLEM: 5.9.0-rc6 fails =?utf-8?Q?to_?=
- =?utf-8?Q?compile_due_to_'redefinition_of_=E2=80=98dax=5Fsupported?=
- =?utf-8?B?4oCZJw==?=
-Message-ID: <20200921080258.GA5947@zn.tnic>
-References: <20200921010359.GO3027113@arch-chirva.localdomain>
- <CA+G9fYtCg2KjdB2oBUDJ2DKAzUxq3u8ZnMY9Et-RG9Pnrmuf9w@mail.gmail.com>
- <20200921073218.GA3142611@kroah.com>
+        id S1726326AbgIUIKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 04:10:40 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:33157 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726475AbgIUIKk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 04:10:40 -0400
+Received: by mail-lj1-f196.google.com with SMTP id k25so10315194ljk.0;
+        Mon, 21 Sep 2020 01:10:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3CygNsSFlMGDX1HL+h8SA3ZRH/CYeOtIvEndgu4lcOE=;
+        b=BnMMGWqBpCCEyapNF1FNaZAhHicTlyAPiptyiALUporaDf1WRh0626Zj40Kw37wA33
+         BLn+QqrdFQdXbp6iAqAxR9xpZwSUMn+Lu2nMIkDlgYCEpyDAMtgrPjwalFRDKzBfdzqM
+         HKYnCGwVgTtENXx0C1OwoiI82mhuWgwBDwoTj9qVrYvsEX/wP3kMJ9lGb1eB20mgPXDs
+         8u58xtujOzqI7Lw4W5kaNghY/HKqSX1i3z+rVNr9nSj0tZEDVZZZX8Sq18mgEgZ3RRNC
+         ptMhA+glrnWoeNkQ+OoMAkPsydxjZlYtNj0HAG0Kwngk5Llf85Vo6o9ssdc5Ws/DVkTA
+         8CKQ==
+X-Gm-Message-State: AOAM532z1fqEUmphydiim5cYylg0045aCUDQ0IlRhy6pZ3Ppw1TFO3YU
+        pFlijqqLicT/FCn5TO/UfvTUuq766sE=
+X-Google-Smtp-Source: ABdhPJy2nZ8stJfmxtCGJocu5kQtqf0i1K9xKBwSrFnkaqc6ebmKo0U/BY7ehT3Y3G4MA1N9bKbLkg==
+X-Received: by 2002:a2e:8e61:: with SMTP id t1mr16631851ljk.175.1600675838192;
+        Mon, 21 Sep 2020 01:10:38 -0700 (PDT)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id t2sm2375790lff.157.2020.09.21.01.10.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2020 01:10:37 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@xi.terra>)
+        id 1kKGu5-0001ni-Ta; Mon, 21 Sep 2020 10:10:30 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Oliver Neukum <oneukum@suse.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] USB: cdc-acm: add Whistler radio scanners TRX series support
+Date:   Mon, 21 Sep 2020 10:10:22 +0200
+Message-Id: <20200921081022.6881-1-johan@kernel.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200921073218.GA3142611@kroah.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 21, 2020 at 09:32:18AM +0200, Greg KH wrote:
-> all my local builds are breaking now too with this :(
-> 
-> Was there a proposed patch anywhere for this?
+Add support for Whistler radio scanners TRX series, which have a union
+descriptor that designates a mass-storage interface as master. Handle
+that by generalising the NO_DATA_INTERFACE quirk to allow us to fall
+back to using the combined-interface detection.
 
-I've disabled CONFIG_BLK_DEV_PMEM which allowed me to de-select those
-two:
+Note that the NO_DATA_INTERFACE quirk was added by commit fd5054c169d2
+("USB: cdc_acm: Fix oops when Droids MuIn LCD is connected") to handle a
+combined-interface-type device with a broken call-management descriptor
+by hardcoding the "data" interface number.
 
-# CONFIG_DAX is not set
-# CONFIG_FS_DAX is not set
+Link: https://lore.kernel.org/r/5f4ca4f8.1c69fb81.a4487.0f5f@mx.google.com
+Reported-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
+Tested-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
 
-and now it at least builds.
+v2
+ - use the right class define in the device-id table (not subclass with
+   same value)
 
-In order to avoid such breakage in the future, I'd suggest you guys to
-run randconfigs on your stuff before sending, especially if the Kconfig
-ifdeffery is not a trivial one like the DAX maze.
 
+ drivers/usb/class/cdc-acm.c | 36 ++++++++++++++++++++++++------------
+ 1 file changed, 24 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 7f6f3ab5b8a6..316203bab0b8 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1220,27 +1220,26 @@ static int acm_probe(struct usb_interface *intf,
+ 	if (cmgmd)
+ 		call_intf_num = cmgmd->bDataInterface;
+ 
+-	if (!union_header) {
+-		if (call_intf_num > 0) {
++	combined_interfaces = (quirks & NO_DATA_INTERFACE) != 0;
++
++	if (!union_header || combined_interfaces) {
++		if (call_intf_num > 0 && !combined_interfaces) {
+ 			dev_dbg(&intf->dev, "No union descriptor, using call management descriptor\n");
+-			/* quirks for Droids MuIn LCD */
+-			if (quirks & NO_DATA_INTERFACE) {
+-				data_interface = usb_ifnum_to_if(usb_dev, 0);
+-			} else {
+-				data_intf_num = call_intf_num;
+-				data_interface = usb_ifnum_to_if(usb_dev, data_intf_num);
+-			}
++			data_intf_num = call_intf_num;
++			data_interface = usb_ifnum_to_if(usb_dev, data_intf_num);
+ 			control_interface = intf;
+ 		} else {
+ 			if (intf->cur_altsetting->desc.bNumEndpoints != 3) {
+ 				dev_dbg(&intf->dev,"No union descriptor, giving up\n");
+ 				return -ENODEV;
+-			} else {
++			}
++
++			if (!combined_interfaces) {
+ 				dev_warn(&intf->dev,"No union descriptor, testing for castrated device\n");
+ 				combined_interfaces = 1;
+-				control_interface = data_interface = intf;
+-				goto look_for_collapsed_interface;
+ 			}
++			control_interface = data_interface = intf;
++			goto look_for_collapsed_interface;
+ 		}
+ 	} else {
+ 		data_intf_num = union_header->bSlaveInterface0;
+@@ -1807,6 +1806,19 @@ static const struct usb_device_id acm_ids[] = {
+ 	.driver_info = CLEAR_HALT_CONDITIONS,
+ 	},
+ 
++	{ USB_DEVICE_INTERFACE_CLASS(0x2a59, 0x0010, USB_CLASS_COMM),	/* Whistler TRX-1 */
++	  .driver_info = NO_DATA_INTERFACE,
++	},
++	{ USB_DEVICE_INTERFACE_CLASS(0x2a59, 0x0011, USB_CLASS_COMM),	/* Whistler TRX-2 */
++	  .driver_info = NO_DATA_INTERFACE,
++	},
++	{ USB_DEVICE_INTERFACE_CLASS(0x2a59, 0x0012, USB_CLASS_COMM),	/* Whistler TRX-1e */
++	  .driver_info = NO_DATA_INTERFACE,
++	},
++	{ USB_DEVICE_INTERFACE_CLASS(0x2a59, 0x0013, USB_CLASS_COMM),	/* Whistler TRX-2e */
++	  .driver_info = NO_DATA_INTERFACE,
++	},
++
+ 	/* Nokia S60 phones expose two ACM channels. The first is
+ 	 * a modem and is picked up by the standard AT-command
+ 	 * information below. The second is 'vendor-specific' but
 -- 
-Regards/Gruss,
-    Boris.
+2.26.2
 
-https://people.kernel.org/tglx/notes-about-netiquette
