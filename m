@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87700273030
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:03:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7777D273034
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729042AbgIUQhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:37:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37600 "EHLO mail.kernel.org"
+        id S1728788AbgIURDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 13:03:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728681AbgIUQhT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:37:19 -0400
+        id S1729048AbgIUQhW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:37:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74250206B7;
-        Mon, 21 Sep 2020 16:37:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0979206DC;
+        Mon, 21 Sep 2020 16:37:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706239;
-        bh=a/DBhDU9dITUGcVCZ0xcp0swSwSVyTH4WRKPaXBO/UY=;
+        s=default; t=1600706241;
+        bh=Qk1F+8T1O/m6aOES3ena+I+4B8zXgQcdetoovsw0sro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yxoaUElT5dCg0M6MsW39kAoxY3QxPrPkQ4fMXYi0smP6rKuJrWVX9+gGQU6LucOQ7
-         eWwjCPcpOSk6pKFKdRRuH5Hg2WwAbuWKAd5i5sYXU4CnHkz5NwIF0TqrSz/MygkrLf
-         Dkmb3A9BA/uEh5wqF9wYQcxDBXVUCh1BTTsrJj2A=
+        b=J55tidmCLzPnyp87EMCWtF0TlJCEKK7AKut3WJTmoYio9l1mzmdU+RRjWR20V7RwX
+         WwsNtCE75YGKqyVJx6NxIzfZkZECj089/QLIa9nyYEP4ju+whXkaP6UNJCpCmYLgOk
+         v2dOePmZ1enqL6YbmH0/Xg7Ke6OoEjUxpM0E4d7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>,
+        Luo Jiaxing <luojiaxing@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/94] RDMA/rxe: Drop pointless checks in rxe_init_ports
-Date:   Mon, 21 Sep 2020 18:26:50 +0200
-Message-Id: <20200921162035.704780710@linuxfoundation.org>
+Subject: [PATCH 4.14 04/94] scsi: libsas: Set data_dir as DMA_NONE if libata marks qc as NODATA
+Date:   Mon, 21 Sep 2020 18:26:51 +0200
+Message-Id: <20200921162035.743513463@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
 References: <20200921162035.541285330@linuxfoundation.org>
@@ -44,37 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Luo Jiaxing <luojiaxing@huawei.com>
 
-[ Upstream commit 6112ef62826e91afbae5446d5d47b38e25f47e3f ]
+[ Upstream commit 53de092f47ff40e8d4d78d590d95819d391bf2e0 ]
 
-Both pkey_tbl_len and gid_tbl_len are set in rxe_init_port_param() - so no
-need to check if they aren't set.
+It was discovered that sdparm will fail when attempting to disable write
+cache on a SATA disk connected via libsas.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20200705104313.283034-2-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+In the ATA command set the write cache state is controlled through the SET
+FEATURES operation. This is roughly corresponds to MODE SELECT in SCSI and
+the latter command is what is used in the SCSI-ATA translation layer. A
+subtle difference is that a MODE SELECT carries data whereas SET FEATURES
+is defined as a non-data command in ATA.
+
+Set the DMA data direction to DMA_NONE if the requested ATA command is
+identified as non-data.
+
+[mkp: commit desc]
+
+Fixes: fa1c1e8f1ece ("[SCSI] Add SATA support to libsas")
+Link: https://lore.kernel.org/r/1598426666-54544-1-git-send-email-luojiaxing@huawei.com
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/scsi/libsas/sas_ata.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe.c b/drivers/infiniband/sw/rxe/rxe.c
-index 8c3d30b3092d4..25267a620e0b5 100644
---- a/drivers/infiniband/sw/rxe/rxe.c
-+++ b/drivers/infiniband/sw/rxe/rxe.c
-@@ -170,9 +170,6 @@ static int rxe_init_ports(struct rxe_dev *rxe)
+diff --git a/drivers/scsi/libsas/sas_ata.c b/drivers/scsi/libsas/sas_ata.c
+index 70be4425ae0be..470e11b428208 100644
+--- a/drivers/scsi/libsas/sas_ata.c
++++ b/drivers/scsi/libsas/sas_ata.c
+@@ -227,7 +227,10 @@ static unsigned int sas_ata_qc_issue(struct ata_queued_cmd *qc)
+ 		task->num_scatter = si;
+ 	}
  
- 	rxe_init_port_param(port);
- 
--	if (!port->attr.pkey_tbl_len || !port->attr.gid_tbl_len)
--		return -EINVAL;
--
- 	port->pkey_tbl = kcalloc(port->attr.pkey_tbl_len,
- 			sizeof(*port->pkey_tbl), GFP_KERNEL);
- 
+-	task->data_dir = qc->dma_dir;
++	if (qc->tf.protocol == ATA_PROT_NODATA)
++		task->data_dir = DMA_NONE;
++	else
++		task->data_dir = qc->dma_dir;
+ 	task->scatter = qc->sg;
+ 	task->ata_task.retry_count = 1;
+ 	task->task_state_flags = SAS_TASK_STATE_PENDING;
 -- 
 2.25.1
 
