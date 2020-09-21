@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF62A272EDA
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D999D272ED0
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:52:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728834AbgIUQwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:52:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56868 "EHLO mail.kernel.org"
+        id S1729967AbgIUQwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:52:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729181AbgIUQtE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:49:04 -0400
+        id S1729717AbgIUQtJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:49:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63C3A2223E;
-        Mon, 21 Sep 2020 16:49:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 082272388B;
+        Mon, 21 Sep 2020 16:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706943;
-        bh=5EIu2tpsdCZrAyifQliSohiVJrn3F/ir7REjbiu4wN4=;
+        s=default; t=1600706946;
+        bh=RXDJlTiF4px+F9gcwU9sJeU+EkC8GdATUL2YNHKHGCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzulGB9VlrDCYuAPKh8RS8BwDMJy3xtNRPIhsq5vAoxoKXlrdKgFZ5hXsLCLfLn+q
-         QUW2tLS2EcI1xHrfs4TIvuoUq0ErGWpE6NDw4cJRR5Rbj0ngiIgv+Di5ngI3CPBxXm
-         n9EKT/2hVvD1GzW3Vb7jZHUQJf1HB37JzNjmCi9M=
+        b=ZeEVQU3dRiKYEb7v7r6OOWt26LOCSC6+b1L3iyTtpZUCpaVSyIXuhUMlRyKBtEFZ4
+         DMbPfxKlYOXFL3jLpcpmjVAzHjxzy+dRfj3JLm+AgJcnApFmQEozvuXOwGng4eq9mr
+         YjIRFQ36Twzymvjp5satFP7HktGe9D07Qcup0sDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/72] Drivers: hv: vmbus: Add timeout to vmbus_wait_for_unload
-Date:   Mon, 21 Sep 2020 18:31:16 +0200
-Message-Id: <20200921163123.632485703@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Wang Nan <wangnan0@huawei.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 38/72] perf test: Fix the "signal" test inline assembly
+Date:   Mon, 21 Sep 2020 18:31:17 +0200
+Message-Id: <20200921163123.679758182@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -44,52 +47,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit 911e1987efc8f3e6445955fbae7f54b428b92bd3 ]
+[ Upstream commit 8a39e8c4d9baf65d88f66d49ac684df381e30055 ]
 
-vmbus_wait_for_unload() looks for a CHANNELMSG_UNLOAD_RESPONSE message
-coming from Hyper-V.  But if the message isn't found for some reason,
-the panic path gets hung forever.  Add a timeout of 10 seconds to prevent
-this.
+When compiling with DEBUG=1 on Fedora 32 I'm getting crash for 'perf
+test signal':
 
-Fixes: 415719160de3 ("Drivers: hv: vmbus: avoid scheduling in interrupt context in vmbus_initiate_unload()")
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Link: https://lore.kernel.org/r/1600026449-23651-1-git-send-email-mikelley@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+  Program received signal SIGSEGV, Segmentation fault.
+  0x0000000000c68548 in __test_function ()
+  (gdb) bt
+  #0  0x0000000000c68548 in __test_function ()
+  #1  0x00000000004d62e9 in test_function () at tests/bp_signal.c:61
+  #2  0x00000000004d689a in test__bp_signal (test=0xa8e280 <generic_ ...
+  #3  0x00000000004b7d49 in run_test (test=0xa8e280 <generic_tests+1 ...
+  #4  0x00000000004b7e7f in test_and_print (t=0xa8e280 <generic_test ...
+  #5  0x00000000004b8927 in __cmd_test (argc=1, argv=0x7fffffffdce0, ...
+  ...
+
+It's caused by the symbol __test_function being in the ".bss" section:
+
+  $ readelf -a ./perf | less
+    [Nr] Name              Type             Address           Offset
+         Size              EntSize          Flags  Link  Info  Align
+    ...
+    [28] .bss              NOBITS           0000000000c356a0  008346a0
+         00000000000511f8  0000000000000000  WA       0     0     32
+
+  $ nm perf | grep __test_function
+  0000000000c68548 B __test_function
+
+I guess most of the time we're just lucky the inline asm ended up in the
+".text" section, so making it specific explicit with push and pop
+section clauses.
+
+  $ readelf -a ./perf | less
+    [Nr] Name              Type             Address           Offset
+         Size              EntSize          Flags  Link  Info  Align
+    ...
+    [13] .text             PROGBITS         0000000000431240  00031240
+         0000000000306faa  0000000000000000  AX       0     0     16
+
+  $ nm perf | grep __test_function
+  00000000004d62c8 T __test_function
+
+Committer testing:
+
+  $ readelf -wi ~/bin/perf | grep producer -m1
+    <c>   DW_AT_producer    : (indirect string, offset: 0x254a): GNU C99 10.2.1 20200723 (Red Hat 10.2.1-1) -mtune=generic -march=x86-64 -ggdb3 -std=gnu99 -fno-omit-frame-pointer -funwind-tables -fstack-protector-all
+                                                                                                                                         ^^^^^
+                                                                                                                                         ^^^^^
+                                                                                                                                         ^^^^^
+  $
+
+Before:
+
+  $ perf test signal
+  20: Breakpoint overflow signal handler                    : FAILED!
+  $
+
+After:
+
+  $ perf test signal
+  20: Breakpoint overflow signal handler                    : Ok
+  $
+
+Fixes: 8fd34e1cce18 ("perf test: Improve bp_signal")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Wang Nan <wangnan0@huawei.com>
+Link: http://lore.kernel.org/lkml/20200911130005.1842138-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/channel_mgmt.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ tools/perf/tests/bp_signal.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-index 501c43c5851dc..452307c79e4b9 100644
---- a/drivers/hv/channel_mgmt.c
-+++ b/drivers/hv/channel_mgmt.c
-@@ -769,7 +769,7 @@ static void vmbus_wait_for_unload(void)
- 	void *page_addr;
- 	struct hv_message *msg;
- 	struct vmbus_channel_message_header *hdr;
--	u32 message_type;
-+	u32 message_type, i;
- 
- 	/*
- 	 * CHANNELMSG_UNLOAD_RESPONSE is always delivered to the CPU which was
-@@ -779,8 +779,11 @@ static void vmbus_wait_for_unload(void)
- 	 * functional and vmbus_unload_response() will complete
- 	 * vmbus_connection.unload_event. If not, the last thing we can do is
- 	 * read message pages for all CPUs directly.
-+	 *
-+	 * Wait no more than 10 seconds so that the panic path can't get
-+	 * hung forever in case the response message isn't seen.
- 	 */
--	while (1) {
-+	for (i = 0; i < 1000; i++) {
- 		if (completion_done(&vmbus_connection.unload_event))
- 			break;
- 
+diff --git a/tools/perf/tests/bp_signal.c b/tools/perf/tests/bp_signal.c
+index 166f411568a50..b5cdedd13cbc7 100644
+--- a/tools/perf/tests/bp_signal.c
++++ b/tools/perf/tests/bp_signal.c
+@@ -45,10 +45,13 @@ volatile long the_var;
+ #if defined (__x86_64__)
+ extern void __test_function(volatile long *ptr);
+ asm (
++	".pushsection .text;"
+ 	".globl __test_function\n"
++	".type __test_function, @function;"
+ 	"__test_function:\n"
+ 	"incq (%rdi)\n"
+-	"ret\n");
++	"ret\n"
++	".popsection\n");
+ #else
+ static void __test_function(volatile long *ptr)
+ {
 -- 
 2.25.1
 
