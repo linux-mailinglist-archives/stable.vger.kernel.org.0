@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D63D9272E92
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:50:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22196272EBF
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:51:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730009AbgIUQua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:50:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58828 "EHLO mail.kernel.org"
+        id S1729785AbgIUQu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:50:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730002AbgIUQuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:50:22 -0400
+        id S1729983AbgIUQuY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:50:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F3C82388B;
-        Mon, 21 Sep 2020 16:50:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B219A23888;
+        Mon, 21 Sep 2020 16:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600707021;
-        bh=P03xTyf2oEsYBu/7PbrLbijGc2Igq62DU0HigGMaYcw=;
+        s=default; t=1600707024;
+        bh=DeR0aKI8WkL4uiBhR9N2qdwDYZpfrYva1bno0IxnhGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lh0T3GaAbeJ5D7pvAHGKjnDpe4Ux90A9z0CmVNWsBiYEREPPBsO4ys+IBvM4cAUfC
-         YYHXpZ8p98fV/2kBewZgSXtriRjKa5vrOcZ7+RVHZ6VxzW2y8/cuByr9/2J8PAAO/J
-         8S6RzXIuEoLBAmO6j+GjSoKDYP57eocfooGv9xTA=
+        b=eAUh4tHABhyMmYa+00OVjvdNdXfHxeLlmglCdlUMJ5HJOyk1SRisR0kuQ2UUA8bSU
+         DouZXN2pRFoExhV25hp/1NOnOclPXvsuE9fidQDAlCUbAaJfZX2FlaQA5sOQE7Kkgu
+         sYq86JogamhUsDlaHezgWlkB3rJqB4snEwqsA7/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 67/72] powerpc/dma: Fix dma_map_ops::get_required_mask
-Date:   Mon, 21 Sep 2020 18:31:46 +0200
-Message-Id: <20200921163125.047858247@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 68/72] selftests/vm: fix display of page size in map_hugetlb
+Date:   Mon, 21 Sep 2020 18:31:47 +0200
+Message-Id: <20200921163125.096422499@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -42,50 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 437ef802e0adc9f162a95213a3488e8646e5fc03 upstream.
+commit 1ec882fc81e3177faf055877310dbdb0c68eb7db upstream.
 
-There are 2 problems with it:
-  1. "<" vs expected "<<"
-  2. the shift number is an IOMMU page number mask, not an address
-  mask as the IOMMU page shift is missing.
+The displayed size is in bytes while the text says it is in kB.
 
-This did not hit us before f1565c24b596 ("powerpc: use the generic
-dma_ops_bypass mode") because we had additional code to handle bypass
-mask so this chunk (almost?) never executed.However there were
-reports that aacraid does not work with "iommu=nobypass".
+Shift it by 10 to really display kBytes.
 
-After f1565c24b596, aacraid (and probably others which call
-dma_get_required_mask() before setting the mask) was unable to enable
-64bit DMA and fall back to using IOMMU which was known not to work,
-one of the problems is double free of an IOMMU page.
-
-This fixes DMA for aacraid, both with and without "iommu=nobypass" in
-the kernel command line. Verified with "stress-ng -d 4".
-
-Fixes: 6a5c7be5e484 ("powerpc: Override dma_get_required_mask by platform hook and ops")
-Cc: stable@vger.kernel.org # v3.2+
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200908015106.79661-1-aik@ozlabs.ru
+Fixes: fa7b9a805c79 ("tools/selftest/vm: allow choosing mem size and page size in map_hugetlb")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/e27481224564a93d14106e750de31189deaa8bc8.1598861977.git.christophe.leroy@csgroup.eu
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/dma-iommu.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/vm/map_hugetlb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/dma-iommu.c
-+++ b/arch/powerpc/kernel/dma-iommu.c
-@@ -160,7 +160,8 @@ u64 dma_iommu_get_required_mask(struct d
- 			return bypass_mask;
+--- a/tools/testing/selftests/vm/map_hugetlb.c
++++ b/tools/testing/selftests/vm/map_hugetlb.c
+@@ -83,7 +83,7 @@ int main(int argc, char **argv)
  	}
  
--	mask = 1ULL < (fls_long(tbl->it_offset + tbl->it_size) - 1);
-+	mask = 1ULL << (fls_long(tbl->it_offset + tbl->it_size) +
-+			tbl->it_page_shift - 1);
- 	mask += mask - 1;
- 
- 	return mask;
+ 	if (shift)
+-		printf("%u kB hugepages\n", 1 << shift);
++		printf("%u kB hugepages\n", 1 << (shift - 10));
+ 	else
+ 		printf("Default size hugepages\n");
+ 	printf("Mapping %lu Mbytes\n", (unsigned long)length >> 20);
 
 
