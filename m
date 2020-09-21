@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC277272DD7
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:44:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2979272DED
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:45:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729639AbgIUQnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:43:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48470 "EHLO mail.kernel.org"
+        id S1729434AbgIUQoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:44:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729635AbgIUQno (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:43:44 -0400
+        id S1729617AbgIUQnq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:43:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A0C9238E6;
-        Mon, 21 Sep 2020 16:43:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6213235F9;
+        Mon, 21 Sep 2020 16:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706622;
-        bh=42fnfEc8RLB+21VT9GxDtA29pgj9XX4YzmOC2aE1PTc=;
+        s=default; t=1600706625;
+        bh=d5XIaRljVwM3B1wOOuQiNn/RI/rtsJyv5oYD7QUfQG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ujO9qxJDHxKjNvkik09zLNZg8DzRzBe2SwFQtmA5+X/nYo9MCMzuN9KDfe74e4QLa
-         j6IO7hBCdmvEKr9pSHgKK3a5JMyuKvcll0r0T33eDHTLMTkWTZvhlvwGjXaxN9jL9+
-         eOYxEPEl6+As7Lehv4bAis57/GO3aWcQwENeDEPU=
+        b=P44afJqgyn4aJvCmng9lbk94/oXG4UQXJJ16d14+25aXGs9ySHg3oyMIncRaDJ3ND
+         htyaNed0f4AgJMTEnisye8ucWBuu6hQZEduiUUtXJTRFn8CdSOqtFMuYjJt3MIVeyb
+         r/KsPklRgUehOgSS7pkqtqUeVfdc0ewfpApmvaxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lennart Poettering <mzxreary@0pointer.de>,
-        Yang Xu <xuyang2018.jy@cn.fujitsu.com>,
-        Martijn Coenen <maco@android.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.8 007/118] loop: Set correct device size when using LOOP_CONFIGURE
-Date:   Mon, 21 Sep 2020 18:26:59 +0200
-Message-Id: <20200921162036.684858019@linuxfoundation.org>
+        stable@vger.kernel.org, Prateek Sood <prsood@codeaurora.org>,
+        Takashi Iwai <tiwai@suse.de>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 5.8 008/118] firmware_loader: fix memory leak for paged buffer
+Date:   Mon, 21 Sep 2020 18:27:00 +0200
+Message-Id: <20200921162036.725971208@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
 References: <20200921162036.324813383@linuxfoundation.org>
@@ -43,46 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martijn Coenen <maco@android.com>
+From: Prateek Sood <prsood@codeaurora.org>
 
-commit 79e5dc59e2974a48764269fa9ff544ae8ffe3338 upstream.
+commit 4965b8cd1bc1ffb017e5c58e622da82b55e49414 upstream.
 
-The device size calculation was done before processing the loop
-configuration, which meant that the we set the size on the underlying
-block device incorrectly in case lo_offset/lo_sizelimit were set in the
-configuration. Delay computing the size until we've setup the device
-parameters correctly.
+vfree() is being called on paged buffer allocated
+using alloc_page() and mapped using vmap().
 
-Fixes: 3448914e8cc5("loop: Add LOOP_CONFIGURE ioctl")
-Reported-by: Lennart Poettering <mzxreary@0pointer.de>
-Tested-by: Yang Xu <xuyang2018.jy@cn.fujitsu.com>
-Signed-off-by: Martijn Coenen <maco@android.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Freeing of pages in vfree() relies on nr_pages of
+struct vm_struct. vmap() does not update nr_pages.
+It can lead to memory leaks.
+
+Fixes: ddaf29fd9bb6 ("firmware: Free temporary page table after vmapping")
+Signed-off-by: Prateek Sood <prsood@codeaurora.org>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1597957070-27185-1-git-send-email-prsood@codeaurora.org
+Cc: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/loop.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/base/firmware_loader/firmware.h |    2 ++
+ drivers/base/firmware_loader/main.c     |   17 +++++++++++------
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1114,8 +1114,6 @@ static int loop_configure(struct loop_de
- 	mapping = file->f_mapping;
- 	inode = mapping->host;
+--- a/drivers/base/firmware_loader/firmware.h
++++ b/drivers/base/firmware_loader/firmware.h
+@@ -142,10 +142,12 @@ int assign_fw(struct firmware *fw, struc
+ void fw_free_paged_buf(struct fw_priv *fw_priv);
+ int fw_grow_paged_buf(struct fw_priv *fw_priv, int pages_needed);
+ int fw_map_paged_buf(struct fw_priv *fw_priv);
++bool fw_is_paged_buf(struct fw_priv *fw_priv);
+ #else
+ static inline void fw_free_paged_buf(struct fw_priv *fw_priv) {}
+ static inline int fw_grow_paged_buf(struct fw_priv *fw_priv, int pages_needed) { return -ENXIO; }
+ static inline int fw_map_paged_buf(struct fw_priv *fw_priv) { return -ENXIO; }
++static inline bool fw_is_paged_buf(struct fw_priv *fw_priv) { return false; }
+ #endif
  
--	size = get_loop_size(lo, file);
--
- 	if ((config->info.lo_flags & ~LOOP_CONFIGURE_SETTABLE_FLAGS) != 0) {
- 		error = -EINVAL;
- 		goto out_unlock;
-@@ -1165,6 +1163,8 @@ static int loop_configure(struct loop_de
- 	loop_update_rotational(lo);
- 	loop_update_dio(lo);
- 	loop_sysfs_init(lo);
+ #endif /* __FIRMWARE_LOADER_H */
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -252,9 +252,11 @@ static void __free_fw_priv(struct kref *
+ 	list_del(&fw_priv->list);
+ 	spin_unlock(&fwc->lock);
+ 
+-	fw_free_paged_buf(fw_priv); /* free leftover pages */
+-	if (!fw_priv->allocated_size)
++	if (fw_is_paged_buf(fw_priv))
++		fw_free_paged_buf(fw_priv);
++	else if (!fw_priv->allocated_size)
+ 		vfree(fw_priv->data);
 +
-+	size = get_loop_size(lo, file);
- 	loop_set_size(lo, size);
+ 	kfree_const(fw_priv->fw_name);
+ 	kfree(fw_priv);
+ }
+@@ -268,6 +270,11 @@ static void free_fw_priv(struct fw_priv
+ }
  
- 	set_blocksize(bdev, S_ISBLK(inode->i_mode) ?
+ #ifdef CONFIG_FW_LOADER_PAGED_BUF
++bool fw_is_paged_buf(struct fw_priv *fw_priv)
++{
++	return fw_priv->is_paged_buf;
++}
++
+ void fw_free_paged_buf(struct fw_priv *fw_priv)
+ {
+ 	int i;
+@@ -275,6 +282,8 @@ void fw_free_paged_buf(struct fw_priv *f
+ 	if (!fw_priv->pages)
+ 		return;
+ 
++	vunmap(fw_priv->data);
++
+ 	for (i = 0; i < fw_priv->nr_pages; i++)
+ 		__free_page(fw_priv->pages[i]);
+ 	kvfree(fw_priv->pages);
+@@ -328,10 +337,6 @@ int fw_map_paged_buf(struct fw_priv *fw_
+ 	if (!fw_priv->data)
+ 		return -ENOMEM;
+ 
+-	/* page table is no longer needed after mapping, let's free */
+-	kvfree(fw_priv->pages);
+-	fw_priv->pages = NULL;
+-
+ 	return 0;
+ }
+ #endif
 
 
