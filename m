@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C86272DA0
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78225272D7E
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:41:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729150AbgIUQlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:41:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45646 "EHLO mail.kernel.org"
+        id S1728865AbgIUQko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:40:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728765AbgIUQlt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:41:49 -0400
+        id S1729347AbgIUQkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:40:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBE0A23998;
-        Mon, 21 Sep 2020 16:41:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 091772067D;
+        Mon, 21 Sep 2020 16:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706508;
-        bh=J/DhVcSSSGe4ZGLilEAxcj+CY+pXbxjrlAa6bZxGXEs=;
+        s=default; t=1600706430;
+        bh=+Hl0YBs/9utIV16UpKBcDuyGwpz2oOC/MgeEPAGwuuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdJ5SNvT4tOJIscMMoBNBhwhP2drkHyVsI19U6cqQ/LqgRRfc2AmtVcGx9OlatlmJ
-         hrFPcM95bD8FfqtPM67bNrLJcM/ogGOx5X/YFLLXI2duUw/+e6lBwO2B8l4C/N/zf4
-         eBHXhhyD25qT3vSm4rsnVznkQyXGGq7P/pmrwgdA=
+        b=YMn5b6Tq22dzL/Dd648qwd2HDPtZsj4RDU6DyaXztWrAxQLFVX1JxwN96C3lhoujj
+         +Zifa9JqwFmyNcbxVCQrRK8xVMz+O5d3IfNy3Ry61ORxs+AtbLaWw+4mQ1Eu+oCp5q
+         P9zodwA8Kel4YvSO4ohN2FcKVAXMiariop5/HBus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/49] perf test: Free formats for perf pmu parse test
+        stable@vger.kernel.org,
+        Vincent Huang <vincent.huang@tw.synaptics.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 89/94] Input: trackpoint - add new trackpoint variant IDs
 Date:   Mon, 21 Sep 2020 18:28:16 +0200
-Message-Id: <20200921162036.071750099@linuxfoundation.org>
+Message-Id: <20200921162039.629237110@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
-References: <20200921162034.660953761@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+References: <20200921162035.541285330@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,94 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Vincent Huang <vincent.huang@tw.synaptics.com>
 
-[ Upstream commit d26383dcb2b4b8629fde05270b4e3633be9e3d4b ]
+commit 6c77545af100a72bf5e28142b510ba042a17648d upstream.
 
-The following leaks were detected by ASAN:
+Add trackpoint variant IDs to allow supported control on Synaptics
+trackpoints.
 
-  Indirect leak of 360 byte(s) in 9 object(s) allocated from:
-    #0 0x7fecc305180e in calloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10780e)
-    #1 0x560578f6dce5 in perf_pmu__new_format util/pmu.c:1333
-    #2 0x560578f752fc in perf_pmu_parse util/pmu.y:59
-    #3 0x560578f6a8b7 in perf_pmu__format_parse util/pmu.c:73
-    #4 0x560578e07045 in test__pmu tests/pmu.c:155
-    #5 0x560578de109b in run_test tests/builtin-test.c:410
-    #6 0x560578de109b in test_and_print tests/builtin-test.c:440
-    #7 0x560578de401a in __cmd_test tests/builtin-test.c:661
-    #8 0x560578de401a in cmd_test tests/builtin-test.c:807
-    #9 0x560578e49354 in run_builtin /home/namhyung/project/linux/tools/perf/perf.c:312
-    #10 0x560578ce71a8 in handle_internal_command /home/namhyung/project/linux/tools/perf/perf.c:364
-    #11 0x560578ce71a8 in run_argv /home/namhyung/project/linux/tools/perf/perf.c:408
-    #12 0x560578ce71a8 in main /home/namhyung/project/linux/tools/perf/perf.c:538
-    #13 0x7fecc2b7acc9 in __libc_start_main ../csu/libc-start.c:308
+Signed-off-by: Vincent Huang <vincent.huang@tw.synaptics.com>
+Link: https://lore.kernel.org/r/20200914120327.2592-1-vincent.huang@tw.synaptics.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: cff7f956ec4a1 ("perf tests: Move pmu tests into separate object")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20200915031819.386559-12-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/pmu.c |  1 +
- tools/perf/util/pmu.c  | 11 +++++++++++
- tools/perf/util/pmu.h  |  1 +
- 3 files changed, 13 insertions(+)
+ drivers/input/mouse/trackpoint.c |   10 ++++++----
+ drivers/input/mouse/trackpoint.h |   10 ++++++----
+ 2 files changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/tools/perf/tests/pmu.c b/tools/perf/tests/pmu.c
-index 7bedf8608fdde..3e183eef6f857 100644
---- a/tools/perf/tests/pmu.c
-+++ b/tools/perf/tests/pmu.c
-@@ -172,6 +172,7 @@ int test__pmu(struct test *test __maybe_unused, int subtest __maybe_unused)
- 		ret = 0;
- 	} while (0);
+--- a/drivers/input/mouse/trackpoint.c
++++ b/drivers/input/mouse/trackpoint.c
+@@ -20,10 +20,12 @@
+ #include "trackpoint.h"
  
-+	perf_pmu__del_formats(&formats);
- 	test_format_dir_put(format);
- 	return ret;
- }
-diff --git a/tools/perf/util/pmu.c b/tools/perf/util/pmu.c
-index c1acf04c9f7ab..c42054f42e7e6 100644
---- a/tools/perf/util/pmu.c
-+++ b/tools/perf/util/pmu.c
-@@ -1282,6 +1282,17 @@ void perf_pmu__set_format(unsigned long *bits, long from, long to)
- 		set_bit(b, bits);
- }
+ static const char * const trackpoint_variants[] = {
+-	[TP_VARIANT_IBM]	= "IBM",
+-	[TP_VARIANT_ALPS]	= "ALPS",
+-	[TP_VARIANT_ELAN]	= "Elan",
+-	[TP_VARIANT_NXP]	= "NXP",
++	[TP_VARIANT_IBM]		= "IBM",
++	[TP_VARIANT_ALPS]		= "ALPS",
++	[TP_VARIANT_ELAN]		= "Elan",
++	[TP_VARIANT_NXP]		= "NXP",
++	[TP_VARIANT_JYT_SYNAPTICS]	= "JYT_Synaptics",
++	[TP_VARIANT_SYNAPTICS]		= "Synaptics",
+ };
  
-+void perf_pmu__del_formats(struct list_head *formats)
-+{
-+	struct perf_pmu_format *fmt, *tmp;
-+
-+	list_for_each_entry_safe(fmt, tmp, formats, list) {
-+		list_del(&fmt->list);
-+		free(fmt->name);
-+		free(fmt);
-+	}
-+}
-+
- static int sub_non_neg(int a, int b)
- {
- 	if (b > a)
-diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
-index 76fecec7b3f91..21335425f2e42 100644
---- a/tools/perf/util/pmu.h
-+++ b/tools/perf/util/pmu.h
-@@ -79,6 +79,7 @@ int perf_pmu__new_format(struct list_head *list, char *name,
- 			 int config, unsigned long *bits);
- void perf_pmu__set_format(unsigned long *bits, long from, long to);
- int perf_pmu__format_parse(char *dir, struct list_head *head);
-+void perf_pmu__del_formats(struct list_head *formats);
+ /*
+--- a/drivers/input/mouse/trackpoint.h
++++ b/drivers/input/mouse/trackpoint.h
+@@ -27,10 +27,12 @@
+  * 0x01 was the original IBM trackpoint, others implement very limited
+  * subset of trackpoint features.
+  */
+-#define TP_VARIANT_IBM		0x01
+-#define TP_VARIANT_ALPS		0x02
+-#define TP_VARIANT_ELAN		0x03
+-#define TP_VARIANT_NXP		0x04
++#define TP_VARIANT_IBM			0x01
++#define TP_VARIANT_ALPS			0x02
++#define TP_VARIANT_ELAN			0x03
++#define TP_VARIANT_NXP			0x04
++#define TP_VARIANT_JYT_SYNAPTICS	0x05
++#define TP_VARIANT_SYNAPTICS		0x06
  
- struct perf_pmu *perf_pmu__scan(struct perf_pmu *pmu);
- 
--- 
-2.25.1
-
+ /*
+  * Commands
 
 
