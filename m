@@ -2,107 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9431C272599
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 15:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 254D02725F3
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 15:44:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726643AbgIUNck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 09:32:40 -0400
-Received: from mout.kundenserver.de ([212.227.17.24]:34319 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726496AbgIUNck (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 09:32:40 -0400
-X-Greylist: delayed 307 seconds by postgrey-1.27 at vger.kernel.org; Mon, 21 Sep 2020 09:32:39 EDT
-Received: from mail-qk1-f177.google.com ([209.85.222.177]) by
- mrelayeu.kundenserver.de (mreue108 [212.227.15.145]) with ESMTPSA (Nemesis)
- id 1M6ltQ-1kODD23TeI-008IHo; Mon, 21 Sep 2020 15:27:31 +0200
-Received: by mail-qk1-f177.google.com with SMTP id q5so14959798qkc.2;
-        Mon, 21 Sep 2020 06:27:30 -0700 (PDT)
-X-Gm-Message-State: AOAM530tYn12Q7iH40nvMZ40ErDKAtgebOUiI4ITpyJ0EvECdwqUdAfV
-        TwfwMUhTrZOyQUSNoUGPtgpPmtO1PrCFhL0LCvE=
-X-Google-Smtp-Source: ABdhPJw3W/Ieljc7e0oA/u77MIRuqr3TE/XBiDVGGgq19pLPt2WILDmtKHBHjbkWI+jPLTjuDrJcAihYlG1zN/lSkUA=
-X-Received: by 2002:a37:5d8:: with SMTP id 207mr46387678qkf.352.1600694849499;
- Mon, 21 Sep 2020 06:27:29 -0700 (PDT)
+        id S1726537AbgIUNn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 09:43:59 -0400
+Received: from mail-lj1-f169.google.com ([209.85.208.169]:45954 "EHLO
+        mail-lj1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727339AbgIUNn7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 09:43:59 -0400
+Received: by mail-lj1-f169.google.com with SMTP id c2so11122771ljj.12;
+        Mon, 21 Sep 2020 06:43:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=IzVwhgldFPdOEXwGOBAAemix127aGfC/miv2sGzrack=;
+        b=Al1vR/dw6fEU2quolBrIiRM4Hz77L/9gyL7fzpWve7EkJWur1Qt3+mC734BHVLY0eJ
+         ps7gOri/1lHlxl05nwkyzcWVo8q+rlYlB0n0vVWzfjAvP+aWdFFL84o5ePFsBeLiFkqF
+         EHXKFVx4XLBPLjKIup7cOIzeiVIp9Uuq3uz7ZsZqynbDYMNLv+aVQTz4pbsQD8Sf857A
+         fkwaZJObUQO9qfn9JSnDELL/8oAYpFy2yM2a9ZiSLVOBHohYELlKtAANeVsMcW+gInd0
+         pggewagsc0guJUkQmfadjmSgeCv1HsxzLSZyIxTlQy/gI2laJOgxNHLwW0Ol8LD0gmP+
+         Zzig==
+X-Gm-Message-State: AOAM533wJXVnjCZWKX6WvVSsfWYkn4MLkMtjxeQO8y7xWrOLNvsZItn2
+        NT5UTV3zIUlYJ/mzRIIUREo=
+X-Google-Smtp-Source: ABdhPJxQEukLP7HMM4A3nGOgC0onRHZdWYTQrNkhsFLLdy5rPUK66/9QJK2P20IaZQxIMkh6G94GqQ==
+X-Received: by 2002:a2e:88c4:: with SMTP id a4mr15268322ljk.393.1600695835522;
+        Mon, 21 Sep 2020 06:43:55 -0700 (PDT)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id r4sm2593718lfi.25.2020.09.21.06.43.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2020 06:43:54 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@kernel.org>)
+        id 1kKM6d-00068d-Ne; Mon, 21 Sep 2020 15:43:48 +0200
+Date:   Mon, 21 Sep 2020 15:43:47 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Oliver Neukum <oneukum@suse.com>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org,
+        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] USB: cdc-acm: add Whistler radio scanners TRX series
+ support
+Message-ID: <20200921134347.GW24441@localhost>
+References: <20200921081022.6881-1-johan@kernel.org>
+ <1600677792.2424.61.camel@suse.com>
+ <20200921093145.GS24441@localhost>
+ <1600684156.2424.65.camel@suse.com>
+ <20200921113601.GT24441@localhost>
+ <1600688954.2424.76.camel@suse.com>
+ <20200921120302.GU24441@localhost>
+ <1600690627.2424.80.camel@suse.com>
 MIME-Version: 1.0
-References: <20200918124624.1469673-4-arnd@arndb.de> <20200921125454.150CA21789@mail.kernel.org>
-In-Reply-To: <20200921125454.150CA21789@mail.kernel.org>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Mon, 21 Sep 2020 15:27:13 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a1pzsyYCq8pa7uVYAg9a_-tg3biWReesnxAmxhySzfeew@mail.gmail.com>
-Message-ID: <CAK8P3a1pzsyYCq8pa7uVYAg9a_-tg3biWReesnxAmxhySzfeew@mail.gmail.com>
-Subject: Re: [PATCH v2 3/9] ARM: oabi-compat: add epoll_pwait handler
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:pL5Kky/O6zrDI92K3Z6BMx6/xt7C3jmUfQvQ23QYwmvIoxoL0fR
- y8256E/HOnTe1NaKlQK4bA8cqOYtTODpRQ3qXONNJOQpt/rJkaZfrgEJZo6CYwC+x9NgdMH
- WPTbDvjTHPsEJTkwp4tr2gjmUkFen9PMV0GaQZUOXgaxe4vy/Q5jYJP5kgZuO3EzhPVVq6v
- qk69IeShlTWXWNRt6ulgA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:VadfbiiU//A=:pm004l3Rz5E2iBE/9JiI7+
- uNQcWs9uJS+fCfuuQq/VBEXHHqHW2pEEtpx18QhOWQb7GcGasQ+gMNBZ440ORLPHwCNPxooUo
- C3kT/KqPz4gyhSqG44JCQW1e5RZmRNEG0ICZFD+SAx1v4ehEoyIAam9l+C/V64Ou+sy4ZPJGm
- oWnkptDF4KfuCVxQypSw280+NLnhRjqXkayRtCNC7YxVvZ9F7Hza+eIrmfFLYWJN4EZaFtptc
- GfM+c0BBrjmb1kNgsjItkYvGNZcwJW+lXy2rfr5OIUNddz+wd/j6I8io3es9RXzPiM6kuhf3Z
- YaRrC8Sv5Fe8bfvq+3w1HSvatpzVBUUNETKP7Vp+Wq5Bbj/gsXSOVD4pC7kiD2CMqPGynGKi0
- Jr5qSIozi0es41yXm3we/MwS/CtzKI6YJKEkaBY5beh/WyuADBBT5dglZT3QCpeGCmAxGSwwB
- vmjK6FZQYsn11WKGFprhMAj+Zo5n4MOWXhyhKTDPWKIdE+9nFkPdnnJw8KHEFeFPVVFf0R/9B
- IY2OGMBzLGPg0aAk+F0Taa8ucGkCDMh1wn6VtzE8QLvhwm6amUXzQhTWJBnuzVU0EzVgmpS+P
- 016B4uqaJJW6+v2HBXriU6SxuuU8PwXOXN3STKaMHDR2lKj4A+2c5u0ZQhoYGK+hYi4fEwPn5
- TqObocZu1Qo69pwPpn5yVn5PHbU0FlMqMEWPRk1XccXuhev4i9nByMUpAJZRdfnky/gbaMLt9
- y9zNLxU+it8cMn8qlwuLdAqRtgiwJi/sHaZYPDcCwUIX9fVZDpDOrPn6zs9SWepwJGv+P7h9r
- yqA0UrZ9tCmGTUWASVvkAAVKLtRUpWxDggumdzItjlkwff0vRq+LFcZ2RIJHxyzaNCd1QzD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1600690627.2424.80.camel@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 21, 2020 at 2:54 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> Hi
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a "Fixes:" tag
-> fixing commit: 369842658a36 ("ARM: 5677/1: ARM support for TIF_RESTORE_SIGMASK/pselect6/ppoll/epoll_pwait").
->
-> The bot has tested the following trees: v5.8.10, v5.4.66, v4.19.146, v4.14.198, v4.9.236, v4.4.236.
->
-> v5.8.10: Build OK!
-> v5.4.66: Build OK!
-> v4.19.146: Build OK!
-> v4.14.198: Build OK!
-> v4.9.236: Failed to apply! Possible dependencies:
->     00bf25d693e7 ("y2038: use time32 syscall names on 32-bit")
->     17435e5f8cf3 ("time: Introduce CONFIG_COMPAT_32BIT_TIME")
->     338035edc9b9 ("arm: Wire up restartable sequences system call")
->     4e2648db9c5f ("ARM: remove indirection of asm/mach-types.h")
->     73aeb2cbcdc9 ("ARM: 8787/1: wire up io_pgetevents syscall")
->     78594b95998f ("ARM: add migrate_pages() system call")
->     96a8fae0fe09 ("ARM: convert to generated system call tables")
->     a1016e94cce9 ("ARM: wire up statx syscall")
->     c281634c8652 ("ARM: compat: remove KERNEL_DS usage in sys_oabi_epoll_ctl()")
->     d4703ddafd1e ("time: Introduce CONFIG_64BIT_TIME in architectures")
->
-> v4.4.236: Failed to apply! Possible dependencies:
->     00bf25d693e7 ("y2038: use time32 syscall names on 32-bit")
->     03590cb56d5d ("ARM: wire up copy_file_range() syscall")
->     0d4a619b64ba ("dma-mapping: make the generic coherent dma mmap implementation optional")
->     17435e5f8cf3 ("time: Introduce CONFIG_COMPAT_32BIT_TIME")
->     4e2648db9c5f ("ARM: remove indirection of asm/mach-types.h")
->     96a8fae0fe09 ("ARM: convert to generated system call tables")
->     c281634c8652 ("ARM: compat: remove KERNEL_DS usage in sys_oabi_epoll_ctl()")
->     d4703ddafd1e ("time: Introduce CONFIG_64BIT_TIME in architectures")
->     f2335a2a0a59 ("ARM: wire up preadv2 and pwritev2 syscalls")
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
+On Mon, Sep 21, 2020 at 02:17:07PM +0200, Oliver Neukum wrote:
+> Am Montag, den 21.09.2020, 14:03 +0200 schrieb Johan Hovold:
+> > On Mon, Sep 21, 2020 at 01:49:14PM +0200, Oliver Neukum wrote:
+> > > Am Montag, den 21.09.2020, 13:36 +0200 schrieb Johan Hovold:
+> > > > On Mon, Sep 21, 2020 at 12:29:16PM +0200, Oliver Neukum wrote:
+> > > 
+> > > Hi,
+> > > 
+> > > > I meant that instead of falling back to "combined-interface" probing we
+> > > > could assume that all interfaces with three endpoints are "combined" and
+> > > > simply ignore the union and call managementy. descriptors and all the ways
+> > > > that devices may have gotten those wrong.
+> > > 
+> > > I am afraid we would break the spec. I cannot recall a prohibition on
+> > > having more endpoints than necessary. Heuristics and ignoring invalid
+> > > descriptors is one things. Ignoring valid descriptors is something
+> > > else.
+> > 
+> > That depends on how you read the spec (see "3.3.1 Communication Class
+> > Interface"). But sure, it's probably be better to err on the safe-side.
+> 
+> You mean 3.4.1?
 
-I wouldn't worry too much about the failed backport in this case, as I
-don't think there are any actual users of this code on older stable
-kernels, and even if there are they are unlikely to start using
-epoll_pwait.
+It's 3.3.1 in Version 1.1 at least.
 
-      Arnd
+> > > > I was thinking more of the individual entries in the device-id table
+> > > > whose control interfaces may not even be of the Communication class. But
+> > > > hopefully that was verified when adding them.
+> > > 
+> > > Now you are confusing me. In case of a quirky device, why change
+> > > the current logic?
+> > 
+> > Just because they have a quirk defined, doesn't mean they don't rely on
+> > the generic probe algorithm (e.g. a USB_DEVICE entry which matches all
+> > interface classes and only specifies SEND_ZERO_PACKET).
+> 
+> Right, so let me be more specific. It would probably be unwise to
+> change the decision tree in probe() as far as devices whose quirks
+> affect decisions in that already are concerned.
+
+But we need to draw line somewhere to keep the code maintainable and
+ourselves sane, especially since a lot of these devices where added
+without any record of their descriptors.
+
+I guess we could add another test for the device-id fields, but I'm
+reluctant to add more special casing before we know it's needed.
+
+Johan
