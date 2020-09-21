@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 029EC273026
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:03:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C9FF27303C
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 19:03:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729854AbgIURDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 13:03:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38006 "EHLO mail.kernel.org"
+        id S1728161AbgIURDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 13:03:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729071AbgIUQhb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:37:31 -0400
+        id S1728476AbgIUQgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:36:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEDE72396F;
-        Mon, 21 Sep 2020 16:37:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 004CE206B7;
+        Mon, 21 Sep 2020 16:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706251;
-        bh=dfH5vP7yxY7pCq8KNCcS8VfXUbg7KUXJX88DcQSoJqw=;
+        s=default; t=1600706209;
+        bh=3st5nF5UcQ80yr/lcX3pOnZPlbiq4npcK9jsNL3vzmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PT3DSoEBBW7CTFBW0TNFPT4DO8xh3Fs0Owv1dJeY5hcIwchTP/nucevluqrXmiqec
-         Dj8+dHxMrs9CwDUMI/yXaKnMgbmeoCYuVcWjSND7Q3PjmfRRPZ3LNzfUYdDSiKNPJK
-         T+BmF2eY0FVPFyHtsW8U8WJikCyoMhlRRWtj8Xa8=
+        b=vJsIbk/J+7BwxZGL0zEG1mhECRWPPSPfq7hhuIA31i2rTCXUs9Mz3CjbFXcjjhH2w
+         ga9WHQmt2ooK5jrviGcR+pEnGj0tptqKPlLgIcsuJEz/lzxZ81FQ7I4cGNJWELpPlF
+         ekpTnfC37qAzjo9AnJ3PDCCaV5ZXXuejP6ULdtSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/94] arm64: dts: ns2: Fixed QSPI compatible string
-Date:   Mon, 21 Sep 2020 18:26:55 +0200
-Message-Id: <20200921162035.926004074@linuxfoundation.org>
+        stable@vger.kernel.org, Hanjun Guo <guohanjun@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 10/94] dmaengine: acpi: Put the CSRT table after using it
+Date:   Mon, 21 Sep 2020 18:26:57 +0200
+Message-Id: <20200921162036.019702560@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
 References: <20200921162035.541285330@linuxfoundation.org>
@@ -42,33 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Hanjun Guo <guohanjun@huawei.com>
 
-[ Upstream commit 686e0a0c8c61e0e3f55321d0181fece3efd92777 ]
+[ Upstream commit 7eb48dd094de5fe0e216b550e73aa85257903973 ]
 
-The string was incorrectly defined before from least to most specific,
-swap the compatible strings accordingly.
+The acpi_get_table() should be coupled with acpi_put_table() if
+the mapped table is not used at runtime to release the table
+mapping, put the CSRT table buf after using it.
 
-Fixes: ff73917d38a6 ("ARM64: dts: Add QSPI Device Tree node for NS2")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Link: https://lore.kernel.org/r/1595411661-15936-1-git-send-email-guohanjun@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/acpi-dma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-index 0b72094bcf5a2..05f82819ae2d1 100644
---- a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-@@ -745,7 +745,7 @@
- 		};
+diff --git a/drivers/dma/acpi-dma.c b/drivers/dma/acpi-dma.c
+index 4a748c3435d7d..8d99c84361cbb 100644
+--- a/drivers/dma/acpi-dma.c
++++ b/drivers/dma/acpi-dma.c
+@@ -131,11 +131,13 @@ static void acpi_dma_parse_csrt(struct acpi_device *adev, struct acpi_dma *adma)
+ 		if (ret < 0) {
+ 			dev_warn(&adev->dev,
+ 				 "error in parsing resource group\n");
+-			return;
++			break;
+ 		}
  
- 		qspi: spi@66470200 {
--			compatible = "brcm,spi-bcm-qspi", "brcm,spi-ns2-qspi";
-+			compatible = "brcm,spi-ns2-qspi", "brcm,spi-bcm-qspi";
- 			reg = <0x66470200 0x184>,
- 				<0x66470000 0x124>,
- 				<0x67017408 0x004>,
+ 		grp = (struct acpi_csrt_group *)((void *)grp + grp->length);
+ 	}
++
++	acpi_put_table((struct acpi_table_header *)csrt);
+ }
+ 
+ /**
 -- 
 2.25.1
 
