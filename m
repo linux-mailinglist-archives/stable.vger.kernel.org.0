@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADB00272C92
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:35:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6D47272CFC
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:37:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728601AbgIUQdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:33:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59324 "EHLO mail.kernel.org"
+        id S1728978AbgIUQg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:36:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728599AbgIUQdQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:33:16 -0400
+        id S1728976AbgIUQg1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:36:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7802B2396F;
-        Mon, 21 Sep 2020 16:33:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91A03206DC;
+        Mon, 21 Sep 2020 16:36:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600705996;
-        bh=kcpOePPk9Oa0xA+RHgt1wPgGHNQUOeL2zZ/g8BSu8Fo=;
+        s=default; t=1600706186;
+        bh=jdRlnaY6vPBTfETmeS2VOahyt4KO7/6kWOm/9d1nv0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=igcBcA6KAeOtWunDaMFF0CiXCWYbBW7gXe9rY/ooMiGynOy7/gWgCBUDjWYxeR8zr
-         bOCjuVbDQsf92x790HagIcEgZDtleCHjouAEPEtBD4c2SS0Sy4R9bKGlxJtkf15aNk
-         tXIOvRXvIIHaoBWGq9BL8BSs/0awrHXBif/7O7ng=
+        b=v4J5Qm+bOPy1uteR6YWTRrgFqArHm+ABRWmS4FqPC04/5ZxrpT4aCa2mp8s9TIHpU
+         IjuS8WKHXPhMfDcwYlPDye3t9POihLLZKk8FApCQ/Z+YJuflNwgi/cIPuZ6a5aJvaW
+         yEI9JsYYUHm6WZx6IEsBNcXlByNfwH11Aku8UUwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Borowski <kilobyte@angband.pl>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-usb@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH 4.4 46/46] x86/defconfig: Enable CONFIG_USB_XHCI_HCD=y
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 62/70] drm/mediatek: Add exception handing in mtk_drm_probe() if component init fail
 Date:   Mon, 21 Sep 2020 18:28:02 +0200
-Message-Id: <20200921162035.393246797@linuxfoundation.org>
+Message-Id: <20200921162037.969480551@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
-References: <20200921162033.346434578@linuxfoundation.org>
+In-Reply-To: <20200921162035.136047591@linuxfoundation.org>
+References: <20200921162035.136047591@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Borowski <kilobyte@angband.pl>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 72a9c673636b779e370983fea08e40f97039b981 upstream.
+[ Upstream commit 64c194c00789889b0f9454f583712f079ba414ee ]
 
-A spanking new machine I just got has all but one USB ports wired as 3.0.
-Booting defconfig resulted in no keyboard or mouse, which was pretty
-uncool.  Let's enable that -- USB3 is ubiquitous rather than an oddity.
-As 'y' not 'm' -- recovering from initrd problems needs a keyboard.
+mtk_ddp_comp_init() is called in a loop in mtk_drm_probe(), if it
+fail, previous successive init component is not proccessed.
 
-Also add it to the 32-bit defconfig.
+Thus uninitialize valid component and put their device if component
+init failed.
 
-Signed-off-by: Adam Borowski <kilobyte@angband.pl>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-usb@vger.kernel.org
-Link: http://lkml.kernel.org/r/20181009062803.4332-1-kilobyte@angband.pl
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 119f5173628a ("drm/mediatek: Add DRM Driver for Mediatek SoC MT8173.")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/configs/i386_defconfig   |    1 +
- arch/x86/configs/x86_64_defconfig |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/gpu/drm/mediatek/mtk_drm_drv.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/arch/x86/configs/i386_defconfig
-+++ b/arch/x86/configs/i386_defconfig
-@@ -247,6 +247,7 @@ CONFIG_USB_HIDDEV=y
- CONFIG_USB=y
- CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
- CONFIG_USB_MON=y
-+CONFIG_USB_XHCI_HCD=y
- CONFIG_USB_EHCI_HCD=y
- CONFIG_USB_EHCI_TT_NEWSCHED=y
- CONFIG_USB_OHCI_HCD=y
---- a/arch/x86/configs/x86_64_defconfig
-+++ b/arch/x86/configs/x86_64_defconfig
-@@ -241,6 +241,7 @@ CONFIG_USB_HIDDEV=y
- CONFIG_USB=y
- CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
- CONFIG_USB_MON=y
-+CONFIG_USB_XHCI_HCD=y
- CONFIG_USB_EHCI_HCD=y
- CONFIG_USB_EHCI_TT_NEWSCHED=y
- CONFIG_USB_OHCI_HCD=y
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_drv.c b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+index 2865876079315..0f8f9a784b1be 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_drv.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_drv.c
+@@ -457,8 +457,13 @@ err_pm:
+ 	pm_runtime_disable(dev);
+ err_node:
+ 	of_node_put(private->mutex_node);
+-	for (i = 0; i < DDP_COMPONENT_ID_MAX; i++)
++	for (i = 0; i < DDP_COMPONENT_ID_MAX; i++) {
+ 		of_node_put(private->comp_node[i]);
++		if (private->ddp_comp[i]) {
++			put_device(private->ddp_comp[i]->larb_dev);
++			private->ddp_comp[i] = NULL;
++		}
++	}
+ 	return ret;
+ }
+ 
+-- 
+2.25.1
+
 
 
