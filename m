@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B879E272DE0
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9607E272DCF
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728879AbgIUQn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:43:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47926 "EHLO mail.kernel.org"
+        id S1729605AbgIUQn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:43:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729336AbgIUQnX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:43:23 -0400
+        id S1728515AbgIUQn2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:43:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BA68238E6;
-        Mon, 21 Sep 2020 16:43:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3908D235F9;
+        Mon, 21 Sep 2020 16:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706602;
-        bh=kTrpFz5CAoCPBtBgvwd9l4jFxoKG54s1sxlhsmpU9JM=;
+        s=default; t=1600706607;
+        bh=L1FWJ3Phjt/pxDhSTC7ZNmaKjoDptfD5Cefa6BmLavA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4/mTc9N3fc+PPBpdkCkpdTQj6tWH8Ybx43MbZ+A5TvSKsWVB5bHp/DmaUEYr4Vhd
-         v/vTiwX/McRmZNd0BVFAA/X1ucj/60ifZrdl53uoXv4TjPU477APlNhy9DNOVP5cMJ
-         eRE59hbkxr1E/YqFK+8mXtV75gadwBz8kzo77IEo=
+        b=oylHFbJdFIX0Q8pMqzbzhqfV3ue6sqJWZOrh5HvgG/KNb2Fc5p4qH4dAtukIF37Ti
+         k8JEZDcKSzdXR/APWQLHUwTQi/6icjxGBFe22Uwg5o52AjECm3jwXokrsjHf0ISlEV
+         U2OILEzhZoG8UC23hmY6Ic2WNky2s2EivTwlWF/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        Evan Green <evgreen@chromium.org>,
+        Georgi Djakov <georgi.djakov@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 019/118] spi: spi-loopback-test: Fix out-of-bounds read
-Date:   Mon, 21 Sep 2020 18:27:11 +0200
-Message-Id: <20200921162037.215242220@linuxfoundation.org>
+Subject: [PATCH 5.8 020/118] interconnect: Show bandwidth for disabled paths as zero in debugfs
+Date:   Mon, 21 Sep 2020 18:27:12 +0200
+Message-Id: <20200921162037.258229222@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
 References: <20200921162036.324813383@linuxfoundation.org>
@@ -44,63 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-[ Upstream commit 837ba18dfcd4db21ad58107c65bfe89753aa56d7 ]
+[ Upstream commit b1910c6b9983817160e04d4e87b2dc1413c5361a ]
 
-The "tx/rx-transfer - crossing PAGE_SIZE" test always fails when
-len=131071 and rx_offset >= 5:
+For disabled paths the 'interconnect_summary' in debugfs currently shows
+the orginally requested bandwidths. This is confusing, since the bandwidth
+requests aren't active. Instead show the bandwidths for disabled
+paths/requests as zero.
 
- spi-loopback-test spi0.0: Running test tx/rx-transfer - crossing PAGE_SIZE
- ...
-   with iteration values: len = 131071, tx_off = 0, rx_off = 3
-   with iteration values: len = 131071, tx_off = 0, rx_off = 4
-   with iteration values: len = 131071, tx_off = 0, rx_off = 5
- loopback strangeness - rx changed outside of allowed range at: ...a4321000
-   spi_msg@ffffffd5a4157690
-     frame_length:  131071
-     actual_length: 131071
-     spi_transfer@ffffffd5a41576f8
-       len:    131071
-       tx_buf: ffffffd5a4340ffc
-
-Note that rx_offset > 3 can only occur if the SPI controller driver sets
-->dma_alignment to a higher value than 4, so most SPI controller drivers
-are not affect.
-
-The allocated Rx buffer is of size SPI_TEST_MAX_SIZE_PLUS, which is 132
-KiB (assuming 4 KiB pages).  This test uses an initial offset into the
-rx_buf of PAGE_SIZE - 4, and a len of 131071, so the range expected to
-be written in this transfer ends at (4096 - 4) + 5 + 131071 == 132 KiB,
-which is also the end of the allocated buffer.  But the code which
-verifies the content of the buffer reads a byte beyond the allocated
-buffer and spuriously fails because this out-of-bounds read doesn't
-return the expected value.
-
-Fix this by using ITERATE_LEN instead of ITERATE_MAX_LEN to avoid
-testing sizes which cause out-of-bounds reads.
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Link: https://lore.kernel.org/r/20200902132341.7079-1-vincent.whitchurch@axis.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Evan Green <evgreen@chromium.org>
+Link: https://lore.kernel.org/r/20200729104933.1.If8e80e4c0c7ddf99056f6e726e59505ed4e127f3@changeid
+Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-loopback-test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/interconnect/core.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-loopback-test.c b/drivers/spi/spi-loopback-test.c
-index b6d79cd156fb5..da1153ec9f0e3 100644
---- a/drivers/spi/spi-loopback-test.c
-+++ b/drivers/spi/spi-loopback-test.c
-@@ -90,7 +90,7 @@ static struct spi_test spi_tests[] = {
- 	{
- 		.description	= "tx/rx-transfer - crossing PAGE_SIZE",
- 		.fill_option	= FILL_COUNT_8,
--		.iterate_len    = { ITERATE_MAX_LEN },
-+		.iterate_len    = { ITERATE_LEN },
- 		.iterate_tx_align = ITERATE_ALIGN,
- 		.iterate_rx_align = ITERATE_ALIGN,
- 		.transfer_count = 1,
+diff --git a/drivers/interconnect/core.c b/drivers/interconnect/core.c
+index 9e1ab701785c7..0162a9af93237 100644
+--- a/drivers/interconnect/core.c
++++ b/drivers/interconnect/core.c
+@@ -55,12 +55,18 @@ static int icc_summary_show(struct seq_file *s, void *data)
+ 
+ 			icc_summary_show_one(s, n);
+ 			hlist_for_each_entry(r, &n->req_list, req_node) {
++				u32 avg_bw = 0, peak_bw = 0;
++
+ 				if (!r->dev)
+ 					continue;
+ 
++				if (r->enabled) {
++					avg_bw = r->avg_bw;
++					peak_bw = r->peak_bw;
++				}
++
+ 				seq_printf(s, "  %-27s %12u %12u %12u\n",
+-					   dev_name(r->dev), r->tag, r->avg_bw,
+-					   r->peak_bw);
++					   dev_name(r->dev), r->tag, avg_bw, peak_bw);
+ 			}
+ 		}
+ 	}
 -- 
 2.25.1
 
