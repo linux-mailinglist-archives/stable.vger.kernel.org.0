@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D11127284C
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 852F727282D
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727460AbgIUOmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 10:42:12 -0400
+        id S1728041AbgIUOl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 10:41:29 -0400
 Received: from mail.kernel.org ([198.145.29.99]:50726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728030AbgIUOlZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727906AbgIUOlZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 21 Sep 2020 10:41:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F0C12311D;
-        Mon, 21 Sep 2020 14:41:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98FAD2389E;
+        Mon, 21 Sep 2020 14:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699284;
-        bh=Fos8BaE3bYuVzPOI84cI9gq+tooOKMU1WwPwuUcClUc=;
+        s=default; t=1600699285;
+        bh=WEZyZNqfW/C+sRQVnWNIPikBqCLwB8c/1BQSph6wUcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aWsl/s5tdTQDXrBn7HmgBRbwcMmqVQhmlSED2UaxjwJ1cwjEQLCmQpH3uPYXc4czI
-         QYby9UE+IWZy2SiYaLsMOiDQHVFIAdXVkAAXDkF/wQcLiPAK8Hp/qKdPemMFt3kXD0
-         jb6cK6cXWrY9Vkvbv0kxeNWzuRr0wrh4fP3CTdj0=
+        b=KlnNqCeYuvPO1SLxAjMwxu5GuZSsoPF3ep1bY6ipu3LDyPVKj/RDHli8899/0CVDv
+         SYecCu0arrPrpmDCSARHgSYQwHMlk1gjDfgzgx5OXYHeAoh1PRwZaV0qDeK24gDs1D
+         k2PrgeUCVkC4gWLFUPoPuFBKbzcOKc7CoqnQRenI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dennis Li <Dennis.Li@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 7/9] drm/amdkfd: fix a memory leak issue
-Date:   Mon, 21 Sep 2020 10:41:12 -0400
-Message-Id: <20200921144114.2135773-7-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 8/9] i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
+Date:   Mon, 21 Sep 2020 10:41:13 -0400
+Message-Id: <20200921144114.2135773-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200921144114.2135773-1-sashal@kernel.org>
 References: <20200921144114.2135773-1-sashal@kernel.org>
@@ -44,38 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Li <Dennis.Li@amd.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 087d764159996ae378b08c0fdd557537adfd6899 ]
+[ Upstream commit 21653a4181ff292480599dad996a2b759ccf050f ]
 
-In the resume stage of GPU recovery, start_cpsch will call pm_init
-which set pm->allocated as false, cause the next pm_release_ib has
-no chance to release ib memory.
+Some ACPI i2c-devices _STA method (which is used to detect if the device
+is present) use autodetection code which probes which device is present
+over i2c. This requires the I2C ACPI OpRegion handler to be registered
+before we enumerate i2c-clients under the i2c-adapter.
 
-Add pm_release_ib in stop_cpsch which will be called in the suspend
-stage of GPU recovery.
+This fixes the i2c touchpad on the Lenovo ThinkBook 14-IIL and
+ThinkBook 15 IIL not getting an i2c-client instantiated and thus not
+working.
 
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Dennis Li <Dennis.Li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1842039
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/i2c-core-base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index 189212cb35475..bff39f561264e 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -1101,6 +1101,8 @@ static int stop_cpsch(struct device_queue_manager *dqm)
- 	unmap_queues_cpsch(dqm, KFD_UNMAP_QUEUES_FILTER_ALL_QUEUES, 0);
- 	dqm_unlock(dqm);
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index f225bef1e043c..41dd0a08a625c 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1292,8 +1292,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
  
-+	pm_release_ib(&dqm->packets);
-+
- 	kfd_gtt_sa_free(dqm->dev, dqm->fence_mem);
- 	pm_uninit(&dqm->packets);
+ 	/* create pre-declared device nodes */
+ 	of_i2c_register_devices(adap);
+-	i2c_acpi_register_devices(adap);
+ 	i2c_acpi_install_space_handler(adap);
++	i2c_acpi_register_devices(adap);
  
+ 	if (adap->nr < __i2c_first_dynamic_bus_num)
+ 		i2c_scan_static_board_info(adap);
 -- 
 2.25.1
 
