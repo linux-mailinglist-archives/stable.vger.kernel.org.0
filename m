@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D57E272D48
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:39:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30229272DCC
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728654AbgIUQiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:38:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39786 "EHLO mail.kernel.org"
+        id S1729337AbgIUQnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:43:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728614AbgIUQif (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:38:35 -0400
+        id S1729562AbgIUQnV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:43:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B64C7238EE;
-        Mon, 21 Sep 2020 16:38:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1639235F9;
+        Mon, 21 Sep 2020 16:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706314;
-        bh=UQ9uhk9yESmpsuclrVoey/brZ5TMAsHuztHElWFK4Kc=;
+        s=default; t=1600706600;
+        bh=AV4Eaj7jrOJ68D6Rsb5R/SK1Yx16OhK4Q+b+JiZaeQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=egm473pQdXx8rPphpec9nEqSgB/ejkkxz93Zm93iBxSc5vwXw7+dwbwO5Q1QeBuD8
-         VFR7H56fTUIvnG9t09Vuyzr8lZZJcvSCYjenmug886OerIglJk9WBMb4rlgifHep+f
-         +OGgY3B3kTadyLA9ZMmA08dDnZD8rfZaTsmBg+/E=
+        b=1X5/bZsFJvNVy36cVcrl9pr43Ckvhwl8bQNNP9vsdHetKEWU7BJ6q1yj6EaUYNM6A
+         A1fmSaTEIFcozymyKodQvQniKLO8cFklW0cTZOggNPrPF/607H0Jt1WY4GfsmJP36C
+         eoRfip/IMBGVcUNhh0kBhUC+qnH+Zb9OPJubUt1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Angelo Compagnucci <angelo.compagnucci@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 23/94] iio: adc: mcp3422: fix locking scope
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 018/118] regulator: pwm: Fix machine constraints application
 Date:   Mon, 21 Sep 2020 18:27:10 +0200
-Message-Id: <20200921162036.617304797@linuxfoundation.org>
+Message-Id: <20200921162037.166382938@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
+References: <20200921162036.324813383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angelo Compagnucci <angelo.compagnucci@gmail.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-commit 3f1093d83d7164e4705e4232ccf76da54adfda85 upstream.
+[ Upstream commit 59ae97a7a9e1499c2070e29841d1c4be4ae2994a ]
 
-Locking should be held for the entire reading sequence involving setting
-the channel, waiting for the channel switch and reading from the
-channel.
-If not, reading from a channel can result mixing with the reading from
-another channel.
+If the zero duty cycle doesn't correspond to any voltage in the voltage
+table, the PWM regulator returns an -EINVAL from get_voltage_sel() which
+results in the core erroring out with a "failed to get the current
+voltage" and ending up not applying the machine constraints.
 
-Fixes: 07914c84ba30 ("iio: adc: Add driver for Microchip MCP3422/3/4 high resolution ADC")
-Signed-off-by: Angelo Compagnucci <angelo.compagnucci@gmail.com>
-Link: https://lore.kernel.org/r/20200819075525.1395248-1-angelo.compagnucci@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Instead, return -ENOTRECOVERABLE which makes the core set the voltage
+since it's at an unknown value.
 
+For example, with this device tree:
+
+	fooregulator {
+		compatible = "pwm-regulator";
+		pwms = <&foopwm 0 100000>;
+		regulator-min-microvolt = <2250000>;
+		regulator-max-microvolt = <2250000>;
+		regulator-name = "fooregulator";
+		regulator-always-on;
+		regulator-boot-on;
+		voltage-table = <2250000 30>;
+	};
+
+Before this patch:
+
+  fooregulator: failed to get the current voltage(-22)
+
+After this patch:
+
+  fooregulator: Setting 2250000-2250000uV
+  fooregulator: 2250 mV
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/20200902130952.24880-1-vincent.whitchurch@axis.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/mcp3422.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/regulator/pwm-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/adc/mcp3422.c
-+++ b/drivers/iio/adc/mcp3422.c
-@@ -99,16 +99,12 @@ static int mcp3422_update_config(struct
- {
- 	int ret;
- 
--	mutex_lock(&adc->lock);
--
- 	ret = i2c_master_send(adc->i2c, &newconfig, 1);
- 	if (ret > 0) {
- 		adc->config = newconfig;
- 		ret = 0;
+diff --git a/drivers/regulator/pwm-regulator.c b/drivers/regulator/pwm-regulator.c
+index 638329bd0745e..62ad7c4e7e7c8 100644
+--- a/drivers/regulator/pwm-regulator.c
++++ b/drivers/regulator/pwm-regulator.c
+@@ -279,7 +279,7 @@ static int pwm_regulator_init_table(struct platform_device *pdev,
+ 		return ret;
  	}
  
--	mutex_unlock(&adc->lock);
--
- 	return ret;
- }
- 
-@@ -141,6 +137,8 @@ static int mcp3422_read_channel(struct m
- 	u8 config;
- 	u8 req_channel = channel->channel;
- 
-+	mutex_lock(&adc->lock);
-+
- 	if (req_channel != MCP3422_CHANNEL(adc->config)) {
- 		config = adc->config;
- 		config &= ~MCP3422_CHANNEL_MASK;
-@@ -153,7 +151,11 @@ static int mcp3422_read_channel(struct m
- 		msleep(mcp3422_read_times[MCP3422_SAMPLE_RATE(adc->config)]);
- 	}
- 
--	return mcp3422_read(adc, value, &config);
-+	ret = mcp3422_read(adc, value, &config);
-+
-+	mutex_unlock(&adc->lock);
-+
-+	return ret;
- }
- 
- static int mcp3422_read_raw(struct iio_dev *iio,
+-	drvdata->state			= -EINVAL;
++	drvdata->state			= -ENOTRECOVERABLE;
+ 	drvdata->duty_cycle_table	= duty_cycle_table;
+ 	drvdata->desc.ops = &pwm_regulator_voltage_table_ops;
+ 	drvdata->desc.n_voltages	= length / sizeof(*duty_cycle_table);
+-- 
+2.25.1
+
 
 
