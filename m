@@ -2,138 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B7D271C5E
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 09:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A7A271C73
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 09:59:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726402AbgIUHzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 03:55:02 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:40346 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726347AbgIUHzC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 03:55:02 -0400
-Received: by mail-lf1-f66.google.com with SMTP id m5so12936163lfp.7;
-        Mon, 21 Sep 2020 00:55:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=sgYf2rrS6Tdw6ckm4NYU0buOfZirWPWrDIDx4bQPYM8=;
-        b=TsY10nNKVH56lG7qX7SEFYDpWvjqoINscE6NsFUB8byJHbSKqDXLLCljVSM9KJKawe
-         TB/8nK2pGErKm604my0gaktQYRCTl5x253TliRJBNyFBNqrER3McOZTQxv8Ba7fn9/3k
-         SPIyTmeIHgAn52nKtLnHEvWPdDgMwrNxYTUlxAMhLvPqJ8XU+LNF6fYSfsbMFu+As7iq
-         GU/dG95hAgDfU3nM2fmb5tW7Bip8vexLQ16iG6fjFKmFWcW4bgGLXZAlTOvB2h48ARH1
-         y7LAZ+YaT/3e77gETPK3FHb1VUEDSmBsKpWaXjJN6i8h4HlIPNJ3N0sT2r1NwFqeYk2X
-         67tw==
-X-Gm-Message-State: AOAM531nHsOzUdC5N+OUjLBBCOzYGPBT1kwo6f42ndneY/hqFChq9b89
-        gCWX+OrXuRLkt/lC/3s0sPw=
-X-Google-Smtp-Source: ABdhPJyYRRo3u8kdi68BC9dlGbtAlb1AuusVjD0jn1U5mgOBNfmvb1DukTvdByCUlaiJJMEQXVGvgQ==
-X-Received: by 2002:a19:89d7:: with SMTP id l206mr16709423lfd.110.1600674900336;
-        Mon, 21 Sep 2020 00:55:00 -0700 (PDT)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id r7sm2358142lfn.84.2020.09.21.00.54.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2020 00:54:59 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@xi.terra>)
-        id 1kKGey-0008TD-0Z; Mon, 21 Sep 2020 09:54:52 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Oliver Neukum <oneukum@suse.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] USB: cdc-acm: add Whistler radio scanners TRX series support
-Date:   Mon, 21 Sep 2020 09:51:01 +0200
-Message-Id: <20200921075101.32426-1-johan@kernel.org>
-X-Mailer: git-send-email 2.26.2
+        id S1726236AbgIUH7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 03:59:01 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44146 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726211AbgIUH7B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Sep 2020 03:59:01 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08L7XDJH114862;
+        Mon, 21 Sep 2020 03:58:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=Czy5IBsuKiL63vGY+kb5VPoSw3OgpqoynUddwtmiVVk=;
+ b=LxMRd0uxg+OdPFZVq40IpVSGbeUGGd61o4PllGcPo1MWLStTxphpPgNqAgFXBoFmC6n3
+ pahcHEg/pzTCbhyBpISm7h7RTjU0kPendhi/dqxaQGi+uCbi/hP7ML0gc1bgdNogJIw/
+ KrLtKvZjxg35/xmLtqaYCL9W4fvspIgAvyrbbMXcAZZ4DrAUJQ+E06vGnMQXdoO1lgxS
+ 8wbUIu/y1TASrZqq5wyacuxqTRnI/AucHoTnq1n3N05pQyWyzzbHDanPVzv0NoBl2AUF
+ UrToXtClOI8WWDC2JKFR+seGIlD6ARI2zGTXXNI4X+emt44kLsOySQKgQuguxerS65nj Eg== 
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33pqnbrxbv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Sep 2020 03:58:49 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08L7vln8027027;
+        Mon, 21 Sep 2020 07:58:47 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+        by ppma06fra.de.ibm.com with ESMTP id 33n98grx0e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 21 Sep 2020 07:58:47 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08L7wjtB17105312
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 21 Sep 2020 07:58:45 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 077785205A;
+        Mon, 21 Sep 2020 07:58:45 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.145.187.68])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id CE65952050;
+        Mon, 21 Sep 2020 07:58:44 +0000 (GMT)
+Subject: Re: [PATCH AUTOSEL 5.4 101/330] powerpc/powernv/ioda: Fix ref count
+ for devices with their own PE
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev@lists.ozlabs.org
+References: <20200918020110.2063155-1-sashal@kernel.org>
+ <20200918020110.2063155-101-sashal@kernel.org>
+ <52532d8a-8e90-8a68-07bd-5a3e08c58475@linux.ibm.com>
+ <20200919181029.GI2431@sasha-vm>
+From:   Frederic Barrat <fbarrat@linux.ibm.com>
+Message-ID: <8eaefe77-8cdf-1da5-f573-633713598eb6@linux.ibm.com>
+Date:   Mon, 21 Sep 2020 09:58:44 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
+In-Reply-To: <20200919181029.GI2431@sasha-vm>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-21_01:2020-09-21,2020-09-20 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
+ mlxlogscore=999 priorityscore=1501 spamscore=0 impostorscore=0
+ suspectscore=0 bulkscore=0 malwarescore=0 phishscore=0 adultscore=0
+ clxscore=1031 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2009210054
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add support for Whistler radio scanners TRX series, which have a union
-descriptor that designates a mass-storage interface as master. Handle
-that by generalising the NO_DATA_INTERFACE quirk to allow us to fall
-back to using the combined-interface detection.
 
-Note that the NO_DATA_INTERFACE quirk was added by commit fd5054c169d2
-("USB: cdc_acm: Fix oops when Droids MuIn LCD is connected") to handle a
-combined-interface-type device with a broken call-management descriptor
-by hardcoding the "data" interface number.
 
-Link: https://lore.kernel.org/r/5f4ca4f8.1c69fb81.a4487.0f5f@mx.google.com
-Reported-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-Tested-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/class/cdc-acm.c | 36 ++++++++++++++++++++++++------------
- 1 file changed, 24 insertions(+), 12 deletions(-)
+Le 19/09/2020 à 20:10, Sasha Levin a écrit :
+> On Fri, Sep 18, 2020 at 08:35:06AM +0200, Frederic Barrat wrote:
+>>
+>>
+>> Le 18/09/2020 à 03:57, Sasha Levin a écrit :
+>>> From: Frederic Barrat <fbarrat@linux.ibm.com>
+>>>
+>>> [ Upstream commit 05dd7da76986937fb288b4213b1fa10dbe0d1b33 ]
+>>>
+>>
+>> This patch is not desirable for stable, for 5.4 and 4.19 (it was 
+>> already flagged by autosel back in April. Not sure why it's showing 
+>> again now)
+> 
+> Hey Fred,
+> 
+> This was a bit of a "lie", it wasn't a run of AUTOSEL, but rather an
+> audit of patches that went into distro/vendor trees but not into the
+> upstream stable trees.
+> 
+> I can see that this patch was pulled into Ubuntu's 5.4 tree, is it not
+> needed in the upstream stable tree?
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 7f6f3ab5b8a6..816bb4859bfd 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1220,27 +1220,26 @@ static int acm_probe(struct usb_interface *intf,
- 	if (cmgmd)
- 		call_intf_num = cmgmd->bDataInterface;
- 
--	if (!union_header) {
--		if (call_intf_num > 0) {
-+	combined_interfaces = (quirks & NO_DATA_INTERFACE) != 0;
-+
-+	if (!union_header || combined_interfaces) {
-+		if (call_intf_num > 0 && !combined_interfaces) {
- 			dev_dbg(&intf->dev, "No union descriptor, using call management descriptor\n");
--			/* quirks for Droids MuIn LCD */
--			if (quirks & NO_DATA_INTERFACE) {
--				data_interface = usb_ifnum_to_if(usb_dev, 0);
--			} else {
--				data_intf_num = call_intf_num;
--				data_interface = usb_ifnum_to_if(usb_dev, data_intf_num);
--			}
-+			data_intf_num = call_intf_num;
-+			data_interface = usb_ifnum_to_if(usb_dev, data_intf_num);
- 			control_interface = intf;
- 		} else {
- 			if (intf->cur_altsetting->desc.bNumEndpoints != 3) {
- 				dev_dbg(&intf->dev,"No union descriptor, giving up\n");
- 				return -ENODEV;
--			} else {
-+			}
-+
-+			if (!combined_interfaces) {
- 				dev_warn(&intf->dev,"No union descriptor, testing for castrated device\n");
- 				combined_interfaces = 1;
--				control_interface = data_interface = intf;
--				goto look_for_collapsed_interface;
- 			}
-+			control_interface = data_interface = intf;
-+			goto look_for_collapsed_interface;
- 		}
- 	} else {
- 		data_intf_num = union_header->bSlaveInterface0;
-@@ -1807,6 +1806,19 @@ static const struct usb_device_id acm_ids[] = {
- 	.driver_info = CLEAR_HALT_CONDITIONS,
- 	},
- 
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2a59, 0x0010, USB_CDC_SUBCLASS_ACM),	/* Whistler TRX-1 */
-+	  .driver_info = NO_DATA_INTERFACE,
-+	},
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2a59, 0x0011, USB_CDC_SUBCLASS_ACM),	/* Whistler TRX-2 */
-+	  .driver_info = NO_DATA_INTERFACE,
-+	},
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2a59, 0x0012, USB_CDC_SUBCLASS_ACM),	/* Whistler TRX-1e */
-+	  .driver_info = NO_DATA_INTERFACE,
-+	},
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2a59, 0x0013, USB_CDC_SUBCLASS_ACM),	/* Whistler TRX-2e */
-+	  .driver_info = NO_DATA_INTERFACE,
-+	},
-+
- 	/* Nokia S60 phones expose two ACM channels. The first is
- 	 * a modem and is picked up by the standard AT-command
- 	 * information below. The second is 'vendor-specific' but
--- 
-2.26.2
+
+That patch in itself is useless (it replaces a ref counter leak by 
+another one). It was part of a longer series that we backported to 
+Ubuntu's 5.4 tree.
+So it's really not needed on the stable trees. It likely wouldn't hurt 
+or break anything, but there's really no point.
+
+   Fred
 
