@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C09B272853
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A000027284F
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728154AbgIUOmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 10:42:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
+        id S1728153AbgIUOmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 10:42:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728011AbgIUOlR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:41:17 -0400
+        id S1728017AbgIUOlS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4578221EC;
-        Mon, 21 Sep 2020 14:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A78623788;
+        Mon, 21 Sep 2020 14:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699276;
-        bh=n4ccT9AAlLEmEj4CplM7KOfPW9h4l6di6si+GpkT5jE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=V1yKOsJLd/QYngFzExG4KW39pDoq4D3D5s6hgNPwq594atkmgmpZ3n/y/s/knJ5Aq
-         vYlL+VygxEuPctkzxntnhvLfNw7Jr8/yXu1q5tEjLFAw4quY7cfbvSyNgJt6EEXYka
-         T/G29s1aj0YaJpsAHbnmzETi5sfyUd+7AJXInZfw=
+        s=default; t=1600699278;
+        bh=807vuyse8ZjeQhILT+YEPTWpW3Dob9DBrVPV2RT9sPE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Jgw/f4qfEgNEo5+t1SBrmVd+GTF6fTbUJ9qTWBAFruvHjYGA42E2emY21H9bF8Hd1
+         gMcV8qvojVbsoMqGSXxbsUZcsoDhUveJATqTKOvLdxAh+8FxKxdLFtCpfPk2jglfjJ
+         jqrAXHCIv6HBQO/4EyJ5/rHDWv4+REMwFYaSIDS8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Sylwester Nawrocki <s.nawrocki@samsung.com>,
@@ -31,10 +31,12 @@ Cc:     Sylwester Nawrocki <s.nawrocki@samsung.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 1/9] ASoC: wm8994: Skip setting of the WM8994_MICBIAS register for WM1811
-Date:   Mon, 21 Sep 2020 10:41:06 -0400
-Message-Id: <20200921144114.2135773-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 2/9] ASoC: wm8994: Ensure the device is resumed in wm89xx_mic_detect functions
+Date:   Mon, 21 Sep 2020 10:41:07 -0400
+Message-Id: <20200921144114.2135773-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200921144114.2135773-1-sashal@kernel.org>
+References: <20200921144114.2135773-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,69 +47,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-[ Upstream commit 811c5494436789e7149487c06e0602b507ce274b ]
+[ Upstream commit f5a2cda4f1db89776b64c4f0f2c2ac609527ac70 ]
 
-The WM8994_MICBIAS register is not available in the WM1811 CODEC so skip
-initialization of that register for that device.
-This suppresses an error during boot:
+When the wm8958_mic_detect, wm8994_mic_detect functions get called from
+the machine driver, e.g. from the card's late_probe() callback, the CODEC
+device may be PM runtime suspended and any regmap writes have no effect.
+Add PM runtime calls to these functions to ensure the device registers
+are updated as expected.
+This suppresses an error during boot
 "wm8994-codec: ASoC: error at snd_soc_component_update_bits on wm8994-codec"
+caused by the regmap access error due to the cache_only flag being set.
 
 Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
 Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
 Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20200827173357.31891-1-s.nawrocki@samsung.com
+Link: https://lore.kernel.org/r/20200827173357.31891-2-s.nawrocki@samsung.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8994.c  | 2 ++
- sound/soc/codecs/wm_hubs.c | 3 +++
- sound/soc/codecs/wm_hubs.h | 1 +
- 3 files changed, 6 insertions(+)
+ sound/soc/codecs/wm8994.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/sound/soc/codecs/wm8994.c b/sound/soc/codecs/wm8994.c
-index 01acb8da2f48e..cd089b4143029 100644
+index cd089b4143029..e3e069277a3ff 100644
 --- a/sound/soc/codecs/wm8994.c
 +++ b/sound/soc/codecs/wm8994.c
-@@ -4051,11 +4051,13 @@ static int wm8994_component_probe(struct snd_soc_component *component)
- 			wm8994->hubs.dcs_readback_mode = 2;
- 			break;
- 		}
-+		wm8994->hubs.micd_scthr = true;
- 		break;
+@@ -3376,6 +3376,8 @@ int wm8994_mic_detect(struct snd_soc_component *component, struct snd_soc_jack *
+ 		return -EINVAL;
+ 	}
  
- 	case WM8958:
- 		wm8994->hubs.dcs_readback_mode = 1;
- 		wm8994->hubs.hp_startup_mode = 1;
-+		wm8994->hubs.micd_scthr = true;
- 
- 		switch (control->revision) {
- 		case 0:
-diff --git a/sound/soc/codecs/wm_hubs.c b/sound/soc/codecs/wm_hubs.c
-index fed6ea9b019f7..da7fa6f5459e6 100644
---- a/sound/soc/codecs/wm_hubs.c
-+++ b/sound/soc/codecs/wm_hubs.c
-@@ -1227,6 +1227,9 @@ int wm_hubs_handle_analogue_pdata(struct snd_soc_component *component,
- 		snd_soc_component_update_bits(component, WM8993_ADDITIONAL_CONTROL,
- 				    WM8993_LINEOUT2_FB, WM8993_LINEOUT2_FB);
- 
-+	if (!hubs->micd_scthr)
-+		return 0;
++	pm_runtime_get_sync(component->dev);
 +
- 	snd_soc_component_update_bits(component, WM8993_MICBIAS,
- 			    WM8993_JD_SCTHR_MASK | WM8993_JD_THR_MASK |
- 			    WM8993_MICB1_LVL | WM8993_MICB2_LVL,
-diff --git a/sound/soc/codecs/wm_hubs.h b/sound/soc/codecs/wm_hubs.h
-index ee339ad8514d1..1433d73e09bf8 100644
---- a/sound/soc/codecs/wm_hubs.h
-+++ b/sound/soc/codecs/wm_hubs.h
-@@ -31,6 +31,7 @@ struct wm_hubs_data {
- 	int hp_startup_mode;
- 	int series_startup;
- 	int no_series_update;
-+	bool micd_scthr;
+ 	switch (micbias) {
+ 	case 1:
+ 		micdet = &wm8994->micdet[0];
+@@ -3423,6 +3425,8 @@ int wm8994_mic_detect(struct snd_soc_component *component, struct snd_soc_jack *
  
- 	bool no_cache_dac_hp_direct;
- 	struct list_head dcs_cache;
+ 	snd_soc_dapm_sync(dapm);
+ 
++	pm_runtime_put(component->dev);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(wm8994_mic_detect);
+@@ -3790,6 +3794,8 @@ int wm8958_mic_detect(struct snd_soc_component *component, struct snd_soc_jack *
+ 		return -EINVAL;
+ 	}
+ 
++	pm_runtime_get_sync(component->dev);
++
+ 	if (jack) {
+ 		snd_soc_dapm_force_enable_pin(dapm, "CLK_SYS");
+ 		snd_soc_dapm_sync(dapm);
+@@ -3858,6 +3864,8 @@ int wm8958_mic_detect(struct snd_soc_component *component, struct snd_soc_jack *
+ 		snd_soc_dapm_sync(dapm);
+ 	}
+ 
++	pm_runtime_put(component->dev);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(wm8958_mic_detect);
 -- 
 2.25.1
 
