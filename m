@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B01272EC7
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:52:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41DBB272EC4
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:52:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729753AbgIUQwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:52:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57806 "EHLO mail.kernel.org"
+        id S1729802AbgIUQtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:49:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729890AbgIUQtm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:49:42 -0400
+        id S1729779AbgIUQtq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:49:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB0FD20874;
-        Mon, 21 Sep 2020 16:49:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FD532223E;
+        Mon, 21 Sep 2020 16:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706982;
-        bh=/P3jFUEuqVpG5Ymt1Q6QhgAE+k9wcbL0fs/M3v0m84g=;
+        s=default; t=1600706984;
+        bh=zgetXrytCRoaP6Tb7fROybyOhcaEbNJgO4cybiNcdik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOamLxmde4MSJ7mR0gErhsLYkBoUMOshh8MCJ22sTFRV4Wx7Lv/5oGQSTQF7MbMS8
-         Yd4OIO9AzwPqKdHl4PDmqF8P4OnKFzcD3N1/jf35zohVTw+gXwM0uYpYd7yiCh/cfE
-         403moVvQS+D7GUjmnBLMOQghUI01aEU9jJznf0ms=
+        b=nQOMIvQhHCL8V1INNmYG19JprJM+/u9/sj3hEk/QKlnPcpG0VGKx/GrTGodeaD2t2
+         IyzkbLAUfsHP3Stu2+3P4zaFM+uPTzTgHzQ0izg6dGiVVq3tq6h6h/3uLzcTLSZqvI
+         WL9TwLTBRGjNISb2uvrQw19LDDOEB9q/pffV4daU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Syven Wang <syven.wang@sifive.com>,
-        Greentime Hu <greentime.hu@sifive.com>,
-        Anup Patel <anup@brainfault.org>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/72] riscv: Add sfence.vma after early page table changes
-Date:   Mon, 21 Sep 2020 18:31:29 +0200
-Message-Id: <20200921163124.258534811@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.4 51/72] drm/i915: Filter wake_flags passed to default_wake_function
+Date:   Mon, 21 Sep 2020 18:31:30 +0200
+Message-Id: <20200921163124.309777358@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -45,47 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greentime Hu <greentime.hu@sifive.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 21190b74bcf3a36ebab9a715088c29f59877e1f3 ]
+commit 20612303a0b45de748d31331407e84300c38e497 upstream.
 
-This invalidates local TLB after modifying the page tables during early init as
-it's too early to handle suprious faults as we otherwise do.
+(NOTE: This is the minimal backportable fix, a full fix is being
+developed at https://patchwork.freedesktop.org/patch/388048/)
 
-Fixes: f2c17aabc917 ("RISC-V: Implement compile-time fixed mappings")
-Reported-by: Syven Wang <syven.wang@sifive.com>
-Signed-off-by: Syven Wang <syven.wang@sifive.com>
-Signed-off-by: Greentime Hu <greentime.hu@sifive.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-[Palmer: Cleaned up the commit text]
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The flags passed to the wait_entry.func are passed onwards to
+try_to_wake_up(), which has a very particular interpretation for its
+wake_flags. In particular, beyond the published WF_SYNC, it has a few
+internal flags as well. Since we passed the fence->error down the chain
+via the flags argument, these ended up in the default_wake_function
+confusing the kernel/sched.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2110
+Fixes: ef4688497512 ("drm/i915: Propagate fence errors")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200728152144.1100-1-chris@chris-wilson.co.uk
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+[Joonas: Rebased and reordered into drm-intel-gt-next branch]
+[Joonas: Added a note and link about more complete fix]
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+(cherry picked from commit f4b3c395540aa3d4f5a6275c5bdd83ab89034806)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/riscv/mm/init.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/i915_sw_fence.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index b1eb6a0411183..d49e334071d45 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -167,12 +167,11 @@ void __set_fixmap(enum fixed_addresses idx, phys_addr_t phys, pgprot_t prot)
+--- a/drivers/gpu/drm/i915/i915_sw_fence.c
++++ b/drivers/gpu/drm/i915/i915_sw_fence.c
+@@ -158,9 +158,13 @@ static void __i915_sw_fence_wake_up_all(
  
- 	ptep = &fixmap_pte[pte_index(addr)];
+ 		do {
+ 			list_for_each_entry_safe(pos, next, &x->head, entry) {
+-				pos->func(pos,
+-					  TASK_NORMAL, fence->error,
+-					  &extra);
++				int wake_flags;
++
++				wake_flags = fence->error;
++				if (pos->func == autoremove_wake_function)
++					wake_flags = 0;
++
++				pos->func(pos, TASK_NORMAL, wake_flags, &extra);
+ 			}
  
--	if (pgprot_val(prot)) {
-+	if (pgprot_val(prot))
- 		set_pte(ptep, pfn_pte(phys >> PAGE_SHIFT, prot));
--	} else {
-+	else
- 		pte_clear(&init_mm, addr, ptep);
--		local_flush_tlb_page(addr);
--	}
-+	local_flush_tlb_page(addr);
- }
- 
- static pte_t *__init get_pte_virt(phys_addr_t pa)
--- 
-2.25.1
-
+ 			if (list_empty(&extra))
 
 
