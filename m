@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1AF272F05
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:54:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C86272DA0
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727778AbgIUQqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:46:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52156 "EHLO mail.kernel.org"
+        id S1729150AbgIUQlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:41:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728429AbgIUQqE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:46:04 -0400
+        id S1728765AbgIUQlt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:41:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFFAD20874;
-        Mon, 21 Sep 2020 16:46:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBE0A23998;
+        Mon, 21 Sep 2020 16:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706763;
-        bh=0J7lRRNkF0UwJRCCL6+ZqqjAfYmEsTy4Coh9mg2akVs=;
+        s=default; t=1600706508;
+        bh=J/DhVcSSSGe4ZGLilEAxcj+CY+pXbxjrlAa6bZxGXEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJfoz3EjvZBT10VWOe1W+1Cn+Bgkn6S4SdcpYSps2YkiIx4DFHr3xbi4pp8Rsgaw9
-         8xjsxmYdfq0tzNRqCS1sP1qJDDWg7znQv7emZRcZZq+ohvD455zwwBE8FJodN6Baki
-         RiQMwVnlzhVaB2JxLAaPpEk+HM1o9E/g36aMq1rU=
+        b=QdJ5SNvT4tOJIscMMoBNBhwhP2drkHyVsI19U6cqQ/LqgRRfc2AmtVcGx9OlatlmJ
+         hrFPcM95bD8FfqtPM67bNrLJcM/ogGOx5X/YFLLXI2duUw/+e6lBwO2B8l4C/N/zf4
+         eBHXhhyD25qT3vSm4rsnVznkQyXGGq7P/pmrwgdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, CQ Tang <cq.tang@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.8 084/118] drm/i915/gem: Delay tracking the GEM context until it is registered
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 32/49] perf test: Free formats for perf pmu parse test
 Date:   Mon, 21 Sep 2020 18:28:16 +0200
-Message-Id: <20200921162040.244816521@linuxfoundation.org>
+Message-Id: <20200921162036.071750099@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
-References: <20200921162036.324813383@linuxfoundation.org>
+In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
+References: <20200921162034.660953761@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +50,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Namhyung Kim <namhyung@kernel.org>
 
-commit e7d95527f27a6d9edcffbd74eee38e5cb6b91785 upstream.
+[ Upstream commit d26383dcb2b4b8629fde05270b4e3633be9e3d4b ]
 
-Avoid exposing a partially constructed context by deferring the
-list_add() from the initial construction to the end of registration.
-Otherwise, if we peek into the list of contexts from inside debugfs, we
-may see the partially constructed context and chase down some dangling
-incomplete pointers.
+The following leaks were detected by ASAN:
 
-Reported-by: CQ Tang <cq.tang@intel.com>
-Fixes: 3aa9945a528e ("drm/i915: Separate GEM context construction and registration to userspace")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: CQ Tang <cq.tang@intel.com>
-Cc: <stable@vger.kernel.org> # v5.2+
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200730092856.23615-1-chris@chris-wilson.co.uk
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-(cherry picked from commit eb4dedae920a07c485328af3da2202ec5184fb17)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  Indirect leak of 360 byte(s) in 9 object(s) allocated from:
+    #0 0x7fecc305180e in calloc (/lib/x86_64-linux-gnu/libasan.so.5+0x10780e)
+    #1 0x560578f6dce5 in perf_pmu__new_format util/pmu.c:1333
+    #2 0x560578f752fc in perf_pmu_parse util/pmu.y:59
+    #3 0x560578f6a8b7 in perf_pmu__format_parse util/pmu.c:73
+    #4 0x560578e07045 in test__pmu tests/pmu.c:155
+    #5 0x560578de109b in run_test tests/builtin-test.c:410
+    #6 0x560578de109b in test_and_print tests/builtin-test.c:440
+    #7 0x560578de401a in __cmd_test tests/builtin-test.c:661
+    #8 0x560578de401a in cmd_test tests/builtin-test.c:807
+    #9 0x560578e49354 in run_builtin /home/namhyung/project/linux/tools/perf/perf.c:312
+    #10 0x560578ce71a8 in handle_internal_command /home/namhyung/project/linux/tools/perf/perf.c:364
+    #11 0x560578ce71a8 in run_argv /home/namhyung/project/linux/tools/perf/perf.c:408
+    #12 0x560578ce71a8 in main /home/namhyung/project/linux/tools/perf/perf.c:538
+    #13 0x7fecc2b7acc9 in __libc_start_main ../csu/libc-start.c:308
 
+Fixes: cff7f956ec4a1 ("perf tests: Move pmu tests into separate object")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20200915031819.386559-12-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_context.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ tools/perf/tests/pmu.c |  1 +
+ tools/perf/util/pmu.c  | 11 +++++++++++
+ tools/perf/util/pmu.h  |  1 +
+ 3 files changed, 13 insertions(+)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-@@ -720,6 +720,7 @@ __create_context(struct drm_i915_private
- 	ctx->i915 = i915;
- 	ctx->sched.priority = I915_USER_PRIORITY(I915_PRIORITY_NORMAL);
- 	mutex_init(&ctx->mutex);
-+	INIT_LIST_HEAD(&ctx->link);
+diff --git a/tools/perf/tests/pmu.c b/tools/perf/tests/pmu.c
+index 7bedf8608fdde..3e183eef6f857 100644
+--- a/tools/perf/tests/pmu.c
++++ b/tools/perf/tests/pmu.c
+@@ -172,6 +172,7 @@ int test__pmu(struct test *test __maybe_unused, int subtest __maybe_unused)
+ 		ret = 0;
+ 	} while (0);
  
- 	spin_lock_init(&ctx->stale.lock);
- 	INIT_LIST_HEAD(&ctx->stale.engines);
-@@ -746,10 +747,6 @@ __create_context(struct drm_i915_private
- 	for (i = 0; i < ARRAY_SIZE(ctx->hang_timestamp); i++)
- 		ctx->hang_timestamp[i] = jiffies - CONTEXT_FAST_HANG_JIFFIES;
- 
--	spin_lock(&i915->gem.contexts.lock);
--	list_add_tail(&ctx->link, &i915->gem.contexts.list);
--	spin_unlock(&i915->gem.contexts.lock);
--
- 	return ctx;
- 
- err_free:
-@@ -937,6 +934,7 @@ static int gem_context_register(struct i
- 				struct drm_i915_file_private *fpriv,
- 				u32 *id)
- {
-+	struct drm_i915_private *i915 = ctx->i915;
- 	struct i915_address_space *vm;
- 	int ret;
- 
-@@ -955,8 +953,16 @@ static int gem_context_register(struct i
- 	/* And finally expose ourselves to userspace via the idr */
- 	ret = xa_alloc(&fpriv->context_xa, id, ctx, xa_limit_32b, GFP_KERNEL);
- 	if (ret)
--		put_pid(fetch_and_zero(&ctx->pid));
-+		goto err_pid;
-+
-+	spin_lock(&i915->gem.contexts.lock);
-+	list_add_tail(&ctx->link, &i915->gem.contexts.list);
-+	spin_unlock(&i915->gem.contexts.lock);
-+
-+	return 0;
- 
-+err_pid:
-+	put_pid(fetch_and_zero(&ctx->pid));
++	perf_pmu__del_formats(&formats);
+ 	test_format_dir_put(format);
  	return ret;
  }
+diff --git a/tools/perf/util/pmu.c b/tools/perf/util/pmu.c
+index c1acf04c9f7ab..c42054f42e7e6 100644
+--- a/tools/perf/util/pmu.c
++++ b/tools/perf/util/pmu.c
+@@ -1282,6 +1282,17 @@ void perf_pmu__set_format(unsigned long *bits, long from, long to)
+ 		set_bit(b, bits);
+ }
  
++void perf_pmu__del_formats(struct list_head *formats)
++{
++	struct perf_pmu_format *fmt, *tmp;
++
++	list_for_each_entry_safe(fmt, tmp, formats, list) {
++		list_del(&fmt->list);
++		free(fmt->name);
++		free(fmt);
++	}
++}
++
+ static int sub_non_neg(int a, int b)
+ {
+ 	if (b > a)
+diff --git a/tools/perf/util/pmu.h b/tools/perf/util/pmu.h
+index 76fecec7b3f91..21335425f2e42 100644
+--- a/tools/perf/util/pmu.h
++++ b/tools/perf/util/pmu.h
+@@ -79,6 +79,7 @@ int perf_pmu__new_format(struct list_head *list, char *name,
+ 			 int config, unsigned long *bits);
+ void perf_pmu__set_format(unsigned long *bits, long from, long to);
+ int perf_pmu__format_parse(char *dir, struct list_head *head);
++void perf_pmu__del_formats(struct list_head *formats);
+ 
+ struct perf_pmu *perf_pmu__scan(struct perf_pmu *pmu);
+ 
+-- 
+2.25.1
+
 
 
