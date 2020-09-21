@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 681CF272862
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AEC1272826
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 16:43:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728197AbgIUOm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 10:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
+        id S1727928AbgIUOlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 10:41:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727955AbgIUOk5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:40:57 -0400
+        id S1727967AbgIUOk7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:40:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2F372388E;
-        Mon, 21 Sep 2020 14:40:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 097E423447;
+        Mon, 21 Sep 2020 14:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600699257;
-        bh=Y/rU4Kl8mzIytkEa5q3OGx+tpP2TRJ7q1NdFMAg0QeQ=;
+        s=default; t=1600699259;
+        bh=xKwK4VVr8AV5yC/oLAUA5xeJzkBb0gxAD1j2udeCWws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDGU34LGyePs9qNHVgXrh0IWle3mmW0gWoSvzOiHs1lGNNx9kOFnlK/oLBrZ8XJP3
-         trAOrjbiXPGHDbqPokr4RB3r0UqCR/0mlTJM/unKMaavQSBaX71Coq06/HvOTNeC9c
-         O+7sUcYmQxF3+6XNBDIMAm803onDHQXDkSX3OfP4=
+        b=SJE4+yv8F2XiperXDK479BhEBN4YH53raHQi7DCPAgIMHbkvH2hSdjfuKwIEp1vrL
+         SMk6i3osLkDMmMA8a/kE7O6LfAxCHiPqmJvpGAUcKmAMvQwljPnYQ+rzmzGlUK1AEc
+         c7QiRbVyX5i49OtRljbyC5EPHtjBgkZrbC4IbTIo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+Cc:     Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 02/15] ASoC: pcm3168a: ignore 0 Hz settings
-Date:   Mon, 21 Sep 2020 10:40:41 -0400
-Message-Id: <20200921144054.2135602-2-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 03/15] ASoC: wm8994: Skip setting of the WM8994_MICBIAS register for WM1811
+Date:   Mon, 21 Sep 2020 10:40:42 -0400
+Message-Id: <20200921144054.2135602-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200921144054.2135602-1-sashal@kernel.org>
 References: <20200921144054.2135602-1-sashal@kernel.org>
@@ -42,39 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-[ Upstream commit 7ad26d6671db758c959d7e1d100b138a38483612 ]
+[ Upstream commit 811c5494436789e7149487c06e0602b507ce274b ]
 
-Some sound card try to set 0 Hz as reset, but it is impossible.
-This patch ignores it to avoid error return.
+The WM8994_MICBIAS register is not available in the WM1811 CODEC so skip
+initialization of that register for that device.
+This suppresses an error during boot:
+"wm8994-codec: ASoC: error at snd_soc_component_update_bits on wm8994-codec"
 
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87a6yjy5sy.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200827173357.31891-1-s.nawrocki@samsung.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/pcm3168a.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/soc/codecs/wm8994.c  | 2 ++
+ sound/soc/codecs/wm_hubs.c | 3 +++
+ sound/soc/codecs/wm_hubs.h | 1 +
+ 3 files changed, 6 insertions(+)
 
-diff --git a/sound/soc/codecs/pcm3168a.c b/sound/soc/codecs/pcm3168a.c
-index 88b75695fbf7f..b37e5fbbd301a 100644
---- a/sound/soc/codecs/pcm3168a.c
-+++ b/sound/soc/codecs/pcm3168a.c
-@@ -302,6 +302,13 @@ static int pcm3168a_set_dai_sysclk(struct snd_soc_dai *dai,
- 	struct pcm3168a_priv *pcm3168a = snd_soc_component_get_drvdata(dai->component);
- 	int ret;
+diff --git a/sound/soc/codecs/wm8994.c b/sound/soc/codecs/wm8994.c
+index d5fb7f5dd551c..64635f9cdae65 100644
+--- a/sound/soc/codecs/wm8994.c
++++ b/sound/soc/codecs/wm8994.c
+@@ -4047,11 +4047,13 @@ static int wm8994_component_probe(struct snd_soc_component *component)
+ 			wm8994->hubs.dcs_readback_mode = 2;
+ 			break;
+ 		}
++		wm8994->hubs.micd_scthr = true;
+ 		break;
  
-+	/*
-+	 * Some sound card sets 0 Hz as reset,
-+	 * but it is impossible to set. Ignore it here
-+	 */
-+	if (freq == 0)
+ 	case WM8958:
+ 		wm8994->hubs.dcs_readback_mode = 1;
+ 		wm8994->hubs.hp_startup_mode = 1;
++		wm8994->hubs.micd_scthr = true;
+ 
+ 		switch (control->revision) {
+ 		case 0:
+diff --git a/sound/soc/codecs/wm_hubs.c b/sound/soc/codecs/wm_hubs.c
+index e93af7edd8f75..dd421e2fe7b21 100644
+--- a/sound/soc/codecs/wm_hubs.c
++++ b/sound/soc/codecs/wm_hubs.c
+@@ -1223,6 +1223,9 @@ int wm_hubs_handle_analogue_pdata(struct snd_soc_component *component,
+ 		snd_soc_component_update_bits(component, WM8993_ADDITIONAL_CONTROL,
+ 				    WM8993_LINEOUT2_FB, WM8993_LINEOUT2_FB);
+ 
++	if (!hubs->micd_scthr)
 +		return 0;
 +
- 	if (freq > PCM3168A_MAX_SYSCLK)
- 		return -EINVAL;
+ 	snd_soc_component_update_bits(component, WM8993_MICBIAS,
+ 			    WM8993_JD_SCTHR_MASK | WM8993_JD_THR_MASK |
+ 			    WM8993_MICB1_LVL | WM8993_MICB2_LVL,
+diff --git a/sound/soc/codecs/wm_hubs.h b/sound/soc/codecs/wm_hubs.h
+index 4b8e5f0d6e32d..988b29e630607 100644
+--- a/sound/soc/codecs/wm_hubs.h
++++ b/sound/soc/codecs/wm_hubs.h
+@@ -27,6 +27,7 @@ struct wm_hubs_data {
+ 	int hp_startup_mode;
+ 	int series_startup;
+ 	int no_series_update;
++	bool micd_scthr;
  
+ 	bool no_cache_dac_hp_direct;
+ 	struct list_head dcs_cache;
 -- 
 2.25.1
 
