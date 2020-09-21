@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C80272F12
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5BC6272F1A
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729745AbgIUQqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53272 "EHLO mail.kernel.org"
+        id S1728915AbgIUQxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:53:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727231AbgIUQqs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:46:48 -0400
+        id S1729750AbgIUQqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:46:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 456192388B;
-        Mon, 21 Sep 2020 16:46:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED3A52223E;
+        Mon, 21 Sep 2020 16:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706808;
-        bh=JPG2gxzH8/PmMe7MPg6i78jrQ21xF4EspNNevikwD7w=;
+        s=default; t=1600706811;
+        bh=bsM2ZZAYSVxxRVUa1+U+KJ9VruWG1WgnYmFSrTI7X/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CtNTOnDoC1sohP+qx+UQ9fNuLVJAWWW/DyfM0hSt5Ex7m3/6pyKeKBomtZzCExeRA
-         CmQcB+cjXnY3bLbMpFfIAWvlgdRWw7/n8Gm5HoFGWA2PZq3zBvjXgpDGO3xbIW4gZ5
-         PIn6SkAQcSkO7Kg/nhRFzfNtNaNPRa/HjrjKVoJA=
+        b=qr+GxdM44Xf+H5HIS1gRH5OveVNhlleGNisPzA7BJiwW+oq1w70w4CEmebEDF6+BY
+         VpuObnjPLHGH/qqD3nQhIQU4MtVlC/HZWeUn9d9dXBczSFakiFnA/bBLvVgZKSglG4
+         A8emaEo9NJnI9yLD+76zs0zI7ZFYcRYmxHZOlz+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Alex Shi <alex.shi@linux.alibaba.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>, Qian Cai <cai@lca.pw>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Song Liu <songliubraving@fb.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 103/118] ksm: reinstate memcg charge on copied pages
-Date:   Mon, 21 Sep 2020 18:28:35 +0200
-Message-Id: <20200921162041.161799840@linuxfoundation.org>
+Subject: [PATCH 5.8 104/118] kprobes: fix kill kprobe which has been marked as gone
+Date:   Mon, 21 Sep 2020 18:28:36 +0200
+Message-Id: <20200921162041.210437979@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921162036.324813383@linuxfoundation.org>
 References: <20200921162036.324813383@linuxfoundation.org>
@@ -48,69 +50,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 62fdb1632bcbed30c40f6bd2b58297617e442658 upstream.
+commit b0399092ccebd9feef68d4ceb8d6219a8c0caa05 upstream.
 
-Patch series "mm: fixes to past from future testing".
+If a kprobe is marked as gone, we should not kill it again.  Otherwise, we
+can disarm the kprobe more than once.  In that case, the statistics of
+kprobe_ftrace_enabled can unbalance which can lead to that kprobe do not
+work.
 
-Here's a set of independent fixes against 5.9-rc2: prompted by
-testing Alex Shi's "warning on !memcg" and lru_lock series, but
-I think fit for 5.9 - though maybe only the first for stable.
-
-This patch (of 5):
-
-In 5.8 some instances of memcg charging in do_swap_page() and unuse_pte()
-were removed, on the understanding that swap cache is now already charged
-at those points; but a case was missed, when ksm_might_need_to_copy() has
-decided it must allocate a substitute page: such pages were never charged.
-Fix it inside ksm_might_need_to_copy().
-
-This was discovered by Alex Shi's prospective commit "mm/memcg: warning on
-!memcg after readahead page charged".
-
-But there is a another surprise: this also fixes some rarer uncharged
-PageAnon cases, when KSM is configured in, but has never been activated.
-ksm_might_need_to_copy()'s anon_vma->root and linear_page_index() check
-sometimes catches a case which would need to have been copied if KSM were
-turned on.  Or that's my optimistic interpretation (of my own old code),
-but it leaves some doubt as to whether everything is working as intended
-there - might it hint at rare anon ptes which rmap cannot find?  A
-question not easily answered: put in the fix for missed memcg charges.
-
-Cc; Matthew Wilcox <willy@infradead.org>
-
-Fixes: 4c6355b25e8b ("mm: memcontrol: charge swapin pages on instantiation")
-Signed-off-by: Hugh Dickins <hughd@google.com>
+Fixes: e8386a0cb22f ("kprobes: support probing module __exit function")
+Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: <stable@vger.kernel.org>	[5.8]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008301343270.5954@eggly.anvils
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008301358020.5954@eggly.anvils
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200822030055.32383-1-songmuchun@bytedance.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/ksm.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/kprobes.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/mm/ksm.c
-+++ b/mm/ksm.c
-@@ -2585,6 +2585,10 @@ struct page *ksm_might_need_to_copy(stru
- 		return page;		/* let do_swap_page report the error */
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2108,6 +2108,9 @@ static void kill_kprobe(struct kprobe *p
  
- 	new_page = alloc_page_vma(GFP_HIGHUSER_MOVABLE, vma, address);
-+	if (new_page && mem_cgroup_charge(new_page, vma->vm_mm, GFP_KERNEL)) {
-+		put_page(new_page);
-+		new_page = NULL;
-+	}
- 	if (new_page) {
- 		copy_user_highpage(new_page, page, address, vma);
+ 	lockdep_assert_held(&kprobe_mutex);
  
++	if (WARN_ON_ONCE(kprobe_gone(p)))
++		return;
++
+ 	p->flags |= KPROBE_FLAG_GONE;
+ 	if (kprobe_aggrprobe(p)) {
+ 		/*
+@@ -2365,7 +2368,10 @@ static int kprobes_module_callback(struc
+ 	mutex_lock(&kprobe_mutex);
+ 	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
+ 		head = &kprobe_table[i];
+-		hlist_for_each_entry(p, head, hlist)
++		hlist_for_each_entry(p, head, hlist) {
++			if (kprobe_gone(p))
++				continue;
++
+ 			if (within_module_init((unsigned long)p->addr, mod) ||
+ 			    (checkcore &&
+ 			     within_module_core((unsigned long)p->addr, mod))) {
+@@ -2382,6 +2388,7 @@ static int kprobes_module_callback(struc
+ 				 */
+ 				kill_kprobe(p);
+ 			}
++		}
+ 	}
+ 	if (val == MODULE_STATE_GOING)
+ 		remove_module_kprobe_blacklist(mod);
 
 
