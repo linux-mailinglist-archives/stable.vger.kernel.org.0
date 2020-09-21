@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04588272EEB
-	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:53:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A561272ED9
+	for <lists+stable@lfdr.de>; Mon, 21 Sep 2020 18:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730025AbgIUQw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 12:52:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56228 "EHLO mail.kernel.org"
+        id S1729959AbgIUQwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 12:52:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729852AbgIUQsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 12:48:40 -0400
+        id S1729884AbgIUQtJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 12:49:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B926238A1;
-        Mon, 21 Sep 2020 16:48:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A787D23888;
+        Mon, 21 Sep 2020 16:49:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600706920;
-        bh=tF1m/ZemcRK+9KBti0OKGH+jzU0pV4thYClwxfHa0Wk=;
+        s=default; t=1600706949;
+        bh=+6SUSIhECxDd5uZsrfq5ix7Ft2DJ+36V2X1rUbHe6dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c7BxDN58UDVqJ3oMb8hQ8o+9CJe0o4aWKMzDU9QFrjUD64bNZmX8IYDzR6BbFjEF1
-         wt6KVarEk2IwDfNI0oZ3fpmiU6RWTTEUf50Zg8XaCbQ/Gs3rv8e9l6OvJ8jE5JlV5V
-         3NLyTOXWMbqQODEEZ1Mv44NBIthdl3aOtanGO52E=
+        b=xMFMm3mz6IbTigPiMTw1SKARS4BqyPUqGI5h9fftJCueCNmc2r9sBy9Z9BXVQ15LV
+         Dsi5SB4f9RWLGso7Tx7EphzEoYSgIxkFS03Txadxs0eqNMfJ+i/BFRUHBhMUvmK9p9
+         0xPdk8FmZYt/QMLE72nYqqSPtQgISiuFuMzp3thY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Keith Busch <kbusch@kernel.org>,
         Sagi Grimberg <sagi@grimberg.me>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/72] nvme-rdma: cancel async events before freeing event struct
-Date:   Mon, 21 Sep 2020 18:30:59 +0200
-Message-Id: <20200921163122.826554112@linuxfoundation.org>
+Subject: [PATCH 5.4 21/72] nvme-tcp: cancel async events before freeing event struct
+Date:   Mon, 21 Sep 2020 18:31:00 +0200
+Message-Id: <20200921163122.874460458@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200921163121.870386357@linuxfoundation.org>
 References: <20200921163121.870386357@linuxfoundation.org>
@@ -46,10 +46,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Milburn <dmilburn@redhat.com>
 
-[ Upstream commit 925dd04c1f9825194b9e444c12478084813b2b5d ]
+[ Upstream commit ceb1e0874dba5cbfc4e0b4145796a4bfb3716e6a ]
 
 Cancel async event work in case async event has been queued up, and
-nvme_rdma_submit_async_event() runs after event has been freed.
+nvme_tcp_submit_async_event() runs after event has been freed.
 
 Signed-off-by: David Milburn <dmilburn@redhat.com>
 Reviewed-by: Keith Busch <kbusch@kernel.org>
@@ -57,21 +57,21 @@ Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/rdma.c | 1 +
+ drivers/nvme/host/tcp.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index f0847f2bb117b..f9444272f861e 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -769,6 +769,7 @@ static void nvme_rdma_destroy_admin_queue(struct nvme_rdma_ctrl *ctrl,
- 		blk_mq_free_tag_set(ctrl->ctrl.admin_tagset);
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 9b81763b44d99..c782005ee99f9 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1507,6 +1507,7 @@ static struct blk_mq_tag_set *nvme_tcp_alloc_tagset(struct nvme_ctrl *nctrl,
+ static void nvme_tcp_free_admin_queue(struct nvme_ctrl *ctrl)
+ {
+ 	if (to_tcp_ctrl(ctrl)->async_req.pdu) {
++		cancel_work_sync(&ctrl->async_event_work);
+ 		nvme_tcp_free_async_req(to_tcp_ctrl(ctrl));
+ 		to_tcp_ctrl(ctrl)->async_req.pdu = NULL;
  	}
- 	if (ctrl->async_event_sqe.data) {
-+		cancel_work_sync(&ctrl->ctrl.async_event_work);
- 		nvme_rdma_free_qe(ctrl->device->dev, &ctrl->async_event_sqe,
- 				sizeof(struct nvme_command), DMA_TO_DEVICE);
- 		ctrl->async_event_sqe.data = NULL;
 -- 
 2.25.1
 
