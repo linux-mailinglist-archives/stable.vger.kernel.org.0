@@ -2,145 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE9482736E2
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 01:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30E4273760
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 02:27:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728724AbgIUXwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Sep 2020 19:52:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33064 "EHLO mail.kernel.org"
+        id S1728672AbgIVA10 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Sep 2020 20:27:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727124AbgIUXwq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Sep 2020 19:52:46 -0400
-Received: from sol.localdomain (172-10-235-113.lightspeed.sntcca.sbcglobal.net [172.10.235.113])
+        id S1729216AbgIVA1B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Sep 2020 20:27:01 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EAE523A6B;
-        Mon, 21 Sep 2020 23:52:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600732365;
-        bh=RPrdQUugC5s6Taj5fTPO3aDNuq6ahfRvm1SH7wdeIMM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1XtX7sF5pJ2g3rkvM61mRC3GHnkXx5uE/aM5SI1d8Y6zXtI6KKFTeO3iDqOTL5sLJ
-         OmURhtHjGOeAxICcn7Ekyx8MChC6/0T/67BaTlyNsNwY2Gm57eR6E/ooZAkC8i/RDj
-         9bqzYczJLjkyjcGRg/QA/nz/CVKbd8DaF8fT5vTQ=
-Date:   Mon, 21 Sep 2020 16:52:43 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     "Paul E. McKenney" <paulmck@kernel.org>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>, tytso@mit.edu,
-        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH] random: use correct memory barriers for crng_node_pool
-Message-ID: <20200921235243.GA32959@sol.localdomain>
-References: <20200916233042.51634-1-ebiggers@kernel.org>
- <20200917072644.GA5311@gondor.apana.org.au>
- <20200917165802.GC855@sol.localdomain>
- <20200921081939.GA4193@gondor.apana.org.au>
- <20200921152714.GC29330@paulmck-ThinkPad-P72>
- <20200921221104.GA6556@gondor.apana.org.au>
- <20200921232639.GK29330@paulmck-ThinkPad-P72>
+        by mail.kernel.org (Postfix) with ESMTPSA id C325223A7A;
+        Tue, 22 Sep 2020 00:27:00 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.94)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1kKW95-001rZE-Mw; Mon, 21 Sep 2020 20:26:59 -0400
+Message-ID: <20200922002659.591587244@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Mon, 21 Sep 2020 20:26:21 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        David Miller <davem@davemloft.net>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>
+Subject: [for-linus][PATCH 1/8] kprobes: Fix to check probe enabled before disarm_kprobe_ftrace()
+References: <20200922002620.231334654@goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200921232639.GK29330@paulmck-ThinkPad-P72>
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 21, 2020 at 04:26:39PM -0700, Paul E. McKenney wrote:
-> On Tue, Sep 22, 2020 at 08:11:04AM +1000, Herbert Xu wrote:
-> > On Mon, Sep 21, 2020 at 08:27:14AM -0700, Paul E. McKenney wrote:
-> > > On Mon, Sep 21, 2020 at 06:19:39PM +1000, Herbert Xu wrote:
-> > > > On Thu, Sep 17, 2020 at 09:58:02AM -0700, Eric Biggers wrote:
-> > > > >
-> > > > > smp_load_acquire() is obviously correct, whereas READ_ONCE() is an optimization
-> > > > > that is difficult to tell whether it's correct or not.  For trivial data
-> > > > > structures it's "easy" to tell.  But whenever there is a->b where b is an
-> > > > > internal implementation detail of another kernel subsystem, the use of which
-> > > > > could involve accesses to global or static data (for example, spin_lock()
-> > > > > accessing lockdep stuff), a control dependency can slip in.
-> > > > 
-> > > > If we're going to follow this line of reasoning, surely you should
-> > > > be converting the RCU derference first and foremost, no?
-> > 
-> > ...
-> > 
-> > > And to Eric's point, it is also true that when you have pointers to
-> > > static data, and when the compiler can guess this, you do need something
-> > > like smp_load_acquire().  But this is a problem only when you are (1)
-> > > using feedback-driven compiler optimization or (2) when you compare the
-> > > pointer to the address of the static data.
-> > 
-> > Let me restate what I think Eric is saying.  He is concerned about
-> > the case where a->b and b is some opaque object that may in turn
-> > dereference a global data structure unconnected to a.  The case
-> > in question here is crng_node_pool in drivers/char/random.c which
-> > in turn contains a spin lock.
-> 
-> As long as the compiler generates code that reaches that global via
-> pointer a, everything will work fine.  Which it will, unless the guy
-> writing the code makes the mistake of introducing a comparison between the
-> pointer to be dereferenced and the address of the global data structure.
-> 
-> So this is OK:
-> 
-> 	p = rcu_dereference(a);
-> 	do_something(p->b);
-> 
-> This is not OK:
-> 
-> 	p = rcu_dereference(a);
-> 	if (p == &some_global_variable)
-> 		we_really_should_not_have_done_that_comparison();
-> 	do_something(p->b);
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-If you call some function that's an internal implementation detail of some other
-kernel subsystem, how do you know it doesn't do that?
+Commit 0cb2f1372baa ("kprobes: Fix NULL pointer dereference at
+kprobe_ftrace_handler") fixed one bug but not completely fixed yet.
+If we run a kprobe_module.tc of ftracetest, kernel showed a warning
+as below.
 
-Also, it's not just the p == &global_variable case.  Consider:
+# ./ftracetest test.d/kprobe/kprobe_module.tc
+=== Ftrace unit tests ===
+[1] Kprobe dynamic event - probing module
+...
+[   22.400215] ------------[ cut here ]------------
+[   22.400962] Failed to disarm kprobe-ftrace at trace_printk_irq_work+0x0/0x7e [trace_printk] (-2)
+[   22.402139] WARNING: CPU: 7 PID: 200 at kernel/kprobes.c:1091 __disarm_kprobe_ftrace.isra.0+0x7e/0xa0
+[   22.403358] Modules linked in: trace_printk(-)
+[   22.404028] CPU: 7 PID: 200 Comm: rmmod Not tainted 5.9.0-rc2+ #66
+[   22.404870] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
+[   22.406139] RIP: 0010:__disarm_kprobe_ftrace.isra.0+0x7e/0xa0
+[   22.406947] Code: 30 8b 03 eb c9 80 3d e5 09 1f 01 00 75 dc 49 8b 34 24 89 c2 48 c7 c7 a0 c2 05 82 89 45 e4 c6 05 cc 09 1f 01 01 e8 a9 c7 f0 ff <0f> 0b 8b 45 e4 eb b9 89 c6 48 c7 c7 70 c2 05 82 89 45 e4 e8 91 c7
+[   22.409544] RSP: 0018:ffffc90000237df0 EFLAGS: 00010286
+[   22.410385] RAX: 0000000000000000 RBX: ffffffff83066024 RCX: 0000000000000000
+[   22.411434] RDX: 0000000000000001 RSI: ffffffff810de8d3 RDI: ffffffff810de8d3
+[   22.412687] RBP: ffffc90000237e10 R08: 0000000000000001 R09: 0000000000000001
+[   22.413762] R10: 0000000000000000 R11: 0000000000000001 R12: ffff88807c478640
+[   22.414852] R13: ffffffff8235ebc0 R14: ffffffffa00060c0 R15: 0000000000000000
+[   22.415941] FS:  00000000019d48c0(0000) GS:ffff88807d7c0000(0000) knlGS:0000000000000000
+[   22.417264] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   22.418176] CR2: 00000000005bb7e3 CR3: 0000000078f7a000 CR4: 00000000000006a0
+[   22.419309] Call Trace:
+[   22.419990]  kill_kprobe+0x94/0x160
+[   22.420652]  kprobes_module_callback+0x64/0x230
+[   22.421470]  notifier_call_chain+0x4f/0x70
+[   22.422184]  blocking_notifier_call_chain+0x49/0x70
+[   22.422979]  __x64_sys_delete_module+0x1ac/0x240
+[   22.423733]  do_syscall_64+0x38/0x50
+[   22.424366]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   22.425176] RIP: 0033:0x4bb81d
+[   22.425741] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e0 ff ff ff f7 d8 64 89 01 48
+[   22.428726] RSP: 002b:00007ffc70fef008 EFLAGS: 00000246 ORIG_RAX: 00000000000000b0
+[   22.430169] RAX: ffffffffffffffda RBX: 00000000019d48a0 RCX: 00000000004bb81d
+[   22.431375] RDX: 0000000000000000 RSI: 0000000000000880 RDI: 00007ffc70fef028
+[   22.432543] RBP: 0000000000000880 R08: 00000000ffffffff R09: 00007ffc70fef320
+[   22.433692] R10: 0000000000656300 R11: 0000000000000246 R12: 00007ffc70fef028
+[   22.434635] R13: 0000000000000000 R14: 0000000000000002 R15: 0000000000000000
+[   22.435682] irq event stamp: 1169
+[   22.436240] hardirqs last  enabled at (1179): [<ffffffff810df542>] console_unlock+0x422/0x580
+[   22.437466] hardirqs last disabled at (1188): [<ffffffff810df19b>] console_unlock+0x7b/0x580
+[   22.438608] softirqs last  enabled at (866): [<ffffffff81c0038e>] __do_softirq+0x38e/0x490
+[   22.439637] softirqs last disabled at (859): [<ffffffff81a00f42>] asm_call_on_stack+0x12/0x20
+[   22.440690] ---[ end trace 1e7ce7e1e4567276 ]---
+[   22.472832] trace_kprobe: This probe might be able to register after target module is loaded. Continue.
 
-struct a { struct b *b; };
-struct b { ... };
+This is because the kill_kprobe() calls disarm_kprobe_ftrace() even
+if the given probe is not enabled. In that case, ftrace_set_filter_ip()
+fails because the given probe point is not registered to ftrace.
 
-Thread 1:
+Fix to check the given (going) probe is enabled before invoking
+disarm_kprobe_ftrace().
 
-	/* one-time initialized data shared by all instances of b */
-	static struct c *c;
+Link: https://lkml.kernel.org/r/159888672694.1411785.5987998076694782591.stgit@devnote2
 
-	void init_b(struct a *a)
-	{
-		if (!c)
-			c = alloc_c();
+Fixes: 0cb2f1372baa ("kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler")
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David Miller <davem@davemloft.net>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Chengming Zhou <zhouchengming@bytedance.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/kprobes.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-		smp_store_release(&a->b, kzalloc(sizeof(struct b)));
-	}
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 287b263c9cb9..d43b48ecdb4f 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2159,9 +2159,10 @@ static void kill_kprobe(struct kprobe *p)
+ 
+ 	/*
+ 	 * The module is going away. We should disarm the kprobe which
+-	 * is using ftrace.
++	 * is using ftrace, because ftrace framework is still available at
++	 * MODULE_STATE_GOING notification.
+ 	 */
+-	if (kprobe_ftrace(p))
++	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
+ 		disarm_kprobe_ftrace(p);
+ }
+ 
+-- 
+2.28.0
 
-Thread 2:
 
-	void use_b_if_present(struct a *a)
-	{
-		struct b *b = READ_ONCE(a->b);
-
-		if (b) {
-			c->... # crashes because c still appears to be NULL
-		}
-	}
-
-
-So when the *first* "b" is allocated, the global data "c" is initialized.  Then
-when using a "b", we expect to be able to access "c".  But there's no
-data dependency from "b" to "c"; it's a control dependency only.
-So smp_load_acquire() is needed, not READ_ONCE().
-
-And it can be an internal implementation detail of "b"'s subsystem whether it
-happens to use global data "c".
-
-This sort of thing is why people objected to the READ_ONCE() optimization during
-the discussion at
-https://lkml.kernel.org/linux-fsdevel/20200717044427.68747-1-ebiggers@kernel.org/T/#u.
-Most kernel developers aren't experts in the LKMM, and they want something
-that's guaranteed to be correct without having to to think really hard about it
-and make assumptions about the internal implementation details of other
-subsystems, how compilers have implemented the C standard, and so on.
-
-- Eric
