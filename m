@@ -2,136 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B702748CF
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 21:09:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C62792748FE
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 21:22:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726608AbgIVTJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 15:09:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49878 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726563AbgIVTJj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Sep 2020 15:09:39 -0400
-Received: from gmail.com (unknown [104.132.1.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C77D2311C;
-        Tue, 22 Sep 2020 19:09:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600801778;
-        bh=1Fpf8eJo8TwJEOCRt2MDpMSY1auJh2VGI5xd3lo4Hto=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=C9wihmF6R9vVO3Vmey2GbvWQsO1LdDECdDcw0l2Kk6tRwtuS0+fkraukdD8+F5GsA
-         Km9X+3pa2yapmz7UQEzEukq5ZR10dJGYimdYwhYwBn7hlnF1Z9DJIvysAAcLk+FV6I
-         imvBO3zR8umw4GKMIty+z7VmkuuXAEzCKa9UbGC0=
-Date:   Tue, 22 Sep 2020 12:09:36 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     "Paul E. McKenney" <paulmck@kernel.org>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>, tytso@mit.edu,
-        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH] random: use correct memory barriers for crng_node_pool
-Message-ID: <20200922190936.GB1616407@gmail.com>
-References: <20200916233042.51634-1-ebiggers@kernel.org>
- <20200917072644.GA5311@gondor.apana.org.au>
- <20200917165802.GC855@sol.localdomain>
- <20200921081939.GA4193@gondor.apana.org.au>
- <20200921152714.GC29330@paulmck-ThinkPad-P72>
- <20200921221104.GA6556@gondor.apana.org.au>
- <20200921232639.GK29330@paulmck-ThinkPad-P72>
- <20200921235243.GA32959@sol.localdomain>
- <20200922183100.GZ29330@paulmck-ThinkPad-P72>
+        id S1726637AbgIVTWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 15:22:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54538 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726607AbgIVTWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 15:22:41 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24DF1C061755
+        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 12:22:41 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id x14so18300761wrl.12
+        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 12:22:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fooishbar-org.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=I3TzcxT+agQSzXap31GmXBqpQ5l+VuHWFFx46ZHwwbk=;
+        b=0/AizksPP03va9xtTssFRnX0Nfgr7YhRF6a60XPsQPz+YAg6xKJPbUiqNqcJQCrpCJ
+         L21Q17H64vLFWtNoNGlS9OFFKfMtvaekSfmjKWajS+pnMmS7Z5Ker0COQk+f5gFfrGkv
+         HKz8d+SL7byDfnGFj4FZDz85iyVQXJ5NAq9Jt8H/FBDtjBleZ5w048dhAwivsMwOSTwm
+         TX/XL/dF3vDxLvEG2owC6aa4rgMMR/++gZ4uBaaMoBXQT4F1n8YYhTNMqmJwjM3dTjj8
+         OhyayKxwX2aV/YpnW7znBPqnlbktcmx4FweomQq+ZOXQGpweKmQEScJ7O9sbcM5aHKqP
+         65zQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=I3TzcxT+agQSzXap31GmXBqpQ5l+VuHWFFx46ZHwwbk=;
+        b=p1wGF+YCV+/HA5H9/TLmu0WvOerCwK9ayshXCYbPHsWkFvmAw2MMPJnlmGYptwtRuh
+         oyl9A7K+pWOkLeRcni9vQ1tn82rMSA1cdJjNNkqSwcq7m3pj4DrZXny6/ka3ByW2Gx6N
+         vh3FQMzfBWTrGFE2d0S25H3/kgdsF3Y26vWNiC1sY5zRvjMgctmqrXVTcsbTI8JXoZHt
+         3/ACpb0PNGYpbMjJS7qmB6ewMKmQg6BffGWS8MU/xydCwJLC7Td7DbZCXpXFjQK7deuj
+         0McRx4PH8HIdMIPik/X3qMTm4KUXmozJkzKxBBF4/VDiDqJP1itfY2/n8byvy8IaNrlH
+         Dvqw==
+X-Gm-Message-State: AOAM530pGNC+FsMOf+OmyTIXgQN5FnCEmzf6khy6DGreXHmDQANvEE8+
+        A95YoFEj9X2MxlS9h8TK1sMklf0jHukYDDN1rA5siQ==
+X-Google-Smtp-Source: ABdhPJyOWSJqfljRuC2AmZxTrv6cdELKH1mZZGRhKl+KB3PwLlQsNSaHT7K6ID4ys3oDH2QukhpyqqmVrOQGGDMuPBY=
+X-Received: by 2002:a5d:608f:: with SMTP id w15mr7005612wrt.244.1600802559703;
+ Tue, 22 Sep 2020 12:22:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200922183100.GZ29330@paulmck-ThinkPad-P72>
+References: <20200922181834.2913552-1-daniel.vetter@ffwll.ch>
+In-Reply-To: <20200922181834.2913552-1-daniel.vetter@ffwll.ch>
+From:   Daniel Stone <daniel@fooishbar.org>
+Date:   Tue, 22 Sep 2020 20:22:28 +0100
+Message-ID: <CAPj87rP1uBqhhBfJ0phSaOfoAptauTmeOkk_uD-N2kCCnH=_tw@mail.gmail.com>
+Subject: Re: [PATCH] drm: document and enforce rules around "spurious" EBUSY
+ from atomic_commit
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        DRI Development <dri-devel@lists.freedesktop.org>,
+        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
+        Simon Ser <contact@emersion.fr>,
+        stable <stable@vger.kernel.org>,
+        =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 22, 2020 at 11:31:00AM -0700, Paul E. McKenney wrote:
-> > Also, it's not just the p == &global_variable case.  Consider:
-> > 
-> > struct a { struct b *b; };
-> > struct b { ... };
-> > 
-> > Thread 1:
-> > 
-> > 	/* one-time initialized data shared by all instances of b */
-> > 	static struct c *c;
-> > 
-> > 	void init_b(struct a *a)
-> > 	{
-> > 		if (!c)
-> > 			c = alloc_c();
-> > 
-> > 		smp_store_release(&a->b, kzalloc(sizeof(struct b)));
-> > 	}
-> > 
-> > Thread 2:
-> > 
-> > 	void use_b_if_present(struct a *a)
-> > 	{
-> > 		struct b *b = READ_ONCE(a->b);
-> > 
-> > 		if (b) {
-> > 			c->... # crashes because c still appears to be NULL
-> > 		}
-> > 	}
-> > 
-> > 
-> > So when the *first* "b" is allocated, the global data "c" is initialized.  Then
-> > when using a "b", we expect to be able to access "c".  But there's no
-> > data dependency from "b" to "c"; it's a control dependency only.
-> > So smp_load_acquire() is needed, not READ_ONCE().
-> > 
-> > And it can be an internal implementation detail of "b"'s subsystem whether it
-> > happens to use global data "c".
-> 
-> Given that "c" is static, these two subsystems must be in the same
-> translation unit.  So I don't see how this qualifies as being internal to
-> "b"'s subsystem.
+Hi,
 
-You're missing the point here.  b and c could easily be allocated by a function
-alloc_b() that's in another file.
+On Tue, 22 Sep 2020 at 19:18, Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
+> +       for_each_new_crtc_in_state(state, crtc, old_crtc_state, i)
+> +               affected_crtc |= drm_crtc_mask(crtc);
+> +
+> +       /*
+> +        * For commits that allow modesets drivers can add other CRTCs to the
+> +        * atomic commit, e.g. when they need to reallocate global resources.
+> +        * This can cause spurious EBUSY, which robs compositors of a very
+> +        * effective sanity check for their drawing loop. Therefor only allow
+> +        * this for modeset commits.
+> +        *
+> +        * FIXME: Should add affected_crtc mask to the ATOMIC IOCTL as an output
+> +        * so compositors know what's going on.
+> +        */
+> +       if (affected_crtc != requested_crtc) {
+> +               /* adding other CRTC is only allowed for modeset commits */
+> +               WARN_ON(!state->allow_modeset);
+> +       }
+> +
 
-> Besides which, control dependencies should be used only by LKMM experts
-> at this point.  
+Can we please add a DRM_DEBUG() here, regardless of the WARN_ON(), to
+let people know what's happening?
 
-What does that even mean?  Control dependencies are everywhere.
+With that, R-b me.
 
-> > This sort of thing is why people objected to the READ_ONCE() optimization during
-> > the discussion at
-> > https://lkml.kernel.org/linux-fsdevel/20200717044427.68747-1-ebiggers@kernel.org/T/#u.
-> > Most kernel developers aren't experts in the LKMM, and they want something
-> > that's guaranteed to be correct without having to to think really hard about it
-> > and make assumptions about the internal implementation details of other
-> > subsystems, how compilers have implemented the C standard, and so on.
-> 
-> And smp_load_acquire()is provided for that reason.  Its name was
-> even based on the nomenclature used in the C standard and elsewhere.
-> And again, control dependencies are for LKMM experts, as they are very
-> tricky to get right.
-
-How does a developer know that the code they're calling in another subsystem
-wasn't written by one of these "experts" and therefore has a control dependency?
-
-> 
-> But in the LKMM documentation, you are likely to find LKMM experts who
-> want to optimize all the way, particularly in cases like the one-time
-> init pattern where all the data is often local.  And the best basis for
-> READ_ONCE() in one-time init is not a control dependency, but rather
-> ordering of accesses to a single variable from a single task combined
-> with locking, both of which are quite robust and much easier to use,
-> especially in comparison to control dependencies.
-> 
-> My goal for LKMM is not that each and every developer have a full
-> understanding of every nook and cranny of that model, but instead that
-> people can find the primitives supporting the desired point in the
-> performance/simplicity tradoff space.  And yes, I have more writing
-> to do to make more progress towards that goal.
-
-So are you saying people should use smp_load_acquire(), or are you saying people
-should use READ_ONCE()?
-
-- Eric
+Cheers,
+Daniel
