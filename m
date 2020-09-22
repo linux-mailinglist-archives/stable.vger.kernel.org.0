@@ -2,59 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1333273F40
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 12:08:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80BD5274064
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 13:07:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726483AbgIVKIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 06:08:39 -0400
-Received: from sonic308-19.consmr.mail.sg3.yahoo.com ([106.10.241.209]:41473
-        "EHLO sonic308-19.consmr.mail.sg3.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726515AbgIVKIj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 06:08:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1600769316; bh=0j3O1KE5D4d5mMRMV0JPR4zma4b4RN3gVv5F3zquQys=; h=Date:From:Reply-To:Subject:References:From:Subject; b=iqzEfClXH6HTeY9SU6OAIZjdfGrFlF0gdF0RJwMxyqxxcfD7zkyXHhCOalNAzfN1FlgHPZhhWDdLa7NI7g+8H21FcZcXlYF8MuDk0dAMieeRzKksc1+sSuOA/tuUbGVmWTDCztjxGwLPqMAzTZhy/g8bP4KQTZEv39YzWlsihY5wDvMY/prNHL0k8HmT017rGAMB7Pln2qZDJXOeiYF5nXebZruouZg1NRhggKJ+rg9nZCqPmBlsEb7Qknw/gHDxiT77yvpt1qGT79yDECsChmsVaxURMWEg1qZOROvXVYCAycrciXqgVb2fIXandRmyL6COLYbUoV7qvABo7G7mEw==
-X-YMail-OSG: lBERmPUVM1lpwYiI5jsnnIzgftwKgsS_wDr_eD.Op6F2.cR_5VrM0z68PoRPXRU
- QVdXeWIn1gQE0fJeBSBGRNUW6HbA.8IQDx7smjD3G9VoMpG16ihdXiNmSuGIN4r20dhftWJxISLl
- 06pQgU5.ieJ.Is68tbKti_f8GVELYh7NtLNZ9CQjWDkrdoZqS025u3ZP0QFZsKSVoE6Q0n2pCqd3
- uqyUm4P.wumtLEbNnQHIpJ9VC91X0wQoRo4j2yW7ZNKJUpaZ0P_rjHJsex4BHd5PYOysbI7yQHP1
- vsL.XqqVrZIEyFZw3JEM5297AgOvLsDyiGsq9QRe5shCpz_G1QJixfxB8eB5iUpQkCn1Gv3pl6_E
- CShK5_8xha8338phS7kXZKYYsAe8Z92hebWbeYz0VV6FAizYeAcUeskUhgJdHZmkBzLrbe9_Ajz.
- jS74ox.FHGjiSp3PYVh8lzfIn._mJ9wcH3GCeLbMke7e5UeMNXvbI7CGRwDHOn1wAa_ecfVx1vmF
- jEpk5piPk2k8xv8koJOySRKOlbvlbFR59WSnB4NfbOuFTbj_DfqNbS7YYZhgNxLFmc8BKdPmLP6I
- LKk8Vg5bVmrFfmEftlb9aiUubKj5Q3r2JmoC3IJiSGef1fmRYwUP9wcGOwyjAl48COjmTs3xWEgv
- f5bmGLbQVs4MrOtWPJcHxHdGdx16HwpnNjcsK5sSjLIxAbJoJryrdx31uX5UBwnMjKwdGG7zX_Sq
- z.9CCoHCQ_2F9H5EEB6ZOzl0mhn4wH8bCIqmUr.eKWFPElCbWkd9xq3y3G9ahLgd6zcRsB0hE8RB
- V1gexJ79U.Nb_dHmNyWMG84vMklf8ZAJi47OA3qec9mshcH6JO1DS5Pc_pSDq13eKEN20DpmKS72
- VPKQ2YLqorImCFAk7U2._6pSUL9PUKNFafKmmQ3xIlb6NE7Xs7TCFd9zoDzPyWOPS1EIDzEmHWQc
- ydMZ5U6irvFl2__sCBNPG9iDlW5t8X44GD1Jpy2h_7yRoCVZBnVWrg12HPv9LlIXDswo4MoobQqv
- YjpHwVXoh_bCPkmWZlaE2.GwHrq3U6V25soxplky6YjXtyAcurTPDreyatJXhC39BlNLgBZJ5SDq
- 6On9g8UktuuEj45pnvqJc_sYAf97S_.FhBVSvk4Ba9jxtzdotp7DgFoQPVvYjA0NHGL.NFbf7XmW
- IvLl6ypyA8u2GE6tcwEkAkuUFAu9.p0NeBgz.iNnyR4ySZP4hKYzha7mmBPk_42nLp9OuYdQOSgZ
- _Jt.kPEDu1WRso5_MZgB1k4zRjolPy7pSx96qebxi1YgvmzAwkf5IBvBgwVmB6FlT8Wu_fOAdOar
- xsI9dukZJ9nvK1wyWjW4n5lJo6dyd0XCWKKf7wSY0mwpGOLRBwIKCvUbPEKTu3OZrGocyrAke9vo
- .Au8fywGX.H7SPNL2bxP4dDVAZgMpr7rGIyRutq9FwA6gb33OmXpZXqzH
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.sg3.yahoo.com with HTTP; Tue, 22 Sep 2020 10:08:36 +0000
-Date:   Tue, 22 Sep 2020 10:08:32 +0000 (UTC)
-From:   deedeepaul212@gmail.com
-Reply-To: deedeepaul22@gmail.com
-Message-ID: <781986591.3731073.1600769312434@mail.yahoo.com>
-Subject: Dear partner,
+        id S1726578AbgIVLHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 07:07:35 -0400
+Received: from aibo.runbox.com ([91.220.196.211]:51628 "EHLO aibo.runbox.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726563AbgIVLHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Sep 2020 07:07:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=runbox.com;
+         s=selector2; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To
+        :Message-Id:Date:Subject:Cc:To:From;
+        bh=psqE07dXlcAdf8xwU1osA4X0VG70gu6FTObLRO7oA7Y=; b=ZMQwj+445i4FxUocxpvqWlXVw3
+        BEqiV3gKbzDiSMSGPvNX+5HwDGeF+LTd9ReJRv2pwLNETTiC/PXg6l5IPoaPrmGdJIv/R7MHw/Pl2
+        ggBPhn+o8KSX6qPJ4zl0++G+tgulw8W/nzvj3W+czioT4XJ/s+6Ews1KRUdiPUJuhUgqe1ag4CxhA
+        hGHaPQpeTJssU7gAle9SOwfqqD9M38ZJxY8h4Kywm4drc121YK9X6kUAOUjoF2esbbdOYfK8nc/Tn
+        o1Q/Ri4G0K0KoxXZxB0MMQUo1GrrGdAeVtpaKM3Q4Asd6BijmByveExGSg0+3IsyxzHzjrAH5RRLo
+        ar2nmPDQ==;
+Received: from [10.9.9.73] (helo=submission02.runbox)
+        by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+        (envelope-from <m.v.b@runbox.com>)
+        id 1kKg8z-0005vk-Ce; Tue, 22 Sep 2020 13:07:33 +0200
+Received: by submission02.runbox with esmtpsa  [Authenticated alias (536975)]  (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.90_1)
+        id 1kKg8k-0000Pn-3h; Tue, 22 Sep 2020 13:07:18 +0200
+From:   "M. Vefa Bicakci" <m.v.b@runbox.com>
+To:     linux-usb@vger.kernel.org
+Cc:     "M. Vefa Bicakci" <m.v.b@runbox.com>, stable@vger.kernel.org,
+        Bastien Nocera <hadess@hadess.net>,
+        Valentina Manea <valentina.manea.m@gmail.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        syzkaller@googlegroups.com
+Subject: [PATCH v3 1/4] Revert "usbip: Implement a match function to fix usbip"
+Date:   Tue, 22 Sep 2020 14:07:00 +0300
+Message-Id: <20200922110703.720960-2-m.v.b@runbox.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200922110703.720960-1-m.v.b@runbox.com>
+References: <20200922110703.720960-1-m.v.b@runbox.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <781986591.3731073.1600769312434.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16583 YMailNodin Mozilla/5.0 (Windows NT 5.1; rv:43.0) Gecko/20100101 Firefox/43.0
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear partner,
+This commit reverts commit 7a2f2974f265 ("usbip: Implement a match
+function to fix usbip").
 
-my name is Mr. Deedee Paul. I am working with one of the prime banks in Burkina Faso. Here in this bank existed a dormant account for many years, which belonged to one of our late foreign customer. The amount in this account stands at $13,300,000.00 (Thirteen Million Three Hundred Thousand USA Dollars).
+In summary, commit d5643d2249b2 ("USB: Fix device driver race")
+inadvertently broke usbip functionality, which I resolved in an incorrect
+manner by introducing a match function to usbip, usbip_match(), that
+unconditionally returns true.
 
-I want a foreign account where the bank will transfer this fund. I know you would be surprised to read this message, especially from someone relatively unknown to you. But, do not worry yourself so much. This is a genuine, risk free and legal business transaction.
+However, the usbip_match function, as is, causes usbip to take over
+virtual devices used by syzkaller for USB fuzzing, which is a regression
+reported by Andrey Konovalov.
 
-Reply back to me with your details information, if you are interested. and all my details information and the details of this business transaction shall be sent to you once I hear from you.
+Furthermore, in conjunction with the fix of another bug, handled by another
+patch titled "usbcore/driver: Fix specific driver selection" in this patch
+set, the usbip_match function causes unexpected USB subsystem behaviour
+when the usbip_host driver is loaded. The unexpected behaviour can be
+qualified as follows:
+- If commit 41160802ab8e ("USB: Simplify USB ID table match") is included
+  in the kernel, then all USB devices are bound to the usbip_host
+  driver, which appears to the user as if all USB devices were
+  disconnected.
+- If the same commit (41160802ab8e) is not in the kernel (as is the case
+  with v5.8.10) then all USB devices are re-probed and re-bound to their
+  original device drivers, which appears to the user as a disconnection
+  and re-connection of USB devices.
 
-Best regards,
-Mr. Deedee Paul
+Please note that this commit will make usbip non-operational again,
+until yet another patch in this patch set is merged, titled
+"usbcore/driver: Accommodate usbip".
+
+Reported-by: Andrey Konovalov <andreyknvl@google.com>
+Link: https://lore.kernel.org/linux-usb/CAAeHK+zOrHnxjRFs=OE8T=O9208B9HP_oo8RZpyVOZ9AJ54pAA@mail.gmail.com/
+Cc: <stable@vger.kernel.org> # 5.8: 41160802ab8e: USB: Simplify USB ID table match
+Cc: <stable@vger.kernel.org> # 5.8
+Cc: Bastien Nocera <hadess@hadess.net>
+Cc: Valentina Manea <valentina.manea.m@gmail.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: <syzkaller@googlegroups.com>
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+
+---
+v3: New patch in the patch set.
+
+    Note for stable tree maintainers: I have marked the following commit
+    as a dependency of this patch, because that commit resolves a bug that
+    the next commit in this patch set uncovers, where if a driver does
+    not have an id_table, then its match function is not considered for
+    execution at all.
+      commit 41160802ab8e ("USB: Simplify USB ID table match")
+---
+ drivers/usb/usbip/stub_dev.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/usb/usbip/stub_dev.c b/drivers/usb/usbip/stub_dev.c
+index 9d7d642022d1..2305d425e6c9 100644
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -461,11 +461,6 @@ static void stub_disconnect(struct usb_device *udev)
+ 	return;
+ }
+ 
+-static bool usbip_match(struct usb_device *udev)
+-{
+-	return true;
+-}
+-
+ #ifdef CONFIG_PM
+ 
+ /* These functions need usb_port_suspend and usb_port_resume,
+@@ -491,7 +486,6 @@ struct usb_device_driver stub_driver = {
+ 	.name		= "usbip-host",
+ 	.probe		= stub_probe,
+ 	.disconnect	= stub_disconnect,
+-	.match		= usbip_match,
+ #ifdef CONFIG_PM
+ 	.suspend	= stub_suspend,
+ 	.resume		= stub_resume,
+-- 
+2.26.2
+
