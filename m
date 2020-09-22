@@ -2,179 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B09262741BA
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 14:02:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95ADA2741D8
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 14:11:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726597AbgIVMCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 08:02:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43396 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726533AbgIVMCd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 08:02:33 -0400
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8980C0613CF
-        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 05:02:33 -0700 (PDT)
-Received: by mail-vs1-xe43.google.com with SMTP id y194so10113244vsc.4
-        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 05:02:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=ZEZI6d89xtcDpCUxbSSBtDGiHmLzirfqGGVXHJyGnUw=;
-        b=kpZ21DETq3qmsqIXgENyGBnedGKtG0o2BqY2UGvygheJzJ44mOIazFKrsSHMsKDl5k
-         5v+8V1bPNg8dpSSv90R6SznSPRI7NhE1PaAaV5skoXyZWxgUpot5RyIJwmMKawMfsD5D
-         N4d4HncBU4Fbs38tvty9FDE7O8FY1TtFjbnIAFqzizmubQ1vyhAFkl0/mL/0lkLh55I0
-         FiMEzBtKi7qVWGH5em6tOqHKjB54CiA3wR3VyPY0It5Hm5BPqLRmnmzwnZXBEVL4cG00
-         bLG3r26HEqzu6nooZmcqF6H5uSNJGJbjUsBwVq/UjhIlAWgBZVzDtTop+f4ABUrLD434
-         votA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ZEZI6d89xtcDpCUxbSSBtDGiHmLzirfqGGVXHJyGnUw=;
-        b=XQn64ZDSqZzYWZT4MD7Pdd4TYU5uQ9I8lJs1WLkEiRJn0TTKjJSTc+reXlPnQVbxkw
-         Lmu/t+487RCSd2W0fuurRwZVJ/9bgsW3AN/m8JyGuv4WxmMcIC5VJZaa4+oj+Iz/v0Sp
-         9OI1B0DunvtXP1GilutVLR2OuAMW1I85i43s0k479XF1V21xjAvM4DpWujoAGbH9thBa
-         XYqavr7OGg2ebyq/7/mYIyz9C3tS87C12oOw9m/57BGJmobHXHjkIBqG2FpSgmBoSMs4
-         xO6nnNiUrC3OWRvh+TZbrpnR5AUako0QbnWmXXWmc/XcDMIR3upuY4TU+4RohLAgEv7T
-         PDTw==
-X-Gm-Message-State: AOAM530ljiyEEGB8E5GUceJywK1u3e/UraKauq6rdUwaew7JrhlSpCc7
-        JAAv+XhOIuwVQ5uyFJq+wdivozKadZASrQryV87mqc0SOIbIwLnU
-X-Google-Smtp-Source: ABdhPJwbo9LgmtKpB2tssrPZSBr0qZOOaG8yki+KLaZUb2syRELosYEkNIWqTWCXQt8GikRG8EBVsVDRuPk+4aCC3Cg=
-X-Received: by 2002:a67:80d2:: with SMTP id b201mr2994191vsd.12.1600776151680;
- Tue, 22 Sep 2020 05:02:31 -0700 (PDT)
+        id S1726533AbgIVML4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 08:11:56 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:50927 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726505AbgIVML4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 08:11:56 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.west.internal (Postfix) with ESMTP id 29D70D19;
+        Tue, 22 Sep 2020 08:11:55 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 22 Sep 2020 08:11:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=7
+        Y+h0lmLvRAG/NRPpOhCcA+uWMu44/QeCmDOIjJOY1I=; b=hWM8AMXbUIvJeAqOn
+        O6f8Az1MzuFyAet/vVdi1W2zLNIUzQVzILknl2dSr+LCXAFwEwVtHLjdmp76HymD
+        nz6h/x2YfDF+nDGClhkv5jAWARQY166UUifbi5CknaTdSsMAc8wjfE68TywvKxE1
+        71jKVxGyIirZWuTwnFHsCMQmG8rMXIGVuADqhQXWNn1IJIl7tdmeZjn84pytsDIq
+        /sbxOWz0olhRLNgE/k3LCIvYPNvARcU5lqoQTWhZfx5BcX0lMKvlWKaWDop+MCTP
+        JUzAYnqiYpHWOKd2YV2b+qU4rMwc7e18smrS+a1sN+oNEj+6USo1ORq//crXkrBC
+        PsOOw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=7Y+h0lmLvRAG/NRPpOhCcA+uWMu44/QeCmDOIjJOY
+        1I=; b=m7QOgkCgG8T5EjTM61cHh45AoeBOqTUwj+viHXiEVvqqtEZ1yyS/GUCCZ
+        IAlExkYMElsDPgXkHUrGtgltP5ZOBeOPYVqplVCtPwq1yiL/Y5ZmpLdJhueDSX3r
+        DKTF65B+UmR+IgiK7B8Z4HWnhi1WzJB4Supe6cJv8b49HxaD5K5WciuTukgk9va+
+        1LB3T/GU4Uu0nKaCxCaCuHBnrISPRovLQLAXkQzhjFeGSuq3/ZDa3PrObuIBoZYG
+        uJlw+pCKkNRIlgyNejttCFLazy6UNQqSvR55LBZVk/57kVSEP4ONEZ54A6mQkv87
+        wP0+WPf+hsNcb5TZO33HuylZPX5wQ==
+X-ME-Sender: <xms:CuppX3P-FbdqXxRhCd3y407pdb3qKe4XSZ4wD0JO-XZMwyCKEO9POw>
+    <xme:CuppXx_F8kqDJz72D7HmrLF2rHehef3e3p5lkL3JlbLHkork8kE9gIwOUGoxh8rL_
+    g2Rcxp9q1_YxQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrudeggdehtdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttdejnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeegieejue
+    dvffeuvdfftdetfeeuhfekhefgueffjeevtedtlefgueduffffteeftdenucffohhmrghi
+    nhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhm
+X-ME-Proxy: <xmx:CuppX2QgbJhCoErscEaxViLhP8Af8Lwp6iiEopGP4T3qbAjGTCXIag>
+    <xmx:CuppX7sON-QmbXbiaNWkEJq5nvjhVhHYhfXjUjkjheEakfo6xf2xdw>
+    <xmx:CuppX_cLVZ1m19lWZpTrT-m9HgyEwzzATx7DxPv9B5mjqNEmJpVXeQ>
+    <xmx:CuppX3EWnf5kIczLUsGSpEpGawTipqsnjm4j9hRPL0-NwOR0f6wVgQ>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5793E3064684;
+        Tue, 22 Sep 2020 08:11:53 -0400 (EDT)
+Date:   Tue, 22 Sep 2020 14:12:14 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Haiwei Li <lihaiwei.kernel@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "stable-commits@vger.kernel.org" <stable-commits@vger.kernel.org>
+Subject: Re: Patch "KVM: Check the allocation of pv cpu mask" has been added
+ to the 5.8-stable tree
+Message-ID: <20200922121214.GB2244437@kroah.com>
+References: <20200921104234.9C539216C4@mail.kernel.org>
+ <EE2DABCA-2B97-4D46-8AFB-7F94DED675F8@tencent.com>
+ <20200921132850.GM2431@sasha-vm>
+ <E0D58EE6-0CA2-4594-877B-FDE2C1806272@tencent.com>
+ <20200921142807.GA643426@kroah.com>
+ <601A8297-7002-43E1-93AB-DB29F7E3BA92@tencent.com>
+ <CAB5KdObZ2PZZRF56xb0YT4i0Mt=_mz36fE9U-D2GOhuUVX5ujg@mail.gmail.com>
+ <1da91e3b-4fa8-6e24-50b2-932e8085f598@gmail.com>
 MIME-Version: 1.0
-References: <20200921162035.541285330@linuxfoundation.org>
-In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 22 Sep 2020 17:32:20 +0530
-Message-ID: <CA+G9fYstmfZAfx4ZDsbfHHs-7Ys6Kdcb1K++TKyztE1YJ0pQ+Q@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/94] 4.14.199-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1da91e3b-4fa8-6e24-50b2-932e8085f598@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 21 Sep 2020 at 22:07, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.199 release.
-> There are 94 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 23 Sep 2020 16:20:12 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.199-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+On Tue, Sep 22, 2020 at 08:52:58AM +0800, Haiwei Li wrote:
+> 
+> 
+> On 20/9/21 23:08, Haiwei Li wrote:
+> > > On Sep 21, 2020, at 22:28, Greg KH <greg@kroah.com> wrote:
+> > > 
+> > > On Mon, Sep 21, 2020 at 02:14:41PM +0000, lihaiwei(李海伟) wrote:
+> > > 
+> > > 
+> > > On Sep 21, 2020, at 21:28, Sasha Levin <sashal@kernel.org> wrote:
+> > > 
+> > > On Mon, Sep 21, 2020 at 10:54:38AM +0000, lihaiwei(李海伟) wrote:
+> > > 
+> > > 
+> > > On Sep 21, 2020, at 18:42, Sasha Levin <sashal@kernel.org> wrote:
+> > > 
+> > > This is a note to let you know that I've just added the patch titled
+> > > 
+> > >   KVM: Check the allocation of pv cpu mask
+> > > 
+> > > to the 5.8-stable tree which can be found at:
+> > >   http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> > > 
+> > > The filename of the patch is:
+> > >    kvm-check-the-allocation-of-pv-cpu-mask.patch
+> > > and it can be found in the queue-5.8 subdirectory.
+> > > 
+> > > If you, or anyone else, feels it should not be added to the stable tree,
+> > > please let <stable@vger.kernel.org> know about it.
+> > > 
+> > > 
+> > > This patch is not a correct version, so please don’t add this to the stable tree, thanks.
+> > > 
+> > > 
+> > > What's wrong with it? That's what landed upstream.
+> > > 
+> > > 
+> > > The patch landed upstream is the v1 version. There are some mistakes and shortcomings. The message discussed is
+> > > 
+> > > https://lore.kernel.org/kvm/d59f05df-e6d3-3d31-a036-cc25a2b2f33f@gmail.com/
+> > > 
+> > > Then, a revert commit was pushed. Here,
+> > > 
+> > > https://lore.kernel.org/kvm/CAB5KdObJ4_0oJf+rwGXWNk6MsKm1j0dqrcGQkzQ63ek1LY=zMQ@mail.gmail.com/
+> > > 
+> > > 
+> > > What is the git commit id of the revert in Linus's tree?
+> > > 
+> The revert commit was pushed. I am sorry I just saw this commit.
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7d1f8691ccffe88cec70a6e4044adf1b9bbd8a7c
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Thanks for this, I've dropped it from the 5.8.y queue now.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.14.199-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: fbc0d5c8464b4a7bd7ad25355d983c3b815a2723
-git describe: v4.14.198-95-gfbc0d5c8464b
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14=
-.y/build/v4.14.198-95-gfbc0d5c8464b
-
-No regressions (compared to build v4.14.198-60-gec572a7e7f50)
-
-No fixes (compared to build v4.14.198-60-gec572a7e7f50)
-
-Ran 25204 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* linux-log-parser
-* ltp-commands-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* perf
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fs-tests
-* ltp-io-tests
-* network-basic-tests
-* v4l2-compliance
-* libhugetlbfs
-* ltp-controllers-tests
-* ltp-open-posix-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
