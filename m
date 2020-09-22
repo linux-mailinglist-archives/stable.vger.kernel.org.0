@@ -2,211 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9BD2274215
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 14:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69166274221
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 14:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726609AbgIVMbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 08:31:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47768 "EHLO
+        id S1726541AbgIVMhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 08:37:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726533AbgIVMbH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 08:31:07 -0400
-Received: from mail-vs1-xe41.google.com (mail-vs1-xe41.google.com [IPv6:2607:f8b0:4864:20::e41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0C37C0613CF
-        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 05:31:07 -0700 (PDT)
-Received: by mail-vs1-xe41.google.com with SMTP id 5so10168452vsu.5
-        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 05:31:07 -0700 (PDT)
+        with ESMTP id S1726505AbgIVMhP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 08:37:15 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 173D6C061755;
+        Tue, 22 Sep 2020 05:37:15 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id g128so19293550iof.11;
+        Tue, 22 Sep 2020 05:37:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=jAfVW/Ktu2QKoPziUx6oPYo+81bR4uA7dIDWVIcXV5M=;
-        b=Mn1spglw5nXsN+c7rr4ZUT9U4x0HXJyri++Ty0zUuupCxiWYu0eobX8wSS4WIU7ZUd
-         vwYhQoYjd7L2imjbn5NsY5NltWRqv+6pxoPCE1j/tretZ3Bxkqp+ny0hZBHSqiyMCYok
-         svWs/NWfm/OhwUNgVSOYtAVbrrTe/ITEpk/hofEMXx6hpUvGcBIli2SsXbBU25010YFI
-         Han3eeqyt0VAXIKE2uR6gy7hS8NK7kHDUY3tnT/GyA/AOoKCA86XOJC8rlAY88cTM0So
-         WLGAKkp5LBSPuytLxp3c6EtBkOh1v62ssfm2TQ3Fmu6O9ziWOVkygGzOG3iwPcFVYgyY
-         PlwQ==
+         :cc;
+        bh=zFQzsuujKElV6LtzLXsM0uz/7sKSzxEF2swvXixbgcU=;
+        b=pPZFEYz772Y00aL6I89bLezhZ1ZSA+934tPUMBBiooGMWH19SXpJ8bl10e06NmMYWr
+         BuK/9pGS4qwZFIdpuGZmydXZxaxWXKBvslrO1C9ZY4VgVmNmTnqpbL7iFlf4sjR1Vo3r
+         sI2xwGwV/jaAtOXb49k9udGvyJ/bbFRTDOGx6K7Xekik/1B43qONcRllYBUW8jMLSMdj
+         ID2fqpZQwgvAnMkm9GNjMg0OP/4/FEMMaX8OQeXdD0wCmcMlTx+VP5UgVq7HcOfLVF9P
+         TI7cwfDv+ekZ333Lu9auSteTza9zPTrN1UpsXjROHSAwv8yhy5P4YPG6ZypqSDzKUedh
+         Y5Ug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=jAfVW/Ktu2QKoPziUx6oPYo+81bR4uA7dIDWVIcXV5M=;
-        b=QzsVvfDcUvvcId6R1hYwVptPJNEDr+LPb2FqcYA7quIjw2/fxjeGjh962xytxmW0Lk
-         YB0KkoqB8ZxF0tKU5W9zXN0BdmSaAfv2ceMEAclcnj1We4xg1p/JSw4XtZIAf4ufr4hq
-         vVg64Xnf08luOWUX4FmRlDoWiI0c6FvPH1iKGVsr5S7EXs3Zmy6fcWScJiuZBQVmw8p5
-         gaA3CGdY1EqoKkEPxb0B/icfL+zM9I141ffbThBj3jhfkUTK0/2o8LWvGbST4pdO4Www
-         p2Seo9RpCa1djd11udjfFYDPVPH0deUSpAkO4lXhkxQGqswxzPDbwacDUl4gOw/8mnCm
-         WtdA==
-X-Gm-Message-State: AOAM53082IPOugl6X9DaoUrAsdzeBmbpwgRTmGf3OsagcNsQM10lG0eF
-        IxMdrhDp7bWlCU4gMkYSl3PzVYpLHjypkMr9tyngXA==
-X-Google-Smtp-Source: ABdhPJyTgxBZGwxLuNPI/JMKFfvzkoWA/ZbHvmTE12v3q1eO5oAolmulCegwZ2e+/J85HarfVXfbIsP4d8kPVtjKPT8=
-X-Received: by 2002:a05:6102:310f:: with SMTP id e15mr728367vsh.39.1600777866703;
- Tue, 22 Sep 2020 05:31:06 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=zFQzsuujKElV6LtzLXsM0uz/7sKSzxEF2swvXixbgcU=;
+        b=kbzfBpau6iB6GAyUgVg5A6mIAVxgkOp0upsu4qtlRGq+j2eV96jaYdGtMDjDw5JayD
+         UTjk10PUuPpxl91XxGSRbiOvM9A5Pi/bnWkLXbkr8vZlshzx5xVyvUF10K8kOF7bZ3t9
+         ybUmrJUQyCeoBB6N8KGAamM8QcraRmsI3RM5rYPUxIVkdlvQW0iA6n5I1K4WujimV6ir
+         IZJtbtwgXRm8Nz/kZ2TS/eS1MvTNfC4N5S/tTFLW8UYc+cFRirOCBMAWZUFYsCLv5xLg
+         yFUAkROnQwvU4xPdMVh74Vi7q6//95pHzzRRFJd15s9NnmrndkY5FaCsMYdEY8VMzwYQ
+         Vhig==
+X-Gm-Message-State: AOAM533Ln1QzMlolPRgrOHEvnQ/k2x0WDHityqVPoU43N0mgrKckAcEy
+        3dlw1v5VvCE6Dq26R32ROkw9jOpMfMra/NMVMac=
+X-Google-Smtp-Source: ABdhPJxye/MkIp551boOR1WwfOkduVFP0l+ez27MYGdisf+spj9/XVdhXZ8I4q+9AKlggFGWhalMz+fJ3lALpCJVGkg=
+X-Received: by 2002:a05:6638:587:: with SMTP id a7mr3788125jar.72.1600778233885;
+ Tue, 22 Sep 2020 05:37:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200921162033.346434578@linuxfoundation.org>
-In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 22 Sep 2020 18:00:55 +0530
-Message-ID: <CA+G9fYuF1Shea03D2CWb8n4vnS9bZrmk-A7g4rDP9ms=bvUicQ@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/46] 4.4.237-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        linux- stable <stable@vger.kernel.org>
+References: <20200922114905.2942859-1-gch981213@gmail.com> <20200922120112.GS4792@sirena.org.uk>
+In-Reply-To: <20200922120112.GS4792@sirena.org.uk>
+From:   Chuanhong Guo <gch981213@gmail.com>
+Date:   Tue, 22 Sep 2020 20:37:02 +0800
+Message-ID: <CAJsYDVLsBm9pnjd5hbDptXXN3Vd7e=cpuDMc-d-XZ-k46j9ztQ@mail.gmail.com>
+Subject: Re: [PATCH v2] spi: spi-mtk-nor: fix timeout calculation overflow
+To:     Mark Brown <broonie@kernel.org>
+Cc:     linux-spi@vger.kernel.org,
+        =?UTF-8?B?QmF5aSBDaGVuZyAo56iL5YWr5oSPKQ==?= 
+        <bayi.cheng@mediatek.com>, stable@vger.kernel.org,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        open list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 21 Sep 2020 at 22:01, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.237 release.
-> There are 46 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 23 Sep 2020 16:20:12 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.237-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Sep 22, 2020 at 8:02 PM Mark Brown <broonie@kernel.org> wrote:
+> (which we should pay attention to in the core for flash
+> stuff but IIRC we didn't do that yet).
 
-
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.237-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 546770fa5bddee72c166fb475ba82229a29fbf26
-git describe: v4.4.236-47-g546770fa5bdd
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.=
-y/build/v4.4.236-47-g546770fa5bdd
-
-No regressions (compared to build v4.4.236)
-
-No fixes (compared to build v4.4.236)
-
-Ran 4796 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-tracing-tests
-* v4l2-compliance
-* ltp-syscalls-tests
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.237-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.237-rc1-hikey-20200921-816
-git commit: 2860820c05f32493d650884c2a474a5db5525017
-git describe: 4.4.237-rc1-hikey-20200921-816
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.237-rc1-hikey-20200921-816
-
-No regressions (compared to build 4.4.237-rc1-hikey-20200915-814)
-
-No fixes (compared to build 4.4.237-rc1-hikey-20200915-814)
-
-Ran 1834 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+BTW we do have that taken care. spi_mem_adjust_op_size will
+adjust the transfer size according to max_transfer/message_size
+if no custom adjust_op_size hook is defined in the driver. If a custom
+adjust_op_size is defined, the driver adjusts the transfer size for it's
+exec_op hook. The size limit between exec_op and transfer_one_message
+can be different. (this spi-mtk-nor is an example of that.)
+-- 
+Regards,
+Chuanhong Guo
