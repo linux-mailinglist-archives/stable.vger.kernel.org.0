@@ -2,125 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9FB273A9C
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 08:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC26F273AED
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 08:32:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729217AbgIVGRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 02:17:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46256 "EHLO
+        id S1728278AbgIVGce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 02:32:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727027AbgIVGRe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 02:17:34 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A602C061755
-        for <stable@vger.kernel.org>; Mon, 21 Sep 2020 23:17:34 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id 7so11072927pgm.11
-        for <stable@vger.kernel.org>; Mon, 21 Sep 2020 23:17:34 -0700 (PDT)
+        with ESMTP id S1726898AbgIVGce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 02:32:34 -0400
+Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89715C061755
+        for <stable@vger.kernel.org>; Mon, 21 Sep 2020 23:32:34 -0700 (PDT)
+Received: by mail-qv1-xf44.google.com with SMTP id z18so8936579qvp.6
+        for <stable@vger.kernel.org>; Mon, 21 Sep 2020 23:32:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=I9g2pDEXc7kzjMKz54IbzXE9oTaxnd/XJJCByzjQfAs=;
-        b=D9sWoFgWx/1FBOEFZsf7mIekrCyqJIAUf7LeKnLblnlKGCRcX/L5NxUs4i2GjTqv1L
-         wXvGbXpqAhkAP7XfADsCaf1tvxvYFG4v6Jgg9gHZ4YGhk0bM4kEbc52u7esr0hAuLujk
-         kdoQe+y0nIVNHxT33Umdy1DFFH4pktP8TDMZr3kuxgtcRlc6SgioRLdS6otcwltKx00f
-         ycifHvIqwdXXmPnUukTD/J+2CBg5AwgwybprHUcqAUjN4yQqEdXcwCSodiTlQwFdSC8O
-         nWSRE8MRmzWRseM0tnCn08wg+u/RjYaCOMNrkf/DDl9Jf/MN0ehrSvNaPnRYYPlhuO7K
-         dsoQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=uJFy+3A3C/ymk3cSUV9e3v1lv0Tpv8T9SnAJu61qQJs=;
+        b=GYgkkmEuPnZwk7bLbsRq3CvIMNmt1XVH30WzOHCJclk/00GseUIvSL68/JV8Fw6uqf
+         4Bo/gcLcvdp4YKQp/EYofpyCtWWeEmXY6uLfXuvNebDRObLIcAvdGlRPIMYVGlLjeGH2
+         p7i6QKEdrDlwVBaFPsIaN8xfXHBIzJJvQ+6haTIlHkLdTFZHczmGZfa25nqOsaGNP9uw
+         qPK/JbZdY5hXq9HoI5Yi/dgmuDcSfyvkqaQS430hasSgaX/FUlqpEmi1aszNRP6ge5sF
+         Ao8WOYbZunGDjyIU9bV52YSrtzXTP/JC8rf2bAhhYDGg/COGgDY4mfnpX27Z+ZpXAehD
+         zceA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=I9g2pDEXc7kzjMKz54IbzXE9oTaxnd/XJJCByzjQfAs=;
-        b=cS8uwqqHBUIVUylUoSeEzdF/dTX4AbNDwj5zoGkDB3DPph+v1/dzG26g4ovTYY3X2+
-         N27R6X2k4EcRVaL0QDWaRy6fXIE3zKgfeDbI9vlWykiVt607Q/6aZxF1S6a1EuaHAq1T
-         c+X5i7BOUylHgEf+jZjZ0SrUgdI5spaHyjdW7weNgrT9yOahC+qyxZnBPs3FIw6XVfEu
-         OECYgzQ6b2kurGKrYnKknyIea/hjPxFJPYX9F2zFSBQ+WlFYTLU6QlIgnxFLmwGtdsTx
-         CU2NiiDljivRlMc+2QOIb8vRPZP2LiEbqLoqdRbNe1+mAMcioBylajd3Eo9I4UY1bfnI
-         OQtw==
-X-Gm-Message-State: AOAM533z0C4s5guqNDZ212ru/qG4I1B/JX2PoqUWzCz1g13ryv26PJRj
-        9g5Cje4K/OKAJhhKjlO9FBPxE3SQ6UNLtg==
-X-Google-Smtp-Source: ABdhPJzno1O2GcueBVA2KbFb/cGNtZe1xw1jCeHUjqN+FpWX/kLeUpbz4a6/1G1S5ib7J2QlIW3sEA==
-X-Received: by 2002:a17:902:8e85:b029:d2:42a6:bb6 with SMTP id bg5-20020a1709028e85b02900d242a60bb6mr799541plb.72.1600755453527;
-        Mon, 21 Sep 2020 23:17:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g23sm1146334pjz.51.2020.09.21.23.17.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2020 23:17:32 -0700 (PDT)
-Message-ID: <5f6996fc.1c69fb81.c9530.3f1c@mx.google.com>
-Date:   Mon, 21 Sep 2020 23:17:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=uJFy+3A3C/ymk3cSUV9e3v1lv0Tpv8T9SnAJu61qQJs=;
+        b=LvYkGLFO7Azpb43FNHteVIMR66bSiC1hGXwWoeQffWmlU5Dr6Pd7pLF2fHVtL0Ui6+
+         A/NNr3Qps+CPw0b6Cndi8tlPNc8gStocvyt0cdWBCA5IsgdXJPxgpPezB5OndBwIf7bs
+         zPoEWB2b845SelhRybNKoHPvkY+/i1II5UO17MZsV834GHjBE+72cWfozVIVY96YhhSR
+         bSN/gyGCH8z8rfc+aK9cZlj4TZkmqvb+BQYUgMqoJ33b59f5GXHyj7UQC2tCki8xWpJO
+         HMmgcijQCa5ytoXZKdBdIvy9dq0rD/ilSjc9IJmi3Q1x+uZX/q3Q/oHtKM8LqfKF39mL
+         pGIw==
+X-Gm-Message-State: AOAM531+7TN3XNSHS//qmznaCt4p1kIMEafGL800Ce3yAqka21AAi8nr
+        XfIXmy++hD5CX80l57zUThuq6sk/+xpR18NX8kc=
+X-Google-Smtp-Source: ABdhPJzFIC5CYMT4f2beANsTsBYrk4HxnEDY1P04IeokiHOESfEDbgmKvGJy0Awls4B7FjKSZrFR0tjV2ZKn3XPikKE=
+X-Received: by 2002:ad4:4f90:: with SMTP id em16mr4357045qvb.38.1600756353666;
+ Mon, 21 Sep 2020 23:32:33 -0700 (PDT)
 MIME-Version: 1.0
+Sender: fariqtumuh010@gmail.com
+Received: by 2002:a05:6214:329:0:0:0:0 with HTTP; Mon, 21 Sep 2020 23:32:33
+ -0700 (PDT)
+From:   Juliette Morgan <juliettemorgan21@gmail.com>
+Date:   Tue, 22 Sep 2020 08:32:33 +0200
+X-Google-Sender-Auth: wmv3bRMndIQGhMBXd3jAJfqY7l8
+Message-ID: <CAEotuPT41Q+DKFG4tj9bqpwj9-tGjRvD00q+Hz5kX5NQtHAB4Q@mail.gmail.com>
+Subject: READ AND REPLY URGENT
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.145-129-g20031549a4cc
-Subject: stable-rc/linux-4.19.y baseline: 161 runs,
- 1 regressions (v4.19.145-129-g20031549a4cc)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 161 runs, 1 regressions (v4.19.145-129-g20=
-031549a4cc)
+Hello Dear God,s Select Good Day,
 
-Regressions Summary
--------------------
+I apologized, If this mail find's you disturbing, It might not be the
+best way to approach you as we have not met before, but due to the
+urgency of my present situation i decided  to communicate this way, so
+please pardon my manna, I am writing this mail to you with heavy tears
+In my eyes and great sorrow in my heart, My Name is Mrs.Juliette
+Morgan, and I am contacting you from my country Norway, I want to tell
+you this because I don't have any other option than to tell you as I
+was touched to open up to you,
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+I married to Mr.sami Morgan. Who worked with Norway embassy in Burkina
+Faso for nine years before he died in the year 2011.We were married
+for eleven years without a child He died after a brief illness that
+lasted for only five days. Since his death I decided not to remarry,
+When my late husband was alive he deposited the sum of =E2=82=AC 8.5 Millio=
+n
+Euro (Eight million, Five hundred thousand Euros) in a bank in
+Ouagadougou the capital city of Burkina Faso in west Africa Presently
+this money is still in bank. He made this money available for
+exportation of Gold from Burkina Faso mining.
 
+Recently, My Doctor told me that I would not last for the period of
+seven months due to cancer problem. The one that disturbs me most is
+my stroke sickness.Having known my condition I decided to hand you
+over this money to take care of the less-privileged people, you will
+utilize this money the way I am going to instruct herein.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.145-129-g20031549a4cc/plan/baseline/
+I want you to take 30 Percent of the total money for your personal use
+While 70% of the money will go to charity, people in the street and
+helping the orphanage. I grew up as an Orphan and I don't have any
+body as my family member, just to endeavour that the house of God is
+maintained. Am doing this so that God will forgive my sins and accept
+my soul because these sicknesses have suffered me so much.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.145-129-g20031549a4cc
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      20031549a4cc9e0c3576a84631ce04afddf88f07 =
+As soon as I receive your reply I shall give you the contact of the
+bank in Burkina Faso and I will also instruct the Bank Manager to
+issue you an authority letter that will prove you the present
+beneficiary of the money in the bank that is if you assure me that you
+will act accordingly as I Stated herein.
 
+Always reply to my alternative for security purposes
 
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f69642f9348ee0c2fbf9dc2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-45-129-g20031549a4cc/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
-ama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-45-129-g20031549a4cc/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
-ama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f69642f9348ee0c2fbf9=
-dc3
-      failing since 97 days (last pass: v4.19.126-55-gf6c346f2d42d, first f=
-ail: v4.19.126-113-gd694d4388e88)  =20
+Hoping to receive your reply:
+From Mrs.Juliette Morgan,
