@@ -2,91 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E2EC2748A9
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 20:59:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D7A72748B3
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 21:02:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726573AbgIVS7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 14:59:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38378 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726563AbgIVS7d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Sep 2020 14:59:33 -0400
-Received: from gmail.com (unknown [104.132.1.76])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A3DD206F4;
-        Tue, 22 Sep 2020 18:59:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600801173;
-        bh=T+ja20+KkhDc/68kT+bFCy5o4/aJH6M/ZBfoymLFxzg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=w7b1TIv64cEk9yVwIBRYvfjUzFFFmmlLGOCdd893DjTqMuwznP1nMRlivv0CzJuob
-         +pxKc7odISQbQDQ5K7IPLaTvKAVRlXMvCy4q0/on9fMb34fU3ojSGNBFTUIxSHd9bc
-         GetbtticD8jpr1MSvmVygpkzz9oqaM8/cNDwClFQ=
-Date:   Tue, 22 Sep 2020 11:59:31 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     "Paul E. McKenney" <paulmck@kernel.org>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>, tytso@mit.edu,
-        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH] random: use correct memory barriers for crng_node_pool
-Message-ID: <20200922185931.GA1616407@gmail.com>
-References: <20200916233042.51634-1-ebiggers@kernel.org>
- <20200917072644.GA5311@gondor.apana.org.au>
- <20200917165802.GC855@sol.localdomain>
- <20200921081939.GA4193@gondor.apana.org.au>
- <20200921152714.GC29330@paulmck-ThinkPad-P72>
- <20200921221104.GA6556@gondor.apana.org.au>
- <20200921232639.GK29330@paulmck-ThinkPad-P72>
- <20200921235136.GA6796@gondor.apana.org.au>
- <20200922184243.GA29330@paulmck-ThinkPad-P72>
+        id S1726614AbgIVTCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 15:02:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51478 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726573AbgIVTCt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 15:02:49 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9746C061755
+        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 12:02:48 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id x14so18244425wrl.12
+        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 12:02:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=fooishbar-org.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rm/MUGiqEj6w9zoNKJAAAmLZqiJ10V/BIIAqAEoPPYo=;
+        b=nHx+oCJ4c6Paf+lALa+5KspNBYN+hXRQkk9hBttFTN+rje5X8/9FAUvaCBwnGOPWQ1
+         F4R0U65sfyBNDYw+IPkqYN/j3Q/YMan4JXmbRcOW/ASi5k1hxBIiRxiCHJJqQK1aycZl
+         VBAJ78k7zPaOieZI67vbAaNfJPc8l78oZiXdnreDjhWtR6rsN9vfcznLyR49mkwjUtFs
+         E2jco4SRrE6jQD2v3CBXzKCrByqErFTzls6gcpddlM0Nz8pB508/uQX3YGIbykHJImTo
+         tHnjh25yK6E3gcJ8UoyNvbJRSMpiFSGPo2YN4QrEg7DYjbZBzI0cK7+uQtTUwkZrNa73
+         1akA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rm/MUGiqEj6w9zoNKJAAAmLZqiJ10V/BIIAqAEoPPYo=;
+        b=LL5ld1vexcKEvL3acVqHGidQwUHKHeL2c2qWPa453yiVgSOo+qJXdsmc5zwytMN7q8
+         JVGfn4rWOzNe+yJPyW3dWgf867ScFnrzYMaMEEQsLTtFjtA+dgphm/w5MEIHszNGG8Sx
+         Yx0mWgiq+Y23RG3OG6a0jkT/MD7vv9QrEz1qiZ5j2ecwXbmWG0GXnALlP01qiWO30QKc
+         POwFREC7cjQqyt5MkIHldmxyYziZF9kiIAl+tpEGLXCkc2KAJHuTQO0soAEx2FqRZ0el
+         zHf30P44bjOe7tLGjY4Kk2d4TW2MLTXN9WYHvSn+dXLeX/dIsx5tqyCX0GGYr1Ozx2ES
+         JToA==
+X-Gm-Message-State: AOAM532vOfVPE+arBck1r0J1n32DJ//apznctIUoP34tjPWudgc2UlwB
+        uGZOMiuYJ1Bk0jfIe/GzuYGh/CgdVYSH/yPw1IKG+g==
+X-Google-Smtp-Source: ABdhPJwvwQBt4Q6HDn51fnSs2PQD3j8FLapI/mLE772a0J4HTg0bK9kCG9427Njb47eon1VCQkDPa5MIGFa14BvVrEY=
+X-Received: by 2002:adf:e292:: with SMTP id v18mr6915557wri.256.1600801367216;
+ Tue, 22 Sep 2020 12:02:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200922184243.GA29330@paulmck-ThinkPad-P72>
+References: <20180705101043.4883-1-daniel.vetter@ffwll.ch> <20180705102121.5091-1-daniel.vetter@ffwll.ch>
+ <CAPj87rN48S8+pLd0ksOX4pdCTqtO=bDgjhkPxpWr_AnpVvgaSQ@mail.gmail.com>
+ <20200922133636.GA2369@xpredator> <CAKMK7uHCeFan4+agMn0sr-z9UDyZwEJv0_dL-K-gA1n0=m+A2w@mail.gmail.com>
+ <CAPj87rNLzFjn7xyePmEBEY8teL7TnL-HrQHXbp7C1tXDdWgeUA@mail.gmail.com> <CAKMK7uEyt0d0LidUCQL4oHZRYZdDEFhy=DnRF7WwD1S1+ackFQ@mail.gmail.com>
+In-Reply-To: <CAKMK7uEyt0d0LidUCQL4oHZRYZdDEFhy=DnRF7WwD1S1+ackFQ@mail.gmail.com>
+From:   Daniel Stone <daniel@fooishbar.org>
+Date:   Tue, 22 Sep 2020 20:02:35 +0100
+Message-ID: <CAPj87rNO+_2dBSJtaNi5PemvS3oG2uuoCwP_AmtOw3qbjUQ-ZA@mail.gmail.com>
+Subject: Re: [PATCH] drm: avoid spurious EBUSY due to nonblocking atomic modesets
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     Marius Vlad <marius.vlad@collabora.com>,
+        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
+        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        stable <stable@vger.kernel.org>,
+        DRI Development <dri-devel@lists.freedesktop.org>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 22, 2020 at 11:42:43AM -0700, Paul E. McKenney wrote:
-> On Tue, Sep 22, 2020 at 09:51:36AM +1000, Herbert Xu wrote:
-> > On Mon, Sep 21, 2020 at 04:26:39PM -0700, Paul E. McKenney wrote:
-> > >
-> > > > But this reasoning could apply to any data structure that contains
-> > > > a spin lock, in particular ones that are dereferenced through RCU.
-> > > 
-> > > I lost you on this one.  What is special about a spin lock?
-> > 
-> > I don't know, that was Eric's concern.  He is inferring that
-> > spin locks through lockdep debugging may trigger dependencies
-> > that require smp_load_acquire.
-> > 
-> > Anyway, my point is if it applies to crng_node_pool then it
-> > would equally apply to RCU in general.
-> 
-> Referring to the patch you call out below...
-> 
-> Huh.  The old cmpxchg() primitive is fully ordered, so the old mb()
-> preceding it must have been for correctly interacting with hardware on
-> !SMP systems.  If that is the case, then the use of cmpxchg_release()
-> is incorrect.  This is not the purview of the memory model, but rather
-> of device-driver semantics.  Or does crng not (or no longer, as the case
-> might be) interact with hardware RNGs?
+Hi,
 
-No hardware involved here.  The mb() is just unnecessary, as I noted in my patch
-https://lore.kernel.org/lkml/20200916233042.51634-1-ebiggers@kernel.org/.
+On Tue, 22 Sep 2020 at 17:02, Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
+> On Tue, Sep 22, 2020 at 4:14 PM Daniel Stone <daniel@fooishbar.org> wrote:
+> > I think we need a guarantee that this never happens if ALLOW_MODESET
+> > is always used in blocking mode, plus in future a cap we can use to
+> > detect that we won't be getting spurious EBUSY events.
+> >
+> > I really don't want to ever paper over this, because it's one of the
+> > clearest indications that userspace has its timing/signalling wrong.
+>
+> Ok so the hang-up last time around iirc was that I broke igt by making
+> a few things more synchronous. Let's hope I'm not also breaking stuff
+> with the WARN_ON ...
+>
+> New plan:
+> - make this patch here only document existing behaviour and enforce it
+> with the WARN_ON
+> - new uapi would be behind a flag or something, with userspace and
+> everything hanging off it.
+>
+> Thoughts?
 
-> What prevents either the old or the new code from kfree()ing the old
-> state out from under another CPU that just now picked up a pointer to the
-> old state?  The combination of cmpxchg_release() and smp_load_acquire()
-> won't do anything to prevent this from happening.  This is after all not
-> a memory-ordering issue, but instead an object-lifetime issue.  But maybe
-> you have a lock or something that provides the needed protection.  I don't
-> see how this can be the case and still require the cmpxchg_release()
-> and smp_load_acquire(), but perhaps this is a failure of imagination on
-> my part.
+What do you mean by 'new uapi'? The proposal that the kernel
+communicates back which object IDs have been added to the state behind
+your back? That it's been made automatically blocking? Something else?
 
-crng_node_pool is initialized only once, and never freed.
-
-- Eric
+Cheers,
+Daniel (the other one)
