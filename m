@@ -2,103 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 256682749A4
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 21:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53BD82749F6
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 22:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726615AbgIVT6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 15:58:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52928 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726589AbgIVT6Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Sep 2020 15:58:25 -0400
-Received: from X1 (unknown [216.241.194.61])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2263221E8;
-        Tue, 22 Sep 2020 19:58:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600804704;
-        bh=9EHhEKB6W7yiZCj2Gb+fnnKUKfFmwBX2UOuEkCy0w7E=;
-        h=Date:From:To:Subject:From;
-        b=rgYodkQDbASsTowYK7DdEqU6MJF8D/L/srEr9B0QPDgD30Q92s8aK0Vz4FUihtC2S
-         qmv7gPZW6LMPgAzOPJe6Ssr46g6OLnD3R57gw4V+nUCf8ppaT9bd0nTRu62C515LkP
-         6SveUjUAEaqFJpQpEcPt5HPRInZOVTa305W6WWyw=
-Date:   Tue, 22 Sep 2020 12:58:22 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, willy@infradead.org,
-        stable@vger.kernel.org, shy828301@gmail.com, shakeelb@google.com,
-        mike.kravetz@oracle.com, mhocko@suse.com, hannes@cmpxchg.org,
-        cai@lca.pw, alex.shi@linux.alibaba.com, hughd@google.com
-Subject:  [to-be-updated]
- shmem-shmem_writepage-split-unlikely-i915-thp.patch removed from -mm tree
-Message-ID: <20200922195822.34qJx%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1726620AbgIVURj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 16:17:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34834 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726563AbgIVURj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 16:17:39 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05654C061755;
+        Tue, 22 Sep 2020 13:17:39 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id h17so16859806otr.1;
+        Tue, 22 Sep 2020 13:17:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=mNj7G7Ic3mv2j6tH0eZ5Bv0KO9rpEhresnZN5IzGje0=;
+        b=le1TpTZ3iVqQIaVRg+9apcr1VxkMUeSXczqZWz9RWt3sEC1c6EeOHkQRME4RuEZX2J
+         IQt+lULl1M1Z84UzyN2xGGZ4EPVVJh3jwwkEX5nCYELUcXXa5r2qFBlVyaGx9v3rMoR0
+         wrECeEmy1FZC8iTe0dHStr4AgDE5HmWvM/LrJKQJ6w/oL3W3hv19csKoeYFRD7qxC6gJ
+         2WL0F/ffGJW9SSEqABlRfLJdjaCpN2rApgkUE4tnhElJuSW6N8lCu1AuDf4FT7NhgGD2
+         D4HBPA/cT28QHqAc7IuZwekKxrOg+nkHZdTODWPE6xFJm/A10044atw49+5nusoj9PJQ
+         Dy6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=mNj7G7Ic3mv2j6tH0eZ5Bv0KO9rpEhresnZN5IzGje0=;
+        b=mVFL3zyXLyacEfgJZUv9Pdy72Jz9lab2F1aBAPo+itf5MhO7GBsuXAp4iu/xwei2cU
+         gkENNpRCuXpVqYQGYzXM5ACbuMEi5FmGYsyzh01AnpCybZHnF4tFmh/Y6rTIqioO9URn
+         g7y5p6NLoxdmHfll8edaBFdHSFhzSiauSIt2f174dOVX8M3SBZGK+9zhm5ojWK9YLCUi
+         Ii1jk/0juOMCECIoQrBz3e9SQlG6lT6NskL6/7H312XmwlBgCmaYCMA4Q3SB/doGvViZ
+         sbqqrCCJIRjGq8+MIESg2tyTgs9aRqP1sY0XYIghy5LtqU437uJhzbZD1VEf6+6Y2Y68
+         LfYQ==
+X-Gm-Message-State: AOAM531JSylbyxKd6yHMBlgzIOd5lF7CHK+VBVKK7tbZAywrKxagDWpn
+        PpMYNQ1f6kBn0EhWeKtxki0=
+X-Google-Smtp-Source: ABdhPJwW3xEz7UrSNDXbxs/e7q2knnsFJWc1PmaeedeL/qPNLMG6Pnl0CpVQv31igYA7AO+TzZA/lA==
+X-Received: by 2002:a05:6830:1e90:: with SMTP id n16mr4009162otr.304.1600805858313;
+        Tue, 22 Sep 2020 13:17:38 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id q64sm7749000oib.2.2020.09.22.13.17.37
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 22 Sep 2020 13:17:37 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 22 Sep 2020 13:17:36 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/46] 4.4.237-rc1 review
+Message-ID: <20200922201736.GA127538@roeck-us.net>
+References: <20200921162033.346434578@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200921162033.346434578@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Sep 21, 2020 at 06:27:16PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.237 release.
+> There are 46 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 23 Sep 2020 16:20:12 +0000.
+> Anything received after that time might be too late.
+> 
 
-The patch titled
-     Subject: shmem: shmem_writepage() split unlikely i915 THP
-has been removed from the -mm tree.  Its filename was
-     shmem-shmem_writepage-split-unlikely-i915-thp.patch
+Build results:
+total: 169 pass: 169 fail: 0
+Qemu test results:
+total: 332 pass: 332 fail: 0
 
-This patch was dropped because an updated version will be merged
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-------------------------------------------------------
-From: Hugh Dickins <hughd@google.com>
-Subject: shmem: shmem_writepage() split unlikely i915 THP
-
-drivers/gpu/drm/i915/gem/i915_gem_shmem.c contains a shmem_writeback()
-which calls shmem_writepage() from a shrinker: that usually works well
-enough; but if /sys/kernel/mm/transparent_hugepage/shmem_enabled has been
-set to "force" (documented as "Force the huge option on for all - very
-useful for testing"), shmem_writepage() is surprised to be called with a
-huge page, and crashes on the VM_BUG_ON_PAGE(PageCompound) (I did not find
-out where the crash happens when CONFIG_DEBUG_VM is off).
-
-LRU page reclaim always splits the shmem huge page first: I'd prefer not
-to demand that of i915, so check and split compound in shmem_writepage().
-
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2008301401390.5954@eggly.anvils
-Fixes: 2d6692e642e7 ("drm/i915: Start writeback from the shrinker")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Yang Shi <shy828301@gmail.com>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>	[5.3+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/shmem.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
---- a/mm/shmem.c~shmem-shmem_writepage-split-unlikely-i915-thp
-+++ a/mm/shmem.c
-@@ -1364,7 +1364,15 @@ static int shmem_writepage(struct page *
- 	swp_entry_t swap;
- 	pgoff_t index;
- 
--	VM_BUG_ON_PAGE(PageCompound(page), page);
-+	/*
-+	 * If /sys/kernel/mm/transparent_hugepage/shmem_enabled is "force",
-+	 * then drivers/gpu/drm/i915/gem/i915_gem_shmem.c gets huge pages,
-+	 * and its shmem_writeback() needs them to be split when swapping.
-+	 */
-+	if (PageTransCompound(page))
-+		if (split_huge_page(page) < 0)
-+			goto redirty;
-+
- 	BUG_ON(!PageLocked(page));
- 	mapping = page->mapping;
- 	index = page->index;
-_
-
-Patches currently in -mm which might be from hughd@google.com are
-
-
+Guenter
