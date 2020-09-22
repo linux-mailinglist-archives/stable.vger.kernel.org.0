@@ -2,169 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F4145274804
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 20:18:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8D14274828
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 20:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726563AbgIVSSn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 14:18:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44762 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726526AbgIVSSm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 14:18:42 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46034C061755
-        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 11:18:42 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id c18so18142968wrm.9
-        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 11:18:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Xvy3alJ96Ui0nxtR1bQ3lwH1mzmrGuy6LWS2STQmjbE=;
-        b=JgHD4xhBv3w2KS1wlmGq725myi4zw1aoz3Xkk8ZtD3TfxN6Fo1h0htK5Xt6QKfaGh8
-         vm8drfKlFES9YM0uVmqZ/MtHm9L/FpqjtIS45T3otInnC/T5vHvy9x+4SmcE28vwlpxX
-         ACt3lq3/LUKeNrwnxx8IhTSbYpgX89yhQJ2XA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Xvy3alJ96Ui0nxtR1bQ3lwH1mzmrGuy6LWS2STQmjbE=;
-        b=aqUqGvXlo6syCe1h4Yk+lImDqHk/Fj5fPnyrbu6jxiz+xiI9LwYN4bkA40seHSWdVp
-         ivYFMNlb9N3ipLW3g/JpU98jOPazoj+MIP+h0TPOJvsVm12wDB774wZEN9zKdI2oOxzU
-         XkMJgZhmE/u2AVqkJ9LhjKbUOdoiTBxLqKwFnglD5F7UOJkiVW71TpD4c5flg+I9kMKC
-         +FIdroE8rwwPOEl2Aw+eHxO/M1KH0mkONl3fh/o/W7gChNxw1WZO4CfvVM5drIZCxivO
-         YtLflExkncI3m2VicfME0HzlO9gYivrtPhnbPvP7dRv53WRpx3X8GT2hbV8726WmTRW+
-         zblA==
-X-Gm-Message-State: AOAM532HRRKechA3FKHBji/sdEUHGI2mil6e7SmmqJhnOh4rTuKjfdxJ
-        M90vru2/dqRrOP/8iB3QdO+S3Q==
-X-Google-Smtp-Source: ABdhPJzeAXe6S7OGQg1DJ3blsd6I3onm90rmkmafgoVnXXvNrg4QBzqceh4SbOMb0JA0vgSjU3TVjg==
-X-Received: by 2002:a5d:4949:: with SMTP id r9mr6994316wrs.27.1600798720794;
-        Tue, 22 Sep 2020 11:18:40 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id n4sm27203520wrp.61.2020.09.22.11.18.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Sep 2020 11:18:40 -0700 (PDT)
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-To:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>
-Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Daniel Stone <daniel@fooishbar.org>,
-        Pekka Paalanen <pekka.paalanen@collabora.co.uk>,
-        Simon Ser <contact@emersion.fr>, stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH] drm: document and enforce rules around "spurious" EBUSY from atomic_commit
-Date:   Tue, 22 Sep 2020 20:18:34 +0200
-Message-Id: <20200922181834.2913552-1-daniel.vetter@ffwll.ch>
-X-Mailer: git-send-email 2.28.0
+        id S1726629AbgIVSbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 14:31:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32770 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726526AbgIVSbC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Sep 2020 14:31:02 -0400
+Received: from paulmck-ThinkPad-P72.home (unknown [50.45.173.55])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF8842065D;
+        Tue, 22 Sep 2020 18:31:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600799461;
+        bh=ereZaQWFcbMl4ja5mHMSHcgn49wMxqEQqu40GRB+s6g=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=MjW4gCQkLV3BGHnVSuQJqRS3UFo85MCYRNQC4e5/X3OWQGz1BIC/hA1JHdfS8HFOv
+         sXqHgjZx3qVNXLpk8QHiEBJfWqK4sGlPyULate4wlyTDF+lrYhPbiJZLiw0pIlspSU
+         SLHL+/Un6dpNjbcEXfa1za0MIZQvRZ5wlm5K05sM=
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id A9CC835227BD; Tue, 22 Sep 2020 11:31:00 -0700 (PDT)
+Date:   Tue, 22 Sep 2020 11:31:00 -0700
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>, tytso@mit.edu,
+        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH] random: use correct memory barriers for crng_node_pool
+Message-ID: <20200922183100.GZ29330@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20200916233042.51634-1-ebiggers@kernel.org>
+ <20200917072644.GA5311@gondor.apana.org.au>
+ <20200917165802.GC855@sol.localdomain>
+ <20200921081939.GA4193@gondor.apana.org.au>
+ <20200921152714.GC29330@paulmck-ThinkPad-P72>
+ <20200921221104.GA6556@gondor.apana.org.au>
+ <20200921232639.GK29330@paulmck-ThinkPad-P72>
+ <20200921235243.GA32959@sol.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200921235243.GA32959@sol.localdomain>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When doing an atomic modeset with ALLOW_MODESET drivers are allowed to
-pull in arbitrary other resources, including CRTCs (e.g. when
-reconfiguring global resources).
+On Mon, Sep 21, 2020 at 04:52:43PM -0700, Eric Biggers wrote:
+> On Mon, Sep 21, 2020 at 04:26:39PM -0700, Paul E. McKenney wrote:
+> > On Tue, Sep 22, 2020 at 08:11:04AM +1000, Herbert Xu wrote:
+> > > On Mon, Sep 21, 2020 at 08:27:14AM -0700, Paul E. McKenney wrote:
+> > > > On Mon, Sep 21, 2020 at 06:19:39PM +1000, Herbert Xu wrote:
+> > > > > On Thu, Sep 17, 2020 at 09:58:02AM -0700, Eric Biggers wrote:
+> > > > > >
+> > > > > > smp_load_acquire() is obviously correct, whereas READ_ONCE() is an optimization
+> > > > > > that is difficult to tell whether it's correct or not.  For trivial data
+> > > > > > structures it's "easy" to tell.  But whenever there is a->b where b is an
+> > > > > > internal implementation detail of another kernel subsystem, the use of which
+> > > > > > could involve accesses to global or static data (for example, spin_lock()
+> > > > > > accessing lockdep stuff), a control dependency can slip in.
+> > > > > 
+> > > > > If we're going to follow this line of reasoning, surely you should
+> > > > > be converting the RCU derference first and foremost, no?
+> > > 
+> > > ...
+> > > 
+> > > > And to Eric's point, it is also true that when you have pointers to
+> > > > static data, and when the compiler can guess this, you do need something
+> > > > like smp_load_acquire().  But this is a problem only when you are (1)
+> > > > using feedback-driven compiler optimization or (2) when you compare the
+> > > > pointer to the address of the static data.
+> > > 
+> > > Let me restate what I think Eric is saying.  He is concerned about
+> > > the case where a->b and b is some opaque object that may in turn
+> > > dereference a global data structure unconnected to a.  The case
+> > > in question here is crng_node_pool in drivers/char/random.c which
+> > > in turn contains a spin lock.
+> > 
+> > As long as the compiler generates code that reaches that global via
+> > pointer a, everything will work fine.  Which it will, unless the guy
+> > writing the code makes the mistake of introducing a comparison between the
+> > pointer to be dereferenced and the address of the global data structure.
+> > 
+> > So this is OK:
+> > 
+> > 	p = rcu_dereference(a);
+> > 	do_something(p->b);
+> > 
+> > This is not OK:
+> > 
+> > 	p = rcu_dereference(a);
+> > 	if (p == &some_global_variable)
+> > 		we_really_should_not_have_done_that_comparison();
+> > 	do_something(p->b);
+> 
+> If you call some function that's an internal implementation detail of some other
+> kernel subsystem, how do you know it doesn't do that?
 
-But in nonblocking mode userspace has then no idea this happened,
-which can lead to spurious EBUSY calls, both:
-- when that other CRTC is currently busy doing a page_flip the
-  ALLOW_MODESET commit can fail with an EBUSY
-- on the other CRTC a normal atomic flip can fail with EBUSY because
-  of the additional commit inserted by the kernel without userspace's
-  knowledge
+If the only globals I insert into my linked data structure are local to my
+compilation unit, then the internal implementation details of some other
+kernel subsystem in some other translation unit cannot do that comparison.
 
-For blocking commits this isn't a problem, because everyone else will
-just block until all the CRTC are reconfigured. Only thing userspace
-can notice is the dropped frames without any reason for why frames got
-dropped.
+> Also, it's not just the p == &global_variable case.  Consider:
+> 
+> struct a { struct b *b; };
+> struct b { ... };
+> 
+> Thread 1:
+> 
+> 	/* one-time initialized data shared by all instances of b */
+> 	static struct c *c;
+> 
+> 	void init_b(struct a *a)
+> 	{
+> 		if (!c)
+> 			c = alloc_c();
+> 
+> 		smp_store_release(&a->b, kzalloc(sizeof(struct b)));
+> 	}
+> 
+> Thread 2:
+> 
+> 	void use_b_if_present(struct a *a)
+> 	{
+> 		struct b *b = READ_ONCE(a->b);
+> 
+> 		if (b) {
+> 			c->... # crashes because c still appears to be NULL
+> 		}
+> 	}
+> 
+> 
+> So when the *first* "b" is allocated, the global data "c" is initialized.  Then
+> when using a "b", we expect to be able to access "c".  But there's no
+> data dependency from "b" to "c"; it's a control dependency only.
+> So smp_load_acquire() is needed, not READ_ONCE().
+> 
+> And it can be an internal implementation detail of "b"'s subsystem whether it
+> happens to use global data "c".
 
-Consensus is that we need new uapi to handle this properly, but no one
-has any idea what exactly the new uapi should look like. Since this
-has been shipping for years already compositors need to deal no matter
-what, so as a first step just try to enforce this across drivers
-better with some checks.
+Given that "c" is static, these two subsystems must be in the same
+translation unit.  So I don't see how this qualifies as being internal to
+"b"'s subsystem.
 
-v2: Add comments and a WARN_ON to enforce this only when allowed - we
-don't want to silently convert page flips into blocking plane updates
-just because the driver is buggy.
+Besides which, control dependencies should be used only by LKMM experts
+at this point.  Yes, we are trying to get the compiler people to give us
+a way to tell the compiler about dependencies that we need to preserve,
+but in the meantime, you beed to be really careful how you use them,
+and you need to make sure that your external API can be used without
+creating traps like the one you are driving at.
 
-v3: Fix inverted WARN_ON (Pekka).
+> This sort of thing is why people objected to the READ_ONCE() optimization during
+> the discussion at
+> https://lkml.kernel.org/linux-fsdevel/20200717044427.68747-1-ebiggers@kernel.org/T/#u.
+> Most kernel developers aren't experts in the LKMM, and they want something
+> that's guaranteed to be correct without having to to think really hard about it
+> and make assumptions about the internal implementation details of other
+> subsystems, how compilers have implemented the C standard, and so on.
 
-v4: Drop the uapi changes, only add a WARN_ON for now to enforce some
-rules for drivers.
+And smp_load_acquire()is provided for that reason.  Its name was
+even based on the nomenclature used in the C standard and elsewhere.
+And again, control dependencies are for LKMM experts, as they are very
+tricky to get right.
 
-References: https://lists.freedesktop.org/archives/dri-devel/2018-July/182281.html
-Bugzilla: https://gitlab.freedesktop.org/wayland/weston/issues/24#note_9568
-Cc: Daniel Stone <daniel@fooishbar.org>
-Cc: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
-Cc: Simon Ser <contact@emersion.fr>
-Cc: stable@vger.kernel.org
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
----
- drivers/gpu/drm/drm_atomic.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+But in the LKMM documentation, you are likely to find LKMM experts who
+want to optimize all the way, particularly in cases like the one-time
+init pattern where all the data is often local.  And the best basis for
+READ_ONCE() in one-time init is not a control dependency, but rather
+ordering of accesses to a single variable from a single task combined
+with locking, both of which are quite robust and much easier to use,
+especially in comparison to control dependencies.
 
-diff --git a/drivers/gpu/drm/drm_atomic.c b/drivers/gpu/drm/drm_atomic.c
-index 58527f151984..ef106e7153a6 100644
---- a/drivers/gpu/drm/drm_atomic.c
-+++ b/drivers/gpu/drm/drm_atomic.c
-@@ -281,6 +281,10 @@ EXPORT_SYMBOL(__drm_atomic_state_free);
-  * needed. It will also grab the relevant CRTC lock to make sure that the state
-  * is consistent.
-  *
-+ * WARNING: Drivers may only add new CRTC states to a @state if
-+ * drm_atomic_state.allow_modeset is set, or if it's a driver-internal commit
-+ * not created by userspace through an IOCTL call.
-+ *
-  * Returns:
-  *
-  * Either the allocated state or the error code encoded into the pointer. When
-@@ -1262,10 +1266,15 @@ int drm_atomic_check_only(struct drm_atomic_state *state)
- 	struct drm_crtc_state *new_crtc_state;
- 	struct drm_connector *conn;
- 	struct drm_connector_state *conn_state;
-+	unsigned requested_crtc = 0;
-+	unsigned affected_crtc = 0;
- 	int i, ret = 0;
- 
- 	DRM_DEBUG_ATOMIC("checking %p\n", state);
- 
-+	for_each_new_crtc_in_state(state, crtc, old_crtc_state, i)
-+		requested_crtc |= drm_crtc_mask(crtc);
-+
- 	for_each_oldnew_plane_in_state(state, plane, old_plane_state, new_plane_state, i) {
- 		ret = drm_atomic_plane_check(old_plane_state, new_plane_state);
- 		if (ret) {
-@@ -1313,6 +1322,24 @@ int drm_atomic_check_only(struct drm_atomic_state *state)
- 		}
- 	}
- 
-+	for_each_new_crtc_in_state(state, crtc, old_crtc_state, i)
-+		affected_crtc |= drm_crtc_mask(crtc);
-+
-+	/*
-+	 * For commits that allow modesets drivers can add other CRTCs to the
-+	 * atomic commit, e.g. when they need to reallocate global resources.
-+	 * This can cause spurious EBUSY, which robs compositors of a very
-+	 * effective sanity check for their drawing loop. Therefor only allow
-+	 * this for modeset commits.
-+	 *
-+	 * FIXME: Should add affected_crtc mask to the ATOMIC IOCTL as an output
-+	 * so compositors know what's going on.
-+	 */
-+	if (affected_crtc != requested_crtc) {
-+		/* adding other CRTC is only allowed for modeset commits */
-+		WARN_ON(!state->allow_modeset);
-+	}
-+
- 	return 0;
- }
- EXPORT_SYMBOL(drm_atomic_check_only);
--- 
-2.28.0
+My goal for LKMM is not that each and every developer have a full
+understanding of every nook and cranny of that model, but instead that
+people can find the primitives supporting the desired point in the
+performance/simplicity tradoff space.  And yes, I have more writing
+to do to make more progress towards that goal.
 
+							Thanx, Paul
