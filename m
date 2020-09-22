@@ -2,144 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 145EC273D60
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 10:38:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A68273D96
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 10:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726341AbgIVIiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 04:38:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39946 "EHLO
+        id S1726461AbgIVInH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 04:43:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726098AbgIVIiP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 04:38:15 -0400
-Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5753C061755
-        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 01:38:15 -0700 (PDT)
-Received: by mail-il1-x143.google.com with SMTP id l16so3041832ilt.13
-        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 01:38:15 -0700 (PDT)
+        with ESMTP id S1726098AbgIVInH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 04:43:07 -0400
+Received: from mail-vk1-xa42.google.com (mail-vk1-xa42.google.com [IPv6:2607:f8b0:4864:20::a42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1255DC061755
+        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 01:43:07 -0700 (PDT)
+Received: by mail-vk1-xa42.google.com with SMTP id h23so4076783vkn.4
+        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 01:43:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ZN6yIokdu3nRM6zs1gAw4zovR291jsdWkkbanuM5QFo=;
-        b=rklt1Ixft43/gqI7RLIpfZCI0rPbxRKKLQAbjEFNPNAhQON3bbUIU+rCVRVWpMgadg
-         8F7t2fPgqnEOcVmugUa0jDXI+O6/D5OOE7K4GYr16DacqYHuo3247Uhm/D0o9+Ejdb4r
-         Yl1LCoaP1hGhMF4pSsyIw3zAv2aHf259D/hIx8I5kmt9vZYP1P5QoMvUAaqCsskpQnnw
-         kjBJrgmphch6j0G1YY7jqNS1dAj8MW3Awc0Nvf+lOhU19jrnUycuf0AEkGjQB9cA4cCO
-         0VlsMKzI2bYbvEbxR8202/hxnBEnBuXgdRyZVoeqK1/uqFiZx4U2BxPfEFueCWpwXcd3
-         5BoQ==
+         :cc:content-transfer-encoding;
+        bh=Yt2FxXE40DyKIruZmHohfNff1jL798z67O1KGA8m0Y8=;
+        b=ndFHNcvNEMnehkfCV1OOZdQbE2xfjSG+EfDb44NKj597KtxIwIXpiHBUbscuWbZuT8
+         WJzZisjD9TGop1p33rn/JjDBG8csnUps2NqkDllE9iCaNKcXpIb1W2rKJZAX+RcpSczn
+         sjLYtxPPWf9G3o+7Wx8HUBbjCf4jZ2CVbgyYnqJgUBogMad/50h0dEMRb2Lz8/L5LkaU
+         eCFj2xnyjcNc76pM8YpBGaCd1erkN5f/Mqc1fvQYWUw/HTTxi8tMVH4CI6A1/fFGCvk7
+         boJ5HqcqrX6hNq5E8lM1ClL0lzc1kN6fwGVoiH927ymcGHUswA0Wufvm5cEmUH5XIlSu
+         A7Dg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ZN6yIokdu3nRM6zs1gAw4zovR291jsdWkkbanuM5QFo=;
-        b=IDxb4nx6GGvWGqEz949NPVfN82/sls0VrGQ0BgDViTBoNBLXcbzXt4VPs8tKfT9sbJ
-         mgwLBiI/pwFSEVy4N3N4FPUgFfEB3KWY1NuljMY1Q1WK0nXmh1eXHp+0a2/L2K5leui5
-         0OBvEQ0WgJ3wV5eSxZ0skYjBOSLviyW1J+5J0GjYsLjdWTbcKHjYehpt+ST9cHBAd046
-         gXYzQAzoDv0dKmX08QNSKmp32gafA/1aZSAWH9kaaTgnJkvOf5KDBRSwILlLHdpnvez/
-         MErXAjhjNPCr43hRL8pyqx3UDnHWWfKFqlA39LMcH/4TrvhUeUUySFqWUj9I9RlDFMHf
-         ZRhQ==
-X-Gm-Message-State: AOAM533WKFUSlycCC9L/VtYl1iPvZgT7BZAvmtK2ZWcL2QFl/wUCa2vR
-        ha+ZpTcYupFW8sJ/nU4nF8y5c5Fwh/rYr6U5bGhkDGTtYhg2gA==
-X-Google-Smtp-Source: ABdhPJwzZWlvRON3aVQ04ZlKCrEbPsGGMDxQBzAARRIqdLpyrFFlghnM4kYVk1TZM7wrUh4GQD3FHXCDQxfSPa+9fbk=
-X-Received: by 2002:a92:d785:: with SMTP id d5mr3140536iln.123.1600763895057;
- Tue, 22 Sep 2020 01:38:15 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Yt2FxXE40DyKIruZmHohfNff1jL798z67O1KGA8m0Y8=;
+        b=AKSfGpE3aI1y9yUXpmh1Ojlhw3w3bFfC4nIx4hGWSleYCBOot+e0b48pZaVwoytjNS
+         43vZq4i97JG67sQkYu3EWdAWsdhdSKTeamoU1SIBddu6dzSGHUZeTCZxdgzB7lfxsHXj
+         eVBgMTKw2UAg9Id2WunBTWvuAEfkrcHDs6wfmZEzAuoYBmG8G2dORExqKnUSUMsjhOW4
+         dJbMTmO/tVVBFyI2u5EGd0d7TW7N+TtlX/EkaQeCaN16T0H+UnL+Mzj+Dgi+7YQ2fxT6
+         aTdWyXM6Uzcr2MfLRyYuzrCkWoJjJBlSPLl8LIRIJ23nrlXa1IH/izm/oIvsw5F1YOFd
+         vkEg==
+X-Gm-Message-State: AOAM532NwiKW08dVjOWyqiHLt0eSY3MxklVzlFsBE/XDoHiQ/aWfdFGT
+        TJ36mGo7x0N6wPnq3Gv4UIan5Mn5L9GkChR3FaraaQ==
+X-Google-Smtp-Source: ABdhPJxwQb3I5pggb+9DJ5yYVy6lm4pH19RHEfP2KivZMCXx2KqbsyivqSF4SuHqCBvVy/KgWzkh0yLt7pZP0Koz88U=
+X-Received: by 2002:a1f:fec9:: with SMTP id l192mr2498639vki.21.1600764185993;
+ Tue, 22 Sep 2020 01:43:05 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200917135437.1238787-1-Tony.Ambardar@gmail.com> <20200921125452.32E0E21D7A@mail.kernel.org>
-In-Reply-To: <20200921125452.32E0E21D7A@mail.kernel.org>
-From:   Tony Ambardar <tony.ambardar@gmail.com>
-Date:   Tue, 22 Sep 2020 01:38:06 -0700
-Message-ID: <CAPGftE_RZPUe7Xba7bjhGw8hKrmD8ipWu+jf+ppCpt2r0fKbHg@mail.gmail.com>
-Subject: Re: [PATCH v3] powerpc: fix EDEADLOCK redefinition error in uapi/asm/errno.h
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Paul Mackerras <paulus@samba.org>
+References: <20200921162034.660953761@linuxfoundation.org>
+In-Reply-To: <20200921162034.660953761@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 22 Sep 2020 14:12:54 +0530
+Message-ID: <CA+G9fYvTgD=PtDG+zqrBnhB1zT3OeQ_B0rKOF-jdOudSRX5C6Q@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/49] 4.19.147-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 21 Sep 2020 at 05:54, Sasha Levin <sashal@kernel.org> wrote:
+On Mon, 21 Sep 2020 at 22:11, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> Hi
+> This is the start of the stable review cycle for the 4.19.147 release.
+> There are 49 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> [This is an automated email]
+> Responses should be made by Wed, 23 Sep 2020 16:20:12 +0000.
+> Anything received after that time might be too late.
 >
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.147-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
 >
-> The bot has tested the following trees: v5.8.10, v5.4.66, v4.19.146, v4.14.198, v4.9.236, v4.4.236.
+> thanks,
 >
-> v5.8.10: Build OK!
-> v5.4.66: Build OK!
-> v4.19.146: Build OK!
-> v4.14.198: Failed to apply! Possible dependencies:
->     7af7919f0f4b ("tools include s390: Grab a copy of arch/s390/include/uapi/asm/unistd.h")
->     95f28190aa01 ("tools include arch: Grab a copy of errno.h for arch's supported by perf")
->     a3f22d505f56 ("s390/perf: add callback to perf to enable using AUX buffer")
->     a81c42136604 ("perf s390: add regs_query_register_offset()")
->     a9fc2db0a8ab ("s390/perf: define common DWARF register string table")
->     f704ef44602f ("s390/perf: add support for perf_regs and libdw")
->
-> v4.9.236: Failed to apply! Possible dependencies:
->     0c744ea4f77d ("Linux 4.10-rc2")
->     2bd6bf03f4c1 ("Linux 4.14-rc1")
->     2ea659a9ef48 ("Linux 4.12-rc1")
->     49def1853334 ("Linux 4.10-rc4")
->     566cf877a1fc ("Linux 4.10-rc6")
->     5771a8c08880 ("Linux v4.13-rc1")
->     7089db84e356 ("Linux 4.10-rc8")
->     7a308bb3016f ("Linux 4.10-rc5")
->     7af7919f0f4b ("tools include s390: Grab a copy of arch/s390/include/uapi/asm/unistd.h")
->     7ce7d89f4883 ("Linux 4.10-rc1")
->     95f28190aa01 ("tools include arch: Grab a copy of errno.h for arch's supported by perf")
->     a121103c9228 ("Linux 4.10-rc3")
->     a81c42136604 ("perf s390: add regs_query_register_offset()")
->     a9fc2db0a8ab ("s390/perf: define common DWARF register string table")
->     b24413180f56 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
->     c1ae3cfa0e89 ("Linux 4.11-rc1")
->     c470abd4fde4 ("Linux 4.10")
->     d5adbfcd5f7b ("Linux 4.10-rc7")
->
-> v4.4.236: Failed to apply! Possible dependencies:
->     0c4d40d58075 ("tools build: Add BPF feature check to test-all")
->     1925459b4d92 ("tools build: Fix feature Makefile issues with 'O='")
->     58683600dfe3 ("perf build: Use FEATURE-DUMP in bpf subproject")
->     76ee2ff34274 ("tools build feature: Move dwarf post unwind choice output into perf")
->     7af7919f0f4b ("tools include s390: Grab a copy of arch/s390/include/uapi/asm/unistd.h")
->     8ee4646038e4 ("perf build: Add libcrypto feature detection")
->     95f28190aa01 ("tools include arch: Grab a copy of errno.h for arch's supported by perf")
->     96b9e70b8e6c ("perf build: Introduce FEATURES_DUMP make variable")
->     9fd4186ac19a ("tools build: Allow subprojects select all feature checkers")
->     abb26210a395 ("perf tools: Force fixdep compilation at the start of the build")
->     aeafd623f866 ("perf tools: Move headers check into bash script")
->     c053a1506fae ("perf build: Select all feature checkers for feature-dump")
->     d4dfdf00d43e ("perf jvmti: Plug compilation into perf build")
->     d58ac0bf8d1e ("perf build: Add clang and llvm compile and linking support")
->     d8ad6a15cc3a ("tools lib bpf: Don't do a feature check when cleaning")
->     e12b202f8fb9 ("perf jitdump: Build only on supported archs")
->     e26e63be64a1 ("perf build: Add sdt feature detection")
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
->
-[cc: linux-ppc, Arnd, Paul]
+> greg k-h
 
-The patch makes identical changes to
-'arch/powerpc/include/uapi/asm/errno.h' and its copy
-'tools/arch/powerpc/include/uapi/asm/errno.h' first created in kernel
-v4.16. Since it's the patch
-hunk for the latter file which is failing on backports to < v4.16, I
-would think it OK to skip
-that hunk where the latter file is missing. I'd prefer to let Michael
-decide the best course as
-he's still reviewing the patch.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Thanks,
-Tony
-> --
-> Thanks
-> Sasha
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.19.147-rc1
+git repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+git branch: linux-4.19.y
+git commit: 20031549a4cc9e0c3576a84631ce04afddf88f07
+git describe: v4.19.145-129-g20031549a4cc
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.145-129-g20031549a4cc
+
+
+No regressions (compared to build v4.19.144-9-gdc4669f837af)
+
+No fixes (compared to build v4.19.144-9-gdc4669f837af)
+
+Ran 31968 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* ltp-containers-tests
+* ltp-fs-tests
+* v4l2-compliance
+* ltp-ipc-tests
+* ltp-open-posix-tests
+* network-basic-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
