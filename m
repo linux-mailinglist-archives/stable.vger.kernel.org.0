@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5CF7273CAE
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 09:54:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B297273CAF
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 09:54:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726763AbgIVHyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 03:54:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52998 "EHLO mail.kernel.org"
+        id S1726766AbgIVHy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 03:54:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726749AbgIVHyv (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Tue, 22 Sep 2020 03:54:51 -0400
+        id S1726749AbgIVHy4 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 22 Sep 2020 03:54:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33DFE23A1E;
-        Tue, 22 Sep 2020 07:54:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DF0E23A61;
+        Tue, 22 Sep 2020 07:54:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600761290;
-        bh=JsD7lXjeHMW9LQ+aCu+ayLATEqge4iLVXLSgSZxzIb8=;
+        s=default; t=1600761294;
+        bh=mBklBfnjfrb4kGtO4ngIqn6BHgpf61ChX+hLkar5M4I=;
         h=Subject:To:From:Date:From;
-        b=zSESXXplFpMYPZC4cSpISwP2Ay5YseCMuVF7YwPMY1xt3eFV/duOBnYiQvjgFdny2
-         sUNhEyqqyRDOxwTICpiodiELx9chDWVy890H5+9wsW5ggwp5O9GatQLAl+7uqlHKA0
-         oAeDmoqXdhN1nrT8bmLCjpHc4Pa3iYqeroP8M5m8=
-Subject: patch "iio:light:si1145: Fix timestamp alignment and prevent data leak." added to staging-testing
+        b=hIpxLm7D2DfKz4+yPif5VVvKIJB1fV8fn1x9ab8VE+ERrMxL7zzjh6lIpLPPBXPVd
+         7f5kp4N9D+GIZgnsyDCatTcwZ6g+/SJ5UKSVFe/bIw8ODb7qcPWZFEHwqMkoGjHMEy
+         q+UrUFyY1xgYkOXXiIioXJwvqQMDfFDnSGCLg3zk=
+Subject: patch "iio:imu:st_lsm6dsx Fix alignment and data leak issues" added to staging-testing
 To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        andy.shevchenko@gmail.com, lars@metafoo.de, pmeerw@pmeerw.net
+        andy.shevchenko@gmail.com, lars@metafoo.de,
+        lorenzo.bianconi83@gmail.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 22 Sep 2020 09:47:47 +0200
-Message-ID: <1600760867129206@kroah.com>
+Date:   Tue, 22 Sep 2020 09:47:48 +0200
+Message-ID: <1600760868198135@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:light:si1145: Fix timestamp alignment and prevent data leak.
+    iio:imu:st_lsm6dsx Fix alignment and data leak issues
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -54,96 +55,152 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 0456ecf34d466261970e0ff92b2b9c78a4908637 Mon Sep 17 00:00:00 2001
+From c14edb4d0bdc53f969ea84c7f384472c28b1a9f8 Mon Sep 17 00:00:00 2001
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Wed, 22 Jul 2020 16:50:44 +0100
-Subject: iio:light:si1145: Fix timestamp alignment and prevent data leak.
+Date: Wed, 22 Jul 2020 16:50:52 +0100
+Subject: iio:imu:st_lsm6dsx Fix alignment and data leak issues
 
 One of a class of bugs pointed out by Lars in a recent review.
 iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
 to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses a 24 byte array of smaller elements on the stack.
+this driver which uses an array of smaller elements on the stack.
 As Lars also noted this anti pattern can involve a leak of data to
 userspace and that indeed can happen here.  We close both issues by
-moving to a suitable array in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc so no
-data can leak appart from previous readings.
+moving to an array of suitable structures in the iio_priv() data.
 
-Depending on the enabled channels, the  location of the timestamp
-can be at various aligned offsets through the buffer.  As such we
-any use of a structure to enforce this alignment would incorrectly
-suggest a single location for the timestamp.  Comments adjusted to
-express this clearly in the code.
+This data is allocated with kzalloc so no data can leak apart from
+previous readings.
 
-Fixes: ac45e57f1590 ("iio: light: Add driver for Silabs si1132, si1141/2/3 and si1145/6/7 ambient light, uv index and proximity sensors")
+For the tagged path the data is aligned by using __aligned(8) for
+the buffer on the stack.
+
+There has been a lot of churn in this driver, so likely backports
+may be needed for stable.
+
+Fixes: 290a6ce11d93 ("iio: imu: add support to lsm6dsx driver")
 Reported-by: Lars-Peter Clausen <lars@metafoo.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
+Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200722155103.979802-9-jic23@kernel.org
+Link: https://lore.kernel.org/r/20200722155103.979802-17-jic23@kernel.org
 ---
- drivers/iio/light/si1145.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h       |  6 +++
+ .../iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c    | 42 ++++++++++++-------
+ 2 files changed, 32 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/iio/light/si1145.c b/drivers/iio/light/si1145.c
-index 155faaea8c72..087ef953041d 100644
---- a/drivers/iio/light/si1145.c
-+++ b/drivers/iio/light/si1145.c
-@@ -168,6 +168,7 @@ struct si1145_part_info {
-  * @part_info:	Part information
-  * @trig:	Pointer to iio trigger
-  * @meas_rate:	Value of MEAS_RATE register. Only set in HW in auto mode
-+ * @buffer:	Used to pack data read from sensor.
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
+index d80ba2e688ed..9275346a9cc1 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
+@@ -383,6 +383,7 @@ struct st_lsm6dsx_sensor {
+  * @iio_devs: Pointers to acc/gyro iio_dev instances.
+  * @settings: Pointer to the specific sensor settings in use.
+  * @orientation: sensor chip orientation relative to main hardware.
++ * @scan: Temporary buffers used to align data before iio_push_to_buffers()
   */
- struct si1145_data {
- 	struct i2c_client *client;
-@@ -179,6 +180,14 @@ struct si1145_data {
- 	bool autonomous;
- 	struct iio_trigger *trig;
- 	int meas_rate;
-+	/*
-+	 * Ensure timestamp will be naturally aligned if present.
-+	 * Maximum buffer size (may be only partly used if not all
-+	 * channels are enabled):
-+	 *   6*2 bytes channels data + 4 bytes alignment +
-+	 *   8 bytes timestamp
-+	 */
-+	u8 buffer[24] __aligned(8);
+ struct st_lsm6dsx_hw {
+ 	struct device *dev;
+@@ -411,6 +412,11 @@ struct st_lsm6dsx_hw {
+ 	const struct st_lsm6dsx_settings *settings;
+ 
+ 	struct iio_mount_matrix orientation;
++	/* Ensure natural alignment of buffer elements */
++	struct {
++		__le16 channels[3];
++		s64 ts __aligned(8);
++	} scan[3];
  };
  
- /*
-@@ -440,12 +449,6 @@ static irqreturn_t si1145_trigger_handler(int irq, void *private)
- 	struct iio_poll_func *pf = private;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct si1145_data *data = iio_priv(indio_dev);
--	/*
--	 * Maximum buffer size:
--	 *   6*2 bytes channels data + 4 bytes alignment +
--	 *   8 bytes timestamp
--	 */
--	u8 buffer[24];
- 	int i, j = 0;
- 	int ret;
- 	u8 irq_status = 0;
-@@ -478,7 +481,7 @@ static irqreturn_t si1145_trigger_handler(int irq, void *private)
+ static __maybe_unused const struct iio_event_spec st_lsm6dsx_event = {
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
+index 7de10bd636ea..12ed0a2e55e4 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_buffer.c
+@@ -353,9 +353,6 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
+ 	int err, sip, acc_sip, gyro_sip, ts_sip, ext_sip, read_len, offset;
+ 	u16 fifo_len, pattern_len = hw->sip * ST_LSM6DSX_SAMPLE_SIZE;
+ 	u16 fifo_diff_mask = hw->settings->fifo_ops.fifo_diff.mask;
+-	u8 gyro_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
+-	u8 acc_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
+-	u8 ext_buff[ST_LSM6DSX_IIO_BUFF_SIZE];
+ 	bool reset_ts = false;
+ 	__le16 fifo_status;
+ 	s64 ts = 0;
+@@ -416,19 +413,22 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
  
- 		ret = i2c_smbus_read_i2c_block_data_or_emulated(
- 				data->client, indio_dev->channels[i].address,
--				sizeof(u16) * run, &buffer[j]);
-+				sizeof(u16) * run, &data->buffer[j]);
- 		if (ret < 0)
- 			goto done;
- 		j += run * sizeof(u16);
-@@ -493,7 +496,7 @@ static irqreturn_t si1145_trigger_handler(int irq, void *private)
- 			goto done;
- 	}
+ 		while (acc_sip > 0 || gyro_sip > 0 || ext_sip > 0) {
+ 			if (gyro_sip > 0 && !(sip % gyro_sensor->decimator)) {
+-				memcpy(gyro_buff, &hw->buff[offset],
+-				       ST_LSM6DSX_SAMPLE_SIZE);
+-				offset += ST_LSM6DSX_SAMPLE_SIZE;
++				memcpy(hw->scan[ST_LSM6DSX_ID_GYRO].channels,
++				       &hw->buff[offset],
++				       sizeof(hw->scan[ST_LSM6DSX_ID_GYRO].channels));
++				offset += sizeof(hw->scan[ST_LSM6DSX_ID_GYRO].channels);
+ 			}
+ 			if (acc_sip > 0 && !(sip % acc_sensor->decimator)) {
+-				memcpy(acc_buff, &hw->buff[offset],
+-				       ST_LSM6DSX_SAMPLE_SIZE);
+-				offset += ST_LSM6DSX_SAMPLE_SIZE;
++				memcpy(hw->scan[ST_LSM6DSX_ID_ACC].channels,
++				       &hw->buff[offset],
++				       sizeof(hw->scan[ST_LSM6DSX_ID_ACC].channels));
++				offset += sizeof(hw->scan[ST_LSM6DSX_ID_ACC].channels);
+ 			}
+ 			if (ext_sip > 0 && !(sip % ext_sensor->decimator)) {
+-				memcpy(ext_buff, &hw->buff[offset],
+-				       ST_LSM6DSX_SAMPLE_SIZE);
+-				offset += ST_LSM6DSX_SAMPLE_SIZE;
++				memcpy(hw->scan[ST_LSM6DSX_ID_EXT0].channels,
++				       &hw->buff[offset],
++				       sizeof(hw->scan[ST_LSM6DSX_ID_EXT0].channels));
++				offset += sizeof(hw->scan[ST_LSM6DSX_ID_EXT0].channels);
+ 			}
  
--	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
- 		iio_get_time_ns(indio_dev));
- 
- done:
+ 			if (ts_sip-- > 0) {
+@@ -458,19 +458,22 @@ int st_lsm6dsx_read_fifo(struct st_lsm6dsx_hw *hw)
+ 			if (gyro_sip > 0 && !(sip % gyro_sensor->decimator)) {
+ 				iio_push_to_buffers_with_timestamp(
+ 					hw->iio_devs[ST_LSM6DSX_ID_GYRO],
+-					gyro_buff, gyro_sensor->ts_ref + ts);
++					&hw->scan[ST_LSM6DSX_ID_GYRO],
++					gyro_sensor->ts_ref + ts);
+ 				gyro_sip--;
+ 			}
+ 			if (acc_sip > 0 && !(sip % acc_sensor->decimator)) {
+ 				iio_push_to_buffers_with_timestamp(
+ 					hw->iio_devs[ST_LSM6DSX_ID_ACC],
+-					acc_buff, acc_sensor->ts_ref + ts);
++					&hw->scan[ST_LSM6DSX_ID_ACC],
++					acc_sensor->ts_ref + ts);
+ 				acc_sip--;
+ 			}
+ 			if (ext_sip > 0 && !(sip % ext_sensor->decimator)) {
+ 				iio_push_to_buffers_with_timestamp(
+ 					hw->iio_devs[ST_LSM6DSX_ID_EXT0],
+-					ext_buff, ext_sensor->ts_ref + ts);
++					&hw->scan[ST_LSM6DSX_ID_EXT0],
++					ext_sensor->ts_ref + ts);
+ 				ext_sip--;
+ 			}
+ 			sip++;
+@@ -555,7 +558,14 @@ int st_lsm6dsx_read_tagged_fifo(struct st_lsm6dsx_hw *hw)
+ {
+ 	u16 pattern_len = hw->sip * ST_LSM6DSX_TAGGED_SAMPLE_SIZE;
+ 	u16 fifo_len, fifo_diff_mask;
+-	u8 iio_buff[ST_LSM6DSX_IIO_BUFF_SIZE], tag;
++	/*
++	 * Alignment needed as this can ultimately be passed to a
++	 * call to iio_push_to_buffers_with_timestamp() which
++	 * must be passed a buffer that is aligned to 8 bytes so
++	 * as to allow insertion of a naturally aligned timestamp.
++	 */
++	u8 iio_buff[ST_LSM6DSX_IIO_BUFF_SIZE] __aligned(8);
++	u8 tag;
+ 	bool reset_ts = false;
+ 	int i, err, read_len;
+ 	__le16 fifo_status;
 -- 
 2.28.0
 
