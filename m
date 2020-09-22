@@ -2,78 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A94F32741B9
-	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 14:02:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B09262741BA
+	for <lists+stable@lfdr.de>; Tue, 22 Sep 2020 14:02:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726543AbgIVMCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 08:02:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57902 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726518AbgIVMCG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Sep 2020 08:02:06 -0400
-Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91C522388B;
-        Tue, 22 Sep 2020 12:02:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600776126;
-        bh=FAzNl294QE+Pk73zfSc9ZCv/wnXSmsx7fdUvZBqsPkA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=z/CS/EUQtbALVxt0bK/NwPbg97VA7K5YiObhrk1yCFZspmS+jATXU7zk/JlF8KJZQ
-         uxPalyL5qTaIS3iWzAI9pO4WLXv6a11PcYS2co94SNa/D0RFI/4B5GTliRdGercVqW
-         OK9EstzqZczOoskaRxx15jOdmWiE4SlKDgGfNESw=
-Date:   Tue, 22 Sep 2020 13:01:12 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Chuanhong Guo <gch981213@gmail.com>
-Cc:     linux-spi@vger.kernel.org, bayi.cheng@mediatek.com,
-        stable@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] spi: spi-mtk-nor: fix timeout calculation overflow
-Message-ID: <20200922120112.GS4792@sirena.org.uk>
-References: <20200922114905.2942859-1-gch981213@gmail.com>
+        id S1726597AbgIVMCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 08:02:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726533AbgIVMCd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 08:02:33 -0400
+Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8980C0613CF
+        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 05:02:33 -0700 (PDT)
+Received: by mail-vs1-xe43.google.com with SMTP id y194so10113244vsc.4
+        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 05:02:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ZEZI6d89xtcDpCUxbSSBtDGiHmLzirfqGGVXHJyGnUw=;
+        b=kpZ21DETq3qmsqIXgENyGBnedGKtG0o2BqY2UGvygheJzJ44mOIazFKrsSHMsKDl5k
+         5v+8V1bPNg8dpSSv90R6SznSPRI7NhE1PaAaV5skoXyZWxgUpot5RyIJwmMKawMfsD5D
+         N4d4HncBU4Fbs38tvty9FDE7O8FY1TtFjbnIAFqzizmubQ1vyhAFkl0/mL/0lkLh55I0
+         FiMEzBtKi7qVWGH5em6tOqHKjB54CiA3wR3VyPY0It5Hm5BPqLRmnmzwnZXBEVL4cG00
+         bLG3r26HEqzu6nooZmcqF6H5uSNJGJbjUsBwVq/UjhIlAWgBZVzDtTop+f4ABUrLD434
+         votA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ZEZI6d89xtcDpCUxbSSBtDGiHmLzirfqGGVXHJyGnUw=;
+        b=XQn64ZDSqZzYWZT4MD7Pdd4TYU5uQ9I8lJs1WLkEiRJn0TTKjJSTc+reXlPnQVbxkw
+         Lmu/t+487RCSd2W0fuurRwZVJ/9bgsW3AN/m8JyGuv4WxmMcIC5VJZaa4+oj+Iz/v0Sp
+         9OI1B0DunvtXP1GilutVLR2OuAMW1I85i43s0k479XF1V21xjAvM4DpWujoAGbH9thBa
+         XYqavr7OGg2ebyq/7/mYIyz9C3tS87C12oOw9m/57BGJmobHXHjkIBqG2FpSgmBoSMs4
+         xO6nnNiUrC3OWRvh+TZbrpnR5AUako0QbnWmXXWmc/XcDMIR3upuY4TU+4RohLAgEv7T
+         PDTw==
+X-Gm-Message-State: AOAM530ljiyEEGB8E5GUceJywK1u3e/UraKauq6rdUwaew7JrhlSpCc7
+        JAAv+XhOIuwVQ5uyFJq+wdivozKadZASrQryV87mqc0SOIbIwLnU
+X-Google-Smtp-Source: ABdhPJwbo9LgmtKpB2tssrPZSBr0qZOOaG8yki+KLaZUb2syRELosYEkNIWqTWCXQt8GikRG8EBVsVDRuPk+4aCC3Cg=
+X-Received: by 2002:a67:80d2:: with SMTP id b201mr2994191vsd.12.1600776151680;
+ Tue, 22 Sep 2020 05:02:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7gQyIpR7q4QSXYu+"
-Content-Disposition: inline
-In-Reply-To: <20200922114905.2942859-1-gch981213@gmail.com>
-X-Cookie: Love thy neighbor, tune thy piano.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20200921162035.541285330@linuxfoundation.org>
+In-Reply-To: <20200921162035.541285330@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 22 Sep 2020 17:32:20 +0530
+Message-ID: <CA+G9fYstmfZAfx4ZDsbfHHs-7Ys6Kdcb1K++TKyztE1YJ0pQ+Q@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/94] 4.14.199-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 21 Sep 2020 at 22:07, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.199 release.
+> There are 94 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 23 Sep 2020 16:20:12 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.199-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
---7gQyIpR7q4QSXYu+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-On Tue, Sep 22, 2020 at 07:49:02PM +0800, Chuanhong Guo wrote:
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
->  		if ((op->data.dir == SPI_MEM_DATA_IN) &&
->  		    mtk_nor_match_read(op)) {
-> +			// limit size to prevent timeout calculation overflow
-> +			if (op->data.nbytes > 0x400000)
-> +				op->data.nbytes = 0x400000;
+Summary
+------------------------------------------------------------------------
 
-If there's a limit on transfer sizes there should also be a
-max_transfer_size or max_message_size set (which we should pay attention
-to in the core for flash stuff but IIRC we didn't do that yet).
+kernel: 4.14.199-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: fbc0d5c8464b4a7bd7ad25355d983c3b815a2723
+git describe: v4.14.198-95-gfbc0d5c8464b
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14=
+.y/build/v4.14.198-95-gfbc0d5c8464b
 
---7gQyIpR7q4QSXYu+
-Content-Type: application/pgp-signature; name="signature.asc"
+No regressions (compared to build v4.14.198-60-gec572a7e7f50)
 
------BEGIN PGP SIGNATURE-----
+No fixes (compared to build v4.14.198-60-gec572a7e7f50)
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl9p54gACgkQJNaLcl1U
-h9Bj1Af/YXCUW+7r4wFHXnbDYWGLaIDSH1EBxg+osM3SkN/IcE2rowTsLliZ4VUD
-84kMrP5KqglN2081XuEx0PFtMWLgc5VXrFmxqS3E0t5oi7jqIgzDnT9jIXYITtHQ
-UO8ZR6IGZ4nVVW+vHUc1vLBakKXOatjJkAwESGGzANYeMLEaDQTn6fDwVx2btYG9
-Vo1wl6L5FYFTshq8Q/aC65qjdG52YCRC/3a/uhgIHIlWJ42mORi5lSXOGsbzmaNv
-fyT9UXy0BdjXRTPIiNRbEZIioba0dAOFLEg43KZQZilNdgQmnX9ELA9QeCbMbnFu
-lq4QZDUVpDhBxcrF/+gCVPINe5wyeg==
-=Z/HV
------END PGP SIGNATURE-----
+Ran 25204 total tests in the following environments and test suites.
 
---7gQyIpR7q4QSXYu+--
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* linux-log-parser
+* ltp-commands-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* perf
+* ltp-cap_bounds-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fs-tests
+* ltp-io-tests
+* network-basic-tests
+* v4l2-compliance
+* libhugetlbfs
+* ltp-controllers-tests
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
