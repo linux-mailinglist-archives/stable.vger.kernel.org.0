@@ -2,155 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D95BD27591B
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 15:49:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD668275947
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 16:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726559AbgIWNtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 09:49:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55416 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726518AbgIWNtZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 09:49:25 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C3ADC0613CE
-        for <stable@vger.kernel.org>; Wed, 23 Sep 2020 06:49:25 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id u24so3610039pgi.1
-        for <stable@vger.kernel.org>; Wed, 23 Sep 2020 06:49:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=9iWQjb0sL+7B2EO7c2tjMuP2TACl7A4j3+ln53zaGnU=;
-        b=k75tZY3a/9fDg0hI844vFtfoOFBbS9n6SF5oG7YhAorCoksOOVplL+G5SAFfodhUiS
-         kQFFwyA9fBWBBy3Y9YFc+4EvuDJqgPqD5/tPTCax2dZ90fyKGgPaXudJiOstS/ZSE5g9
-         I9sKNVYfi5i4UyImh7MWbaDqQB3EpwE6sUMVjDn7H+ve+SEcSzScvFxpZ1Y4C0O3s/x1
-         V1GsX/y1nFGyNcV3k3NCdezp9vL0SJ2+nl2H7pMeFKBU67QWz4xgJxw3M+cmLQG2XfDv
-         rzdoK468wg2bF0ntO3ZrMcWFxXAIDACgKcSew7zsTaFcRrHS0qXg85Rpo7gR5lHbjZW5
-         dd0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=9iWQjb0sL+7B2EO7c2tjMuP2TACl7A4j3+ln53zaGnU=;
-        b=kBRlbMDhFVziXkXLcrSJvHLjWdcJlDCmNlTxATHbnQav0tPKrLLNGicDqgSMVIT7q8
-         jqgqo4szHfg96Ro3hffph3eYTUr42JiIisOoo8KGswaeDbQFJStBcVWvtuUmCXCvzEv9
-         1yOhs8aq9Fxc19oOE60JaVBeEYOONcqSBCxXNT3R3lBdA/rTCbTwDW2+Qe7+3DRdMY75
-         F4hsJK0gpKGWan/Yx6LwwX3kT+GOgaZmpAf1E3JGPYO1jlyU0WyzYrXq1flcyo+wCy1j
-         m/KjCoPDOJYnwCCqe4034PLYBb8+0dCCSRAhGlnCfuMneYR1GO5o49S2mjxp8nAmr7Yz
-         wFKA==
-X-Gm-Message-State: AOAM53066IU6XRw7q0AzSMUINzEHD6PvZ4DdYfo/xMU2ZkTio9hvCq1d
-        HZGEvqXHstDIScJFFHALto40b18Q+yaSXQ==
-X-Google-Smtp-Source: ABdhPJzlBqbpn5Dx6CTpdd4/9NKatT0QsQydl0EEo2TtcD3Kf4lwIGbufKubC42khUOkL44MnWAMIQ==
-X-Received: by 2002:a63:e645:: with SMTP id p5mr7823828pgj.276.1600868964797;
-        Wed, 23 Sep 2020 06:49:24 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c186sm54627pga.61.2020.09.23.06.49.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Sep 2020 06:49:24 -0700 (PDT)
-Message-ID: <5f6b5264.1c69fb81.cfac6.01f5@mx.google.com>
-Date:   Wed, 23 Sep 2020 06:49:24 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726578AbgIWOAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Sep 2020 10:00:51 -0400
+Received: from mout.kundenserver.de ([212.227.126.133]:60161 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726234AbgIWOAu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 10:00:50 -0400
+Received: from mail-qk1-f169.google.com ([209.85.222.169]) by
+ mrelayeu.kundenserver.de (mreue010 [212.227.15.129]) with ESMTPSA (Nemesis)
+ id 1N7zW7-1kXXyV3dYp-0153Ri; Wed, 23 Sep 2020 16:00:49 +0200
+Received: by mail-qk1-f169.google.com with SMTP id c2so3247997qkf.10;
+        Wed, 23 Sep 2020 07:00:48 -0700 (PDT)
+X-Gm-Message-State: AOAM532WbjWFqoPLs5mT9O4vM77pMPOtUCiDGaJU+DjYMwsYVsrSJVJa
+        QvT+YVfwuTExOs+2m5n+xs8Eizp/Mbpl6vgN2bY=
+X-Google-Smtp-Source: ABdhPJxXESklaivIXzQ968fTEsIrcE3DWT9feSILmcmi8tbGgjtV4HaWGcVIC9yHT4lQ1WgKmXoX5Y9Le1PvsAoXQVA=
+X-Received: by 2002:a05:620a:15a7:: with SMTP id f7mr7626qkk.3.1600869647538;
+ Wed, 23 Sep 2020 07:00:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Kernel: v5.4.65-202-g2a8ec405043c
-Subject: stable-rc/queue/5.4 baseline: 167 runs,
- 2 regressions (v5.4.65-202-g2a8ec405043c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <1600627038-40000-1-git-send-email-clabbe@baylibre.com> <1600627038-40000-5-git-send-email-clabbe@baylibre.com>
+In-Reply-To: <1600627038-40000-5-git-send-email-clabbe@baylibre.com>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Wed, 23 Sep 2020 16:00:32 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a34V16PUoVJjoUOVCik_rdb6vAy=54qRzWdO+aJcwUwsg@mail.gmail.com>
+Message-ID: <CAK8P3a34V16PUoVJjoUOVCik_rdb6vAy=54qRzWdO+aJcwUwsg@mail.gmail.com>
+Subject: Re: [PATCH v2 4/7] crypto: sun4i-ss: handle BigEndian for cipher
+To:     Corentin Labbe <clabbe@baylibre.com>
+Cc:     David Miller <davem@davemloft.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
+        <linux-crypto@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-sunxi <linux-sunxi@googlegroups.com>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:2bpN2sFSxfZKkmsTy1EpAAHr0i+EJ6f146zf4oJiD/jO8k+1DRR
+ Cq65zHZFWwl2tpROk+LvM3vYxXI9jFEngmCQ1AaeqvROH3Qf8dUWg7FG803KKQESM+lbkUn
+ F2XMqJihQDEQgeEulUhwVJ8DN8Ig0Ir3J4cuAzVjDbIW8YMouN42p16b0szTDgN6NaqAlbI
+ 7i6JiI7BhhEgx2c2BgYRg==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:wHaJLo4XGd4=:lVCQMRn8E+C7ukE7EWQIM8
+ TmfuxZtEEUYAoYJ4cbfznrf04JA1m4HLnzhJFbhEjVje9SpKjJAACuSPrMTbhmEq/eTn9DRYM
+ VxmS/tcfWm+xC4IMXUNDPm61fWaFKSVmulM0mr06NgnWpwIW4XhqtCMexVPDEr2z7MjkvFKN+
+ 2zAhrcqpM0HfUzIGkBnQHLxQOHFFSejT7FJlhLRrfnnQq/l4P9p55ExnV0jbqRdD8re3hlzT0
+ VQtj9ypD5l9R4rqhaeq8W8Gipv2EvUfSGXc/V96IrflMqezEX6VxNXhmVOUXNYuJiP4UNoF5B
+ mFdngfWEh+7CKG4z3XY5y5Q7SidESzWLnI2e/xbzY/2tu2V0X3D6Xqv8UwooJCLJItAwV+ci7
+ BNjHwLJn0OtH1wE/PkfLHDZupuMsvCe4oW+N0Kb7Xy54753ws5Ryh+uwTIJ0L6o2so1npu/Qz
+ LlX3RdPq6mPTegYTLPqMYMB0JSs6wyLPnzsrs2MUswPqS9p+8EptEf9Ytu2sBV47uRjZS+SsG
+ ZnBd8eeRG1DfzZZqXJq6WgK6tiPOdd+njqTYmylOLcwTqoS0q5KnuGw/7MtpY8fx1JPO89MeU
+ Jawixm9yF5AoYSPDfZ9ySYdvzVPHSvTySTor3rEuV8gGlQcoFIXAycOqfi9fBOVkW//2U/k8T
+ 2Nz+TOoqPFqVKJNXss/fpamnQ57ORjYIxAXCWs7if3WY16DH2a0TgA6GCANHla5i0agdOGYep
+ ++Dd3s9DMmt6bcayYNnupIcCfCr5YJTx8xR09/xEmEYbC5rOK5LqptWMpm3CHz/XQ7imHfKm7
+ Nqbc0Dh9K0lmD6iq4RrfPtmIUxr2WQfz+GsBAoMnOeDAKDEOuVYdZTON7I6cc9cpkO4PA/+
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 167 runs, 2 regressions (v5.4.65-202-g2a8ec40=
-5043c)
+On Sun, Sep 20, 2020 at 8:37 PM Corentin Labbe <clabbe@baylibre.com> wrote:
+>
+> Ciphers produce invalid results on BE.
+> Key and IV need to be written in LE.
+>
+> Fixes: 6298e948215f2 ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+> ---
+>  drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> index c6c25204780d..a05889745097 100644
+> --- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> +++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> @@ -52,13 +52,13 @@ static int noinline_for_stack sun4i_ss_opti_poll(struct skcipher_request *areq)
+>
+>         spin_lock_irqsave(&ss->slock, flags);
+>
+> -       for (i = 0; i < op->keylen; i += 4)
+> -               writel(*(op->key + i / 4), ss->base + SS_KEY0 + i);
+> +       for (i = 0; i < op->keylen / 4; i++)
+> +               writel(cpu_to_le32(op->key[i]), ss->base + SS_KEY0 + i * 4);
 
-Regressions Summary
--------------------
+I suspect what you actually want here is writesl() in place of the
+loop. This skips the byteswap on big-endian, rather than swapping
+each word twice.
 
-platform           | arch | lab          | compiler | defconfig         | r=
-esults
--------------------+------+--------------+----------+-------------------+--=
-------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 2=
-/4    =
+The point is that this register seems to act as a FIFO for a byte-stream
+rather than a 32-bit fixed-endian register.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.65-202-g2a8ec405043c/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.65-202-g2a8ec405043c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2a8ec405043c7813a0a0a4f53beee53b34b5b62e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab          | compiler | defconfig         | r=
-esults
--------------------+------+--------------+----------+-------------------+--=
-------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig | 2=
-/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f6b173b749056ceb1bf9db3
-
-  Results:     2 PASS, 2 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.65-20=
-2-g2a8ec405043c/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
-pi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.65-20=
-2-g2a8ec405043c/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
-pi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/5f6b173b749056c=
-eb1bf9db8
-      new failure (last pass: v5.4.65-202-gaa76a9717c96)
-      4 lines
-
-    2020-09-23 09:36:48.034000  kern  :alert : pgd =3D e3896899
-    2020-09-23 09:36:48.034000  kern  :alert : [be57f500] *pgd=3D00000000
-     * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f6b173b7490=
-56ceb1bf9db9
-      new failure (last pass: v5.4.65-202-gaa76a9717c96)
-      48 lines
-
-    2020-09-23 09:36:48.077000  kern  :emerg : Process kworker/0:1H (pid: 5=
-1, stack limit =3D 0xdb211a4e)
-    2020-09-23 09:36:48.077000  kern  :emerg : Stack: (0xeade5e58 to 0xeade=
-6000)
-    2020-09-23 09:36:48.078000  kern  :emerg : 5e40:                       =
-                                ead39800 c0d04248
-    2020-09-23 09:36:48.079000  kern  :emerg : 5e60: eade5e84 ead8c000 ead0=
-1600 00000000 eade5eb4 eade5e80 c03a017c c03abc3c
-    2020-09-23 09:36:48.080000  kern  :emerg : 5e80: ffffffff eade5e84 eade=
-5e84 fc39b756 c013b970 ead39800 00000001 eade5ebc
-    2020-09-23 09:36:48.119000  kern  :emerg : 5ea0: c0d04248 ead8c000 eade=
-5eec eade5eb8 c03a07dc c03a00f4 c013b9b8 eade5ebc
-    2020-09-23 09:36:48.120000  kern  :emerg : 5ec0: eade5ebc fc39b756 eade=
-5eec ead39800 c0d04248 c0d0c698 ef0d8400 00000000
-    2020-09-23 09:36:48.121000  kern  :emerg : 5ee0: eade5f0c eade5ef0 c039=
-a21c c03a06e4 00000001 fc39b756 ec5af400 ead3980c
-    2020-09-23 09:36:48.122000  kern  :emerg : 5f00: eade5f1c eade5f10 c039=
-a288 c039a158 eade5f54 eade5f20 c0135508 c039a26c
-    2020-09-23 09:36:48.123000  kern  :emerg : 5f20: c0135fe4 c013b118 eade=
-5f54 ec5af400 ec5af414 c0d0c698 c0d13660 c0d0c23c
-    ... (37 line(s) more)
-      =20
+     Arnd
