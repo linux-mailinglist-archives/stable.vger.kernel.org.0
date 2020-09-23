@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 582D7274F4A
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 04:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6451B274F4B
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 04:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726723AbgIWCzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 22:55:35 -0400
+        id S1726739AbgIWCzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 22:55:36 -0400
 Received: from mga05.intel.com ([192.55.52.43]:38328 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726655AbgIWCze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Sep 2020 22:55:34 -0400
-IronPort-SDR: +H7nHOFKfAIOXHn+lZzwuW1TCiTJjqzN3ojOEJmYMuCmRJUV44niY8XzG0q3DVFLybYu32pdH0
- mTRR6UQYkQTQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9752"; a="245600244"
+        id S1726655AbgIWCzg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Sep 2020 22:55:36 -0400
+IronPort-SDR: v8WQ7OcQpo+vRIJhBc0iIM2i9xRseHYaucn+5hNnQ5FS7TlS00KmURADR5NogN6Mppo30PwtMa
+ ZwrMZxSlCoEg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9752"; a="245600247"
 X-IronPort-AV: E=Sophos;i="5.77,293,1596524400"; 
-   d="scan'208";a="245600244"
+   d="scan'208";a="245600247"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2020 19:55:34 -0700
-IronPort-SDR: sdARMWkLzdRI9/oqjwfC+OhAv0Qr2KaH1bi3cdCzkWtJnxM8NTCGwRWSr3hVUGDo77oF+/6GPz
- KpFyP8XKvzLg==
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2020 19:55:35 -0700
+IronPort-SDR: j8wZiZSDMDH1b6dbliBiil/c2z387vwTtcubSFsHijFu+pXsxEYPzCIgf2skzkpP0hC/xJ7zjB
+ gIJszMIppIdQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.77,293,1596524400"; 
-   d="scan'208";a="305190740"
+   d="scan'208";a="305190743"
 Received: from unknown (HELO nodlab-S2600WFT.lm.intel.com) ([10.232.116.103])
-  by orsmga003.jf.intel.com with ESMTP; 22 Sep 2020 19:55:33 -0700
+  by orsmga003.jf.intel.com with ESMTP; 22 Sep 2020 19:55:35 -0700
 From:   Revanth Rajashekar <revanth.rajashekar@intel.com>
 To:     stable@vger.kernel.org
 Cc:     hch@lst.de, kbusch@kernel.org, damien.lemoal@wdc.com,
         Revanth Rajashekar <revanth.rajashekar@intel.com>
-Subject: [PATCH 1/3] [backport] nvme: Cleanup and rename nvme_block_nr()
-Date:   Tue, 22 Sep 2020 20:58:06 -0600
-Message-Id: <20200923025808.14698-2-revanth.rajashekar@intel.com>
+Subject: [PATCH 2/3] [backport] nvme: Introduce nvme_lba_to_sect()
+Date:   Tue, 22 Sep 2020 20:58:07 -0600
+Message-Id: <20200923025808.14698-3-revanth.rajashekar@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200923025808.14698-1-revanth.rajashekar@intel.com>
 References: <20200923025808.14698-1-revanth.rajashekar@intel.com>
@@ -43,69 +43,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Damien Le Moal <damien.lemoal@wdc.com>
 
-commit 314d48dd224897e35ddcaf5a1d7d133b5adddeb7
+commit e08f2ae850929d40e66268ee47e443e7ea56eeb7
 
-Rename nvme_block_nr() to nvme_sect_to_lba() and use SECTOR_SHIFT
-instead of its hard coded value 9. Also add a comment to decribe this
-helper.
+Introduce the new helper function nvme_lba_to_sect() to convert a device
+logical block number to a 512B sector number. Use this new helper in
+obvious places, cleaning up the code.
 
 Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Revanth Rajashekar <revanth.rajashekar@intel.com>
 ---
- drivers/nvme/host/core.c | 6 +++---
- drivers/nvme/host/nvme.h | 7 +++++--
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/nvme/host/core.c | 14 +++++++-------
+ drivers/nvme/host/nvme.h |  8 ++++++++
+ 2 files changed, 15 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 071b63146..f7d32eeee 100644
+index f7d32eeee..9ac27c9a1 100644
 --- a/drivers/nvme/host/core.c
 +++ b/drivers/nvme/host/core.c
-@@ -633,7 +633,7 @@ static blk_status_t nvme_setup_discard(struct nvme_ns *ns, struct request *req,
- 	}
+@@ -1694,7 +1694,7 @@ static void nvme_init_integrity(struct gendisk *disk, u16 ms, u8 pi_type)
 
- 	__rq_for_each_bio(bio, req) {
--		u64 slba = nvme_block_nr(ns, bio->bi_iter.bi_sector);
-+		u64 slba = nvme_sect_to_lba(ns, bio->bi_iter.bi_sector);
- 		u32 nlb = bio->bi_iter.bi_size >> ns->lba_shift;
+ static void nvme_set_chunk_size(struct nvme_ns *ns)
+ {
+-	u32 chunk_size = (((u32)ns->noiob) << (ns->lba_shift - 9));
++	u32 chunk_size = nvme_lba_to_sect(ns, ns->noiob);
+ 	blk_queue_chunk_sectors(ns->queue, rounddown_pow_of_two(chunk_size));
+ }
 
- 		if (n < segments) {
-@@ -674,7 +674,7 @@ static inline blk_status_t nvme_setup_write_zeroes(struct nvme_ns *ns,
- 	cmnd->write_zeroes.opcode = nvme_cmd_write_zeroes;
- 	cmnd->write_zeroes.nsid = cpu_to_le32(ns->head->ns_id);
- 	cmnd->write_zeroes.slba =
--		cpu_to_le64(nvme_block_nr(ns, blk_rq_pos(req)));
-+		cpu_to_le64(nvme_sect_to_lba(ns, blk_rq_pos(req)));
- 	cmnd->write_zeroes.length =
- 		cpu_to_le16((blk_rq_bytes(req) >> ns->lba_shift) - 1);
- 	cmnd->write_zeroes.control = 0;
-@@ -698,7 +698,7 @@ static inline blk_status_t nvme_setup_rw(struct nvme_ns *ns,
+@@ -1731,8 +1731,7 @@ static void nvme_config_discard(struct gendisk *disk, struct nvme_ns *ns)
 
- 	cmnd->rw.opcode = (rq_data_dir(req) ? nvme_cmd_write : nvme_cmd_read);
- 	cmnd->rw.nsid = cpu_to_le32(ns->head->ns_id);
--	cmnd->rw.slba = cpu_to_le64(nvme_block_nr(ns, blk_rq_pos(req)));
-+	cmnd->rw.slba = cpu_to_le64(nvme_sect_to_lba(ns, blk_rq_pos(req)));
- 	cmnd->rw.length = cpu_to_le16((blk_rq_bytes(req) >> ns->lba_shift) - 1);
+ static void nvme_config_write_zeroes(struct gendisk *disk, struct nvme_ns *ns)
+ {
+-	u32 max_sectors;
+-	unsigned short bs = 1 << ns->lba_shift;
++	u64 max_blocks;
 
- 	if (req_op(req) == REQ_OP_WRITE && ctrl->nr_streams)
+ 	if (!(ns->ctrl->oncs & NVME_CTRL_ONCS_WRITE_ZEROES) ||
+ 	    (ns->ctrl->quirks & NVME_QUIRK_DISABLE_WRITE_ZEROES))
+@@ -1748,11 +1747,12 @@ static void nvme_config_write_zeroes(struct gendisk *disk, struct nvme_ns *ns)
+ 	 * nvme_init_identify() if available.
+ 	 */
+ 	if (ns->ctrl->max_hw_sectors == UINT_MAX)
+-		max_sectors = ((u32)(USHRT_MAX + 1) * bs) >> 9;
++		max_blocks = (u64)USHRT_MAX + 1;
+ 	else
+-		max_sectors = ((u32)(ns->ctrl->max_hw_sectors + 1) * bs) >> 9;
++		max_blocks = ns->ctrl->max_hw_sectors + 1;
+
+-	blk_queue_max_write_zeroes_sectors(disk->queue, max_sectors);
++	blk_queue_max_write_zeroes_sectors(disk->queue,
++					   nvme_lba_to_sect(ns, max_blocks));
+ }
+
+ static int nvme_report_ns_ids(struct nvme_ctrl *ctrl, unsigned int nsid,
+@@ -1786,7 +1786,7 @@ static bool nvme_ns_ids_equal(struct nvme_ns_ids *a, struct nvme_ns_ids *b)
+ static void nvme_update_disk_info(struct gendisk *disk,
+ 		struct nvme_ns *ns, struct nvme_id_ns *id)
+ {
+-	sector_t capacity = le64_to_cpu(id->nsze) << (ns->lba_shift - 9);
++	sector_t capacity = nvme_lba_to_sect(ns, le64_to_cpu(id->nsze));
+ 	unsigned short bs = 1 << ns->lba_shift;
+ 	u32 atomic_bs, phys_bs, io_opt;
+
 diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index ed0226086..f93ba2da1 100644
+index f93ba2da1..73065952f 100644
 --- a/drivers/nvme/host/nvme.h
 +++ b/drivers/nvme/host/nvme.h
-@@ -421,9 +421,12 @@ static inline int nvme_reset_subsystem(struct nvme_ctrl *ctrl)
- 	return ctrl->ops->reg_write32(ctrl, NVME_REG_NSSR, 0x4E564D65);
+@@ -429,6 +429,14 @@ static inline u64 nvme_sect_to_lba(struct nvme_ns *ns, sector_t sector)
+ 	return sector >> (ns->lba_shift - SECTOR_SHIFT);
  }
 
--static inline u64 nvme_block_nr(struct nvme_ns *ns, sector_t sector)
 +/*
-+ * Convert a 512B sector number to a device logical block number.
++ * Convert a device logical block number to a 512B sector number.
 + */
-+static inline u64 nvme_sect_to_lba(struct nvme_ns *ns, sector_t sector)
- {
--	return (sector >> (ns->lba_shift - 9));
-+	return sector >> (ns->lba_shift - SECTOR_SHIFT);
- }
-
++static inline sector_t nvme_lba_to_sect(struct nvme_ns *ns, u64 lba)
++{
++	return lba << (ns->lba_shift - SECTOR_SHIFT);
++}
++
  static inline void nvme_end_request(struct request *req, __le16 status,
+ 		union nvme_result result)
+ {
 --
 2.17.1
 
