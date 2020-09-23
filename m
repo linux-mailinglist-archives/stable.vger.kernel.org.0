@@ -2,169 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6E5F275319
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 10:20:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2257275311
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 10:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726196AbgIWIUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 04:20:12 -0400
-Received: from esa3.microchip.iphmx.com ([68.232.153.233]:33772 "EHLO
-        esa3.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726178AbgIWIUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 04:20:12 -0400
-X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Wed, 23 Sep 2020 04:20:12 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1600849212; x=1632385212;
-  h=from:to:subject:date:message-id:references:in-reply-to:
-   content-id:content-transfer-encoding:mime-version;
-  bh=sVXDLEVpB1fwDYZd2wzNZ6+ESokMEqDvMqO0aXurJHI=;
-  b=nEiRiYELUqpLjXH96au+1xoKtlOV6iyEk48wxXiBfwk4fnSDpS+HLmJd
-   KIsPzcBySBEbuZKQehXS8iSl8Pz9dbAns35JW66qWuUR+Xx6hhLTu4I6b
-   xdz3Q4b30NBMewU+9s8gPLDqGjkAE0LiCXUX61wH9nKNWOAoTbrwDMGhm
-   cenzCl693yNoOPGExCau4yiwvjCbBvonqNM5OHKnQr6EyJO9VSgpF5m1D
-   DD4ZM7HSjKLXQp9PcaR68ZL5s7+cSqhV8ANRVZmGMK/+fZie3WJXBiRu1
-   Vv1s9EoS0nD4eGunTggNzgSWRYpekiqAfYKu/4WjsLmW2U6ln9JUWPscM
-   g==;
-IronPort-SDR: C9G9KPBY2HYmGUtIi8EnwQPjAYaiej8zwQlQRTIpOoLxGH94VjF5VF6j6WNwMHiVDvCgEHysje
- pAWalQSpuRi1TAhCXXlLaAwqxDggoh9vlWl+EKribQ/FyYmgN7QqVRNGrC+f0Ez7Mg1Xv8EvVH
- Z7JGA6n2MzBDeHZhErq3OgA9tqe3Lh4XVh57xmv4Bi+x+M9Uafw2VpFSdP6AR1lOv+uZTnc8km
- hD388pvFUyarBvgSq4FkN0o6GQO7ejF/8/rwdQkdHHECZanoEKyRDw+khcA5wOQJx1El8W/+Vp
- a90=
-X-IronPort-AV: E=Sophos;i="5.77,293,1596524400"; 
-   d="scan'208";a="92880649"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 23 Sep 2020 01:13:04 -0700
-Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1979.3; Wed, 23 Sep 2020 01:13:03 -0700
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (10.10.215.89) by
- email.microchip.com (10.10.87.151) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1979.3
- via Frontend Transport; Wed, 23 Sep 2020 01:13:03 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZwgYywzvDOWfYCWkcC1Su0uhhork6wGEsgMtvU/Apjr2p24hcj2k++85mj6rwk+NWH02i4H4S26wwsgLenEWbumXaepoDtBNdNUtesZtDi93We5b6R87Iu4iuti5k8MTw97NVAsQ5D65B4EdtZSArgVyWmcN1W8Gufs1oc6H9QlTG2OZRYdYNs/DDOkY5fNG40D7IL7BJusENt3MlX+MDIZRKWEAxT2MdwvrjEQLNuNYjPOmLTb5rGSwCXCjvvUtja4q82/J8uHW/HwqoLePrllL9KqdxORyZiZZku65IdadzBOf/6+5CyI5TuGOreOCh4WR7RAycqzPTdOkrjnviQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pZVJShvd/LW5PvOizOKc82ocA5aIXIGxBmbDGUAzZS4=;
- b=WstruwWfQ29H854dSPrCkAv1CdUAF+o+lKM6O6mbRSlDzEq5lk6bd7MvP+ttGYW2ng4XK7ITSDb8vhi3vI9o4VE4oj7UcoCP9RrTiUKkWL9H8tHv4eOnwRT/YfUVWQZ7F9y0gOdhP3Ml/IWTjj+huAo38iJ3jlGpyEWLglN7gHgP55cvUWFmMO+PAWQo6DEeA1EbPJpApFUokr/wT/uY9DY1CejGJZUmRIYD/a5TkPy5EaO7xlrQVroNQkA49Z7/ngMJe9cwVZiIqLFbkQ3hM8bx6wPZBfD2juzC5RWyLZrbwtb6s6k2T2PD2O5YuNhC/A68CgT6EkpsIA4ZywhzLA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microchip.com; dmarc=pass action=none
- header.from=microchip.com; dkim=pass header.d=microchip.com; arc=none
+        id S1726221AbgIWIRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Sep 2020 04:17:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60842 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726184AbgIWIRX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 04:17:23 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C23C061755
+        for <stable@vger.kernel.org>; Wed, 23 Sep 2020 01:17:23 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id a22so16409999ljp.13
+        for <stable@vger.kernel.org>; Wed, 23 Sep 2020 01:17:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=microchiptechnology.onmicrosoft.com;
- s=selector2-microchiptechnology-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=pZVJShvd/LW5PvOizOKc82ocA5aIXIGxBmbDGUAzZS4=;
- b=vbvR2lk87GFoiuJoTMeK4kcnTOW3uJNjym3uhI3XRia6C6hA0JXWMDhZwYw7R1qLpzFYR6rcY6L8+tDDRjjc5R2qW3b+Io80et7Z9Q4r9Hlqw75f1WJnijIygvIKIm0UhZB90A0dZdo3L3nJIexpJD+BXiiKSwQVCzi0yTN9ENg=
-Received: from DM5PR11MB1914.namprd11.prod.outlook.com (2603:10b6:3:112::12)
- by DM6PR11MB3242.namprd11.prod.outlook.com (2603:10b6:5:5b::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3391.11; Wed, 23 Sep
- 2020 08:13:03 +0000
-Received: from DM5PR11MB1914.namprd11.prod.outlook.com
- ([fe80::a8e8:d0bc:8b3c:d385]) by DM5PR11MB1914.namprd11.prod.outlook.com
- ([fe80::a8e8:d0bc:8b3c:d385%11]) with mapi id 15.20.3391.027; Wed, 23 Sep
- 2020 08:13:03 +0000
-From:   <Tudor.Ambarus@microchip.com>
-To:     <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>,
-        <dmaengine@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <dan.j.williams@intel.com>,
-        <vkoul@kernel.org>, <Ludovic.Desroches@microchip.com>,
-        <stable@vger.kernel.org>, <greg@kroah.com>
-Subject: Re: [PATCH 4.19] dmaengine: at_hdmac: Fix memory leak
-Thread-Topic: [PATCH 4.19] dmaengine: at_hdmac: Fix memory leak
-Thread-Index: AQHWkYFbVNgbQZmRd0SqW2sKLrUKIA==
-Date:   Wed, 23 Sep 2020 08:13:02 +0000
-Message-ID: <80065eac-7dce-aadf-51ef-9a290973b9ec@microchip.com>
-References: <20200920082838.GA813@amd>
-In-Reply-To: <20200920082838.GA813@amd>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-authentication-results: ucw.cz; dkim=none (message not signed)
- header.d=none;ucw.cz; dmarc=none action=none header.from=microchip.com;
-x-originating-ip: [82.77.80.152]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: d9e13577-4bdc-4803-34b4-08d85f987e3a
-x-ms-traffictypediagnostic: DM6PR11MB3242:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <DM6PR11MB3242943DC43581B38F2E7874F0380@DM6PR11MB3242.namprd11.prod.outlook.com>
-x-bypassexternaltag: True
-x-ms-oob-tlc-oobclassifiers: OLM:820;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 7wv1WDeMAqsJe/SyatOjsSKOZPfKuhy9zeVq6VsZ2B+q2NcNir7H//1rLeR6UB0VBiLQOjIkyhdPvN52hzzoGqn+GPQZi/7z3F+bgboU2gGTmLbeQEqjreotj9F7Dw7uu1KVIWoZmfzOcV/HSSbtaMCOy2XSNxXnlgIT1eRQRiy5BXOBypBaU20OlYEFFrlvBXqXO5kvFfS/QvdfYPXMdeu0AjaJcjqkitFTTgyKN2cYmTZNcG+ZJtZ8vr17CSRL7u4d6fKfuH6CoZvuPppagHCY38WPnUc8AKiUaQwsSeocFrHUTChbvCaPL1Kjhl0rSck2Oi+dNtxE33UQOcTMyes13xSA3RQj5JrSwvljRY743CJ6IqOq2uNvxUfZemJPvdkBU9S6VoJmNFQ1gURZaAMa6CIE+WnWMny3dps6KFwaiGU3UpKpHDqDhbJ8mTrNHre6H7WdFTK1iNpjyjdk0f6S1bva4jcw/PJPij/P9+XOgoMgDBm+p1qR/3Y32ugR
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM5PR11MB1914.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(376002)(346002)(366004)(396003)(136003)(39860400002)(316002)(76116006)(91956017)(83380400001)(6486002)(6506007)(53546011)(31696002)(966005)(66556008)(66476007)(66446008)(66946007)(64756008)(26005)(2616005)(5660300002)(31686004)(186003)(6512007)(478600001)(71200400001)(8936002)(110136005)(2906002)(8676002)(36756003)(86362001)(43740500002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: tdxFg87R95gH1/HqtyfXP8YDFYkESTfcds6JTyD4z2pkwOZEFW6UhaJohzaVVwIV9bzP7lx3sVlVjR4rdYt7/m8yP/AJkx2nhk0+km3BPqjvQvE2It0Zri5EiRzlw/+GxlDB5Wt7JcoHO49HEkMbm59Pxx6gYlnwIHEQ/vD9vgZIJU4C9lOi77c4jQaVCzLeu18AmLDIkl4bq969YibOahlksrdeuPI2DzoWdEt8402oxwNk8t6kAtg4ZGh9UWV5850A9bIEQzVfE245pss+M+c7QGJfajuelxtulR6Ty/hW7TYBJTWzR0O/B89/zFB19wt69Xbl9v3kEN36Z1AZFTgiOpgIP7pTB5BEVlajuAO8cCm93H8EIOSAcENJpX3p0DKHuzvTG/EPGNcSFwnXNbmovf4kUMHPCkffwxsY7WqFos5zwqUqL+ZF1h3uXEMgJOKRUfznz0/MoNlJ8EJUbtOcEyNuhwh5XQn7tNpoj2OPTbvMdFgeQuu4NiJmy9YtnFgcjXZipalH7b/ACQnsIiFpQgyXvALnpeRAibcs5m4N+7tl9TRlsowUVpLmTPQfSn1KNCPaq+Yc4pvygqb5SBP96FhjYjkhtKx47T3UCMqDX1Ik2aYJDOfCYQLROyQJoG+eOxtfKVV7ejusvSH+WA==
-Content-Type: text/plain; charset="Windows-1252"
-Content-ID: <0DC78A65EEAEBC4E8B0614F2BCDB86D4@namprd11.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:in-reply-to:references
+         :mime-version;
+        bh=Kyt0FNBLjc7CNsYuogySNQVNdNJgBdTSeuLbQ0WfSds=;
+        b=Is6SRXkrpKHA8g4Hh/QCULr7JgP02XDlSyqhqi5OlKZK8+Q//bl8iJgYnJK40uQnRI
+         YdO93z2ztfyRNyJ0bn5aHrznxo7bjKJpeaBFomPLdwhtoAAPQnCSqKqFi2bqJoRCdXGE
+         75oRLeVro3SWOn69bP3Gs8SR+owgVJ1hfRKYREMj3Cvx9JmFWqiqZWPsMazOI0Oi5Gak
+         zW4ero4NCmu70la6Yuj2M7iRf1wOOiGwdrKt/7eBAE2HfBvnNDNbUzkUbHyOrxgjeVAm
+         U6OUmYs76vmNUPLBLBiectGXCsKt2FkArXNYuErBk0v5RXNWxReFDqpObCcWnE4/7brn
+         Chkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:mime-version;
+        bh=Kyt0FNBLjc7CNsYuogySNQVNdNJgBdTSeuLbQ0WfSds=;
+        b=pIrpqxCMmo9Qf+2XUgSO+cW/wrOGucMBZH6rMe96pJrFLrSw7dqdtC5PYvevuxvQJN
+         UExZ/zE6cw3ginWFFawjckkle9wSvcs3SMHxxA2lSoIp4FulidxWUz4SPpk2oLw13DEi
+         dDfs0ip87oHeXF6xDeyDdJU7Gd4xEQUYSPESVuYqTZNj1sha/uD9mzBBWt3fjGVN6qdJ
+         ZOwFjm6f4KVZGMiemNal8abS6ytSFtJN3Wq/IvtY0bpvY2CCM9D9nSdBEvm3XLETY/qT
+         49GClLele/62MugLdDp89jitRSUXQbGyAWEfSOOu84PLKuwM7dT5jT8reRGUPIHl8K4V
+         k4YA==
+X-Gm-Message-State: AOAM533srifwkRwPC6Cz6Kba14um7vko49xpsxe4WDZc60apJBdciyu5
+        lHxgClWIg4GL/PVIpJl9u10=
+X-Google-Smtp-Source: ABdhPJz2jIRBhshqLJo4dU8gupTkoiQLwB5Q0q5W20O98jtXz4Ui9anag9qI6BJlmNcAnzdpiXxDmg==
+X-Received: by 2002:a2e:5051:: with SMTP id v17mr2632933ljd.295.1600849041918;
+        Wed, 23 Sep 2020 01:17:21 -0700 (PDT)
+Received: from eldfell ([194.136.85.206])
+        by smtp.gmail.com with ESMTPSA id b7sm4428048lfi.123.2020.09.23.01.17.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Sep 2020 01:17:21 -0700 (PDT)
+Date:   Wed, 23 Sep 2020 11:17:17 +0300
+From:   Pekka Paalanen <ppaalanen@gmail.com>
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        DRI Development <dri-devel@lists.freedesktop.org>,
+        Daniel Stone <daniel@fooishbar.org>,
+        Simon Ser <contact@emersion.fr>, stable@vger.kernel.org,
+        Ville =?UTF-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Subject: Re: [PATCH] drm: document and enforce rules around "spurious" EBUSY
+ from atomic_commit
+Message-ID: <20200923111717.68d9eb51@eldfell>
+In-Reply-To: <20200922181834.2913552-1-daniel.vetter@ffwll.ch>
+References: <20200922181834.2913552-1-daniel.vetter@ffwll.ch>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DM5PR11MB1914.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d9e13577-4bdc-4803-34b4-08d85f987e3a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Sep 2020 08:13:02.9277
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3f4057f3-b418-4d4e-ba84-d55b4e897d88
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: unBXlU6x47XOt6iZhqREBJ2UAlX7NlELDYm06PGZHKWxmUjAkCbG5PBbyda+hrA//Le1qxO689h1TZqjT2P6ma97HpBU6HNBAGPh7oPMZ+8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB3242
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/OM_kZCIkmK1nOa/u1cD6zI="; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Pavel,
+--Sig_/OM_kZCIkmK1nOa/u1cD6zI=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-On 9/20/20 11:28 AM, Pavel Machek wrote:
-> EXTERNAL EMAIL: Do not click links or open attachments unless you know th=
-e content is safe
+On Tue, 22 Sep 2020 20:18:34 +0200
+Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
+
+> When doing an atomic modeset with ALLOW_MODESET drivers are allowed to
+> pull in arbitrary other resources, including CRTCs (e.g. when
+> reconfiguring global resources).
 >=20
-> This fixes memory leak in at_hdmac. Mainline does not have the same
-> problem.
+> But in nonblocking mode userspace has then no idea this happened,
+> which can lead to spurious EBUSY calls, both:
+> - when that other CRTC is currently busy doing a page_flip the
+>   ALLOW_MODESET commit can fail with an EBUSY
+> - on the other CRTC a normal atomic flip can fail with EBUSY because
+>   of the additional commit inserted by the kernel without userspace's
+>   knowledge
 >=20
-> Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+> For blocking commits this isn't a problem, because everyone else will
+> just block until all the CRTC are reconfigured. Only thing userspace
+> can notice is the dropped frames without any reason for why frames got
+> dropped.
 >=20
-> diff --git a/drivers/dma/at_hdmac.c b/drivers/dma/at_hdmac.c
-> index 86427f6ba78c..0847b2055857 100644
-> --- a/drivers/dma/at_hdmac.c
-> +++ b/drivers/dma/at_hdmac.c
-> @@ -1714,8 +1714,10 @@ static struct dma_chan *at_dma_xlate(struct of_pha=
-ndle_args *dma_spec,
->         atslave->dma_dev =3D &dmac_pdev->dev;
+> Consensus is that we need new uapi to handle this properly, but no one
+> has any idea what exactly the new uapi should look like. Since this
+> has been shipping for years already compositors need to deal no matter
+> what, so as a first step just try to enforce this across drivers
+> better with some checks.
 >=20
->         chan =3D dma_request_channel(mask, at_dma_filter, atslave);
-> -       if (!chan)
-> +       if (!chan) {
-> +               kfree(atslave);
->                 return NULL;
-> +       }
+> v2: Add comments and a WARN_ON to enforce this only when allowed - we
+> don't want to silently convert page flips into blocking plane updates
+> just because the driver is buggy.
+>=20
+> v3: Fix inverted WARN_ON (Pekka).
+>=20
+> v4: Drop the uapi changes, only add a WARN_ON for now to enforce some
+> rules for drivers.
 
-Thanks for submitting this to stable. While the fix is good, you can instea=
-d
-cherry-pick the commit that hit upstream. In order to do that cleanly on to=
-p
-of v4.19.145, you have to pick two other fixes:
+Dropped all addresses, because gmail refused to send this email
+otherwise.
 
-commit a6e7f19c9100 ("dmaengine: at_hdmac: Substitute kzalloc with kmalloc"=
-)
-commit 3832b78b3ec2 ("dmaengine: at_hdmac: add missing put_device() call in=
- at_dma_xlate()")
-commit a6e7f19c9100 ("dmaengine: at_hdmac: Substitute kzalloc with kmalloc"=
-)
+> ---
+>  drivers/gpu/drm/drm_atomic.c | 27 +++++++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+>=20
+> diff --git a/drivers/gpu/drm/drm_atomic.c b/drivers/gpu/drm/drm_atomic.c
+> index 58527f151984..ef106e7153a6 100644
+> --- a/drivers/gpu/drm/drm_atomic.c
+> +++ b/drivers/gpu/drm/drm_atomic.c
+> @@ -281,6 +281,10 @@ EXPORT_SYMBOL(__drm_atomic_state_free);
+>   * needed. It will also grab the relevant CRTC lock to make sure that th=
+e state
+>   * is consistent.
+>   *
+> + * WARNING: Drivers may only add new CRTC states to a @state if
+> + * drm_atomic_state.allow_modeset is set, or if it's a driver-internal c=
+ommit
+> + * not created by userspace through an IOCTL call.
+> + *
+>   * Returns:
+>   *
+>   * Either the allocated state or the error code encoded into the pointer=
+. When
+> @@ -1262,10 +1266,15 @@ int drm_atomic_check_only(struct drm_atomic_state=
+ *state)
+>  	struct drm_crtc_state *new_crtc_state;
+>  	struct drm_connector *conn;
+>  	struct drm_connector_state *conn_state;
+> +	unsigned requested_crtc =3D 0;
+> +	unsigned affected_crtc =3D 0;
+>  	int i, ret =3D 0;
+> =20
+>  	DRM_DEBUG_ATOMIC("checking %p\n", state);
+> =20
+> +	for_each_new_crtc_in_state(state, crtc, old_crtc_state, i)
+> +		requested_crtc |=3D drm_crtc_mask(crtc);
+> +
+>  	for_each_oldnew_plane_in_state(state, plane, old_plane_state, new_plane=
+_state, i) {
+>  		ret =3D drm_atomic_plane_check(old_plane_state, new_plane_state);
+>  		if (ret) {
+> @@ -1313,6 +1322,24 @@ int drm_atomic_check_only(struct drm_atomic_state =
+*state)
+>  		}
+>  	}
+> =20
+> +	for_each_new_crtc_in_state(state, crtc, old_crtc_state, i)
+> +		affected_crtc |=3D drm_crtc_mask(crtc);
+> +
+> +	/*
+> +	 * For commits that allow modesets drivers can add other CRTCs to the
+> +	 * atomic commit, e.g. when they need to reallocate global resources.
+> +	 * This can cause spurious EBUSY, which robs compositors of a very
+> +	 * effective sanity check for their drawing loop. Therefor only allow
+> +	 * this for modeset commits.
+> +	 *
+> +	 * FIXME: Should add affected_crtc mask to the ATOMIC IOCTL as an output
+> +	 * so compositors know what's going on.
 
-There are also some locking/deadlock fixes in mainline for this driver,
-depending on the time you can allocate for this, the list of patches can in=
-crease.
-I should have Cc'ed stable@vger.kernel.org in the first place, my bad.
+Hi,
 
-Also it may worth to read the rules for submitting to stable at:
-https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+I think telling userspace the affected_crtc mask would only solve half
+of the problem: it would allow userspace to avoid attempting flips on
+the other affected CRTCs until this modeset is done, but it doesn't
+stop this non-blocking modeset from EBUSY'ing because other affected
+CRTCs are busy flipping.
 
-Cheers,
-ta
+If the aim is to indicate userspace bugs with EBUSY, then EBUSY because
+of other CRTCs needs to be differentiable from EBUSY due to a mistake
+on this CRTC. Maybe the CRTC mask should instead be "conflicting/busy
+CRTCs", not simply "affected CRTCS"?
+
+Userspace might also be designed to always avoid modesets while any
+CRTC is busy flipping. In that case any EBUSY would be an indication of
+a (userspace) bug and a "busy CRTCs" mask could help pinpoint the issue.
+
+If userspace does a TEST_ONLY commit with a modeset on one CRTC and the
+driver pulls in another CRTC that is currently busy, will the test
+commit return with EBUSY?
+
+If yes, and *if* userspace is single-threaded wrt. to KMS updates,
+that might offer a way to work around it in userspace. But if userspace
+is flipping other CRTCs from other threads, TEST_ONLY commit does not
+help because another thread may cut in and make a CRTC busy.
+
+
+Thanks,
+pq
+
+> +	 */
+> +	if (affected_crtc !=3D requested_crtc) {
+> +		/* adding other CRTC is only allowed for modeset commits */
+> +		WARN_ON(!state->allow_modeset);
+> +	}
+> +
+>  	return 0;
+>  }
+>  EXPORT_SYMBOL(drm_atomic_check_only);
+
+
+--Sig_/OM_kZCIkmK1nOa/u1cD6zI=
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEJQjwWQChkWOYOIONI1/ltBGqqqcFAl9rBI0ACgkQI1/ltBGq
+qqeO2w/9G0hvfFGCHCnG0KnS9H2LcBZdDS5H/ZZcbTBc5TdrYQIxvswPCJR9Z2i6
+Fgn8LlpBH4cCfnCBpdUUm8FG6dosENPnlh8+3a489Tzma0lgr5ojoxDp+mItKVl3
+w7PpGYwFGmXurhCLb2BlcV6rGIZq1I1F9Rs2BinyHRoXTKHHLy1MZj8NZWBmdsAk
+uWebY2x57jhrQBbSIbSxkefot4bq3ywWbwgVVSKwvKStJwTDO+A/ZxpMsbUrITM7
+Edtq9p91a5olB3ve8dG3VInQ0w3EZdZSYx08uBxJG1rxFWWCXjrMx+DhSPK3bNHv
+LkZ3JzIXEbfhZgcmcZMFns4a4W/fMcHAbS+Dm/bmACs239ylILpxxWziQyrdE0rT
+o1Xt4uEgtjLO4QMKhveyYFRcq5ir1CwA6zqyzEWHSs2q3Hy+eGUCzOT8AArtX0Ct
+eTvu10VVpxG9/9k9FAvcGcYrOgXoZOn1Y62FSx+8OF5LyHfwiGYeCzXynRMCSbvM
+iBHrFkGCpjsdoigysjRiGCPNQvW6J6p/c/pJtX7e465ALzYJDgT8pK7UqYfT+fiL
+dkWDuq5HyOSwe5llenvR2GU8eGS4B67MPgB0h1o+fn01USldklktmKXPNRrvuKER
+849umj9afHg6CIQq8Uoexi5VWHmbrzqDWRCme3g/a1ISRPK/87w=
+=eHzN
+-----END PGP SIGNATURE-----
+
+--Sig_/OM_kZCIkmK1nOa/u1cD6zI=--
