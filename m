@@ -2,222 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 528EC275E17
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 19:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1820C275EF8
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 19:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726419AbgIWRAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 13:00:33 -0400
-Received: from mga01.intel.com ([192.55.52.88]:53062 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726342AbgIWRAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Sep 2020 13:00:33 -0400
-IronPort-SDR: gdsSle//WznQkkUjb3H+CmyOd7kIIkBhUDYZ+8Xs+J+zvpQGnhbPAkGUQs6Njd2H/kHZvE0jpJ
- lBb7txvvVsiw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9753"; a="179039892"
-X-IronPort-AV: E=Sophos;i="5.77,293,1596524400"; 
-   d="scan'208";a="179039892"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Sep 2020 10:00:32 -0700
-IronPort-SDR: jnHAKwgf8h4PajpgTsZPB6zIhrdKJGUsVrBsIVLBdmuexYjdqgi5B04gncq89JRYdUDRJRG3Vk
- 1CuXEALuFCUg==
-X-IronPort-AV: E=Sophos;i="5.77,293,1596524400"; 
-   d="scan'208";a="342495812"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Sep 2020 10:00:32 -0700
-Subject: [PATCH v9 2/2] x86/copy_mc: Introduce copy_mc_generic()
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     mingo@redhat.com
-Cc:     x86@kernel.org, stable@vger.kernel.org,
-        Borislav Petkov <bp@alien8.de>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        0day robot <lkp@intel.com>, tglx@linutronix.de, x86@kernel.org,
-        linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org,
-        jack@suse.cz
-Date:   Wed, 23 Sep 2020 09:42:09 -0700
-Message-ID: <160087932379.3520.599786267031023589.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <160087928642.3520.17063139768910633998.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <160087928642.3520.17063139768910633998.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-3-g996c
+        id S1726670AbgIWRpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Sep 2020 13:45:43 -0400
+Received: from sonic309-25.consmr.mail.ir2.yahoo.com ([77.238.179.83]:41709
+        "EHLO sonic309-25.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726130AbgIWRpm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 13:45:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1600883140; bh=YiBnr4Uk8siI0dhikjlKOiXekrwpOWZKz+TPVjgu4sY=; h=Date:From:Reply-To:Subject:References:From:Subject; b=QHnxb7ZOSm0U9umnapHLiVYBvwPoFXX54zrX49DtHM8vi3y1qzZa/b/X+BFGSmbO+8tHIRalJzLFNrXFJiFbmvH4lYylLWqYnIrs73zkb5Us1Oh76IxfikgCHfvrc4F5qrYBUNU8TSS7XkzPMiK8+Gc1GXCB23B5nt2tyJGdX5hMMXCzybr2t2D10BnKSISIHhm1OPlKdNA+qxd7BQgdUUcdCDE5AlOwrmbQHe4s3oj2p4IRMbsx9l4lkakv1PFm9ZC5UTjIRO16qwGwg1OgCTbKm+ZSaRFe00DbEFLLVjFC/wzeZoiTkYK7Z83GpRmrg4OV0Nz2GUNr0uuOIio1PQ==
+X-YMail-OSG: kHkgzTIVM1majjkvNPnL5VnL9caCL5gDT0f9_xqzxTSQYoHbRrnVRYE7J.aHVZk
+ lKSNnE9Ox1Ek.f__bq3lV3O2oA1CiNUj5Wbxnhxc_tU2kXMPdLt9znVgD0l7yRH4frUbkIKZmZeA
+ Ru6Hbcp5kHsbFA.b3QYFbxFs.FlbGn12WWkZaL9WRa.2I6GrXyL0rAT4ESQjs9cYJ0WF.UtnZyZ0
+ uL7xLOga5J_9_U4dmGnzs_Hoc1aYybmAigIKYQ_1bB9aaqxAdSEWp69s4b1RDZjmp6nJ4jdUr_nl
+ Bzrr.b8wHeUDbDuTvCGrcdA0SisAzX_NIkxGaDoMvNvvhXrSg9tuzm4kAfWOvQzaelbFRbrcvC3D
+ eLpk1fx4DJZeGwlBcroeCkQ0.dpdnn3RuSmTcLhYQLC1sDgbqTB.JpqznbaW7ECsGKIaUyexJ.ET
+ yqkv87yQ3lD0jd8nDPN88fyEda6muP2ohOCtHJW5apchMQk_XkMwYvpneUOoIilk6RNkUVwLXdan
+ kimte5bAAXFjaRQzxBpVCma9IURwe_8ezqMbqPPDHPxsOK7BD__BozhcAcMOgnKVSbxBoiM0utpq
+ pX9.BSKIX2iPc51Wvu.p4Xs3EWPOgR24LSiAXTny2zd_Pc9uLI9uUnvPrz4h.vZpIe2iq7xhyOu9
+ N125ha_AXHHgiHaYSUO6RX0yafhiFx.DrMO.tq6exGq62wkA6AHCKqkUkvVi2I3XtY5itRVNkr7i
+ nLb9oVQb95rMaN3ZNz3JvDVV3x8dEvkTGrkAzN0PzIKCAvggmjGroHa_hXt9vAAvA7nEhnCUvTll
+ anudeCdwyRwSAaVt6._0H_RXrwHG6AweaxfhoaSx9_ThuXYH2dqBSJ2BwHAmUQpNkucUiLZzWk4s
+ huM3.R6gYwnG_7tava3nMRfR0XxRdyq2u45bVyPxx2hgwGGYGFer8Ik1LrrCZvo4QCXtqZWcUqDp
+ Y_9Bv2Y6X_yRcbhoeP.C4ZyAc3Sdox_Ccn1g_SN49HQaNrRhfu.1IL8rD1WhaWSXV7nukHpYG_ey
+ 8kDmzoq8C4YCxVXWTrczRpW6tapIUcGd.51tjX9rW7XTMhR.h12aKOOKN3K_KX6vDKfEc7uX2neb
+ XcymxpLUCvM9xZvjIua6wbFiqyJPlNrbTC2ORd2skFOLw1eybSYflUiSkqL3SV7195JTcNu62A1d
+ R_3i8L3FqN9hDmSQxmInlhvLSxvwO9WCbKsD6TvEM.4s.OIH6wojF29lN_Mh5yfNKZ4ZrvCOUcvb
+ ewTgCaRzrlKEB8YiihhIUBhxwlZcGjG8bVvvrMY3jbcll8KjFa1hvLJVDT8AI9iBJCUbGW93et1t
+ vtWzFMH_h8EcoFRoKjalI6sbdOLmQtrkBjM.Hmj6_vTVz4DW5SSPwc6N.uvQNzKz3jr8SkjMN3.z
+ pINv0iQFtMxtf4ttCX0UxREjTezqOlxIxTU4ji1UODGE5Gsq8dIblTXgQbK1W9_i2dHrqs5rVgyw
+ wN3Bk1b8l0KyQ4g--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ir2.yahoo.com with HTTP; Wed, 23 Sep 2020 17:45:40 +0000
+Date:   Wed, 23 Sep 2020 17:45:35 +0000 (UTC)
+From:   " MRS. MARYAM COMPAORE" <mrscompaoremary2222@gmail.com>
+Reply-To: mrscompaoremary2222@gmail.com
+Message-ID: <1328407275.4708406.1600883135571@mail.yahoo.com>
+Subject: FORM.MRS.MARYAM C. RICHARD.
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <1328407275.4708406.1600883135571.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16583 YMailNodin Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The original copy_mc_fragile() implementation had negative performance
-implications since it did not use the fast-string instruction sequence
-to perform copies. For this reason copy_mc_to_kernel() fell back to
-plain memcpy() to preserve performance on platform that did not indicate
-the capability to recover from machine check exceptions. However, that
-capability detection was not architectural and now that some platforms
-can recover from fast-string consumption of memory errors the memcpy()
-fallback now causes these more capable platforms to fail.
+My Beloved Friend In The Lord.
 
-Introduce copy_mc_generic() as the fast default implementation of
-copy_mc_to_kernel() and finalize the transition of copy_mc_fragile() to
-be a platform quirk to indicate 'fragility'. With this in place
-copy_mc_to_kernel() is fast and recovery-ready by default regardless of
-hardware capability.
+Greetings in the name of our Lord Jesus  Christ. I am Mrs. Maryam C. Richar=
+d, From Poland, a widow to late (MR.RICHARD BURSON from Florida , U.S.A) l =
+am 51 years old and I am a converted born again Christian, suffering from l=
+ong term  Cancer of the KIDNEY, from all indication my condition is really =
+deteriorating and it is quite obvious that I might not live more than two (=
+2) months, according to my Doctor because the cancer has gotten to a very w=
+orst / dangerous stage.
 
-Thanks to Vivek for identifying that copy_user_generic() is not suitable
-as the copy_mc_to_user() backend since the #MC handler explicitly checks
-ex_has_fault_handler(). Thanks to the 0day robot for catching a
-performance bug in the x86/copy_mc_to_user implementation.
+My late husband and my only child died last five years ago, his death was p=
+olitically motivated. My late husband was a very rich and wealthy business =
+man who was running his Gold/Diamond Business here in Burkina Faso. After h=
+is death, I inherited all his business and wealth. My doctors have advised =
+me that I may not live for more than two (2) months, so I now decided to di=
+vide the part of this wealth, to contribute to the development of the churc=
+hes in Africa, America, Asia, and Europe. I got your email id from your cou=
+ntry guestbook, and I prayed over it and the spirit our Lord Jesus directed=
+ me to you as an honest person who can assist me to fulfill my wish here on=
+ earth before I give up in live.
 
-Cc: x86@kernel.org
-Cc: <stable@vger.kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Vivek Goyal <vgoyal@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reported-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Tested-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Reported-by: 0day robot <lkp@intel.com>
-Fixes: 92b0729c34ca ("x86/mm, x86/mce: Add memcpy_mcsafe()")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
- arch/x86/include/asm/uaccess.h |    3 +++
- arch/x86/lib/copy_mc.c         |   13 ++++++-------
- arch/x86/lib/copy_mc_64.S      |   40 ++++++++++++++++++++++++++++++++++++++++
- tools/objtool/check.c          |    1 +
- 4 files changed, 50 insertions(+), 7 deletions(-)
+My late husband, have an account deposited the sum of $5.3 Million Dollars =
+in BANK OF AFRICA Burkina Faso where he do his business projects before his=
+ death, So I want the Sum $5.3 Million Dollars in BANK OF AFRICA Burkina Fa=
+so to be release/transfer to you as the less privileged because I cannot ta=
+ke this money to the grave. Please I want you to note that this fund is lod=
+ged in a Bank Of Africa in Burkina Faso.
 
-diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-index 9bed6471c7f3..4935833cc891 100644
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -467,6 +467,9 @@ copy_mc_to_user(void *to, const void *from, unsigned len);
- 
- unsigned long __must_check
- copy_mc_fragile(void *dst, const void *src, unsigned cnt);
-+
-+unsigned long __must_check
-+copy_mc_generic(void *dst, const void *src, unsigned cnt);
- #else
- static inline void enable_copy_mc_fragile(void)
- {
-diff --git a/arch/x86/lib/copy_mc.c b/arch/x86/lib/copy_mc.c
-index cdb8f5dc403d..afac844c8f45 100644
---- a/arch/x86/lib/copy_mc.c
-+++ b/arch/x86/lib/copy_mc.c
-@@ -23,7 +23,7 @@ void enable_copy_mc_fragile(void)
-  *
-  * Call into the 'fragile' version on systems that have trouble
-  * actually do machine check recovery. Everyone else can just
-- * use memcpy().
-+ * use copy_mc_generic().
-  *
-  * Return 0 for success, or number of bytes not copied if there was an
-  * exception.
-@@ -33,8 +33,7 @@ copy_mc_to_kernel(void *dst, const void *src, unsigned cnt)
- {
- 	if (static_branch_unlikely(&copy_mc_fragile_key))
- 		return copy_mc_fragile(dst, src, cnt);
--	memcpy(dst, src, cnt);
--	return 0;
-+	return copy_mc_generic(dst, src, cnt);
- }
- EXPORT_SYMBOL_GPL(copy_mc_to_kernel);
- 
-@@ -56,11 +55,11 @@ copy_mc_to_user(void *to, const void *from, unsigned len)
- {
- 	unsigned long ret;
- 
--	if (!static_branch_unlikely(&copy_mc_fragile_key))
--		return copy_user_generic(to, from, len);
--
- 	__uaccess_begin();
--	ret = copy_mc_fragile(to, from, len);
-+	if (static_branch_unlikely(&copy_mc_fragile_key))
-+		ret = copy_mc_fragile(to, from, len);
-+	else
-+		ret = copy_mc_generic(to, from, len);
- 	__uaccess_end();
- 	return ret;
- }
-diff --git a/arch/x86/lib/copy_mc_64.S b/arch/x86/lib/copy_mc_64.S
-index 35a67c50890b..a08e7a4d9e28 100644
---- a/arch/x86/lib/copy_mc_64.S
-+++ b/arch/x86/lib/copy_mc_64.S
-@@ -2,7 +2,9 @@
- /* Copyright(c) 2016-2020 Intel Corporation. All rights reserved. */
- 
- #include <linux/linkage.h>
-+#include <asm/alternative-asm.h>
- #include <asm/copy_mc_test.h>
-+#include <asm/cpufeatures.h>
- #include <asm/export.h>
- #include <asm/asm.h>
- 
-@@ -122,4 +124,42 @@ EXPORT_SYMBOL_GPL(copy_mc_fragile)
- 	_ASM_EXTABLE(.L_write_leading_bytes, .E_leading_bytes)
- 	_ASM_EXTABLE(.L_write_words, .E_write_words)
- 	_ASM_EXTABLE(.L_write_trailing_bytes, .E_trailing_bytes)
-+
-+/*
-+ * copy_mc_generic - memory copy with exception handling
-+ *
-+ * Fast string copy + fault / exception handling. If the CPU does
-+ * support machine check exception recovery, but does not support
-+ * recovering from fast-string exceptions then this CPU needs to be
-+ * added to the copy_mc_fragile_key set of quirks. Otherwise, absent any
-+ * machine check recovery support this version should be no slower than
-+ * standard memcpy.
-+ */
-+SYM_FUNC_START(copy_mc_generic)
-+	ALTERNATIVE "jmp copy_mc_fragile", "", X86_FEATURE_ERMS
-+	movq %rdi, %rax
-+	movq %rdx, %rcx
-+.L_copy:
-+	rep movsb
-+	/* Copy successful. Return zero */
-+	xorl %eax, %eax
-+	ret
-+SYM_FUNC_END(copy_mc_generic)
-+EXPORT_SYMBOL_GPL(copy_mc_generic)
-+
-+	.section .fixup, "ax"
-+.E_copy:
-+	/*
-+	 * On fault %rcx is updated such that the copy instruction could
-+	 * optionally be restarted at the fault position, i.e. it
-+	 * contains 'bytes remaining'. A non-zero return indicates error
-+	 * to copy_mc_generic() users, or indicate short transfers to
-+	 * user-copy routines.
-+	 */
-+	movq %rcx, %rax
-+	ret
-+
-+	.previous
-+
-+	_ASM_EXTABLE_FAULT(.L_copy, .E_copy)
- #endif
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index cf2d076f6ba5..9677dfa0f983 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -548,6 +548,7 @@ static const char *uaccess_safe_builtin[] = {
- 	"__ubsan_handle_shift_out_of_bounds",
- 	/* misc */
- 	"csum_partial_copy_generic",
-+	"copy_mc_generic",
- 	"copy_mc_fragile",
- 	"copy_mc_fragile_handle_tail",
- 	"ftrace_likely_update", /* CONFIG_TRACE_BRANCH_PROFILING */
+Once I hear from you, I will forward to you all the information's you will =
+use to get this fund released from the bank of Africa and to be transferred=
+ to your bank account. I honestly pray that this money when transferred to =
+you will be used for the said purpose on Churches and Orphanage because l h=
+ave come to find out that wealth acquisition without Christ is vanity. May =
+the grace of our lord Jesus the love of God and the fellowship of God be wi=
+th you and your family as you will use part of this sum for Churches and Or=
+phanage for my soul to rest in peace when I die.
+
+Urgently Reply with the information=E2=80=99s bellow to this My Private E-m=
+ail bellow:=20
+
+( mrscompaoremary392@gmail.com )
+
+1. YOUR FULL NAME..........
+
+2. NATIONALITY.................
+
+3. YOUR AGE......................
+
+4. OCCUPATION.................
+
+5. PHONE NUMBER.............
+
+BEST REGARD.
+MRS.MARYAM C. RICHARD.
 
