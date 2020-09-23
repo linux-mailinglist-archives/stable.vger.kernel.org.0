@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E77F1275092
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 08:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B15B5275093
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 08:00:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726629AbgIWGAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 02:00:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39648 "EHLO mail.kernel.org"
+        id S1726631AbgIWGAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Sep 2020 02:00:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726179AbgIWGAq (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Wed, 23 Sep 2020 02:00:46 -0400
+        id S1726179AbgIWGAt (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Wed, 23 Sep 2020 02:00:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42829221EF;
-        Wed, 23 Sep 2020 06:00:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CF1E235F7;
+        Wed, 23 Sep 2020 06:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600840845;
-        bh=v0y8b5Qsx/wddV9JM/tJAQhW0JhqVbuOY5Eb46y/Z+4=;
+        s=default; t=1600840848;
+        bh=pd1A26SaeT5WDk3MRDOA5rqghETWxMLja4okWKqEfbU=;
         h=Subject:To:From:Date:From;
-        b=sNRL3jf2QWvymx6446fUaDNrp/8mIsQAMSKIBtzGsT1f2oIc/QOUpORI2SPEGR6w+
-         uRN5fs+9HGdxuO/jMwGOXE5OYcTsU62dTmHbiwT+BItK0NgvlHXiZOziMgEdlMHM/Z
-         VZMaMwDpkJGkgDI6nmgxWoR4jQij2PR2iUEx6T+U=
-Subject: patch "iio:adc:ti-adc0832 Fix alignment issue with timestamp" added to staging-next
+        b=Vl7CD5yrgCZEPg+ZMwaCEfx9QQp/PCecdSJGob1QKmDPJCLXo3srug4HiL4rvTg0F
+         eSxc/pFeXyJl6hzk/anC0hJPO/4fx4BQpcGoFVPi2LVMYkKlJ4Ud3DpzdFexCYqyYt
+         zeZfMOcbuWhrQeybuNq4358WnPtq7nGZtMZxsvRA=
+Subject: patch "iio:adc:ti-adc12138 Fix alignment issue with timestamp" added to staging-next
 To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
         akinobu.mita@gmail.com, andy.shevchenko@gmail.com, lars@metafoo.de
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 23 Sep 2020 07:56:38 +0200
-Message-ID: <160084059834242@kroah.com>
+Date:   Wed, 23 Sep 2020 07:56:39 +0200
+Message-ID: <160084059910816@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:adc:ti-adc0832 Fix alignment issue with timestamp
+    iio:adc:ti-adc12138 Fix alignment issue with timestamp
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -54,72 +54,84 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 39e91f3be4cba51c1560bcda3a343ed1f64dc916 Mon Sep 17 00:00:00 2001
+From 293e809b2e8e608b65a949101aaf7c0bd1224247 Mon Sep 17 00:00:00 2001
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Wed, 22 Jul 2020 16:51:00 +0100
-Subject: iio:adc:ti-adc0832 Fix alignment issue with timestamp
+Date: Wed, 22 Jul 2020 16:51:01 +0100
+Subject: iio:adc:ti-adc12138 Fix alignment issue with timestamp
 
 One of a class of bugs pointed out by Lars in a recent review.
 iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
 to the size of the timestamp (8 bytes).  This is not guaranteed in
 this driver which uses an array of smaller elements on the stack.
 
-We fix this issues by moving to a suitable structure in the iio_priv()
-data with alignment explicitly requested.  This data is allocated
-with kzalloc so no data can leak apart from previous readings.
-Note that previously no data could leak 'including' previous readings
-but I don't think it is an issue to potentially leak them like
-this now does.
+We move to a suitable structure in the iio_priv() data with alignment
+explicitly requested.  This data is allocated with kzalloc so no
+data can leak apart from previous readings. Note that previously
+no leak at all could occur, but previous readings should never
+be a problem.
 
-In this case the postioning of the timestamp is depends on what
-other channels are enabled. As such we cannot use a structure to
-make the alignment explicit as it would be missleading by suggesting
-only one possible location for the timestamp.
+In this case the timestamp location depends on what other channels
+are enabled. As such we can't use a structure without misleading
+by suggesting only one possible timestamp location.
 
-Fixes: 815bbc87462a ("iio: ti-adc0832: add triggered buffer support")
+Fixes: 50a6edb1b6e0 ("iio: adc: add ADC12130/ADC12132/ADC12138 ADC driver")
 Reported-by: Lars-Peter Clausen <lars@metafoo.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Cc: Akinobu Mita <akinobu.mita@gmail.com>
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200722155103.979802-25-jic23@kernel.org
+Link: https://lore.kernel.org/r/20200722155103.979802-26-jic23@kernel.org
 ---
- drivers/iio/adc/ti-adc0832.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/iio/adc/ti-adc12138.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/adc/ti-adc0832.c b/drivers/iio/adc/ti-adc0832.c
-index c7a085dce1f4..0261b3cfc92b 100644
---- a/drivers/iio/adc/ti-adc0832.c
-+++ b/drivers/iio/adc/ti-adc0832.c
-@@ -29,6 +29,12 @@ struct adc0832 {
- 	struct regulator *reg;
- 	struct mutex lock;
- 	u8 mux_bits;
+diff --git a/drivers/iio/adc/ti-adc12138.c b/drivers/iio/adc/ti-adc12138.c
+index e485719cd2c4..fcd5d39dd03e 100644
+--- a/drivers/iio/adc/ti-adc12138.c
++++ b/drivers/iio/adc/ti-adc12138.c
+@@ -47,6 +47,12 @@ struct adc12138 {
+ 	struct completion complete;
+ 	/* The number of cclk periods for the S/H's acquisition time */
+ 	unsigned int acquisition_time;
 +	/*
-+	 * Max size needed: 16x 1 byte ADC data + 8 bytes timestamp
-+	 * May be shorter if not all channels are enabled subject
-+	 * to the timestamp remaining 8 byte aligned.
++	 * Maximum size needed: 16x 2 bytes ADC data + 8 bytes timestamp.
++	 * Less may be need if not all channels are enabled, as long as
++	 * the 8 byte alignment of the timestamp is maintained.
 +	 */
-+	u8 data[24] __aligned(8);
++	__be16 data[20] __aligned(8);
  
  	u8 tx_buf[2] ____cacheline_aligned;
  	u8 rx_buf[2];
-@@ -200,7 +206,6 @@ static irqreturn_t adc0832_trigger_handler(int irq, void *p)
+@@ -329,7 +335,6 @@ static irqreturn_t adc12138_trigger_handler(int irq, void *p)
  	struct iio_poll_func *pf = p;
  	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct adc0832 *adc = iio_priv(indio_dev);
--	u8 data[24] = { }; /* 16x 1 byte ADC data + 8 bytes timestamp */
+ 	struct adc12138 *adc = iio_priv(indio_dev);
+-	__be16 data[20] = { }; /* 16x 2 bytes ADC data + 8 bytes timestamp */
+ 	__be16 trash;
+ 	int ret;
  	int scan_index;
- 	int i = 0;
+@@ -345,7 +350,7 @@ static irqreturn_t adc12138_trigger_handler(int irq, void *p)
+ 		reinit_completion(&adc->complete);
  
-@@ -218,10 +223,10 @@ static irqreturn_t adc0832_trigger_handler(int irq, void *p)
- 			goto out;
- 		}
- 
--		data[i] = ret;
-+		adc->data[i] = ret;
- 		i++;
+ 		ret = adc12138_start_and_read_conv(adc, scan_chan,
+-						   i ? &data[i - 1] : &trash);
++					i ? &adc->data[i - 1] : &trash);
+ 		if (ret) {
+ 			dev_warn(&adc->spi->dev,
+ 				 "failed to start conversion\n");
+@@ -362,7 +367,7 @@ static irqreturn_t adc12138_trigger_handler(int irq, void *p)
  	}
+ 
+ 	if (i) {
+-		ret = adc12138_read_conv_data(adc, &data[i - 1]);
++		ret = adc12138_read_conv_data(adc, &adc->data[i - 1]);
+ 		if (ret) {
+ 			dev_warn(&adc->spi->dev,
+ 				 "failed to get conversion data\n");
+@@ -370,7 +375,7 @@ static irqreturn_t adc12138_trigger_handler(int irq, void *p)
+ 		}
+ 	}
+ 
 -	iio_push_to_buffers_with_timestamp(indio_dev, data,
 +	iio_push_to_buffers_with_timestamp(indio_dev, adc->data,
  					   iio_get_time_ns(indio_dev));
