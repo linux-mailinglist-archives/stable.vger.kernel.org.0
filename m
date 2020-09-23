@@ -2,61 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E68275386
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 10:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DBE527538B
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 10:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726574AbgIWInI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 04:43:08 -0400
-Received: from verein.lst.de ([213.95.11.211]:47725 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726328AbgIWInH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Sep 2020 04:43:07 -0400
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id 813D367357; Wed, 23 Sep 2020 10:43:03 +0200 (CEST)
-Date:   Wed, 23 Sep 2020 10:43:03 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     Coly Li <colyli@suse.de>
-Cc:     Christoph Hellwig <hch@lst.de>, linux-block@vger.kernel.org,
-        linux-nvme@lists.infradead.org, netdev@vger.kernel.org,
-        open-iscsi@googlegroups.com, linux-scsi@vger.kernel.org,
-        ceph-devel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Hannes Reinecke <hare@suse.de>, Jan Kara <jack@suse.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Vlastimil Babka <vbabka@suse.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v7 1/6] net: introduce helper sendpage_ok() in
- include/linux/net.h
-Message-ID: <20200923084303.GA21657@lst.de>
-References: <20200818131227.37020-1-colyli@suse.de> <20200818131227.37020-2-colyli@suse.de> <20200818162404.GA27196@lst.de> <217ec0ec-3c5a-a8ed-27d9-c634f0b9a045@suse.de> <20200818194930.GA31966@lst.de> <04408ff6-f765-8f3e-ead9-aec55043e469@suse.de>
+        id S1726178AbgIWIoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Sep 2020 04:44:30 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:46174 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726130AbgIWIo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 04:44:29 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 3ACE61C0BB3; Wed, 23 Sep 2020 10:44:28 +0200 (CEST)
+Date:   Wed, 23 Sep 2020 10:44:27 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Willy Tarreau <w@1wt.eu>
+Cc:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>, jikos@suse.cz,
+        vojtech@suse.cz, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Yuan Ming <yuanmingbuaa@gmail.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH 4.19 66/78] fbcon: remove soft scrollback code
+Message-ID: <20200923084427.GA32110@amd>
+References: <20200915140633.552502750@linuxfoundation.org>
+ <20200915140636.861676717@linuxfoundation.org>
+ <20200916075759.GC32537@duo.ucw.cz>
+ <20200916082510.GB509119@kroah.com>
+ <20200916090723.GA4151@duo.ucw.cz>
+ <20200916091420.GF13670@1wt.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
 Content-Disposition: inline
-In-Reply-To: <04408ff6-f765-8f3e-ead9-aec55043e469@suse.de>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+In-Reply-To: <20200916091420.GF13670@1wt.eu>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 19, 2020 at 12:22:05PM +0800, Coly Li wrote:
-> On 2020/8/19 03:49, Christoph Hellwig wrote:
-> > On Wed, Aug 19, 2020 at 12:33:37AM +0800, Coly Li wrote:
-> >> On 2020/8/19 00:24, Christoph Hellwig wrote:
-> >>> I think we should go for something simple like this instead:
-> >>
-> >> This idea is fine to me. Should a warning message be through here? IMHO
-> >> the driver still sends an improper page in, fix it in silence is too
-> >> kind or over nice to the buggy driver(s).
-> > 
-> > I don't think a warning is a good idea.  An API that does the right
-> > thing underneath and doesn't require boiler plate code in most callers
-> > is the right API.
-> > 
-> 
-> Then I don't have more comment.
 
-So given the feedback from Dave I suspect we should actually resurrect
-this series, sorry for the noise.  And in this case I think we do need
-the warning in kernel_sendpage.
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+> > I believe it will need to be reverted in Linus' tree, too. In fact,
+> > the patch seems to be a way for Linus to find a maintainer for the
+> > code, and I already stated I can do it. Patch is so new it was not
+> > even in -rc released by Linus.
+>=20
+> I can honestly see how it can be missed from fbcon, but using vgacon
+> myself for cases like you described, I still benefit from the hw scroll
+> buffer which is OK.
+>=20
+> > > See the email recently on oss-devel for one such reason why this was
+> > > removed...
+> >=20
+> > Would you have a link for that?
+>=20
+> Here it is:
+>=20
+>   https://www.openwall.com/lists/oss-security/2020/09/15/2
+
+Thank you for the pointer!
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl9rCusACgkQMOfwapXb+vJD9QCgq8uPa3CErsd9aG+WeyQHw58W
+5rkAn1hcOezryPDv6NTJS4D5olmgVTPF
+=Eekr
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
