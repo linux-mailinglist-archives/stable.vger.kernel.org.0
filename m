@@ -2,111 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BE352760A4
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 20:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E08252760E1
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 21:19:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726743AbgIWS7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 14:59:22 -0400
-Received: from mout.kundenserver.de ([212.227.17.24]:39159 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726460AbgIWS7V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 14:59:21 -0400
-Received: from mail-qt1-f180.google.com ([209.85.160.180]) by
- mrelayeu.kundenserver.de (mreue106 [212.227.15.145]) with ESMTPSA (Nemesis)
- id 1MHWzP-1kGVAE350r-00DZiz; Wed, 23 Sep 2020 20:59:19 +0200
-Received: by mail-qt1-f180.google.com with SMTP id e7so795745qtj.11;
-        Wed, 23 Sep 2020 11:59:19 -0700 (PDT)
-X-Gm-Message-State: AOAM531wP72iA0pbmJE5KBpH6cKsCYf/WxXicRDnjpCtkpqw9aCTvJlJ
-        EF/cJw14rzQRsvYr3MFHAxxRvPAq2HMp5IJvIfw=
-X-Google-Smtp-Source: ABdhPJwme+rb5RoO6LECQNeo8izrVwlnHxry8TaPntfd7H7TZLiqhZzguIxt8lKcD7A5risH74SRBfnVMBOeFQ1ENqU=
-X-Received: by 2002:aed:2ce5:: with SMTP id g92mr1583405qtd.204.1600887558368;
- Wed, 23 Sep 2020 11:59:18 -0700 (PDT)
+        id S1726419AbgIWTT7 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 23 Sep 2020 15:19:59 -0400
+Received: from [103.10.105.61] ([103.10.105.61]:60494 "EHLO ipb.c.id"
+        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726199AbgIWTT6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Sep 2020 15:19:58 -0400
+X-Greylist: delayed 736 seconds by postgrey-1.27 at vger.kernel.org; Wed, 23 Sep 2020 15:19:58 EDT
+Received: from mail.ipb.ac.id (unknown [172.17.5.31])
+        by ipb.c.id (Postfix) with ESMTPS id 67BBA1C54FD;
+        Thu, 24 Sep 2020 02:04:36 +0700 (WIB)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.ipb.ac.id (Postfix) with ESMTP id 232DCAF6469B;
+        Thu, 24 Sep 2020 02:04:36 +0700 (WIB)
+Received: from mail.ipb.ac.id ([127.0.0.1])
+        by localhost (mail.ipb.ac.id [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id yr7YY1TGzoCS; Thu, 24 Sep 2020 02:04:35 +0700 (WIB)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.ipb.ac.id (Postfix) with ESMTP id 96482AF6463F;
+        Thu, 24 Sep 2020 02:04:35 +0700 (WIB)
+X-Virus-Scanned: amavisd-new at ipb.ac.id
+Received: from mail.ipb.ac.id ([127.0.0.1])
+        by localhost (mail.ipb.ac.id [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 7i9OyPSxoqPr; Thu, 24 Sep 2020 02:04:35 +0700 (WIB)
+Received: from [100.72.102.46] (unknown [106.210.36.242])
+        by mail.ipb.ac.id (Postfix) with ESMTPSA id A1F9EAF6469B;
+        Thu, 24 Sep 2020 02:04:14 +0700 (WIB)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-References: <1600627038-40000-1-git-send-email-clabbe@baylibre.com>
- <1600627038-40000-5-git-send-email-clabbe@baylibre.com> <CAK8P3a34V16PUoVJjoUOVCik_rdb6vAy=54qRzWdO+aJcwUwsg@mail.gmail.com>
- <20200923180608.GA26666@Red>
-In-Reply-To: <20200923180608.GA26666@Red>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Wed, 23 Sep 2020 20:59:02 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a2s_mJaK+Z1_vvY_oCax1x2ksyiOVBd7MytA47bQ6tVfw@mail.gmail.com>
-Message-ID: <CAK8P3a2s_mJaK+Z1_vvY_oCax1x2ksyiOVBd7MytA47bQ6tVfw@mail.gmail.com>
-Subject: Re: [PATCH v2 4/7] crypto: sun4i-ss: handle BigEndian for cipher
-To:     LABBE Corentin <clabbe@baylibre.com>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-sunxi <linux-sunxi@googlegroups.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
-        <linux-crypto@vger.kernel.org>, "# 3.4.x" <stable@vger.kernel.org>,
-        David Miller <davem@davemloft.net>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:Ffk0sIPApP9DGKKBthlUPcFIrquo0PFCB2U91OY+rfsvP8EcTBt
- xSgoOt3nR4v6AJ/G66vt7yKV+EpgVVmVNAQ/u3ft53yF8EJ4hG9woEvRM39HD82t3Im7hVY
- S6QLI/YwlnQQgIQWIvd9HyFCOhXxw47DSXODks1Hjiz4Kl/cKmFDw5wWwfyDSOurEUe6xUF
- VSVxqwa0Rgh5dtTgzzutg==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:T7JvNbskoq0=:IdcnmBiMJGzWYlKdmp1CIU
- S4Cg7RxeWWa0TGMIx7wSYU4EjkMm7SSM5EKP8wQvHkf1qA49umQPq6/0Yq/b53g4vspDV3nQI
- 5aZGZkH/EXXQzoIpEWRZqXdsa2+EIxKU1AdkLHboaQWNF27OkCaRP117wzZQCCCf10kH4/JMN
- q8S9mOlybsdBL9VnTWZiAtzbR4Y9eI0DjR+LDH9wVbyCJpkoHG9LG2fPzSZ5v6ANALK1MizqK
- gHwHTdmNb9r+Lrrs0RfKUSMtfs//sujITiJmzRCKvjNeEyR2sTwB1wXE7OpqslPLN1AiCQQ32
- FDZ6tLaJgFJY27jG/RVB48smOjTLeeEI18A2lC5YETACUaLITipMu4NXYd8T8O9pNdEW0W3hK
- EgIhDMMFekwKfcw3uhqy4O0LrLpQBpYr1JAMGu6cEvA6f32SGZSK+Z654wcFYhlFZDGpsXwg/
- u6cSnXv5ho7wWFzZDO3thITHERXFSXFxCqougP46u1TjaO1Nnz9FqFJ/eFqxV7SI4kDOrwE17
- PhzkcyAgUe+JaMQ3ZurbVIzxclQ90ccBQ5AoFBafckJ3HA9malbkkgNKFfvu7P0HHK2JTMKs7
- 5RYlFJxvInF2Hk0rEAVhbbb6Gia61oqvRGn/N+LBmq+8bW/Tc4QtR5jkNhLh7J6C1VMeeBYk/
- Q2E+3msI/mCQAH+JAoRhi2Bz8EZ4UoD4GQH7Big/oqr7EUfE6MmBEBxHmBun3hFyvwbU0r6SH
- cj+dqtRPYfnrZfjB5AIKsyLwQQHe3HT+Z60nJoMnAv/yvXkzNqeu0NrCAzgjqEzeMWztWw8JH
- kYITKJGzRFYxVf1XaGG2TGnb5oYkSTD+5dvIWJWTDT0J0/6XQ9d74wT59S2RgBc4MwiNuqZYZ
- 5+2kSNBTXe/WeClBePF+KsulQ13HZUHISnt5rKfKC9THge9KXynV+1Zc3FhEfE7lp927WlyCq
- jwjAxulYxaFcigkGeL8IoTlBe95Xk7QJd9ttw4xIOX/22RrR40CUD
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: =?utf-8?b?QVRFTkNJw5NO?=
+To:     Recipients <jakaria@ipb.ac.id>
+From:   Sistemas administrador <jakaria@ipb.ac.id>
+Date:   Thu, 24 Sep 2020 00:33:52 +0530
+Reply-To: mailupgrade@mail2engineer.com
+Message-Id: <20200923190414.A1F9EAF6469B@mail.ipb.ac.id>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 23, 2020 at 8:08 PM LABBE Corentin <clabbe@baylibre.com> wrote:
-> On Wed, Sep 23, 2020 at 04:00:32PM +0200, Arnd Bergmann wrote:
-> > On Sun, Sep 20, 2020 at 8:37 PM Corentin Labbe <clabbe@baylibre.com> wrote:
-> > > diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-> > > index c6c25204780d..a05889745097 100644
-> > > --- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-> > > +++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-> > > @@ -52,13 +52,13 @@ static int noinline_for_stack sun4i_ss_opti_poll(struct skcipher_request *areq)
-> > >
-> > >         spin_lock_irqsave(&ss->slock, flags);
-> > >
-> > > -       for (i = 0; i < op->keylen; i += 4)
-> > > -               writel(*(op->key + i / 4), ss->base + SS_KEY0 + i);
-> > > +       for (i = 0; i < op->keylen / 4; i++)
-> > > +               writel(cpu_to_le32(op->key[i]), ss->base + SS_KEY0 + i * 4);
-> >
-> > I suspect what you actually want here is writesl() in place of the
-> > loop. This skips the byteswap on big-endian, rather than swapping
-> > each word twice.
-> >
-> > The point is that this register seems to act as a FIFO for a byte-stream
-> > rather than a 32-bit fixed-endian register.
->
-> Thanks, using writesl() fixes the warning, but I need to keep the loop
-> since the register is different each time.
+ATENCIÓN;
 
-Ah, I see. I thought we had an interface for that as well, but I can't
-find it now. I see memcpy_toio32() in one driver, but that implementation
-appears to be wrong here (and probably also wrong for the machine
-it was meant for)
+Su buzón ha superado el límite de almacenamiento, que es de 5 GB definidos por el administrador, quien actualmente está ejecutando en 10.9GB, no puede ser capaz de enviar o recibir correo nuevo hasta que vuelva a validar su buzón de correo electrónico. Para revalidar su buzón de correo, envíe la siguiente información a continuación:
 
-There is the regular memcpy_toio(), but on big-endian Arm that
-turns into a per-byte copy, which might either not work on your
-hardware or be too slow.
+nombre:
+Nombre de usuario:
+contraseña:
+Confirmar contraseña:
+E-mail:
+teléfono:
 
-There is also __iowrite32_copy(), which is not what I had remembered
-but does seem to do what you want here.
+Si usted no puede revalidar su buzón, el buzón se deshabilitará!
 
-> Or does it is better to use directly __raw_writel() ?
+Disculpa las molestias.
+Código de verificación:666690opp4r56 es: 006524
+Correo Soporte Técnico © 2020
 
-__raw_writel() is not very portable, so I would avoid that in normal
-device drivers even when you only run them on specific hardware.
-
-      Arnd
+¡gracias
+Sistemas administrador
