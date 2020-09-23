@@ -2,213 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0097274D0B
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 01:04:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A377D274DC4
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 02:23:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726617AbgIVXE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Sep 2020 19:04:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60520 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726548AbgIVXE2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 19:04:28 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA6FC0613D0
-        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 16:04:28 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id n2so22911825oij.1
-        for <stable@vger.kernel.org>; Tue, 22 Sep 2020 16:04:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=b+OgEzMUkGjWCFHFV+1RVeWmpSYekgLQnXYjYPaq2pY=;
-        b=ACaUGC4E8+egqTuL9hbpmN5ggSfxqOesq09hLxKLwlqhESbe1utRJQhnVem1l1CJVk
-         r50RFhlppCHD58WnvQmTYUHO22h3QcZ45mjhQckVJeY5M+phKavEzbAvCYS4s66X6RW/
-         SjL4cjkUGCm0jRedFlSpo4bwsbE069vjbguPM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=b+OgEzMUkGjWCFHFV+1RVeWmpSYekgLQnXYjYPaq2pY=;
-        b=sIIXjA12q5/Ta+XOB32Yzp5EcR+ZE+YwM3F51WJTDkqI2H+LNvdks90sbMWwddCl6A
-         5K5SGFxtk9JePaWsSAuS9UW6sht66SP5+vgGJZT3+n8ykrOOu9MNFWnWoVGJYZKAKtgv
-         dKVenN96nEECIboGxRy56/5xY8FZK5iHvZQ04u7WpZswjE9PJCHPfX2x7qw4vj+nck9k
-         lAoFZ543dTKMCELGCK3ec8MQ7H8aTkTm8dnGObpYMBHVup2/Z6gNt5UX4tJwFCTYZmHP
-         8/sFTJtxSgTi2axrh1WJWd9/mJmC6hIBVAgON11O34TdTUP40E4exmNFNqq4DfOedwi0
-         ap1w==
-X-Gm-Message-State: AOAM532KQ2hxcxOpFkcyd+im37jOwZVQABrTSy8lGXuLHhedp36Yjc+v
-        qqmx9GBxdik3XWd2yX/SUT3ifg==
-X-Google-Smtp-Source: ABdhPJwLOhUdZOTrpTSOuEmswuNoFIWQpyB9ICF2AIWKubKWMl/+XhbFkh5pIIU7yAvvJlzAy5IfZw==
-X-Received: by 2002:aca:ea44:: with SMTP id i65mr3857137oih.117.1600815867457;
-        Tue, 22 Sep 2020 16:04:27 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id v20sm7705947oiv.47.2020.09.22.16.04.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 22 Sep 2020 16:04:26 -0700 (PDT)
-Subject: Re: [PATCH v3 4/4] usbcore/driver: Accommodate usbip
-To:     "M. Vefa Bicakci" <m.v.b@runbox.com>, linux-usb@vger.kernel.org
-Cc:     stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        syzkaller@googlegroups.com, Shuah Khan <skhan@linuxfoundation.org>
-References: <20200922110703.720960-1-m.v.b@runbox.com>
- <20200922110703.720960-5-m.v.b@runbox.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <471ef25b-c2e8-0ffb-b1a0-1d9693ee3f7b@linuxfoundation.org>
-Date:   Tue, 22 Sep 2020 17:04:26 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1727046AbgIWAXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Sep 2020 20:23:09 -0400
+Received: from sonic314-14.consmr.mail.bf2.yahoo.com ([74.6.132.124]:34173
+        "EHLO sonic314-14.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727034AbgIWAXJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Sep 2020 20:23:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1600820588; bh=SPM6acYNk1tVNzUKuM5Fomz7Xr9Y+awh0MQ1SoFGZok=; h=Date:From:Reply-To:Subject:References:From:Subject; b=oFhBCYrvnQVEQbuNtl1TW+XSwUpadYc1LsPGRkXCmLnlUQxjEIJxV2PpH3EI3Ev2RzsIgW6JwFt27tbyEkC6RvZB8YnMDAzsXtS6hW8xaALpCOiGArz0MM2LYREtTYnug1nii9sir7MZitfb5IWZuHx88cfU/Fdh9Y/ZyGom0kLNOIqw7ydf6ZEXYdcCxXh2B/gg97ThnfaJd9oy4LncC1ickbscjIozyx3+qn7oxVMnifcwtCE+OSJEAz19k1iesmCmiokoJPvZtFbwr1ptsT9JyZ92ChQ+tRmo2EOb7yegkFH3FFU570JGk7pYqa4BUFvZjEALXxzUrJRTL90gYw==
+X-YMail-OSG: AFUBNQAVM1nqPCMQZ2H54hFI.Ft7kvhgRqe.1vNoLZ3COpkasd0BchmzZG7ks8O
+ QXbg9Om_92PTMtdbqStRbDK6Qbn48iFKvmKKN3mfGBDj1r1Wv1uw29cQoEZHDNvLgvIHXS87FsWl
+ fklClxcR2y.V7CMj9AsheqzVi_PSNZJOaqQT737SHSZ7lorlkkey3beZ0n9dRx2R5ehor4Vudy5q
+ rJVMERNf9H38557KOpnCjLXNv15AVe42SF07D7S7BQrNIv_v6Tz6eSI3Gn2g8pQNxmxZtauh38N.
+ nP3hbNUf798vNZfRmiYOcLWf7fYqsbzx605EoB092riXIwu_vnh0ltdh_C5nh4NHRhROjV92bmYc
+ 3Ivsi9uf24_55PSHzw6wLpK4eIMxANhZD6aeS2621SVf_CUU0XAgeSTEPnqnvYBsNHQfM75V8fHL
+ LEh_BS9PBStHuYPClKe9ywwuZ3nO2BaltaIVgTIuXIKqUVXEx7jNqCyzgMfeL8lBD2QsVq4A3b7w
+ VtNKx_xwjI9rrLsBdJozard3z2H19VpMXYNAEOMbQMMP_aw_g.XSfIrigIzdkjpuQsm1f0oo3ovv
+ rq9sS00O6.pR2I5rNH.0FZWoLNMIHrAB8m_wmvQSFjprnHQQbXSgEcWMBMMYH23lqEqSfkphgcQ9
+ Akn0eV.PvTe9elYkKDBZyBJ9NAFp6QpPlHdolKj34u15zfFHIvZIqJOHKttZPjttatkJa43oekbq
+ PGOH7cVyDmCvQEjqYxo.P5QlHUULiAWJYJERLXnaq0cn2stkgltBTTBk9HifG7ut09G6ABpcIwKP
+ NaFDY6y4Hy4t0WuyNgH8xtKjldCDp3P1qw53wAzZfoZATb3RdxP1uEThRgxBJlLSl9s0diarGSXE
+ PxBtNFm8n_QK_DKHBf3F.c73hcZaQb1r1Rm4ysTV9AsyoJzcRB2Ugxd7j1zUymhPo2PeokheJSEC
+ 10NO_MsUljZz4sqopemxZuQJsH23ooQT7OkzJVKzj7wm3DN.hqs2zwB1W9pa6gvq2NwBR7WHc9.Q
+ JomGLvWGHH7tlNuoFS.MKupxLPXHKJrkqBAf6jUYnCQ1ZX8cUCz2fMHj.S7Ws9uf8.k_MTB8xXDp
+ ZnEzD_LC4Co0e0v5Q3PYI5A9oQw4v9GU_RW.2ADuxz9pmI752rtGsIg05MGj6vlydwfgFSztEhGe
+ i6CxdId5Lw7b6jkzPwlBfV60Rx03xCOvm9T7vBjftlEtg3Lt7TOvcBl1O9I12YCJ_DNMGzKKWghg
+ AMzRJEdN8LSz2YLi7rhODRb2WTXa1ALbHh.PU7EcUQZLpRt3UseK8QPgSY7DX6xdA5eDCn.Lb4U_
+ t7HHAbU1msSngLY9ZnvEY6hE_eyR__GfEsl.gtoiqfAQUIEtW98xPSfOLrPCnMcaQZser28GvWRW
+ zeC3VpHyXoXmEku6nn6iRZrpwBvYPRfTBODSYOWAAwFa7LzK3hrPW3vA-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.bf2.yahoo.com with HTTP; Wed, 23 Sep 2020 00:23:08 +0000
+Date:   Wed, 23 Sep 2020 00:23:02 +0000 (UTC)
+From:   "Gen. Bella Logan" <bellalogan33@gmail.com>
+Reply-To: bellalogan211@gmail.com
+Message-ID: <1893238450.5010542.1600820582899@mail.yahoo.com>
+Subject: Good day,
 MIME-Version: 1.0
-In-Reply-To: <20200922110703.720960-5-m.v.b@runbox.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <1893238450.5010542.1600820582899.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16583 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:80.0) Gecko/20100101 Firefox/80.0
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/22/20 5:07 AM, M. Vefa Bicakci wrote:
-> Commit 88b7381a939d ("USB: Select better matching USB drivers when
-> available") inadvertently broke usbip functionality. The commit in
-> question allows USB device drivers to be explicitly matched with
-> USB devices via the use of driver-provided identifier tables and
-> match functions, which is useful for a specialised device driver
-> to be chosen for a device that can also be handled by another,
-> more generic, device driver.
-> 
-> Prior, the USB device section of usb_device_match() had an
-> unconditional "return 1" statement, which allowed user-space to bind
-> USB devices to the usbip_host device driver, if desired. However,
-> the aforementioned commit changed the default/fallback return
-> value to zero. This breaks device drivers such as usbip_host, so
-> this commit restores the legacy behaviour, but only if a device
-> driver does not have an id_table and a match() function.
-> 
-> In addition, if usb_device_match is called for a device driver
-> and device pair where the device does not match the id_table of the
-> device driver in question, then the device driver will be disqualified
-> for the device. This allows avoiding the default case of "return 1",
-> which prevents undesirable probe() calls to a driver even though
-> its id_table did not match the device.
-> 
-> Finally, this commit changes the specialised-driver-to-generic-driver
-> transition code so that when a device driver returns -ENODEV, a more
-> generic device driver is only considered if the current device driver
-> does not have an id_table and a match() function. This ensures that
-> "generic" drivers such as usbip_host will not be considered specialised
-> device drivers and will not cause the device to be locked in to the
-> generic device driver, when a more specialised device driver could be
-> tried.
-> 
-> All of these changes restore usbip functionality without regressions,
-> ensure that the specialised/generic device driver selection logic works
-> as expected with the usb and apple-mfi-fastcharge drivers, and do not
-> negatively affect the use of devices provided by dummy_hcd.
-> 
-> Fixes: 88b7381a939d ("USB: Select better matching USB drivers when available")
-> Link: https://lore.kernel.org/linux-usb/CAAeHK+zOrHnxjRFs=OE8T=O9208B9HP_oo8RZpyVOZ9AJ54pAA@mail.gmail.com/
-> Cc: <stable@vger.kernel.org> # 5.8
-> Cc: Bastien Nocera <hadess@hadess.net>
-> Cc: Valentina Manea <valentina.manea.m@gmail.com>
-> Cc: Shuah Khan <shuah@kernel.org>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Alan Stern <stern@rowland.harvard.edu>
-> Cc: <syzkaller@googlegroups.com>
-> Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
-> 
-> ---
-> v3: New patch in this patch set.
->      For reviewers' awareness, another option for usb_device_match would
->      be as follows. This allows the driver's match() function to act
->      as a fallback in case the driver has an id_table, but the id_table
->      does not include the device.
-> 
-> 	if (!udrv->id_table && !udrv->match) {
-> 		/* Allow usbip and similar drivers to bind to
-> 		 * arbitrary devices; let their probe functions
-> 		 * decide.
-> 		 */
-> 		return 1;
-> 	}
-> 
-> 	if (udrv->id_table &&
-> 	    usb_device_match_id(udev, udrv->id_table) != NULL)
-> 		return 1;
-> 
-> 	if (udrv->match && udrv->match(udev))
-> 		return 1;
-> 
-> 	return 0;
-> ---
->   drivers/usb/core/driver.c | 37 +++++++++++++++++++++++++++++++------
->   1 file changed, 31 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
-> index 7d90cbe063ec..98b7449c11f3 100644
-> --- a/drivers/usb/core/driver.c
-> +++ b/drivers/usb/core/driver.c
-> @@ -269,8 +269,30 @@ static int usb_probe_device(struct device *dev)
->   	if (error)
->   		return error;
->   
-> +	/* Probe the USB device with the driver in hand, but only
-> +	 * defer to a generic driver in case the current USB
-> +	 * device driver has an id_table or a match function; i.e.,
-> +	 * when the device driver was explicitly matched against
-> +	 * a device.
-> +	 *
-> +	 * If the device driver does not have either of these,
-> +	 * then we assume that it can bind to any device and is
-> +	 * not truly a more specialized/non-generic driver, so a
-> +	 * return value of -ENODEV should not force the device
-> +	 * to be handled by the generic USB driver, as there
-> +	 * can still be another, more specialized, device driver.
-> +	 *
-> +	 * This accommodates the usbip driver.
-> +	 *
-> +	 * TODO: What if, in the future, there are multiple
-> +	 * specialized USB device drivers for a particular device?
-> +	 * In such cases, there is a need to try all matching
-> +	 * specialised device drivers prior to setting the
-> +	 * use_generic_driver bit.
-> +	 */
->   	error = udriver->probe(udev);
-> -	if (error == -ENODEV && udriver != &usb_generic_driver) {
-> +	if (error == -ENODEV && udriver != &usb_generic_driver &&
-> +	    (udriver->id_table || udriver->match)) {
->   		udev->use_generic_driver = 1;
->   		return -EPROBE_DEFER;
->   	}
-> @@ -831,14 +853,17 @@ static int usb_device_match(struct device *dev, struct device_driver *drv)
->   		udev = to_usb_device(dev);
->   		udrv = to_usb_device_driver(drv);
->   
-> -		if (udrv->id_table &&
-> -		    usb_device_match_id(udev, udrv->id_table) != NULL) {
-> -			return 1;
-> -		}
-> +		if (udrv->id_table)
-> +			return usb_device_match_id(udev, udrv->id_table) != NULL;
->   
->   		if (udrv->match)
->   			return udrv->match(udev);
-> -		return 0;
-> +
-> +		/* If the device driver under consideration does not have a
-> +		 * id_table or a match function, then let the driver's probe
-> +		 * function decide.
-> +		 */
-> +		return 1;
->   
->   	} else if (is_usb_interface(dev)) {
->   		struct usb_interface *intf;
-> 
 
-Thank you for finding a solution that works for usbip case.
 
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Good day,
 
-thanks,
--- Shuah
+Am Bella Logan, a staff general in the US Army presently serving in Syria a=
+s a combat instructor, I sincerely apologize for intruding into your privac=
+y, this might come as a surprise to you, but nothing is more distressing to=
+ me at this time as i find myself forced by events beyond my control, i hav=
+e summoned courage to contact you. Am 45 years old lady, am a widow and I h=
+ad a son who is now 16 years of age.
+
+Some money in various currencies where discovered in barrels at a farm hous=
+e in the middle East during a rescue operation in Iraq War,and it was agree=
+d by Staff Sergeant Kenneth Buff and myself that some part of these money b=
+e shared between both of us, I was given a total of ($5 Million US Dollars)=
+ as my own share , I kept this money in a consignment for a long while with=
+ a security Company which i declared and deposit as my personal effects and=
+ it has been secured and protected for years now with the diplomatic Delive=
+ry Service.
+
+Now, the WAR in Iraq is over, and all possible problems that could have ema=
+nated from the shared money has been totally cleaned up and all file closed=
+, all what was discovered in the Middle East is no more discussed, am now r=
+eady to retire from active services by the end of this month, but, i need a=
+ trustworthy person that can help me take possession of this funds and keep=
+ it safe while i work on my relief letters to join you so that we could dis=
+cuss possible business partnership together with the money.
+
+But I tell you what! No compensation can make up for the risk we are taken =
+with our lives.You can confirm the genuineness of the findings by clicking =
+on this web site: http://news.bbc.co.uk/2/hi/middle_east/2988455.stm
+
+I=E2=80=99m seeking your kind assistance to move the sum of US$5 Million Do=
+llars to you as far as I can be assured that the money will be safe in your=
+ care until I complete my service here in (SYRIA). The most important thing=
+ is; =E2=80=9CCan I Trust you=E2=80=9D?,As an officers on ACTIVE DUTY am no=
+t allowed access to money, therefore, i have declared the content of the co=
+nsignment as personal effect that i would like to be delivered to a friend.=
+ You will be rewarded with 30% of this funds for your help, all that i requ=
+ired is your trust between us till the money get to you.
+
+Sincerely,
+Gen. Bella Logan.
+Email: bellalogan211@gmail.com
