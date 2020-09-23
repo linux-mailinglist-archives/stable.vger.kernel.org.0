@@ -2,70 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D11275C5E
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 17:49:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B954D275D44
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 18:23:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726156AbgIWPtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 11:49:35 -0400
-Received: from mga11.intel.com ([192.55.52.93]:25321 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726130AbgIWPtf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 23 Sep 2020 11:49:35 -0400
-IronPort-SDR: Z4FDFOqQefa5p1Z2fwTncdWjwbAxI2LrMmjkyH2ez1VbEuSx5lPual10u8jIYtX+lqZuvk/vny
- QW2gMHleVhpA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9753"; a="158279840"
-X-IronPort-AV: E=Sophos;i="5.77,293,1596524400"; 
-   d="scan'208";a="158279840"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Sep 2020 08:49:34 -0700
-IronPort-SDR: 0TTf0Awuc+w+XFmc26Xf3fgzWgftKmq8omL9NCwmEonlX2go+YgG9pSX6o5CXEiS5LaKfHWBmY
- jL7YUjQ1FeTA==
-X-IronPort-AV: E=Sophos;i="5.77,293,1596524400"; 
-   d="scan'208";a="322630842"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.160])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Sep 2020 08:49:34 -0700
-Date:   Wed, 23 Sep 2020 08:49:33 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Liran Alon <liran.alon@oracle.com>
-Subject: Re: [PATCH] KVM: nVMX: Morph notification vector IRQ on nested
- VM-Enter to pending PI
-Message-ID: <20200923154933.GA31972@linux.intel.com>
-References: <20200812175129.12172-1-sean.j.christopherson@intel.com>
- <20200826135402.AC1B3221E2@mail.kernel.org>
- <454c167d-687a-d4cb-3170-b32886904739@redhat.com>
+        id S1726130AbgIWQXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Sep 2020 12:23:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50986 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726422AbgIWQXg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 12:23:36 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 958BBC0613CE
+        for <stable@vger.kernel.org>; Wed, 23 Sep 2020 09:23:36 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id s19so1393977plp.3
+        for <stable@vger.kernel.org>; Wed, 23 Sep 2020 09:23:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HSxokkpiRlgo1QLveU8JNmor8JjTbTSB0iojgrhho88=;
+        b=mqkV/yww3mCHT+WhAyndfD0OxxCpHV7ocWV85n86OrzMJtyn/vMXI9ldB6Oq9dmzCr
+         DUGFl9wK60pIMKlZf9Xjs2pUXdH8TXztgEnqiTOffYPKVYMAq1482nfOEd60940eoOwQ
+         6FXzpZijwg8H6ixJDzuwc3QQSQcuC6HOd+GDsrA+C4exPM/JlhYeIQpadTOkb6nUf/tQ
+         ROoWLXb76PqUHrQLwZKqEHSbBNiY6BdpYVCrwMKFSqXkm1OLsVh13+2LTy3vyx8X7q9Y
+         UOE6xSUOsgxzzqqVzCQvb26mg3t7I84SUpVtkMJ/bn9ebyupxq2Qir29ekJRL8N/5qjY
+         cufw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HSxokkpiRlgo1QLveU8JNmor8JjTbTSB0iojgrhho88=;
+        b=hEzjFlVDOaWoZExNQsDbMnI+9YQYnvRmH6ZC2OfigOsMbX2JHXHW93Bo+WkjigBpN1
+         hkdCPrVmDxx+l2/DwdG9pi8wh1I9P43qvm5ZO42EJkESy12SfaeHJCkObLMq8khYfF1t
+         y04t6JzMaN/2RvQ6ZtLdlqtVPxmNefMSqcpPe5uW2imnaZFhpTiZx6lOo87loh+07dFO
+         D1mZ/IKaAWvbYFVyjjAkmAoAxW4C3cLVCRldDwE9pm39xRFaMRU5X3Lf1N3PgU6ZxUfX
+         li6pWFvlNFyzY5VD87Jf17VprXXLpGAJYrExuBN/HuCHrzPGiSb9JU4PuSTPDgAVPuqD
+         zphQ==
+X-Gm-Message-State: AOAM533OGBet0A/BSHsjhnBEeJJouj9Le2cIi73PCco/R+V/HMYv/u+u
+        MSx2uC29i/STEkurAPhcJz3lcJrI9MKvZw==
+X-Google-Smtp-Source: ABdhPJz9CH//kRwuIRWlXF9awNvzqY3AyXbA10YQ7JS1ccFZWED3/LblrQhIj3/aUNN2WkY0L/HFuQ==
+X-Received: by 2002:a17:902:9308:b029:d1:9bd3:6775 with SMTP id bc8-20020a1709029308b02900d19bd36775mr581861plb.26.1600878215739;
+        Wed, 23 Sep 2020 09:23:35 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t186sm338211pgc.49.2020.09.23.09.23.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Sep 2020 09:23:34 -0700 (PDT)
+Message-ID: <5f6b7686.1c69fb81.e595e.0d3c@mx.google.com>
+Date:   Wed, 23 Sep 2020 09:23:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <454c167d-687a-d4cb-3170-b32886904739@redhat.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.199
+Subject: stable/linux-4.14.y baseline: 142 runs, 1 regressions (v4.14.199)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 23, 2020 at 04:44:01PM +0200, Paolo Bonzini wrote:
-> Queued, thanks.
-> 
-> I cannot think of a "nicer" way to do this, we could perhaps move
-> 
-> +		vmx->nested.pi_pending = true;
-> +		kvm_make_request(KVM_REQ_EVENT, vcpu);
-> +		kvm_apic_clear_irr(vcpu, vmx->nested.posted_intr_nv);
-> 
-> to a separate function (possibly with the IRR clear made conditional, so
-> that we can reuse the function for regular posted interrupt injection)
-> but that is it.
+stable/linux-4.14.y baseline: 142 runs, 1 regressions (v4.14.199)
 
-Ya, I played around with similar approaches and didn't particular like any
-of them :-/
+Regressions Summary
+-------------------
 
-For the record, I suspect there may be additional issues with a doubly nested
-scenario, i.e. when running L3 and L2 is using the self-IPI method for
-triggering posted interrupts.  I sort of tested once, and it appeared to be
-broken, but it's entirely possible that there was an issue somewhere else in
-my stack (L0, L1 and L2 all had non-trivial KVM changes), and I haven't yet
-had time to dig in.  That, and I suspect I'm the only person that would care
-about L3 functioning properly in this scenario :-)
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
+/v4.14.199/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.14.y
+  Describe: v4.14.199
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      ca87c82811906f4fc5e936705564ba8176ba497f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f6b420f4a7df1325fbf9db3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.199/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.199/=
+arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f6b420f4a7df1325fbf9=
+db4
+      failing since 173 days (last pass: v4.14.172, first fail: v4.14.175) =
+ =20
