@@ -2,102 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 418D7276250
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 22:42:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FC96276272
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 22:49:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726557AbgIWUmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 16:42:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34576 "EHLO
+        id S1726650AbgIWUt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Sep 2020 16:49:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726419AbgIWUmK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 16:42:10 -0400
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88F2BC0613CE;
-        Wed, 23 Sep 2020 13:42:10 -0700 (PDT)
-Received: by mail-pf1-x444.google.com with SMTP id f18so373338pfa.10;
-        Wed, 23 Sep 2020 13:42:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=YTqMKJ2r9lJvoz5eaRhmClYptdjVPN0cfBkpHCFpZIY=;
-        b=q4GZzSi+KRrJZowwN18dJwrui7xW5qEWqe4+gnz8T95t47d9fUojDy3a6MRidGtPVJ
-         bhehuf04pA6jWBSCmeJR0Gbs52BMbpnOt4PjVXPN5KGXvRNE87BcANbwIa9l9prfEiYW
-         vQmGbf2fzIgLbnOxNNDugHu9KSbpzTu46lzagCg0Ta+ccTSpDl7jL90BIoXMYrmbOM0e
-         dmxe3w9FzlE9KkircotdV/F0bs9MQpUjSsieo67VYpWISr0Lcg65eZyoJTZmPHmWPSJp
-         dQHD9xsYVIRRHBybQeUUu2S9aziJaLxaRk6Z4jJlHU3Ub0C5m0rvUibvhAOFO+rcpF5Z
-         SbCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=YTqMKJ2r9lJvoz5eaRhmClYptdjVPN0cfBkpHCFpZIY=;
-        b=uVRpxTn2ppTs7NjuwP7xT5jLrO3ByrB4L39j8/6E/EOPXS5wYBOVnwftcLXKX8fXkh
-         7QzUUY2baFJveif8QmavWZbLMkHD8yeRBO/VXaJCNVE9/P1wS7Py6X+bgHC/I3clPA+J
-         SFjYWMrbQ7Dq+ZSgmB+loZzKSovz6TtACxSO+gu1MzFMea+VhGHxD9Pk+zza+zZSK0o/
-         rWRQ0k/WB0+MP5rNlkKE5i+WwM7B1LRYiOEwHGEQ4SLPX70dPgj9MeA5zM6c9dYtG0an
-         38Vf1FZzALNezH+rwkM/syjwpz+vFkiMN0ETzRcBPvXfFUZDGJXCi/WOAjev/AAhQWaT
-         mgLg==
-X-Gm-Message-State: AOAM532+9qZw7MZyoF951JtPCT0b7eZoyvekvk5LZqPOZdlVxwxZggJg
-        zDUdmHORh7p91j+eUDyhbqQ=
-X-Google-Smtp-Source: ABdhPJylVlBnSEBRjtVUI/3ECfLXMd7+wI/L2Scyeh9x+sImzwiYpOS7niZGC5P1GAkPH+SzRA95fA==
-X-Received: by 2002:a63:457:: with SMTP id 84mr1253837pge.191.1600893729932;
-        Wed, 23 Sep 2020 13:42:09 -0700 (PDT)
-Received: from dtor-ws ([2620:15c:202:201:a6ae:11ff:fe11:fcc3])
-        by smtp.gmail.com with ESMTPSA id e10sm693437pgb.45.2020.09.23.13.42.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Sep 2020 13:42:08 -0700 (PDT)
-Date:   Wed, 23 Sep 2020 13:42:06 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vincent Huang <vincent.huang@tw.synaptics.com>
-Subject: Re: [PATCH 4.19 43/49] Input: trackpoint - add new trackpoint
- variant IDs
-Message-ID: <20200923204206.GN1681290@dtor-ws>
-References: <20200921162034.660953761@linuxfoundation.org>
- <20200921162036.567357303@linuxfoundation.org>
- <20200922153957.GB18907@duo.ucw.cz>
- <20200922161642.GA2283857@kroah.com>
- <20200922202403.GA10773@duo.ucw.cz>
+        with ESMTP id S1726199AbgIWUt2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 16:49:28 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6603C0613CE;
+        Wed, 23 Sep 2020 13:49:27 -0700 (PDT)
+Date:   Wed, 23 Sep 2020 20:49:24 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1600894166;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=P67vKN6KS0X9wrFk5DBa0shC7FvVtbIQJ1X1reEZ86g=;
+        b=OZiM/DNZYfWhxCT4fqSh/ecvC9HqwFPordWpT6+rRCbnUdGJ6PjEkddNARZjYRxWiGk19m
+        8CpFUHyFz03g7SfArQGjtCUXo1XP6FBy2E25755Uf3UKm8X8RjAXfC2Mm2wmHZY59+/BHt
+        J4mj7+FicaSQYzm7Hc2zWGXA+nxlrJFJ2RtmTO8jPOkx0SHb7CF22SuabjSWuXirRZAITw
+        gml/d3pRJybq3YgZWOzsMmSRfa/VZN/IUC6Jp4fV1494E3zeJAH+TaspymVH4QbH6Z/xHL
+        9/TtUmwKeeSGpGEXrTfjmdTrEn07r3W3dSPY7B/nZIYhPpnK8EMRO4JEoHjh2w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1600894166;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=P67vKN6KS0X9wrFk5DBa0shC7FvVtbIQJ1X1reEZ86g=;
+        b=7n6PVv0b4RxdwL9gFwe0Ge7WH5iiMpd6jdVhdtxcPr9eoQ/wq4fKgUM+PYoo+pTOg1R8x1
+        oUFOc2zLPR1ffyDQ==
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/ioapic: Unbreak check_timer()
+Cc:     p_c_chan@hotmail.com, ecm4@mail.com, perdigao1@yahoo.com,
+        matzes@users.sourceforge.net, rvelascog@gmail.com,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200922202403.GA10773@duo.ucw.cz>
+Message-ID: <160089416479.7002.4806425926069592182.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 22, 2020 at 10:24:03PM +0200, Pavel Machek wrote:
-> On Tue 2020-09-22 18:16:42, Greg Kroah-Hartman wrote:
-> > On Tue, Sep 22, 2020 at 05:39:57PM +0200, Pavel Machek wrote:
-> > > Hi!
-> > > 
-> > > > From: Vincent Huang <vincent.huang@tw.synaptics.com>
-> > > > 
-> > > > commit 6c77545af100a72bf5e28142b510ba042a17648d upstream.
-> > > > 
-> > > > Add trackpoint variant IDs to allow supported control on Synaptics
-> > > > trackpoints.
-> > > 
-> > > This just adds unused definitions. I don't think it is needed in
-> > > stable.
-> > 
-> > It add support for a new device.
-> 
-> No, it does not. Maybe in mainline there's followup patch that adds
-> such support, but that's not in 4.19.
+The following commit has been merged into the x86/urgent branch of tip:
 
-es, indeed, there is a chunk missing, so this patch is incomplete. It
-will not cause any issues if applied, so I'll leave it to Greg to decide
-what to do with this.
+Commit-ID:     86a82ae0b5095ea24c55898a3f025791e7958b21
+Gitweb:        https://git.kernel.org/tip/86a82ae0b5095ea24c55898a3f025791e7958b21
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Wed, 23 Sep 2020 17:46:20 +02:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Wed, 23 Sep 2020 22:44:56 +02:00
 
-Vincent, there needs to be a change in trackpoint_start_protocol() to
-mark these new IDs as valid. Was it s3ent in a separate patch and I
-missed it?
+x86/ioapic: Unbreak check_timer()
 
-Thanks.
+Several people reported in the kernel bugzilla that between v4.12 and v4.13
+the magic which works around broken hardware and BIOSes to find the proper
+timer interrupt delivery mode stopped working for some older affected
+platforms which need to fall back to ExtINT delivery mode.
 
--- 
-Dmitry
+The reason is that the core code changed to keep track of the masked and
+disabled state of an interrupt line more accurately to avoid the expensive
+hardware operations.
+
+That broke an assumption in i8259_make_irq() which invokes
+
+     disable_irq_nosync();
+     irq_set_chip_and_handler();
+     enable_irq();
+
+Up to v4.12 this worked because enable_irq() unconditionally unmasked the
+interrupt line, but after the state tracking improvements this is not
+longer the case because the IO/APIC uses lazy disabling. So the line state
+is unmasked which means that enable_irq() does not call into the new irq
+chip to unmask it.
+
+In principle this is a shortcoming of the core code, but it's more than
+unclear whether the core code should try to reset state. At least this
+cannot be done unconditionally as that would break other existing use cases
+where the chip type is changed, e.g. when changing the trigger type, but
+the callers expect the state to be preserved.
+
+As the way how check_timer() is switching the delivery modes is truly
+unique, the obvious fix is to simply unmask the i8259 manually after
+changing the mode to ExtINT delivery and switching the irq chip to the
+legacy PIC.
+
+Note, that the fixes tag is not really precise, but identifies the commit
+which broke the assumptions in the IO/APIC and i8259 code and that's the
+kernel version to which this needs to be backported.
+
+Fixes: bf22ff45bed6 ("genirq: Avoid unnecessary low level irq function calls")
+Reported-by: p_c_chan@hotmail.com
+Reported-by: ecm4@mail.com
+Reported-by: perdigao1@yahoo.com
+Reported-by: matzes@users.sourceforge.net
+Reported-by: rvelascog@gmail.com
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: p_c_chan@hotmail.com
+Tested-by: matzes@users.sourceforge.net
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=197769
+---
+ arch/x86/kernel/apic/io_apic.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/x86/kernel/apic/io_apic.c b/arch/x86/kernel/apic/io_apic.c
+index 779a89e..21f9c7f 100644
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -2243,6 +2243,7 @@ static inline void __init check_timer(void)
+ 	legacy_pic->init(0);
+ 	legacy_pic->make_irq(0);
+ 	apic_write(APIC_LVT0, APIC_DM_EXTINT);
++	legacy_pic->unmask(0);
+ 
+ 	unlock_ExtINT_logic();
+ 
