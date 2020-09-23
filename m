@@ -2,120 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3C142760D0
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 21:15:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 856822761C3
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 22:15:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726424AbgIWTPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 15:15:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49500 "EHLO
+        id S1726557AbgIWUPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Sep 2020 16:15:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726199AbgIWTPg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 15:15:36 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2332AC0613CE
-        for <stable@vger.kernel.org>; Wed, 23 Sep 2020 12:15:36 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id m15so214613pls.8
-        for <stable@vger.kernel.org>; Wed, 23 Sep 2020 12:15:36 -0700 (PDT)
+        with ESMTP id S1726498AbgIWUPJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 16:15:09 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDBD0C0613CE;
+        Wed, 23 Sep 2020 13:15:09 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id q4so296604pjh.5;
+        Wed, 23 Sep 2020 13:15:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=IGI4azsLUq0wPVnKbVUAsmeJi5vqTgxmDog2vcX/oZ4=;
-        b=zO3+HzvKrFxczgT6wzLUL4D+VB+HiLYN8XUDROdzry4gCAhGLSFWeSNAmr1WzmldsX
-         5rqcAEjP39NaAP0NTWGVONpjV6wRVFvB1Womr5hic4nLEfdV97s3E3qorMwS3hoePdxE
-         0Qg3sv4aXb+WmLSLbGcbjSubbSHyDQcEUd0RaPXq+Q0ohvXcyC0TCZIKgXCfmYoHy0mX
-         ussNw92OjXOLJylyBsqnRB6q5QoHbbMy7nFmWgyp8Ni7tRezkfn04jCpX5phtyciMnPR
-         KytiZ3mb7Flfw2t9Y8X1dujoLPsucOVrfZbs5/4gx+qh9bsa0vbeoJxw3iwd8HDVCxH2
-         9vEA==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=QHdstSLUKH76sMyWa2m87Ct/MdzoYpURghBvlywnnVg=;
+        b=N+F4MP+I0W4WxjiL5rypYRKDpCQYmRD/8d9bLUMiHNTNPww38of1WBzVlebI0Qhlo7
+         QTFhtHR1zTaKfOBy6BTMCD7wUfGOaaR4RIW6oB0TOfcIyWIN+vrEEYHEpjnu0jwRcDmr
+         ji79gqf1QyyMG0KBL/6h5AyGzKhbORoxxFRxXafQkxoTtWzq5ibFl/afj/JywQX5Lo9q
+         aF6IoZ9N5GLK7rAPRkPZhpyX2PClY5BYyb3Pcj1mzDPfswcmwIlwo5Q9ExnZCc3xosmh
+         7QgrpwDWprA5nN9FpzrTbF+rRZa5ZoRdhuOl+SpX2ZeKMT3kGiUF6sksyN11ImN5TLCC
+         t2vA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=IGI4azsLUq0wPVnKbVUAsmeJi5vqTgxmDog2vcX/oZ4=;
-        b=beLJiPxVnNCHGtWXZz35HQiqEuk229rldXmEM6o3zn5C8twDcQ3kahqCx93k7zM9+m
-         eBQtwIxSbjAmXL+w//PQLQxnlNteV+VmUoNj/Uy0NJ3yJTiutqwq8zKIQ8ftc5ZWA47n
-         lHmDj9y7A50Y/aNdm/IK1FTVVX3JnD6PAQoHxO4bqhUF7+UZ5FVNw6aLDNJMfBw9WJiv
-         UJ+rPfhNkMnUJKnqvfQ2SopESaHnlVUvppK+Mr4xCtCMpjZbZViWH5ic7E2sH6cZAW8g
-         tNexjkMSPLHa1ADFtjghphLJJ/D0CJexJbC4rDhiBDbOhopbR/HmX9HUCfdBBrVQkIMq
-         1NNg==
-X-Gm-Message-State: AOAM532dZ9e1SO6azg8vm4EvtZc3EVuTVXwU79Inxol2EtSKTLH79NPO
-        jrsGouTc3yKjlfVzrT3VMYbonR6pjpWv4Q==
-X-Google-Smtp-Source: ABdhPJw9PRM+aHXbkubu27LLs7O4NJ/k4SOijyIBKK72FAsxhygcMp8BvHRkQnewDa/DX7tnw3QUng==
-X-Received: by 2002:a17:902:b48f:b029:d1:e5f9:9f6 with SMTP id y15-20020a170902b48fb02900d1e5f909f6mr1250743plr.66.1600888534946;
-        Wed, 23 Sep 2020 12:15:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f12sm318352pjm.5.2020.09.23.12.15.33
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=QHdstSLUKH76sMyWa2m87Ct/MdzoYpURghBvlywnnVg=;
+        b=MqJltvGSysJTLn0mm2C1sC5ezeyjOFFnlzscNrz3tDPBZ+TvQ8XdopCfrxlYBslLm3
+         MsiZtpj230S8HqdJBoVZOVLo2h8m7XRHK8T36S7QjhGxpciaMzXi/q+1G9TVyg8OSQYf
+         CeNeU3Gm48X0LqA0ANCeL0icBokAezgDGRInZuCWZFZq2x8hkPD9k2GhlZzRSPvJIDLI
+         aFNeyhYZc5XbY/dhI6558lQksQW0G1tvcw5yCPfpkz3Z+6FAhm/aVjiJiSZXzIZXNNxj
+         sMQRmibuypPZ1Q9u60zlrrl0br9KEoUjGaQ4/J+jPxYvWEU5FPETN2hvfgFwR79lj0gs
+         8+wA==
+X-Gm-Message-State: AOAM531NrZH1hQ/GxPCbbg+K01Lxp54VzuY+8ak/xp7KfBFXV5irtUVY
+        08d6jlrpn8YzWfd/AQyy0lVIBUjQbuYI3Q==
+X-Google-Smtp-Source: ABdhPJxe1o9o2n6dVUNxirggczcCjDD/zanF8NDm91QKtZWx3AZZdReIdgdxfNso6kbadMsotcbMaA==
+X-Received: by 2002:a17:902:b109:b029:d1:e5e7:be53 with SMTP id q9-20020a170902b109b02900d1e5e7be53mr1406994plr.45.1600892109095;
+        Wed, 23 Sep 2020 13:15:09 -0700 (PDT)
+Received: from US-191-ENG0002.lan (75-164-212-231.ptld.qwest.net. [75.164.212.231])
+        by smtp.gmail.com with ESMTPSA id g192sm472621pfb.168.2020.09.23.13.15.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Sep 2020 12:15:34 -0700 (PDT)
-Message-ID: <5f6b9ed6.1c69fb81.741a9.0f18@mx.google.com>
-Date:   Wed, 23 Sep 2020 12:15:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 23 Sep 2020 13:15:08 -0700 (PDT)
+From:   "Gerecke, Jason" <killertofu@gmail.com>
+X-Google-Original-From: "Gerecke, Jason" <jason.gerecke@wacom.com>
+To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
+Subject: [PATCH] HID: wacom: Avoid entering wacom_wac_pen_report for pad / battery
+Date:   Wed, 23 Sep 2020 13:14:56 -0700
+Message-Id: <20200923201456.25912-1-jason.gerecke@wacom.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Kernel: v5.4.67
-Subject: stable/linux-5.4.y baseline: 170 runs, 1 regressions (v5.4.67)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y baseline: 170 runs, 1 regressions (v5.4.67)
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-Regressions Summary
--------------------
+It has recently been reported that the "heartbeat" report from devices
+like the 2nd-gen Intuos Pro (PTH-460, PTH-660, PTH-860) or the 2nd-gen
+Bluetooth-enabled Intuos tablets (CTL-4100WL, CTL-6100WL) can cause the
+driver to send a spurious BTN_TOUCH=0 once per second in the middle of
+drawing. This can result in broken lines while drawing on Chrome OS.
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+The source of the issue has been traced back to a change which modified
+the driver to only call `wacom_wac_pad_report()` once per report instead
+of once per collection. As part of this change, pad-handling code was
+removed from `wacom_wac_collection()` under the assumption that the
+`WACOM_PEN_FIELD` and `WACOM_TOUCH_FIELD` checks would not be satisfied
+when a pad or battery collection was being processed.
 
+To be clear, the macros `WACOM_PAD_FIELD` and `WACOM_PEN_FIELD` do not
+currently check exclusive conditions. In fact, most "pad" fields will
+also appear to be "pen" fields simply due to their presence inside of
+a Digitizer application collection. Because of this, the removal of
+the check from `wacom_wac_collection()` just causes pad / battery
+collections to instead trigger a call to `wacom_wac_pen_report()`
+instead. The pen report function in turn resets the tip switch state
+just prior to exiting, resulting in the observed BTN_TOUCH=0 symptom.
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
-v5.4.67/plan/baseline/
+To correct this, we restore a version of the `WACOM_PAD_FIELD` check
+in `wacom_wac_collection()` and return early. This effectively prevents
+pad / battery collections from being reported until the very end of the
+report as originally intended.
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.4.y
-  Describe: v5.4.67
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      a4bea6a4f1e0e5132fdedb5c0a74cbba696342fd =
+Fixes: d4b8efeb46d9 ("HID: wacom: generic: Correct pad syncing")
+Cc: stable@vger.kernel.org # v4.17+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Tested-by: Ping Cheng <ping.cheng@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 1c96809b51c9..b74acbd5997b 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2773,7 +2773,9 @@ static int wacom_wac_collection(struct hid_device *hdev, struct hid_report *repo
+ 	if (report->type != HID_INPUT_REPORT)
+ 		return -1;
+ 
+-	if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
++	if (WACOM_PAD_FIELD(field))
++		return 0;
++	else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
+ 		wacom_wac_pen_report(hdev, report);
+ 	else if (WACOM_FINGER_FIELD(field) && wacom->wacom_wac.touch_input)
+ 		wacom_wac_finger_report(hdev, report);
+-- 
+2.28.0
 
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f6b6445349511d5d3bf9e3e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.67/arm=
-/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.67/arm=
-/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f6b6445349511d5d3bf9=
-e3f
-      failing since 97 days (last pass: v5.4.46, first fail: v5.4.47)  =20
