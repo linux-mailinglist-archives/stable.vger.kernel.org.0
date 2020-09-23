@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B15B5275093
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 08:00:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4101275094
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 08:00:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726631AbgIWGAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 02:00:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39708 "EHLO mail.kernel.org"
+        id S1726641AbgIWGAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Sep 2020 02:00:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726179AbgIWGAt (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Wed, 23 Sep 2020 02:00:49 -0400
+        id S1726179AbgIWGAw (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Wed, 23 Sep 2020 02:00:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CF1E235F7;
-        Wed, 23 Sep 2020 06:00:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B445320639;
+        Wed, 23 Sep 2020 06:00:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1600840848;
-        bh=pd1A26SaeT5WDk3MRDOA5rqghETWxMLja4okWKqEfbU=;
+        s=default; t=1600840851;
+        bh=SVSUzsuJEb9H+2tLuocVGaR+5b3IdDRf+PjvnfNpwaY=;
         h=Subject:To:From:Date:From;
-        b=Vl7CD5yrgCZEPg+ZMwaCEfx9QQp/PCecdSJGob1QKmDPJCLXo3srug4HiL4rvTg0F
-         eSxc/pFeXyJl6hzk/anC0hJPO/4fx4BQpcGoFVPi2LVMYkKlJ4Ud3DpzdFexCYqyYt
-         zeZfMOcbuWhrQeybuNq4358WnPtq7nGZtMZxsvRA=
-Subject: patch "iio:adc:ti-adc12138 Fix alignment issue with timestamp" added to staging-next
+        b=Fe8hHhnIw5EQD59Vm+fgm//IKv6RypEzz7w4wJowFBvz67a3Zk8Z4y0bF57MWkG9S
+         SbUoRcWOvxMoLNmcA/zosLQhIRBQK3j84Js+hUWZjXzYyHQgNcps0vz7xKsSTdJlrR
+         p1RLbVC5r+rCfNEh229eli+DCZ8EeZ8i0wBmNqgc=
+Subject: patch "iio:imu:inv_mpu6050 Fix dma and ts alignment and data leak issues." added to staging-next
 To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        akinobu.mita@gmail.com, andy.shevchenko@gmail.com, lars@metafoo.de
+        andy.shevchenko@gmail.com, jmaneyrol@invensense.com,
+        lars@metafoo.de
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 23 Sep 2020 07:56:39 +0200
-Message-ID: <160084059910816@kroah.com>
+Date:   Wed, 23 Sep 2020 07:56:40 +0200
+Message-ID: <160084060014214@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:adc:ti-adc12138 Fix alignment issue with timestamp
+    iio:imu:inv_mpu6050 Fix dma and ts alignment and data leak issues.
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -54,89 +55,132 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 293e809b2e8e608b65a949101aaf7c0bd1224247 Mon Sep 17 00:00:00 2001
+From 6b0cc5dce0725ae8f1a2883514da731c55eeb35e Mon Sep 17 00:00:00 2001
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Wed, 22 Jul 2020 16:51:01 +0100
-Subject: iio:adc:ti-adc12138 Fix alignment issue with timestamp
+Date: Wed, 22 Jul 2020 16:50:53 +0100
+Subject: iio:imu:inv_mpu6050 Fix dma and ts alignment and data leak issues.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
+This case is a bit different to the rest of the series.  The driver
+was doing a regmap_bulk_read into a buffer that wasn't dma safe
+as it was on the stack with no guarantee of it being in a cacheline
+on it's own.   Fixing that also dealt with the data leak and
+alignment issues that Lars-Peter pointed out.
 
-We move to a suitable structure in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc so no
-data can leak apart from previous readings. Note that previously
-no leak at all could occur, but previous readings should never
-be a problem.
+Also removed some unaligned handling as we are now aligned.
 
-In this case the timestamp location depends on what other channels
-are enabled. As such we can't use a structure without misleading
-by suggesting only one possible timestamp location.
+Fixes tag is for the dma safe buffer issue. Potentially we would
+need to backport timestamp alignment futher but that is a totally
+different patch.
 
-Fixes: 50a6edb1b6e0 ("iio: adc: add ADC12130/ADC12132/ADC12138 ADC driver")
+Fixes: fd64df16f40e ("iio: imu: inv_mpu6050: Add SPI support for MPU6000")
 Reported-by: Lars-Peter Clausen <lars@metafoo.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>
+Reviewed-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200722155103.979802-26-jic23@kernel.org
+Link: https://lore.kernel.org/r/20200722155103.979802-18-jic23@kernel.org
 ---
- drivers/iio/adc/ti-adc12138.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  | 12 +++++++++---
+ drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c | 12 +++++-------
+ 2 files changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/iio/adc/ti-adc12138.c b/drivers/iio/adc/ti-adc12138.c
-index e485719cd2c4..fcd5d39dd03e 100644
---- a/drivers/iio/adc/ti-adc12138.c
-+++ b/drivers/iio/adc/ti-adc12138.c
-@@ -47,6 +47,12 @@ struct adc12138 {
- 	struct completion complete;
- 	/* The number of cclk periods for the S/H's acquisition time */
- 	unsigned int acquisition_time;
-+	/*
-+	 * Maximum size needed: 16x 2 bytes ADC data + 8 bytes timestamp.
-+	 * Less may be need if not all channels are enabled, as long as
-+	 * the 8 byte alignment of the timestamp is maintained.
-+	 */
-+	__be16 data[20] __aligned(8);
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+index cd38b3fccc7b..eb522b38acf3 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+@@ -122,6 +122,13 @@ struct inv_mpu6050_chip_config {
+ 	u8 user_ctrl;
+ };
  
- 	u8 tx_buf[2] ____cacheline_aligned;
- 	u8 rx_buf[2];
-@@ -329,7 +335,6 @@ static irqreturn_t adc12138_trigger_handler(int irq, void *p)
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct adc12138 *adc = iio_priv(indio_dev);
--	__be16 data[20] = { }; /* 16x 2 bytes ADC data + 8 bytes timestamp */
- 	__be16 trash;
- 	int ret;
- 	int scan_index;
-@@ -345,7 +350,7 @@ static irqreturn_t adc12138_trigger_handler(int irq, void *p)
- 		reinit_completion(&adc->complete);
++/*
++ * Maximum of 6 + 6 + 2 + 7 (for MPU9x50) = 21 round up to 24 and plus 8.
++ * May be less if fewer channels are enabled, as long as the timestamp
++ * remains 8 byte aligned
++ */
++#define INV_MPU6050_OUTPUT_DATA_SIZE         32
++
+ /**
+  *  struct inv_mpu6050_hw - Other important hardware information.
+  *  @whoami:	Self identification byte from WHO_AM_I register
+@@ -165,6 +172,7 @@ struct inv_mpu6050_hw {
+  *  @magn_raw_to_gauss:	coefficient to convert mag raw value to Gauss.
+  *  @magn_orient:       magnetometer sensor chip orientation if available.
+  *  @suspended_sensors:	sensors mask of sensors turned off for suspend
++ *  @data:		dma safe buffer used for bulk reads.
+  */
+ struct inv_mpu6050_state {
+ 	struct mutex lock;
+@@ -190,6 +198,7 @@ struct inv_mpu6050_state {
+ 	s32 magn_raw_to_gauss[3];
+ 	struct iio_mount_matrix magn_orient;
+ 	unsigned int suspended_sensors;
++	u8 data[INV_MPU6050_OUTPUT_DATA_SIZE] ____cacheline_aligned;
+ };
  
- 		ret = adc12138_start_and_read_conv(adc, scan_chan,
--						   i ? &data[i - 1] : &trash);
-+					i ? &adc->data[i - 1] : &trash);
- 		if (ret) {
- 			dev_warn(&adc->spi->dev,
- 				 "failed to start conversion\n");
-@@ -362,7 +367,7 @@ static irqreturn_t adc12138_trigger_handler(int irq, void *p)
- 	}
+ /*register and associated bit definition*/
+@@ -334,9 +343,6 @@ struct inv_mpu6050_state {
+ #define INV_ICM20608_TEMP_OFFSET	     8170
+ #define INV_ICM20608_TEMP_SCALE		     3059976
  
- 	if (i) {
--		ret = adc12138_read_conv_data(adc, &data[i - 1]);
-+		ret = adc12138_read_conv_data(adc, &adc->data[i - 1]);
- 		if (ret) {
- 			dev_warn(&adc->spi->dev,
- 				 "failed to get conversion data\n");
-@@ -370,7 +375,7 @@ static irqreturn_t adc12138_trigger_handler(int irq, void *p)
+-/* 6 + 6 + 2 + 7 (for MPU9x50) = 21 round up to 24 and plus 8 */
+-#define INV_MPU6050_OUTPUT_DATA_SIZE         32
+-
+ #define INV_MPU6050_REG_INT_PIN_CFG	0x37
+ #define INV_MPU6050_ACTIVE_HIGH		0x00
+ #define INV_MPU6050_ACTIVE_LOW		0x80
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+index b533fa2dad0a..d8e6b88ddffc 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+@@ -13,7 +13,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/poll.h>
+ #include <linux/math64.h>
+-#include <asm/unaligned.h>
+ #include "inv_mpu_iio.h"
+ 
+ /**
+@@ -121,7 +120,6 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+ 	struct inv_mpu6050_state *st = iio_priv(indio_dev);
+ 	size_t bytes_per_datum;
+ 	int result;
+-	u8 data[INV_MPU6050_OUTPUT_DATA_SIZE];
+ 	u16 fifo_count;
+ 	s64 timestamp;
+ 	int int_status;
+@@ -160,11 +158,11 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+ 	 * read fifo_count register to know how many bytes are inside the FIFO
+ 	 * right now
+ 	 */
+-	result = regmap_bulk_read(st->map, st->reg->fifo_count_h, data,
+-				  INV_MPU6050_FIFO_COUNT_BYTE);
++	result = regmap_bulk_read(st->map, st->reg->fifo_count_h,
++				  st->data, INV_MPU6050_FIFO_COUNT_BYTE);
+ 	if (result)
+ 		goto end_session;
+-	fifo_count = get_unaligned_be16(&data[0]);
++	fifo_count = be16_to_cpup((__be16 *)&st->data[0]);
+ 
+ 	/*
+ 	 * Handle fifo overflow by resetting fifo.
+@@ -182,7 +180,7 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+ 	inv_mpu6050_update_period(st, pf->timestamp, nb);
+ 	for (i = 0; i < nb; ++i) {
+ 		result = regmap_bulk_read(st->map, st->reg->fifo_r_w,
+-					  data, bytes_per_datum);
++					  st->data, bytes_per_datum);
+ 		if (result)
+ 			goto flush_fifo;
+ 		/* skip first samples if needed */
+@@ -191,7 +189,7 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+ 			continue;
  		}
+ 		timestamp = inv_mpu6050_get_timestamp(st);
+-		iio_push_to_buffers_with_timestamp(indio_dev, data, timestamp);
++		iio_push_to_buffers_with_timestamp(indio_dev, st->data, timestamp);
  	}
  
--	iio_push_to_buffers_with_timestamp(indio_dev, data,
-+	iio_push_to_buffers_with_timestamp(indio_dev, adc->data,
- 					   iio_get_time_ns(indio_dev));
- out:
- 	mutex_unlock(&adc->lock);
+ end_session:
 -- 
 2.28.0
 
