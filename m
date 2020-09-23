@@ -2,105 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1820C275EF8
-	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 19:45:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED568275F6B
+	for <lists+stable@lfdr.de>; Wed, 23 Sep 2020 20:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726670AbgIWRpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Sep 2020 13:45:43 -0400
-Received: from sonic309-25.consmr.mail.ir2.yahoo.com ([77.238.179.83]:41709
-        "EHLO sonic309-25.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726130AbgIWRpm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 13:45:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1600883140; bh=YiBnr4Uk8siI0dhikjlKOiXekrwpOWZKz+TPVjgu4sY=; h=Date:From:Reply-To:Subject:References:From:Subject; b=QHnxb7ZOSm0U9umnapHLiVYBvwPoFXX54zrX49DtHM8vi3y1qzZa/b/X+BFGSmbO+8tHIRalJzLFNrXFJiFbmvH4lYylLWqYnIrs73zkb5Us1Oh76IxfikgCHfvrc4F5qrYBUNU8TSS7XkzPMiK8+Gc1GXCB23B5nt2tyJGdX5hMMXCzybr2t2D10BnKSISIHhm1OPlKdNA+qxd7BQgdUUcdCDE5AlOwrmbQHe4s3oj2p4IRMbsx9l4lkakv1PFm9ZC5UTjIRO16qwGwg1OgCTbKm+ZSaRFe00DbEFLLVjFC/wzeZoiTkYK7Z83GpRmrg4OV0Nz2GUNr0uuOIio1PQ==
-X-YMail-OSG: kHkgzTIVM1majjkvNPnL5VnL9caCL5gDT0f9_xqzxTSQYoHbRrnVRYE7J.aHVZk
- lKSNnE9Ox1Ek.f__bq3lV3O2oA1CiNUj5Wbxnhxc_tU2kXMPdLt9znVgD0l7yRH4frUbkIKZmZeA
- Ru6Hbcp5kHsbFA.b3QYFbxFs.FlbGn12WWkZaL9WRa.2I6GrXyL0rAT4ESQjs9cYJ0WF.UtnZyZ0
- uL7xLOga5J_9_U4dmGnzs_Hoc1aYybmAigIKYQ_1bB9aaqxAdSEWp69s4b1RDZjmp6nJ4jdUr_nl
- Bzrr.b8wHeUDbDuTvCGrcdA0SisAzX_NIkxGaDoMvNvvhXrSg9tuzm4kAfWOvQzaelbFRbrcvC3D
- eLpk1fx4DJZeGwlBcroeCkQ0.dpdnn3RuSmTcLhYQLC1sDgbqTB.JpqznbaW7ECsGKIaUyexJ.ET
- yqkv87yQ3lD0jd8nDPN88fyEda6muP2ohOCtHJW5apchMQk_XkMwYvpneUOoIilk6RNkUVwLXdan
- kimte5bAAXFjaRQzxBpVCma9IURwe_8ezqMbqPPDHPxsOK7BD__BozhcAcMOgnKVSbxBoiM0utpq
- pX9.BSKIX2iPc51Wvu.p4Xs3EWPOgR24LSiAXTny2zd_Pc9uLI9uUnvPrz4h.vZpIe2iq7xhyOu9
- N125ha_AXHHgiHaYSUO6RX0yafhiFx.DrMO.tq6exGq62wkA6AHCKqkUkvVi2I3XtY5itRVNkr7i
- nLb9oVQb95rMaN3ZNz3JvDVV3x8dEvkTGrkAzN0PzIKCAvggmjGroHa_hXt9vAAvA7nEhnCUvTll
- anudeCdwyRwSAaVt6._0H_RXrwHG6AweaxfhoaSx9_ThuXYH2dqBSJ2BwHAmUQpNkucUiLZzWk4s
- huM3.R6gYwnG_7tava3nMRfR0XxRdyq2u45bVyPxx2hgwGGYGFer8Ik1LrrCZvo4QCXtqZWcUqDp
- Y_9Bv2Y6X_yRcbhoeP.C4ZyAc3Sdox_Ccn1g_SN49HQaNrRhfu.1IL8rD1WhaWSXV7nukHpYG_ey
- 8kDmzoq8C4YCxVXWTrczRpW6tapIUcGd.51tjX9rW7XTMhR.h12aKOOKN3K_KX6vDKfEc7uX2neb
- XcymxpLUCvM9xZvjIua6wbFiqyJPlNrbTC2ORd2skFOLw1eybSYflUiSkqL3SV7195JTcNu62A1d
- R_3i8L3FqN9hDmSQxmInlhvLSxvwO9WCbKsD6TvEM.4s.OIH6wojF29lN_Mh5yfNKZ4ZrvCOUcvb
- ewTgCaRzrlKEB8YiihhIUBhxwlZcGjG8bVvvrMY3jbcll8KjFa1hvLJVDT8AI9iBJCUbGW93et1t
- vtWzFMH_h8EcoFRoKjalI6sbdOLmQtrkBjM.Hmj6_vTVz4DW5SSPwc6N.uvQNzKz3jr8SkjMN3.z
- pINv0iQFtMxtf4ttCX0UxREjTezqOlxIxTU4ji1UODGE5Gsq8dIblTXgQbK1W9_i2dHrqs5rVgyw
- wN3Bk1b8l0KyQ4g--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ir2.yahoo.com with HTTP; Wed, 23 Sep 2020 17:45:40 +0000
-Date:   Wed, 23 Sep 2020 17:45:35 +0000 (UTC)
-From:   " MRS. MARYAM COMPAORE" <mrscompaoremary2222@gmail.com>
-Reply-To: mrscompaoremary2222@gmail.com
-Message-ID: <1328407275.4708406.1600883135571@mail.yahoo.com>
-Subject: FORM.MRS.MARYAM C. RICHARD.
+        id S1726672AbgIWSGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Sep 2020 14:06:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38714 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726476AbgIWSGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Sep 2020 14:06:13 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E59BC0613CE
+        for <stable@vger.kernel.org>; Wed, 23 Sep 2020 11:06:13 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id q9so954230wmj.2
+        for <stable@vger.kernel.org>; Wed, 23 Sep 2020 11:06:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=rBQqEcNI4qmQoA7TvV4cKxPn9VpIANl2GdIqii9bNbU=;
+        b=ueL9XXI+GUUtrlNnir3mOL/bIGZr6jNjX0YvFnEppBB+t7oi2t723yNVDI4ZUdLeJt
+         pPeQBRbm2R0RiKsD9uUrcCUGcW/svCrTyfuR2+8cWGmx7WXu0lfuJDGbNB/lE+P7CcE6
+         vrDbP5b1klSs3fbRQAFv4SBuSTZp66AhBw/NCzFv1EOtSvTHJx00A/+aZ1Ho0qh3Fs8+
+         MBrmy2t4ZKhOqI2P8MDOI78ActrU+Q9nRQ8C0TNaiBw/BkMPj6LdX7ZSRP1wADeQ4OUy
+         aRAJ3r2mgYe4Lno0nLsE0KMOSNfN9asYiR+2Y0tqt0e9fKSMoXl9aGOk2U6h6OkOE70D
+         RsNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=rBQqEcNI4qmQoA7TvV4cKxPn9VpIANl2GdIqii9bNbU=;
+        b=tWTwYjuriPb99hCGhvCc7OruR1EGEfMw1cV056dboWn1zSm+MB7gHX+nunNIbpqBUn
+         9c9t/b3iKHXOrKDgvhuFyUQg2PHKspBO6pgUwU73AXw5YU2GgOJMOE7CWLlrghCrgtiO
+         40eugc8Q8WON0B05OrsJZzu4Lm/DmxGy0prFy/CXfpkkSqmx353pdrL1K4HzaJTFQ+ty
+         fIZ7qjyrPmZhB02O5+HIGb/C7g8dVs33o0Pc3vSw7bcuWt3gmS2g/ZS0d22xVB4aF2kF
+         RVeNx36Kgwx+75pq2ebjtyRz2YfBVLq6rwkiuE3UcLQZIkp+BOhmNYDFRj0ykMNZ1Hlc
+         a+2Q==
+X-Gm-Message-State: AOAM531KxS+PDYO6KriCg3hhdZVoON+eBoIGvFSk6ZNYXWxztUxuFPYM
+        WNxZbiMwdu03hHzE1ictVqm7Cw==
+X-Google-Smtp-Source: ABdhPJytV9q3vh1dokw73NDu8zEDyQey80TL3qbLRsyGW990BMBCXndofi3MAqXrMN/rc9rF3zxoNA==
+X-Received: by 2002:a1c:152:: with SMTP id 79mr800490wmb.90.1600884371787;
+        Wed, 23 Sep 2020 11:06:11 -0700 (PDT)
+Received: from Red ([2a01:cb1d:3d5:a100:264b:feff:fe03:2806])
+        by smtp.googlemail.com with ESMTPSA id o16sm541123wrp.52.2020.09.23.11.06.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Sep 2020 11:06:10 -0700 (PDT)
+Date:   Wed, 23 Sep 2020 20:06:08 +0200
+From:   LABBE Corentin <clabbe@baylibre.com>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     David Miller <davem@davemloft.net>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
+        <linux-crypto@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        linux-sunxi <linux-sunxi@googlegroups.com>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2 4/7] crypto: sun4i-ss: handle BigEndian for cipher
+Message-ID: <20200923180608.GA26666@Red>
+References: <1600627038-40000-1-git-send-email-clabbe@baylibre.com>
+ <1600627038-40000-5-git-send-email-clabbe@baylibre.com>
+ <CAK8P3a34V16PUoVJjoUOVCik_rdb6vAy=54qRzWdO+aJcwUwsg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <1328407275.4708406.1600883135571.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16583 YMailNodin Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a34V16PUoVJjoUOVCik_rdb6vAy=54qRzWdO+aJcwUwsg@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My Beloved Friend In The Lord.
+On Wed, Sep 23, 2020 at 04:00:32PM +0200, Arnd Bergmann wrote:
+> On Sun, Sep 20, 2020 at 8:37 PM Corentin Labbe <clabbe@baylibre.com> wrote:
+> >
+> > Ciphers produce invalid results on BE.
+> > Key and IV need to be written in LE.
+> >
+> > Fixes: 6298e948215f2 ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+> > ---
+> >  drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c | 12 ++++++------
+> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> > index c6c25204780d..a05889745097 100644
+> > --- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> > +++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
+> > @@ -52,13 +52,13 @@ static int noinline_for_stack sun4i_ss_opti_poll(struct skcipher_request *areq)
+> >
+> >         spin_lock_irqsave(&ss->slock, flags);
+> >
+> > -       for (i = 0; i < op->keylen; i += 4)
+> > -               writel(*(op->key + i / 4), ss->base + SS_KEY0 + i);
+> > +       for (i = 0; i < op->keylen / 4; i++)
+> > +               writel(cpu_to_le32(op->key[i]), ss->base + SS_KEY0 + i * 4);
+> 
+> I suspect what you actually want here is writesl() in place of the
+> loop. This skips the byteswap on big-endian, rather than swapping
+> each word twice.
+> 
+> The point is that this register seems to act as a FIFO for a byte-stream
+> rather than a 32-bit fixed-endian register.
+> 
+>      Arnd
 
-Greetings in the name of our Lord Jesus  Christ. I am Mrs. Maryam C. Richar=
-d, From Poland, a widow to late (MR.RICHARD BURSON from Florida , U.S.A) l =
-am 51 years old and I am a converted born again Christian, suffering from l=
-ong term  Cancer of the KIDNEY, from all indication my condition is really =
-deteriorating and it is quite obvious that I might not live more than two (=
-2) months, according to my Doctor because the cancer has gotten to a very w=
-orst / dangerous stage.
-
-My late husband and my only child died last five years ago, his death was p=
-olitically motivated. My late husband was a very rich and wealthy business =
-man who was running his Gold/Diamond Business here in Burkina Faso. After h=
-is death, I inherited all his business and wealth. My doctors have advised =
-me that I may not live for more than two (2) months, so I now decided to di=
-vide the part of this wealth, to contribute to the development of the churc=
-hes in Africa, America, Asia, and Europe. I got your email id from your cou=
-ntry guestbook, and I prayed over it and the spirit our Lord Jesus directed=
- me to you as an honest person who can assist me to fulfill my wish here on=
- earth before I give up in live.
-
-My late husband, have an account deposited the sum of $5.3 Million Dollars =
-in BANK OF AFRICA Burkina Faso where he do his business projects before his=
- death, So I want the Sum $5.3 Million Dollars in BANK OF AFRICA Burkina Fa=
-so to be release/transfer to you as the less privileged because I cannot ta=
-ke this money to the grave. Please I want you to note that this fund is lod=
-ged in a Bank Of Africa in Burkina Faso.
-
-Once I hear from you, I will forward to you all the information's you will =
-use to get this fund released from the bank of Africa and to be transferred=
- to your bank account. I honestly pray that this money when transferred to =
-you will be used for the said purpose on Churches and Orphanage because l h=
-ave come to find out that wealth acquisition without Christ is vanity. May =
-the grace of our lord Jesus the love of God and the fellowship of God be wi=
-th you and your family as you will use part of this sum for Churches and Or=
-phanage for my soul to rest in peace when I die.
-
-Urgently Reply with the information=E2=80=99s bellow to this My Private E-m=
-ail bellow:=20
-
-( mrscompaoremary392@gmail.com )
-
-1. YOUR FULL NAME..........
-
-2. NATIONALITY.................
-
-3. YOUR AGE......................
-
-4. OCCUPATION.................
-
-5. PHONE NUMBER.............
-
-BEST REGARD.
-MRS.MARYAM C. RICHARD.
-
+Thanks, using writesl() fixes the warning, but I need to keep the loop since the register is different each time.
+Or does it is better to use directly __raw_writel() ?
