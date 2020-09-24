@@ -2,97 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BA6D276A56
-	for <lists+stable@lfdr.de>; Thu, 24 Sep 2020 09:14:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DBAD276AB5
+	for <lists+stable@lfdr.de>; Thu, 24 Sep 2020 09:24:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727109AbgIXHOk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Sep 2020 03:14:40 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:36564 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726929AbgIXHOj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Sep 2020 03:14:39 -0400
-Received: by mail-ot1-f65.google.com with SMTP id 60so2261102otw.3;
-        Thu, 24 Sep 2020 00:14:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SOTk4Z9rO9P6kIOtsBeNWrY1r58eD/VU9uBVBOrzix4=;
-        b=rnp1aBsLoLM5nT0MqXCQsyGpriZLgRyQvLqyp3ZDecu+hL/g9klGT52W9ElXRGsnta
-         kibba+jvOmUwwnOVNAPcPnW909gl91b2opaLMt/FhFJoFi7PCyLpsqULz//Yf0+L4IEC
-         C27bGwuVF+JlzvIDf4rxcEZbdjg1y+IGBL7hCzxw5cRTtXQd6laUzzz6XZjeKtguXYtm
-         KFQHiIrL3cQQ5KA8cJ05CndsBGYNdu+yjU9xAv0rh6T7LSRkWecIZ9pK0fQa+ZLUJ5no
-         Q4IBwWZchMczN9PDLs930k2v7+E+IkO0I13qihSSCPlZKwYYm0xzyQeS8aCReUGLikUY
-         mG1g==
-X-Gm-Message-State: AOAM530eNZC7iKTxsHwhMRIY/mLpmS6lFkbxX2H3Hn/cJ2AYNA251Ra1
-        MsOh/eCE0UB7cilyWSzB0ebBazA2CrJ2n6wLJww=
-X-Google-Smtp-Source: ABdhPJwMDvciWihRneO23XLKC32PiddZkEgi4IuEEkGy7I0hvtGdo46FZO/RXon3HQ571YDnqIV4IZvedG6MU6A9iGA=
-X-Received: by 2002:a05:6830:1008:: with SMTP id a8mr2046599otp.107.1600931678828;
- Thu, 24 Sep 2020 00:14:38 -0700 (PDT)
+        id S1727031AbgIXHYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Sep 2020 03:24:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42162 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726993AbgIXHYr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 24 Sep 2020 03:24:47 -0400
+Received: from saruman (91-155-214-58.elisa-laajakaista.fi [91.155.214.58])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5633A20936;
+        Thu, 24 Sep 2020 07:24:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1600932287;
+        bh=e5lSVSXzQap1k+VqyQ5fAgLcizbeQMwg6tpYahSgj5I=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=BlzZq5BkLud9A6W69jaUWto6aUveafm+dgtEz4DUsXStsZ+bitFPxRX161WQldDR2
+         1pyQa43lAN7f5+vRrLS5T23SMxTuejR1P/ZCrvhrmPVnXT8eUxcmAXEUWpnDHdTi+7
+         oiGgba4luUnGcDK/jb+x8y2vk804TTzwDLIkH5xs=
+From:   Felipe Balbi <balbi@kernel.org>
+To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc:     linux-usb@vger.kernel.org, Raymond Tan <raymond.tan@intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] usb: dwc3: pci: Allow Elkhart Lake to utilize DSM
+ method for PM functionality
+In-Reply-To: <20200914121425.GA810499@kuha.fi.intel.com>
+References: <20200821131101.81915-1-heikki.krogerus@linux.intel.com>
+ <20200914121425.GA810499@kuha.fi.intel.com>
+Date:   Thu, 24 Sep 2020 10:24:40 +0300
+Message-ID: <87lfgzeix3.fsf@kernel.org>
 MIME-Version: 1.0
-References: <20200922072931.2148-1-geert+renesas@glider.be> <20200923.174004.2129776473634492661.davem@davemloft.net>
-In-Reply-To: <20200923.174004.2129776473634492661.davem@davemloft.net>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Thu, 24 Sep 2020 09:14:27 +0200
-Message-ID: <CAMuHMdU+2KXZ86f_PK8v2Kr08XsECp-YH586aW5WCDpkq07K-g@mail.gmail.com>
-Subject: Re: [PATCH net] Revert "ravb: Fixed to be able to unload modules"
-To:     David Miller <davem@davemloft.net>
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Yusuke Ashiduka <ashiduka@fujitsu.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        netdev <netdev@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha256; protocol="application/pgp-signature"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi David,
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 24, 2020 at 2:40 AM David Miller <davem@davemloft.net> wrote:
-> From: Geert Uytterhoeven <geert+renesas@glider.be>
-> Date: Tue, 22 Sep 2020 09:29:31 +0200
+Heikki Krogerus <heikki.krogerus@linux.intel.com> writes:
+
+> Hi Felipe,
 >
-> > This reverts commit 1838d6c62f57836639bd3d83e7855e0ee4f6defc.
-> >
-> > This commit moved the ravb_mdio_init() call (and thus the
-> > of_mdiobus_register() call) from the ravb_probe() to the ravb_open()
-> > call.  This causes a regression during system resume (s2idle/s2ram), as
-> > new PHY devices cannot be bound while suspended.
->  ...
-> >
-> > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> > Cc: stable@vger.kernel.org
+> On Fri, Aug 21, 2020 at 04:11:01PM +0300, Heikki Krogerus wrote:
+>> From: Raymond Tan <raymond.tan@intel.com>
+>>=20
+>> Similar to some other IA platforms, Elkhart Lake too depends on the
+>> PMU register write to request transition of Dx power state.
+>>=20
+>> Thus, we add the PCI_DEVICE_ID_INTEL_EHLLP to the list of devices that
+>> shall execute the ACPI _DSM method during D0/D3 sequence.
+>>a=20
+>> [heikki.krogerus@linux.intel.com: included Fixes tag]
+>>=20
+>> Fixes: dbb0569de852 ("usb: dwc3: pci: Add Support for Intel Elkhart Lake=
+ Devices")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Raymond Tan <raymond.tan@intel.com>
+>> Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+>> ---
+>>  drivers/usb/dwc3/dwc3-pci.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>=20
+>> diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+>> index f5a61f57c74f0..242b6210380a4 100644
+>> --- a/drivers/usb/dwc3/dwc3-pci.c
+>> +++ b/drivers/usb/dwc3/dwc3-pci.c
+>> @@ -147,7 +147,8 @@ static int dwc3_pci_quirks(struct dwc3_pci *dwc)
+>>=20=20
+>>  	if (pdev->vendor =3D=3D PCI_VENDOR_ID_INTEL) {
+>>  		if (pdev->device =3D=3D PCI_DEVICE_ID_INTEL_BXT ||
+>> -				pdev->device =3D=3D PCI_DEVICE_ID_INTEL_BXT_M) {
+>> +		    pdev->device =3D=3D PCI_DEVICE_ID_INTEL_BXT_M ||
+>> +		    pdev->device =3D=3D PCI_DEVICE_ID_INTEL_EHLLP) {
+>>  			guid_parse(PCI_INTEL_BXT_DSM_GUID, &dwc->guid);
+>>  			dwc->has_dsm_for_pm =3D true;
+>>  		}
 >
-> I noticed this too late, but please don't CC: stable on networking
-> patches.  We have our own workflow as per the netdev FAQ.
+> I think this has gone under your radar. Let me know if you want
+> anything to be changed.
 
-OK, will try to remember.
-I wanted to give a heads-up to stable that they've backported early a
-patch which turned out to have issues.
+Applied
 
-> I've applied this but the inability to remove a module is an
-> extremely serious bug and should be fixed properly.
+=2D-=20
+balbi
 
-Sure. As you stated in
-https://lore.kernel.org/linux-renesas-soc/20200820.165244.540878641387937530.davem@davemloft.net/
-that will need some rework in the MDIO subsystem...
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Thanks!
+-----BEGIN PGP SIGNATURE-----
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+iQJFBAEBCAAvFiEElLzh7wn96CXwjh2IzL64meEamQYFAl9sSbgRHGJhbGJpQGtl
+cm5lbC5vcmcACgkQzL64meEamQaF9A//T2bowLR5rJdU8xgZERPCmwQJCeLUpjwf
+OSo69oojNh2NN5CP70oOLSX+aBx6qsyFQfKlSGMfC+aaMwReFEWAUUVu1ZuttwJH
+wGeatcsWuTLJVtUqBPJyeS9YNoNjuqqwdIuDnlc3xbigtvJtTIWctqcFE96lmeot
+Yme8gYGAdHRyg/O3lZ3Rps2q+7yxYmq7VPaFHDNjAnUcjZFK4nHAWb3BPM52yhvI
+ssqbM8ZVkjgaCInIefHQUN9U9Fpft9zj01WBRkHDyZ7oHqNqML3S17ACOR+LW4lp
+AzGfnOjofnzGNF6i8napxQB8wSI0pjBF7lC4hdhHLchnSyfmbse6jn7/b2QXum3K
+77gmPXvsDLmKjDscAgmgZl9OHL7uydnDqAZaRjIGHcXlExwDSxIWH4gtKGjU8gUD
+9IJRetrZYngkyFR4IuF25brf2t4KaHLOsnZydhb28yvlOU+2JNQZMpO9/ehRsMUo
+FjtYOKVqa0IlfrnoZD6wkqn4hnexbT2AP8o3VeaU4WSzxX434OfitLmT6faVQQy0
+c/8AORuVvIcUyAktfPf41O7Pn9lowZlSnma9ylTJJE9aIggoYdOJdJJgw8du8nLI
+pYL3Eg1Yp5yYvYr8sDE+vlsXcBMHHrOjog0gW4ISVVyhFormDgaGFrsPS0gYiYoE
+iwLP5uwPwZQ=
+=JgyS
+-----END PGP SIGNATURE-----
+--=-=-=--
