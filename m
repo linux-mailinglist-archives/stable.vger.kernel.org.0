@@ -2,59 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 413F8276779
-	for <lists+stable@lfdr.de>; Thu, 24 Sep 2020 06:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA6D276A56
+	for <lists+stable@lfdr.de>; Thu, 24 Sep 2020 09:14:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726718AbgIXEDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Sep 2020 00:03:30 -0400
-Received: from verein.lst.de ([213.95.11.211]:50684 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726477AbgIXEDa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 24 Sep 2020 00:03:30 -0400
-Received: by verein.lst.de (Postfix, from userid 2407)
-        id B9BFD68AFE; Thu, 24 Sep 2020 06:03:27 +0200 (CEST)
-Date:   Thu, 24 Sep 2020 06:03:27 +0200
-From:   Christoph Hellwig <hch@lst.de>
-To:     Eric Sandeen <sandeen@redhat.com>
-Cc:     xfs <linux-xfs@vger.kernel.org>, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH STABLE] xfs: trim IO to found COW exent limit
-Message-ID: <20200924040327.GA8078@lst.de>
-References: <e7fe7225-4f2b-d13e-bb4b-c7db68f63124@redhat.com>
+        id S1727109AbgIXHOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Sep 2020 03:14:40 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:36564 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726929AbgIXHOj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Sep 2020 03:14:39 -0400
+Received: by mail-ot1-f65.google.com with SMTP id 60so2261102otw.3;
+        Thu, 24 Sep 2020 00:14:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SOTk4Z9rO9P6kIOtsBeNWrY1r58eD/VU9uBVBOrzix4=;
+        b=rnp1aBsLoLM5nT0MqXCQsyGpriZLgRyQvLqyp3ZDecu+hL/g9klGT52W9ElXRGsnta
+         kibba+jvOmUwwnOVNAPcPnW909gl91b2opaLMt/FhFJoFi7PCyLpsqULz//Yf0+L4IEC
+         C27bGwuVF+JlzvIDf4rxcEZbdjg1y+IGBL7hCzxw5cRTtXQd6laUzzz6XZjeKtguXYtm
+         KFQHiIrL3cQQ5KA8cJ05CndsBGYNdu+yjU9xAv0rh6T7LSRkWecIZ9pK0fQa+ZLUJ5no
+         Q4IBwWZchMczN9PDLs930k2v7+E+IkO0I13qihSSCPlZKwYYm0xzyQeS8aCReUGLikUY
+         mG1g==
+X-Gm-Message-State: AOAM530eNZC7iKTxsHwhMRIY/mLpmS6lFkbxX2H3Hn/cJ2AYNA251Ra1
+        MsOh/eCE0UB7cilyWSzB0ebBazA2CrJ2n6wLJww=
+X-Google-Smtp-Source: ABdhPJwMDvciWihRneO23XLKC32PiddZkEgi4IuEEkGy7I0hvtGdo46FZO/RXon3HQ571YDnqIV4IZvedG6MU6A9iGA=
+X-Received: by 2002:a05:6830:1008:: with SMTP id a8mr2046599otp.107.1600931678828;
+ Thu, 24 Sep 2020 00:14:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e7fe7225-4f2b-d13e-bb4b-c7db68f63124@redhat.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
+References: <20200922072931.2148-1-geert+renesas@glider.be> <20200923.174004.2129776473634492661.davem@davemloft.net>
+In-Reply-To: <20200923.174004.2129776473634492661.davem@davemloft.net>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Thu, 24 Sep 2020 09:14:27 +0200
+Message-ID: <CAMuHMdU+2KXZ86f_PK8v2Kr08XsECp-YH586aW5WCDpkq07K-g@mail.gmail.com>
+Subject: Re: [PATCH net] Revert "ravb: Fixed to be able to unload modules"
+To:     David Miller <davem@davemloft.net>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Yusuke Ashiduka <ashiduka@fujitsu.com>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        netdev <netdev@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 23, 2020 at 05:35:44PM -0500, Eric Sandeen wrote:
-> A bug existed in the XFS reflink code between v5.1 and v5.5 in which
-> the mapping for a COW IO was not trimmed to the mapping of the COW
-> extent that was found.  This resulted in a too-short copy, and
-> corruption of other files which shared the original extent.
-> 
-> (This happened only when extent size hints were set, which bypasses
-> delalloc and led to this code path.)
-> 
-> This was (inadvertently) fixed upstream with
-> 
-> 36adcbace24e "xfs: fill out the srcmap in iomap_begin"
-> 
-> and related patches which moved lots of this functionality to
-> the iomap subsystem.
-> 
-> Hence, this is a -stable only patch, targeted to fix this
-> corruption vector without other major code changes.
-> 
-> Fixes: 78f0cc9d55cb ("xfs: don't use delalloc extents for COW on files with extsize hints")
-> Cc: <stable@vger.kernel.org> # 5.4.x
-> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Hi David,
 
-Looks good,
+On Thu, Sep 24, 2020 at 2:40 AM David Miller <davem@davemloft.net> wrote:
+> From: Geert Uytterhoeven <geert+renesas@glider.be>
+> Date: Tue, 22 Sep 2020 09:29:31 +0200
+>
+> > This reverts commit 1838d6c62f57836639bd3d83e7855e0ee4f6defc.
+> >
+> > This commit moved the ravb_mdio_init() call (and thus the
+> > of_mdiobus_register() call) from the ravb_probe() to the ravb_open()
+> > call.  This causes a regression during system resume (s2idle/s2ram), as
+> > new PHY devices cannot be bound while suspended.
+>  ...
+> >
+> > Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> > Cc: stable@vger.kernel.org
+>
+> I noticed this too late, but please don't CC: stable on networking
+> patches.  We have our own workflow as per the netdev FAQ.
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+OK, will try to remember.
+I wanted to give a heads-up to stable that they've backported early a
+patch which turned out to have issues.
 
-and as Darrick said we'll want to wire up the reproducer for xfstests.
+> I've applied this but the inability to remove a module is an
+> extremely serious bug and should be fixed properly.
+
+Sure. As you stated in
+https://lore.kernel.org/linux-renesas-soc/20200820.165244.540878641387937530.davem@davemloft.net/
+that will need some rework in the MDIO subsystem...
+
+Thanks!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
