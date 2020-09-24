@@ -2,92 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB1E02772D1
-	for <lists+stable@lfdr.de>; Thu, 24 Sep 2020 15:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 048BE27732C
+	for <lists+stable@lfdr.de>; Thu, 24 Sep 2020 15:55:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727926AbgIXNnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Sep 2020 09:43:12 -0400
-Received: from mga14.intel.com ([192.55.52.115]:30989 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727954AbgIXNnM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 24 Sep 2020 09:43:12 -0400
-IronPort-SDR: QF6+hsiDBC9dpx2uqThwA9LWBOAH3BJVZCTtdMOnLrcgkTPqTQcF1pusegnr/XSz61pBftzCA8
- CFlWsxeyDHxQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9753"; a="160493096"
-X-IronPort-AV: E=Sophos;i="5.77,297,1596524400"; 
-   d="scan'208";a="160493096"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2020 06:43:11 -0700
-IronPort-SDR: e4dBiXYw1FtHHln+M6z7TmSgp+PAQLzNvsAjlen4ea9cLbEyVIZMd70yMStosXzMnTVni7UoEw
- 200Uu1D4foEw==
-X-IronPort-AV: E=Sophos;i="5.77,297,1596524400"; 
-   d="scan'208";a="486904921"
-Received: from dsmahang-mobl2.ger.corp.intel.com (HELO [10.252.48.167]) ([10.252.48.167])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2020 06:43:10 -0700
-Subject: Re: [Intel-gfx] [PATCH 3/4] drm/i915/gt: Always send a pulse down the
- engine after disabling heartbeat
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-References: <20200916094219.3878-1-chris@chris-wilson.co.uk>
- <20200916094219.3878-3-chris@chris-wilson.co.uk>
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Organization: Intel Corporation UK Plc
-Message-ID: <6be94225-9d54-0a4b-d1d0-d5b46d8b6fdb@linux.intel.com>
-Date:   Thu, 24 Sep 2020 14:43:08 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20200916094219.3878-3-chris@chris-wilson.co.uk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1728044AbgIXNzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Sep 2020 09:55:23 -0400
+Received: from alexa-out.qualcomm.com ([129.46.98.28]:46521 "EHLO
+        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727749AbgIXNzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Sep 2020 09:55:22 -0400
+Received: from ironmsg09-lv.qualcomm.com ([10.47.202.153])
+  by alexa-out.qualcomm.com with ESMTP; 24 Sep 2020 06:55:21 -0700
+Received: from ironmsg02-blr.qualcomm.com ([10.86.208.131])
+  by ironmsg09-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 24 Sep 2020 06:55:19 -0700
+Received: from gkohli-linux.qualcomm.com ([10.204.78.26])
+  by ironmsg02-blr.qualcomm.com with ESMTP; 24 Sep 2020 19:25:07 +0530
+Received: by gkohli-linux.qualcomm.com (Postfix, from userid 427023)
+        id 7FBC621323; Thu, 24 Sep 2020 19:25:06 +0530 (IST)
+From:   Gaurav Kohli <gkohli@codeaurora.org>
+To:     rostedt@goodmis.org
+Cc:     linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        Gaurav Kohli <gkohli@codeaurora.org>, stable@vger.kernel.org
+Subject: [PATCH v1] trace: Fix race in trace_open and buffer resize call
+Date:   Thu, 24 Sep 2020 19:25:05 +0530
+Message-Id: <1600955705-27382-1-git-send-email-gkohli@codeaurora.org>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Below race can come, if trace_open and resize of
+cpu buffer is running parallely on different cpus
+CPUX                                CPUY
+				    ring_buffer_resize
+				    atomic_read(&buffer->resize_disabled)
+tracing_open
+tracing_reset_online_cpus
+ring_buffer_reset_cpu
+rb_reset_cpu
+				    rb_update_pages
+				    remove/insert pages
+resetting pointer
+This race can cause data abort or some times infinte loop in
+rb_remove_pages and rb_insert_pages while checking pages
+for sanity.
 
-On 16/09/2020 10:42, Chris Wilson wrote:
-> Currently, we check we can send a pulse prior to disabling the
-> heartbeat to verify that we can change the heartbeat, but since we may
-> re-evaluate execution upon changing the heartbeat interval we need another
-> pulse afterwards to refresh execution.
-> 
-> Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Cc: <stable@vger.kernel.org> # v5.7+
-> ---
->   drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c | 6 ++++--
->   1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-> index 8ffdf676c0a0..d09df370f7cd 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-> @@ -192,10 +192,12 @@ int intel_engine_set_heartbeat(struct intel_engine_cs *engine,
->   	WRITE_ONCE(engine->props.heartbeat_interval_ms, delay);
->   
->   	if (intel_engine_pm_get_if_awake(engine)) {
-> -		if (delay)
-> +		if (delay) {
->   			intel_engine_unpark_heartbeat(engine);
-> -		else
-> +		} else {
->   			intel_engine_park_heartbeat(engine);
-> +			intel_engine_pulse(engine); /* recheck execution */
-> +		}
->   		intel_engine_pm_put(engine);
->   	}
->   
-> 
+Signed-off-by: Gaurav Kohli <gkohli@codeaurora.org>
+Cc: stable@vger.kernel.org
+---
+Changes since v0:
+  -Addressed Steven's review comments.
 
-I did not immediately get this one. Do we really need two pulses or 
-maybe we could re-order the code a bit and just undo the heartbeat park 
-if pulse after parking did not work?
+diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
+index 93ef0ab..15bf28b 100644
+--- a/kernel/trace/ring_buffer.c
++++ b/kernel/trace/ring_buffer.c
+@@ -4866,6 +4866,9 @@ void ring_buffer_reset_cpu(struct trace_buffer *buffer, int cpu)
+ 	if (!cpumask_test_cpu(cpu, buffer->cpumask))
+ 		return;
+ 
++	/* prevent another thread from changing buffer sizes */
++	mutex_lock(&buffer->mutex);
++
+ 	atomic_inc(&cpu_buffer->resize_disabled);
+ 	atomic_inc(&cpu_buffer->record_disabled);
+ 
+@@ -4876,6 +4879,8 @@ void ring_buffer_reset_cpu(struct trace_buffer *buffer, int cpu)
+ 
+ 	atomic_dec(&cpu_buffer->record_disabled);
+ 	atomic_dec(&cpu_buffer->resize_disabled);
++
++	mutex_unlock(&buffer->mutex);
+ }
+ EXPORT_SYMBOL_GPL(ring_buffer_reset_cpu);
+ 
+@@ -4889,6 +4894,9 @@ void ring_buffer_reset_online_cpus(struct trace_buffer *buffer)
+ 	struct ring_buffer_per_cpu *cpu_buffer;
+ 	int cpu;
+ 
++	/* prevent another thread from changing buffer sizes */
++	mutex_lock(&buffer->mutex);
++
+ 	for_each_online_buffer_cpu(buffer, cpu) {
+ 		cpu_buffer = buffer->buffers[cpu];
+ 
+@@ -4907,6 +4915,8 @@ void ring_buffer_reset_online_cpus(struct trace_buffer *buffer)
+ 		atomic_dec(&cpu_buffer->record_disabled);
+ 		atomic_dec(&cpu_buffer->resize_disabled);
+ 	}
++
++	mutex_unlock(&buffer->mutex);
+ }
+ 
+ /**
+-- 
+Qualcomm India Private Limited, on behalf of Qualcomm Innovation Center,
+Inc. is a member of the Code Aurora Forum, a Linux Foundation Collaborative Project
 
-Regards,
-
-Tvrtko
