@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8F8A27886D
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73A052788C5
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:58:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728635AbgIYMzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:55:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34142 "EHLO mail.kernel.org"
+        id S1729063AbgIYM5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:57:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729616AbgIYMy6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:54:58 -0400
+        id S1729050AbgIYMu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:50:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91ACF206DB;
-        Fri, 25 Sep 2020 12:54:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6403321741;
+        Fri, 25 Sep 2020 12:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038498;
-        bh=3CxEedJgFMUT9aAxvc8DjPu3Fk3FQFyN00bflofktYs=;
+        s=default; t=1601038226;
+        bh=SbFW5lEaEAJt3SSuBox/g1l9WBSLDiVEaFH41OoPtD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WsFM/1J5A2HVt7UxNrN8aYofgVULSKjisF7c+oCNKaXloCsR1WXuXGC0TETREi+br
-         lF9Iwu/87WM91p7uzEJw5ISXBEC+W4XILrYDoUBU3QFx4702/hiLjuUI+ZeJyrIjMp
-         JvHR5NyR1N5+IdYTZNOWV1gcf5yKNJ6ZWZJjtxjw=
+        b=LaBa2BEgXRorDCi+WuLFScmoZY0VCZaSE86FI4O084jyC33r8bVT9fUaCRc1uVQQS
+         YKHm3uDr6VBs/QwNAIP/XAfBRctNi9cLS4yVNLw1vyfJyZD0hp9XlWuoyggqh03/hJ
+         ek80oaUwgSabNZMMhqHNmIRWg10mfzHoDsLb+/MU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 11/37] net: dsa: rtl8366: Properly clear member config
+Subject: [PATCH 5.8 49/56] hv_netvsc: Fix hibernation for mlx5 VF driver
 Date:   Fri, 25 Sep 2020 14:48:39 +0200
-Message-Id: <20200925124722.639625577@linuxfoundation.org>
+Message-Id: <20200925124735.192924542@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
-References: <20200925124720.972208530@linuxfoundation.org>
+In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
+References: <20200925124727.878494124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit 4ddcaf1ebb5e4e99240f29d531ee69d4244fe416 ]
+[ Upstream commit 19162fd4063a3211843b997a454b505edb81d5ce ]
 
-When removing a port from a VLAN we are just erasing the
-member config for the VLAN, which is wrong: other ports
-can be using it.
+mlx5_suspend()/resume() keep the network interface, so during hibernation
+netvsc_unregister_vf() and netvsc_register_vf() are not called, and hence
+netvsc_resume() should call netvsc_vf_changed() to switch the data path
+back to the VF after hibernation. Note: after we close and re-open the
+vmbus channel of the netvsc NIC in netvsc_suspend() and netvsc_resume(),
+the data path is implicitly switched to the netvsc NIC. Similarly,
+netvsc_suspend() should not call netvsc_unregister_vf(), otherwise the VF
+can no longer be used after hibernation.
 
-Just mask off the port and only zero out the rest of the
-member config once ports using of the VLAN are removed
-from it.
+For mlx4, since the VF network interafce is explicitly destroyed and
+re-created during hibernation (see mlx4_suspend()/resume()), hv_netvsc
+already explicitly switches the data path from and to the VF automatically
+via netvsc_register_vf() and netvsc_unregister_vf(), so mlx4 doesn't need
+this fix. Note: mlx4 can still work with the fix because in
+netvsc_suspend()/resume() ndev_ctx->vf_netdev is NULL for mlx4.
 
-Reported-by: Florian Fainelli <f.fainelli@gmail.com>
-Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 0efeea5fb153 ("hv_netvsc: Add the support of hibernation")
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/rtl8366.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/net/hyperv/netvsc_drv.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/net/dsa/rtl8366.c
-+++ b/drivers/net/dsa/rtl8366.c
-@@ -452,13 +452,19 @@ int rtl8366_vlan_del(struct dsa_switch *
- 				return ret;
+--- a/drivers/net/hyperv/netvsc_drv.c
++++ b/drivers/net/hyperv/netvsc_drv.c
+@@ -2544,8 +2544,8 @@ static int netvsc_remove(struct hv_devic
+ static int netvsc_suspend(struct hv_device *dev)
+ {
+ 	struct net_device_context *ndev_ctx;
+-	struct net_device *vf_netdev, *net;
+ 	struct netvsc_device *nvdev;
++	struct net_device *net;
+ 	int ret;
  
- 			if (vid == vlanmc.vid) {
--				/* clear VLAN member configurations */
--				vlanmc.vid = 0;
--				vlanmc.priority = 0;
--				vlanmc.member = 0;
--				vlanmc.untag = 0;
--				vlanmc.fid = 0;
+ 	net = hv_get_drvdata(dev);
+@@ -2561,10 +2561,6 @@ static int netvsc_suspend(struct hv_devi
+ 		goto out;
+ 	}
+ 
+-	vf_netdev = rtnl_dereference(ndev_ctx->vf_netdev);
+-	if (vf_netdev)
+-		netvsc_unregister_vf(vf_netdev);
 -
-+				/* Remove this port from the VLAN */
-+				vlanmc.member &= ~BIT(port);
-+				vlanmc.untag &= ~BIT(port);
-+				/*
-+				 * If no ports are members of this VLAN
-+				 * anymore then clear the whole member
-+				 * config so it can be reused.
-+				 */
-+				if (!vlanmc.member && vlanmc.untag) {
-+					vlanmc.vid = 0;
-+					vlanmc.priority = 0;
-+					vlanmc.fid = 0;
-+				}
- 				ret = smi->ops->set_vlan_mc(smi, i, &vlanmc);
- 				if (ret) {
- 					dev_err(smi->dev,
+ 	/* Save the current config info */
+ 	ndev_ctx->saved_netvsc_dev_info = netvsc_devinfo_get(nvdev);
+ 
+@@ -2580,6 +2576,7 @@ static int netvsc_resume(struct hv_devic
+ 	struct net_device *net = hv_get_drvdata(dev);
+ 	struct net_device_context *net_device_ctx;
+ 	struct netvsc_device_info *device_info;
++	struct net_device *vf_netdev;
+ 	int ret;
+ 
+ 	rtnl_lock();
+@@ -2592,6 +2589,15 @@ static int netvsc_resume(struct hv_devic
+ 	netvsc_devinfo_put(device_info);
+ 	net_device_ctx->saved_netvsc_dev_info = NULL;
+ 
++	/* A NIC driver (e.g. mlx5) may keep the VF network interface across
++	 * hibernation, but here the data path is implicitly switched to the
++	 * netvsc NIC since the vmbus channel is closed and re-opened, so
++	 * netvsc_vf_changed() must be used to switch the data path to the VF.
++	 */
++	vf_netdev = rtnl_dereference(net_device_ctx->vf_netdev);
++	if (vf_netdev && netvsc_vf_changed(vf_netdev) != NOTIFY_OK)
++		ret = -EINVAL;
++
+ 	rtnl_unlock();
+ 
+ 	return ret;
 
 
