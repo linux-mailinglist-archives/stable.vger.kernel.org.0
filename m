@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91B0E27889E
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C44D2787DF
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729227AbgIYM4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:56:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55336 "EHLO mail.kernel.org"
+        id S1728717AbgIYMvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:51:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729177AbgIYMvN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:13 -0400
+        id S1728659AbgIYMvQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:51:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C44382072E;
-        Fri, 25 Sep 2020 12:51:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3DA9206DB;
+        Fri, 25 Sep 2020 12:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038272;
-        bh=SFKx5C2EQJ7V9toW7OanK7PJteM0Y4ByohNIwnS2J+w=;
+        s=default; t=1601038275;
+        bh=VBDolsQa9bah2f35ikQNeh3bGYSd5ANyLGcQxwSCoX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oSXPxOqk1iE94EX8bTq35EE0HasToNz/yT+BKBAJ6ZGy+/G3vGY6cH+SMn6oNUdzD
-         SIh9l+K7gm1DxEIKsxkNsnGFPUaHH/JizcJukDpfVgd2d6DQbxUAcnjOf8/yLNvlkO
-         8sh+QW3w7JbIFdchhp5WfdFqumknFJ2AJ1Rbu/h8=
+        b=eu1z/GCnZnpddrDWy2Mv/MdCSOEvGqB5w+cQbAUmsqTxLAWLZyNjogdjCxRctgePL
+         icmB1s4dZtZecXr9wF3SvVk+VPpSTnEISM4TMnpv8BbCgp28DNICH5K7IcW+EbkLxI
+         mX5Pw66S5NhvvRWrTMwWRFGbkGhPRAkN3B6BmMcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Salyzyn <salyzyn@android.com>,
-        netdev@vger.kernel.org, kernel-team@android.com,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Mingming Cao <mmc@linux.vnet.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 01/43] af_key: pfkey_dump needs parameter validation
-Date:   Fri, 25 Sep 2020 14:48:13 +0200
-Message-Id: <20200925124723.752097958@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 02/43] ibmvnic fix NULL tx_pools and rx_tools issue at do_reset
+Date:   Fri, 25 Sep 2020 14:48:14 +0200
+Message-Id: <20200925124723.882227062@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
 References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,46 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Salyzyn <salyzyn@android.com>
+From: Mingming Cao <mmc@linux.vnet.ibm.com>
 
-commit 37bd22420f856fcd976989f1d4f1f7ad28e1fcac upstream.
+[ Upstream commit 9f13457377907fa253aef560e1a37e1ca4197f9b ]
 
-In pfkey_dump() dplen and splen can both be specified to access the
-xfrm_address_t structure out of bounds in__xfrm_state_filter_match()
-when it calls addr_match() with the indexes.  Return EINVAL if either
-are out of range.
+At the time of do_rest, ibmvnic tries to re-initalize the tx_pools
+and rx_pools to avoid re-allocating the long term buffer. However
+there is a window inside do_reset that the tx_pools and
+rx_pools were freed before re-initialized making it possible to deference
+null pointers.
 
-Signed-off-by: Mark Salyzyn <salyzyn@android.com>
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: kernel-team@android.com
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch fix this issue by always check the tx_pool
+and rx_pool are not NULL after ibmvnic_login. If so, re-allocating
+the pools. This will avoid getting into calling reset_tx/rx_pools with
+NULL adapter tx_pools/rx_pools pointer. Also add null pointer check in
+reset_tx_pools and reset_rx_pools to safe handle NULL pointer case.
 
+Signed-off-by: Mingming Cao <mmc@linux.vnet.ibm.com>
+Signed-off-by: Dany Madden <drt@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/key/af_key.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/ibm/ibmvnic.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -1849,6 +1849,13 @@ static int pfkey_dump(struct sock *sk, s
- 	if (ext_hdrs[SADB_X_EXT_FILTER - 1]) {
- 		struct sadb_x_filter *xfilter = ext_hdrs[SADB_X_EXT_FILTER - 1];
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 2d20a48f0ba0a..de45b3709c14e 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -416,6 +416,9 @@ static int reset_rx_pools(struct ibmvnic_adapter *adapter)
+ 	int i, j, rc;
+ 	u64 *size_array;
  
-+		if ((xfilter->sadb_x_filter_splen >=
-+			(sizeof(xfrm_address_t) << 3)) ||
-+		    (xfilter->sadb_x_filter_dplen >=
-+			(sizeof(xfrm_address_t) << 3))) {
-+			mutex_unlock(&pfk->dump_lock);
-+			return -EINVAL;
-+		}
- 		filter = kmalloc(sizeof(*filter), GFP_KERNEL);
- 		if (filter == NULL) {
- 			mutex_unlock(&pfk->dump_lock);
++	if (!adapter->rx_pool)
++		return -1;
++
+ 	size_array = (u64 *)((u8 *)(adapter->login_rsp_buf) +
+ 		be32_to_cpu(adapter->login_rsp_buf->off_rxadd_buff_size));
+ 
+@@ -586,6 +589,9 @@ static int reset_tx_pools(struct ibmvnic_adapter *adapter)
+ 	int tx_scrqs;
+ 	int i, rc;
+ 
++	if (!adapter->tx_pool)
++		return -1;
++
+ 	tx_scrqs = be32_to_cpu(adapter->login_rsp_buf->num_txsubm_subcrqs);
+ 	for (i = 0; i < tx_scrqs; i++) {
+ 		rc = reset_one_tx_pool(adapter, &adapter->tso_pool[i]);
+@@ -1918,7 +1924,10 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 		    adapter->req_rx_add_entries_per_subcrq !=
+ 		    old_num_rx_slots ||
+ 		    adapter->req_tx_entries_per_subcrq !=
+-		    old_num_tx_slots) {
++		    old_num_tx_slots ||
++		    !adapter->rx_pool ||
++		    !adapter->tso_pool ||
++		    !adapter->tx_pool) {
+ 			release_rx_pools(adapter);
+ 			release_tx_pools(adapter);
+ 			release_napi(adapter);
+@@ -1931,10 +1940,14 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 		} else {
+ 			rc = reset_tx_pools(adapter);
+ 			if (rc)
++				netdev_dbg(adapter->netdev, "reset tx pools failed (%d)\n",
++						rc);
+ 				goto out;
+ 
+ 			rc = reset_rx_pools(adapter);
+ 			if (rc)
++				netdev_dbg(adapter->netdev, "reset rx pools failed (%d)\n",
++						rc);
+ 				goto out;
+ 		}
+ 		ibmvnic_disable_irqs(adapter);
+-- 
+2.25.1
+
 
 
