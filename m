@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D745278839
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE6422787C7
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729477AbgIYMxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:53:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59716 "EHLO mail.kernel.org"
+        id S1729044AbgIYMuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:50:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729469AbgIYMxq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:53:46 -0400
+        id S1729035AbgIYMuQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:50:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB250206DB;
-        Fri, 25 Sep 2020 12:53:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF40221741;
+        Fri, 25 Sep 2020 12:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038425;
-        bh=5jYqUkf/fzOaAjAmRxvMUlJVVtbD3UDbBqyj16ZtyOA=;
+        s=default; t=1601038215;
+        bh=8kydnDhgBMXjJozEVjDoRkWmjNfyp/0Zz8VsAjYxhVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWmPSoaTZ0WytMq8RBhUmSZ/tzkFtaNMda2+zfy8qxbA4MVL3+VrzSRSKZEeLwS9B
-         l0xtji1OGi9JJUF6XgrQ1kHhH5ZIL86QeLlObcdY5QqmmNhShR98U4rgel7sf3Rdvt
-         uBdFnECAkEly9heMlo0Rh/64MdExgyDXplXosJ0E=
+        b=IkYCzosIHE/HaaxwP5+lE7QLTVp0w9L6DQXjCTjdO8e7tgNHExSr3i/Il3Ap29yiP
+         LZyOCNqtg6UYiMx5GCmlcA6EnOvaJX2WHYcsqaFGcPxVEMElG/CHEbrYzib/a99vUw
+         XPPjahmZm5+t4g4JfF/+TrEExdOspqkPoOJ5WHcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>,
-        Mark Gray <mark.d.gray@redhat.com>,
-        Greg Rose <gvrose8192@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 06/37] geneve: add transport ports in route lookup for geneve
-Date:   Fri, 25 Sep 2020 14:48:34 +0200
-Message-Id: <20200925124721.899820897@linuxfoundation.org>
+Subject: [PATCH 5.8 45/56] wireguard: peerlookup: take lock before checking hash in replace operation
+Date:   Fri, 25 Sep 2020 14:48:35 +0200
+Message-Id: <20200925124734.595394645@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
-References: <20200925124720.972208530@linuxfoundation.org>
+In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
+References: <20200925124727.878494124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,181 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Gray <mark.d.gray@redhat.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit 34beb21594519ce64a55a498c2fe7d567bc1ca20 ]
+[ Upstream commit 6147f7b1e90ff09bd52afc8b9206a7fcd133daf7 ]
 
-This patch adds transport ports information for route lookup so that
-IPsec can select Geneve tunnel traffic to do encryption. This is
-needed for OVS/OVN IPsec with encrypted Geneve tunnels.
+Eric's suggested fix for the previous commit's mentioned race condition
+was to simply take the table->lock in wg_index_hashtable_replace(). The
+table->lock of the hash table is supposed to protect the bucket heads,
+not the entires, but actually, since all the mutator functions are
+already taking it, it makes sense to take it too for the test to
+hlist_unhashed, as a defense in depth measure, so that it no longer
+races with deletions, regardless of what other locks are protecting
+individual entries. This is sensible from a performance perspective
+because, as Eric pointed out, the case of being unhashed is already the
+unlikely case, so this won't add common contention. And comparing
+instructions, this basically doesn't make much of a difference other
+than pushing and popping %r13, used by the new `bool ret`. More
+generally, I like the idea of locking consistency across table mutator
+functions, and this might let me rest slightly easier at night.
 
-This can be tested by configuring a host-host VPN using an IKE
-daemon and specifying port numbers. For example, for an
-Openswan-type configuration, the following parameters should be
-configured on both hosts and IPsec set up as-per normal:
-
-$ cat /etc/ipsec.conf
-
-conn in
-...
-left=$IP1
-right=$IP2
-...
-leftprotoport=udp/6081
-rightprotoport=udp
-...
-conn out
-...
-left=$IP1
-right=$IP2
-...
-leftprotoport=udp
-rightprotoport=udp/6081
-...
-
-The tunnel can then be setup using "ip" on both hosts (but
-changing the relevant IP addresses):
-
-$ ip link add tun type geneve id 1000 remote $IP2
-$ ip addr add 192.168.0.1/24 dev tun
-$ ip link set tun up
-
-This can then be tested by pinging from $IP1:
-
-$ ping 192.168.0.2
-
-Without this patch the traffic is unencrypted on the wire.
-
-Fixes: 2d07dc79fe04 ("geneve: add initial netdev driver for GENEVE tunnels")
-Signed-off-by: Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>
-Signed-off-by: Mark Gray <mark.d.gray@redhat.com>
-Reviewed-by: Greg Rose <gvrose8192@gmail.com>
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/wireguard/20200908145911.4090480-1-edumazet@google.com/
+Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c |   37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ drivers/net/wireguard/peerlookup.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -721,7 +721,8 @@ static struct rtable *geneve_get_v4_rt(s
- 				       struct net_device *dev,
- 				       struct geneve_sock *gs4,
- 				       struct flowi4 *fl4,
--				       const struct ip_tunnel_info *info)
-+				       const struct ip_tunnel_info *info,
-+				       __be16 dport, __be16 sport)
+--- a/drivers/net/wireguard/peerlookup.c
++++ b/drivers/net/wireguard/peerlookup.c
+@@ -167,9 +167,13 @@ bool wg_index_hashtable_replace(struct i
+ 				struct index_hashtable_entry *old,
+ 				struct index_hashtable_entry *new)
  {
- 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
- 	struct geneve_dev *geneve = netdev_priv(dev);
-@@ -737,6 +738,8 @@ static struct rtable *geneve_get_v4_rt(s
- 	fl4->flowi4_proto = IPPROTO_UDP;
- 	fl4->daddr = info->key.u.ipv4.dst;
- 	fl4->saddr = info->key.u.ipv4.src;
-+	fl4->fl4_dport = dport;
-+	fl4->fl4_sport = sport;
- 
- 	tos = info->key.tos;
- 	if ((tos == 1) && !geneve->collect_md) {
-@@ -771,7 +774,8 @@ static struct dst_entry *geneve_get_v6_d
- 					   struct net_device *dev,
- 					   struct geneve_sock *gs6,
- 					   struct flowi6 *fl6,
--					   const struct ip_tunnel_info *info)
-+					   const struct ip_tunnel_info *info,
-+					   __be16 dport, __be16 sport)
- {
- 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
- 	struct geneve_dev *geneve = netdev_priv(dev);
-@@ -787,6 +791,9 @@ static struct dst_entry *geneve_get_v6_d
- 	fl6->flowi6_proto = IPPROTO_UDP;
- 	fl6->daddr = info->key.u.ipv6.dst;
- 	fl6->saddr = info->key.u.ipv6.src;
-+	fl6->fl6_dport = dport;
-+	fl6->fl6_sport = sport;
+-	if (unlikely(hlist_unhashed(&old->index_hash)))
+-		return false;
++	bool ret;
 +
- 	prio = info->key.tos;
- 	if ((prio == 1) && !geneve->collect_md) {
- 		prio = ip_tunnel_get_dsfield(ip_hdr(skb), skb);
-@@ -833,14 +840,15 @@ static int geneve_xmit_skb(struct sk_buf
- 	__be16 df;
- 	int err;
- 
--	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
-+	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
-+	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
-+			      geneve->info.key.tp_dst, sport);
- 	if (IS_ERR(rt))
- 		return PTR_ERR(rt);
- 
- 	skb_tunnel_check_pmtu(skb, &rt->dst,
- 			      GENEVE_IPV4_HLEN + info->options_len);
- 
--	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	if (geneve->collect_md) {
- 		tos = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
- 		ttl = key->ttl;
-@@ -875,13 +883,14 @@ static int geneve6_xmit_skb(struct sk_bu
- 	__be16 sport;
- 	int err;
- 
--	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
-+	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
-+	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
-+				geneve->info.key.tp_dst, sport);
- 	if (IS_ERR(dst))
- 		return PTR_ERR(dst);
- 
- 	skb_tunnel_check_pmtu(skb, dst, GENEVE_IPV6_HLEN + info->options_len);
- 
--	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	if (geneve->collect_md) {
- 		prio = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
- 		ttl = key->ttl;
-@@ -958,13 +967,18 @@ static int geneve_fill_metadata_dst(stru
- {
- 	struct ip_tunnel_info *info = skb_tunnel_info(skb);
- 	struct geneve_dev *geneve = netdev_priv(dev);
-+	__be16 sport;
- 
- 	if (ip_tunnel_info_af(info) == AF_INET) {
- 		struct rtable *rt;
- 		struct flowi4 fl4;
+ 	spin_lock_bh(&table->lock);
++	ret = !hlist_unhashed(&old->index_hash);
++	if (unlikely(!ret))
++		goto out;
 +
- 		struct geneve_sock *gs4 = rcu_dereference(geneve->sock4);
-+		sport = udp_flow_src_port(geneve->net, skb,
-+					  1, USHRT_MAX, true);
+ 	new->index = old->index;
+ 	hlist_replace_rcu(&old->index_hash, &new->index_hash);
  
--		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
-+		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
-+				      geneve->info.key.tp_dst, sport);
- 		if (IS_ERR(rt))
- 			return PTR_ERR(rt);
- 
-@@ -974,9 +988,13 @@ static int geneve_fill_metadata_dst(stru
- 	} else if (ip_tunnel_info_af(info) == AF_INET6) {
- 		struct dst_entry *dst;
- 		struct flowi6 fl6;
-+
- 		struct geneve_sock *gs6 = rcu_dereference(geneve->sock6);
-+		sport = udp_flow_src_port(geneve->net, skb,
-+					  1, USHRT_MAX, true);
- 
--		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
-+		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
-+					geneve->info.key.tp_dst, sport);
- 		if (IS_ERR(dst))
- 			return PTR_ERR(dst);
- 
-@@ -987,8 +1005,7 @@ static int geneve_fill_metadata_dst(stru
- 		return -EINVAL;
- 	}
- 
--	info->key.tp_src = udp_flow_src_port(geneve->net, skb,
--					     1, USHRT_MAX, true);
-+	info->key.tp_src = sport;
- 	info->key.tp_dst = geneve->info.key.tp_dst;
- 	return 0;
+@@ -180,8 +184,9 @@ bool wg_index_hashtable_replace(struct i
+ 	 * simply gets dropped, which isn't terrible.
+ 	 */
+ 	INIT_HLIST_NODE(&old->index_hash);
++out:
+ 	spin_unlock_bh(&table->lock);
+-	return true;
++	return ret;
  }
+ 
+ void wg_index_hashtable_remove(struct index_hashtable *table,
 
 
