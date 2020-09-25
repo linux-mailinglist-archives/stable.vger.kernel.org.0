@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 323C22787DD
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 617CB27887B
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729170AbgIYMvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:51:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55274 "EHLO mail.kernel.org"
+        id S1728983AbgIYMxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:53:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729162AbgIYMvJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:09 -0400
+        id S1729370AbgIYMw7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:52:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D63742072E;
-        Fri, 25 Sep 2020 12:51:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9452C2075E;
+        Fri, 25 Sep 2020 12:52:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038269;
-        bh=SwKTu4lp1yYvDAYk3CLpEnm3lAtxb9U2iF4buc/RIPA=;
+        s=default; t=1601038379;
+        bh=meVWnDSR8euJmXPeC1spN/R7Z3FvDGFuvQRTDwB1ae4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NwABpiEEx1uyK5A1XyJ7kYBaSOUoulSlYsoGnRkeEnIkwVgR0kZbJuGOTx2L7H1g5
-         d2UTrq04ki3nBI1btqb60OQjFohodsSm0CR2E3veZ7shg3yt7ss82EG/6Y+IQwLrry
-         FDYwnt1rs6dy7U4H/k9U0/Z8cprGzs4Dh22mcuHk=
+        b=XVqy29MSJcWANEUxSMXkXTBuy2Z67CXZr8NnPP9QX7D6Yet6ZuTaFNfUo0Meg/GI1
+         w2Iyg9rNMsEtm6E9B7a6SniLNJXCLq8XEq4NCdFjaR+OFT4VJS25jePn22Gr0ecwYu
+         jhKWbBzGakJ6ogf0YXG2c9QWv9laFND56VH5u2ZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>,
+        Mark Gray <mark.d.gray@redhat.com>,
+        Greg Rose <gvrose8192@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 33/56] bnxt_en: return proper error codes in bnxt_show_temp
+Subject: [PATCH 5.4 11/43] geneve: add transport ports in route lookup for geneve
 Date:   Fri, 25 Sep 2020 14:48:23 +0200
-Message-Id: <20200925124732.828402132@linuxfoundation.org>
+Message-Id: <20200925124725.265234663@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
-References: <20200925124727.878494124@linuxfoundation.org>
+In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
+References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +44,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edwin Peer <edwin.peer@broadcom.com>
+From: Mark Gray <mark.d.gray@redhat.com>
 
-[ Upstream commit d69753fa1ecb3218b56b022722f7a5822735b876 ]
+[ Upstream commit 34beb21594519ce64a55a498c2fe7d567bc1ca20 ]
 
-Returning "unknown" as a temperature value violates the hwmon interface
-rules. Appropriate error codes should be returned via device_attribute
-show instead. These will ultimately be propagated to the user via the
-file system interface.
+This patch adds transport ports information for route lookup so that
+IPsec can select Geneve tunnel traffic to do encryption. This is
+needed for OVS/OVN IPsec with encrypted Geneve tunnels.
 
-In addition to the corrected error handling, it is an even better idea to
-not present the sensor in sysfs at all if it is known that the read will
-definitely fail. Given that temp1_input is currently the only sensor
-reported, ensure no hwmon registration if TEMP_MONITOR_QUERY is not
-supported or if it will fail due to access permissions. Something smarter
-may be needed if and when other sensors are added.
+This can be tested by configuring a host-host VPN using an IKE
+daemon and specifying port numbers. For example, for an
+Openswan-type configuration, the following parameters should be
+configured on both hosts and IPsec set up as-per normal:
 
-Fixes: 12cce90b934b ("bnxt_en: fix HWRM error when querying VF temperature")
-Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+$ cat /etc/ipsec.conf
+
+conn in
+...
+left=$IP1
+right=$IP2
+...
+leftprotoport=udp/6081
+rightprotoport=udp
+...
+conn out
+...
+left=$IP1
+right=$IP2
+...
+leftprotoport=udp
+rightprotoport=udp/6081
+...
+
+The tunnel can then be setup using "ip" on both hosts (but
+changing the relevant IP addresses):
+
+$ ip link add tun type geneve id 1000 remote $IP2
+$ ip addr add 192.168.0.1/24 dev tun
+$ ip link set tun up
+
+This can then be tested by pinging from $IP1:
+
+$ ping 192.168.0.2
+
+Without this patch the traffic is unencrypted on the wire.
+
+Fixes: 2d07dc79fe04 ("geneve: add initial netdev driver for GENEVE tunnels")
+Signed-off-by: Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>
+Signed-off-by: Mark Gray <mark.d.gray@redhat.com>
+Reviewed-by: Greg Rose <gvrose8192@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |   19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ drivers/net/geneve.c |   37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -8993,18 +8993,16 @@ static ssize_t bnxt_show_temp(struct dev
- 	struct hwrm_temp_monitor_query_output *resp;
- 	struct bnxt *bp = dev_get_drvdata(dev);
- 	u32 len = 0;
-+	int rc;
- 
- 	resp = bp->hwrm_cmd_resp_addr;
- 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_TEMP_MONITOR_QUERY, -1, -1);
- 	mutex_lock(&bp->hwrm_cmd_lock);
--	if (!_hwrm_send_message_silent(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT))
-+	rc = _hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
-+	if (!rc)
- 		len = sprintf(buf, "%u\n", resp->temp * 1000); /* display millidegree */
- 	mutex_unlock(&bp->hwrm_cmd_lock);
--
--	if (len)
--		return len;
--
--	return sprintf(buf, "unknown\n");
-+	return rc ?: len;
- }
- static SENSOR_DEVICE_ATTR(temp1_input, 0444, bnxt_show_temp, NULL, 0);
- 
-@@ -9024,7 +9022,16 @@ static void bnxt_hwmon_close(struct bnxt
- 
- static void bnxt_hwmon_open(struct bnxt *bp)
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -773,7 +773,8 @@ static struct rtable *geneve_get_v4_rt(s
+ 				       struct net_device *dev,
+ 				       struct geneve_sock *gs4,
+ 				       struct flowi4 *fl4,
+-				       const struct ip_tunnel_info *info)
++				       const struct ip_tunnel_info *info,
++				       __be16 dport, __be16 sport)
  {
-+	struct hwrm_temp_monitor_query_input req = {0};
- 	struct pci_dev *pdev = bp->pdev;
-+	int rc;
-+
-+	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_TEMP_MONITOR_QUERY, -1, -1);
-+	rc = hwrm_send_message_silent(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
-+	if (rc == -EACCES || rc == -EOPNOTSUPP) {
-+		bnxt_hwmon_close(bp);
-+		return;
-+	}
+ 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
+ 	struct geneve_dev *geneve = netdev_priv(dev);
+@@ -789,6 +790,8 @@ static struct rtable *geneve_get_v4_rt(s
+ 	fl4->flowi4_proto = IPPROTO_UDP;
+ 	fl4->daddr = info->key.u.ipv4.dst;
+ 	fl4->saddr = info->key.u.ipv4.src;
++	fl4->fl4_dport = dport;
++	fl4->fl4_sport = sport;
  
- 	if (bp->hwmon_dev)
- 		return;
+ 	tos = info->key.tos;
+ 	if ((tos == 1) && !geneve->collect_md) {
+@@ -823,7 +826,8 @@ static struct dst_entry *geneve_get_v6_d
+ 					   struct net_device *dev,
+ 					   struct geneve_sock *gs6,
+ 					   struct flowi6 *fl6,
+-					   const struct ip_tunnel_info *info)
++					   const struct ip_tunnel_info *info,
++					   __be16 dport, __be16 sport)
+ {
+ 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
+ 	struct geneve_dev *geneve = netdev_priv(dev);
+@@ -839,6 +843,9 @@ static struct dst_entry *geneve_get_v6_d
+ 	fl6->flowi6_proto = IPPROTO_UDP;
+ 	fl6->daddr = info->key.u.ipv6.dst;
+ 	fl6->saddr = info->key.u.ipv6.src;
++	fl6->fl6_dport = dport;
++	fl6->fl6_sport = sport;
++
+ 	prio = info->key.tos;
+ 	if ((prio == 1) && !geneve->collect_md) {
+ 		prio = ip_tunnel_get_dsfield(ip_hdr(skb), skb);
+@@ -885,14 +892,15 @@ static int geneve_xmit_skb(struct sk_buf
+ 	__be16 sport;
+ 	int err;
+ 
+-	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
++	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
++	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
++			      geneve->info.key.tp_dst, sport);
+ 	if (IS_ERR(rt))
+ 		return PTR_ERR(rt);
+ 
+ 	skb_tunnel_check_pmtu(skb, &rt->dst,
+ 			      GENEVE_IPV4_HLEN + info->options_len);
+ 
+-	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+ 	if (geneve->collect_md) {
+ 		tos = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
+ 		ttl = key->ttl;
+@@ -947,13 +955,14 @@ static int geneve6_xmit_skb(struct sk_bu
+ 	__be16 sport;
+ 	int err;
+ 
+-	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
++	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
++	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
++				geneve->info.key.tp_dst, sport);
+ 	if (IS_ERR(dst))
+ 		return PTR_ERR(dst);
+ 
+ 	skb_tunnel_check_pmtu(skb, dst, GENEVE_IPV6_HLEN + info->options_len);
+ 
+-	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+ 	if (geneve->collect_md) {
+ 		prio = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
+ 		ttl = key->ttl;
+@@ -1034,13 +1043,18 @@ static int geneve_fill_metadata_dst(stru
+ {
+ 	struct ip_tunnel_info *info = skb_tunnel_info(skb);
+ 	struct geneve_dev *geneve = netdev_priv(dev);
++	__be16 sport;
+ 
+ 	if (ip_tunnel_info_af(info) == AF_INET) {
+ 		struct rtable *rt;
+ 		struct flowi4 fl4;
++
+ 		struct geneve_sock *gs4 = rcu_dereference(geneve->sock4);
++		sport = udp_flow_src_port(geneve->net, skb,
++					  1, USHRT_MAX, true);
+ 
+-		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
++		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
++				      geneve->info.key.tp_dst, sport);
+ 		if (IS_ERR(rt))
+ 			return PTR_ERR(rt);
+ 
+@@ -1050,9 +1064,13 @@ static int geneve_fill_metadata_dst(stru
+ 	} else if (ip_tunnel_info_af(info) == AF_INET6) {
+ 		struct dst_entry *dst;
+ 		struct flowi6 fl6;
++
+ 		struct geneve_sock *gs6 = rcu_dereference(geneve->sock6);
++		sport = udp_flow_src_port(geneve->net, skb,
++					  1, USHRT_MAX, true);
+ 
+-		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
++		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
++					geneve->info.key.tp_dst, sport);
+ 		if (IS_ERR(dst))
+ 			return PTR_ERR(dst);
+ 
+@@ -1063,8 +1081,7 @@ static int geneve_fill_metadata_dst(stru
+ 		return -EINVAL;
+ 	}
+ 
+-	info->key.tp_src = udp_flow_src_port(geneve->net, skb,
+-					     1, USHRT_MAX, true);
++	info->key.tp_src = sport;
+ 	info->key.tp_dst = geneve->info.key.tp_dst;
+ 	return 0;
+ }
 
 
