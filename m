@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51BD7278836
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 727C72787C4
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729074AbgIYMxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:53:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59598 "EHLO mail.kernel.org"
+        id S1729008AbgIYMuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:50:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729463AbgIYMxn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:53:43 -0400
+        id S1729022AbgIYMuK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:50:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FCF52075E;
-        Fri, 25 Sep 2020 12:53:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8585B21D7A;
+        Fri, 25 Sep 2020 12:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038422;
-        bh=VDt7r3woC7LTg2GRHiQhEspTdp95zxK8PVx7W4tdc6M=;
+        s=default; t=1601038210;
+        bh=YuY2dyqTlfSpGoZ3bomvVJkXzVBNlPvz1BGia67lRrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P9aTGEMMycwF4vZBD7GW1iA42Ssn2GzdTnNZjqFQZ/qrIRB0KpvYPVK93pAi/q+2z
-         PGLfIaDKlVTKh6yu8EQQMZRhgj5HQrSHS5gQzyVsdtlzniAXLh7MeLBeD6d78GInsn
-         otdzWA16eAGFR6Z7vSUtnvbzeUTw0xHj3bq9fHs4=
+        b=HwEaDE7iyXwJCa44V0MCvV6wK+2Vt0s7FbCUEbNMJx1sOU726J7wPVm4Stfy2jiTn
+         aJRU8JWzyBisr2lP/grluC5u3Gn3NgrK5uIBxRXeM2oGoeYCvsMGcWGxWLeUD37VNT
+         sflihzCMOz6XkhlQC89PzXtvxC/3sH5dsIFDjZY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ganji Aravind <ganji.aravind@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 05/37] cxgb4: Fix offset when clearing filter byte counters
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.8 43/56] net: ethernet: ti: cpsw_new: fix suspend/resume
 Date:   Fri, 25 Sep 2020 14:48:33 +0200
-Message-Id: <20200925124721.762475323@linuxfoundation.org>
+Message-Id: <20200925124734.312102071@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
-References: <20200925124720.972208530@linuxfoundation.org>
+In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
+References: <20200925124727.878494124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ganji Aravind <ganji.aravind@chelsio.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit 94cc242a067a869c29800aa789d38b7676136e50 ]
+[ Upstream commit 5760d9acbe9514eec68eb70821d6fa5764f57042 ]
 
-Pass the correct offset to clear the stale filter hit
-bytes counter. Otherwise, the counter starts incrementing
-from the stale information, instead of 0.
+Add missed suspend/resume callbacks to properly restore networking after
+suspend/resume cycle.
 
-Fixes: 12b276fbf6e0 ("cxgb4: add support to create hash filters")
-Signed-off-by: Ganji Aravind <ganji.aravind@chelsio.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ed3525eda4c4 ("net: ethernet: ti: introduce cpsw switchdev based driver part 1 - dual-emac")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/ti/cpsw_new.c |   53 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 53 insertions(+)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-@@ -1591,13 +1591,16 @@ out:
- static int configure_filter_tcb(struct adapter *adap, unsigned int tid,
- 				struct filter_entry *f)
- {
--	if (f->fs.hitcnts)
-+	if (f->fs.hitcnts) {
- 		set_tcb_field(adap, f, tid, TCB_TIMESTAMP_W,
--			      TCB_TIMESTAMP_V(TCB_TIMESTAMP_M) |
-+			      TCB_TIMESTAMP_V(TCB_TIMESTAMP_M),
-+			      TCB_TIMESTAMP_V(0ULL),
-+			      1);
-+		set_tcb_field(adap, f, tid, TCB_RTT_TS_RECENT_AGE_W,
- 			      TCB_RTT_TS_RECENT_AGE_V(TCB_RTT_TS_RECENT_AGE_M),
--			      TCB_TIMESTAMP_V(0ULL) |
- 			      TCB_RTT_TS_RECENT_AGE_V(0ULL),
- 			      1);
-+	}
+--- a/drivers/net/ethernet/ti/cpsw_new.c
++++ b/drivers/net/ethernet/ti/cpsw_new.c
+@@ -17,6 +17,7 @@
+ #include <linux/phy.h>
+ #include <linux/phy/phy.h>
+ #include <linux/delay.h>
++#include <linux/pinctrl/consumer.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/of.h>
+@@ -2070,9 +2071,61 @@ static int cpsw_remove(struct platform_d
+ 	return 0;
+ }
  
- 	if (f->fs.newdmac)
- 		set_tcb_tflag(adap, f, tid, TF_CCTRL_ECE_S, 1,
++static int __maybe_unused cpsw_suspend(struct device *dev)
++{
++	struct cpsw_common *cpsw = dev_get_drvdata(dev);
++	int i;
++
++	rtnl_lock();
++
++	for (i = 0; i < cpsw->data.slaves; i++) {
++		struct net_device *ndev = cpsw->slaves[i].ndev;
++
++		if (!(ndev && netif_running(ndev)))
++			continue;
++
++		cpsw_ndo_stop(ndev);
++	}
++
++	rtnl_unlock();
++
++	/* Select sleep pin state */
++	pinctrl_pm_select_sleep_state(dev);
++
++	return 0;
++}
++
++static int __maybe_unused cpsw_resume(struct device *dev)
++{
++	struct cpsw_common *cpsw = dev_get_drvdata(dev);
++	int i;
++
++	/* Select default pin state */
++	pinctrl_pm_select_default_state(dev);
++
++	/* shut up ASSERT_RTNL() warning in netif_set_real_num_tx/rx_queues */
++	rtnl_lock();
++
++	for (i = 0; i < cpsw->data.slaves; i++) {
++		struct net_device *ndev = cpsw->slaves[i].ndev;
++
++		if (!(ndev && netif_running(ndev)))
++			continue;
++
++		cpsw_ndo_open(ndev);
++	}
++
++	rtnl_unlock();
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(cpsw_pm_ops, cpsw_suspend, cpsw_resume);
++
+ static struct platform_driver cpsw_driver = {
+ 	.driver = {
+ 		.name	 = "cpsw-switch",
++		.pm	 = &cpsw_pm_ops,
+ 		.of_match_table = cpsw_of_mtable,
+ 	},
+ 	.probe = cpsw_probe,
 
 
