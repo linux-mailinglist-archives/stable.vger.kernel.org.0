@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5872127882A
+	by mail.lfdr.de (Postfix) with ESMTP id C5CD327882B
 	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729406AbgIYMxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:53:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58634 "EHLO mail.kernel.org"
+        id S1729412AbgIYMxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:53:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729404AbgIYMxS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:53:18 -0400
+        id S1729410AbgIYMxW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C378F2075E;
-        Fri, 25 Sep 2020 12:53:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 990DD206DB;
+        Fri, 25 Sep 2020 12:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038398;
-        bh=G99LDT++Lmv9gTgpTAVOUxdz7UenfKe58doTq1McXvo=;
+        s=default; t=1601038401;
+        bh=dwgsnXtt0v287YuTGx+3Dio8+6dXiKdPJzi7lmEvCNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uC1azpOMZb+HEA59Lad/cyqOgPLv7EtKuxU/tPwPXylIGTT6Qy/tcQOYAk+nAuuxt
-         ISvqzVj314vh2EPUduJ9B4VOTja8vseSnXQALVvo8+rZ5e4uxpx4OmIvPcPbU8z27Q
-         NtXB9nnqDu7BBtafj+YNsZwvCbObENrTtcqn9MNE=
+        b=kGi+i4mMKOMWDSiIxsKay+oze7vSpn1Y2ev6l8zWUujcMbKXVEHe9fH1f3jit8vjL
+         bdactqVm5yMCQblliubE5IValMbWJlX3eiDUaSVHFkrgt1rKYgeH4oDsvEZoebHlMs
+         ZyM2nqrPpDA2u1UaXGCQPKwx8caHqi3Qcoh79WUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Carl Huang <cjhuang@codeaurora.org>,
+        Wen Gong <wgong@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 39/43] net: phy: Do not warn in phy_stop() on PHY_DOWN
-Date:   Fri, 25 Sep 2020 14:48:51 +0200
-Message-Id: <20200925124729.471990495@linuxfoundation.org>
+Subject: [PATCH 5.4 40/43] net: qrtr: check skb_put_padto() return value
+Date:   Fri, 25 Sep 2020 14:48:52 +0200
+Message-Id: <20200925124729.618946506@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
 References: <20200925124723.575329814@linuxfoundation.org>
@@ -43,34 +47,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5116a8ade333b6c2e180782139c9c516a437b21c ]
+[ Upstream commit 3ca1a42a52ca4b4f02061683851692ad65fefac8 ]
 
-When phy_is_started() was added to catch incorrect PHY states,
-phy_stop() would not be qualified against PHY_DOWN. It is possible to
-reach that state when the PHY driver has been unbound and the network
-device is then brought down.
+If skb_put_padto() returns an error, skb has been freed.
+Better not touch it anymore, as reported by syzbot [1]
 
-Fixes: 2b3e88ea6528 ("net: phy: improve phy state checking")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Note to qrtr maintainers : this suggests qrtr_sendmsg()
+should adjust sock_alloc_send_skb() second parameter
+to account for the potential added alignment to avoid
+reallocation.
+
+[1]
+
+BUG: KASAN: use-after-free in __skb_insert include/linux/skbuff.h:1907 [inline]
+BUG: KASAN: use-after-free in __skb_queue_before include/linux/skbuff.h:2016 [inline]
+BUG: KASAN: use-after-free in __skb_queue_tail include/linux/skbuff.h:2049 [inline]
+BUG: KASAN: use-after-free in skb_queue_tail+0x6b/0x120 net/core/skbuff.c:3146
+Write of size 8 at addr ffff88804d8ab3c0 by task syz-executor.4/4316
+
+CPU: 1 PID: 4316 Comm: syz-executor.4 Not tainted 5.9.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1d6/0x29e lib/dump_stack.c:118
+ print_address_description+0x66/0x620 mm/kasan/report.c:383
+ __kasan_report mm/kasan/report.c:513 [inline]
+ kasan_report+0x132/0x1d0 mm/kasan/report.c:530
+ __skb_insert include/linux/skbuff.h:1907 [inline]
+ __skb_queue_before include/linux/skbuff.h:2016 [inline]
+ __skb_queue_tail include/linux/skbuff.h:2049 [inline]
+ skb_queue_tail+0x6b/0x120 net/core/skbuff.c:3146
+ qrtr_tun_send+0x1a/0x40 net/qrtr/tun.c:23
+ qrtr_node_enqueue+0x44f/0xc00 net/qrtr/qrtr.c:364
+ qrtr_bcast_enqueue+0xbe/0x140 net/qrtr/qrtr.c:861
+ qrtr_sendmsg+0x680/0x9c0 net/qrtr/qrtr.c:960
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ sock_write_iter+0x317/0x470 net/socket.c:998
+ call_write_iter include/linux/fs.h:1882 [inline]
+ new_sync_write fs/read_write.c:503 [inline]
+ vfs_write+0xa96/0xd10 fs/read_write.c:578
+ ksys_write+0x11b/0x220 fs/read_write.c:631
+ do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45d5b9
+Code: 5d b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 2b b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f84b5b81c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 0000000000038b40 RCX: 000000000045d5b9
+RDX: 0000000000000055 RSI: 0000000020001240 RDI: 0000000000000003
+RBP: 00007f84b5b81ca0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000000000f
+R13: 00007ffcbbf86daf R14: 00007f84b5b829c0 R15: 000000000118cf4c
+
+Allocated by task 4316:
+ kasan_save_stack mm/kasan/common.c:48 [inline]
+ kasan_set_track mm/kasan/common.c:56 [inline]
+ __kasan_kmalloc+0x100/0x130 mm/kasan/common.c:461
+ slab_post_alloc_hook+0x3e/0x290 mm/slab.h:518
+ slab_alloc mm/slab.c:3312 [inline]
+ kmem_cache_alloc+0x1c1/0x2d0 mm/slab.c:3482
+ skb_clone+0x1b2/0x370 net/core/skbuff.c:1449
+ qrtr_bcast_enqueue+0x6d/0x140 net/qrtr/qrtr.c:857
+ qrtr_sendmsg+0x680/0x9c0 net/qrtr/qrtr.c:960
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ sock_write_iter+0x317/0x470 net/socket.c:998
+ call_write_iter include/linux/fs.h:1882 [inline]
+ new_sync_write fs/read_write.c:503 [inline]
+ vfs_write+0xa96/0xd10 fs/read_write.c:578
+ ksys_write+0x11b/0x220 fs/read_write.c:631
+ do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Freed by task 4316:
+ kasan_save_stack mm/kasan/common.c:48 [inline]
+ kasan_set_track+0x3d/0x70 mm/kasan/common.c:56
+ kasan_set_free_info+0x17/0x30 mm/kasan/generic.c:355
+ __kasan_slab_free+0xdd/0x110 mm/kasan/common.c:422
+ __cache_free mm/slab.c:3418 [inline]
+ kmem_cache_free+0x82/0xf0 mm/slab.c:3693
+ __skb_pad+0x3f5/0x5a0 net/core/skbuff.c:1823
+ __skb_put_padto include/linux/skbuff.h:3233 [inline]
+ skb_put_padto include/linux/skbuff.h:3252 [inline]
+ qrtr_node_enqueue+0x62f/0xc00 net/qrtr/qrtr.c:360
+ qrtr_bcast_enqueue+0xbe/0x140 net/qrtr/qrtr.c:861
+ qrtr_sendmsg+0x680/0x9c0 net/qrtr/qrtr.c:960
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ sock_write_iter+0x317/0x470 net/socket.c:998
+ call_write_iter include/linux/fs.h:1882 [inline]
+ new_sync_write fs/read_write.c:503 [inline]
+ vfs_write+0xa96/0xd10 fs/read_write.c:578
+ ksys_write+0x11b/0x220 fs/read_write.c:631
+ do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The buggy address belongs to the object at ffff88804d8ab3c0
+ which belongs to the cache skbuff_head_cache of size 224
+The buggy address is located 0 bytes inside of
+ 224-byte region [ffff88804d8ab3c0, ffff88804d8ab4a0)
+The buggy address belongs to the page:
+page:00000000ea8cccfb refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88804d8abb40 pfn:0x4d8ab
+flags: 0xfffe0000000200(slab)
+raw: 00fffe0000000200 ffffea0002237ec8 ffffea00029b3388 ffff88821bb66800
+raw: ffff88804d8abb40 ffff88804d8ab000 000000010000000b 0000000000000000
+page dumped because: kasan: bad access detected
+
+Fixes: ce57785bf91b ("net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Carl Huang <cjhuang@codeaurora.org>
+Cc: Wen Gong <wgong@codeaurora.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/qrtr/qrtr.c |   20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -834,7 +834,7 @@ EXPORT_SYMBOL(phy_free_interrupt);
-  */
- void phy_stop(struct phy_device *phydev)
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -178,7 +178,7 @@ static int qrtr_node_enqueue(struct qrtr
  {
--	if (!phy_is_started(phydev)) {
-+	if (!phy_is_started(phydev) && phydev->state != PHY_DOWN) {
- 		WARN(1, "called from state %s\n",
- 		     phy_state_to_str(phydev->state));
- 		return;
+ 	struct qrtr_hdr_v1 *hdr;
+ 	size_t len = skb->len;
+-	int rc = -ENODEV;
++	int rc;
+ 
+ 	hdr = skb_push(skb, sizeof(*hdr));
+ 	hdr->version = cpu_to_le32(QRTR_PROTO_VER_1);
+@@ -196,15 +196,17 @@ static int qrtr_node_enqueue(struct qrtr
+ 	hdr->size = cpu_to_le32(len);
+ 	hdr->confirm_rx = 0;
+ 
+-	skb_put_padto(skb, ALIGN(len, 4) + sizeof(*hdr));
+-
+-	mutex_lock(&node->ep_lock);
+-	if (node->ep)
+-		rc = node->ep->xmit(node->ep, skb);
+-	else
+-		kfree_skb(skb);
+-	mutex_unlock(&node->ep_lock);
++	rc = skb_put_padto(skb, ALIGN(len, 4) + sizeof(*hdr));
+ 
++	if (!rc) {
++		mutex_lock(&node->ep_lock);
++		rc = -ENODEV;
++		if (node->ep)
++			rc = node->ep->xmit(node->ep, skb);
++		else
++			kfree_skb(skb);
++		mutex_unlock(&node->ep_lock);
++	}
+ 	return rc;
+ }
+ 
 
 
