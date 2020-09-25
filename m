@@ -2,112 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D91278E41
+	by mail.lfdr.de (Postfix) with ESMTP id 848A2278E43
 	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:20:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729009AbgIYQUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 12:20:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42862 "EHLO
+        id S1729596AbgIYQUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 12:20:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728654AbgIYQUb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:31 -0400
-Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767D3C0613CE
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:31 -0700 (PDT)
-Received: by mail-pf1-x449.google.com with SMTP id c18so2711849pfi.21
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:31 -0700 (PDT)
+        with ESMTP id S1728654AbgIYQUd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:33 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DB10C0613CE
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:33 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id a7so3073917ybq.22
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=sender:date:in-reply-to:message-id:mime-version:references:subject
          :from:to:cc;
-        bh=DjOs7Vs2zcu8GdodLlNI9Hhz23FEMcf2cbN96JZ9NVw=;
-        b=aZzuPXxaZmW9uRRBErnEu4EXC3qjkW034qfvfDnMDLQupabGA+SSkg3L+nBh+1TMT4
-         SpqaKvenAsydpd7VO3PXunfIQz2Vn7tOhSFWOaXCz7eAhs9Cj/kClw7G8ywNExNok1IS
-         j8CBBCJSoFYaTDUSGnqs03mC3sjvSdGDmXeJDM2YITC8hmvr6Rsph2/2G2e3RmBjItLZ
-         o/zzE3zfQr1yqSuhEALWrVG+x0MmNDQkWOvLGLm62ncTiT081qFJM7pvGrUGwn8Vb0oW
-         mnixVkYn0u/SO2hBEsDn88ussA2AK7QjHDiEU7JYyfyBAW0+MJxiP6mrvq9VawFyrhoW
-         BR0w==
+        bh=E6og4z6nje4AEDDQkIz9MaQsLLZ5DTy6MWJlEHz1OY0=;
+        b=ZmzdLm9BCv+rk6VhrYFFUMs+BZPFOuayMdqW+CvKxM1AgKXRIIpt4IYIUDI7wQU0Q7
+         RcTHUB1im9x2OWJKP8FtwgsZNNBQDImbE7TxTjc9t/eai/j1MwLg5AxLuzDSwQ+97GHZ
+         SXWJCivGypkpkrEMTB9l+cF/N6+0+06H/38se23P8d3FpswGjcYrH/YcmEjP53ne/YiL
+         Rt+IoIu66wK9TA96D2O1W1/U+/Ff16qXig6L04gAMIbSqJO61YBgCWzb8W+pPQMICLB3
+         YqlQJkLrL8ObE0YL/8ctW/o+42zlbxC863yF/5vE7umiAn342KOq1ihopmW1R4bYgfRp
+         ukyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=DjOs7Vs2zcu8GdodLlNI9Hhz23FEMcf2cbN96JZ9NVw=;
-        b=fLjCXzPNAgPsKXzpFed3jauWK8eC5R495a1ckx7JB+8C4Kw+i9xrLGLFXRNoPBZikK
-         t4xNldBAVQsZPAq/HytGZORGzfWGzvHfCe/SwvfgQzhO77aJmvY3uRGsllC6p/Zg1HI1
-         qyrv4fNDEUFlCCQ+75xZTotKnk6N8VUy6KlCm4naewZjF2RCg8QIFwT21Jp//EvhnGo6
-         Ph8Xppbirsj3li1EJ1pYA40JkQ1LYbH0PXMenjy0tCbj1JVRuLLt7nOmTAYIFzDLt05c
-         VQtFpXWCjPM3flGfefqWQZt6RxggJRnf/wwhZm+SQ9COUjoSwoOC6KaWcT9fdrnaNIhs
-         mVpw==
-X-Gm-Message-State: AOAM531wOfjovLyaav4mZtQ8AjJYF7G7nCZPOa4cRAqLnpwqTPhQK7tv
-        Xj9q1k5Jrm+0IIrnL0rIQqXWPY4RTt5oMNnT/s8/NkIisKl1w6RpBA+/pFbeYd08659OxZA3Ghr
-        8zI5CRoBDh8GzU3JYqCh6CatEv8hxt5FRA8Gp6hkjBxQ5b5h2g3IWppoiX4aqMA==
-X-Google-Smtp-Source: ABdhPJzHjWFbdAHuvwAWOLk0CeSIEkZxJEvYXaLm9cQ+ftbMwMqZOq8QXcT6gECnE1j0xhGGTh9J2JGFnw4=
+        bh=E6og4z6nje4AEDDQkIz9MaQsLLZ5DTy6MWJlEHz1OY0=;
+        b=ZNJcjy4BrkCPP25zkm4zza+0QeQl0+4DSYvvI37UVpeL/KZNK7W1TVRf+JGIgVXH7M
+         CCC4Gh3GIY39s6QajKWOHKVbVZjCo1XISyg3NdAZH0GTTyknf8qznMc9F/9GXa/QimL4
+         5Bc8Y+19QjUmTrnS6aWg6GxL5OsH6TDl6g4hYp0yocmL6z8X92F/i8khOf5bNxy8b51R
+         wAtV/sHTamIHPohQSbTLD3DMeX6YQaKYMWvLDNz8LTyKGE0u8EpzLlhxm1od3buvWpxa
+         b4I/Xxw6mwef0znkHy7bWz9QA/9Ud1CntG1pphwm44kK7gHhjCJ7l6xbDr1EdwESS80q
+         86gg==
+X-Gm-Message-State: AOAM532ueooJHjy0MRz4M4gRPFZsP5nhocG50rhmee+QFo3mygIeoSSf
+        FL9gRc88vBl2AVFkG3zePzSwfOqimJTBAcs5iT9ZzPmv8lWWL2TETtD793ZuPuucxVxhVMdnZFa
+        doA7yyq3wLkZh/7jalRsr2lGVifCwKijQ9/JRka/s2HvjoDsqUULYkvpHuufYOg==
+X-Google-Smtp-Source: ABdhPJzUwsF5wVC931xZYF1l9F3BvihKAftpp14vAGgO3bqJR30lPc4E/6mCkNgjtN2Cr1Ne4uizjDCQxfw=
 Sender: "pgonda via sendgmr" <pgonda@pgonda1.kir.corp.google.com>
 X-Received: from pgonda1.kir.corp.google.com ([2620:0:1008:1101:f693:9fff:fef4:e3a2])
- (user=pgonda job=sendgmr) by 2002:a62:e90b:0:b029:13e:b622:3241 with SMTP id
- j11-20020a62e90b0000b029013eb6223241mr85905pfh.12.1601050830913; Fri, 25 Sep
- 2020 09:20:30 -0700 (PDT)
-Date:   Fri, 25 Sep 2020 09:19:09 -0700
+ (user=pgonda job=sendgmr) by 2002:a25:3403:: with SMTP id b3mr5959417yba.455.1601050832643;
+ Fri, 25 Sep 2020 09:20:32 -0700 (PDT)
+Date:   Fri, 25 Sep 2020 09:19:10 -0700
 In-Reply-To: <20200925161916.204667-1-pgonda@google.com>
-Message-Id: <20200925161916.204667-24-pgonda@google.com>
+Message-Id: <20200925161916.204667-25-pgonda@google.com>
 Mime-Version: 1.0
 References: <20200925161916.204667-1-pgonda@google.com>
 X-Mailer: git-send-email 2.28.0.681.g6f77f65b4e-goog
-Subject: [PATCH 23/30 for 5.4] dma-mapping: warn when coherent pool is depleted
+Subject: [PATCH 24/30 for 5.4] dma-direct: provide function to check physical
+ memory area validity
 From:   Peter Gonda <pgonda@google.com>
 To:     stable@vger.kernel.org
 Cc:     Peter Gonda <pgonda@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
         Christoph Hellwig <hch@lst.de>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Rientjes <rientjes@google.com>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-upstream 71cdec4fab76667dabdbb2ca232b039004ebd40f commit.
+upstream 567f6a6eba0c09e5f502e0290e57651befa8aacb commit.
 
-When a DMA coherent pool is depleted, allocation failures may or may not
-get reported in the kernel log depending on the allocator.
+dma_coherent_ok() checks if a physical memory area fits a device's DMA
+constraints.
 
-The admin does have a workaround, however, by using coherent_pool= on the
-kernel command line.
-
-Provide some guidance on the failure and a recommended minimum size for
-the pools (double the size).
-
-Signed-off-by: David Rientjes <rientjes@google.com>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Peter Gonda <pgonda@google.com>
 ---
- kernel/dma/pool.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/linux/dma-direct.h | 1 +
+ kernel/dma/direct.c        | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
-index 8cfa01243ed2..39ca26fa41b5 100644
---- a/kernel/dma/pool.c
-+++ b/kernel/dma/pool.c
-@@ -239,12 +239,16 @@ void *dma_alloc_from_pool(struct device *dev, size_t size,
- 	}
+diff --git a/include/linux/dma-direct.h b/include/linux/dma-direct.h
+index fb5ec847ddf3..8ccddee1f78a 100644
+--- a/include/linux/dma-direct.h
++++ b/include/linux/dma-direct.h
+@@ -68,6 +68,7 @@ static inline phys_addr_t dma_to_phys(struct device *dev, dma_addr_t daddr)
+ u64 dma_direct_get_required_mask(struct device *dev);
+ gfp_t dma_direct_optimal_gfp_mask(struct device *dev, u64 dma_mask,
+ 				  u64 *phys_mask);
++bool dma_coherent_ok(struct device *dev, phys_addr_t phys, size_t size);
+ void *dma_direct_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
+ 		gfp_t gfp, unsigned long attrs);
+ void dma_direct_free(struct device *dev, size_t size, void *cpu_addr,
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 6c677ffdbd53..54c1c3a20c09 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -84,7 +84,7 @@ gfp_t dma_direct_optimal_gfp_mask(struct device *dev, u64 dma_mask,
+ 	return 0;
+ }
  
- 	val = gen_pool_alloc(pool, size);
--	if (val) {
-+	if (likely(val)) {
- 		phys_addr_t phys = gen_pool_virt_to_phys(pool, val);
- 
- 		*ret_page = pfn_to_page(__phys_to_pfn(phys));
- 		ptr = (void *)val;
- 		memset(ptr, 0, size);
-+	} else {
-+		WARN_ONCE(1, "DMA coherent pool depleted, increase size "
-+			     "(recommended min coherent_pool=%zuK)\n",
-+			  gen_pool_size(pool) >> 9);
- 	}
- 	if (gen_pool_avail(pool) < atomic_pool_size)
- 		schedule_work(&atomic_pool_work);
+-static bool dma_coherent_ok(struct device *dev, phys_addr_t phys, size_t size)
++bool dma_coherent_ok(struct device *dev, phys_addr_t phys, size_t size)
+ {
+ 	return phys_to_dma_direct(dev, phys) + size - 1 <=
+ 			min_not_zero(dev->coherent_dma_mask, dev->bus_dma_mask);
 -- 
 2.28.0.618.gf4bc123cb7-goog
 
