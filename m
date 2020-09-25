@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 563CE2788AA
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BF852788E0
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728994AbgIYMuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:50:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53858 "EHLO mail.kernel.org"
+        id S1728652AbgIYMsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:48:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728991AbgIYMuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:50:02 -0400
+        id S1728629AbgIYMsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:48:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55EEF21D91;
-        Fri, 25 Sep 2020 12:50:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FE7321D7A;
+        Fri, 25 Sep 2020 12:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038201;
-        bh=O+NnOn5THC5Eih2blLWpVzsTAdm/XIrZ8FvhnuTux14=;
+        s=default; t=1601038123;
+        bh=vYwkPjAu15NfewbPrw8EPmFACJ2J9/IK/n3uW1+ETAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jORG+ZDHnTzCMy3G7IZhIBXHlH+DLybCek3fp2qUntiJA+OO03aouc7X/IVOcyJKO
-         fqTQigqmdTDBRyfvlTgLF5poIvLZYD41+27au+YDAYYq5XwbkVOm6JTLEyoP4LZIsW
-         YWqnjlRW1RKD6h3SvykYpqUBR/p7xCTar1OWM26E=
+        b=gehBDnPtgALyb/gCZ8A4roTdBMHUDyH7tfNRbXhBjxWhZUkTNdV/X6637zVb6TVqF
+         LwcifB/k0Cu2350lQuWW0Ceh1GGDOIfVew1T5GC4xshAe2ZUaqkatnjYEmT5Sst3bb
+         fBOoEmqOC2zSZ2hKWHQRkCaSpUPYK7UZWU7blexI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Wang <weiwan@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 11/56] ip: fix tos reflection in ack and reset packets
-Date:   Fri, 25 Sep 2020 14:48:01 +0200
-Message-Id: <20200925124729.508991941@linuxfoundation.org>
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        wenxu <wenxu@ucloud.cn>, "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.8 12/56] ipv4: Initialize flowi4_multipath_hash in data path
+Date:   Fri, 25 Sep 2020 14:48:02 +0200
+Message-Id: <20200925124729.668710256@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
 References: <20200925124727.878494124@linuxfoundation.org>
@@ -43,43 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: David Ahern <dsahern@gmail.com>
 
-[ Upstream commit ba9e04a7ddf4f22a10e05bf9403db6b97743c7bf ]
+[ Upstream commit 1869e226a7b3ef75b4f70ede2f1b7229f7157fa4 ]
 
-Currently, in tcp_v4_reqsk_send_ack() and tcp_v4_send_reset(), we
-echo the TOS value of the received packets in the response.
-However, we do not want to echo the lower 2 ECN bits in accordance
-with RFC 3168 6.1.5 robustness principles.
+flowi4_multipath_hash was added by the commit referenced below for
+tunnels. Unfortunately, the patch did not initialize the new field
+for several fast path lookups that do not initialize the entire flow
+struct to 0. Fix those locations. Currently, flowi4_multipath_hash
+is random garbage and affects the hash value computed by
+fib_multipath_hash for multipath selection.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-
-Signed-off-by: Wei Wang <weiwan@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Fixes: 24ba14406c5c ("route: Add multipath_hash in flowi_common to make user-define hash")
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Cc: wenxu <wenxu@ucloud.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_output.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/flow.h      |    1 +
+ net/core/filter.c       |    1 +
+ net/ipv4/fib_frontend.c |    1 +
+ net/ipv4/route.c        |    1 +
+ 4 files changed, 4 insertions(+)
 
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -74,6 +74,7 @@
- #include <net/icmp.h>
- #include <net/checksum.h>
- #include <net/inetpeer.h>
-+#include <net/inet_ecn.h>
- #include <net/lwtunnel.h>
- #include <linux/bpf-cgroup.h>
- #include <linux/igmp.h>
-@@ -1697,7 +1698,7 @@ void ip_send_unicast_reply(struct sock *
- 	if (IS_ERR(rt))
- 		return;
+--- a/include/net/flow.h
++++ b/include/net/flow.h
+@@ -116,6 +116,7 @@ static inline void flowi4_init_output(st
+ 	fl4->saddr = saddr;
+ 	fl4->fl4_dport = dport;
+ 	fl4->fl4_sport = sport;
++	fl4->flowi4_multipath_hash = 0;
+ }
  
--	inet_sk(sk)->tos = arg->tos;
-+	inet_sk(sk)->tos = arg->tos & ~INET_ECN_MASK;
+ /* Reset some input parameters after previous lookup */
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -4774,6 +4774,7 @@ static int bpf_ipv4_fib_lookup(struct ne
+ 	fl4.saddr = params->ipv4_src;
+ 	fl4.fl4_sport = params->sport;
+ 	fl4.fl4_dport = params->dport;
++	fl4.flowi4_multipath_hash = 0;
  
- 	sk->sk_protocol = ip_hdr(skb)->protocol;
- 	sk->sk_bound_dev_if = arg->bound_dev_if;
+ 	if (flags & BPF_FIB_LOOKUP_DIRECT) {
+ 		u32 tbid = l3mdev_fib_table_rcu(dev) ? : RT_TABLE_MAIN;
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -362,6 +362,7 @@ static int __fib_validate_source(struct
+ 	fl4.flowi4_tun_key.tun_id = 0;
+ 	fl4.flowi4_flags = 0;
+ 	fl4.flowi4_uid = sock_net_uid(net, NULL);
++	fl4.flowi4_multipath_hash = 0;
+ 
+ 	no_addr = idev->ifa_list == NULL;
+ 
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -2142,6 +2142,7 @@ static int ip_route_input_slow(struct sk
+ 	fl4.daddr = daddr;
+ 	fl4.saddr = saddr;
+ 	fl4.flowi4_uid = sock_net_uid(net, NULL);
++	fl4.flowi4_multipath_hash = 0;
+ 
+ 	if (fib4_rules_early_flow_dissect(net, skb, &fl4, &_flkeys)) {
+ 		flkeys = &_flkeys;
 
 
