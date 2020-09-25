@@ -2,57 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D98B278E3C
+	by mail.lfdr.de (Postfix) with ESMTP id D5BA1278E3D
 	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:20:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729286AbgIYQUX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 12:20:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42826 "EHLO
+        id S1729593AbgIYQU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 12:20:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728654AbgIYQUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:22 -0400
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7114C0613CE
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:22 -0700 (PDT)
-Received: by mail-pj1-x104a.google.com with SMTP id o11so2419624pjj.9
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:22 -0700 (PDT)
+        with ESMTP id S1728654AbgIYQUZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:25 -0400
+Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B30C0613CE
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:24 -0700 (PDT)
+Received: by mail-pj1-x1049.google.com with SMTP id gc24so2442371pjb.4
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=sender:date:in-reply-to:message-id:mime-version:references:subject
          :from:to:cc;
-        bh=f3bkGq4TDjR+hhspYidSvBzq+erXc7WyryfUsbbYVGg=;
-        b=PSP6OEpytCgvmeBoQZXNKwHkXviBLv70Okv1Cd891H6sI/LM+x/oux062RtgPpnsBs
-         v1hbuASSSl63ZV3ukmHCUtvjO7fnDpkn8HpS6cs5nMgm3edx/T6f3DcvKFdj/yOga63i
-         IyIkSngx2SrHsdIrwI8su7+tehmiTy/P4HRiC+PbMd49WHj7tVBK9UPx9fh8kIHkPeP3
-         CMZUft6uIxa+oqI3YPN99bbFoqR775hdqtIqqyYv2Q8su/QDmibS2TEx7LsoZamc5A9W
-         B0MF45ZIVKJyOZ4WyDabUAtnf659q2Or7SSWUQX/Q3JTKZOhblCluHiQOcj6/H6XedjM
-         yQ2w==
+        bh=ghrWx1K/+3JsMeSH86tJN8ucLNnB+daS1gHHtcEdzaM=;
+        b=K+L7eZkoluS2PEadVJ6NwP0CoA7cdgFNv9bez0LNA03iLRVn+MGMShytCEvDqPhFQp
+         WgVUiBhftJ7Qvc6XDaLySXYX+PQBcE+RkPvukG/tMuRLF1NzfuESnwlWrvilA3RhcREy
+         iUuGFaAxVs25sK/96yJj9E4w8DGFEypYGzKCl/xjOvU7Xyac+KeqPbsWzlLlmebMWsV6
+         2FAtAGzqzxahjb1AcpetOxRaw4sQfqEWNFV7hsouFxaeTnE5r5xYqYOSYxuoHiNMCyPA
+         4JZ2FoSLRr4m+gRwxDzbAaUOL6tPD881Lr6WuYMN+ZFVJ7dvJombwnvwt+5tSkHhhK6q
+         hAtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=f3bkGq4TDjR+hhspYidSvBzq+erXc7WyryfUsbbYVGg=;
-        b=A/nRCujjMDS43LNDXPNCPvY2lCwocLw3JeW0C1ZxyQeyX7CxwRQwIvTrhn/GSCH6DD
-         kyWx+/0bokDcvHyKF2XX32BlsuLnnm3IyyotWaJ0Bx9zEMn9FG6X4K+byyC8JxLWd09y
-         VF/nLwyKAWJ88xC44XeTNrnNpVlWFgd6JHeCdZ5UirTomb/OzQEh05tRGnOQfcDwpmAR
-         tLiB8hb9NAPVtjYr85rQ/LOHcoNFJGI1Om+Hc6FBJbRXbTRlGr70sAyu1ydNEawcal6r
-         wT7JW7X2iseuL+pzsCjepSIp86HY/g/F8ZiBcUMvU9wckObOaLft7lTWa3JzUI7IZAgy
-         raDQ==
-X-Gm-Message-State: AOAM5304vma7+21bG3JrPlK5tbDnitrq3FTZL5n6MioKOT7X69dlZC+A
-        Mwv/D/B8nnlEqV3mj2nQvJNmPYSPpnS7bg6uOzOMdBlWCWHQMqFNiB2aCspDsrw4WUmJ6SIhWco
-        HdgwEcniv/BQzKoXhwjIbhOqfirEuNgxDf8uEepp/pmRmdPr5xSaQRbDmg7XEYg==
-X-Google-Smtp-Source: ABdhPJzF90ZOuqYIYaFmgBVGj1KR7S1uz22QZ0yVy78JoWaocfqFzpCjYRPL/mv2bU+BOiO67CEipIADUSw=
+        bh=ghrWx1K/+3JsMeSH86tJN8ucLNnB+daS1gHHtcEdzaM=;
+        b=iN8ULjUpGHm3k8BL+7HVJAk6Tu/wFARH3xjXfvLTcQc9UVNx/2m7jafGWPyNg/Mgme
+         x5fSYOlH0/6yh3diA4/Fspno6FHV6Iq+PgwSB9jJh+5dUeE+cSwu9tVDU7dCDiiDguxM
+         +ybDGp/kw0VkY7CXPP42QSXI5bNp6tm4LpGYl3XCawG1sCFxgP4izmWY5o5uKnTK7xVn
+         JhTinIZa68XGE8NsLZWwocHlIRyE2JhpD/wtKPMtcHF7RNHdKCvUbPO8Wy4ZfWttj+sV
+         W9IThZv0JY1Mn2F8ozZNU34lr0sC/nwN/2WXzs2D+MVlBHHcR1YTKkFIYAH7VqNpCevm
+         4/2g==
+X-Gm-Message-State: AOAM533nD1wI5ikV176uXrUdLCJ93mzlrC09XOmwDi7/+qviJGYV8ESk
+        yUYLCGmdvRSHOmR+MH0uRBRaPjRFDhvzSPC+jBYZY0+ew8Hp8K7zUTZ+l13WYnh8nwFu/VqfG9e
+        xObpAEt7e79q8DijF62DD3xMKs6aU1kHbhvzSncwL43kQgzzjFmTnOtChx4fU9A==
+X-Google-Smtp-Source: ABdhPJw6giJceBWOBmp4Y9P/6acvyjC3ta60pOH7uZ41/gE28XMuwLTNO1hjBzopq0Vrjtz8+rAp589VnGI=
 Sender: "pgonda via sendgmr" <pgonda@pgonda1.kir.corp.google.com>
 X-Received: from pgonda1.kir.corp.google.com ([2620:0:1008:1101:f693:9fff:fef4:e3a2])
- (user=pgonda job=sendgmr) by 2002:a63:2319:: with SMTP id j25mr680949pgj.75.1601050822067;
- Fri, 25 Sep 2020 09:20:22 -0700 (PDT)
-Date:   Fri, 25 Sep 2020 09:19:04 -0700
+ (user=pgonda job=sendgmr) by 2002:a17:902:8682:b029:d1:f289:1b8a with SMTP id
+ g2-20020a1709028682b02900d1f2891b8amr132753plo.69.1601050823899; Fri, 25 Sep
+ 2020 09:20:23 -0700 (PDT)
+Date:   Fri, 25 Sep 2020 09:19:05 -0700
 In-Reply-To: <20200925161916.204667-1-pgonda@google.com>
-Message-Id: <20200925161916.204667-19-pgonda@google.com>
+Message-Id: <20200925161916.204667-20-pgonda@google.com>
 Mime-Version: 1.0
 References: <20200925161916.204667-1-pgonda@google.com>
 X-Mailer: git-send-email 2.28.0.681.g6f77f65b4e-goog
-Subject: [PATCH 18/30 for 5.4] dma-direct: always align allocation size in dma_direct_alloc_pages()
+Subject: [PATCH 19/30 for 5.4] dma-direct: re-encrypt memory if
+ dma_direct_alloc_pages() fails
 From:   Peter Gonda <pgonda@google.com>
 To:     stable@vger.kernel.org
 Cc:     Peter Gonda <pgonda@google.com>,
@@ -65,86 +67,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Rientjes <rientjes@google.com>
 
-upstream 633d5fce78a61e8727674467944939f55b0bcfab commit.
+upstream 96a539fa3bb71f443ae08e57b9f63d6e5bb2207c commit.
 
-dma_alloc_contiguous() does size >> PAGE_SHIFT and set_memory_decrypted()
-works at page granularity.  It's necessary to page align the allocation
-size in dma_direct_alloc_pages() for consistent behavior.
+If arch_dma_set_uncached() fails after memory has been decrypted, it needs
+to be re-encrypted before freeing.
 
-This also fixes an issue when arch_dma_prep_coherent() is called on an
-unaligned allocation size for dma_alloc_need_uncached() when
-CONFIG_DMA_DIRECT_REMAP is disabled but CONFIG_ARCH_HAS_DMA_SET_UNCACHED
-is enabled.
-
+Fixes: fa7e2247c572 ("dma-direct: make uncached_kernel_address more general")
 Signed-off-by: David Rientjes <rientjes@google.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Change-Id: I6ede6ca2864a9fb3ace42df7a0da6725ae453f1c
 Signed-off-by: Peter Gonda <pgonda@google.com>
 ---
- kernel/dma/direct.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ kernel/dma/direct.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index bb5cb5af9f7d..e72bb0dc8150 100644
+index e72bb0dc8150..b4a5b7076399 100644
 --- a/kernel/dma/direct.c
 +++ b/kernel/dma/direct.c
-@@ -126,11 +126,12 @@ static inline bool dma_should_free_from_pool(struct device *dev,
- struct page *__dma_direct_alloc_pages(struct device *dev, size_t size,
- 		gfp_t gfp, unsigned long attrs)
- {
--	size_t alloc_size = PAGE_ALIGN(size);
- 	int node = dev_to_node(dev);
- 	struct page *page = NULL;
- 	u64 phys_mask;
- 
-+	WARN_ON_ONCE(!PAGE_ALIGNED(size));
-+
- 	if (attrs & DMA_ATTR_NO_WARN)
- 		gfp |= __GFP_NOWARN;
- 
-@@ -138,14 +139,14 @@ struct page *__dma_direct_alloc_pages(struct device *dev, size_t size,
- 	gfp &= ~__GFP_ZERO;
- 	gfp |= dma_direct_optimal_gfp_mask(dev, dev->coherent_dma_mask,
- 			&phys_mask);
--	page = dma_alloc_contiguous(dev, alloc_size, gfp);
-+	page = dma_alloc_contiguous(dev, size, gfp);
- 	if (page && !dma_coherent_ok(dev, page_to_phys(page), size)) {
--		dma_free_contiguous(dev, page, alloc_size);
-+		dma_free_contiguous(dev, page, size);
- 		page = NULL;
+@@ -234,7 +234,7 @@ void *dma_direct_alloc_pages(struct device *dev, size_t size,
+ 		arch_dma_prep_coherent(page, size);
+ 		ret = arch_dma_set_uncached(ret, size);
+ 		if (IS_ERR(ret))
+-			goto out_free_pages;
++			goto out_encrypt_pages;
  	}
- again:
- 	if (!page)
--		page = alloc_pages_node(node, gfp, get_order(alloc_size));
-+		page = alloc_pages_node(node, gfp, get_order(size));
- 	if (page && !dma_coherent_ok(dev, page_to_phys(page), size)) {
- 		dma_free_contiguous(dev, page, size);
- 		page = NULL;
-@@ -172,8 +173,10 @@ void *dma_direct_alloc_pages(struct device *dev, size_t size,
- 	struct page *page;
- 	void *ret;
- 
-+	size = PAGE_ALIGN(size);
+ done:
+ 	if (force_dma_unencrypted(dev))
+@@ -242,6 +242,11 @@ void *dma_direct_alloc_pages(struct device *dev, size_t size,
+ 	else
+ 		*dma_handle = phys_to_dma(dev, page_to_phys(page));
+ 	return ret;
 +
- 	if (dma_should_alloc_from_pool(dev, gfp, attrs)) {
--		ret = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &page, gfp);
-+		ret = dma_alloc_from_pool(dev, size, &page, gfp);
- 		if (!ret)
- 			return NULL;
- 		goto done;
-@@ -197,10 +200,10 @@ void *dma_direct_alloc_pages(struct device *dev, size_t size,
- 	     dma_alloc_need_uncached(dev, attrs)) ||
- 	    (IS_ENABLED(CONFIG_DMA_REMAP) && PageHighMem(page))) {
- 		/* remove any dirty cache lines on the kernel alias */
--		arch_dma_prep_coherent(page, PAGE_ALIGN(size));
-+		arch_dma_prep_coherent(page, size);
- 
- 		/* create a coherent mapping */
--		ret = dma_common_contiguous_remap(page, PAGE_ALIGN(size),
-+		ret = dma_common_contiguous_remap(page, size,
- 				dma_pgprot(dev, PAGE_KERNEL, attrs),
- 				__builtin_return_address(0));
- 		if (!ret)
++out_encrypt_pages:
++	if (force_dma_unencrypted(dev))
++		set_memory_encrypted((unsigned long)page_address(page),
++				     1 << get_order(size));
+ out_free_pages:
+ 	dma_free_contiguous(dev, page, size);
+ 	return NULL;
 -- 
 2.28.0.618.gf4bc123cb7-goog
 
