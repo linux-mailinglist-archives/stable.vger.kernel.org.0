@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24B5A27889D
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72A742787D7
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729217AbgIYM4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:56:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55964 "EHLO mail.kernel.org"
+        id S1729138AbgIYMvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:51:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729210AbgIYMve (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:34 -0400
+        id S1729129AbgIYMu6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:50:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 966B621741;
-        Fri, 25 Sep 2020 12:51:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D65202075E;
+        Fri, 25 Sep 2020 12:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038294;
-        bh=2lpjlTn420XdbgFw622omkZ/LENmHhU/R9F5caD0xRk=;
+        s=default; t=1601038258;
+        bh=y+GQbXTaidAAY0N1sPQ/gYgts01Bp6ydqL0LMW4IpvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tc8bDKdzCimllLf+D3dlxcZ9vwLnK4Ijg+4izC88Nlzqhpp74xasjUYf73bbCVznA
-         MrteSTPsEB1BjUxzWSxvFOxZiY98xhyaEdYgkYWCmRbwbINseqhZGNmqU1wCrjox5L
-         l3wbq4wlFm7QaDswz1nOPbNKDRtmmnQlb1Y+5bss=
+        b=HRpGML6o5h7PwsOriBWoLjdwILPMxsKO9sZRnRqlATzDIIYB5fhXPQCco/p0nPusF
+         ohhS6Oisg+xWuKRx4Vrh0B8alwDBNnofl8cd9HFDq2fcaawDLZ5oFL/ibRLHVKPswO
+         TlTlbnYxme9Z7sKdka3TFf840i4ARz8q4by8GN2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 17/43] net: bridge: br_vlan_get_pvid_rcu() should dereference the VLAN group under RCU
+Subject: [PATCH 5.8 39/56] net: phy: Avoid NPD upon phy_detach() when driver is unbound
 Date:   Fri, 25 Sep 2020 14:48:29 +0200
-Message-Id: <20200925124726.178619091@linuxfoundation.org>
+Message-Id: <20200925124733.718921386@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
-References: <20200925124723.575329814@linuxfoundation.org>
+In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
+References: <20200925124727.878494124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,93 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 99f62a746066fa436aa15d4606a538569540db08 ]
+[ Upstream commit c2b727df7caa33876e7066bde090f40001b6d643 ]
 
-When calling the RCU brother of br_vlan_get_pvid(), lockdep warns:
+If we have unbound the PHY driver prior to calling phy_detach() (often
+via phy_disconnect()) then we can cause a NULL pointer de-reference
+accessing the driver owner member. The steps to reproduce are:
 
-=============================
-WARNING: suspicious RCU usage
-5.9.0-rc3-01631-g13c17acb8e38-dirty #814 Not tainted
------------------------------
-net/bridge/br_private.h:1054 suspicious rcu_dereference_protected() usage!
+echo unimac-mdio-0:01 > /sys/class/net/eth0/phydev/driver/unbind
+ip link set eth0 down
 
-Call trace:
- lockdep_rcu_suspicious+0xd4/0xf8
- __br_vlan_get_pvid+0xc0/0x100
- br_vlan_get_pvid_rcu+0x78/0x108
-
-The warning is because br_vlan_get_pvid_rcu() calls nbp_vlan_group()
-which calls rtnl_dereference() instead of rcu_dereference(). In turn,
-rtnl_dereference() calls rcu_dereference_protected() which assumes
-operation under an RCU write-side critical section, which obviously is
-not the case here. So, when the incorrect primitive is used to access
-the RCU-protected VLAN group pointer, READ_ONCE() is not used, which may
-cause various unexpected problems.
-
-I'm sad to say that br_vlan_get_pvid() and br_vlan_get_pvid_rcu() cannot
-share the same implementation. So fix the bug by splitting the 2
-functions, and making br_vlan_get_pvid_rcu() retrieve the VLAN groups
-under proper locking annotations.
-
-Fixes: 7582f5b70f9a ("bridge: add br_vlan_get_pvid_rcu()")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: cafe8df8b9bc ("net: phy: Fix lack of reference count on PHY driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_vlan.c |   27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ drivers/net/phy/phy_device.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -1229,11 +1229,13 @@ void br_vlan_get_stats(const struct net_
- 	}
- }
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1631,7 +1631,8 @@ void phy_detach(struct phy_device *phyde
  
--static int __br_vlan_get_pvid(const struct net_device *dev,
--			      struct net_bridge_port *p, u16 *p_pvid)
-+int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
- {
- 	struct net_bridge_vlan_group *vg;
-+	struct net_bridge_port *p;
+ 	phy_led_triggers_unregister(phydev);
  
-+	ASSERT_RTNL();
-+	p = br_port_get_check_rtnl(dev);
- 	if (p)
- 		vg = nbp_vlan_group(p);
- 	else if (netif_is_bridge_master(dev))
-@@ -1244,18 +1246,23 @@ static int __br_vlan_get_pvid(const stru
- 	*p_pvid = br_get_pvid(vg);
- 	return 0;
- }
--
--int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
--{
--	ASSERT_RTNL();
--
--	return __br_vlan_get_pvid(dev, br_port_get_check_rtnl(dev), p_pvid);
--}
- EXPORT_SYMBOL_GPL(br_vlan_get_pvid);
+-	module_put(phydev->mdio.dev.driver->owner);
++	if (phydev->mdio.dev.driver)
++		module_put(phydev->mdio.dev.driver->owner);
  
- int br_vlan_get_pvid_rcu(const struct net_device *dev, u16 *p_pvid)
- {
--	return __br_vlan_get_pvid(dev, br_port_get_check_rcu(dev), p_pvid);
-+	struct net_bridge_vlan_group *vg;
-+	struct net_bridge_port *p;
-+
-+	p = br_port_get_check_rcu(dev);
-+	if (p)
-+		vg = nbp_vlan_group_rcu(p);
-+	else if (netif_is_bridge_master(dev))
-+		vg = br_vlan_group_rcu(netdev_priv(dev));
-+	else
-+		return -EINVAL;
-+
-+	*p_pvid = br_get_pvid(vg);
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(br_vlan_get_pvid_rcu);
- 
+ 	/* If the device had no specific driver before (i.e. - it
+ 	 * was using the generic driver), we unbind the device
 
 
