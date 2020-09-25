@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9106E278877
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D63BD278835
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729219AbgIYMvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:51:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
+        id S1729085AbgIYMxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:53:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729203AbgIYMvh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:37 -0400
+        id S1729074AbgIYMxk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D9112075E;
-        Fri, 25 Sep 2020 12:51:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D28B22B2D;
+        Fri, 25 Sep 2020 12:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038296;
-        bh=PPN/qdWXlnXkKZBiVulHZK1tcJ6jUktf+89bZU+dDeU=;
+        s=default; t=1601038418;
+        bh=sEaWP1cKVH/UlgESP73BVWdO2ZFk/h/u8XOr4UONHuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvRd5lSOrs7KjpRRpx+uR7w2H7mkfQHYbGPiyevwhuQMbnz4meHJqRRzcMj6koj1H
-         IaYSBKhRvlIxmPrKa4NTEMEDJsu1t7W1F9hU0ohTMnlYXeL2mXIae/pul7p9d5mBV5
-         u1/mx/wx8oNQbW9/jgvqoat7d5T/ZWB6a1DaIabU=
+        b=tGX3j21SUlb+PxCjmd7FHiqQVNMgh+J065PguqM5bWqM6ZVUVVf2cnnE8dAWmKYLG
+         n1ebo4B4+I0Bl72O0tudtVxBKcNaCSv5kYjdFkQ8DOr3DG6gyHm86Al3p5ofD6CPSN
+         SAnI+9izz9SpKSOxTua1wk37oK4hOMQexMVIiItA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 18/43] net: DCB: Validate DCB_ATTR_DCB_BUFFER argument
-Date:   Fri, 25 Sep 2020 14:48:30 +0200
-Message-Id: <20200925124726.322329999@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Song Liu <songliubraving@fb.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 03/37] kprobes: fix kill kprobe which has been marked as gone
+Date:   Fri, 25 Sep 2020 14:48:31 +0200
+Message-Id: <20200925124721.468882538@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
-References: <20200925124723.575329814@linuxfoundation.org>
+In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
+References: <20200925124720.972208530@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +51,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 297e77e53eadb332d5062913447b104a772dc33b ]
+[ Upstream commit b0399092ccebd9feef68d4ceb8d6219a8c0caa05 ]
 
-The parameter passed via DCB_ATTR_DCB_BUFFER is a struct dcbnl_buffer. The
-field prio2buffer is an array of IEEE_8021Q_MAX_PRIORITIES bytes, where
-each value is a number of a buffer to direct that priority's traffic to.
-That value is however never validated to lie within the bounds set by
-DCBX_MAX_BUFFERS. The only driver that currently implements the callback is
-mlx5 (maintainers CCd), and that does not do any validation either, in
-particual allowing incorrect configuration if the prio2buffer value does
-not fit into 4 bits.
+If a kprobe is marked as gone, we should not kill it again.  Otherwise, we
+can disarm the kprobe more than once.  In that case, the statistics of
+kprobe_ftrace_enabled can unbalance which can lead to that kprobe do not
+work.
 
-Instead of offloading the need to validate the buffer index to drivers, do
-it right there in core, and bounce the request if the value is too large.
-
-CC: Parav Pandit <parav@nvidia.com>
-CC: Saeed Mahameed <saeedm@nvidia.com>
-Fixes: e549f6f9c098 ("net/dcb: Add dcbnl buffer attribute")
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e8386a0cb22f ("kprobes: support probing module __exit function")
+Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200822030055.32383-1-songmuchun@bytedance.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dcb/dcbnl.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ kernel/kprobes.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/net/dcb/dcbnl.c
-+++ b/net/dcb/dcbnl.c
-@@ -1426,6 +1426,7 @@ static int dcbnl_ieee_set(struct net_dev
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index eb4bffe6d764d..230d9d599b5aa 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2061,6 +2061,9 @@ static void kill_kprobe(struct kprobe *p)
  {
- 	const struct dcbnl_rtnl_ops *ops = netdev->dcbnl_ops;
- 	struct nlattr *ieee[DCB_ATTR_IEEE_MAX + 1];
-+	int prio;
- 	int err;
+ 	struct kprobe *kp;
  
- 	if (!ops)
-@@ -1475,6 +1476,13 @@ static int dcbnl_ieee_set(struct net_dev
- 		struct dcbnl_buffer *buffer =
- 			nla_data(ieee[DCB_ATTR_DCB_BUFFER]);
- 
-+		for (prio = 0; prio < ARRAY_SIZE(buffer->prio2buffer); prio++) {
-+			if (buffer->prio2buffer[prio] >= DCBX_MAX_BUFFERS) {
-+				err = -EINVAL;
-+				goto err;
-+			}
-+		}
++	if (WARN_ON_ONCE(kprobe_gone(p)))
++		return;
 +
- 		err = ops->dcbnl_setbuffer(netdev, buffer);
- 		if (err)
- 			goto err;
+ 	p->flags |= KPROBE_FLAG_GONE;
+ 	if (kprobe_aggrprobe(p)) {
+ 		/*
+@@ -2243,7 +2246,10 @@ static int kprobes_module_callback(struct notifier_block *nb,
+ 	mutex_lock(&kprobe_mutex);
+ 	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
+ 		head = &kprobe_table[i];
+-		hlist_for_each_entry_rcu(p, head, hlist)
++		hlist_for_each_entry_rcu(p, head, hlist) {
++			if (kprobe_gone(p))
++				continue;
++
+ 			if (within_module_init((unsigned long)p->addr, mod) ||
+ 			    (checkcore &&
+ 			     within_module_core((unsigned long)p->addr, mod))) {
+@@ -2260,6 +2266,7 @@ static int kprobes_module_callback(struct notifier_block *nb,
+ 				 */
+ 				kill_kprobe(p);
+ 			}
++		}
+ 	}
+ 	mutex_unlock(&kprobe_mutex);
+ 	return NOTIFY_DONE;
+-- 
+2.25.1
+
 
 
