@@ -2,103 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93BB2278F18
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:51:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68354278F5B
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 19:08:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727733AbgIYQvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 12:51:40 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:34594 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726368AbgIYQvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:51:40 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 419F51C0C4A; Fri, 25 Sep 2020 18:51:35 +0200 (CEST)
-Date:   Fri, 25 Sep 2020 18:51:34 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kfir Itzhak <mastertheknife@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 4.19 23/37] ipv4: Update exception handling for multipath
- routes via same device
-Message-ID: <20200925165134.GA7253@duo.ucw.cz>
-References: <20200925124720.972208530@linuxfoundation.org>
- <20200925124724.448531559@linuxfoundation.org>
+        id S1727812AbgIYRIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 13:08:18 -0400
+Received: from mga11.intel.com ([192.55.52.93]:22417 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727495AbgIYRIS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 13:08:18 -0400
+IronPort-SDR: fRo8Sqw/WhOsf2i59nD2keD7AP3HR51PA03XgbBtp423Ogw7L79xBVbI7eB3mabojftAln4r3b
+ QGS3U3qY1AgA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9754"; a="158867868"
+X-IronPort-AV: E=Sophos;i="5.77,302,1596524400"; 
+   d="scan'208";a="158867868"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2020 06:23:36 -0700
+IronPort-SDR: WLUmg5rmr9hQCksKMErW3xHxwfXHOX9ydxyS0ZbNDCZZRZvnO5dp55MOfwM8qfr9YAhPTW+icu
+ LuXOHkDj4RBA==
+X-IronPort-AV: E=Sophos;i="5.77,302,1596524400"; 
+   d="scan'208";a="455832584"
+Received: from mlevy2-mobl.ger.corp.intel.com (HELO [10.251.176.131]) ([10.251.176.131])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2020 06:23:34 -0700
+Subject: Re: [Intel-gfx] [PATCH 4/4] drm/i915/gem: Always test execution
+ status on closing the context
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20200916094219.3878-1-chris@chris-wilson.co.uk>
+ <20200916094219.3878-4-chris@chris-wilson.co.uk>
+ <e665fc1d-1b9d-a6ee-1798-df32d1296118@linux.intel.com>
+ <160102830667.30248.7803662790481339170@build.alporthouse.com>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <f2e8aa26-45d3-969f-daad-c4b208c69352@linux.intel.com>
+Date:   Fri, 25 Sep 2020 14:23:32 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
-Content-Disposition: inline
-In-Reply-To: <20200925124724.448531559@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <160102830667.30248.7803662790481339170@build.alporthouse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---Qxx1br4bt0+wmkIi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 25/09/2020 11:05, Chris Wilson wrote:
+> Quoting Tvrtko Ursulin (2020-09-24 15:26:56)
+>>
+>> On 16/09/2020 10:42, Chris Wilson wrote:
+>>> Verify that if a context is active at the time it is closed, that it is
+>>> either persistent and preemptible (with hangcheck running) or it shall
+>>> be removed from execution.
+>>>
+>>> Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
+>>> Testcase: igt/gem_ctx_persistence/heartbeat-close
+>>> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+>>> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+>>> Cc: <stable@vger.kernel.org> # v5.7+
+>>> ---
+>>>    drivers/gpu/drm/i915/gem/i915_gem_context.c | 48 +++++----------------
+>>>    1 file changed, 10 insertions(+), 38 deletions(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+>>> index a548626fa8bc..4fd38101bb56 100644
+>>> --- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
+>>> +++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+>>> @@ -390,24 +390,6 @@ __context_engines_static(const struct i915_gem_context *ctx)
+>>>        return rcu_dereference_protected(ctx->engines, true);
+>>>    }
+>>>    
+>>> -static bool __reset_engine(struct intel_engine_cs *engine)
+>>> -{
+>>> -     struct intel_gt *gt = engine->gt;
+>>> -     bool success = false;
+>>> -
+>>> -     if (!intel_has_reset_engine(gt))
+>>> -             return false;
+>>> -
+>>> -     if (!test_and_set_bit(I915_RESET_ENGINE + engine->id,
+>>> -                           &gt->reset.flags)) {
+>>> -             success = intel_engine_reset(engine, NULL) == 0;
+>>> -             clear_and_wake_up_bit(I915_RESET_ENGINE + engine->id,
+>>> -                                   &gt->reset.flags);
+>>> -     }
+>>> -
+>>> -     return success;
+>>> -}
+>>> -
+>>>    static void __reset_context(struct i915_gem_context *ctx,
+>>>                            struct intel_engine_cs *engine)
+>>>    {
+>>> @@ -431,12 +413,7 @@ static bool __cancel_engine(struct intel_engine_cs *engine)
+>>>         * kill the banned context, we fallback to doing a local reset
+>>>         * instead.
+>>>         */
+>>> -     if (IS_ACTIVE(CONFIG_DRM_I915_PREEMPT_TIMEOUT) &&
+>>> -         !intel_engine_pulse(engine))
+>>> -             return true;
+>>> -
+>>> -     /* If we are unable to send a pulse, try resetting this engine. */
+>>> -     return __reset_engine(engine);
+>>> +     return intel_engine_pulse(engine) == 0;
+>>
+>> Where is the path now which actually resets the currently running
+>> workload (engine) of a non-persistent context? Pulse will be sent and
+>> then rely on hangcheck but otherwise let it run?
+> 
+> If the pulse fails, we just call intel_handle_error() on the engine. On
+> looking at this code again, I could not justify the open-coding of the
+> engine reset fragment of the general error handler, especially as we end
+> up taking that route anyway for device resets. (Unlike inside the
+> tasklet, there's no atomicity concerns on this engine-reset path.)
 
-Hi!
+I think yesterday I got lost in boolean logic and flows here. Today it 
+looks fine. Bool ban will be true and code will indeed enter the 
+__kill_context path.
 
-> [ Upstream commit 2fbc6e89b2f1403189e624cabaf73e189c5e50c6 ]
->=20
-> Kfir reported that pmtu exceptions are not created properly for
-> deployments where multipath routes use the same device.
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 
-This is mismerged (in a way that does not affect functionality):
+Regards,
 
-
-> @@ -779,6 +779,8 @@ static void __ip_do_redirect(struct rtab
->  			if (fib_lookup(net, fl4, &res, 0) =3D=3D 0) {
->  				struct fib_nh *nh =3D &FIB_RES_NH(res);
-> =20
-> +				fib_select_path(net, &res, fl4, skb);
-> +				nh =3D &FIB_RES_NH(res);
->  				update_or_create_fnhe(nh, fl4->daddr, new_gw,
->  						0, false,
-
-nh is assigned value that is never used. Mainline patch removes the
-assignment (but variable has different type).
-
-4.19 should delete the assignment, too.
-
-Best regards,
-								Pavel
-
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index f60e28418ece..84de87b7eedc 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -777,7 +777,7 @@ static void __ip_do_redirect(struct rtable *rt, struct =
-sk_buff *skb, struct flow
- 			neigh_event_send(n, NULL);
- 		} else {
- 			if (fib_lookup(net, fl4, &res, 0) =3D=3D 0) {
--				struct fib_nh *nh =3D &FIB_RES_NH(res);
-+				struct fib_nh *nh;
-=20
- 				fib_select_path(net, &res, fl4, skb);
- 				nh =3D &FIB_RES_NH(res);
+Tvrtko
 
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
 
---Qxx1br4bt0+wmkIi
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX24gFgAKCRAw5/Bqldv6
-8oJ8AJ9aaZ5VFjdoC1MlzVWNOHLPXUSxxwCgvL0JSbW+WA9qbi47KAD6yNkrwig=
-=zt7i
------END PGP SIGNATURE-----
-
---Qxx1br4bt0+wmkIi--
