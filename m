@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8352787E1
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B59F72787AA
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729189AbgIYMvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:51:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55524 "EHLO mail.kernel.org"
+        id S1728866AbgIYMtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:49:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729185AbgIYMvS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:18 -0400
+        id S1728874AbgIYMtW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:49:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8371A23899;
-        Fri, 25 Sep 2020 12:51:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A14A221EC;
+        Fri, 25 Sep 2020 12:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038278;
-        bh=N+ErJo9ydW+4jVOkbbnWBYKU0mfyroW9Z58jkwIuYRA=;
+        s=default; t=1601038162;
+        bh=lIO0Mcz5MIqV5BOBXfNOSH6Uy1nkd5ps7eA43h01YIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EHyBR4Is4ADxcklbSPHCl1uLTe6gDhCXg4sdfOnxteaPjVkZiy6NLBbaDK0QuoOPc
-         bzFKf6EUJNhrtlOfBzPwG9BJv4n0ue6H4g2fafuG4jO09r38BvHWMYusHRNiQ0HX0k
-         zTLio/CK3CrzcJ2of+EjZZ/8dDsS46soAPGkqUa0=
+        b=J+zCgnzwqUAWuoNQNOGY5X5yTc1pm7+68xJ72WbE++mDxi0oRirK2DdcUUoPa5XbV
+         rCCDBJZ8YdR/7r4wmOFE3TRdmZJ7BCLl7xXePPU8tI9d539Li3b622dJs52w0Hx5Nw
+         8+OVc2yT5RFkwwqUVBTBm1GdxtIL3SKCbyWgKEbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/43] ibmvnic: add missing parenthesis in do_reset()
+        Simon Horman <simon.horman@netronome.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.8 25/56] nfp: use correct define to return NONE fec
 Date:   Fri, 25 Sep 2020 14:48:15 +0200
-Message-Id: <20200925124724.031895006@linuxfoundation.org>
+Message-Id: <20200925124731.615595000@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
-References: <20200925124723.575329814@linuxfoundation.org>
+In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
+References: <20200925124727.878494124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +46,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 8ae4dff882eb879c17bf46574201bd37fc6bc8b5 ]
+[ Upstream commit 5f6857e808a8bd078296575b417c4b9d160b9779 ]
 
-Indentation and logic clearly show that this code is missing
-parenthesis.
+struct ethtool_fecparam carries bitmasks not bit numbers.
+We want to return 1 (NONE), not 0.
 
-Fixes: 9f1345737790 ("ibmvnic fix NULL tx_pools and rx_tools issue at do_reset")
+Fixes: 0d0870938337 ("nfp: implement ethtool FEC mode settings")
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index de45b3709c14e..5329af2337a91 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1939,16 +1939,18 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+@@ -829,8 +829,8 @@ nfp_port_get_fecparam(struct net_device
+ 	struct nfp_eth_table_port *eth_port;
+ 	struct nfp_port *port;
  
- 		} else {
- 			rc = reset_tx_pools(adapter);
--			if (rc)
-+			if (rc) {
- 				netdev_dbg(adapter->netdev, "reset tx pools failed (%d)\n",
- 						rc);
- 				goto out;
-+			}
+-	param->active_fec = ETHTOOL_FEC_NONE_BIT;
+-	param->fec = ETHTOOL_FEC_NONE_BIT;
++	param->active_fec = ETHTOOL_FEC_NONE;
++	param->fec = ETHTOOL_FEC_NONE;
  
- 			rc = reset_rx_pools(adapter);
--			if (rc)
-+			if (rc) {
- 				netdev_dbg(adapter->netdev, "reset rx pools failed (%d)\n",
- 						rc);
- 				goto out;
-+			}
- 		}
- 		ibmvnic_disable_irqs(adapter);
- 	}
--- 
-2.25.1
-
+ 	port = nfp_port_from_netdev(netdev);
+ 	eth_port = nfp_port_get_eth_port(port);
 
 
