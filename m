@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9BFA2787CB
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 699C8278802
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729064AbgIYMu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:50:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
+        id S1729280AbgIYMwF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:52:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729058AbgIYMuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:50:24 -0400
+        id S1729277AbgIYMwC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:52:02 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBEE221D7A;
-        Fri, 25 Sep 2020 12:50:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 402E6206DB;
+        Fri, 25 Sep 2020 12:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038223;
-        bh=ENMKtD9NocbZHCQdQE+6BWWZOk5yUzHe9r73Acai9kg=;
+        s=default; t=1601038321;
+        bh=AYe5I3zPyTIC8FEv4xdzcMMvnWr2dMBJk6QoVn2JaMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuzDsfK8uBmWzKI2QKqpNdl2YiifmELQWo5Xok3EBouCgGjyBP8i/hGbBrrQ9swLG
-         nQt0aCPCWv61mpp1Ggt+AB3/Cu9d7IyFU+dVtFGrK4gzIcHdXAqf9nDyU5j5gqkFEC
-         fwU+2oWdQ5pEnPvCFwqOclnXqxyOxt6AjJoscXYM=
+        b=viO8+XGL0UYk7uomfsnG/7HvcaV6E6bwf9gENubAd7D+Lptp3f8Fg42tCtnNhnf7J
+         cs1Ke1yT4gywXXoard8XCmOrML0rD/WAXcsJe1R5UXckabVjHJ5GEELOb/oelfNukQ
+         egmwiklbuuTIjfS6JjIzamSq4uVOvtqxw2rjIEEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luo bin <luobin9@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+8267241609ae8c23b248@syzkaller.appspotmail.com,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 48/56] hinic: fix rewaking txq after netif_tx_disable
+Subject: [PATCH 5.4 26/43] taprio: Fix allowing too small intervals
 Date:   Fri, 25 Sep 2020 14:48:38 +0200
-Message-Id: <20200925124735.028887932@linuxfoundation.org>
+Message-Id: <20200925124727.561955761@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
-References: <20200925124727.878494124@linuxfoundation.org>
+In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
+References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,129 +44,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo bin <luobin9@huawei.com>
+From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-[ Upstream commit a1b80e0143a1b878f8e21d82fd55f3f46f0014be ]
+[ Upstream commit b5b73b26b3ca34574124ed7ae9c5ba8391a7f176 ]
 
-When calling hinic_close in hinic_set_channels, all queues are
-stopped after netif_tx_disable, but some queue may be rewaken in
-free_tx_poll by mistake while drv is handling tx irq. If one queue
-is rewaken core may call hinic_xmit_frame to send pkt after
-netif_tx_disable within a short time which may results in accessing
-memory that has been already freed in hinic_close. So we call
-napi_disable before netif_tx_disable in hinic_close to fix this bug.
+It's possible that the user specifies an interval that couldn't allow
+any packet to be transmitted. This also avoids the issue of the
+hrtimer handler starving the other threads because it's running too
+often.
 
-Fixes: 2eed5a8b614b ("hinic: add set_channels ethtool_ops support")
-Signed-off-by: Luo bin <luobin9@huawei.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+The solution is to reject interval sizes that according to the current
+link speed wouldn't allow any packet to be transmitted.
+
+Reported-by: syzbot+8267241609ae8c23b248@syzkaller.appspotmail.com
+Fixes: 5a781ccbd19e ("tc: Add support for configuring the taprio scheduler")
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_main.c |   24 ++++++++++++++++++++++++
- drivers/net/ethernet/huawei/hinic/hinic_tx.c   |   18 +++---------------
- 2 files changed, 27 insertions(+), 15 deletions(-)
+ net/sched/sch_taprio.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/huawei/hinic/hinic_main.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_main.c
-@@ -168,6 +168,24 @@ err_init_txq:
- 	return err;
- }
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -777,9 +777,11 @@ static const struct nla_policy taprio_po
+ 	[TCA_TAPRIO_ATTR_TXTIME_DELAY]		     = { .type = NLA_U32 },
+ };
  
-+static void enable_txqs_napi(struct hinic_dev *nic_dev)
-+{
-+	int num_txqs = hinic_hwdev_num_qps(nic_dev->hwdev);
-+	int i;
-+
-+	for (i = 0; i < num_txqs; i++)
-+		napi_enable(&nic_dev->txqs[i].napi);
-+}
-+
-+static void disable_txqs_napi(struct hinic_dev *nic_dev)
-+{
-+	int num_txqs = hinic_hwdev_num_qps(nic_dev->hwdev);
-+	int i;
-+
-+	for (i = 0; i < num_txqs; i++)
-+		napi_disable(&nic_dev->txqs[i].napi);
-+}
-+
- /**
-  * free_txqs - Free the Logical Tx Queues of specific NIC device
-  * @nic_dev: the specific NIC device
-@@ -394,6 +412,8 @@ int hinic_open(struct net_device *netdev
- 		goto err_create_txqs;
- 	}
- 
-+	enable_txqs_napi(nic_dev);
-+
- 	err = create_rxqs(nic_dev);
- 	if (err) {
- 		netif_err(nic_dev, drv, netdev,
-@@ -475,6 +495,7 @@ err_port_state:
- 	}
- 
- err_create_rxqs:
-+	disable_txqs_napi(nic_dev);
- 	free_txqs(nic_dev);
- 
- err_create_txqs:
-@@ -488,6 +509,9 @@ int hinic_close(struct net_device *netde
- 	struct hinic_dev *nic_dev = netdev_priv(netdev);
- 	unsigned int flags;
- 
-+	/* Disable txq napi firstly to aviod rewaking txq in free_tx_poll */
-+	disable_txqs_napi(nic_dev);
-+
- 	down(&nic_dev->mgmt_lock);
- 
- 	flags = nic_dev->flags;
---- a/drivers/net/ethernet/huawei/hinic/hinic_tx.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_tx.c
-@@ -684,18 +684,6 @@ static int free_tx_poll(struct napi_stru
- 	return budget;
- }
- 
--static void tx_napi_add(struct hinic_txq *txq, int weight)
--{
--	netif_napi_add(txq->netdev, &txq->napi, free_tx_poll, weight);
--	napi_enable(&txq->napi);
--}
--
--static void tx_napi_del(struct hinic_txq *txq)
--{
--	napi_disable(&txq->napi);
--	netif_napi_del(&txq->napi);
--}
--
- static irqreturn_t tx_irq(int irq, void *data)
+-static int fill_sched_entry(struct nlattr **tb, struct sched_entry *entry,
++static int fill_sched_entry(struct taprio_sched *q, struct nlattr **tb,
++			    struct sched_entry *entry,
+ 			    struct netlink_ext_ack *extack)
  {
- 	struct hinic_txq *txq = data;
-@@ -724,7 +712,7 @@ static int tx_request_irq(struct hinic_t
- 	struct hinic_sq *sq = txq->sq;
- 	int err;
++	int min_duration = length_to_duration(q, ETH_ZLEN);
+ 	u32 interval = 0;
  
--	tx_napi_add(txq, nic_dev->tx_weight);
-+	netif_napi_add(txq->netdev, &txq->napi, free_tx_poll, nic_dev->tx_weight);
+ 	if (tb[TCA_TAPRIO_SCHED_ENTRY_CMD])
+@@ -794,7 +796,10 @@ static int fill_sched_entry(struct nlatt
+ 		interval = nla_get_u32(
+ 			tb[TCA_TAPRIO_SCHED_ENTRY_INTERVAL]);
  
- 	hinic_hwdev_msix_set(nic_dev->hwdev, sq->msix_entry,
- 			     TX_IRQ_NO_PENDING, TX_IRQ_NO_COALESC,
-@@ -734,7 +722,7 @@ static int tx_request_irq(struct hinic_t
- 	err = request_irq(sq->irq, tx_irq, 0, txq->irq_name, txq);
- 	if (err) {
- 		dev_err(&pdev->dev, "Failed to request Tx irq\n");
--		tx_napi_del(txq);
-+		netif_napi_del(&txq->napi);
- 		return err;
+-	if (interval == 0) {
++	/* The interval should allow at least the minimum ethernet
++	 * frame to go out.
++	 */
++	if (interval < min_duration) {
+ 		NL_SET_ERR_MSG(extack, "Invalid interval for schedule entry");
+ 		return -EINVAL;
  	}
- 
-@@ -746,7 +734,7 @@ static void tx_free_irq(struct hinic_txq
- 	struct hinic_sq *sq = txq->sq;
- 
- 	free_irq(sq->irq, txq);
--	tx_napi_del(txq);
-+	netif_napi_del(&txq->napi);
+@@ -804,8 +809,9 @@ static int fill_sched_entry(struct nlatt
+ 	return 0;
  }
  
- /**
+-static int parse_sched_entry(struct nlattr *n, struct sched_entry *entry,
+-			     int index, struct netlink_ext_ack *extack)
++static int parse_sched_entry(struct taprio_sched *q, struct nlattr *n,
++			     struct sched_entry *entry, int index,
++			     struct netlink_ext_ack *extack)
+ {
+ 	struct nlattr *tb[TCA_TAPRIO_SCHED_ENTRY_MAX + 1] = { };
+ 	int err;
+@@ -819,10 +825,10 @@ static int parse_sched_entry(struct nlat
+ 
+ 	entry->index = index;
+ 
+-	return fill_sched_entry(tb, entry, extack);
++	return fill_sched_entry(q, tb, entry, extack);
+ }
+ 
+-static int parse_sched_list(struct nlattr *list,
++static int parse_sched_list(struct taprio_sched *q, struct nlattr *list,
+ 			    struct sched_gate_list *sched,
+ 			    struct netlink_ext_ack *extack)
+ {
+@@ -847,7 +853,7 @@ static int parse_sched_list(struct nlatt
+ 			return -ENOMEM;
+ 		}
+ 
+-		err = parse_sched_entry(n, entry, i, extack);
++		err = parse_sched_entry(q, n, entry, i, extack);
+ 		if (err < 0) {
+ 			kfree(entry);
+ 			return err;
+@@ -862,7 +868,7 @@ static int parse_sched_list(struct nlatt
+ 	return i;
+ }
+ 
+-static int parse_taprio_schedule(struct nlattr **tb,
++static int parse_taprio_schedule(struct taprio_sched *q, struct nlattr **tb,
+ 				 struct sched_gate_list *new,
+ 				 struct netlink_ext_ack *extack)
+ {
+@@ -883,8 +889,8 @@ static int parse_taprio_schedule(struct
+ 		new->cycle_time = nla_get_s64(tb[TCA_TAPRIO_ATTR_SCHED_CYCLE_TIME]);
+ 
+ 	if (tb[TCA_TAPRIO_ATTR_SCHED_ENTRY_LIST])
+-		err = parse_sched_list(
+-			tb[TCA_TAPRIO_ATTR_SCHED_ENTRY_LIST], new, extack);
++		err = parse_sched_list(q, tb[TCA_TAPRIO_ATTR_SCHED_ENTRY_LIST],
++				       new, extack);
+ 	if (err < 0)
+ 		return err;
+ 
+@@ -1474,7 +1480,7 @@ static int taprio_change(struct Qdisc *s
+ 		goto free_sched;
+ 	}
+ 
+-	err = parse_taprio_schedule(tb, new_admin, extack);
++	err = parse_taprio_schedule(q, tb, new_admin, extack);
+ 	if (err < 0)
+ 		goto free_sched;
+ 
 
 
