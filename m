@@ -2,86 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C1DB278B4C
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 16:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2554F278B51
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 16:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729015AbgIYOxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 10:53:40 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:33867 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727749AbgIYOxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 10:53:39 -0400
-Received: by mail-lf1-f67.google.com with SMTP id u8so3147312lff.1;
-        Fri, 25 Sep 2020 07:53:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=8BoxUeVizmKKAcaUi8Yfb1uh4zDY+60H994gLNpA+fw=;
-        b=IQGncygq8g50OwobV8mkm8fAIF7/ll3n9TTxHnzr5GGrzvWV6xS/pa/M4eCj9ljOoS
-         T3Ug4ist4W8WpRjbTLsKEM8k1WG2u7ZUTOcfdCIUw2mzSVrtiNKn1K2r+Tavn4P32F+j
-         8/KtGjVdmGKb/d2hPG4mQucW4dAiw9Sgk8MRrHPZM6Ue48DNP2N+pn/TS/1pILr8TWZ7
-         XTEl151eNdPnifcOw/rxqaBehWXJS1OGVdornG1RY1CtBTPaOE/eTPtZPKjP+81Ziy3Z
-         SpJbimM4GuP+I4JcB+SJVCeOSWdArDGCxHwtEGovYm4sdqQe2g+eEHWM3L291Puzs9Md
-         B0xQ==
-X-Gm-Message-State: AOAM530OznCHTZxwvKABZ8oeQ1Y5wYiS49F55ZyRodgkmuny3oof/929
-        IykrVkYYCzdyoSTxPNJ7KbZS3AOYqlo=
-X-Google-Smtp-Source: ABdhPJyg+NvzLlKqClkaVwuYwH/4wfM3vQ1nlz0aaBEntmegb0lhchoSCA6o1TXM/djzwD/9gaYMJw==
-X-Received: by 2002:ac2:4c31:: with SMTP id u17mr1426191lfq.1.1601045618089;
-        Fri, 25 Sep 2020 07:53:38 -0700 (PDT)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id d24sm2457068lfn.140.2020.09.25.07.53.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Sep 2020 07:53:37 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@kernel.org>)
-        id 1kLp6J-0003kn-7A; Fri, 25 Sep 2020 16:53:31 +0200
-Date:   Fri, 25 Sep 2020 16:53:31 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Johan Hovold <johan@kernel.org>, Oliver Neukum <oneukum@suse.com>,
-        linux-usb@vger.kernel.org,
-        Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] USB: cdc-acm: add Whistler radio scanners TRX series
- support
-Message-ID: <20200925145331.GL24441@localhost>
-References: <20200921081022.6881-1-johan@kernel.org>
- <20200925144922.GA3113925@kroah.com>
+        id S1728843AbgIYOzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 10:55:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37408 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728330AbgIYOzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 10:55:02 -0400
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 145BC2074B;
+        Fri, 25 Sep 2020 14:55:00 +0000 (UTC)
+Date:   Fri, 25 Sep 2020 10:54:58 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        LTP List <ltp@lists.linux.it>, lkft-triage@lists.linaro.org
+Subject: Re: [stable 4.19] [PANIC]: tracing: Centralize preemptirq
+ tracepoints and unify their usage
+Message-ID: <20200925105458.567d0bf4@oasis.local.home>
+In-Reply-To: <CA+G9fYuokHUBwNkTs=gWqCHxj80gg+RetU4pRd+uLP7gNas4KQ@mail.gmail.com>
+References: <20180823023839.GA13343@shao2-debian>
+        <20180828195347.GA228832@joelaf.mtv.corp.google.com>
+        <CA+G9fYtV_sjTKLMXWMP0w0A-H+p+CN-uVJ6dvHovDy9epJZ2GQ@mail.gmail.com>
+        <20200925051518.GA605188@kroah.com>
+        <CA+G9fYuokHUBwNkTs=gWqCHxj80gg+RetU4pRd+uLP7gNas4KQ@mail.gmail.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200925144922.GA3113925@kroah.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 25, 2020 at 04:49:22PM +0200, Greg Kroah-Hartman wrote:
-> On Mon, Sep 21, 2020 at 10:10:22AM +0200, Johan Hovold wrote:
-> > Add support for Whistler radio scanners TRX series, which have a union
-> > descriptor that designates a mass-storage interface as master. Handle
-> > that by generalising the NO_DATA_INTERFACE quirk to allow us to fall
-> > back to using the combined-interface detection.
-> > 
-> > Note that the NO_DATA_INTERFACE quirk was added by commit fd5054c169d2
-> > ("USB: cdc_acm: Fix oops when Droids MuIn LCD is connected") to handle a
-> > combined-interface-type device with a broken call-management descriptor
-> > by hardcoding the "data" interface number.
-> > 
-> > Link: https://lore.kernel.org/r/5f4ca4f8.1c69fb81.a4487.0f5f@mx.google.com
-> > Reported-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-> > Tested-by: Daniel Caujolle-Bert <f1rmb.daniel@gmail.com>
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> > 
-> > v2
-> >  - use the right class define in the device-id table (not subclass with
-> >    same value)
+On Fri, 25 Sep 2020 12:55:13 +0530
+Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+
+> On Fri, 25 Sep 2020 at 10:45, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Fri, Sep 25, 2020 at 10:13:05AM +0530, Naresh Kamboju wrote:  
+> > > >From stable rc 4.18.1 onwards to today's stable rc 4.19.147  
+> > >
+> > > There are two problems  while running LTP tracing tests
+> > > 1) kernel panic  on i386, qemu_i386, x86_64 and qemu_x86_64 [1]
+> > > 2) " segfault at 0 ip " and "Code: Bad RIP value" on x86_64 and qemu_x86_64 [2]
+> > > Please refer to the full test logs from below links.
+> > >
+> > > The first bad commit found by git bisect.
+> > >    commit: c3bc8fd637a9623f5c507bd18f9677effbddf584
+> > >    tracing: Centralize preemptirq tracepoints and unify their usage
+> > >
+> > > Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>  
+> >
+> > So this also is reproducable in 5.4 and Linus's tree right now?  
 > 
-> Is this independant of your other patch series for cdc-acm?
+> No.
+> The reported issues are not reproducible on 5.4, 5.8 and Linus's tree.
 
-This one is superseded by the series, so please drop this patch. Sorry
-for not making that clear.
+The crash looks like its cr3 related, which I believe Peter Zijlstra
+did a restructuring of that code to not let it be an issue anymore.
+I'll have to look deeper. The rework may be too intrusive to backport,
+but we do have other work arounds for this issue if that would be
+acceptable for backporting.
 
-Johan
+> 
+> >
+> > Or are newer kernels working fine?  
+> 
+> No.
+> There are different issues while testing LTP tracing on 5.4, 5.8 and
+> Linus 's 5.9.
+> 
+> NETDEV WATCHDOG: eth0 (igb): transmit queue 2 timed out
+> WARNING: CPU: 1 PID: 331 at net/sched/sch_generic.c:442 dev_watchdog+0x4c7/0x4d0
+> https://lore.kernel.org/stable/CA+G9fYtS_nAX=sPV8zTTs-nOdpJ4uxk9sqeHOZNuS4WLvBcPGg@mail.gmail.com/
+> 
+> I see this on 5.4, 5.8 and Linus 's 5.9.
+> rcu: INFO: rcu_sched self-detected stall on CPU
+> ? ftrace_graph_caller+0xc0/0xc0
+> https://lore.kernel.org/stable/CA+G9fYsdTLRj55_bvod8Sf+0zvK0RRMp5+FeJcOx5oAcAKOGXA@mail.gmail.com/T/#u
+
+I've seen that too and couldn't bisect it down to any such commit. I'm
+not sure if it is even a bug per-se, because in my test suite, I've
+commented out the warning, and the system still remains stable.
+
+-- Steve
