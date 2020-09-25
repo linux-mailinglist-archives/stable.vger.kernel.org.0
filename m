@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F3127887A
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D61472787B1
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:49:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728957AbgIYMww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:52:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57728 "EHLO mail.kernel.org"
+        id S1728898AbgIYMtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:49:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728836AbgIYMwu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:52:50 -0400
+        id S1728904AbgIYMth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:49:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59D1A2072E;
-        Fri, 25 Sep 2020 12:52:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E992721D91;
+        Fri, 25 Sep 2020 12:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038368;
-        bh=RnSiq0cNVDO4LQGLwpxpSIalJIe6dLxD9UaNZfL6S5M=;
+        s=default; t=1601038176;
+        bh=EViqmNco5zSn3+oVkIppJadYOvFpo3ek38Jg76Zkmoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hy/t1MX3wQeIEdm1hEos7COHX5JmGE/BJneXX7DH91CZw95qk0Bqqu0pxKNphH5xp
-         rEfjCRJUo+GOjt2V5MTTZKF5MGoL+TwDkKo6BaA09+t0gBJZ5/o8Fy5W7i9PMuEaAD
-         td0LykNYso71sylIQy9ha3EYteZXe6DLiGPn3eOE=
+        b=bCj2ufrmUkD9FisX37TKMgOovR66xFCno/psbZK/hDbxV2mSEbpFZYvav6IRmQo1I
+         CpJDyVosaUMxbp2GbE6iNTOVQ5N/AWlZ3J6OUv7q2RFKm5yb77PnkpEaHk7tu1mXOt
+         /jxGrsvteaPVdgKXVLnuK2Hh0VFGiZpe1P4R3mho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 08/43] bnxt_en: Fix NULL ptr dereference crash in bnxt_fw_reset_task()
+        stable@vger.kernel.org, Maor Dickman <maord@mellanox.com>,
+        Roi Dayan <roid@mellanox.com>, Raed Salem <raeds@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.8 30/56] net/mlx5e: Enable adding peer miss rules only if merged eswitch is supported
 Date:   Fri, 25 Sep 2020 14:48:20 +0200
-Message-Id: <20200925124724.804801430@linuxfoundation.org>
+Message-Id: <20200925124732.362200914@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
-References: <20200925124723.575329814@linuxfoundation.org>
+In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
+References: <20200925124727.878494124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Maor Dickman <maord@mellanox.com>
 
-[ Upstream commit b16939b59cc00231a75d224fd058d22c9d064976 ]
+[ Upstream commit 6cec0229ab1959259e71e9a5bbe47c04577950b1 ]
 
-bnxt_fw_reset_task() which runs from a workqueue can race with
-bnxt_remove_one().  For example, if firmware reset and VF FLR are
-happening at about the same time.
+The cited commit creates peer miss group during switchdev mode
+initialization in order to handle miss packets correctly while in VF
+LAG mode. This is done regardless of FW support of such groups which
+could cause rules setups failure later on.
 
-bnxt_remove_one() already cancels the workqueue and waits for it
-to finish, but we need to do this earlier before the devlink
-reporters are destroyed.  This will guarantee that
-the devlink reporters will always be valid when bnxt_fw_reset_task()
-is still running.
+Fix by adding FW capability check before creating peer groups/rule.
 
-Fixes: b148bb238c02 ("bnxt_en: Fix possible crash in bnxt_fw_reset_task().")
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ac004b832128 ("net/mlx5e: E-Switch, Add peer miss rules")
+Signed-off-by: Maor Dickman <maord@mellanox.com>
+Reviewed-by: Roi Dayan <roid@mellanox.com>
+Reviewed-by: Raed Salem <raeds@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c |   64 ++++++-------
+ 1 file changed, 34 insertions(+), 30 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -11385,14 +11385,15 @@ static void bnxt_remove_one(struct pci_d
- 	if (BNXT_PF(bp))
- 		bnxt_sriov_disable(bp);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -1219,35 +1219,37 @@ static int esw_create_offloads_fdb_table
+ 	}
+ 	esw->fdb_table.offloads.send_to_vport_grp = g;
  
-+	clear_bit(BNXT_STATE_IN_FW_RESET, &bp->state);
-+	bnxt_cancel_sp_work(bp);
-+	bp->sp_event = 0;
+-	/* create peer esw miss group */
+-	memset(flow_group_in, 0, inlen);
+-
+-	esw_set_flow_group_source_port(esw, flow_group_in);
+-
+-	if (!mlx5_eswitch_vport_match_metadata_enabled(esw)) {
+-		match_criteria = MLX5_ADDR_OF(create_flow_group_in,
+-					      flow_group_in,
+-					      match_criteria);
+-
+-		MLX5_SET_TO_ONES(fte_match_param, match_criteria,
+-				 misc_parameters.source_eswitch_owner_vhca_id);
+-
+-		MLX5_SET(create_flow_group_in, flow_group_in,
+-			 source_eswitch_owner_vhca_id_valid, 1);
+-	}
+-
+-	MLX5_SET(create_flow_group_in, flow_group_in, start_flow_index, ix);
+-	MLX5_SET(create_flow_group_in, flow_group_in, end_flow_index,
+-		 ix + esw->total_vports - 1);
+-	ix += esw->total_vports;
+-
+-	g = mlx5_create_flow_group(fdb, flow_group_in);
+-	if (IS_ERR(g)) {
+-		err = PTR_ERR(g);
+-		esw_warn(dev, "Failed to create peer miss flow group err(%d)\n", err);
+-		goto peer_miss_err;
++	if (MLX5_CAP_ESW(esw->dev, merged_eswitch)) {
++		/* create peer esw miss group */
++		memset(flow_group_in, 0, inlen);
 +
- 	bnxt_dl_fw_reporters_destroy(bp, true);
- 	pci_disable_pcie_error_reporting(pdev);
- 	unregister_netdev(dev);
- 	bnxt_dl_unregister(bp);
- 	bnxt_shutdown_tc(bp);
--	clear_bit(BNXT_STATE_IN_FW_RESET, &bp->state);
--	bnxt_cancel_sp_work(bp);
--	bp->sp_event = 0;
++		esw_set_flow_group_source_port(esw, flow_group_in);
++
++		if (!mlx5_eswitch_vport_match_metadata_enabled(esw)) {
++			match_criteria = MLX5_ADDR_OF(create_flow_group_in,
++						      flow_group_in,
++						      match_criteria);
++
++			MLX5_SET_TO_ONES(fte_match_param, match_criteria,
++					 misc_parameters.source_eswitch_owner_vhca_id);
++
++			MLX5_SET(create_flow_group_in, flow_group_in,
++				 source_eswitch_owner_vhca_id_valid, 1);
++		}
++
++		MLX5_SET(create_flow_group_in, flow_group_in, start_flow_index, ix);
++		MLX5_SET(create_flow_group_in, flow_group_in, end_flow_index,
++			 ix + esw->total_vports - 1);
++		ix += esw->total_vports;
++
++		g = mlx5_create_flow_group(fdb, flow_group_in);
++		if (IS_ERR(g)) {
++			err = PTR_ERR(g);
++			esw_warn(dev, "Failed to create peer miss flow group err(%d)\n", err);
++			goto peer_miss_err;
++		}
++		esw->fdb_table.offloads.peer_miss_grp = g;
+ 	}
+-	esw->fdb_table.offloads.peer_miss_grp = g;
  
- 	bnxt_clear_int_mode(bp);
- 	bnxt_hwrm_func_drv_unrgtr(bp);
+ 	/* create miss group */
+ 	memset(flow_group_in, 0, inlen);
+@@ -1282,7 +1284,8 @@ static int esw_create_offloads_fdb_table
+ miss_rule_err:
+ 	mlx5_destroy_flow_group(esw->fdb_table.offloads.miss_grp);
+ miss_err:
+-	mlx5_destroy_flow_group(esw->fdb_table.offloads.peer_miss_grp);
++	if (MLX5_CAP_ESW(esw->dev, merged_eswitch))
++		mlx5_destroy_flow_group(esw->fdb_table.offloads.peer_miss_grp);
+ peer_miss_err:
+ 	mlx5_destroy_flow_group(esw->fdb_table.offloads.send_to_vport_grp);
+ send_vport_err:
+@@ -1306,7 +1309,8 @@ static void esw_destroy_offloads_fdb_tab
+ 	mlx5_del_flow_rules(esw->fdb_table.offloads.miss_rule_multi);
+ 	mlx5_del_flow_rules(esw->fdb_table.offloads.miss_rule_uni);
+ 	mlx5_destroy_flow_group(esw->fdb_table.offloads.send_to_vport_grp);
+-	mlx5_destroy_flow_group(esw->fdb_table.offloads.peer_miss_grp);
++	if (MLX5_CAP_ESW(esw->dev, merged_eswitch))
++		mlx5_destroy_flow_group(esw->fdb_table.offloads.peer_miss_grp);
+ 	mlx5_destroy_flow_group(esw->fdb_table.offloads.miss_grp);
+ 
+ 	mlx5_esw_chains_destroy(esw);
 
 
