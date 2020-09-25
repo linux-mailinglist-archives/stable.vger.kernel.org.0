@@ -2,87 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A13B278E9E
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93BB2278F18
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:51:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729588AbgIYQcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 12:32:06 -0400
-Received: from aibo.runbox.com ([91.220.196.211]:39406 "EHLO aibo.runbox.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727733AbgIYQcG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 12:32:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=runbox.com;
-         s=selector2; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
-        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject;
-        bh=LfKcGhf2cACSxd2zObI/ozoleyZsnV0Tjc0U/dCvQLo=; b=J1UHe5sTsCAKJ5CAnanA5IYoin
-        6GZMnzuYV4DHp38lSA+noHt6MpHNnrWefgR2ibHGqcytuM0H+Y4QVh9n/j4jbmaonQm3C0/QeYjOi
-        WauVbh7l5mybn8xaFVaixL5aAUqQW7q+AeRKhh+rd5TCGxVT3LANgFEK0cONmcvHYustqIgZTv9p9
-        bC0wipl4DnLRoP8I5+4wE7hr3qllLCuxd6VDwr/RfvNrlQek8QRgEdlpXZ0DPhzJCCEaqGmqiHRcn
-        BzygJaTqFNoeATLn4xQrHF1isI4HEjMrMFuCUWlorwL7Ht3eSpGrRdtoSuUhoRsvLfDpAePJJx4Ee
-        WRsA2NkQ==;
-Received: from [10.9.9.72] (helo=submission01.runbox)
-        by mailtransmit02.runbox with esmtp (Exim 4.86_2)
-        (envelope-from <m.v.b@runbox.com>)
-        id 1kLqdc-0000kb-8o; Fri, 25 Sep 2020 18:32:00 +0200
-Received: by submission01.runbox with esmtpsa  [Authenticated alias (536975)]  (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.90_1)
-        id 1kLqdN-0000AF-US; Fri, 25 Sep 2020 18:31:46 +0200
-Subject: Re: [PATCH v3 3/4] usbcore/driver: Fix incorrect downcast
+        id S1727733AbgIYQvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 12:51:40 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:34594 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726368AbgIYQvk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:51:40 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 419F51C0C4A; Fri, 25 Sep 2020 18:51:35 +0200 (CEST)
+Date:   Fri, 25 Sep 2020 18:51:34 +0200
+From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Bastien Nocera <hadess@hadess.net>,
-        Shuah Khan <shuah@kernel.org>,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        syzkaller@googlegroups.com
-References: <20200922110703.720960-1-m.v.b@runbox.com>
- <20200922110703.720960-4-m.v.b@runbox.com>
- <20200925145118.GA3114228@kroah.com>
-From:   "M. Vefa Bicakci" <m.v.b@runbox.com>
-Message-ID: <40bf9432-d878-5c16-2dc1-3f03964a8057@runbox.com>
-Date:   Fri, 25 Sep 2020 19:31:44 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.0
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Kfir Itzhak <mastertheknife@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 4.19 23/37] ipv4: Update exception handling for multipath
+ routes via same device
+Message-ID: <20200925165134.GA7253@duo.ucw.cz>
+References: <20200925124720.972208530@linuxfoundation.org>
+ <20200925124724.448531559@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20200925145118.GA3114228@kroah.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-CA
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Content-Disposition: inline
+In-Reply-To: <20200925124724.448531559@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/25/20 5:51 PM, Greg Kroah-Hartman wrote:
-> On Tue, Sep 22, 2020 at 02:07:02PM +0300, M. Vefa Bicakci wrote:
->> This commit resolves a minor bug in the selection/discovery of more
->> specific USB device drivers for devices that are currently bound to
->> generic USB device drivers.
->>
->> The bug is related to the way a candidate USB device driver is
->> compared against the generic USB device driver. The code in
->> is_dev_usb_generic_driver() assumes that the device driver in question
->> is a USB device driver by calling to_usb_device_driver(dev->driver)
->> to downcast; however I have observed that this assumption is not always
->> true, through code instrumentation.
->>
->> This commit avoids the incorrect downcast altogether by comparing
->> the USB device's driver (i.e., dev->driver) to the generic USB
->> device driver directly. This method was suggested by Alan Stern.
->>
->> This bug was found while investigating Andrey Konovalov's report
->> indicating usbip device driver misbehaviour with the recently merged
->> generic USB device driver selection feature. The report is linked
->> below.
->>
->> Fixes: d5643d2249 ("USB: Fix device driver race")
-> 
-> Nit, this should have been:
-> 	Fixes: d5643d2249b2 ("USB: Fix device driver race")
-> 
-> I'll go fix it up as my scripts are rejecting it as-is...
 
-Noted; sorry for missing this. I will use 12 characters from now on.
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I also wanted to thank you for committing the patches.
+Hi!
 
-Vefa
+> [ Upstream commit 2fbc6e89b2f1403189e624cabaf73e189c5e50c6 ]
+>=20
+> Kfir reported that pmtu exceptions are not created properly for
+> deployments where multipath routes use the same device.
+
+This is mismerged (in a way that does not affect functionality):
+
+
+> @@ -779,6 +779,8 @@ static void __ip_do_redirect(struct rtab
+>  			if (fib_lookup(net, fl4, &res, 0) =3D=3D 0) {
+>  				struct fib_nh *nh =3D &FIB_RES_NH(res);
+> =20
+> +				fib_select_path(net, &res, fl4, skb);
+> +				nh =3D &FIB_RES_NH(res);
+>  				update_or_create_fnhe(nh, fl4->daddr, new_gw,
+>  						0, false,
+
+nh is assigned value that is never used. Mainline patch removes the
+assignment (but variable has different type).
+
+4.19 should delete the assignment, too.
+
+Best regards,
+								Pavel
+
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index f60e28418ece..84de87b7eedc 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -777,7 +777,7 @@ static void __ip_do_redirect(struct rtable *rt, struct =
+sk_buff *skb, struct flow
+ 			neigh_event_send(n, NULL);
+ 		} else {
+ 			if (fib_lookup(net, fl4, &res, 0) =3D=3D 0) {
+-				struct fib_nh *nh =3D &FIB_RES_NH(res);
++				struct fib_nh *nh;
+=20
+ 				fib_select_path(net, &res, fl4, skb);
+ 				nh =3D &FIB_RES_NH(res);
+
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX24gFgAKCRAw5/Bqldv6
+8oJ8AJ9aaZ5VFjdoC1MlzVWNOHLPXUSxxwCgvL0JSbW+WA9qbi47KAD6yNkrwig=
+=zt7i
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--
