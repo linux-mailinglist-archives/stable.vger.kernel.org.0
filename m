@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED5E278870
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4115A27884D
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:54:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728902AbgIYMy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:54:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32834 "EHLO mail.kernel.org"
+        id S1729574AbgIYMy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:54:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729562AbgIYMyY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:54:24 -0400
+        id S1729569AbgIYMy2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:54:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B2F0206DB;
-        Fri, 25 Sep 2020 12:54:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3457E21741;
+        Fri, 25 Sep 2020 12:54:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038464;
-        bh=ywTZQoPHFm5xNDERvgrcnsMxT2rIgAxrrrPjsaiuDCM=;
+        s=default; t=1601038466;
+        bh=rHj9sRhJntAzO0JLGuynsGUS6iDb8qG5E+w0MCVmR58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGW3Szgsn/8z7K+zQNwbltjbmrskYlAStNEY61lSci70dQtZBTjDpI2nbzAOVsOo2
-         o3XmHGyIuRFuSjHfHiEWpMVkpD3SVpVh3EGcs2xRGz4jsMzI65jAGLeu4R3OFgzubn
-         d8HfTJty9Q7InLyOpmSXPA3oRfeHw/S4sK15SXf0=
+        b=nUK3n8sW7YInno4cfLw/X7+cQViZaatg3yLCwt22dNuB7sG/KK83Kgp5K+ov8iG/b
+         RrmA2sInWfqFQCYVKl423YKBdsj9wyfPwYl0qd3G2tf+RVs6Cytja9wNJhNNzAbfzk
+         BRu1whpwFxZ8wRL0rIQ7mEU9Y/X2lxGe9npP+dVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 4.19 27/37] Documentation/llvm: fix the name of llvm-size
-Date:   Fri, 25 Sep 2020 14:48:55 +0200
-Message-Id: <20200925124725.055161881@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Subject: [PATCH 4.19 28/37] net: wan: wanxl: use allow to pass CROSS_COMPILE_M68k for rebuilding firmware
+Date:   Fri, 25 Sep 2020 14:48:56 +0200
+Message-Id: <20200925124725.211971609@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
 References: <20200925124720.972208530@linuxfoundation.org>
@@ -44,33 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 0f44fbc162b737ff6251ae248184390ae2279fee upstream.
+commit 63b903dfebdea92aa92ad337d8451a6fbfeabf9d upstream.
 
-The tool is called llvm-size, not llvm-objsize.
+As far as I understood from the Kconfig help text, this build rule is
+used to rebuild the driver firmware, which runs on an old m68k-based
+chip. So, you need m68k tools for the firmware rebuild.
 
-Fixes: fcf1b6a35c16 ("Documentation/llvm: add documentation on building w/ Clang/LLVM")
-Signed-off-by: Fangrui Song <maskray@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+wanxl.c is a PCI driver, but CONFIG_M68K does not select CONFIG_HAVE_PCI.
+So, you cannot enable CONFIG_WANXL_BUILD_FIRMWARE for ARCH=m68k. In other
+words, ifeq ($(ARCH),m68k) is false here.
+
+I am keeping the dead code for now, but rebuilding the firmware requires
+'as68k' and 'ld68k', which I do not have in hand.
+
+Instead, the kernel.org m68k GCC [1] successfully built it.
+
+Allowing a user to pass in CROSS_COMPILE_M68K= is handier.
+
+[1] https://mirrors.edge.kernel.org/pub/tools/crosstool/files/bin/x86_64/9.2.0/x86_64-gcc-9.2.0-nolibc-m68k-linux.tar.xz
+
+Suggested-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/kbuild/llvm.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wan/Kconfig  |    2 +-
+ drivers/net/wan/Makefile |   12 ++++++------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/Documentation/kbuild/llvm.rst
-+++ b/Documentation/kbuild/llvm.rst
-@@ -51,7 +51,7 @@ LLVM has substitutes for GNU binutils ut
- additional parameters to `make`.
+--- a/drivers/net/wan/Kconfig
++++ b/drivers/net/wan/Kconfig
+@@ -199,7 +199,7 @@ config WANXL_BUILD_FIRMWARE
+ 	depends on WANXL && !PREVENT_FIRMWARE_BUILD
+ 	help
+ 	  Allows you to rebuild firmware run by the QUICC processor.
+-	  It requires as68k, ld68k and hexdump programs.
++	  It requires m68k toolchains and hexdump programs.
  
- 	make CC=clang AS=clang LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip \\
--	  OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-objsize \\
-+	  OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-size \\
- 	  READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar \\
- 	  HOSTLD=ld.lld
+ 	  You should never need this option, say N.
+ 
+--- a/drivers/net/wan/Makefile
++++ b/drivers/net/wan/Makefile
+@@ -41,17 +41,17 @@ $(obj)/wanxl.o:	$(obj)/wanxlfw.inc
+ 
+ ifeq ($(CONFIG_WANXL_BUILD_FIRMWARE),y)
+ ifeq ($(ARCH),m68k)
+-  AS68K = $(AS)
+-  LD68K = $(LD)
++  M68KAS = $(AS)
++  M68KLD = $(LD)
+ else
+-  AS68K = as68k
+-  LD68K = ld68k
++  M68KAS = $(CROSS_COMPILE_M68K)as
++  M68KLD = $(CROSS_COMPILE_M68K)ld
+ endif
+ 
+ quiet_cmd_build_wanxlfw = BLD FW  $@
+       cmd_build_wanxlfw = \
+-	$(CPP) -D__ASSEMBLY__ -Wp,-MD,$(depfile) -I$(srctree)/include/uapi $< | $(AS68K) -m68360 -o $(obj)/wanxlfw.o; \
+-	$(LD68K) --oformat binary -Ttext 0x1000 $(obj)/wanxlfw.o -o $(obj)/wanxlfw.bin; \
++	$(CPP) -D__ASSEMBLY__ -Wp,-MD,$(depfile) -I$(srctree)/include/uapi $< | $(M68KAS) -m68360 -o $(obj)/wanxlfw.o; \
++	$(M68KLD) --oformat binary -Ttext 0x1000 $(obj)/wanxlfw.o -o $(obj)/wanxlfw.bin; \
+ 	hexdump -ve '"\n" 16/1 "0x%02X,"' $(obj)/wanxlfw.bin | sed 's/0x  ,//g;1s/^/static const u8 firmware[]={/;$$s/,$$/\n};\n/' >$(obj)/wanxlfw.inc; \
+ 	rm -f $(obj)/wanxlfw.bin $(obj)/wanxlfw.o
  
 
 
