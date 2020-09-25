@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF9392787C9
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33B97278815
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:52:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729035AbgIYMuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:50:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54266 "EHLO mail.kernel.org"
+        id S1729245AbgIYMwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:52:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729050AbgIYMuV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:50:21 -0400
+        id S1729271AbgIYMv7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:51:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A1BC21741;
-        Fri, 25 Sep 2020 12:50:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84B3B21741;
+        Fri, 25 Sep 2020 12:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038220;
-        bh=ytIlshj3OR06WSOjzGwur6HuZbKtReovabXBz7KS66k=;
+        s=default; t=1601038319;
+        bh=/BGLC5wKa1UuaYv394/oS8DzjMVji2z+8SKIu8l2KFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pVnPKFRWz4z0FF69SkqO9cTs/Wa5RVY3Lxa+f4Ajx6qofwvb1GA+QvQPTbxu0R0oj
-         QxPT+1nmm5CDpydXnmSL05IYJuqR75aYYMKXuxKToP/oswWGwbpPZZbLg7bKLYY1yC
-         4hxeRMDugaWb9mJkCA6F6W300eLpC+hJUil3HgwU=
+        b=ci5m1EqWqOOeAX+bXq0fPa0Ex0EyHUosZpEOf+zx2icjntcIVjVtBktyu9eWRFRVf
+         /+z+zbAyoKuDXh4AavNBZilt0aSF8NpEqVXe1x7iRLhM04+Y2KxQlR7VsklV3Zrdxu
+         DsKWsHEAtA40rRrg1wnghpCZ812XJDLTa02mE9nA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianbo Liu <jianbol@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.8 47/56] net/mlx5e: Fix memory leak of tunnel info when rule under multipath not ready
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Simon Horman <simon.horman@netronome.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 25/43] nfp: use correct define to return NONE fec
 Date:   Fri, 25 Sep 2020 14:48:37 +0200
-Message-Id: <20200925124734.891831137@linuxfoundation.org>
+Message-Id: <20200925124727.398993012@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
-References: <20200925124727.878494124@linuxfoundation.org>
+In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
+References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianbo Liu <jianbol@mellanox.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 12a240a41427d37b5e70570700704e84c827452f ]
+[ Upstream commit 5f6857e808a8bd078296575b417c4b9d160b9779 ]
 
-When deleting vxlan flow rule under multipath, tun_info in parse_attr is
-not freed when the rule is not ready.
+struct ethtool_fecparam carries bitmasks not bit numbers.
+We want to return 1 (NONE), not 0.
 
-Fixes: ef06c9ee8933 ("net/mlx5e: Allow one failure when offloading tc encap rules under multipath")
-Signed-off-by: Jianbo Liu <jianbol@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: 0d0870938337 ("nfp: implement ethtool FEC mode settings")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Simon Horman <simon.horman@netronome.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -1399,11 +1399,8 @@ static void mlx5e_tc_del_fdb_flow(struct
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+@@ -731,8 +731,8 @@ nfp_port_get_fecparam(struct net_device
+ 	struct nfp_eth_table_port *eth_port;
+ 	struct nfp_port *port;
  
- 	mlx5e_put_flow_tunnel_id(flow);
+-	param->active_fec = ETHTOOL_FEC_NONE_BIT;
+-	param->fec = ETHTOOL_FEC_NONE_BIT;
++	param->active_fec = ETHTOOL_FEC_NONE;
++	param->fec = ETHTOOL_FEC_NONE;
  
--	if (flow_flag_test(flow, NOT_READY)) {
-+	if (flow_flag_test(flow, NOT_READY))
- 		remove_unready_flow(flow);
--		kvfree(attr->parse_attr);
--		return;
--	}
- 
- 	if (mlx5e_is_offloaded_flow(flow)) {
- 		if (flow_flag_test(flow, SLOW))
+ 	port = nfp_port_from_netdev(netdev);
+ 	eth_port = nfp_port_get_eth_port(port);
 
 
