@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC5F27882D
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F8BE27882F
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729410AbgIYMx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:53:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58940 "EHLO mail.kernel.org"
+        id S1729065AbgIYMxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:53:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729065AbgIYMx1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:53:27 -0400
+        id S1729428AbgIYMx3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7DE1206DB;
-        Fri, 25 Sep 2020 12:53:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BC002075E;
+        Fri, 25 Sep 2020 12:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038406;
-        bh=mXM5vul0gInxI6sMmnz2iYhRDDBRaozhlxF2gwo5ya8=;
+        s=default; t=1601038408;
+        bh=qC9ePJqVM6O/UDP/PBFMXUmoC2b6haSl8b3d9uN1XWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3sq4t/kM3cB4EaTin/Ouu/VDYhLLphAWFyyqXxYPQzIKn9xmCcOibGal6+HvYqhf
-         0fVi7jTo+nUOz5vrg1XgtkpuTeeEQuNJDybJWtVSTflA7ovuNx3wOWCo1CTAnGiMOg
-         ok1BHWwnvS+u/EgHaWtN7TUkl+ohwtkZzExNKp6U=
+        b=LTGvWM/hfiHY6GRRvFW5KI/0PY0eRrrVsxTAFZGYnN0ymB7fwU3H22oHOAnK/xzgQ
+         YGtb0upESSVRdYU3Z5WPTqNAo3wZJjmKvE3NZVKJRXZ4XPnba4ZyTyn1FBWf1Sw+Np
+         f39eX2zIjPgeh0DYSx9HSA2+VwuyPFRGA2USGWBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Chris Down <chris@chrisdown.name>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Julius Hemanth Pitti <jpitti@cisco.com>
-Subject: [PATCH 5.4 42/43] mm: memcg: fix memcg reclaim soft lockup
-Date:   Fri, 25 Sep 2020 14:48:54 +0200
-Message-Id: <20200925124729.884757815@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Osborne <sean.m.osborne@oracle.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Erik Rockstrom <erik.rockstrom@oracle.com>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.4 43/43] iommu/amd: Use cmpxchg_double() when updating 128-bit IRTE
+Date:   Fri, 25 Sep 2020 14:48:55 +0200
+Message-Id: <20200925124730.028817920@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
 References: <20200925124723.575329814@linuxfoundation.org>
@@ -47,70 +45,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xunlei Pang <xlpang@linux.alibaba.com>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-commit e3336cab2579012b1e72b5265adf98e2d6e244ad upstream.
+commit e52d58d54a321d4fe9d0ecdabe4f8774449f0d6e upstream.
 
-We've met softlockup with "CONFIG_PREEMPT_NONE=y", when the target memcg
-doesn't have any reclaimable memory.
+When using 128-bit interrupt-remapping table entry (IRTE) (a.k.a GA mode),
+current driver disables interrupt remapping when it updates the IRTE
+so that the upper and lower 64-bit values can be updated safely.
 
-It can be easily reproduced as below:
+However, this creates a small window, where the interrupt could
+arrive and result in IO_PAGE_FAULT (for interrupt) as shown below.
 
-  watchdog: BUG: soft lockup - CPU#0 stuck for 111s![memcg_test:2204]
-  CPU: 0 PID: 2204 Comm: memcg_test Not tainted 5.9.0-rc2+ #12
-  Call Trace:
-    shrink_lruvec+0x49f/0x640
-    shrink_node+0x2a6/0x6f0
-    do_try_to_free_pages+0xe9/0x3e0
-    try_to_free_mem_cgroup_pages+0xef/0x1f0
-    try_charge+0x2c1/0x750
-    mem_cgroup_charge+0xd7/0x240
-    __add_to_page_cache_locked+0x2fd/0x370
-    add_to_page_cache_lru+0x4a/0xc0
-    pagecache_get_page+0x10b/0x2f0
-    filemap_fault+0x661/0xad0
-    ext4_filemap_fault+0x2c/0x40
-    __do_fault+0x4d/0xf9
-    handle_mm_fault+0x1080/0x1790
+  IOMMU Driver            Device IRQ
+  ============            ===========
+  irte.RemapEn=0
+       ...
+   change IRTE            IRQ from device ==> IO_PAGE_FAULT !!
+       ...
+  irte.RemapEn=1
 
-It only happens on our 1-vcpu instances, because there's no chance for
-oom reaper to run to reclaim the to-be-killed process.
+This scenario has been observed when changing irq affinity on a system
+running I/O-intensive workload, in which the destination APIC ID
+in the IRTE is updated.
 
-Add a cond_resched() at the upper shrink_node_memcgs() to solve this
-issue, this will mean that we will get a scheduling point for each memcg
-in the reclaimed hierarchy without any dependency on the reclaimable
-memory in that memcg thus making it more predictable.
+Instead, use cmpxchg_double() to update the 128-bit IRTE at once without
+disabling the interrupt remapping. However, this means several features,
+which require GA (128-bit IRTE) support will also be affected if cmpxchg16b
+is not supported (which is unprecedented for AMD processors w/ IOMMU).
 
-Suggested-by: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Xunlei Pang <xlpang@linux.alibaba.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Chris Down <chris@chrisdown.name>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Link: http://lkml.kernel.org/r/1598495549-67324-1-git-send-email-xlpang@linux.alibaba.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Julius Hemanth Pitti <jpitti@cisco.com>
+Fixes: 880ac60e2538 ("iommu/amd: Introduce interrupt remapping ops structure")
+Reported-by: Sean Osborne <sean.m.osborne@oracle.com>
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Tested-by: Erik Rockstrom <erik.rockstrom@oracle.com>
+Reviewed-by: Joao Martins <joao.m.martins@oracle.com>
+Link: https://lore.kernel.org/r/20200903093822.52012-3-suravee.suthikulpanit@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- mm/vmscan.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
 
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2775,6 +2775,14 @@ static bool shrink_node(pg_data_t *pgdat
- 			unsigned long reclaimed;
- 			unsigned long scanned;
+---
+ drivers/iommu/Kconfig          |    2 +-
+ drivers/iommu/amd_iommu.c      |   17 +++++++++++++----
+ drivers/iommu/amd_iommu_init.c |   21 +++++++++++++++++++--
+ 3 files changed, 33 insertions(+), 7 deletions(-)
+
+--- a/drivers/iommu/Kconfig
++++ b/drivers/iommu/Kconfig
+@@ -138,7 +138,7 @@ config AMD_IOMMU
+ 	select PCI_PASID
+ 	select IOMMU_API
+ 	select IOMMU_IOVA
+-	depends on X86_64 && PCI && ACPI
++	depends on X86_64 && PCI && ACPI && HAVE_CMPXCHG_DOUBLE
+ 	---help---
+ 	  With this option you can enable support for AMD IOMMU hardware in
+ 	  your system. An IOMMU is a hardware component which provides
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -3873,6 +3873,7 @@ out:
+ static int modify_irte_ga(u16 devid, int index, struct irte_ga *irte,
+ 			  struct amd_ir_data *data)
+ {
++	bool ret;
+ 	struct irq_remap_table *table;
+ 	struct amd_iommu *iommu;
+ 	unsigned long flags;
+@@ -3890,10 +3891,18 @@ static int modify_irte_ga(u16 devid, int
  
-+			/*
-+			 * This loop can become CPU-bound when target memcgs
-+			 * aren't eligible for reclaim - either because they
-+			 * don't have any reclaimable pages, or because their
-+			 * memory is explicitly protected. Avoid soft lockups.
-+			 */
-+			cond_resched();
+ 	entry = (struct irte_ga *)table->table;
+ 	entry = &entry[index];
+-	entry->lo.fields_remap.valid = 0;
+-	entry->hi.val = irte->hi.val;
+-	entry->lo.val = irte->lo.val;
+-	entry->lo.fields_remap.valid = 1;
 +
- 			switch (mem_cgroup_protected(root, memcg)) {
- 			case MEMCG_PROT_MIN:
- 				/*
++	ret = cmpxchg_double(&entry->lo.val, &entry->hi.val,
++			     entry->lo.val, entry->hi.val,
++			     irte->lo.val, irte->hi.val);
++	/*
++	 * We use cmpxchg16 to atomically update the 128-bit IRTE,
++	 * and it cannot be updated by the hardware or other processors
++	 * behind us, so the return value of cmpxchg16 should be the
++	 * same as the old value.
++	 */
++	WARN_ON(!ret);
++
+ 	if (data)
+ 		data->ref = entry;
+ 
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -1522,7 +1522,14 @@ static int __init init_iommu_one(struct
+ 			iommu->mmio_phys_end = MMIO_REG_END_OFFSET;
+ 		else
+ 			iommu->mmio_phys_end = MMIO_CNTR_CONF_OFFSET;
+-		if (((h->efr_attr & (0x1 << IOMMU_FEAT_GASUP_SHIFT)) == 0))
++
++		/*
++		 * Note: GA (128-bit IRTE) mode requires cmpxchg16b supports.
++		 * GAM also requires GA mode. Therefore, we need to
++		 * check cmpxchg16b support before enabling it.
++		 */
++		if (!boot_cpu_has(X86_FEATURE_CX16) ||
++		    ((h->efr_attr & (0x1 << IOMMU_FEAT_GASUP_SHIFT)) == 0))
+ 			amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY;
+ 		break;
+ 	case 0x11:
+@@ -1531,8 +1538,18 @@ static int __init init_iommu_one(struct
+ 			iommu->mmio_phys_end = MMIO_REG_END_OFFSET;
+ 		else
+ 			iommu->mmio_phys_end = MMIO_CNTR_CONF_OFFSET;
+-		if (((h->efr_reg & (0x1 << IOMMU_EFR_GASUP_SHIFT)) == 0))
++
++		/*
++		 * Note: GA (128-bit IRTE) mode requires cmpxchg16b supports.
++		 * XT, GAM also requires GA mode. Therefore, we need to
++		 * check cmpxchg16b support before enabling them.
++		 */
++		if (!boot_cpu_has(X86_FEATURE_CX16) ||
++		    ((h->efr_reg & (0x1 << IOMMU_EFR_GASUP_SHIFT)) == 0)) {
+ 			amd_iommu_guest_ir = AMD_IOMMU_GUEST_IR_LEGACY;
++			break;
++		}
++
+ 		/*
+ 		 * Note: Since iommu_update_intcapxt() leverages
+ 		 * the IOMMU MMIO access to MSI capability block registers
 
 
