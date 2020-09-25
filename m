@@ -2,202 +2,390 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D34A6278E26
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:20:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5205D278E27
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729546AbgIYQUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 12:20:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42742 "EHLO
+        id S1729550AbgIYQUC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 12:20:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729556AbgIYQT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:19:59 -0400
+        with ESMTP id S1729383AbgIYQUC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:02 -0400
 Received: from mail-pg1-x549.google.com (mail-pg1-x549.google.com [IPv6:2607:f8b0:4864:20::549])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55A18C0613CE
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:19:59 -0700 (PDT)
-Received: by mail-pg1-x549.google.com with SMTP id r4so2661533pgl.20
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:19:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00530C0613CE
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:01 -0700 (PDT)
+Received: by mail-pg1-x549.google.com with SMTP id k17so2660468pgb.7
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=sender:date:in-reply-to:message-id:mime-version:references:subject
          :from:to:cc;
-        bh=pkrLIyZkkfAlj0b7XRwANO1F7a741pqc7PrjWyrMojY=;
-        b=irF5PimiZVHOeT2ACNrEl666hNjfNJFQSVQiBZFsLI0wT30i66MmSi7WaGjSBZh5+U
-         RHQy709yO3uJk3vOHf8qhsOweSJihiILg0DVXnutWZfxVfEdwyVKm/nrmpHn2kix4x66
-         iZA090E+pUhXFP10J5rXeDLGB2PVyn9dkWp1r5XCY4EVmPKYIff5ENfTsXkOsM5nb3VF
-         MVS5+w7N27DFSc33Gzi3eOJ9GiLmsDsvxqLGh+6AYyrvzRfqQre90VbKCAq0HLqtGu58
-         YsHNO5XtNJgOWEGcu5Bgp/qzTArd/Vn2j0qVQUEHUa2NjpQwW1mt+juwkHTc7ffzo/ET
-         conQ==
+        bh=TkqoSSzKMF5MExKtvfD1k7y0mbj5PDKEIWdm95DWQTw=;
+        b=R0pyNQRI5xiGpyHEWBPjy7RdOFWHcKlBV6P4baa2hO04LTGg+/rWGh27YLDWng4qyc
+         94Fn7ZbO2o3HkjrLcA9TgxPUIx+PWYcJT2vCjti4+q7HId7ZYRKWBgZwjNwhpTRpIciP
+         jpKrig3dp3obgaXCdXuZUQvEmFts7QP+ZUwc8Zw1Z3YWpAwjLcMt7nYAeICq/kz9dQ3h
+         RkW8B+d3Hj0xb53CvKA0/Se4Nevcc5DkX+xJtCl1O9KzJWo8ipFGFGf+ovqVfz68byrz
+         Nr9Z8psGPzrYVY1aOcAr0LMLg9RvgdAa4os/+0CZyt0mjS8HYFgYgD/I8lVVDWAxQ8iU
+         1vTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=pkrLIyZkkfAlj0b7XRwANO1F7a741pqc7PrjWyrMojY=;
-        b=Db0e8LI+MFHA4WmOqCp9i2z23KNu1j5Ioce2bw/PsQOeeqKt3ouY4cqyjGA8EFHsRL
-         Zz3HKPP8iKofCoTo8USbswUhJieuiV00GygIhCVKUql2kXpwnYn+qWCDPd0jTnfW9ZwK
-         35Z1IHs8Sa0Za5/KxhH81HpfSkhOiQsRK+8zHPyFo8TpNSztfSr8/42B3JAUELvM/Ias
-         tgclPAnja2n+qDM47wuwENCrxb0tDCPsveKQrEF5hAOFlQUtKIMtgerTP76enHevgEvr
-         2fVFMHFiyaGp5ErZRsJNUFXWPUEZfIIPtY4pQwt1G4qWva0CMj4/MgJhxzsdFzDjDo3r
-         0V/A==
-X-Gm-Message-State: AOAM532FUq3cRna6tH9wk9iRzsO4hmAmGKlrqyYR+cf+Mlir2RePly4S
-        Kaw5elnJ5/N23KQZAK0oLAtGxMebiDzzNsxUcKb02i4/YGQIRqIu19SVXm5SRTfyV2iRq7kTq1x
-        JX/8J+rSZtXP8n/UeWG3q+10M7gHLE3HZ77vGrDv/0iM/qBj15MWe5ac8CsT9pA==
-X-Google-Smtp-Source: ABdhPJzCDZthIQPMkTNog9PVNt3HCrmPImSVaHcbjLUws2d8S3UsCr32Xg7e6gvB4C6dz943UvEnM9aQt4I=
+        bh=TkqoSSzKMF5MExKtvfD1k7y0mbj5PDKEIWdm95DWQTw=;
+        b=tMQoz88h2bkjL+vlSXaOWb1rr8zYqbtj6koEJn54Y8xdsg8mpcTCcqIQ/nzNO0Id+e
+         rQMjsuHnQK3fwBb2AnMGAJKAkToLpFRw+Qcjoz55uTXcF+3bq78tRyDbU9aTNQG7m7qK
+         VjWJ869uKCZFdX7fG6vFo3Fhcd+0cuqDez46Fbwsge9N9BQ5ZrN8mjSSkRvA7rsDxBnN
+         6fafXmL7OOssNLgmHvIR3w5E6CCQ9stnpqGowBZbqVFwID4iFPTS5aLnpifDt1eP7DWb
+         p6ZDTIMT4KTrPtd7ctyJ5pycnkF3a1cQq+wm1Y5uay619FaQVZfU7p/ACdQYQ9z6QHDF
+         KirA==
+X-Gm-Message-State: AOAM533ujYh/IxoG1bCLspWmm0GusGeY1aBetjUdHT5CJbG3lNZnBBBf
+        fa3+tuaNPNi+xsEgPJPr/ZbPvNo39KAC06/kh4jRLmBN8FW/Uk5nCpjmNH83c6ceWWxXr3YBRDC
+        VuwwrBMqzTPFBJQsaD2b5r2vJK8hFLu9THcT60RLVpy7Ng1kvGjQFov/nrPazOw==
+X-Google-Smtp-Source: ABdhPJxn5VlzlvhbMF+jl4jGlB+BF2wfTyb2xaig4cb7yDNmNpZPLFOgehQBmv1ALbwF0WL2m9DGAmTn5LQ=
 Sender: "pgonda via sendgmr" <pgonda@pgonda1.kir.corp.google.com>
 X-Received: from pgonda1.kir.corp.google.com ([2620:0:1008:1101:f693:9fff:fef4:e3a2])
- (user=pgonda job=sendgmr) by 2002:a17:902:8b81:b029:d2:42a6:ba2 with SMTP id
- ay1-20020a1709028b81b02900d242a60ba2mr183915plb.24.1601050798703; Fri, 25 Sep
- 2020 09:19:58 -0700 (PDT)
-Date:   Fri, 25 Sep 2020 09:18:51 -0700
+ (user=pgonda job=sendgmr) by 2002:a05:6a00:15c1:b029:13e:d13d:a07a with SMTP
+ id o1-20020a056a0015c1b029013ed13da07amr37039pfu.17.1601050801182; Fri, 25
+ Sep 2020 09:20:01 -0700 (PDT)
+Date:   Fri, 25 Sep 2020 09:18:52 -0700
 In-Reply-To: <20200925161916.204667-1-pgonda@google.com>
-Message-Id: <20200925161916.204667-6-pgonda@google.com>
+Message-Id: <20200925161916.204667-7-pgonda@google.com>
 Mime-Version: 1.0
 References: <20200925161916.204667-1-pgonda@google.com>
 X-Mailer: git-send-email 2.28.0.681.g6f77f65b4e-goog
-Subject: [PATCH 05/30 for 5.4] lib/genalloc.c: rename addr_in_gen_pool to gen_pool_has_addr
+Subject: [PATCH 06/30 for 5.4] dma-remap: separate DMA atomic pools from
+ direct remap code
 From:   Peter Gonda <pgonda@google.com>
 To:     stable@vger.kernel.org
-Cc:     Peter Gonda <pgonda@google.com>,
-        Huang Shijie <sjhuang@iluvatar.ai>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Peter Gonda <pgonda@google.com>, Christoph Hellwig <hch@lst.de>,
+        David Rientjes <rientjes@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Shijie <sjhuang@iluvatar.ai>
+From: David Rientjes <rientjes@google.com>
 
-upstream 964975ac6677c97ae61ec9d6969dd5d03f18d1c3 commit.
+upstream e860c299ac0d738b44ff91693f11e63080a29698 commit.
 
-Follow the kernel conventions, rename addr_in_gen_pool to
-gen_pool_has_addr.
+DMA atomic pools will be needed beyond only CONFIG_DMA_DIRECT_REMAP so
+separate them out into their own file.
 
-[sjhuang@iluvatar.ai: fix Documentation/ too]
- Link: http://lkml.kernel.org/r/20181229015914.5573-1-sjhuang@iluvatar.ai
-Link: http://lkml.kernel.org/r/20181228083950.20398-1-sjhuang@iluvatar.ai
-Signed-off-by: Huang Shijie <sjhuang@iluvatar.ai>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This also adds a new Kconfig option that can be subsequently used for
+options, such as CONFIG_AMD_MEM_ENCRYPT, that will utilize the coherent
+pools but do not have a dependency on direct remapping.
+
+For this patch alone, there is no functional change introduced.
+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: David Rientjes <rientjes@google.com>
+[hch: fixup copyrights and remove unused includes]
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Peter Gonda <pgonda@google.com>
 ---
- Documentation/core-api/genalloc.rst | 2 +-
- arch/arm/mm/dma-mapping.c           | 2 +-
- drivers/misc/sram-exec.c            | 2 +-
- include/linux/genalloc.h            | 2 +-
- kernel/dma/remap.c                  | 2 +-
- lib/genalloc.c                      | 5 +++--
- 6 files changed, 8 insertions(+), 7 deletions(-)
+ kernel/dma/Kconfig  |   6 ++-
+ kernel/dma/Makefile |   1 +
+ kernel/dma/pool.c   | 123 ++++++++++++++++++++++++++++++++++++++++++++
+ kernel/dma/remap.c  | 121 +------------------------------------------
+ 4 files changed, 130 insertions(+), 121 deletions(-)
+ create mode 100644 kernel/dma/pool.c
 
-diff --git a/Documentation/core-api/genalloc.rst b/Documentation/core-api/genalloc.rst
-index 6b38a39fab24..a534cc7ebd05 100644
---- a/Documentation/core-api/genalloc.rst
-+++ b/Documentation/core-api/genalloc.rst
-@@ -129,7 +129,7 @@ writing of special-purpose memory allocators in the future.
-    :functions: gen_pool_for_each_chunk
+diff --git a/kernel/dma/Kconfig b/kernel/dma/Kconfig
+index 4c103a24e380..d006668c0027 100644
+--- a/kernel/dma/Kconfig
++++ b/kernel/dma/Kconfig
+@@ -79,10 +79,14 @@ config DMA_REMAP
+ 	select DMA_NONCOHERENT_MMAP
+ 	bool
  
- .. kernel-doc:: lib/genalloc.c
--   :functions: addr_in_gen_pool
-+   :functions: gen_pool_has_addr
+-config DMA_DIRECT_REMAP
++config DMA_COHERENT_POOL
+ 	bool
+ 	select DMA_REMAP
  
- .. kernel-doc:: lib/genalloc.c
-    :functions: gen_pool_avail
-diff --git a/arch/arm/mm/dma-mapping.c b/arch/arm/mm/dma-mapping.c
-index 58d5765fb129..84ecbaefb9cf 100644
---- a/arch/arm/mm/dma-mapping.c
-+++ b/arch/arm/mm/dma-mapping.c
-@@ -529,7 +529,7 @@ static void *__alloc_from_pool(size_t size, struct page **ret_page)
- 
- static bool __in_atomic_pool(void *start, size_t size)
- {
--	return addr_in_gen_pool(atomic_pool, (unsigned long)start, size);
++config DMA_DIRECT_REMAP
++	bool
++	select DMA_COHERENT_POOL
++
+ config DMA_CMA
+ 	bool "DMA Contiguous Memory Allocator"
+ 	depends on HAVE_DMA_CONTIGUOUS && CMA
+diff --git a/kernel/dma/Makefile b/kernel/dma/Makefile
+index d237cf3dc181..370f63344e9c 100644
+--- a/kernel/dma/Makefile
++++ b/kernel/dma/Makefile
+@@ -6,4 +6,5 @@ obj-$(CONFIG_DMA_DECLARE_COHERENT)	+= coherent.o
+ obj-$(CONFIG_DMA_VIRT_OPS)		+= virt.o
+ obj-$(CONFIG_DMA_API_DEBUG)		+= debug.o
+ obj-$(CONFIG_SWIOTLB)			+= swiotlb.o
++obj-$(CONFIG_DMA_COHERENT_POOL)		+= pool.o
+ obj-$(CONFIG_DMA_REMAP)			+= remap.o
+diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
+new file mode 100644
+index 000000000000..3df5d9d39922
+--- /dev/null
++++ b/kernel/dma/pool.c
+@@ -0,0 +1,123 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) 2012 ARM Ltd.
++ * Copyright (C) 2020 Google LLC
++ */
++#include <linux/dma-direct.h>
++#include <linux/dma-noncoherent.h>
++#include <linux/dma-contiguous.h>
++#include <linux/init.h>
++#include <linux/genalloc.h>
++#include <linux/slab.h>
++
++static struct gen_pool *atomic_pool __ro_after_init;
++
++#define DEFAULT_DMA_COHERENT_POOL_SIZE  SZ_256K
++static size_t atomic_pool_size __initdata = DEFAULT_DMA_COHERENT_POOL_SIZE;
++
++static int __init early_coherent_pool(char *p)
++{
++	atomic_pool_size = memparse(p, &p);
++	return 0;
++}
++early_param("coherent_pool", early_coherent_pool);
++
++static gfp_t dma_atomic_pool_gfp(void)
++{
++	if (IS_ENABLED(CONFIG_ZONE_DMA))
++		return GFP_DMA;
++	if (IS_ENABLED(CONFIG_ZONE_DMA32))
++		return GFP_DMA32;
++	return GFP_KERNEL;
++}
++
++static int __init dma_atomic_pool_init(void)
++{
++	unsigned int pool_size_order = get_order(atomic_pool_size);
++	unsigned long nr_pages = atomic_pool_size >> PAGE_SHIFT;
++	struct page *page;
++	void *addr;
++	int ret;
++
++	if (dev_get_cma_area(NULL))
++		page = dma_alloc_from_contiguous(NULL, nr_pages,
++						 pool_size_order, false);
++	else
++		page = alloc_pages(dma_atomic_pool_gfp(), pool_size_order);
++	if (!page)
++		goto out;
++
++	arch_dma_prep_coherent(page, atomic_pool_size);
++
++	atomic_pool = gen_pool_create(PAGE_SHIFT, -1);
++	if (!atomic_pool)
++		goto free_page;
++
++	addr = dma_common_contiguous_remap(page, atomic_pool_size,
++					   pgprot_dmacoherent(PAGE_KERNEL),
++					   __builtin_return_address(0));
++	if (!addr)
++		goto destroy_genpool;
++
++	ret = gen_pool_add_virt(atomic_pool, (unsigned long)addr,
++				page_to_phys(page), atomic_pool_size, -1);
++	if (ret)
++		goto remove_mapping;
++	gen_pool_set_algo(atomic_pool, gen_pool_first_fit_order_align, NULL);
++
++	pr_info("DMA: preallocated %zu KiB pool for atomic allocations\n",
++		atomic_pool_size / 1024);
++	return 0;
++
++remove_mapping:
++	dma_common_free_remap(addr, atomic_pool_size);
++destroy_genpool:
++	gen_pool_destroy(atomic_pool);
++	atomic_pool = NULL;
++free_page:
++	if (!dma_release_from_contiguous(NULL, page, nr_pages))
++		__free_pages(page, pool_size_order);
++out:
++	pr_err("DMA: failed to allocate %zu KiB pool for atomic coherent allocation\n",
++		atomic_pool_size / 1024);
++	return -ENOMEM;
++}
++postcore_initcall(dma_atomic_pool_init);
++
++bool dma_in_atomic_pool(void *start, size_t size)
++{
++	if (unlikely(!atomic_pool))
++		return false;
++
 +	return gen_pool_has_addr(atomic_pool, (unsigned long)start, size);
- }
- 
- static int __free_from_pool(void *start, size_t size)
-diff --git a/drivers/misc/sram-exec.c b/drivers/misc/sram-exec.c
-index 426ad912b441..d054e2842a5f 100644
---- a/drivers/misc/sram-exec.c
-+++ b/drivers/misc/sram-exec.c
-@@ -96,7 +96,7 @@ void *sram_exec_copy(struct gen_pool *pool, void *dst, void *src,
- 	if (!part)
- 		return NULL;
- 
--	if (!addr_in_gen_pool(pool, (unsigned long)dst, size))
-+	if (!gen_pool_has_addr(pool, (unsigned long)dst, size))
- 		return NULL;
- 
- 	base = (unsigned long)part->base;
-diff --git a/include/linux/genalloc.h b/include/linux/genalloc.h
-index 4bd583bd6934..5b14a0f38124 100644
---- a/include/linux/genalloc.h
-+++ b/include/linux/genalloc.h
-@@ -206,7 +206,7 @@ extern struct gen_pool *devm_gen_pool_create(struct device *dev,
- 		int min_alloc_order, int nid, const char *name);
- extern struct gen_pool *gen_pool_get(struct device *dev, const char *name);
- 
--bool addr_in_gen_pool(struct gen_pool *pool, unsigned long start,
-+extern bool gen_pool_has_addr(struct gen_pool *pool, unsigned long start,
- 			size_t size);
- 
- #ifdef CONFIG_OF
++}
++
++void *dma_alloc_from_pool(size_t size, struct page **ret_page, gfp_t flags)
++{
++	unsigned long val;
++	void *ptr = NULL;
++
++	if (!atomic_pool) {
++		WARN(1, "coherent pool not initialised!\n");
++		return NULL;
++	}
++
++	val = gen_pool_alloc(atomic_pool, size);
++	if (val) {
++		phys_addr_t phys = gen_pool_virt_to_phys(atomic_pool, val);
++
++		*ret_page = pfn_to_page(__phys_to_pfn(phys));
++		ptr = (void *)val;
++		memset(ptr, 0, size);
++	}
++
++	return ptr;
++}
++
++bool dma_free_from_pool(void *start, size_t size)
++{
++	if (!dma_in_atomic_pool(start, size))
++		return false;
++	gen_pool_free(atomic_pool, (unsigned long)start, size);
++	return true;
++}
 diff --git a/kernel/dma/remap.c b/kernel/dma/remap.c
-index d47bd40fc0f5..d14cbc83986a 100644
+index d14cbc83986a..f7b402849891 100644
 --- a/kernel/dma/remap.c
 +++ b/kernel/dma/remap.c
-@@ -178,7 +178,7 @@ bool dma_in_atomic_pool(void *start, size_t size)
- 	if (unlikely(!atomic_pool))
- 		return false;
- 
--	return addr_in_gen_pool(atomic_pool, (unsigned long)start, size);
-+	return gen_pool_has_addr(atomic_pool, (unsigned long)start, size);
- }
- 
- void *dma_alloc_from_pool(size_t size, struct page **ret_page, gfp_t flags)
-diff --git a/lib/genalloc.c b/lib/genalloc.c
-index 9fc31292cfa1..e43d6107fd62 100644
---- a/lib/genalloc.c
-+++ b/lib/genalloc.c
-@@ -540,7 +540,7 @@ void gen_pool_for_each_chunk(struct gen_pool *pool,
- EXPORT_SYMBOL(gen_pool_for_each_chunk);
- 
- /**
-- * addr_in_gen_pool - checks if an address falls within the range of a pool
-+ * gen_pool_has_addr - checks if an address falls within the range of a pool
-  * @pool:	the generic memory pool
-  * @start:	start address
-  * @size:	size of the region
-@@ -548,7 +548,7 @@ EXPORT_SYMBOL(gen_pool_for_each_chunk);
-  * Check if the range of addresses falls within the specified pool. Returns
-  * true if the entire range is contained in the pool and false otherwise.
+@@ -1,13 +1,8 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
+- * Copyright (C) 2012 ARM Ltd.
+  * Copyright (c) 2014 The Linux Foundation
   */
--bool addr_in_gen_pool(struct gen_pool *pool, unsigned long start,
-+bool gen_pool_has_addr(struct gen_pool *pool, unsigned long start,
- 			size_t size)
- {
- 	bool found = false;
-@@ -567,6 +567,7 @@ bool addr_in_gen_pool(struct gen_pool *pool, unsigned long start,
- 	rcu_read_unlock();
- 	return found;
- }
-+EXPORT_SYMBOL(gen_pool_has_addr);
+-#include <linux/dma-direct.h>
+-#include <linux/dma-noncoherent.h>
+-#include <linux/dma-contiguous.h>
+-#include <linux/init.h>
+-#include <linux/genalloc.h>
++#include <linux/dma-mapping.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
  
- /**
-  * gen_pool_avail - get available free space of the pool
+@@ -97,117 +92,3 @@ void dma_common_free_remap(void *cpu_addr, size_t size)
+ 	unmap_kernel_range((unsigned long)cpu_addr, PAGE_ALIGN(size));
+ 	vunmap(cpu_addr);
+ }
+-
+-#ifdef CONFIG_DMA_DIRECT_REMAP
+-static struct gen_pool *atomic_pool __ro_after_init;
+-
+-#define DEFAULT_DMA_COHERENT_POOL_SIZE  SZ_256K
+-static size_t atomic_pool_size __initdata = DEFAULT_DMA_COHERENT_POOL_SIZE;
+-
+-static int __init early_coherent_pool(char *p)
+-{
+-	atomic_pool_size = memparse(p, &p);
+-	return 0;
+-}
+-early_param("coherent_pool", early_coherent_pool);
+-
+-static gfp_t dma_atomic_pool_gfp(void)
+-{
+-	if (IS_ENABLED(CONFIG_ZONE_DMA))
+-		return GFP_DMA;
+-	if (IS_ENABLED(CONFIG_ZONE_DMA32))
+-		return GFP_DMA32;
+-	return GFP_KERNEL;
+-}
+-
+-static int __init dma_atomic_pool_init(void)
+-{
+-	unsigned int pool_size_order = get_order(atomic_pool_size);
+-	unsigned long nr_pages = atomic_pool_size >> PAGE_SHIFT;
+-	struct page *page;
+-	void *addr;
+-	int ret;
+-
+-	if (dev_get_cma_area(NULL))
+-		page = dma_alloc_from_contiguous(NULL, nr_pages,
+-						 pool_size_order, false);
+-	else
+-		page = alloc_pages(dma_atomic_pool_gfp(), pool_size_order);
+-	if (!page)
+-		goto out;
+-
+-	arch_dma_prep_coherent(page, atomic_pool_size);
+-
+-	atomic_pool = gen_pool_create(PAGE_SHIFT, -1);
+-	if (!atomic_pool)
+-		goto free_page;
+-
+-	addr = dma_common_contiguous_remap(page, atomic_pool_size,
+-					   pgprot_dmacoherent(PAGE_KERNEL),
+-					   __builtin_return_address(0));
+-	if (!addr)
+-		goto destroy_genpool;
+-
+-	ret = gen_pool_add_virt(atomic_pool, (unsigned long)addr,
+-				page_to_phys(page), atomic_pool_size, -1);
+-	if (ret)
+-		goto remove_mapping;
+-	gen_pool_set_algo(atomic_pool, gen_pool_first_fit_order_align, NULL);
+-
+-	pr_info("DMA: preallocated %zu KiB pool for atomic allocations\n",
+-		atomic_pool_size / 1024);
+-	return 0;
+-
+-remove_mapping:
+-	dma_common_free_remap(addr, atomic_pool_size);
+-destroy_genpool:
+-	gen_pool_destroy(atomic_pool);
+-	atomic_pool = NULL;
+-free_page:
+-	if (!dma_release_from_contiguous(NULL, page, nr_pages))
+-		__free_pages(page, pool_size_order);
+-out:
+-	pr_err("DMA: failed to allocate %zu KiB pool for atomic coherent allocation\n",
+-		atomic_pool_size / 1024);
+-	return -ENOMEM;
+-}
+-postcore_initcall(dma_atomic_pool_init);
+-
+-bool dma_in_atomic_pool(void *start, size_t size)
+-{
+-	if (unlikely(!atomic_pool))
+-		return false;
+-
+-	return gen_pool_has_addr(atomic_pool, (unsigned long)start, size);
+-}
+-
+-void *dma_alloc_from_pool(size_t size, struct page **ret_page, gfp_t flags)
+-{
+-	unsigned long val;
+-	void *ptr = NULL;
+-
+-	if (!atomic_pool) {
+-		WARN(1, "coherent pool not initialised!\n");
+-		return NULL;
+-	}
+-
+-	val = gen_pool_alloc(atomic_pool, size);
+-	if (val) {
+-		phys_addr_t phys = gen_pool_virt_to_phys(atomic_pool, val);
+-
+-		*ret_page = pfn_to_page(__phys_to_pfn(phys));
+-		ptr = (void *)val;
+-		memset(ptr, 0, size);
+-	}
+-
+-	return ptr;
+-}
+-
+-bool dma_free_from_pool(void *start, size_t size)
+-{
+-	if (!dma_in_atomic_pool(start, size))
+-		return false;
+-	gen_pool_free(atomic_pool, (unsigned long)start, size);
+-	return true;
+-}
+-#endif /* CONFIG_DMA_DIRECT_REMAP */
 -- 
 2.28.0.618.gf4bc123cb7-goog
 
