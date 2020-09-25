@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B29E2787BB
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89B8F2787BE
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728960AbgIYMty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:49:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53674 "EHLO mail.kernel.org"
+        id S1728982AbgIYMt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:49:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728970AbgIYMty (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:49:54 -0400
+        id S1728979AbgIYMt4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:49:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E8A521D7A;
-        Fri, 25 Sep 2020 12:49:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E2F2221EC;
+        Fri, 25 Sep 2020 12:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038193;
-        bh=meVWnDSR8euJmXPeC1spN/R7Z3FvDGFuvQRTDwB1ae4=;
+        s=default; t=1601038196;
+        bh=dokj4kC5+ub0lHtrLU8HkC5I0+L27AyzCasWDTasAgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGU0KDFdYWJhWAhd4w1m4UL0bWJPP9LbOFoz0einZg8wLoPoW0T2EP1EJjRYX+/7t
-         epiVXQb/GjlCKTtKYEuWnOCuP6MsQPyLddNZhIm3XB+3X4KIUOoL2PHTYChFId4lVF
-         qf6X2xlF8+kveFdkXTVQsFkElYpR1YruL8A/BxRM=
+        b=ghbesNr9UqILvxJESktP+vSOkotV9BDTPeCxN8DD/yCUgiDgiRF1padl6xuj/WabG
+         5KBKdeP2ovxf0CIrbm7XYzDCq8zD2CzOOj/4kxl5FrUy1rVVK8bNiK3KzuC3mN2YY3
+         GA/pInuFZAO6FJRKStgSXiD+O6l4nAm5b90kMgaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>,
-        Mark Gray <mark.d.gray@redhat.com>,
-        Greg Rose <gvrose8192@gmail.com>,
+        stable@vger.kernel.org,
+        ChenNan Of Chaitin Security Research Lab 
+        <whutchennan@gmail.com>, Dan Carpenter <dan.carpenter@oracle.com>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 08/56] geneve: add transport ports in route lookup for geneve
-Date:   Fri, 25 Sep 2020 14:47:58 +0200
-Message-Id: <20200925124729.088935642@linuxfoundation.org>
+Subject: [PATCH 5.8 09/56] hdlc_ppp: add range checks in ppp_cp_parse_cr()
+Date:   Fri, 25 Sep 2020 14:47:59 +0200
+Message-Id: <20200925124729.228413251@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
 References: <20200925124727.878494124@linuxfoundation.org>
@@ -44,181 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Gray <mark.d.gray@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 34beb21594519ce64a55a498c2fe7d567bc1ca20 ]
+[ Upstream commit 66d42ed8b25b64eb63111a2b8582c5afc8bf1105 ]
 
-This patch adds transport ports information for route lookup so that
-IPsec can select Geneve tunnel traffic to do encryption. This is
-needed for OVS/OVN IPsec with encrypted Geneve tunnels.
+There are a couple bugs here:
+1) If opt[1] is zero then this results in a forever loop.  If the value
+   is less than 2 then it is invalid.
+2) It assumes that "len" is more than sizeof(valid_accm) or 6 which can
+   result in memory corruption.
 
-This can be tested by configuring a host-host VPN using an IKE
-daemon and specifying port numbers. For example, for an
-Openswan-type configuration, the following parameters should be
-configured on both hosts and IPsec set up as-per normal:
+In the case of LCP_OPTION_ACCM, then  we should check "opt[1]" instead
+of "len" because, if "opt[1]" is less than sizeof(valid_accm) then
+"nak_len" gets out of sync and it can lead to memory corruption in the
+next iterations through the loop.  In case of LCP_OPTION_MAGIC, the
+only valid value for opt[1] is 6, but the code is trying to log invalid
+data so we should only discard the data when "len" is less than 6
+because that leads to a read overflow.
 
-$ cat /etc/ipsec.conf
-
-conn in
-...
-left=$IP1
-right=$IP2
-...
-leftprotoport=udp/6081
-rightprotoport=udp
-...
-conn out
-...
-left=$IP1
-right=$IP2
-...
-leftprotoport=udp
-rightprotoport=udp/6081
-...
-
-The tunnel can then be setup using "ip" on both hosts (but
-changing the relevant IP addresses):
-
-$ ip link add tun type geneve id 1000 remote $IP2
-$ ip addr add 192.168.0.1/24 dev tun
-$ ip link set tun up
-
-This can then be tested by pinging from $IP1:
-
-$ ping 192.168.0.2
-
-Without this patch the traffic is unencrypted on the wire.
-
-Fixes: 2d07dc79fe04 ("geneve: add initial netdev driver for GENEVE tunnels")
-Signed-off-by: Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>
-Signed-off-by: Mark Gray <mark.d.gray@redhat.com>
-Reviewed-by: Greg Rose <gvrose8192@gmail.com>
+Reported-by: ChenNan Of Chaitin Security Research Lab  <whutchennan@gmail.com>
+Fixes: e022c2f07ae5 ("WAN: new synchronous PPP implementation for generic HDLC.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c |   37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ drivers/net/wan/hdlc_ppp.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -773,7 +773,8 @@ static struct rtable *geneve_get_v4_rt(s
- 				       struct net_device *dev,
- 				       struct geneve_sock *gs4,
- 				       struct flowi4 *fl4,
--				       const struct ip_tunnel_info *info)
-+				       const struct ip_tunnel_info *info,
-+				       __be16 dport, __be16 sport)
- {
- 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
- 	struct geneve_dev *geneve = netdev_priv(dev);
-@@ -789,6 +790,8 @@ static struct rtable *geneve_get_v4_rt(s
- 	fl4->flowi4_proto = IPPROTO_UDP;
- 	fl4->daddr = info->key.u.ipv4.dst;
- 	fl4->saddr = info->key.u.ipv4.src;
-+	fl4->fl4_dport = dport;
-+	fl4->fl4_sport = sport;
- 
- 	tos = info->key.tos;
- 	if ((tos == 1) && !geneve->collect_md) {
-@@ -823,7 +826,8 @@ static struct dst_entry *geneve_get_v6_d
- 					   struct net_device *dev,
- 					   struct geneve_sock *gs6,
- 					   struct flowi6 *fl6,
--					   const struct ip_tunnel_info *info)
-+					   const struct ip_tunnel_info *info,
-+					   __be16 dport, __be16 sport)
- {
- 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
- 	struct geneve_dev *geneve = netdev_priv(dev);
-@@ -839,6 +843,9 @@ static struct dst_entry *geneve_get_v6_d
- 	fl6->flowi6_proto = IPPROTO_UDP;
- 	fl6->daddr = info->key.u.ipv6.dst;
- 	fl6->saddr = info->key.u.ipv6.src;
-+	fl6->fl6_dport = dport;
-+	fl6->fl6_sport = sport;
-+
- 	prio = info->key.tos;
- 	if ((prio == 1) && !geneve->collect_md) {
- 		prio = ip_tunnel_get_dsfield(ip_hdr(skb), skb);
-@@ -885,14 +892,15 @@ static int geneve_xmit_skb(struct sk_buf
- 	__be16 sport;
- 	int err;
- 
--	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
-+	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
-+	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
-+			      geneve->info.key.tp_dst, sport);
- 	if (IS_ERR(rt))
- 		return PTR_ERR(rt);
- 
- 	skb_tunnel_check_pmtu(skb, &rt->dst,
- 			      GENEVE_IPV4_HLEN + info->options_len);
- 
--	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	if (geneve->collect_md) {
- 		tos = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
- 		ttl = key->ttl;
-@@ -947,13 +955,14 @@ static int geneve6_xmit_skb(struct sk_bu
- 	__be16 sport;
- 	int err;
- 
--	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
-+	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
-+	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
-+				geneve->info.key.tp_dst, sport);
- 	if (IS_ERR(dst))
- 		return PTR_ERR(dst);
- 
- 	skb_tunnel_check_pmtu(skb, dst, GENEVE_IPV6_HLEN + info->options_len);
- 
--	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	if (geneve->collect_md) {
- 		prio = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
- 		ttl = key->ttl;
-@@ -1034,13 +1043,18 @@ static int geneve_fill_metadata_dst(stru
- {
- 	struct ip_tunnel_info *info = skb_tunnel_info(skb);
- 	struct geneve_dev *geneve = netdev_priv(dev);
-+	__be16 sport;
- 
- 	if (ip_tunnel_info_af(info) == AF_INET) {
- 		struct rtable *rt;
- 		struct flowi4 fl4;
-+
- 		struct geneve_sock *gs4 = rcu_dereference(geneve->sock4);
-+		sport = udp_flow_src_port(geneve->net, skb,
-+					  1, USHRT_MAX, true);
- 
--		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
-+		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
-+				      geneve->info.key.tp_dst, sport);
- 		if (IS_ERR(rt))
- 			return PTR_ERR(rt);
- 
-@@ -1050,9 +1064,13 @@ static int geneve_fill_metadata_dst(stru
- 	} else if (ip_tunnel_info_af(info) == AF_INET6) {
- 		struct dst_entry *dst;
- 		struct flowi6 fl6;
-+
- 		struct geneve_sock *gs6 = rcu_dereference(geneve->sock6);
-+		sport = udp_flow_src_port(geneve->net, skb,
-+					  1, USHRT_MAX, true);
- 
--		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
-+		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
-+					geneve->info.key.tp_dst, sport);
- 		if (IS_ERR(dst))
- 			return PTR_ERR(dst);
- 
-@@ -1063,8 +1081,7 @@ static int geneve_fill_metadata_dst(stru
- 		return -EINVAL;
+--- a/drivers/net/wan/hdlc_ppp.c
++++ b/drivers/net/wan/hdlc_ppp.c
+@@ -383,11 +383,8 @@ static void ppp_cp_parse_cr(struct net_d
  	}
  
--	info->key.tp_src = udp_flow_src_port(geneve->net, skb,
--					     1, USHRT_MAX, true);
-+	info->key.tp_src = sport;
- 	info->key.tp_dst = geneve->info.key.tp_dst;
- 	return 0;
+ 	for (opt = data; len; len -= opt[1], opt += opt[1]) {
+-		if (len < 2 || len < opt[1]) {
+-			dev->stats.rx_errors++;
+-			kfree(out);
+-			return; /* bad packet, drop silently */
+-		}
++		if (len < 2 || opt[1] < 2 || len < opt[1])
++			goto err_out;
+ 
+ 		if (pid == PID_LCP)
+ 			switch (opt[0]) {
+@@ -395,6 +392,8 @@ static void ppp_cp_parse_cr(struct net_d
+ 				continue; /* MRU always OK and > 1500 bytes? */
+ 
+ 			case LCP_OPTION_ACCM: /* async control character map */
++				if (opt[1] < sizeof(valid_accm))
++					goto err_out;
+ 				if (!memcmp(opt, valid_accm,
+ 					    sizeof(valid_accm)))
+ 					continue;
+@@ -406,6 +405,8 @@ static void ppp_cp_parse_cr(struct net_d
+ 				}
+ 				break;
+ 			case LCP_OPTION_MAGIC:
++				if (len < 6)
++					goto err_out;
+ 				if (opt[1] != 6 || (!opt[2] && !opt[3] &&
+ 						    !opt[4] && !opt[5]))
+ 					break; /* reject invalid magic number */
+@@ -424,6 +425,11 @@ static void ppp_cp_parse_cr(struct net_d
+ 		ppp_cp_event(dev, pid, RCR_GOOD, CP_CONF_ACK, id, req_len, data);
+ 
+ 	kfree(out);
++	return;
++
++err_out:
++	dev->stats.rx_errors++;
++	kfree(out);
  }
+ 
+ static int ppp_rx(struct sk_buff *skb)
 
 
