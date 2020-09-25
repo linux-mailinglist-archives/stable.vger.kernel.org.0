@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B97278815
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B365278863
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729245AbgIYMwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:52:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56560 "EHLO mail.kernel.org"
+        id S1729623AbgIYMyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:54:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729271AbgIYMv7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:59 -0400
+        id S1729616AbgIYMyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:54:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84B3B21741;
-        Fri, 25 Sep 2020 12:51:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2DF3206DB;
+        Fri, 25 Sep 2020 12:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038319;
-        bh=/BGLC5wKa1UuaYv394/oS8DzjMVji2z+8SKIu8l2KFw=;
+        s=default; t=1601038492;
+        bh=oCEO3l2SqYTgG5TOA0nDptZZvjG6lrB864tuU+mM7Ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ci5m1EqWqOOeAX+bXq0fPa0Ex0EyHUosZpEOf+zx2icjntcIVjVtBktyu9eWRFRVf
-         /+z+zbAyoKuDXh4AavNBZilt0aSF8NpEqVXe1x7iRLhM04+Y2KxQlR7VsklV3Zrdxu
-         DsKWsHEAtA40rRrg1wnghpCZ812XJDLTa02mE9nA=
+        b=kT1hJ9B90MkA0kqQfUGcNJWsS1h1/d9HHcTQC2RdAoYOACg2YU5PTMIayeQZ2G+yg
+         SHURK4XBF3vH7fRyVXYO9KqpF6M3FYf0sH1PQFKCd2vWJeQ1eEiVQRTvLVuLMkefDG
+         uOAWTxgvEH03PUdCPHZAPEjNxggVqkBvxTCd1lHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Simon Horman <simon.horman@netronome.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 25/43] nfp: use correct define to return NONE fec
-Date:   Fri, 25 Sep 2020 14:48:37 +0200
-Message-Id: <20200925124727.398993012@linuxfoundation.org>
+Subject: [PATCH 4.19 10/37] net: DCB: Validate DCB_ATTR_DCB_BUFFER argument
+Date:   Fri, 25 Sep 2020 14:48:38 +0200
+Message-Id: <20200925124722.503844295@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
-References: <20200925124723.575329814@linuxfoundation.org>
+In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
+References: <20200925124720.972208530@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Petr Machata <petrm@nvidia.com>
 
-[ Upstream commit 5f6857e808a8bd078296575b417c4b9d160b9779 ]
+[ Upstream commit 297e77e53eadb332d5062913447b104a772dc33b ]
 
-struct ethtool_fecparam carries bitmasks not bit numbers.
-We want to return 1 (NONE), not 0.
+The parameter passed via DCB_ATTR_DCB_BUFFER is a struct dcbnl_buffer. The
+field prio2buffer is an array of IEEE_8021Q_MAX_PRIORITIES bytes, where
+each value is a number of a buffer to direct that priority's traffic to.
+That value is however never validated to lie within the bounds set by
+DCBX_MAX_BUFFERS. The only driver that currently implements the callback is
+mlx5 (maintainers CCd), and that does not do any validation either, in
+particual allowing incorrect configuration if the prio2buffer value does
+not fit into 4 bits.
 
-Fixes: 0d0870938337 ("nfp: implement ethtool FEC mode settings")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Instead of offloading the need to validate the buffer index to drivers, do
+it right there in core, and bounce the request if the value is too large.
+
+CC: Parav Pandit <parav@nvidia.com>
+CC: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: e549f6f9c098 ("net/dcb: Add dcbnl buffer attribute")
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/dcb/dcbnl.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-@@ -731,8 +731,8 @@ nfp_port_get_fecparam(struct net_device
- 	struct nfp_eth_table_port *eth_port;
- 	struct nfp_port *port;
+--- a/net/dcb/dcbnl.c
++++ b/net/dcb/dcbnl.c
+@@ -1421,6 +1421,7 @@ static int dcbnl_ieee_set(struct net_dev
+ {
+ 	const struct dcbnl_rtnl_ops *ops = netdev->dcbnl_ops;
+ 	struct nlattr *ieee[DCB_ATTR_IEEE_MAX + 1];
++	int prio;
+ 	int err;
  
--	param->active_fec = ETHTOOL_FEC_NONE_BIT;
--	param->fec = ETHTOOL_FEC_NONE_BIT;
-+	param->active_fec = ETHTOOL_FEC_NONE;
-+	param->fec = ETHTOOL_FEC_NONE;
+ 	if (!ops)
+@@ -1469,6 +1470,13 @@ static int dcbnl_ieee_set(struct net_dev
+ 		struct dcbnl_buffer *buffer =
+ 			nla_data(ieee[DCB_ATTR_DCB_BUFFER]);
  
- 	port = nfp_port_from_netdev(netdev);
- 	eth_port = nfp_port_get_eth_port(port);
++		for (prio = 0; prio < ARRAY_SIZE(buffer->prio2buffer); prio++) {
++			if (buffer->prio2buffer[prio] >= DCBX_MAX_BUFFERS) {
++				err = -EINVAL;
++				goto err;
++			}
++		}
++
+ 		err = ops->dcbnl_setbuffer(netdev, buffer);
+ 		if (err)
+ 			goto err;
 
 
