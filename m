@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BF72793CB
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 23:55:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CA862793CD
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 23:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727154AbgIYVzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 17:55:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38686 "EHLO
+        id S1727459AbgIYVzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 17:55:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726689AbgIYVzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 17:55:35 -0400
+        with ESMTP id S1726689AbgIYVzh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 17:55:37 -0400
 Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FD9CC0613CE
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 14:55:34 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id c2so3610211ljj.12
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 14:55:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4BDEC0613CE
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 14:55:36 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id v23so3670612ljd.1
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 14:55:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=SeTL0c/7JNOZbHDDafGIj2Lq9RezRDqi3GjRLXy3MsM=;
-        b=pVGittCTqyTKqdvnYw2YphLU++ysqA22ptlbtdIiK4INItNg77NscljoTBoNwuQF9G
-         lq4iY831pPMXw1xmkRNDWa3VzqlQe9Q4x+HwoNYH8C2Q4rgVpA+pSXs9VGq8zrCsjZDe
-         ds5Bd0uh20DgrUA7XfoKF+/Z4q3UstXzX+RD8c1rPxSd4E97oDiExrezqx4XZUUYqcAE
-         g1+/xJHNi+MlZRO1wb+g2TKz350ARMIBcDM2cMsk9vqus0iFKA+vDmJ5tMQDWa9ekXv/
-         kKI21HYapqXBDQVv46R3+M1H6L0+brO4XWTpVRhCYVqKtHEUEvYCZWGgXF0IQ3DdDmMO
-         t4RQ==
+        bh=IqWRtJXL3h+0YNOWDfr/oyE5XU2E5SGs9B5R12b/mYU=;
+        b=smLOvcFFfth/d/eCeWfi6sPNLPRxKuTHjZl6Qa78IJFY39bb2+0XlYQLC/pEPb0S5f
+         krWWfpXYbxD08VHxrcxWjPchRtbLuzebmEukSrshxr4xU4tX1dR3f82OTovIcu62v4qP
+         g20pfMDZ8diisUnm+1Se1IT4VvLZ2kruNSpscC6of4431D4LgyhrDdtXJZYCE10wtpdt
+         gxO0psNfOrRHtRtDqjM8ju1BdpYSQbTemoNMxpKvwnAofmyb1mB3SQUq2a4pcitvlfIv
+         b+hARjlJum+osgCVbXdK/+NORGUg++RWT54fIlmgTwTdM1sxpO02quE75L1NTKySgjPZ
+         KjOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
          :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=SeTL0c/7JNOZbHDDafGIj2Lq9RezRDqi3GjRLXy3MsM=;
-        b=UXbl9QFEd1Mve6m58v0jAPMMMearfoaq+IQD0IgEPo3hVi2xefSSR/gidxu6IuF7ej
-         savNYSXPmKAQoE0NUM96A7VtovPIdw5McIwKbwgOWMmEUFEphhQd/3VQ/6Za0z6tg1FQ
-         Bwd+5ZYbHyLzcV5pcMEJqALiCy2DxxHlkJ7HJcXpGhUjOylddQoymjK9kitsWbmvOs5/
-         wjQMq+X0aDmdgcLlTA5b2UpCNN8QpMgk3m01btXEk74JAcsDcmdf7sTW+EyUJYAOYdxt
-         IQBDf/50X4X2oV8QCGCa6mhxe8zL9Ncqt9bZEOQKiktVkOifAWd7cJROhnbi/eLrhx7F
-         oIIg==
-X-Gm-Message-State: AOAM533XDK+dIFCTvK2vepz0XrDkmechQ1gIRoF8QmSjvDXxZ8TwCg0v
-        XsOULfT69Zrbh14CwUhWM/M=
-X-Google-Smtp-Source: ABdhPJx6ytnXJvCZhen05QP8JCFosKED8273RviYERaPsmA21OzhS4aeWsWvQ4UgzSKTTJs019juqg==
-X-Received: by 2002:a05:651c:1188:: with SMTP id w8mr2131504ljo.344.1601070933023;
-        Fri, 25 Sep 2020 14:55:33 -0700 (PDT)
+        bh=IqWRtJXL3h+0YNOWDfr/oyE5XU2E5SGs9B5R12b/mYU=;
+        b=j2Z/cr0Kgbs6yEaCN7YGqBRlfGBYm/DUllfW8edZNhzKzwZSGGW3oliVHb3CxFUZJq
+         JNy7mwh396kuRbc+uLuestZQt6vKZk4v0pqRxGX8QeXsx+Ue7Wz4zGu9maKn2apcRA9p
+         iUd0PETS/S1Q4wWVEi3LITmpVp+KqN4x/WtnHKAOyRfhD8t8YCwto5myzeDbb62CpjbX
+         oN5xdRPBFJPa+Lm1MIxESEwBGc+5aA57Iwyp+48yQgHgJtgPX21XL99sQNcqCcKXwQS+
+         cWPlrueJEOrJb5EgY7fBWzTBaUZ14VCOA2xg+fLuN98VG7ps1vXVPm8+fa5LG2ccPJWm
+         zyvw==
+X-Gm-Message-State: AOAM532E9sMw+ls07rBoZVgXrrWwjEwLWIJtWxYNcF6bm4EXkXVrS83k
+        1CSCJer1urcczaWWvSj3qrQ=
+X-Google-Smtp-Source: ABdhPJwmQGAytj+dmXke/hXv+JGQ4Kg6h02qEjK+GXB10/h+Q3MdC1ggeZKjWovNpDVBdcczonRk5w==
+X-Received: by 2002:a2e:90d6:: with SMTP id o22mr1769262ljg.442.1601070935198;
+        Fri, 25 Sep 2020 14:55:35 -0700 (PDT)
 Received: from saturn.localdomain ([2a00:fd00:805f:db00:3926:b59a:e618:9f9c])
-        by smtp.gmail.com with ESMTPSA id j8sm261277lfr.80.2020.09.25.14.55.32
+        by smtp.gmail.com with ESMTPSA id j8sm261277lfr.80.2020.09.25.14.55.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Sep 2020 14:55:32 -0700 (PDT)
+        Fri, 25 Sep 2020 14:55:34 -0700 (PDT)
 Sender: Sam Ravnborg <sam.ravnborg@gmail.com>
 From:   Sam Ravnborg <sam@ravnborg.org>
 To:     dri-devel@lists.freedesktop.org, Heiko Stuebner <heiko@sntech.de>,
@@ -56,9 +56,9 @@ Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
         linux-rockchip@lists.infradead.org,
         Sandy Huang <hjc@rock-chips.com>, stable@vger.kernel.org,
         Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH v1 1/2] drm/rockchip: fix build due to undefined drm_gem_cma_vm_ops
-Date:   Fri, 25 Sep 2020 23:55:23 +0200
-Message-Id: <20200925215524.2899527-2-sam@ravnborg.org>
+Subject: [PATCH v1 2/2] drm/rockchip: fix warning from cdn_dp_resume
+Date:   Fri, 25 Sep 2020 23:55:24 +0200
+Message-Id: <20200925215524.2899527-3-sam@ravnborg.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200925215524.2899527-1-sam@ravnborg.org>
 References: <20200925215524.2899527-1-sam@ravnborg.org>
@@ -69,37 +69,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 0d590af3140d ("drm/rockchip: Convert to drm_gem_object_funcs")
-introduced the following build error:
+Commit 7c49abb4c2f8 ("drm/rockchip: cdn-dp-core: Make cdn_dp_core_suspend/resume static")
+introduced the following warning in some builds:
 
-rockchip_drm_gem.c:304:13: error: ‘drm_gem_cma_vm_ops’ undeclared here
-  304 |  .vm_ops = &drm_gem_cma_vm_ops,
-      |             ^~~~~~~~~~~~~~~~~~
-      |             drm_gem_mmap_obj
+cdn-dp-core.c:1124:12: warning: ‘cdn_dp_resume’ defined but not used
+ 1124 | static int cdn_dp_resume(struct device *dev)
+      |            ^~~~~~~~~~~~~
 
-Fixed by adding missing include file.
+Fix this by defining cdn_dp_resume __maybe_unused
 
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 7c49abb4c2f8 ("drm/rockchip: cdn-dp-core: Make cdn_dp_core_suspend/resume static")
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: Heiko Stuebner <heiko@sntech.de>
 Cc: Sandy Huang <hjc@rock-chips.com>
-Cc: "Heiko Stübner" <heiko@sntech.de>
 Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-rockchip@lists.infradead.org
+Cc: <stable@vger.kernel.org> # v5.8+
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_gem.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/rockchip/cdn-dp-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_gem.c b/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
-index bb3578469b03..6da15faf0192 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
-@@ -10,6 +10,7 @@
+diff --git a/drivers/gpu/drm/rockchip/cdn-dp-core.c b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+index a4a45daf93f2..1162e321aaed 100644
+--- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
++++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+@@ -1121,7 +1121,7 @@ static int cdn_dp_suspend(struct device *dev)
+ 	return ret;
+ }
  
- #include <drm/drm.h>
- #include <drm/drm_gem.h>
-+#include <drm/drm_gem_cma_helper.h>
- #include <drm/drm_prime.h>
- #include <drm/drm_vma_manager.h>
+-static int cdn_dp_resume(struct device *dev)
++static int __maybe_unused cdn_dp_resume(struct device *dev)
+ {
+ 	struct cdn_dp_device *dp = dev_get_drvdata(dev);
  
 -- 
 2.25.1
