@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44D2127888E
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:56:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 376542787FB
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:52:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729263AbgIYM4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:56:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59486 "EHLO mail.kernel.org"
+        id S1728809AbgIYMvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:51:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729460AbgIYMxm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:53:42 -0400
+        id S1729237AbgIYMvp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:51:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DEFF2072E;
-        Fri, 25 Sep 2020 12:53:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 636E52072E;
+        Fri, 25 Sep 2020 12:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038420;
-        bh=ijm+fS2MNLDNyGJf/n1YBkhk3QwMXeiOI52TRRaygOs=;
+        s=default; t=1601038305;
+        bh=ichOvx8E7brKLZKsSsf0t4baZf6sXRfKDsKHd4tJCEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z+wUp9Mvo5wySBu1h88IZ7WFKbBrXBSTI91ExL8RQHb3wZQ23W20eM/n7fal2tWAd
-         2d3fp9pZx7KtSed/SBtc1nTKqViCZT7qC137kIEtgX8L9l8qwPFCY5YHMEcwiU8dyd
-         Is5wwfwsM+sIr4UhxfUdz0HZJB9f7mr2RJ9bzz64=
+        b=L+BB6e1IhFn/P/d+WeMmFjr/OrUiQGeHMD/PAqE97teGQ+nGGkg4B9NQQtzxBGyAg
+         c+Wydu0TIkAy6fJVwxNJURp6lsBnAdX3FNiclrjfgb+9jIZLuiule7BDob1jnCoP66
+         Q8tOQrBlVXQRJukzICchovRxuariNkXE+skDC5f8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yang Shi <shy828301@gmail.com>, Zi Yan <ziy@nvidia.com>,
-        Jerome Glisse <jglisse@redhat.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Bharata B Rao <bharata@linux.ibm.com>,
-        Ben Skeggs <bskeggs@redhat.com>, Shuah Khan <shuah@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/37] mm/thp: fix __split_huge_pmd_locked() for migration PMD
-Date:   Fri, 25 Sep 2020 14:48:32 +0200
-Message-Id: <20200925124721.618613840@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 21/43] net: ipv6: fix kconfig dependency warning for IPV6_SEG6_HMAC
+Date:   Fri, 25 Sep 2020 14:48:33 +0200
+Message-Id: <20200925124726.795544655@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
-References: <20200925124720.972208530@linuxfoundation.org>
+In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
+References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,105 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ralph Campbell <rcampbell@nvidia.com>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit ec0abae6dcdf7ef88607c869bf35a4b63ce1b370 ]
+[ Upstream commit db7cd91a4be15e1485d6b58c6afc8761c59c4efb ]
 
-A migrating transparent huge page has to already be unmapped.  Otherwise,
-the page could be modified while it is being copied to a new page and data
-could be lost.  The function __split_huge_pmd() checks for a PMD migration
-entry before calling __split_huge_pmd_locked() leading one to think that
-__split_huge_pmd_locked() can handle splitting a migrating PMD.
+When IPV6_SEG6_HMAC is enabled and CRYPTO is disabled, it results in the
+following Kbuild warning:
 
-However, the code always increments the page->_mapcount and adjusts the
-memory control group accounting assuming the page is mapped.
+WARNING: unmet direct dependencies detected for CRYPTO_HMAC
+  Depends on [n]: CRYPTO [=n]
+  Selected by [y]:
+  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
 
-Also, if the PMD entry is a migration PMD entry, the call to
-is_huge_zero_pmd(*pmd) is incorrect because it calls pmd_pfn(pmd) instead
-of migration_entry_to_pfn(pmd_to_swp_entry(pmd)).  Fix these problems by
-checking for a PMD migration entry.
+WARNING: unmet direct dependencies detected for CRYPTO_SHA1
+  Depends on [n]: CRYPTO [=n]
+  Selected by [y]:
+  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
 
-Fixes: 84c3fc4e9c56 ("mm: thp: check pmd migration entry in common path")
-Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: Zi Yan <ziy@nvidia.com>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Bharata B Rao <bharata@linux.ibm.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: <stable@vger.kernel.org>	[4.14+]
-Link: https://lkml.kernel.org/r/20200903183140.19055-1-rcampbell@nvidia.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+WARNING: unmet direct dependencies detected for CRYPTO_SHA256
+  Depends on [n]: CRYPTO [=n]
+  Selected by [y]:
+  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
+
+The reason is that IPV6_SEG6_HMAC selects CRYPTO_HMAC, CRYPTO_SHA1, and
+CRYPTO_SHA256 without depending on or selecting CRYPTO while those configs
+are subordinate to CRYPTO.
+
+Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+
+Fixes: bf355b8d2c30 ("ipv6: sr: add core files for SR HMAC support")
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/huge_memory.c |   40 +++++++++++++++++++++++-----------------
- 1 file changed, 23 insertions(+), 17 deletions(-)
+ net/ipv6/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2145,7 +2145,7 @@ static void __split_huge_pmd_locked(stru
- 		put_page(page);
- 		add_mm_counter(mm, mm_counter_file(page), -HPAGE_PMD_NR);
- 		return;
--	} else if (is_huge_zero_pmd(*pmd)) {
-+	} else if (pmd_trans_huge(*pmd) && is_huge_zero_pmd(*pmd)) {
- 		/*
- 		 * FIXME: Do we want to invalidate secondary mmu by calling
- 		 * mmu_notifier_invalidate_range() see comments below inside
-@@ -2233,27 +2233,33 @@ static void __split_huge_pmd_locked(stru
- 		pte = pte_offset_map(&_pmd, addr);
- 		BUG_ON(!pte_none(*pte));
- 		set_pte_at(mm, addr, pte, entry);
--		atomic_inc(&page[i]._mapcount);
--		pte_unmap(pte);
--	}
--
--	/*
--	 * Set PG_double_map before dropping compound_mapcount to avoid
--	 * false-negative page_mapped().
--	 */
--	if (compound_mapcount(page) > 1 && !TestSetPageDoubleMap(page)) {
--		for (i = 0; i < HPAGE_PMD_NR; i++)
-+		if (!pmd_migration)
- 			atomic_inc(&page[i]._mapcount);
-+		pte_unmap(pte);
- 	}
- 
--	if (atomic_add_negative(-1, compound_mapcount_ptr(page))) {
--		/* Last compound_mapcount is gone. */
--		__dec_node_page_state(page, NR_ANON_THPS);
--		if (TestClearPageDoubleMap(page)) {
--			/* No need in mapcount reference anymore */
-+	if (!pmd_migration) {
-+		/*
-+		 * Set PG_double_map before dropping compound_mapcount to avoid
-+		 * false-negative page_mapped().
-+		 */
-+		if (compound_mapcount(page) > 1 &&
-+		    !TestSetPageDoubleMap(page)) {
- 			for (i = 0; i < HPAGE_PMD_NR; i++)
--				atomic_dec(&page[i]._mapcount);
-+				atomic_inc(&page[i]._mapcount);
-+		}
-+
-+		lock_page_memcg(page);
-+		if (atomic_add_negative(-1, compound_mapcount_ptr(page))) {
-+			/* Last compound_mapcount is gone. */
-+			__dec_lruvec_page_state(page, NR_ANON_THPS);
-+			if (TestClearPageDoubleMap(page)) {
-+				/* No need in mapcount reference anymore */
-+				for (i = 0; i < HPAGE_PMD_NR; i++)
-+					atomic_dec(&page[i]._mapcount);
-+			}
- 		}
-+		unlock_page_memcg(page);
- 	}
- 
- 	smp_wmb(); /* make pte visible before pmd */
+--- a/net/ipv6/Kconfig
++++ b/net/ipv6/Kconfig
+@@ -289,6 +289,7 @@ config IPV6_SEG6_LWTUNNEL
+ config IPV6_SEG6_HMAC
+ 	bool "IPv6: Segment Routing HMAC support"
+ 	depends on IPV6
++	select CRYPTO
+ 	select CRYPTO_HMAC
+ 	select CRYPTO_SHA1
+ 	select CRYPTO_SHA256
 
 
