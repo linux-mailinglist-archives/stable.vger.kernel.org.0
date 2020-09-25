@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C1B278810
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:52:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51718278860
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728910AbgIYMwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:52:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57026 "EHLO mail.kernel.org"
+        id S1729274AbgIYMzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:55:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728893AbgIYMwP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:52:15 -0400
+        id S1729635AbgIYMzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:55:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5B1A2075E;
-        Fri, 25 Sep 2020 12:52:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87220206DB;
+        Fri, 25 Sep 2020 12:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038335;
-        bh=pZyRP7uN2yaBC6uVXxQEhhvLSyA7oPj4hd9KWXNcxj8=;
+        s=default; t=1601038509;
+        bh=b5Wpjm1up6q4L0/jfnwWLFD4gMn0/33WnX8MqxYW5Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zVSDDNeBJ/CHBrUVOE3nhqkhUfN8NwRvVSYeohB6fFixCF/ptFXLdagyCtpYwXbES
-         /vAHOdrNVCsYQ1AJQTZpvDEK/VOD0mZgxliwW8sOB29WRZZfdzjIFk/v9Po+czu2Wd
-         +S/wcwjuxkBkpcY9c3tYHc9xQqKaxJBQQwglHbB8=
+        b=zKoC/XAOtJ+3WVHQIB2wisjiWN9KgHrKmUGVs1VPSwENLDtE9xjBz+Bgl+UIMxm9J
+         HvEbJMJ/iyxQiJ5eBSWCyVAVg0k+trOkr9aB5MSy7SOLZ4SAJhf6ZSfF3RpFRo5kQ0
+         ExibfgKDtDjanFCEYvMJfT1uNsT7zcJCKgRJ/pi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tariq Toukan <tariqt@mellanox.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.4 31/43] net/mlx5e: TLS, Do not expose FPGA TLS counter if not supported
+        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+f95d90c454864b3b5bc9@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 15/37] tipc: Fix memory leak in tipc_group_create_member()
 Date:   Fri, 25 Sep 2020 14:48:43 +0200
-Message-Id: <20200925124728.285675686@linuxfoundation.org>
+Message-Id: <20200925124723.245390291@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
-References: <20200925124723.575329814@linuxfoundation.org>
+In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
+References: <20200925124720.972208530@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit 8f0bcd19b1da3f264223abea985b9462e85a3718 ]
+[ Upstream commit bb3a420d47ab00d7e1e5083286cab15235a96680 ]
 
-The set of TLS TX global SW counters in mlx5e_tls_sw_stats_desc
-is updated from all rings by using atomic ops.
-This set of stats is used only in the FPGA TLS use case, not in
-the Connect-X TLS one, where regular per-ring counters are used.
+tipc_group_add_to_tree() returns silently if `key` matches `nkey` of an
+existing node, causing tipc_group_create_member() to leak memory. Let
+tipc_group_add_to_tree() return an error in such a case, so that
+tipc_group_create_member() can handle it properly.
 
-Do not expose them in the Connect-X use case, as this would cause
-counter duplication. For example, tx_tls_drop_no_sync_data would
-appear twice in the ethtool stats.
-
-Fixes: d2ead1f360e8 ("net/mlx5e: Add kTLS TX HW offload support")
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 75da2163dbb6 ("tipc: introduce communication groups")
+Reported-and-tested-by: syzbot+f95d90c454864b3b5bc9@syzkaller.appspotmail.com
+Cc: Hillf Danton <hdanton@sina.com>
+Link: https://syzkaller.appspot.com/bug?id=048390604fe1b60df34150265479202f10e13aff
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/tls_stats.c |   12 +++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/tipc/group.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/tls_stats.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/tls_stats.c
-@@ -35,7 +35,6 @@
- #include <net/sock.h>
+--- a/net/tipc/group.c
++++ b/net/tipc/group.c
+@@ -273,8 +273,8 @@ static struct tipc_member *tipc_group_fi
+ 	return NULL;
+ }
  
- #include "en.h"
--#include "accel/tls.h"
- #include "fpga/sdk.h"
- #include "en_accel/tls.h"
- 
-@@ -51,9 +50,14 @@ static const struct counter_desc mlx5e_t
- 
- #define NUM_TLS_SW_COUNTERS ARRAY_SIZE(mlx5e_tls_sw_stats_desc)
- 
-+static bool is_tls_atomic_stats(struct mlx5e_priv *priv)
-+{
-+	return priv->tls && !mlx5_accel_is_ktls_device(priv->mdev);
-+}
-+
- int mlx5e_tls_get_count(struct mlx5e_priv *priv)
+-static void tipc_group_add_to_tree(struct tipc_group *grp,
+-				   struct tipc_member *m)
++static int tipc_group_add_to_tree(struct tipc_group *grp,
++				  struct tipc_member *m)
  {
--	if (!priv->tls)
-+	if (!is_tls_atomic_stats(priv))
- 		return 0;
+ 	u64 nkey, key = (u64)m->node << 32 | m->port;
+ 	struct rb_node **n, *parent = NULL;
+@@ -291,10 +291,11 @@ static void tipc_group_add_to_tree(struc
+ 		else if (key > nkey)
+ 			n = &(*n)->rb_right;
+ 		else
+-			return;
++			return -EEXIST;
+ 	}
+ 	rb_link_node(&m->tree_node, parent, n);
+ 	rb_insert_color(&m->tree_node, &grp->members);
++	return 0;
+ }
  
- 	return NUM_TLS_SW_COUNTERS;
-@@ -63,7 +67,7 @@ int mlx5e_tls_get_strings(struct mlx5e_p
+ static struct tipc_member *tipc_group_create_member(struct tipc_group *grp,
+@@ -302,6 +303,7 @@ static struct tipc_member *tipc_group_cr
+ 						    u32 instance, int state)
  {
- 	unsigned int i, idx = 0;
+ 	struct tipc_member *m;
++	int ret;
  
--	if (!priv->tls)
-+	if (!is_tls_atomic_stats(priv))
- 		return 0;
- 
- 	for (i = 0; i < NUM_TLS_SW_COUNTERS; i++)
-@@ -77,7 +81,7 @@ int mlx5e_tls_get_stats(struct mlx5e_pri
- {
- 	int i, idx = 0;
- 
--	if (!priv->tls)
-+	if (!is_tls_atomic_stats(priv))
- 		return 0;
- 
- 	for (i = 0; i < NUM_TLS_SW_COUNTERS; i++)
+ 	m = kzalloc(sizeof(*m), GFP_ATOMIC);
+ 	if (!m)
+@@ -314,8 +316,12 @@ static struct tipc_member *tipc_group_cr
+ 	m->port = port;
+ 	m->instance = instance;
+ 	m->bc_acked = grp->bc_snd_nxt - 1;
++	ret = tipc_group_add_to_tree(grp, m);
++	if (ret < 0) {
++		kfree(m);
++		return NULL;
++	}
+ 	grp->member_cnt++;
+-	tipc_group_add_to_tree(grp, m);
+ 	tipc_nlist_add(&grp->dests, m->node);
+ 	m->state = state;
+ 	return m;
 
 
