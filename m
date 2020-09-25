@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 499202788AC
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 204A92787FD
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:52:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729022AbgIYMuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:50:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54112 "EHLO mail.kernel.org"
+        id S1728825AbgIYMvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:51:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729027AbgIYMuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:50:13 -0400
+        id S1729245AbgIYMvs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:51:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B6ED21D91;
-        Fri, 25 Sep 2020 12:50:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BF71206DB;
+        Fri, 25 Sep 2020 12:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038212;
-        bh=gq2ZhxyyQLi6LR7rxH3Z84UD1nXx3jrCOMTqxr7wFxI=;
+        s=default; t=1601038308;
+        bh=z0oC8lHqS57ON+A3lpGFR01MjL5Ycc+bLABi7UmN7tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hpKiRMymYXc5D8fwUwioywTcV4KX84osvuDYlGVBT0I6D6myTKuSDefJh1aHsAGz5
-         tKbChUjgJBX7LaRXJgiYHb8b83wfOgony77TZKWPxQoioMGaPi+ORD5FR4h8vVFgVI
-         9EWhKiv2KGhQWSNi7j4IbD90ZXxyg9SxQbfXT+U8=
+        b=YeUVCmlQNyBIsAtH3MkZdaeD2Qw4p60xke039v9d8N4/LZ1E2mt2UgIhWsfIpO32x
+         qJwAmHJCIOBLjfa8bAq0mtqf+rBmkCjsPgx1ID7Pe9ASf0UumgiCud+yDm2zvJgPDZ
+         F0eFU0voBhyrWSnIVE9sgMd9HAqSwUIHeRtO8aQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 44/56] wireguard: noise: take lock when removing handshake entry from table
+        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
+        Mark Bloch <mbloch@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.4 22/43] net/mlx5: Fix FTE cleanup
 Date:   Fri, 25 Sep 2020 14:48:34 +0200
-Message-Id: <20200925124734.458637468@linuxfoundation.org>
+Message-Id: <20200925124726.941993925@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
-References: <20200925124727.878494124@linuxfoundation.org>
+In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
+References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,128 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit 9179ba31367bcf481c3c79b5f028c94faad9f30a ]
+[ Upstream commit cefc23554fc259114e78a7b0908aac4610ee18eb ]
 
-Eric reported that syzkaller found a race of this variety:
+Currently, when an FTE is allocated, its refcount is decreased to 0
+with the purpose it will not be a stand alone steering object and every
+rule (destination) of the FTE would increase the refcount.
+When mlx5_cleanup_fs is called while not all rules were deleted by the
+steering users, it hit refcount underflow on the FTE once clean_tree
+calls to tree_remove_node after the deleted rules already decreased
+the refcount to 0.
 
-CPU 1                                       CPU 2
--------------------------------------------|---------------------------------------
-wg_index_hashtable_replace(old, ...)       |
-  if (hlist_unhashed(&old->index_hash))    |
-                                           | wg_index_hashtable_remove(old)
-                                           |   hlist_del_init_rcu(&old->index_hash)
-				           |     old->index_hash.pprev = NULL
-  hlist_replace_rcu(&old->index_hash, ...) |
-    *old->index_hash.pprev                 |
+FTE is no longer destroyed implicitly when the last rule (destination)
+is deleted. mlx5_del_flow_rules avoids it by increasing the refcount on
+the FTE and destroy it explicitly after all rules were deleted. So we
+can avoid the refcount underflow by making FTE as stand alone object.
+In addition need to set del_hw_func to FTE so the HW object will be
+destroyed when the FTE is deleted from the cleanup_tree flow.
 
-Syzbot wasn't actually able to reproduce this more than once or create a
-reproducer, because the race window between checking "hlist_unhashed" and
-calling "hlist_replace_rcu" is just so small. Adding an mdelay(5) or
-similar there helps make this demonstrable using this simple script:
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 2 PID: 15715 at lib/refcount.c:28 refcount_warn_saturate+0xd9/0xe0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ tree_put_node+0xf2/0x140 [mlx5_core]
+ clean_tree+0x4e/0xf0 [mlx5_core]
+ clean_tree+0x4e/0xf0 [mlx5_core]
+ clean_tree+0x4e/0xf0 [mlx5_core]
+ clean_tree+0x5f/0xf0 [mlx5_core]
+ clean_tree+0x4e/0xf0 [mlx5_core]
+ clean_tree+0x5f/0xf0 [mlx5_core]
+ mlx5_cleanup_fs+0x26/0x270 [mlx5_core]
+ mlx5_unload+0x2e/0xa0 [mlx5_core]
+ mlx5_unload_one+0x51/0x120 [mlx5_core]
+ mlx5_devlink_reload_down+0x51/0x90 [mlx5_core]
+ devlink_reload+0x39/0x120
+ ? devlink_nl_cmd_reload+0x43/0x220
+ genl_rcv_msg+0x1e4/0x420
+ ? genl_family_rcv_msg_attrs_parse+0x100/0x100
+ netlink_rcv_skb+0x47/0x110
+ genl_rcv+0x24/0x40
+ netlink_unicast+0x217/0x2f0
+ netlink_sendmsg+0x30f/0x430
+ sock_sendmsg+0x30/0x40
+ __sys_sendto+0x10e/0x140
+ ? handle_mm_fault+0xc4/0x1f0
+ ? do_page_fault+0x33f/0x630
+ __x64_sys_sendto+0x24/0x30
+ do_syscall_64+0x48/0x130
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-    #!/bin/bash
-    set -ex
-    trap 'kill $pid1; kill $pid2; ip link del wg0; ip link del wg1' EXIT
-    ip link add wg0 type wireguard
-    ip link add wg1 type wireguard
-    wg set wg0 private-key <(wg genkey) listen-port 9999
-    wg set wg1 private-key <(wg genkey) peer $(wg show wg0 public-key) endpoint 127.0.0.1:9999 persistent-keepalive 1
-    wg set wg0 peer $(wg show wg1 public-key)
-    ip link set wg0 up
-    yes link set wg1 up | ip -force -batch - &
-    pid1=$!
-    yes link set wg1 down | ip -force -batch - &
-    pid2=$!
-    wait
-
-The fundumental underlying problem is that we permit calls to wg_index_
-hashtable_remove(handshake.entry) without requiring the caller to take
-the handshake mutex that is intended to protect members of handshake
-during mutations. This is consistently the case with calls to wg_index_
-hashtable_insert(handshake.entry) and wg_index_hashtable_replace(
-handshake.entry), but it's missing from a pertinent callsite of wg_
-index_hashtable_remove(handshake.entry). So, this patch makes sure that
-mutex is taken.
-
-The original code was a little bit funky though, in the form of:
-
-    remove(handshake.entry)
-    lock(), memzero(handshake.some_members), unlock()
-    remove(handshake.entry)
-
-The original intention of that double removal pattern outside the lock
-appears to be some attempt to prevent insertions that might happen while
-locks are dropped during expensive crypto operations, but actually, all
-callers of wg_index_hashtable_insert(handshake.entry) take the write
-lock and then explicitly check handshake.state, as they should, which
-the aforementioned memzero clears, which means an insertion should
-already be impossible. And regardless, the original intention was
-necessarily racy, since it wasn't guaranteed that something else would
-run after the unlock() instead of after the remove(). So, from a
-soundness perspective, it seems positive to remove what looks like a
-hack at best.
-
-The crash from both syzbot and from the script above is as follows:
-
-  general protection fault, probably for non-canonical address 0xdffffc0000000000: 0000 [#1] PREEMPT SMP KASAN
-  KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-  CPU: 0 PID: 7395 Comm: kworker/0:3 Not tainted 5.9.0-rc4-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Workqueue: wg-kex-wg1 wg_packet_handshake_receive_worker
-  RIP: 0010:hlist_replace_rcu include/linux/rculist.h:505 [inline]
-  RIP: 0010:wg_index_hashtable_replace+0x176/0x330 drivers/net/wireguard/peerlookup.c:174
-  Code: 00 fc ff df 48 89 f9 48 c1 e9 03 80 3c 01 00 0f 85 44 01 00 00 48 b9 00 00 00 00 00 fc ff df 48 8b 45 10 48 89 c6 48 c1 ee 03 <80> 3c 0e 00 0f 85 06 01 00 00 48 85 d2 4c 89 28 74 47 e8 a3 4f b5
-  RSP: 0018:ffffc90006a97bf8 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: ffff888050ffc4f8 RCX: dffffc0000000000
-  RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff88808e04e010
-  RBP: ffff88808e04e000 R08: 0000000000000001 R09: ffff8880543d0000
-  R10: ffffed100a87a000 R11: 000000000000016e R12: ffff8880543d0000
-  R13: ffff88808e04e008 R14: ffff888050ffc508 R15: ffff888050ffc500
-  FS:  0000000000000000(0000) GS:ffff8880ae600000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00000000f5505db0 CR3: 0000000097cf7000 CR4: 00000000001526f0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-  wg_noise_handshake_begin_session+0x752/0xc9a drivers/net/wireguard/noise.c:820
-  wg_receive_handshake_packet drivers/net/wireguard/receive.c:183 [inline]
-  wg_packet_handshake_receive_worker+0x33b/0x730 drivers/net/wireguard/receive.c:220
-  process_one_work+0x94c/0x1670 kernel/workqueue.c:2269
-  worker_thread+0x64c/0x1120 kernel/workqueue.c:2415
-  kthread+0x3b5/0x4a0 kernel/kthread.c:292
-  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reported-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/wireguard/20200908145911.4090480-1-edumazet@google.com/
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 718ce4d601db ("net/mlx5: Consolidate update FTE for all removal changes")
+Fixes: bd71b08ec2ee ("net/mlx5: Support multiple updates of steering rules in parallel")
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/noise.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireguard/noise.c
-+++ b/drivers/net/wireguard/noise.c
-@@ -87,15 +87,12 @@ static void handshake_zero(struct noise_
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -629,7 +629,7 @@ static struct fs_fte *alloc_fte(struct m
+ 	fte->action = *flow_act;
+ 	fte->flow_context = spec->flow_context;
  
- void wg_noise_handshake_clear(struct noise_handshake *handshake)
- {
-+	down_write(&handshake->lock);
- 	wg_index_hashtable_remove(
- 			handshake->entry.peer->device->index_hashtable,
- 			&handshake->entry);
--	down_write(&handshake->lock);
- 	handshake_zero(handshake);
- 	up_write(&handshake->lock);
--	wg_index_hashtable_remove(
--			handshake->entry.peer->device->index_hashtable,
--			&handshake->entry);
+-	tree_init_node(&fte->node, NULL, del_sw_fte);
++	tree_init_node(&fte->node, del_hw_fte, del_sw_fte);
+ 
+ 	return fte;
  }
+@@ -1737,7 +1737,6 @@ skip_search:
+ 		up_write_ref_node(&g->node, false);
+ 		rule = add_rule_fg(g, spec, flow_act, dest, dest_num, fte);
+ 		up_write_ref_node(&fte->node, false);
+-		tree_put_node(&fte->node, false);
+ 		return rule;
+ 	}
+ 	rule = ERR_PTR(-ENOENT);
+@@ -1837,7 +1836,6 @@ search_again_locked:
+ 	up_write_ref_node(&g->node, false);
+ 	rule = add_rule_fg(g, spec, flow_act, dest, dest_num, fte);
+ 	up_write_ref_node(&fte->node, false);
+-	tree_put_node(&fte->node, false);
+ 	tree_put_node(&g->node, false);
+ 	return rule;
  
- static struct noise_keypair *keypair_create(struct wg_peer *peer)
+@@ -1930,7 +1928,9 @@ void mlx5_del_flow_rules(struct mlx5_flo
+ 		up_write_ref_node(&fte->node, false);
+ 	} else {
+ 		del_hw_fte(&fte->node);
+-		up_write(&fte->node.lock);
++		/* Avoid double call to del_hw_fte */
++		fte->node.del_hw_func = NULL;
++		up_write_ref_node(&fte->node, false);
+ 		tree_put_node(&fte->node, false);
+ 	}
+ 	kfree(handle);
 
 
