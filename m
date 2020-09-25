@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F4FE278871
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CB62278852
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728703AbgIYMzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:55:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33354 "EHLO mail.kernel.org"
+        id S1728948AbgIYMyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:54:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728682AbgIYMyf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:54:35 -0400
+        id S1729193AbgIYMyj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:54:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A859323772;
-        Fri, 25 Sep 2020 12:54:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 092D6206DB;
+        Fri, 25 Sep 2020 12:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038475;
-        bh=Ua12HAC0G3K3DF5VRKjBX2AmLRkWDG4luNFYeyvKayA=;
+        s=default; t=1601038478;
+        bh=YEHjAU3xWOY4TAikPX9+d2N52V6tY9gD7frm946fcyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jatavxo7NpdtSbhbfPMkFWxz7rYIBw+8cuH4VnQE7f3Q5hg/CYrBeiYrz/sIlbr0T
-         Oj+RcVPQ0soVu3QSuD81ZsPL2oDGWZ+bIFQtZ3eAoOSqwRoTyAYdmBUM6+nNoMVnHM
-         lX5G+F719jHQwT5Ne3n4bzlc6jb2cMVX/lKoIHO8=
+        b=fkLrWhtiDGW+2xIxnGumo13tmD8c5DhXUTnrUINpcD+oxHnC7cT5GLCX5EoGLkEIU
+         SJ04s27PyRhE6J7BpcMcwQRbvaeqab4BBjmpQaJnd/LMoTzCm6FFCvfoBlOMlx26jR
+         MHeZesA9+UK2WjRI74Vv/JesiWBrttBe0WmUfUHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH 4.19 31/37] kbuild: remove AS variable
-Date:   Fri, 25 Sep 2020 14:48:59 +0200
-Message-Id: <20200925124725.652150808@linuxfoundation.org>
+Subject: [PATCH 4.19 32/37] kbuild: replace AS=clang with LLVM_IAS=1
+Date:   Fri, 25 Sep 2020 14:49:00 +0200
+Message-Id: <20200925124725.795366914@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
 References: <20200925124720.972208530@linuxfoundation.org>
@@ -45,47 +45,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit aa824e0c962b532d5073cbb41b2efcd6f5e72bae upstream.
+commit 7e20e47c70f810d678d02941fa3c671209c4ca97 upstream.
 
-As commit 5ef872636ca7 ("kbuild: get rid of misleading $(AS) from
-documents") noted, we rarely use $(AS) directly in the kernel build.
+The 'AS' variable is unused for building the kernel. Only the remaining
+usage is to turn on the integrated assembler. A boolean flag is a better
+fit for this purpose.
 
-Now that the only/last user of $(AS) in drivers/net/wan/Makefile was
-converted to $(CC), $(AS) is no longer used in the build process.
+AS=clang was added for experts. So, I replaced it with LLVM_IAS=1,
+breaking the backward compatibility.
 
-You can still pass in AS=clang, which is just a switch to turn on
-the LLVM integrated assembler.
-
+Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
 Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-[nd: conflict in exported vars list from not backporting commit
- e83b9f55448a ("kbuild: add ability to generate BTF type info for vmlinux")]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Makefile |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ Documentation/kbuild/llvm.rst |    5 ++++-
+ Makefile                      |    2 ++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
+--- a/Documentation/kbuild/llvm.rst
++++ b/Documentation/kbuild/llvm.rst
+@@ -50,11 +50,14 @@ LLVM Utilities
+ LLVM has substitutes for GNU binutils utilities. These can be invoked as
+ additional parameters to `make`.
+ 
+-	make CC=clang AS=clang LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip \\
++	make CC=clang LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip \\
+ 	  OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-size \\
+ 	  READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar \\
+ 	  HOSTLD=ld.lld
+ 
++Currently, the integrated assembler is disabled by default. You can pass
++`LLVM_IAS=1` to enable it.
++
+ Getting Help
+ ------------
+ 
 --- a/Makefile
 +++ b/Makefile
-@@ -368,7 +368,6 @@ KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAG
- KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
- 
- # Make variables (CC, etc...)
--AS		= $(CROSS_COMPILE)as
- LD		= $(CROSS_COMPILE)ld
- CC		= $(CROSS_COMPILE)gcc
- CPP		= $(CC) -E
-@@ -434,7 +433,7 @@ KBUILD_LDFLAGS :=
- GCC_PLUGINS_CFLAGS :=
- CLANG_FLAGS :=
- 
--export ARCH SRCARCH CONFIG_SHELL HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE AS LD CC
-+export ARCH SRCARCH CONFIG_SHELL HOSTCC KBUILD_HOSTCFLAGS CROSS_COMPILE LD CC
- export CPP AR NM STRIP OBJCOPY OBJDUMP OBJSIZE READELF KBUILD_HOSTLDFLAGS KBUILD_HOSTLDLIBS
- export MAKE LEX YACC AWK GENKSYMS INSTALLKERNEL PERL PYTHON PYTHON2 PYTHON3 UTS_MACHINE
- export HOSTCXX KBUILD_HOSTCXXFLAGS LDFLAGS_MODULE CHECK CHECKFLAGS
+@@ -492,7 +492,9 @@ endif
+ ifneq ($(GCC_TOOLCHAIN),)
+ CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
+ endif
++ifneq ($(LLVM_IAS),1)
+ CLANG_FLAGS	+= -no-integrated-as
++endif
+ CLANG_FLAGS	+= -Werror=unknown-warning-option
+ KBUILD_CFLAGS	+= $(CLANG_FLAGS)
+ KBUILD_AFLAGS	+= $(CLANG_FLAGS)
 
 
