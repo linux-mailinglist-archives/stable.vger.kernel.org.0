@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E70072788B8
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B762788B2
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729436AbgIYM5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:57:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54936 "EHLO mail.kernel.org"
+        id S1728121AbgIYMu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:50:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729121AbgIYMux (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:50:53 -0400
+        id S1729129AbgIYMuz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:50:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 870182072E;
-        Fri, 25 Sep 2020 12:50:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CF4021741;
+        Fri, 25 Sep 2020 12:50:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038253;
-        bh=MRzBQckpmRJlzp2heEROamiSWfyqx3BWg29J4CRz/4Y=;
+        s=default; t=1601038255;
+        bh=a+LE7N1y/cw6pO1GRiDcCRrheFURuNGYvQyKOMjF/UA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zxXpO7GeVV1WPDB0EWZN/1UoC4PElAjQKolAF7VIT9pe4m/1hpG5bX67L5MvnVL6s
-         koqJDndey1d7eacF857S1ePp4zaUUVZ6ckCqBFczkjnmvM+UhvA/awpShInu7QEZZS
-         UuBNQIN7NFIIPsGA4mDO3scYb7bKr95rmSym+iO8=
+        b=YiDe1CUNwCDKD4qzaPbVgztlDQSHZzSW0OiwGotfJGVPloNiwQnUZ3OmpINl12XZb
+         6sS1xZEsfLvyDbc1zbRKsvEHhWUJuOA2hPI7qyKPvfVpWOGPeBVqQMUR86eef+Yohl
+         b+tFVPwW82o35rCo+PSzr3c9rntdBH4oFFriStTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 37/56] net: lantiq: Use napi_complete_done()
-Date:   Fri, 25 Sep 2020 14:48:27 +0200
-Message-Id: <20200925124733.418411190@linuxfoundation.org>
+Subject: [PATCH 5.8 38/56] net: lantiq: Disable IRQs only if NAPI gets scheduled
+Date:   Fri, 25 Sep 2020 14:48:28 +0200
+Message-Id: <20200925124733.582195949@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
 References: <20200925124727.878494124@linuxfoundation.org>
@@ -44,42 +44,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hauke Mehrtens <hauke@hauke-m.de>
 
-[ Upstream commit c582a7fea9dad4d309437d1a7e22e6d2cb380e2e ]
+[ Upstream commit 9423361da52356cb68642db5b2729b6b85aad330 ]
 
-Use napi_complete_done() and activate the interrupts when this function
-returns true. This way the generic NAPI code can take care of activating
-the interrupts.
+The napi_schedule() call will only schedule the NAPI if it is not
+already running. To make sure that we do not deactivate interrupts
+without scheduling NAPI only deactivate the interrupts in case NAPI also
+gets scheduled.
 
 Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/lantiq_xrx200.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/lantiq_xrx200.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 --- a/drivers/net/ethernet/lantiq_xrx200.c
 +++ b/drivers/net/ethernet/lantiq_xrx200.c
-@@ -230,8 +230,8 @@ static int xrx200_poll_rx(struct napi_st
- 	}
+@@ -345,10 +345,12 @@ static irqreturn_t xrx200_dma_irq(int ir
+ {
+ 	struct xrx200_chan *ch = ptr;
  
- 	if (rx < budget) {
--		napi_complete(&ch->napi);
--		ltq_dma_enable_irq(&ch->dma);
-+		if (napi_complete_done(&ch->napi, rx))
-+			ltq_dma_enable_irq(&ch->dma);
- 	}
+-	ltq_dma_disable_irq(&ch->dma);
+-	ltq_dma_ack_irq(&ch->dma);
++	if (napi_schedule_prep(&ch->napi)) {
++		__napi_schedule(&ch->napi);
++		ltq_dma_disable_irq(&ch->dma);
++	}
  
- 	return rx;
-@@ -272,8 +272,8 @@ static int xrx200_tx_housekeeping(struct
- 		netif_wake_queue(net_dev);
+-	napi_schedule(&ch->napi);
++	ltq_dma_ack_irq(&ch->dma);
  
- 	if (pkts < budget) {
--		napi_complete(&ch->napi);
--		ltq_dma_enable_irq(&ch->dma);
-+		if (napi_complete_done(&ch->napi, pkts))
-+			ltq_dma_enable_irq(&ch->dma);
- 	}
- 
- 	return pkts;
+ 	return IRQ_HANDLED;
+ }
 
 
