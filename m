@@ -2,123 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 334DB278975
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 15:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 486312789E6
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 15:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728451AbgIYNYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 09:24:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43610 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728431AbgIYNYH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 09:24:07 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC536C0613CE
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 06:24:07 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id n14so3169616pff.6
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 06:24:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=zK7OXzfeJ07lRShU+UnH4VWyFreH0agrnVZ0HFxazUM=;
-        b=zQW7pvKWmjpGkPBsWL9qCsFDKo2xvY5/PrD5wyN4kTm7yPf+4kw7DYwr0bKJthLNH5
-         d5UtAcLEu7gwbmXchZ9F650gcBwN4+7xGRiUVgSPQ42V9982lMHnNxCFqrxUquWQzL2d
-         HtaSI+LX04MMLZdnnIBUHIaJpHOLD2AGhsppwJKlgMFFfGzIvEk4tRf1RzEa1nt75Ghg
-         lSNvPle5xOaeQK4V2FY9L4COoNdMURYBeIZmXjUQBZtHzFt2xC9xcvZjbsKEtPY339Oc
-         vTX+dVxPs891OT5cNoFZT13mWBb3/DF1bmlxsrRtoavM23aKYAUGo4AQNdJgn7nGziY3
-         Tp0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=zK7OXzfeJ07lRShU+UnH4VWyFreH0agrnVZ0HFxazUM=;
-        b=ob67NghdcfXtqEX63k5m3FO4VwBJv4Ouri6l8FXMl27a+YiK9pwebMiLUkSV8KUbVI
-         FDDGW7yMDZUQH0lLIWx8YSkOhtLz6BdL8eW56sRK1dyvBDcSKyE+NZ6Olq0Xsbo1/Ohe
-         hFcW7XIuCCygdXoTt14SMNVQrz+jEuxEkGadJui+8YPMQiXttAmFDQD0ws+HiuhckTQR
-         Pb8SVRA1LzYsMsHPUjuKRqNvHkSyUqh6x6fvdjY3ZAV+AlhHbOemnRyiXFaqJhvZKMsK
-         pp6NIhBGA0MzbKC+90xwMwRx1XVOhMZu6IbzRUAPLMj+Ygdrws0YphxCAPdFRuV6JfNN
-         Fd4g==
-X-Gm-Message-State: AOAM530lLqhp0ElFs02HbqBTcD4SiD89//5WHN+YteJ5AEiugclRvhJb
-        P8XwImr2kwxL2aGYUBXFFSieINGbyfMByg==
-X-Google-Smtp-Source: ABdhPJy3Z/VsesAxhkdxpVoORcHiyxHWZIFHJ0MR2dC5t+6S20/G3dzhvMUyHaWaIknwVEfLoOm3vg==
-X-Received: by 2002:a17:902:934c:b029:d2:6356:82b7 with SMTP id g12-20020a170902934cb02900d2635682b7mr3936296plp.35.1601040246902;
-        Fri, 25 Sep 2020 06:24:06 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j14sm2104087pjz.21.2020.09.25.06.24.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Sep 2020 06:24:06 -0700 (PDT)
-Message-ID: <5f6def76.1c69fb81.53ef5.5c86@mx.google.com>
-Date:   Fri, 25 Sep 2020 06:24:06 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727290AbgIYNrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 09:47:55 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:38504 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726368AbgIYNry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 09:47:54 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 08PDjJcc134598;
+        Fri, 25 Sep 2020 13:47:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=xKCctV3/JkpuA0CeolFxLW6LjuoTV+gIWojGjEUuvTM=;
+ b=Evr6KiHcwdY+QWckT2kb6SI8LpNY2p3khJjGLfuH0VNrl7ongez0rx9oclFh1fZBmOSr
+ i4G2vvknJ6SGtq7LetRlN8AIIDgb4stkOWGCkc5Hsnnz2PgyXL4p8oe5+T92q/Rhg96t
+ BqEuFRJ4BmPFA7OHplLoNoDhOSEqwvIUUKxMj2n+FnomC2AddXoydiVwKTmldQ6XbkoO
+ /dpeh8avVh3Z1B+e3bsbCo6wznmtdAKjAqfUNoNzwmvSlTCqOPhkGrO6D6Y6Q6P3Uu3W
+ EOmmjWkPcAcSwVd/lnVb2hr2WHBCEIjsoVaBPb5Hdrf1uf41Tp0ttkMMnKxD+z0/pOhZ PQ== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2120.oracle.com with ESMTP id 33q5rgv1ru-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 25 Sep 2020 13:47:37 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 08PDeDvs062429;
+        Fri, 25 Sep 2020 13:45:37 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3020.oracle.com with ESMTP id 33r28ydunh-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 25 Sep 2020 13:45:37 +0000
+Received: from abhmp0019.oracle.com (abhmp0019.oracle.com [141.146.116.25])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 08PDjTDW020127;
+        Fri, 25 Sep 2020 13:45:29 GMT
+Received: from [10.74.86.146] (/10.74.86.146)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 25 Sep 2020 06:45:29 -0700
+Subject: Re: [PATCH] x86/xen: disable Firmware First mode for correctable
+ memory errors
+To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+Cc:     Stefano Stabellini <sstabellini@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org
+References: <20200925101148.21012-1-jgross@suse.com>
+From:   boris.ostrovsky@oracle.com
+Organization: Oracle Corporation
+Message-ID: <171970df-5f6e-5a2b-e784-e62d300a005b@oracle.com>
+Date:   Fri, 25 Sep 2020 09:45:26 -0400
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.2.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Kernel: v4.19.147-33-ge5c020f734b8
-Subject: stable-rc/queue/4.19 baseline: 183 runs,
- 1 regressions (v4.19.147-33-ge5c020f734b8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20200925101148.21012-1-jgross@suse.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9754 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999
+ suspectscore=0 adultscore=0 bulkscore=0 malwarescore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2009250096
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9754 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 impostorscore=0
+ clxscore=1015 suspectscore=0 phishscore=0 malwarescore=0
+ priorityscore=1501 mlxlogscore=999 adultscore=0 bulkscore=0 mlxscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2009250097
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 183 runs, 1 regressions (v4.19.147-33-ge5c02=
-0f734b8)
 
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 4/5    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.147-33-ge5c020f734b8/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.147-33-ge5c020f734b8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e5c020f734b869b3eef19bde5e31295b84bcd26f =
+On 9/25/20 6:11 AM, Juergen Gross wrote:
+> @@ -1296,6 +1296,14 @@ asmlinkage __visible void __init xen_start_kernel(void)
+>  
+>  	xen_smp_init();
+>  
+> +#ifdef CONFIG_ACPI
+> +	/*
+> +	 * Disable selecting "Firmware First mode" for correctable memory
+> +	 * errors, as this is the duty of the hypervisor to decide.
+> +	 */
+> +	acpi_disable_cmcff = 1;
+> +#endif
 
 
-
-Test Regressions
----------------- =
+Not that it matters greatly but should this go under if (xen_initial_domain()) clause a bit further down?
 
 
-
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 4/5    =
+Either way:
 
 
-  Details:     https://kernelci.org/test/plan/id/5f6dbd736f0b4ab645bf9dd2
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.147=
--33-ge5c020f734b8/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.147=
--33-ge5c020f734b8/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f6dbd736f0b4ab=
-645bf9dd9
-      new failure (last pass: v4.19.147-4-g5be0a4a9a40e)
-      2 lines
-
-    2020-09-25 09:50:38.571000  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-      =20
