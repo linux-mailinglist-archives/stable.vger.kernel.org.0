@@ -2,63 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81F46278E48
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:20:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 049B6278E49
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:20:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729611AbgIYQUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 12:20:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42888 "EHLO
+        id S1729612AbgIYQUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 12:20:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728654AbgIYQUi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:38 -0400
-Received: from mail-qk1-x74a.google.com (mail-qk1-x74a.google.com [IPv6:2607:f8b0:4864:20::74a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5F42C0613CE
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:38 -0700 (PDT)
-Received: by mail-qk1-x74a.google.com with SMTP id x191so2326157qkb.3
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:38 -0700 (PDT)
+        with ESMTP id S1728654AbgIYQUk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:40 -0400
+Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0906BC0613CE
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:40 -0700 (PDT)
+Received: by mail-pj1-x104a.google.com with SMTP id e4so2339359pjd.4
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=sender:date:in-reply-to:message-id:mime-version:references:subject
          :from:to:cc;
-        bh=QGrTf3r0PMi2PqL3YGN6cH3ZNN+zA8nvEnO7ohBFfOE=;
-        b=D6LsD0wXBAz1bkgAIMbMCR2M1876YiLlbRyl6jhcZT/nFhKXEFVX349o6BH7Up3RxE
-         8o8gq0xUoEdsUlxM1OMsVDryqh7rFG5/ocVzrOt1h6jaTmpBVjbX7xh9Xja/t4ILkrI3
-         c+Z3FCWDGQkBBL+Eo6N0G+llgdTHaM1QXoh4yQSiue1rHCXyuhWTzsEXN1F/dU0AfcJI
-         VmvedGa8608MVbgpHuJa500VGJTbHgvg0cUG46Dpmx3WhX1t+XPMFAz912XDJtxJfJdI
-         RP8zTXot7QeyLHNrUR+m+7uUOxQw9cP6bmF6qzh2A8hYf7Q/BEGi78z+l1K2gZ5l7rfY
-         9VwQ==
+        bh=KU8huPEhL7T7UkG35//hpouPqo6XDp+tXBvhHSjepB8=;
+        b=Hrkxa998Q2FnoRq+WycNNFC7a/B97QHFToQfZttXbcYdVDjTB+Gbwbatbx/3rgpPpt
+         BUpn3xL3kR0t8zwDeBcxXOyp9P9fP//KgDOzfLilZEtWpH6b86njKMTzVTuiI88K7ay0
+         onvcLsoPKfUSbgwWF9anqT+EVPP8yjOrywdCmsU5kNwtMum+nZlBTM9yrKHuGfYGiERx
+         MQK2uquHHQATsMSBIhUqKZVeBDZR+llspzwl7k5WYXjPoGk/zSBmalSDw3t8dC/u6s6w
+         +Gk4fb2pJUK0wr/XEupQZCwkCT0W01EZ1tZKVCTkSV8vJ1ZaNgZlm2L4RNPK7bUxnQdQ
+         DqTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=QGrTf3r0PMi2PqL3YGN6cH3ZNN+zA8nvEnO7ohBFfOE=;
-        b=V0DPyjHFXhABjAFVFHkH3Bw3qX4+ndeeb30Q9edEjSq8M6kib2LwcMKszl99jcP79Q
-         +UWIfjpt18z4w1fXHcM3QYSOzXBxXhBf4dFkTKZkAQgufINwShGMM3abnYPQ0Wt/gHpI
-         PJUul7TQqZACnzyCYdWxKLa3PzDY8Sc5xFqshebgQvJ0xYMGw4GCS3MjqeZnk4uGUEu9
-         vdC3zEOrVtxnUz0DvkmzHu59Yxe40co0xHbpFv78IPZx/cFHU+8FMW4LJeanYduKh83s
-         FL/1Bmsb9PrWJBE+WzshhSYpBFWDQQh/5pM6+NTbEnTYoFetR6bnMEIi4f9fRkrPpYYn
-         w3Nw==
-X-Gm-Message-State: AOAM530g2nrWPVv/TCDI7mvVhDSxe1l45zOnJuRgXqdKiCr8nHT89PHD
-        HORyr+cwdZtDQeYYryXnJe6j+SbtLyftiWOtKvdFMaHDx3HWYTEokDdmz4wcZ7nLxKEqeDvcwAH
-        kDED3b8MerRDnfDrls/2kYqJAW7oNpGABpi0e1bxMtRiWCo1s5qa/fZ7BbeWFnQ==
-X-Google-Smtp-Source: ABdhPJzYn4jXNM+hltx74NrVe4/4wZg6C8NXZ27vZGAeljYsYaRh3AjiBwFrR+MLFRJ0SBu7b4/q3Vm2U9A=
+        bh=KU8huPEhL7T7UkG35//hpouPqo6XDp+tXBvhHSjepB8=;
+        b=GdxF58K78FNTy3zOdGIk0pWeeqcnemoq7rOx9yMmZAiyIKRIZ71QwR5EhUb6c/jtVc
+         yIIdYEv78tuVWu8Wk2AsJdShgTyJyJgH7qIM4wLLNsyXPPhqE6DEhdAEcKOmfEWNciqO
+         lhljrYokUAo5ZG1smUnYR4/oNOwxqvdoXiTqEi7mD06+l3/5bHgCBeyjmdeaEraqxNOR
+         77L56wlufHi1vlBjJ3TgNk9urJBdiVM3i1n2AIVu2UTwbyLlRWi0aAveeHqOS0io0ywG
+         3nmgxiw4GG/Pc4WF/vcUIvLlVTodsnpRaIp9opkagNQIe98BZlGs/KCx1Y8DmuqlR3xg
+         fZkg==
+X-Gm-Message-State: AOAM533llanSqQ0thgexKjFLmesNcJlJMZo3Bq5sbM4XU7deNzjQd63x
+        KlIjONj9DRzqjFBom3z47E0XVa0pfWG7mcks1EwqPWC3po37sIGYdX52RE+bIqI46g1P+AeKHUi
+        cXmbDjEBkb2PFDmOdQRizW53hsnZgHS/gn/ZPLCUojWDdw5qkYz+ntgL0ATIa5g==
+X-Google-Smtp-Source: ABdhPJzQpVORyOny5JyJHrLQZF+85/6ZcAD61/lKKwyTunsYamu5beZ/Lmu84qthG8zgWx8GCIpF98pCe74=
 Sender: "pgonda via sendgmr" <pgonda@pgonda1.kir.corp.google.com>
 X-Received: from pgonda1.kir.corp.google.com ([2620:0:1008:1101:f693:9fff:fef4:e3a2])
- (user=pgonda job=sendgmr) by 2002:ad4:4891:: with SMTP id bv17mr61751qvb.27.1601050837620;
- Fri, 25 Sep 2020 09:20:37 -0700 (PDT)
-Date:   Fri, 25 Sep 2020 09:19:13 -0700
+ (user=pgonda job=sendgmr) by 2002:a17:902:8493:b029:d2:42a6:238 with SMTP id
+ c19-20020a1709028493b02900d242a60238mr199084plo.4.1601050839356; Fri, 25 Sep
+ 2020 09:20:39 -0700 (PDT)
+Date:   Fri, 25 Sep 2020 09:19:14 -0700
 In-Reply-To: <20200925161916.204667-1-pgonda@google.com>
-Message-Id: <20200925161916.204667-28-pgonda@google.com>
+Message-Id: <20200925161916.204667-29-pgonda@google.com>
 Mime-Version: 1.0
 References: <20200925161916.204667-1-pgonda@google.com>
 X-Mailer: git-send-email 2.28.0.681.g6f77f65b4e-goog
-Subject: [PATCH 27/30 for 5.4] dma-pool: make sure atomic pool suits device
+Subject: [PATCH 28/30 for 5.4] dma-pool: do not allocate pool memory from CMA
 From:   Peter Gonda <pgonda@google.com>
 To:     stable@vger.kernel.org
 Cc:     Peter Gonda <pgonda@google.com>,
         Jeremy Linton <jeremy.linton@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
         Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        David Rientjes <rientjes@google.com>,
         Christoph Hellwig <hch@lst.de>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
@@ -67,102 +68,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-upstream 81e9d894e03f9a279102c7aac62ea7cbf9949f4b commit.
+upstream d9765e41d8e9ea2251bf73735a2895c8bad546fc commit.
 
-When allocating DMA memory from a pool, the core can only guess which
-atomic pool will fit a device's constraints. If it doesn't, get a safer
-atomic pool and try again.
+There is no guarantee to CMA's placement, so allocating a zone specific
+atomic pool from CMA might return memory from a completely different
+memory zone. So stop using it.
 
 Fixes: c84dc6e68a1d ("dma-pool: add additional coherent pools to map to gfp mask")
 Reported-by: Jeremy Linton <jeremy.linton@arm.com>
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Tested-by: Jeremy Linton <jeremy.linton@arm.com>
+Acked-by: David Rientjes <rientjes@google.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Peter Gonda <pgonda@google.com>
 ---
- kernel/dma/pool.c | 57 ++++++++++++++++++++++++++++++-----------------
- 1 file changed, 37 insertions(+), 20 deletions(-)
+ kernel/dma/pool.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
 diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
-index 5b9eaa2b498d..d48d9acb585f 100644
+index d48d9acb585f..6bc74a2d5127 100644
 --- a/kernel/dma/pool.c
 +++ b/kernel/dma/pool.c
-@@ -240,39 +240,56 @@ static inline struct gen_pool *dma_guess_pool(struct device *dev,
- void *dma_alloc_from_pool(struct device *dev, size_t size,
- 			  struct page **ret_page, gfp_t flags)
- {
--	struct gen_pool *pool = dma_guess_pool(dev, NULL);
--	unsigned long val;
-+	struct gen_pool *pool = NULL;
-+	unsigned long val = 0;
- 	void *ptr = NULL;
+@@ -6,7 +6,6 @@
+ #include <linux/debugfs.h>
+ #include <linux/dma-direct.h>
+ #include <linux/dma-noncoherent.h>
+-#include <linux/dma-contiguous.h>
+ #include <linux/init.h>
+ #include <linux/genalloc.h>
+ #include <linux/set_memory.h>
+@@ -69,12 +68,7 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+ 
+ 	do {
+ 		pool_size = 1 << (PAGE_SHIFT + order);
 -
--	if (!pool) {
--		WARN(1, "%pGg atomic pool not initialised!\n", &flags);
--		return NULL;
-+	phys_addr_t phys;
-+
-+	while (1) {
-+		pool = dma_guess_pool(dev, pool);
-+		if (!pool) {
-+			WARN(1, "Failed to get suitable pool for %s\n",
-+			     dev_name(dev));
-+			break;
-+		}
-+
-+		val = gen_pool_alloc(pool, size);
-+		if (!val)
-+			continue;
-+
-+		phys = gen_pool_virt_to_phys(pool, val);
-+		if (dma_coherent_ok(dev, phys, size))
-+			break;
-+
-+		gen_pool_free(pool, val, size);
-+		val = 0;
- 	}
- 
--	val = gen_pool_alloc(pool, size);
--	if (likely(val)) {
--		phys_addr_t phys = gen_pool_virt_to_phys(pool, val);
- 
-+	if (val) {
- 		*ret_page = pfn_to_page(__phys_to_pfn(phys));
- 		ptr = (void *)val;
- 		memset(ptr, 0, size);
--	} else {
--		WARN_ONCE(1, "DMA coherent pool depleted, increase size "
--			     "(recommended min coherent_pool=%zuK)\n",
--			  gen_pool_size(pool) >> 9);
-+
-+		if (gen_pool_avail(pool) < atomic_pool_size)
-+			schedule_work(&atomic_pool_work);
- 	}
--	if (gen_pool_avail(pool) < atomic_pool_size)
--		schedule_work(&atomic_pool_work);
- 
- 	return ptr;
- }
- 
- bool dma_free_from_pool(struct device *dev, void *start, size_t size)
- {
--	struct gen_pool *pool = dma_guess_pool(dev, NULL);
-+	struct gen_pool *pool = NULL;
- 
--	if (!pool || !gen_pool_has_addr(pool, (unsigned long)start, size))
--		return false;
--	gen_pool_free(pool, (unsigned long)start, size);
--	return true;
-+	while (1) {
-+		pool = dma_guess_pool(dev, pool);
-+		if (!pool)
-+			return false;
-+
-+		if (gen_pool_has_addr(pool, (unsigned long)start, size)) {
-+			gen_pool_free(pool, (unsigned long)start, size);
-+			return true;
-+		}
-+	}
+-		if (dev_get_cma_area(NULL))
+-			page = dma_alloc_from_contiguous(NULL, 1 << order,
+-							 order, false);
+-		else
+-			page = alloc_pages(gfp, order);
++		page = alloc_pages(gfp, order);
+ 	} while (!page && order-- > 0);
+ 	if (!page)
+ 		goto out;
+@@ -118,8 +112,7 @@ static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
+ 	dma_common_free_remap(addr, pool_size);
+ #endif
+ free_page: __maybe_unused
+-	if (!dma_release_from_contiguous(NULL, page, 1 << order))
+-		__free_pages(page, order);
++	__free_pages(page, order);
+ out:
+ 	return ret;
  }
 -- 
 2.28.0.618.gf4bc123cb7-goog
