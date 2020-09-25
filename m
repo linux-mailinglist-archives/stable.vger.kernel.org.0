@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7139B27888A
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB768278826
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728913AbgIYMzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:55:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60422 "EHLO mail.kernel.org"
+        id S1729019AbgIYMxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:53:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729516AbgIYMyF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:54:05 -0400
+        id S1729395AbgIYMxM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C326206DB;
-        Fri, 25 Sep 2020 12:54:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 043F02075E;
+        Fri, 25 Sep 2020 12:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038444;
-        bh=cRfV6YfBduCHTUDKZMHTlGUc/NxZVQ63+K7vgn5XFww=;
+        s=default; t=1601038392;
+        bh=10+rjzhobR+RtnyIJynio14kN4zwS2zsAfOlSiIypwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rISyu1W5ZZUjkgcHbRuPm4sOqu/Czxx3J4Wn4vuoixRQcwktEDiAJQQ77pbvKIoBk
-         nnsNlEkvMyXi+Hoie51bHvXSYvl+hQTBV2+okJYSSCDc5ICFxPO3klUif4FC6lhjE/
-         VcXyBCElh/rv32xzlkvvR7YRAn0y85UxrXBPGAec=
+        b=rSqmFMqeuDjZ7CJsINnkYfmOieLWCl6P1n8+4BhlLGQCzhqURvDegFndgw+7P4XfN
+         U35pktrDem3RZTFkRZy8oJhECWv2iOmfdHF0HMnEM+zhaZabt4lJraFtUhi20WdTy2
+         ELg/tY6BK85yhA0EO/KfeHyYf8o7MJ/9AiqqXEjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Carl Huang <cjhuang@codeaurora.org>,
-        Wen Gong <wgong@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 21/37] net: qrtr: check skb_put_padto() return value
+Subject: [PATCH 5.4 37/43] net: lantiq: Disable IRQs only if NAPI gets scheduled
 Date:   Fri, 25 Sep 2020 14:48:49 +0200
-Message-Id: <20200925124724.135162241@linuxfoundation.org>
+Message-Id: <20200925124729.158570970@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
-References: <20200925124720.972208530@linuxfoundation.org>
+In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
+References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,165 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Hauke Mehrtens <hauke@hauke-m.de>
 
-[ Upstream commit 3ca1a42a52ca4b4f02061683851692ad65fefac8 ]
+[ Upstream commit 9423361da52356cb68642db5b2729b6b85aad330 ]
 
-If skb_put_padto() returns an error, skb has been freed.
-Better not touch it anymore, as reported by syzbot [1]
+The napi_schedule() call will only schedule the NAPI if it is not
+already running. To make sure that we do not deactivate interrupts
+without scheduling NAPI only deactivate the interrupts in case NAPI also
+gets scheduled.
 
-Note to qrtr maintainers : this suggests qrtr_sendmsg()
-should adjust sock_alloc_send_skb() second parameter
-to account for the potential added alignment to avoid
-reallocation.
-
-[1]
-
-BUG: KASAN: use-after-free in __skb_insert include/linux/skbuff.h:1907 [inline]
-BUG: KASAN: use-after-free in __skb_queue_before include/linux/skbuff.h:2016 [inline]
-BUG: KASAN: use-after-free in __skb_queue_tail include/linux/skbuff.h:2049 [inline]
-BUG: KASAN: use-after-free in skb_queue_tail+0x6b/0x120 net/core/skbuff.c:3146
-Write of size 8 at addr ffff88804d8ab3c0 by task syz-executor.4/4316
-
-CPU: 1 PID: 4316 Comm: syz-executor.4 Not tainted 5.9.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1d6/0x29e lib/dump_stack.c:118
- print_address_description+0x66/0x620 mm/kasan/report.c:383
- __kasan_report mm/kasan/report.c:513 [inline]
- kasan_report+0x132/0x1d0 mm/kasan/report.c:530
- __skb_insert include/linux/skbuff.h:1907 [inline]
- __skb_queue_before include/linux/skbuff.h:2016 [inline]
- __skb_queue_tail include/linux/skbuff.h:2049 [inline]
- skb_queue_tail+0x6b/0x120 net/core/skbuff.c:3146
- qrtr_tun_send+0x1a/0x40 net/qrtr/tun.c:23
- qrtr_node_enqueue+0x44f/0xc00 net/qrtr/qrtr.c:364
- qrtr_bcast_enqueue+0xbe/0x140 net/qrtr/qrtr.c:861
- qrtr_sendmsg+0x680/0x9c0 net/qrtr/qrtr.c:960
- sock_sendmsg_nosec net/socket.c:651 [inline]
- sock_sendmsg net/socket.c:671 [inline]
- sock_write_iter+0x317/0x470 net/socket.c:998
- call_write_iter include/linux/fs.h:1882 [inline]
- new_sync_write fs/read_write.c:503 [inline]
- vfs_write+0xa96/0xd10 fs/read_write.c:578
- ksys_write+0x11b/0x220 fs/read_write.c:631
- do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45d5b9
-Code: 5d b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 2b b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f84b5b81c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 0000000000038b40 RCX: 000000000045d5b9
-RDX: 0000000000000055 RSI: 0000000020001240 RDI: 0000000000000003
-RBP: 00007f84b5b81ca0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000000000000000f
-R13: 00007ffcbbf86daf R14: 00007f84b5b829c0 R15: 000000000118cf4c
-
-Allocated by task 4316:
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track mm/kasan/common.c:56 [inline]
- __kasan_kmalloc+0x100/0x130 mm/kasan/common.c:461
- slab_post_alloc_hook+0x3e/0x290 mm/slab.h:518
- slab_alloc mm/slab.c:3312 [inline]
- kmem_cache_alloc+0x1c1/0x2d0 mm/slab.c:3482
- skb_clone+0x1b2/0x370 net/core/skbuff.c:1449
- qrtr_bcast_enqueue+0x6d/0x140 net/qrtr/qrtr.c:857
- qrtr_sendmsg+0x680/0x9c0 net/qrtr/qrtr.c:960
- sock_sendmsg_nosec net/socket.c:651 [inline]
- sock_sendmsg net/socket.c:671 [inline]
- sock_write_iter+0x317/0x470 net/socket.c:998
- call_write_iter include/linux/fs.h:1882 [inline]
- new_sync_write fs/read_write.c:503 [inline]
- vfs_write+0xa96/0xd10 fs/read_write.c:578
- ksys_write+0x11b/0x220 fs/read_write.c:631
- do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Freed by task 4316:
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track+0x3d/0x70 mm/kasan/common.c:56
- kasan_set_free_info+0x17/0x30 mm/kasan/generic.c:355
- __kasan_slab_free+0xdd/0x110 mm/kasan/common.c:422
- __cache_free mm/slab.c:3418 [inline]
- kmem_cache_free+0x82/0xf0 mm/slab.c:3693
- __skb_pad+0x3f5/0x5a0 net/core/skbuff.c:1823
- __skb_put_padto include/linux/skbuff.h:3233 [inline]
- skb_put_padto include/linux/skbuff.h:3252 [inline]
- qrtr_node_enqueue+0x62f/0xc00 net/qrtr/qrtr.c:360
- qrtr_bcast_enqueue+0xbe/0x140 net/qrtr/qrtr.c:861
- qrtr_sendmsg+0x680/0x9c0 net/qrtr/qrtr.c:960
- sock_sendmsg_nosec net/socket.c:651 [inline]
- sock_sendmsg net/socket.c:671 [inline]
- sock_write_iter+0x317/0x470 net/socket.c:998
- call_write_iter include/linux/fs.h:1882 [inline]
- new_sync_write fs/read_write.c:503 [inline]
- vfs_write+0xa96/0xd10 fs/read_write.c:578
- ksys_write+0x11b/0x220 fs/read_write.c:631
- do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The buggy address belongs to the object at ffff88804d8ab3c0
- which belongs to the cache skbuff_head_cache of size 224
-The buggy address is located 0 bytes inside of
- 224-byte region [ffff88804d8ab3c0, ffff88804d8ab4a0)
-The buggy address belongs to the page:
-page:00000000ea8cccfb refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88804d8abb40 pfn:0x4d8ab
-flags: 0xfffe0000000200(slab)
-raw: 00fffe0000000200 ffffea0002237ec8 ffffea00029b3388 ffff88821bb66800
-raw: ffff88804d8abb40 ffff88804d8ab000 000000010000000b 0000000000000000
-page dumped because: kasan: bad access detected
-
-Fixes: ce57785bf91b ("net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Carl Huang <cjhuang@codeaurora.org>
-Cc: Wen Gong <wgong@codeaurora.org>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/qrtr/qrtr.c |   20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/lantiq_xrx200.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -185,7 +185,7 @@ static int qrtr_node_enqueue(struct qrtr
+--- a/drivers/net/ethernet/lantiq_xrx200.c
++++ b/drivers/net/ethernet/lantiq_xrx200.c
+@@ -344,10 +344,12 @@ static irqreturn_t xrx200_dma_irq(int ir
  {
- 	struct qrtr_hdr_v1 *hdr;
- 	size_t len = skb->len;
--	int rc = -ENODEV;
-+	int rc;
+ 	struct xrx200_chan *ch = ptr;
  
- 	hdr = skb_push(skb, sizeof(*hdr));
- 	hdr->version = cpu_to_le32(QRTR_PROTO_VER_1);
-@@ -203,15 +203,17 @@ static int qrtr_node_enqueue(struct qrtr
- 	hdr->size = cpu_to_le32(len);
- 	hdr->confirm_rx = 0;
- 
--	skb_put_padto(skb, ALIGN(len, 4) + sizeof(*hdr));
--
--	mutex_lock(&node->ep_lock);
--	if (node->ep)
--		rc = node->ep->xmit(node->ep, skb);
--	else
--		kfree_skb(skb);
--	mutex_unlock(&node->ep_lock);
-+	rc = skb_put_padto(skb, ALIGN(len, 4) + sizeof(*hdr));
- 
-+	if (!rc) {
-+		mutex_lock(&node->ep_lock);
-+		rc = -ENODEV;
-+		if (node->ep)
-+			rc = node->ep->xmit(node->ep, skb);
-+		else
-+			kfree_skb(skb);
-+		mutex_unlock(&node->ep_lock);
+-	ltq_dma_disable_irq(&ch->dma);
+-	ltq_dma_ack_irq(&ch->dma);
++	if (napi_schedule_prep(&ch->napi)) {
++		__napi_schedule(&ch->napi);
++		ltq_dma_disable_irq(&ch->dma);
 +	}
- 	return rc;
- }
  
+-	napi_schedule(&ch->napi);
++	ltq_dma_ack_irq(&ch->dma);
+ 
+ 	return IRQ_HANDLED;
+ }
 
 
