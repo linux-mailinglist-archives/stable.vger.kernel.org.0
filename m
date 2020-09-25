@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F41F227879B
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:49:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD542788DC
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728754AbgIYMs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:48:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52256 "EHLO mail.kernel.org"
+        id S1728935AbgIYM63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:58:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728693AbgIYMsy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:48:54 -0400
+        id S1728702AbgIYMs4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:48:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57E2721D91;
-        Fri, 25 Sep 2020 12:48:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0526221741;
+        Fri, 25 Sep 2020 12:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038133;
-        bh=PPN/qdWXlnXkKZBiVulHZK1tcJ6jUktf+89bZU+dDeU=;
+        s=default; t=1601038136;
+        bh=3CxEedJgFMUT9aAxvc8DjPu3Fk3FQFyN00bflofktYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EqpIcWkcXh2yONTagQVaMQ5cqeIVkEj18UJCOfZltMCqZ+7OC+jBeVVnX85qFipF/
-         ydvlMS3o4mmOPuHG923i4zXmvB+eExYZ1vpoqgyB2bul51sB0OM47r84b/UymV2f8L
-         cRTzTHzUs3U7yavi2iex2TjAJV1XTGNEXcPFMz+k=
+        b=v3ZMBGPhf0vXk3PnbzXHlvzjZcGbMZbjTY+Rhj+3mi6VlB1+IbM7FlvmSENXBn4VM
+         FCb5ReScKi83BUaPFVeIxnR6vxKIZ/G18ovUwUh7m26zykkWIyz5KdJLh3vzlCXFXR
+         Pfz9Lm2wgmlss1yhnYh/2wAUgP0+FpuVV1iR1G+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 16/56] net: DCB: Validate DCB_ATTR_DCB_BUFFER argument
-Date:   Fri, 25 Sep 2020 14:48:06 +0200
-Message-Id: <20200925124730.256745774@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.8 17/56] net: dsa: rtl8366: Properly clear member config
+Date:   Fri, 25 Sep 2020 14:48:07 +0200
+Message-Id: <20200925124730.414777419@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
 References: <20200925124727.878494124@linuxfoundation.org>
@@ -45,57 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 297e77e53eadb332d5062913447b104a772dc33b ]
+[ Upstream commit 4ddcaf1ebb5e4e99240f29d531ee69d4244fe416 ]
 
-The parameter passed via DCB_ATTR_DCB_BUFFER is a struct dcbnl_buffer. The
-field prio2buffer is an array of IEEE_8021Q_MAX_PRIORITIES bytes, where
-each value is a number of a buffer to direct that priority's traffic to.
-That value is however never validated to lie within the bounds set by
-DCBX_MAX_BUFFERS. The only driver that currently implements the callback is
-mlx5 (maintainers CCd), and that does not do any validation either, in
-particual allowing incorrect configuration if the prio2buffer value does
-not fit into 4 bits.
+When removing a port from a VLAN we are just erasing the
+member config for the VLAN, which is wrong: other ports
+can be using it.
 
-Instead of offloading the need to validate the buffer index to drivers, do
-it right there in core, and bounce the request if the value is too large.
+Just mask off the port and only zero out the rest of the
+member config once ports using of the VLAN are removed
+from it.
 
-CC: Parav Pandit <parav@nvidia.com>
-CC: Saeed Mahameed <saeedm@nvidia.com>
-Fixes: e549f6f9c098 ("net/dcb: Add dcbnl buffer attribute")
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dcb/dcbnl.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/dsa/rtl8366.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/net/dcb/dcbnl.c
-+++ b/net/dcb/dcbnl.c
-@@ -1426,6 +1426,7 @@ static int dcbnl_ieee_set(struct net_dev
- {
- 	const struct dcbnl_rtnl_ops *ops = netdev->dcbnl_ops;
- 	struct nlattr *ieee[DCB_ATTR_IEEE_MAX + 1];
-+	int prio;
- 	int err;
+--- a/drivers/net/dsa/rtl8366.c
++++ b/drivers/net/dsa/rtl8366.c
+@@ -452,13 +452,19 @@ int rtl8366_vlan_del(struct dsa_switch *
+ 				return ret;
  
- 	if (!ops)
-@@ -1475,6 +1476,13 @@ static int dcbnl_ieee_set(struct net_dev
- 		struct dcbnl_buffer *buffer =
- 			nla_data(ieee[DCB_ATTR_DCB_BUFFER]);
- 
-+		for (prio = 0; prio < ARRAY_SIZE(buffer->prio2buffer); prio++) {
-+			if (buffer->prio2buffer[prio] >= DCBX_MAX_BUFFERS) {
-+				err = -EINVAL;
-+				goto err;
-+			}
-+		}
-+
- 		err = ops->dcbnl_setbuffer(netdev, buffer);
- 		if (err)
- 			goto err;
+ 			if (vid == vlanmc.vid) {
+-				/* clear VLAN member configurations */
+-				vlanmc.vid = 0;
+-				vlanmc.priority = 0;
+-				vlanmc.member = 0;
+-				vlanmc.untag = 0;
+-				vlanmc.fid = 0;
+-
++				/* Remove this port from the VLAN */
++				vlanmc.member &= ~BIT(port);
++				vlanmc.untag &= ~BIT(port);
++				/*
++				 * If no ports are members of this VLAN
++				 * anymore then clear the whole member
++				 * config so it can be reused.
++				 */
++				if (!vlanmc.member && vlanmc.untag) {
++					vlanmc.vid = 0;
++					vlanmc.priority = 0;
++					vlanmc.fid = 0;
++				}
+ 				ret = smi->ops->set_vlan_mc(smi, i, &vlanmc);
+ 				if (ret) {
+ 					dev_err(smi->dev,
 
 
