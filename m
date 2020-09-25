@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0DD2278884
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB9E278828
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729520AbgIYMyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:54:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60516 "EHLO mail.kernel.org"
+        id S1729029AbgIYMxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:53:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728365AbgIYMyH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:54:07 -0400
+        id S1729402AbgIYMxQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02D1B2072E;
-        Fri, 25 Sep 2020 12:54:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D922122B2D;
+        Fri, 25 Sep 2020 12:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038447;
-        bh=delpviO4pXh2YsWXBUFYRjSsf2CZCAW+dQcpg3WDQos=;
+        s=default; t=1601038395;
+        bh=QDTU78AKIb92d1na6yD4ahoMWeq9A4zkhcJe83dEfiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gi7y9VhZ7Vc3fgt9ylD5gDsPqv4JfGs6FZMi3Jxob2BtAghliCMApLPOfX34Dr0U5
-         O+yDHXQ8CSX+PtERmpR5ZZmKpd4+ppwQh6fC0djp4kkfEBVI7uhBpUOU0aGbI6rWck
-         UmRvjtKUoIpR3wViCiFMwl4FsZQEyhIXZwFfqjhY=
+        b=ReT6P4jff/abOyPQxz76sITLPHaSmBIvtlmCpSAPjyWitEy9k5WbatZPQ2eUl8GDw
+         GKHDIQnqoPZFdiISF1b6krzSc7qNa2+EBuGtQ27EBEg+4qDC8KaQoJiyJGHDiUUlcl
+         XTZR6E10jZsTyXr5MBYS2YbD3/1KlzatLcvLl9fM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 22/37] net: add __must_check to skb_put_padto()
+Subject: [PATCH 5.4 38/43] net: phy: Avoid NPD upon phy_detach() when driver is unbound
 Date:   Fri, 25 Sep 2020 14:48:50 +0200
-Message-Id: <20200925124724.288529564@linuxfoundation.org>
+Message-Id: <20200925124729.312028519@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
-References: <20200925124720.972208530@linuxfoundation.org>
+In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
+References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 4a009cb04aeca0de60b73f37b102573354214b52 ]
+[ Upstream commit c2b727df7caa33876e7066bde090f40001b6d643 ]
 
-skb_put_padto() and __skb_put_padto() callers
-must check return values or risk use-after-free.
+If we have unbound the PHY driver prior to calling phy_detach() (often
+via phy_disconnect()) then we can cause a NULL pointer de-reference
+accessing the driver owner member. The steps to reproduce are:
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+echo unimac-mdio-0:01 > /sys/class/net/eth0/phydev/driver/unbind
+ip link set eth0 down
+
+Fixes: cafe8df8b9bc ("net: phy: Fix lack of reference count on PHY driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/phy/phy_device.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -3014,8 +3014,9 @@ static inline int skb_padto(struct sk_bu
-  *	is untouched. Otherwise it is extended. Returns zero on
-  *	success. The skb is freed on error if @free_on_error is true.
-  */
--static inline int __skb_put_padto(struct sk_buff *skb, unsigned int len,
--				  bool free_on_error)
-+static inline int __must_check __skb_put_padto(struct sk_buff *skb,
-+					       unsigned int len,
-+					       bool free_on_error)
- {
- 	unsigned int size = skb->len;
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1421,7 +1421,8 @@ void phy_detach(struct phy_device *phyde
  
-@@ -3038,7 +3039,7 @@ static inline int __skb_put_padto(struct
-  *	is untouched. Otherwise it is extended. Returns zero on
-  *	success. The skb is freed on error.
-  */
--static inline int skb_put_padto(struct sk_buff *skb, unsigned int len)
-+static inline int __must_check skb_put_padto(struct sk_buff *skb, unsigned int len)
- {
- 	return __skb_put_padto(skb, len, true);
- }
+ 	phy_led_triggers_unregister(phydev);
+ 
+-	module_put(phydev->mdio.dev.driver->owner);
++	if (phydev->mdio.dev.driver)
++		module_put(phydev->mdio.dev.driver->owner);
+ 
+ 	/* If the device had no specific driver before (i.e. - it
+ 	 * was using the generic driver), we unbind the device
 
 
