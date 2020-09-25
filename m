@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6013F2787A7
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91B0E27889E
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:57:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728855AbgIYMtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:49:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52798 "EHLO mail.kernel.org"
+        id S1729227AbgIYM4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:56:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728851AbgIYMtR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:49:17 -0400
+        id S1729177AbgIYMvN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:51:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6345C21741;
-        Fri, 25 Sep 2020 12:49:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C44382072E;
+        Fri, 25 Sep 2020 12:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038157;
-        bh=xQWbsodorUojqWPRQNuewOFbLauz/0x3ZIYRxKRKC3s=;
+        s=default; t=1601038272;
+        bh=SFKx5C2EQJ7V9toW7OanK7PJteM0Y4ByohNIwnS2J+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hPbWpdiipCE1+ZwLwt4RgMXesU3k5SlY4UpmaBmthNR/4slRgpelqM/0eZyFyEICO
-         qb3trJiKy7vTxSFzQ+8Fl3PhCtOhAhcNf6CQOLnTux0P3a4E5Z/JXtcISvEskBY4nr
-         s+tNjgTCzh3KpmCVo97fH7VeHhuyjJtxzmlGaQMc=
+        b=oSXPxOqk1iE94EX8bTq35EE0HasToNz/yT+BKBAJ6ZGy+/G3vGY6cH+SMn6oNUdzD
+         SIh9l+K7gm1DxEIKsxkNsnGFPUaHH/JizcJukDpfVgd2d6DQbxUAcnjOf8/yLNvlkO
+         8sh+QW3w7JbIFdchhp5WfdFqumknFJ2AJ1Rbu/h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 23/56] net: sch_generic: aviod concurrent reset and enqueue op for lockless qdisc
+        stable@vger.kernel.org, Mark Salyzyn <salyzyn@android.com>,
+        netdev@vger.kernel.org, kernel-team@android.com,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 01/43] af_key: pfkey_dump needs parameter validation
 Date:   Fri, 25 Sep 2020 14:48:13 +0200
-Message-Id: <20200925124731.295886440@linuxfoundation.org>
+Message-Id: <20200925124723.752097958@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
-References: <20200925124727.878494124@linuxfoundation.org>
+In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
+References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,111 +48,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Mark Salyzyn <salyzyn@android.com>
 
-[ Upstream commit 2fb541c862c987d02dfdf28f1545016deecfa0d5 ]
+commit 37bd22420f856fcd976989f1d4f1f7ad28e1fcac upstream.
 
-Currently there is concurrent reset and enqueue operation for the
-same lockless qdisc when there is no lock to synchronize the
-q->enqueue() in __dev_xmit_skb() with the qdisc reset operation in
-qdisc_deactivate() called by dev_deactivate_queue(), which may cause
-out-of-bounds access for priv->ring[] in hns3 driver if user has
-requested a smaller queue num when __dev_xmit_skb() still enqueue a
-skb with a larger queue_mapping after the corresponding qdisc is
-reset, and call hns3_nic_net_xmit() with that skb later.
+In pfkey_dump() dplen and splen can both be specified to access the
+xfrm_address_t structure out of bounds in__xfrm_state_filter_match()
+when it calls addr_match() with the indexes.  Return EINVAL if either
+are out of range.
 
-Reused the existing synchronize_net() in dev_deactivate_many() to
-make sure skb with larger queue_mapping enqueued to old qdisc(which
-is saved in dev_queue->qdisc_sleeping) will always be reset when
-dev_reset_queue() is called.
-
-Fixes: 6b3ba9146fe6 ("net: sched: allow qdiscs to handle locking")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: kernel-team@android.com
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/sch_generic.c |   48 +++++++++++++++++++++++++++++++++---------------
- 1 file changed, 33 insertions(+), 15 deletions(-)
 
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -1131,24 +1131,10 @@ EXPORT_SYMBOL(dev_activate);
+---
+ net/key/af_key.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
+
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -1849,6 +1849,13 @@ static int pfkey_dump(struct sock *sk, s
+ 	if (ext_hdrs[SADB_X_EXT_FILTER - 1]) {
+ 		struct sadb_x_filter *xfilter = ext_hdrs[SADB_X_EXT_FILTER - 1];
  
- static void qdisc_deactivate(struct Qdisc *qdisc)
- {
--	bool nolock = qdisc->flags & TCQ_F_NOLOCK;
--
- 	if (qdisc->flags & TCQ_F_BUILTIN)
- 		return;
--	if (test_bit(__QDISC_STATE_DEACTIVATED, &qdisc->state))
--		return;
--
--	if (nolock)
--		spin_lock_bh(&qdisc->seqlock);
--	spin_lock_bh(qdisc_lock(qdisc));
- 
- 	set_bit(__QDISC_STATE_DEACTIVATED, &qdisc->state);
--
--	qdisc_reset(qdisc);
--
--	spin_unlock_bh(qdisc_lock(qdisc));
--	if (nolock)
--		spin_unlock_bh(&qdisc->seqlock);
- }
- 
- static void dev_deactivate_queue(struct net_device *dev,
-@@ -1165,6 +1151,30 @@ static void dev_deactivate_queue(struct
- 	}
- }
- 
-+static void dev_reset_queue(struct net_device *dev,
-+			    struct netdev_queue *dev_queue,
-+			    void *_unused)
-+{
-+	struct Qdisc *qdisc;
-+	bool nolock;
-+
-+	qdisc = dev_queue->qdisc_sleeping;
-+	if (!qdisc)
-+		return;
-+
-+	nolock = qdisc->flags & TCQ_F_NOLOCK;
-+
-+	if (nolock)
-+		spin_lock_bh(&qdisc->seqlock);
-+	spin_lock_bh(qdisc_lock(qdisc));
-+
-+	qdisc_reset(qdisc);
-+
-+	spin_unlock_bh(qdisc_lock(qdisc));
-+	if (nolock)
-+		spin_unlock_bh(&qdisc->seqlock);
-+}
-+
- static bool some_qdisc_is_busy(struct net_device *dev)
- {
- 	unsigned int i;
-@@ -1213,12 +1223,20 @@ void dev_deactivate_many(struct list_hea
- 		dev_watchdog_down(dev);
- 	}
- 
--	/* Wait for outstanding qdisc-less dev_queue_xmit calls.
-+	/* Wait for outstanding qdisc-less dev_queue_xmit calls or
-+	 * outstanding qdisc enqueuing calls.
- 	 * This is avoided if all devices are in dismantle phase :
- 	 * Caller will call synchronize_net() for us
- 	 */
- 	synchronize_net();
- 
-+	list_for_each_entry(dev, head, close_list) {
-+		netdev_for_each_tx_queue(dev, dev_reset_queue, NULL);
-+
-+		if (dev_ingress_queue(dev))
-+			dev_reset_queue(dev, dev_ingress_queue(dev), NULL);
-+	}
-+
- 	/* Wait for outstanding qdisc_run calls. */
- 	list_for_each_entry(dev, head, close_list) {
- 		while (some_qdisc_is_busy(dev)) {
++		if ((xfilter->sadb_x_filter_splen >=
++			(sizeof(xfrm_address_t) << 3)) ||
++		    (xfilter->sadb_x_filter_dplen >=
++			(sizeof(xfrm_address_t) << 3))) {
++			mutex_unlock(&pfk->dump_lock);
++			return -EINVAL;
++		}
+ 		filter = kmalloc(sizeof(*filter), GFP_KERNEL);
+ 		if (filter == NULL) {
+ 			mutex_unlock(&pfk->dump_lock);
 
 
