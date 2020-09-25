@@ -2,195 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAB6277FFC
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 07:39:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF2412780C2
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 08:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727102AbgIYFjL convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 25 Sep 2020 01:39:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56616 "EHLO
+        id S1726990AbgIYGdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 02:33:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726980AbgIYFjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 01:39:11 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F74AC0613D3
-        for <stable@vger.kernel.org>; Thu, 24 Sep 2020 22:39:11 -0700 (PDT)
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1kLgRg-0006Ae-CK; Fri, 25 Sep 2020 07:39:00 +0200
-Received: from ore by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ore@pengutronix.de>)
-        id 1kLgRf-0002ub-3B; Fri, 25 Sep 2020 07:38:59 +0200
-Date:   Fri, 25 Sep 2020 07:38:59 +0200
-From:   Oleksij Rempel <o.rempel@pengutronix.de>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Oleksij Rempel <linux@rempel-privat.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] i2c: imx: Fix external abort on interrupt in exit
- paths
-Message-ID: <20200925053859.dfk3cnjsv6xy7lqy@pengutronix.de>
-References: <20200920211238.13920-1-krzk@kernel.org>
+        with ESMTP id S1726925AbgIYGdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 02:33:25 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83E6DC0613CE
+        for <stable@vger.kernel.org>; Thu, 24 Sep 2020 23:33:25 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id c13so1710738oiy.6
+        for <stable@vger.kernel.org>; Thu, 24 Sep 2020 23:33:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=BYhYUhRJ3iwbx5RvkgDxhY0ZIfAUwuAVrsbzhkyOflE=;
+        b=uhjkCK/jjQ5mOS1aHhfkyTJBEmXvGUI27fN8VEjgkbTpX8bGVON5VUxhCT1SWP4zpG
+         drU0EDK/yibaQbVELA6IepKrhbqMGGLdnBKffHHh8C1O82oLZf0TNTubmz9Zcl2eqOdW
+         QZOwf2af+iyJ9pCbPgDlFhxmHYTH7Nw976rdlxcN0QJSkJrh1ftklO8snkSCcENRhdbW
+         P+FNSwuO6GqKtA+jBPPtdLIQz50klID/d5P/oADGQaiFfVFAHGVHayf7i+Mjflt2mTZy
+         0+eralppvwgnxFE7Tf1oceMRi1i75Du0OexDs8WIlS1UIAK2SUcqo/dhjJTIq/kN49nt
+         IRrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=BYhYUhRJ3iwbx5RvkgDxhY0ZIfAUwuAVrsbzhkyOflE=;
+        b=iSZWRmKrEyNCdAkKh4Ux8VF4epP/bbXh1eNTVj1eKAykbfKYMibQX6lgNyFQEK3ISN
+         iBqPTjrEAHuBhiQzwBd4z+nZtRVvspNE0ZdOZ4b4oiAuH49WTWITegoOTmE1KO8y3CoX
+         DUIdO2/k/F5Jh6VS3vGX/tt2wtmvksQNBYH2417RJBa7deL4Gt+fxLzoZFcWTUb5qSRA
+         oTJcp3mBAcE5Iz0exTg8AM32eqcEvw9LBxRZMLJmcWD3NW7GGN9hB2JvVnzluSudoDKQ
+         uPSdsJMcf4ptximPAXDLKva8151BcvGrgbhqteZk8G5n6TWj+gSkBOJ8nbYWeUeXhyf9
+         jGlQ==
+X-Gm-Message-State: AOAM5312NP3ZJI4kHWUzJbbncTQ3lKRf4RMGW+maH83qJ48lKgWCI0+8
+        vUiq0VxXIXX8DOO8Ssf7ZJQ8P1ek3zhYcfjiMio=
+X-Google-Smtp-Source: ABdhPJy2b23Jl5YvtpV5GGudpIhBggBROc0+GNy1JmnN5fnu6WPVK+Hu2c1FOSTCbz7oFqN2/yCvTf6J3CIdFxSRr34=
+X-Received: by 2002:aca:5e56:: with SMTP id s83mr694033oib.91.1601015604840;
+ Thu, 24 Sep 2020 23:33:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20200920211238.13920-1-krzk@kernel.org>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-IRC:  #ptxdist @freenode
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-X-Uptime: 07:11:08 up 314 days, 20:29, 325 users,  load average: 0.30, 0.11,
- 0.03
-User-Agent: NeoMutt/20170113 (1.7.2)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: ore@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Reply-To: mrsmayaoliver686@gmail.com
+Sender: fareedafarah161@gmail.com
+Received: by 2002:a4a:3b8d:0:0:0:0:0 with HTTP; Thu, 24 Sep 2020 23:33:24
+ -0700 (PDT)
+From:   "Mrs. Maya Oliver" <mrsmayaoliver686@gmail.com>
+Date:   Thu, 24 Sep 2020 23:33:24 -0700
+X-Google-Sender-Auth: uW7NS7_j_yvbfjAJbZjrCqcjCT0
+Message-ID: <CANx02H=804jJmBLnTjs1bsc379NLOqG=LNe64cLdJ8tH=L-zDw@mail.gmail.com>
+Subject: My Greetings
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 20, 2020 at 11:12:38PM +0200, Krzysztof Kozlowski wrote:
-> If interrupt comes late, during probe error path or device remove (could
-> be triggered with CONFIG_DEBUG_SHIRQ), the interrupt handler
-> i2c_imx_isr() will access registers with the clock being disabled.  This
-> leads to external abort on non-linefetch on Toradex Colibri VF50 module
-> (with Vybrid VF5xx):
-> 
->     Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
->     Internal error: : 1008 [#1] ARM
->     Modules linked in:
->     CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0 #607
->     Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
->       (i2c_imx_isr) from [<8017009c>] (free_irq+0x25c/0x3b0)
->       (free_irq) from [<805844ec>] (release_nodes+0x178/0x284)
->       (release_nodes) from [<80580030>] (really_probe+0x10c/0x348)
->       (really_probe) from [<80580380>] (driver_probe_device+0x60/0x170)
->       (driver_probe_device) from [<80580630>] (device_driver_attach+0x58/0x60)
->       (device_driver_attach) from [<805806bc>] (__driver_attach+0x84/0xc0)
->       (__driver_attach) from [<8057e228>] (bus_for_each_dev+0x68/0xb4)
->       (bus_for_each_dev) from [<8057f3ec>] (bus_add_driver+0x144/0x1ec)
->       (bus_add_driver) from [<80581320>] (driver_register+0x78/0x110)
->       (driver_register) from [<8010213c>] (do_one_initcall+0xa8/0x2f4)
->       (do_one_initcall) from [<80c0100c>] (kernel_init_freeable+0x178/0x1dc)
->       (kernel_init_freeable) from [<80807048>] (kernel_init+0x8/0x110)
->       (kernel_init) from [<80100114>] (ret_from_fork+0x14/0x20)
-> 
-> Additionally, the i2c_imx_isr() could wake up the wait queue
-> (imx_i2c_struct->queue) before its initialization happens.
-> 
-> The resource-managed framework should not be used for interrupt handling,
-> because the resource will be released too late - after disabling clocks.
-> The interrupt handler is not prepared for such case.
-> 
-> Fixes: 1c4b6c3bcf30 ("i2c: imx: implement bus recovery")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+My Dear
 
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+My Name is Mrs. Maya Oliver, from Norway. I know that this message
+will be a surprise to you. Firstly, I am married to Mr. Patrick
+Oliver, A gold merchant who owns a small gold Mine in Burkina Faso; He
+died of Cardiovascular Disease in mid-March 2011. During his life time
+he deposited the sum of =E2=82=AC 8.5 Million Euro) Eight million, Five
+hundred thousand Euros in a bank in Ouagadougou the capital city of
+Burkina Faso. The deposited money was from the sale of the shares,
+death benefits payment and entitlements of my deceased husband by his
+company.
 
-Thank you!
+I am sending this message to you praying that it will reach you in
+good health, since I am not in good health condition in which I sleep
+every night without knowing if I may be alive to see the next day. I
+am suffering from long time cancer and presently i am partially
+suffering from a stroke illness which has become almost impossible for
+me to move around. I am married to my late husband for over 4 years
+before he died and is unfortunately that we don't have a child, my
+doctor confided in me that i have less chance to live. Having known my
+health condition, I decided to contact you to claim the fund since I
+don't have any relation I grew up from the orphanage home,
 
-> ---
-> 
-> Changes since v2:
-> 1. Rebase
-> 
-> Changes since v1:
-> 1. Remove the devm- and use regular methods.
-> ---
->  drivers/i2c/busses/i2c-imx.c | 24 +++++++++++++-----------
->  1 file changed, 13 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 63f4367c312b..c98529c76348 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1169,14 +1169,6 @@ static int i2c_imx_probe(struct platform_device *pdev)
->  		return ret;
->  	}
->  
-> -	/* Request IRQ */
-> -	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
-> -				pdev->name, i2c_imx);
-> -	if (ret) {
-> -		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-> -		goto clk_disable;
-> -	}
-> -
->  	/* Init queue */
->  	init_waitqueue_head(&i2c_imx->queue);
->  
-> @@ -1195,6 +1187,14 @@ static int i2c_imx_probe(struct platform_device *pdev)
->  	if (ret < 0)
->  		goto rpm_disable;
->  
-> +	/* Request IRQ */
-> +	ret = request_threaded_irq(irq, i2c_imx_isr, NULL, IRQF_SHARED,
-> +				   pdev->name, i2c_imx);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-> +		goto rpm_disable;
-> +	}
-> +
->  	/* Set up clock divider */
->  	i2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
->  	ret = of_property_read_u32(pdev->dev.of_node,
-> @@ -1237,13 +1237,12 @@ static int i2c_imx_probe(struct platform_device *pdev)
->  
->  clk_notifier_unregister:
->  	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
-> +	free_irq(irq, i2c_imx);
->  rpm_disable:
->  	pm_runtime_put_noidle(&pdev->dev);
->  	pm_runtime_disable(&pdev->dev);
->  	pm_runtime_set_suspended(&pdev->dev);
->  	pm_runtime_dont_use_autosuspend(&pdev->dev);
-> -
-> -clk_disable:
->  	clk_disable_unprepare(i2c_imx->clk);
->  	return ret;
->  }
-> @@ -1251,7 +1250,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
->  static int i2c_imx_remove(struct platform_device *pdev)
->  {
->  	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
-> -	int ret;
-> +	int irq, ret;
->  
->  	ret = pm_runtime_get_sync(&pdev->dev);
->  	if (ret < 0)
-> @@ -1271,6 +1270,9 @@ static int i2c_imx_remove(struct platform_device *pdev)
->  	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
->  
->  	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq >= 0)
-> +		free_irq(irq, i2c_imx);
->  	clk_disable_unprepare(i2c_imx->clk);
->  
->  	pm_runtime_put_noidle(&pdev->dev);
-> -- 
-> 2.17.1
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
+I have decided to donate what I have to you for the support of helping
+Motherless babies/Less privileged/Widows' because I am dying and
+diagnosed of cancer for about 2 years ago. I have been touched by God
+Almighty to donate from what I have inherited from my late husband to
+you for good work of God Almighty. I have asked Almighty God to
+forgive me and believe he has, because He is a Merciful God I will be
+going in for an operation surgery soon
 
--- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+This is the reason i need your services to stand as my next of kin or
+an executor to claim the funds for charity purposes. If this money
+remains unclaimed after my death, the bank executives or the
+government will take the money as unclaimed fund and maybe use it for
+selfish and worthless ventures, I need a very honest person who can
+claim this money and use it for Charity works, for orphanages, widows
+and also build schools for less privilege that will be named after my
+late husband and my name; I need your urgent answer to know if you
+will be able to execute this project, and I will give you more
+Information on how the fund will be transferred to your bank account.
+
+Thanks
+Mrs. Maya
