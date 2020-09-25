@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5680A27881A
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49314278840
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:54:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728934AbgIYMwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:52:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57646 "EHLO mail.kernel.org"
+        id S1729501AbgIYMyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:54:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728836AbgIYMwq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:52:46 -0400
+        id S1729484AbgIYMx7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE670206DB;
-        Fri, 25 Sep 2020 12:52:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CE382075E;
+        Fri, 25 Sep 2020 12:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038366;
-        bh=s4ATMnBSYkXOXQrhlpLJ0RE193m51HwvO1xKH0/sLzU=;
+        s=default; t=1601038439;
+        bh=0YzHSosHnylmhANNGtZ0amjWEIPc7DVm4bYLqV8Cdy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVkhV4W8wz8x+zFod6hC8Io6VIPPCSB0WTYLj9wMbSf53ciTlzk3GJVwwXUKJfgQz
-         dhpr/sChDkeCmUbOZxsNyhDnekgx1ZfMssLYIuHwdeaSKEoZXCv2cKMDhl06qPYNXi
-         kAeAQgi4OPLhA9mxWsnZ9fte9eCmI71akuFqQbOc=
+        b=t64iFHsEc7aujDQ9nqrOZUu4rtSEGuCpWPW6IOLegkxd6p3UTQCx0h8gMAR2I5rVr
+         BaAq6BAV5v7djglrjciniyUi8HbhmTkRkCMN4M5H6rvaAhccZPcQe/PDlo/I8byUSq
+         GLquN4rrWEZafT7C1dpbAHgb/+C3T5vSEIW0i1Hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 34/43] net: lantiq: Wake TX queue again
-Date:   Fri, 25 Sep 2020 14:48:46 +0200
-Message-Id: <20200925124728.728954724@linuxfoundation.org>
+Subject: [PATCH 4.19 19/37] bnxt_en: Protect bnxt_set_eee() and bnxt_set_pauseparam() with mutex.
+Date:   Fri, 25 Sep 2020 14:48:47 +0200
+Message-Id: <20200925124723.825295419@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
-References: <20200925124723.575329814@linuxfoundation.org>
+In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
+References: <20200925124720.972208530@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +43,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hauke Mehrtens <hauke@hauke-m.de>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit dea36631e6f186d4b853af67a4aef2e35cfa8bb7 ]
+[ Upstream commit a53906908148d64423398a62c4435efb0d09652c ]
 
-The call to netif_wake_queue() when the TX descriptors were freed was
-missing. When there are no TX buffers available the TX queue will be
-stopped, but it was not started again when they are available again,
-this is fixed in this patch.
+All changes related to bp->link_info require the protection of the
+link_lock mutex.  It's not sufficient to rely just on RTNL.
 
-Fixes: fe1a56420cf2 ("net: lantiq: Add Lantiq / Intel VRX200 Ethernet driver")
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Fixes: 163e9ef63641 ("bnxt_en: Fix race when modifying pause settings.")
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/lantiq_xrx200.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |   31 ++++++++++++++--------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/lantiq_xrx200.c
-+++ b/drivers/net/ethernet/lantiq_xrx200.c
-@@ -268,6 +268,9 @@ static int xrx200_tx_housekeeping(struct
- 	net_dev->stats.tx_bytes += bytes;
- 	netdev_completed_queue(ch->priv->net_dev, pkts, bytes);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -1369,9 +1369,12 @@ static int bnxt_set_pauseparam(struct ne
+ 	if (!BNXT_SINGLE_PF(bp))
+ 		return -EOPNOTSUPP;
  
-+	if (netif_queue_stopped(net_dev))
-+		netif_wake_queue(net_dev);
++	mutex_lock(&bp->link_lock);
+ 	if (epause->autoneg) {
+-		if (!(link_info->autoneg & BNXT_AUTONEG_SPEED))
+-			return -EINVAL;
++		if (!(link_info->autoneg & BNXT_AUTONEG_SPEED)) {
++			rc = -EINVAL;
++			goto pause_exit;
++		}
+ 
+ 		link_info->autoneg |= BNXT_AUTONEG_FLOW_CTRL;
+ 		if (bp->hwrm_spec_code >= 0x10201)
+@@ -1392,11 +1395,11 @@ static int bnxt_set_pauseparam(struct ne
+ 	if (epause->tx_pause)
+ 		link_info->req_flow_ctrl |= BNXT_LINK_PAUSE_TX;
+ 
+-	if (netif_running(dev)) {
+-		mutex_lock(&bp->link_lock);
++	if (netif_running(dev))
+ 		rc = bnxt_hwrm_set_pause(bp);
+-		mutex_unlock(&bp->link_lock);
+-	}
 +
- 	if (pkts < budget) {
- 		napi_complete(&ch->napi);
- 		ltq_dma_enable_irq(&ch->dma);
++pause_exit:
++	mutex_unlock(&bp->link_lock);
+ 	return rc;
+ }
+ 
+@@ -2113,8 +2116,7 @@ static int bnxt_set_eee(struct net_devic
+ 	struct bnxt *bp = netdev_priv(dev);
+ 	struct ethtool_eee *eee = &bp->eee;
+ 	struct bnxt_link_info *link_info = &bp->link_info;
+-	u32 advertising =
+-		 _bnxt_fw_to_ethtool_adv_spds(link_info->advertising, 0);
++	u32 advertising;
+ 	int rc = 0;
+ 
+ 	if (!BNXT_SINGLE_PF(bp))
+@@ -2123,19 +2125,23 @@ static int bnxt_set_eee(struct net_devic
+ 	if (!(bp->flags & BNXT_FLAG_EEE_CAP))
+ 		return -EOPNOTSUPP;
+ 
++	mutex_lock(&bp->link_lock);
++	advertising = _bnxt_fw_to_ethtool_adv_spds(link_info->advertising, 0);
+ 	if (!edata->eee_enabled)
+ 		goto eee_ok;
+ 
+ 	if (!(link_info->autoneg & BNXT_AUTONEG_SPEED)) {
+ 		netdev_warn(dev, "EEE requires autoneg\n");
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto eee_exit;
+ 	}
+ 	if (edata->tx_lpi_enabled) {
+ 		if (bp->lpi_tmr_hi && (edata->tx_lpi_timer > bp->lpi_tmr_hi ||
+ 				       edata->tx_lpi_timer < bp->lpi_tmr_lo)) {
+ 			netdev_warn(dev, "Valid LPI timer range is %d and %d microsecs\n",
+ 				    bp->lpi_tmr_lo, bp->lpi_tmr_hi);
+-			return -EINVAL;
++			rc = -EINVAL;
++			goto eee_exit;
+ 		} else if (!bp->lpi_tmr_hi) {
+ 			edata->tx_lpi_timer = eee->tx_lpi_timer;
+ 		}
+@@ -2145,7 +2151,8 @@ static int bnxt_set_eee(struct net_devic
+ 	} else if (edata->advertised & ~advertising) {
+ 		netdev_warn(dev, "EEE advertised %x must be a subset of autoneg advertised speeds %x\n",
+ 			    edata->advertised, advertising);
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto eee_exit;
+ 	}
+ 
+ 	eee->advertised = edata->advertised;
+@@ -2157,6 +2164,8 @@ eee_ok:
+ 	if (netif_running(dev))
+ 		rc = bnxt_hwrm_set_link_setting(bp, false, true);
+ 
++eee_exit:
++	mutex_unlock(&bp->link_lock);
+ 	return rc;
+ }
+ 
 
 
