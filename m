@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D63BD278835
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EFF52787D9
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729085AbgIYMxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:53:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59404 "EHLO mail.kernel.org"
+        id S1729149AbgIYMvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:51:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729074AbgIYMxk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:53:40 -0400
+        id S1729142AbgIYMvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:51:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D28B22B2D;
-        Fri, 25 Sep 2020 12:53:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 639672075E;
+        Fri, 25 Sep 2020 12:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038418;
-        bh=sEaWP1cKVH/UlgESP73BVWdO2ZFk/h/u8XOr4UONHuw=;
+        s=default; t=1601038264;
+        bh=bMf/2kq171M4B1i5Xq3TAvyNu8NheJPX7nNjgOlOZso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGX3j21SUlb+PxCjmd7FHiqQVNMgh+J065PguqM5bWqM6ZVUVVf2cnnE8dAWmKYLG
-         n1ebo4B4+I0Bl72O0tudtVxBKcNaCSv5kYjdFkQ8DOr3DG6gyHm86Al3p5ofD6CPSN
-         SAnI+9izz9SpKSOxTua1wk37oK4hOMQexMVIiItA=
+        b=d8+E0frTZAs+p0wUnw5ADJ7nVOYW4Wt9mwclHJILDN8jcnQfYAMV0cUxIw9DF/e/C
+         CRYCbi3lgwv9V3oTBI5v/TpsN2ppRu1NQcMS9HHVeaRep4M9MjA2PdTQOVchzCV6/o
+         gVwQg7IVZ6Dsjl4LvodA2s+H7ikl2CtzmaiPTooc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Song Liu <songliubraving@fb.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 03/37] kprobes: fix kill kprobe which has been marked as gone
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Carl Huang <cjhuang@codeaurora.org>,
+        Wen Gong <wgong@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.8 41/56] net: qrtr: check skb_put_padto() return value
 Date:   Fri, 25 Sep 2020 14:48:31 +0200
-Message-Id: <20200925124721.468882538@linuxfoundation.org>
+Message-Id: <20200925124734.027324810@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
-References: <20200925124720.972208530@linuxfoundation.org>
+In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
+References: <20200925124727.878494124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,70 +47,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b0399092ccebd9feef68d4ceb8d6219a8c0caa05 ]
+[ Upstream commit 3ca1a42a52ca4b4f02061683851692ad65fefac8 ]
 
-If a kprobe is marked as gone, we should not kill it again.  Otherwise, we
-can disarm the kprobe more than once.  In that case, the statistics of
-kprobe_ftrace_enabled can unbalance which can lead to that kprobe do not
-work.
+If skb_put_padto() returns an error, skb has been freed.
+Better not touch it anymore, as reported by syzbot [1]
 
-Fixes: e8386a0cb22f ("kprobes: support probing module __exit function")
-Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200822030055.32383-1-songmuchun@bytedance.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note to qrtr maintainers : this suggests qrtr_sendmsg()
+should adjust sock_alloc_send_skb() second parameter
+to account for the potential added alignment to avoid
+reallocation.
+
+[1]
+
+BUG: KASAN: use-after-free in __skb_insert include/linux/skbuff.h:1907 [inline]
+BUG: KASAN: use-after-free in __skb_queue_before include/linux/skbuff.h:2016 [inline]
+BUG: KASAN: use-after-free in __skb_queue_tail include/linux/skbuff.h:2049 [inline]
+BUG: KASAN: use-after-free in skb_queue_tail+0x6b/0x120 net/core/skbuff.c:3146
+Write of size 8 at addr ffff88804d8ab3c0 by task syz-executor.4/4316
+
+CPU: 1 PID: 4316 Comm: syz-executor.4 Not tainted 5.9.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1d6/0x29e lib/dump_stack.c:118
+ print_address_description+0x66/0x620 mm/kasan/report.c:383
+ __kasan_report mm/kasan/report.c:513 [inline]
+ kasan_report+0x132/0x1d0 mm/kasan/report.c:530
+ __skb_insert include/linux/skbuff.h:1907 [inline]
+ __skb_queue_before include/linux/skbuff.h:2016 [inline]
+ __skb_queue_tail include/linux/skbuff.h:2049 [inline]
+ skb_queue_tail+0x6b/0x120 net/core/skbuff.c:3146
+ qrtr_tun_send+0x1a/0x40 net/qrtr/tun.c:23
+ qrtr_node_enqueue+0x44f/0xc00 net/qrtr/qrtr.c:364
+ qrtr_bcast_enqueue+0xbe/0x140 net/qrtr/qrtr.c:861
+ qrtr_sendmsg+0x680/0x9c0 net/qrtr/qrtr.c:960
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ sock_write_iter+0x317/0x470 net/socket.c:998
+ call_write_iter include/linux/fs.h:1882 [inline]
+ new_sync_write fs/read_write.c:503 [inline]
+ vfs_write+0xa96/0xd10 fs/read_write.c:578
+ ksys_write+0x11b/0x220 fs/read_write.c:631
+ do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45d5b9
+Code: 5d b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 2b b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f84b5b81c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 0000000000038b40 RCX: 000000000045d5b9
+RDX: 0000000000000055 RSI: 0000000020001240 RDI: 0000000000000003
+RBP: 00007f84b5b81ca0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000000000f
+R13: 00007ffcbbf86daf R14: 00007f84b5b829c0 R15: 000000000118cf4c
+
+Allocated by task 4316:
+ kasan_save_stack mm/kasan/common.c:48 [inline]
+ kasan_set_track mm/kasan/common.c:56 [inline]
+ __kasan_kmalloc+0x100/0x130 mm/kasan/common.c:461
+ slab_post_alloc_hook+0x3e/0x290 mm/slab.h:518
+ slab_alloc mm/slab.c:3312 [inline]
+ kmem_cache_alloc+0x1c1/0x2d0 mm/slab.c:3482
+ skb_clone+0x1b2/0x370 net/core/skbuff.c:1449
+ qrtr_bcast_enqueue+0x6d/0x140 net/qrtr/qrtr.c:857
+ qrtr_sendmsg+0x680/0x9c0 net/qrtr/qrtr.c:960
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ sock_write_iter+0x317/0x470 net/socket.c:998
+ call_write_iter include/linux/fs.h:1882 [inline]
+ new_sync_write fs/read_write.c:503 [inline]
+ vfs_write+0xa96/0xd10 fs/read_write.c:578
+ ksys_write+0x11b/0x220 fs/read_write.c:631
+ do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Freed by task 4316:
+ kasan_save_stack mm/kasan/common.c:48 [inline]
+ kasan_set_track+0x3d/0x70 mm/kasan/common.c:56
+ kasan_set_free_info+0x17/0x30 mm/kasan/generic.c:355
+ __kasan_slab_free+0xdd/0x110 mm/kasan/common.c:422
+ __cache_free mm/slab.c:3418 [inline]
+ kmem_cache_free+0x82/0xf0 mm/slab.c:3693
+ __skb_pad+0x3f5/0x5a0 net/core/skbuff.c:1823
+ __skb_put_padto include/linux/skbuff.h:3233 [inline]
+ skb_put_padto include/linux/skbuff.h:3252 [inline]
+ qrtr_node_enqueue+0x62f/0xc00 net/qrtr/qrtr.c:360
+ qrtr_bcast_enqueue+0xbe/0x140 net/qrtr/qrtr.c:861
+ qrtr_sendmsg+0x680/0x9c0 net/qrtr/qrtr.c:960
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg net/socket.c:671 [inline]
+ sock_write_iter+0x317/0x470 net/socket.c:998
+ call_write_iter include/linux/fs.h:1882 [inline]
+ new_sync_write fs/read_write.c:503 [inline]
+ vfs_write+0xa96/0xd10 fs/read_write.c:578
+ ksys_write+0x11b/0x220 fs/read_write.c:631
+ do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The buggy address belongs to the object at ffff88804d8ab3c0
+ which belongs to the cache skbuff_head_cache of size 224
+The buggy address is located 0 bytes inside of
+ 224-byte region [ffff88804d8ab3c0, ffff88804d8ab4a0)
+The buggy address belongs to the page:
+page:00000000ea8cccfb refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88804d8abb40 pfn:0x4d8ab
+flags: 0xfffe0000000200(slab)
+raw: 00fffe0000000200 ffffea0002237ec8 ffffea00029b3388 ffff88821bb66800
+raw: ffff88804d8abb40 ffff88804d8ab000 000000010000000b 0000000000000000
+page dumped because: kasan: bad access detected
+
+Fixes: ce57785bf91b ("net: qrtr: fix len of skb_put_padto in qrtr_node_enqueue")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Carl Huang <cjhuang@codeaurora.org>
+Cc: Wen Gong <wgong@codeaurora.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/kprobes.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/qrtr/qrtr.c |   21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index eb4bffe6d764d..230d9d599b5aa 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2061,6 +2061,9 @@ static void kill_kprobe(struct kprobe *p)
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -332,8 +332,7 @@ static int qrtr_node_enqueue(struct qrtr
  {
- 	struct kprobe *kp;
+ 	struct qrtr_hdr_v1 *hdr;
+ 	size_t len = skb->len;
+-	int rc = -ENODEV;
+-	int confirm_rx;
++	int rc, confirm_rx;
  
-+	if (WARN_ON_ONCE(kprobe_gone(p)))
-+		return;
-+
- 	p->flags |= KPROBE_FLAG_GONE;
- 	if (kprobe_aggrprobe(p)) {
- 		/*
-@@ -2243,7 +2246,10 @@ static int kprobes_module_callback(struct notifier_block *nb,
- 	mutex_lock(&kprobe_mutex);
- 	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
- 		head = &kprobe_table[i];
--		hlist_for_each_entry_rcu(p, head, hlist)
-+		hlist_for_each_entry_rcu(p, head, hlist) {
-+			if (kprobe_gone(p))
-+				continue;
-+
- 			if (within_module_init((unsigned long)p->addr, mod) ||
- 			    (checkcore &&
- 			     within_module_core((unsigned long)p->addr, mod))) {
-@@ -2260,6 +2266,7 @@ static int kprobes_module_callback(struct notifier_block *nb,
- 				 */
- 				kill_kprobe(p);
- 			}
-+		}
- 	}
- 	mutex_unlock(&kprobe_mutex);
- 	return NOTIFY_DONE;
--- 
-2.25.1
-
+ 	confirm_rx = qrtr_tx_wait(node, to->sq_node, to->sq_port, type);
+ 	if (confirm_rx < 0) {
+@@ -357,15 +356,17 @@ static int qrtr_node_enqueue(struct qrtr
+ 	hdr->size = cpu_to_le32(len);
+ 	hdr->confirm_rx = !!confirm_rx;
+ 
+-	skb_put_padto(skb, ALIGN(len, 4) + sizeof(*hdr));
+-
+-	mutex_lock(&node->ep_lock);
+-	if (node->ep)
+-		rc = node->ep->xmit(node->ep, skb);
+-	else
+-		kfree_skb(skb);
+-	mutex_unlock(&node->ep_lock);
++	rc = skb_put_padto(skb, ALIGN(len, 4) + sizeof(*hdr));
+ 
++	if (!rc) {
++		mutex_lock(&node->ep_lock);
++		rc = -ENODEV;
++		if (node->ep)
++			rc = node->ep->xmit(node->ep, skb);
++		else
++			kfree_skb(skb);
++		mutex_unlock(&node->ep_lock);
++	}
+ 	/* Need to ensure that a subsequent message carries the otherwise lost
+ 	 * confirm_rx flag if we dropped this one */
+ 	if (rc && confirm_rx)
 
 
