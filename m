@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 353D5278883
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C340B278849
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:54:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728856AbgIYMx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:53:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59952 "EHLO mail.kernel.org"
+        id S1728430AbgIYMyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:54:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729484AbgIYMxv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:53:51 -0400
+        id S1728902AbgIYMyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:54:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35403206DB;
-        Fri, 25 Sep 2020 12:53:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A9C621741;
+        Fri, 25 Sep 2020 12:54:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038430;
-        bh=Hjba65to0WbZ8H4xOBA7DEOuoppyWz/lZKp7NGB6ctY=;
+        s=default; t=1601038461;
+        bh=OJYv3/HgTwbmB9On9i4YRFIeF0Wlb7INoEHBqX7Ip74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZABgXrbEDv3k1Yot+WW0Gme2iiShNqEPPHwyG7vEE7g9KTiyNb/MWcAKLcHqkuXdv
-         OMpOYYjzxN4Iu6QKzeq02P+2si2vGOQSr17UKtUexBo1qwQpwV+Tjz5zl4E1cxzA+j
-         N0ORd81hrviaBjxbWE7lcuVtzC6lczQC7wcq2Yy4=
+        b=iCN7FBiS3vEBvnI04ZnIpyT6BcKlWUGujFCZHmPGI9/Iz7Sl5ONr5YatRBPakEXYE
+         LE9o/bgRcJLCXaGRqjYdpdg+y16rb8UXt+vTrqVhheGgmVG6kIktVPVeFZNU83CmN9
+         hME87ZOVn2vJ0BNNm968Hkfvx6CX5ZMsOLq0JEpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Wang <weiwan@google.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 08/37] ip: fix tos reflection in ack and reset packets
-Date:   Fri, 25 Sep 2020 14:48:36 +0200
-Message-Id: <20200925124722.198455654@linuxfoundation.org>
+Subject: [PATCH 4.19 09/37] ipv6: avoid lockdep issue in fib6_del()
+Date:   Fri, 25 Sep 2020 14:48:37 +0200
+Message-Id: <20200925124722.354810488@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
 References: <20200925124720.972208530@linuxfoundation.org>
@@ -43,43 +43,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ba9e04a7ddf4f22a10e05bf9403db6b97743c7bf ]
+[ Upstream commit 843d926b003ea692468c8cc5bea1f9f58dfa8c75 ]
 
-Currently, in tcp_v4_reqsk_send_ack() and tcp_v4_send_reset(), we
-echo the TOS value of the received packets in the response.
-However, we do not want to echo the lower 2 ECN bits in accordance
-with RFC 3168 6.1.5 robustness principles.
+syzbot reported twice a lockdep issue in fib6_del() [1]
+which I think is caused by net->ipv6.fib6_null_entry
+having a NULL fib6_table pointer.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+fib6_del() already checks for fib6_null_entry special
+case, we only need to return earlier.
 
-Signed-off-by: Wei Wang <weiwan@google.com>
+Bug seems to occur very rarely, I have thus chosen
+a 'bug origin' that makes backports not too complex.
+
+[1]
+WARNING: suspicious RCU usage
+5.9.0-rc4-syzkaller #0 Not tainted
+-----------------------------
+net/ipv6/ip6_fib.c:1996 suspicious rcu_dereference_protected() usage!
+
+other info that might help us debug this:
+
+rcu_scheduler_active = 2, debug_locks = 1
+4 locks held by syz-executor.5/8095:
+ #0: ffffffff8a7ea708 (rtnl_mutex){+.+.}-{3:3}, at: ppp_release+0x178/0x240 drivers/net/ppp/ppp_generic.c:401
+ #1: ffff88804c422dd8 (&net->ipv6.fib6_gc_lock){+.-.}-{2:2}, at: spin_trylock_bh include/linux/spinlock.h:414 [inline]
+ #1: ffff88804c422dd8 (&net->ipv6.fib6_gc_lock){+.-.}-{2:2}, at: fib6_run_gc+0x21b/0x2d0 net/ipv6/ip6_fib.c:2312
+ #2: ffffffff89bd6a40 (rcu_read_lock){....}-{1:2}, at: __fib6_clean_all+0x0/0x290 net/ipv6/ip6_fib.c:2613
+ #3: ffff8880a82e6430 (&tb->tb6_lock){+.-.}-{2:2}, at: spin_lock_bh include/linux/spinlock.h:359 [inline]
+ #3: ffff8880a82e6430 (&tb->tb6_lock){+.-.}-{2:2}, at: __fib6_clean_all+0x107/0x290 net/ipv6/ip6_fib.c:2245
+
+stack backtrace:
+CPU: 1 PID: 8095 Comm: syz-executor.5 Not tainted 5.9.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x198/0x1fd lib/dump_stack.c:118
+ fib6_del+0x12b4/0x1630 net/ipv6/ip6_fib.c:1996
+ fib6_clean_node+0x39b/0x570 net/ipv6/ip6_fib.c:2180
+ fib6_walk_continue+0x4aa/0x8e0 net/ipv6/ip6_fib.c:2102
+ fib6_walk+0x182/0x370 net/ipv6/ip6_fib.c:2150
+ fib6_clean_tree+0xdb/0x120 net/ipv6/ip6_fib.c:2230
+ __fib6_clean_all+0x120/0x290 net/ipv6/ip6_fib.c:2246
+ fib6_clean_all net/ipv6/ip6_fib.c:2257 [inline]
+ fib6_run_gc+0x113/0x2d0 net/ipv6/ip6_fib.c:2320
+ ndisc_netdev_event+0x217/0x350 net/ipv6/ndisc.c:1805
+ notifier_call_chain+0xb5/0x200 kernel/notifier.c:83
+ call_netdevice_notifiers_info+0xb5/0x130 net/core/dev.c:2033
+ call_netdevice_notifiers_extack net/core/dev.c:2045 [inline]
+ call_netdevice_notifiers net/core/dev.c:2059 [inline]
+ dev_close_many+0x30b/0x650 net/core/dev.c:1634
+ rollback_registered_many+0x3a8/0x1210 net/core/dev.c:9261
+ rollback_registered net/core/dev.c:9329 [inline]
+ unregister_netdevice_queue+0x2dd/0x570 net/core/dev.c:10410
+ unregister_netdevice include/linux/netdevice.h:2774 [inline]
+ ppp_release+0x216/0x240 drivers/net/ppp/ppp_generic.c:403
+ __fput+0x285/0x920 fs/file_table.c:281
+ task_work_run+0xdd/0x190 kernel/task_work.c:141
+ tracehook_notify_resume include/linux/tracehook.h:188 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:163 [inline]
+ exit_to_user_mode_prepare+0x1e1/0x200 kernel/entry/common.c:190
+ syscall_exit_to_user_mode+0x7e/0x2e0 kernel/entry/common.c:265
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 421842edeaf6 ("net/ipv6: Add fib6_null_entry")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: David Ahern <dsahern@gmail.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_output.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv6/ip6_fib.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -73,6 +73,7 @@
- #include <net/icmp.h>
- #include <net/checksum.h>
- #include <net/inetpeer.h>
-+#include <net/inet_ecn.h>
- #include <net/lwtunnel.h>
- #include <linux/bpf-cgroup.h>
- #include <linux/igmp.h>
-@@ -1582,7 +1583,7 @@ void ip_send_unicast_reply(struct sock *
- 	if (IS_ERR(rt))
- 		return;
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -1811,14 +1811,19 @@ static void fib6_del_route(struct fib6_t
+ /* Need to own table->tb6_lock */
+ int fib6_del(struct fib6_info *rt, struct nl_info *info)
+ {
+-	struct fib6_node *fn = rcu_dereference_protected(rt->fib6_node,
+-				    lockdep_is_held(&rt->fib6_table->tb6_lock));
+-	struct fib6_table *table = rt->fib6_table;
+ 	struct net *net = info->nl_net;
+ 	struct fib6_info __rcu **rtp;
+ 	struct fib6_info __rcu **rtp_next;
++	struct fib6_table *table;
++	struct fib6_node *fn;
  
--	inet_sk(sk)->tos = arg->tos;
-+	inet_sk(sk)->tos = arg->tos & ~INET_ECN_MASK;
+-	if (!fn || rt == net->ipv6.fib6_null_entry)
++	if (rt == net->ipv6.fib6_null_entry)
++		return -ENOENT;
++
++	table = rt->fib6_table;
++	fn = rcu_dereference_protected(rt->fib6_node,
++				       lockdep_is_held(&table->tb6_lock));
++	if (!fn)
+ 		return -ENOENT;
  
- 	sk->sk_priority = skb->priority;
- 	sk->sk_protocol = ip_hdr(skb)->protocol;
+ 	WARN_ON(!(fn->fn_flags & RTN_RTINFO));
 
 
