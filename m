@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5AAB27885D
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEFCA2788AD
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729643AbgIYMzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:55:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34326 "EHLO mail.kernel.org"
+        id S1729079AbgIYMue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:50:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728993AbgIYMzE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:55:04 -0400
+        id S1729075AbgIYMub (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:50:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBD58206DB;
-        Fri, 25 Sep 2020 12:55:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BBF7206DB;
+        Fri, 25 Sep 2020 12:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038503;
-        bh=HD+6LhVe8zCaOT1+C2bNz/haLq9f9WZzd4gLeJD34Dg=;
+        s=default; t=1601038231;
+        bh=AkcCug6jGUI+GWxhsmOv0KjxurWv+xK/bDjzuT+PUlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHcS+JgD6U7CmzOlDOANFkud1rRGC4Az8LSTx+8r/y8CdJeIEvCvTrs0FapHJpVdZ
-         nPetvVA2OcrGL427SFndEMm9h6I+iG1tL0bX9CqSCX9wCyYWrXinToD7rrOcD9jVwX
-         wpTvgFsADXylyKylzk95ddBvPYMHvidVQHDRJg8I=
+        b=ri1q9XOm2Nbd1T8QmXqxQS8lw/YQLJAymeqQXx0xs80968D1AMlxZaKp86te+2zxE
+         09hTtkUkDTq4xynXhDyZaISnIUF5txN44gXHOz+iTLhjo3CQAkfhKpoLaiCqj+6lnR
+         6RNnOSppTmMsup6zg+pbdb5bQMKk5uUx1aWzMB38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
+        stable@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 13/37] net: sch_generic: aviod concurrent reset and enqueue op for lockless qdisc
+Subject: [PATCH 5.8 51/56] net: dsa: microchip: ksz8795: really set the correct number of ports
 Date:   Fri, 25 Sep 2020 14:48:41 +0200
-Message-Id: <20200925124722.922202675@linuxfoundation.org>
+Message-Id: <20200925124735.461463474@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
-References: <20200925124720.972208530@linuxfoundation.org>
+In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
+References: <20200925124727.878494124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,107 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-[ Upstream commit 2fb541c862c987d02dfdf28f1545016deecfa0d5 ]
+[ Upstream commit fd944dc24336922656a48f4608bfb41abdcdc4aa ]
 
-Currently there is concurrent reset and enqueue operation for the
-same lockless qdisc when there is no lock to synchronize the
-q->enqueue() in __dev_xmit_skb() with the qdisc reset operation in
-qdisc_deactivate() called by dev_deactivate_queue(), which may cause
-out-of-bounds access for priv->ring[] in hns3 driver if user has
-requested a smaller queue num when __dev_xmit_skb() still enqueue a
-skb with a larger queue_mapping after the corresponding qdisc is
-reset, and call hns3_nic_net_xmit() with that skb later.
+The KSZ9477 and KSZ8795 use the port_cnt field differently: For the
+KSZ9477, it includes the CPU port(s), while for the KSZ8795, it doesn't.
 
-Reused the existing synchronize_net() in dev_deactivate_many() to
-make sure skb with larger queue_mapping enqueued to old qdisc(which
-is saved in dev_queue->qdisc_sleeping) will always be reset when
-dev_reset_queue() is called.
+It would be a good cleanup to make the handling of both drivers match,
+but as a first step, fix the recently broken assignment of num_ports in
+the KSZ8795 driver (which completely broke probing, as the CPU port
+index was always failing the num_ports check).
 
-Fixes: 6b3ba9146fe6 ("net: sched: allow qdiscs to handle locking")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Fixes: af199a1a9cb0 ("net: dsa: microchip: set the correct number of ports")
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_generic.c |   49 ++++++++++++++++++++++++++++++++----------------
- 1 file changed, 33 insertions(+), 16 deletions(-)
+ drivers/net/dsa/microchip/ksz8795.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -1115,27 +1115,36 @@ static void dev_deactivate_queue(struct
- 				 struct netdev_queue *dev_queue,
- 				 void *_qdisc_default)
- {
--	struct Qdisc *qdisc_default = _qdisc_default;
--	struct Qdisc *qdisc;
-+	struct Qdisc *qdisc = rtnl_dereference(dev_queue->qdisc);
- 
--	qdisc = rtnl_dereference(dev_queue->qdisc);
- 	if (qdisc) {
--		bool nolock = qdisc->flags & TCQ_F_NOLOCK;
--
--		if (nolock)
--			spin_lock_bh(&qdisc->seqlock);
--		spin_lock_bh(qdisc_lock(qdisc));
--
- 		if (!(qdisc->flags & TCQ_F_BUILTIN))
- 			set_bit(__QDISC_STATE_DEACTIVATED, &qdisc->state);
-+	}
-+}
- 
--		rcu_assign_pointer(dev_queue->qdisc, qdisc_default);
--		qdisc_reset(qdisc);
-+static void dev_reset_queue(struct net_device *dev,
-+			    struct netdev_queue *dev_queue,
-+			    void *_unused)
-+{
-+	struct Qdisc *qdisc;
-+	bool nolock;
- 
--		spin_unlock_bh(qdisc_lock(qdisc));
--		if (nolock)
--			spin_unlock_bh(&qdisc->seqlock);
--	}
-+	qdisc = dev_queue->qdisc_sleeping;
-+	if (!qdisc)
-+		return;
-+
-+	nolock = qdisc->flags & TCQ_F_NOLOCK;
-+
-+	if (nolock)
-+		spin_lock_bh(&qdisc->seqlock);
-+	spin_lock_bh(qdisc_lock(qdisc));
-+
-+	qdisc_reset(qdisc);
-+
-+	spin_unlock_bh(qdisc_lock(qdisc));
-+	if (nolock)
-+		spin_unlock_bh(&qdisc->seqlock);
- }
- 
- static bool some_qdisc_is_busy(struct net_device *dev)
-@@ -1196,12 +1205,20 @@ void dev_deactivate_many(struct list_hea
- 		dev_watchdog_down(dev);
+--- a/drivers/net/dsa/microchip/ksz8795.c
++++ b/drivers/net/dsa/microchip/ksz8795.c
+@@ -1269,7 +1269,7 @@ static int ksz8795_switch_init(struct ks
  	}
  
--	/* Wait for outstanding qdisc-less dev_queue_xmit calls.
-+	/* Wait for outstanding qdisc-less dev_queue_xmit calls or
-+	 * outstanding qdisc enqueuing calls.
- 	 * This is avoided if all devices are in dismantle phase :
- 	 * Caller will call synchronize_net() for us
- 	 */
- 	synchronize_net();
+ 	/* set the real number of ports */
+-	dev->ds->num_ports = dev->port_cnt;
++	dev->ds->num_ports = dev->port_cnt + 1;
  
-+	list_for_each_entry(dev, head, close_list) {
-+		netdev_for_each_tx_queue(dev, dev_reset_queue, NULL);
-+
-+		if (dev_ingress_queue(dev))
-+			dev_reset_queue(dev, dev_ingress_queue(dev), NULL);
-+	}
-+
- 	/* Wait for outstanding qdisc_run calls. */
- 	list_for_each_entry(dev, head, close_list) {
- 		while (some_qdisc_is_busy(dev))
+ 	return 0;
+ }
 
 
