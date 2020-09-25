@@ -2,38 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B34F2788B6
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44D2127888E
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:56:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728504AbgIYM5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:57:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55208 "EHLO mail.kernel.org"
+        id S1729263AbgIYM4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:56:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729154AbgIYMvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:07 -0400
+        id S1729460AbgIYMxm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B2EC206DB;
-        Fri, 25 Sep 2020 12:51:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DEFF2072E;
+        Fri, 25 Sep 2020 12:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038266;
-        bh=0Tmpdw6N71PRbb7aCXjelqKZtzWw3UqqAEr+hFpvGTE=;
+        s=default; t=1601038420;
+        bh=ijm+fS2MNLDNyGJf/n1YBkhk3QwMXeiOI52TRRaygOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1S1z6pLA73Lo1s/Mnm5kNcb3JtX2YglXry8Zcl8Z6WWJtLKSiXBvsRKmXZxMFa0DI
-         jfY4oQjp6yQOcoycPJyh6qYCFQHrqrKEe09v9bWeoTfxpwDzxnxX0aKvmCF/Kp3ePM
-         k8RmNQga/jo+Fwc79rpLNC3IBYOojad8vYVme0z8=
+        b=z+wUp9Mvo5wySBu1h88IZ7WFKbBrXBSTI91ExL8RQHb3wZQ23W20eM/n7fal2tWAd
+         2d3fp9pZx7KtSed/SBtc1nTKqViCZT7qC137kIEtgX8L9l8qwPFCY5YHMEcwiU8dyd
+         Is5wwfwsM+sIr4UhxfUdz0HZJB9f7mr2RJ9bzz64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 42/56] net: add __must_check to skb_put_padto()
+        stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yang Shi <shy828301@gmail.com>, Zi Yan <ziy@nvidia.com>,
+        Jerome Glisse <jglisse@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Bharata B Rao <bharata@linux.ibm.com>,
+        Ben Skeggs <bskeggs@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 04/37] mm/thp: fix __split_huge_pmd_locked() for migration PMD
 Date:   Fri, 25 Sep 2020 14:48:32 +0200
-Message-Id: <20200925124734.168669943@linuxfoundation.org>
+Message-Id: <20200925124721.618613840@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
-References: <20200925124727.878494124@linuxfoundation.org>
+In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
+References: <20200925124720.972208530@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +52,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ralph Campbell <rcampbell@nvidia.com>
 
-[ Upstream commit 4a009cb04aeca0de60b73f37b102573354214b52 ]
+[ Upstream commit ec0abae6dcdf7ef88607c869bf35a4b63ce1b370 ]
 
-skb_put_padto() and __skb_put_padto() callers
-must check return values or risk use-after-free.
+A migrating transparent huge page has to already be unmapped.  Otherwise,
+the page could be modified while it is being copied to a new page and data
+could be lost.  The function __split_huge_pmd() checks for a PMD migration
+entry before calling __split_huge_pmd_locked() leading one to think that
+__split_huge_pmd_locked() can handle splitting a migrating PMD.
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, the code always increments the page->_mapcount and adjusts the
+memory control group accounting assuming the page is mapped.
+
+Also, if the PMD entry is a migration PMD entry, the call to
+is_huge_zero_pmd(*pmd) is incorrect because it calls pmd_pfn(pmd) instead
+of migration_entry_to_pfn(pmd_to_swp_entry(pmd)).  Fix these problems by
+checking for a PMD migration entry.
+
+Fixes: 84c3fc4e9c56 ("mm: thp: check pmd migration entry in common path")
+Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Bharata B Rao <bharata@linux.ibm.com>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.14+]
+Link: https://lkml.kernel.org/r/20200903183140.19055-1-rcampbell@nvidia.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ mm/huge_memory.c |   40 +++++++++++++++++++++++-----------------
+ 1 file changed, 23 insertions(+), 17 deletions(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -3208,8 +3208,9 @@ static inline int skb_padto(struct sk_bu
-  *	is untouched. Otherwise it is extended. Returns zero on
-  *	success. The skb is freed on error if @free_on_error is true.
-  */
--static inline int __skb_put_padto(struct sk_buff *skb, unsigned int len,
--				  bool free_on_error)
-+static inline int __must_check __skb_put_padto(struct sk_buff *skb,
-+					       unsigned int len,
-+					       bool free_on_error)
- {
- 	unsigned int size = skb->len;
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2145,7 +2145,7 @@ static void __split_huge_pmd_locked(stru
+ 		put_page(page);
+ 		add_mm_counter(mm, mm_counter_file(page), -HPAGE_PMD_NR);
+ 		return;
+-	} else if (is_huge_zero_pmd(*pmd)) {
++	} else if (pmd_trans_huge(*pmd) && is_huge_zero_pmd(*pmd)) {
+ 		/*
+ 		 * FIXME: Do we want to invalidate secondary mmu by calling
+ 		 * mmu_notifier_invalidate_range() see comments below inside
+@@ -2233,27 +2233,33 @@ static void __split_huge_pmd_locked(stru
+ 		pte = pte_offset_map(&_pmd, addr);
+ 		BUG_ON(!pte_none(*pte));
+ 		set_pte_at(mm, addr, pte, entry);
+-		atomic_inc(&page[i]._mapcount);
+-		pte_unmap(pte);
+-	}
+-
+-	/*
+-	 * Set PG_double_map before dropping compound_mapcount to avoid
+-	 * false-negative page_mapped().
+-	 */
+-	if (compound_mapcount(page) > 1 && !TestSetPageDoubleMap(page)) {
+-		for (i = 0; i < HPAGE_PMD_NR; i++)
++		if (!pmd_migration)
+ 			atomic_inc(&page[i]._mapcount);
++		pte_unmap(pte);
+ 	}
  
-@@ -3232,7 +3233,7 @@ static inline int __skb_put_padto(struct
-  *	is untouched. Otherwise it is extended. Returns zero on
-  *	success. The skb is freed on error.
-  */
--static inline int skb_put_padto(struct sk_buff *skb, unsigned int len)
-+static inline int __must_check skb_put_padto(struct sk_buff *skb, unsigned int len)
- {
- 	return __skb_put_padto(skb, len, true);
- }
+-	if (atomic_add_negative(-1, compound_mapcount_ptr(page))) {
+-		/* Last compound_mapcount is gone. */
+-		__dec_node_page_state(page, NR_ANON_THPS);
+-		if (TestClearPageDoubleMap(page)) {
+-			/* No need in mapcount reference anymore */
++	if (!pmd_migration) {
++		/*
++		 * Set PG_double_map before dropping compound_mapcount to avoid
++		 * false-negative page_mapped().
++		 */
++		if (compound_mapcount(page) > 1 &&
++		    !TestSetPageDoubleMap(page)) {
+ 			for (i = 0; i < HPAGE_PMD_NR; i++)
+-				atomic_dec(&page[i]._mapcount);
++				atomic_inc(&page[i]._mapcount);
++		}
++
++		lock_page_memcg(page);
++		if (atomic_add_negative(-1, compound_mapcount_ptr(page))) {
++			/* Last compound_mapcount is gone. */
++			__dec_lruvec_page_state(page, NR_ANON_THPS);
++			if (TestClearPageDoubleMap(page)) {
++				/* No need in mapcount reference anymore */
++				for (i = 0; i < HPAGE_PMD_NR; i++)
++					atomic_dec(&page[i]._mapcount);
++			}
+ 		}
++		unlock_page_memcg(page);
+ 	}
+ 
+ 	smp_wmb(); /* make pte visible before pmd */
 
 
