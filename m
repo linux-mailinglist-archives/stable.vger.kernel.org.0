@@ -2,86 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C7CE27856A
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 12:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C494278572
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 12:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727201AbgIYKzl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 06:55:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59034 "EHLO mail.kernel.org"
+        id S1727151AbgIYK61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 06:58:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726255AbgIYKzl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 06:55:41 -0400
+        id S1726255AbgIYK61 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 06:58:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9414020809;
-        Fri, 25 Sep 2020 10:55:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 193AB21D91;
+        Fri, 25 Sep 2020 10:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601031340;
-        bh=1CGfR6nV/0roujv2jCFmWNNypuMeXMaY0JOYlD8nOqw=;
+        s=default; t=1601031506;
+        bh=dYV/16uTJ5luQOrcUp1cCXIRGek464f09QMeMpYBCrw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=o/Mjf8rloCokxg1rcOAx6WCaezFdt+QJGHbz5lBgfhDEad7fgc7D0QeuusD/T5pFr
-         lGQ84YY0Ah6PqppljUBdP3liHqW041nRnQKV/e9+GPoJ4Y7kNSo0NDSjrJnIfMvcAB
-         +LKm26Ts+R5E7Zzn7UWLcQzgpovT60J7hmevbzpI=
-Date:   Fri, 25 Sep 2020 12:55:55 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Julius Hemanth Pitti <jpitti@cisco.com>
-Cc:     akpm@linux-foundation.org, xlpang@linux.alibaba.com,
-        mhocko@suse.com, vdavydov.dev@gmail.com, ktkhai@virtuozzo.com,
-        hannes@cmpxchg.org, stable@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, xe-linux-external@cisco.com,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH stable v5.4] mm: memcg: fix memcg reclaim soft lockup
-Message-ID: <20200925105555.GA2525199@kroah.com>
-References: <20200921180508.61905-1-jpitti@cisco.com>
+        b=g2fJY5ZgxjIxvEg2CtoqNLyQDzSPLJ5kTcvNTjp3ME3uZaFOKQ5OSzw4SxuHIas9V
+         E/xhLUfEeQwEgcjc6/6HeCBqnKeIY30MivaqFFnNNpMbhb0oNn16RdBfSBAkfhphFJ
+         3y41tOyKlUjTEHUc2lhigXTOSVwdSL6/3ESiy86w=
+Date:   Fri, 25 Sep 2020 12:58:41 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Cc:     stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH for 4.14, 4.19] serial: 8250: Avoid error message on
+ reprobe
+Message-ID: <20200925105841.GB2573626@kroah.com>
+References: <20200925093109.388661-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200921180508.61905-1-jpitti@cisco.com>
+In-Reply-To: <20200925093109.388661-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 21, 2020 at 11:05:08AM -0700, Julius Hemanth Pitti wrote:
-> From: Xunlei Pang <xlpang@linux.alibaba.com>
+On Fri, Sep 25, 2020 at 06:31:09PM +0900, Nobuhiro Iwamatsu wrote:
+> From: Lukas Wunner <lukas@wunner.de>
 > 
-> commit e3336cab2579012b1e72b5265adf98e2d6e244ad upstream
+> commit e0a851fe6b9b619527bd928aa93caaddd003f70c upstream.
 > 
-> We've met softlockup with "CONFIG_PREEMPT_NONE=y", when the target memcg
-> doesn't have any reclaimable memory.
+> If the call to uart_add_one_port() in serial8250_register_8250_port()
+> fails, a half-initialized entry in the serial_8250ports[] array is left
+> behind.
 > 
-> It can be easily reproduced as below:
+> A subsequent reprobe of the same serial port causes that entry to be
+> reused.  Because uart->port.dev is set, uart_remove_one_port() is called
+> for the half-initialized entry and bails out with an error message:
 > 
->   watchdog: BUG: soft lockup - CPU#0 stuck for 111s![memcg_test:2204]
->   CPU: 0 PID: 2204 Comm: memcg_test Not tainted 5.9.0-rc2+ #12
->   Call Trace:
->     shrink_lruvec+0x49f/0x640
->     shrink_node+0x2a6/0x6f0
->     do_try_to_free_pages+0xe9/0x3e0
->     try_to_free_mem_cgroup_pages+0xef/0x1f0
->     try_charge+0x2c1/0x750
->     mem_cgroup_charge+0xd7/0x240
->     __add_to_page_cache_locked+0x2fd/0x370
->     add_to_page_cache_lru+0x4a/0xc0
->     pagecache_get_page+0x10b/0x2f0
->     filemap_fault+0x661/0xad0
->     ext4_filemap_fault+0x2c/0x40
->     __do_fault+0x4d/0xf9
->     handle_mm_fault+0x1080/0x1790
+> bcm2835-aux-uart 3f215040.serial: Removing wrong port: (null) != (ptrval)
 > 
-> It only happens on our 1-vcpu instances, because there's no chance for
-> oom reaper to run to reclaim the to-be-killed process.
+> The same happens on failure of mctrl_gpio_init() since commit
+> 4a96895f74c9 ("tty/serial/8250: use mctrl_gpio helpers").
 > 
-> Add a cond_resched() at the upper shrink_node_memcgs() to solve this
-> issue, this will mean that we will get a scheduling point for each memcg
-> in the reclaimed hierarchy without any dependency on the reclaimable
-> memory in that memcg thus making it more predictable.
+> Fix by zeroing the uart->port.dev pointer in the probe error path.
 > 
-> [jpitti@cisco.com:
->    - backported to v5.4.y
->    - Upstream patch applies fix in shrink_node_memcgs(), which
->      is not present to v5.4.y. Appled to shrink_node()]
+> The bug was introduced in v2.6.10 by historical commit befff6f5bf5f
+> ("[SERIAL] Add new port registration/unregistration functions."):
+> https://git.kernel.org/tglx/history/c/befff6f5bf5f
+> 
+> The commit added an unconditional call to uart_remove_one_port() in
+> serial8250_register_port().  In v3.7, commit 835d844d1a28 ("8250_pnp:
+> do pnp probe before legacy probe") made that call conditional on
+> uart->port.dev which allows me to fix the issue by zeroing that pointer
+> in the error path.  Thus, the present commit will fix the problem as far
+> back as v3.7 whereas still older versions need to also cherry-pick
+> 835d844d1a28.
+> 
+> Fixes: 835d844d1a28 ("8250_pnp: do pnp probe before legacy probe")
+> Signed-off-by: Lukas Wunner <lukas@wunner.de>
+> Cc: stable@vger.kernel.org # v2.6.10
+> Cc: stable@vger.kernel.org # v2.6.10: 835d844d1a28: 8250_pnp: do pnp probe before legacy
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Link: https://lore.kernel.org/r/b4a072013ee1a1d13ee06b4325afb19bda57ca1b.1589285873.git.lukas@wunner.de
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> [iwamatsu: Backported to 4.14, 4.19: adjust context]
+> Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 
-Thanks for this, now queued up here and for 4.19
+Thanks, now queue dup.
 
 greg k-h
