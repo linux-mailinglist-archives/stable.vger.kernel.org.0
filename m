@@ -2,308 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B8C278E4A
+	by mail.lfdr.de (Postfix) with ESMTP id DE6CF278E4B
 	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:20:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729613AbgIYQUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 12:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42902 "EHLO
+        id S1729614AbgIYQUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 12:20:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729429AbgIYQUm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:42 -0400
-Received: from mail-qk1-x74a.google.com (mail-qk1-x74a.google.com [IPv6:2607:f8b0:4864:20::74a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4201C0613CE
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:41 -0700 (PDT)
-Received: by mail-qk1-x74a.google.com with SMTP id r128so2315241qkc.9
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:41 -0700 (PDT)
+        with ESMTP id S1729429AbgIYQUo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:44 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF93FC0613CE
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:43 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id e190so3102402ybf.18
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=sender:date:in-reply-to:message-id:mime-version:references:subject
          :from:to:cc;
-        bh=AUpfkt2xojASMSGKeOD+2WcTVbK452VwDmDVXXefo+U=;
-        b=IwKMVy/BGjREy+F3yRAk3UIyrS8muqOxdhWNx2GVP2lE2BZfE0Q/EDh7f3rACttR2m
-         4FVllaQIx0IKwTgtm719jOp2lI9Fhdw2HJtJ1lf6Kz9tz7Wl49lvAtKmQZ9z529tXxS8
-         +yyLNbKVSnPItmbrX/ncfoMA1Ud4cDuOh77TnmScrvAOgOX2Rle/XIZMr/u9+4NQfTUM
-         y0e8JjvI8/AtiIa19O2aeS30uRGJpGHUU963tTtqh2GKehFiaklb2+kFY7lUfYoPEmR/
-         nmaoOmruQjFEK8XycGzsuUeLxIok4CiGZ5V3R8HMXchzT25Nk/sTmDXHpMzh27GUSEfK
-         HWsg==
+        bh=w5IfzMwmfSTccrzN4OS/3MjEGRPmdpKn9ghsuNYWS/0=;
+        b=lFSqrKjbI/BO3hvEsGVshNiGQXtTtvEklFe0U5faNm48RVtuHce6xpnCZeSiR6yNUq
+         uaA4KLExcj15/6IrdTn13wxWppakg84uIc8tZZqAffCUzAekthFiJ+9/KnwHqjXsbRnA
+         idj5UCoUIesxi5OLSYBmjW7VWNdGoWFwiQ3EKBjiyYtw2TMgDXTnQB7+Sw1DlBVkGnH+
+         7s3ET9vePn08i7lp2eCVDmYGtkHRP+ctr7PPFX+Z5zyjhu6v7/8XQNE8ao31HXPIEb+q
+         ltj7koPGsTk4erk8eVR/g7RJ+5URhe9k6V0Tocp0clzboEASvJtvBR40W3KRJt0xI3h/
+         OVRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=AUpfkt2xojASMSGKeOD+2WcTVbK452VwDmDVXXefo+U=;
-        b=rmSE41LwVsCVNTD87+wQqQX3HnyYf3lp3NOm55w5OmQRiwG4Z7Bd+X6AMxkCvhEHGY
-         1LgY5NHU1t7TxJm12cEZh/bqScyL8xjIMwNH5l9i9xpDZYDEFwdCU7cN1fAmMGHTZchG
-         OodOtrV2SmImNIfTDqXq5PAljINIpC/Po2P34gldt22xhmtIHUp+J0IRGxxIwbFSIguA
-         uAZGQ3teOEY126QOdwHzYSkB0+EtFGmDwpjmrc8ttPnJi9uEapWqf2uQukD24na5yCUn
-         uQmgkuornacGMU9HHfdUisJcDbJ6Q88Bfw+AvO+seGVdzJYSLK45k5DNElsr+RXfdU6V
-         Lp1A==
-X-Gm-Message-State: AOAM532XOE9ofcEgWMU3DY7eEt1NkLfP99R5VrP9JYFPD5vxvkB6k60Z
-        zZwYq9KguG+fe1W85jD+wfL1JY0dLe80ZCG2e5J3rHBMOwTa6vXta4VTo5Gw154sRwAQK0ky2RB
-        RgQVLDUeIX9iV8eWiennazvqPbJNA1iTz7h1qI8KdmCbMaVQij7jjb8lH34x8Aw==
-X-Google-Smtp-Source: ABdhPJz1zmGA0xDHdI4rLCTY3152xAMoNPwZiz60hcSACf7n+3rXEnoshGcBvDgSARTU4ylT8/E9c8mDF6o=
+        bh=w5IfzMwmfSTccrzN4OS/3MjEGRPmdpKn9ghsuNYWS/0=;
+        b=dksw9eMB0Ogc3iR1kYf4rvoiqZ5KDAdKy00l782eCt9vRgeysWR7IEoJhw+x9ammEU
+         jtIWpKB+NCSRsf8CeMLtouN20q/GV87BJ2oNgJUUGKluByR+r2vWVE5dxcrJ54Nb/LkB
+         mlMxF8otuEY4hCSMAEvS5Ez3QEOehOBgQBXfZc0SDrXTUz1ekf54ZIAi+45H+eBQXMry
+         IyTIdTv6xD7lhkdAOYIsC+MCTnJ/C+Y9vmaM+l3Z16oCj87VK550zfTWMw1mJ8M0bTma
+         tyungZXJqwWYOBt6VbvUONaFPSnHHIAiQewiiubUP+nE0VMgWg4witFDSdMQwXXAA8AO
+         sKig==
+X-Gm-Message-State: AOAM533tfosItFPhJnCejm9hpch0bRyYd64J0ht/5fiVq5U4YBytvB2l
+        Ov4SS2gFiqh9m32wVdJMTX8C3/O6lW7y7Fhtqwy1DcL7wcTn2PK4jh+Euk+8PDH59oASqZfB1KC
+        PZrTWcaJR8Cn2rU76E9WSWiQqzw3oCYkf85eD+z6dd8l1BxYamIq2byXy+mIQMw==
+X-Google-Smtp-Source: ABdhPJyPsjxUNhWpG/tKD5vhQWx1DWnpABR/kdvO2jMWZg5aJlXgp6G9UmeuLdRlQkgKJCPmo1buxLSDKDc=
 Sender: "pgonda via sendgmr" <pgonda@pgonda1.kir.corp.google.com>
 X-Received: from pgonda1.kir.corp.google.com ([2620:0:1008:1101:f693:9fff:fef4:e3a2])
- (user=pgonda job=sendgmr) by 2002:a0c:8f02:: with SMTP id z2mr166804qvd.21.1601050840933;
- Fri, 25 Sep 2020 09:20:40 -0700 (PDT)
-Date:   Fri, 25 Sep 2020 09:19:15 -0700
+ (user=pgonda job=sendgmr) by 2002:a25:ca17:: with SMTP id a23mr6734956ybg.176.1601050842818;
+ Fri, 25 Sep 2020 09:20:42 -0700 (PDT)
+Date:   Fri, 25 Sep 2020 09:19:16 -0700
 In-Reply-To: <20200925161916.204667-1-pgonda@google.com>
-Message-Id: <20200925161916.204667-30-pgonda@google.com>
+Message-Id: <20200925161916.204667-31-pgonda@google.com>
 Mime-Version: 1.0
 References: <20200925161916.204667-1-pgonda@google.com>
 X-Mailer: git-send-email 2.28.0.681.g6f77f65b4e-goog
-Subject: [PATCH 29/30 for 5.4] dma-pool: fix coherent pool allocations for
- IOMMU mappings
+Subject: [PATCH 30/30 for 5.4] dma/direct: turn ARCH_ZONE_DMA_BITS into a variable
 From:   Peter Gonda <pgonda@google.com>
 To:     stable@vger.kernel.org
 Cc:     Peter Gonda <pgonda@google.com>, Christoph Hellwig <hch@lst.de>,
-        Amit Pundir <amit.pundir@linaro.org>
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Catalin Marinas <catalin.marinas@arm.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-upstream 9420139f516d7fbc248ce17f35275cb005ed98ea commit.
+upstream 8b5369ea580964dbc982781bfb9fb93459fc5e8d commit.
 
-When allocating coherent pool memory for an IOMMU mapping we don't care
-about the DMA mask.  Move the guess for the initial GFP mask into the
-dma_direct_alloc_pages and pass dma_coherent_ok as a function pointer
-argument so that it doesn't get applied to the IOMMU case.
+Some architectures, notably ARM, are interested in tweaking this
+depending on their runtime DMA addressing limitations.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Tested-by: Amit Pundir <amit.pundir@linaro.org>
-Change-Id: I343ae38a73135948f8f8bb9ae9a12034c7d4c405
+Acked-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Change-Id: I890f2bfbbf5758e3868acddd7bba6f655ec2b357
 Signed-off-by: Peter Gonda <pgonda@google.com>
 ---
- drivers/iommu/dma-iommu.c   |   4 +-
- include/linux/dma-direct.h  |   3 -
- include/linux/dma-mapping.h |   5 +-
- kernel/dma/direct.c         |  11 +++-
- kernel/dma/pool.c           | 114 +++++++++++++++---------------------
- 5 files changed, 61 insertions(+), 76 deletions(-)
+ arch/arm64/mm/init.c            |  9 ++++++++-
+ arch/powerpc/include/asm/page.h |  9 ---------
+ arch/powerpc/mm/mem.c           | 20 +++++++++++++++-----
+ arch/s390/include/asm/page.h    |  2 --
+ arch/s390/mm/init.c             |  1 +
+ include/linux/dma-direct.h      |  2 ++
+ kernel/dma/direct.c             | 13 ++++++-------
+ 7 files changed, 32 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index b642c1123a29..f917bd10f47c 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -1010,8 +1010,8 @@ static void *iommu_dma_alloc(struct device *dev, size_t size,
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 45c00a54909c..214cedc9271c 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -20,6 +20,7 @@
+ #include <linux/sort.h>
+ #include <linux/of.h>
+ #include <linux/of_fdt.h>
++#include <linux/dma-direct.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/dma-contiguous.h>
+ #include <linux/efi.h>
+@@ -41,6 +42,8 @@
+ #include <asm/tlb.h>
+ #include <asm/alternative.h>
  
- 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
- 	    !gfpflags_allow_blocking(gfp) && !coherent)
--		cpu_addr = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &page,
--					       gfp);
-+		page = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &cpu_addr,
-+					       gfp, NULL);
++#define ARM64_ZONE_DMA_BITS	30
++
+ /*
+  * We need to be able to catch inadvertent references to memstart_addr
+  * that occur (potentially in generic code) before arm64_memblock_init()
+@@ -418,7 +421,11 @@ void __init arm64_memblock_init(void)
+ 
+ 	early_init_fdt_scan_reserved_mem();
+ 
+-	/* 4GB maximum for 32-bit only capable devices */
++	if (IS_ENABLED(CONFIG_ZONE_DMA)) {
++		zone_dma_bits = ARM64_ZONE_DMA_BITS;
++		arm64_dma_phys_limit = max_zone_phys(ARM64_ZONE_DMA_BITS);
++	}
++
+ 	if (IS_ENABLED(CONFIG_ZONE_DMA32))
+ 		arm64_dma_phys_limit = max_zone_dma_phys();
  	else
- 		cpu_addr = iommu_dma_alloc_pages(dev, size, &page, gfp, attrs);
- 	if (!cpu_addr)
+diff --git a/arch/powerpc/include/asm/page.h b/arch/powerpc/include/asm/page.h
+index 6ba5adb96a3b..d568ce08e3b2 100644
+--- a/arch/powerpc/include/asm/page.h
++++ b/arch/powerpc/include/asm/page.h
+@@ -334,13 +334,4 @@ struct vm_area_struct;
+ #endif /* __ASSEMBLY__ */
+ #include <asm/slice.h>
+ 
+-/*
+- * Allow 30-bit DMA for very limited Broadcom wifi chips on many powerbooks.
+- */
+-#ifdef CONFIG_PPC32
+-#define ARCH_ZONE_DMA_BITS 30
+-#else
+-#define ARCH_ZONE_DMA_BITS 31
+-#endif
+-
+ #endif /* _ASM_POWERPC_PAGE_H */
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index 96ca90ce0264..3b99b6b67fb5 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -31,6 +31,7 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/memremap.h>
++#include <linux/dma-direct.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/prom.h>
+@@ -223,10 +224,10 @@ static int __init mark_nonram_nosave(void)
+  * everything else. GFP_DMA32 page allocations automatically fall back to
+  * ZONE_DMA.
+  *
+- * By using 31-bit unconditionally, we can exploit ARCH_ZONE_DMA_BITS to
+- * inform the generic DMA mapping code.  32-bit only devices (if not handled
+- * by an IOMMU anyway) will take a first dip into ZONE_NORMAL and get
+- * otherwise served by ZONE_DMA.
++ * By using 31-bit unconditionally, we can exploit zone_dma_bits to inform the
++ * generic DMA mapping code.  32-bit only devices (if not handled by an IOMMU
++ * anyway) will take a first dip into ZONE_NORMAL and get otherwise served by
++ * ZONE_DMA.
+  */
+ static unsigned long max_zone_pfns[MAX_NR_ZONES];
+ 
+@@ -259,9 +260,18 @@ void __init paging_init(void)
+ 	printk(KERN_DEBUG "Memory hole size: %ldMB\n",
+ 	       (long int)((top_of_ram - total_ram) >> 20));
+ 
++	/*
++	 * Allow 30-bit DMA for very limited Broadcom wifi chips on many
++	 * powerbooks.
++	 */
++	if (IS_ENABLED(CONFIG_PPC32))
++		zone_dma_bits = 30;
++	else
++		zone_dma_bits = 31;
++
+ #ifdef CONFIG_ZONE_DMA
+ 	max_zone_pfns[ZONE_DMA]	= min(max_low_pfn,
+-				      1UL << (ARCH_ZONE_DMA_BITS - PAGE_SHIFT));
++				      1UL << (zone_dma_bits - PAGE_SHIFT));
+ #endif
+ 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
+ #ifdef CONFIG_HIGHMEM
+diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+index e399102367af..1019efd85b9d 100644
+--- a/arch/s390/include/asm/page.h
++++ b/arch/s390/include/asm/page.h
+@@ -179,8 +179,6 @@ static inline int devmem_is_allowed(unsigned long pfn)
+ #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | \
+ 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
+ 
+-#define ARCH_ZONE_DMA_BITS	31
+-
+ #include <asm-generic/memory_model.h>
+ #include <asm-generic/getorder.h>
+ 
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index c1d96e588152..ac44bd76db4b 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -118,6 +118,7 @@ void __init paging_init(void)
+ 
+ 	sparse_memory_present_with_active_regions(MAX_NUMNODES);
+ 	sparse_init();
++	zone_dma_bits = 31;
+ 	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
+ 	max_zone_pfns[ZONE_DMA] = PFN_DOWN(MAX_DMA_ADDRESS);
+ 	max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
 diff --git a/include/linux/dma-direct.h b/include/linux/dma-direct.h
-index 8ccddee1f78a..6db863c3eb93 100644
+index 6db863c3eb93..f3b276242f2d 100644
 --- a/include/linux/dma-direct.h
 +++ b/include/linux/dma-direct.h
-@@ -66,9 +66,6 @@ static inline phys_addr_t dma_to_phys(struct device *dev, dma_addr_t daddr)
- }
+@@ -6,6 +6,8 @@
+ #include <linux/memblock.h> /* for min_low_pfn */
+ #include <linux/mem_encrypt.h>
  
- u64 dma_direct_get_required_mask(struct device *dev);
--gfp_t dma_direct_optimal_gfp_mask(struct device *dev, u64 dma_mask,
--				  u64 *phys_mask);
--bool dma_coherent_ok(struct device *dev, phys_addr_t phys, size_t size);
- void *dma_direct_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
- 		gfp_t gfp, unsigned long attrs);
- void dma_direct_free(struct device *dev, size_t size, void *cpu_addr,
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index e4be706d8f5e..246a4b429612 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -633,8 +633,9 @@ void *dma_common_pages_remap(struct page **pages, size_t size,
- 			pgprot_t prot, const void *caller);
- void dma_common_free_remap(void *cpu_addr, size_t size);
++extern unsigned int zone_dma_bits;
++
+ static inline dma_addr_t phys_to_dma(struct device *dev, phys_addr_t paddr);
  
--void *dma_alloc_from_pool(struct device *dev, size_t size,
--			  struct page **ret_page, gfp_t flags);
-+struct page *dma_alloc_from_pool(struct device *dev, size_t size,
-+		void **cpu_addr, gfp_t flags,
-+		bool (*phys_addr_ok)(struct device *, phys_addr_t, size_t));
- bool dma_free_from_pool(struct device *dev, void *start, size_t size);
- 
- int
+ #ifdef CONFIG_ARCH_HAS_PHYS_TO_DMA
 diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index 54c1c3a20c09..71be82b07743 100644
+index 71be82b07743..2af418b4b6f9 100644
 --- a/kernel/dma/direct.c
 +++ b/kernel/dma/direct.c
-@@ -84,7 +84,7 @@ gfp_t dma_direct_optimal_gfp_mask(struct device *dev, u64 dma_mask,
- 	return 0;
- }
+@@ -17,12 +17,11 @@
+ #include <linux/swiotlb.h>
  
--bool dma_coherent_ok(struct device *dev, phys_addr_t phys, size_t size)
-+static bool dma_coherent_ok(struct device *dev, phys_addr_t phys, size_t size)
+ /*
+- * Most architectures use ZONE_DMA for the first 16 Megabytes, but
+- * some use it for entirely different regions:
++ * Most architectures use ZONE_DMA for the first 16 Megabytes, but some use it
++ * it for entirely different regions. In that case the arch code needs to
++ * override the variable below for dma-direct to work properly.
+  */
+-#ifndef ARCH_ZONE_DMA_BITS
+-#define ARCH_ZONE_DMA_BITS 24
+-#endif
++unsigned int zone_dma_bits __ro_after_init = 24;
+ 
+ static void report_addr(struct device *dev, dma_addr_t dma_addr, size_t size)
  {
- 	return phys_to_dma_direct(dev, phys) + size - 1 <=
- 			min_not_zero(dev->coherent_dma_mask, dev->bus_dma_mask);
-@@ -177,8 +177,13 @@ void *dma_direct_alloc_pages(struct device *dev, size_t size,
- 	size = PAGE_ALIGN(size);
+@@ -77,7 +76,7 @@ gfp_t dma_direct_optimal_gfp_mask(struct device *dev, u64 dma_mask,
+ 	 * Note that GFP_DMA32 and GFP_DMA are no ops without the corresponding
+ 	 * zones.
+ 	 */
+-	if (*phys_mask <= DMA_BIT_MASK(ARCH_ZONE_DMA_BITS))
++	if (*phys_mask <= DMA_BIT_MASK(zone_dma_bits))
+ 		return GFP_DMA;
+ 	if (*phys_mask <= DMA_BIT_MASK(32))
+ 		return GFP_DMA32;
+@@ -547,7 +546,7 @@ int dma_direct_supported(struct device *dev, u64 mask)
+ 	u64 min_mask;
  
- 	if (dma_should_alloc_from_pool(dev, gfp, attrs)) {
--		ret = dma_alloc_from_pool(dev, size, &page, gfp);
--		if (!ret)
-+		u64 phys_mask;
-+
-+		gfp |= dma_direct_optimal_gfp_mask(dev, dev->coherent_dma_mask,
-+				&phys_mask);
-+		page = dma_alloc_from_pool(dev, size, &ret, gfp,
-+				dma_coherent_ok);
-+		if (!page)
- 			return NULL;
- 		goto done;
- 	}
-diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
-index 6bc74a2d5127..5d071d4a3cba 100644
---- a/kernel/dma/pool.c
-+++ b/kernel/dma/pool.c
-@@ -196,93 +196,75 @@ static int __init dma_atomic_pool_init(void)
- }
- postcore_initcall(dma_atomic_pool_init);
+ 	if (IS_ENABLED(CONFIG_ZONE_DMA))
+-		min_mask = DMA_BIT_MASK(ARCH_ZONE_DMA_BITS);
++		min_mask = DMA_BIT_MASK(zone_dma_bits);
+ 	else
+ 		min_mask = DMA_BIT_MASK(32);
  
--static inline struct gen_pool *dma_guess_pool_from_device(struct device *dev)
-+static inline struct gen_pool *dma_guess_pool(struct gen_pool *prev, gfp_t gfp)
- {
--	u64 phys_mask;
--	gfp_t gfp;
--
--	gfp = dma_direct_optimal_gfp_mask(dev, dev->coherent_dma_mask,
--					  &phys_mask);
--	if (IS_ENABLED(CONFIG_ZONE_DMA) && gfp == GFP_DMA)
-+	if (prev == NULL) {
-+		if (IS_ENABLED(CONFIG_ZONE_DMA32) && (gfp & GFP_DMA32))
-+			return atomic_pool_dma32;
-+		if (IS_ENABLED(CONFIG_ZONE_DMA) && (gfp & GFP_DMA))
-+			return atomic_pool_dma;
-+		return atomic_pool_kernel;
-+	}
-+	if (prev == atomic_pool_kernel)
-+		return atomic_pool_dma32 ? atomic_pool_dma32 : atomic_pool_dma;
-+	if (prev == atomic_pool_dma32)
- 		return atomic_pool_dma;
--	if (IS_ENABLED(CONFIG_ZONE_DMA32) && gfp == GFP_DMA32)
--		return atomic_pool_dma32;
--	return atomic_pool_kernel;
-+	return NULL;
- }
- 
--static inline struct gen_pool *dma_get_safer_pool(struct gen_pool *bad_pool)
-+static struct page *__dma_alloc_from_pool(struct device *dev, size_t size,
-+		struct gen_pool *pool, void **cpu_addr,
-+		bool (*phys_addr_ok)(struct device *, phys_addr_t, size_t))
- {
--	if (bad_pool == atomic_pool_kernel)
--		return atomic_pool_dma32 ? : atomic_pool_dma;
-+	unsigned long addr;
-+	phys_addr_t phys;
- 
--	if (bad_pool == atomic_pool_dma32)
--		return atomic_pool_dma;
-+	addr = gen_pool_alloc(pool, size);
-+	if (!addr)
-+		return NULL;
- 
--	return NULL;
--}
-+	phys = gen_pool_virt_to_phys(pool, addr);
-+	if (phys_addr_ok && !phys_addr_ok(dev, phys, size)) {
-+		gen_pool_free(pool, addr, size);
-+		return NULL;
-+	}
- 
--static inline struct gen_pool *dma_guess_pool(struct device *dev,
--					      struct gen_pool *bad_pool)
--{
--	if (bad_pool)
--		return dma_get_safer_pool(bad_pool);
-+	if (gen_pool_avail(pool) < atomic_pool_size)
-+		schedule_work(&atomic_pool_work);
- 
--	return dma_guess_pool_from_device(dev);
-+	*cpu_addr = (void *)addr;
-+	memset(*cpu_addr, 0, size);
-+	return pfn_to_page(__phys_to_pfn(phys));
- }
- 
--void *dma_alloc_from_pool(struct device *dev, size_t size,
--			  struct page **ret_page, gfp_t flags)
-+struct page *dma_alloc_from_pool(struct device *dev, size_t size,
-+		void **cpu_addr, gfp_t gfp,
-+		bool (*phys_addr_ok)(struct device *, phys_addr_t, size_t))
- {
- 	struct gen_pool *pool = NULL;
--	unsigned long val = 0;
--	void *ptr = NULL;
--	phys_addr_t phys;
--
--	while (1) {
--		pool = dma_guess_pool(dev, pool);
--		if (!pool) {
--			WARN(1, "Failed to get suitable pool for %s\n",
--			     dev_name(dev));
--			break;
--		}
--
--		val = gen_pool_alloc(pool, size);
--		if (!val)
--			continue;
--
--		phys = gen_pool_virt_to_phys(pool, val);
--		if (dma_coherent_ok(dev, phys, size))
--			break;
--
--		gen_pool_free(pool, val, size);
--		val = 0;
--	}
--
--
--	if (val) {
--		*ret_page = pfn_to_page(__phys_to_pfn(phys));
--		ptr = (void *)val;
--		memset(ptr, 0, size);
-+	struct page *page;
- 
--		if (gen_pool_avail(pool) < atomic_pool_size)
--			schedule_work(&atomic_pool_work);
-+	while ((pool = dma_guess_pool(pool, gfp))) {
-+		page = __dma_alloc_from_pool(dev, size, pool, cpu_addr,
-+					     phys_addr_ok);
-+		if (page)
-+			return page;
- 	}
- 
--	return ptr;
-+	WARN(1, "Failed to get suitable pool for %s\n", dev_name(dev));
-+	return NULL;
- }
- 
- bool dma_free_from_pool(struct device *dev, void *start, size_t size)
- {
- 	struct gen_pool *pool = NULL;
- 
--	while (1) {
--		pool = dma_guess_pool(dev, pool);
--		if (!pool)
--			return false;
--
--		if (gen_pool_has_addr(pool, (unsigned long)start, size)) {
--			gen_pool_free(pool, (unsigned long)start, size);
--			return true;
--		}
-+	while ((pool = dma_guess_pool(pool, 0))) {
-+		if (!gen_pool_has_addr(pool, (unsigned long)start, size))
-+			continue;
-+		gen_pool_free(pool, (unsigned long)start, size);
-+		return true;
- 	}
-+
-+	return false;
- }
 -- 
 2.28.0.618.gf4bc123cb7-goog
 
