@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B59F72787AA
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A51932787F1
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728866AbgIYMtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:49:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52898 "EHLO mail.kernel.org"
+        id S1729185AbgIYMvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:51:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728874AbgIYMtW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:49:22 -0400
+        id S1728695AbgIYMvU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:51:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A14A221EC;
-        Fri, 25 Sep 2020 12:49:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB5F6206DB;
+        Fri, 25 Sep 2020 12:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038162;
-        bh=lIO0Mcz5MIqV5BOBXfNOSH6Uy1nkd5ps7eA43h01YIU=;
+        s=default; t=1601038280;
+        bh=kJrGk9ztjLDgMkGw6MT2jadn+Y6Kzy/wlFepmJagqPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+zCgnzwqUAWuoNQNOGY5X5yTc1pm7+68xJ72WbE++mDxi0oRirK2DdcUUoPa5XbV
-         rCCDBJZ8YdR/7r4wmOFE3TRdmZJ7BCLl7xXePPU8tI9d539Li3b622dJs52w0Hx5Nw
-         8+OVc2yT5RFkwwqUVBTBm1GdxtIL3SKCbyWgKEbg=
+        b=fnntonjIRxwWGnjTGZa7/72zFwEgR4GVdhKvOFuu7G9S39Ou3CLpH/fZqfKppjMgD
+         TBu24mEGjoqCYGwIw2BSFahi9W1K6bXQYgrr1CMnr4eYHBBEG8a2oRtvILjYD0G64n
+         3yElBTmmhJYXXaZn/R/3fL2fcTW/6bn0PhyRNTFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Simon Horman <simon.horman@netronome.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 25/56] nfp: use correct define to return NONE fec
-Date:   Fri, 25 Sep 2020 14:48:15 +0200
-Message-Id: <20200925124731.615595000@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Song Liu <songliubraving@fb.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 04/43] kprobes: fix kill kprobe which has been marked as gone
+Date:   Fri, 25 Sep 2020 14:48:16 +0200
+Message-Id: <20200925124724.177929211@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
-References: <20200925124727.878494124@linuxfoundation.org>
+In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
+References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +51,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 5f6857e808a8bd078296575b417c4b9d160b9779 ]
+[ Upstream commit b0399092ccebd9feef68d4ceb8d6219a8c0caa05 ]
 
-struct ethtool_fecparam carries bitmasks not bit numbers.
-We want to return 1 (NONE), not 0.
+If a kprobe is marked as gone, we should not kill it again.  Otherwise, we
+can disarm the kprobe more than once.  In that case, the statistics of
+kprobe_ftrace_enabled can unbalance which can lead to that kprobe do not
+work.
 
-Fixes: 0d0870938337 ("nfp: implement ethtool FEC mode settings")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e8386a0cb22f ("kprobes: support probing module __exit function")
+Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200822030055.32383-1-songmuchun@bytedance.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/kprobes.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
-@@ -829,8 +829,8 @@ nfp_port_get_fecparam(struct net_device
- 	struct nfp_eth_table_port *eth_port;
- 	struct nfp_port *port;
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index bbff4bccb885d..5646f291eb705 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2088,6 +2088,9 @@ static void kill_kprobe(struct kprobe *p)
+ {
+ 	struct kprobe *kp;
  
--	param->active_fec = ETHTOOL_FEC_NONE_BIT;
--	param->fec = ETHTOOL_FEC_NONE_BIT;
-+	param->active_fec = ETHTOOL_FEC_NONE;
-+	param->fec = ETHTOOL_FEC_NONE;
- 
- 	port = nfp_port_from_netdev(netdev);
- 	eth_port = nfp_port_get_eth_port(port);
++	if (WARN_ON_ONCE(kprobe_gone(p)))
++		return;
++
+ 	p->flags |= KPROBE_FLAG_GONE;
+ 	if (kprobe_aggrprobe(p)) {
+ 		/*
+@@ -2270,7 +2273,10 @@ static int kprobes_module_callback(struct notifier_block *nb,
+ 	mutex_lock(&kprobe_mutex);
+ 	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
+ 		head = &kprobe_table[i];
+-		hlist_for_each_entry_rcu(p, head, hlist)
++		hlist_for_each_entry_rcu(p, head, hlist) {
++			if (kprobe_gone(p))
++				continue;
++
+ 			if (within_module_init((unsigned long)p->addr, mod) ||
+ 			    (checkcore &&
+ 			     within_module_core((unsigned long)p->addr, mod))) {
+@@ -2287,6 +2293,7 @@ static int kprobes_module_callback(struct notifier_block *nb,
+ 				 */
+ 				kill_kprobe(p);
+ 			}
++		}
+ 	}
+ 	mutex_unlock(&kprobe_mutex);
+ 	return NOTIFY_DONE;
+-- 
+2.25.1
+
 
 
