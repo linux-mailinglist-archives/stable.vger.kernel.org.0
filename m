@@ -2,76 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA976278B3E
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 16:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38DE3278B43
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 16:53:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729064AbgIYOvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 10:51:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34424 "EHLO mail.kernel.org"
+        id S1728654AbgIYOxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 10:53:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728977AbgIYOvF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 10:51:05 -0400
+        id S1728575AbgIYOxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 10:53:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C44A2074B;
-        Fri, 25 Sep 2020 14:51:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 962A22074B;
+        Fri, 25 Sep 2020 14:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601045464;
-        bh=EQH46Xw8u1uSxIM/OiphAtLbpXSRFw1JZcQ5GWM6dXw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XL+qYfXaFXWn7Nw+gl2XPdN28LGPdFsCqnyruwbJxhIbpZeeUw0RHEaUK51DMDLm9
-         4y0i69nBeVYHkRngwf5XNnp7FZCcuIAHS3KxGDY9vTOx1I9K3elCYByQuoj3pwofAy
-         QA5ROSG3/448Ia+WeVXh+zl2doTt+QtByBMjH8yo=
-Date:   Fri, 25 Sep 2020 16:51:18 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     "M. Vefa Bicakci" <m.v.b@runbox.com>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Bastien Nocera <hadess@hadess.net>,
-        Shuah Khan <shuah@kernel.org>,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        syzkaller@googlegroups.com
-Subject: Re: [PATCH v3 3/4] usbcore/driver: Fix incorrect downcast
-Message-ID: <20200925145118.GA3114228@kroah.com>
-References: <20200922110703.720960-1-m.v.b@runbox.com>
- <20200922110703.720960-4-m.v.b@runbox.com>
+        s=default; t=1601045580;
+        bh=cUPODzvUiUjahqtIJ41uubHTx+wH4D3YM6TkLGBl0AE=;
+        h=Subject:To:From:Date:From;
+        b=BbrCML38gS3EtlCKrWMsRzsWmaluLX+0MKp76NCQKk0Fhkx/JS1uwmHumJZ2z2R/0
+         90NokB75qncbK76zj9MkddIMX72qiwsUSNzrd+mHYtFvO6uv9GgumvhFFmxlrLOx9O
+         3R8byyQkP0AWSJ78KzDynHhDolh1JH2QXmPYXAgI=
+Subject: patch "Revert "usbip: Implement a match function to fix usbip"" added to usb-linus
+To:     m.v.b@runbox.com, andreyknvl@google.com,
+        gregkh@linuxfoundation.org, hadess@hadess.net, shuah@kernel.org,
+        skhan@linuxfoundation.org, stable@vger.kernel.org,
+        stern@rowland.harvard.edu, syzkaller@googlegroups.com,
+        valentina.manea.m@gmail.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 25 Sep 2020 16:53:14 +0200
+Message-ID: <160104559416073@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200922110703.720960-4-m.v.b@runbox.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 22, 2020 at 02:07:02PM +0300, M. Vefa Bicakci wrote:
-> This commit resolves a minor bug in the selection/discovery of more
-> specific USB device drivers for devices that are currently bound to
-> generic USB device drivers.
-> 
-> The bug is related to the way a candidate USB device driver is
-> compared against the generic USB device driver. The code in
-> is_dev_usb_generic_driver() assumes that the device driver in question
-> is a USB device driver by calling to_usb_device_driver(dev->driver)
-> to downcast; however I have observed that this assumption is not always
-> true, through code instrumentation.
-> 
-> This commit avoids the incorrect downcast altogether by comparing
-> the USB device's driver (i.e., dev->driver) to the generic USB
-> device driver directly. This method was suggested by Alan Stern.
-> 
-> This bug was found while investigating Andrey Konovalov's report
-> indicating usbip device driver misbehaviour with the recently merged
-> generic USB device driver selection feature. The report is linked
-> below.
-> 
-> Fixes: d5643d2249 ("USB: Fix device driver race")
 
-Nit, this should have been:
-	Fixes: d5643d2249b2 ("USB: Fix device driver race")
+This is a note to let you know that I've just added the patch titled
 
-I'll go fix it up as my scripts are rejecting it as-is...
+    Revert "usbip: Implement a match function to fix usbip"
 
-thanks,
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-greg k-h
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From d6407613c1e2ef90213dee388aa16b6e1bd08cbc Mon Sep 17 00:00:00 2001
+From: "M. Vefa Bicakci" <m.v.b@runbox.com>
+Date: Tue, 22 Sep 2020 14:07:00 +0300
+Subject: Revert "usbip: Implement a match function to fix usbip"
+
+This commit reverts commit 7a2f2974f265 ("usbip: Implement a match
+function to fix usbip").
+
+In summary, commit d5643d2249b2 ("USB: Fix device driver race")
+inadvertently broke usbip functionality, which I resolved in an incorrect
+manner by introducing a match function to usbip, usbip_match(), that
+unconditionally returns true.
+
+However, the usbip_match function, as is, causes usbip to take over
+virtual devices used by syzkaller for USB fuzzing, which is a regression
+reported by Andrey Konovalov.
+
+Furthermore, in conjunction with the fix of another bug, handled by another
+patch titled "usbcore/driver: Fix specific driver selection" in this patch
+set, the usbip_match function causes unexpected USB subsystem behaviour
+when the usbip_host driver is loaded. The unexpected behaviour can be
+qualified as follows:
+- If commit 41160802ab8e ("USB: Simplify USB ID table match") is included
+  in the kernel, then all USB devices are bound to the usbip_host
+  driver, which appears to the user as if all USB devices were
+  disconnected.
+- If the same commit (41160802ab8e) is not in the kernel (as is the case
+  with v5.8.10) then all USB devices are re-probed and re-bound to their
+  original device drivers, which appears to the user as a disconnection
+  and re-connection of USB devices.
+
+Please note that this commit will make usbip non-operational again,
+until yet another patch in this patch set is merged, titled
+"usbcore/driver: Accommodate usbip".
+
+Cc: <stable@vger.kernel.org> # 5.8: 41160802ab8e: USB: Simplify USB ID table match
+Cc: <stable@vger.kernel.org> # 5.8
+Cc: Bastien Nocera <hadess@hadess.net>
+Cc: Valentina Manea <valentina.manea.m@gmail.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: <syzkaller@googlegroups.com>
+Reported-by: Andrey Konovalov <andreyknvl@google.com>
+Tested-by: Andrey Konovalov <andreyknvl@google.com>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+Link: https://lore.kernel.org/r/20200922110703.720960-2-m.v.b@runbox.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/usbip/stub_dev.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/usb/usbip/stub_dev.c b/drivers/usb/usbip/stub_dev.c
+index 9d7d642022d1..2305d425e6c9 100644
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -461,11 +461,6 @@ static void stub_disconnect(struct usb_device *udev)
+ 	return;
+ }
+ 
+-static bool usbip_match(struct usb_device *udev)
+-{
+-	return true;
+-}
+-
+ #ifdef CONFIG_PM
+ 
+ /* These functions need usb_port_suspend and usb_port_resume,
+@@ -491,7 +486,6 @@ struct usb_device_driver stub_driver = {
+ 	.name		= "usbip-host",
+ 	.probe		= stub_probe,
+ 	.disconnect	= stub_disconnect,
+-	.match		= usbip_match,
+ #ifdef CONFIG_PM
+ 	.suspend	= stub_suspend,
+ 	.resume		= stub_resume,
+-- 
+2.28.0
+
+
