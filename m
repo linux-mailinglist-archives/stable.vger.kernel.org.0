@@ -2,58 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F18E5278E28
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80450278E2B
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 18:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729557AbgIYQUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 12:20:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42758 "EHLO
+        id S1729570AbgIYQUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 12:20:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729556AbgIYQUE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:04 -0400
-Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBC9BC0613CE
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:03 -0700 (PDT)
-Received: by mail-qt1-x849.google.com with SMTP id u6so2358950qte.8
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:03 -0700 (PDT)
+        with ESMTP id S1729567AbgIYQUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 12:20:05 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83CC3C0613CE
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:05 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id l67so3120563ybb.7
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 09:20:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=sender:date:in-reply-to:message-id:mime-version:references:subject
          :from:to:cc;
-        bh=6BYT7TOwiFd3r1FHsuYqLLsEnaJltT8MOhfwia7b0Oc=;
-        b=tiRwq42bbPhwbbz5z9f1wtIvFOiTtfY8M5oRU6hIyfrRVO9XolLAJt3PoBqRbo45D0
-         hdahtWKaqwf1XdhPL3UgAxEh0NlDlpY/ueelqkK3/H+DyPy83jFKhT6Qm7Tin/6viZyM
-         c01McR6a1uPO8GAt4ENd7g3tF4VUtj2gxTXDhuzpioB5bW0h927QYFUcjVkRtJxdkgDn
-         xlTZNU2Lwme24APZsR1yqJDmnOosGJ6QdiE/3fClYtojJ1pMoQqsYDnURfvm/Ykc6gGv
-         YTYCBpYuR2EDJ0Qzuqa2UQ3wdxm7xsZRrIjmYdXRHH/VRz8T29obJKHhNccC66w1jjKe
-         mYEw==
+        bh=3A+/kwzGbO/TAxL8eCr39Bh+YR+CW2CNiJ25hfgv7AM=;
+        b=E4CpmiObQbaVWXASFuBIEhScN4cOn3u2FQYr3TsoOZmgpYJlEJD163aKvgLei0jnsp
+         ncVtNYkHgCdqHDncNIZVGmSKpmXGDRID0UwFs7Nh7Qxb1c292gsaExZt/+rhPVk3kEyj
+         svgq+DFHAtw6FVZs1BaD0JdNO6Yj885SmmKUTrOkwvyGk5IjH1t1AL493qE+noc9QoWm
+         r04ZNggsCxVWxY1cn9+pitLsfl4JYDhstciI5ozex9fYsRFjFIIf+7CcqmJcv0p4r4EF
+         zmgCtP05pzWOW/VR4eFRIDP4tLGyrfTTdhC7FoJeSOnwt9AnfM8nMfdB8ggGJY65R7U7
+         ybIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=6BYT7TOwiFd3r1FHsuYqLLsEnaJltT8MOhfwia7b0Oc=;
-        b=N6v7chJb7N/ftMIGePMNqejFdGNMtcgf4ePsITX37t8BJ6z0/mHHef3jskOoTQ3O3j
-         XErUpPhddWcA53Q7D/vF/ymVIwpo3qXc4hhFFVi+22DjcMVRzBtHm2OwbzTo3Q0vwxzn
-         LvzcsVvEbXsb67ciYTvEVXKN5aHyqqYMrbkWIk6svfFN9WkqshZY7S8tjmQVJgzuXYt1
-         BRKfzyryXZKsuMwvOQf3v/3gYrgI6b0EsHfqQJX7dsiN3QuTLsdUtRuha5VLvXjl16KP
-         tP/WRHD2ftRiw7XiBEJ+EoLVUfGcKpwNrfKguj+0xYadZfKNcDUGjzk/tGvSMR+ED7PB
-         AY2A==
-X-Gm-Message-State: AOAM530n+lXmHAAYKSUyVdOnJ8KOey0OtXNYh7y4LA3JoTQMZiAu1Avc
-        qD1tcoFX8vQNFhkJcgHAhNIsQBfvYm5meaC5d8VJCiFt2a/BL97arCMzdiOGO4ujzH2r3qvH6rC
-        rT3stA6+i73ndam8tjQaQvDlqJKARnpQwHcLhITzB3KugIBYEiw6pc1biF7q/0A==
-X-Google-Smtp-Source: ABdhPJxWMkAws6dOAlYIOcJsTLIdusI8HO5dhzNWm75Wt38jRMYjCe9vSq5byAbuSCrNSfHJ3v3hiFIspeU=
+        bh=3A+/kwzGbO/TAxL8eCr39Bh+YR+CW2CNiJ25hfgv7AM=;
+        b=riWr3jSbla01xtbpacYnSIsjxDMszVHA7AYuLuWF3MQ8H6T69GqOhoYH/xPw6g8Bc/
+         qCyOiK18ILLvLt85SO59EUp34v4IBumlWB9ePkX5QHyS1qlf9zQHkB9Fhgyb0psXVSTp
+         ZY7Oqu6LEuM54UirpAvnfSlOsVnTqrdYeLu8VCMO/FC/0nAdoYn1pFXMw9dpRUrRk7et
+         17yWk3wUGyz0PfNe+xmmuEb/30a+8yHHr8YkVJ9EapRD5LJAJwvVI8j9b2WI837npsT4
+         RB7kd+j0Dn2Bwyhx/vsY5hm99eudV+8WKLVRcFky2ZpCA2kM2qJc6XZY10CCvAxqnUGR
+         tt8g==
+X-Gm-Message-State: AOAM531+q34/o0QAnZZ9KfLJjssM3ASLXKOoWAd4TFXyUPqY09Ia2zMm
+        N/Cq0sjrPl3xmp0IbqQiJ3kANy0BfH92mdXoAAR0PuPvBcTtfADFrzV5GOyNPlZiljXas4rPlaJ
+        WS1pX1ts5wuRora0+98oc8Ss3rmDGKa9U4wEug7Hz+3YkrB6EywMpqKfho+Veqw==
+X-Google-Smtp-Source: ABdhPJxEpju4oPLchgTv+HVrE4kvlkFAhgXU0A37m071Y61Nbj2s0khlV8u53RrwAdoFG+f1K9WeiihAe0M=
 Sender: "pgonda via sendgmr" <pgonda@pgonda1.kir.corp.google.com>
 X-Received: from pgonda1.kir.corp.google.com ([2620:0:1008:1101:f693:9fff:fef4:e3a2])
- (user=pgonda job=sendgmr) by 2002:a0c:b308:: with SMTP id s8mr168010qve.31.1601050802973;
- Fri, 25 Sep 2020 09:20:02 -0700 (PDT)
-Date:   Fri, 25 Sep 2020 09:18:53 -0700
+ (user=pgonda job=sendgmr) by 2002:a25:ab8e:: with SMTP id v14mr6541576ybi.465.1601050804635;
+ Fri, 25 Sep 2020 09:20:04 -0700 (PDT)
+Date:   Fri, 25 Sep 2020 09:18:54 -0700
 In-Reply-To: <20200925161916.204667-1-pgonda@google.com>
-Message-Id: <20200925161916.204667-8-pgonda@google.com>
+Message-Id: <20200925161916.204667-9-pgonda@google.com>
 Mime-Version: 1.0
 References: <20200925161916.204667-1-pgonda@google.com>
 X-Mailer: git-send-email 2.28.0.681.g6f77f65b4e-goog
-Subject: [PATCH 07/30 for 5.4] dma-pool: add additional coherent pools to map
- to gfp mask
+Subject: [PATCH 08/30 for 5.4] dma-pool: dynamically expanding atomic pools
 From:   Peter Gonda <pgonda@google.com>
 To:     stable@vger.kernel.org
 Cc:     Peter Gonda <pgonda@google.com>,
@@ -66,324 +65,221 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Rientjes <rientjes@google.com>
 
-upstream c84dc6e68a1d2464e050d9694be4e4ff49e32bfd commit.
+upstream 54adadf9b08571fb8b11dc9d0d3a2ddd39825efd commit.
 
-The single atomic pool is allocated from the lowest zone possible since
-it is guaranteed to be applicable for any DMA allocation.
+When an atomic pool becomes fully depleted because it is now relied upon
+for all non-blocking allocations through the DMA API, allow background
+expansion of each pool by a kworker.
 
-Devices may allocate through the DMA API but not have a strict reliance
-on GFP_DMA memory.  Since the atomic pool will be used for all
-non-blockable allocations, returning all memory from ZONE_DMA may
-unnecessarily deplete the zone.
+When an atomic pool has less than the default size of memory left, kick
+off a kworker to dynamically expand the pool in the background.  The pool
+is doubled in size, up to MAX_ORDER-1.  If memory cannot be allocated at
+the requested order, smaller allocation(s) are attempted.
 
-Provision for multiple atomic pools that will map to the optimal gfp
-mask of the device.
+This allows the default size to be kept quite low when one or more of the
+atomic pools is not used.
 
-When allocating non-blockable memory, determine the optimal gfp mask of
-the device and use the appropriate atomic pool.
+Allocations for lowmem should also use GFP_KERNEL for the benefits of
+reclaim, so use GFP_KERNEL | GFP_DMA and GFP_KERNEL | GFP_DMA32 for
+lowmem allocations.
 
-The coherent DMA mask will remain the same between allocation and free
-and, thus, memory will be freed to the same atomic pool it was allocated
-from.
+This also allows __dma_atomic_pool_init() to return a pointer to the pool
+to make initialization cleaner.
 
-__dma_atomic_pool_init() will be changed to return struct gen_pool *
-later once dynamic expansion is added.
+Also switch over some node ids to the more appropriate NUMA_NO_NODE.
 
 Signed-off-by: David Rientjes <rientjes@google.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Peter Gonda <pgonda@google.com>
 ---
- drivers/iommu/dma-iommu.c   |   5 +-
- include/linux/dma-direct.h  |   2 +
- include/linux/dma-mapping.h |   6 +-
- kernel/dma/direct.c         |  10 +--
- kernel/dma/pool.c           | 120 +++++++++++++++++++++++-------------
- 5 files changed, 90 insertions(+), 53 deletions(-)
+ kernel/dma/pool.c | 122 +++++++++++++++++++++++++++++++---------------
+ 1 file changed, 84 insertions(+), 38 deletions(-)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 76bd2309e023..b642c1123a29 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -927,7 +927,7 @@ static void __iommu_dma_free(struct device *dev, size_t size, void *cpu_addr)
- 
- 	/* Non-coherent atomic allocation? Easy */
- 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
--	    dma_free_from_pool(cpu_addr, alloc_size))
-+	    dma_free_from_pool(dev, cpu_addr, alloc_size))
- 		return;
- 
- 	if (IS_ENABLED(CONFIG_DMA_REMAP) && is_vmalloc_addr(cpu_addr)) {
-@@ -1010,7 +1010,8 @@ static void *iommu_dma_alloc(struct device *dev, size_t size,
- 
- 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
- 	    !gfpflags_allow_blocking(gfp) && !coherent)
--		cpu_addr = dma_alloc_from_pool(PAGE_ALIGN(size), &page, gfp);
-+		cpu_addr = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &page,
-+					       gfp);
- 	else
- 		cpu_addr = iommu_dma_alloc_pages(dev, size, &page, gfp, attrs);
- 	if (!cpu_addr)
-diff --git a/include/linux/dma-direct.h b/include/linux/dma-direct.h
-index 6db863c3eb93..fb5ec847ddf3 100644
---- a/include/linux/dma-direct.h
-+++ b/include/linux/dma-direct.h
-@@ -66,6 +66,8 @@ static inline phys_addr_t dma_to_phys(struct device *dev, dma_addr_t daddr)
- }
- 
- u64 dma_direct_get_required_mask(struct device *dev);
-+gfp_t dma_direct_optimal_gfp_mask(struct device *dev, u64 dma_mask,
-+				  u64 *phys_mask);
- void *dma_direct_alloc(struct device *dev, size_t size, dma_addr_t *dma_handle,
- 		gfp_t gfp, unsigned long attrs);
- void dma_direct_free(struct device *dev, size_t size, void *cpu_addr,
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index 4d450672b7d6..e4be706d8f5e 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -633,9 +633,9 @@ void *dma_common_pages_remap(struct page **pages, size_t size,
- 			pgprot_t prot, const void *caller);
- void dma_common_free_remap(void *cpu_addr, size_t size);
- 
--bool dma_in_atomic_pool(void *start, size_t size);
--void *dma_alloc_from_pool(size_t size, struct page **ret_page, gfp_t flags);
--bool dma_free_from_pool(void *start, size_t size);
-+void *dma_alloc_from_pool(struct device *dev, size_t size,
-+			  struct page **ret_page, gfp_t flags);
-+bool dma_free_from_pool(struct device *dev, void *start, size_t size);
- 
- int
- dma_common_get_sgtable(struct device *dev, struct sg_table *sgt, void *cpu_addr,
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index d30c5468a91a..38266fb2797d 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -58,8 +58,8 @@ u64 dma_direct_get_required_mask(struct device *dev)
- 	return (1ULL << (fls64(max_dma) - 1)) * 2 - 1;
- }
- 
--static gfp_t __dma_direct_optimal_gfp_mask(struct device *dev, u64 dma_mask,
--		u64 *phys_mask)
-+gfp_t dma_direct_optimal_gfp_mask(struct device *dev, u64 dma_mask,
-+				  u64 *phys_mask)
- {
- 	if (dev->bus_dma_mask && dev->bus_dma_mask < dma_mask)
- 		dma_mask = dev->bus_dma_mask;
-@@ -103,7 +103,7 @@ struct page *__dma_direct_alloc_pages(struct device *dev, size_t size,
- 
- 	/* we always manually zero the memory once we are done: */
- 	gfp &= ~__GFP_ZERO;
--	gfp |= __dma_direct_optimal_gfp_mask(dev, dev->coherent_dma_mask,
-+	gfp |= dma_direct_optimal_gfp_mask(dev, dev->coherent_dma_mask,
- 			&phys_mask);
- 	page = dma_alloc_contiguous(dev, alloc_size, gfp);
- 	if (page && !dma_coherent_ok(dev, page_to_phys(page), size)) {
-@@ -142,7 +142,7 @@ void *dma_direct_alloc_pages(struct device *dev, size_t size,
- 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
- 	    dma_alloc_need_uncached(dev, attrs) &&
- 	    !gfpflags_allow_blocking(gfp)) {
--		ret = dma_alloc_from_pool(PAGE_ALIGN(size), &page, gfp);
-+		ret = dma_alloc_from_pool(dev, PAGE_ALIGN(size), &page, gfp);
- 		if (!ret)
- 			return NULL;
- 		goto done;
-@@ -225,7 +225,7 @@ void dma_direct_free_pages(struct device *dev, size_t size, void *cpu_addr,
- 	}
- 
- 	if (IS_ENABLED(CONFIG_DMA_DIRECT_REMAP) &&
--	    dma_free_from_pool(cpu_addr, PAGE_ALIGN(size)))
-+	    dma_free_from_pool(dev, cpu_addr, PAGE_ALIGN(size)))
- 		return;
- 
- 	if (force_dma_unencrypted(dev))
 diff --git a/kernel/dma/pool.c b/kernel/dma/pool.c
-index 3df5d9d39922..db4f89ac5f5f 100644
+index db4f89ac5f5f..ffe866c2c034 100644
 --- a/kernel/dma/pool.c
 +++ b/kernel/dma/pool.c
-@@ -10,7 +10,9 @@
+@@ -9,13 +9,17 @@
+ #include <linux/init.h>
  #include <linux/genalloc.h>
  #include <linux/slab.h>
++#include <linux/workqueue.h>
  
--static struct gen_pool *atomic_pool __ro_after_init;
-+static struct gen_pool *atomic_pool_dma __ro_after_init;
-+static struct gen_pool *atomic_pool_dma32 __ro_after_init;
-+static struct gen_pool *atomic_pool_kernel __ro_after_init;
+ static struct gen_pool *atomic_pool_dma __ro_after_init;
+ static struct gen_pool *atomic_pool_dma32 __ro_after_init;
+ static struct gen_pool *atomic_pool_kernel __ro_after_init;
  
  #define DEFAULT_DMA_COHERENT_POOL_SIZE  SZ_256K
- static size_t atomic_pool_size __initdata = DEFAULT_DMA_COHERENT_POOL_SIZE;
-@@ -22,89 +24,119 @@ static int __init early_coherent_pool(char *p)
+-static size_t atomic_pool_size __initdata = DEFAULT_DMA_COHERENT_POOL_SIZE;
++static size_t atomic_pool_size = DEFAULT_DMA_COHERENT_POOL_SIZE;
++
++/* Dynamic background expansion when the atomic pool is near capacity */
++static struct work_struct atomic_pool_work;
+ 
+ static int __init early_coherent_pool(char *p)
+ {
+@@ -24,76 +28,116 @@ static int __init early_coherent_pool(char *p)
  }
  early_param("coherent_pool", early_coherent_pool);
  
--static gfp_t dma_atomic_pool_gfp(void)
-+static int __init __dma_atomic_pool_init(struct gen_pool **pool,
-+					 size_t pool_size, gfp_t gfp)
+-static int __init __dma_atomic_pool_init(struct gen_pool **pool,
+-					 size_t pool_size, gfp_t gfp)
++static int atomic_pool_expand(struct gen_pool *pool, size_t pool_size,
++			      gfp_t gfp)
  {
--	if (IS_ENABLED(CONFIG_ZONE_DMA))
--		return GFP_DMA;
--	if (IS_ENABLED(CONFIG_ZONE_DMA32))
--		return GFP_DMA32;
--	return GFP_KERNEL;
--}
--
--static int __init dma_atomic_pool_init(void)
--{
--	unsigned int pool_size_order = get_order(atomic_pool_size);
--	unsigned long nr_pages = atomic_pool_size >> PAGE_SHIFT;
-+	const unsigned int order = get_order(pool_size);
-+	const unsigned long nr_pages = pool_size >> PAGE_SHIFT;
+-	const unsigned int order = get_order(pool_size);
+-	const unsigned long nr_pages = pool_size >> PAGE_SHIFT;
++	unsigned int order;
  	struct page *page;
  	void *addr;
- 	int ret;
+-	int ret;
++	int ret = -ENOMEM;
++
++	/* Cannot allocate larger than MAX_ORDER-1 */
++	order = min(get_order(pool_size), MAX_ORDER-1);
++
++	do {
++		pool_size = 1 << (PAGE_SHIFT + order);
  
- 	if (dev_get_cma_area(NULL))
--		page = dma_alloc_from_contiguous(NULL, nr_pages,
--						 pool_size_order, false);
-+		page = dma_alloc_from_contiguous(NULL, nr_pages, order, false);
- 	else
--		page = alloc_pages(dma_atomic_pool_gfp(), pool_size_order);
-+		page = alloc_pages(gfp, order);
+-	if (dev_get_cma_area(NULL))
+-		page = dma_alloc_from_contiguous(NULL, nr_pages, order, false);
+-	else
+-		page = alloc_pages(gfp, order);
++		if (dev_get_cma_area(NULL))
++			page = dma_alloc_from_contiguous(NULL, 1 << order,
++							 order, false);
++		else
++			page = alloc_pages(gfp, order);
++	} while (!page && order-- > 0);
  	if (!page)
  		goto out;
  
--	arch_dma_prep_coherent(page, atomic_pool_size);
-+	arch_dma_prep_coherent(page, pool_size);
+ 	arch_dma_prep_coherent(page, pool_size);
  
--	atomic_pool = gen_pool_create(PAGE_SHIFT, -1);
--	if (!atomic_pool)
-+	*pool = gen_pool_create(PAGE_SHIFT, -1);
-+	if (!*pool)
- 		goto free_page;
- 
--	addr = dma_common_contiguous_remap(page, atomic_pool_size,
-+	addr = dma_common_contiguous_remap(page, pool_size,
+-	*pool = gen_pool_create(PAGE_SHIFT, -1);
+-	if (!*pool)
+-		goto free_page;
+-
+ 	addr = dma_common_contiguous_remap(page, pool_size,
  					   pgprot_dmacoherent(PAGE_KERNEL),
  					   __builtin_return_address(0));
  	if (!addr)
- 		goto destroy_genpool;
+-		goto destroy_genpool;
++		goto free_page;
  
--	ret = gen_pool_add_virt(atomic_pool, (unsigned long)addr,
--				page_to_phys(page), atomic_pool_size, -1);
-+	ret = gen_pool_add_virt(*pool, (unsigned long)addr, page_to_phys(page),
-+				pool_size, -1);
+-	ret = gen_pool_add_virt(*pool, (unsigned long)addr, page_to_phys(page),
+-				pool_size, -1);
++	ret = gen_pool_add_virt(pool, (unsigned long)addr, page_to_phys(page),
++				pool_size, NUMA_NO_NODE);
  	if (ret)
  		goto remove_mapping;
--	gen_pool_set_algo(atomic_pool, gen_pool_first_fit_order_align, NULL);
-+	gen_pool_set_algo(*pool, gen_pool_first_fit_order_align, NULL);
+-	gen_pool_set_algo(*pool, gen_pool_first_fit_order_align, NULL);
  
--	pr_info("DMA: preallocated %zu KiB pool for atomic allocations\n",
--		atomic_pool_size / 1024);
-+	pr_info("DMA: preallocated %zu KiB %pGg pool for atomic allocations\n",
-+		pool_size >> 10, &gfp);
+-	pr_info("DMA: preallocated %zu KiB %pGg pool for atomic allocations\n",
+-		pool_size >> 10, &gfp);
  	return 0;
  
  remove_mapping:
--	dma_common_free_remap(addr, atomic_pool_size);
-+	dma_common_free_remap(addr, pool_size);
- destroy_genpool:
--	gen_pool_destroy(atomic_pool);
--	atomic_pool = NULL;
-+	gen_pool_destroy(*pool);
-+	*pool = NULL;
+ 	dma_common_free_remap(addr, pool_size);
+-destroy_genpool:
+-	gen_pool_destroy(*pool);
+-	*pool = NULL;
  free_page:
- 	if (!dma_release_from_contiguous(NULL, page, nr_pages))
--		__free_pages(page, pool_size_order);
-+		__free_pages(page, order);
+-	if (!dma_release_from_contiguous(NULL, page, nr_pages))
++	if (!dma_release_from_contiguous(NULL, page, 1 << order))
+ 		__free_pages(page, order);
  out:
--	pr_err("DMA: failed to allocate %zu KiB pool for atomic coherent allocation\n",
--		atomic_pool_size / 1024);
-+	pr_err("DMA: failed to allocate %zu KiB %pGg pool for atomic allocation\n",
-+	       pool_size >> 10, &gfp);
- 	return -ENOMEM;
- }
-+
-+static int __init dma_atomic_pool_init(void)
-+{
-+	int ret = 0;
-+	int err;
-+
-+	ret = __dma_atomic_pool_init(&atomic_pool_kernel, atomic_pool_size,
-+				     GFP_KERNEL);
-+	if (IS_ENABLED(CONFIG_ZONE_DMA)) {
-+		err = __dma_atomic_pool_init(&atomic_pool_dma,
-+					     atomic_pool_size, GFP_DMA);
-+		if (!ret && err)
-+			ret = err;
-+	}
-+	if (IS_ENABLED(CONFIG_ZONE_DMA32)) {
-+		err = __dma_atomic_pool_init(&atomic_pool_dma32,
-+					     atomic_pool_size, GFP_DMA32);
-+		if (!ret && err)
-+			ret = err;
-+	}
+-	pr_err("DMA: failed to allocate %zu KiB %pGg pool for atomic allocation\n",
+-	       pool_size >> 10, &gfp);
+-	return -ENOMEM;
 +	return ret;
 +}
- postcore_initcall(dma_atomic_pool_init);
- 
--bool dma_in_atomic_pool(void *start, size_t size)
-+static inline struct gen_pool *dev_to_pool(struct device *dev)
- {
--	if (unlikely(!atomic_pool))
--		return false;
-+	u64 phys_mask;
-+	gfp_t gfp;
 +
-+	gfp = dma_direct_optimal_gfp_mask(dev, dev->coherent_dma_mask,
-+					  &phys_mask);
-+	if (IS_ENABLED(CONFIG_ZONE_DMA) && gfp == GFP_DMA)
-+		return atomic_pool_dma;
-+	if (IS_ENABLED(CONFIG_ZONE_DMA32) && gfp == GFP_DMA32)
-+		return atomic_pool_dma32;
-+	return atomic_pool_kernel;
-+}
- 
--	return gen_pool_has_addr(atomic_pool, (unsigned long)start, size);
-+static bool dma_in_atomic_pool(struct device *dev, void *start, size_t size)
++static void atomic_pool_resize(struct gen_pool *pool, gfp_t gfp)
 +{
-+	struct gen_pool *pool = dev_to_pool(dev);
++	if (pool && gen_pool_avail(pool) < atomic_pool_size)
++		atomic_pool_expand(pool, gen_pool_size(pool), gfp);
++}
 +
-+	if (unlikely(!pool))
-+		return false;
-+	return gen_pool_has_addr(pool, (unsigned long)start, size);
++static void atomic_pool_work_fn(struct work_struct *work)
++{
++	if (IS_ENABLED(CONFIG_ZONE_DMA))
++		atomic_pool_resize(atomic_pool_dma,
++				   GFP_KERNEL | GFP_DMA);
++	if (IS_ENABLED(CONFIG_ZONE_DMA32))
++		atomic_pool_resize(atomic_pool_dma32,
++				   GFP_KERNEL | GFP_DMA32);
++	atomic_pool_resize(atomic_pool_kernel, GFP_KERNEL);
++}
++
++static __init struct gen_pool *__dma_atomic_pool_init(size_t pool_size,
++						      gfp_t gfp)
++{
++	struct gen_pool *pool;
++	int ret;
++
++	pool = gen_pool_create(PAGE_SHIFT, NUMA_NO_NODE);
++	if (!pool)
++		return NULL;
++
++	gen_pool_set_algo(pool, gen_pool_first_fit_order_align, NULL);
++
++	ret = atomic_pool_expand(pool, pool_size, gfp);
++	if (ret) {
++		gen_pool_destroy(pool);
++		pr_err("DMA: failed to allocate %zu KiB %pGg pool for atomic allocation\n",
++		       pool_size >> 10, &gfp);
++		return NULL;
++	}
++
++	pr_info("DMA: preallocated %zu KiB %pGg pool for atomic allocations\n",
++		gen_pool_size(pool) >> 10, &gfp);
++	return pool;
  }
  
--void *dma_alloc_from_pool(size_t size, struct page **ret_page, gfp_t flags)
-+void *dma_alloc_from_pool(struct device *dev, size_t size,
-+			  struct page **ret_page, gfp_t flags)
+ static int __init dma_atomic_pool_init(void)
  {
-+	struct gen_pool *pool = dev_to_pool(dev);
- 	unsigned long val;
- 	void *ptr = NULL;
+ 	int ret = 0;
+-	int err;
  
--	if (!atomic_pool) {
--		WARN(1, "coherent pool not initialised!\n");
-+	if (!pool) {
-+		WARN(1, "%pGg atomic pool not initialised!\n", &flags);
- 		return NULL;
+-	ret = __dma_atomic_pool_init(&atomic_pool_kernel, atomic_pool_size,
+-				     GFP_KERNEL);
++	INIT_WORK(&atomic_pool_work, atomic_pool_work_fn);
++
++	atomic_pool_kernel = __dma_atomic_pool_init(atomic_pool_size,
++						    GFP_KERNEL);
++	if (!atomic_pool_kernel)
++		ret = -ENOMEM;
+ 	if (IS_ENABLED(CONFIG_ZONE_DMA)) {
+-		err = __dma_atomic_pool_init(&atomic_pool_dma,
+-					     atomic_pool_size, GFP_DMA);
+-		if (!ret && err)
+-			ret = err;
++		atomic_pool_dma = __dma_atomic_pool_init(atomic_pool_size,
++						GFP_KERNEL | GFP_DMA);
++		if (!atomic_pool_dma)
++			ret = -ENOMEM;
  	}
- 
--	val = gen_pool_alloc(atomic_pool, size);
-+	val = gen_pool_alloc(pool, size);
- 	if (val) {
--		phys_addr_t phys = gen_pool_virt_to_phys(atomic_pool, val);
-+		phys_addr_t phys = gen_pool_virt_to_phys(pool, val);
- 
- 		*ret_page = pfn_to_page(__phys_to_pfn(phys));
- 		ptr = (void *)val;
-@@ -114,10 +146,12 @@ void *dma_alloc_from_pool(size_t size, struct page **ret_page, gfp_t flags)
- 	return ptr;
+ 	if (IS_ENABLED(CONFIG_ZONE_DMA32)) {
+-		err = __dma_atomic_pool_init(&atomic_pool_dma32,
+-					     atomic_pool_size, GFP_DMA32);
+-		if (!ret && err)
+-			ret = err;
++		atomic_pool_dma32 = __dma_atomic_pool_init(atomic_pool_size,
++						GFP_KERNEL | GFP_DMA32);
++		if (!atomic_pool_dma32)
++			ret = -ENOMEM;
+ 	}
+ 	return ret;
  }
+@@ -142,6 +186,8 @@ void *dma_alloc_from_pool(struct device *dev, size_t size,
+ 		ptr = (void *)val;
+ 		memset(ptr, 0, size);
+ 	}
++	if (gen_pool_avail(pool) < atomic_pool_size)
++		schedule_work(&atomic_pool_work);
  
--bool dma_free_from_pool(void *start, size_t size)
-+bool dma_free_from_pool(struct device *dev, void *start, size_t size)
- {
--	if (!dma_in_atomic_pool(start, size))
-+	struct gen_pool *pool = dev_to_pool(dev);
-+
-+	if (!dma_in_atomic_pool(dev, start, size))
- 		return false;
--	gen_pool_free(atomic_pool, (unsigned long)start, size);
-+	gen_pool_free(pool, (unsigned long)start, size);
- 	return true;
+ 	return ptr;
  }
 -- 
 2.28.0.618.gf4bc123cb7-goog
