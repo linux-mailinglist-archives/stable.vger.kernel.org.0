@@ -2,87 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A52227857D
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 13:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D663C278585
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 13:04:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727535AbgIYLAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 07:00:33 -0400
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:37485 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727402AbgIYLAc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 07:00:32 -0400
-Received: by mail-ot1-f66.google.com with SMTP id o8so1892609otl.4;
-        Fri, 25 Sep 2020 04:00:32 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=c6a1lgzCizgypHaz6ViKZR7Okd3xqX1EIgWjVLFJSdI=;
-        b=BLnwAs8+q1kBgi00sC9RS+bu0DzRpB8JqNSBz2Kg/fzQ1qCQ0hFVZ72N1MfKJB/oJi
-         NWfgtLfaF09CehdCVIk0gOAkDz5QZnHyLXqC35t7cnJfgxAe09zyWT9rNw2bEgOa95I+
-         17f/wGFOHLCCoZqxLu7q8JiuJYlafFCdt8gIPIh/kih5OqV9EXOzwwqRFWXBefUnWQxc
-         DV/N1kyIR3OAH18v7XUnzUpUZYPaWFeQXfqmC28lvsjSoXrElyY8qJXHd4GauHyCkwLt
-         nfxe0oKHjqEo0Ozy2qcXfw7DIrA+dLnHoJfGMmRNurqqPuwZ4xArSsVk56A73SKgprm9
-         q6Wg==
-X-Gm-Message-State: AOAM530Cr2ZDyHooxv9Q0bfQOnVPCLebKkn5A2AVKZgXrYsiNgZiNI+u
-        DvZOsY/T5FTEEVnLsZmDPNGFXIm2V6TTsuSjQXRJsJdO
-X-Google-Smtp-Source: ABdhPJwoJMoYw5QP1bHK1gX/+M8dxaaaRmbUU6t31+WvNBVHnWkKECelMHMb1PaSIYFzdPpNULW1u3u0j0WspqIgIKc=
-X-Received: by 2002:a9d:718a:: with SMTP id o10mr2457303otj.262.1601031632042;
- Fri, 25 Sep 2020 04:00:32 -0700 (PDT)
+        id S1727201AbgIYLEP convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 25 Sep 2020 07:04:15 -0400
+Received: from mga03.intel.com ([134.134.136.65]:63962 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727151AbgIYLEP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 07:04:15 -0400
+IronPort-SDR: 0e247YJFuzE5fVpi41sfjMyjLsQ2iLkcBvUeQczjfsPEtbm6mQPFEKsfdtRGEWIRbrawJzsv/5
+ kFs4K/dlikIA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9754"; a="161583492"
+X-IronPort-AV: E=Sophos;i="5.77,301,1596524400"; 
+   d="scan'208";a="161583492"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2020 04:04:14 -0700
+IronPort-SDR: CZKxz2YcHMrBDhdnoMh8DD78AiwgTgMk1XCVVcCYnfZJQLRgFcQ81bh37+XfqstdE/qgjOUxwZ
+ n4owsiso+BtA==
+X-IronPort-AV: E=Sophos;i="5.77,301,1596524400"; 
+   d="scan'208";a="455786504"
+Received: from gkeaveny-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.30.201])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2020 04:04:12 -0700
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200913223403.59175-1-alex.hung@canonical.com>
-In-Reply-To: <20200913223403.59175-1-alex.hung@canonical.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Fri, 25 Sep 2020 13:00:21 +0200
-Message-ID: <CAJZ5v0jU_E5M0QmG-cr5zQxt99Tr562A8k1fLG=q=DpqmdB+_g@mail.gmail.com>
-Subject: Re: [PATCH][V2] ACPI: video: use ACPI backlight for HP 635 Notebook
-To:     Alex Hung <alex.hung@canonical.com>
-Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20200916094219.3878-2-chris@chris-wilson.co.uk>
+References: <20200916094219.3878-1-chris@chris-wilson.co.uk> <20200916094219.3878-2-chris@chris-wilson.co.uk>
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+From:   Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Subject: Re: [PATCH 2/4] drm/i915: Cancel outstanding work after disabling heartbeats on an engine
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Message-ID: <160103184907.9735.4650760110326834457@jlahtine-mobl.ger.corp.intel.com>
+User-Agent: alot/0.8.1
+Date:   Fri, 25 Sep 2020 14:04:09 +0300
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 14, 2020 at 12:34 AM Alex Hung <alex.hung@canonical.com> wrote:
->
-> Default backlight interface is AMD's radeon_bl0 which does not work on
-> this system. As a result, let's for ACPI backlight interface for this
-> system.
->
-> BugLink: https://bugs.launchpad.net/bugs/1894667
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Alex Hung <alex.hung@canonical.com>
-> ---
->
-> V2: correct Cc to stable
->
->  drivers/acpi/video_detect.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
->
-> diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-> index 2499d7e..05047a3 100644
-> --- a/drivers/acpi/video_detect.c
-> +++ b/drivers/acpi/video_detect.c
-> @@ -282,6 +282,15 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
->                 DMI_MATCH(DMI_PRODUCT_NAME, "530U4E/540U4E"),
->                 },
->         },
-> +       /* https://bugs.launchpad.net/bugs/1894667 */
-> +       {
-> +        .callback = video_detect_force_video,
-> +        .ident = "HP 635 Notebook",
-> +        .matches = {
-> +               DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-> +               DMI_MATCH(DMI_PRODUCT_NAME, "HP 635 Notebook PC"),
-> +               },
-> +       },
->
->         /* Non win8 machines which need native backlight nevertheless */
->         {
-> --
+Quoting Chris Wilson (2020-09-16 12:42:17)
+> We only allow persistent requests to remain on the GPU past the closure
+> of their containing context (and process) so long as they are continuously
+> checked for hangs or allow other requests to preempt them, as we need to
+> ensure forward progress of the system. If we allow persistent contexts
+> to remain on the system after the the hangcheck mechanism is disabled,
+> the system may grind to a halt. On disabling the mechanism, we sent a
+> pulse along the engine to remove all executing contexts from the engine
+> which would check for hung contexts -- but we did not prevent those
+> contexts from being resubmitted if they survived the final hangcheck.
+> 
+> Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
+> Testcase: igt/gem_ctx_persistence/heartbeat-stop
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> Cc: <stable@vger.kernel.org> # v5.7+
 
-Applied as 5.10 material, thanks!
+Definitely makes sense to ensure.
+
+Acked-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+
+Regards, Joonas
+
+> ---
+>  drivers/gpu/drm/i915/gt/intel_engine.h | 9 +++++++++
+>  drivers/gpu/drm/i915/i915_request.c    | 5 +++++
+>  2 files changed, 14 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/i915/gt/intel_engine.h b/drivers/gpu/drm/i915/gt/intel_engine.h
+> index 08e2c000dcc3..7c3a1012e702 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_engine.h
+> +++ b/drivers/gpu/drm/i915/gt/intel_engine.h
+> @@ -337,4 +337,13 @@ intel_engine_has_preempt_reset(const struct intel_engine_cs *engine)
+>         return intel_engine_has_preemption(engine);
+>  }
+>  
+> +static inline bool
+> +intel_engine_has_heartbeat(const struct intel_engine_cs *engine)
+> +{
+> +       if (!IS_ACTIVE(CONFIG_DRM_I915_HEARTBEAT_INTERVAL))
+> +               return false;
+> +
+> +       return READ_ONCE(engine->props.heartbeat_interval_ms);
+> +}
+> +
+>  #endif /* _INTEL_RINGBUFFER_H_ */
+> diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+> index 436ce368ddaa..0e813819b041 100644
+> --- a/drivers/gpu/drm/i915/i915_request.c
+> +++ b/drivers/gpu/drm/i915/i915_request.c
+> @@ -542,8 +542,13 @@ bool __i915_request_submit(struct i915_request *request)
+>         if (i915_request_completed(request))
+>                 goto xfer;
+>  
+> +       if (unlikely(intel_context_is_closed(request->context) &&
+> +                    !intel_engine_has_heartbeat(engine)))
+> +               intel_context_set_banned(request->context);
+> +
+>         if (unlikely(intel_context_is_banned(request->context)))
+>                 i915_request_set_error_once(request, -EIO);
+> +
+>         if (unlikely(fatal_error(request->fence.error)))
+>                 __i915_request_skip(request);
+>  
+> -- 
+> 2.20.1
+> 
