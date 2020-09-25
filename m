@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21FFA2788B4
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32FCF278890
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728605AbgIYMvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:51:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55094 "EHLO mail.kernel.org"
+        id S1729232AbgIYM4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:56:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728589AbgIYMvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:01 -0400
+        id S1729444AbgIYMxg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B60F02075E;
-        Fri, 25 Sep 2020 12:51:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B678A21741;
+        Fri, 25 Sep 2020 12:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038261;
-        bh=0DlG/3RHYmeZOr2woLPqvPkBfh6V3La1uN1zjYf9+mM=;
+        s=default; t=1601038416;
+        bh=G0cp1vQPLNVOtvJJKq/Ho+5w4LU7UHa+SivaCfjnP+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NsXPbWE7aVQCzx4G1F+BgrUZyu6jSScbpFsZi4zzaRs0vs4js4l212yEUvZyGG2mR
-         Lzmk8B5YtZ9CbRWz1vYwDcjJZdvpMD/Wkc+qeoH4SZd+p0wknzkwHzPn920t0hjPbP
-         DASkzKnPFgqfhVPBuzR0JjtxVADcqFIkoI1cilxQ=
+        b=g/e+O0NFkeF66/mMBBBSiv14HpAu1kKNY1oo/o3mxbUmFbjkLwysZpApnd0MGvnwR
+         K1q2Jl2plrjsAkZX08FezT0apYdLtpKkk9i9vxtvT1yK4eEJzCmKrE38HX+5yuexa4
+         dnWKIThRkY7MaF6tXRso6vCYPjnANh+aRxGZzYfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 40/56] net: phy: Do not warn in phy_stop() on PHY_DOWN
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 02/37] KVM: fix memory leak in kvm_io_bus_unregister_dev()
 Date:   Fri, 25 Sep 2020 14:48:30 +0200
-Message-Id: <20200925124733.881946682@linuxfoundation.org>
+Message-Id: <20200925124721.325359894@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
-References: <20200925124727.878494124@linuxfoundation.org>
+In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
+References: <20200925124720.972208530@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit 5116a8ade333b6c2e180782139c9c516a437b21c ]
+[ Upstream commit f65886606c2d3b562716de030706dfe1bea4ed5e ]
 
-When phy_is_started() was added to catch incorrect PHY states,
-phy_stop() would not be qualified against PHY_DOWN. It is possible to
-reach that state when the PHY driver has been unbound and the network
-device is then brought down.
+when kmalloc() fails in kvm_io_bus_unregister_dev(), before removing
+the bus, we should iterate over all other devices linked to it and call
+kvm_iodevice_destructor() for them
 
-Fixes: 2b3e88ea6528 ("net: phy: improve phy state checking")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 90db10434b16 ("KVM: kvm_io_bus_unregister_dev() should never fail")
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=f196caa45793d6374707
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20200907185535.233114-1-rkovhaev@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ virt/kvm/kvm_main.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -948,7 +948,7 @@ void phy_stop(struct phy_device *phydev)
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 2155b52b17eca..6bd01d12df2ec 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -3844,7 +3844,7 @@ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
+ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 			       struct kvm_io_device *dev)
  {
- 	struct net_device *dev = phydev->attached_dev;
+-	int i;
++	int i, j;
+ 	struct kvm_io_bus *new_bus, *bus;
  
--	if (!phy_is_started(phydev)) {
-+	if (!phy_is_started(phydev) && phydev->state != PHY_DOWN) {
- 		WARN(1, "called from state %s\n",
- 		     phy_state_to_str(phydev->state));
- 		return;
+ 	bus = kvm_get_bus(kvm, bus_idx);
+@@ -3861,17 +3861,20 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 
+ 	new_bus = kmalloc(sizeof(*bus) + ((bus->dev_count - 1) *
+ 			  sizeof(struct kvm_io_range)), GFP_KERNEL);
+-	if (!new_bus)  {
++	if (new_bus) {
++		memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
++		new_bus->dev_count--;
++		memcpy(new_bus->range + i, bus->range + i + 1,
++		       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
++	} else {
+ 		pr_err("kvm: failed to shrink bus, removing it completely\n");
+-		goto broken;
++		for (j = 0; j < bus->dev_count; j++) {
++			if (j == i)
++				continue;
++			kvm_iodevice_destructor(bus->range[j].dev);
++		}
+ 	}
+ 
+-	memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
+-	new_bus->dev_count--;
+-	memcpy(new_bus->range + i, bus->range + i + 1,
+-	       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
+-
+-broken:
+ 	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
+ 	synchronize_srcu_expedited(&kvm->srcu);
+ 	kfree(bus);
+-- 
+2.25.1
+
 
 
