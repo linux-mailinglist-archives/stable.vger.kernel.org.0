@@ -2,73 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFAE7279040
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 20:26:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 278AC279087
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 20:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729714AbgIYS0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 14:26:38 -0400
-Received: from sonic309-25.consmr.mail.ir2.yahoo.com ([77.238.179.83]:34898
-        "EHLO sonic309-25.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726990AbgIYS0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 14:26:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1601058396; bh=NajTNMrfMLb6UXcjRhYpYerQX8PtVBLz0oFgaMINSWY=; h=Date:From:Reply-To:Subject:References:From:Subject; b=dzhYUhF+Hxv7YEFlJk8xGjWe7CX1WxcHNumG6ezP2DlkbPv8d91gleqFahbEXODF1b+FHSrS/g6Z/Q3iEiHMh7/+GWaQ75O46DVUJi+CCiv9XpcHL2d1u4C9RtFW6SYoBbhqiCK6MQSyrn9MwSb643LWzllSNU81dVI1p5205sYh9Da+RVWx0PLq0ljNxOVF8H53a3U5hEvavaGVeSdwFliGE5efYWMiDdndk8wipKCpRtI/EJWVOSEKknVVHGkge6eX2zNkUYWNBOO83At9b1PCHL2dRu0TQzqBTB10b8pnXxeCS9ogLPq8nP6IUKoAHjz3L5G8EHHTcImtlRZIGA==
-X-YMail-OSG: XLJ5IwEVM1k6CPksh8Bo.a0xtwSae7pe903fa5yJ9LNvz93vFq_5pqBBNw2AFye
- _nmAl_08Mfh4n4hqNJgHoHud3NCW_ztqQyjjXYjvXffPkL6LT_35GnrtCdzQP5liQ_wLZI8gOupw
- kF6lyKmuDYahW7U1XcZn6jAabyl5mt3xvklyVcd6ziGcUdVgSX_UHF9O5Uh6xrBpGVmtKclkoste
- GNpZis6J_MYjGwVEzbP7cfsKPuuQAOhVLQNhetTx6ao_dQkTwBYEgzNjRfxEIL2Ll8hSEIJplMV3
- b1J6uKoixU9poHTNgpmCNXw96EXOlS2hH_uT0OpsugDc4XLGsG4fs9TsoNey42zq8ph928GiX15P
- SzJ_H0JQayHIzKo8u_AKOwux1KeMR0wapVrM8OKRGJv1pgKsKin6bPSwhBynBXm2rAqkXdTH2jdk
- swiidf3qwPPTMPDS8_sN6avg1Qryq_ILbTvywRHxzJUYHvYE6aLQiCaV94Rmv_9x5owDNN.Wvtbw
- 3.sm30mwM7zI0JP61G9MreosJPOyC5QyLh5EWOW13GVeSWsaWZZNHPIu7vjEUyrScSXmXgodDIgt
- oMnQVRV8KSTJJuyQ2_anOzhhhYZQtcvkObsoKGoLG577DzLGKexIfjYHizUbV2V9qpMLhTM1l7S2
- tTXvDENEu0xIgw2SvsE_1sR2a5MEXqJApZ84Tb9V9URdpPYoyAFy3lksLw9PuJLMpUeeagf0qU0m
- 5D4wrZsWnBny1RcxNXKRC223Iur9Bm8Vjf7mmZk7CJ_30zgrCahB6LjQGDAStTZytRxr5GXlYwYE
- lmxvldXe66LJfFjjSoRP5AW4M_7LgoE22eTthavgtJZuDafIi0AwzN98Cm8kYrTqA0NQDONKLAm9
- .smhPOKish69L4iYLVHCZYUiMryCxGmCh5ysw9q7zuAi2_8gRmb7BgTqEo4SXb0Y_vns7V7o8wyu
- xyx8dZgltkq8imT3lYMNnkZXhzNNLNvJ8hcffEdUQlBDAs_cU_Sm8XEDS3IS617xPont5X6MkKG2
- nIhGsEda3HZzIjeJwJkbZ7AWm_n4UMVnjp8zahXHvGdbn9P7mVt.PgZIve2M_NBFxNGT576tLgGY
- 9sR_BBrr2EQl5ioj665fK667qK2VAOcz2G_aFoPCS6l47_wSrKKjtz.CRX1n3f3NYLxe7tRmUsG1
- k8fLxsJvdtNIqWb20uT8brIp2dJY5CIHMKGvxJWDhasi7phsOJR7ZU_TYPEf2VX5wtB6ZvPuY.Td
- Fukyjj66r78Oycibk4N7n4BxqFv3NbqHa5kNre1fDdqM4RUfCpozARMyie2W08BgIFSqvL.6B83M
- .2cSbsCOoGqe0_Hlkjfrw4Mx.gQsJ9a12y49P4edD4j7s3M7raVahvXR30QFPFsn.M5TZnwPmpoR
- spjcIwU7zSY0EmV9Su9WjlmKfKFbbze3OUnnxKSiyXSn1S_sf
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ir2.yahoo.com with HTTP; Fri, 25 Sep 2020 18:26:36 +0000
-Date:   Fri, 25 Sep 2020 18:26:32 +0000 (UTC)
-From:   Ms Lisa Hugh <lisa.hugh0000@gmail.com>
-Reply-To: ms.lisahugh000@gmail.com
-Message-ID: <128817487.1379831.1601058392872@mail.yahoo.com>
-Subject: YOUR HELP FOR THIS TRANSFER.(Ms Lisa hugh).
+        id S1729948AbgIYSc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 14:32:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35290 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729730AbgIYScz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 14:32:55 -0400
+Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42FD6C0613D3
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 11:32:55 -0700 (PDT)
+Received: by mail-vs1-xe43.google.com with SMTP id e2so1953105vsr.7
+        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 11:32:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=zmBNMGTOcS06iWEHJdkuZQFymir5wMWMMXmjkjUADLA=;
+        b=JNN3JzthaPVL6boitB+0Yldat63kEAepTq46wi1guU1AP06xoZJ5ZaNLioG7kBz0vF
+         MLzPdkt4unWofVQ7hy3PQtLq/4UfB+X1lOB0+uaehnZNXWUtZgKEvsZDOqOnH3hJsTth
+         uPNgh62Aeknmea8+8ZMN8ThLjxZmVdYuPIavdUgkHELO5q/iEZp7wqW3qKfvNsicrpdg
+         2+RYDgIPueDhqI/Ti6T+0AROytQBP7wHg2wBFGl05dpc/fCwAGYoUT4WDSddJHSENcIr
+         ggdOTQgEx8XITLtyX1SFR1PSQfftJiRHLkuqZ9E9jVcFHDWYl3zKeJNllksCU7ChdlIX
+         aLJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=zmBNMGTOcS06iWEHJdkuZQFymir5wMWMMXmjkjUADLA=;
+        b=YuvPf+eUey/5twwfD0L7jB4b+6JVkT5UH5f9GK9XdDT3e+b6rdpJ+xlSnC8KOofy3I
+         Dtnbho0oJ36ZhCfq6c9i5TSNyR5lGV+7kxBnRxtyA4K3940B0Oa0PzkLtAZJgwauYFQh
+         mxQKdB13HZw5tMi4W5BQwrREO8ctYCUg/v+7RwDOkpwQVhVA0SLCoH3KQVkGOQu/vLul
+         /ooTKgZLaW07gX58lJJ5/1nkd4ozLQzl1rxOhH/2vhxNIFMzWM5SlnXHxXjKlkqxsin8
+         M8+ZVajdazUQmd1En82Qli2C29LwasQh51P4xOjWhK6PHpZi1gwkRvbfXDtSULbZ4JBM
+         IFRQ==
+X-Gm-Message-State: AOAM533Eml1O14nDpjRPDA/C/hOYD0lEMPuWP3n4xXrWd8caonRqDxSE
+        PlqeZjDnGSRU/omn32XTOThawz9hSOocZURa8CDl7w==
+X-Google-Smtp-Source: ABdhPJyAySprMs+K2C9uH+qRFhePGiGzJqNtXSaV18HrBMd+b4w16k9yanbkt9KoVWHxAxe/LTXFMEHs6RKE/NYtYyA=
+X-Received: by 2002:a67:bd12:: with SMTP id y18mr606955vsq.45.1601058774269;
+ Fri, 25 Sep 2020 11:32:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <128817487.1379831.1601058392872.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16674 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0
-To:     unlisted-recipients:; (no To-header on input)
+References: <20200925124727.878494124@linuxfoundation.org>
+In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 26 Sep 2020 00:02:42 +0530
+Message-ID: <CA+G9fYs2XFPxTApCcZz5x6cr3GM8uNYE77O=Md-W4QtQ7PRR_g@mail.gmail.com>
+Subject: Re: [PATCH 5.8 00/56] 5.8.12-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 25 Sep 2020 at 18:18, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.8.12 release.
+> There are 56 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 27 Sep 2020 12:47:02 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.8.12-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.8.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
+
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.8.12-rc1
+git repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+git branch: linux-5.8.y
+git commit: cf9938637c5c627f01905a4b4e29c02c1c6187fa
+git describe: v5.8.11-57-gcf9938637c5c
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.8.=
+y/build/v5.8.11-57-gcf9938637c5c
 
 
-Dear Friend,
+No regressions (compared to build v5.8.11)
 
-I am Ms Lisa hugh, work with the department of Audit and accounting manager here in the Bank(B.O.A).
+No fixes (compared to build v5.8.11)
 
-Please i need your assistance for the transferring of thIs fund to your bank account for both of us benefit for life time investment, amount (US$4.5M DOLLARS).
+Ran 30889 total tests in the following environments and test suites.
 
-I have every inquiry details to make the bank believe you and release the fund in within 5 banking working days with your full co-operation with me for success.
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+- x86-kasan
 
-Note/ 50% for you why 50% for me after success of the transfer to your bank account.
+Test Suites
+-----------
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-syscalls-tests
+* libhugetlbfs
+* ltp-fs-tests
+* ltp-hugetlb-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-tracing-tests
+* v4l2-compliance
+* ltp-controllers-tests
+* ltp-cve-tests
+* ltp-open-posix-tests
+* ltp-sched-tests
+* network-basic-tests
 
-Below information is what i need from you so will can be reaching each other
-
-1)Full name ...
-2)Private telephone number...
-3)Age...
-4)Nationality...
-5)Occupation ...
-
-
-Thanks.
-
-Ms Lisa hugh.
+--=20
+Linaro LKFT
+https://lkft.linaro.org
