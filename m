@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18655278798
+	by mail.lfdr.de (Postfix) with ESMTP id F41F227879B
 	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728696AbgIYMsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52180 "EHLO mail.kernel.org"
+        id S1728754AbgIYMs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:48:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728702AbgIYMsv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:48:51 -0400
+        id S1728693AbgIYMsy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:48:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADA3721741;
-        Fri, 25 Sep 2020 12:48:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57E2721D91;
+        Fri, 25 Sep 2020 12:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038131;
-        bh=sWcrSjXVX6igZJnbs/kgA7rS9CTZPvuGV5tIOowXLkM=;
+        s=default; t=1601038133;
+        bh=PPN/qdWXlnXkKZBiVulHZK1tcJ6jUktf+89bZU+dDeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3XtIX8PK1AI6J+D5PkH5DhFb0lQGJA7I6//CdGTPErRuqcK2NQbMkIl3/jdm4K2R
-         gvfnB0Tc23Z8hINxbzenfix018EQTDG+UJkfRsJcfjpni0+VarDTSJ26J7FsH3E8Js
-         L5d+y2MSIlsIroUr3GZIEqd5oygLM3dhpcqICnXY=
+        b=EqpIcWkcXh2yONTagQVaMQ5cqeIVkEj18UJCOfZltMCqZ+7OC+jBeVVnX85qFipF/
+         ydvlMS3o4mmOPuHG923i4zXmvB+eExYZ1vpoqgyB2bul51sB0OM47r84b/UymV2f8L
+         cRTzTHzUs3U7yavi2iex2TjAJV1XTGNEXcPFMz+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 15/56] net: bridge: br_vlan_get_pvid_rcu() should dereference the VLAN group under RCU
-Date:   Fri, 25 Sep 2020 14:48:05 +0200
-Message-Id: <20200925124730.105544984@linuxfoundation.org>
+Subject: [PATCH 5.8 16/56] net: DCB: Validate DCB_ATTR_DCB_BUFFER argument
+Date:   Fri, 25 Sep 2020 14:48:06 +0200
+Message-Id: <20200925124730.256745774@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
 References: <20200925124727.878494124@linuxfoundation.org>
@@ -42,93 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Petr Machata <petrm@nvidia.com>
 
-[ Upstream commit 99f62a746066fa436aa15d4606a538569540db08 ]
+[ Upstream commit 297e77e53eadb332d5062913447b104a772dc33b ]
 
-When calling the RCU brother of br_vlan_get_pvid(), lockdep warns:
+The parameter passed via DCB_ATTR_DCB_BUFFER is a struct dcbnl_buffer. The
+field prio2buffer is an array of IEEE_8021Q_MAX_PRIORITIES bytes, where
+each value is a number of a buffer to direct that priority's traffic to.
+That value is however never validated to lie within the bounds set by
+DCBX_MAX_BUFFERS. The only driver that currently implements the callback is
+mlx5 (maintainers CCd), and that does not do any validation either, in
+particual allowing incorrect configuration if the prio2buffer value does
+not fit into 4 bits.
 
-=============================
-WARNING: suspicious RCU usage
-5.9.0-rc3-01631-g13c17acb8e38-dirty #814 Not tainted
------------------------------
-net/bridge/br_private.h:1054 suspicious rcu_dereference_protected() usage!
+Instead of offloading the need to validate the buffer index to drivers, do
+it right there in core, and bounce the request if the value is too large.
 
-Call trace:
- lockdep_rcu_suspicious+0xd4/0xf8
- __br_vlan_get_pvid+0xc0/0x100
- br_vlan_get_pvid_rcu+0x78/0x108
-
-The warning is because br_vlan_get_pvid_rcu() calls nbp_vlan_group()
-which calls rtnl_dereference() instead of rcu_dereference(). In turn,
-rtnl_dereference() calls rcu_dereference_protected() which assumes
-operation under an RCU write-side critical section, which obviously is
-not the case here. So, when the incorrect primitive is used to access
-the RCU-protected VLAN group pointer, READ_ONCE() is not used, which may
-cause various unexpected problems.
-
-I'm sad to say that br_vlan_get_pvid() and br_vlan_get_pvid_rcu() cannot
-share the same implementation. So fix the bug by splitting the 2
-functions, and making br_vlan_get_pvid_rcu() retrieve the VLAN groups
-under proper locking annotations.
-
-Fixes: 7582f5b70f9a ("bridge: add br_vlan_get_pvid_rcu()")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+CC: Parav Pandit <parav@nvidia.com>
+CC: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: e549f6f9c098 ("net/dcb: Add dcbnl buffer attribute")
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_vlan.c |   27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ net/dcb/dcbnl.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/bridge/br_vlan.c
-+++ b/net/bridge/br_vlan.c
-@@ -1288,11 +1288,13 @@ void br_vlan_get_stats(const struct net_
- 	}
- }
- 
--static int __br_vlan_get_pvid(const struct net_device *dev,
--			      struct net_bridge_port *p, u16 *p_pvid)
-+int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
+--- a/net/dcb/dcbnl.c
++++ b/net/dcb/dcbnl.c
+@@ -1426,6 +1426,7 @@ static int dcbnl_ieee_set(struct net_dev
  {
- 	struct net_bridge_vlan_group *vg;
-+	struct net_bridge_port *p;
+ 	const struct dcbnl_rtnl_ops *ops = netdev->dcbnl_ops;
+ 	struct nlattr *ieee[DCB_ATTR_IEEE_MAX + 1];
++	int prio;
+ 	int err;
  
-+	ASSERT_RTNL();
-+	p = br_port_get_check_rtnl(dev);
- 	if (p)
- 		vg = nbp_vlan_group(p);
- 	else if (netif_is_bridge_master(dev))
-@@ -1303,18 +1305,23 @@ static int __br_vlan_get_pvid(const stru
- 	*p_pvid = br_get_pvid(vg);
- 	return 0;
- }
--
--int br_vlan_get_pvid(const struct net_device *dev, u16 *p_pvid)
--{
--	ASSERT_RTNL();
--
--	return __br_vlan_get_pvid(dev, br_port_get_check_rtnl(dev), p_pvid);
--}
- EXPORT_SYMBOL_GPL(br_vlan_get_pvid);
+ 	if (!ops)
+@@ -1475,6 +1476,13 @@ static int dcbnl_ieee_set(struct net_dev
+ 		struct dcbnl_buffer *buffer =
+ 			nla_data(ieee[DCB_ATTR_DCB_BUFFER]);
  
- int br_vlan_get_pvid_rcu(const struct net_device *dev, u16 *p_pvid)
- {
--	return __br_vlan_get_pvid(dev, br_port_get_check_rcu(dev), p_pvid);
-+	struct net_bridge_vlan_group *vg;
-+	struct net_bridge_port *p;
++		for (prio = 0; prio < ARRAY_SIZE(buffer->prio2buffer); prio++) {
++			if (buffer->prio2buffer[prio] >= DCBX_MAX_BUFFERS) {
++				err = -EINVAL;
++				goto err;
++			}
++		}
 +
-+	p = br_port_get_check_rcu(dev);
-+	if (p)
-+		vg = nbp_vlan_group_rcu(p);
-+	else if (netif_is_bridge_master(dev))
-+		vg = br_vlan_group_rcu(netdev_priv(dev));
-+	else
-+		return -EINVAL;
-+
-+	*p_pvid = br_get_pvid(vg);
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(br_vlan_get_pvid_rcu);
- 
+ 		err = ops->dcbnl_setbuffer(netdev, buffer);
+ 		if (err)
+ 			goto err;
 
 
