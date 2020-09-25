@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF4F278818
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 348BF2787B4
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728936AbgIYMwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:52:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56462 "EHLO mail.kernel.org"
+        id S1728921AbgIYMtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:49:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728836AbgIYMv4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:56 -0400
+        id S1727982AbgIYMte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:49:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B304B2075E;
-        Fri, 25 Sep 2020 12:51:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47E0221741;
+        Fri, 25 Sep 2020 12:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038316;
-        bh=nnCPX2M8Ud3Q3sWqnacbZ0IgDstKLV16QadBYR/b5so=;
+        s=default; t=1601038173;
+        bh=DYFOAbZr1ACkodkipyItWjopq8FKzhHI1nnHfjYZsks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TT9L/NlpH8mqM7fYdE1TSFbn642I58ljaFNvwZGY0QYuMmEidKdyV/SMWcOAxNgWD
-         mn3dLWdWiyHJGZ1UuZdr0J3eyyat4NDHucrgTcvPhqzaF6+wWWpxICAUbUK2CNimWN
-         RqYVLm4/E1yMTVWX/PrrbPw252sd2xIukyWCGG30=
+        b=PCZbLa7jqDHvGuF0QsnzsNDT/JnCSHcRVDcCKj90zvsM6iA9p24LioeTAOPTdl5Xn
+         qVccQlp0UWFrMNIgYVc8qTVpA5E6STcOQZpt3n02mqO0XHbfauKB0fPlBKjEyktZ6u
+         KHpXtaM0QLICq64Yk/0PrVzH85M57zv6MkRnMgWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 07/43] bnxt_en: Avoid sending firmware messages when AER error is detected.
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.8 29/56] tipc: use skb_unshare() instead in tipc_buf_append()
 Date:   Fri, 25 Sep 2020 14:48:19 +0200
-Message-Id: <20200925124724.645013837@linuxfoundation.org>
+Message-Id: <20200925124732.188538698@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
-References: <20200925124723.575329814@linuxfoundation.org>
+In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
+References: <20200925124727.878494124@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit b340dc680ed48dcc05b56e1ebe1b9535813c3ee0 ]
+[ Upstream commit ff48b6222e65ebdba5a403ef1deba6214e749193 ]
 
-When the driver goes through PCIe AER reset in error state, all
-firmware messages will timeout because the PCIe bus is no longer
-accessible.  This can lead to AER reset taking many minutes to
-complete as each firmware command takes time to timeout.
+In tipc_buf_append() it may change skb's frag_list, and it causes
+problems when this skb is cloned. skb_unclone() doesn't really
+make this skb's flag_list available to change.
 
-Define a new macro BNXT_NO_FW_ACCESS() to skip these firmware messages
-when either firmware is in fatal error state or when
-pci_channel_offline() is true.  It now takes a more reasonable 20 to
-30 seconds to complete AER recovery.
+Shuang Li has reported an use-after-free issue because of this
+when creating quite a few macvlan dev over the same dev, where
+the broadcast packets will be cloned and go up to the stack:
 
-Fixes: b4fff2079d10 ("bnxt_en: Do not send firmware messages if firmware is in error state.")
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ [ ] BUG: KASAN: use-after-free in pskb_expand_head+0x86d/0xea0
+ [ ] Call Trace:
+ [ ]  dump_stack+0x7c/0xb0
+ [ ]  print_address_description.constprop.7+0x1a/0x220
+ [ ]  kasan_report.cold.10+0x37/0x7c
+ [ ]  check_memory_region+0x183/0x1e0
+ [ ]  pskb_expand_head+0x86d/0xea0
+ [ ]  process_backlog+0x1df/0x660
+ [ ]  net_rx_action+0x3b4/0xc90
+ [ ]
+ [ ] Allocated by task 1786:
+ [ ]  kmem_cache_alloc+0xbf/0x220
+ [ ]  skb_clone+0x10a/0x300
+ [ ]  macvlan_broadcast+0x2f6/0x590 [macvlan]
+ [ ]  macvlan_process_broadcast+0x37c/0x516 [macvlan]
+ [ ]  process_one_work+0x66a/0x1060
+ [ ]  worker_thread+0x87/0xb10
+ [ ]
+ [ ] Freed by task 3253:
+ [ ]  kmem_cache_free+0x82/0x2a0
+ [ ]  skb_release_data+0x2c3/0x6e0
+ [ ]  kfree_skb+0x78/0x1d0
+ [ ]  tipc_recvmsg+0x3be/0xa40 [tipc]
+
+So fix it by using skb_unshare() instead, which would create a new
+skb for the cloned frag and it'll be safe to change its frag_list.
+The similar things were also done in sctp_make_reassembled_event(),
+which is using skb_copy().
+
+Reported-by: Shuang Li <shuali@redhat.com>
+Fixes: 37e22164a8a3 ("tipc: rename and move message reassembly function")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    6 +++---
- drivers/net/ethernet/broadcom/bnxt/bnxt.h |    4 ++++
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ net/tipc/msg.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -4204,7 +4204,7 @@ static int bnxt_hwrm_do_send_msg(struct
- 	u32 bar_offset = BNXT_GRCPF_REG_CHIMP_COMM;
- 	u16 dst = BNXT_HWRM_CHNL_CHIMP;
- 
--	if (test_bit(BNXT_STATE_FW_FATAL_COND, &bp->state))
-+	if (BNXT_NO_FW_ACCESS(bp))
- 		return -EBUSY;
- 
- 	if (msg_len > BNXT_HWRM_MAX_REQ_LEN) {
-@@ -5539,7 +5539,7 @@ static int hwrm_ring_free_send_msg(struc
- 	struct hwrm_ring_free_output *resp = bp->hwrm_cmd_resp_addr;
- 	u16 error_code;
- 
--	if (test_bit(BNXT_STATE_FW_FATAL_COND, &bp->state))
-+	if (BNXT_NO_FW_ACCESS(bp))
- 		return 0;
- 
- 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_RING_FREE, cmpl_ring_id, -1);
-@@ -7454,7 +7454,7 @@ static int bnxt_set_tpa(struct bnxt *bp,
- 
- 	if (set_tpa)
- 		tpa_flags = bp->flags & BNXT_FLAG_TPA;
--	else if (test_bit(BNXT_STATE_FW_FATAL_COND, &bp->state))
-+	else if (BNXT_NO_FW_ACCESS(bp))
- 		return 0;
- 	for (i = 0; i < bp->nr_vnics; i++) {
- 		rc = bnxt_hwrm_vnic_set_tpa(bp, i, tpa_flags);
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -1628,6 +1628,10 @@ struct bnxt {
- #define BNXT_STATE_ABORT_ERR	5
- #define BNXT_STATE_FW_FATAL_COND	6
- 
-+#define BNXT_NO_FW_ACCESS(bp)					\
-+	(test_bit(BNXT_STATE_FW_FATAL_COND, &(bp)->state) ||	\
-+	 pci_channel_offline((bp)->pdev))
-+
- 	struct bnxt_irq	*irq_tbl;
- 	int			total_irqs;
- 	u8			mac_addr[ETH_ALEN];
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -150,7 +150,8 @@ int tipc_buf_append(struct sk_buff **hea
+ 	if (fragid == FIRST_FRAGMENT) {
+ 		if (unlikely(head))
+ 			goto err;
+-		if (unlikely(skb_unclone(frag, GFP_ATOMIC)))
++		frag = skb_unshare(frag, GFP_ATOMIC);
++		if (unlikely(!frag))
+ 			goto err;
+ 		head = *headbuf = frag;
+ 		*buf = NULL;
 
 
