@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 204A92787FD
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:52:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D745278839
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728825AbgIYMvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:51:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56254 "EHLO mail.kernel.org"
+        id S1729477AbgIYMxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:53:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729245AbgIYMvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:48 -0400
+        id S1729469AbgIYMxq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BF71206DB;
-        Fri, 25 Sep 2020 12:51:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB250206DB;
+        Fri, 25 Sep 2020 12:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038308;
-        bh=z0oC8lHqS57ON+A3lpGFR01MjL5Ycc+bLABi7UmN7tU=;
+        s=default; t=1601038425;
+        bh=5jYqUkf/fzOaAjAmRxvMUlJVVtbD3UDbBqyj16ZtyOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YeUVCmlQNyBIsAtH3MkZdaeD2Qw4p60xke039v9d8N4/LZ1E2mt2UgIhWsfIpO32x
-         qJwAmHJCIOBLjfa8bAq0mtqf+rBmkCjsPgx1ID7Pe9ASf0UumgiCud+yDm2zvJgPDZ
-         F0eFU0voBhyrWSnIVE9sgMd9HAqSwUIHeRtO8aQ4=
+        b=TWmPSoaTZ0WytMq8RBhUmSZ/tzkFtaNMda2+zfy8qxbA4MVL3+VrzSRSKZEeLwS9B
+         l0xtji1OGi9JJUF6XgrQ1kHhH5ZIL86QeLlObcdY5QqmmNhShR98U4rgel7sf3Rdvt
+         uBdFnECAkEly9heMlo0Rh/64MdExgyDXplXosJ0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.4 22/43] net/mlx5: Fix FTE cleanup
+        stable@vger.kernel.org, Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>,
+        Mark Gray <mark.d.gray@redhat.com>,
+        Greg Rose <gvrose8192@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 06/37] geneve: add transport ports in route lookup for geneve
 Date:   Fri, 25 Sep 2020 14:48:34 +0200
-Message-Id: <20200925124726.941993925@linuxfoundation.org>
+Message-Id: <20200925124721.899820897@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
-References: <20200925124723.575329814@linuxfoundation.org>
+In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
+References: <20200925124720.972208530@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,103 +44,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Mark Gray <mark.d.gray@redhat.com>
 
-[ Upstream commit cefc23554fc259114e78a7b0908aac4610ee18eb ]
+[ Upstream commit 34beb21594519ce64a55a498c2fe7d567bc1ca20 ]
 
-Currently, when an FTE is allocated, its refcount is decreased to 0
-with the purpose it will not be a stand alone steering object and every
-rule (destination) of the FTE would increase the refcount.
-When mlx5_cleanup_fs is called while not all rules were deleted by the
-steering users, it hit refcount underflow on the FTE once clean_tree
-calls to tree_remove_node after the deleted rules already decreased
-the refcount to 0.
+This patch adds transport ports information for route lookup so that
+IPsec can select Geneve tunnel traffic to do encryption. This is
+needed for OVS/OVN IPsec with encrypted Geneve tunnels.
 
-FTE is no longer destroyed implicitly when the last rule (destination)
-is deleted. mlx5_del_flow_rules avoids it by increasing the refcount on
-the FTE and destroy it explicitly after all rules were deleted. So we
-can avoid the refcount underflow by making FTE as stand alone object.
-In addition need to set del_hw_func to FTE so the HW object will be
-destroyed when the FTE is deleted from the cleanup_tree flow.
+This can be tested by configuring a host-host VPN using an IKE
+daemon and specifying port numbers. For example, for an
+Openswan-type configuration, the following parameters should be
+configured on both hosts and IPsec set up as-per normal:
 
-refcount_t: underflow; use-after-free.
-WARNING: CPU: 2 PID: 15715 at lib/refcount.c:28 refcount_warn_saturate+0xd9/0xe0
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-Call Trace:
- tree_put_node+0xf2/0x140 [mlx5_core]
- clean_tree+0x4e/0xf0 [mlx5_core]
- clean_tree+0x4e/0xf0 [mlx5_core]
- clean_tree+0x4e/0xf0 [mlx5_core]
- clean_tree+0x5f/0xf0 [mlx5_core]
- clean_tree+0x4e/0xf0 [mlx5_core]
- clean_tree+0x5f/0xf0 [mlx5_core]
- mlx5_cleanup_fs+0x26/0x270 [mlx5_core]
- mlx5_unload+0x2e/0xa0 [mlx5_core]
- mlx5_unload_one+0x51/0x120 [mlx5_core]
- mlx5_devlink_reload_down+0x51/0x90 [mlx5_core]
- devlink_reload+0x39/0x120
- ? devlink_nl_cmd_reload+0x43/0x220
- genl_rcv_msg+0x1e4/0x420
- ? genl_family_rcv_msg_attrs_parse+0x100/0x100
- netlink_rcv_skb+0x47/0x110
- genl_rcv+0x24/0x40
- netlink_unicast+0x217/0x2f0
- netlink_sendmsg+0x30f/0x430
- sock_sendmsg+0x30/0x40
- __sys_sendto+0x10e/0x140
- ? handle_mm_fault+0xc4/0x1f0
- ? do_page_fault+0x33f/0x630
- __x64_sys_sendto+0x24/0x30
- do_syscall_64+0x48/0x130
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+$ cat /etc/ipsec.conf
 
-Fixes: 718ce4d601db ("net/mlx5: Consolidate update FTE for all removal changes")
-Fixes: bd71b08ec2ee ("net/mlx5: Support multiple updates of steering rules in parallel")
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+conn in
+...
+left=$IP1
+right=$IP2
+...
+leftprotoport=udp/6081
+rightprotoport=udp
+...
+conn out
+...
+left=$IP1
+right=$IP2
+...
+leftprotoport=udp
+rightprotoport=udp/6081
+...
+
+The tunnel can then be setup using "ip" on both hosts (but
+changing the relevant IP addresses):
+
+$ ip link add tun type geneve id 1000 remote $IP2
+$ ip addr add 192.168.0.1/24 dev tun
+$ ip link set tun up
+
+This can then be tested by pinging from $IP1:
+
+$ ping 192.168.0.2
+
+Without this patch the traffic is unencrypted on the wire.
+
+Fixes: 2d07dc79fe04 ("geneve: add initial netdev driver for GENEVE tunnels")
+Signed-off-by: Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>
+Signed-off-by: Mark Gray <mark.d.gray@redhat.com>
+Reviewed-by: Greg Rose <gvrose8192@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/geneve.c |   37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -629,7 +629,7 @@ static struct fs_fte *alloc_fte(struct m
- 	fte->action = *flow_act;
- 	fte->flow_context = spec->flow_context;
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -721,7 +721,8 @@ static struct rtable *geneve_get_v4_rt(s
+ 				       struct net_device *dev,
+ 				       struct geneve_sock *gs4,
+ 				       struct flowi4 *fl4,
+-				       const struct ip_tunnel_info *info)
++				       const struct ip_tunnel_info *info,
++				       __be16 dport, __be16 sport)
+ {
+ 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
+ 	struct geneve_dev *geneve = netdev_priv(dev);
+@@ -737,6 +738,8 @@ static struct rtable *geneve_get_v4_rt(s
+ 	fl4->flowi4_proto = IPPROTO_UDP;
+ 	fl4->daddr = info->key.u.ipv4.dst;
+ 	fl4->saddr = info->key.u.ipv4.src;
++	fl4->fl4_dport = dport;
++	fl4->fl4_sport = sport;
  
--	tree_init_node(&fte->node, NULL, del_sw_fte);
-+	tree_init_node(&fte->node, del_hw_fte, del_sw_fte);
+ 	tos = info->key.tos;
+ 	if ((tos == 1) && !geneve->collect_md) {
+@@ -771,7 +774,8 @@ static struct dst_entry *geneve_get_v6_d
+ 					   struct net_device *dev,
+ 					   struct geneve_sock *gs6,
+ 					   struct flowi6 *fl6,
+-					   const struct ip_tunnel_info *info)
++					   const struct ip_tunnel_info *info,
++					   __be16 dport, __be16 sport)
+ {
+ 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
+ 	struct geneve_dev *geneve = netdev_priv(dev);
+@@ -787,6 +791,9 @@ static struct dst_entry *geneve_get_v6_d
+ 	fl6->flowi6_proto = IPPROTO_UDP;
+ 	fl6->daddr = info->key.u.ipv6.dst;
+ 	fl6->saddr = info->key.u.ipv6.src;
++	fl6->fl6_dport = dport;
++	fl6->fl6_sport = sport;
++
+ 	prio = info->key.tos;
+ 	if ((prio == 1) && !geneve->collect_md) {
+ 		prio = ip_tunnel_get_dsfield(ip_hdr(skb), skb);
+@@ -833,14 +840,15 @@ static int geneve_xmit_skb(struct sk_buf
+ 	__be16 df;
+ 	int err;
  
- 	return fte;
+-	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
++	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
++	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
++			      geneve->info.key.tp_dst, sport);
+ 	if (IS_ERR(rt))
+ 		return PTR_ERR(rt);
+ 
+ 	skb_tunnel_check_pmtu(skb, &rt->dst,
+ 			      GENEVE_IPV4_HLEN + info->options_len);
+ 
+-	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+ 	if (geneve->collect_md) {
+ 		tos = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
+ 		ttl = key->ttl;
+@@ -875,13 +883,14 @@ static int geneve6_xmit_skb(struct sk_bu
+ 	__be16 sport;
+ 	int err;
+ 
+-	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
++	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
++	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
++				geneve->info.key.tp_dst, sport);
+ 	if (IS_ERR(dst))
+ 		return PTR_ERR(dst);
+ 
+ 	skb_tunnel_check_pmtu(skb, dst, GENEVE_IPV6_HLEN + info->options_len);
+ 
+-	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+ 	if (geneve->collect_md) {
+ 		prio = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
+ 		ttl = key->ttl;
+@@ -958,13 +967,18 @@ static int geneve_fill_metadata_dst(stru
+ {
+ 	struct ip_tunnel_info *info = skb_tunnel_info(skb);
+ 	struct geneve_dev *geneve = netdev_priv(dev);
++	__be16 sport;
+ 
+ 	if (ip_tunnel_info_af(info) == AF_INET) {
+ 		struct rtable *rt;
+ 		struct flowi4 fl4;
++
+ 		struct geneve_sock *gs4 = rcu_dereference(geneve->sock4);
++		sport = udp_flow_src_port(geneve->net, skb,
++					  1, USHRT_MAX, true);
+ 
+-		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
++		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
++				      geneve->info.key.tp_dst, sport);
+ 		if (IS_ERR(rt))
+ 			return PTR_ERR(rt);
+ 
+@@ -974,9 +988,13 @@ static int geneve_fill_metadata_dst(stru
+ 	} else if (ip_tunnel_info_af(info) == AF_INET6) {
+ 		struct dst_entry *dst;
+ 		struct flowi6 fl6;
++
+ 		struct geneve_sock *gs6 = rcu_dereference(geneve->sock6);
++		sport = udp_flow_src_port(geneve->net, skb,
++					  1, USHRT_MAX, true);
+ 
+-		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
++		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
++					geneve->info.key.tp_dst, sport);
+ 		if (IS_ERR(dst))
+ 			return PTR_ERR(dst);
+ 
+@@ -987,8 +1005,7 @@ static int geneve_fill_metadata_dst(stru
+ 		return -EINVAL;
+ 	}
+ 
+-	info->key.tp_src = udp_flow_src_port(geneve->net, skb,
+-					     1, USHRT_MAX, true);
++	info->key.tp_src = sport;
+ 	info->key.tp_dst = geneve->info.key.tp_dst;
+ 	return 0;
  }
-@@ -1737,7 +1737,6 @@ skip_search:
- 		up_write_ref_node(&g->node, false);
- 		rule = add_rule_fg(g, spec, flow_act, dest, dest_num, fte);
- 		up_write_ref_node(&fte->node, false);
--		tree_put_node(&fte->node, false);
- 		return rule;
- 	}
- 	rule = ERR_PTR(-ENOENT);
-@@ -1837,7 +1836,6 @@ search_again_locked:
- 	up_write_ref_node(&g->node, false);
- 	rule = add_rule_fg(g, spec, flow_act, dest, dest_num, fte);
- 	up_write_ref_node(&fte->node, false);
--	tree_put_node(&fte->node, false);
- 	tree_put_node(&g->node, false);
- 	return rule;
- 
-@@ -1930,7 +1928,9 @@ void mlx5_del_flow_rules(struct mlx5_flo
- 		up_write_ref_node(&fte->node, false);
- 	} else {
- 		del_hw_fte(&fte->node);
--		up_write(&fte->node.lock);
-+		/* Avoid double call to del_hw_fte */
-+		fte->node.del_hw_func = NULL;
-+		up_write_ref_node(&fte->node, false);
- 		tree_put_node(&fte->node, false);
- 	}
- 	kfree(handle);
 
 
