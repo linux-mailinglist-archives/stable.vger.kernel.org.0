@@ -2,92 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 768AB278A58
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 16:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14A60278AA7
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 16:13:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728199AbgIYOHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 10:07:55 -0400
-Received: from mx2.suse.de ([195.135.220.15]:57436 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726990AbgIYOHz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 10:07:55 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1601042873;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=0bb+VXJKXkSVXRXN2wKoX5N5IGTNG4/vY2hQ3WdHPGU=;
-        b=H77nb9nX7Qdrnb3iOVjCM9C8IVwWrAAIuFH1DoigveWlnZ4h7SeOrwfJZFjEEJhbrxwber
-        y5jPfft4BcbP02YB9F+c/pMRaqdzOF/1JG8x/+DgH64b5tauF2YN22y/kS8iXdRj0gt0V7
-        O3r4xW2P0fzvI+ftL48ZVrU3d5shVgY=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 6D7CEAB9F;
-        Fri, 25 Sep 2020 14:07:53 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
-To:     xen-devel@lists.xenproject.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org
-Subject: [PATCH v2] x86/xen: disable Firmware First mode for correctable memory errors
-Date:   Fri, 25 Sep 2020 16:07:51 +0200
-Message-Id: <20200925140751.31381-1-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
+        id S1728783AbgIYONY convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 25 Sep 2020 10:13:24 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:49412 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728410AbgIYONY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Sep 2020 10:13:24 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 22536260-1500050 
+        for multiple; Fri, 25 Sep 2020 15:13:12 +0100
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <a3ecdcec-5274-99b4-6dcb-f1c34695c30d@linux.intel.com>
+References: <20200916094219.3878-1-chris@chris-wilson.co.uk> <20200916094219.3878-3-chris@chris-wilson.co.uk> <6be94225-9d54-0a4b-d1d0-d5b46d8b6fdb@linux.intel.com> <160102809807.30248.12041152856672975142@build.alporthouse.com> <a3ecdcec-5274-99b4-6dcb-f1c34695c30d@linux.intel.com>
+Subject: Re: [Intel-gfx] [PATCH 3/4] drm/i915/gt: Always send a pulse down the engine after disabling heartbeat
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     stable@vger.kernel.org
+To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org
+Date:   Fri, 25 Sep 2020 15:13:11 +0100
+Message-ID: <160104319162.28040.2956055792545950778@build.alporthouse.com>
+User-Agent: alot/0.9
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When running as Xen dom0 the kernel isn't responsible for selecting the
-error handling mode, this should be handled by the hypervisor.
+Quoting Tvrtko Ursulin (2020-09-25 14:19:22)
+> 
+> On 25/09/2020 11:01, Chris Wilson wrote:
+> > Quoting Tvrtko Ursulin (2020-09-24 14:43:08)
+> >>
+> >> On 16/09/2020 10:42, Chris Wilson wrote:
+> >>> Currently, we check we can send a pulse prior to disabling the
+> >>> heartbeat to verify that we can change the heartbeat, but since we may
+> >>> re-evaluate execution upon changing the heartbeat interval we need another
+> >>> pulse afterwards to refresh execution.
+> >>>
+> >>> Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
+> >>> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> >>> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> >>> Cc: <stable@vger.kernel.org> # v5.7+
+> >>> ---
+> >>>    drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c | 6 ++++--
+> >>>    1 file changed, 4 insertions(+), 2 deletions(-)
+> >>>
+> >>> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
+> >>> index 8ffdf676c0a0..d09df370f7cd 100644
+> >>> --- a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
+> >>> +++ b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
+> >>> @@ -192,10 +192,12 @@ int intel_engine_set_heartbeat(struct intel_engine_cs *engine,
+> >>>        WRITE_ONCE(engine->props.heartbeat_interval_ms, delay);
+> >>>    
+> >>>        if (intel_engine_pm_get_if_awake(engine)) {
+> >>> -             if (delay)
+> >>> +             if (delay) {
+> >>>                        intel_engine_unpark_heartbeat(engine);
+> >>> -             else
+> >>> +             } else {
+> >>>                        intel_engine_park_heartbeat(engine);
+> >>> +                     intel_engine_pulse(engine); /* recheck execution */
+> >>> +             }
+> >>>                intel_engine_pm_put(engine);
+> >>>        }
+> >>>    
+> >>>
+> >>
+> >> I did not immediately get this one. Do we really need two pulses or
+> >> maybe we could re-order the code a bit and just undo the heartbeat park
+> >> if pulse after parking did not work?
+> > 
+> > We use the first pulse to determine if it's legal for the parameter to
+> > be changed (checking we support the preemptive pulse to remove
+> > non-persistent contexts). Then the second pulse after changing the
+> > parameter to flush the changes through.
+> > 
+> > I like checking for support before making the change, although we could
+> > try and fixup after failure, there would still be a window where the
+> > change would be visible to the system. We don't need to use the pulse per
+> > se for that check, that's pure convenience as it performs the checking
+> > already.
+> 
+> Hm second pulse also has a problem that sneaky user can nerf it with a 
+> precisely timed SIGINT on itself. It's a bit ridiculous isn't it? :)
 
-So disable setting FF mode when running as Xen pv guest. Not doing so
-might result in boot splats like:
-
-[    7.509696] HEST: Enabling Firmware First mode for corrected errors.
-[    7.510382] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 2.
-[    7.510383] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 3.
-[    7.510384] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 4.
-[    7.510384] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 5.
-[    7.510385] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 6.
-[    7.510386] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 7.
-[    7.510386] mce: [Firmware Bug]: Ignoring request to disable invalid MCA bank 8.
-
-Reason is that the HEST ACPI table contains the real number of MCA
-banks, while the hypervisor is emulating only 2 banks for guests.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
----
- arch/x86/xen/enlighten_pv.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 22e741e0b10c..351ac1a9a119 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1376,6 +1376,15 @@ asmlinkage __visible void __init xen_start_kernel(void)
- 		x86_init.mpparse.get_smp_config = x86_init_uint_noop;
+Sufficient pause for concern. In both this and the kill_context path, we
+are using the pulse to evict hostile contexts, that could be reasonable
+grounds to have the pulse not be interrupted.
  
- 		xen_boot_params_init_edd();
-+
-+#ifdef CONFIG_ACPI
-+		/*
-+		 * Disable selecting "Firmware First mode" for correctable
-+		 * memory errors, as this is the duty of the hypervisor to
-+		 * decide.
-+		 */
-+		acpi_disable_cmcff = 1;
-+#endif
- 	}
- 
- 	if (!boot_params.screen_info.orig_video_isVGA)
--- 
-2.26.2
+> Have engine preemption check open coded first and uninterruptible 
+> flavour of pulse sending? It's also not good since we do want it to be 
+> interruptible..
 
+Right, allowing it to be interruptible does ensure we have an escape
+plan. That escape plan is often invaluable. :|
+
+> Unwind the change and report error back to write(2) if 
+> intel_engine_pulse failed for any reason?
+
+The concern then is how atomic do we want the change to appear to be.
+Would it be sufficient to only rollback after error if the value still
+matches (multiple users), cmpxchg for paranoia. Then anything that
+observes the intermediate value will just have to obey the new rules
+temporarily, as they would have to in future if the change succeeded.
+
+	new = strtoull_from_user();
+	/* validate new */
+
+	old = xchg(&heartbeat, new);
+	/* apply changes */
+	if (err)
+		cmpxchg(&heartbeat, new, old);
+
+If heartbeat is changed in the interval, the pulse either uses the new
+or the new-new value, fail/pass regardless. That could mean we report an
+error for another heartbeat value from a second user. That's arguing for
+a mutex guard for the sysfs writes.
+-Chris
