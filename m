@@ -2,40 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E54E2787AB
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03831278824
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728881AbgIYMt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:49:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52930 "EHLO mail.kernel.org"
+        id S1729390AbgIYMxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:53:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728876AbgIYMtZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:49:25 -0400
+        id S1729385AbgIYMxK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65FE021D91;
-        Fri, 25 Sep 2020 12:49:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E1362072E;
+        Fri, 25 Sep 2020 12:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038164;
-        bh=AYe5I3zPyTIC8FEv4xdzcMMvnWr2dMBJk6QoVn2JaMY=;
+        s=default; t=1601038389;
+        bh=0MpM9kM7j2uZfc3H+ibaJhN+dUqZxd0Ci2qYdN+0vZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVYu1H0H4ALvBUnEDjTCUMdGC9rLCB67pgdFBhQ7Tvfqvt8BYOZkwKrZA5U62hWES
-         J4rSbEDKB2eRZ8qT15On6q5yl1KdOJylk3WSVaVQRaFFFTWKMSz9FrqegVzPkBatge
-         NCfLSA4B7L9bFdEJ13tr5KnWEbfGySAQ4quMXeM0=
+        b=ix9VR6+0EU3RCC5hyLJlq9MSin5+rOzwPSDd7tIo0vbsLqc6dqDt24HWxSbcQYsch
+         2KRy/1yd2lS5Hf3JkOvV7CPn3zD4cACvoG1PVlble9VC7yqECJG3LGIBBdZPpfnik2
+         anedl6qVSUs2sECiKNueqJ+wWUFZI/tJTKDSE5Hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+8267241609ae8c23b248@syzkaller.appspotmail.com,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 26/56] taprio: Fix allowing too small intervals
-Date:   Fri, 25 Sep 2020 14:48:16 +0200
-Message-Id: <20200925124731.748913559@linuxfoundation.org>
+        stable@vger.kernel.org, Ralph Campbell <rcampbell@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yang Shi <shy828301@gmail.com>, Zi Yan <ziy@nvidia.com>,
+        Jerome Glisse <jglisse@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Bharata B Rao <bharata@linux.ibm.com>,
+        Ben Skeggs <bskeggs@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 05/43] mm/thp: fix __split_huge_pmd_locked() for migration PMD
+Date:   Fri, 25 Sep 2020 14:48:17 +0200
+Message-Id: <20200925124724.318940945@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124727.878494124@linuxfoundation.org>
-References: <20200925124727.878494124@linuxfoundation.org>
+In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
+References: <20200925124723.575329814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,116 +52,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Ralph Campbell <rcampbell@nvidia.com>
 
-[ Upstream commit b5b73b26b3ca34574124ed7ae9c5ba8391a7f176 ]
+[ Upstream commit ec0abae6dcdf7ef88607c869bf35a4b63ce1b370 ]
 
-It's possible that the user specifies an interval that couldn't allow
-any packet to be transmitted. This also avoids the issue of the
-hrtimer handler starving the other threads because it's running too
-often.
+A migrating transparent huge page has to already be unmapped.  Otherwise,
+the page could be modified while it is being copied to a new page and data
+could be lost.  The function __split_huge_pmd() checks for a PMD migration
+entry before calling __split_huge_pmd_locked() leading one to think that
+__split_huge_pmd_locked() can handle splitting a migrating PMD.
 
-The solution is to reject interval sizes that according to the current
-link speed wouldn't allow any packet to be transmitted.
+However, the code always increments the page->_mapcount and adjusts the
+memory control group accounting assuming the page is mapped.
 
-Reported-by: syzbot+8267241609ae8c23b248@syzkaller.appspotmail.com
-Fixes: 5a781ccbd19e ("tc: Add support for configuring the taprio scheduler")
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also, if the PMD entry is a migration PMD entry, the call to
+is_huge_zero_pmd(*pmd) is incorrect because it calls pmd_pfn(pmd) instead
+of migration_entry_to_pfn(pmd_to_swp_entry(pmd)).  Fix these problems by
+checking for a PMD migration entry.
+
+Fixes: 84c3fc4e9c56 ("mm: thp: check pmd migration entry in common path")
+Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Bharata B Rao <bharata@linux.ibm.com>
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.14+]
+Link: https://lkml.kernel.org/r/20200903183140.19055-1-rcampbell@nvidia.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c |   28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ mm/huge_memory.c | 40 +++++++++++++++++++++++-----------------
+ 1 file changed, 23 insertions(+), 17 deletions(-)
 
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -777,9 +777,11 @@ static const struct nla_policy taprio_po
- 	[TCA_TAPRIO_ATTR_TXTIME_DELAY]		     = { .type = NLA_U32 },
- };
- 
--static int fill_sched_entry(struct nlattr **tb, struct sched_entry *entry,
-+static int fill_sched_entry(struct taprio_sched *q, struct nlattr **tb,
-+			    struct sched_entry *entry,
- 			    struct netlink_ext_ack *extack)
- {
-+	int min_duration = length_to_duration(q, ETH_ZLEN);
- 	u32 interval = 0;
- 
- 	if (tb[TCA_TAPRIO_SCHED_ENTRY_CMD])
-@@ -794,7 +796,10 @@ static int fill_sched_entry(struct nlatt
- 		interval = nla_get_u32(
- 			tb[TCA_TAPRIO_SCHED_ENTRY_INTERVAL]);
- 
--	if (interval == 0) {
-+	/* The interval should allow at least the minimum ethernet
-+	 * frame to go out.
-+	 */
-+	if (interval < min_duration) {
- 		NL_SET_ERR_MSG(extack, "Invalid interval for schedule entry");
- 		return -EINVAL;
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index da9040a6838f8..873de55d93fb2 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2174,7 +2174,7 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+ 		put_page(page);
+ 		add_mm_counter(mm, mm_counter_file(page), -HPAGE_PMD_NR);
+ 		return;
+-	} else if (is_huge_zero_pmd(*pmd)) {
++	} else if (pmd_trans_huge(*pmd) && is_huge_zero_pmd(*pmd)) {
+ 		/*
+ 		 * FIXME: Do we want to invalidate secondary mmu by calling
+ 		 * mmu_notifier_invalidate_range() see comments below inside
+@@ -2262,27 +2262,33 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+ 		pte = pte_offset_map(&_pmd, addr);
+ 		BUG_ON(!pte_none(*pte));
+ 		set_pte_at(mm, addr, pte, entry);
+-		atomic_inc(&page[i]._mapcount);
+-		pte_unmap(pte);
+-	}
+-
+-	/*
+-	 * Set PG_double_map before dropping compound_mapcount to avoid
+-	 * false-negative page_mapped().
+-	 */
+-	if (compound_mapcount(page) > 1 && !TestSetPageDoubleMap(page)) {
+-		for (i = 0; i < HPAGE_PMD_NR; i++)
++		if (!pmd_migration)
+ 			atomic_inc(&page[i]._mapcount);
++		pte_unmap(pte);
  	}
-@@ -804,8 +809,9 @@ static int fill_sched_entry(struct nlatt
- 	return 0;
- }
  
--static int parse_sched_entry(struct nlattr *n, struct sched_entry *entry,
--			     int index, struct netlink_ext_ack *extack)
-+static int parse_sched_entry(struct taprio_sched *q, struct nlattr *n,
-+			     struct sched_entry *entry, int index,
-+			     struct netlink_ext_ack *extack)
- {
- 	struct nlattr *tb[TCA_TAPRIO_SCHED_ENTRY_MAX + 1] = { };
- 	int err;
-@@ -819,10 +825,10 @@ static int parse_sched_entry(struct nlat
- 
- 	entry->index = index;
- 
--	return fill_sched_entry(tb, entry, extack);
-+	return fill_sched_entry(q, tb, entry, extack);
- }
- 
--static int parse_sched_list(struct nlattr *list,
-+static int parse_sched_list(struct taprio_sched *q, struct nlattr *list,
- 			    struct sched_gate_list *sched,
- 			    struct netlink_ext_ack *extack)
- {
-@@ -847,7 +853,7 @@ static int parse_sched_list(struct nlatt
- 			return -ENOMEM;
+-	if (atomic_add_negative(-1, compound_mapcount_ptr(page))) {
+-		/* Last compound_mapcount is gone. */
+-		__dec_node_page_state(page, NR_ANON_THPS);
+-		if (TestClearPageDoubleMap(page)) {
+-			/* No need in mapcount reference anymore */
++	if (!pmd_migration) {
++		/*
++		 * Set PG_double_map before dropping compound_mapcount to avoid
++		 * false-negative page_mapped().
++		 */
++		if (compound_mapcount(page) > 1 &&
++		    !TestSetPageDoubleMap(page)) {
+ 			for (i = 0; i < HPAGE_PMD_NR; i++)
+-				atomic_dec(&page[i]._mapcount);
++				atomic_inc(&page[i]._mapcount);
++		}
++
++		lock_page_memcg(page);
++		if (atomic_add_negative(-1, compound_mapcount_ptr(page))) {
++			/* Last compound_mapcount is gone. */
++			__dec_lruvec_page_state(page, NR_ANON_THPS);
++			if (TestClearPageDoubleMap(page)) {
++				/* No need in mapcount reference anymore */
++				for (i = 0; i < HPAGE_PMD_NR; i++)
++					atomic_dec(&page[i]._mapcount);
++			}
  		}
- 
--		err = parse_sched_entry(n, entry, i, extack);
-+		err = parse_sched_entry(q, n, entry, i, extack);
- 		if (err < 0) {
- 			kfree(entry);
- 			return err;
-@@ -862,7 +868,7 @@ static int parse_sched_list(struct nlatt
- 	return i;
- }
- 
--static int parse_taprio_schedule(struct nlattr **tb,
-+static int parse_taprio_schedule(struct taprio_sched *q, struct nlattr **tb,
- 				 struct sched_gate_list *new,
- 				 struct netlink_ext_ack *extack)
- {
-@@ -883,8 +889,8 @@ static int parse_taprio_schedule(struct
- 		new->cycle_time = nla_get_s64(tb[TCA_TAPRIO_ATTR_SCHED_CYCLE_TIME]);
- 
- 	if (tb[TCA_TAPRIO_ATTR_SCHED_ENTRY_LIST])
--		err = parse_sched_list(
--			tb[TCA_TAPRIO_ATTR_SCHED_ENTRY_LIST], new, extack);
-+		err = parse_sched_list(q, tb[TCA_TAPRIO_ATTR_SCHED_ENTRY_LIST],
-+				       new, extack);
- 	if (err < 0)
- 		return err;
- 
-@@ -1474,7 +1480,7 @@ static int taprio_change(struct Qdisc *s
- 		goto free_sched;
++		unlock_page_memcg(page);
  	}
  
--	err = parse_taprio_schedule(tb, new_admin, extack);
-+	err = parse_taprio_schedule(q, tb, new_admin, extack);
- 	if (err < 0)
- 		goto free_sched;
- 
+ 	smp_wmb(); /* make pte visible before pmd */
+-- 
+2.25.1
+
 
 
