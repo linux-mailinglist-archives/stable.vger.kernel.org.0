@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 376542787FB
-	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51BD7278836
+	for <lists+stable@lfdr.de>; Fri, 25 Sep 2020 14:53:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728809AbgIYMvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Sep 2020 08:51:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56196 "EHLO mail.kernel.org"
+        id S1729074AbgIYMxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Sep 2020 08:53:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729237AbgIYMvp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Sep 2020 08:51:45 -0400
+        id S1729463AbgIYMxn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Sep 2020 08:53:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 636E52072E;
-        Fri, 25 Sep 2020 12:51:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FCF52075E;
+        Fri, 25 Sep 2020 12:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601038305;
-        bh=ichOvx8E7brKLZKsSsf0t4baZf6sXRfKDsKHd4tJCEo=;
+        s=default; t=1601038422;
+        bh=VDt7r3woC7LTg2GRHiQhEspTdp95zxK8PVx7W4tdc6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+BB6e1IhFn/P/d+WeMmFjr/OrUiQGeHMD/PAqE97teGQ+nGGkg4B9NQQtzxBGyAg
-         c+Wydu0TIkAy6fJVwxNJURp6lsBnAdX3FNiclrjfgb+9jIZLuiule7BDob1jnCoP66
-         Q8tOQrBlVXQRJukzICchovRxuariNkXE+skDC5f8=
+        b=P9aTGEMMycwF4vZBD7GW1iA42Ssn2GzdTnNZjqFQZ/qrIRB0KpvYPVK93pAi/q+2z
+         PGLfIaDKlVTKh6yu8EQQMZRhgj5HQrSHS5gQzyVsdtlzniAXLh7MeLBeD6d78GInsn
+         otdzWA16eAGFR6Z7vSUtnvbzeUTw0xHj3bq9fHs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 21/43] net: ipv6: fix kconfig dependency warning for IPV6_SEG6_HMAC
+        stable@vger.kernel.org, Ganji Aravind <ganji.aravind@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 05/37] cxgb4: Fix offset when clearing filter byte counters
 Date:   Fri, 25 Sep 2020 14:48:33 +0200
-Message-Id: <20200925124726.795544655@linuxfoundation.org>
+Message-Id: <20200925124721.762475323@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200925124723.575329814@linuxfoundation.org>
-References: <20200925124723.575329814@linuxfoundation.org>
+In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
+References: <20200925124720.972208530@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+From: Ganji Aravind <ganji.aravind@chelsio.com>
 
-[ Upstream commit db7cd91a4be15e1485d6b58c6afc8761c59c4efb ]
+[ Upstream commit 94cc242a067a869c29800aa789d38b7676136e50 ]
 
-When IPV6_SEG6_HMAC is enabled and CRYPTO is disabled, it results in the
-following Kbuild warning:
+Pass the correct offset to clear the stale filter hit
+bytes counter. Otherwise, the counter starts incrementing
+from the stale information, instead of 0.
 
-WARNING: unmet direct dependencies detected for CRYPTO_HMAC
-  Depends on [n]: CRYPTO [=n]
-  Selected by [y]:
-  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
-
-WARNING: unmet direct dependencies detected for CRYPTO_SHA1
-  Depends on [n]: CRYPTO [=n]
-  Selected by [y]:
-  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
-
-WARNING: unmet direct dependencies detected for CRYPTO_SHA256
-  Depends on [n]: CRYPTO [=n]
-  Selected by [y]:
-  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
-
-The reason is that IPV6_SEG6_HMAC selects CRYPTO_HMAC, CRYPTO_SHA1, and
-CRYPTO_SHA256 without depending on or selecting CRYPTO while those configs
-are subordinate to CRYPTO.
-
-Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
-
-Fixes: bf355b8d2c30 ("ipv6: sr: add core files for SR HMAC support")
-Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 12b276fbf6e0 ("cxgb4: add support to create hash filters")
+Signed-off-by: Ganji Aravind <ganji.aravind@chelsio.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/net/ipv6/Kconfig
-+++ b/net/ipv6/Kconfig
-@@ -289,6 +289,7 @@ config IPV6_SEG6_LWTUNNEL
- config IPV6_SEG6_HMAC
- 	bool "IPv6: Segment Routing HMAC support"
- 	depends on IPV6
-+	select CRYPTO
- 	select CRYPTO_HMAC
- 	select CRYPTO_SHA1
- 	select CRYPTO_SHA256
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+@@ -1591,13 +1591,16 @@ out:
+ static int configure_filter_tcb(struct adapter *adap, unsigned int tid,
+ 				struct filter_entry *f)
+ {
+-	if (f->fs.hitcnts)
++	if (f->fs.hitcnts) {
+ 		set_tcb_field(adap, f, tid, TCB_TIMESTAMP_W,
+-			      TCB_TIMESTAMP_V(TCB_TIMESTAMP_M) |
++			      TCB_TIMESTAMP_V(TCB_TIMESTAMP_M),
++			      TCB_TIMESTAMP_V(0ULL),
++			      1);
++		set_tcb_field(adap, f, tid, TCB_RTT_TS_RECENT_AGE_W,
+ 			      TCB_RTT_TS_RECENT_AGE_V(TCB_RTT_TS_RECENT_AGE_M),
+-			      TCB_TIMESTAMP_V(0ULL) |
+ 			      TCB_RTT_TS_RECENT_AGE_V(0ULL),
+ 			      1);
++	}
+ 
+ 	if (f->fs.newdmac)
+ 		set_tcb_tflag(adap, f, tid, TF_CCTRL_ECE_S, 1,
 
 
