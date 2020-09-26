@@ -2,156 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 961D927969C
-	for <lists+stable@lfdr.de>; Sat, 26 Sep 2020 06:19:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A32A27969D
+	for <lists+stable@lfdr.de>; Sat, 26 Sep 2020 06:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730001AbgIZETU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Sep 2020 00:19:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51884 "EHLO mail.kernel.org"
+        id S1729172AbgIZET0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Sep 2020 00:19:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729035AbgIZETU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Sep 2020 00:19:20 -0400
+        id S1729035AbgIZET0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Sep 2020 00:19:26 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEF012078B;
-        Sat, 26 Sep 2020 04:19:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF92D207C4;
+        Sat, 26 Sep 2020 04:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601093959;
-        bh=gqjbGqJ1joxLFctcB/Msx4e1CUN0FUkvjKq/zP4B4zM=;
+        s=default; t=1601093965;
+        bh=4XYbOkZD/X+maFrZDRd5RAzqJJ9LoJUpJToY3T3h3R0=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=glp2xNOyJhKoRYpO+EPEp1Wz4yZampURWRfsCERI3F0fWG1GW292568BAd9RwJFcE
-         qyvUK+UV60w93FDkCeLJe5SdrdEOh5VJBT+02DORAVykWjps9YDpBjt/+Y+dEIkEkc
-         IZ3qxC8QmFZMNKiM1HY9QXoz6HMjpb2Sr4BTzzZ0=
-Date:   Fri, 25 Sep 2020 21:19:18 -0700
+        b=ARY3by6ITqp2ZnsjOsPvXl+rGGDcHv8XbLOpId2hoXAJYDuU33VhrEDACHeGCnZjR
+         9n91SUl1xCKp3tjXuT8Qf0r7v9lmsrcvsunSEVd4++RIROvmA21hg5jWaBnCAd9vFX
+         cwn6ysHBq1VfNYgqtGTRudh+891wxKG0QhjTznM0=
+Date:   Fri, 25 Sep 2020 21:19:24 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, andy.lavr@gmail.com, joe@perches.com,
-        keescook@chromium.org, linux-mm@kvack.org,
-        linux@rasmusvillemoes.dk, masahiroy@kernel.org,
-        mm-commits@vger.kernel.org, natechancellor@gmail.com,
-        ndesaulniers@google.com, nivedita@alum.mit.edu,
-        samitolvanen@google.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 5/9] lib/string.c: implement stpcpy
-Message-ID: <20200926041918.OfR3GXvLc%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, dan.j.wiilliams@intel.com, hch@lst.de,
+        hpa@zytor.com, jack@suse.cz, jmoyer@redhat.com, linux-mm@kvack.org,
+        mawilcox@microsoft.com, mingo@elte.hu, mingo@redhat.com,
+        mm-commits@vger.kernel.org, mpatocka@redhat.com,
+        ross.zwisler@linux.intel.com, stable@vger.kernel.org,
+        tglx@linutronix.de, torvalds@linux-foundation.org,
+        toshi.kani@hpe.com, viro@zeniv.linux.org.uk
+Subject:  [patch 7/9] arch/x86/lib/usercopy_64.c: fix 
+ __copy_user_flushcache() cache writeback
+Message-ID: <20200926041924.JrUcL1D_9%akpm@linux-foundation.org>
 In-Reply-To: <20200925211725.0fea54be9e9715486efea21f@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
-Subject: lib/string.c: implement stpcpy
+From: Mikulas Patocka <mpatocka@redhat.com>
+Subject: arch/x86/lib/usercopy_64.c: fix  __copy_user_flushcache() cache writeback
 
-LLVM implemented a recent "libcall optimization" that lowers calls to
-`sprintf(dest, "%s", str)` where the return value is used to `stpcpy(dest,
-str) - dest`.  This generally avoids the machinery involved in parsing
-format strings.  `stpcpy` is just like `strcpy` except it returns the
-pointer to the new tail of `dest`.  This optimization was introduced into
-clang-12.
+If we copy less than 8 bytes and if the destination crosses a cache line,
+__copy_user_flushcache would invalidate only the first cache line.  This
+patch makes it invalidate the second cache line as well.
 
-Implement this so that we don't observe linkage failures due to missing
-symbol definitions for `stpcpy`.
-
-Similar to last year's fire drill with:
-commit 5f074f3e192f ("lib/string.c: implement a basic bcmp")
-
-The kernel is somewhere between a "freestanding" environment (no full
-libc) and "hosted" environment (many symbols from libc exist with the same
-type, function signature, and semantics).
-
-As H.  Peter Anvin notes, there's not really a great way to inform the
-compiler that you're targeting a freestanding environment but would like
-to opt-in to some libcall optimizations (see pr/47280 below), rather than
-opt-out.
-
-Arvind notes, -fno-builtin-* behaves slightly differently between GCC
-and Clang, and Clang is missing many __builtin_* definitions, which I
-consider a bug in Clang and am working on fixing.
-
-Masahiro summarizes the subtle distinction between compilers justly:
-  To prevent transformation from foo() into bar(), there are two ways in
-  Clang to do that; -fno-builtin-foo, and -fno-builtin-bar.  There is
-  only one in GCC; -fno-buitin-foo.
-
-(Any difference in that behavior in Clang is likely a bug from a missing
-__builtin_* definition.)
-
-Masahiro also notes:
-  We want to disable optimization from foo() to bar(),
-  but we may still benefit from the optimization from
-  foo() into something else. If GCC implements the same transform, we
-  would run into a problem because it is not -fno-builtin-bar, but
-  -fno-builtin-foo that disables that optimization.
-
-  In this regard, -fno-builtin-foo would be more future-proof than
-  -fno-built-bar, but -fno-builtin-foo is still potentially overkill. We
-  may want to prevent calls from foo() being optimized into calls to
-  bar(), but we still may want other optimization on calls to foo().
-
-It seems that compilers today don't quite provide the fine grain control
-over which libcall optimizations pseudo-freestanding environments would
-prefer.
-
-Finally, Kees notes that this interface is unsafe, so we should not
-encourage its use.  As such, I've removed the declaration from any
-header, but it still needs to be exported to avoid linkage errors in
-modules.
-
-Link: https://lkml.kernel.org/r/20200914161643.938408-1-ndesaulniers@google.com
-Link: https://bugs.llvm.org/show_bug.cgi?id=47162
-Link: https://bugs.llvm.org/show_bug.cgi?id=47280
-Link: https://github.com/ClangBuiltLinux/linux/issues/1126
-Link: https://man7.org/linux/man-pages/man3/stpcpy.3.html
-Link: https://pubs.opengroup.org/onlinepubs/9699919799/functions/stpcpy.html
-Link: https://reviews.llvm.org/D85963
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Suggested-by: Andy Lavr <andy.lavr@gmail.com>
-Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
-Suggested-by: Joe Perches <joe@perches.com>
-Suggested-by: Kees Cook <keescook@chromium.org>
-Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
-Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lkml.kernel.org/r/alpine.LRH.2.02.2009161451140.21915@file01.intranet.prod.int.rdu2.redhat.com
+Fixes: 0aed55af88345b ("x86, uaccess: introduce copy_from_iter_flushcache for pmem / cache-bypass operations")
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Dan Williams <dan.j.wiilliams@intel.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Jeff Moyer <jmoyer@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Toshi Kani <toshi.kani@hpe.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Matthew Wilcox <mawilcox@microsoft.com>
+Cc: Ross Zwisler <ross.zwisler@linux.intel.com>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- lib/string.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ arch/x86/lib/usercopy_64.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/lib/string.c~lib-stringc-implement-stpcpy
-+++ a/lib/string.c
-@@ -272,6 +272,30 @@ ssize_t strscpy_pad(char *dest, const ch
- }
- EXPORT_SYMBOL(strscpy_pad);
- 
-+/**
-+ * stpcpy - copy a string from src to dest returning a pointer to the new end
-+ *          of dest, including src's %NUL-terminator. May overrun dest.
-+ * @dest: pointer to end of string being copied into. Must be large enough
-+ *        to receive copy.
-+ * @src: pointer to the beginning of string being copied from. Must not overlap
-+ *       dest.
-+ *
-+ * stpcpy differs from strcpy in a key way: the return value is a pointer
-+ * to the new %NUL-terminating character in @dest. (For strcpy, the return
-+ * value is a pointer to the start of @dest). This interface is considered
-+ * unsafe as it doesn't perform bounds checking of the inputs. As such it's
-+ * not recommended for usage. Instead, its definition is provided in case
-+ * the compiler lowers other libcalls to stpcpy.
-+ */
-+char *stpcpy(char *__restrict__ dest, const char *__restrict__ src);
-+char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
-+{
-+	while ((*dest++ = *src++) != '\0')
-+		/* nothing */;
-+	return --dest;
-+}
-+EXPORT_SYMBOL(stpcpy);
-+
- #ifndef __HAVE_ARCH_STRCAT
- /**
-  * strcat - Append one %NUL-terminated string to another
+--- a/arch/x86/lib/usercopy_64.c~arch-x86-lib-usercopy_64c-fix-__copy_user_flushcache-cache-writeback
++++ a/arch/x86/lib/usercopy_64.c
+@@ -120,7 +120,7 @@ long __copy_user_flushcache(void *dst, c
+ 	 */
+ 	if (size < 8) {
+ 		if (!IS_ALIGNED(dest, 4) || size != 4)
+-			clean_cache_range(dst, 1);
++			clean_cache_range(dst, size);
+ 	} else {
+ 		if (!IS_ALIGNED(dest, 8)) {
+ 			dest = ALIGN(dest, boot_cpu_data.x86_clflush_size);
 _
