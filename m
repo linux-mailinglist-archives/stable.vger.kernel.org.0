@@ -2,119 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 468E627967B
-	for <lists+stable@lfdr.de>; Sat, 26 Sep 2020 06:02:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1F5B27969A
+	for <lists+stable@lfdr.de>; Sat, 26 Sep 2020 06:19:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729987AbgIZEC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Sep 2020 00:02:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38716 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729986AbgIZEC0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Sep 2020 00:02:26 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C2A9C0613CE
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 21:02:26 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id l126so5033200pfd.5
-        for <stable@vger.kernel.org>; Fri, 25 Sep 2020 21:02:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0ur4w7Z4sBPa/KZLrb7HiZOguhJUYF/gz9evARQXivQ=;
-        b=lkRcH0nxtuRGg6B+2DnaHb6gNbDa9ztAZY191/jNHkUMSQ5RF9sbpMYPX04/DbQDtI
-         Dlx4CjUCrz0BvROeBYLACJ17BLGaK41XxlxceFTvaCO6XffX3citC33BfjbGwxQ01yGX
-         6cghn/QJWy5mk3sMVqGrrdh7bZ6MfSyoVN7GAala2CfnkqXXB0w4Ws7RAYlVFcVoh8qb
-         B5Sfrw5V7u2gmtazJFsRw9VLDXRVQ2Zge0s1DvbfKUyDQB8DnANn4C0ZzQZNMyYUHXYJ
-         LtuCYhIJy93jyKs22eb8vVJ7MKDdTpCIdIdyVU/8q0AkomtHwqr2Yz/OvqtVM6rPnoQp
-         tdlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0ur4w7Z4sBPa/KZLrb7HiZOguhJUYF/gz9evARQXivQ=;
-        b=Hd45lZYKu5kkij3bewrHwBXaUdyn0+IBa1BJFE1zqBGLLg2sd4jytj1w6Qj49yI7PE
-         uMoFfzEo207NdxoexoiV8eY0LKUEbQAcLdiGdyBOgDD2LDC7QhhkGwT6J76HoqsSgbJf
-         LKxZN/h36BUkxhq4r1B3NNEqGyktdWBk4SCN6IjY/jolkAFmB0tv91+MPJQTHM8XT36l
-         L4p1c1e+Zeibc76SCvGUyAGWrpIrciAimGt39imldp1qvS79Jwt90wkNt/5HQWJPX0TZ
-         9KAxqTwHwbLyzD9zbJRtKtVWME0GA65K2AdcJY0vmvRJyk/FKs6XlhRwJ/HPBN5mZN6F
-         tzpA==
-X-Gm-Message-State: AOAM530WW46rrZgvUNDDHnARFk0mNMzJCFpUNyc8gA3iuWbIm3X/Xpuh
-        v4spNl2OTnTTubWrt3ee8VvqdojkgsM8Pg==
-X-Google-Smtp-Source: ABdhPJzX+Z6DyhrBQBuNCTO+nx/sTsYO5Wl22i6TV6QsOg1YlzvQps3PkYu1WcFLr168UFYnhpPhpg==
-X-Received: by 2002:a63:4f10:: with SMTP id d16mr1571337pgb.152.1601092945405;
-        Fri, 25 Sep 2020 21:02:25 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f5sm3572849pfj.212.2020.09.25.21.02.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Sep 2020 21:02:24 -0700 (PDT)
-Message-ID: <5f6ebd50.1c69fb81.885ed.b469@mx.google.com>
-Date:   Fri, 25 Sep 2020 21:02:24 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.147-38-g1e68f3302e6a
-Subject: stable-rc/linux-4.19.y baseline: 173 runs,
- 1 regressions (v4.19.147-38-g1e68f3302e6a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1730036AbgIZETD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Sep 2020 00:19:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51592 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730033AbgIZETD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Sep 2020 00:19:03 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 136A02076D;
+        Sat, 26 Sep 2020 04:19:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601093942;
+        bh=AJxwQo/L+ID93H6tPKPieFQbSPWKO3Vas2ik0yvPZ+s=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=Zed3OG/wK9qxn9wnbcZ9fmAs2DU7YwezSNB6Y9AsXjQzhtgMbre9rzAVd6MzH7LQd
+         UFtvvFvKJKbQ44+3YsTtarIH+cCOiJ9Ak0aCVJDBRw5pg9eNFrFcJUK5XyPPJXWmos
+         6v5fAzaCzSye+xx718QJRjHbtkRgmoCJyqRZbB/g=
+Date:   Fri, 25 Sep 2020 21:19:01 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, aquini@redhat.com, cmaiolino@redhat.com,
+        david@fromorbit.com, esandeen@redhat.com, hsiangkao@redhat.com,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        shy828301@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, willy@infradead.org,
+        ying.huang@intel.com
+Subject:  [patch 1/9] mm, THP, swap: fix allocating cluster for
+ swapfile by mistake
+Message-ID: <20200926041901.P-A_BQZ2V%akpm@linux-foundation.org>
+In-Reply-To: <20200925211725.0fea54be9e9715486efea21f@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 173 runs, 1 regressions (v4.19.147-38-g1e6=
-8f3302e6a)
+From: Gao Xiang <hsiangkao@redhat.com>
+Subject: mm, THP, swap: fix allocating cluster for swapfile by mistake
 
-Regressions Summary
--------------------
+SWP_FS is used to make swap_{read,write}page() go through the filesystem,
+and it's only used for swap files over NFS.  So, !SWP_FS means non NFS for
+now, it could be either file backed or device backed.  Something similar
+goes with legacy SWP_FILE.
 
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 4/5    =
+So in order to achieve the goal of the original patch, SWP_BLKDEV should
+be used instead.
 
+FS corruption can be observed with SSD device + XFS + fragmented swapfile
+due to CONFIG_THP_SWAP=y.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.147-38-g1e68f3302e6a/plan/baseline/
+I reproduced the issue with the following details:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.147-38-g1e68f3302e6a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1e68f3302e6a25ff4310dbf4f2de747180d01146 =
+Environment:
+QEMU + upstream kernel + buildroot + NVMe (2 GB)
 
+Kernel config:
+CONFIG_BLK_DEV_NVME=y
+CONFIG_THP_SWAP=y
 
+Some reproducable steps:
+mkfs.xfs -f /dev/nvme0n1
+mkdir /tmp/mnt
+mount /dev/nvme0n1 /tmp/mnt
+bs="32k"
+sz="1024m"    # doesn't matter too much, I also tried 16m
+xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+xfs_io -f -c "pwrite -F -S 0 -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fsync" /tmp/mnt/sw
 
-Test Regressions
----------------- =
+mkswap /tmp/mnt/sw
+swapon /tmp/mnt/sw
 
+stress --vm 2 --vm-bytes 600M   # doesn't matter too much as well
 
-
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 4/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f6e8a6a196bba1291bf9de1
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-47-38-g1e68f3302e6a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-47-38-g1e68f3302e6a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
+Symptoms:
+ - FS corruption (e.g. checksum failure)
+ - memory corruption at: 0xd2808010
+ - segfault
 
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f6e8a6a196bba1=
-291bf9de8
-      new failure (last pass: v4.19.147)
-      2 lines  =20
+Link: https://lkml.kernel.org/r/20200820045323.7809-1-hsiangkao@redhat.com
+Fixes: f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
+Fixes: 38d8b4e6bdc8 ("mm, THP, swap: delay splitting THP during swap out")
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Acked-by: Rafael Aquini <aquini@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Carlos Maiolino <cmaiolino@redhat.com>
+Cc: Eric Sandeen <esandeen@redhat.com>
+Cc: Dave Chinner <david@fromorbit.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/swapfile.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/swapfile.c~mm-thp-swap-fix-allocating-cluster-for-swapfile-by-mistake
++++ a/mm/swapfile.c
+@@ -1078,7 +1078,7 @@ start_over:
+ 			goto nextsi;
+ 		}
+ 		if (size == SWAPFILE_CLUSTER) {
+-			if (!(si->flags & SWP_FS))
++			if (si->flags & SWP_BLKDEV)
+ 				n_ret = swap_alloc_cluster(si, swp_entries);
+ 		} else
+ 			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
+_
