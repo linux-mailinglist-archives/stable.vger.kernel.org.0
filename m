@@ -2,82 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60131279A26
-	for <lists+stable@lfdr.de>; Sat, 26 Sep 2020 16:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8815279A6B
+	for <lists+stable@lfdr.de>; Sat, 26 Sep 2020 17:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726210AbgIZOnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Sep 2020 10:43:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40186 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725208AbgIZOnJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Sep 2020 10:43:09 -0400
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5324720BED;
-        Sat, 26 Sep 2020 14:43:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601131388;
-        bh=DX633K5mKSo//7wFYke/29iydSK/7sr78KqgfCmnErE=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=0opKTnqE64+2e7/8fECEuA95OO6X6N62Au1tuQdwstCPr9WSTf4j0cD6RguPDlLQv
-         mX1zOwK2HNrPmMuVB2scR8c2o8IjOzq0tmgU3uQxqwfFI9AnuEleu2LdQ+8HQDnrZf
-         HzjhNkVsuTUZyJcPQSKAQOg0Srascd3r0AuVsJ94=
-Date:   Sat, 26 Sep 2020 15:43:03 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>
-Cc:     <linux-iio@vger.kernel.org>,
-        Michael Hennerich <Michael.Hennerich@analog.com>,
-        Marcelo Schmitt <marcelo.schmitt1@gmail.com>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Lars-Peter Clausen <lars@metafoo.de>, <stable@vger.kernel.org>
-Subject: Re: [PATCH 2/2] iio: ad7292: Fix of_node refcounting
-Message-ID: <20200926154303.5f51fba5@archlinux>
-In-Reply-To: <20200925091045.302-2-nuno.sa@analog.com>
-References: <20200925091045.302-1-nuno.sa@analog.com>
-        <20200925091045.302-2-nuno.sa@analog.com>
-X-Mailer: Claws Mail 3.17.6 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1726956AbgIZPmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Sep 2020 11:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33478 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725208AbgIZPmx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Sep 2020 11:42:53 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FF08C0613CE;
+        Sat, 26 Sep 2020 08:42:53 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id i17so6209249oig.10;
+        Sat, 26 Sep 2020 08:42:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=92Eqn2qMAPQE4mm68EDXihszegVaTB40RjIm0gmqBiQ=;
+        b=Ri8Dr1K/SH8oQnVHzVjtaXmQPG5l8mzXqdyysnccw89QSDA2DFO2o8z+G0LyiijaMn
+         CUOXp9EPlALrzmygAlt6fV2fweBL0K/v0U+dN/rtOma6BnnP/d1X91CDTT/L8OiWR8N6
+         xe/D+Eos0bSJKzbzP8bRXcMuXG7jM+aR0JEewMr6QfxdRCifUA+iNfPh14O270qbrtU2
+         9DkMuvDSB9ZO2jyfmfvGvp3VE+BlhIFFgBM5AeYfrGRrWqkQI3s5nR/e43ZfF1MAS1gt
+         SXt2g/O8RARjr5IBSxwesKY75tFp/7RE9vtfxkvssqST+z81knOz+OSYrN0+bzZtbeOW
+         7w6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=92Eqn2qMAPQE4mm68EDXihszegVaTB40RjIm0gmqBiQ=;
+        b=bBRI4PAoY7+gzY/EQx9k+IqxK7L6AlBqWt3o/CSAI6kmPA3ysHlj0NHKDm03+qAA7l
+         D/iDtec39hCdTS+Pct6AQW201U6LUsP2PJTtIzey07VtAVFrdnYLGv9taJqpnaxQA9m6
+         WGNrYSksBwSH1aw9RcVsgjpIK0ql3tGqf1Mge5ruxRkhuyqueFTnKRNUUgxvLt0QxsP3
+         4gx7lPQC1UOSMKsGt2/3fnkO/lfZmKfR1ncILZQFYD5qFFeC8sbtsTSLv09WX0gJD3fD
+         iYfmKlHOQOZgot0sjZPyc0EqJNw5BtTcnKw854hzaQo+iq+aVwdP83Jw42iRXiE/BQ8R
+         MDQg==
+X-Gm-Message-State: AOAM530FKrHCEkEGijVufOqfdJhf40qHNsv5NrTi7crKQsxRccMHHmRc
+        7ELGI6bS2Gb0j/eul5gkmBST/zDjY5c=
+X-Google-Smtp-Source: ABdhPJxpCpZKqk/Dcyo15qBeC4B2USXBDYpDjna4PVCSHuK3TYsVOpTbc94stmuo771NvP0E0CAfgw==
+X-Received: by 2002:aca:cc07:: with SMTP id c7mr1596532oig.82.1601134971158;
+        Sat, 26 Sep 2020 08:42:51 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id z10sm652059ooz.14.2020.09.26.08.42.50
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Sat, 26 Sep 2020 08:42:50 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Sat, 26 Sep 2020 08:42:49 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/37] 4.19.148-rc1 review
+Message-ID: <20200926154249.GA233060@roeck-us.net>
+References: <20200925124720.972208530@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200925124720.972208530@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 25 Sep 2020 11:10:45 +0200
-Nuno S=C3=A1 <nuno.sa@analog.com> wrote:
+On Fri, Sep 25, 2020 at 02:48:28PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.148 release.
+> There are 37 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 27 Sep 2020 12:47:02 +0000.
+> Anything received after that time might be too late.
+> 
 
-> When returning or breaking early from a
-> `for_each_available_child_of_node()` loop, we need to explicitly call
-> `of_node_put()` on the child node to possibly release the node.
->=20
-> Fixes: 506d2e317a0a0 ("iio: adc: Add driver support for AD7292")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Nuno S=C3=A1 <nuno.sa@analog.com>
-Applied to the fixes togreg branch of iio.git.
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 421 pass: 421 fail: 0
 
-Thanks
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Jonathan
-
-> ---
->  drivers/iio/adc/ad7292.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/iio/adc/ad7292.c b/drivers/iio/adc/ad7292.c
-> index 2eafbe7ac7c7..ab204e9199e9 100644
-> --- a/drivers/iio/adc/ad7292.c
-> +++ b/drivers/iio/adc/ad7292.c
-> @@ -310,8 +310,10 @@ static int ad7292_probe(struct spi_device *spi)
-> =20
->  	for_each_available_child_of_node(spi->dev.of_node, child) {
->  		diff_channels =3D of_property_read_bool(child, "diff-channels");
-> -		if (diff_channels)
-> +		if (diff_channels) {
-> +			of_node_put(child);
->  			break;
-> +		}
->  	}
-> =20
->  	if (diff_channels) {
-
+Guenter
