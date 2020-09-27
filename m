@@ -2,173 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9413327A0D0
-	for <lists+stable@lfdr.de>; Sun, 27 Sep 2020 14:18:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F28FC27A0D8
+	for <lists+stable@lfdr.de>; Sun, 27 Sep 2020 14:21:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726252AbgI0MSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Sep 2020 08:18:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35520 "EHLO mail.kernel.org"
+        id S1726540AbgI0MVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Sep 2020 08:21:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726185AbgI0MSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Sep 2020 08:18:14 -0400
+        id S1726185AbgI0MVG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Sep 2020 08:21:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDF2F2399C;
-        Sun, 27 Sep 2020 12:18:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74316208FE;
+        Sun, 27 Sep 2020 12:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601209091;
-        bh=eek+K2XzKXUS6iLr7oMV34m74Q28+vQUTMih1EiaEbI=;
-        h=Subject:To:From:Date:From;
-        b=H+GYAERTQT7h4U6JCkqNfDn6ng+AasNsFz2QhTV7lL3y+At9fv6mMvssV5uBM6X8f
-         i319geiopkP6dNVi+RQezBxUdjEavPhtSWK6OcTVJQdqUMDIs22dR0hM80juIZSkVK
-         svJw1cELYJYwYkzIjbVweX8rOBQD6sMOdXNTMHg8=
-Subject: patch "vt_ioctl: make VT_RESIZEX behave like VT_RESIZE" added to tty-testing
-To:     penguin-kernel@i-love.sakura.ne.jp, gregkh@linuxfoundation.org,
-        penguin-kernel@I-love.SAKURA.ne.jp, stable@vger.kernel.org,
-        syzbot+16469b5e8e5a72e9131e@syzkaller.appspotmail.com,
-        syzbot+b308f5fd049fbbc6e74f@syzkaller.appspotmail.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Sep 2020 14:18:13 +0200
-Message-ID: <160120909378237@kroah.com>
+        s=default; t=1601209265;
+        bh=FdSjEiIOfosty1A1hNpYjx+LCe0c93peV/xVsFD6r/o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FtJG2gRJohbsXmjTGZLvssQG1XF1/EDPa+Sxt7uDN386HN/YFfrvpzrv4+5S2OGee
+         WwgbRJn5W6gVfWdvXi4OwSNypTgoQvpwd2ypZNN7rw+jr66jN5W1yoJ984HbBn313O
+         5EwO+4+ECjBUiIjNR1+7fPf+BlbKDjiL9nYij4XI=
+Date:   Sun, 27 Sep 2020 14:21:15 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Coly Li <colyli@suse.de>
+Cc:     linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
+        netdev@vger.kernel.org, open-iscsi@googlegroups.com,
+        linux-scsi@vger.kernel.org, ceph-devel@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
+        Jan Kara <jack@suse.com>, Jens Axboe <axboe@kernel.dk>,
+        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Vlastimil Babka <vbabka@suse.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v8 1/7] net: introduce helper sendpage_ok() in
+ include/linux/net.h
+Message-ID: <20200927122115.GA178781@kroah.com>
+References: <20200925150119.112016-1-colyli@suse.de>
+ <20200925150119.112016-2-colyli@suse.de>
+ <20200925151812.GA3182427@kroah.com>
+ <7b0d4f63-2fe5-9032-3b88-97619d8c5081@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7b0d4f63-2fe5-9032-3b88-97619d8c5081@suse.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Sep 26, 2020 at 09:28:03PM +0800, Coly Li wrote:
+> On 2020/9/25 23:18, Greg KH wrote:
+> > On Fri, Sep 25, 2020 at 11:01:13PM +0800, Coly Li wrote:
+> >> The original problem was from nvme-over-tcp code, who mistakenly uses
+> >> kernel_sendpage() to send pages allocated by __get_free_pages() without
+> >> __GFP_COMP flag. Such pages don't have refcount (page_count is 0) on
+> >> tail pages, sending them by kernel_sendpage() may trigger a kernel panic
+> >> from a corrupted kernel heap, because these pages are incorrectly freed
+> >> in network stack as page_count 0 pages.
+> >>
+> >> This patch introduces a helper sendpage_ok(), it returns true if the
+> >> checking page,
+> >> - is not slab page: PageSlab(page) is false.
+> >> - has page refcount: page_count(page) is not zero
+> >>
+> >> All drivers who want to send page to remote end by kernel_sendpage()
+> >> may use this helper to check whether the page is OK. If the helper does
+> >> not return true, the driver should try other non sendpage method (e.g.
+> >> sock_no_sendpage()) to handle the page.
+> >>
+> >> Signed-off-by: Coly Li <colyli@suse.de>
+> >> Cc: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+> >> Cc: Christoph Hellwig <hch@lst.de>
+> >> Cc: Hannes Reinecke <hare@suse.de>
+> >> Cc: Jan Kara <jack@suse.com>
+> >> Cc: Jens Axboe <axboe@kernel.dk>
+> >> Cc: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
+> >> Cc: Philipp Reisner <philipp.reisner@linbit.com>
+> >> Cc: Sagi Grimberg <sagi@grimberg.me>
+> >> Cc: Vlastimil Babka <vbabka@suse.com>
+> >> Cc: stable@vger.kernel.org
+> >> ---
+> >>  include/linux/net.h | 16 ++++++++++++++++
+> >>  1 file changed, 16 insertions(+)
+> >>
+> >> diff --git a/include/linux/net.h b/include/linux/net.h
+> >> index d48ff1180879..05db8690f67e 100644
+> >> --- a/include/linux/net.h
+> >> +++ b/include/linux/net.h
+> >> @@ -21,6 +21,7 @@
+> >>  #include <linux/rcupdate.h>
+> >>  #include <linux/once.h>
+> >>  #include <linux/fs.h>
+> >> +#include <linux/mm.h>
+> >>  #include <linux/sockptr.h>
+> >>  
+> >>  #include <uapi/linux/net.h>
+> >> @@ -286,6 +287,21 @@ do {									\
+> >>  #define net_get_random_once_wait(buf, nbytes)			\
+> >>  	get_random_once_wait((buf), (nbytes))
+> >>  
+> >> +/*
+> >> + * E.g. XFS meta- & log-data is in slab pages, or bcache meta
+> >> + * data pages, or other high order pages allocated by
+> >> + * __get_free_pages() without __GFP_COMP, which have a page_count
+> >> + * of 0 and/or have PageSlab() set. We cannot use send_page for
+> >> + * those, as that does get_page(); put_page(); and would cause
+> >> + * either a VM_BUG directly, or __page_cache_release a page that
+> >> + * would actually still be referenced by someone, leading to some
+> >> + * obscure delayed Oops somewhere else.
+> >> + */
+> >> +static inline bool sendpage_ok(struct page *page)
+> >> +{
+> >> +	return  !PageSlab(page) && page_count(page) >= 1;
+> > 
+> > Do you have one extra ' ' after "return" there?
+> 
+> It should be fixed in next version.
+> 
+> > 
+> > And this feels like a mm thing, why put it in net.h and not mm.h?
+> 
+> This check is specific for kernel_sendpage(), so I want to place it
+> closer to where kernel_sendpage() is declared.
+> 
+> And indeed there was similar discussion about why this helper is not in
+> mm code in v5 series. Christoph supported to place sendpage_ok() in
+> net.h, an uncompleted piece of his opinion was "It is not a mm bug, it
+> is a networking quirk."
 
-This is a note to let you know that I've just added the patch titled
+Ah, nevermind then, sorry for the noise :)
 
-    vt_ioctl: make VT_RESIZEX behave like VT_RESIZE
-
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the tty-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 988d0763361bb65690d60e2bc53a6b72777040c3 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Date: Sun, 27 Sep 2020 20:46:30 +0900
-Subject: vt_ioctl: make VT_RESIZEX behave like VT_RESIZE
-
-syzbot is reporting UAF/OOB read at bit_putcs()/soft_cursor() [1][2], for
-vt_resizex() from ioctl(VT_RESIZEX) allows setting font height larger than
-actual font height calculated by con_font_set() from ioctl(PIO_FONT).
-Since fbcon_set_font() from con_font_set() allocates minimal amount of
-memory based on actual font height calculated by con_font_set(),
-use of vt_resizex() can cause UAF/OOB read for font data.
-
-VT_RESIZEX was introduced in Linux 1.3.3, but it is unclear that what
-comes to the "+ more" part, and I couldn't find a user of VT_RESIZEX.
-
-  #define VT_RESIZE   0x5609 /* set kernel's idea of screensize */
-  #define VT_RESIZEX  0x560A /* set kernel's idea of screensize + more */
-
-So far we are not aware of syzbot reports caused by setting non-zero value
-to v_vlin parameter. But given that it is possible that nobody is using
-VT_RESIZEX, we can try removing support for v_clin and v_vlin parameters.
-
-Therefore, this patch effectively makes VT_RESIZEX behave like VT_RESIZE,
-with emitting a message if somebody is still using v_clin and/or v_vlin
-parameters.
-
-[1] https://syzkaller.appspot.com/bug?id=32577e96d88447ded2d3b76d71254fb855245837
-[2] https://syzkaller.appspot.com/bug?id=6b8355d27b2b94fb5cedf4655e3a59162d9e48e3
-
-Reported-by: syzbot <syzbot+b308f5fd049fbbc6e74f@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+16469b5e8e5a72e9131e@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/4933b81b-9b1a-355b-df0e-9b31e8280ab9@i-love.sakura.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/vt/vt_ioctl.c | 57 +++++++--------------------------------
- 1 file changed, 10 insertions(+), 47 deletions(-)
-
-diff --git a/drivers/tty/vt/vt_ioctl.c b/drivers/tty/vt/vt_ioctl.c
-index 2ea76a09e07f..0a33b8ababe3 100644
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -772,58 +772,21 @@ static int vt_resizex(struct vc_data *vc, struct vt_consize __user *cs)
- 	if (copy_from_user(&v, cs, sizeof(struct vt_consize)))
- 		return -EFAULT;
- 
--	/* FIXME: Should check the copies properly */
--	if (!v.v_vlin)
--		v.v_vlin = vc->vc_scan_lines;
--
--	if (v.v_clin) {
--		int rows = v.v_vlin / v.v_clin;
--		if (v.v_rows != rows) {
--			if (v.v_rows) /* Parameters don't add up */
--				return -EINVAL;
--			v.v_rows = rows;
--		}
--	}
--
--	if (v.v_vcol && v.v_ccol) {
--		int cols = v.v_vcol / v.v_ccol;
--		if (v.v_cols != cols) {
--			if (v.v_cols)
--				return -EINVAL;
--			v.v_cols = cols;
--		}
--	}
--
--	if (v.v_clin > 32)
--		return -EINVAL;
-+	if (v.v_vlin)
-+		pr_info_once("\"struct vt_consize\"->v_vlin is ignored. Please report if you need this.\n");
-+	if (v.v_clin)
-+		pr_info_once("\"struct vt_consize\"->v_clin is ignored. Please report if you need this.\n");
- 
-+	console_lock();
- 	for (i = 0; i < MAX_NR_CONSOLES; i++) {
--		struct vc_data *vcp;
-+		vc = vc_cons[i].d;
- 
--		if (!vc_cons[i].d)
--			continue;
--		console_lock();
--		vcp = vc_cons[i].d;
--		if (vcp) {
--			int ret;
--			int save_scan_lines = vcp->vc_scan_lines;
--			int save_font_height = vcp->vc_font.height;
--
--			if (v.v_vlin)
--				vcp->vc_scan_lines = v.v_vlin;
--			if (v.v_clin)
--				vcp->vc_font.height = v.v_clin;
--			vcp->vc_resize_user = 1;
--			ret = vc_resize(vcp, v.v_cols, v.v_rows);
--			if (ret) {
--				vcp->vc_scan_lines = save_scan_lines;
--				vcp->vc_font.height = save_font_height;
--				console_unlock();
--				return ret;
--			}
-+		if (vc) {
-+			vc->vc_resize_user = 1;
-+			vc_resize(vc, v.v_cols, v.v_rows);
- 		}
--		console_unlock();
- 	}
-+	console_unlock();
- 
- 	return 0;
- }
--- 
-2.28.0
-
-
+greg k-h
