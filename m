@@ -2,136 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F28FC27A0D8
-	for <lists+stable@lfdr.de>; Sun, 27 Sep 2020 14:21:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 567BC27A19A
+	for <lists+stable@lfdr.de>; Sun, 27 Sep 2020 17:10:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726540AbgI0MVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Sep 2020 08:21:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36964 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726185AbgI0MVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Sep 2020 08:21:06 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74316208FE;
-        Sun, 27 Sep 2020 12:21:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601209265;
-        bh=FdSjEiIOfosty1A1hNpYjx+LCe0c93peV/xVsFD6r/o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FtJG2gRJohbsXmjTGZLvssQG1XF1/EDPa+Sxt7uDN386HN/YFfrvpzrv4+5S2OGee
-         WwgbRJn5W6gVfWdvXi4OwSNypTgoQvpwd2ypZNN7rw+jr66jN5W1yoJ984HbBn313O
-         5EwO+4+ECjBUiIjNR1+7fPf+BlbKDjiL9nYij4XI=
-Date:   Sun, 27 Sep 2020 14:21:15 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Coly Li <colyli@suse.de>
-Cc:     linux-block@vger.kernel.org, linux-nvme@lists.infradead.org,
-        netdev@vger.kernel.org, open-iscsi@googlegroups.com,
-        linux-scsi@vger.kernel.org, ceph-devel@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
-        Jan Kara <jack@suse.com>, Jens Axboe <axboe@kernel.dk>,
-        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Vlastimil Babka <vbabka@suse.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v8 1/7] net: introduce helper sendpage_ok() in
- include/linux/net.h
-Message-ID: <20200927122115.GA178781@kroah.com>
-References: <20200925150119.112016-1-colyli@suse.de>
- <20200925150119.112016-2-colyli@suse.de>
- <20200925151812.GA3182427@kroah.com>
- <7b0d4f63-2fe5-9032-3b88-97619d8c5081@suse.de>
+        id S1726335AbgI0PKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Sep 2020 11:10:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50878 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726196AbgI0PKJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Sep 2020 11:10:09 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3590C0613CE;
+        Sun, 27 Sep 2020 08:10:08 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id d4so3863484wmd.5;
+        Sun, 27 Sep 2020 08:10:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=SzBl7wm7ho9tfo3JwIhFeWjVTbWY4f6C5L5RqhX83yE=;
+        b=V7XdetLFjHr1QJVK/NImxfK8Pnczz47E1Un3RQL6OXGDBntzC72TsWb93lB9cIdsfQ
+         9g48SjY7RKHsLXeE6p6YfyePPldvUFnIbxyEabhyNN1u6yhX4XpNz4blpLHDhJtt45C/
+         DLmgWr9em+BvNUXsynNvjL54p+urXn2I6CkTGxW2eXHOogn3nySw4Y80vsKyZiTqMa3f
+         NvbODaxlktP1RhFC8Vfgck3YAPSYF/DeO3mTrILSpka+p3TP4m5gPXv9p2ffU/lvW8lS
+         ifR/GM4kRMG8HkSA/h8NM1rZzGmKMf9wKVWwG4hr+JXvImgYdqZgZzWR8NLxXLv5PAGR
+         8MlA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=SzBl7wm7ho9tfo3JwIhFeWjVTbWY4f6C5L5RqhX83yE=;
+        b=GacD1oBz1geWwUYvIkj0dm6bvFQWV4kyqOJrDtCl5XpJDfxDI2kJjcoTvPCztsuQv7
+         WPm+gO+R96krHKGnAks9fgZUjjefcv0SNJCEsbBTSvpkgxCsshyVC6Vin+380/7d1njg
+         wQowj7yPaROHZ5WckffhdhJauuaCiDyslRMIWwNC2AGkyMbq9gLm1xMYwjEBhjuC4pdg
+         TsnHtuatCQBmNh260ynyHuKj3WVpgtpLtHOaE1g8w8xXnMNGgUaqU00TMeV8l8XCp/GA
+         VxNCTBhoBcxobzN2pjFm7plJD5eVwZtDIa7P2a2+JrNDl5cmvLBfYPjJ566xgYMPsDMS
+         0PzA==
+X-Gm-Message-State: AOAM532C0u1nwjNIRZBuONvRN+X11Hp9D53ItqpXBen0o+8pjTxoVr1m
+        LudOiGm8Znoq4Rm1rSF6XTs=
+X-Google-Smtp-Source: ABdhPJzPADGTLSo9o6D4RuPD0rYbuOY+XKHH2BryYiM+CGy/wpxWPav6OBAoDphnUyNZPcD3t2hv1w==
+X-Received: by 2002:a1c:2dc6:: with SMTP id t189mr7567161wmt.92.1601219407518;
+        Sun, 27 Sep 2020 08:10:07 -0700 (PDT)
+Received: from arrakis.kwizart.net (lfbn-nic-1-212-171.w2-15.abo.wanadoo.fr. [2.15.59.171])
+        by smtp.gmail.com with ESMTPSA id s11sm9565114wrt.43.2020.09.27.08.10.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 27 Sep 2020 08:10:06 -0700 (PDT)
+From:   Nicolas Chauvet <kwizart@gmail.com>
+To:     Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc:     linux-tegra@vger.kernel.org, linux-pm@vger.kernel.org,
+        Nicolas Chauvet <kwizart@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH v2 6/6] thermal: tegra: Avoid setting edp_irq when not relevant
+Date:   Sun, 27 Sep 2020 17:09:56 +0200
+Message-Id: <20200927150956.34609-7-kwizart@gmail.com>
+X-Mailer: git-send-email 2.25.4
+In-Reply-To: <20200927150956.34609-1-kwizart@gmail.com>
+References: <20200927150956.34609-1-kwizart@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7b0d4f63-2fe5-9032-3b88-97619d8c5081@suse.de>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Sep 26, 2020 at 09:28:03PM +0800, Coly Li wrote:
-> On 2020/9/25 23:18, Greg KH wrote:
-> > On Fri, Sep 25, 2020 at 11:01:13PM +0800, Coly Li wrote:
-> >> The original problem was from nvme-over-tcp code, who mistakenly uses
-> >> kernel_sendpage() to send pages allocated by __get_free_pages() without
-> >> __GFP_COMP flag. Such pages don't have refcount (page_count is 0) on
-> >> tail pages, sending them by kernel_sendpage() may trigger a kernel panic
-> >> from a corrupted kernel heap, because these pages are incorrectly freed
-> >> in network stack as page_count 0 pages.
-> >>
-> >> This patch introduces a helper sendpage_ok(), it returns true if the
-> >> checking page,
-> >> - is not slab page: PageSlab(page) is false.
-> >> - has page refcount: page_count(page) is not zero
-> >>
-> >> All drivers who want to send page to remote end by kernel_sendpage()
-> >> may use this helper to check whether the page is OK. If the helper does
-> >> not return true, the driver should try other non sendpage method (e.g.
-> >> sock_no_sendpage()) to handle the page.
-> >>
-> >> Signed-off-by: Coly Li <colyli@suse.de>
-> >> Cc: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-> >> Cc: Christoph Hellwig <hch@lst.de>
-> >> Cc: Hannes Reinecke <hare@suse.de>
-> >> Cc: Jan Kara <jack@suse.com>
-> >> Cc: Jens Axboe <axboe@kernel.dk>
-> >> Cc: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
-> >> Cc: Philipp Reisner <philipp.reisner@linbit.com>
-> >> Cc: Sagi Grimberg <sagi@grimberg.me>
-> >> Cc: Vlastimil Babka <vbabka@suse.com>
-> >> Cc: stable@vger.kernel.org
-> >> ---
-> >>  include/linux/net.h | 16 ++++++++++++++++
-> >>  1 file changed, 16 insertions(+)
-> >>
-> >> diff --git a/include/linux/net.h b/include/linux/net.h
-> >> index d48ff1180879..05db8690f67e 100644
-> >> --- a/include/linux/net.h
-> >> +++ b/include/linux/net.h
-> >> @@ -21,6 +21,7 @@
-> >>  #include <linux/rcupdate.h>
-> >>  #include <linux/once.h>
-> >>  #include <linux/fs.h>
-> >> +#include <linux/mm.h>
-> >>  #include <linux/sockptr.h>
-> >>  
-> >>  #include <uapi/linux/net.h>
-> >> @@ -286,6 +287,21 @@ do {									\
-> >>  #define net_get_random_once_wait(buf, nbytes)			\
-> >>  	get_random_once_wait((buf), (nbytes))
-> >>  
-> >> +/*
-> >> + * E.g. XFS meta- & log-data is in slab pages, or bcache meta
-> >> + * data pages, or other high order pages allocated by
-> >> + * __get_free_pages() without __GFP_COMP, which have a page_count
-> >> + * of 0 and/or have PageSlab() set. We cannot use send_page for
-> >> + * those, as that does get_page(); put_page(); and would cause
-> >> + * either a VM_BUG directly, or __page_cache_release a page that
-> >> + * would actually still be referenced by someone, leading to some
-> >> + * obscure delayed Oops somewhere else.
-> >> + */
-> >> +static inline bool sendpage_ok(struct page *page)
-> >> +{
-> >> +	return  !PageSlab(page) && page_count(page) >= 1;
-> > 
-> > Do you have one extra ' ' after "return" there?
-> 
-> It should be fixed in next version.
-> 
-> > 
-> > And this feels like a mm thing, why put it in net.h and not mm.h?
-> 
-> This check is specific for kernel_sendpage(), so I want to place it
-> closer to where kernel_sendpage() is declared.
-> 
-> And indeed there was similar discussion about why this helper is not in
-> mm code in v5 series. Christoph supported to place sendpage_ok() in
-> net.h, an uncompleted piece of his opinion was "It is not a mm bug, it
-> is a networking quirk."
+According to the binding, the edp_irq is not available on tegra124/132
 
-Ah, nevermind then, sorry for the noise :)
+This commit moves the initialization of tegra->edp_irq after the
+introduced has_edp_irq condition. This will have the following effects:
+ - soctherm_interrupts_init will not return prematurely with unfinished
+thermal_irq initialization on tegra124 and tegra132
+ - edp_irq initialization will be done only when relevant
 
-greg k-h
+As a result, this will clear the following error on jetson-tk1 :
+  kernel: tegra_soctherm 700e2000.thermal-sensor: IRQ index 1 not found
+
+v2:
+    * Use .has_edp_irq boolean instead of of_compatible
+    * Switch subject prefix to use thermal instead of ARM
+
+Fixes: 4a04beb1bf2e (thermal: tegra: add support for EDP IRQ)
+Cc: stable@vger.kernel.org
+Signed-off-by: Nicolas Chauvet <kwizart@gmail.com>
+---
+ drivers/thermal/tegra/soctherm.c          | 38 +++++++++++++----------
+ drivers/thermal/tegra/soctherm.h          |  1 +
+ drivers/thermal/tegra/tegra124-soctherm.c |  1 +
+ drivers/thermal/tegra/tegra132-soctherm.c |  1 +
+ drivers/thermal/tegra/tegra210-soctherm.c |  1 +
+ 5 files changed, 26 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/thermal/tegra/soctherm.c b/drivers/thermal/tegra/soctherm.c
+index 66e0639da4bf..0c79e033e7ea 100644
+--- a/drivers/thermal/tegra/soctherm.c
++++ b/drivers/thermal/tegra/soctherm.c
+@@ -2025,12 +2025,6 @@ static int soctherm_interrupts_init(struct platform_device *pdev,
+ 		return 0;
+ 	}
+ 
+-	tegra->edp_irq = platform_get_irq(pdev, 1);
+-	if (tegra->edp_irq < 0) {
+-		dev_dbg(&pdev->dev, "get 'edp_irq' failed.\n");
+-		return 0;
+-	}
+-
+ 	ret = devm_request_threaded_irq(&pdev->dev,
+ 					tegra->thermal_irq,
+ 					soctherm_thermal_isr,
+@@ -2043,16 +2037,28 @@ static int soctherm_interrupts_init(struct platform_device *pdev,
+ 		return ret;
+ 	}
+ 
+-	ret = devm_request_threaded_irq(&pdev->dev,
+-					tegra->edp_irq,
+-					soctherm_edp_isr,
+-					soctherm_edp_isr_thread,
+-					IRQF_ONESHOT,
+-					"soctherm_edp",
+-					tegra);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "request_irq 'edp_irq' failed.\n");
+-		return ret;
++	/* Initialize edp_irq when available */
++	if (tegra->soc->has_edp_irq) {
++		/* get IRQ */
++
++		tegra->edp_irq = platform_get_irq(pdev, 1);
++		if (tegra->edp_irq < 0) {
++			dev_dbg(&pdev->dev, "get 'edp_irq' failed.\n");
++			return 0;
++		}
++
++		/* request IRQ */
++		ret = devm_request_threaded_irq(&pdev->dev,
++						tegra->edp_irq,
++						soctherm_edp_isr,
++						soctherm_edp_isr_thread,
++						IRQF_ONESHOT,
++						"soctherm_edp",
++						tegra);
++		if (ret < 0) {
++			dev_err(&pdev->dev, "request_irq 'edp_irq' failed.\n");
++			return ret;
++		}
+ 	}
+ 
+ 	return 0;
+diff --git a/drivers/thermal/tegra/soctherm.h b/drivers/thermal/tegra/soctherm.h
+index 70501e73d586..b93cfdd06e5d 100644
+--- a/drivers/thermal/tegra/soctherm.h
++++ b/drivers/thermal/tegra/soctherm.h
+@@ -128,6 +128,7 @@ struct tegra_soctherm_soc {
+ 	const int thresh_grain;
+ 	const unsigned int bptt;
+ 	const bool use_ccroc;
++	const bool has_edp_irq;
+ 	struct tsensor_group_thermtrips *thermtrips;
+ };
+ 
+diff --git a/drivers/thermal/tegra/tegra124-soctherm.c b/drivers/thermal/tegra/tegra124-soctherm.c
+index 20ad27f4d1a1..c8c8231f6cdd 100644
+--- a/drivers/thermal/tegra/tegra124-soctherm.c
++++ b/drivers/thermal/tegra/tegra124-soctherm.c
+@@ -216,4 +216,5 @@ const struct tegra_soctherm_soc tegra124_soctherm = {
+ 	.thresh_grain = TEGRA124_THRESH_GRAIN,
+ 	.bptt = TEGRA124_BPTT,
+ 	.use_ccroc = false,
++	.has_edp_irq = false,
+ };
+diff --git a/drivers/thermal/tegra/tegra132-soctherm.c b/drivers/thermal/tegra/tegra132-soctherm.c
+index b76308fdad9e..1bc9481de5fc 100644
+--- a/drivers/thermal/tegra/tegra132-soctherm.c
++++ b/drivers/thermal/tegra/tegra132-soctherm.c
+@@ -216,4 +216,5 @@ const struct tegra_soctherm_soc tegra132_soctherm = {
+ 	.thresh_grain = TEGRA132_THRESH_GRAIN,
+ 	.bptt = TEGRA132_BPTT,
+ 	.use_ccroc = true,
++	.has_edp_irq = false,
+ };
+diff --git a/drivers/thermal/tegra/tegra210-soctherm.c b/drivers/thermal/tegra/tegra210-soctherm.c
+index d0ff793f18c5..2b09c8a811d0 100644
+--- a/drivers/thermal/tegra/tegra210-soctherm.c
++++ b/drivers/thermal/tegra/tegra210-soctherm.c
+@@ -224,5 +224,6 @@ const struct tegra_soctherm_soc tegra210_soctherm = {
+ 	.thresh_grain = TEGRA210_THRESH_GRAIN,
+ 	.bptt = TEGRA210_BPTT,
+ 	.use_ccroc = false,
++	.has_edp_irq = true,
+ 	.thermtrips = tegra210_tsensor_thermtrips,
+ };
+-- 
+2.25.4
+
