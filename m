@@ -2,73 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E2627B387
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 19:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0515527B38E
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 19:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726409AbgI1RqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 13:46:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50298 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726328AbgI1RqW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 13:46:22 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D757C2083B;
-        Mon, 28 Sep 2020 17:46:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601315182;
-        bh=N7dDXfeXx+SgfXX+yjUNLvCdIG1E4Zd54OiPGggi8t0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AtVYI7n5PxLY1AjFgKtd19oudbsdowl22ah8g2ohKGInO7eZOzaFYZUnQ8fIYE1PO
-         FoLQRo1PLrrs2iJGW8Ch0GMmBn77b3mRisJ7k/K+yQ+XnvNNBJxsYXhQxH/kKro67u
-         HYbS81PxzcQF8CYCcClUgotKv++YO8YCL/vnsejU=
-Date:   Mon, 28 Sep 2020 19:46:29 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        kernel-team@android.com
-Subject: Re: [PATCH stable-5.8] KVM: arm64: Assume write fault on S1PTW
- permission fault on instruction fetch
-Message-ID: <20200928174629.GA2118806@kroah.com>
-References: <20200928171850.618223-1-maz@kernel.org>
+        id S1726583AbgI1RrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 13:47:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42502 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726565AbgI1RrX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 13:47:23 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5396C061755;
+        Mon, 28 Sep 2020 10:47:22 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id j2so2299911wrx.7;
+        Mon, 28 Sep 2020 10:47:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=/xC7sVHcrGN898jvMxBaTyGhFlsYYmV8IqAwKCr7ZRU=;
+        b=X76xYhd3KRTbRwTGgCMGcp5w+6fynAQyONy4JxAdpZLdFts8jyvyqy24e25xd62OLW
+         bXh3WC80JwOIuG6yDk/pKVffBWEoijaVHqq/eutJsgQprp9A8pL9nvFVdrybd5GjxPnD
+         WBHAUi+F2Y8BzPBLa9HNqHKG44yaC1YsRRd4eQsgmn4BXV1ccl2zJ+IlaylH+k2Tghym
+         /dMddaO53BkB6tdFR9rh0eBqq5Gt7kKslAB44podqTRX9yM+Vuh2uzNsatcZ3YQxmclP
+         6fWl2Nj8FfhtHyCa8Z+RYUe+6s9SgAeGtg4FlhxdL7cmvqU/mhgOmNeywVui/AIwBgsE
+         LwQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/xC7sVHcrGN898jvMxBaTyGhFlsYYmV8IqAwKCr7ZRU=;
+        b=ZkVNJ9mxk+aVJMquWop/z2H0ipRW8ML1YSPpera6hiT0ReM5tjcXXqifJJ98KNzPha
+         v3bW257aR5TL777pSsfu7wFEfiKbHHbepOv84PHxFwZpqOhXYNJbhCdjetXy28JiNBLj
+         Pl3PCyMj4WWJ3hgabCj+tIjpxM6mGnlNqokMq6/5oiK3SL0KuZ0vDFzQIhtuW0SO86zP
+         f3b5PvDJCPSn+I5QhpzaQt3vUhdP/B60MK6Kohz8Rp+t7D1uqzC/G3y95RoxcIW/GhHH
+         yq9CzMrUZo8ilq35i/yB6PaIDHgAdSThunohBokzHiAaXAhoO9399RUsqxo5Syjgv74R
+         qNIg==
+X-Gm-Message-State: AOAM533txVF66dK3ZCnoa9Yv3cOGylEn8+RzSilbnLji16x9rHnBskmk
+        h2m6/OeChrJ56cuj6eSP06JZ+Q1qc9vfgmTBWZZcNqSKzSKOxA==
+X-Google-Smtp-Source: ABdhPJx96v0ZgUBrLgFUbFXE7T0XgggFSabVgtJyLhF55ex8gUwVYGVjuiecada1ajgSx01ecXIIvnOKHaUaymBd4Pc=
+X-Received: by 2002:a5d:630a:: with SMTP id i10mr2821633wru.137.1601315241434;
+ Mon, 28 Sep 2020 10:47:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200928171850.618223-1-maz@kernel.org>
+References: <CGME20200928095910epcas5p2226ab95a8e4fbd3cfe3f48afb1a58c40@epcas5p2.samsung.com>
+ <20200928095549.184510-1-joshi.k@samsung.com> <20200928121136.GA661041@kroah.com>
+In-Reply-To: <20200928121136.GA661041@kroah.com>
+From:   Kanchan Joshi <joshiiitr@gmail.com>
+Date:   Mon, 28 Sep 2020 23:16:55 +0530
+Message-ID: <CA+1E3rLzwkqwn09mzi7-112ZYyBU_mU_9Nszb0=aymm3H2sGpA@mail.gmail.com>
+Subject: Re: [PATCH v2 0/1] concurrency handling for zoned null-blk
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Kanchan Joshi <joshi.k@samsung.com>, Jens Axboe <axboe@kernel.dk>,
+        Damien Le Moal <Damien.LeMoal@wdc.com>,
+        linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+        stable@vger.kernel.org, Selvakumar S <selvakuma.s1@samsung.com>,
+        Nitesh Shetty <nj.shetty@samsung.com>,
+        Javier Gonzalez <javier.gonz@samsung.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 28, 2020 at 06:18:50PM +0100, Marc Zyngier wrote:
-> Commit c4ad98e4b72cb5be30ea282fce935248f2300e62 upstream.
-> 
-> KVM currently assumes that an instruction abort can never be a write.
-> This is in general true, except when the abort is triggered by
-> a S1PTW on instruction fetch that tries to update the S1 page tables
-> (to set AF, for example).
-> 
-> This can happen if the page tables have been paged out and brought
-> back in without seeing a direct write to them (they are thus marked
-> read only), and the fault handling code will make the PT executable(!)
-> instead of writable. The guest gets stuck forever.
-> 
-> In these conditions, the permission fault must be considered as
-> a write so that the Stage-1 update can take place. This is essentially
-> the I-side equivalent of the problem fixed by 60e21a0ef54c ("arm64: KVM:
-> Take S1 walks into account when determining S2 write faults").
-> 
-> Update kvm_is_write_fault() to return true on IABT+S1PTW, and introduce
-> kvm_vcpu_trap_is_exec_fault() that only return true when no faulting
-> on a S1 fault. Additionally, kvm_vcpu_dabt_iss1tw() is renamed to
-> kvm_vcpu_abt_iss1tw(), as the above makes it plain that it isn't
-> specific to data abort.
-> 
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Reviewed-by: Will Deacon <will@kernel.org>
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/r/20200915104218.1284701-2-maz@kernel.org
+On Mon, Sep 28, 2020 at 5:42 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Sep 28, 2020 at 03:25:48PM +0530, Kanchan Joshi wrote:
+> > Changes since v1:
+> > - applied the refactoring suggested by Damien
+> >
+> > Kanchan Joshi (1):
+> >   null_blk: synchronization fix for zoned device
+> >
+> >  drivers/block/null_blk.h       |  1 +
+> >  drivers/block/null_blk_zoned.c | 22 ++++++++++++++++++----
+> >  2 files changed, 19 insertions(+), 4 deletions(-)
+> >
+> > --
+> > 2.25.1
+> >
+>
+>
+> <formletter>
+>
+> This is not the correct way to submit patches for inclusion in the
+> stable kernel tree.  Please read:
+>     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> for how to do this properly.
+>
+> </formletter>
+I'm sorry for the goof-up, Greg.
 
-Thanks for all 3 of these, now queued up!
 
-greg k-h
+
+--
+Joshi
