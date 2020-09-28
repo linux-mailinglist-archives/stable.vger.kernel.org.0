@@ -2,185 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E65727AB7F
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 12:06:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62C2F27AB80
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 12:08:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726380AbgI1KGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 06:06:16 -0400
-Received: from mailout4.samsung.com ([203.254.224.34]:46526 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726513AbgI1KGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 06:06:16 -0400
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20200928095915epoutp04ccbe9302cb4aa8907bf92647edb0d8e1~46i8Btkzj0671806718epoutp04O
-        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 09:59:15 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20200928095915epoutp04ccbe9302cb4aa8907bf92647edb0d8e1~46i8Btkzj0671806718epoutp04O
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1601287155;
-        bh=3MWbm8SIPjRmmG0n+g+YuSLuI8bg8y9M+axmJ2jW5/k=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GZrzNpaDUvjoZgBC43XzrcLnKtcGiqxINp6tjSK3slwdEmqwxqgEhSjzP/M5XfFBG
-         +dfqBzfX8cleqJaxwnuW4NE3e3Adk3Geu7CCHC95S3AZZZu6ECF3O3PcfoHIqx/qkY
-         hOcS6LJ/kfT1kfNPIUQTZjEBI5DYf5Hq4Wp8PDgI=
-Received: from epsmges5p1new.samsung.com (unknown [182.195.42.73]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTP id
-        20200928095914epcas5p37f5a3c1cd7a16a628a15b29aa04c970c~46i7hXYnj2289422894epcas5p3s;
-        Mon, 28 Sep 2020 09:59:14 +0000 (GMT)
-Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
-        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        72.3A.09573.2F3B17F5; Mon, 28 Sep 2020 18:59:14 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
-        20200928095914epcas5p1beae8d5a201c35b598fde8288532d58d~46i7IBfsw1718817188epcas5p1V;
-        Mon, 28 Sep 2020 09:59:14 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20200928095914epsmtrp1934b795e64f69a884e2a34d6d4db0c7e~46i7HTO9O0567205672epsmtrp1E;
-        Mon, 28 Sep 2020 09:59:14 +0000 (GMT)
-X-AuditID: b6c32a49-a7dff70000002565-94-5f71b3f21b2c
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        20.D9.08745.2F3B17F5; Mon, 28 Sep 2020 18:59:14 +0900 (KST)
-Received: from localhost.localdomain (unknown [107.110.206.5]) by
-        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20200928095912epsmtip1469f7e18429eebe922dd19370e6273bf~46i5oz_Tj2605326053epsmtip10;
-        Mon, 28 Sep 2020 09:59:12 +0000 (GMT)
-From:   Kanchan Joshi <joshi.k@samsung.com>
-To:     axboe@kernel.dk, Damien.LeMoal@wdc.com
-Cc:     linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-        stable@vger.kernel.org, selvakuma.s1@samsung.com,
-        nj.shetty@samsung.com, javier.gonz@samsung.com,
-        Kanchan Joshi <joshi.k@samsung.com>
-Subject: [PATCH v2 1/1] null_blk: synchronization fix for zoned device
-Date:   Mon, 28 Sep 2020 15:25:49 +0530
-Message-Id: <20200928095549.184510-2-joshi.k@samsung.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200928095549.184510-1-joshi.k@samsung.com>
+        id S1726526AbgI1KIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 06:08:15 -0400
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:55012 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726513AbgI1KIP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 06:08:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1601287695; x=1632823695;
+  h=from:to:cc:subject:date:message-id:references:
+   content-transfer-encoding:mime-version;
+  bh=8QGQT8S5AmMcukbYhTerfnXcuETYs02fRa7NbXGp5dc=;
+  b=Q3oOE83afSmUDWKfuNzMRlo3+JQFXN6DNUcFOsgXs0k69UKqqbFV/AXN
+   dhOjmOaXbNElgbSUDtDjLRPwbyZ2Vx5DlBbyClqxLyjm5g1x+YxFTgiuu
+   m8ZqGOM+fmqVpVAqy7OG1M1Lweaww0FJQk6ewIxe//AdzoD3VEprtyBsd
+   KjSfS6c1/gCmtTaWi5uEDW47wPldRRmmhDxC8LTDBDq6rAjvcjH5NiQsD
+   Qi2m1hZ0e4K2tY9vKdR1267Zs6pJMQEtBkSxe3x0bO6khGO2r9xWTg6A5
+   F2/hpFokLZWcy2Usw6kpCLGy9D1nLh74nPgOzR3De59LENsV5zHfQdUzu
+   w==;
+IronPort-SDR: 9pxBptQ9t2Q13gMfm9Jc5KXnWryUeersyaEQ9xArgIIRe+63IQ8Sf4gsSohUhizTdOzIqEGSu4
+ Q58hBOwA56qDwQqMDNg9nmlBLKz26b9E7rS5eYdxGNVQJykyereox4UI7guDJSshy/+E5S55jK
+ b0lG2fimWWRLoeH4Dk3E79MW3nLevwXrBPTX3IWpzxhwuQhFSVOAha5LMXJUYpjzEUmAwCUcQV
+ vlG8Xg6Pap4CAxL4pZw8GB9h5bNXIzluMvsZVo5EJdany6tMIjx6LZLqudiOCFweFjkA4sLv3d
+ 7m0=
+X-IronPort-AV: E=Sophos;i="5.77,313,1596470400"; 
+   d="scan'208";a="148452854"
+Received: from mail-dm6nam10lp2107.outbound.protection.outlook.com (HELO NAM10-DM6-obe.outbound.protection.outlook.com) ([104.47.58.107])
+  by ob1.hgst.iphmx.com with ESMTP; 28 Sep 2020 18:08:14 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=aCSnj3MLOEPG7jg6vHAPgY9uogxR5ha+PhEG8zz+rG66uBxij7elTFIFQn5Z4lSDpefbFDgRjXf7EFtl/cutc2yvr2MXJjxKzUM4Q+dXarqS6IZqYaUiGSsMh2DIliZ6ZW91nkkPQx2KjX7nxquTr/+H1ExIH6pPMSM74sGKR3OWkpEN138iLjsGmVBlisr3npO2KM9KTusc30GF5docbThG7r6QVMiupi3L2BYQkG9I3NawLz17Ivg/fWzgRjGTkSGlRfOPEYwuXmMh3dierhhd/UbNMo1JgaE5hKq8rFSdhINJSZz32+RREBp5U+Jkh18axlYKuKddf6srISNB4g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=e9qM8x7VHR4fGy0jt+/KA+E4pTXwJhMNSIt4IMEjmvQ=;
+ b=Zn27RwK1o9Yn1Yli9H1kazx2B4UU+Qp5e04syfskkVVOouxEM/xEuphET1cqS0nlAaPQbw1qUwlw1N5PES3eQran0E77RgesfGhzdkPEy/4JOZ/C1qtqdbMzorNJ0LdQy2Jouwof31f0ImL0PmxDYEJNvHkfI5UZtn0m5FHQQoeyILR4cSIz2euoN2BcHYVp05/jpFgc2W+19RV5TTRMJ3guJG/YK90zA7AjawrFQ+zFvUH6bvs1BwWmI9ysZ4Yak2PwHgUctTmJvCFVkPMkgEgiNzwTBkXe5lSdkZJbYk9Fs/swubJg5koZyyh3xxxQbAvprlm8cPYc3IK5LvEvQQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=e9qM8x7VHR4fGy0jt+/KA+E4pTXwJhMNSIt4IMEjmvQ=;
+ b=kRjreaz/7O7W+Dvx56nQa4R0XMojphkmCS2JRYSa0UJ2/WypGJgW4I074g9DxSEIGskJSZJky3FHuTsJthTCM3DnNDeRF0yiI64m80ua+ejuDKC+Op+qqEiTICVFw+u9td5twdifgHFFJL4yDiGnxiLyW8P5NfhqRKyMNzyIiLw=
+Received: from CY4PR04MB3751.namprd04.prod.outlook.com (2603:10b6:903:ec::14)
+ by CY4PR04MB1206.namprd04.prod.outlook.com (2603:10b6:903:b8::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3412.24; Mon, 28 Sep
+ 2020 10:08:12 +0000
+Received: from CY4PR04MB3751.namprd04.prod.outlook.com
+ ([fe80::9124:2453:fe9c:9a7]) by CY4PR04MB3751.namprd04.prod.outlook.com
+ ([fe80::9124:2453:fe9c:9a7%12]) with mapi id 15.20.3412.029; Mon, 28 Sep 2020
+ 10:08:12 +0000
+From:   Damien Le Moal <Damien.LeMoal@wdc.com>
+To:     Kanchan Joshi <joshi.k@samsung.com>,
+        "axboe@kernel.dk" <axboe@kernel.dk>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "selvakuma.s1@samsung.com" <selvakuma.s1@samsung.com>,
+        "nj.shetty@samsung.com" <nj.shetty@samsung.com>,
+        "javier.gonz@samsung.com" <javier.gonz@samsung.com>
+Subject: Re: [PATCH v2 0/1] concurrency handling for zoned null-blk
+Thread-Topic: [PATCH v2 0/1] concurrency handling for zoned null-blk
+Thread-Index: AQHWlX4IZbk5XA9mPUe5geXsiVF3DA==
+Date:   Mon, 28 Sep 2020 10:08:12 +0000
+Message-ID: <CY4PR04MB37518CD9911CD9EC1643EFBFE7350@CY4PR04MB3751.namprd04.prod.outlook.com>
+References: <CGME20200928095910epcas5p2226ab95a8e4fbd3cfe3f48afb1a58c40@epcas5p2.samsung.com>
+ <20200928095549.184510-1-joshi.k@samsung.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: samsung.com; dkim=none (message not signed)
+ header.d=none;samsung.com; dmarc=none action=none header.from=wdc.com;
+x-originating-ip: [2400:2411:43c0:6000:809d:4e2f:7912:1e64]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: d1d4f5b7-4f28-48dd-c6ba-08d8639668da
+x-ms-traffictypediagnostic: CY4PR04MB1206:
+x-microsoft-antispam-prvs: <CY4PR04MB120688C7F92EBABA31734293E7350@CY4PR04MB1206.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:3383;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: ZhBBPWNRhBYD4LoCmb8xxO++XkZ4XzUZJYLhKiVHfPhKE+NzNDIxYaUpo6NWHU4OF1ee5zTMCy/Ty4pf2ZPV828sZaIWwBJkdzqw2WMeyE0eaLrMfcUgIwxH6AxdVO9HfGPQ1YiUAqjZC0QuD7HY0w8VKeV6UvfDubc4hqB1cqHRtglT6fmEYIvwkyTUu3rs7fqqDEdcbVMKDQ42x5FbhLr6hdGSNHb0OpDohZJh5Nrkx8+DAeX+9NTXrCUQQzvL7tbirLswacZczJ0hahF4WLJlCaP1KqG85CKR8gW56bg2i4YU+2EEO32KBSjGTlLhM1lZzQDsq+H5nHoo/VI0kpkAWzXSYkPZodJ2EqwBSx3IZcU9hl/xxQF2nV8woZD0
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY4PR04MB3751.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(396003)(136003)(39860400002)(346002)(376002)(478600001)(55016002)(5660300002)(9686003)(86362001)(71200400001)(91956017)(83380400001)(186003)(54906003)(52536014)(110136005)(53546011)(6506007)(7696005)(2906002)(64756008)(66556008)(66446008)(8676002)(66476007)(76116006)(316002)(33656002)(4326008)(4744005)(66946007)(8936002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: qYH394BUP2+gYK4pQLPK0zxTurOWAlFnqH5DfQhvB6Gy5dZnzVHDY0p8f9AZOd3QEmywc8duKp9pnBWZfklKpJZe8jSPajpuqr2u12A1xF4M5oySQm6izBucAgsiH0xDgnLeg4WbBp+s6Sq6V4PX8QVhS9PaRng0nQUTqbUqTDRk84XCnZv8SZS5LzIk5u6v9PosFbUG6PrjoJ8INPF2mw1tMlxKJ8WLU+IaqjRdb9P3KN6pHUYplSq32hxdaOa46t+knil++ZovhgHPy5CbijkubiZwLJSg+zP36DXdB1n48C67/wKCcgdTSOfczQrrkiQJ63HczVZewPctae25VoFO3ZoMF+5WQZAeFPZ+KAJ/kgi8Nuuyz67hC706UrF7iLdloQUKplruPnapNoecFOeDhf366oeQGtvseFevwZSiU7KAWmrYqLT8+viLUkAOwyQfrM7reDt34WTwC+BHZDypwzcL8NoQVsVPFOoadGo9vNc5nVGPXIgLY36GD/c9JT2nwBIF/Cx/QHxLGGQhoyj63If+3IaHK5IFs+nDREvUYfzmL1ZJF4JGKQQth8EV9osWJrSXFWzfECjSl4OEmMYOpE9COAKc4a1IdFt64XBP9kSWeNCJBdpvkdj4gQRlo72mMOiNol/l8H2IufHBHefpnNMmsGj1HegCAaWez0WTVCceSZjfEzXJzPPgSvHysR1k3nrKHYNnr5Fsb/z3aQ==
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupjleLIzCtJLcpLzFFi42LZdlhTU/fT5sJ4gyn98har7/azWbS2f2Oy
-        eHznM7vF0f9v2Sz23tK2uLxrDpvFtt/zmS2uTFnEbPH6x0k2iwUbHzE6cHlcPlvq0bdlFaPH
-        501yHu0HupkCWKK4bFJSczLLUov07RK4MtY/6GYqOCJesfbeDtYGxo3CXYycHBICJhJXFq9g
-        6WLk4hAS2M0oce3gdyjnE6PEvw1LmCGcz4wSC8/OYIJp2TXrMTuILSSwi1FixmVvuKIVM8+y
-        dTFycLAJaEpcmFwKUiMioCWxdGsjG0gNs8AJRomfpzeygiSEBdwkHrRNZwSxWQRUJTr2/mID
-        sXkFLCVObfjKCLFMXmLmpe/sIDM5BawkPjYIQZQISpyc+YQFxGYGKmneOpsZovwru8S6RzIg
-        5RICLhITTsdChIUlXh3fwg5hS0m87G+Dsoslft05CvajhEAHo8T1hpksEAl7iYt7/jKBzGEG
-        emX9Ln2IVXwSvb+fMEGM55XoaBOCqFaUuDfpKSuELS7xcMYSKNtD4sWhl0yQ0OlllOjZvZ5t
-        AqP8LCQfzELywSyEbQsYmVcxSqYWFOempxabFhjmpZbrFSfmFpfmpesl5+duYgQnGS3PHYx3
-        H3zQO8TIxMF4iFGCg1lJhNc3pyBeiDclsbIqtSg/vqg0J7X4EKM0B4uSOK/SjzNxQgLpiSWp
-        2ampBalFMFkmDk6pBiZLz58ypk/nvP/b8/4q98tQlXW5rdUvw/Onmyqz1X34Eu0WKd0e+KaO
-        Z6GNpcSRHXX8DT/mLefWC2q7c8VvX/3V6fwM/xm372HeyaVp5LtAOV+3Y89D8ZolgR9WPdnu
-        Yrxk+ekJLF/fyP5T0Hb80H9DXWrbRYGqW2+aVjsxnzpmf6JcjnnHLjsRX1/+m6l/q++Vez6v
-        XJ+de/pC7fb6wMj4Q3MmvlC7F37iEW/n2303qj7nah+7yvRnl2s0T8qGfzu2lXs9Fm5JX7VR
-        o+NGyr2+P9MffWCYx8WS3G4zRdB81r4cy8mV02bOnn1jwruzXV8Cl5vJiq1ZnR3WdMJ4f/6l
-        ZzJfJN1C3jWvvqPM/HWPEktxRqKhFnNRcSIAJcjwEKEDAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrLLMWRmVeSWpSXmKPExsWy7bCSnO6nzYXxBocnsFisvtvPZtHa/o3J
-        4vGdz+wWR/+/ZbPYe0vb4vKuOWwW237PZ7a4MmURs8XrHyfZLBZsfMTowOVx+WypR9+WVYwe
-        nzfJebQf6GYKYInisklJzcksSy3St0vgylj/oJup4Ih4xdp7O1gbGDcKdzFyckgImEjsmvWY
-        vYuRi0NIYAejxJubR1kgEuISzdd+sEPYwhIr/z2HKvrIKLHmz2+mLkYODjYBTYkLk0tBakQE
-        dCT2fWxjAalhFrjAKLHsyndWkISwgJvEg7bpjCA2i4CqRMfeX2wgNq+ApcSpDV8ZIRbIS8y8
-        9J0dZCangJXExwYhEFMIqOTMJy6IakGJkzOfgJ3GDFTdvHU28wRGgVlIUrOQpBYwMq1ilEwt
-        KM5Nzy02LDDKSy3XK07MLS7NS9dLzs/dxAgOcS2tHYx7Vn3QO8TIxMF4iFGCg1lJhNc3pyBe
-        iDclsbIqtSg/vqg0J7X4EKM0B4uSOO/XWQvjhATSE0tSs1NTC1KLYLJMHJxSDUzTs1iW2Os0
-        VLdV234QZV+vvIhhlp9ytdEUhUeL71dvKRLveMPWOvFcc0aqudThvhd/pvfcerXP33+F9Mrm
-        bZ7THxvFMotuvPTmPXNWrzWvb35aV/tGh1mqbUGJZ/407HLTWu+5YPOZOuX/F6NNO5KU7Bk8
-        U9dZraz5a6C4b4974oL/Dcr3g6Ka774zOmsi13O13krNg1Vzbkl88cIao86sHROnBnx/cWpr
-        ic356rjpIgffMQee/qMXZlygwfXEdwX3P5aypS2Ol9I3njW7bu6qusLsVqWJaeLTBTl5md+a
-        z4jM945nzH/FmzzV+vZ6n0tyLTujI7rvbWhTn3BiTuc+AaXNHgzx/bpBQjuLlViKMxINtZiL
-        ihMBM+U6y+ACAAA=
-X-CMS-MailID: 20200928095914epcas5p1beae8d5a201c35b598fde8288532d58d
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-CMS-TYPE: 105P
-X-CMS-RootMailID: 20200928095914epcas5p1beae8d5a201c35b598fde8288532d58d
-References: <20200928095549.184510-1-joshi.k@samsung.com>
-        <CGME20200928095914epcas5p1beae8d5a201c35b598fde8288532d58d@epcas5p1.samsung.com>
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CY4PR04MB3751.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d1d4f5b7-4f28-48dd-c6ba-08d8639668da
+X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Sep 2020 10:08:12.6288
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Jl42ISS+s1OP8rkX3BPIAWeXOTwpcAZtssb/n3B71yJZMEQiM8+0D0926Fhz7Mx5cpItURtq5tqIQ572xbqe4w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR04MB1206
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Parallel write,read,zone-mgmt operations accessing/altering zone state
-and write-pointer may get into race. Avoid the situation by using a new
-spinlock for zoned device.
-Concurrent zone-appends (on a zone) returning same write-pointer issue
-is also avoided using this lock.
-
-Fixes: e0489ed5daeb ("null_blk: Support REQ_OP_ZONE_APPEND")
-Signed-off-by: Kanchan Joshi <joshi.k@samsung.com>
----
- drivers/block/null_blk.h       |  1 +
- drivers/block/null_blk_zoned.c | 22 ++++++++++++++++++----
- 2 files changed, 19 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/block/null_blk.h b/drivers/block/null_blk.h
-index daed4a9c3436..28099be50395 100644
---- a/drivers/block/null_blk.h
-+++ b/drivers/block/null_blk.h
-@@ -44,6 +44,7 @@ struct nullb_device {
- 	unsigned int nr_zones;
- 	struct blk_zone *zones;
- 	sector_t zone_size_sects;
-+	spinlock_t zone_lock;
- 
- 	unsigned long size; /* device size in MB */
- 	unsigned long completion_nsec; /* time in ns to complete a request */
-diff --git a/drivers/block/null_blk_zoned.c b/drivers/block/null_blk_zoned.c
-index 3d25c9ad2383..e8d8b13aaa5a 100644
---- a/drivers/block/null_blk_zoned.c
-+++ b/drivers/block/null_blk_zoned.c
-@@ -45,6 +45,7 @@ int null_init_zoned_dev(struct nullb_device *dev, struct request_queue *q)
- 	if (!dev->zones)
- 		return -ENOMEM;
- 
-+	spin_lock_init(&dev->zone_lock);
- 	if (dev->zone_nr_conv >= dev->nr_zones) {
- 		dev->zone_nr_conv = dev->nr_zones - 1;
- 		pr_info("changed the number of conventional zones to %u",
-@@ -131,8 +132,11 @@ int null_report_zones(struct gendisk *disk, sector_t sector,
- 		 * So use a local copy to avoid corruption of the device zone
- 		 * array.
- 		 */
-+		spin_lock_irq(&dev->zone_lock);
- 		memcpy(&zone, &dev->zones[first_zone + i],
- 		       sizeof(struct blk_zone));
-+		spin_unlock_irq(&dev->zone_lock);
-+
- 		error = cb(&zone, i, data);
- 		if (error)
- 			return error;
-@@ -277,18 +281,28 @@ static blk_status_t null_zone_mgmt(struct nullb_cmd *cmd, enum req_opf op,
- blk_status_t null_process_zoned_cmd(struct nullb_cmd *cmd, enum req_opf op,
- 				    sector_t sector, sector_t nr_sectors)
- {
-+	blk_status_t sts;
-+	struct nullb_device *dev = cmd->nq->dev;
-+
-+	spin_lock_irq(&dev->zone_lock);
- 	switch (op) {
- 	case REQ_OP_WRITE:
--		return null_zone_write(cmd, sector, nr_sectors, false);
-+		sts = null_zone_write(cmd, sector, nr_sectors, false);
-+		break;
- 	case REQ_OP_ZONE_APPEND:
--		return null_zone_write(cmd, sector, nr_sectors, true);
-+		sts = null_zone_write(cmd, sector, nr_sectors, true);
-+		break;
- 	case REQ_OP_ZONE_RESET:
- 	case REQ_OP_ZONE_RESET_ALL:
- 	case REQ_OP_ZONE_OPEN:
- 	case REQ_OP_ZONE_CLOSE:
- 	case REQ_OP_ZONE_FINISH:
--		return null_zone_mgmt(cmd, op, sector);
-+		sts = null_zone_mgmt(cmd, op, sector);
-+		break;
- 	default:
--		return null_process_cmd(cmd, op, sector, nr_sectors);
-+		sts = null_process_cmd(cmd, op, sector, nr_sectors);
- 	}
-+	spin_unlock_irq(&dev->zone_lock);
-+
-+	return sts;
- }
--- 
-2.25.1
-
+On 2020/09/28 18:59, Kanchan Joshi wrote:=0A=
+> Changes since v1:=0A=
+> - applied the refactoring suggested by Damien=0A=
+> =0A=
+> Kanchan Joshi (1):=0A=
+>   null_blk: synchronization fix for zoned device=0A=
+> =0A=
+>  drivers/block/null_blk.h       |  1 +=0A=
+>  drivers/block/null_blk_zoned.c | 22 ++++++++++++++++++----=0A=
+>  2 files changed, 19 insertions(+), 4 deletions(-)=0A=
+> =0A=
+=0A=
+For single patches, you should add this after the "---" in the patch file, =
+above=0A=
+the patch stats. This is ignores by git when the patch is applied (the patc=
+h=0A=
+starts at the first "diff" entry).=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
