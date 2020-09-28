@@ -2,67 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E3C27AD89
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 14:11:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F8927AD93
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 14:13:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726460AbgI1MLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 08:11:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52290 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726350AbgI1MLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 08:11:30 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 312D62083B;
-        Mon, 28 Sep 2020 12:11:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601295089;
-        bh=tB9hfGPjvJwP/CgUTzf9UD+Q6oFlInFk9oxc9qyVBlQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dO+CZraVjmjBjQtPPvVKGsBLrifLH9LkWTOnQaaoiOUq/t527NS0VGbQi0EAxcqms
-         KgSjfwdQlkE1Sm8Xmw0qhe38UOnvQmp0XsTAcGApF1VPzwjcscO87UMEQtiaQFJmtP
-         +9SzUW7C8VvjKSKPiPOF76afF0HlHMq6w8g0Bj+s=
-Date:   Mon, 28 Sep 2020 14:11:36 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Kanchan Joshi <joshi.k@samsung.com>
-Cc:     axboe@kernel.dk, Damien.LeMoal@wdc.com,
-        linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-        stable@vger.kernel.org, selvakuma.s1@samsung.com,
-        nj.shetty@samsung.com, javier.gonz@samsung.com
-Subject: Re: [PATCH v2 0/1] concurrency handling for zoned null-blk
-Message-ID: <20200928121136.GA661041@kroah.com>
-References: <CGME20200928095910epcas5p2226ab95a8e4fbd3cfe3f48afb1a58c40@epcas5p2.samsung.com>
- <20200928095549.184510-1-joshi.k@samsung.com>
+        id S1726485AbgI1MNC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 08:13:02 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:50005 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726617AbgI1MNC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 08:13:02 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22556664-1500050 
+        for multiple; Mon, 28 Sep 2020 13:12:52 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        stable@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH v2 1/3] drm/i915: Cancel outstanding work after disabling heartbeats on an engine
+Date:   Mon, 28 Sep 2020 13:12:53 +0100
+Message-Id: <20200928121255.21494-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200928095549.184510-1-joshi.k@samsung.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 28, 2020 at 03:25:48PM +0530, Kanchan Joshi wrote:
-> Changes since v1:
-> - applied the refactoring suggested by Damien
-> 
-> Kanchan Joshi (1):
->   null_blk: synchronization fix for zoned device
-> 
->  drivers/block/null_blk.h       |  1 +
->  drivers/block/null_blk_zoned.c | 22 ++++++++++++++++++----
->  2 files changed, 19 insertions(+), 4 deletions(-)
-> 
-> -- 
-> 2.25.1
-> 
+We only allow persistent requests to remain on the GPU past the closure
+of their containing context (and process) so long as they are continuously
+checked for hangs or allow other requests to preempt them, as we need to
+ensure forward progress of the system. If we allow persistent contexts
+to remain on the system after the the hangcheck mechanism is disabled,
+the system may grind to a halt. On disabling the mechanism, we sent a
+pulse along the engine to remove all executing contexts from the engine
+which would check for hung contexts -- but we did not prevent those
+contexts from being resubmitted if they survived the final hangcheck.
 
+Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
+Testcase: igt/gem_ctx_persistence/heartbeat-stop
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.7+
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+---
+ drivers/gpu/drm/i915/gt/intel_engine.h | 9 +++++++++
+ drivers/gpu/drm/i915/i915_request.c    | 5 +++++
+ 2 files changed, 14 insertions(+)
 
-<formletter>
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine.h b/drivers/gpu/drm/i915/gt/intel_engine.h
+index 08e2c000dcc3..7c3a1012e702 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine.h
+@@ -337,4 +337,13 @@ intel_engine_has_preempt_reset(const struct intel_engine_cs *engine)
+ 	return intel_engine_has_preemption(engine);
+ }
+ 
++static inline bool
++intel_engine_has_heartbeat(const struct intel_engine_cs *engine)
++{
++	if (!IS_ACTIVE(CONFIG_DRM_I915_HEARTBEAT_INTERVAL))
++		return false;
++
++	return READ_ONCE(engine->props.heartbeat_interval_ms);
++}
++
+ #endif /* _INTEL_RINGBUFFER_H_ */
+diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+index 436ce368ddaa..0e813819b041 100644
+--- a/drivers/gpu/drm/i915/i915_request.c
++++ b/drivers/gpu/drm/i915/i915_request.c
+@@ -542,8 +542,13 @@ bool __i915_request_submit(struct i915_request *request)
+ 	if (i915_request_completed(request))
+ 		goto xfer;
+ 
++	if (unlikely(intel_context_is_closed(request->context) &&
++		     !intel_engine_has_heartbeat(engine)))
++		intel_context_set_banned(request->context);
++
+ 	if (unlikely(intel_context_is_banned(request->context)))
+ 		i915_request_set_error_once(request, -EIO);
++
+ 	if (unlikely(fatal_error(request->fence.error)))
+ 		__i915_request_skip(request);
+ 
+-- 
+2.20.1
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
-
-</formletter>
