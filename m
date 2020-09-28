@@ -2,216 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8298F27B04C
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 16:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D2F127B054
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 16:52:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726564AbgI1OvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 10:51:21 -0400
-Received: from mga18.intel.com ([134.134.136.126]:14685 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726461AbgI1OvU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 10:51:20 -0400
-IronPort-SDR: k1S79QpvfEHbGkT1lWJDVrj1zTNUBwWd9EU6Xdy29a9NXakXkn6YkhaFQxNPGZz1JzwVchU6nG
- hx9doX4cCRkQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9757"; a="149778405"
-X-IronPort-AV: E=Sophos;i="5.77,313,1596524400"; 
-   d="scan'208";a="149778405"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2020 07:51:18 -0700
-IronPort-SDR: 230049QrR5o+ynRYlti160DCuL/MLs+Y4vkZ2FoDNDTVZyxgshCDWQdcnfrKkvOwL9XaixYG/u
- BcBNCm2tovEg==
-X-IronPort-AV: E=Sophos;i="5.77,313,1596524400"; 
-   d="scan'208";a="488608070"
-Received: from agal3-mobl1.ger.corp.intel.com (HELO [10.214.224.94]) ([10.214.224.94])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2020 07:51:17 -0700
-Subject: Re: [Intel-gfx] [PATCH v2 2/3] drm/i915/gt: Always send a pulse down
- the engine after disabling heartbeat
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-References: <20200928121255.21494-1-chris@chris-wilson.co.uk>
- <20200928121255.21494-2-chris@chris-wilson.co.uk>
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Organization: Intel Corporation UK Plc
-Message-ID: <14297cbb-3266-49de-2690-be705c861ab0@linux.intel.com>
-Date:   Mon, 28 Sep 2020 15:51:13 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726497AbgI1OwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 10:52:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:57600 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726461AbgI1OwN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 10:52:13 -0400
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1601304731;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=PJU0r/PAK2mgw0yQKK07zn+s+oIn+bBBFmBJP1r2lng=;
+        b=DKu2qx5AhoK1NvM2FHsZdUwRpTMZNhvOiFYWSt7WV+rbMTlEva8sCDd6w0FqEnyVlEkuyz
+        MSpaqhuL/RsN+NLwiIx5Hlui9ubj8DzFRBxbs3xnCVTaBhhnpFywmfpL69q0sAK05ky7rQ
+        vL5L3jbN6SKVJZ6FQbw4BzJPiDz8SUI=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-347-XLbQvCGVOUuGjtnr8CSmYQ-1; Mon, 28 Sep 2020 10:52:09 -0400
+X-MC-Unique: XLbQvCGVOUuGjtnr8CSmYQ-1
+Received: by mail-wr1-f69.google.com with SMTP id f18so499202wrv.19
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 07:52:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=PJU0r/PAK2mgw0yQKK07zn+s+oIn+bBBFmBJP1r2lng=;
+        b=rPmc6eaBRirXDUJsAIklsApm7WezpIqGLRAZjPQH+3Upcjv+IVZnyK1w1xgm45MQ+s
+         +czGkVMLSZtb96RF8LRgUni2DWYu2O01DREiz5GWROTKLGe243UvqbAGwbNqAlisSWAW
+         J5oXzpfncsYHL5E0mFSBf0NMaoQLziUbBSERqEokeSImGIhxbz517YpavPLieVShp03q
+         WlF2+pSaa8tLAKEgI3e/zCo8bfkzx8FLAvdwJGpwbRx9MrDxGuQiLBcA02BQIMvRXnyE
+         LoG+CQADtN/2LS+j5ygIWXmxUXBK735CTgvLOoIXNvSvWcr+//TNLvbZZLmJWsBeq5tH
+         MuXg==
+X-Gm-Message-State: AOAM533W6DcV4EyhKhc4HKsz93q0gRWLSrMHYj/6ejuyHFv1RDqbIRTJ
+        qrJ9joBIr2N57/2Tldh5Q19gK1Nv0uJ46J8A1YEuOeCUbVloqsDecsEDv/T1Ba1KFtJpcPbsidm
+        juA9TuOOFgSnRc4X8
+X-Received: by 2002:a1c:bb06:: with SMTP id l6mr2089691wmf.175.1601304728357;
+        Mon, 28 Sep 2020 07:52:08 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzHN4bGETpXiv5ZQj2cENGByWnva+13LogKnBri+IrtfQYnrG07MiMtZT3cJOAUwwU/Ez05ag==
+X-Received: by 2002:a1c:bb06:: with SMTP id l6mr2089661wmf.175.1601304728084;
+        Mon, 28 Sep 2020 07:52:08 -0700 (PDT)
+Received: from steredhat (host-79-13-204-53.retail.telecomitalia.it. [79.13.204.53])
+        by smtp.gmail.com with ESMTPSA id h3sm1980682wrq.0.2020.09.28.07.52.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Sep 2020 07:52:07 -0700 (PDT)
+Date:   Mon, 28 Sep 2020 16:52:04 +0200
+From:   Stefano Garzarella <sgarzare@redhat.com>
+To:     axboe@kernel.dk
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] io_uring: ensure open/openat2 name is
+ cleaned on cancelation" failed to apply to 5.8-stable tree
+Message-ID: <20200928145204.2kgheql4qfffz5s3@steredhat>
+References: <1601301865177128@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20200928121255.21494-2-chris@chris-wilson.co.uk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1601301865177128@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Jens, if you want I can do the backport for 5.8.
 
-On 28/09/2020 13:12, Chris Wilson wrote:
-> Currently, we check we can send a pulse prior to disabling the
-> heartbeat to verify that we can change the heartbeat, but since we may
-> re-evaluate execution upon changing the heartbeat interval we need another
-> pulse afterwards to refresh execution.
+Stefano
+
+On Mon, Sep 28, 2020 at 04:04:25PM +0200, gregkh@linuxfoundation.org wrote:
 > 
-> v2: Tvrtko asked if we could reduce the double pulse to a single, which
-> opened up a discussion of how we should handle the pulse-error after
-> attempting to change the property, and the desire to serialise
-> adjustment of the property with its validating pulse, and unwind upon
-> failure.
+> The patch below does not apply to the 5.8-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 > 
-> Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.7+
-> ---
->   .../gpu/drm/i915/gt/intel_engine_heartbeat.c  | 105 +++++++++++-------
->   1 file changed, 66 insertions(+), 39 deletions(-)
+> thanks,
 > 
-> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-> index 8ffdf676c0a0..eda475f50fa7 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
-> @@ -177,36 +177,81 @@ void intel_engine_init_heartbeat(struct intel_engine_cs *engine)
->   	INIT_DELAYED_WORK(&engine->heartbeat.work, heartbeat);
->   }
->   
-> +static int __intel_engine_pulse(struct intel_engine_cs *engine)
-> +{
-> +	struct i915_sched_attr attr = { .priority = I915_PRIORITY_BARRIER };
-> +	struct intel_context *ce = engine->kernel_context;
-> +	struct i915_request *rq;
-> +
-> +	lockdep_assert_held(&ce->timeline->mutex);
-> +	GEM_BUG_ON(intel_engine_has_preemption(engine));
-> +	GEM_BUG_ON(intel_engine_pm_is_awake(engine));
-> +
-> +	intel_context_enter(ce);
-> +	rq = __i915_request_create(ce, GFP_NOWAIT | __GFP_NOWARN);
-> +	intel_context_exit(ce);
-> +	if (IS_ERR(rq))
-> +		return PTR_ERR(rq);
-> +
-> +	__set_bit(I915_FENCE_FLAG_SENTINEL, &rq->fence.flags);
-> +	idle_pulse(engine, rq);
-> +
-> +	__i915_request_commit(rq);
-> +	__i915_request_queue(rq, &attr);
-> +	GEM_BUG_ON(rq->sched.attr.priority < I915_PRIORITY_BARRIER);
-> +
-> +	return 0;
-> +}
-> +
-> +static unsigned long set_heartbeat(struct intel_engine_cs *engine,
-> +				   unsigned long delay)
-> +{
-> +	unsigned long old;
-> +
-> +	old = xchg(&engine->props.heartbeat_interval_ms, delay);
-> +	if (delay)
-> +		intel_engine_unpark_heartbeat(engine);
-> +	else
-> +		intel_engine_park_heartbeat(engine);
-> +
-> +	return old;
-> +}
-> +
->   int intel_engine_set_heartbeat(struct intel_engine_cs *engine,
->   			       unsigned long delay)
->   {
-> -	int err;
-> +	struct intel_context *ce = engine->kernel_context;
-> +	int err = 0;
->   
-> -	/* Send one last pulse before to cleanup persistent hogs */
-> -	if (!delay && IS_ACTIVE(CONFIG_DRM_I915_PREEMPT_TIMEOUT)) {
-> -		err = intel_engine_pulse(engine);
-> -		if (err)
-> -			return err;
-> -	}
-> +	if (!delay && !intel_engine_has_preempt_reset(engine))
-> +		return -ENODEV;
-> +
-> +	intel_engine_pm_get(engine);
-> +
-> +	err = mutex_lock_interruptible(&ce->timeline->mutex);
-> +	if (err)
-> +		return err;
->   
-> -	WRITE_ONCE(engine->props.heartbeat_interval_ms, delay);
-> +	if (delay != engine->props.heartbeat_interval_ms) {
-> +		unsigned long saved = set_heartbeat(engine, delay);
->   
-> -	if (intel_engine_pm_get_if_awake(engine)) {
-> -		if (delay)
-> -			intel_engine_unpark_heartbeat(engine);
-> -		else
-> -			intel_engine_park_heartbeat(engine);
-> -		intel_engine_pm_put(engine);
-> +		/* recheck current execution */
-> +		if (intel_engine_has_preemption(engine)) {
-> +			err = __intel_engine_pulse(engine);
-> +			if (err)
-> +				set_heartbeat(engine, saved);
-> +		}
->   	}
->   
-> -	return 0;
-> +	mutex_unlock(&ce->timeline->mutex);
-> +	intel_engine_pm_put(engine);
-> +
-> +	return err;
->   }
->   
->   int intel_engine_pulse(struct intel_engine_cs *engine)
->   {
-> -	struct i915_sched_attr attr = { .priority = I915_PRIORITY_BARRIER };
->   	struct intel_context *ce = engine->kernel_context;
-> -	struct i915_request *rq;
->   	int err;
->   
->   	if (!intel_engine_has_preemption(engine))
-> @@ -215,30 +260,12 @@ int intel_engine_pulse(struct intel_engine_cs *engine)
->   	if (!intel_engine_pm_get_if_awake(engine))
->   		return 0;
->   
-> -	if (mutex_lock_interruptible(&ce->timeline->mutex)) {
-> -		err = -EINTR;
-> -		goto out_rpm;
-> +	err = -EINTR;
-> +	if (!mutex_lock_interruptible(&ce->timeline->mutex)) {
-> +		err = __intel_engine_pulse(engine);
-> +		mutex_unlock(&ce->timeline->mutex);
->   	}
->   
-> -	intel_context_enter(ce);
-> -	rq = __i915_request_create(ce, GFP_NOWAIT | __GFP_NOWARN);
-> -	intel_context_exit(ce);
-> -	if (IS_ERR(rq)) {
-> -		err = PTR_ERR(rq);
-> -		goto out_unlock;
-> -	}
-> -
-> -	__set_bit(I915_FENCE_FLAG_SENTINEL, &rq->fence.flags);
-> -	idle_pulse(engine, rq);
-> -
-> -	__i915_request_commit(rq);
-> -	__i915_request_queue(rq, &attr);
-> -	GEM_BUG_ON(rq->sched.attr.priority < I915_PRIORITY_BARRIER);
-> -	err = 0;
-> -
-> -out_unlock:
-> -	mutex_unlock(&ce->timeline->mutex);
-> -out_rpm:
->   	intel_engine_pm_put(engine);
->   	return err;
->   }
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From f3cd4850504ff612d0ea77a0aaf29b66c98fcefe Mon Sep 17 00:00:00 2001
+> From: Jens Axboe <axboe@kernel.dk>
+> Date: Thu, 24 Sep 2020 14:55:54 -0600
+> Subject: [PATCH] io_uring: ensure open/openat2 name is cleaned on cancelation
+> 
+> If we cancel these requests, we'll leak the memory associated with the
+> filename. Add them to the table of ops that need cleaning, if
+> REQ_F_NEED_CLEANUP is set.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: e62753e4e292 ("io_uring: call statx directly")
+> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index e6004b92e553..0ab16df31288 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -5671,6 +5671,11 @@ static void __io_clean_op(struct io_kiocb *req)
+>  			io_put_file(req, req->splice.file_in,
+>  				    (req->splice.flags & SPLICE_F_FD_IN_FIXED));
+>  			break;
+> +		case IORING_OP_OPENAT:
+> +		case IORING_OP_OPENAT2:
+> +			if (req->open.filename)
+> +				putname(req->open.filename);
+> +			break;
+>  		}
+>  		req->flags &= ~REQ_F_NEED_CLEANUP;
+>  	}
 > 
 
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-
-Regards,
-
-Tvrtko
