@@ -2,68 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1BF27B848
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 01:35:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59A6727B841
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 01:34:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727032AbgI1Xfb convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 28 Sep 2020 19:35:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59748 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726867AbgI1Xfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 19:35:31 -0400
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8C17235F7;
-        Mon, 28 Sep 2020 22:15:36 +0000 (UTC)
-Date:   Mon, 28 Sep 2020 18:15:35 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>
-Subject: Re: [PATCH 4.19 38/92] kprobes: Fix NULL pointer dereference at
- kprobe_ftrace_handler
-Message-ID: <20200928181535.56d7b2cb@oasis.local.home>
-In-Reply-To: <20200928180942.100aa6c8@oasis.local.home>
-References: <20200820091537.490965042@linuxfoundation.org>
-        <20200820091539.592290034@linuxfoundation.org>
-        <CA+G9fYvdQv2Ukvs-UKiEgYaDdBthsWsY=35cQ4YpvMhA0hU5Gg@mail.gmail.com>
-        <20200928180942.100aa6c8@oasis.local.home>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1727050AbgI1Xdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 19:33:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39670 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726715AbgI1Xdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 19:33:42 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0543C0613E5
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 15:18:07 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id b17so1520691pji.1
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 15:18:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yfHEiXO2ldg31zOZcY1P7R63OEZ7kQZlFTEgpSFh6Ug=;
+        b=C/xw3smNZL4erjPxV8UiJw6c3tqsH992OayxqefND3/cyEuNmDFwR4aIwFCzBhvXkB
+         o/Obp8Ou6u2bepeQzkcJefSkYpPdmxOHPFPj75qo6DnUxZucb85h18li2+zYwWb0kLtq
+         hMmIU3eH3qIZbaLeCkcjficAFJL0jYiweIbjjX8V4SLCR/qyIqtRRYG/1CbkdXRe0a5t
+         SOZiMevlnP8KPZ6kzTS4pq7H/VMx0uPZDLRYypUiLhoRpzcgkaVKKhPDk+gWhFESwwhj
+         9JOuInq140FKg/DTGTKA2wpczv/Y3f4BKhTNleMLo8qrl7+zcqrYFJ80jhknPlhy3QQu
+         fcxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yfHEiXO2ldg31zOZcY1P7R63OEZ7kQZlFTEgpSFh6Ug=;
+        b=o8TVMBKiT9ze6Ncio1UrLSl1yEKOTtUZsiuEciT5aoVveLWlgfcMyh0wx6ESyKTL0r
+         kOVjwUK9Ke1HBnEkOv6g7Whf7fsEmUj9PP+2J5LJ1qP2izdqX+yODzixNzDLSuSpK8+X
+         fcLTwkWA4vgqCY6BUyiPfVARzwbhq8cCCMSVRNc7Tl2GpT5zYRdCX55HVCJyfAbTFkTr
+         O3CxArxhHZqZrfkyJEzukMk1SX62Nr8gPt8AUPZOmm1don+2uIsVbWL0dKsNb2doZwRE
+         LNt+imViG7UcX6VuIBI9WjpMLyUr5nwf3kRsvWUexwNosQk7BV+P6oE6z1Yus3Tqhy2h
+         Xsfg==
+X-Gm-Message-State: AOAM530LR4Ak7oRhB1VWUKFNLslX4Mkpvlbe6yoRwmNy54G+FvTwi0Re
+        6dnBkw+Tm7Hx+oZHDzYwu+6bQpyK5NT5bg==
+X-Google-Smtp-Source: ABdhPJz3vfV85DpUhE6LMsNOE8V5aSrd4Fqr+S9Wq941CkIYw8nRA6tysdP1le1Ye/Dx4sd0WqZh3Q==
+X-Received: by 2002:a17:90a:d914:: with SMTP id c20mr1223258pjv.34.1601331487203;
+        Mon, 28 Sep 2020 15:18:07 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 190sm2846258pfy.22.2020.09.28.15.18.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Sep 2020 15:18:06 -0700 (PDT)
+Message-ID: <5f72611e.1c69fb81.5630e.59d5@mx.google.com>
+Date:   Mon, 28 Sep 2020 15:18:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.148-244-ga8c3c22706f1
+Subject: stable-rc/queue/4.19 baseline: 128 runs,
+ 1 regressions (v4.19.148-244-ga8c3c22706f1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Sep 2020 18:09:42 -0400
-Steven Rostedt <rostedt@goodmis.org> wrote:
+stable-rc/queue/4.19 baseline: 128 runs, 1 regressions (v4.19.148-244-ga8c3=
+c22706f1)
 
-> On Tue, 29 Sep 2020 01:32:59 +0530
-> Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> 
-> > stable rc branch 4.19 build warning on arm64.
-> > 
-> > ../kernel/kprobes.c: In function ‘kill_kprobe’:
-> > ../kernel/kprobes.c:1070:33: warning: statement with no effect [-Wunused-value]
-> >  1070 | #define disarm_kprobe_ftrace(p) (-ENODEV)
-> >       |                                 ^
-> > ../kernel/kprobes.c:2090:3: note: in expansion of macro ‘disarm_kprobe_ftrace’
-> >  2090 |   disarm_kprobe_ftrace(p);
-> >       |   ^~~~~~~~~~~~~~~~~~~~  
-> 
-> Seems to affect upstream as well.
-> 
+Regressions Summary
+-------------------
 
-Bah, no (tested the wrong kernel).
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 4/5    =
 
-You want this commit too:
 
-10de795a5addd ("kprobes: Fix compiler warning for !CONFIG_KPROBES_ON_FTRACE")
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.148-244-ga8c3c22706f1/plan/baseline/
 
--- Steve
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.148-244-ga8c3c22706f1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a8c3c22706f11f0c82bc7bb1856ce622c02f6bcb =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 4/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f722d5f48c222a508bf9ddb
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.148=
+-244-ga8c3c22706f1/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.148=
+-244-ga8c3c22706f1/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f722d5f48c222a=
+508bf9de2
+      new failure (last pass: v4.19.147-37-g6673b81907c0)
+      2 lines  =20
