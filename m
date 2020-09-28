@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CC4127AF78
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 15:56:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFCA227AF7D
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 15:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726344AbgI1N4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 09:56:44 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:48749 "EHLO
+        id S1726548AbgI1N4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 09:56:55 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:55745 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726310AbgI1N4o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 09:56:44 -0400
+        by vger.kernel.org with ESMTP id S1726310AbgI1N4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 09:56:52 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 65CDDFE5;
-        Mon, 28 Sep 2020 09:56:43 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 28 Sep 2020 09:56:43 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id C852010D3;
+        Mon, 28 Sep 2020 09:56:51 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 28 Sep 2020 09:56:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=S+UV5W
-        BnOhIjkHkst+rNFZQa+8L91VPmM4goLaYdzV8=; b=Kz/mEONQjubkWi1fTxtrjn
-        cTgEwNy4stejWtzLTQtCXvswnCKs455/lUT2HD6bv6/nr2KB47KIAVS3HM1vHJpb
-        6pRqYoRT7nXwgb7GEL9/QlIcW+MYwFC1EjnEUePpHIQDqYUJkOCj9TXGT/y2ejHE
-        601r9cdGeFZaAIL+YkAu4wt3Ifiz6KKSGq/BWFU9uehN5mju9hzI/CEciYiwVwy3
-        FK0YUvVRtojxh5HZERzPJLmEoP/0OIBvWX/YJ5dsgA4pMTB3CQh3Bx0KwGpg8f6K
-        4QbQkvFEn3bwhceC9mIHO47F8J05hsR4NKKOvfrWkHdprk09tovX9kDZlnnTy+Xg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=X4zs3r
+        16uuTfJQZybA3n8b0NsiklDCjmuI3QXKbaRzI=; b=a7aUFe9y/4SX6Rv1z6lGBE
+        zwMkFi3wZsOrSWllf/DGFdDSaVHsfL/WFvmggNuuItsedg24l3JR+4es/dSWFma0
+        o0HbWKte8z9jJAickSj463dBOlMIJGSCcG8aYhtOFzqkNiqEYmlopVxSDn/QcIRz
+        8Gwo5A/AwjoJnlUdtuM5Q4NsQYXMb3Cvlo8RLL8LusYkVmkmhVztUvlDQ9jtfvlw
+        sLzRQ8JuDNje0ATgM27ic+NIu7hw2g158IqC1n38sG2uyU9ak29IAs2jqtGbGfhc
+        jCoN3fqHZmqGBu7DNN9WHhYbCg10iTzVZLupvxe5dPbIuC1Xcmzm+Sybbbwoxyxg
         ==
-X-ME-Sender: <xms:mutxX8da1N5ECrnqvPjZqZ7Ll9PFQuORVZscEFmHhSEqQEDJ1i7IyQ>
-    <xme:mutxX-OMYzM11TQbO9UA8AYmsd_5XH8Rl1kZxKfBPDJN0X_SpYuVTgO0u57LSDrcg
-    uEFUc27DfIk3A>
+X-ME-Sender: <xms:o-txXxehv3ZN61-sWc0pPILK3upvUQk8GFPdR6At_gI8nScbaIbMWg>
+    <xme:o-txX_NcfHX243ZOC9c20u_hBAZggJn5r7mXfAfd28Dr6S0323u_NFx5iefcRHo_k
+    U91kAFvKa5c0w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdeigdehtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:mutxX9hGmwRV3AlYaVN14_IQ9ylw9n_Gq_e-VviafPb0tw4zXCdEtQ>
-    <xmx:mutxXx-mxlsUlzJ4JH-bR4-iTLyzhN0SXjEsrMkEldVGZlc7sql7hQ>
-    <xmx:mutxX4tZrM8RR1xqDK6_ClE249rB2h6s_bCDV32GVPuRtzpdrvmtFA>
-    <xmx:m-txX-1miZbKJlr4zrHGcBhWIXtcYK2beX8J69p6Z0I11EDtM0iaA-6MzpQ>
+X-ME-Proxy: <xmx:o-txX6g92iJ8nynVTHMEtmE6OwlSLvO6fq7Sgsi6RbwerkXiS6gIgw>
+    <xmx:o-txX6-cFLYGrrr_y0LghkN--bK52d-fpHU5zGztpk4Y-BtDhXeIWg>
+    <xmx:o-txX9u0I3uBjkl9VxiWFt2YWB9HQ-xnxCQbq6qax6q4JMiY9b8DhA>
+    <xmx:o-txX71nAnQ0_Khgmasi1IwtrabIwErmQeDI9UnumqpA8uuWXYC1Akeq9P8>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 984CB3280059;
-        Mon, 28 Sep 2020 09:56:42 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] dm: fix bio splitting and its bio completion order for" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E45ED3064686;
+        Mon, 28 Sep 2020 09:56:50 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dm: fix bio splitting and its bio completion order for" failed to apply to 5.8-stable tree
 To:     snitzer@redhat.com, ming.lei@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Sep 2020 15:56:50 +0200
-Message-ID: <1601301410240130@kroah.com>
+Date:   Mon, 28 Sep 2020 15:56:51 +0200
+Message-ID: <160130141116536@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.8-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
