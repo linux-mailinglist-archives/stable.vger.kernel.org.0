@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4631127AFBF
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 16:12:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 403A527AFC4
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 16:13:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726409AbgI1OMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 10:12:30 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:40003 "EHLO
+        id S1726325AbgI1ONM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 10:13:12 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:59715 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726310AbgI1OM3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 10:12:29 -0400
+        by vger.kernel.org with ESMTP id S1726310AbgI1ONM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 10:13:12 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id DAC91BEF;
-        Mon, 28 Sep 2020 10:12:27 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 28 Sep 2020 10:12:28 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id DBDFCFBF;
+        Mon, 28 Sep 2020 10:13:10 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 28 Sep 2020 10:13:11 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=iaZvAh
-        9tLgUw87B7q5HnC2jXpspP5sOg89ggqZHABc8=; b=HzIM4mNwrFmAte+MoLqXuj
-        a0MXpaWBzvEvZH2Bv0Z5QSZfKnHJBetdt5Dnk8r2Gmyq3ybFLMVUoo4qpr4MKtYb
-        B7vZ4XAGOeYxPcghfvCrLeqgaei9GOQrSbG1/gkCTcglo1Qq2ZwSDgbRHKyDGJr5
-        /EA22xUOfKhAFX2bxv3ivXdGkElr6xcY5QICApOdImle67r8EERvTX3Kb2a8KbVy
-        xt6uX/DdQN4QLtlrrg3toxb0+9uJrI/kgzcZhj1qRYYDks2iJic0K6cZnL5TlY8Q
-        5XxdAJl+Wr2+tXWAxbiYPPZxCRy2FumNcGnXJ6jp9jAx82raKrG5gbee6e0ryb/g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=4I0ucA
+        08HBR/lXbQuDjCGRudXMqGtySf4kn66NriEPQ=; b=Mkyi9wbgLOa2fTIOxXqsYE
+        arLDtbTSPjli9qWcvD4DogCCfHOy9woxLALeyeczLTU7y7QtMFBMzST8knBql49d
+        ombuuekd2KhJF3k9sICQLZ6mm06jsy+/mZwDyy5hDM12jrY1IViZUsRF8OT1LQtg
+        A5nN8NePJW4FzAWHP25/u8OtYUQ70Vp0+B3T8kU7+gFExKlQQJwv8MixV+9LVwnr
+        K0bjRB1mtOhKjXH3y4Voc8CGQJjwBu9N2DDecL3IHTv4DOeRI1A53woAIR52IJgj
+        fd0XaIR4XAtrI0u8s9WnuaoijgFhSQpKI2rtoQ0UDTrH5qQJVbEhemV632CGbjhQ
         ==
-X-ME-Sender: <xms:Su9xX7ipu423jriwkJiv-Xu5d4NWKIgjVm-HADKvHx64-CVUroWDRQ>
-    <xme:Su9xX4Cv-EBhnpHAeH-Y5HF3TZhMAjNU_1AW_aZmZvyqqk_IC4RcGPUA9GNc0hOMy
-    it4q2nsSRSpEA>
+X-ME-Sender: <xms:de9xX63xR5Vq4HV_cHeqc8uoq9EiYUpfpENuTo-6pP0M7Hu08n3-aw>
+    <xme:de9xX9FwNUxFtZGH_CJo7snNBU6_EHxdcX9iSZF407FGuijIBoT1xCJuYOjoz9Ox_
+    HCFlDoD-vnv4A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdeigdehfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Su9xX7ER8NiWgenjwYAT865kPD5ugjqBBAcBtT7WiFOKPvLF8Cap7g>
-    <xmx:Su9xX4T6KyDix-4yl26bSmkoN8Z1LOUMVope3Vg3fO5erPQIsFHL8Q>
-    <xmx:Su9xX4wGwNvNB5faKlsGcyDd4vzXis1SM-Bxwa9oNdYgY5f6SzKU8w>
-    <xmx:S-9xX9pTpVMCjCzocQtcKuh752PfieoslSzFL_-Hz2QLmefhRyF63r7a5tgadwhN>
+X-ME-Proxy: <xmx:de9xXy4nKazl1zbltm7dPpf6uUuThagt12AE3265v0uFvWNTYNiX5g>
+    <xmx:de9xX71uBI64s9GvNIqRhMMz4NOFlISV3IbDceTk8hzr0egFwGptsQ>
+    <xmx:de9xX9G44KvmoQf9bcL2mw-yad5hXhT-4U_7myuKkyjTBZ2IpcI5cQ>
+    <xmx:du9xX18hmxRkTp5fvyPqCddO0QrMhdw6ggKlbShCx9RMNg2DmBw0MhsnmmHRnV8t>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7B2B7306467E;
-        Mon, 28 Sep 2020 10:12:26 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm: replace memmap_context by meminit_context" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 439F03280063;
+        Mon, 28 Sep 2020 10:13:09 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm: don't rely on system state to detect hot-plug operations" failed to apply to 4.19-stable tree
 To:     ldufour@linux.ibm.com, akpm@linux-foundation.org,
         cheloha@linux.ibm.com, david@redhat.com, fenghua.yu@intel.com,
         gregkh@linuxfoundation.org, mhocko@suse.com, nathanl@linux.ibm.com,
@@ -53,8 +53,8 @@ To:     ldufour@linux.ibm.com, akpm@linux-foundation.org,
         tony.luck@intel.com, torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Sep 2020 16:12:35 +0200
-Message-ID: <1601302355115239@kroah.com>
+Date:   Mon, 28 Sep 2020 16:13:15 +0200
+Message-ID: <1601302395201254@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -63,7 +63,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -74,14 +74,20 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c1d0da83358a2316d9be7f229f26126dbaa07468 Mon Sep 17 00:00:00 2001
+From f85086f95fa36194eb0db5cd5c12e56801b98523 Mon Sep 17 00:00:00 2001
 From: Laurent Dufour <ldufour@linux.ibm.com>
-Date: Fri, 25 Sep 2020 21:19:28 -0700
-Subject: [PATCH] mm: replace memmap_context by meminit_context
+Date: Fri, 25 Sep 2020 21:19:31 -0700
+Subject: [PATCH] mm: don't rely on system state to detect hot-plug operations
 
-Patch series "mm: fix memory to node bad links in sysfs", v3.
+In register_mem_sect_under_node() the system_state's value is checked to
+detect whether the call is made during boot time or during an hot-plug
+operation.  Unfortunately, that check against SYSTEM_BOOTING is wrong
+because regular memory is registered at SYSTEM_SCHEDULING state.  In
+addition, memory hot-plug operation can be triggered at this system
+state by the ACPI [1].  So checking against the system state is not
+enough.
 
-Sometimes, firmware may expose interleaved memory layout like this:
+The consequence is that on system with interleaved node's ranges like this:
 
  Early memory node ranges
    node   1: [mem 0x0000000000000000-0x000000011fffffff]
@@ -90,32 +96,24 @@ Sometimes, firmware may expose interleaved memory layout like this:
    node   0: [mem 0x0000000200000000-0x000000048fffffff]
    node   2: [mem 0x0000000490000000-0x00000007ffffffff]
 
-In that case, we can see memory blocks assigned to multiple nodes in
-sysfs:
+This can be seen on PowerPC LPAR after multiple memory hot-plug and
+hot-unplug operations are done.  At the next reboot the node's memory
+ranges can be interleaved and since the call to link_mem_sections() is
+made in topology_init() while the system is in the SYSTEM_SCHEDULING
+state, the node's id is not checked, and the sections registered to
+multiple nodes:
 
-  $ ls -l /sys/devices/system/memory/memory21
+  $ ls -l /sys/devices/system/memory/memory21/node*
   total 0
   lrwxrwxrwx 1 root root     0 Aug 24 05:27 node1 -> ../../node/node1
   lrwxrwxrwx 1 root root     0 Aug 24 05:27 node2 -> ../../node/node2
-  -rw-r--r-- 1 root root 65536 Aug 24 05:27 online
-  -r--r--r-- 1 root root 65536 Aug 24 05:27 phys_device
-  -r--r--r-- 1 root root 65536 Aug 24 05:27 phys_index
-  drwxr-xr-x 2 root root     0 Aug 24 05:27 power
-  -r--r--r-- 1 root root 65536 Aug 24 05:27 removable
-  -rw-r--r-- 1 root root 65536 Aug 24 05:27 state
-  lrwxrwxrwx 1 root root     0 Aug 24 05:25 subsystem -> ../../../../bus/memory
-  -rw-r--r-- 1 root root 65536 Aug 24 05:25 uevent
-  -r--r--r-- 1 root root 65536 Aug 24 05:27 valid_zones
 
-The same applies in the node's directory with a memory21 link in both
-the node1 and node2's directory.
-
-This is wrong but doesn't prevent the system to run.  However when
-later, one of these memory blocks is hot-unplugged and then hot-plugged,
-the system is detecting an inconsistency in the sysfs layout and a
-BUG_ON() is raised:
+In that case, the system is able to boot but if later one of theses
+memory blocks is hot-unplugged and then hot-plugged, the sysfs
+inconsistency is detected and this is triggering a BUG_ON():
 
   kernel BUG at /Users/laurent/src/linux-ppc/mm/memory_hotplug.c:1084!
+  Oops: Exception in kernel mode, sig: 5 [#1]
   LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
   Modules linked in: rpadlpar_io rpaphp pseries_rng rng_core vmx_crypto gf128mul binfmt_misc ip_tables x_tables xfs libcrc32c crc32c_vpmsum autofs4
   CPU: 8 PID: 10256 Comm: drmgr Not tainted 5.9.0-rc1+ #25
@@ -134,174 +132,209 @@ BUG_ON() is raised:
     system_call_exception+0x160/0x270
     system_call_common+0xf0/0x27c
 
-This has been seen on PowerPC LPAR.
+This patch addresses the root cause by not relying on the system_state
+value to detect whether the call is due to a hot-plug operation.  An
+extra parameter is added to link_mem_sections() detailing whether the
+operation is due to a hot-plug operation.
 
-The root cause of this issue is that when node's memory is registered,
-the range used can overlap another node's range, thus the memory block
-is registered to multiple nodes in sysfs.
+[1] According to Oscar Salvador, using this qemu command line, ACPI
+memory hotplug operations are raised at SYSTEM_SCHEDULING state:
 
-There are two issues here:
+  $QEMU -enable-kvm -machine pc -smp 4,sockets=4,cores=1,threads=1 -cpu host -monitor pty \
+        -m size=$MEM,slots=255,maxmem=4294967296k  \
+        -numa node,nodeid=0,cpus=0-3,mem=512 -numa node,nodeid=1,mem=512 \
+        -object memory-backend-ram,id=memdimm0,size=134217728 -device pc-dimm,node=0,memdev=memdimm0,id=dimm0,slot=0 \
+        -object memory-backend-ram,id=memdimm1,size=134217728 -device pc-dimm,node=0,memdev=memdimm1,id=dimm1,slot=1 \
+        -object memory-backend-ram,id=memdimm2,size=134217728 -device pc-dimm,node=0,memdev=memdimm2,id=dimm2,slot=2 \
+        -object memory-backend-ram,id=memdimm3,size=134217728 -device pc-dimm,node=0,memdev=memdimm3,id=dimm3,slot=3 \
+        -object memory-backend-ram,id=memdimm4,size=134217728 -device pc-dimm,node=1,memdev=memdimm4,id=dimm4,slot=4 \
+        -object memory-backend-ram,id=memdimm5,size=134217728 -device pc-dimm,node=1,memdev=memdimm5,id=dimm5,slot=5 \
+        -object memory-backend-ram,id=memdimm6,size=134217728 -device pc-dimm,node=1,memdev=memdimm6,id=dimm6,slot=6 \
 
- (a) The sysfs memory and node's layouts are broken due to these
-     multiple links
-
- (b) The link errors in link_mem_sections() should not lead to a system
-     panic.
-
-To address (a) register_mem_sect_under_node should not rely on the
-system state to detect whether the link operation is triggered by a hot
-plug operation or not.  This is addressed by the patches 1 and 2 of this
-series.
-
-Issue (b) will be addressed separately.
-
-This patch (of 2):
-
-The memmap_context enum is used to detect whether a memory operation is
-due to a hot-add operation or happening at boot time.
-
-Make it general to the hotplug operation and rename it as
-meminit_context.
-
-There is no functional change introduced by this patch
-
-Suggested-by: David Hildenbrand <david@redhat.com>
+Fixes: 4fbce633910e ("mm/memory_hotplug.c: make register_mem_sect_under_node() a callback of walk_memory_range()")
 Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Reviewed-by: David Hildenbrand <david@redhat.com>
 Reviewed-by: Oscar Salvador <osalvador@suse.de>
 Acked-by: Michal Hocko <mhocko@suse.com>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J . Wysocki" <rafael@kernel.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
 Cc: Nathan Lynch <nathanl@linux.ibm.com>
 Cc: Scott Cheloha <cheloha@linux.ibm.com>
 Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200915094143.79181-1-ldufour@linux.ibm.com
-Link: https://lkml.kernel.org/r/20200915132624.9723-1-ldufour@linux.ibm.com
+Link: https://lkml.kernel.org/r/20200915094143.79181-3-ldufour@linux.ibm.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index 0b3fb4c7af29..8e7b8c6c576e 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -538,7 +538,7 @@ virtual_memmap_init(u64 start, u64 end, void *arg)
- 	if (map_start < map_end)
- 		memmap_init_zone((unsigned long)(map_end - map_start),
- 				 args->nid, args->zone, page_to_pfn(map_start),
--				 MEMMAP_EARLY, NULL);
-+				 MEMINIT_EARLY, NULL);
+diff --git a/drivers/base/node.c b/drivers/base/node.c
+index 508b80f6329b..50af16e68d98 100644
+--- a/drivers/base/node.c
++++ b/drivers/base/node.c
+@@ -761,14 +761,36 @@ static int __ref get_nid_for_pfn(unsigned long pfn)
+ 	return pfn_to_nid(pfn);
+ }
+ 
++static int do_register_memory_block_under_node(int nid,
++					       struct memory_block *mem_blk)
++{
++	int ret;
++
++	/*
++	 * If this memory block spans multiple nodes, we only indicate
++	 * the last processed node.
++	 */
++	mem_blk->nid = nid;
++
++	ret = sysfs_create_link_nowarn(&node_devices[nid]->dev.kobj,
++				       &mem_blk->dev.kobj,
++				       kobject_name(&mem_blk->dev.kobj));
++	if (ret)
++		return ret;
++
++	return sysfs_create_link_nowarn(&mem_blk->dev.kobj,
++				&node_devices[nid]->dev.kobj,
++				kobject_name(&node_devices[nid]->dev.kobj));
++}
++
+ /* register memory section under specified node if it spans that node */
+-static int register_mem_sect_under_node(struct memory_block *mem_blk,
+-					 void *arg)
++static int register_mem_block_under_node_early(struct memory_block *mem_blk,
++					       void *arg)
+ {
+ 	unsigned long memory_block_pfns = memory_block_size_bytes() / PAGE_SIZE;
+ 	unsigned long start_pfn = section_nr_to_pfn(mem_blk->start_section_nr);
+ 	unsigned long end_pfn = start_pfn + memory_block_pfns - 1;
+-	int ret, nid = *(int *)arg;
++	int nid = *(int *)arg;
+ 	unsigned long pfn;
+ 
+ 	for (pfn = start_pfn; pfn <= end_pfn; pfn++) {
+@@ -785,38 +807,33 @@ static int register_mem_sect_under_node(struct memory_block *mem_blk,
+ 		}
+ 
+ 		/*
+-		 * We need to check if page belongs to nid only for the boot
+-		 * case, during hotplug we know that all pages in the memory
+-		 * block belong to the same node.
+-		 */
+-		if (system_state == SYSTEM_BOOTING) {
+-			page_nid = get_nid_for_pfn(pfn);
+-			if (page_nid < 0)
+-				continue;
+-			if (page_nid != nid)
+-				continue;
+-		}
+-
+-		/*
+-		 * If this memory block spans multiple nodes, we only indicate
+-		 * the last processed node.
++		 * We need to check if page belongs to nid only at the boot
++		 * case because node's ranges can be interleaved.
+ 		 */
+-		mem_blk->nid = nid;
+-
+-		ret = sysfs_create_link_nowarn(&node_devices[nid]->dev.kobj,
+-					&mem_blk->dev.kobj,
+-					kobject_name(&mem_blk->dev.kobj));
+-		if (ret)
+-			return ret;
++		page_nid = get_nid_for_pfn(pfn);
++		if (page_nid < 0)
++			continue;
++		if (page_nid != nid)
++			continue;
+ 
+-		return sysfs_create_link_nowarn(&mem_blk->dev.kobj,
+-				&node_devices[nid]->dev.kobj,
+-				kobject_name(&node_devices[nid]->dev.kobj));
++		return do_register_memory_block_under_node(nid, mem_blk);
+ 	}
+ 	/* mem section does not span the specified node */
  	return 0;
  }
  
-@@ -547,8 +547,8 @@ memmap_init (unsigned long size, int nid, unsigned long zone,
- 	     unsigned long start_pfn)
- {
- 	if (!vmem_map) {
--		memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY,
--				NULL);
-+		memmap_init_zone(size, nid, zone, start_pfn,
-+				 MEMINIT_EARLY, NULL);
- 	} else {
- 		struct page *start;
- 		struct memmap_init_callback_data args;
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index b2f370f0b420..48614513eb66 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2416,7 +2416,7 @@ extern int __meminit __early_pfn_to_nid(unsigned long pfn,
- 
- extern void set_dma_reserve(unsigned long new_dma_reserve);
- extern void memmap_init_zone(unsigned long, int, unsigned long, unsigned long,
--		enum memmap_context, struct vmem_altmap *);
-+		enum meminit_context, struct vmem_altmap *);
- extern void setup_per_zone_wmarks(void);
- extern int __meminit init_per_zone_wmark_min(void);
- extern void mem_init(void);
-diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-index 8379432f4f2f..0f7a4ff4b059 100644
---- a/include/linux/mmzone.h
-+++ b/include/linux/mmzone.h
-@@ -824,10 +824,15 @@ bool zone_watermark_ok(struct zone *z, unsigned int order,
- 		unsigned int alloc_flags);
- bool zone_watermark_ok_safe(struct zone *z, unsigned int order,
- 		unsigned long mark, int highest_zoneidx);
--enum memmap_context {
--	MEMMAP_EARLY,
--	MEMMAP_HOTPLUG,
 +/*
-+ * Memory initialization context, use to differentiate memory added by
-+ * the platform statically or via memory hotplug interface.
++ * During hotplug we know that all pages in the memory block belong to the same
++ * node.
 + */
-+enum meminit_context {
-+	MEMINIT_EARLY,
-+	MEMINIT_HOTPLUG,
- };
++static int register_mem_block_under_node_hotplug(struct memory_block *mem_blk,
++						 void *arg)
++{
++	int nid = *(int *)arg;
 +
- extern void init_currently_empty_zone(struct zone *zone, unsigned long start_pfn,
- 				     unsigned long size);
++	return do_register_memory_block_under_node(nid, mem_blk);
++}
++
+ /*
+  * Unregister a memory block device under the node it spans. Memory blocks
+  * with multiple nodes cannot be offlined and therefore also never be removed.
+@@ -832,11 +849,19 @@ void unregister_memory_block_under_nodes(struct memory_block *mem_blk)
+ 			  kobject_name(&node_devices[mem_blk->nid]->dev.kobj));
+ }
  
+-int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn)
++int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn,
++		      enum meminit_context context)
+ {
++	walk_memory_blocks_func_t func;
++
++	if (context == MEMINIT_HOTPLUG)
++		func = register_mem_block_under_node_hotplug;
++	else
++		func = register_mem_block_under_node_early;
++
+ 	return walk_memory_blocks(PFN_PHYS(start_pfn),
+ 				  PFN_PHYS(end_pfn - start_pfn), (void *)&nid,
+-				  register_mem_sect_under_node);
++				  func);
+ }
+ 
+ #ifdef CONFIG_HUGETLBFS
+diff --git a/include/linux/node.h b/include/linux/node.h
+index 4866f32a02d8..014ba3ab2efd 100644
+--- a/include/linux/node.h
++++ b/include/linux/node.h
+@@ -99,11 +99,13 @@ extern struct node *node_devices[];
+ typedef  void (*node_registration_func_t)(struct node *);
+ 
+ #if defined(CONFIG_MEMORY_HOTPLUG_SPARSE) && defined(CONFIG_NUMA)
+-extern int link_mem_sections(int nid, unsigned long start_pfn,
+-			     unsigned long end_pfn);
++int link_mem_sections(int nid, unsigned long start_pfn,
++		      unsigned long end_pfn,
++		      enum meminit_context context);
+ #else
+ static inline int link_mem_sections(int nid, unsigned long start_pfn,
+-				    unsigned long end_pfn)
++				    unsigned long end_pfn,
++				    enum meminit_context context)
+ {
+ 	return 0;
+ }
+@@ -128,7 +130,8 @@ static inline int register_one_node(int nid)
+ 		if (error)
+ 			return error;
+ 		/* link memory sections under this node */
+-		error = link_mem_sections(nid, start_pfn, end_pfn);
++		error = link_mem_sections(nid, start_pfn, end_pfn,
++					  MEMINIT_EARLY);
+ 	}
+ 
+ 	return error;
 diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b11a269e2356..345308a8bd15 100644
+index 345308a8bd15..ce3e73e3a5c1 100644
 --- a/mm/memory_hotplug.c
 +++ b/mm/memory_hotplug.c
-@@ -729,7 +729,7 @@ void __ref move_pfn_range_to_zone(struct zone *zone, unsigned long start_pfn,
- 	 * are reserved so nobody should be touching them so we should be safe
- 	 */
- 	memmap_init_zone(nr_pages, nid, zone_idx(zone), start_pfn,
--			MEMMAP_HOTPLUG, altmap);
-+			 MEMINIT_HOTPLUG, altmap);
- 
- 	set_zone_contiguous(zone);
- }
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index fab5e97dc9ca..5661fa164f13 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5975,7 +5975,7 @@ overlap_memmap_init(unsigned long zone, unsigned long *pfn)
-  * done. Non-atomic initialization, single-pass.
-  */
- void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
--		unsigned long start_pfn, enum memmap_context context,
-+		unsigned long start_pfn, enum meminit_context context,
- 		struct vmem_altmap *altmap)
- {
- 	unsigned long pfn, end_pfn = start_pfn + size;
-@@ -6007,7 +6007,7 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
- 		 * There can be holes in boot-time mem_map[]s handed to this
- 		 * function.  They do not exist on hotplugged memory.
- 		 */
--		if (context == MEMMAP_EARLY) {
-+		if (context == MEMINIT_EARLY) {
- 			if (overlap_memmap_init(zone, &pfn))
- 				continue;
- 			if (defer_init(nid, pfn, end_pfn))
-@@ -6016,7 +6016,7 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
- 
- 		page = pfn_to_page(pfn);
- 		__init_single_page(page, pfn, zone, nid);
--		if (context == MEMMAP_HOTPLUG)
-+		if (context == MEMINIT_HOTPLUG)
- 			__SetPageReserved(page);
- 
- 		/*
-@@ -6099,7 +6099,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
- 		 * check here not to call set_pageblock_migratetype() against
- 		 * pfn out of zone.
- 		 *
--		 * Please note that MEMMAP_HOTPLUG path doesn't clear memmap
-+		 * Please note that MEMINIT_HOTPLUG path doesn't clear memmap
- 		 * because this is done early in section_activate()
- 		 */
- 		if (!(pfn & (pageblock_nr_pages - 1))) {
-@@ -6137,7 +6137,7 @@ void __meminit __weak memmap_init(unsigned long size, int nid,
- 		if (end_pfn > start_pfn) {
- 			size = end_pfn - start_pfn;
- 			memmap_init_zone(size, nid, zone, start_pfn,
--					 MEMMAP_EARLY, NULL);
-+					 MEMINIT_EARLY, NULL);
- 		}
+@@ -1080,7 +1080,8 @@ int __ref add_memory_resource(int nid, struct resource *res)
  	}
- }
+ 
+ 	/* link memory sections under this node.*/
+-	ret = link_mem_sections(nid, PFN_DOWN(start), PFN_UP(start + size - 1));
++	ret = link_mem_sections(nid, PFN_DOWN(start), PFN_UP(start + size - 1),
++				MEMINIT_HOTPLUG);
+ 	BUG_ON(ret);
+ 
+ 	/* create new memmap entry */
 
