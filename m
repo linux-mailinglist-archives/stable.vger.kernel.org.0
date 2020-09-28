@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8F2527B869
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 01:43:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AD4527B872
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 01:48:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726988AbgI1Xnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 19:43:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41222 "EHLO
+        id S1726440AbgI1Xsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 19:48:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726715AbgI1Xnn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 19:43:43 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78BADC0613A6
-        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 15:28:00 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id q123so2548214pfb.0
-        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 15:28:00 -0700 (PDT)
+        with ESMTP id S1726338AbgI1Xsm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 19:48:42 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A508BC0613A7
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 15:32:20 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id s31so2165129pga.7
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 15:32:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=coEcPgT0eG95/q4rvNe1MzgJ6fz7cjvCkJlqU8M7RJA=;
-        b=e3Y1Y3Ux5Il/xwkCSbNgh5HsW88DwVnX3rUPZhimPz48/3sTZkWotVWh/VLou9tCBz
-         DUmaw9QZTpOGOpQd2DmHfVgTPGtcW8U1sPZ3jXzNmq4Yq1tiGI6CYQmfpKr0zVR78pbw
-         z7Hyk/S+YXDP69D8W/ABpoSjyIS7JvvXVWDH5rtxt/1eMuWT0yuBdvLeJOhyMasookBy
-         kf+Ov9hTU2MAbhn0Doop3UKbKj+rAPc28P8CCOr7U/fo4hdXDUTE0ds8G94YtviMjf6+
-         UPUX2hDHlMenxzqTBEoUKvxygqoSg5TU6zedVKT+Alxnyqzz8Y1/6XBNIrbBfSdrdU59
-         SjpQ==
+        bh=1cn+XrUnFOhgLWQn0qEna/eXfMLvSlmMpqesXehY9O4=;
+        b=emVlIk8TdxmQkoT/5+o8QgjCzciDKAEZ9PWm4vZPOL/av/4ZhwksOzSPON1ZZovp/E
+         bARJZR7WtC+C3ai4gD+uDSFmsRJIdtO35yfOFJlpJJmp2mnRy+j9bmWRlbql5PXRVawV
+         eotzfUST+W755PNG+lFb0iqkyoEOJf+j/aakacs8qpL3XZ5PZNURhhZ2akpjcrnDo6cF
+         Q9kaDd7xi+hhyJY3HKlZpYv5myGLgT+q9F2UnlY9d2yx5WEaY1Z9pxhxw5XeuDSgVQEW
+         c649ThmOrfBR+nxBPuCRx+6oDgEtBtkBhyzhxlyVI7vakixRuWA0AYPrLcDhLO7ak+N0
+         ua4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=coEcPgT0eG95/q4rvNe1MzgJ6fz7cjvCkJlqU8M7RJA=;
-        b=DZSUWTk8loBo4aFvz6S37KLHhOkLElzWPOY0e4kgnhRlpLA+bDZEWQQ8HM1eb280Fh
-         HkSG2Y9tB1+oEjeOGbVhmeCxTaY32kDNOhOHZ4wGXX5xwIq9ivOBJfveMTvMLD/nPICz
-         5r2Wc+kvpmzLbhCnyXJfovC4UJRXr6J56fP41G2O9yz/b52tC8XJuNVokMmkfq4mEZz3
-         KwMTtdhbISp9m6vSiQhRBZANRbL5XcZ/ocERgQOOIYFt/w4T6o7YY2G77eTkKYD2zzdB
-         9BXBpDnOVmyw7xiO+gPrvSGvep62lAbdmxWk2gxa3zPMz2iuK9VmPuSf3WbQrHSEsUqm
-         aliA==
-X-Gm-Message-State: AOAM531ZCJRH+GPzHkkyfPR7gkllRrake5d244jwt27AdjXWtP60QZCC
-        qbQmS6wtCwifPvq9kWJbzbYML65oKZSISA==
-X-Google-Smtp-Source: ABdhPJyP088umlQIe2mNbyuGubJSos37adkbbIaX1Va1YyJ5+pCZY1nRcuKlY641qVvCSRY05eUusA==
-X-Received: by 2002:aa7:9583:0:b029:142:2501:35cd with SMTP id z3-20020aa795830000b0290142250135cdmr1308821pfj.45.1601332078654;
-        Mon, 28 Sep 2020 15:27:58 -0700 (PDT)
+        bh=1cn+XrUnFOhgLWQn0qEna/eXfMLvSlmMpqesXehY9O4=;
+        b=F6TP3t6HCHu5HUT0TDR5vo/dWRDOoBFpPYJRDtqp1VmVBeK+pjwvseeVLNH65JQgjr
+         yaMJFLWsLrqvOzm53v7yismh/+nbZdsPKB/dTEz3nhhXJZjUOO4Mgo5m4wNyhvema9z7
+         7GG1wjg/wR10nXw65pDbeyiNBPIr65D3Y46WFpNMDhA/VDHp3mcQYQqAhbewLLPumCLC
+         T+zviOwJGBb0ag2ZZJKUehutpN8/D9QdyZo38zxsRL0OmdqvJX74xv1YecYvHWrkXFH8
+         loAbAhK2T74idtwMfIBx5wR1jUiCr+a2yeoMS6QDOQzBlZ7r7rDjqxCjT76XemJcBFgy
+         8tDQ==
+X-Gm-Message-State: AOAM530BSGh/5v+IOd9KUOu8+N2CP8nxoUm6EIv27rKNQCAOSDJ7fHuY
+        DT9vZsYyzKiElRlQ+c1SRZam4YEijHXlqw==
+X-Google-Smtp-Source: ABdhPJy9xIAAN38noEE82XdTpkSoLjFtHKISaTw0kPanZjvrfQ6jK9quHPghkAkr6S8YJ231RGL+YA==
+X-Received: by 2002:a63:2209:: with SMTP id i9mr926622pgi.130.1601332338455;
+        Mon, 28 Sep 2020 15:32:18 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id hk17sm1991186pjb.14.2020.09.28.15.27.57
+        by smtp.gmail.com with ESMTPSA id z1sm2855213pfj.113.2020.09.28.15.32.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Sep 2020 15:27:57 -0700 (PDT)
-Message-ID: <5f72636d.1c69fb81.9ffc7.3eff@mx.google.com>
-Date:   Mon, 28 Sep 2020 15:27:57 -0700 (PDT)
+        Mon, 28 Sep 2020 15:32:17 -0700 (PDT)
+Message-ID: <5f726471.1c69fb81.3b895.5946@mx.google.com>
+Date:   Mon, 28 Sep 2020 15:32:17 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Kernel: v5.4.68-388-g8a579883a490
-Subject: stable-rc/linux-5.4.y build: 196 builds: 1 failed, 195 passed, 1 error,
- 121 warnings (v5.4.68-388-g8a579883a490)
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Kernel: v5.4.68-387-g7d09e58f4215
+Subject: stable-rc/queue/5.4 build: 200 builds: 1 failed, 199 passed, 1 error,
+ 126 warnings (v5.4.68-387-g7d09e58f4215)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,16 +65,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y build: 196 builds: 1 failed, 195 passed, 1 error, 121=
- warnings (v5.4.68-388-g8a579883a490)
+stable-rc/queue/5.4 build: 200 builds: 1 failed, 199 passed, 1 error, 126 w=
+arnings (v5.4.68-387-g7d09e58f4215)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.68-388-g8a579883a490/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
+/kernel/v5.4.68-387-g7d09e58f4215/
 
 Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.68-388-g8a579883a490
-Git Commit: 8a579883a490eaff03bcfe7b51ec92e3c5638144
+Branch: queue/5.4
+Git Describe: v5.4.68-387-g7d09e58f4215
+Git Commit: 7d09e58f4215724c4f09611f1873bf86d40c164c
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -138,6 +138,7 @@ arm:
     multi_v5_defconfig (gcc-8): 2 warnings
     multi_v7_defconfig (gcc-8): 1 warning
     mv78xx0_defconfig (gcc-8): 2 warnings
+    mvebu_v5_defconfig (gcc-8): 2 warnings
     mvebu_v7_defconfig (gcc-8): 1 warning
     mxs_defconfig (gcc-8): 1 warning
     neponset_defconfig (gcc-8): 1 warning
@@ -147,6 +148,7 @@ arm:
     orion5x_defconfig (gcc-8): 2 warnings
     oxnas_v6_defconfig (gcc-8): 1 warning
     palmz72_defconfig (gcc-8): 1 warning
+    pcm027_defconfig (gcc-8): 1 warning
     prima2_defconfig (gcc-8): 1 warning
     pxa168_defconfig (gcc-8): 1 warning
     pxa3xx_defconfig (gcc-8): 1 warning
@@ -157,6 +159,7 @@ arm:
     s3c6400_defconfig (gcc-8): 1 warning
     s5pv210_defconfig (gcc-8): 1 warning
     sama5_defconfig (gcc-8): 1 warning
+    shannon_defconfig (gcc-8): 1 warning
     spear13xx_defconfig (gcc-8): 1 warning
     sunxi_defconfig (gcc-8): 1 warning
     tango4_defconfig (gcc-8): 1 warning
@@ -165,6 +168,7 @@ arm:
     u300_defconfig (gcc-8): 1 warning
     u8500_defconfig (gcc-8): 1 warning
     versatile_defconfig (gcc-8): 1 warning
+    vexpress_defconfig (gcc-8): 1 warning
     viper_defconfig (gcc-8): 1 warning
     xcep_defconfig (gcc-8): 2 warnings
     zeus_defconfig (gcc-8): 1 warning
@@ -190,12 +194,12 @@ sid=E2=80=99; did you mean =E2=80=98nasid=E2=80=99?
 
 Warnings summary:
 
-    58   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    61   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
     24   <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
 -Wcpp]
-    16   /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with n=
+    17   /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with n=
 o effect [-Wunused-value]
-    4    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=
+    5    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=
 =80=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-funct=
 ion]
     2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
@@ -253,21 +257,8 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -286,8 +277,21 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1020,6 +1024,16 @@ ect [-Wunused-value]
 
 ---------------------------------------------------------------------------=
 -----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    /scratch/linux/kernel/kprobes.c:1081:33: warning: statement with no eff=
+ect [-Wunused-value]
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
 mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
 ion mismatches
 
@@ -1155,6 +1169,14 @@ Warnings:
 -----
 palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
 
 Warnings:
     WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
@@ -1324,6 +1346,15 @@ sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    /scratch/linux/drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=
+=98sa1100fb_min_dma_period=E2=80=99 defined but not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
 shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -1416,8 +1447,21 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1156:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1434,21 +1478,8 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    .config:1156:warning: override: UNWINDER_GUESS changes choice state
-
----------------------------------------------------------------------------=
------
 tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
 matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1494,6 +1525,14 @@ Warnings:
 -----
 versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
 tion mismatches
+
+Warnings:
+    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
 
 Warnings:
     WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
