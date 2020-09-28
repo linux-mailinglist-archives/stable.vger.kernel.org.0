@@ -2,83 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4856227B885
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 01:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE1BF27B848
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 01:35:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727136AbgI1Xzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 19:55:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51778 "EHLO mail.kernel.org"
+        id S1727032AbgI1Xfb convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 28 Sep 2020 19:35:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726952AbgI1Xzc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 19:55:32 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1726867AbgI1Xfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 19:35:31 -0400
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 947A82193E;
-        Mon, 28 Sep 2020 22:00:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601330426;
-        bh=ZFEod8yQOVrkBo8ei/0ZNHsZ2G5wacEFDAQREbQ1Mrc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gJLQq3XgRmcaXVK+sZq+JIMO4IOEauGmH4HgF2Sa6Btp9+3h4CDacN1VCnp/tPJMz
-         DUmXdPyhHucWge65pwMg1pegZv6ltXZdy1x3aZox7MFn9fTY83MkimhlRgaCHfFpds
-         LDiJd1X2alw+WM3v7lVlQJ1Xidohk/r8SnkeGMZ0=
-Date:   Mon, 28 Sep 2020 18:00:25 -0400
-From:   Sasha Levin <sashal@kernel.org>
+        by mail.kernel.org (Postfix) with ESMTPSA id D8C17235F7;
+        Mon, 28 Sep 2020 22:15:36 +0000 (UTC)
+Date:   Mon, 28 Sep 2020 18:15:35 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
 To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
         linux- stable <stable@vger.kernel.org>,
-        Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
-        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-serial@vger.kernel.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [PATCH AUTOSEL 4.4 42/64] serial: uartps: Wait for tx_empty in
- console setup
-Message-ID: <20200928220025.GD2219727@sasha-vm>
-References: <20200918021643.2067895-1-sashal@kernel.org>
- <20200918021643.2067895-42-sashal@kernel.org>
- <CA+G9fYsi87yT-bEdpQ+7ca5gH_QcWHmticMSxKuCSt+SLrWj-A@mail.gmail.com>
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>
+Subject: Re: [PATCH 4.19 38/92] kprobes: Fix NULL pointer dereference at
+ kprobe_ftrace_handler
+Message-ID: <20200928181535.56d7b2cb@oasis.local.home>
+In-Reply-To: <20200928180942.100aa6c8@oasis.local.home>
+References: <20200820091537.490965042@linuxfoundation.org>
+        <20200820091539.592290034@linuxfoundation.org>
+        <CA+G9fYvdQv2Ukvs-UKiEgYaDdBthsWsY=35cQ4YpvMhA0hU5Gg@mail.gmail.com>
+        <20200928180942.100aa6c8@oasis.local.home>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYsi87yT-bEdpQ+7ca5gH_QcWHmticMSxKuCSt+SLrWj-A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 29, 2020 at 01:46:59AM +0530, Naresh Kamboju wrote:
->On Fri, 18 Sep 2020 at 07:51, Sasha Levin <sashal@kernel.org> wrote:
->>
->> From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
->>
->> [ Upstream commit 42e11948ddf68b9f799cad8c0ddeab0a39da33e8 ]
->>
->> On some platforms, the log is corrupted while console is being
->> registered. It is observed that when set_termios is called, there
->> are still some bytes in the FIFO to be transmitted.
->>
->> So, wait for tx_empty inside cdns_uart_console_setup before calling
->> set_termios.
->>
->> Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
->> Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
->> Link: https://lore.kernel.org/r/1586413563-29125-2-git-send-email-raviteja.narayanam@xilinx.com
->> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->
->stable rc branch 4.4 arm64 build broken.
->
->../drivers/tty/serial/xilinx_uartps.c: In function ‘cdns_uart_console_setup’:
->../drivers/tty/serial/xilinx_uartps.c:1170:40: error: ‘TX_TIMEOUT’
->undeclared (first use in this function)
-> 1170 |  time_out = jiffies + usecs_to_jiffies(TX_TIMEOUT);
->                                                                      ^~~~~~~~~~
->Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+On Mon, 28 Sep 2020 18:09:42 -0400
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Dropped, thanks!
+> On Tue, 29 Sep 2020 01:32:59 +0530
+> Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> 
+> > stable rc branch 4.19 build warning on arm64.
+> > 
+> > ../kernel/kprobes.c: In function ‘kill_kprobe’:
+> > ../kernel/kprobes.c:1070:33: warning: statement with no effect [-Wunused-value]
+> >  1070 | #define disarm_kprobe_ftrace(p) (-ENODEV)
+> >       |                                 ^
+> > ../kernel/kprobes.c:2090:3: note: in expansion of macro ‘disarm_kprobe_ftrace’
+> >  2090 |   disarm_kprobe_ftrace(p);
+> >       |   ^~~~~~~~~~~~~~~~~~~~  
+> 
+> Seems to affect upstream as well.
+> 
 
--- 
-Thanks,
-Sasha
+Bah, no (tested the wrong kernel).
+
+You want this commit too:
+
+10de795a5addd ("kprobes: Fix compiler warning for !CONFIG_KPROBES_ON_FTRACE")
+
+-- Steve
