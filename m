@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD36727AF77
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 15:55:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC4127AF78
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 15:56:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726465AbgI1NzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 09:55:25 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:41447 "EHLO
+        id S1726344AbgI1N4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 09:56:44 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:48749 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726310AbgI1NzZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 09:55:25 -0400
+        by vger.kernel.org with ESMTP id S1726310AbgI1N4o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 09:56:44 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 8DA741292;
-        Mon, 28 Sep 2020 09:55:24 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 28 Sep 2020 09:55:24 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 65CDDFE5;
+        Mon, 28 Sep 2020 09:56:43 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 28 Sep 2020 09:56:43 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XjeGeA
-        3cHGavXlO40ss8nLdlonq5bZxdP/6WeUKCszM=; b=oayDEQKpFNVQuymBZag412
-        cVeCL6I9Mpm9LCSbGbU659Ho328+sHLyWxoMICoXLUpMeY3+GQIgjjIR3yaR/f/c
-        FIdmVTtvWUTmGe6pwZ8x4T53nWN3+QTixrYSbG+Fwr9KwUQg5RP9j16fiNFoa13V
-        kkc/BOZ99Lz5o6ZWl6RaXWz0Qd1T0mq4ERTROW6GsR4iAgoGVZlfHuZ5OcTW623z
-        MYSWRniaSrlHveC6L4vv2X0u63VR15EmH8B9qETOTbTVfJB3V7CU68rfMB9W6lz7
-        Qmot+j+Ke2UTB7P0uYbbpgqTByYkozFkE8fCa4avK/tjLI9rpbmkKq4D9dgd4g1g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=S+UV5W
+        BnOhIjkHkst+rNFZQa+8L91VPmM4goLaYdzV8=; b=Kz/mEONQjubkWi1fTxtrjn
+        cTgEwNy4stejWtzLTQtCXvswnCKs455/lUT2HD6bv6/nr2KB47KIAVS3HM1vHJpb
+        6pRqYoRT7nXwgb7GEL9/QlIcW+MYwFC1EjnEUePpHIQDqYUJkOCj9TXGT/y2ejHE
+        601r9cdGeFZaAIL+YkAu4wt3Ifiz6KKSGq/BWFU9uehN5mju9hzI/CEciYiwVwy3
+        FK0YUvVRtojxh5HZERzPJLmEoP/0OIBvWX/YJ5dsgA4pMTB3CQh3Bx0KwGpg8f6K
+        4QbQkvFEn3bwhceC9mIHO47F8J05hsR4NKKOvfrWkHdprk09tovX9kDZlnnTy+Xg
         ==
-X-ME-Sender: <xms:TOtxX-8F0vQGfJTu-xnPLSvFWl6cMFYLmNEkxQMUPqW3kmzc3nPgbQ>
-    <xme:TOtxX-tcC_FJu854i-wxSL6zAemTbS3uNRu0Qbb8pgaCjvHaF2p-kyiIC7WIgQj2f
-    -l7M-Yz_AnpeA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdeigdeglecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:mutxX8da1N5ECrnqvPjZqZ7Ll9PFQuORVZscEFmHhSEqQEDJ1i7IyQ>
+    <xme:mutxX-OMYzM11TQbO9UA8AYmsd_5XH8Rl1kZxKfBPDJN0X_SpYuVTgO0u57LSDrcg
+    uEFUc27DfIk3A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdeigdehtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:TOtxX0AKVkHgS1dRAGu9q2n00UQyjYrVKtjlx0P0zAb_FWxEFJZPCQ>
-    <xmx:TOtxX2dJu1ZL275sa9OwTXPDGKz8FJqTdjESUTtG8WjN7Qrw-lVDmQ>
-    <xmx:TOtxXzOP6GpX8C-L3XltIayIbOWKWLdHGnQWrnNu7kM7zGbZHVGrnQ>
-    <xmx:TOtxX1UvAkCOYh_BBibOlfBBD1bHBFedIskadwh_iwPrP4jSQNoVHke6M3o>
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:mutxX9hGmwRV3AlYaVN14_IQ9ylw9n_Gq_e-VviafPb0tw4zXCdEtQ>
+    <xmx:mutxXx-mxlsUlzJ4JH-bR4-iTLyzhN0SXjEsrMkEldVGZlc7sql7hQ>
+    <xmx:mutxX4tZrM8RR1xqDK6_ClE249rB2h6s_bCDV32GVPuRtzpdrvmtFA>
+    <xmx:m-txX-1miZbKJlr4zrHGcBhWIXtcYK2beX8J69p6Z0I11EDtM0iaA-6MzpQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BF4CA306467E;
-        Mon, 28 Sep 2020 09:55:23 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: arm64: Assume write fault on S1PTW permission fault on" failed to apply to 4.19-stable tree
-To:     maz@kernel.org, will@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 984CB3280059;
+        Mon, 28 Sep 2020 09:56:42 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dm: fix bio splitting and its bio completion order for" failed to apply to 5.4-stable tree
+To:     snitzer@redhat.com, ming.lei@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Sep 2020 15:55:23 +0200
-Message-ID: <160130132323758@kroah.com>
+Date:   Mon, 28 Sep 2020 15:56:50 +0200
+Message-ID: <1601301410240130@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,115 +70,73 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c4ad98e4b72cb5be30ea282fce935248f2300e62 Mon Sep 17 00:00:00 2001
-From: Marc Zyngier <maz@kernel.org>
-Date: Tue, 15 Sep 2020 11:42:17 +0100
-Subject: [PATCH] KVM: arm64: Assume write fault on S1PTW permission fault on
- instruction fetch
+From ee1dfad5325ff1cfb2239e564cd411b3bfe8667a Mon Sep 17 00:00:00 2001
+From: Mike Snitzer <snitzer@redhat.com>
+Date: Mon, 14 Sep 2020 13:04:19 -0400
+Subject: [PATCH] dm: fix bio splitting and its bio completion order for
+ regular IO
 
-KVM currently assumes that an instruction abort can never be a write.
-This is in general true, except when the abort is triggered by
-a S1PTW on instruction fetch that tries to update the S1 page tables
-(to set AF, for example).
+dm_queue_split() is removed because __split_and_process_bio() _must_
+handle splitting bios to ensure proper bio submission and completion
+ordering as a bio is split.
 
-This can happen if the page tables have been paged out and brought
-back in without seeing a direct write to them (they are thus marked
-read only), and the fault handling code will make the PT executable(!)
-instead of writable. The guest gets stuck forever.
+Otherwise, multiple recursive calls to ->submit_bio will cause multiple
+split bios to be allocated from the same ->bio_split mempool at the same
+time. This would result in deadlock in low memory conditions because no
+progress could be made (only one bio is available in ->bio_split
+mempool).
 
-In these conditions, the permission fault must be considered as
-a write so that the Stage-1 update can take place. This is essentially
-the I-side equivalent of the problem fixed by 60e21a0ef54c ("arm64: KVM:
-Take S1 walks into account when determining S2 write faults").
+This fix has been verified to still fix the loss of performance, due
+to excess splitting, that commit 120c9257f5f1 provided.
 
-Update kvm_is_write_fault() to return true on IABT+S1PTW, and introduce
-kvm_vcpu_trap_is_exec_fault() that only return true when no faulting
-on a S1 fault. Additionally, kvm_vcpu_dabt_iss1tw() is renamed to
-kvm_vcpu_abt_iss1tw(), as the above makes it plain that it isn't
-specific to data abort.
+Fixes: 120c9257f5f1 ("Revert "dm: always call blk_queue_split() in dm_process_bio()"")
+Cc: stable@vger.kernel.org # 5.0+, requires custom backport due to 5.9 changes
+Reported-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Will Deacon <will@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200915104218.1284701-2-maz@kernel.org
-
-diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
-index 49a55be2b9a2..4f618af660ba 100644
---- a/arch/arm64/include/asm/kvm_emulate.h
-+++ b/arch/arm64/include/asm/kvm_emulate.h
-@@ -298,7 +298,7 @@ static __always_inline int kvm_vcpu_dabt_get_rd(const struct kvm_vcpu *vcpu)
- 	return (kvm_vcpu_get_esr(vcpu) & ESR_ELx_SRT_MASK) >> ESR_ELx_SRT_SHIFT;
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 4a40df8af7d3..d948cd522431 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1724,23 +1724,6 @@ static blk_qc_t __process_bio(struct mapped_device *md, struct dm_table *map,
+ 	return ret;
  }
  
--static __always_inline bool kvm_vcpu_dabt_iss1tw(const struct kvm_vcpu *vcpu)
-+static __always_inline bool kvm_vcpu_abt_iss1tw(const struct kvm_vcpu *vcpu)
+-static void dm_queue_split(struct mapped_device *md, struct dm_target *ti, struct bio **bio)
+-{
+-	unsigned len, sector_count;
+-
+-	sector_count = bio_sectors(*bio);
+-	len = min_t(sector_t, max_io_len((*bio)->bi_iter.bi_sector, ti), sector_count);
+-
+-	if (sector_count > len) {
+-		struct bio *split = bio_split(*bio, len, GFP_NOIO, &md->queue->bio_split);
+-
+-		bio_chain(split, *bio);
+-		trace_block_split(md->queue, split, (*bio)->bi_iter.bi_sector);
+-		submit_bio_noacct(*bio);
+-		*bio = split;
+-	}
+-}
+-
+ static blk_qc_t dm_process_bio(struct mapped_device *md,
+ 			       struct dm_table *map, struct bio *bio)
  {
- 	return !!(kvm_vcpu_get_esr(vcpu) & ESR_ELx_S1PTW);
+@@ -1768,14 +1751,12 @@ static blk_qc_t dm_process_bio(struct mapped_device *md,
+ 	if (current->bio_list) {
+ 		if (is_abnormal_io(bio))
+ 			blk_queue_split(&bio);
+-		else
+-			dm_queue_split(md, ti, &bio);
++		/* regular IO is split by __split_and_process_bio */
+ 	}
+ 
+ 	if (dm_get_md_type(md) == DM_TYPE_NVME_BIO_BASED)
+ 		return __process_bio(md, map, bio, ti);
+-	else
+-		return __split_and_process_bio(md, map, bio);
++	return __split_and_process_bio(md, map, bio);
  }
-@@ -306,7 +306,7 @@ static __always_inline bool kvm_vcpu_dabt_iss1tw(const struct kvm_vcpu *vcpu)
- static __always_inline bool kvm_vcpu_dabt_iswrite(const struct kvm_vcpu *vcpu)
- {
- 	return !!(kvm_vcpu_get_esr(vcpu) & ESR_ELx_WNR) ||
--		kvm_vcpu_dabt_iss1tw(vcpu); /* AF/DBM update */
-+		kvm_vcpu_abt_iss1tw(vcpu); /* AF/DBM update */
- }
  
- static inline bool kvm_vcpu_dabt_is_cm(const struct kvm_vcpu *vcpu)
-@@ -335,6 +335,11 @@ static inline bool kvm_vcpu_trap_is_iabt(const struct kvm_vcpu *vcpu)
- 	return kvm_vcpu_trap_get_class(vcpu) == ESR_ELx_EC_IABT_LOW;
- }
- 
-+static inline bool kvm_vcpu_trap_is_exec_fault(const struct kvm_vcpu *vcpu)
-+{
-+	return kvm_vcpu_trap_is_iabt(vcpu) && !kvm_vcpu_abt_iss1tw(vcpu);
-+}
-+
- static __always_inline u8 kvm_vcpu_trap_get_fault(const struct kvm_vcpu *vcpu)
- {
- 	return kvm_vcpu_get_esr(vcpu) & ESR_ELx_FSC;
-@@ -372,6 +377,9 @@ static __always_inline int kvm_vcpu_sys_get_rt(struct kvm_vcpu *vcpu)
- 
- static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
- {
-+	if (kvm_vcpu_abt_iss1tw(vcpu))
-+		return true;
-+
- 	if (kvm_vcpu_trap_is_iabt(vcpu))
- 		return false;
- 
-diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/include/hyp/switch.h
-index 426ef65601dd..d64c5d56c860 100644
---- a/arch/arm64/kvm/hyp/include/hyp/switch.h
-+++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
-@@ -445,7 +445,7 @@ static inline bool fixup_guest_exit(struct kvm_vcpu *vcpu, u64 *exit_code)
- 			kvm_vcpu_trap_get_fault_type(vcpu) == FSC_FAULT &&
- 			kvm_vcpu_dabt_isvalid(vcpu) &&
- 			!kvm_vcpu_abt_issea(vcpu) &&
--			!kvm_vcpu_dabt_iss1tw(vcpu);
-+			!kvm_vcpu_abt_iss1tw(vcpu);
- 
- 		if (valid) {
- 			int ret = __vgic_v2_perform_cpuif_access(vcpu);
-diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
-index f58d657a898d..9aec1ce491d2 100644
---- a/arch/arm64/kvm/mmu.c
-+++ b/arch/arm64/kvm/mmu.c
-@@ -1843,7 +1843,7 @@ static int user_mem_abort(struct kvm_vcpu *vcpu, phys_addr_t fault_ipa,
- 	struct kvm_s2_mmu *mmu = vcpu->arch.hw_mmu;
- 
- 	write_fault = kvm_is_write_fault(vcpu);
--	exec_fault = kvm_vcpu_trap_is_iabt(vcpu);
-+	exec_fault = kvm_vcpu_trap_is_exec_fault(vcpu);
- 	VM_BUG_ON(write_fault && exec_fault);
- 
- 	if (fault_status == FSC_PERM && !write_fault && !exec_fault) {
-@@ -2125,7 +2125,7 @@ int kvm_handle_guest_abort(struct kvm_vcpu *vcpu)
- 			goto out;
- 		}
- 
--		if (kvm_vcpu_dabt_iss1tw(vcpu)) {
-+		if (kvm_vcpu_abt_iss1tw(vcpu)) {
- 			kvm_inject_dabt(vcpu, kvm_vcpu_get_hfar(vcpu));
- 			ret = 1;
- 			goto out_unlock;
+ static blk_qc_t dm_submit_bio(struct bio *bio)
 
