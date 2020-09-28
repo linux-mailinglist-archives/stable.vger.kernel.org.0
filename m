@@ -2,115 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D2F127B054
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 16:52:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F35A27B07F
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 17:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726497AbgI1OwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 10:52:13 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:57600 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726461AbgI1OwN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 10:52:13 -0400
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1601304731;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=PJU0r/PAK2mgw0yQKK07zn+s+oIn+bBBFmBJP1r2lng=;
-        b=DKu2qx5AhoK1NvM2FHsZdUwRpTMZNhvOiFYWSt7WV+rbMTlEva8sCDd6w0FqEnyVlEkuyz
-        MSpaqhuL/RsN+NLwiIx5Hlui9ubj8DzFRBxbs3xnCVTaBhhnpFywmfpL69q0sAK05ky7rQ
-        vL5L3jbN6SKVJZ6FQbw4BzJPiDz8SUI=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-347-XLbQvCGVOUuGjtnr8CSmYQ-1; Mon, 28 Sep 2020 10:52:09 -0400
-X-MC-Unique: XLbQvCGVOUuGjtnr8CSmYQ-1
-Received: by mail-wr1-f69.google.com with SMTP id f18so499202wrv.19
-        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 07:52:09 -0700 (PDT)
+        id S1726551AbgI1PER (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 11:04:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45420 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726485AbgI1PER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 11:04:17 -0400
+Received: from mail-il1-x132.google.com (mail-il1-x132.google.com [IPv6:2607:f8b0:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28A75C061755
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 08:04:16 -0700 (PDT)
+Received: by mail-il1-x132.google.com with SMTP id e5so1554297ilr.8
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 08:04:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=g2jiIIFwMI6+BnC07dULlYuTPLw/sIvuQnNCrgpYl04=;
+        b=sm0kx4ik96+/iCAjWvOw/pUfssZrNdhS3Xan3gWxn99MLKouHQq8Q89yDXsGmLINm8
+         tPfcZxvao6ogbTdtZX59JYCfa1ZRH+r6DG55hgJcbcDrajRNCmJ4BYvyFEXcar89PeSQ
+         rMQkispKA7DazbcxAS5kir3ZiA3VJJAjWV8espKQuspPTlhuu7BAA7msmjwSQKcPQaxG
+         aLIxFwTSUupqEtYp/EGkf8njKvIJtGwodq6tRNpIRQTLGxLQFPyryY7nUQmgpozuBorP
+         56Hu0tHlRNbntaEHXmevTIKuyjeGmbyIk06ZzuQirVuXFotWMGrgmxtcqxQuKdfbpwMM
+         Bx9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=PJU0r/PAK2mgw0yQKK07zn+s+oIn+bBBFmBJP1r2lng=;
-        b=rPmc6eaBRirXDUJsAIklsApm7WezpIqGLRAZjPQH+3Upcjv+IVZnyK1w1xgm45MQ+s
-         +czGkVMLSZtb96RF8LRgUni2DWYu2O01DREiz5GWROTKLGe243UvqbAGwbNqAlisSWAW
-         J5oXzpfncsYHL5E0mFSBf0NMaoQLziUbBSERqEokeSImGIhxbz517YpavPLieVShp03q
-         WlF2+pSaa8tLAKEgI3e/zCo8bfkzx8FLAvdwJGpwbRx9MrDxGuQiLBcA02BQIMvRXnyE
-         LoG+CQADtN/2LS+j5ygIWXmxUXBK735CTgvLOoIXNvSvWcr+//TNLvbZZLmJWsBeq5tH
-         MuXg==
-X-Gm-Message-State: AOAM533W6DcV4EyhKhc4HKsz93q0gRWLSrMHYj/6ejuyHFv1RDqbIRTJ
-        qrJ9joBIr2N57/2Tldh5Q19gK1Nv0uJ46J8A1YEuOeCUbVloqsDecsEDv/T1Ba1KFtJpcPbsidm
-        juA9TuOOFgSnRc4X8
-X-Received: by 2002:a1c:bb06:: with SMTP id l6mr2089691wmf.175.1601304728357;
-        Mon, 28 Sep 2020 07:52:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzHN4bGETpXiv5ZQj2cENGByWnva+13LogKnBri+IrtfQYnrG07MiMtZT3cJOAUwwU/Ez05ag==
-X-Received: by 2002:a1c:bb06:: with SMTP id l6mr2089661wmf.175.1601304728084;
-        Mon, 28 Sep 2020 07:52:08 -0700 (PDT)
-Received: from steredhat (host-79-13-204-53.retail.telecomitalia.it. [79.13.204.53])
-        by smtp.gmail.com with ESMTPSA id h3sm1980682wrq.0.2020.09.28.07.52.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Sep 2020 07:52:07 -0700 (PDT)
-Date:   Mon, 28 Sep 2020 16:52:04 +0200
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     axboe@kernel.dk
-Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=g2jiIIFwMI6+BnC07dULlYuTPLw/sIvuQnNCrgpYl04=;
+        b=jmPnX5yTV+d8H1XnMj9AcfvC29u51NE3xijHTeCLmfpcxy3/bCsOcbLEThLIH43z4h
+         +SFQQWJMDBQ1luNvveYTpiPae7kY7AMTC2MJSZCvTx0wMiH9/CRuRH3zeMlYu0ArTZOq
+         fALrS7IdMjH6F5gDqQV0XQuK0cNi8zSUrriyaqorYv+0EFsoIFl/yYg4C6GntI6jE2AO
+         3kFcgE8PDwF5lyPBeqHpoNdWOLW8/ZWCGD+8pnXHoGN76DZjDU12f1ZOhIOTn4NrzIU/
+         qshAm6xCXYtUdD9rI+r94Gp/6Zv8DUG+GgLlKRlUkTJGfFMAJ9QT1VB0r87iTtPTcbgp
+         JeEQ==
+X-Gm-Message-State: AOAM530wgQuNkNQCDL3dcKtT0kGg6qC7Oc2r5VqDN38SDNt77MIySw32
+        JuZzI9NkWc2o3LNEVqGPtlqSonkThHoj7A==
+X-Google-Smtp-Source: ABdhPJzp5YHGWUECQQL88H3zkDaLmdXwgJD1u5C1MTn4Bd/cboJPn4O+2pnOJEQv+IIkBDBrjlCXig==
+X-Received: by 2002:a05:6e02:925:: with SMTP id o5mr1587326ilt.20.1601305455238;
+        Mon, 28 Sep 2020 08:04:15 -0700 (PDT)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id w13sm690531ilh.78.2020.09.28.08.04.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Sep 2020 08:04:14 -0700 (PDT)
 Subject: Re: FAILED: patch "[PATCH] io_uring: ensure open/openat2 name is
  cleaned on cancelation" failed to apply to 5.8-stable tree
-Message-ID: <20200928145204.2kgheql4qfffz5s3@steredhat>
+To:     Stefano Garzarella <sgarzare@redhat.com>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org
 References: <1601301865177128@kroah.com>
+ <20200928145204.2kgheql4qfffz5s3@steredhat>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <86e4cf92-2871-539e-8eb1-4bb8f8fdfcc0@kernel.dk>
+Date:   Mon, 28 Sep 2020 09:04:14 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1601301865177128@kroah.com>
+In-Reply-To: <20200928145204.2kgheql4qfffz5s3@steredhat>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Jens, if you want I can do the backport for 5.8.
+On 9/28/20 8:52 AM, Stefano Garzarella wrote:
+> Jens, if you want I can do the backport for 5.8.
 
-Stefano
+That'd be great, thanks!
 
-On Mon, Sep 28, 2020 at 04:04:25PM +0200, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.8-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From f3cd4850504ff612d0ea77a0aaf29b66c98fcefe Mon Sep 17 00:00:00 2001
-> From: Jens Axboe <axboe@kernel.dk>
-> Date: Thu, 24 Sep 2020 14:55:54 -0600
-> Subject: [PATCH] io_uring: ensure open/openat2 name is cleaned on cancelation
-> 
-> If we cancel these requests, we'll leak the memory associated with the
-> filename. Add them to the table of ops that need cleaning, if
-> REQ_F_NEED_CLEANUP is set.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: e62753e4e292 ("io_uring: call statx directly")
-> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index e6004b92e553..0ab16df31288 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -5671,6 +5671,11 @@ static void __io_clean_op(struct io_kiocb *req)
->  			io_put_file(req, req->splice.file_in,
->  				    (req->splice.flags & SPLICE_F_FD_IN_FIXED));
->  			break;
-> +		case IORING_OP_OPENAT:
-> +		case IORING_OP_OPENAT2:
-> +			if (req->open.filename)
-> +				putname(req->open.filename);
-> +			break;
->  		}
->  		req->flags &= ~REQ_F_NEED_CLEANUP;
->  	}
-> 
+-- 
+Jens Axboe
 
