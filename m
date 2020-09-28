@@ -2,162 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88A3A27A690
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 06:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C4727A750
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 08:18:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725290AbgI1Eee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 00:34:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32844 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725287AbgI1Eee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 00:34:34 -0400
-Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E83C0613CE;
-        Sun, 27 Sep 2020 21:34:34 -0700 (PDT)
-Received: by mail-qt1-x843.google.com with SMTP id r8so7165690qtp.13;
-        Sun, 27 Sep 2020 21:34:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ConN5YtggiLZaASBU/xhEJXmwHgM4GQ65dyhnJrPmKk=;
-        b=OrlsG6iY/WL5irP3rXRNnjtGc56SmCJs8yUie1qT2CuBx8PrpgdAPajrULbDH6Sgq7
-         qCO36BJigflKxgOCPvImeGOk/TfyxOxBUnyM63pU2/zICbHCuJBOmmBzJmFPItIxF+Of
-         +ph+zQbnED8a6cI8weOnECZf3ezV2MPTroNlV2kjtj+9HIc+7uXaZ1yVwZpHP6bzxKmh
-         4D+Dkq7q+Y2rRUCLQiDa5ewPQimCZsPLVMFMpAXb5xcSQpfu8p2hILzDWVzPcXU3xU2D
-         G9Ah+GjMCqo8u3APwPkBpEw5wT1Zh5/uSS4zzooasWJTxSZncR7lkb8GVvIRU5zpabIg
-         9UcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ConN5YtggiLZaASBU/xhEJXmwHgM4GQ65dyhnJrPmKk=;
-        b=dl59cDRCug6luCb5q2fM/WlZUf0AkK5wxD/CCkoIPaJVeRV8Ap3XMUha2VwMpzgBHN
-         HHcOg7vqtTeiISRzT3MTOu+mYm1oeLegL/NEWbRZ9I3bzZosYD3i0l65IrndJv+axlnj
-         MgO2BKBsNbIYmE4Nu/nzgELYXU1edrBVoiHzvXnlUHDBhd5WmVv1jrTW6S1RK2gMTwCq
-         xS2oha1BIdbR8+pd23BNzUu3mqKwqM6cCBnffiIJ8rUNbmcAv7D/NN5LMbNcLmagNZyb
-         84kw14xFI9PL0P7X1Vdeluzp6Lb4U6rvi4t14p+aE9Pkd0+bIi8gVB8+r8FK/uyjJoXh
-         LCLg==
-X-Gm-Message-State: AOAM532kF5MLuw37zUXpQWsikCIlpuSpU7Qw2AlfYuXMoUDf+MYRwOaa
-        iJ0aBKJMQUDfcrxIoFyP56w=
-X-Google-Smtp-Source: ABdhPJz8BRI8cDTasymvP6TZXcGOJby0FLRXvRi8sd4J1cn8vBdqg/56lbKnZtWDQL6i1Kub6nBd5A==
-X-Received: by 2002:ac8:39c5:: with SMTP id v63mr10887654qte.12.1601267673265;
-        Sun, 27 Sep 2020 21:34:33 -0700 (PDT)
-Received: from andromeda.markmielke.com ([2607:fea8:c260:8de::d020])
-        by smtp.gmail.com with ESMTPSA id 202sm8427085qkg.56.2020.09.27.21.34.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Sep 2020 21:34:32 -0700 (PDT)
-From:   Mark Mielke <mark.mielke@gmail.com>
-To:     Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     open-iscsi@googlegroups.com, linux-scsi@vger.kernel.org,
-        Mark Mielke <mark.mielke@gmail.com>,
-        Marc Dionne <marc.c.dionne@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] iscsi: iscsi_tcp: Avoid holding spinlock while calling getpeername
-Date:   Mon, 28 Sep 2020 00:33:29 -0400
-Message-Id: <20200928043329.606781-1-mark.mielke@gmail.com>
-X-Mailer: git-send-email 2.28.0
+        id S1726590AbgI1GSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 02:18:16 -0400
+Received: from fanzine.igalia.com ([178.60.130.6]:38104 "EHLO
+        fanzine.igalia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726412AbgI1GSQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 02:18:16 -0400
+X-Greylist: delayed 1604 seconds by postgrey-1.27 at vger.kernel.org; Mon, 28 Sep 2020 02:18:14 EDT
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com; s=20170329;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID; bh=4BUxnoIB0r8HUDaE4/Jo26obqBQbLo8OHjg6VbSI9Wk=;
+        b=FLCgjDZeAoJXJqiDVryNpQoU1x2OSLuFbFDu/f6fu1YJ67TwWbJ9wEV1pAZs0CC3Hjx3ixg2Q/aKXfCj+vi+A86ci7NbKQ1CCRdVwKCjKg+Dy7abzqqPjir9UTMQdJEMcFRgmWH3k+1WlNtuDEMQ4LNbXBX/pHg70AKZ0LvfTelhPysojF2CZsGLLgQvBJechmU2ou9Cs1GgDniHbRDxn1yMWJ9J/QQFuTNo3f+/qvLnnko4CSLjIgSHbBg54ujd1+/0WH+veZxg4l3m6N60ZaNLC/qFJB8f8wnYCnRYUncVBRw9Mxz5oW/rTzDrhuhV7FliYq+u+jLsXSYA6AcwTw==;
+Received: from 7.51.165.83.dynamic.reverse-mundo-r.com ([83.165.51.7] helo=zeus)
+        by fanzine.igalia.com with esmtpsa 
+        (Cipher TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim)
+        id 1kMm4O-00015Y-88; Mon, 28 Sep 2020 07:51:28 +0200
+Message-ID: <919c3c23bd220b283dbff8f60c56a63175f6c788.camel@igalia.com>
+Subject: Re: Patch "drm/v3d: don't leak bin job if v3d_job_init fails." has
+ been added to the 5.4-stable tree
+From:   Iago Toral <itoral@igalia.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable-commits@vger.kernel.org, stable@vger.kernel.org,
+        eric@anholt.net
+Date:   Mon, 28 Sep 2020 07:51:17 +0200
+In-Reply-To: <20200927175225.BA1DE23976@mail.kernel.org>
+References: <20200927175225.BA1DE23976@mail.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.1-2 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Kernel may fail to boot or devices may fail to come up when
-initializing iscsi_tcp devices starting with Linux 5.8.
+As Eric pointed out, this patch should not be applied. There were 2
+patches addressing the very same leak and it seems one of them already
+landed and this one is being applied on top of it, so in practice, this
+patch is producing a double free.
 
-Marc Dionne identified the cause in RHBZ#1877345.
+Iago
 
-Commit a79af8a64d39 ("[SCSI] iscsi_tcp: use iscsi_conn_get_addr_param
-libiscsi function") introduced getpeername() within the session spinlock.
-
-Commit 1b66d253610c ("bpf: Add get{peer, sock}name attach types for
-sock_addr") introduced BPF_CGROUP_RUN_SA_PROG_LOCK() within getpeername,
-which acquires a mutex and when used from iscsi_tcp devices can now lead
-to "BUG: scheduling while atomic:" and subsequent damage.
-
-This commit ensures that the spinlock is released before calling
-getpeername() or getsockname(). sock_hold() and sock_put() are
-used to ensure that the socket reference is preserved until after
-the getpeername() or getsockname() complete.
-
-Reported-by: Marc Dionne <marc.c.dionne@gmail.com>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1877345
-Link: https://lkml.org/lkml/2020/7/28/1085
-Link: https://lkml.org/lkml/2020/8/31/459
-Fixes: a79af8a64d39 ("[SCSI] iscsi_tcp: use iscsi_conn_get_addr_param libiscsi function")
-Fixes: 1b66d253610c ("bpf: Add get{peer, sock}name attach types for sock_addr")
-Signed-off-by: Mark Mielke <mark.mielke@gmail.com>
-Cc: stable@vger.kernel.org
----
- drivers/scsi/iscsi_tcp.c | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
-index b5dd1caae5e9..d10efb66cf19 100644
---- a/drivers/scsi/iscsi_tcp.c
-+++ b/drivers/scsi/iscsi_tcp.c
-@@ -736,6 +736,7 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
- 	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
- 	struct iscsi_sw_tcp_conn *tcp_sw_conn = tcp_conn->dd_data;
- 	struct sockaddr_in6 addr;
-+	struct socket *sock;
- 	int rc;
- 
- 	switch(param) {
-@@ -747,13 +748,17 @@ static int iscsi_sw_tcp_conn_get_param(struct iscsi_cls_conn *cls_conn,
- 			spin_unlock_bh(&conn->session->frwd_lock);
- 			return -ENOTCONN;
- 		}
-+		sock = tcp_sw_conn->sock;
-+		sock_hold(sock->sk);
-+		spin_unlock_bh(&conn->session->frwd_lock);
-+
- 		if (param == ISCSI_PARAM_LOCAL_PORT)
--			rc = kernel_getsockname(tcp_sw_conn->sock,
-+			rc = kernel_getsockname(sock,
- 						(struct sockaddr *)&addr);
- 		else
--			rc = kernel_getpeername(tcp_sw_conn->sock,
-+			rc = kernel_getpeername(sock,
- 						(struct sockaddr *)&addr);
--		spin_unlock_bh(&conn->session->frwd_lock);
-+		sock_put(sock->sk);
- 		if (rc < 0)
- 			return rc;
- 
-@@ -775,6 +780,7 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
- 	struct iscsi_tcp_conn *tcp_conn;
- 	struct iscsi_sw_tcp_conn *tcp_sw_conn;
- 	struct sockaddr_in6 addr;
-+	struct socket *sock;
- 	int rc;
- 
- 	switch (param) {
-@@ -789,16 +795,18 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
- 			return -ENOTCONN;
- 		}
- 		tcp_conn = conn->dd_data;
--
- 		tcp_sw_conn = tcp_conn->dd_data;
--		if (!tcp_sw_conn->sock) {
-+		sock = tcp_sw_conn->sock;
-+		if (!sock) {
- 			spin_unlock_bh(&session->frwd_lock);
- 			return -ENOTCONN;
- 		}
-+		sock_hold(sock->sk);
-+		spin_unlock_bh(&session->frwd_lock);
- 
--		rc = kernel_getsockname(tcp_sw_conn->sock,
-+		rc = kernel_getsockname(sock,
- 					(struct sockaddr *)&addr);
--		spin_unlock_bh(&session->frwd_lock);
-+		sock_put(sock->sk);
- 		if (rc < 0)
- 			return rc;
- 
--- 
-2.28.0
+On Sun, 2020-09-27 at 13:52 -0400, Sasha Levin wrote:
+> This is a note to let you know that I've just added the patch titled
+> 
+>     drm/v3d: don't leak bin job if v3d_job_init fails.
+> 
+> to the 5.4-stable tree which can be found at:
+>     
+> http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> The filename of the patch is:
+>      drm-v3d-don-t-leak-bin-job-if-v3d_job_init-fails.patch
+> and it can be found in the queue-5.4 subdirectory.
+> 
+> If you, or anyone else, feels it should not be added to the stable
+> tree,
+> please let <stable@vger.kernel.org> know about it.
+> 
+> 
+> 
+> commit cd0324f318e4447471e0bb01d4bea4f5de4aab1e
+> Author: Iago Toral Quiroga <itoral@igalia.com>
+> Date:   Mon Sep 16 09:11:25 2019 +0200
+> 
+>     drm/v3d: don't leak bin job if v3d_job_init fails.
+>     
+>     [ Upstream commit 0d352a3a8a1f26168d09f7073e61bb4b328e3bb9 ]
+>     
+>     If the initialization of the job fails we need to kfree() it
+>     before returning.
+>     
+>     Signed-off-by: Iago Toral Quiroga <itoral@igalia.com>
+>     Signed-off-by: Eric Anholt <eric@anholt.net>
+>     Link: 
+> https://patchwork.freedesktop.org/patch/msgid/20190916071125.5255-1-itoral@igalia.com
+>     Fixes: a783a09ee76d ("drm/v3d: Refactor job management.")
+>     Reviewed-by: Eric Anholt <eric@anholt.net>
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> diff --git a/drivers/gpu/drm/v3d/v3d_gem.c
+> b/drivers/gpu/drm/v3d/v3d_gem.c
+> index 19c092d75266b..6316bf3646af5 100644
+> --- a/drivers/gpu/drm/v3d/v3d_gem.c
+> +++ b/drivers/gpu/drm/v3d/v3d_gem.c
+> @@ -565,6 +565,7 @@ v3d_submit_cl_ioctl(struct drm_device *dev, void
+> *data,
+>  		ret = v3d_job_init(v3d, file_priv, &bin->base,
+>  				   v3d_job_free, args->in_sync_bcl);
+>  		if (ret) {
+> +			kfree(bin);
+>  			v3d_job_put(&render->base);
+>  			kfree(bin);
+>  			return ret;
+> 
 
