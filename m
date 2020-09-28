@@ -2,173 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C91A927AD92
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 14:13:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98D9F27ADA5
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 14:17:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726645AbgI1MNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 08:13:02 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:50001 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726393AbgI1MNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 08:13:01 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22556666-1500050 
-        for multiple; Mon, 28 Sep 2020 13:12:53 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        stable@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH v2 3/3] drm/i915/gem: Always test execution status on closing the context
-Date:   Mon, 28 Sep 2020 13:12:55 +0100
-Message-Id: <20200928121255.21494-3-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200928121255.21494-1-chris@chris-wilson.co.uk>
-References: <20200928121255.21494-1-chris@chris-wilson.co.uk>
+        id S1726578AbgI1MRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 08:17:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53924 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726409AbgI1MRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 08:17:23 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20A762083B;
+        Mon, 28 Sep 2020 12:17:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601295442;
+        bh=dBmPwjXMITa6gYn63Dk0BO4f8iE4EkQ09/cGjU/9nM4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=T706bGfADXUPSJiVmZgarIiwqgurAF9VmF711JAjYYZ41GZWVnBhm97INxa0Geevq
+         O8A/P6LcRd+pbv5cveKhk0XmBifPGLpTF2gavOLmloh6vY42vbVOC2tRgglC1xyUYm
+         rYnsZqC+Bgt7Dqvei+TWNPuFYawybsVLyyQ3C7yY=
+Date:   Mon, 28 Sep 2020 14:17:29 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ajay Kaher <akaher@vmware.com>
+Cc:     b.zolnierkie@samsung.com, daniel.vetter@ffwll.ch,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, w@1wt.eu, yuanmingbuaa@gmail.com,
+        srivatsab@vmware.com, srivatsa@csail.mit.edu
+Subject: Re: [PATCH 4.4 20/46] fbcon: remove soft scrollback code
+Message-ID: <20200928121729.GA661457@kroah.com>
+References: <20200921162034.253730633@linuxfoundation.org>
+ <1601273217-47349-1-git-send-email-akaher@vmware.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1601273217-47349-1-git-send-email-akaher@vmware.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Verify that if a context is active at the time it is closed, that it is
-either persistent and preemptible (with hangcheck running) or it shall
-be removed from execution.
+On Mon, Sep 28, 2020 at 11:36:57AM +0530, Ajay Kaher wrote:
+> > @@ -3378,7 +3054,6 @@ static const struct consw fb_con = {
+> >  	.con_font_default	= fbcon_set_def_font,
+> >  	.con_font_copy 		= fbcon_copy_font,
+> >  	.con_set_palette 	= fbcon_set_palette,
+> > -	.con_scrolldelta 	= fbcon_scrolldelta,
+> >  	.con_set_origin 	= fbcon_set_origin,
+> >  	.con_invert_region 	= fbcon_invert_region,
+> >  	.con_screen_pos 	= fbcon_screen_pos,
+> 
+> If I am not wrong, this change creates crash in v4.4.y.
+> As before calling con_scrolldelta, NULL check is missing inside
+> console_callback() for v4.4.y, refer:
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers/tty/vt/vt.c?h=linux-4.4.y#n2487
+> 
+> This NULL check was added in commit 97293de977365fe672daec2523e66ef457104921,
+> and this is not merged to v4.4.y
 
-Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
-Testcase: igt/gem_ctx_persistence/heartbeat-close
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v5.7+
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
----
- drivers/gpu/drm/i915/gem/i915_gem_context.c | 48 +++++----------------
- 1 file changed, 10 insertions(+), 38 deletions(-)
+Good catch, will go queue up that portion of that commit to 4.4.y now,
+thanks!
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-index a548626fa8bc..4fd38101bb56 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
-@@ -390,24 +390,6 @@ __context_engines_static(const struct i915_gem_context *ctx)
- 	return rcu_dereference_protected(ctx->engines, true);
- }
- 
--static bool __reset_engine(struct intel_engine_cs *engine)
--{
--	struct intel_gt *gt = engine->gt;
--	bool success = false;
--
--	if (!intel_has_reset_engine(gt))
--		return false;
--
--	if (!test_and_set_bit(I915_RESET_ENGINE + engine->id,
--			      &gt->reset.flags)) {
--		success = intel_engine_reset(engine, NULL) == 0;
--		clear_and_wake_up_bit(I915_RESET_ENGINE + engine->id,
--				      &gt->reset.flags);
--	}
--
--	return success;
--}
--
- static void __reset_context(struct i915_gem_context *ctx,
- 			    struct intel_engine_cs *engine)
- {
-@@ -431,12 +413,7 @@ static bool __cancel_engine(struct intel_engine_cs *engine)
- 	 * kill the banned context, we fallback to doing a local reset
- 	 * instead.
- 	 */
--	if (IS_ACTIVE(CONFIG_DRM_I915_PREEMPT_TIMEOUT) &&
--	    !intel_engine_pulse(engine))
--		return true;
--
--	/* If we are unable to send a pulse, try resetting this engine. */
--	return __reset_engine(engine);
-+	return intel_engine_pulse(engine) == 0;
- }
- 
- static bool
-@@ -506,7 +483,7 @@ static struct intel_engine_cs *active_engine(struct intel_context *ce)
- 	return engine;
- }
- 
--static void kill_engines(struct i915_gem_engines *engines)
-+static void kill_engines(struct i915_gem_engines *engines, bool ban)
- {
- 	struct i915_gem_engines_iter it;
- 	struct intel_context *ce;
-@@ -521,7 +498,7 @@ static void kill_engines(struct i915_gem_engines *engines)
- 	for_each_gem_engine(ce, engines, it) {
- 		struct intel_engine_cs *engine;
- 
--		if (intel_context_set_banned(ce))
-+		if (ban && intel_context_set_banned(ce))
- 			continue;
- 
- 		/*
-@@ -534,7 +511,7 @@ static void kill_engines(struct i915_gem_engines *engines)
- 		engine = active_engine(ce);
- 
- 		/* First attempt to gracefully cancel the context */
--		if (engine && !__cancel_engine(engine))
-+		if (engine && !__cancel_engine(engine) && ban)
- 			/*
- 			 * If we are unable to send a preemptive pulse to bump
- 			 * the context from the GPU, we have to resort to a full
-@@ -544,8 +521,10 @@ static void kill_engines(struct i915_gem_engines *engines)
- 	}
- }
- 
--static void kill_stale_engines(struct i915_gem_context *ctx)
-+static void kill_context(struct i915_gem_context *ctx)
- {
-+	bool ban = (!i915_gem_context_is_persistent(ctx) ||
-+		    !ctx->i915->params.enable_hangcheck);
- 	struct i915_gem_engines *pos, *next;
- 
- 	spin_lock_irq(&ctx->stale.lock);
-@@ -558,7 +537,7 @@ static void kill_stale_engines(struct i915_gem_context *ctx)
- 
- 		spin_unlock_irq(&ctx->stale.lock);
- 
--		kill_engines(pos);
-+		kill_engines(pos, ban);
- 
- 		spin_lock_irq(&ctx->stale.lock);
- 		GEM_BUG_ON(i915_sw_fence_signaled(&pos->fence));
-@@ -570,11 +549,6 @@ static void kill_stale_engines(struct i915_gem_context *ctx)
- 	spin_unlock_irq(&ctx->stale.lock);
- }
- 
--static void kill_context(struct i915_gem_context *ctx)
--{
--	kill_stale_engines(ctx);
--}
--
- static void engines_idle_release(struct i915_gem_context *ctx,
- 				 struct i915_gem_engines *engines)
- {
-@@ -609,7 +583,7 @@ static void engines_idle_release(struct i915_gem_context *ctx,
- 
- kill:
- 	if (list_empty(&engines->link)) /* raced, already closed */
--		kill_engines(engines);
-+		kill_engines(engines, true);
- 
- 	i915_sw_fence_commit(&engines->fence);
- }
-@@ -667,9 +641,7 @@ static void context_close(struct i915_gem_context *ctx)
- 	 * case we opt to forcibly kill off all remaining requests on
- 	 * context close.
- 	 */
--	if (!i915_gem_context_is_persistent(ctx) ||
--	    !ctx->i915->params.enable_hangcheck)
--		kill_context(ctx);
-+	kill_context(ctx);
- 
- 	i915_gem_context_put(ctx);
- }
--- 
-2.20.1
-
+greg k-h
