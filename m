@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF10127B6E3
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 23:14:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C6327B6E4
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 23:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726939AbgI1VOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 17:14:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58556 "EHLO mail.kernel.org"
+        id S1726943AbgI1VO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 17:14:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726393AbgI1VOw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 17:14:52 -0400
+        id S1726393AbgI1VO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 17:14:57 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCBD1208FE;
-        Mon, 28 Sep 2020 21:14:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEE792083B;
+        Mon, 28 Sep 2020 21:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601327691;
-        bh=RGKuwByzWRO27E1mOWuhLidwFOHwiMBVWVuRnYbVA64=;
+        s=default; t=1601327694;
+        bh=QxxLTlfTomsHea2La357ZB46pM6vl8XZ8f4Gycp3Y9E=;
         h=Date:From:To:Subject:From;
-        b=sRoURuoQ1Oa437QluI23QSToH+n/uezKg74/ntkn1QJcIqZ+DBRb/a2cjVzkZ7qTF
-         tSkDVSjCi/BEgGvZCC5Q2lMCbIM+wPLSsoFN9QFyxa7FUTRM9C7VB+gt6yWGgC0yeI
-         Fr1M+wY0ZOAKN6NQA3mYVQMxqU75MjR2RkIKUtw4=
-Date:   Mon, 28 Sep 2020 14:14:50 -0700
+        b=0HrK+ZBX69gqD2tv5V9x8sl3dLIEx28UUHSDv2UM2S1CxpE2IPhjn2AD6ALxpkyiW
+         w86B3oY+ulmeKLaa6f6u5GQifKAHTbTVv1UyQCledsdCD4Imwq8N9sQj+n7GLORb/a
+         eqySCxgr+sNvwmpy9BkpES5zk1zv/1GJ5tZv4b8g=
+Date:   Mon, 28 Sep 2020 14:14:53 -0700
 From:   akpm@linux-foundation.org
-To:     dan.j.wiilliams@intel.com, hch@lst.de, hpa@zytor.com, jack@suse.cz,
-        jmoyer@redhat.com, mawilcox@microsoft.com, mingo@elte.hu,
-        mingo@redhat.com, mm-commits@vger.kernel.org, mpatocka@redhat.com,
-        ross.zwisler@linux.intel.com, stable@vger.kernel.org,
-        tglx@linutronix.de, toshi.kani@hpe.com, viro@zeniv.linux.org.uk
+To:     cheloha@linux.ibm.com, david@redhat.com, fenghua.yu@intel.com,
+        gregkh@linuxfoundation.org, ldufour@linux.ibm.com, mhocko@suse.com,
+        mm-commits@vger.kernel.org, nathanl@linux.ibm.com,
+        osalvador@suse.de, rafael@kernel.org, stable@vger.kernel.org,
+        tony.luck@intel.com
 Subject:  [merged]
- arch-x86-lib-usercopy_64c-fix-__copy_user_flushcache-cache-writeback.patch
- removed from -mm tree
-Message-ID: <20200928211450.4RVSFVm9R%akpm@linux-foundation.org>
+ mm-replace-memmap_context-by-meminit_context.patch removed from -mm tree
+Message-ID: <20200928211453.PqV68DJ5s%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -41,56 +40,258 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: arch/x86/lib/usercopy_64.c: fix  __copy_user_flushcache() cache writeback
+     Subject: mm: replace memmap_context by meminit_context
 has been removed from the -mm tree.  Its filename was
-     arch-x86-lib-usercopy_64c-fix-__copy_user_flushcache-cache-writeback.patch
+     mm-replace-memmap_context-by-meminit_context.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Mikulas Patocka <mpatocka@redhat.com>
-Subject: arch/x86/lib/usercopy_64.c: fix  __copy_user_flushcache() cache writeback
+From: Laurent Dufour <ldufour@linux.ibm.com>
+Subject: mm: replace memmap_context by meminit_context
 
-If we copy less than 8 bytes and if the destination crosses a cache line,
-__copy_user_flushcache would invalidate only the first cache line.  This
-patch makes it invalidate the second cache line as well.
+Patch series "mm: fix memory to node bad links in sysfs", v3.
 
-Link: https://lkml.kernel.org/r/alpine.LRH.2.02.2009161451140.21915@file01.intranet.prod.int.rdu2.redhat.com
-Fixes: 0aed55af88345b ("x86, uaccess: introduce copy_from_iter_flushcache for pmem / cache-bypass operations")
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Dan Williams <dan.j.wiilliams@intel.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Jeff Moyer <jmoyer@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Matthew Wilcox <mawilcox@microsoft.com>
-Cc: Ross Zwisler <ross.zwisler@linux.intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
+Sometimes, firmware may expose interleaved memory layout like this:
+ Early memory node ranges
+   node   1: [mem 0x0000000000000000-0x000000011fffffff]
+   node   2: [mem 0x0000000120000000-0x000000014fffffff]
+   node   1: [mem 0x0000000150000000-0x00000001ffffffff]
+   node   0: [mem 0x0000000200000000-0x000000048fffffff]
+   node   2: [mem 0x0000000490000000-0x00000007ffffffff]
+
+In that case, we can see memory blocks assigned to multiple nodes in sysfs:
+
+$ ls -l /sys/devices/system/memory/memory21
+total 0
+lrwxrwxrwx 1 root root     0 Aug 24 05:27 node1 -> ../../node/node1
+lrwxrwxrwx 1 root root     0 Aug 24 05:27 node2 -> ../../node/node2
+-rw-r--r-- 1 root root 65536 Aug 24 05:27 online
+-r--r--r-- 1 root root 65536 Aug 24 05:27 phys_device
+-r--r--r-- 1 root root 65536 Aug 24 05:27 phys_index
+drwxr-xr-x 2 root root     0 Aug 24 05:27 power
+-r--r--r-- 1 root root 65536 Aug 24 05:27 removable
+-rw-r--r-- 1 root root 65536 Aug 24 05:27 state
+lrwxrwxrwx 1 root root     0 Aug 24 05:25 subsystem -> ../../../../bus/memory
+-rw-r--r-- 1 root root 65536 Aug 24 05:25 uevent
+-r--r--r-- 1 root root 65536 Aug 24 05:27 valid_zones
+
+The same applies in the node's directory with a memory21 link in both the
+node1 and node2's directory.
+
+This is wrong but doesn't prevent the system to run.  However when later,
+one of these memory blocks is hot-unplugged and then hot-plugged, the
+system is detecting an inconsistency in the sysfs layout and a BUG_ON() is
+raised:
+
+------------[ cut here ]------------
+kernel BUG at /Users/laurent/src/linux-ppc/mm/memory_hotplug.c:1084!
+Oops: Exception in kernel mode, sig: 5 [#1]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+Modules linked in: rpadlpar_io rpaphp pseries_rng rng_core vmx_crypto gf128mul binfmt_misc ip_tables x_tables xfs libcrc32c crc32c_vpmsum autofs4
+CPU: 8 PID: 10256 Comm: drmgr Not tainted 5.9.0-rc1+ #25
+NIP:  c000000000403f34 LR: c000000000403f2c CTR: 0000000000000000
+REGS: c0000004876e3660 TRAP: 0700   Not tainted  (5.9.0-rc1+)
+MSR:  800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 24000448  XER: 20040000
+CFAR: c000000000846d20 IRQMASK: 0
+GPR00: c000000000403f2c c0000004876e38f0 c0000000012f6f00 ffffffffffffffef
+GPR04: 0000000000000227 c0000004805ae680 0000000000000000 00000004886f0000
+GPR08: 0000000000000226 0000000000000003 0000000000000002 fffffffffffffffd
+GPR12: 0000000088000484 c00000001ec96280 0000000000000000 0000000000000000
+GPR16: 0000000000000000 0000000000000000 0000000000000004 0000000000000003
+GPR20: c00000047814ffe0 c0000007ffff7c08 0000000000000010 c0000000013332c8
+GPR24: 0000000000000000 c0000000011f6cc0 0000000000000000 0000000000000000
+GPR28: ffffffffffffffef 0000000000000001 0000000150000000 0000000010000000
+NIP [c000000000403f34] add_memory_resource+0x244/0x340
+LR [c000000000403f2c] add_memory_resource+0x23c/0x340
+Call Trace:
+[c0000004876e38f0] [c000000000403f2c] add_memory_resource+0x23c/0x340 (unreliable)
+[c0000004876e39c0] [c00000000040408c] __add_memory+0x5c/0xf0
+[c0000004876e39f0] [c0000000000e2b94] dlpar_add_lmb+0x1b4/0x500
+[c0000004876e3ad0] [c0000000000e3888] dlpar_memory+0x1f8/0xb80
+[c0000004876e3b60] [c0000000000dc0d0] handle_dlpar_errorlog+0xc0/0x190
+[c0000004876e3bd0] [c0000000000dc398] dlpar_store+0x198/0x4a0
+[c0000004876e3c90] [c00000000072e630] kobj_attr_store+0x30/0x50
+[c0000004876e3cb0] [c00000000051f954] sysfs_kf_write+0x64/0x90
+[c0000004876e3cd0] [c00000000051ee40] kernfs_fop_write+0x1b0/0x290
+[c0000004876e3d20] [c000000000438dd8] vfs_write+0xe8/0x290
+[c0000004876e3d70] [c0000000004391ac] ksys_write+0xdc/0x130
+[c0000004876e3dc0] [c000000000034e40] system_call_exception+0x160/0x270
+[c0000004876e3e20] [c00000000000d740] system_call_common+0xf0/0x27c
+Instruction dump:
+48442e35 60000000 0b030000 3cbe0001 7fa3eb78 7bc48402 38a5fffe 7ca5fa14
+78a58402 48442db1 60000000 7c7c1b78 <0b030000> 7f23cb78 4bda371d 60000000
+---[ end trace 562fd6c109cd0fb2 ]---
+
+This has been seen on PowerPC LPAR.
+
+The root cause of this issue is that when node's memory is registered, the
+range used can overlap another node's range, thus the memory block is
+registered to multiple nodes in sysfs.
+
+There are 2 issues here:
+
+a. The sysfs memory and node's layouts are broken due to these multiple
+   links
+
+b. The link errors in link_mem_sections() should not lead to a system
+   panic.
+
+To address a. register_mem_sect_under_node should not rely on the system
+state to detect whether the link operation is triggered by a hot plug
+operation or not. This is addressed by the patches 1 and 2 of this series.
+
+The patch 3 is addressing the point b.
+
+
+This patch (of 2):
+
+The memmap_context enum is used to detect whether a memory operation is due
+to a hot-add operation or happening at boot time.
+
+Make it general to the hotplug operation and rename it as meminit_context.
+
+There is no functional change introduced by this patch
+
+Link: https://lkml.kernel.org/r/20200915094143.79181-1-ldufour@linux.ibm.com
+Link: https://lkml.kernel.org/r/20200915132624.9723-1-ldufour@linux.ibm.com
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+Suggested-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J . Wysocki" <rafael@kernel.org>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Scott Cheloha <cheloha@linux.ibm.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- arch/x86/lib/usercopy_64.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/ia64/mm/init.c    |    6 +++---
+ include/linux/mm.h     |    2 +-
+ include/linux/mmzone.h |   11 ++++++++---
+ mm/memory_hotplug.c    |    2 +-
+ mm/page_alloc.c        |   10 +++++-----
+ 5 files changed, 18 insertions(+), 13 deletions(-)
 
---- a/arch/x86/lib/usercopy_64.c~arch-x86-lib-usercopy_64c-fix-__copy_user_flushcache-cache-writeback
-+++ a/arch/x86/lib/usercopy_64.c
-@@ -120,7 +120,7 @@ long __copy_user_flushcache(void *dst, c
- 	 */
- 	if (size < 8) {
- 		if (!IS_ALIGNED(dest, 4) || size != 4)
--			clean_cache_range(dst, 1);
-+			clean_cache_range(dst, size);
+--- a/arch/ia64/mm/init.c~mm-replace-memmap_context-by-meminit_context
++++ a/arch/ia64/mm/init.c
+@@ -538,7 +538,7 @@ virtual_memmap_init(u64 start, u64 end,
+ 	if (map_start < map_end)
+ 		memmap_init_zone((unsigned long)(map_end - map_start),
+ 				 args->nid, args->zone, page_to_pfn(map_start),
+-				 MEMMAP_EARLY, NULL);
++				 MEMINIT_EARLY, NULL);
+ 	return 0;
+ }
+ 
+@@ -547,8 +547,8 @@ memmap_init (unsigned long size, int nid
+ 	     unsigned long start_pfn)
+ {
+ 	if (!vmem_map) {
+-		memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY,
+-				NULL);
++		memmap_init_zone(size, nid, zone, start_pfn,
++				 MEMINIT_EARLY, NULL);
  	} else {
- 		if (!IS_ALIGNED(dest, 8)) {
- 			dest = ALIGN(dest, boot_cpu_data.x86_clflush_size);
+ 		struct page *start;
+ 		struct memmap_init_callback_data args;
+--- a/include/linux/mm.h~mm-replace-memmap_context-by-meminit_context
++++ a/include/linux/mm.h
+@@ -2416,7 +2416,7 @@ extern int __meminit __early_pfn_to_nid(
+ 
+ extern void set_dma_reserve(unsigned long new_dma_reserve);
+ extern void memmap_init_zone(unsigned long, int, unsigned long, unsigned long,
+-		enum memmap_context, struct vmem_altmap *);
++		enum meminit_context, struct vmem_altmap *);
+ extern void setup_per_zone_wmarks(void);
+ extern int __meminit init_per_zone_wmark_min(void);
+ extern void mem_init(void);
+--- a/include/linux/mmzone.h~mm-replace-memmap_context-by-meminit_context
++++ a/include/linux/mmzone.h
+@@ -824,10 +824,15 @@ bool zone_watermark_ok(struct zone *z, u
+ 		unsigned int alloc_flags);
+ bool zone_watermark_ok_safe(struct zone *z, unsigned int order,
+ 		unsigned long mark, int highest_zoneidx);
+-enum memmap_context {
+-	MEMMAP_EARLY,
+-	MEMMAP_HOTPLUG,
++/*
++ * Memory initialization context, use to differentiate memory added by
++ * the platform statically or via memory hotplug interface.
++ */
++enum meminit_context {
++	MEMINIT_EARLY,
++	MEMINIT_HOTPLUG,
+ };
++
+ extern void init_currently_empty_zone(struct zone *zone, unsigned long start_pfn,
+ 				     unsigned long size);
+ 
+--- a/mm/memory_hotplug.c~mm-replace-memmap_context-by-meminit_context
++++ a/mm/memory_hotplug.c
+@@ -729,7 +729,7 @@ void __ref move_pfn_range_to_zone(struct
+ 	 * are reserved so nobody should be touching them so we should be safe
+ 	 */
+ 	memmap_init_zone(nr_pages, nid, zone_idx(zone), start_pfn,
+-			MEMMAP_HOTPLUG, altmap);
++			 MEMINIT_HOTPLUG, altmap);
+ 
+ 	set_zone_contiguous(zone);
+ }
+--- a/mm/page_alloc.c~mm-replace-memmap_context-by-meminit_context
++++ a/mm/page_alloc.c
+@@ -5975,7 +5975,7 @@ overlap_memmap_init(unsigned long zone,
+  * done. Non-atomic initialization, single-pass.
+  */
+ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+-		unsigned long start_pfn, enum memmap_context context,
++		unsigned long start_pfn, enum meminit_context context,
+ 		struct vmem_altmap *altmap)
+ {
+ 	unsigned long pfn, end_pfn = start_pfn + size;
+@@ -6007,7 +6007,7 @@ void __meminit memmap_init_zone(unsigned
+ 		 * There can be holes in boot-time mem_map[]s handed to this
+ 		 * function.  They do not exist on hotplugged memory.
+ 		 */
+-		if (context == MEMMAP_EARLY) {
++		if (context == MEMINIT_EARLY) {
+ 			if (overlap_memmap_init(zone, &pfn))
+ 				continue;
+ 			if (defer_init(nid, pfn, end_pfn))
+@@ -6016,7 +6016,7 @@ void __meminit memmap_init_zone(unsigned
+ 
+ 		page = pfn_to_page(pfn);
+ 		__init_single_page(page, pfn, zone, nid);
+-		if (context == MEMMAP_HOTPLUG)
++		if (context == MEMINIT_HOTPLUG)
+ 			__SetPageReserved(page);
+ 
+ 		/*
+@@ -6099,7 +6099,7 @@ void __ref memmap_init_zone_device(struc
+ 		 * check here not to call set_pageblock_migratetype() against
+ 		 * pfn out of zone.
+ 		 *
+-		 * Please note that MEMMAP_HOTPLUG path doesn't clear memmap
++		 * Please note that MEMINIT_HOTPLUG path doesn't clear memmap
+ 		 * because this is done early in section_activate()
+ 		 */
+ 		if (!(pfn & (pageblock_nr_pages - 1))) {
+@@ -6137,7 +6137,7 @@ void __meminit __weak memmap_init(unsign
+ 		if (end_pfn > start_pfn) {
+ 			size = end_pfn - start_pfn;
+ 			memmap_init_zone(size, nid, zone, start_pfn,
+-					 MEMMAP_EARLY, NULL);
++					 MEMINIT_EARLY, NULL);
+ 		}
+ 	}
+ }
 _
 
-Patches currently in -mm which might be from mpatocka@redhat.com are
+Patches currently in -mm which might be from ldufour@linux.ibm.com are
 
+mm-dont-panic-when-links-cant-be-created-in-sysfs.patch
 
