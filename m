@@ -2,93 +2,216 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FC1E27B02A
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 16:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8298F27B04C
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 16:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726605AbgI1OnG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 10:43:06 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:47960 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726466AbgI1OnD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 10:43:03 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: eballetbo)
-        with ESMTPSA id 5769329A5CD
-Subject: Re: [PATCH v1 2/2] drm/rockchip: fix warning from cdn_dp_resume
-To:     Sam Ravnborg <sam@ravnborg.org>, dri-devel@lists.freedesktop.org,
-        Heiko Stuebner <heiko@sntech.de>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org,
-        Sandy Huang <hjc@rock-chips.com>, stable@vger.kernel.org
-References: <20200925215524.2899527-1-sam@ravnborg.org>
- <20200925215524.2899527-3-sam@ravnborg.org>
-From:   Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Message-ID: <dcc5d70e-5c95-be50-a6bf-cee62bed6bf6@collabora.com>
-Date:   Mon, 28 Sep 2020 16:42:58 +0200
+        id S1726564AbgI1OvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 10:51:21 -0400
+Received: from mga18.intel.com ([134.134.136.126]:14685 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726461AbgI1OvU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 10:51:20 -0400
+IronPort-SDR: k1S79QpvfEHbGkT1lWJDVrj1zTNUBwWd9EU6Xdy29a9NXakXkn6YkhaFQxNPGZz1JzwVchU6nG
+ hx9doX4cCRkQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9757"; a="149778405"
+X-IronPort-AV: E=Sophos;i="5.77,313,1596524400"; 
+   d="scan'208";a="149778405"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2020 07:51:18 -0700
+IronPort-SDR: 230049QrR5o+ynRYlti160DCuL/MLs+Y4vkZ2FoDNDTVZyxgshCDWQdcnfrKkvOwL9XaixYG/u
+ BcBNCm2tovEg==
+X-IronPort-AV: E=Sophos;i="5.77,313,1596524400"; 
+   d="scan'208";a="488608070"
+Received: from agal3-mobl1.ger.corp.intel.com (HELO [10.214.224.94]) ([10.214.224.94])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2020 07:51:17 -0700
+Subject: Re: [Intel-gfx] [PATCH v2 2/3] drm/i915/gt: Always send a pulse down
+ the engine after disabling heartbeat
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20200928121255.21494-1-chris@chris-wilson.co.uk>
+ <20200928121255.21494-2-chris@chris-wilson.co.uk>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <14297cbb-3266-49de-2690-be705c861ab0@linux.intel.com>
+Date:   Mon, 28 Sep 2020 15:51:13 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.12.0
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200925215524.2899527-3-sam@ravnborg.org>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20200928121255.21494-2-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sam,
 
-Thank you for your patch.
-
-On 25/9/20 23:55, Sam Ravnborg wrote:
-> Commit 7c49abb4c2f8 ("drm/rockchip: cdn-dp-core: Make cdn_dp_core_suspend/resume static")
-> introduced the following warning in some builds:
+On 28/09/2020 13:12, Chris Wilson wrote:
+> Currently, we check we can send a pulse prior to disabling the
+> heartbeat to verify that we can change the heartbeat, but since we may
+> re-evaluate execution upon changing the heartbeat interval we need another
+> pulse afterwards to refresh execution.
 > 
-> cdn-dp-core.c:1124:12: warning: ‘cdn_dp_resume’ defined but not used
->  1124 | static int cdn_dp_resume(struct device *dev)
->       |            ^~~~~~~~~~~~~
+> v2: Tvrtko asked if we could reduce the double pulse to a single, which
+> opened up a discussion of how we should handle the pulse-error after
+> attempting to change the property, and the desire to serialise
+> adjustment of the property with its validating pulse, and unwind upon
+> failure.
 > 
-> Fix this by defining cdn_dp_resume __maybe_unused
-> 
-> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-> Fixes: 7c49abb4c2f8 ("drm/rockchip: cdn-dp-core: Make cdn_dp_core_suspend/resume static")
-> Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Cc: Heiko Stuebner <heiko@sntech.de>
-> Cc: Sandy Huang <hjc@rock-chips.com>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-rockchip@lists.infradead.org
-> Cc: <stable@vger.kernel.org> # v5.8+
+> Fixes: 9a40bddd47ca ("drm/i915/gt: Expose heartbeat interval via sysfs")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.7+
 > ---
-
-Hopefully this time this change lands ;-) Similar patches [1], [2], [3], were
-sent in the past by different authors but for some reason never reached upstream.
-
-[1] https://lkml.org/lkml/2020/4/28/1703
-[2] https://www.spinics.net/lists/dri-devel/msg268818.html
-[3] https://lkml.org/lkml/2020/8/10/1412
-
->  drivers/gpu/drm/rockchip/cdn-dp-core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>   .../gpu/drm/i915/gt/intel_engine_heartbeat.c  | 105 +++++++++++-------
+>   1 file changed, 66 insertions(+), 39 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/rockchip/cdn-dp-core.c b/drivers/gpu/drm/rockchip/cdn-dp-core.c
-> index a4a45daf93f2..1162e321aaed 100644
-> --- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
-> +++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
-> @@ -1121,7 +1121,7 @@ static int cdn_dp_suspend(struct device *dev)
-
-Shouldn't cdn_dp_suspend also have a __maybe_unused?
-
-With that,
-
-Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-
->  	return ret;
->  }
->  
-> -static int cdn_dp_resume(struct device *dev)
-> +static int __maybe_unused cdn_dp_resume(struct device *dev)
->  {
->  	struct cdn_dp_device *dp = dev_get_drvdata(dev);
->  
+> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
+> index 8ffdf676c0a0..eda475f50fa7 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_engine_heartbeat.c
+> @@ -177,36 +177,81 @@ void intel_engine_init_heartbeat(struct intel_engine_cs *engine)
+>   	INIT_DELAYED_WORK(&engine->heartbeat.work, heartbeat);
+>   }
+>   
+> +static int __intel_engine_pulse(struct intel_engine_cs *engine)
+> +{
+> +	struct i915_sched_attr attr = { .priority = I915_PRIORITY_BARRIER };
+> +	struct intel_context *ce = engine->kernel_context;
+> +	struct i915_request *rq;
+> +
+> +	lockdep_assert_held(&ce->timeline->mutex);
+> +	GEM_BUG_ON(intel_engine_has_preemption(engine));
+> +	GEM_BUG_ON(intel_engine_pm_is_awake(engine));
+> +
+> +	intel_context_enter(ce);
+> +	rq = __i915_request_create(ce, GFP_NOWAIT | __GFP_NOWARN);
+> +	intel_context_exit(ce);
+> +	if (IS_ERR(rq))
+> +		return PTR_ERR(rq);
+> +
+> +	__set_bit(I915_FENCE_FLAG_SENTINEL, &rq->fence.flags);
+> +	idle_pulse(engine, rq);
+> +
+> +	__i915_request_commit(rq);
+> +	__i915_request_queue(rq, &attr);
+> +	GEM_BUG_ON(rq->sched.attr.priority < I915_PRIORITY_BARRIER);
+> +
+> +	return 0;
+> +}
+> +
+> +static unsigned long set_heartbeat(struct intel_engine_cs *engine,
+> +				   unsigned long delay)
+> +{
+> +	unsigned long old;
+> +
+> +	old = xchg(&engine->props.heartbeat_interval_ms, delay);
+> +	if (delay)
+> +		intel_engine_unpark_heartbeat(engine);
+> +	else
+> +		intel_engine_park_heartbeat(engine);
+> +
+> +	return old;
+> +}
+> +
+>   int intel_engine_set_heartbeat(struct intel_engine_cs *engine,
+>   			       unsigned long delay)
+>   {
+> -	int err;
+> +	struct intel_context *ce = engine->kernel_context;
+> +	int err = 0;
+>   
+> -	/* Send one last pulse before to cleanup persistent hogs */
+> -	if (!delay && IS_ACTIVE(CONFIG_DRM_I915_PREEMPT_TIMEOUT)) {
+> -		err = intel_engine_pulse(engine);
+> -		if (err)
+> -			return err;
+> -	}
+> +	if (!delay && !intel_engine_has_preempt_reset(engine))
+> +		return -ENODEV;
+> +
+> +	intel_engine_pm_get(engine);
+> +
+> +	err = mutex_lock_interruptible(&ce->timeline->mutex);
+> +	if (err)
+> +		return err;
+>   
+> -	WRITE_ONCE(engine->props.heartbeat_interval_ms, delay);
+> +	if (delay != engine->props.heartbeat_interval_ms) {
+> +		unsigned long saved = set_heartbeat(engine, delay);
+>   
+> -	if (intel_engine_pm_get_if_awake(engine)) {
+> -		if (delay)
+> -			intel_engine_unpark_heartbeat(engine);
+> -		else
+> -			intel_engine_park_heartbeat(engine);
+> -		intel_engine_pm_put(engine);
+> +		/* recheck current execution */
+> +		if (intel_engine_has_preemption(engine)) {
+> +			err = __intel_engine_pulse(engine);
+> +			if (err)
+> +				set_heartbeat(engine, saved);
+> +		}
+>   	}
+>   
+> -	return 0;
+> +	mutex_unlock(&ce->timeline->mutex);
+> +	intel_engine_pm_put(engine);
+> +
+> +	return err;
+>   }
+>   
+>   int intel_engine_pulse(struct intel_engine_cs *engine)
+>   {
+> -	struct i915_sched_attr attr = { .priority = I915_PRIORITY_BARRIER };
+>   	struct intel_context *ce = engine->kernel_context;
+> -	struct i915_request *rq;
+>   	int err;
+>   
+>   	if (!intel_engine_has_preemption(engine))
+> @@ -215,30 +260,12 @@ int intel_engine_pulse(struct intel_engine_cs *engine)
+>   	if (!intel_engine_pm_get_if_awake(engine))
+>   		return 0;
+>   
+> -	if (mutex_lock_interruptible(&ce->timeline->mutex)) {
+> -		err = -EINTR;
+> -		goto out_rpm;
+> +	err = -EINTR;
+> +	if (!mutex_lock_interruptible(&ce->timeline->mutex)) {
+> +		err = __intel_engine_pulse(engine);
+> +		mutex_unlock(&ce->timeline->mutex);
+>   	}
+>   
+> -	intel_context_enter(ce);
+> -	rq = __i915_request_create(ce, GFP_NOWAIT | __GFP_NOWARN);
+> -	intel_context_exit(ce);
+> -	if (IS_ERR(rq)) {
+> -		err = PTR_ERR(rq);
+> -		goto out_unlock;
+> -	}
+> -
+> -	__set_bit(I915_FENCE_FLAG_SENTINEL, &rq->fence.flags);
+> -	idle_pulse(engine, rq);
+> -
+> -	__i915_request_commit(rq);
+> -	__i915_request_queue(rq, &attr);
+> -	GEM_BUG_ON(rq->sched.attr.priority < I915_PRIORITY_BARRIER);
+> -	err = 0;
+> -
+> -out_unlock:
+> -	mutex_unlock(&ce->timeline->mutex);
+> -out_rpm:
+>   	intel_engine_pm_put(engine);
+>   	return err;
+>   }
 > 
+
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+
+Regards,
+
+Tvrtko
