@@ -2,141 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFCA227AF7D
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 15:56:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2F0827AFB9
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 16:11:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726548AbgI1N4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 09:56:55 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:55745 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726310AbgI1N4w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 09:56:52 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id C852010D3;
-        Mon, 28 Sep 2020 09:56:51 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 28 Sep 2020 09:56:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=X4zs3r
-        16uuTfJQZybA3n8b0NsiklDCjmuI3QXKbaRzI=; b=a7aUFe9y/4SX6Rv1z6lGBE
-        zwMkFi3wZsOrSWllf/DGFdDSaVHsfL/WFvmggNuuItsedg24l3JR+4es/dSWFma0
-        o0HbWKte8z9jJAickSj463dBOlMIJGSCcG8aYhtOFzqkNiqEYmlopVxSDn/QcIRz
-        8Gwo5A/AwjoJnlUdtuM5Q4NsQYXMb3Cvlo8RLL8LusYkVmkmhVztUvlDQ9jtfvlw
-        sLzRQ8JuDNje0ATgM27ic+NIu7hw2g158IqC1n38sG2uyU9ak29IAs2jqtGbGfhc
-        jCoN3fqHZmqGBu7DNN9WHhYbCg10iTzVZLupvxe5dPbIuC1Xcmzm+Sybbbwoxyxg
-        ==
-X-ME-Sender: <xms:o-txXxehv3ZN61-sWc0pPILK3upvUQk8GFPdR6At_gI8nScbaIbMWg>
-    <xme:o-txX_NcfHX243ZOC9c20u_hBAZggJn5r7mXfAfd28Dr6S0323u_NFx5iefcRHo_k
-    U91kAFvKa5c0w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrvdeigdehtdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:o-txX6g92iJ8nynVTHMEtmE6OwlSLvO6fq7Sgsi6RbwerkXiS6gIgw>
-    <xmx:o-txX6-cFLYGrrr_y0LghkN--bK52d-fpHU5zGztpk4Y-BtDhXeIWg>
-    <xmx:o-txX9u0I3uBjkl9VxiWFt2YWB9HQ-xnxCQbq6qax6q4JMiY9b8DhA>
-    <xmx:o-txX71nAnQ0_Khgmasi1IwtrabIwErmQeDI9UnumqpA8uuWXYC1Akeq9P8>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E45ED3064686;
-        Mon, 28 Sep 2020 09:56:50 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] dm: fix bio splitting and its bio completion order for" failed to apply to 5.8-stable tree
-To:     snitzer@redhat.com, ming.lei@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Sep 2020 15:56:51 +0200
-Message-ID: <160130141116536@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1726327AbgI1OLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 10:11:01 -0400
+Received: from mga17.intel.com ([192.55.52.151]:58042 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725290AbgI1OLB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 10:11:01 -0400
+IronPort-SDR: xNHtA9DeooBbOf9+MfKdaXZcH56/O5w9pTzbnc2wutQmL4lnVfctScgI9mITTIUknZN/Q83KML
+ k2S1zkUfkQVA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9757"; a="142011881"
+X-IronPort-AV: E=Sophos;i="5.77,313,1596524400"; 
+   d="scan'208";a="142011881"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2020 06:48:55 -0700
+IronPort-SDR: ae4nM+oY40MpkgYNvhgSpAdehPh3FZ5xBRUiOfd0mcDMea1OcqdeU2jh/h1Es4x28maZfdq4kZ
+ /KogavtkaM6g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.77,313,1596524400"; 
+   d="scan'208";a="488586381"
+Received: from unknown (HELO labuser-Ice-Lake-Client-Platform.jf.intel.com) ([10.54.55.65])
+  by orsmga005.jf.intel.com with ESMTP; 28 Sep 2020 06:48:55 -0700
+From:   kan.liang@linux.intel.com
+To:     peterz@infradead.org, mingo@redhat.com,
+        linux-kernel@vger.kernel.org
+Cc:     ak@linux.intel.com, Kan Liang <kan.liang@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] perf/x86/intel: Fix Ice Lake event constraint table
+Date:   Mon, 28 Sep 2020 06:47:26 -0700
+Message-Id: <20200928134726.13090-1-kan.liang@linux.intel.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Kan Liang <kan.liang@linux.intel.com>
 
-The patch below does not apply to the 5.8-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+An error occues when sampling non-PEBS INST_RETIRED.PREC_DIST(0x01c0)
+event.
 
-thanks,
+  perf record -e cpu/event=0xc0,umask=0x01/ -- sleep 1
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument)
+  for event (cpu/event=0xc0,umask=0x01/).
+  /bin/dmesg | grep -i perf may provide additional information.
 
-greg k-h
+The idxmsk64 of the event is set to 0. The event never be successfully
+scheduled.
 
------------------- original commit in Linus's tree ------------------
+The event should be limit to the fixed counter 0.
 
-From ee1dfad5325ff1cfb2239e564cd411b3bfe8667a Mon Sep 17 00:00:00 2001
-From: Mike Snitzer <snitzer@redhat.com>
-Date: Mon, 14 Sep 2020 13:04:19 -0400
-Subject: [PATCH] dm: fix bio splitting and its bio completion order for
- regular IO
+Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
+Reported-by: Yi, Ammy <ammy.yi@intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
+---
+ arch/x86/events/intel/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-dm_queue_split() is removed because __split_and_process_bio() _must_
-handle splitting bios to ensure proper bio submission and completion
-ordering as a bio is split.
-
-Otherwise, multiple recursive calls to ->submit_bio will cause multiple
-split bios to be allocated from the same ->bio_split mempool at the same
-time. This would result in deadlock in low memory conditions because no
-progress could be made (only one bio is available in ->bio_split
-mempool).
-
-This fix has been verified to still fix the loss of performance, due
-to excess splitting, that commit 120c9257f5f1 provided.
-
-Fixes: 120c9257f5f1 ("Revert "dm: always call blk_queue_split() in dm_process_bio()"")
-Cc: stable@vger.kernel.org # 5.0+, requires custom backport due to 5.9 changes
-Reported-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 4a40df8af7d3..d948cd522431 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1724,23 +1724,6 @@ static blk_qc_t __process_bio(struct mapped_device *md, struct dm_table *map,
- 	return ret;
- }
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index c72e4904e056..93d6d5eadb6d 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -243,7 +243,7 @@ static struct extra_reg intel_skl_extra_regs[] __read_mostly = {
  
--static void dm_queue_split(struct mapped_device *md, struct dm_target *ti, struct bio **bio)
--{
--	unsigned len, sector_count;
--
--	sector_count = bio_sectors(*bio);
--	len = min_t(sector_t, max_io_len((*bio)->bi_iter.bi_sector, ti), sector_count);
--
--	if (sector_count > len) {
--		struct bio *split = bio_split(*bio, len, GFP_NOIO, &md->queue->bio_split);
--
--		bio_chain(split, *bio);
--		trace_block_split(md->queue, split, (*bio)->bi_iter.bi_sector);
--		submit_bio_noacct(*bio);
--		*bio = split;
--	}
--}
--
- static blk_qc_t dm_process_bio(struct mapped_device *md,
- 			       struct dm_table *map, struct bio *bio)
- {
-@@ -1768,14 +1751,12 @@ static blk_qc_t dm_process_bio(struct mapped_device *md,
- 	if (current->bio_list) {
- 		if (is_abnormal_io(bio))
- 			blk_queue_split(&bio);
--		else
--			dm_queue_split(md, ti, &bio);
-+		/* regular IO is split by __split_and_process_bio */
- 	}
- 
- 	if (dm_get_md_type(md) == DM_TYPE_NVME_BIO_BASED)
- 		return __process_bio(md, map, bio, ti);
--	else
--		return __split_and_process_bio(md, map, bio);
-+	return __split_and_process_bio(md, map, bio);
- }
- 
- static blk_qc_t dm_submit_bio(struct bio *bio)
+ static struct event_constraint intel_icl_event_constraints[] = {
+ 	FIXED_EVENT_CONSTRAINT(0x00c0, 0),	/* INST_RETIRED.ANY */
+-	INTEL_UEVENT_CONSTRAINT(0x1c0, 0),	/* INST_RETIRED.PREC_DIST */
++	FIXED_EVENT_CONSTRAINT(0x01c0, 0),	/* INST_RETIRED.PREC_DIST */
+ 	FIXED_EVENT_CONSTRAINT(0x003c, 1),	/* CPU_CLK_UNHALTED.CORE */
+ 	FIXED_EVENT_CONSTRAINT(0x0300, 2),	/* CPU_CLK_UNHALTED.REF */
+ 	FIXED_EVENT_CONSTRAINT(0x0400, 3),	/* SLOTS */
+-- 
+2.17.1
 
