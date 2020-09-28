@@ -2,146 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD1DA27B7CC
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 01:17:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFF6A27B7F6
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 01:20:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727012AbgI1XQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 19:16:39 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:64644 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726369AbgI1XQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 19:16:39 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22561506-1500050 
-        for multiple; Mon, 28 Sep 2020 22:59:45 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        "Candelaria, Jared" <jared.candelaria@intel.com>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "Bloomfield, Jon" <jon.bloomfield@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/i915: Avoid mixing integer types during batch copies
-Date:   Mon, 28 Sep 2020 22:59:42 +0100
-Message-Id: <20200928215942.31917-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S1727031AbgI1XUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 19:20:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42848 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726379AbgI1XUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 19:20:32 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F62721D7F;
+        Mon, 28 Sep 2020 22:01:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601330488;
+        bh=MZv602zAH+mldtKaHV8n2x/vl5hO6z6CgNiDtNb/co4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=10JFGv45YDJTrlFEV6WQiTAi/TskPMzQj6c6xbeq9coOe6pfxGYK0il/SvxLwNFVy
+         ilsp7OakST5z753hMgoeauIJjW/hdokg8folEDFOfyRy6IK6iooE4J7OMx5EhT2IH7
+         vAD/K7NxbXL/8L1GL3xPWfzt2zHTf9nv6NuiV0QU=
+Date:   Mon, 28 Sep 2020 18:01:27 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     linux- stable <stable@vger.kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        Ian Rogers <irogers@google.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        clang-built-linux@googlegroups.com, Jiri Olsa <jolsa@kernel.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        lkft-triage@lists.linaro.org
+Subject: Re: [PATCH AUTOSEL 4.14 112/127] perf parse-events: Fix incorrect
+ conversion of 'if () free()' to 'zfree()'
+Message-ID: <20200928220127.GE2219727@sasha-vm>
+References: <20200918021220.2066485-1-sashal@kernel.org>
+ <20200918021220.2066485-112-sashal@kernel.org>
+ <CA+G9fYteKZxdLVtQzXyh36hhaj6W5e17U_emsXwZdjPoeyj+OQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYteKZxdLVtQzXyh36hhaj6W5e17U_emsXwZdjPoeyj+OQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Be consistent and use unsigned long throughout the chunk copies to
-avoid the inherent clumsiness of mixing integer types of different
-widths and signs. Failing to take acount of a wider unsigned type when
-using min_t can lead to treating it as a negative, only for it flip back
-to a large unsigned value after passing a boundary check.
+On Tue, Sep 29, 2020 at 01:24:32AM +0530, Naresh Kamboju wrote:
+>On Fri, 18 Sep 2020 at 08:00, Sasha Levin <sashal@kernel.org> wrote:
+>>
+>> From: Arnaldo Carvalho de Melo <acme@redhat.com>
+>>
+>> [ Upstream commit 7fcdccd4237724931d9773d1e3039bfe053a6f52 ]
+>>
+>> When applying a patch by Ian I incorrectly converted to zfree() an
+>> expression that involved testing some other struct member, not the one
+>> being freed, which lead to bugs reproduceable by:
+>>
+>>   $ perf stat -e i/bs,tsc,L2/o sleep 1
+>>   WARNING: multiple event parsing errors
+>>   Segmentation fault (core dumped)
+>>   $
+>>
+>> Fix it by restoring the test for pos->free_str before freeing
+>> pos->val.str, but continue using zfree(&pos->val.str) to set that member
+>> to NULL after freeing it.
+>>
+>> Reported-by: Ian Rogers <irogers@google.com>
+>> Fixes: e8dfb81838b1 ("perf parse-events: Fix memory leaks found on parse_events")
+>> Cc: Adrian Hunter <adrian.hunter@intel.com>
+>> Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+>> Cc: Andi Kleen <ak@linux.intel.com>
+>> Cc: clang-built-linux@googlegroups.com
+>> Cc: Jiri Olsa <jolsa@kernel.org>
+>> Cc: Leo Yan <leo.yan@linaro.org>
+>> Cc: Mark Rutland <mark.rutland@arm.com>
+>> Cc: Namhyung Kim <namhyung@kernel.org>
+>> Cc: Peter Zijlstra <peterz@infradead.org>
+>> Cc: Stephane Eranian <eranian@google.com>
+>> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>
+>stable rc 4.14 perf build broken.
 
-Fixes: ed13033f0287 ("drm/i915/cmdparser: Only cache the dst vmap")
-Testcase: igt/gen9_exec_parse/bb-large
-Reported-by: "Candelaria, Jared" <jared.candelaria@intel.com>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: "Candelaria, Jared" <jared.candelaria@intel.com>
-Cc: "Bloomfield, Jon" <jon.bloomfield@intel.com>
-Cc: <stable@vger.kernel.org> # v4.9+
----
-The alternative would be to use u32 throughout, but that would also mean
-keeping the min_t(u32, ...). unsigned long decouples the mechanism from
-the API limits, so long as we remember to enforce that the mechanism
-copes with the entire range of the API.
----
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |  7 +++++--
- drivers/gpu/drm/i915/i915_cmd_parser.c         | 10 +++++-----
- drivers/gpu/drm/i915/i915_drv.h                |  4 ++--
- 3 files changed, 12 insertions(+), 9 deletions(-)
+Dropped, thanks!
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index 5509946f1a1d..4b09bcd70cf4 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -2267,8 +2267,8 @@ struct eb_parse_work {
- 	struct i915_vma *batch;
- 	struct i915_vma *shadow;
- 	struct i915_vma *trampoline;
--	unsigned int batch_offset;
--	unsigned int batch_length;
-+	unsigned long batch_offset;
-+	unsigned long batch_length;
- };
- 
- static int __eb_parse(struct dma_fence_work *work)
-@@ -2338,6 +2338,9 @@ static int eb_parse_pipeline(struct i915_execbuffer *eb,
- 	struct eb_parse_work *pw;
- 	int err;
- 
-+	GEM_BUG_ON(overflows_type(eb->batch_start_offset, pw->batch_offset));
-+	GEM_BUG_ON(overflows_type(eb->batch_len, pw->batch_length));
-+
- 	pw = kzalloc(sizeof(*pw), GFP_KERNEL);
- 	if (!pw)
- 		return -ENOMEM;
-diff --git a/drivers/gpu/drm/i915/i915_cmd_parser.c b/drivers/gpu/drm/i915/i915_cmd_parser.c
-index 5ac4a999f05a..e88970256e8e 100644
---- a/drivers/gpu/drm/i915/i915_cmd_parser.c
-+++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
-@@ -1136,7 +1136,7 @@ find_reg(const struct intel_engine_cs *engine, u32 addr)
- /* Returns a vmap'd pointer to dst_obj, which the caller must unmap */
- static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 		       struct drm_i915_gem_object *src_obj,
--		       u32 offset, u32 length)
-+		       unsigned long offset, unsigned long length)
- {
- 	bool needs_clflush;
- 	void *dst, *src;
-@@ -1166,8 +1166,8 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 		}
- 	}
- 	if (IS_ERR(src)) {
-+		unsigned long x, n;
- 		void *ptr;
--		int x, n;
- 
- 		/*
- 		 * We can avoid clflushing partial cachelines before the write
-@@ -1184,7 +1184,7 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
- 		ptr = dst;
- 		x = offset_in_page(offset);
- 		for (n = offset >> PAGE_SHIFT; length; n++) {
--			int len = min_t(int, length, PAGE_SIZE - x);
-+			int len = min(length, PAGE_SIZE - x);
- 
- 			src = kmap_atomic(i915_gem_object_get_page(src_obj, n));
- 			if (needs_clflush)
-@@ -1414,8 +1414,8 @@ static bool shadow_needs_clflush(struct drm_i915_gem_object *obj)
-  */
- int intel_engine_cmd_parser(struct intel_engine_cs *engine,
- 			    struct i915_vma *batch,
--			    u32 batch_offset,
--			    u32 batch_length,
-+			    unsigned long batch_offset,
-+			    unsigned long batch_length,
- 			    struct i915_vma *shadow,
- 			    bool trampoline)
- {
-diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-index 72a9449b674e..eef9a821c49c 100644
---- a/drivers/gpu/drm/i915/i915_drv.h
-+++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -1949,8 +1949,8 @@ void intel_engine_init_cmd_parser(struct intel_engine_cs *engine);
- void intel_engine_cleanup_cmd_parser(struct intel_engine_cs *engine);
- int intel_engine_cmd_parser(struct intel_engine_cs *engine,
- 			    struct i915_vma *batch,
--			    u32 batch_offset,
--			    u32 batch_length,
-+			    unsigned long batch_offset,
-+			    unsigned long batch_length,
- 			    struct i915_vma *shadow,
- 			    bool trampoline);
- #define I915_CMD_PARSER_TRAMPOLINE_SIZE 8
 -- 
-2.20.1
-
+Thanks,
+Sasha
