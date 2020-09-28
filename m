@@ -2,181 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58EBE27B5E0
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 22:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF72B27B5E7
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 22:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726590AbgI1UDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 16:03:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35168 "EHLO
+        id S1726465AbgI1UGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 16:06:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726328AbgI1UDM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 16:03:12 -0400
-Received: from mail-vs1-xe42.google.com (mail-vs1-xe42.google.com [IPv6:2607:f8b0:4864:20::e42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61631C0613CE
-        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 13:03:12 -0700 (PDT)
-Received: by mail-vs1-xe42.google.com with SMTP id z193so1539056vsz.10
-        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 13:03:12 -0700 (PDT)
+        with ESMTP id S1726325AbgI1UGM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 16:06:12 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1B90C061755
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 13:06:10 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id q4so1327087pjh.5
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 13:06:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=FVHTFluSha0AQSzv2ABK4QAsCYCIc/yOgt1qRmrDx08=;
-        b=nyw7bxf2RbT5J8k9zhdN9+g+3Iv4qFFqgw1efDnrOIi8mC91T0Is7QJTXwOXidhk44
-         g6nVa6SH2apB5kOnIFmUu6OmOsaE/f4gIuyG4JrmIsVPwYRRSSWSErb1mXfBuAuRckN7
-         du9gmAmAk8lVUZnkt+vPAv6M5TF4DGVU6zCY97Ofiyj7HqQ+fnnnHkA0LUDW9dG/LbY5
-         t4TI7UksGTKtkxxJc3IyDXohgVRZt7TuqrsEO/chh9VkhfVoDNShWbf93XuB6N/wgLYD
-         eYtLLvkZeVxrIo6zvj/LcvsF9sAxTWUDAqbOhIcK2IHBQFjggBBXq8OfVwWjN8sN0pnD
-         yUwg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xejPLKOcwCchY9nxSDpW2YWdQvzb2ipbEh3tSxW1VAI=;
+        b=DQ29eC5B2uXoibnT9Etwy+HougPEzqSbjQf0u3llRL1RwCydSm5dex+nPhvme3hjNt
+         QAHDRhoirZAZ+PDWKS94wMhqEk/gATCr88X4e+Cx99r7ihw/009HmTepHFsGl/y/bkT5
+         1NgsuhfxdxxbwnD79OrBQI9SMSVjp0lJcWJmgCAv+LN2hnqDVwF5nA84h7JGG8xvEunu
+         qfkS40QQtGPBb0eA8pa4YyGH4SILslF89sqG95KZmXrbTxAQsk6EZYRKYP328xFmRUGE
+         YNKPyWyOXRFrBtjMZsch7/rlUHsTihyz31NbFckCxnT/WKLsp/1JN6p9YHogwOBttiO+
+         7XSA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=FVHTFluSha0AQSzv2ABK4QAsCYCIc/yOgt1qRmrDx08=;
-        b=XWL0WK3GVl60ZA7v1UnkhfepFLBt59SqtLZlJvK/W6GatZcEpQZ8NrQwOs+tD4q5yF
-         hJkpiZrGIlX4b9Ql+zkOqM1wmRSmwqwyXLUrUKuzYdAfZvm1yqGzhlUStVflraWeq/c1
-         uPZYi3Qd6G7hYTrH5gtnrjAz5ZmTF13qofxvGhvpHKbSuu/8BkbmOFKAe29HvlpGz7VT
-         4Hq0NTDzUluMOs3krZ315IMvcz1LjbwFl8Xcrsyhf7Nayh5p6yILWRKdrFh7XHc0chAc
-         59/Ts+tSuyiY7ohxrTc+Jn8sh8eELcrfpiVPJAqMMlOctpT3yCkCXT/3BiY6feJ8K3jp
-         6iPA==
-X-Gm-Message-State: AOAM530h42co6tGniS49WIr9M6Wwh9owtaZnxbw241QdDDVnFNujjp6i
-        XgnYyS97M4KChuvG06CtQmLcfr1e2u6cWLqyCVIYOA==
-X-Google-Smtp-Source: ABdhPJyhVKKQ+Fppzvc+SS78vjuSCBubD1w7Tj2vi82ixcsJJQDzxsDxEweCOrjZBFvODM67LmKw+G4SFRo8oVCj2Eg=
-X-Received: by 2002:a67:80d2:: with SMTP id b201mr1027352vsd.12.1601323391431;
- Mon, 28 Sep 2020 13:03:11 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xejPLKOcwCchY9nxSDpW2YWdQvzb2ipbEh3tSxW1VAI=;
+        b=LsUWwVPlK9PJPJhwAnvSihaXa7pzmBeT0TkW/a7Fw10r5pS8xFhHWC3swq0vbrn6n3
+         B16HTGJYjE/XKr9ClFwjD2NQEA6FEOj+zh7TKG8AdemeDM/kSP09y5Yn7PIG5sBj2hf5
+         Y3IXRxQlpYKdrLJor3yh7AsKRhnDcvXb+2UXoOsZ2E6SeqbTgXfnOz2zhBSlrI0N5sjS
+         +fxOukvI4exzcDt3G3rBFFnz/yQXAMbv+V1icskjkBmQd/TBfrNRweHIDYy71/6MSoeC
+         xz/LmOiVYcxyDmIg0f4ZJnN2y9pIzVgMM03XOvjA4BrZpJwInHVmLYS8SGLLGCNpMOmZ
+         +Ncw==
+X-Gm-Message-State: AOAM530XcNKKoOdE1B3cLzRBeWXlxOHmiRcTn/GwVpixtJInt3OnVWDL
+        FLtOmUL19f6wvebOiumJljFLuKBNwCvNKA==
+X-Google-Smtp-Source: ABdhPJyaVpXL2qQgcly1gTugg/RT9gk55yRLtjwoPFTZexZF8WtQhXBgOKyzjCg+kwWQCfON+WJEgw==
+X-Received: by 2002:a17:90b:3717:: with SMTP id mg23mr832775pjb.42.1601323570067;
+        Mon, 28 Sep 2020 13:06:10 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i15sm2557112pfk.145.2020.09.28.13.06.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Sep 2020 13:06:09 -0700 (PDT)
+Message-ID: <5f724231.1c69fb81.27982.4aec@mx.google.com>
+Date:   Mon, 28 Sep 2020 13:06:09 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200820091537.490965042@linuxfoundation.org> <20200820091539.592290034@linuxfoundation.org>
-In-Reply-To: <20200820091539.592290034@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 29 Sep 2020 01:32:59 +0530
-Message-ID: <CA+G9fYvdQv2Ukvs-UKiEgYaDdBthsWsY=35cQ4YpvMhA0hU5Gg@mail.gmail.com>
-Subject: Re: [PATCH 4.19 38/92] kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Kernel: v4.9.237-117-g67e11f2ee7fa
+Subject: stable-rc/queue/4.9 baseline: 68 runs,
+ 1 regressions (v4.9.237-117-g67e11f2ee7fa)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 20 Aug 2020 at 15:23, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> From: Muchun Song <songmuchun@bytedance.com>
->
-> commit 0cb2f1372baa60af8456388a574af6133edd7d80 upstream.
->
-> We found a case of kernel panic on our server. The stack trace is as
-> follows(omit some irrelevant information):
->
->   BUG: kernel NULL pointer dereference, address: 0000000000000080
->   RIP: 0010:kprobe_ftrace_handler+0x5e/0xe0
->   RSP: 0018:ffffb512c6550998 EFLAGS: 00010282
->   RAX: 0000000000000000 RBX: ffff8e9d16eea018 RCX: 0000000000000000
->   RDX: ffffffffbe1179c0 RSI: ffffffffc0535564 RDI: ffffffffc0534ec0
->   RBP: ffffffffc0534ec1 R08: ffff8e9d1bbb0f00 R09: 0000000000000004
->   R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
->   R13: ffff8e9d1f797060 R14: 000000000000bacc R15: ffff8e9ce13eca00
->   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->   CR2: 0000000000000080 CR3: 00000008453d0005 CR4: 00000000003606e0
->   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->   Call Trace:
->    <IRQ>
->    ftrace_ops_assist_func+0x56/0xe0
->    ftrace_call+0x5/0x34
->    tcpa_statistic_send+0x5/0x130 [ttcp_engine]
->
-> The tcpa_statistic_send is the function being kprobed. After analysis,
-> the root cause is that the fourth parameter regs of kprobe_ftrace_handler
-> is NULL. Why regs is NULL? We use the crash tool to analyze the kdump.
->
->   crash> dis tcpa_statistic_send -r
->          <tcpa_statistic_send>: callq 0xffffffffbd8018c0 <ftrace_caller>
->
-> The tcpa_statistic_send calls ftrace_caller instead of ftrace_regs_caller=
-.
-> So it is reasonable that the fourth parameter regs of kprobe_ftrace_handl=
-er
-> is NULL. In theory, we should call the ftrace_regs_caller instead of the
-> ftrace_caller. After in-depth analysis, we found a reproducible path.
->
->   Writing a simple kernel module which starts a periodic timer. The
->   timer's handler is named 'kprobe_test_timer_handler'. The module
->   name is kprobe_test.ko.
->
->   1) insmod kprobe_test.ko
->   2) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
->   3) echo 0 > /proc/sys/kernel/ftrace_enabled
->   4) rmmod kprobe_test
->   5) stop step 2) kprobe
->   6) insmod kprobe_test.ko
->   7) bpftrace -e 'kretprobe:kprobe_test_timer_handler {}'
->
-> We mark the kprobe as GONE but not disarm the kprobe in the step 4).
-> The step 5) also do not disarm the kprobe when unregister kprobe. So
-> we do not remove the ip from the filter. In this case, when the module
-> loads again in the step 6), we will replace the code to ftrace_caller
-> via the ftrace_module_enable(). When we register kprobe again, we will
-> not replace ftrace_caller to ftrace_regs_caller because the ftrace is
-> disabled in the step 3). So the step 7) will trigger kernel panic. Fix
-> this problem by disarming the kprobe when the module is going away.
->
-> Link: https://lkml.kernel.org/r/20200728064536.24405-1-songmuchun@bytedan=
-ce.com
->
-> Cc: stable@vger.kernel.org
-> Fixes: ae6aa16fdc16 ("kprobes: introduce ftrace based optimization")
-> Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-> Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
-> Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+stable-rc/queue/4.9 baseline: 68 runs, 1 regressions (v4.9.237-117-g67e11f2=
+ee7fa)
+
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
 
 
-stable rc branch 4.19 build warning on arm64.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.237-117-g67e11f2ee7fa/plan/baseline/
 
-../kernel/kprobes.c: In function =E2=80=98kill_kprobe=E2=80=99:
-../kernel/kprobes.c:1070:33: warning: statement with no effect [-Wunused-va=
-lue]
- 1070 | #define disarm_kprobe_ftrace(p) (-ENODEV)
-      |                                 ^
-../kernel/kprobes.c:2090:3: note: in expansion of macro =E2=80=98disarm_kpr=
-obe_ftrace=E2=80=99
- 2090 |   disarm_kprobe_ftrace(p);
-      |   ^~~~~~~~~~~~~~~~~~~~
-
-
->
-> ---
->  kernel/kprobes.c |    7 +++++++
->  1 file changed, 7 insertions(+)
->
-> --- a/kernel/kprobes.c
-> +++ b/kernel/kprobes.c
-> @@ -2077,6 +2077,13 @@ static void kill_kprobe(struct kprobe *p
->          * the original probed function (which will be freed soon) any mo=
-re.
->          */
->         arch_remove_kprobe(p);
-> +
-> +       /*
-> +        * The module is going away. We should disarm the kprobe which
-> +        * is using ftrace.
-> +        */
-> +       if (kprobe_ftrace(p))
-> +               disarm_kprobe_ftrace(p);
->  }
->
->  /* Disable one kprobe */
->
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.237-117-g67e11f2ee7fa
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      67e11f2ee7fa7e7fed23702e8761fa1e57d06d8a =
 
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f721140c4ddd7a4e8bf9db3
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.237-1=
+17-g67e11f2ee7fa/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.237-1=
+17-g67e11f2ee7fa/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f721140c4ddd7a=
+4e8bf9dba
+      new failure (last pass: v4.9.237-13-g73039a4e470c)
+      2 lines  =20
