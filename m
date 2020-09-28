@@ -2,209 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1684D27AF05
-	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 15:24:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F7127AF57
+	for <lists+stable@lfdr.de>; Mon, 28 Sep 2020 15:47:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726424AbgI1NYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 09:24:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39650 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726344AbgI1NYP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 09:24:15 -0400
-Received: from localhost (83-245-197-237.elisa-laajakaista.fi [83.245.197.237])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AE0D20789;
-        Mon, 28 Sep 2020 13:24:13 +0000 (UTC)
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        David Howells <dhowells@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH 2/2] KEYS: trusted: Reserve TPM for seal and unseal operations
-Date:   Mon, 28 Sep 2020 16:24:05 +0300
-Message-Id: <20200928132405.68624-2-jarkko.sakkinen@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200928132405.68624-1-jarkko.sakkinen@linux.intel.com>
-References: <20200928132405.68624-1-jarkko.sakkinen@linux.intel.com>
+        id S1726350AbgI1Nrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 09:47:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33680 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726281AbgI1Nrv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Sep 2020 09:47:51 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27766C061755
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 06:47:51 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id d13so926901pgl.6
+        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 06:47:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
+        b=UezkGov1xJLqv/0Df3pVmIpRtB44amDkqYLzwMOvvyL7vaKl9MTp/ZepZd5/eOWtVu
+         +mzsKuGVYEB70Kskx0oy8r82tKQlGsT2zL7lttqMUu+2nhgLOzCT4mtsdCAP0j8Jx8UE
+         qQeBwY+q9LYjK9AKeAVFLyvztmC70tb94tW1TM6/GpdzTvsY9P0otgWxgDm9EAX5MM/S
+         90QEBSCd9yPk8ow3MDm4CZHhRNVNePfery9l+5q9hGomUJbYNzMsX8JSSoz6ZSEF8U7o
+         o6Ynhm6f+t4vIXjzfx8ybvHCRPYfI/em3B9pJYxbW39+IpdRXkilaQKFo8g2jRnAS9IP
+         Mj0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
+        b=ZwOPGcVjbY6cnz895UHQwZO84hVvaQ9ugFbZPWQnVLidC0mBEF4V5eRAHBbrC5zFEg
+         h4sHi78JZWdaeXm9+lFdwVbBjyxhR5J0tRK42QCQ3ZdRkXPv0nFkHsfi5gHPscAVtRfs
+         k3ZDgYmahfKLY/T93DH0knPTUAHtw4hW231oruzMs4PN4prn+NodfiCyozbWHNf+sLpT
+         QhrfKbwb4JdIpHesi71X+n0qzMtiAlHU4vX+IiW6w72rgrqJ5IhI+qROtQpFU3xlywvu
+         ZoGRaplHsnK1BsLgL6xqan1Nk6VOnePQ7f49hmYQowq1Nc7Wodh86yUYksFOOViL7ouj
+         lyEQ==
+X-Gm-Message-State: AOAM531MVF1iACqCuEPOJyMxVaQ+on4v3NXdhfDlq1yS2k/PBKxGmTHx
+        tKZgqkVz5RPbxVVVE6Re92qdaPwGMvuOgfXoAc8=
+X-Google-Smtp-Source: ABdhPJyq+HoRsqyD4hSmp/1Rb/4mnjRtg/JyFMKK+EAbpIkIJF8Xo1XSiHTtXbVbPGj+xsLzp17aySkkugqmOZyJN/I=
+X-Received: by 2002:a65:4987:: with SMTP id r7mr1198222pgs.228.1601300870461;
+ Mon, 28 Sep 2020 06:47:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a17:90b:14cf:0:0:0:0 with HTTP; Mon, 28 Sep 2020 06:47:49
+ -0700 (PDT)
+Reply-To: mfdp@tlen.pl
+From:   Mr Bill T Winters <johnnylewis946@gmail.com>
+Date:   Mon, 28 Sep 2020 06:47:49 -0700
+Message-ID: <CAGF0JLO2kmUVGoRcd9CdvoOL3aAR8B5Gp7L-fWb2oor2VxfxBw@mail.gmail.com>
+Subject: Good Morning!
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When TPM 2.0 trusted keys code was moved to the trusted keys subsystem,
-the operations were unwrapped from tpm_try_get_ops() and tpm_put_ops(),
-which are used to take temporarily the ownership of the TPM chip.
-
-Fix this issue by introducting trusted_tpm_load() and trusted_tpm_new(),
-which wrap these operations.
-
-Fixes: 2e19e10131a0 ("KEYS: trusted: Move TPM2 trusted keys code")
-Reported-by: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Sumit Garg <sumit.garg@linaro.org>
-Cc: David Howells <dhowells@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
----
- drivers/char/tpm/tpm.h                    |  2 -
- include/linux/tpm.h                       | 10 ++-
- security/keys/trusted-keys/trusted_tpm1.c | 79 +++++++++++++++--------
- 3 files changed, 62 insertions(+), 29 deletions(-)
-
-diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
-index 947d1db0a5cc..4338573a8d48 100644
---- a/drivers/char/tpm/tpm.h
-+++ b/drivers/char/tpm/tpm.h
-@@ -194,8 +194,6 @@ static inline void tpm_msleep(unsigned int delay_msec)
- int tpm_chip_start(struct tpm_chip *chip);
- void tpm_chip_stop(struct tpm_chip *chip);
- struct tpm_chip *tpm_find_get_ops(struct tpm_chip *chip);
--__must_check int tpm_try_get_ops(struct tpm_chip *chip);
--void tpm_put_ops(struct tpm_chip *chip);
- 
- struct tpm_chip *tpm_chip_alloc(struct device *dev,
- 				const struct tpm_class_ops *ops);
-diff --git a/include/linux/tpm.h b/include/linux/tpm.h
-index 8f4ff39f51e7..0fe1cb5517ea 100644
---- a/include/linux/tpm.h
-+++ b/include/linux/tpm.h
-@@ -397,6 +397,8 @@ static inline u32 tpm2_rc_value(u32 rc)
- #if defined(CONFIG_TCG_TPM) || defined(CONFIG_TCG_TPM_MODULE)
- 
- extern int tpm_is_tpm2(struct tpm_chip *chip);
-+extern __must_check int tpm_try_get_ops(struct tpm_chip *chip);
-+extern void tpm_put_ops(struct tpm_chip *chip);
- extern int tpm_pcr_read(struct tpm_chip *chip, u32 pcr_idx,
- 			struct tpm_digest *digest);
- extern int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx,
-@@ -410,7 +412,13 @@ static inline int tpm_is_tpm2(struct tpm_chip *chip)
- {
- 	return -ENODEV;
- }
--
-+static inline int tpm_try_get_ops(struct tpm_chip *chip)
-+{
-+	return -ENODEV;
-+}
-+static inline void tpm_put_ops(struct tpm_chip *chip)
-+{
-+}
- static inline int tpm_pcr_read(struct tpm_chip *chip, int pcr_idx,
- 			       struct tpm_digest *digest)
- {
-diff --git a/security/keys/trusted-keys/trusted_tpm1.c b/security/keys/trusted-keys/trusted_tpm1.c
-index 0f2e893c6b5f..5d6358bea4ad 100644
---- a/security/keys/trusted-keys/trusted_tpm1.c
-+++ b/security/keys/trusted-keys/trusted_tpm1.c
-@@ -950,6 +950,51 @@ static struct trusted_key_payload *trusted_payload_alloc(struct key *key)
- 	return p;
- }
- 
-+static int trusted_tpm_load(struct tpm_chip *chip,
-+			    struct trusted_key_payload *payload,
-+			    struct trusted_key_options *options)
-+{
-+	int ret;
-+
-+	if (tpm_is_tpm2(chip)) {
-+		ret = tpm_try_get_ops(chip);
-+		if (!ret) {
-+			ret = tpm2_unseal_trusted(chip, payload, options);
-+			tpm_put_ops(chip);
-+		}
-+	} else {
-+		ret = key_unseal(payload, options);
-+	}
-+
-+	return ret;
-+}
-+
-+static int trusted_tpm_new(struct tpm_chip *chip,
-+			   struct trusted_key_payload *payload,
-+			   struct trusted_key_options *options)
-+{
-+	int ret;
-+
-+	ret = tpm_get_random(chip, payload->key, payload->key_len);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (ret != payload->key_len)
-+		return -EIO;
-+
-+	if (tpm_is_tpm2(chip)) {
-+		ret = tpm_try_get_ops(chip);
-+		if (!ret) {
-+			ret = tpm2_seal_trusted(chip, payload, options);
-+			tpm_put_ops(chip);
-+		}
-+	} else {
-+		ret = key_seal(payload, options);
-+	}
-+
-+	return ret;
-+}
-+
- /*
-  * trusted_instantiate - create a new trusted key
-  *
-@@ -968,12 +1013,6 @@ static int trusted_instantiate(struct key *key,
- 	char *datablob;
- 	int ret = 0;
- 	int key_cmd;
--	size_t key_len;
--	int tpm2;
--
--	tpm2 = tpm_is_tpm2(chip);
--	if (tpm2 < 0)
--		return tpm2;
- 
- 	if (datalen <= 0 || datalen > 32767 || !prep->data)
- 		return -EINVAL;
-@@ -1011,33 +1050,21 @@ static int trusted_instantiate(struct key *key,
- 
- 	switch (key_cmd) {
- 	case Opt_load:
--		if (tpm2)
--			ret = tpm2_unseal_trusted(chip, payload, options);
--		else
--			ret = key_unseal(payload, options);
-+		ret = trusted_tpm_load(chip, payload, options);
-+
- 		dump_payload(payload);
- 		dump_options(options);
-+
- 		if (ret < 0)
--			pr_info("trusted_key: key_unseal failed (%d)\n", ret);
-+			pr_info("%s: load failed (%d)\n", __func__, ret);
-+
- 		break;
- 	case Opt_new:
--		key_len = payload->key_len;
--		ret = tpm_get_random(chip, payload->key, key_len);
--		if (ret < 0) {
--			ret = -EIO;
--			goto out;
--		}
-+		ret = trusted_tpm_new(chip, payload, options);
- 
--		if (ret != key_len) {
--			pr_info("trusted_key: key_create failed (%d)\n", ret);
--			goto out;
--		}
--		if (tpm2)
--			ret = tpm2_seal_trusted(chip, payload, options);
--		else
--			ret = key_seal(payload, options);
- 		if (ret < 0)
--			pr_info("trusted_key: key_seal failed (%d)\n", ret);
-+			pr_info("%s: new failed (%d)\n", __func__, ret);
-+
- 		break;
- 	default:
- 		ret = -EINVAL;
 -- 
-2.25.1
+Greetings,
+I Mr Bill T, did you Receive the (FUND), that was paid to you?
+Let me know with your full name:...  immediately,
 
+Sincerely Yours, Respectfully,
+
+Mr Bill T Winters,
+Group Chief Executive Officer & Executive Director,
