@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D237727B993
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5BA127B9ED
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:35:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727709AbgI2Bbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 21:31:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41240 "EHLO mail.kernel.org"
+        id S1728031AbgI2BeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 21:34:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727695AbgI2Bbn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 21:31:43 -0400
+        id S1727700AbgI2Bbo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 21:31:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3254322262;
-        Tue, 29 Sep 2020 01:31:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 579B42075A;
+        Tue, 29 Sep 2020 01:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343102;
-        bh=BzMNSrDRWu5PHra6SIrk//x0rIMv7+Gij9DQf6TWKqk=;
+        s=default; t=1601343104;
+        bh=vSfS7lFrUIQZJy5iyVkaDClvgMkXrRHgJr5Fcs3JHmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iWjRT9e6tVPiWOg1vyLTt+s5Hicrvsp3YMS0mle+JQwvVIxF00C2oVhbzgrPwhZl7
-         tI6kcnQO6VS5mryk2IEeFhIE+kQoYlA8YD5Pz81OnhOakwzLfwpomg9OGAutKQUmvH
-         4+ZvzRmYHnlKc/1qKkgk9S+IqZwBteuRRg+i/z9g=
+        b=SBVvni5j+xbia9qem3TEJFBVCDKEUZxstLOFb7hdVK2S37JRul5Wh/WsdROqOXWG+
+         lWNdsnU+P9656qUNS+oR4sjSfmXB54nif7uhFq4w9fp8esjSqmNM4ml4IH8WoRyA0e
+         qTthfALXBn4t/G3dixNRKo1wQCOA+C1lloogDxZI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 10/11] spi: fsl-espi: Only process interrupts for expected events
-Date:   Mon, 28 Sep 2020 21:31:28 -0400
-Message-Id: <20200929013129.2406832-10-sashal@kernel.org>
+Cc:     James Smart <james.smart@broadcom.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 11/11] nvme-fc: fail new connections to a deleted host or remote port
+Date:   Mon, 28 Sep 2020 21:31:29 -0400
+Message-Id: <20200929013129.2406832-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013129.2406832-1-sashal@kernel.org>
 References: <20200929013129.2406832-1-sashal@kernel.org>
@@ -42,47 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: James Smart <james.smart@broadcom.com>
 
-[ Upstream commit b867eef4cf548cd9541225aadcdcee644669b9e1 ]
+[ Upstream commit 9e0e8dac985d4bd07d9e62922b9d189d3ca2fccf ]
 
-The SPIE register contains counts for the TX FIFO so any time the irq
-handler was invoked we would attempt to process the RX/TX fifos. Use the
-SPIM value to mask the events so that we only process interrupts that
-were expected.
+The lldd may have made calls to delete a remote port or local port and
+the delete is in progress when the cli then attempts to create a new
+controller. Currently, this proceeds without error although it can't be
+very successful.
 
-This was a latent issue exposed by commit 3282a3da25bd ("powerpc/64:
-Implement soft interrupt replay in C").
+Fix this by validating that both the host port and remote port are
+present when a new controller is to be created.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Link: https://lore.kernel.org/r/20200904002812.7300-1-chris.packham@alliedtelesis.co.nz
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: James Smart <james.smart@broadcom.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-espi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/nvme/host/fc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-fsl-espi.c b/drivers/spi/spi-fsl-espi.c
-index 1e8ff6256079f..b8dd75b8518b5 100644
---- a/drivers/spi/spi-fsl-espi.c
-+++ b/drivers/spi/spi-fsl-espi.c
-@@ -559,13 +559,14 @@ static void fsl_espi_cpu_irq(struct fsl_espi *espi, u32 events)
- static irqreturn_t fsl_espi_irq(s32 irq, void *context_data)
- {
- 	struct fsl_espi *espi = context_data;
--	u32 events;
-+	u32 events, mask;
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 73db32f97abf3..ed88d50217724 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -3294,12 +3294,14 @@ nvme_fc_create_ctrl(struct device *dev, struct nvmf_ctrl_options *opts)
+ 	spin_lock_irqsave(&nvme_fc_lock, flags);
+ 	list_for_each_entry(lport, &nvme_fc_lport_list, port_list) {
+ 		if (lport->localport.node_name != laddr.nn ||
+-		    lport->localport.port_name != laddr.pn)
++		    lport->localport.port_name != laddr.pn ||
++		    lport->localport.port_state != FC_OBJSTATE_ONLINE)
+ 			continue;
  
- 	spin_lock(&espi->lock);
+ 		list_for_each_entry(rport, &lport->endp_list, endp_list) {
+ 			if (rport->remoteport.node_name != raddr.nn ||
+-			    rport->remoteport.port_name != raddr.pn)
++			    rport->remoteport.port_name != raddr.pn ||
++			    rport->remoteport.port_state != FC_OBJSTATE_ONLINE)
+ 				continue;
  
- 	/* Get interrupt events(tx/rx) */
- 	events = fsl_espi_read_reg(espi, ESPI_SPIE);
--	if (!events) {
-+	mask = fsl_espi_read_reg(espi, ESPI_SPIM);
-+	if (!(events & mask)) {
- 		spin_unlock(&espi->lock);
- 		return IRQ_NONE;
- 	}
+ 			/* if fail to get reference fall through. Will error */
 -- 
 2.25.1
 
