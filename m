@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C2227CB74
+	by mail.lfdr.de (Postfix) with ESMTP id 2AABC27CB73
 	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732787AbgI2M1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:27:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45188 "EHLO mail.kernel.org"
+        id S1732705AbgI2M1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:27:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728702AbgI2LdN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729044AbgI2LdN (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:33:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5A5523B3E;
-        Tue, 29 Sep 2020 11:25:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A2C523B31;
+        Tue, 29 Sep 2020 11:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378756;
-        bh=sMtUXiLrD2CTS5yhYpl994m8qcR94OVzzB4WmWh4BGA=;
+        s=default; t=1601378758;
+        bh=Tt6DnYGiWAjDPqOMfhauHSXDFE4oJt7VPHo/MIsFYJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D98/Y+p6f3RoD9jTec0NkI0k42cwc/vSDSSstHbRcJta0yCu6pLdd6cwULwiBa40f
-         GWgWdIGJEU296WEfossWogM6UuHFuIKXF5Vb8+8qOJ4kwycteEVR3zqKzZ/WyNI+g5
-         BOt7dHNcfW3J8QGMrkwybOk8FzoTZ7ERRN883/R4=
+        b=2aPt9pQTy7Cvh40EhQ4u/4o0DNAlpicI3i/8p/qhvd13lvD9qzh1x5G2z1b2Oqpt+
+         ETfh7uq8toHYZrXWWNXUH9owfMohHtLKqk9Cz3l5voKZAkwPlBh8Mqno4UjldU+MyV
+         oEDpeXe3mWBpTTQZXo3qz0gpovnRSi9YI9B8kqyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        John Meneghini <johnm@netapp.com>,
+        stable@vger.kernel.org, Israel Rukshin <israelr@mellanox.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Christoph Hellwig <hch@lst.de>,
         Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.19 127/245] nvme-multipath: do not reset on unknown status
-Date:   Tue, 29 Sep 2020 12:59:38 +0200
-Message-Id: <20200929105953.167165041@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 128/245] nvme: Fix controller creation races with teardown flow
+Date:   Tue, 29 Sep 2020 12:59:39 +0200
+Message-Id: <20200929105953.216091511@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -44,118 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Meneghini <johnm@netapp.com>
+From: Israel Rukshin <israelr@mellanox.com>
 
-[ Upstream commit 764e9332098c0e60251386a507fe46ac91276120 ]
+[ Upstream commit ce1518139e6976cf19c133b555083354fdb629b8 ]
 
-The nvme multipath error handling defaults to controller reset if the
-error is unknown. There are, however, no existing nvme status codes that
-indicate a reset should be used, and resetting causes unnecessary
-disruption to the rest of IO.
+Calling nvme_sysfs_delete() when the controller is in the middle of
+creation may cause several bugs. If the controller is in NEW state we
+remove delete_controller file and don't delete the controller. The user
+will not be able to use nvme disconnect command on that controller again,
+although the controller may be active. Other bugs may happen if the
+controller is in the middle of create_ctrl callback and
+nvme_do_delete_ctrl() starts. For example, freeing I/O tagset at
+nvme_do_delete_ctrl() before it was allocated at create_ctrl callback.
 
-Change nvme's error handling to first check if failover should happen.
-If not, let the normal error handling take over rather than reset the
-controller.
+To fix all those races don't allow the user to delete the controller
+before it was fully created.
 
-Based-on-a-patch-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: John Meneghini <johnm@netapp.com>
+Signed-off-by: Israel Rukshin <israelr@mellanox.com>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c      |  5 +----
- drivers/nvme/host/multipath.c | 21 +++++++++------------
- drivers/nvme/host/nvme.h      |  5 +++--
- 3 files changed, 13 insertions(+), 18 deletions(-)
+ drivers/nvme/host/core.c | 5 +++++
+ drivers/nvme/host/nvme.h | 1 +
+ 2 files changed, 6 insertions(+)
 
 diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 0d60f2f8f3eec..4b182ac15687e 100644
+index 4b182ac15687e..faa7feebb6095 100644
 --- a/drivers/nvme/host/core.c
 +++ b/drivers/nvme/host/core.c
-@@ -255,11 +255,8 @@ void nvme_complete_rq(struct request *req)
- 	trace_nvme_complete_rq(req);
- 
- 	if (unlikely(status != BLK_STS_OK && nvme_req_needs_retry(req))) {
--		if ((req->cmd_flags & REQ_NVME_MPATH) &&
--		    blk_path_error(status)) {
--			nvme_failover_req(req);
-+		if ((req->cmd_flags & REQ_NVME_MPATH) && nvme_failover_req(req))
- 			return;
--		}
- 
- 		if (!blk_queue_dying(req->q)) {
- 			nvme_req(req)->retries++;
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 2e63c1106030b..e71075338ff5c 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -73,17 +73,12 @@ void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
- 	}
- }
- 
--void nvme_failover_req(struct request *req)
-+bool nvme_failover_req(struct request *req)
+@@ -2856,6 +2856,10 @@ static ssize_t nvme_sysfs_delete(struct device *dev,
  {
- 	struct nvme_ns *ns = req->q->queuedata;
- 	u16 status = nvme_req(req)->status;
- 	unsigned long flags;
+ 	struct nvme_ctrl *ctrl = dev_get_drvdata(dev);
  
--	spin_lock_irqsave(&ns->head->requeue_lock, flags);
--	blk_steal_bios(&ns->head->requeue_list, req);
--	spin_unlock_irqrestore(&ns->head->requeue_lock, flags);
--	blk_mq_end_request(req, 0);
--
- 	switch (status & 0x7ff) {
- 	case NVME_SC_ANA_TRANSITION:
- 	case NVME_SC_ANA_INACCESSIBLE:
-@@ -111,15 +106,17 @@ void nvme_failover_req(struct request *req)
- 		nvme_mpath_clear_current_path(ns);
- 		break;
- 	default:
--		/*
--		 * Reset the controller for any non-ANA error as we don't know
--		 * what caused the error.
--		 */
--		nvme_reset_ctrl(ns->ctrl);
--		break;
-+		/* This was a non-ANA error so follow the normal error path. */
-+		return false;
- 	}
- 
-+	spin_lock_irqsave(&ns->head->requeue_lock, flags);
-+	blk_steal_bios(&ns->head->requeue_list, req);
-+	spin_unlock_irqrestore(&ns->head->requeue_lock, flags);
-+	blk_mq_end_request(req, 0);
++	/* Can't delete non-created controllers */
++	if (!ctrl->created)
++		return -EBUSY;
 +
- 	kblockd_schedule_work(&ns->head->requeue_work);
-+	return true;
+ 	if (device_remove_file_self(dev, attr))
+ 		nvme_delete_ctrl_sync(ctrl);
+ 	return count;
+@@ -3576,6 +3580,7 @@ void nvme_start_ctrl(struct nvme_ctrl *ctrl)
+ 		queue_work(nvme_wq, &ctrl->async_event_work);
+ 		nvme_start_queues(ctrl);
+ 	}
++	ctrl->created = true;
  }
+ EXPORT_SYMBOL_GPL(nvme_start_ctrl);
  
- void nvme_kick_requeue_lists(struct nvme_ctrl *ctrl)
 diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index cc4273f119894..31c1496f938fb 100644
+index 31c1496f938fb..a70b997060e68 100644
 --- a/drivers/nvme/host/nvme.h
 +++ b/drivers/nvme/host/nvme.h
-@@ -477,7 +477,7 @@ void nvme_mpath_wait_freeze(struct nvme_subsystem *subsys);
- void nvme_mpath_start_freeze(struct nvme_subsystem *subsys);
- void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
- 			struct nvme_ctrl *ctrl, int *flags);
--void nvme_failover_req(struct request *req);
-+bool nvme_failover_req(struct request *req);
- void nvme_kick_requeue_lists(struct nvme_ctrl *ctrl);
- int nvme_mpath_alloc_disk(struct nvme_ctrl *ctrl,struct nvme_ns_head *head);
- void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id);
-@@ -521,8 +521,9 @@ static inline void nvme_set_disk_name(char *disk_name, struct nvme_ns *ns,
- 	sprintf(disk_name, "nvme%dn%d", ctrl->instance, ns->head->instance);
- }
+@@ -206,6 +206,7 @@ struct nvme_ctrl {
+ 	struct nvme_command ka_cmd;
+ 	struct work_struct fw_act_work;
+ 	unsigned long events;
++	bool created;
  
--static inline void nvme_failover_req(struct request *req)
-+static inline bool nvme_failover_req(struct request *req)
- {
-+	return false;
- }
- static inline void nvme_kick_requeue_lists(struct nvme_ctrl *ctrl)
- {
+ #ifdef CONFIG_NVME_MULTIPATH
+ 	/* asymmetric namespace access: */
 -- 
 2.25.1
 
