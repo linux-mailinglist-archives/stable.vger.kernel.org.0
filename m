@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB3A27CDA2
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE4927CDA3
 	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:46:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733298AbgI2Mpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387540AbgI2Mpn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 29 Sep 2020 08:45:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46316 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728951AbgI2LHm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:07:42 -0400
+        id S1728959AbgI2LHq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:07:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7D0C21941;
-        Tue, 29 Sep 2020 11:07:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FE7E21D43;
+        Tue, 29 Sep 2020 11:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377662;
-        bh=xB7KT/ft9wakZlyOVcIe5drmrM2B9Ds+PijXGktQiqQ=;
+        s=default; t=1601377666;
+        bh=DvGv0QXojID4DR377cA1DHoRb2cdFnCZLzGnAUpJlMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmUi81dpwGHx/hIUDzuJNt0QMD4LKs1U4kv6SUxig2jrVqGAZZ9cV7oYN9IUMJBGK
-         jFNxYmlD++b62Z62x7b59n2J7+dLLJ7mChbn5p/HYQxjkP6Kc5cO4lGy9Ng1XODpu9
-         7FgLlntMjONIcrUiODKAuOE+Yo//89Hb09H7dlQs=
+        b=oZitgiCzz31FD2TZmkEJcV9isKGjZZBJE74gCLP5mNPlITAQsUfim0YvYqCbiGLuY
+         hHqNqC7L+ZfCgsaySVJsruTWB/dgBGlwAPIJVRzn3D8rYAjTNonKEAf+cbCwPo0A1Q
+         bKu3Zch4CKxA+JmA5kHv1TzE4ZnF8j2szJW6H6kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Kusanagi Kouichi <slash@ac.auone-net.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 027/121] RDMA/iw_cgxb4: Fix an error handling path in c4iw_connect()
-Date:   Tue, 29 Sep 2020 12:59:31 +0200
-Message-Id: <20200929105931.536524277@linuxfoundation.org>
+Subject: [PATCH 4.9 028/121] debugfs: Fix !DEBUG_FS debugfs_create_automount
+Date:   Tue, 29 Sep 2020 12:59:32 +0200
+Message-Id: <20200929105931.580404726@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
@@ -44,42 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Kusanagi Kouichi <slash@ac.auone-net.jp>
 
-[ Upstream commit 9067f2f0b41d7e817fc8c5259bab1f17512b0147 ]
+[ Upstream commit 4250b047039d324e0ff65267c8beb5bad5052a86 ]
 
-We should jump to fail3 in order to undo the 'xa_insert_irq()' call.
+If DEBUG_FS=n, compile fails with the following error:
 
-Link: https://lore.kernel.org/r/20190923190746.10964-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+kernel/trace/trace.c: In function 'tracing_init_dentry':
+kernel/trace/trace.c:8658:9: error: passing argument 3 of 'debugfs_create_automount' from incompatible pointer type [-Werror=incompatible-pointer-types]
+ 8658 |         trace_automount, NULL);
+      |         ^~~~~~~~~~~~~~~
+      |         |
+      |         struct vfsmount * (*)(struct dentry *, void *)
+In file included from kernel/trace/trace.c:24:
+./include/linux/debugfs.h:206:25: note: expected 'struct vfsmount * (*)(void *)' but argument is of type 'struct vfsmount * (*)(struct dentry *, void *)'
+  206 |      struct vfsmount *(*f)(void *),
+      |      ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+
+Signed-off-by: Kusanagi Kouichi <slash@ac.auone-net.jp>
+Link: https://lore.kernel.org/r/20191121102021787.MLMY.25002.ppp.dion.ne.jp@dmta0003.auone-net.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/debugfs.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index a04a53acb24ff..a60e1c1b4b5e8 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -3245,7 +3245,7 @@ int c4iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
- 		if (raddr->sin_addr.s_addr == htonl(INADDR_ANY)) {
- 			err = pick_local_ipaddrs(dev, cm_id);
- 			if (err)
--				goto fail2;
-+				goto fail3;
- 		}
+diff --git a/include/linux/debugfs.h b/include/linux/debugfs.h
+index b20a0945b5500..7aea750538840 100644
+--- a/include/linux/debugfs.h
++++ b/include/linux/debugfs.h
+@@ -77,6 +77,8 @@ static const struct file_operations __fops = {				\
+ 	.llseek  = generic_file_llseek,					\
+ }
  
- 		/* find a route */
-@@ -3267,7 +3267,7 @@ int c4iw_connect(struct iw_cm_id *cm_id, struct iw_cm_conn_param *conn_param)
- 		if (ipv6_addr_type(&raddr6->sin6_addr) == IPV6_ADDR_ANY) {
- 			err = pick_local_ip6addrs(dev, cm_id);
- 			if (err)
--				goto fail2;
-+				goto fail3;
- 		}
++typedef struct vfsmount *(*debugfs_automount_t)(struct dentry *, void *);
++
+ #if defined(CONFIG_DEBUG_FS)
  
- 		/* find a route */
+ struct dentry *debugfs_create_file(const char *name, umode_t mode,
+@@ -96,7 +98,6 @@ struct dentry *debugfs_create_dir(const char *name, struct dentry *parent);
+ struct dentry *debugfs_create_symlink(const char *name, struct dentry *parent,
+ 				      const char *dest);
+ 
+-typedef struct vfsmount *(*debugfs_automount_t)(struct dentry *, void *);
+ struct dentry *debugfs_create_automount(const char *name,
+ 					struct dentry *parent,
+ 					debugfs_automount_t f,
+@@ -211,7 +212,7 @@ static inline struct dentry *debugfs_create_symlink(const char *name,
+ 
+ static inline struct dentry *debugfs_create_automount(const char *name,
+ 					struct dentry *parent,
+-					struct vfsmount *(*f)(void *),
++					debugfs_automount_t f,
+ 					void *data)
+ {
+ 	return ERR_PTR(-ENODEV);
 -- 
 2.25.1
 
