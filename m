@@ -2,39 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F0427C977
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5742D27C877
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:02:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731418AbgI2MKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:10:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50296 "EHLO mail.kernel.org"
+        id S1731758AbgI2MCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:02:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730177AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:34 -0400
+        id S1730460AbgI2LjM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:39:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C9A121941;
-        Tue, 29 Sep 2020 11:23:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A3842083B;
+        Tue, 29 Sep 2020 11:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378585;
-        bh=lkELpZy9Y12ASSKiv2e5CcnLv2YHI5t6jueN9U/7Ocs=;
+        s=default; t=1601379552;
+        bh=rWMufWl3bYjWXmiA1ctYATk98OZ2gdOzkhxi01F/kE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ueND25dYvVXC5lqIyMtusuygfohptcXb3tQL0UYBCZUbhsBbOP4RbcReSzmhsMVa3
-         TMSXM3zHnBHt8LNVwEIOHOPfThsoUWejBAngtQE3p24wg2DK224kY/CnO+ezOLt4Eb
-         qwTB2jITeChcbILgt/q2o3YxOxpVN3Jpfilzg5zM=
+        b=x1mkLpQeN8hTEP+eE9Sex4LZOq2KAptXBchgebWsOx2L5BDxMWApZbQFuWxwlPy97
+         0B+wXH+Zqn7xvsJR8+lckq7Ox27lC4lEvgwZjSQ65435NNVGEqRB0jtjiyDvq8pIcS
+         AUcjqJfA9tyDIHrVNk4wzqjYBKvRoyEYqv4D/+yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Mandlik <mmandlik@google.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Don Zickus <dzickus@redhat.com>, He Zhe <zhe.he@windriver.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        kernel-janitors@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 066/245] Bluetooth: Fix refcount use-after-free issue
-Date:   Tue, 29 Sep 2020 12:58:37 +0200
-Message-Id: <20200929105950.217021558@linuxfoundation.org>
+Subject: [PATCH 5.4 187/388] perf cpumap: Fix snprintf overflow check
+Date:   Tue, 29 Sep 2020 12:58:38 +0200
+Message-Id: <20200929110019.529864567@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,201 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Mandlik <mmandlik@google.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 6c08fc896b60893c5d673764b0668015d76df462 ]
+[ Upstream commit d74b181a028bb5a468f0c609553eff6a8fdf4887 ]
 
-There is no lock preventing both l2cap_sock_release() and
-chan->ops->close() from running at the same time.
+'snprintf' returns the number of characters which would be generated for
+the given input.
 
-If we consider Thread A running l2cap_chan_timeout() and Thread B running
-l2cap_sock_release(), expected behavior is:
-  A::l2cap_chan_timeout()->l2cap_chan_close()->l2cap_sock_teardown_cb()
-  A::l2cap_chan_timeout()->l2cap_sock_close_cb()->l2cap_sock_kill()
-  B::l2cap_sock_release()->sock_orphan()
-  B::l2cap_sock_release()->l2cap_sock_kill()
+If the returned value is *greater than* or equal to the buffer size, it
+means that the output has been truncated.
 
-where,
-sock_orphan() clears "sk->sk_socket" and l2cap_sock_teardown_cb() marks
-socket as SOCK_ZAPPED.
+Fix the overflow test accordingly.
 
-In l2cap_sock_kill(), there is an "if-statement" that checks if both
-sock_orphan() and sock_teardown() has been run i.e. sk->sk_socket is NULL
-and socket is marked as SOCK_ZAPPED. Socket is killed if the condition is
-satisfied.
-
-In the race condition, following occurs:
-  A::l2cap_chan_timeout()->l2cap_chan_close()->l2cap_sock_teardown_cb()
-  B::l2cap_sock_release()->sock_orphan()
-  B::l2cap_sock_release()->l2cap_sock_kill()
-  A::l2cap_chan_timeout()->l2cap_sock_close_cb()->l2cap_sock_kill()
-
-In this scenario, "if-statement" is true in both B::l2cap_sock_kill() and
-A::l2cap_sock_kill() and we hit "refcount: underflow; use-after-free" bug.
-
-Similar condition occurs at other places where teardown/sock_kill is
-happening:
-  l2cap_disconnect_rsp()->l2cap_chan_del()->l2cap_sock_teardown_cb()
-  l2cap_disconnect_rsp()->l2cap_sock_close_cb()->l2cap_sock_kill()
-
-  l2cap_conn_del()->l2cap_chan_del()->l2cap_sock_teardown_cb()
-  l2cap_conn_del()->l2cap_sock_close_cb()->l2cap_sock_kill()
-
-  l2cap_disconnect_req()->l2cap_chan_del()->l2cap_sock_teardown_cb()
-  l2cap_disconnect_req()->l2cap_sock_close_cb()->l2cap_sock_kill()
-
-  l2cap_sock_cleanup_listen()->l2cap_chan_close()->l2cap_sock_teardown_cb()
-  l2cap_sock_cleanup_listen()->l2cap_sock_kill()
-
-Protect teardown/sock_kill and orphan/sock_kill by adding hold_lock on
-l2cap channel to ensure that the socket is killed only after marked as
-zapped and orphan.
-
-Signed-off-by: Manish Mandlik <mmandlik@google.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 7780c25bae59f ("perf tools: Allow ability to map cpus to nodes easily")
+Fixes: 92a7e1278005b ("perf cpumap: Add cpu__max_present_cpu()")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Suggested-by: David Laight <David.Laight@ACULAB.COM>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Don Zickus <dzickus@redhat.com>
+Cc: He Zhe <zhe.he@windriver.com>
+Cc: Jan Stancek <jstancek@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: kernel-janitors@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20200324070319.10901-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 26 +++++++++++++++-----------
- net/bluetooth/l2cap_sock.c | 16 +++++++++++++---
- 2 files changed, 28 insertions(+), 14 deletions(-)
+ tools/perf/util/cpumap.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 0d84d1f820d4c..b1f51cb007ea6 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -414,6 +414,9 @@ static void l2cap_chan_timeout(struct work_struct *work)
- 	BT_DBG("chan %p state %s", chan, state_to_string(chan->state));
+diff --git a/tools/perf/util/cpumap.c b/tools/perf/util/cpumap.c
+index a22c1114e880d..324ec0456c83f 100644
+--- a/tools/perf/util/cpumap.c
++++ b/tools/perf/util/cpumap.c
+@@ -299,7 +299,7 @@ static void set_max_cpu_num(void)
  
- 	mutex_lock(&conn->chan_lock);
-+	/* __set_chan_timer() calls l2cap_chan_hold(chan) while scheduling
-+	 * this work. No need to call l2cap_chan_hold(chan) here again.
-+	 */
- 	l2cap_chan_lock(chan);
- 
- 	if (chan->state == BT_CONNECTED || chan->state == BT_CONFIG)
-@@ -426,12 +429,12 @@ static void l2cap_chan_timeout(struct work_struct *work)
- 
- 	l2cap_chan_close(chan, reason);
- 
--	l2cap_chan_unlock(chan);
--
- 	chan->ops->close(chan);
--	mutex_unlock(&conn->chan_lock);
- 
-+	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
-+
-+	mutex_unlock(&conn->chan_lock);
- }
- 
- struct l2cap_chan *l2cap_chan_create(void)
-@@ -1725,9 +1728,9 @@ static void l2cap_conn_del(struct hci_conn *hcon, int err)
- 
- 		l2cap_chan_del(chan, err);
- 
--		l2cap_chan_unlock(chan);
--
- 		chan->ops->close(chan);
-+
-+		l2cap_chan_unlock(chan);
- 		l2cap_chan_put(chan);
+ 	/* get the highest possible cpu number for a sparse allocation */
+ 	ret = snprintf(path, PATH_MAX, "%s/devices/system/cpu/possible", mnt);
+-	if (ret == PATH_MAX) {
++	if (ret >= PATH_MAX) {
+ 		pr_err("sysfs path crossed PATH_MAX(%d) size\n", PATH_MAX);
+ 		goto out;
  	}
+@@ -310,7 +310,7 @@ static void set_max_cpu_num(void)
  
-@@ -4337,6 +4340,7 @@ static inline int l2cap_disconnect_req(struct l2cap_conn *conn,
+ 	/* get the highest present cpu number for a sparse allocation */
+ 	ret = snprintf(path, PATH_MAX, "%s/devices/system/cpu/present", mnt);
+-	if (ret == PATH_MAX) {
++	if (ret >= PATH_MAX) {
+ 		pr_err("sysfs path crossed PATH_MAX(%d) size\n", PATH_MAX);
+ 		goto out;
+ 	}
+@@ -338,7 +338,7 @@ static void set_max_node_num(void)
+ 
+ 	/* get the highest possible cpu number for a sparse allocation */
+ 	ret = snprintf(path, PATH_MAX, "%s/devices/system/node/possible", mnt);
+-	if (ret == PATH_MAX) {
++	if (ret >= PATH_MAX) {
+ 		pr_err("sysfs path crossed PATH_MAX(%d) size\n", PATH_MAX);
+ 		goto out;
+ 	}
+@@ -423,7 +423,7 @@ int cpu__setup_cpunode_map(void)
  		return 0;
+ 
+ 	n = snprintf(path, PATH_MAX, "%s/devices/system/node", mnt);
+-	if (n == PATH_MAX) {
++	if (n >= PATH_MAX) {
+ 		pr_err("sysfs path crossed PATH_MAX(%d) size\n", PATH_MAX);
+ 		return -1;
  	}
+@@ -438,7 +438,7 @@ int cpu__setup_cpunode_map(void)
+ 			continue;
  
-+	l2cap_chan_hold(chan);
- 	l2cap_chan_lock(chan);
- 
- 	rsp.dcid = cpu_to_le16(chan->scid);
-@@ -4345,12 +4349,11 @@ static inline int l2cap_disconnect_req(struct l2cap_conn *conn,
- 
- 	chan->ops->set_shutdown(chan);
- 
--	l2cap_chan_hold(chan);
- 	l2cap_chan_del(chan, ECONNRESET);
- 
--	l2cap_chan_unlock(chan);
--
- 	chan->ops->close(chan);
-+
-+	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
- 
- 	mutex_unlock(&conn->chan_lock);
-@@ -4382,20 +4385,21 @@ static inline int l2cap_disconnect_rsp(struct l2cap_conn *conn,
- 		return 0;
- 	}
- 
-+	l2cap_chan_hold(chan);
- 	l2cap_chan_lock(chan);
- 
- 	if (chan->state != BT_DISCONN) {
- 		l2cap_chan_unlock(chan);
-+		l2cap_chan_put(chan);
- 		mutex_unlock(&conn->chan_lock);
- 		return 0;
- 	}
- 
--	l2cap_chan_hold(chan);
- 	l2cap_chan_del(chan, 0);
- 
--	l2cap_chan_unlock(chan);
--
- 	chan->ops->close(chan);
-+
-+	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
- 
- 	mutex_unlock(&conn->chan_lock);
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index a3a2cd55e23a9..d128750e47305 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -1039,7 +1039,7 @@ done:
- }
- 
- /* Kill socket (only if zapped and orphan)
-- * Must be called on unlocked socket.
-+ * Must be called on unlocked socket, with l2cap channel lock.
-  */
- static void l2cap_sock_kill(struct sock *sk)
- {
-@@ -1200,8 +1200,15 @@ static int l2cap_sock_release(struct socket *sock)
- 
- 	err = l2cap_sock_shutdown(sock, 2);
- 
-+	l2cap_chan_hold(l2cap_pi(sk)->chan);
-+	l2cap_chan_lock(l2cap_pi(sk)->chan);
-+
- 	sock_orphan(sk);
- 	l2cap_sock_kill(sk);
-+
-+	l2cap_chan_unlock(l2cap_pi(sk)->chan);
-+	l2cap_chan_put(l2cap_pi(sk)->chan);
-+
- 	return err;
- }
- 
-@@ -1219,12 +1226,15 @@ static void l2cap_sock_cleanup_listen(struct sock *parent)
- 		BT_DBG("child chan %p state %s", chan,
- 		       state_to_string(chan->state));
- 
-+		l2cap_chan_hold(chan);
- 		l2cap_chan_lock(chan);
-+
- 		__clear_chan_timer(chan);
- 		l2cap_chan_close(chan, ECONNRESET);
--		l2cap_chan_unlock(chan);
--
- 		l2cap_sock_kill(sk);
-+
-+		l2cap_chan_unlock(chan);
-+		l2cap_chan_put(chan);
- 	}
- }
- 
+ 		n = snprintf(buf, PATH_MAX, "%s/%s", path, dent1->d_name);
+-		if (n == PATH_MAX) {
++		if (n >= PATH_MAX) {
+ 			pr_err("sysfs path crossed PATH_MAX(%d) size\n", PATH_MAX);
+ 			continue;
+ 		}
 -- 
 2.25.1
 
