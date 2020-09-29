@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C6D327C46B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D150127C3A3
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:08:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728699AbgI2LNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:13:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56274 "EHLO mail.kernel.org"
+        id S1728618AbgI2LHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:07:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729382AbgI2LNo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:13:44 -0400
+        id S1728531AbgI2LHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:07:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 486032158C;
-        Tue, 29 Sep 2020 11:13:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2327221D7D;
+        Tue, 29 Sep 2020 11:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378023;
-        bh=3tj9D3iBel13R7XRBxV6h/SiKAhmR9ZkKdrn07qj9qU=;
+        s=default; t=1601377636;
+        bh=Wb2GbvW6M0O8nQ8XEZKqP6wgNcnqbhsJbKcF/STvFEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUOpHW/5Cz+1CvEwBoXQXpHDAEBtf3ylWAh/gWSd7FWs1W52okh2FO8P6eVDccvWK
-         9+lxtsaEX16rBb0zYewwTR15Ot5gjVKQxucvSVJfvRvOYIh3xbb8+JmeS9wfexOw66
-         CX7OB2vpDd3/XPENRphn4W88aKSCEKCARnpFtJJM=
+        b=dRZfUJM4mrTwg0k20RIKtD5ieLdi6Hk4/aEkfeDVTHHlASuuH5aAbdZEqNgTOa2X3
+         nshxEMifWsCfbTnTydUPlfyr85Ah7cpBN66ZZRfd86Rej8OfvPHkVmXo6xpP9VGav7
+         xjZ3d6tqaM+6FaZYT+Ho4HdrF7/UUec3mDGfo7JA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Song Liu <songliubraving@fb.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 035/166] RDMA/i40iw: Fix potential use after free
+Subject: [PATCH 4.9 003/121] kprobes: fix kill kprobe which has been marked as gone
 Date:   Tue, 29 Sep 2020 12:59:07 +0200
-Message-Id: <20200929105936.957107721@linuxfoundation.org>
+Message-Id: <20200929105930.354636159@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +51,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit da046d5f895fca18d63b15ac8faebd5bf784e23a ]
+[ Upstream commit b0399092ccebd9feef68d4ceb8d6219a8c0caa05 ]
 
-Release variable dst after logging dst->error to avoid possible use after
-free.
+If a kprobe is marked as gone, we should not kill it again.  Otherwise, we
+can disarm the kprobe more than once.  In that case, the statistics of
+kprobe_ftrace_enabled can unbalance which can lead to that kprobe do not
+work.
 
-Link: https://lore.kernel.org/r/1573022651-37171-1-git-send-email-bianpan2016@163.com
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: e8386a0cb22f ("kprobes: support probing module __exit function")
+Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200822030055.32383-1-songmuchun@bytedance.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/i40iw/i40iw_cm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/kprobes.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/i40iw/i40iw_cm.c b/drivers/infiniband/hw/i40iw/i40iw_cm.c
-index 880c63579ba88..adec03412506d 100644
---- a/drivers/infiniband/hw/i40iw/i40iw_cm.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_cm.c
-@@ -2052,9 +2052,9 @@ static int i40iw_addr_resolve_neigh_ipv6(struct i40iw_device *iwdev,
- 	dst = i40iw_get_dst_ipv6(&src_addr, &dst_addr);
- 	if (!dst || dst->error) {
- 		if (dst) {
--			dst_release(dst);
- 			i40iw_pr_err("ip6_route_output returned dst->error = %d\n",
- 				     dst->error);
-+			dst_release(dst);
- 		}
- 		return rc;
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 9aa2dbe6a4568..6f63d78aceeca 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2012,6 +2012,9 @@ static void kill_kprobe(struct kprobe *p)
+ {
+ 	struct kprobe *kp;
+ 
++	if (WARN_ON_ONCE(kprobe_gone(p)))
++		return;
++
+ 	p->flags |= KPROBE_FLAG_GONE;
+ 	if (kprobe_aggrprobe(p)) {
+ 		/*
+@@ -2154,7 +2157,10 @@ static int kprobes_module_callback(struct notifier_block *nb,
+ 	mutex_lock(&kprobe_mutex);
+ 	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
+ 		head = &kprobe_table[i];
+-		hlist_for_each_entry_rcu(p, head, hlist)
++		hlist_for_each_entry_rcu(p, head, hlist) {
++			if (kprobe_gone(p))
++				continue;
++
+ 			if (within_module_init((unsigned long)p->addr, mod) ||
+ 			    (checkcore &&
+ 			     within_module_core((unsigned long)p->addr, mod))) {
+@@ -2165,6 +2171,7 @@ static int kprobes_module_callback(struct notifier_block *nb,
+ 				 */
+ 				kill_kprobe(p);
+ 			}
++		}
  	}
+ 	mutex_unlock(&kprobe_mutex);
+ 	return NOTIFY_DONE;
 -- 
 2.25.1
 
