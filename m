@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE76D27C811
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:58:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD49127C558
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:34:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731369AbgI2L6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:58:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38788 "EHLO mail.kernel.org"
+        id S1728594AbgI2Les (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:34:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729353AbgI2Llu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:41:50 -0400
+        id S1729584AbgI2Ld0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:33:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D941206E5;
-        Tue, 29 Sep 2020 11:41:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9FCB23B6C;
+        Tue, 29 Sep 2020 11:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379709;
-        bh=RK3AbwBa2NgsAA07P5kgrjrF7BKAX7Rf4zov5MVkw7w=;
+        s=default; t=1601378781;
+        bh=ZOdhtg283gl1Kqzsq95npru5wbrb0UGgTLxBg0NezjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErdshAdHxmOvn2CkclmdThva2INsJwwvFQzdCLm/o+R55NU6kMQ4GHNs+suGDAKX/
-         xhFjq0yWKlBShRlmTKL85frw3Aab5/YD2FWF1wfA8Eb3wmO+nN0nxiOGyQZTzERtIe
-         2XGcuMz2u5v20tJKOLm2Oe4ph/xuw6K/kH0775gY=
+        b=VR93ap6VuNXcR7DaKuMA/VYYjKpkEneht1jRO40ZC5+2A/bS0ks9+abQRoSpuQCs3
+         eaYJyEM5uBXG9CvmK0790mTIBVGmd99BdLjeBFvcUtxEZuh1tfpOUmZ3r2L0KXrMI5
+         8vXU1922Wce+E7XcXTLNTq3FvnET4btFem1i225I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sonny Sasaka <sonnysasaka@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 254/388] Bluetooth: Handle Inquiry Cancel error after Inquiry Complete
-Date:   Tue, 29 Sep 2020 12:59:45 +0200
-Message-Id: <20200929110022.768881965@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Steinmetz <ast@domdv.de>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 135/245] ALSA: usb-audio: Fix case when USB MIDI interface has more than one extra endpoint descriptor
+Date:   Tue, 29 Sep 2020 12:59:46 +0200
+Message-Id: <20200929105953.557663538@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +42,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sonny Sasaka <sonnysasaka@chromium.org>
+From: Andreas Steinmetz <ast@domdv.de>
 
-[ Upstream commit adf1d6926444029396861413aba8a0f2a805742a ]
+[ Upstream commit 5c6cd7021a05a02fcf37f360592d7c18d4d807fb ]
 
-After sending Inquiry Cancel command to the controller, it is possible
-that Inquiry Complete event comes before Inquiry Cancel command complete
-event. In this case the Inquiry Cancel command will have status of
-Command Disallowed since there is no Inquiry session to be cancelled.
-This case should not be treated as error, otherwise we can reach an
-inconsistent state.
+The Miditech MIDIFACE 16x16 (USB ID 1290:1749) has more than one extra
+endpoint descriptor.
 
-Example of a btmon trace when this happened:
+The first extra descriptor is: 0x06 0x30 0x00 0x00 0x00 0x00
 
-< HCI Command: Inquiry Cancel (0x01|0x0002) plen 0
-> HCI Event: Inquiry Complete (0x01) plen 1
-        Status: Success (0x00)
-> HCI Event: Command Complete (0x0e) plen 4
-      Inquiry Cancel (0x01|0x0002) ncmd 1
-        Status: Command Disallowed (0x0c)
+As the code in snd_usbmidi_get_ms_info() looks only at the
+first extra descriptor to find USB_DT_CS_ENDPOINT the device
+as such is recognized but there is neither input nor output
+configured.
 
-Signed-off-by: Sonny Sasaka <sonnysasaka@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+The patch iterates through the extra descriptors to find the
+proper one. With this patch the device is correctly configured.
+
+Signed-off-by: Andreas Steinmetz <ast@domdv.de>
+Link: https://lore.kernel.org/r/1c3b431a86f69e1d60745b6110cdb93c299f120b.camel@domdv.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ sound/usb/midi.c | 29 ++++++++++++++++++++++++-----
+ 1 file changed, 24 insertions(+), 5 deletions(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 1bbeb14b8b64e..fd436e5d7b542 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -41,12 +41,27 @@
+diff --git a/sound/usb/midi.c b/sound/usb/midi.c
+index 28a3ad8b1d74b..137e1e8718d6f 100644
+--- a/sound/usb/midi.c
++++ b/sound/usb/midi.c
+@@ -1828,6 +1828,28 @@ static int snd_usbmidi_create_endpoints(struct snd_usb_midi *umidi,
+ 	return 0;
+ }
  
- /* Handle HCI Event packets */
- 
--static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb)
-+static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb,
-+				  u8 *new_status)
- {
- 	__u8 status = *((__u8 *) skb->data);
- 
- 	BT_DBG("%s status 0x%2.2x", hdev->name, status);
- 
-+	/* It is possible that we receive Inquiry Complete event right
-+	 * before we receive Inquiry Cancel Command Complete event, in
-+	 * which case the latter event should have status of Command
-+	 * Disallowed (0x0c). This should not be treated as error, since
-+	 * we actually achieve what Inquiry Cancel wants to achieve,
-+	 * which is to end the last Inquiry session.
-+	 */
-+	if (status == 0x0c && !test_bit(HCI_INQUIRY, &hdev->flags)) {
-+		bt_dev_warn(hdev, "Ignoring error of Inquiry Cancel command");
-+		status = 0x00;
++static struct usb_ms_endpoint_descriptor *find_usb_ms_endpoint_descriptor(
++					struct usb_host_endpoint *hostep)
++{
++	unsigned char *extra = hostep->extra;
++	int extralen = hostep->extralen;
++
++	while (extralen > 3) {
++		struct usb_ms_endpoint_descriptor *ms_ep =
++				(struct usb_ms_endpoint_descriptor *)extra;
++
++		if (ms_ep->bLength > 3 &&
++		    ms_ep->bDescriptorType == USB_DT_CS_ENDPOINT &&
++		    ms_ep->bDescriptorSubtype == UAC_MS_GENERAL)
++			return ms_ep;
++		if (!extra[0])
++			break;
++		extralen -= extra[0];
++		extra += extra[0];
 +	}
++	return NULL;
++}
 +
-+	*new_status = status;
-+
- 	if (status)
- 		return;
- 
-@@ -3142,7 +3157,7 @@ static void hci_cmd_complete_evt(struct hci_dev *hdev, struct sk_buff *skb,
- 
- 	switch (*opcode) {
- 	case HCI_OP_INQUIRY_CANCEL:
--		hci_cc_inquiry_cancel(hdev, skb);
-+		hci_cc_inquiry_cancel(hdev, skb, status);
- 		break;
- 
- 	case HCI_OP_PERIODIC_INQ:
+ /*
+  * Returns MIDIStreaming device capabilities.
+  */
+@@ -1865,11 +1887,8 @@ static int snd_usbmidi_get_ms_info(struct snd_usb_midi *umidi,
+ 		ep = get_ep_desc(hostep);
+ 		if (!usb_endpoint_xfer_bulk(ep) && !usb_endpoint_xfer_int(ep))
+ 			continue;
+-		ms_ep = (struct usb_ms_endpoint_descriptor *)hostep->extra;
+-		if (hostep->extralen < 4 ||
+-		    ms_ep->bLength < 4 ||
+-		    ms_ep->bDescriptorType != USB_DT_CS_ENDPOINT ||
+-		    ms_ep->bDescriptorSubtype != UAC_MS_GENERAL)
++		ms_ep = find_usb_ms_endpoint_descriptor(hostep);
++		if (!ms_ep)
+ 			continue;
+ 		if (usb_endpoint_dir_out(ep)) {
+ 			if (endpoints[epidx].out_ep) {
 -- 
 2.25.1
 
