@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF3C727C7B5
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7094F27C69A
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730402AbgI2Lod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:44:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43408 "EHLO mail.kernel.org"
+        id S1730316AbgI2Lqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:46:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729155AbgI2Lo0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:44:26 -0400
+        id S1730795AbgI2LqL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:46:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6540D2074A;
-        Tue, 29 Sep 2020 11:44:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 095C1206E5;
+        Tue, 29 Sep 2020 11:46:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379864;
-        bh=/NT1w3Sw/e0VoJIAE4DL6iLnCQduTarGCOnJ7aKt02E=;
+        s=default; t=1601379971;
+        bh=qSBxa+hR0DswKEbGWHDjnrrfzx2tHi92FAoUi0YWZ6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jo3XONZzwltjaQSvoCQ29Dsj21g4v9MfIkFJ29HX3HLVI6Ub/4D3SzkE6vQ5A4gYw
-         GZJ/EAkTg85fpIBOWb/Gzu4RTEQnhCdl8xhGpK22zxwcyg4mqvzmrDaTlAS0P0u9zS
-         OcsKlrLhqTdAN19Tg10TcAv9JVtwmOPQoekayXWI=
+        b=cnQ/eTM0QkP7Qa83ul6G5i/PX7ua1jVZprw+VUBX9FqSihlCfrR0Gu61NwcDPWLil
+         XXJc/x/OJrj9cxvjQVolW7FNVWuyGmSd5l9r1/ffp5d10Unsri+7wDOGiV0lzttLgN
+         1sYNt8L5IajM429l39Z0Kd54Mcz/P74dHHHRVzr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Iliopoulos <ailiop@suse.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 321/388] nvme: explicitly update mpath disk capacity on revalidation
-Date:   Tue, 29 Sep 2020 13:00:52 +0200
-Message-Id: <20200929110026.007711019@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 10/99] lockdep: fix order in trace_hardirqs_off_caller()
+Date:   Tue, 29 Sep 2020 13:00:53 +0200
+Message-Id: <20200929105930.227242587@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Iliopoulos <ailiop@suse.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 05b29021fba5e725dd385151ef00b6340229b500 ]
+[ Upstream commit 73ac74c7d489756d2313219a108809921dbfaea1 ]
 
-Commit 3b4b19721ec652 ("nvme: fix possible deadlock when I/O is
-blocked") reverted multipath head disk revalidation due to deadlocks
-caused by holding the bd_mutex during revalidate.
+Switch order so that locking state is consistent even
+if the IRQ tracer calls into lockdep again.
 
-Updating the multipath disk blockdev size is still required though for
-userspace to be able to observe any resizing while the device is
-mounted. Directly update the bdev inode size to avoid unnecessarily
-holding the bdev->bd_mutex.
-
-Fixes: 3b4b19721ec652 ("nvme: fix possible deadlock when I/O is
-blocked")
-
-Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c |  1 +
- drivers/nvme/host/nvme.h | 13 +++++++++++++
- 2 files changed, 14 insertions(+)
+ kernel/trace/trace_preemptirq.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 5702bc59c569c..2cd32901d95c7 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1864,6 +1864,7 @@ static void __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
- 	if (ns->head->disk) {
- 		nvme_update_disk_info(ns->head->disk, ns, id);
- 		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
-+		nvme_mpath_update_disk_size(ns->head->disk);
- 	}
- #endif
- }
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 5eb9500c89392..b7117fb09dd0f 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -561,6 +561,16 @@ static inline void nvme_trace_bio_complete(struct request *req,
- 					 req->bio, status);
- }
+diff --git a/kernel/trace/trace_preemptirq.c b/kernel/trace/trace_preemptirq.c
+index f10073e626030..f4938040c2286 100644
+--- a/kernel/trace/trace_preemptirq.c
++++ b/kernel/trace/trace_preemptirq.c
+@@ -102,14 +102,14 @@ NOKPROBE_SYMBOL(trace_hardirqs_on_caller);
  
-+static inline void nvme_mpath_update_disk_size(struct gendisk *disk)
-+{
-+	struct block_device *bdev = bdget_disk(disk, 0);
-+
-+	if (bdev) {
-+		bd_set_size(bdev, get_capacity(disk) << SECTOR_SHIFT);
-+		bdput(bdev);
-+	}
-+}
-+
- extern struct device_attribute dev_attr_ana_grpid;
- extern struct device_attribute dev_attr_ana_state;
- extern struct device_attribute subsys_attr_iopolicy;
-@@ -636,6 +646,9 @@ static inline void nvme_mpath_wait_freeze(struct nvme_subsystem *subsys)
- static inline void nvme_mpath_start_freeze(struct nvme_subsystem *subsys)
+ __visible void trace_hardirqs_off_caller(unsigned long caller_addr)
  {
++	lockdep_hardirqs_off(CALLER_ADDR0);
++
+ 	if (!this_cpu_read(tracing_irq_cpu)) {
+ 		this_cpu_write(tracing_irq_cpu, 1);
+ 		tracer_hardirqs_off(CALLER_ADDR0, caller_addr);
+ 		if (!in_nmi())
+ 			trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
+ 	}
+-
+-	lockdep_hardirqs_off(CALLER_ADDR0);
  }
-+static inline void nvme_mpath_update_disk_size(struct gendisk *disk)
-+{
-+}
- #endif /* CONFIG_NVME_MULTIPATH */
- 
- #ifdef CONFIG_NVM
+ EXPORT_SYMBOL(trace_hardirqs_off_caller);
+ NOKPROBE_SYMBOL(trace_hardirqs_off_caller);
 -- 
 2.25.1
 
