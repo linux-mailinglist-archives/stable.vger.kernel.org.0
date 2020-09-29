@@ -2,47 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8954F27C89F
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:03:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 396D727C88F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:03:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731176AbgI2MD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60296 "EHLO mail.kernel.org"
+        id S1730367AbgI2Lif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:38:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729821AbgI2Lie (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729823AbgI2Lie (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:38:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DCEF21D41;
-        Tue, 29 Sep 2020 11:38:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 461B5221E7;
+        Tue, 29 Sep 2020 11:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379494;
-        bh=nuwv9HNk0vrLOhegVxtxqW2sufYsdyF+G6bC4SxSkfQ=;
+        s=default; t=1601379496;
+        bh=xxpODNml237vmDZDxhlu0H+y5oiY6Ei9aZoj7zrq/sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3xgsY14Uy5IITsmNiULj5YVisJjONF+u0tSWrGUUDmuZL/tnt48APIKLHcyNvwNx
-         2E3kyjYYn1Sx9MiETnx121N07O+kw3w4fV3Zm3wT6us0cJ6ywlPZSCglzUCsZwO0HH
-         FLkUylo3gWOCKLOd89+2kjZrInj3A2qdlr4qOgHs=
+        b=qRzYa4mgfsi7Xy4DTAs3OAP3hZmREobE7EPOvR8H8HtBhoak1KJ+YUe3GOQlJdI/+
+         97dsi1moA1AjlWJof3CD/CyjyGZrFMKfLnphcNoVEuizbl2L2RbqCu6WhbXUz0Y55q
+         rM6p4XQQD/UF2TMuS2lBfWCQYbeswmmIzuWXj9ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Leach <mike.leach@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Robert Walker <robert.walker@arm.com>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        coresight ml <coresight@lists.linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 159/388] perf cs-etm: Correct synthesizing instruction samples
-Date:   Tue, 29 Sep 2020 12:58:10 +0200
-Message-Id: <20200929110018.173746864@linuxfoundation.org>
+Subject: [PATCH 5.4 160/388] ath10k: use kzalloc to read for ath10k_sdio_hif_diag_read
+Date:   Tue, 29 Sep 2020 12:58:11 +0200
+Message-Id: <20200929110018.223240932@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -54,198 +43,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Wen Gong <wgong@codeaurora.org>
 
-[ Upstream commit c9f5baa136777b2c982f6f7a90c9da69a88be148 ]
+[ Upstream commit 402f2992b4d62760cce7c689ff216ea3bf4d6e8a ]
 
-When 'etm->instructions_sample_period' is less than
-'tidq->period_instructions', the function cs_etm__sample() cannot handle
-this case properly with its logic.
+When use command to read values, it crashed.
 
-Let's see below flow as an example:
+command:
+dd if=/sys/kernel/debug/ieee80211/phy0/ath10k/mem_value count=1 bs=4 skip=$((0x100233))
 
-- If we set itrace option '--itrace=i4', then function cs_etm__sample()
-  has variables with initialized values:
+It will call to ath10k_sdio_hif_diag_read with address = 0x4008cc and buf_len = 4.
 
-  tidq->period_instructions = 0
-  etm->instructions_sample_period = 4
+Then system crash:
+[ 1786.013258] Unable to handle kernel paging request at virtual address ffffffc00bd45000
+[ 1786.013273] Mem abort info:
+[ 1786.013281]   ESR = 0x96000045
+[ 1786.013291]   Exception class = DABT (current EL), IL = 32 bits
+[ 1786.013299]   SET = 0, FnV = 0
+[ 1786.013307]   EA = 0, S1PTW = 0
+[ 1786.013314] Data abort info:
+[ 1786.013322]   ISV = 0, ISS = 0x00000045
+[ 1786.013330]   CM = 0, WnR = 1
+[ 1786.013342] swapper pgtable: 4k pages, 39-bit VAs, pgdp = 000000008542a60e
+[ 1786.013350] [ffffffc00bd45000] pgd=0000000000000000, pud=0000000000000000
+[ 1786.013368] Internal error: Oops: 96000045 [#1] PREEMPT SMP
+[ 1786.013609] Process swapper/0 (pid: 0, stack limit = 0x0000000084b153c6)
+[ 1786.013623] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.19.86 #137
+[ 1786.013631] Hardware name: MediaTek krane sku176 board (DT)
+[ 1786.013643] pstate: 80000085 (Nzcv daIf -PAN -UAO)
+[ 1786.013662] pc : __memcpy+0x94/0x180
+[ 1786.013678] lr : swiotlb_tbl_unmap_single+0x84/0x150
+[ 1786.013686] sp : ffffff8008003c60
+[ 1786.013694] x29: ffffff8008003c90 x28: ffffffae96411f80
+[ 1786.013708] x27: ffffffae960d2018 x26: ffffff8019a4b9a8
+[ 1786.013721] x25: 0000000000000000 x24: 0000000000000001
+[ 1786.013734] x23: ffffffae96567000 x22: 00000000000051d4
+[ 1786.013747] x21: 0000000000000000 x20: 00000000fe6e9000
+[ 1786.013760] x19: 0000000000000004 x18: 0000000000000020
+[ 1786.013773] x17: 0000000000000001 x16: 0000000000000000
+[ 1786.013787] x15: 00000000ffffffff x14: 00000000000044c0
+[ 1786.013800] x13: 0000000000365ba4 x12: 0000000000000000
+[ 1786.013813] x11: 0000000000000001 x10: 00000037be6e9000
+[ 1786.013826] x9 : ffffffc940000000 x8 : 000000000bd45000
+[ 1786.013839] x7 : 0000000000000000 x6 : ffffffc00bd45000
+[ 1786.013852] x5 : 0000000000000000 x4 : 0000000000000000
+[ 1786.013865] x3 : 0000000000000c00 x2 : 0000000000000004
+[ 1786.013878] x1 : fffffff7be6e9004 x0 : ffffffc00bd45000
+[ 1786.013891] Call trace:
+[ 1786.013903]  __memcpy+0x94/0x180
+[ 1786.013914]  unmap_single+0x6c/0x84
+[ 1786.013925]  swiotlb_unmap_sg_attrs+0x54/0x80
+[ 1786.013938]  __swiotlb_unmap_sg_attrs+0x8c/0xa4
+[ 1786.013952]  msdc_unprepare_data+0x6c/0x84
+[ 1786.013963]  msdc_request_done+0x58/0x84
+[ 1786.013974]  msdc_data_xfer_done+0x1a0/0x1c8
+[ 1786.013985]  msdc_irq+0x12c/0x17c
+[ 1786.013996]  __handle_irq_event_percpu+0xe4/0x250
+[ 1786.014006]  handle_irq_event_percpu+0x28/0x68
+[ 1786.014015]  handle_irq_event+0x48/0x78
+[ 1786.014026]  handle_fasteoi_irq+0xd0/0x1a0
+[ 1786.014039]  __handle_domain_irq+0x84/0xc4
+[ 1786.014050]  gic_handle_irq+0x124/0x1a4
+[ 1786.014059]  el1_irq+0xb0/0x128
+[ 1786.014072]  cpuidle_enter_state+0x298/0x328
+[ 1786.014082]  cpuidle_enter+0x30/0x40
+[ 1786.014094]  do_idle+0x190/0x268
+[ 1786.014104]  cpu_startup_entry+0x24/0x28
+[ 1786.014116]  rest_init+0xd4/0xe0
+[ 1786.014126]  start_kernel+0x30c/0x38c
+[ 1786.014139] Code: f8408423 f80084c3 36100062 b8404423 (b80044c3)
+[ 1786.014150] ---[ end trace 3b02ddb698ea69ee ]---
+[ 1786.015415] Kernel panic - not syncing: Fatal exception in interrupt
+[ 1786.015433] SMP: stopping secondary CPUs
+[ 1786.015447] Kernel Offset: 0x2e8d200000 from 0xffffff8008000000
+[ 1786.015458] CPU features: 0x0,2188200c
+[ 1786.015466] Memory Limit: none
 
-- When the first packet is coming:
+For sdio chip, it need the memory which is kmalloc, if it is
+vmalloc from ath10k_mem_value_read, then it have a memory error.
+kzalloc of ath10k_sdio_hif_diag_read32 is the correct type, so
+add kzalloc in ath10k_sdio_hif_diag_read to replace the buffer
+which is vmalloc from ath10k_mem_value_read.
 
-  packet->instr_count = 10; the number of instructions executed in this
-  packet is 10, thus update period_instructions as below:
+This patch only effect sdio chip.
 
-  tidq->period_instructions = 0 + 10 = 10
-  instrs_over = 10 - 4 = 6
-  offset = 10 - 6 - 1 = 3
-  tidq->period_instructions = instrs_over = 6
+Tested with QCA6174 SDIO with firmware WLAN.RMH.4.4.1-00029.
 
-- When the second packet is coming:
-
-  packet->instr_count = 10; in the second pass, assume 10 instructions
-  in the trace sample again:
-
-  tidq->period_instructions = 6 + 10 = 16
-  instrs_over = 16 - 4 = 12
-  offset = 10 - 12 - 1 = -3  -> the negative value
-  tidq->period_instructions = instrs_over = 12
-
-So after handle these two packets, there have below issues:
-
-The first issue is that cs_etm__instr_addr() returns the address within
-the current trace sample of the instruction related to offset, so the
-offset is supposed to be always unsigned value.  But in fact, function
-cs_etm__sample() might calculate a negative offset value (in handling
-the second packet, the offset is -3) and pass to cs_etm__instr_addr()
-with u64 type with a big positive integer.
-
-The second issue is it only synthesizes 2 samples for sample period = 4.
-In theory, every packet has 10 instructions so the two packets have
-total 20 instructions, 20 instructions should generate 5 samples
-(4 x 5 = 20).  This is because cs_etm__sample() only calls once
-cs_etm__synth_instruction_sample() to generate instruction sample per
-range packet.
-
-This patch fixes the logic in function cs_etm__sample(); the basic
-idea for handling coming packet is:
-
-- To synthesize the first instruction sample, it combines the left
-  instructions from the previous packet and the head of the new
-  packet; then generate continuous samples with sample period;
-- At the tail of the new packet, if it has the rest instructions,
-  these instructions will be left for the sequential sample.
-
-Suggested-by: Mike Leach <mike.leach@linaro.org>
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Reviewed-by: Mike Leach <mike.leach@linaro.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Robert Walker <robert.walker@arm.com>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: coresight ml <coresight@lists.linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lore.kernel.org/lkml/20200219021811.20067-4-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/cs-etm.c | 87 ++++++++++++++++++++++++++++++++--------
- 1 file changed, 70 insertions(+), 17 deletions(-)
+ drivers/net/wireless/ath/ath10k/sdio.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/util/cs-etm.c b/tools/perf/util/cs-etm.c
-index 38298cbb07524..451eee24165ee 100644
---- a/tools/perf/util/cs-etm.c
-+++ b/tools/perf/util/cs-etm.c
-@@ -1359,9 +1359,12 @@ static int cs_etm__sample(struct cs_etm_queue *etmq,
- 	struct cs_etm_auxtrace *etm = etmq->etm;
+diff --git a/drivers/net/wireless/ath/ath10k/sdio.c b/drivers/net/wireless/ath/ath10k/sdio.c
+index 9870d2d095c87..8fe626deadeb0 100644
+--- a/drivers/net/wireless/ath/ath10k/sdio.c
++++ b/drivers/net/wireless/ath/ath10k/sdio.c
+@@ -1582,23 +1582,33 @@ static int ath10k_sdio_hif_diag_read(struct ath10k *ar, u32 address, void *buf,
+ 				     size_t buf_len)
+ {
  	int ret;
- 	u8 trace_chan_id = tidq->trace_chan_id;
--	u64 instrs_executed = tidq->packet->instr_count;
-+	u64 instrs_prev;
- 
--	tidq->period_instructions += instrs_executed;
-+	/* Get instructions remainder from previous packet */
-+	instrs_prev = tidq->period_instructions;
++	void *mem;
 +
-+	tidq->period_instructions += tidq->packet->instr_count;
++	mem = kzalloc(buf_len, GFP_KERNEL);
++	if (!mem)
++		return -ENOMEM;
  
- 	/*
- 	 * Record a branch when the last instruction in
-@@ -1379,26 +1382,76 @@ static int cs_etm__sample(struct cs_etm_queue *etmq,
- 		 * TODO: allow period to be defined in cycles and clock time
- 		 */
- 
--		/* Get number of instructions executed after the sample point */
--		u64 instrs_over = tidq->period_instructions -
--			etm->instructions_sample_period;
-+		/*
-+		 * Below diagram demonstrates the instruction samples
-+		 * generation flows:
-+		 *
-+		 *    Instrs     Instrs       Instrs       Instrs
-+		 *   Sample(n)  Sample(n+1)  Sample(n+2)  Sample(n+3)
-+		 *    |            |            |            |
-+		 *    V            V            V            V
-+		 *   --------------------------------------------------
-+		 *            ^                                  ^
-+		 *            |                                  |
-+		 *         Period                             Period
-+		 *    instructions(Pi)                   instructions(Pi')
-+		 *
-+		 *            |                                  |
-+		 *            \---------------- -----------------/
-+		 *                             V
-+		 *                 tidq->packet->instr_count
-+		 *
-+		 * Instrs Sample(n...) are the synthesised samples occurring
-+		 * every etm->instructions_sample_period instructions - as
-+		 * defined on the perf command line.  Sample(n) is being the
-+		 * last sample before the current etm packet, n+1 to n+3
-+		 * samples are generated from the current etm packet.
-+		 *
-+		 * tidq->packet->instr_count represents the number of
-+		 * instructions in the current etm packet.
-+		 *
-+		 * Period instructions (Pi) contains the the number of
-+		 * instructions executed after the sample point(n) from the
-+		 * previous etm packet.  This will always be less than
-+		 * etm->instructions_sample_period.
-+		 *
-+		 * When generate new samples, it combines with two parts
-+		 * instructions, one is the tail of the old packet and another
-+		 * is the head of the new coming packet, to generate
-+		 * sample(n+1); sample(n+2) and sample(n+3) consume the
-+		 * instructions with sample period.  After sample(n+3), the rest
-+		 * instructions will be used by later packet and it is assigned
-+		 * to tidq->period_instructions for next round calculation.
-+		 */
- 
- 		/*
--		 * Calculate the address of the sampled instruction (-1 as
--		 * sample is reported as though instruction has just been
--		 * executed, but PC has not advanced to next instruction)
-+		 * Get the initial offset into the current packet instructions;
-+		 * entry conditions ensure that instrs_prev is less than
-+		 * etm->instructions_sample_period.
- 		 */
--		u64 offset = (instrs_executed - instrs_over - 1);
--		u64 addr = cs_etm__instr_addr(etmq, trace_chan_id,
--					      tidq->packet, offset);
-+		u64 offset = etm->instructions_sample_period - instrs_prev;
-+		u64 addr;
- 
--		ret = cs_etm__synth_instruction_sample(
--			etmq, tidq, addr, etm->instructions_sample_period);
--		if (ret)
--			return ret;
-+		while (tidq->period_instructions >=
-+				etm->instructions_sample_period) {
-+			/*
-+			 * Calculate the address of the sampled instruction (-1
-+			 * as sample is reported as though instruction has just
-+			 * been executed, but PC has not advanced to next
-+			 * instruction)
-+			 */
-+			addr = cs_etm__instr_addr(etmq, trace_chan_id,
-+						  tidq->packet, offset - 1);
-+			ret = cs_etm__synth_instruction_sample(
-+				etmq, tidq, addr,
-+				etm->instructions_sample_period);
-+			if (ret)
-+				return ret;
- 
--		/* Carry remaining instructions into next sample period */
--		tidq->period_instructions = instrs_over;
-+			offset += etm->instructions_sample_period;
-+			tidq->period_instructions -=
-+				etm->instructions_sample_period;
-+		}
+ 	/* set window register to start read cycle */
+ 	ret = ath10k_sdio_write32(ar, MBOX_WINDOW_READ_ADDR_ADDRESS, address);
+ 	if (ret) {
+ 		ath10k_warn(ar, "failed to set mbox window read address: %d", ret);
+-		return ret;
++		goto out;
  	}
  
- 	if (etm->sample_branches) {
+ 	/* read the data */
+-	ret = ath10k_sdio_read(ar, MBOX_WINDOW_DATA_ADDRESS, buf, buf_len);
++	ret = ath10k_sdio_read(ar, MBOX_WINDOW_DATA_ADDRESS, mem, buf_len);
+ 	if (ret) {
+ 		ath10k_warn(ar, "failed to read from mbox window data address: %d\n",
+ 			    ret);
+-		return ret;
++		goto out;
+ 	}
+ 
+-	return 0;
++	memcpy(buf, mem, buf_len);
++
++out:
++	kfree(mem);
++
++	return ret;
+ }
+ 
+ static int ath10k_sdio_hif_diag_read32(struct ath10k *ar, u32 address,
 -- 
 2.25.1
 
