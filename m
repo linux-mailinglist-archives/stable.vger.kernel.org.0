@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F73727CA71
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9539627CAC9
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:22:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732190AbgI2MTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:19:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50296 "EHLO mail.kernel.org"
+        id S1732164AbgI2MVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:21:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728441AbgI2LgK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:36:10 -0400
+        id S1729833AbgI2LfU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:35:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95AF823D98;
-        Tue, 29 Sep 2020 11:30:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EED1D23D4E;
+        Tue, 29 Sep 2020 11:29:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379057;
-        bh=DOwg7wsIbWSWtlF7OlVEGYVmShh1txnXKYdPZzbhWCg=;
+        s=default; t=1601378988;
+        bh=WEZyZNqfW/C+sRQVnWNIPikBqCLwB8c/1BQSph6wUcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=crbJugdJi1SDz5AqFd7S7xDbkmukYMJGeihKFVJ4iDtgx2xVOn/TF9el3cuOTcBR6
-         /jFx7uJPQmXmTXFRc3dCgqvKPSbjjcTkMDHvhhyrgWqYaA7bvDCrB9/nJTvIWYRuQt
-         AXNcgSOxyDOo8pp1BBLCt6F+sZpEHaGLeDFWcc1w=
+        b=k93Ih0JYP6taT30PP7HFkobNeq939PUKiT8phRWGFmwRIaZsXhfGlGa8Sbjuv8Ay8
+         j4I9WVd01oNdN4Ql0u/TnAwsfUK0bDU1/lbIYZq4hwixZB1/0Ckge7P4vkZZdfRexS
+         Deonx7zGWEGwvhs1TEUsfRIyVikWxzZFRulCQK8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 211/245] lockdep: fix order in trace_hardirqs_off_caller()
-Date:   Tue, 29 Sep 2020 13:01:02 +0200
-Message-Id: <20200929105957.241506338@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 213/245] i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
+Date:   Tue, 29 Sep 2020 13:01:04 +0200
+Message-Id: <20200929105957.341764740@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -44,42 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 73ac74c7d489756d2313219a108809921dbfaea1 ]
+[ Upstream commit 21653a4181ff292480599dad996a2b759ccf050f ]
 
-Switch order so that locking state is consistent even
-if the IRQ tracer calls into lockdep again.
+Some ACPI i2c-devices _STA method (which is used to detect if the device
+is present) use autodetection code which probes which device is present
+over i2c. This requires the I2C ACPI OpRegion handler to be registered
+before we enumerate i2c-clients under the i2c-adapter.
 
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+This fixes the i2c touchpad on the Lenovo ThinkBook 14-IIL and
+ThinkBook 15 IIL not getting an i2c-client instantiated and thus not
+working.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1842039
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_preemptirq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace_preemptirq.c b/kernel/trace/trace_preemptirq.c
-index 71f553cceb3c1..0e373cb0106bb 100644
---- a/kernel/trace/trace_preemptirq.c
-+++ b/kernel/trace/trace_preemptirq.c
-@@ -59,14 +59,14 @@ EXPORT_SYMBOL(trace_hardirqs_on_caller);
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index f225bef1e043c..41dd0a08a625c 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1292,8 +1292,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
  
- __visible void trace_hardirqs_off_caller(unsigned long caller_addr)
- {
-+	lockdep_hardirqs_off(CALLER_ADDR0);
-+
- 	if (!this_cpu_read(tracing_irq_cpu)) {
- 		this_cpu_write(tracing_irq_cpu, 1);
- 		tracer_hardirqs_off(CALLER_ADDR0, caller_addr);
- 		if (!in_nmi())
- 			trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
- 	}
--
--	lockdep_hardirqs_off(CALLER_ADDR0);
- }
- EXPORT_SYMBOL(trace_hardirqs_off_caller);
- #endif /* CONFIG_TRACE_IRQFLAGS */
+ 	/* create pre-declared device nodes */
+ 	of_i2c_register_devices(adap);
+-	i2c_acpi_register_devices(adap);
+ 	i2c_acpi_install_space_handler(adap);
++	i2c_acpi_register_devices(adap);
+ 
+ 	if (adap->nr < __i2c_first_dynamic_bus_num)
+ 		i2c_scan_static_board_info(adap);
 -- 
 2.25.1
 
