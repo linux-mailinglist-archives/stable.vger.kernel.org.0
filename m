@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B18D27C7A9
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE19C27C797
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:55:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731241AbgI2Lza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:55:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44192 "EHLO mail.kernel.org"
+        id S1729816AbgI2Lo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:44:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730916AbgI2Lou (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:44:50 -0400
+        id S1730921AbgI2Lox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:44:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E22EC206F7;
-        Tue, 29 Sep 2020 11:44:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B31520848;
+        Tue, 29 Sep 2020 11:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379890;
-        bh=KZQ9f2ThrYsBwnShTY4CzWONmYeLRS/jhAQMNxl6zo8=;
+        s=default; t=1601379892;
+        bh=QKWN6eEUdnGboyRwpunwS/G7k1RbvwEE0JzI58gN0zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wb7qcmOttUL+PyiaOq0v7VnWC3flzAxP3VUI5cSjHiKWg0Y1dVfFqhVejlFZFaJOo
-         ce6OgarpGo56PrE3Ko+ByXWjgNj9ir1hUDKAYmRg4hhtbgQk0NlXNlN5FFf+b8VyJ7
-         XZoJ+UPs7zinF5K7O3KDpklqVsQ6knpIGHE/UQn4=
+        b=u48nIqtnXyIP7kbrkpjOyQPRpZJVTzGj24NRjTaoBWt0U2LAwxdpTr9tqmP09vBIC
+         5mbOpmDEjhwxmiXBmNnyp1CeSnu0Ug8mPAF9zLifm2tX6U6sEKcz2F+kFMSLlcKYgA
+         ARaQruGRwwkN66H25hCKO1UuPCyOBSuRNpiq/sSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 363/388] regulator: axp20x: fix LDO2/4 description
-Date:   Tue, 29 Sep 2020 13:01:34 +0200
-Message-Id: <20200929110028.039156867@linuxfoundation.org>
+Subject: [PATCH 5.4 364/388] KVM: x86: Reset MMU context if guest toggles CR4.SMAP or CR4.PKE
+Date:   Tue, 29 Sep 2020 13:01:35 +0200
+Message-Id: <20200929110028.089026312@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,57 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Icenowy Zheng <icenowy@aosc.io>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit fbb5a79d2fe7b01c6424fbbc04368373b1672d61 ]
+[ Upstream commit 8d214c481611b29458a57913bd786f0ac06f0605 ]
 
-Currently we wrongly set the mask of value of LDO2/4 both to the mask of
-LDO2, and the LDO4 voltage configuration is left untouched. This leads
-to conflict when LDO2/4 are both in use.
+Reset the MMU context during kvm_set_cr4() if SMAP or PKE is toggled.
+Recent commits to (correctly) not reload PDPTRs when SMAP/PKE are
+toggled inadvertantly skipped the MMU context reset due to the mask
+of bits that triggers PDPTR loads also being used to trigger MMU context
+resets.
 
-Fix this issue by setting different vsel_mask to both regulators.
-
-Fixes: db4a555f7c4c ("regulator: axp20x: use defines for masks")
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-Link: https://lore.kernel.org/r/20200923005142.147135-1-icenowy@aosc.io
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 427890aff855 ("kvm: x86: Toggling CR4.SMAP does not load PDPTEs in PAE mode")
+Fixes: cb957adb4ea4 ("kvm: x86: Toggling CR4.PKE does not load PDPTEs in PAE mode")
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Peter Shier <pshier@google.com>
+Cc: Oliver Upton <oupton@google.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200923215352.17756-1-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/axp20x-regulator.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/x86/kvm/x86.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
-index 16f0c85700360..7075f42b9fcf6 100644
---- a/drivers/regulator/axp20x-regulator.c
-+++ b/drivers/regulator/axp20x-regulator.c
-@@ -42,8 +42,9 @@
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 67ad417a29ca4..12e83297ea020 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -973,6 +973,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ 	unsigned long old_cr4 = kvm_read_cr4(vcpu);
+ 	unsigned long pdptr_bits = X86_CR4_PGE | X86_CR4_PSE | X86_CR4_PAE |
+ 				   X86_CR4_SMEP;
++	unsigned long mmu_role_bits = pdptr_bits | X86_CR4_SMAP | X86_CR4_PKE;
  
- #define AXP20X_DCDC2_V_OUT_MASK		GENMASK(5, 0)
- #define AXP20X_DCDC3_V_OUT_MASK		GENMASK(7, 0)
--#define AXP20X_LDO24_V_OUT_MASK		GENMASK(7, 4)
-+#define AXP20X_LDO2_V_OUT_MASK		GENMASK(7, 4)
- #define AXP20X_LDO3_V_OUT_MASK		GENMASK(6, 0)
-+#define AXP20X_LDO4_V_OUT_MASK		GENMASK(3, 0)
- #define AXP20X_LDO5_V_OUT_MASK		GENMASK(7, 4)
+ 	if (kvm_valid_cr4(vcpu, cr4))
+ 		return 1;
+@@ -1000,7 +1001,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ 	if (kvm_x86_ops->set_cr4(vcpu, cr4))
+ 		return 1;
  
- #define AXP20X_PWR_OUT_EXTEN_MASK	BIT_MASK(0)
-@@ -544,14 +545,14 @@ static const struct regulator_desc axp20x_regulators[] = {
- 		 AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_DCDC3_MASK),
- 	AXP_DESC_FIXED(AXP20X, LDO1, "ldo1", "acin", 1300),
- 	AXP_DESC(AXP20X, LDO2, "ldo2", "ldo24in", 1800, 3300, 100,
--		 AXP20X_LDO24_V_OUT, AXP20X_LDO24_V_OUT_MASK,
-+		 AXP20X_LDO24_V_OUT, AXP20X_LDO2_V_OUT_MASK,
- 		 AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_LDO2_MASK),
- 	AXP_DESC(AXP20X, LDO3, "ldo3", "ldo3in", 700, 3500, 25,
- 		 AXP20X_LDO3_V_OUT, AXP20X_LDO3_V_OUT_MASK,
- 		 AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_LDO3_MASK),
- 	AXP_DESC_RANGES(AXP20X, LDO4, "ldo4", "ldo24in",
- 			axp20x_ldo4_ranges, AXP20X_LDO4_V_OUT_NUM_VOLTAGES,
--			AXP20X_LDO24_V_OUT, AXP20X_LDO24_V_OUT_MASK,
-+			AXP20X_LDO24_V_OUT, AXP20X_LDO4_V_OUT_MASK,
- 			AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_LDO4_MASK),
- 	AXP_DESC_IO(AXP20X, LDO5, "ldo5", "ldo5in", 1800, 3300, 100,
- 		    AXP20X_LDO5_V_OUT, AXP20X_LDO5_V_OUT_MASK,
+-	if (((cr4 ^ old_cr4) & pdptr_bits) ||
++	if (((cr4 ^ old_cr4) & mmu_role_bits) ||
+ 	    (!(cr4 & X86_CR4_PCIDE) && (old_cr4 & X86_CR4_PCIDE)))
+ 		kvm_mmu_reset_context(vcpu);
+ 
 -- 
 2.25.1
 
