@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A083427C3AA
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DACC27C46D
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728590AbgI2LHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:07:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45726 "EHLO mail.kernel.org"
+        id S1729167AbgI2LN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:13:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728866AbgI2LHO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:07:14 -0400
+        id S1727761AbgI2LNm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:13:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CA6A21D46;
-        Tue, 29 Sep 2020 11:07:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C65121924;
+        Tue, 29 Sep 2020 11:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377633;
-        bh=tSx6nNkkj72nzkCz4hDeAGHMhtGpVKtr9FMBzPm5iaM=;
+        s=default; t=1601378021;
+        bh=v9e5EIZg8+POtQz8j/8Qec6+wWcqAFirIwIHnPU3ILg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VWFq8HiaFYGk+I8YycZ41wyA2Cz8qIy4ABtS+IrNjrKv1asjO+tYOf9enLnPTQDUD
-         edusUjVs1SkC0s+kH8AueFFYqJb8L2mCfH0+9obJ9TV7qqlYdFWxNN93aILFcnV0HO
-         PI+NL5ul+KSWFqxXvo8XKvBQL5+v1w1xlxfE6p0c=
+        b=g/m2UkMcxtYR+95tjASPYce3LHYK85k0YEwr81LR1GEWkQemVpZoiWAw0XFRkYm1H
+         5pao4llQ5aOcCluNuownCKdI5VtqNp0fWd1+Fav6DOtgcvT6I9H1psR9712GP+ZiO0
+         tL5MwYDAOGE0hChzbqfIoL/p9uV/eR7tvVEabd9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 002/121] KVM: fix memory leak in kvm_io_bus_unregister_dev()
+        stable@vger.kernel.org, Guoju Fang <fangguoju@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 034/166] bcache: fix a lost wake-up problem caused by mca_cannibalize_lock
 Date:   Tue, 29 Sep 2020 12:59:06 +0200
-Message-Id: <20200929105930.303978981@linuxfoundation.org>
+Message-Id: <20200929105936.906396055@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Guoju Fang <fangguoju@gmail.com>
 
-[ Upstream commit f65886606c2d3b562716de030706dfe1bea4ed5e ]
+[ Upstream commit 34cf78bf34d48dddddfeeadb44f9841d7864997a ]
 
-when kmalloc() fails in kvm_io_bus_unregister_dev(), before removing
-the bus, we should iterate over all other devices linked to it and call
-kvm_iodevice_destructor() for them
+This patch fix a lost wake-up problem caused by the race between
+mca_cannibalize_lock and bch_cannibalize_unlock.
 
-Fixes: 90db10434b16 ("KVM: kvm_io_bus_unregister_dev() should never fail")
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=f196caa45793d6374707
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20200907185535.233114-1-rkovhaev@gmail.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Consider two processes, A and B. Process A is executing
+mca_cannibalize_lock, while process B takes c->btree_cache_alloc_lock
+and is executing bch_cannibalize_unlock. The problem happens that after
+process A executes cmpxchg and will execute prepare_to_wait. In this
+timeslice process B executes wake_up, but after that process A executes
+prepare_to_wait and set the state to TASK_INTERRUPTIBLE. Then process A
+goes to sleep but no one will wake up it. This problem may cause bcache
+device to dead.
+
+Signed-off-by: Guoju Fang <fangguoju@gmail.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/md/bcache/bcache.h |  1 +
+ drivers/md/bcache/btree.c  | 12 ++++++++----
+ drivers/md/bcache/super.c  |  1 +
+ 3 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 4e4bb5dd2dcd5..010d8aee9346b 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3639,7 +3639,7 @@ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
- void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 			       struct kvm_io_device *dev)
+diff --git a/drivers/md/bcache/bcache.h b/drivers/md/bcache/bcache.h
+index e4a3f692057b8..a3763d664a67a 100644
+--- a/drivers/md/bcache/bcache.h
++++ b/drivers/md/bcache/bcache.h
+@@ -548,6 +548,7 @@ struct cache_set {
+ 	 */
+ 	wait_queue_head_t	btree_cache_wait;
+ 	struct task_struct	*btree_cache_alloc_lock;
++	spinlock_t		btree_cannibalize_lock;
+ 
+ 	/*
+ 	 * When we free a btree node, we increment the gen of the bucket the
+diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
+index 9fca837d0b41e..fba0fff8040d6 100644
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -840,15 +840,17 @@ out:
+ 
+ static int mca_cannibalize_lock(struct cache_set *c, struct btree_op *op)
  {
--	int i;
-+	int i, j;
- 	struct kvm_io_bus *new_bus, *bus;
- 
- 	bus = kvm->buses[bus_idx];
-@@ -3656,17 +3656,20 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 
- 	new_bus = kmalloc(sizeof(*bus) + ((bus->dev_count - 1) *
- 			  sizeof(struct kvm_io_range)), GFP_KERNEL);
--	if (!new_bus)  {
-+	if (new_bus) {
-+		memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
-+		new_bus->dev_count--;
-+		memcpy(new_bus->range + i, bus->range + i + 1,
-+		       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
-+	} else {
- 		pr_err("kvm: failed to shrink bus, removing it completely\n");
--		goto broken;
-+		for (j = 0; j < bus->dev_count; j++) {
-+			if (j == i)
-+				continue;
-+			kvm_iodevice_destructor(bus->range[j].dev);
-+		}
- 	}
- 
--	memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
--	new_bus->dev_count--;
--	memcpy(new_bus->range + i, bus->range + i + 1,
--	       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
+-	struct task_struct *old;
 -
--broken:
- 	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
- 	synchronize_srcu_expedited(&kvm->srcu);
- 	kfree(bus);
+-	old = cmpxchg(&c->btree_cache_alloc_lock, NULL, current);
+-	if (old && old != current) {
++	spin_lock(&c->btree_cannibalize_lock);
++	if (likely(c->btree_cache_alloc_lock == NULL)) {
++		c->btree_cache_alloc_lock = current;
++	} else if (c->btree_cache_alloc_lock != current) {
+ 		if (op)
+ 			prepare_to_wait(&c->btree_cache_wait, &op->wait,
+ 					TASK_UNINTERRUPTIBLE);
++		spin_unlock(&c->btree_cannibalize_lock);
+ 		return -EINTR;
+ 	}
++	spin_unlock(&c->btree_cannibalize_lock);
+ 
+ 	return 0;
+ }
+@@ -883,10 +885,12 @@ static struct btree *mca_cannibalize(struct cache_set *c, struct btree_op *op,
+  */
+ static void bch_cannibalize_unlock(struct cache_set *c)
+ {
++	spin_lock(&c->btree_cannibalize_lock);
+ 	if (c->btree_cache_alloc_lock == current) {
+ 		c->btree_cache_alloc_lock = NULL;
+ 		wake_up(&c->btree_cache_wait);
+ 	}
++	spin_unlock(&c->btree_cannibalize_lock);
+ }
+ 
+ static struct btree *mca_alloc(struct cache_set *c, struct btree_op *op,
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 7fcc1ba12bc01..6bf1559a1f0db 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1510,6 +1510,7 @@ struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
+ 	sema_init(&c->sb_write_mutex, 1);
+ 	mutex_init(&c->bucket_lock);
+ 	init_waitqueue_head(&c->btree_cache_wait);
++	spin_lock_init(&c->btree_cannibalize_lock);
+ 	init_waitqueue_head(&c->bucket_wait);
+ 	init_waitqueue_head(&c->gc_wait);
+ 	sema_init(&c->uuid_write_mutex, 1);
 -- 
 2.25.1
 
