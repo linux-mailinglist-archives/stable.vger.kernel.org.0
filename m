@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0E5A27C937
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C66E27C8BA
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:05:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729520AbgI2MIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:08:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58076 "EHLO mail.kernel.org"
+        id S1729106AbgI2MEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:04:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730226AbgI2Lhg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:36 -0400
+        id S1728532AbgI2Lh7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE47B23A53;
-        Tue, 29 Sep 2020 11:22:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4AA22083B;
+        Tue, 29 Sep 2020 11:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378571;
-        bh=11eSPVVf8e7KV0F2MBEI348k9p8NFpqatHvfZrbQTg4=;
+        s=default; t=1601379479;
+        bh=cy6Vb+w8dw3c/JpKeFygjW4q0sjZBzO0mk4wcmcKE64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPQO3+xeZXlGUKNPHQDzbEyLqu8VMalA9oKz90IeHB0XUPRDNE/rfQlCtwmlaBQXF
-         gt0O1SxP+MmPS4wwzqWVB4llWA/56suLjTpmTERhhZTJCnVHaBEIrSGbnbDEP+oe0n
-         1T3bXgewUnx3SLRuQOhYKcMrv8vuwvN/yJ6aL+E4=
+        b=c0bp5RICly/E5YneteI0ndZZg0or2psRShz9SF4sPihN6HTpVmnLyVD7eQkA9mMEC
+         GDObBBaZb/WfU1h7FgY5kcg9U1bLOXjBF1d/cVHFQ34/DAQNX1fNk4SYWtsu4pQw8K
+         hqhQJs83KDMx/WKYxaBoPPW5GIT6p0kuvUCeUOoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 061/245] ARM: 8948/1: Prevent OOB access in stacktrace
+Subject: [PATCH 5.4 181/388] btrfs: do not init a reloc root if we arent relocating
 Date:   Tue, 29 Sep 2020 12:58:32 +0200
-Message-Id: <20200929105949.959908417@linuxfoundation.org>
+Message-Id: <20200929110019.241640212@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 40ff1ddb5570284e039e0ff14d7a859a73dc3673 ]
+[ Upstream commit 2abc726ab4b83db774e315c660ab8da21477092f ]
 
-The stacktrace code can read beyond the stack size, when it attempts to
-read pt_regs from exception frames.
+We previously were checking if the root had a dead root before accessing
+root->reloc_root in order to avoid a use-after-free type bug.  However
+this scenario happens after we've unset the reloc control, so we would
+have been saved if we'd simply checked for fs_info->reloc_control.  At
+this point during relocation we no longer need to be creating new reloc
+roots, so simply move this check above the reloc_root checks to avoid
+any future races and confusion.
 
-This can happen on normal, non-corrupt stacks.  Since the unwind
-information in the extable is not correct for function prologues, the
-unwinding code can return data from the stack which is not actually the
-caller function address, and if in_entry_text() happens to succeed on
-this value, we can end up reading data from outside the task's stack
-when attempting to read pt_regs, since there is no bounds check.
-
-Example:
-
- [<8010e729>] (unwind_backtrace) from [<8010a9c9>] (show_stack+0x11/0x14)
- [<8010a9c9>] (show_stack) from [<8057d8d7>] (dump_stack+0x87/0xac)
- [<8057d8d7>] (dump_stack) from [<8012271d>] (tasklet_action_common.constprop.4+0xa5/0xa8)
- [<8012271d>] (tasklet_action_common.constprop.4) from [<80102333>] (__do_softirq+0x11b/0x31c)
- [<80102333>] (__do_softirq) from [<80122485>] (irq_exit+0xad/0xd8)
- [<80122485>] (irq_exit) from [<8015f3d7>] (__handle_domain_irq+0x47/0x84)
- [<8015f3d7>] (__handle_domain_irq) from [<8036a523>] (gic_handle_irq+0x43/0x78)
- [<8036a523>] (gic_handle_irq) from [<80101a49>] (__irq_svc+0x69/0xb4)
- Exception stack(0xeb491f58 to 0xeb491fa0)
- 1f40:                                                       7eb14794 00000000
- 1f60: ffffffff 008dd32c 008dd324 ffffffff 008dd314 0000002a 801011e4 eb490000
- 1f80: 0000002a 7eb1478c 50c5387d eb491fa8 80101001 8023d09c 40080033 ffffffff
- [<80101a49>] (__irq_svc) from [<8023d09c>] (do_pipe2+0x0/0xac)
- [<8023d09c>] (do_pipe2) from [<ffffffff>] (0xffffffff)
- Exception stack(0xeb491fc8 to 0xeb492010)
- 1fc0:                   008dd314 0000002a 00511ad8 008de4c8 7eb14790 7eb1478c
- 1fe0: 00511e34 7eb14774 004c8557 76f44098 60080030 7eb14794 00000000 00000000
- 2000: 00000001 00000000 ea846c00 ea847cc0
-
-In this example, the stack limit is 0xeb492000, but 16 bytes outside the
-stack have been read.
-
-Fix it by adding bounds checks.
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/stacktrace.c | 2 ++
- arch/arm/kernel/traps.c      | 6 ++++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ fs/btrfs/relocation.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
-index a4d4a28fe07df..d23ab9ec130a3 100644
---- a/arch/arm/kernel/stacktrace.c
-+++ b/arch/arm/kernel/stacktrace.c
-@@ -115,6 +115,8 @@ static int save_trace(struct stackframe *frame, void *d)
- 		return 0;
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index af3605a0bf2e0..1313506a7ecb5 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1468,6 +1468,10 @@ int btrfs_init_reloc_root(struct btrfs_trans_handle *trans,
+ 	int clear_rsv = 0;
+ 	int ret;
  
- 	regs = (struct pt_regs *)frame->sp;
-+	if ((unsigned long)&regs[1] > ALIGN(frame->sp, THREAD_SIZE))
++	if (!rc || !rc->create_reloc_tree ||
++	    root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID)
 +		return 0;
- 
- 	trace->entries[trace->nr_entries++] = regs->ARM_pc;
- 
-diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
-index badf02ca36938..aec533168f046 100644
---- a/arch/arm/kernel/traps.c
-+++ b/arch/arm/kernel/traps.c
-@@ -67,14 +67,16 @@ static void dump_mem(const char *, const char *, unsigned long, unsigned long);
- 
- void dump_backtrace_entry(unsigned long where, unsigned long from, unsigned long frame)
- {
-+	unsigned long end = frame + 4 + sizeof(struct pt_regs);
 +
- #ifdef CONFIG_KALLSYMS
- 	printk("[<%08lx>] (%ps) from [<%08lx>] (%pS)\n", where, (void *)where, from, (void *)from);
- #else
- 	printk("Function entered at [<%08lx>] from [<%08lx>]\n", where, from);
- #endif
+ 	/*
+ 	 * The subvolume has reloc tree but the swap is finished, no need to
+ 	 * create/update the dead reloc tree
+@@ -1481,10 +1485,6 @@ int btrfs_init_reloc_root(struct btrfs_trans_handle *trans,
+ 		return 0;
+ 	}
  
--	if (in_entry_text(from))
--		dump_mem("", "Exception stack", frame + 4, frame + 4 + sizeof(struct pt_regs));
-+	if (in_entry_text(from) && end <= ALIGN(frame, THREAD_SIZE))
-+		dump_mem("", "Exception stack", frame + 4, end);
- }
+-	if (!rc || !rc->create_reloc_tree ||
+-	    root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID)
+-		return 0;
+-
+ 	if (!trans->reloc_reserved) {
+ 		rsv = trans->block_rsv;
+ 		trans->block_rsv = rc->block_rsv;
+@@ -2336,6 +2336,18 @@ static noinline_for_stack int merge_reloc_root(struct reloc_control *rc,
+ 			trans = NULL;
+ 			goto out;
+ 		}
++
++		/*
++		 * At this point we no longer have a reloc_control, so we can't
++		 * depend on btrfs_init_reloc_root to update our last_trans.
++		 *
++		 * But that's ok, we started the trans handle on our
++		 * corresponding fs_root, which means it's been added to the
++		 * dirty list.  At commit time we'll still call
++		 * btrfs_update_reloc_root() and update our root item
++		 * appropriately.
++		 */
++		reloc_root->last_trans = trans->transid;
+ 		trans->block_rsv = rc->block_rsv;
  
- void dump_backtrace_stm(u32 *stack, u32 instruction)
+ 		replaced = 0;
 -- 
 2.25.1
 
