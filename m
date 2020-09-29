@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1AD27C576
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1EAF27C584
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:38:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729854AbgI2Lfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:35:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49134 "EHLO mail.kernel.org"
+        id S1729431AbgI2LgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:36:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729871AbgI2Lfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729879AbgI2Lfg (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:35:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFE1A23AA1;
-        Tue, 29 Sep 2020 11:22:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4C6322207;
+        Tue, 29 Sep 2020 11:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378526;
-        bh=64VOfE9/+OA65A6IGYIhcvmlZseuy8KUgWCKGTp63J8=;
+        s=default; t=1601378488;
+        bh=sg7epVYCVAfK5hYDK+fLeVuPfNx226rOe/GTMCdMnvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZwjhBxgTJ/s+eGq5yylh1iYzTmUiM6MQ4ZU4VJdrYzkY4qXK3sESZ+U/3RjGhDq8
-         IrKu+v+8LU0YWfC/ZLM6VQZqnF1Jec6V4QSdHnKgl1ef7oMHUrA06kbVxjCbKaxFwU
-         jhSEi7kr5Rn6V9Z1tuKAsGYNGFu6gXPX1UjtQte0=
+        b=nD7/x8o74jFleYhMjxFGPlFWYtD4Ke09DNnHShxtAlC0DFnuL6SjOGLu8zVnYcHwS
+         C2o+d/FfV9jLCObR9jM1LWTAeijp42txCs1VF5smjdi8k0sbLMGSp0VOA/wGOPhria
+         BYynzUKOtomnCQSJD4Lcb3Sx/rC0xYH4QMsYS1y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 015/245] ALSA: hda/realtek - Couldnt detect Mic if booting with headset plugged
-Date:   Tue, 29 Sep 2020 12:57:46 +0200
-Message-Id: <20200929105947.732203702@linuxfoundation.org>
+        stable@vger.kernel.org, Satendra Singh Thakur <sst2005@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 031/245] dmaengine: mediatek: hsdma_probe: fixed a memory leak when devm_request_irq fails
+Date:   Tue, 29 Sep 2020 12:58:02 +0200
+Message-Id: <20200929105948.520640959@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -42,48 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Satendra Singh Thakur <sst2005@gmail.com>
 
-commit 3f74249057827c5f6676c41c18f6be12ce1469ce upstream.
+[ Upstream commit 1ff95243257fad07290dcbc5f7a6ad79d6e703e2 ]
 
-We found a Mic detection issue on many Lenovo laptops, those laptops
-belong to differnt models and they have different audio design like
-internal mic connects to the codec or PCH, they all have this problem,
-the problem is if plugging a headset before powerup/reboot the
-machine, after booting up, the headphone could be detected but Mic
-couldn't. If we plug out and plug in the headset, both headphone and
-Mic could be detected then.
+When devm_request_irq fails, currently, the function
+dma_async_device_unregister gets called. This doesn't free
+the resources allocated by of_dma_controller_register.
+Therefore, we have called of_dma_controller_free for this purpose.
 
-Through debugging we found the codec on those laptops are same, it is
-alc257, and if we don't disable the 3k pulldown in alc256_shutup(),
-the issue will be fixed. So far there is no pop noise or power
-consumption regression on those laptops after this change.
-
-Cc: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20200914065118.19238-1-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Satendra Singh Thakur <sst2005@gmail.com>
+Link: https://lore.kernel.org/r/20191109113523.6067-1-sst2005@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/dma/mediatek/mtk-hsdma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3290,7 +3290,11 @@ static void alc256_shutup(struct hda_cod
+diff --git a/drivers/dma/mediatek/mtk-hsdma.c b/drivers/dma/mediatek/mtk-hsdma.c
+index b7ec56ae02a6e..fca232b1d4a64 100644
+--- a/drivers/dma/mediatek/mtk-hsdma.c
++++ b/drivers/dma/mediatek/mtk-hsdma.c
+@@ -997,7 +997,7 @@ static int mtk_hsdma_probe(struct platform_device *pdev)
+ 	if (err) {
+ 		dev_err(&pdev->dev,
+ 			"request_irq failed with err %d\n", err);
+-		goto err_unregister;
++		goto err_free;
+ 	}
  
- 	/* 3k pull low control for Headset jack. */
- 	/* NOTE: call this before clearing the pin, otherwise codec stalls */
--	alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
-+	/* If disable 3k pulldown control for alc257, the Mic detection will not work correctly
-+	 * when booting with headset plugged. So skip setting it for the codec alc257
-+	 */
-+	if (codec->core.vendor_id != 0x10ec0257)
-+		alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
+ 	platform_set_drvdata(pdev, hsdma);
+@@ -1006,6 +1006,8 @@ static int mtk_hsdma_probe(struct platform_device *pdev)
  
- 	if (!spec->no_shutup_pins)
- 		snd_hda_codec_write(codec, hp_pin, 0,
+ 	return 0;
+ 
++err_free:
++	of_dma_controller_free(pdev->dev.of_node);
+ err_unregister:
+ 	dma_async_device_unregister(dd);
+ 
+-- 
+2.25.1
+
 
 
