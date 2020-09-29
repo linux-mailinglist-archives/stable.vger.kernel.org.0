@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 025DA27B965
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF1E27B968
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726421AbgI2Ba3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 21:30:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39272 "EHLO mail.kernel.org"
+        id S1727288AbgI2Baj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 21:30:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726379AbgI2Ba3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 21:30:29 -0400
+        id S1727344AbgI2Bah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 21:30:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6280A2083B;
-        Tue, 29 Sep 2020 01:30:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 880A321D7D;
+        Tue, 29 Sep 2020 01:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343029;
-        bh=lX9O4hxvxd90v1IeDiyJoQVpOMMiA7ft8aBH2MqUH60=;
-        h=From:To:Cc:Subject:Date:From;
-        b=a7sj9sdi5WSXc7BXNnKs3zrdZZWUN7ZDB7O+wsrc6ij6zA7NbLruJ49HlyWGMTaV2
-         tIk/sNCid6tedj0tnl8CXlu0ouPBzEEBQjZmF/FxiMtqmnJuNLZtBJIFtlEj5rn5yI
-         dNMSgPz+Wa32hjzL7vGVh0ZUDidga5lJghHhhMFo=
+        s=default; t=1601343037;
+        bh=unoHxtSRdKvnphH9lXj1ePIn2asvOMskiEcRPQoPudE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SU4PNONJi/SgfWd74Y21rYvMHi5XG6B8hZy+28FeDRQMWphHp53EdUMXzqCn4ftyf
+         eyUjF82Le5BBHLNaXJ6SEfX9ZI5lgm15Eopu/2uYQ3h+9Tmf5LGMLIga0hyMFfKQh5
+         olLr9E2Y9xeqIU8nyRgZRctdZQlnvqHLMur3n1DY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guo Ren <guoren@linux.alibaba.com>,
-        Xu Kai <xukai@nationalchip.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>, linux-csky@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 01/29] clocksource/drivers/timer-gx6605s: Fixup counter reload
-Date:   Mon, 28 Sep 2020 21:29:58 -0400
-Message-Id: <20200929013027.2406344-1-sashal@kernel.org>
+Cc:     Martin Cerveny <m.cerveny@computer.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 07/29] drm/sun4i: mixer: Extend regmap max_register
+Date:   Mon, 28 Sep 2020 21:30:04 -0400
+Message-Id: <20200929013027.2406344-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200929013027.2406344-1-sashal@kernel.org>
+References: <20200929013027.2406344-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,39 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Martin Cerveny <m.cerveny@computer.org>
 
-[ Upstream commit bc6717d55d07110d8f3c6d31ec2af50c11b07091 ]
+[ Upstream commit 74ea06164cda81dc80e97790164ca533fd7e3087 ]
 
-When the timer counts to the upper limit, an overflow interrupt is
-generated, and the count is reset with the value in the TIME_INI
-register. But the software expects to start counting from 0 when
-the count overflows, so it forces TIME_INI to 0 to solve the
-potential interrupt storm problem.
+Better guess. Secondary CSC registers are from 0xF0000.
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Tested-by: Xu Kai <xukai@nationalchip.com>
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/1597735877-71115-1-git-send-email-guoren@kernel.org
+Signed-off-by: Martin Cerveny <m.cerveny@computer.org>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200906162140.5584-3-m.cerveny@computer.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-gx6605s.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/sun4i/sun8i_mixer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/timer-gx6605s.c b/drivers/clocksource/timer-gx6605s.c
-index 80d0939d040b5..8d386adbe8009 100644
---- a/drivers/clocksource/timer-gx6605s.c
-+++ b/drivers/clocksource/timer-gx6605s.c
-@@ -28,6 +28,7 @@ static irqreturn_t gx6605s_timer_interrupt(int irq, void *dev)
- 	void __iomem *base = timer_of_base(to_timer_of(ce));
+diff --git a/drivers/gpu/drm/sun4i/sun8i_mixer.c b/drivers/gpu/drm/sun4i/sun8i_mixer.c
+index cc4fb916318f3..c3304028e3dcd 100644
+--- a/drivers/gpu/drm/sun4i/sun8i_mixer.c
++++ b/drivers/gpu/drm/sun4i/sun8i_mixer.c
+@@ -307,7 +307,7 @@ static struct regmap_config sun8i_mixer_regmap_config = {
+ 	.reg_bits	= 32,
+ 	.val_bits	= 32,
+ 	.reg_stride	= 4,
+-	.max_register	= 0xbfffc, /* guessed */
++	.max_register	= 0xffffc, /* guessed */
+ };
  
- 	writel_relaxed(GX6605S_STATUS_CLR, base + TIMER_STATUS);
-+	writel_relaxed(0, base + TIMER_INI);
- 
- 	ce->event_handler(ce);
- 
+ static int sun8i_mixer_of_get_id(struct device_node *node)
 -- 
 2.25.1
 
