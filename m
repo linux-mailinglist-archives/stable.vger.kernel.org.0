@@ -2,49 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FED927C6CB
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E90BC27C682
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730444AbgI2Ls3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:48:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50790 "EHLO mail.kernel.org"
+        id S1730982AbgI2Lp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:45:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731142AbgI2Ls1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:48:27 -0400
+        id S1730784AbgI2Lp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:45:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4332D206E5;
-        Tue, 29 Sep 2020 11:48:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 222382158C;
+        Tue, 29 Sep 2020 11:45:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380106;
-        bh=AjV7tlE3WV/KPZtGiaovV84JTCCzUCgfxYQlAF/Oq6k=;
+        s=default; t=1601379955;
+        bh=o+jX1UC9smdm8fMgaTBYlcGUoKwhXwap4VlpVNw2/pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2D0E9skF4iJHb4vaWNHByq1uYh7+efSIb01ri03SOgNvtOZaMRlojd1B5m+OtnCx
-         yZo3qdeJpsXzIXhiiIwrjl2nYymdQVBJLLJrBcMnRLvSoTSM3ZQYYwI5XZxQoqE5Gr
-         8qPVVSRxrNHoy0sCKMPsPQsUHyghAfxwpKNXhwig=
+        b=UComp9HJiWg6Vy88kJU5LMz+p/ZaR7+BR2rvZcC76TiRrN8U2dYETCRFKz8T1G5og
+         gQmpcY7SYR+ZsqlC1P6JuQHSn+lGvG4/bT4Grtg1a6eMG/JS3L/pX28PoqvDnhBrw+
+         aCs1jWn3sppN1ZznvtVdTUT9EFkhLb/z04CNu/h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dan Williams <dan.j.wiilliams@intel.com>,
-        Jan Kara <jack@suse.cz>, Jeff Moyer <jmoyer@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Toshi Kani <toshi.kani@hpe.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Matthew Wilcox <mawilcox@microsoft.com>,
-        Ross Zwisler <ross.zwisler@linux.intel.com>,
-        Ingo Molnar <mingo@elte.hu>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 71/99] arch/x86/lib/usercopy_64.c: fix __copy_user_flushcache() cache writeback
-Date:   Tue, 29 Sep 2020 13:01:54 +0200
-Message-Id: <20200929105933.225517229@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 384/388] dm: fix bio splitting and its bio completion order for regular IO
+Date:   Tue, 29 Sep 2020 13:01:55 +0200
+Message-Id: <20200929110029.054124998@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit a1cd6c2ae47ee10ff21e62475685d5b399e2ed4a upstream.
+commit ee1dfad5325ff1cfb2239e564cd411b3bfe8667a upstream.
 
-If we copy less than 8 bytes and if the destination crosses a cache
-line, __copy_user_flushcache would invalidate only the first cache line.
+dm_queue_split() is removed because __split_and_process_bio() _must_
+handle splitting bios to ensure proper bio submission and completion
+ordering as a bio is split.
 
-This patch makes it invalidate the second cache line as well.
+Otherwise, multiple recursive calls to ->submit_bio will cause multiple
+split bios to be allocated from the same ->bio_split mempool at the same
+time. This would result in deadlock in low memory conditions because no
+progress could be made (only one bio is available in ->bio_split
+mempool).
 
-Fixes: 0aed55af88345b ("x86, uaccess: introduce copy_from_iter_flushcache for pmem / cache-bypass operations")
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Dan Williams <dan.j.wiilliams@intel.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Jeff Moyer <jmoyer@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Matthew Wilcox <mawilcox@microsoft.com>
-Cc: Ross Zwisler <ross.zwisler@linux.intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/alpine.LRH.2.02.2009161451140.21915@file01.intranet.prod.int.rdu2.redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This fix has been verified to still fix the loss of performance, due
+to excess splitting, that commit 120c9257f5f1 provided.
+
+Fixes: 120c9257f5f1 ("Revert "dm: always call blk_queue_split() in dm_process_bio()"")
+Cc: stable@vger.kernel.org # 5.0+, requires custom backport due to 5.9 changes
+Reported-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/lib/usercopy_64.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm.c |   23 ++---------------------
+ 1 file changed, 2 insertions(+), 21 deletions(-)
 
---- a/arch/x86/lib/usercopy_64.c
-+++ b/arch/x86/lib/usercopy_64.c
-@@ -120,7 +120,7 @@ long __copy_user_flushcache(void *dst, c
- 	 */
- 	if (size < 8) {
- 		if (!IS_ALIGNED(dest, 4) || size != 4)
--			clean_cache_range(dst, 1);
-+			clean_cache_range(dst, size);
- 	} else {
- 		if (!IS_ALIGNED(dest, 8)) {
- 			dest = ALIGN(dest, boot_cpu_data.x86_clflush_size);
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1720,23 +1720,6 @@ out:
+ 	return ret;
+ }
+ 
+-static void dm_queue_split(struct mapped_device *md, struct dm_target *ti, struct bio **bio)
+-{
+-	unsigned len, sector_count;
+-
+-	sector_count = bio_sectors(*bio);
+-	len = min_t(sector_t, max_io_len((*bio)->bi_iter.bi_sector, ti), sector_count);
+-
+-	if (sector_count > len) {
+-		struct bio *split = bio_split(*bio, len, GFP_NOIO, &md->queue->bio_split);
+-
+-		bio_chain(split, *bio);
+-		trace_block_split(md->queue, split, (*bio)->bi_iter.bi_sector);
+-		generic_make_request(*bio);
+-		*bio = split;
+-	}
+-}
+-
+ static blk_qc_t dm_process_bio(struct mapped_device *md,
+ 			       struct dm_table *map, struct bio *bio)
+ {
+@@ -1764,14 +1747,12 @@ static blk_qc_t dm_process_bio(struct ma
+ 	if (current->bio_list) {
+ 		if (is_abnormal_io(bio))
+ 			blk_queue_split(md->queue, &bio);
+-		else
+-			dm_queue_split(md, ti, &bio);
++		/* regular IO is split by __split_and_process_bio */
+ 	}
+ 
+ 	if (dm_get_md_type(md) == DM_TYPE_NVME_BIO_BASED)
+ 		return __process_bio(md, map, bio, ti);
+-	else
+-		return __split_and_process_bio(md, map, bio);
++	return __split_and_process_bio(md, map, bio);
+ }
+ 
+ static blk_qc_t dm_make_request(struct request_queue *q, struct bio *bio)
 
 
