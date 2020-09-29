@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9CBF27C3B1
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 668ED27C3CA
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728947AbgI2LHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:07:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46262 "EHLO mail.kernel.org"
+        id S1728728AbgI2LIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:08:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728944AbgI2LHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:07:40 -0400
+        id S1728996AbgI2LIh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:08:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1815621941;
-        Tue, 29 Sep 2020 11:07:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CE1821D46;
+        Tue, 29 Sep 2020 11:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377659;
-        bh=pFiXARtSwy3hcgVfERpRiaTYPto59kdgyUvIjPk9Duk=;
+        s=default; t=1601377717;
+        bh=7zJWWQyG8dVvuschc73v5T/A+sdPSkOOQKs8l8Al4rQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IX2voel1f//WtFWD9EkPNnj9cOJ2zHUmvAzIM83BGJ+hyPNL5RPbPSwPhpvDRV9pU
-         XQvdvom6ykB9NxbPJOty1aR0OahHsVcHh6fDoNA6FhrsgLRHlvrN9VlgBeNa7hHBR1
-         Xm9vf5fZaYiWE7V1k+I1COFCCoth8a539eMPIw2k=
+        b=swp2vqfTky104mi71Mk52Qb2/rfzFJrGKkyetiRorn8qIEILHAql+GyoeYzJTgjOJ
+         bnL7EIDodHZcYlXO45OOf7jIustrQENwojaMH9aH67pH8Rnv76q3Qrv88jC+ecDnK3
+         K1/0kzdAwlSUtl3Mdq6AkJfmc9HdL8jQqsbCoufU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 018/121] ALSA: usb-audio: Add delay quirk for H570e USB headsets
-Date:   Tue, 29 Sep 2020 12:59:22 +0200
-Message-Id: <20200929105931.087639479@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Kitt <steve@sk2.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 020/121] clk/ti/adpll: allocate room for terminating null
+Date:   Tue, 29 Sep 2020 12:59:24 +0200
+Message-Id: <20200929105931.183115553@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
@@ -43,40 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+From: Stephen Kitt <steve@sk2.org>
 
-commit 315c7ad7a701baba28c628c4c5426b3d9617ceed upstream.
+[ Upstream commit 7f6ac72946b88b89ee44c1c527aa8591ac5ffcbe ]
 
-Needs the same delay as H650e
+The buffer allocated in ti_adpll_clk_get_name doesn't account for the
+terminating null. This patch switches to devm_kasprintf to avoid
+overflowing.
 
-Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200910085328.19188-1-joakim.tjernlund@infinera.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Stephen Kitt <steve@sk2.org>
+Link: https://lkml.kernel.org/r/20191019140634.15596-1-steve@sk2.org
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/clk/ti/adpll.c | 11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1320,12 +1320,13 @@ void snd_usb_ctl_msg_quirk(struct usb_de
- 	    && (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
- 		mdelay(20);
+diff --git a/drivers/clk/ti/adpll.c b/drivers/clk/ti/adpll.c
+index 255cafb18336a..9345eaf00938e 100644
+--- a/drivers/clk/ti/adpll.c
++++ b/drivers/clk/ti/adpll.c
+@@ -193,15 +193,8 @@ static const char *ti_adpll_clk_get_name(struct ti_adpll_data *d,
+ 		if (err)
+ 			return NULL;
+ 	} else {
+-		const char *base_name = "adpll";
+-		char *buf;
+-
+-		buf = devm_kzalloc(d->dev, 8 + 1 + strlen(base_name) + 1 +
+-				    strlen(postfix), GFP_KERNEL);
+-		if (!buf)
+-			return NULL;
+-		sprintf(buf, "%08lx.%s.%s", d->pa, base_name, postfix);
+-		name = buf;
++		name = devm_kasprintf(d->dev, GFP_KERNEL, "%08lx.adpll.%s",
++				      d->pa, postfix);
+ 	}
  
--	/* Zoom R16/24, Logitech H650e, Jabra 550a, Kingston HyperX needs a tiny
--	 * delay here, otherwise requests like get/set frequency return as
--	 * failed despite actually succeeding.
-+	/* Zoom R16/24, Logitech H650e/H570e, Jabra 550a, Kingston HyperX
-+	 *  needs a tiny delay here, otherwise requests like get/set
-+	 *  frequency return as failed despite actually succeeding.
- 	 */
- 	if ((chip->usb_id == USB_ID(0x1686, 0x00dd) ||
- 	     chip->usb_id == USB_ID(0x046d, 0x0a46) ||
-+	     chip->usb_id == USB_ID(0x046d, 0x0a56) ||
- 	     chip->usb_id == USB_ID(0x0b0e, 0x0349) ||
- 	     chip->usb_id == USB_ID(0x0951, 0x16ad)) &&
- 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ 	return name;
+-- 
+2.25.1
+
 
 
