@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7324227C493
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6AFC27C46A
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729485AbgI2LPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:15:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59028 "EHLO mail.kernel.org"
+        id S1729066AbgI2LNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:13:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728600AbgI2LO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:14:58 -0400
+        id S1728464AbgI2LN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:13:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2F39208FE;
-        Tue, 29 Sep 2020 11:14:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A6A4221E7;
+        Tue, 29 Sep 2020 11:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378098;
-        bh=6A+nGAFiW6DeJuMtAODfJ5UG5bnGiIAvGmKH2xsQoVQ=;
+        s=default; t=1601378006;
+        bh=IoCVrsR79AYUsIpowAJgDUNoxfHUm/Ij+N8h1eGcPGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgDCKRO8oQXc4CBJYL4sJiAZlc/YqgW6bPIJBGM+z6j72SNpX0B6w9Ue6so29+MPc
-         ks9nYjQQSOFC6srN/GjuhhHXtillA9ToEBvpSO/EfuwHCi5Ay/PkDYf70ItQ2OvnG7
-         dXlSwbb+PKS/AoRPQUt8lDmF8km0+8s8GK0vO1h4=
+        b=EQ6FDBGP0Q4xdita4QQ2m3eEO/NQkwoPmiebuZXjMl/5Lt/ZsgVIacgce7JkY4/te
+         R9F5kGtzwlo8WS6dW4afc+ucRd8humWZAWuC8ktWetgFtEbNMvp8smPAhGDiLJtEPA
+         SRw82yHFOcaFkGB2q5ccggWCj4SyZ6/FyzsQeX3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fuqian Huang <huangfq.daxian@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 020/166] m68k: q40: Fix info-leak in rtc_ioctl
-Date:   Tue, 29 Sep 2020 12:58:52 +0200
-Message-Id: <20200929105936.199322276@linuxfoundation.org>
+Subject: [PATCH 4.14 021/166] gma/gma500: fix a memory disclosure bug due to uninitialized bytes
+Date:   Tue, 29 Sep 2020 12:58:53 +0200
+Message-Id: <20200929105936.250017413@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -43,38 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fuqian Huang <huangfq.daxian@gmail.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 7cf78b6b12fd5550545e4b73b35dca18bd46b44c ]
+[ Upstream commit 57a25a5f754ce27da2cfa6f413cfd366f878db76 ]
 
-When the option is RTC_PLL_GET, pll will be copied to userland
-via copy_to_user. pll is initialized using mach_get_rtc_pll indirect
-call and mach_get_rtc_pll is only assigned with function
-q40_get_rtc_pll in arch/m68k/q40/config.c.
-In function q40_get_rtc_pll, the field pll_ctrl is not initialized.
-This will leak uninitialized stack content to userland.
-Fix this by zeroing the uninitialized field.
+`best_clock` is an object that may be sent out. Object `clock`
+contains uninitialized bytes that are copied to `best_clock`,
+which leads to memory disclosure and information leak.
 
-Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
-Link: https://lore.kernel.org/r/20190927121544.7650-1-huangfq.daxian@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191018042953.31099-1-kjlu@umn.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/q40/config.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/gma500/cdv_intel_display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/m68k/q40/config.c b/arch/m68k/q40/config.c
-index 71c0867ecf20f..7fdf4e7799bcd 100644
---- a/arch/m68k/q40/config.c
-+++ b/arch/m68k/q40/config.c
-@@ -303,6 +303,7 @@ static int q40_get_rtc_pll(struct rtc_pll_info *pll)
- {
- 	int tmp = Q40_RTC_CTRL;
+diff --git a/drivers/gpu/drm/gma500/cdv_intel_display.c b/drivers/gpu/drm/gma500/cdv_intel_display.c
+index 17db4b4749d5a..2e8479744ca4a 100644
+--- a/drivers/gpu/drm/gma500/cdv_intel_display.c
++++ b/drivers/gpu/drm/gma500/cdv_intel_display.c
+@@ -415,6 +415,8 @@ static bool cdv_intel_find_dp_pll(const struct gma_limit_t *limit,
+ 	struct gma_crtc *gma_crtc = to_gma_crtc(crtc);
+ 	struct gma_clock_t clock;
  
-+	pll->pll_ctrl = 0;
- 	pll->pll_value = tmp & Q40_RTC_PLL_MASK;
- 	if (tmp & Q40_RTC_PLL_SIGN)
- 		pll->pll_value = -pll->pll_value;
++	memset(&clock, 0, sizeof(clock));
++
+ 	switch (refclk) {
+ 	case 27000:
+ 		if (target < 200000) {
 -- 
 2.25.1
 
