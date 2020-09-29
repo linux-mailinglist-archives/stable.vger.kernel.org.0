@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 732D327C962
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:10:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7415427C973
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:10:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729934AbgI2MKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:10:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53440 "EHLO mail.kernel.org"
+        id S1730190AbgI2MKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:10:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730192AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730200AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:37:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32A6F23A01;
-        Tue, 29 Sep 2020 11:22:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCE6C2083B;
+        Tue, 29 Sep 2020 11:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378540;
-        bh=yUK0HLYKdN07FEPz7f+8FoTS9YClMk7ZefkhznqXA5w=;
+        s=default; t=1601378543;
+        bh=1S77m4row9Ck+TBXx2z25Pwb64xZDCNkJSlX5PfCtF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oWhjnp1k9B7qCMNEg+R2RWv0hZnu3nIwaqsz+ddFsWkfuKT1rpyoTfOXArl3TlCYd
-         C1o0FVFqbwnkHvtxsELJULRJ891cfmNATD3whU4AMyU7r+CsOipfHy/6KHv6Awg6qo
-         j6O2e3KzA7ygw1fMnhvbz3enlbBGED6NIoY+Kxdw=
+        b=a1jhD7Zkfg9VC2P26/zL7o3uQZKsIuVHx2Y4LbHyiKlbc1U3sMpOmYgqXChgULGbA
+         Vnulu4mtzFSxzaEKoUzORRGkGWBHRNNKq+4/FZZAzfQ6n6hRYq+YZPOzxw7UOyoh+u
+         cy7Luk0SbkI0BIUfhRsB1O0EdCkQMxvrJezFY4TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikhil Devshatwar <nikhil.nd@ti.com>,
-        Benoit Parrot <bparrot@ti.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Kevin Kou <qdkevin.kou@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 051/245] media: ti-vpe: cal: Restrict DMA to avoid memory corruption
-Date:   Tue, 29 Sep 2020 12:58:22 +0200
-Message-Id: <20200929105949.485903609@linuxfoundation.org>
+Subject: [PATCH 4.19 052/245] sctp: move trace_sctp_probe_path into sctp_outq_sack
+Date:   Tue, 29 Sep 2020 12:58:23 +0200
+Message-Id: <20200929105949.531355203@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -45,56 +44,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikhil Devshatwar <nikhil.nd@ti.com>
+From: Kevin Kou <qdkevin.kou@gmail.com>
 
-[ Upstream commit 6e72eab2e7b7a157d554b8f9faed7676047be7c1 ]
+[ Upstream commit f643ee295c1c63bc117fb052d4da681354d6f732 ]
 
-When setting DMA for video capture from CSI channel, if the DMA size
-is not given, it ends up writing as much data as sent by the camera.
+The original patch bringed in the "SCTP ACK tracking trace event"
+feature was committed at Dec.20, 2017, it replaced jprobe usage
+with trace events, and bringed in two trace events, one is
+TRACE_EVENT(sctp_probe), another one is TRACE_EVENT(sctp_probe_path).
+The original patch intended to trigger the trace_sctp_probe_path in
+TRACE_EVENT(sctp_probe) as below code,
 
-This may lead to overwriting the buffers causing memory corruption.
-Observed green lines on the default framebuffer.
++TRACE_EVENT(sctp_probe,
++
++	TP_PROTO(const struct sctp_endpoint *ep,
++		 const struct sctp_association *asoc,
++		 struct sctp_chunk *chunk),
++
++	TP_ARGS(ep, asoc, chunk),
++
++	TP_STRUCT__entry(
++		__field(__u64, asoc)
++		__field(__u32, mark)
++		__field(__u16, bind_port)
++		__field(__u16, peer_port)
++		__field(__u32, pathmtu)
++		__field(__u32, rwnd)
++		__field(__u16, unack_data)
++	),
++
++	TP_fast_assign(
++		struct sk_buff *skb = chunk->skb;
++
++		__entry->asoc = (unsigned long)asoc;
++		__entry->mark = skb->mark;
++		__entry->bind_port = ep->base.bind_addr.port;
++		__entry->peer_port = asoc->peer.port;
++		__entry->pathmtu = asoc->pathmtu;
++		__entry->rwnd = asoc->peer.rwnd;
++		__entry->unack_data = asoc->unack_data;
++
++		if (trace_sctp_probe_path_enabled()) {
++			struct sctp_transport *sp;
++
++			list_for_each_entry(sp, &asoc->peer.transport_addr_list,
++					    transports) {
++				trace_sctp_probe_path(sp, asoc);
++			}
++		}
++	),
 
-Restrict the DMA to maximum height as specified in the S_FMT ioctl.
+But I found it did not work when I did testing, and trace_sctp_probe_path
+had no output, I finally found that there is trace buffer lock
+operation(trace_event_buffer_reserve) in include/trace/trace_events.h:
 
-Signed-off-by: Nikhil Devshatwar <nikhil.nd@ti.com>
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+static notrace void							\
+trace_event_raw_event_##call(void *__data, proto)			\
+{									\
+	struct trace_event_file *trace_file = __data;			\
+	struct trace_event_data_offsets_##call __maybe_unused __data_offsets;\
+	struct trace_event_buffer fbuffer;				\
+	struct trace_event_raw_##call *entry;				\
+	int __data_size;						\
+									\
+	if (trace_trigger_soft_disabled(trace_file))			\
+		return;							\
+									\
+	__data_size = trace_event_get_offsets_##call(&__data_offsets, args); \
+									\
+	entry = trace_event_buffer_reserve(&fbuffer, trace_file,	\
+				 sizeof(*entry) + __data_size);		\
+									\
+	if (!entry)							\
+		return;							\
+									\
+	tstruct								\
+									\
+	{ assign; }							\
+									\
+	trace_event_buffer_commit(&fbuffer);				\
+}
+
+The reason caused no output of trace_sctp_probe_path is that
+trace_sctp_probe_path written in TP_fast_assign part of
+TRACE_EVENT(sctp_probe), and it will be placed( { assign; } ) after the
+trace_event_buffer_reserve() when compiler expands Macro,
+
+        entry = trace_event_buffer_reserve(&fbuffer, trace_file,        \
+                                 sizeof(*entry) + __data_size);         \
+                                                                        \
+        if (!entry)                                                     \
+                return;                                                 \
+                                                                        \
+        tstruct                                                         \
+                                                                        \
+        { assign; }                                                     \
+
+so trace_sctp_probe_path finally can not acquire trace_event_buffer
+and return no output, that is to say the nest of tracepoint entry function
+is not allowed. The function call flow is:
+
+trace_sctp_probe()
+-> trace_event_raw_event_sctp_probe()
+ -> lock buffer
+ -> trace_sctp_probe_path()
+   -> trace_event_raw_event_sctp_probe_path()  --nested
+   -> buffer has been locked and return no output.
+
+This patch is to remove trace_sctp_probe_path from the TP_fast_assign
+part of TRACE_EVENT(sctp_probe) to avoid the nest of entry function,
+and trigger sctp_probe_path_trace in sctp_outq_sack.
+
+After this patch, you can enable both events individually,
+  # cd /sys/kernel/debug/tracing
+  # echo 1 > events/sctp/sctp_probe/enable
+  # echo 1 > events/sctp/sctp_probe_path/enable
+
+Or, you can enable all the events under sctp.
+
+  # echo 1 > events/sctp/enable
+
+Signed-off-by: Kevin Kou <qdkevin.kou@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/cal.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/trace/events/sctp.h | 9 ---------
+ net/sctp/outqueue.c         | 6 ++++++
+ 2 files changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
-index be3155275a6ba..d945323fc437d 100644
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -684,12 +684,13 @@ static void pix_proc_config(struct cal_ctx *ctx)
- }
+diff --git a/include/trace/events/sctp.h b/include/trace/events/sctp.h
+index 7475c7be165aa..d4aac34365955 100644
+--- a/include/trace/events/sctp.h
++++ b/include/trace/events/sctp.h
+@@ -75,15 +75,6 @@ TRACE_EVENT(sctp_probe,
+ 		__entry->pathmtu = asoc->pathmtu;
+ 		__entry->rwnd = asoc->peer.rwnd;
+ 		__entry->unack_data = asoc->unack_data;
+-
+-		if (trace_sctp_probe_path_enabled()) {
+-			struct sctp_transport *sp;
+-
+-			list_for_each_entry(sp, &asoc->peer.transport_addr_list,
+-					    transports) {
+-				trace_sctp_probe_path(sp, asoc);
+-			}
+-		}
+ 	),
  
- static void cal_wr_dma_config(struct cal_ctx *ctx,
--			      unsigned int width)
-+			      unsigned int width, unsigned int height)
- {
- 	u32 val;
+ 	TP_printk("asoc=%#llx mark=%#x bind_port=%d peer_port=%d pathmtu=%d "
+diff --git a/net/sctp/outqueue.c b/net/sctp/outqueue.c
+index 7bb8e5603298d..d6e83a37a1adf 100644
+--- a/net/sctp/outqueue.c
++++ b/net/sctp/outqueue.c
+@@ -51,6 +51,7 @@
+ #include <net/sctp/sctp.h>
+ #include <net/sctp/sm.h>
+ #include <net/sctp/stream_sched.h>
++#include <trace/events/sctp.h>
  
- 	val = reg_read(ctx->dev, CAL_WR_DMA_CTRL(ctx->csi2_port));
- 	set_field(&val, ctx->csi2_port, CAL_WR_DMA_CTRL_CPORT_MASK);
-+	set_field(&val, height, CAL_WR_DMA_CTRL_YSIZE_MASK);
- 	set_field(&val, CAL_WR_DMA_CTRL_DTAG_PIX_DAT,
- 		  CAL_WR_DMA_CTRL_DTAG_MASK);
- 	set_field(&val, CAL_WR_DMA_CTRL_MODE_CONST,
-@@ -1315,7 +1316,8 @@ static int cal_start_streaming(struct vb2_queue *vq, unsigned int count)
- 	csi2_lane_config(ctx);
- 	csi2_ctx_config(ctx);
- 	pix_proc_config(ctx);
--	cal_wr_dma_config(ctx, ctx->v_fmt.fmt.pix.bytesperline);
-+	cal_wr_dma_config(ctx, ctx->v_fmt.fmt.pix.bytesperline,
-+			  ctx->v_fmt.fmt.pix.height);
- 	cal_wr_dma_addr(ctx, addr);
- 	csi2_ppi_enable(ctx);
+ /* Declare internal functions here.  */
+ static int sctp_acked(struct sctp_sackhdr *sack, __u32 tsn);
+@@ -1257,6 +1258,11 @@ int sctp_outq_sack(struct sctp_outq *q, struct sctp_chunk *chunk)
+ 	/* Grab the association's destination address list. */
+ 	transport_list = &asoc->peer.transport_addr_list;
  
++	/* SCTP path tracepoint for congestion control debugging. */
++	list_for_each_entry(transport, transport_list, transports) {
++		trace_sctp_probe_path(transport, asoc);
++	}
++
+ 	sack_ctsn = ntohl(sack->cum_tsn_ack);
+ 	gap_ack_blocks = ntohs(sack->num_gap_ack_blocks);
+ 	asoc->stats.gapcnt += gap_ack_blocks;
 -- 
 2.25.1
 
