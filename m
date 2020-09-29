@@ -2,138 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39CBB27C256
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 12:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FE4D27C28D
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 12:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725765AbgI2KZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 06:25:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55030 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725372AbgI2KZY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 06:25:24 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76740C061755;
-        Tue, 29 Sep 2020 03:25:24 -0700 (PDT)
-Received: from zn.tnic (p200300ec2f0ead0084926be0aaf8b723.dip0.t-ipconnect.de [IPv6:2003:ec:2f0e:ad00:8492:6be0:aaf8:b723])
+        id S1727698AbgI2KlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 06:41:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46356 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725306AbgI2KlC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 06:41:02 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 753C21EC034B;
-        Tue, 29 Sep 2020 12:25:21 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1601375121;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=vD3s6odY/cyE9Bx1q0oRZfhly7bcVfpKxNIBv+AD3wk=;
-        b=ShLtAJ1+ONETkeLGQIFpUr5YpYO4Y8avI/Jwm/uh7pk67leh6pvbESMFqfa71vUJRYBzXL
-        Utw8bgAfPDECvMhnh48UTxadK4tT9xzoHIe9xly+7QEHld/P6HTUArNTnmwb8000XJnLXZ
-        noscDle3MKpVzFNcmkIiIUTBqk1oOjk=
-Date:   Tue, 29 Sep 2020 12:25:12 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     mingo@redhat.com, x86@kernel.org, stable@vger.kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org,
-        jack@suse.cz
-Subject: Re: [PATCH v9 1/2] x86, powerpc: Rename memcpy_mcsafe() to
- copy_mc_to_{user, kernel}()
-Message-ID: <20200929102512.GB21110@zn.tnic>
-References: <160087928642.3520.17063139768910633998.stgit@dwillia2-desk3.amr.corp.intel.com>
- <160087929294.3520.12013578778066801369.stgit@dwillia2-desk3.amr.corp.intel.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id 272D9207C4;
+        Tue, 29 Sep 2020 10:41:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601376061;
+        bh=rNaQ0jkzua/ZSVQtukFhyfJAt9vpwW0jRgpuzZwcw2Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Khgac1fX2SSrooyUSAtNi55jxpsv2xZ1E841ru+i7dnHZCMGFzO2fD5xuihrd/oel
+         nvYBKk6CwZlVCBqb1WraxXRaMNLrtfVJRquyUvcWcKI0/mEV54ONfHPgYWQ0PhtRaw
+         uF08ce7B9ofhUxw4yghQU8csD+4wgVI7qm+YwwrM=
+Date:   Tue, 29 Sep 2020 12:41:08 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        kernel-team@android.com
+Subject: Re: [PATCH stable-4.19 v2] KVM: arm64: Assume write fault on S1PTW
+ permission fault on instruction fetch
+Message-ID: <20200929104108.GC1029345@kroah.com>
+References: <20200929074323.744700-1-maz@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <160087929294.3520.12013578778066801369.stgit@dwillia2-desk3.amr.corp.intel.com>
+In-Reply-To: <20200929074323.744700-1-maz@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 23, 2020 at 09:41:33AM -0700, Dan Williams wrote:
-> The rename replaces a single top-level memcpy_mcsafe() with either
-> copy_mc_to_user(), or copy_mc_to_kernel().
+On Tue, Sep 29, 2020 at 08:43:23AM +0100, Marc Zyngier wrote:
+> Commit c4ad98e4b72cb5be30ea282fce935248f2300e62 upstream.
+> 
+> KVM currently assumes that an instruction abort can never be a write.
+> This is in general true, except when the abort is triggered by
+> a S1PTW on instruction fetch that tries to update the S1 page tables
+> (to set AF, for example).
+> 
+> This can happen if the page tables have been paged out and brought
+> back in without seeing a direct write to them (they are thus marked
+> read only), and the fault handling code will make the PT executable(!)
+> instead of writable. The guest gets stuck forever.
+> 
+> In these conditions, the permission fault must be considered as
+> a write so that the Stage-1 update can take place. This is essentially
+> the I-side equivalent of the problem fixed by 60e21a0ef54c ("arm64: KVM:
+> Take S1 walks into account when determining S2 write faults").
+> 
+> Update kvm_is_write_fault() to return true on IABT+S1PTW, and introduce
+> kvm_vcpu_trap_is_exec_fault() that only return true when no faulting
+> on a S1 fault. Additionally, kvm_vcpu_dabt_iss1tw() is renamed to
+> kvm_vcpu_abt_iss1tw(), as the above makes it plain that it isn't
+> specific to data abort.
+> 
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Reviewed-by: Will Deacon <will@kernel.org>
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/r/20200915104218.1284701-2-maz@kernel.org
+> ---
+>  arch/arm/include/asm/kvm_emulate.h   | 11 ++++++++---
+>  arch/arm64/include/asm/kvm_emulate.h |  9 +++++++--
+>  arch/arm64/kvm/hyp/switch.c          |  2 +-
+>  virt/kvm/arm/mmio.c                  |  2 +-
+>  virt/kvm/arm/mmu.c                   |  5 ++++-
+>  5 files changed, 21 insertions(+), 8 deletions(-)
 
-What is "copy_mc" supposed to mean? Especially if it is called that on
-two arches...
+Now queued up, thanks.
 
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index 7101ac64bb20..e876b3a087f9 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -75,7 +75,7 @@ config X86
->  	select ARCH_HAS_PTE_DEVMAP		if X86_64
->  	select ARCH_HAS_PTE_SPECIAL
->  	select ARCH_HAS_UACCESS_FLUSHCACHE	if X86_64
-> -	select ARCH_HAS_UACCESS_MCSAFE		if X86_64 && X86_MCE
-> +	select ARCH_HAS_COPY_MC			if X86_64
-
-X86_MCE is dropped here. So if I have a build which has
-
-# CONFIG_X86_MCE is not set
-
-One of those quirks like:
-
-        /*
-         * CAPID0{7:6} indicate whether this is an advanced RAS SKU
-         * CAPID5{8:5} indicate that various NVDIMM usage modes are
-         * enabled, so memory machine check recovery is also enabled.
-         */
-        if ((capid0 & 0xc0) == 0xc0 || (capid5 & 0x1e0))
-                enable_copy_mc_fragile();
-
-will still call enable_copy_mc_fragile() and none of those platforms
-need MCE functionality?
-
-But there's a hunk in here which sets it in the MCE code:
-
-        if (mca_cfg.recovery)
-                enable_copy_mc_fragile();
-
-So which is it? They need it or they don't?
-
-The comment over copy_mc_to_kernel() says:
-
- * Call into the 'fragile' version on systems that have trouble
- * actually do machine check recovery
-
-If CONFIG_X86_MCE is not set, I'll say. :)
-
-> +++ b/arch/x86/lib/copy_mc.c
-> @@ -0,0 +1,66 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/* Copyright(c) 2016-2020 Intel Corporation. All rights reserved. */
-> +
-> +#include <linux/jump_label.h>
-> +#include <linux/uaccess.h>
-> +#include <linux/export.h>
-> +#include <linux/string.h>
-> +#include <linux/types.h>
-> +
-> +static DEFINE_STATIC_KEY_FALSE(copy_mc_fragile_key);
-> +
-> +void enable_copy_mc_fragile(void)
-> +{
-> +	static_branch_inc(&copy_mc_fragile_key);
-> +}
-> +
-> +/**
-> + * copy_mc_to_kernel - memory copy that that handles source exceptions
-
-One "that" is enough.
-
-...
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+greg k-h
