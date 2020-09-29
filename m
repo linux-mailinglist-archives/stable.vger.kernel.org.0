@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A6B27CD71
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:44:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 777E127CDFE
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729080AbgI2MoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:44:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47402 "EHLO mail.kernel.org"
+        id S1728396AbgI2LDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:03:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725372AbgI2LIe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:08:34 -0400
+        id S1728377AbgI2LDL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:03:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4EE323444;
-        Tue, 29 Sep 2020 11:08:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2C2A21734;
+        Tue, 29 Sep 2020 11:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377701;
-        bh=73XmBbL5kBfw8v5hmI7Y6kgq/EvxjfR/wQnjwChQaPc=;
+        s=default; t=1601377389;
+        bh=hSbqn9gtBKGhA8jofV0GXTT4aCyDeC+U8vFJgHuiqko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oJRD7ZE9r6UryA3LIE7JsqkuytPy2D+YhcDrkIEBS5xItDoOmQUcdTX5cN3soVUmn
-         nhNNjVGcPt/l7/xcvF/RVObSPxw/RY/kzjiWuOa2/R/XJekuxbECSA0t6wbpr3x6ej
-         LBYVe3Q/Nh6290r8iRC/nf+Y+xYWyaCXhL6uZVdI=
+        b=qhpLxpapccMlDCg05ATEolGmeIwt0l/DDgjUsaiPizbotNfAhEvw+b0SV9mTJaW/T
+         d/QKfT5ehIxwqv6dDBHaIE2sWaicwKepYp619DEsc3KSY4Iskz4pMSE7VZ7UKUN1Aq
+         C/ASxg1+0HsoCNpOGcpmF08ZuSl5H7FRKgr2JPC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c3c5bdea7863886115dc@syzkaller.appspotmail.com,
-        Manish Mandlik <mmandlik@google.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Divya Indi <divya.indi@oracle.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 041/121] Bluetooth: prefetch channel before killing sock
-Date:   Tue, 29 Sep 2020 12:59:45 +0200
-Message-Id: <20200929105932.226731099@linuxfoundation.org>
+Subject: [PATCH 4.4 19/85] tracing: Adding NULL checks for trace_array descriptor pointer
+Date:   Tue, 29 Sep 2020 12:59:46 +0200
+Message-Id: <20200929105929.182236111@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,58 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hillf Danton <hdanton@sina.com>
+From: Divya Indi <divya.indi@oracle.com>
 
-[ Upstream commit 2a154903cec20fb64ff4d7d617ca53c16f8fd53a ]
+[ Upstream commit 953ae45a0c25e09428d4a03d7654f97ab8a36647 ]
 
-Prefetch channel before killing sock in order to fix UAF like
+As part of commit f45d1225adb0 ("tracing: Kernel access to Ftrace
+instances") we exported certain functions. Here, we are adding some additional
+NULL checks to ensure safe usage by users of these APIs.
 
- BUG: KASAN: use-after-free in l2cap_sock_release+0x24c/0x290 net/bluetooth/l2cap_sock.c:1212
- Read of size 8 at addr ffff8880944904a0 by task syz-fuzzer/9751
+Link: http://lkml.kernel.org/r/1565805327-579-4-git-send-email-divya.indi@oracle.com
 
-Reported-by: syzbot+c3c5bdea7863886115dc@syzkaller.appspotmail.com
-Fixes: 6c08fc896b60 ("Bluetooth: Fix refcount use-after-free issue")
-Cc: Manish Mandlik <mmandlik@google.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Divya Indi <divya.indi@oracle.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_sock.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ kernel/trace/trace.c        | 3 +++
+ kernel/trace/trace_events.c | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index 3db8cfebd069a..bbf08c6092f4a 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -1189,6 +1189,7 @@ static int l2cap_sock_release(struct socket *sock)
- {
- 	struct sock *sk = sock->sk;
- 	int err;
-+	struct l2cap_chan *chan;
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 06efd18bf3e38..17ea5f9d36b48 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2271,6 +2271,9 @@ int trace_array_printk(struct trace_array *tr,
+ 	if (!(global_trace.trace_flags & TRACE_ITER_PRINTK))
+ 		return 0;
  
- 	BT_DBG("sock %p, sk %p", sock, sk);
++	if (!tr)
++		return -ENOENT;
++
+ 	va_start(ap, fmt);
+ 	ret = trace_array_vprintk(tr, ip, fmt, ap);
+ 	va_end(ap);
+diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
+index bd4c0bb61ad72..9d6e755d17546 100644
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -755,6 +755,8 @@ static int ftrace_set_clr_event(struct trace_array *tr, char *buf, int set)
+ 	char *event = NULL, *sub = NULL, *match;
+ 	int ret;
  
-@@ -1198,15 +1199,16 @@ static int l2cap_sock_release(struct socket *sock)
- 	bt_sock_unlink(&l2cap_sk_list, sk);
- 
- 	err = l2cap_sock_shutdown(sock, 2);
-+	chan = l2cap_pi(sk)->chan;
- 
--	l2cap_chan_hold(l2cap_pi(sk)->chan);
--	l2cap_chan_lock(l2cap_pi(sk)->chan);
-+	l2cap_chan_hold(chan);
-+	l2cap_chan_lock(chan);
- 
- 	sock_orphan(sk);
- 	l2cap_sock_kill(sk);
- 
--	l2cap_chan_unlock(l2cap_pi(sk)->chan);
--	l2cap_chan_put(l2cap_pi(sk)->chan);
-+	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return err;
- }
++	if (!tr)
++		return -ENOENT;
+ 	/*
+ 	 * The buf format can be <subsystem>:<event-name>
+ 	 *  *:<event-name> means any event by that name.
 -- 
 2.25.1
 
