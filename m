@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C770527C4C8
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:17:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3AF527C3EC
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728441AbgI2LQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:16:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60852 "EHLO mail.kernel.org"
+        id S1729109AbgI2LJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:09:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729551AbgI2LQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:16:09 -0400
+        id S1729094AbgI2LJt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:09:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 564F02083B;
-        Tue, 29 Sep 2020 11:16:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA81C22262;
+        Tue, 29 Sep 2020 11:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378168;
-        bh=BK5x3yg1WtDHgsbiPOGElnw8lWh4BW1Nka4Uaa9FLUE=;
+        s=default; t=1601377780;
+        bh=9Wr/DNObHYcXAhpRh/4Bt6/u8IKLiYEN6aWMbhJsL1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q8vYTMnyqx63Q3A+ggIfV3xzRHSgcO6KQxb5CspTiSAzVDVYO6leggctTlzrkJ8Jg
-         iTFtfXDuSd2JxFe2/fTzRBHBPfB2SJlCT4Gkr5JqmZPZ+o81htu5S8UUkeqNFMyAF7
-         JOmCs2UjAKKKIhUDztr6I5EOwXqulWbTiYOIdCKk=
+        b=kAH/9z7VEEqt1i6k77IjcMKxLVo0pz+qzGDFD5Rb1rDAa7zCleqVBWa/Crtzo/y4M
+         6sff7zDjOM2VUPX5GKykwRgIZqq6vqBmpli74xL981jVNawR9cuoz5RIUNXrjyUw9r
+         k8pCy67VA5dA9OpozsdHA32tUECJ4Xr4SXxcdDDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 084/166] rtc: ds1374: fix possible race condition
+        stable@vger.kernel.org, Alex Shi <alex.shi@linux.alibaba.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 052/121] x86/pkeys: Add check for pkey "overflow"
 Date:   Tue, 29 Sep 2020 12:59:56 +0200
-Message-Id: <20200929105939.408852999@linuxfoundation.org>
+Message-Id: <20200929105932.776070811@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Dave Hansen <dave.hansen@linux.intel.com>
 
-[ Upstream commit c11af8131a4e7ba1960faed731ee7e84c2c13c94 ]
+[ Upstream commit 16171bffc829272d5e6014bad48f680cb50943d9 ]
 
-The RTC IRQ is requested before the struct rtc_device is allocated,
-this may lead to a NULL pointer dereference in the IRQ handler.
+Alex Shi reported the pkey macros above arch_set_user_pkey_access()
+to be unused.  They are unused, and even refer to a nonexistent
+CONFIG option.
 
-To fix this issue, allocating the rtc_device struct before requesting
-the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
-to register the RTC device.
+But, they might have served a good use, which was to ensure that
+the code does not try to set values that would not fit in the
+PKRU register.  As it stands, a too-large 'pkey' value would
+be likely to silently overflow the u32 new_pkru_bits.
 
-Link: https://lore.kernel.org/r/20200306073404.56921-1-alexandre.belloni@bootlin.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Add a check to look for overflows.  Also add a comment to remind
+any future developer to closely examine the types used to store
+pkey values if arch_max_pkey() ever changes.
+
+This boots and passes the x86 pkey selftests.
+
+Reported-by: Alex Shi <alex.shi@linux.alibaba.com>
+Signed-off-by: Dave Hansen <dave.hansen@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200122165346.AD4DA150@viggo.jf.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ds1374.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/pkeys.h | 5 +++++
+ arch/x86/kernel/fpu/xstate.c | 9 +++++++--
+ 2 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1374.c b/drivers/rtc/rtc-ds1374.c
-index 38a2e9e684df4..77a106e90124b 100644
---- a/drivers/rtc/rtc-ds1374.c
-+++ b/drivers/rtc/rtc-ds1374.c
-@@ -620,6 +620,10 @@ static int ds1374_probe(struct i2c_client *client,
- 	if (!ds1374)
- 		return -ENOMEM;
+diff --git a/arch/x86/include/asm/pkeys.h b/arch/x86/include/asm/pkeys.h
+index c50d6dcf4a227..4e7273e176cb7 100644
+--- a/arch/x86/include/asm/pkeys.h
++++ b/arch/x86/include/asm/pkeys.h
+@@ -3,6 +3,11 @@
  
-+	ds1374->rtc = devm_rtc_allocate_device(&client->dev);
-+	if (IS_ERR(ds1374->rtc))
-+		return PTR_ERR(ds1374->rtc);
+ #define ARCH_DEFAULT_PKEY	0
+ 
++/*
++ * If more than 16 keys are ever supported, a thorough audit
++ * will be necessary to ensure that the types that store key
++ * numbers and masks have sufficient capacity.
++ */
+ #define arch_max_pkey() (boot_cpu_has(X86_FEATURE_OSPKE) ? 16 : 1)
+ 
+ extern int arch_set_user_pkey_access(struct task_struct *tsk, int pkey,
+diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
+index e9d7f461b7fa5..dbd396c913488 100644
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -871,8 +871,6 @@ const void *get_xsave_field_ptr(int xsave_state)
+ 
+ #ifdef CONFIG_ARCH_HAS_PKEYS
+ 
+-#define NR_VALID_PKRU_BITS (CONFIG_NR_PROTECTION_KEYS * 2)
+-#define PKRU_VALID_MASK (NR_VALID_PKRU_BITS - 1)
+ /*
+  * This will go out and modify PKRU register to set the access
+  * rights for @pkey to @init_val.
+@@ -891,6 +889,13 @@ int arch_set_user_pkey_access(struct task_struct *tsk, int pkey,
+ 	if (!boot_cpu_has(X86_FEATURE_OSPKE))
+ 		return -EINVAL;
+ 
++	/*
++	 * This code should only be called with valid 'pkey'
++	 * values originating from in-kernel users.  Complain
++	 * if a bad value is observed.
++	 */
++	WARN_ON_ONCE(pkey >= arch_max_pkey());
 +
- 	ds1374->client = client;
- 	i2c_set_clientdata(client, ds1374);
- 
-@@ -641,12 +645,11 @@ static int ds1374_probe(struct i2c_client *client,
- 		device_set_wakeup_capable(&client->dev, 1);
- 	}
- 
--	ds1374->rtc = devm_rtc_device_register(&client->dev, client->name,
--						&ds1374_rtc_ops, THIS_MODULE);
--	if (IS_ERR(ds1374->rtc)) {
--		dev_err(&client->dev, "unable to register the class device\n");
--		return PTR_ERR(ds1374->rtc);
--	}
-+	ds1374->rtc->ops = &ds1374_rtc_ops;
-+
-+	ret = rtc_register_device(ds1374->rtc);
-+	if (ret)
-+		return ret;
- 
- #ifdef CONFIG_RTC_DRV_DS1374_WDT
- 	save_client = client;
+ 	/* Set the bits we need in PKRU:  */
+ 	if (init_val & PKEY_DISABLE_ACCESS)
+ 		new_pkru_bits |= PKRU_AD_BIT;
 -- 
 2.25.1
 
