@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE68027C9C7
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CCE127C9CA
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:14:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731704AbgI2MNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:13:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58122 "EHLO mail.kernel.org"
+        id S1730095AbgI2MNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:13:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730123AbgI2Lha (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:30 -0400
+        id S1730131AbgI2Lh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F37623B8C;
-        Tue, 29 Sep 2020 11:34:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C75F23B87;
+        Tue, 29 Sep 2020 11:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379275;
-        bh=gIhC3ilpTfqrolrhepjUWk2QSeVf3R4QWY5CuNHCfWE=;
+        s=default; t=1601379277;
+        bh=L/RPD5vnKSQDqRYPSE4OdlONRIwszqPQ8jg7XI6cdII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlJ0xR2diA5KmVNkq9VQfOPOYN7IjC5s84noxa/q3Ws8790M5MGC+IZk7EowLbAXV
-         vnYIkiEWYTgUnVfKeG1amc+0epxSPZ2UnrqyipLdi4W734J8eRyYfboXznt+uJSxs7
-         m7Rz5lXm7GyktDlnbI0Wz6gyP3Cm8hEWTflcpBjE=
+        b=c7w6yvCGSFd2IXjUOXPWfc9exumZj7VFsII0Ym/KmLHfTz02ULWh58iXu2SebtliW
+         Kexr9YM9WiD9iGLwj3AdosgTqKXx9H1hlN5bxWeQ30Wzbn7xKXMHE11xq1KOqOxExF
+         AcGPhPoYzi0EeXj5YLlqcH7KJkhdJzCsFlajGQss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ramon Pantin <pantin@google.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/388] f2fs: stop GC when the victim becomes fully valid
-Date:   Tue, 29 Sep 2020 12:56:32 +0200
-Message-Id: <20200929110013.450442750@linuxfoundation.org>
+Subject: [PATCH 5.4 062/388] ASoC: max98090: remove msleep in PLL unlocked workaround
+Date:   Tue, 29 Sep 2020 12:56:33 +0200
+Message-Id: <20200929110013.499396857@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,44 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit 803e74be04b32f7785742dcabfc62116718fbb06 ]
+[ Upstream commit acb874a7c049ec49d8fc66c893170fb42c01bdf7 ]
 
-We must stop GC, once the segment becomes fully valid. Otherwise, it can
-produce another dirty segments by moving valid blocks in the segment partially.
+It was observed Baytrail-based chromebooks could cause continuous PLL
+unlocked when using playback stream and capture stream simultaneously.
+Specifically, starting a capture stream after started a playback stream.
+As a result, the audio data could corrupt or turn completely silent.
 
-Ramon hit no free segment panic sometimes and saw this case happens when
-validating reliable file pinning feature.
+As the datasheet suggested, the maximum PLL lock time should be 7 msec.
+The workaround resets the codec softly by toggling SHDN off and on if
+PLL failed to lock for 10 msec.  Notably, there is no suggested hold
+time for SHDN off.
 
-Signed-off-by: Ramon Pantin <pantin@google.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+On Baytrail-based chromebooks, it would easily happen continuous PLL
+unlocked if there is a 10 msec delay between SHDN off and on.  Removes
+the msleep().
+
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Link: https://lore.kernel.org/r/20191122073114.219945-2-tzungbi@google.com
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ sound/soc/codecs/max98090.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index e611d768efde3..a78aa5480454f 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1012,8 +1012,14 @@ next_step:
- 		block_t start_bidx;
- 		nid_t nid = le32_to_cpu(entry->nid);
+diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
+index 45da2b51543e7..6b9d326e11b07 100644
+--- a/sound/soc/codecs/max98090.c
++++ b/sound/soc/codecs/max98090.c
+@@ -2112,10 +2112,16 @@ static void max98090_pll_work(struct max98090_priv *max98090)
  
--		/* stop BG_GC if there is not enough free sections. */
--		if (gc_type == BG_GC && has_not_enough_free_secs(sbi, 0, 0))
-+		/*
-+		 * stop BG_GC if there is not enough free sections.
-+		 * Or, stop GC if the segment becomes fully valid caused by
-+		 * race condition along with SSR block allocation.
-+		 */
-+		if ((gc_type == BG_GC && has_not_enough_free_secs(sbi, 0, 0)) ||
-+				get_valid_blocks(sbi, segno, false) ==
-+							sbi->blocks_per_seg)
- 			return submitted;
+ 	dev_info_ratelimited(component->dev, "PLL unlocked\n");
  
- 		if (check_valid_map(sbi, segno, off) == 0)
++	/*
++	 * As the datasheet suggested, the maximum PLL lock time should be
++	 * 7 msec.  The workaround resets the codec softly by toggling SHDN
++	 * off and on if PLL failed to lock for 10 msec.  Notably, there is
++	 * no suggested hold time for SHDN off.
++	 */
++
+ 	/* Toggle shutdown OFF then ON */
+ 	snd_soc_component_update_bits(component, M98090_REG_DEVICE_SHUTDOWN,
+ 			    M98090_SHDNN_MASK, 0);
+-	msleep(10);
+ 	snd_soc_component_update_bits(component, M98090_REG_DEVICE_SHUTDOWN,
+ 			    M98090_SHDNN_MASK, M98090_SHDNN_MASK);
+ 
 -- 
 2.25.1
 
