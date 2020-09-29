@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DC6D27CB9F
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD4EC27C86F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729795AbgI2M3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:29:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46444 "EHLO mail.kernel.org"
+        id S1731218AbgI2MCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:02:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729459AbgI2LcG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:32:06 -0400
+        id S1730489AbgI2Ljj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:39:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31DFE23B1A;
-        Tue, 29 Sep 2020 11:25:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B56F5206E5;
+        Tue, 29 Sep 2020 11:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378717;
-        bh=pGhwVmzAKmrsyihS5XbA3TPrkvfmkoyMXMpaORXB8ZI=;
+        s=default; t=1601379579;
+        bh=j47Y/OmtPQBlLz+805C+9tGJZUihfnFkicJQ1q/pSBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=edGX1AG1IYHyZZwyT6yZDTWzbGchg9vYyU9CtyuoMKxkhtq/ZsCjwXvbfqtIuezPA
-         AvMsDEh3gEHdL/2rd5xgkvnvP9UKK1QRBAOgBPBZ6m/FETG3xRwYuMkWVLxYTQ0MuZ
-         MjXrS2lTuSlxKbPOjIxaOEyf9+Jm7d5b/V6XD9zc=
+        b=kw3C1XaWYuOQhzDEeZH+14SErpgO09h6WPX7eJy7ISiLY0gsiuL/7T+wd356Qzvok
+         JWW4RKr74974QnMesiQTwNfL5mYLneHj0s4p1C1Hh3U/1e2U3aeZQ/BdbH50wohE5N
+         9+BINzmv6qVVzXel8xvO+m4TzqniJjw3tpuMxctQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Jaewon Kim <jaewon31.kim@samsung.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Michel Lespinasse <walken@google.com>,
+        Borislav Petkov <bp@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 106/245] media: tda10071: fix unsigned sign extension overflow
-Date:   Tue, 29 Sep 2020 12:59:17 +0200
-Message-Id: <20200929105952.160933968@linuxfoundation.org>
+Subject: [PATCH 5.4 227/388] mm/mmap.c: initialize align_offset explicitly for vm_unmapped_area
+Date:   Tue, 29 Sep 2020 12:59:18 +0200
+Message-Id: <20200929110021.466184620@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Jaewon Kim <jaewon31.kim@samsung.com>
 
-[ Upstream commit a7463e2dc698075132de9905b89f495df888bb79 ]
+[ Upstream commit 09ef5283fd96ac424ef0e569626f359bf9ab86c9 ]
 
-The shifting of buf[3] by 24 bits to the left will be promoted to
-a 32 bit signed int and then sign-extended to an unsigned long. In
-the unlikely event that the the top bit of buf[3] is set then all
-then all the upper bits end up as also being set because of
-the sign-extension and this affect the ev->post_bit_error sum.
-Fix this by using the temporary u32 variable bit_error to avoid
-the sign-extension promotion. This also removes the need to do the
-computation twice.
+On passing requirement to vm_unmapped_area, arch_get_unmapped_area and
+arch_get_unmapped_area_topdown did not set align_offset.  Internally on
+both unmapped_area and unmapped_area_topdown, if info->align_mask is 0,
+then info->align_offset was meaningless.
 
-Addresses-Coverity: ("Unintended sign extension")
+But commit df529cabb7a2 ("mm: mmap: add trace point of
+vm_unmapped_area") always prints info->align_offset even though it is
+uninitialized.
 
-Fixes: 267897a4708f ("[media] tda10071: implement DVBv5 statistics")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fix this uninitialized value issue by setting it to 0 explicitly.
+
+Before:
+  vm_unmapped_area: addr=0x755b155000 err=0 total_vm=0x15aaf0 flags=0x1 len=0x109000 lo=0x8000 hi=0x75eed48000 mask=0x0 ofs=0x4022
+
+After:
+  vm_unmapped_area: addr=0x74a4ca1000 err=0 total_vm=0x168ab1 flags=0x1 len=0x9000 lo=0x8000 hi=0x753d94b000 mask=0x0 ofs=0x0
+
+Signed-off-by: Jaewon Kim <jaewon31.kim@samsung.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Michel Lespinasse <walken@google.com>
+Cc: Borislav Petkov <bp@suse.de>
+Link: http://lkml.kernel.org/r/20200409094035.19457-1-jaewon31.kim@samsung.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/tda10071.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ mm/mmap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/dvb-frontends/tda10071.c b/drivers/media/dvb-frontends/tda10071.c
-index 097c42d3f8c26..df0c7243eafe4 100644
---- a/drivers/media/dvb-frontends/tda10071.c
-+++ b/drivers/media/dvb-frontends/tda10071.c
-@@ -483,10 +483,11 @@ static int tda10071_read_status(struct dvb_frontend *fe, enum fe_status *status)
- 			goto error;
+diff --git a/mm/mmap.c b/mm/mmap.c
+index a3584a90c55c2..ba78f1f1b1bd1 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2126,6 +2126,7 @@ arch_get_unmapped_area(struct file *filp, unsigned long addr,
+ 	info.low_limit = mm->mmap_base;
+ 	info.high_limit = mmap_end;
+ 	info.align_mask = 0;
++	info.align_offset = 0;
+ 	return vm_unmapped_area(&info);
+ }
+ #endif
+@@ -2167,6 +2168,7 @@ arch_get_unmapped_area_topdown(struct file *filp, unsigned long addr,
+ 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
+ 	info.high_limit = arch_get_mmap_base(addr, mm->mmap_base);
+ 	info.align_mask = 0;
++	info.align_offset = 0;
+ 	addr = vm_unmapped_area(&info);
  
- 		if (dev->delivery_system == SYS_DVBS) {
--			dev->dvbv3_ber = buf[0] << 24 | buf[1] << 16 |
--					 buf[2] << 8 | buf[3] << 0;
--			dev->post_bit_error += buf[0] << 24 | buf[1] << 16 |
--					       buf[2] << 8 | buf[3] << 0;
-+			u32 bit_error = buf[0] << 24 | buf[1] << 16 |
-+					buf[2] << 8 | buf[3] << 0;
-+
-+			dev->dvbv3_ber = bit_error;
-+			dev->post_bit_error += bit_error;
- 			c->post_bit_error.stat[0].scale = FE_SCALE_COUNTER;
- 			c->post_bit_error.stat[0].uvalue = dev->post_bit_error;
- 			dev->block_error += buf[4] << 8 | buf[5] << 0;
+ 	/*
 -- 
 2.25.1
 
