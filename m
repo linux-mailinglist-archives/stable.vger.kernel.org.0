@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2000227C58D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFAD727C748
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728241AbgI2Lgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:36:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49220 "EHLO mail.kernel.org"
+        id S1730852AbgI2LrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:47:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728673AbgI2LgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:36:09 -0400
+        id S1730832AbgI2Lqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:46:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF37D23D9C;
-        Tue, 29 Sep 2020 11:30:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80AEC21924;
+        Tue, 29 Sep 2020 11:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379059;
-        bh=Fos8BaE3bYuVzPOI84cI9gq+tooOKMU1WwPwuUcClUc=;
+        s=default; t=1601379996;
+        bh=MUZRsexWMj6Nd/NnD6DI0oJmeatgMcYrj1QVcG2F8sA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzTcw9NT787aKCop7CMG22gqHb6y/LyA67jcc/qsHdE9fcmjzHVczaFyRdNvLKsCN
-         Xj3WlKNIS8MaGWwl/4elOjfHLoyyCgP4Z/p699iHBCJp2OvgONLK5lvMbam9fGzI6N
-         2kphv25kaZL2gzOZOCZsOeM7VGe2MhoW01lZA/UA=
+        b=2NAZfBPsMwFy4RN+CGMwB6ZwMPDu8sJXGZOVV30CD+jJ4bH/B9IRqDhf8aZo1ozul
+         g+JhCsLcpQ0gqLTcGB5dDPvVPjTmGkQ16y5s/lx5djCnZ+GdrjyWhYLY4hZRZMtPS1
+         4npPVfddvr4IjMiANX7gxPF5MOxkAXVUxViUuN3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        Dennis Li <Dennis.Li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 212/245] drm/amdkfd: fix a memory leak issue
+Subject: [PATCH 5.8 20/99] riscv: Fix Kendryte K210 device tree
 Date:   Tue, 29 Sep 2020 13:01:03 +0200
-Message-Id: <20200929105957.289993913@linuxfoundation.org>
+Message-Id: <20200929105930.719771733@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Li <Dennis.Li@amd.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit 087d764159996ae378b08c0fdd557537adfd6899 ]
+[ Upstream commit f025d9d9934b84cd03b7796072d10686029c408e ]
 
-In the resume stage of GPU recovery, start_cpsch will call pm_init
-which set pm->allocated as false, cause the next pm_release_ib has
-no chance to release ib memory.
+The Kendryte K210 SoC CLINT is compatible with Sifive clint v0
+(sifive,clint0). Fix the Kendryte K210 device tree clint entry to be
+inline with the sifive timer definition documented in
+Documentation/devicetree/bindings/timer/sifive,clint.yaml.
+The device tree clint entry is renamed similarly to u-boot device tree
+definition to improve compatibility with u-boot defined device tree.
+To ensure correct initialization, the interrup-cells attribute is added
+and the interrupt-extended attribute definition fixed.
 
-Add pm_release_ib in stop_cpsch which will be called in the suspend
-stage of GPU recovery.
+This fixes boot failures with Kendryte K210 SoC boards.
 
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Dennis Li <Dennis.Li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Note that the clock referenced is kept as K210_CLK_ACLK, which does not
+necessarilly match the clint MTIME increment rate. This however does not
+seem to cause any problem for now.
+
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/riscv/boot/dts/kendryte/k210.dtsi | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index 189212cb35475..bff39f561264e 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -1101,6 +1101,8 @@ static int stop_cpsch(struct device_queue_manager *dqm)
- 	unmap_queues_cpsch(dqm, KFD_UNMAP_QUEUES_FILTER_ALL_QUEUES, 0);
- 	dqm_unlock(dqm);
+diff --git a/arch/riscv/boot/dts/kendryte/k210.dtsi b/arch/riscv/boot/dts/kendryte/k210.dtsi
+index c1df56ccb8d55..d2d0ff6456325 100644
+--- a/arch/riscv/boot/dts/kendryte/k210.dtsi
++++ b/arch/riscv/boot/dts/kendryte/k210.dtsi
+@@ -95,10 +95,12 @@
+ 			#clock-cells = <1>;
+ 		};
  
-+	pm_release_ib(&dqm->packets);
-+
- 	kfd_gtt_sa_free(dqm->dev, dqm->fence_mem);
- 	pm_uninit(&dqm->packets);
+-		clint0: interrupt-controller@2000000 {
++		clint0: clint@2000000 {
++			#interrupt-cells = <1>;
+ 			compatible = "riscv,clint0";
+ 			reg = <0x2000000 0xC000>;
+-			interrupts-extended = <&cpu0_intc 3>,  <&cpu1_intc 3>;
++			interrupts-extended =  <&cpu0_intc 3 &cpu0_intc 7
++						&cpu1_intc 3 &cpu1_intc 7>;
+ 			clocks = <&sysctl K210_CLK_ACLK>;
+ 		};
  
 -- 
 2.25.1
