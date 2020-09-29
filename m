@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3320D27C40A
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1ACB27C369
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728860AbgI2LKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:10:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
+        id S1728747AbgI2LFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:05:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728440AbgI2LK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:10:28 -0400
+        id S1727360AbgI2LFT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:05:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 094AF21941;
-        Tue, 29 Sep 2020 11:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 325AD21941;
+        Tue, 29 Sep 2020 11:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377827;
-        bh=8o9zybgIuHAYYolfy9YI06KREygAviigU0xC/9gLius=;
+        s=default; t=1601377518;
+        bh=VdfvPI2L/8LAtm8y6SS7utxBrVk3AbiPhArVErrYgOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zKwkPV4VhsmCuVDmxohZx7+5HVDNoBH0wu8zkZyK95hyyCfKidr7tFdoSM3tQYPSB
-         AL6j9u7r735bIGQompMqOaVv8jf3z7/cgzk7aq9b6X1ZrOMy9cpLPtWT4GhunUlPIo
-         /HP8lPSv+7nerk6OJZOHJ+B1PbacwdNuH6uUzoRc=
+        b=K87DbaZgJxtjT+6GhkaAIKiBOFoOJqKb+O7NF7WTdRwTNszU5Jlzboe+GgHXyY1Y8
+         Qz3pjzwiSm7sNCieantFfRuqZN6OWPmX20/pLpCvbhjwpp78BMJ1beTWIdgUTrZy+u
+         uF7bNAY2zD9L5Bso8kGHl6UHjmsHMSfXvDhxBHSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 057/121] timekeeping: Prevent 32bit truncation in scale64_check_overflow()
+Subject: [PATCH 4.4 34/85] selinux: sel_avc_get_stat_idx should increase position index
 Date:   Tue, 29 Sep 2020 13:00:01 +0200
-Message-Id: <20200929105933.005798011@linuxfoundation.org>
+Message-Id: <20200929105929.936644505@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 4cbbc3a0eeed675449b1a4d080008927121f3da3 ]
+[ Upstream commit 8d269a8e2a8f0bca89022f4ec98de460acb90365 ]
 
-While unlikely the divisor in scale64_check_overflow() could be >= 32bit in
-scale64_check_overflow(). do_div() truncates the divisor to 32bit at least
-on 32bit platforms.
+If seq_file .next function does not change position index,
+read after some lseek can generate unexpected output.
 
-Use div64_u64() instead to avoid the truncation to 32-bit.
+$ dd if=/sys/fs/selinux/avc/cache_stats # usual output
+lookups hits misses allocations reclaims frees
+817223 810034 7189 7189 6992 7037
+1934894 1926896 7998 7998 7632 7683
+1322812 1317176 5636 5636 5456 5507
+1560571 1551548 9023 9023 9056 9115
+0+1 records in
+0+1 records out
+189 bytes copied, 5,1564e-05 s, 3,7 MB/s
 
-[ tglx: Massaged changelog ]
+$# read after lseek to midle of last line
+$ dd if=/sys/fs/selinux/avc/cache_stats bs=180 skip=1
+dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
+056 9115   <<<< end of last line
+1560571 1551548 9023 9023 9056 9115  <<< whole last line once again
+0+1 records in
+0+1 records out
+45 bytes copied, 8,7221e-05 s, 516 kB/s
 
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20200120100523.45656-1-wenyang@linux.alibaba.com
+$# read after lseek beyond  end of of file
+$ dd if=/sys/fs/selinux/avc/cache_stats bs=1000 skip=1
+dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
+1560571 1551548 9023 9023 9056 9115  <<<< generates whole last line
+0+1 records in
+0+1 records out
+36 bytes copied, 9,0934e-05 s, 396 kB/s
+
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/timekeeping.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ security/selinux/selinuxfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index e24e1f0c56906..e21b4d8b72405 100644
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -950,9 +950,8 @@ static int scale64_check_overflow(u64 mult, u64 div, u64 *base)
- 	    ((int)sizeof(u64)*8 - fls64(mult) < fls64(rem)))
- 		return -EOVERFLOW;
- 	tmp *= mult;
--	rem *= mult;
- 
--	do_div(rem, div);
-+	rem = div64_u64(rem * mult, div);
- 	*base = tmp + rem;
- 	return 0;
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index c02da25d7b631..7778e28cce9d7 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1370,6 +1370,7 @@ static struct avc_cache_stats *sel_avc_get_stat_idx(loff_t *idx)
+ 		*idx = cpu + 1;
+ 		return &per_cpu(avc_cache_stats, cpu);
+ 	}
++	(*idx)++;
+ 	return NULL;
  }
+ 
 -- 
 2.25.1
 
