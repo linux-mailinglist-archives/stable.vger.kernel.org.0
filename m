@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5224E27C733
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A8BF27C672
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731252AbgI2LwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:52:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50256 "EHLO mail.kernel.org"
+        id S1730413AbgI2LpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:45:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729995AbgI2LsK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:48:10 -0400
+        id S1730954AbgI2LpU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:45:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB10D21924;
-        Tue, 29 Sep 2020 11:48:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CEAD20702;
+        Tue, 29 Sep 2020 11:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380089;
-        bh=vkG0uq1KuAN193UYlXkNmtNk1BjGgxr3O77ZBm+w4CE=;
+        s=default; t=1601379919;
+        bh=1gAGrbXkitidD3g7ye9RQkSH/Sy+fK3BMcHRDM4xKXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6Oz5vv/XQ1SkaWipN91+qFdNXzrVtP2ONE3r5zQmKKg9gvXVju3lZQlmizbFD0It
-         W/LVXbTKBW4+zEx3t0ltpO6skvk1G5GNnwDZMsunRg+i0x1M2NQszKI2bZRptfeaTF
-         /OQSAChb2BgydsE4dl0DPhCFag03HptOWW/NQNq0=
+        b=2lMhPfCWQ1uUtpIHxcfLBfXwASBEIRgqe0+AmrLcmibgzKbLGno5m9rcbgbBP7/aX
+         ySoh9OTCIX0Z+Wcth2TOZWZLPThMrHNp0KMlkgLBKqKwKAac6ziSEHfOdiFvqnle8S
+         t4lj6kvFz2L76DulsfBSF6ljsTBXTLK8wmj9yrLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhc@lemote.com>,
-        Pei Huang <huangpei@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 63/99] MIPS: Loongson-3: Fix fp register access if MSA enabled
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 375/388] s390/dasd: Fix zero write for FBA devices
 Date:   Tue, 29 Sep 2020 13:01:46 +0200
-Message-Id: <20200929105932.832473613@linuxfoundation.org>
+Message-Id: <20200929110028.615175225@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,101 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-[ Upstream commit 01ce6d4d2c8157b076425e3dd8319948652583c5 ]
+commit 709192d531e5b0a91f20aa14abfe2fc27ddd47af upstream.
 
-If MSA is enabled, FPU_REG_WIDTH is 128 rather than 64, then get_fpr64()
-/set_fpr64() in the original unaligned instruction emulation code access
-the wrong fp registers. This is because the current code doesn't specify
-the correct index field, so fix it.
+A discard request that writes zeros using the global kernel internal
+ZERO_PAGE will fail for machines with more than 2GB of memory due to the
+location of the ZERO_PAGE.
 
-Fixes: f83e4f9896eff614d0f2547a ("MIPS: Loongson-3: Add some unaligned instructions emulation")
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Signed-off-by: Pei Huang <huangpei@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by using a driver owned global zero page allocated with GFP_DMA
+flag set.
+
+Fixes: 28b841b3a7cb ("s390/dasd: Add discard support for FBA devices")
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Cc: <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/mips/loongson64/cop2-ex.c | 24 ++++++++----------------
- 1 file changed, 8 insertions(+), 16 deletions(-)
+ drivers/s390/block/dasd_fba.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/loongson64/cop2-ex.c b/arch/mips/loongson64/cop2-ex.c
-index f130f62129b86..00055d4b6042f 100644
---- a/arch/mips/loongson64/cop2-ex.c
-+++ b/arch/mips/loongson64/cop2-ex.c
-@@ -95,10 +95,8 @@ static int loongson_cu2_call(struct notifier_block *nfb, unsigned long action,
- 			if (res)
- 				goto fault;
+--- a/drivers/s390/block/dasd_fba.c
++++ b/drivers/s390/block/dasd_fba.c
+@@ -40,6 +40,7 @@
+ MODULE_LICENSE("GPL");
  
--			set_fpr64(current->thread.fpu.fpr,
--				insn.loongson3_lswc2_format.rt, value);
--			set_fpr64(current->thread.fpu.fpr,
--				insn.loongson3_lswc2_format.rq, value_next);
-+			set_fpr64(&current->thread.fpu.fpr[insn.loongson3_lswc2_format.rt], 0, value);
-+			set_fpr64(&current->thread.fpu.fpr[insn.loongson3_lswc2_format.rq], 0, value_next);
- 			compute_return_epc(regs);
- 			own_fpu(1);
- 		}
-@@ -130,15 +128,13 @@ static int loongson_cu2_call(struct notifier_block *nfb, unsigned long action,
- 				goto sigbus;
+ static struct dasd_discipline dasd_fba_discipline;
++static void *dasd_fba_zero_page;
  
- 			lose_fpu(1);
--			value_next = get_fpr64(current->thread.fpu.fpr,
--					insn.loongson3_lswc2_format.rq);
-+			value_next = get_fpr64(&current->thread.fpu.fpr[insn.loongson3_lswc2_format.rq], 0);
+ struct dasd_fba_private {
+ 	struct dasd_fba_characteristics rdc_data;
+@@ -270,7 +271,7 @@ static void ccw_write_zero(struct ccw1 *
+ 	ccw->cmd_code = DASD_FBA_CCW_WRITE;
+ 	ccw->flags |= CCW_FLAG_SLI;
+ 	ccw->count = count;
+-	ccw->cda = (__u32) (addr_t) page_to_phys(ZERO_PAGE(0));
++	ccw->cda = (__u32) (addr_t) dasd_fba_zero_page;
+ }
  
- 			StoreDW(addr + 8, value_next, res);
- 			if (res)
- 				goto fault;
+ /*
+@@ -830,6 +831,11 @@ dasd_fba_init(void)
+ 	int ret;
  
--			value = get_fpr64(current->thread.fpu.fpr,
--					insn.loongson3_lswc2_format.rt);
-+			value = get_fpr64(&current->thread.fpu.fpr[insn.loongson3_lswc2_format.rt], 0);
+ 	ASCEBC(dasd_fba_discipline.ebcname, 4);
++
++	dasd_fba_zero_page = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
++	if (!dasd_fba_zero_page)
++		return -ENOMEM;
++
+ 	ret = ccw_driver_register(&dasd_fba_driver);
+ 	if (!ret)
+ 		wait_for_device_probe();
+@@ -841,6 +847,7 @@ static void __exit
+ dasd_fba_cleanup(void)
+ {
+ 	ccw_driver_unregister(&dasd_fba_driver);
++	free_page((unsigned long)dasd_fba_zero_page);
+ }
  
- 			StoreDW(addr, value, res);
- 			if (res)
-@@ -204,8 +200,7 @@ static int loongson_cu2_call(struct notifier_block *nfb, unsigned long action,
- 			if (res)
- 				goto fault;
- 
--			set_fpr64(current->thread.fpu.fpr,
--					insn.loongson3_lsdc2_format.rt, value);
-+			set_fpr64(&current->thread.fpu.fpr[insn.loongson3_lsdc2_format.rt], 0, value);
- 			compute_return_epc(regs);
- 			own_fpu(1);
- 
-@@ -221,8 +216,7 @@ static int loongson_cu2_call(struct notifier_block *nfb, unsigned long action,
- 			if (res)
- 				goto fault;
- 
--			set_fpr64(current->thread.fpu.fpr,
--					insn.loongson3_lsdc2_format.rt, value);
-+			set_fpr64(&current->thread.fpu.fpr[insn.loongson3_lsdc2_format.rt], 0, value);
- 			compute_return_epc(regs);
- 			own_fpu(1);
- 			break;
-@@ -286,8 +280,7 @@ static int loongson_cu2_call(struct notifier_block *nfb, unsigned long action,
- 				goto sigbus;
- 
- 			lose_fpu(1);
--			value = get_fpr64(current->thread.fpu.fpr,
--					insn.loongson3_lsdc2_format.rt);
-+			value = get_fpr64(&current->thread.fpu.fpr[insn.loongson3_lsdc2_format.rt], 0);
- 
- 			StoreW(addr, value, res);
- 			if (res)
-@@ -305,8 +298,7 @@ static int loongson_cu2_call(struct notifier_block *nfb, unsigned long action,
- 				goto sigbus;
- 
- 			lose_fpu(1);
--			value = get_fpr64(current->thread.fpu.fpr,
--					insn.loongson3_lsdc2_format.rt);
-+			value = get_fpr64(&current->thread.fpu.fpr[insn.loongson3_lsdc2_format.rt], 0);
- 
- 			StoreDW(addr, value, res);
- 			if (res)
--- 
-2.25.1
-
+ module_init(dasd_fba_init);
 
 
