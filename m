@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10E6527BA17
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE94E27B9F6
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727641AbgI2Bfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 21:35:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40914 "EHLO mail.kernel.org"
+        id S1727084AbgI2Bep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 21:34:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727639AbgI2Bba (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727630AbgI2Bba (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Sep 2020 21:31:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CF5122207;
-        Tue, 29 Sep 2020 01:31:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5821222262;
+        Tue, 29 Sep 2020 01:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343074;
-        bh=8MyiuFoKLuX3HTpLDehbba8RgCNLKwRgcE0yQydQhNI=;
+        s=default; t=1601343075;
+        bh=V59KDQSvcA7LQIFVm0n9lhcpGL1Y8afk786ZgoFp8iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AOmGIVa4saZE5XhCIU1PLlil7mu/+LDakqJfLP2L/Ws+Ld4mbyMo99DvpjiEX1sWu
-         yPu16akezc/HBpfsyR59DtlqFZ4Lx2ZsfmqGnVdU0pJjh3/EZYd3WLKHUnhiG0p7Mt
-         FQskboQ1LPDQ5f2OGAn6KiudqmuegUu4655osJn4=
+        b=AdsExQgOx6TWqskBkYxf/xydLZjwkcXk+ysBQm2wxq2hsnup+dCan9sQi4uQ8pBZY
+         /61rR2AV3Z5e99YGvyPoh140CtyErm0Y+sZhnq1IKZUjrrzZhpisqaJXSHmA2R3n/8
+         UbWUtk6MH106cjzFHUt9W/yqjcwSti7+3rXBEnio=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 07/18] nvme-core: get/put ctrl and transport module in nvme_dev_open/release()
-Date:   Mon, 28 Sep 2020 21:30:53 -0400
-Message-Id: <20200929013105.2406634-7-sashal@kernel.org>
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 08/18] regmap: debugfs: Fix handling of name string for debugfs init delays
+Date:   Mon, 28 Sep 2020 21:30:54 -0400
+Message-Id: <20200929013105.2406634-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013105.2406634-1-sashal@kernel.org>
 References: <20200929013105.2406634-1-sashal@kernel.org>
@@ -42,100 +42,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 52a3974feb1a3eec25d8836d37a508b67b0a9cd0 ]
+[ Upstream commit 94cc89eb8fa5039fcb6e3e3d50f929ddcccee095 ]
 
-Get and put the reference to the ctrl in the nvme_dev_open() and
-nvme_dev_release() before and after module get/put for ctrl in char
-device file operations.
+In regmap_debugfs_init the initialisation of the debugfs is delayed
+if the root node isn't ready yet. Most callers of regmap_debugfs_init
+pass the name from the regmap_config, which is considered temporary
+ie. may be unallocated after the regmap_init call returns. This leads
+to a potential use after free, where config->name has been freed by
+the time it is used in regmap_debugfs_initcall.
 
-Introduce char_dev relase function, get/put the controller and module
-which allows us to fix the potential Oops which can be easily reproduced
-with a passthru ctrl (although the problem also exists with pure user
-access):
+This situation can be seen on Zynq, where the architecture init_irq
+callback registers a syscon device, using a local variable for the
+regmap_config. As init_irq is very early in the platform bring up the
+regmap debugfs root isn't ready yet. Although this doesn't crash it
+does result in the debugfs entry not having the correct name.
 
-Entering kdb (current=0xffff8887f8290000, pid 3128) on processor 30 Oops: (null)
-due to oops @ 0xffffffffa01019ad
-CPU: 30 PID: 3128 Comm: bash Tainted: G        W  OE     5.8.0-rc4nvme-5.9+ #35
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.4
-RIP: 0010:nvme_free_ctrl+0x234/0x285 [nvme_core]
-Code: 57 10 a0 e8 73 bf 02 e1 ba 3d 11 00 00 48 c7 c6 98 33 10 a0 48 c7 c7 1d 57 10 a0 e8 5b bf 02 e1 8
-RSP: 0018:ffffc90001d63de0 EFLAGS: 00010246
-RAX: ffffffffa05c0440 RBX: ffff8888119e45a0 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffff8888177e9550 RDI: ffff8888119e43b0
-RBP: ffff8887d4768000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: ffffc90001d63c90 R12: ffff8888119e43b0
-R13: ffff8888119e5108 R14: dead000000000100 R15: ffff8888119e5108
-FS:  00007f1ef27b0740(0000) GS:ffff888817600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffa05c0470 CR3: 00000007f6bee000 CR4: 00000000003406e0
-Call Trace:
- device_release+0x27/0x80
- kobject_put+0x98/0x170
- nvmet_passthru_ctrl_disable+0x4a/0x70 [nvmet]
- nvmet_passthru_enable_store+0x4c/0x90 [nvmet]
- configfs_write_file+0xe6/0x150
- vfs_write+0xba/0x1e0
- ksys_write+0x5f/0xe0
- do_syscall_64+0x52/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7f1ef1eb2840
-Code: Bad RIP value.
-RSP: 002b:00007fffdbff0eb8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007f1ef1eb2840
-RDX: 0000000000000002 RSI: 00007f1ef27d2000 RDI: 0000000000000001
-RBP: 00007f1ef27d2000 R08: 000000000000000a R09: 00007f1ef27b0740
-R10: 0000000000000001 R11: 0000000000000246 R12: 00007f1ef2186400
-R13: 0000000000000002 R14: 0000000000000001 R15: 0000000000000000
+Regmap already sets map->name from config->name on the regmap_init
+path and the fact that a separate field is used to pass the name
+to regmap_debugfs_init appears to be an artifact of the debugfs
+name being added before the map name. As such this patch updates
+regmap_debugfs_init to use map->name, which is already duplicated from
+the config avoiding the issue.
 
-With this patch fix we take the module ref count in nvme_dev_open() and
-release that ref count in newly introduced nvme_dev_release().
+This does however leave two lose ends, both regmap_attach_dev and
+regmap_reinit_cache can be called after a regmap is registered and
+would have had the effect of applying a new name to the debugfs
+entries. In both of these cases it was chosen to update the map
+name. In the case of regmap_attach_dev there are 3 users that
+currently use this function to update the name, thus doing so avoids
+changes for those users and it seems reasonable that attaching
+a device would want to set the name of the map. In the case of
+regmap_reinit_cache the primary use-case appears to be devices that
+need some register access to identify the device (for example devices
+in the same family) and then update the cache to match the exact
+hardware. Whilst no users do currently update the name here, given the
+use-case it seemed reasonable the name might want to be updated once
+the device is better identified.
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200917120828.12987-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/base/regmap/internal.h       |  4 +--
+ drivers/base/regmap/regmap-debugfs.c |  7 ++---
+ drivers/base/regmap/regmap.c         | 44 +++++++++++++++++++++-------
+ 3 files changed, 38 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 2d2673d360ff2..a8df939f50b87 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -2936,10 +2936,24 @@ static int nvme_dev_open(struct inode *inode, struct file *file)
- 		return -EWOULDBLOCK;
- 	}
+diff --git a/drivers/base/regmap/internal.h b/drivers/base/regmap/internal.h
+index 3d80c4b43f720..e0ff8e90ebdcf 100644
+--- a/drivers/base/regmap/internal.h
++++ b/drivers/base/regmap/internal.h
+@@ -217,7 +217,7 @@ struct regmap_field {
  
-+	nvme_get_ctrl(ctrl);
-+	if (!try_module_get(ctrl->ops->module))
-+		return -EINVAL;
-+
- 	file->private_data = ctrl;
- 	return 0;
+ #ifdef CONFIG_DEBUG_FS
+ extern void regmap_debugfs_initcall(void);
+-extern void regmap_debugfs_init(struct regmap *map, const char *name);
++extern void regmap_debugfs_init(struct regmap *map);
+ extern void regmap_debugfs_exit(struct regmap *map);
+ 
+ static inline void regmap_debugfs_disable(struct regmap *map)
+@@ -227,7 +227,7 @@ static inline void regmap_debugfs_disable(struct regmap *map)
+ 
+ #else
+ static inline void regmap_debugfs_initcall(void) { }
+-static inline void regmap_debugfs_init(struct regmap *map, const char *name) { }
++static inline void regmap_debugfs_init(struct regmap *map) { }
+ static inline void regmap_debugfs_exit(struct regmap *map) { }
+ static inline void regmap_debugfs_disable(struct regmap *map) { }
+ #endif
+diff --git a/drivers/base/regmap/regmap-debugfs.c b/drivers/base/regmap/regmap-debugfs.c
+index f58baff2be0af..b6d63ef16b442 100644
+--- a/drivers/base/regmap/regmap-debugfs.c
++++ b/drivers/base/regmap/regmap-debugfs.c
+@@ -17,7 +17,6 @@
+ 
+ struct regmap_debugfs_node {
+ 	struct regmap *map;
+-	const char *name;
+ 	struct list_head link;
+ };
+ 
+@@ -544,11 +543,12 @@ static const struct file_operations regmap_cache_bypass_fops = {
+ 	.write = regmap_cache_bypass_write_file,
+ };
+ 
+-void regmap_debugfs_init(struct regmap *map, const char *name)
++void regmap_debugfs_init(struct regmap *map)
+ {
+ 	struct rb_node *next;
+ 	struct regmap_range_node *range_node;
+ 	const char *devname = "dummy";
++	const char *name = map->name;
+ 
+ 	/*
+ 	 * Userspace can initiate reads from the hardware over debugfs.
+@@ -569,7 +569,6 @@ void regmap_debugfs_init(struct regmap *map, const char *name)
+ 		if (!node)
+ 			return;
+ 		node->map = map;
+-		node->name = name;
+ 		mutex_lock(&regmap_debugfs_early_lock);
+ 		list_add(&node->link, &regmap_debugfs_early_list);
+ 		mutex_unlock(&regmap_debugfs_early_lock);
+@@ -679,7 +678,7 @@ void regmap_debugfs_initcall(void)
+ 
+ 	mutex_lock(&regmap_debugfs_early_lock);
+ 	list_for_each_entry_safe(node, tmp, &regmap_debugfs_early_list, link) {
+-		regmap_debugfs_init(node->map, node->name);
++		regmap_debugfs_init(node->map);
+ 		list_del(&node->link);
+ 		kfree(node);
+ 	}
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 927ebde1607be..d9a28f08b5501 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -581,14 +581,34 @@ static void regmap_range_exit(struct regmap *map)
+ 	kfree(map->selector_work_buf);
  }
  
-+static int nvme_dev_release(struct inode *inode, struct file *file)
++static int regmap_set_name(struct regmap *map, const struct regmap_config *config)
 +{
-+	struct nvme_ctrl *ctrl =
-+		container_of(inode->i_cdev, struct nvme_ctrl, cdev);
++	if (config->name) {
++		const char *name = kstrdup_const(config->name, GFP_KERNEL);
 +
-+	module_put(ctrl->ops->module);
-+	nvme_put_ctrl(ctrl);
++		if (!name)
++			return -ENOMEM;
++
++		kfree_const(map->name);
++		map->name = name;
++	}
++
 +	return 0;
 +}
 +
- static int nvme_dev_user_cmd(struct nvme_ctrl *ctrl, void __user *argp)
+ int regmap_attach_dev(struct device *dev, struct regmap *map,
+ 		      const struct regmap_config *config)
  {
- 	struct nvme_ns *ns;
-@@ -3002,6 +3016,7 @@ static long nvme_dev_ioctl(struct file *file, unsigned int cmd,
- static const struct file_operations nvme_dev_fops = {
- 	.owner		= THIS_MODULE,
- 	.open		= nvme_dev_open,
-+	.release	= nvme_dev_release,
- 	.unlocked_ioctl	= nvme_dev_ioctl,
- 	.compat_ioctl	= nvme_dev_ioctl,
- };
+ 	struct regmap **m;
++	int ret;
+ 
+ 	map->dev = dev;
+ 
+-	regmap_debugfs_init(map, config->name);
++	ret = regmap_set_name(map, config);
++	if (ret)
++		return ret;
++
++	regmap_debugfs_init(map);
+ 
+ 	/* Add a devres resource for dev_get_regmap() */
+ 	m = devres_alloc(dev_get_regmap_release, sizeof(*m), GFP_KERNEL);
+@@ -679,9 +699,9 @@ struct regmap *__regmap_init(struct device *dev,
+ 			     const char *lock_name)
+ {
+ 	struct regmap *map;
+-	int ret = -EINVAL;
+ 	enum regmap_endian reg_endian, val_endian;
+ 	int i, j;
++	int ret;
+ 
+ 	if (!config)
+ 		goto err;
+@@ -692,13 +712,9 @@ struct regmap *__regmap_init(struct device *dev,
+ 		goto err;
+ 	}
+ 
+-	if (config->name) {
+-		map->name = kstrdup_const(config->name, GFP_KERNEL);
+-		if (!map->name) {
+-			ret = -ENOMEM;
+-			goto err_map;
+-		}
+-	}
++	ret = regmap_set_name(map, config);
++	if (ret)
++		goto err_map;
+ 
+ 	if (config->disable_locking) {
+ 		map->lock = map->unlock = regmap_lock_unlock_none;
+@@ -1141,7 +1157,7 @@ struct regmap *__regmap_init(struct device *dev,
+ 		if (ret != 0)
+ 			goto err_regcache;
+ 	} else {
+-		regmap_debugfs_init(map, config->name);
++		regmap_debugfs_init(map);
+ 	}
+ 
+ 	return map;
+@@ -1301,6 +1317,8 @@ EXPORT_SYMBOL_GPL(regmap_field_free);
+  */
+ int regmap_reinit_cache(struct regmap *map, const struct regmap_config *config)
+ {
++	int ret;
++
+ 	regcache_exit(map);
+ 	regmap_debugfs_exit(map);
+ 
+@@ -1313,7 +1331,11 @@ int regmap_reinit_cache(struct regmap *map, const struct regmap_config *config)
+ 	map->readable_noinc_reg = config->readable_noinc_reg;
+ 	map->cache_type = config->cache_type;
+ 
+-	regmap_debugfs_init(map, config->name);
++	ret = regmap_set_name(map, config);
++	if (ret)
++		return ret;
++
++	regmap_debugfs_init(map);
+ 
+ 	map->cache_bypass = false;
+ 	map->cache_only = false;
 -- 
 2.25.1
 
