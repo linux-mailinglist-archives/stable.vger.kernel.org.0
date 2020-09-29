@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8CA27CD3F
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C994927CCB8
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729331AbgI2Mmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:42:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52366 "EHLO mail.kernel.org"
+        id S1733219AbgI2MiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:38:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728969AbgI2LLJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:11:09 -0400
+        id S1728864AbgI2LRl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:17:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB54A206A5;
-        Tue, 29 Sep 2020 11:11:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B63B12083B;
+        Tue, 29 Sep 2020 11:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377869;
-        bh=sEnncAE7swknYM9ucIJ06y04dkrQWy4QGw1RueM3EMs=;
+        s=default; t=1601378260;
+        bh=7zUWioQgL4Jqz/0zJ+FnsMzlmrxXscGQzFYbtHJqPdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWF2nl5R6K2ILjELrkzoj4KVt+JiTQPOvDdpmNIGZPzBcsJtVYbHM924VlWx7DtPy
-         vDL8clvsuE9w9kCmGjn7gnF01c/ZQitw8H6AlPDcmkqPswvhfq3BB7/6mzODtAVMUy
-         W6sXADGIw/FIvcoY5WEJmesAlnWKnO/Y3P56i+po=
+        b=vrXJrWZWeLVNLH88jnl7zKKUVWKCLAyyOdU5AkfamuVOC/OjefnSCNSkXTuip/MB7
+         icXFgiy8TgxHswqD50uyvZdpwErBgHM61F/RXzrBxVL+5io/SbW6WzN/BXfGRrN8OR
+         d00Gi4W7oqEc1zJLeRdTz1JRUOwzktjq+jbPQII0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Shengju <zhangshengju@cmss.chinamobile.com>,
-        Tang Bin <tangbin@cmss.chinamobile.com>,
+        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 084/121] USB: EHCI: ehci-mv: fix error handling in mv_ehci_probe()
+Subject: [PATCH 4.14 116/166] tty: serial: samsung: Correct clock selection logic
 Date:   Tue, 29 Sep 2020 13:00:28 +0200
-Message-Id: <20200929105934.338292081@linuxfoundation.org>
+Message-Id: <20200929105940.986225796@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tang Bin <tangbin@cmss.chinamobile.com>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-[ Upstream commit c856b4b0fdb5044bca4c0acf9a66f3b5cc01a37a ]
+[ Upstream commit 7d31676a8d91dd18e08853efd1cb26961a38c6a6 ]
 
-If the function platform_get_irq() failed, the negative value
-returned will not be detected here. So fix error handling in
-mv_ehci_probe(). And when get irq failed, the function
-platform_get_irq() logs an error message, so remove redundant
-message here.
+Some variants of the samsung tty driver can pick which clock
+to use for their baud rate generation.  In the DT conversion,
+a default clock was selected to be used if a specific one wasn't
+assigned and then a comparison of which clock rate worked better
+was done.  Unfortunately, the comparison was implemented in such
+a way that only the default clock was ever actually compared.
+Fix this by iterating through all possible clocks, except when a
+specific clock has already been picked via clk_sel (which is
+only possible via board files).
 
-Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
-Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
-Link: https://lore.kernel.org/r/20200508114305.15740-1-tangbin@cmss.chinamobile.com
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/BN6PR04MB06604E63833EA41837EBF77BA3A30@BN6PR04MB0660.namprd04.prod.outlook.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-mv.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/tty/serial/samsung.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/host/ehci-mv.c b/drivers/usb/host/ehci-mv.c
-index 849806a75f1ce..273736e1d33fa 100644
---- a/drivers/usb/host/ehci-mv.c
-+++ b/drivers/usb/host/ehci-mv.c
-@@ -197,9 +197,8 @@ static int mv_ehci_probe(struct platform_device *pdev)
- 	hcd->regs = ehci_mv->op_regs;
+diff --git a/drivers/tty/serial/samsung.c b/drivers/tty/serial/samsung.c
+index c67d39fea74ca..70d29b697e822 100644
+--- a/drivers/tty/serial/samsung.c
++++ b/drivers/tty/serial/samsung.c
+@@ -1165,14 +1165,14 @@ static unsigned int s3c24xx_serial_getclk(struct s3c24xx_uart_port *ourport,
+ 	struct s3c24xx_uart_info *info = ourport->info;
+ 	struct clk *clk;
+ 	unsigned long rate;
+-	unsigned int cnt, baud, quot, clk_sel, best_quot = 0;
++	unsigned int cnt, baud, quot, best_quot = 0;
+ 	char clkname[MAX_CLK_NAME_LENGTH];
+ 	int calc_deviation, deviation = (1 << 30) - 1;
  
- 	hcd->irq = platform_get_irq(pdev, 0);
--	if (!hcd->irq) {
--		dev_err(&pdev->dev, "Cannot get irq.");
--		retval = -ENODEV;
-+	if (hcd->irq < 0) {
-+		retval = hcd->irq;
- 		goto err_disable_clk;
- 	}
+-	clk_sel = (ourport->cfg->clk_sel) ? ourport->cfg->clk_sel :
+-			ourport->info->def_clk_sel;
+ 	for (cnt = 0; cnt < info->num_clks; cnt++) {
+-		if (!(clk_sel & (1 << cnt)))
++		/* Keep selected clock if provided */
++		if (ourport->cfg->clk_sel &&
++			!(ourport->cfg->clk_sel & (1 << cnt)))
+ 			continue;
  
+ 		sprintf(clkname, "clk_uart_baud%d", cnt);
 -- 
 2.25.1
 
