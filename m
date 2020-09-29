@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA82327C73B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F74227C598
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:38:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731002AbgI2Lw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:52:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49362 "EHLO mail.kernel.org"
+        id S1730010AbgI2Lgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:36:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731082AbgI2Lri (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:47:38 -0400
+        id S1729416AbgI2LgV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:36:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B668120702;
-        Tue, 29 Sep 2020 11:47:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4CBE23E1C;
+        Tue, 29 Sep 2020 11:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380058;
-        bh=a+cN+gIUhdPZcV3j3N5s51FPo3tZbR21cGfXS6VKWhc=;
+        s=default; t=1601379077;
+        bh=i7eIckC7xCZ6WpgoCxRS80uZO80NLNjN682rXocEHmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8JVY/kRNNFkR0I3njNV+5RhGXQyXshO+VKzX+CsgE5ElM5HN1c1mLAKMIOZw500A
-         dl5izuLbupC7/8b3Oa4lGgxk2gjVGRJiQin9NTUGwVHHyD4/6NhRS1VNNSMsYmuh/N
-         0ATPO3NVCz21+LPj4J020n1SB3Jis87UUBpG3r9I=
+        b=lZ6IpMwbtl7VcMeZT5oCLB7Ue9n7EW/UbwX/33EjlsWxaA8G0SOJVsDRULMyJHnxe
+         neUyso6Ex9wcTliulJz1Yi/39H3eCpFNbM91MmaH/+D6DebFtahNr32pJZTlHI+FJ7
+         xzCIaPGQd8TC5/O3Fyzdhet1Yg7ZJnvq1ookt7SY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 48/99] nvme-tcp: fix kconfig dependency warning when !CRYPTO
-Date:   Tue, 29 Sep 2020 13:01:31 +0200
-Message-Id: <20200929105932.092189273@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 241/245] kprobes: Fix compiler warning for !CONFIG_KPROBES_ON_FTRACE
+Date:   Tue, 29 Sep 2020 13:01:32 +0200
+Message-Id: <20200929105958.724720484@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit af5ad17854f96a6d3c9775e776bd01ab262672a1 ]
+commit 10de795a5addd1962406796a6e13ba6cc0fc6bee upstream.
 
-When NVME_TCP is enabled and CRYPTO is disabled, it results in the
-following Kbuild warning:
+Fix compiler warning(as show below) for !CONFIG_KPROBES_ON_FTRACE.
 
-WARNING: unmet direct dependencies detected for CRYPTO_CRC32C
-  Depends on [n]: CRYPTO [=n]
-  Selected by [y]:
-  - NVME_TCP [=y] && INET [=y] && BLK_DEV_NVME [=y]
+kernel/kprobes.c: In function 'kill_kprobe':
+kernel/kprobes.c:1116:33: warning: statement with no effect
+[-Wunused-value]
+ 1116 | #define disarm_kprobe_ftrace(p) (-ENODEV)
+      |                                 ^
+kernel/kprobes.c:2154:3: note: in expansion of macro
+'disarm_kprobe_ftrace'
+ 2154 |   disarm_kprobe_ftrace(p);
 
-The reason is that NVME_TCP selects CRYPTO_CRC32C without depending on or
-selecting CRYPTO while CRYPTO_CRC32C is subordinate to CRYPTO.
+Link: https://lore.kernel.org/r/20200805142136.0331f7ea@canb.auug.org.au
+Link: https://lkml.kernel.org/r/20200805172046.19066-1-songmuchun@bytedance.com
 
-Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Fixes: 0cb2f1372baa ("kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler")
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 79fd751d61aa ("nvme: tcp: selects CRYPTO_CRC32C for nvme-tcp")
-Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/kprobes.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nvme/host/Kconfig b/drivers/nvme/host/Kconfig
-index 3ed9786b88d8e..a44d49d63968a 100644
---- a/drivers/nvme/host/Kconfig
-+++ b/drivers/nvme/host/Kconfig
-@@ -73,6 +73,7 @@ config NVME_TCP
- 	depends on INET
- 	depends on BLK_DEV_NVME
- 	select NVME_FABRICS
-+	select CRYPTO
- 	select CRYPTO_CRC32C
- 	help
- 	  This provides support for the NVMe over Fabrics protocol using
--- 
-2.25.1
-
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1065,9 +1065,20 @@ static int disarm_kprobe_ftrace(struct k
+ 	return ret;
+ }
+ #else	/* !CONFIG_KPROBES_ON_FTRACE */
+-#define prepare_kprobe(p)	arch_prepare_kprobe(p)
+-#define arm_kprobe_ftrace(p)	(-ENODEV)
+-#define disarm_kprobe_ftrace(p)	(-ENODEV)
++static inline int prepare_kprobe(struct kprobe *p)
++{
++	return arch_prepare_kprobe(p);
++}
++
++static inline int arm_kprobe_ftrace(struct kprobe *p)
++{
++	return -ENODEV;
++}
++
++static inline int disarm_kprobe_ftrace(struct kprobe *p)
++{
++	return -ENODEV;
++}
+ #endif
+ 
+ /* Arm a kprobe with text_mutex */
 
 
