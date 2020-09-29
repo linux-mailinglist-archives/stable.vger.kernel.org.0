@@ -2,104 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D6127D163
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 16:39:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A115D27D1FB
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 16:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728563AbgI2Ojo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 10:39:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38614 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728446AbgI2Ojo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 10:39:44 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BDCC061755
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 07:39:43 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id 26so5692041ois.5
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 07:39:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=cKh1NwPO2AGw7ezW2Dg8jyj9oHqsLQgJI+qbyhtOJxE=;
-        b=TLTnYPgkzhRJOLtUK1ZBc9zaQEUMfll582/4ecmvlxJICIjrjJq36HZPhbVsqKTtAe
-         CCz2b9ygvVOD5Y9alQOBz5oLKAcGtjQr9bwbbjCq+ZC1uiGc4+AFzAbaB/3uRIQMb2bE
-         b3PL9Gx6QnVxGB1vCl8iwUb8j3HLQEAXcuOjyD0ftjwPBQC0hEw6Vw/PE/6iW/8l+/H1
-         RvIJbWnejXeQFL0WlvcWM/hDVoR7tYBh6GIn1x55HyKaerV0hxOH8dF5Rde9SDfPxvpP
-         XJRJarwBoqL8rbCacdZirWYQdeprWg0/ri/MLaCDV2NPybWhyMIcdK4Pb/1g5voiqMyl
-         JcHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=cKh1NwPO2AGw7ezW2Dg8jyj9oHqsLQgJI+qbyhtOJxE=;
-        b=OkbRFiyvS7EI9aS12hMPMkFZftrljwYBsno4n0eR9h04bUo+GQRLH2ovaSmqz1Cmzx
-         KB+/P18jl6X5g9HIyF2aVFCYu3t71gKkpg87NRuOYkmvha5eqjCjXCDGkoSnI84kXYCF
-         lMnLrcvebdCn5lfcRGvQF3XBNHc/sVcFKXTQtZLasI4KOFPbJR3iXa3OhOXfeXiKUvwa
-         imavWoUWNCpEaZlImD4BVFd3mzNs0gPAiV51fseHVv+1WOUrVQ96UbA/b/dRNd0Keopc
-         5RBZkrkJPDvH75jXHZDYozRUhVZw4fEDS1f/J0wIu0YrKFzOce6bHi7oGkQKkzhEWhU9
-         wKBw==
-X-Gm-Message-State: AOAM531MusSvzK1rFk3bxC13oDLtaXykjXz445Y+RWtszBhqCTbREA+W
-        p7krjYjZsLM9yriyqvSFLu1Ec8fgE7FbagGdnWs=
-X-Google-Smtp-Source: ABdhPJyGCU3iDT2PyAGYYqS/Kd4VOx/+3C21fPNEczQc6a4MjWvPp6QiqUN/ISOetjWcpw87qbI1CVkllWetreims9I=
-X-Received: by 2002:aca:3708:: with SMTP id e8mr2659145oia.101.1601390383277;
- Tue, 29 Sep 2020 07:39:43 -0700 (PDT)
+        id S1729038AbgI2O5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 10:57:50 -0400
+Received: from static-71-183-126-102.nycmny.fios.verizon.net ([71.183.126.102]:35886
+        "EHLO chicken.badula.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729396AbgI2O5u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 10:57:50 -0400
+X-Greylist: delayed 300 seconds by postgrey-1.27 at vger.kernel.org; Tue, 29 Sep 2020 10:57:50 EDT
+Received: from moisil.badula.org (pool-71-187-225-100.nwrknj.fios.verizon.net [71.187.225.100])
+        (authenticated bits=0)
+        by chicken.badula.org (8.14.4/8.14.4) with ESMTP id 08TEqnrs027467
+        (version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=NO)
+        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 10:52:49 -0400
+To:     stable@vger.kernel.org
+From:   Ion Badulescu <ionut@badula.org>
+Subject: Network packet reordering with the 5.4 stable tree
+Message-ID: <d3066d86-b63a-4a96-0537-e3e40c3826aa@badula.org>
+Date:   Tue, 29 Sep 2020 10:52:48 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Received: by 2002:a05:6838:3032:0:0:0:0 with HTTP; Tue, 29 Sep 2020 07:39:42
- -0700 (PDT)
-Reply-To: federalreservebankxx@yahoo.com
-From:   FEDERAL RESERVE BANK OF NEW YORK <adamsadams1a@gmail.com>
-Date:   Tue, 29 Sep 2020 15:39:42 +0100
-Message-ID: <CALaQrCaTk6CRh2=fO8JtkqNfGrpbw-oQH79D9jkns_--r47zZw@mail.gmail.com>
-Subject: YOUR RESPONSE IS NEEDED IMMEDIATELY
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on chicken.badula.org
+X-Spam-Level: 
+X-Spam-Language: en
+X-Spam-Status: No, score=0.578 required=5 tests=AWL=0.095,BAYES_00=-1.9,HEXHASH_WORD=1,KHOP_HELO_FCRDNS=0.4,RDNS_DYNAMIC=0.982,SPF_FAIL=0.001
+X-Scanned-By: MIMEDefang 2.84
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-FEDERAL RESERVE BANK OF NEW YORK
-ADDRESS: 33 LIBERTY STREET,
-NEW YORK, N.Y 10038.
+Hello,
 
-ATTN: FUND BENEFICIARY,
+I ran into some packet reordering using a plain vanilla 5.4.49 kernel 
+and the Amazon AWS ena driver. The external symptom was that every now 
+and again, one or more larger packets would be delivered to the UDP 
+socket after some smaller packets, even though the smaller packets were 
+sent after the larger packets. They were also delivered late to a packet 
+socket sniffer, which initially made me suspect an RSS bug in the ena 
+hardware. Eventually, I modified the ena driver to stamp each packet (by 
+overwriting its ethernet source mac field) with the id of the RSS queue 
+that delivered it, and with the value of a per-RSS-queue counter that 
+incremented for each packet received in that queue. That hack showed RSS 
+functioning properly, and also showed packets received earlier (with a 
+smaller counter value) being delivered after packets with a larger 
+counter value. It established that the reordering was in fact happening 
+inside the kernel network core.
 
-                  Re: ATM Card payment notification.
+The breakthrough came from realizing that the ena driver defaults its 
+rx_copybreak to 256, which matched perfectly the boundary between the 
+delayed large packets and the smaller packets being delivered first. 
+After changing ena's rx_copybreak to zero, the reordering issue disappeared.
 
-This is to officially inform you that the bank Federal Reserve Board
-New York Branch  has concluded in the meeting today over your long
-overdue contract payment and agreed that your payment worth
-US$10.500,000.00 will be released to you through ATM Master Card which
-will be delivered to you directly to your home address.
+After a lot of hair pulling, I think I figured out what the issue is -- 
+and it's confined to the 5.4 stable tree. Commit 323ebb61e32b4 (present 
+in 5.4) introduced queueing for GRO_NORMAL packets received via 
+napi_gro_frags() -> napi_frags_finish(). Commit 6570bc79c0df (NOT 
+present in 5.4) extended the same GRO_NORMAL queueing to packets 
+received via napi_gro_receive() -> napi_skb_finish(). Without 
+6570bc79c0df, packets received via napi_gro_receive() can get delivered 
+ahead of the earlier, queued up packets received via napi_gro_frags(). 
+And this is precisely what happens in the ena driver with packets 
+smaller than rx_copybreak vs packets larger than rx_copybreak.
 
-However, you are further advised to know that all arrangement has been
-completed long ago for the immediate dispatch to your residency, you
-have to reply back to us as soon as possible with the below DATA=E2=80=99 t=
-o
-enable the Ups shipping department proceed with the immediate dispatch
-tomorrow been Wednesday dated 30th of September 2020 on your behalf.
+Interestingly, the 5.4 stable tree does contain a backport of the 
+upstream c80794323e commit, which purports to fix issues introduced by 
+323ebb61e32b4 and 6570bc79c0df. But 6570bc79c0df itself is missing...
 
-Finally, this is very urgent and important the bank are waiting to
-hear from you right away today, Bear in mind that the tracking number
-of your parcel will be given to you immediately the Processing charge
-and Stamp fee which will not cost you much is received to avoid any
-immediate STOP ORDER from the United Nation office.
+I don't yet have a 5.4-stable patch, since I wanted to first raise the 
+issue publicly and confirm I'm not missing something obvious. The patch 
+would probably involve massaging 6570bc79c0df quite a bit, to avoid 
+colliding with the already-present c80794323e fix.
 
-Note That Because Of Impostors, We Hereby Issued You Our Code Of
-Conduct, Which Is (ATM-2020) So You Have To Indicate This Code When
-replying back to us By Using It As Your Subject. Get back to us with
-this information needed,
-
-Full Names:
-Your Address:
-Country:
-Direct Number:
-Your Age And Occupation:
-A scan copy of your ID card or passport:
-
-Reply back to us accordingly; The bank Wait For Your Expedite Response.
-
-Yours in Service,
-Mr. Jerome H. Powell
-Chairman Federal Reserve Board New York
-Email: federalreservebankxx@yahoo.com
+Thanks,
+-Ion
