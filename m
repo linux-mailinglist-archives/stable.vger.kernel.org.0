@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A40D727B97D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 185B927B978
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:31:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727526AbgI2BbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 21:31:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40176 "EHLO mail.kernel.org"
+        id S1727521AbgI2BbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 21:31:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727494AbgI2BbD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 21:31:03 -0400
+        id S1727499AbgI2BbE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 21:31:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C26A21D46;
-        Tue, 29 Sep 2020 01:31:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AF2B221E8;
+        Tue, 29 Sep 2020 01:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343063;
-        bh=i8E2TtvfhI6oB8OTuqVbslQiifotlH/tgoJgMGhWqH8=;
+        s=default; t=1601343064;
+        bh=csQCwAkCqB3MgkQK82J/G1bbn6BOYjCYdQmF0UsTB6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dvcMbKp0NZUlgrL6ojRW4t6t32IY4Cpyacgr035c7zu6SljPz5glaxFWHTFACjdDz
-         oC/WNbh6gwSZFIvvi9hwKK4Bp4Wz7LGedpJmM+ssmRuuM2Fn5nsULBqhGltfGYd0no
-         o50q5l6AhW7ipQTlapstw9RutQ+5N64lTkeARMBU=
+        b=kwMe37OBqjj9ZFFhLj4Qql1hvuaH6FtrZy1DUm+3f1pHI5A/BWnhlXhZJyyRzFuO5
+         W9ZegjGxX6ZjBGWglUvPnxOK4SfrThaFU6TqQ03w0C2Djxu0gLj/vZf1H6MCq1l6SB
+         Rq3NKtNc4fBNKAaTPNEAO3Grad3qfJisx/+pXVFU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 28/29] spi: fsl-dspi: fix use-after-free in remove path
-Date:   Mon, 28 Sep 2020 21:30:25 -0400
-Message-Id: <20200929013027.2406344-28-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 29/29] scripts/kallsyms: skip ppc compiler stub *.long_branch.* / *.plt_branch.*
+Date:   Mon, 28 Sep 2020 21:30:26 -0400
+Message-Id: <20200929013027.2406344-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013027.2406344-1-sashal@kernel.org>
 References: <20200929013027.2406344-1-sashal@kernel.org>
@@ -42,65 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 530b5affc675ade5db4a03f04ed7cd66806c8a1a ]
+[ Upstream commit 516d980f85415d76ae3d0d2a871eb20243f46c95 ]
 
-spi_unregister_controller() not only unregisters the controller, but
-also frees the controller. This will free the driver data with it, so
-we must not access it later dspi_remove().
+PowerPC allmodconfig often fails to build as follows:
 
-Solve this by allocating the driver data separately from the SPI
-controller.
+    LD      .tmp_vmlinux.kallsyms1
+    KSYM    .tmp_vmlinux.kallsyms1.o
+    LD      .tmp_vmlinux.kallsyms2
+    KSYM    .tmp_vmlinux.kallsyms2.o
+    LD      .tmp_vmlinux.kallsyms3
+    KSYM    .tmp_vmlinux.kallsyms3.o
+    LD      vmlinux
+    SORTTAB vmlinux
+    SYSMAP  System.map
+  Inconsistent kallsyms data
+  Try make KALLSYMS_EXTRA_PASS=1 as a workaround
+  make[2]: *** [../Makefile:1162: vmlinux] Error 1
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Link: https://lore.kernel.org/r/20200923131026.20707-1-s.hauer@pengutronix.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Setting KALLSYMS_EXTRA_PASS=1 does not help.
+
+This is caused by the compiler inserting stubs such as *.long_branch.*
+and *.plt_branch.*
+
+  $ powerpc-linux-nm -n .tmp_vmlinux.kallsyms2
+   [ snip ]
+  c00000000210c010 t 00000075.plt_branch.da9:19
+  c00000000210c020 t 00000075.plt_branch.1677:5
+  c00000000210c030 t 00000075.long_branch.memmove
+  c00000000210c034 t 00000075.plt_branch.9e0:5
+  c00000000210c044 t 00000075.plt_branch.free_initrd_mem
+    ...
+
+Actually, the problem mentioned in scripts/link-vmlinux.sh comments;
+"In theory it's possible this results in even more stubs, but unlikely"
+is happening here, and ends up with another kallsyms step required.
+
+scripts/kallsyms.c already ignores various compiler stubs. Let's do
+similar to make kallsysms for PowerPC always succeed in 2 steps.
+
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-dspi.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ scripts/kallsyms.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index 91c6affe139c9..aae9f9a7aea6c 100644
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -1273,11 +1273,14 @@ static int dspi_probe(struct platform_device *pdev)
- 	void __iomem *base;
- 	bool big_endian;
+diff --git a/scripts/kallsyms.c b/scripts/kallsyms.c
+index 6dc3078649fa0..e8b26050f5458 100644
+--- a/scripts/kallsyms.c
++++ b/scripts/kallsyms.c
+@@ -82,6 +82,7 @@ static char *sym_name(const struct sym_entry *s)
  
--	ctlr = spi_alloc_master(&pdev->dev, sizeof(struct fsl_dspi));
-+	dspi = devm_kzalloc(&pdev->dev, sizeof(*dspi), GFP_KERNEL);
-+	if (!dspi)
-+		return -ENOMEM;
-+
-+	ctlr = spi_alloc_master(&pdev->dev, 0);
- 	if (!ctlr)
- 		return -ENOMEM;
- 
--	dspi = spi_controller_get_devdata(ctlr);
- 	dspi->pdev = pdev;
- 	dspi->ctlr = ctlr;
- 
-@@ -1414,7 +1417,7 @@ static int dspi_probe(struct platform_device *pdev)
- 	if (dspi->devtype_data->trans_mode != DSPI_DMA_MODE)
- 		ctlr->ptp_sts_supported = true;
- 
--	platform_set_drvdata(pdev, ctlr);
-+	platform_set_drvdata(pdev, dspi);
- 
- 	ret = spi_register_controller(ctlr);
- 	if (ret != 0) {
-@@ -1437,8 +1440,7 @@ static int dspi_probe(struct platform_device *pdev)
- 
- static int dspi_remove(struct platform_device *pdev)
+ static bool is_ignored_symbol(const char *name, char type)
  {
--	struct spi_controller *ctlr = platform_get_drvdata(pdev);
--	struct fsl_dspi *dspi = spi_controller_get_devdata(ctlr);
-+	struct fsl_dspi *dspi = platform_get_drvdata(pdev);
++	/* Symbol names that exactly match to the following are ignored.*/
+ 	static const char * const ignored_symbols[] = {
+ 		/*
+ 		 * Symbols which vary between passes. Passes 1 and 2 must have
+@@ -104,6 +105,7 @@ static bool is_ignored_symbol(const char *name, char type)
+ 		NULL
+ 	};
  
- 	/* Disconnect from the SPI framework */
- 	spi_unregister_controller(dspi->ctlr);
++	/* Symbol names that begin with the following are ignored.*/
+ 	static const char * const ignored_prefixes[] = {
+ 		"$",			/* local symbols for ARM, MIPS, etc. */
+ 		".LASANPC",		/* s390 kasan local symbols */
+@@ -112,6 +114,7 @@ static bool is_ignored_symbol(const char *name, char type)
+ 		NULL
+ 	};
+ 
++	/* Symbol names that end with the following are ignored.*/
+ 	static const char * const ignored_suffixes[] = {
+ 		"_from_arm",		/* arm */
+ 		"_from_thumb",		/* arm */
+@@ -119,9 +122,15 @@ static bool is_ignored_symbol(const char *name, char type)
+ 		NULL
+ 	};
+ 
++	/* Symbol names that contain the following are ignored.*/
++	static const char * const ignored_matches[] = {
++		".long_branch.",	/* ppc stub */
++		".plt_branch.",		/* ppc stub */
++		NULL
++	};
++
+ 	const char * const *p;
+ 
+-	/* Exclude symbols which vary between passes. */
+ 	for (p = ignored_symbols; *p; p++)
+ 		if (!strcmp(name, *p))
+ 			return true;
+@@ -137,6 +146,11 @@ static bool is_ignored_symbol(const char *name, char type)
+ 			return true;
+ 	}
+ 
++	for (p = ignored_matches; *p; p++) {
++		if (strstr(name, *p))
++			return true;
++	}
++
+ 	if (type == 'U' || type == 'u')
+ 		return true;
+ 	/* exclude debugging symbols */
 -- 
 2.25.1
 
