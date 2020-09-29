@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A311127C7CD
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 367C827C7BB
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730573AbgI2L4n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:56:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42230 "EHLO mail.kernel.org"
+        id S1730293AbgI2LoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:44:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730806AbgI2Lnn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:43:43 -0400
+        id S1730609AbgI2LoK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:44:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25A5220702;
-        Tue, 29 Sep 2020 11:43:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95A432074A;
+        Tue, 29 Sep 2020 11:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379823;
-        bh=8MljDeggPdi9vFj6AXRrmOaExwKwArRNdb/1KDKnZxQ=;
+        s=default; t=1601379849;
+        bh=PpWILbvaSbRSDmv/WzVvB/4xEWxhsruuCMMpTEwET7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P9YjJ/70xZHi6Bh/1X+r9pRdknq48LsghN4dF+bK75/2dlm+BYB33gE+5iFhZo6I9
-         DbBTXhOXYCUMl2xqeC3Tmlwr3R/xUgOoB0y1ek9pHMES8baYiEry52SgowSJal8ZKG
-         3hVvpPnFJ8EWa0w9/NoAsphKq6s+yN5eqi/ytAeI=
+        b=vuGikQmfKni/722DDzZsI04YBb6fBoT/0SC7k0Wsrih1dfp6860gE2SrPWnuNcdv7
+         FHbQKJTJn8gGPBm0wTnW4ebJGuVG5Msjd2xAHHZ/qLekgS9rjR09uNTqPNdJ9xaq1O
+         bzoRtYZiBAESEOLRtBwwQNjajHxGZd7AAhserQ0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Walter Lozano <walter.lozano@collabora.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Jin Yao <yao.jin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jin Yao <yao.jin@intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 316/388] opp: Increase parsed_static_opps in _of_add_opp_table_v1()
-Date:   Tue, 29 Sep 2020 13:00:47 +0200
-Message-Id: <20200929110025.765499256@linuxfoundation.org>
+Subject: [PATCH 5.4 317/388] perf parse-events: Use strcmp() to compare the PMU name
+Date:   Tue, 29 Sep 2020 13:00:48 +0200
+Message-Id: <20200929110025.813521238@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -44,47 +48,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Walter Lozano <walter.lozano@collabora.com>
+From: Jin Yao <yao.jin@linux.intel.com>
 
-[ Upstream commit 6544abc520f0fff701e9da382110dc29676c683a ]
+[ Upstream commit 8510895bafdbf7c4dd24c22946d925691135c2b2 ]
 
-Currently, when using _of_add_opp_table_v2 parsed_static_opps is
-increased and this value is used in _opp_remove_all_static() to
-check if there are static opp entries that need to be freed.
-Unfortunately this does not happen when using _of_add_opp_table_v1(),
-which leads to warnings.
+A big uncore event group is split into multiple small groups which only
+include the uncore events from the same PMU. This has been supported in
+the commit 3cdc5c2cb924a ("perf parse-events: Handle uncore event
+aliases in small groups properly").
 
-This patch increases parsed_static_opps in _of_add_opp_table_v1() in a
-similar way as in _of_add_opp_table_v2().
+If the event's PMU name starts to repeat, it must be a new event.
+That can be used to distinguish the leader from other members.
+But now it only compares the pointer of pmu_name
+(leader->pmu_name == evsel->pmu_name).
 
-Fixes: 03758d60265c ("opp: Replace list_kref with a local counter")
-Cc: v5.6+ <stable@vger.kernel.org> # v5.6+
-Signed-off-by: Walter Lozano <walter.lozano@collabora.com>
-[ Viresh: Do the operation with lock held and set the value to 1 instead
-	  of incrementing it ]
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+If we use "perf stat -M LLC_MISSES.PCIE_WRITE -a" on cascadelakex,
+the event list is:
+
+  evsel->name					evsel->pmu_name
+  ---------------------------------------------------------------
+  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_4 (as leader)
+  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_2
+  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_0
+  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_5
+  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_3
+  unc_iio_data_req_of_cpu.mem_write.part0		uncore_iio_1
+  unc_iio_data_req_of_cpu.mem_write.part1		uncore_iio_4
+  ......
+
+For the event "unc_iio_data_req_of_cpu.mem_write.part1" with
+"uncore_iio_4", it should be the event from PMU "uncore_iio_4".
+It's not a new leader for this PMU.
+
+But if we use "(leader->pmu_name == evsel->pmu_name)", the check
+would be failed and the event is stored to leaders[] as a new
+PMU leader.
+
+So this patch uses strcmp to compare the PMU name between events.
+
+Fixes: d4953f7ef1a2 ("perf parse-events: Fix 3 use after frees found with clang ASAN")
+Signed-off-by: Jin Yao <yao.jin@linux.intel.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jin Yao <yao.jin@intel.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20200430003618.17002-1-yao.jin@linux.intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/of.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/perf/util/parse-events.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/opp/of.c b/drivers/opp/of.c
-index 9cd8f0adacae4..249738e1e0b7a 100644
---- a/drivers/opp/of.c
-+++ b/drivers/opp/of.c
-@@ -733,6 +733,10 @@ static int _of_add_opp_table_v1(struct device *dev, struct opp_table *opp_table)
- 		return -EINVAL;
- 	}
+--- a/tools/perf/util/parse-events.c
++++ b/tools/perf/util/parse-events.c
+@@ -1505,12 +1505,11 @@ parse_events__set_leader_for_uncore_alia
+ 		 * event. That can be used to distinguish the leader from
+ 		 * other members, even they have the same event name.
+ 		 */
+-		if ((leader != evsel) && (leader->pmu_name == evsel->pmu_name)) {
++		if ((leader != evsel) &&
++		    !strcmp(leader->pmu_name, evsel->pmu_name)) {
+ 			is_leader = false;
+ 			continue;
+ 		}
+-		/* The name is always alias name */
+-		WARN_ON(strcmp(leader->name, evsel->name));
  
-+	mutex_lock(&opp_table->lock);
-+	opp_table->parsed_static_opps = 1;
-+	mutex_unlock(&opp_table->lock);
-+
- 	val = prop->value;
- 	while (nr) {
- 		unsigned long freq = be32_to_cpup(val++) * 1000;
--- 
-2.25.1
-
+ 		/* Store the leader event for each PMU */
+ 		leaders[nr_pmu++] = (uintptr_t) evsel;
 
 
