@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8900227C3AC
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:08:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 199E127C39F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728621AbgI2LHf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:07:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46142 "EHLO mail.kernel.org"
+        id S1728870AbgI2LHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:07:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728929AbgI2LHe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:07:34 -0400
+        id S1728866AbgI2LGy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:06:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 590A021941;
-        Tue, 29 Sep 2020 11:07:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82491221EF;
+        Tue, 29 Sep 2020 11:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377653;
-        bh=Veag+uA5foloV/DZpIdVtQ1n/BM2tWmKVfB4H+PkMM0=;
+        s=default; t=1601377614;
+        bh=rFxmEVQR9wP/72O/0BiaSDmF96l1Q0UFY45Hj8vFi9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ChZapO5Tywr3UYaOxrqFD41oOR20QUu9sL30o/UBkQzblmeBNRuXHE22V34fPQCN2
-         ltw0dPY1kLxflPz4/SiaBi2D+xpjPRMKfhFaixKit0S/s0c4Y6ww1maFLHxHuslHnF
-         c0zaUAeyhWp8PGgL0CKsS7RdxzCCQSlmV/lFXzhg=
+        b=TwFPYd5eT3GdrKKmmcuLcrGIDZk2iYLVDPwQDlE7MRx7gY0xHfU3TsTzPvVay0YHI
+         UcQaH/TAICrQ2ssc2tw11MVjQX6h57TwVrv6vocUpDH0xfZtM4nWdwgULP/AmE3Q6k
+         A8hEjwR3bIdKb7oIosAD9Q2myFEriOXSLtFFErmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 009/121] bnxt_en: Protect bnxt_set_eee() and bnxt_set_pauseparam() with mutex.
-Date:   Tue, 29 Sep 2020 12:59:13 +0200
-Message-Id: <20200929105930.647315776@linuxfoundation.org>
+Subject: [PATCH 4.9 010/121] net: phy: Avoid NPD upon phy_detach() when driver is unbound
+Date:   Tue, 29 Sep 2020 12:59:14 +0200
+Message-Id: <20200929105930.696434798@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
@@ -43,109 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit a53906908148d64423398a62c4435efb0d09652c ]
+[ Upstream commit c2b727df7caa33876e7066bde090f40001b6d643 ]
 
-All changes related to bp->link_info require the protection of the
-link_lock mutex.  It's not sufficient to rely just on RTNL.
+If we have unbound the PHY driver prior to calling phy_detach() (often
+via phy_disconnect()) then we can cause a NULL pointer de-reference
+accessing the driver owner member. The steps to reproduce are:
 
-Fixes: 163e9ef63641 ("bnxt_en: Fix race when modifying pause settings.")
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+echo unimac-mdio-0:01 > /sys/class/net/eth0/phydev/driver/unbind
+ip link set eth0 down
+
+Fixes: cafe8df8b9bc ("net: phy: Fix lack of reference count on PHY driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |   31 ++++++++++++++--------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ drivers/net/phy/phy_device.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -1000,9 +1000,12 @@ static int bnxt_set_pauseparam(struct ne
- 	if (!BNXT_SINGLE_PF(bp))
- 		return -EOPNOTSUPP;
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1013,7 +1013,8 @@ void phy_detach(struct phy_device *phyde
+ 	phydev->attached_dev = NULL;
+ 	phy_suspend(phydev);
  
-+	mutex_lock(&bp->link_lock);
- 	if (epause->autoneg) {
--		if (!(link_info->autoneg & BNXT_AUTONEG_SPEED))
--			return -EINVAL;
-+		if (!(link_info->autoneg & BNXT_AUTONEG_SPEED)) {
-+			rc = -EINVAL;
-+			goto pause_exit;
-+		}
+-	module_put(phydev->mdio.dev.driver->owner);
++	if (phydev->mdio.dev.driver)
++		module_put(phydev->mdio.dev.driver->owner);
  
- 		link_info->autoneg |= BNXT_AUTONEG_FLOW_CTRL;
- 		if (bp->hwrm_spec_code >= 0x10201)
-@@ -1023,11 +1026,11 @@ static int bnxt_set_pauseparam(struct ne
- 	if (epause->tx_pause)
- 		link_info->req_flow_ctrl |= BNXT_LINK_PAUSE_TX;
- 
--	if (netif_running(dev)) {
--		mutex_lock(&bp->link_lock);
-+	if (netif_running(dev))
- 		rc = bnxt_hwrm_set_pause(bp);
--		mutex_unlock(&bp->link_lock);
--	}
-+
-+pause_exit:
-+	mutex_unlock(&bp->link_lock);
- 	return rc;
- }
- 
-@@ -1671,8 +1674,7 @@ static int bnxt_set_eee(struct net_devic
- 	struct bnxt *bp = netdev_priv(dev);
- 	struct ethtool_eee *eee = &bp->eee;
- 	struct bnxt_link_info *link_info = &bp->link_info;
--	u32 advertising =
--		 _bnxt_fw_to_ethtool_adv_spds(link_info->advertising, 0);
-+	u32 advertising;
- 	int rc = 0;
- 
- 	if (!BNXT_SINGLE_PF(bp))
-@@ -1681,19 +1683,23 @@ static int bnxt_set_eee(struct net_devic
- 	if (!(bp->flags & BNXT_FLAG_EEE_CAP))
- 		return -EOPNOTSUPP;
- 
-+	mutex_lock(&bp->link_lock);
-+	advertising = _bnxt_fw_to_ethtool_adv_spds(link_info->advertising, 0);
- 	if (!edata->eee_enabled)
- 		goto eee_ok;
- 
- 	if (!(link_info->autoneg & BNXT_AUTONEG_SPEED)) {
- 		netdev_warn(dev, "EEE requires autoneg\n");
--		return -EINVAL;
-+		rc = -EINVAL;
-+		goto eee_exit;
- 	}
- 	if (edata->tx_lpi_enabled) {
- 		if (bp->lpi_tmr_hi && (edata->tx_lpi_timer > bp->lpi_tmr_hi ||
- 				       edata->tx_lpi_timer < bp->lpi_tmr_lo)) {
- 			netdev_warn(dev, "Valid LPI timer range is %d and %d microsecs\n",
- 				    bp->lpi_tmr_lo, bp->lpi_tmr_hi);
--			return -EINVAL;
-+			rc = -EINVAL;
-+			goto eee_exit;
- 		} else if (!bp->lpi_tmr_hi) {
- 			edata->tx_lpi_timer = eee->tx_lpi_timer;
- 		}
-@@ -1703,7 +1709,8 @@ static int bnxt_set_eee(struct net_devic
- 	} else if (edata->advertised & ~advertising) {
- 		netdev_warn(dev, "EEE advertised %x must be a subset of autoneg advertised speeds %x\n",
- 			    edata->advertised, advertising);
--		return -EINVAL;
-+		rc = -EINVAL;
-+		goto eee_exit;
- 	}
- 
- 	eee->advertised = edata->advertised;
-@@ -1715,6 +1722,8 @@ eee_ok:
- 	if (netif_running(dev))
- 		rc = bnxt_hwrm_set_link_setting(bp, false, true);
- 
-+eee_exit:
-+	mutex_unlock(&bp->link_lock);
- 	return rc;
- }
- 
+ 	/* If the device had no specific driver before (i.e. - it
+ 	 * was using the generic driver), we unbind the device
 
 
