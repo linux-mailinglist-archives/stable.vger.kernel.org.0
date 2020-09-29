@@ -2,37 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FD3327CCF3
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:40:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AD2A27CCED
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:40:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729018AbgI2LOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:14:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57432 "EHLO mail.kernel.org"
+        id S1729455AbgI2LOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:14:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728480AbgI2LO3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:14:29 -0400
+        id S1729449AbgI2LOl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:14:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EBD220848;
-        Tue, 29 Sep 2020 11:14:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED63B20848;
+        Tue, 29 Sep 2020 11:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378068;
-        bh=xLEf58mjGmbH0CWWabSTZzpE4t32riFaLBMWYf6Q/rg=;
+        s=default; t=1601378080;
+        bh=I2Z6OIspS6YUaYt1Dzh3PCUQ6/nbwqFQYOaXwnswFpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PqIuPjRrPij/5RPAFtFyyCqIcXSVP1C6ziGADElMAGY5HuNuT8YlD56wewJ+sVrmU
-         lcjpOauwH1R++pwB/Z4VWGdYFKc9kAwCHuE+EGmEY/lRchMrSyoEcRa1tpvnYIWcvJ
-         c63qSwUpkvuX1McZYSJwmNJ2/TNS3bY62t076VUI=
+        b=tAJWyA+lC0NtehQcjhZ9TXHv06yC6MAdK8qRAxsugKsmAI02BqVqAxARAPBL+l66r
+         eHwExnCceyOjptBGykqHiT8657HEtnjshNtBVRXmrJ+uV2SIeN7cX55zjJ5wftjyQk
+         PArqzmBVrPrVnvHmG0o7sRlzM0rW643wUebjQujE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 023/166] media: smiapp: Fix error handling at NVM reading
-Date:   Tue, 29 Sep 2020 12:58:55 +0200
-Message-Id: <20200929105936.351959864@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dan Williams <dan.j.wiilliams@intel.com>,
+        Jan Kara <jack@suse.cz>, Jeff Moyer <jmoyer@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Toshi Kani <toshi.kani@hpe.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Matthew Wilcox <mawilcox@microsoft.com>,
+        Ross Zwisler <ross.zwisler@linux.intel.com>,
+        Ingo Molnar <mingo@elte.hu>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 024/166] arch/x86/lib/usercopy_64.c: fix __copy_user_flushcache() cache writeback
+Date:   Tue, 29 Sep 2020 12:58:56 +0200
+Message-Id: <20200929105936.402814715@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -44,39 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit a5b1d5413534607b05fb34470ff62bf395f5c8d0 ]
+commit a1cd6c2ae47ee10ff21e62475685d5b399e2ed4a upstream.
 
-If NVM reading failed, the device was left powered on. Fix that.
+If we copy less than 8 bytes and if the destination crosses a cache
+line, __copy_user_flushcache would invalidate only the first cache line.
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch makes it invalidate the second cache line as well.
+
+Fixes: 0aed55af88345b ("x86, uaccess: introduce copy_from_iter_flushcache for pmem / cache-bypass operations")
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Dan Williams <dan.j.wiilliams@intel.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Jeff Moyer <jmoyer@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Toshi Kani <toshi.kani@hpe.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Matthew Wilcox <mawilcox@microsoft.com>
+Cc: Ross Zwisler <ross.zwisler@linux.intel.com>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/alpine.LRH.2.02.2009161451140.21915@file01.intranet.prod.int.rdu2.redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/i2c/smiapp/smiapp-core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/lib/usercopy_64.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/smiapp/smiapp-core.c b/drivers/media/i2c/smiapp/smiapp-core.c
-index e4d7f2febf00c..05b3974bd9202 100644
---- a/drivers/media/i2c/smiapp/smiapp-core.c
-+++ b/drivers/media/i2c/smiapp/smiapp-core.c
-@@ -2338,11 +2338,12 @@ smiapp_sysfs_nvm_read(struct device *dev, struct device_attribute *attr,
- 		if (rval < 0) {
- 			if (rval != -EBUSY && rval != -EAGAIN)
- 				pm_runtime_set_active(&client->dev);
--			pm_runtime_put(&client->dev);
-+			pm_runtime_put_noidle(&client->dev);
- 			return -ENODEV;
- 		}
- 
- 		if (smiapp_read_nvm(sensor, sensor->nvm)) {
-+			pm_runtime_put(&client->dev);
- 			dev_err(&client->dev, "nvm read failed\n");
- 			return -ENODEV;
- 		}
--- 
-2.25.1
-
+--- a/arch/x86/lib/usercopy_64.c
++++ b/arch/x86/lib/usercopy_64.c
+@@ -118,7 +118,7 @@ long __copy_user_flushcache(void *dst, c
+ 	 */
+ 	if (size < 8) {
+ 		if (!IS_ALIGNED(dest, 4) || size != 4)
+-			clean_cache_range(dst, 1);
++			clean_cache_range(dst, size);
+ 	} else {
+ 		if (!IS_ALIGNED(dest, 8)) {
+ 			dest = ALIGN(dest, boot_cpu_data.x86_clflush_size);
 
 
