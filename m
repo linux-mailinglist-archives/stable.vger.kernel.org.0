@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0AE027CD76
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6862A27CE00
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729406AbgI2MoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:44:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
+        id S1728394AbgI2LDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:03:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728501AbgI2LIe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:08:34 -0400
+        id S1728337AbgI2LDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:03:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72A4B21941;
-        Tue, 29 Sep 2020 11:08:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEE6321D41;
+        Tue, 29 Sep 2020 11:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377706;
-        bh=7ijBAKzbzL0P/b4iOpJn8EUDsQXKg0GqQ7+MvRna7d4=;
+        s=default; t=1601377398;
+        bh=mHHxkIzXOTC2isNxEZdMuSwlzOD4/OnX+lG+fgZxp8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aWdSlcV7wB31/zdCH6bUAEsSWGDZjtYuwcTtPfDVoSkjIGW559hJ2M8cESFgk2DMq
-         C3UDDcEVRtAZQYfDmH2zHyUHbvvFhSzaTZ59sl8rTqI22h20/f50CljiQtAi6lVHfo
-         uGUqTiJsDS/g5pqO6tn0xcNVN4Z6nMcxSS0QyQ0o=
+        b=E5GCIY+cfmIBmKTATqSAE1kGQiMjl/WunQFtLMUaP3RBWgTRzHDokmSg++biYc+Sx
+         oQUbjQ/+PRl6FCEEQHtg8eVPDy/85apTSul7gzGD902umulK6xIK7F3yurYZ6CVoUl
+         ykU2nbtsGrKf6k/9ighw37Rab9ZpFHW7+m2iVoYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mohan Kumar <mkumard@nvidia.com>,
-        Viswanath L <viswanathl@nvidia.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 043/121] ALSA: hda: Clear RIRB status before reading WP
-Date:   Tue, 29 Sep 2020 12:59:47 +0200
-Message-Id: <20200929105932.326559547@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 21/85] xfs: fix attr leaf header freemap.size underflow
+Date:   Tue, 29 Sep 2020 12:59:48 +0200
+Message-Id: <20200929105929.284644336@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohan Kumar <mkumard@nvidia.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit 6d011d5057ff88ee556c000ac6fe0be23bdfcd72 ]
+[ Upstream commit 2a2b5932db67586bacc560cc065d62faece5b996 ]
 
-RIRB interrupt status getting cleared after the write pointer is read
-causes a race condition, where last response(s) into RIRB may remain
-unserviced by IRQ, eventually causing azx_rirb_get_response to fall
-back to polling mode. Clearing the RIRB interrupt status ahead of
-write pointer access ensures that this condition is avoided.
+The leaf format xattr addition helper xfs_attr3_leaf_add_work()
+adjusts the block freemap in a couple places. The first update drops
+the size of the freemap that the caller had already selected to
+place the xattr name/value data. Before the function returns, it
+also checks whether the entries array has encroached on a freemap
+range by virtue of the new entry addition. This is necessary because
+the entries array grows from the start of the block (but end of the
+block header) towards the end of the block while the name/value data
+grows from the end of the block in the opposite direction. If the
+associated freemap is already empty, however, size is zero and the
+subtraction underflows the field and causes corruption.
 
-Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
-Signed-off-by: Viswanath L <viswanathl@nvidia.com>
-Link: https://lore.kernel.org/r/1580983853-351-1-git-send-email-viswanathl@nvidia.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This is reproduced rarely by generic/070. The observed behavior is
+that a smaller sized freemap is aligned to the end of the entries
+list, several subsequent xattr additions land in larger freemaps and
+the entries list expands into the smaller freemap until it is fully
+consumed and then underflows. Note that it is not otherwise a
+corruption for the entries array to consume an empty freemap because
+the nameval list (i.e. the firstused pointer in the xattr header)
+starts beyond the end of the corrupted freemap.
+
+Update the freemap size modification to account for the fact that
+the freemap entry can be empty and thus stale.
+
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_controller.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ fs/xfs/libxfs/xfs_attr_leaf.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
-index bd0e4710d15d7..79043b481d7b6 100644
---- a/sound/pci/hda/hda_controller.c
-+++ b/sound/pci/hda/hda_controller.c
-@@ -1158,16 +1158,23 @@ irqreturn_t azx_interrupt(int irq, void *dev_id)
- 		if (snd_hdac_bus_handle_stream_irq(bus, status, stream_update))
- 			active = true;
- 
--		/* clear rirb int */
- 		status = azx_readb(chip, RIRBSTS);
- 		if (status & RIRB_INT_MASK) {
-+			/*
-+			 * Clearing the interrupt status here ensures that no
-+			 * interrupt gets masked after the RIRB wp is read in
-+			 * snd_hdac_bus_update_rirb. This avoids a possible
-+			 * race condition where codec response in RIRB may
-+			 * remain unserviced by IRQ, eventually falling back
-+			 * to polling mode in azx_rirb_get_response.
-+			 */
-+			azx_writeb(chip, RIRBSTS, RIRB_INT_MASK);
- 			active = true;
- 			if (status & RIRB_INT_RESPONSE) {
- 				if (chip->driver_caps & AZX_DCAPS_CTX_WORKAROUND)
- 					udelay(80);
- 				snd_hdac_bus_update_rirb(bus);
- 			}
--			azx_writeb(chip, RIRBSTS, RIRB_INT_MASK);
+diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
+index da8747b870df3..4539ff4d351f9 100644
+--- a/fs/xfs/libxfs/xfs_attr_leaf.c
++++ b/fs/xfs/libxfs/xfs_attr_leaf.c
+@@ -1326,7 +1326,9 @@ xfs_attr3_leaf_add_work(
+ 	for (i = 0; i < XFS_ATTR_LEAF_MAPSIZE; i++) {
+ 		if (ichdr->freemap[i].base == tmp) {
+ 			ichdr->freemap[i].base += sizeof(xfs_attr_leaf_entry_t);
+-			ichdr->freemap[i].size -= sizeof(xfs_attr_leaf_entry_t);
++			ichdr->freemap[i].size -=
++				min_t(uint16_t, ichdr->freemap[i].size,
++						sizeof(xfs_attr_leaf_entry_t));
  		}
- 	} while (active && ++repeat < 10);
- 
+ 	}
+ 	ichdr->usedbytes += xfs_attr_leaf_entsize(leaf, args->index);
 -- 
 2.25.1
 
