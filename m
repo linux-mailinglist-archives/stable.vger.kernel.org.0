@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C8927C455
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:13:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A375827C516
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:30:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728936AbgI2LNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:13:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54548 "EHLO mail.kernel.org"
+        id S1729134AbgI2La2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:30:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728741AbgI2LMk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:12:40 -0400
+        id S1728295AbgI2L3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:29:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B70722158C;
-        Tue, 29 Sep 2020 11:12:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C14723A5D;
+        Tue, 29 Sep 2020 11:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377960;
-        bh=UxunQbslXvAqscfRlbbOD5E44laN1yYyIwyWDa3PMIY=;
+        s=default; t=1601378627;
+        bh=i1ZgjExRvDCjhGcCJkiP8I89j+dferq7go6VHY189IY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SUlsh2FWHnFGO3iXFbzZ4oa/YRhbUHSO8U0gVxIh3m8owFKEEKYWnOr8tIw273oie
-         V0W0EjJ/sZxIpHHdRPBAJFTBzd6DodOhNoAjT5niJHkISaU80t/J08dxHC3obIXdwL
-         yGiQVzcwHBzPO6qNiWBNwjT+UCQoRO1Cu7LkVCu0=
+        b=aoI5z0xdFcE8PW3akf13/z358AKDHC2Jk5ZT29PYDHWfW4DxrCH9uSK88eJ57y2+q
+         75t1/7oKCDurIQLwmOXUwTm6gv/onr+yJYrJRupT5BCxlRlUsgoixS7tz7PZRVoQ7l
+         FKktzsYBnsJew6ckuwPfDX4raQ6EcIZpmvubzc58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 013/166] net: phy: Avoid NPD upon phy_detach() when driver is unbound
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 074/245] selinux: sel_avc_get_stat_idx should increase position index
 Date:   Tue, 29 Sep 2020 12:58:45 +0200
-Message-Id: <20200929105935.850984691@linuxfoundation.org>
+Message-Id: <20200929105950.598465758@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit c2b727df7caa33876e7066bde090f40001b6d643 ]
+[ Upstream commit 8d269a8e2a8f0bca89022f4ec98de460acb90365 ]
 
-If we have unbound the PHY driver prior to calling phy_detach() (often
-via phy_disconnect()) then we can cause a NULL pointer de-reference
-accessing the driver owner member. The steps to reproduce are:
+If seq_file .next function does not change position index,
+read after some lseek can generate unexpected output.
 
-echo unimac-mdio-0:01 > /sys/class/net/eth0/phydev/driver/unbind
-ip link set eth0 down
+$ dd if=/sys/fs/selinux/avc/cache_stats # usual output
+lookups hits misses allocations reclaims frees
+817223 810034 7189 7189 6992 7037
+1934894 1926896 7998 7998 7632 7683
+1322812 1317176 5636 5636 5456 5507
+1560571 1551548 9023 9023 9056 9115
+0+1 records in
+0+1 records out
+189 bytes copied, 5,1564e-05 s, 3,7 MB/s
 
-Fixes: cafe8df8b9bc ("net: phy: Fix lack of reference count on PHY driver")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+$# read after lseek to midle of last line
+$ dd if=/sys/fs/selinux/avc/cache_stats bs=180 skip=1
+dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
+056 9115   <<<< end of last line
+1560571 1551548 9023 9023 9056 9115  <<< whole last line once again
+0+1 records in
+0+1 records out
+45 bytes copied, 8,7221e-05 s, 516 kB/s
+
+$# read after lseek beyond  end of of file
+$ dd if=/sys/fs/selinux/avc/cache_stats bs=1000 skip=1
+dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
+1560571 1551548 9023 9023 9056 9115  <<<< generates whole last line
+0+1 records in
+0+1 records out
+36 bytes copied, 9,0934e-05 s, 396 kB/s
+
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy_device.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/selinux/selinuxfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -1121,7 +1121,8 @@ void phy_detach(struct phy_device *phyde
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index f3a5a138a096d..60b3f16bb5c7b 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1509,6 +1509,7 @@ static struct avc_cache_stats *sel_avc_get_stat_idx(loff_t *idx)
+ 		*idx = cpu + 1;
+ 		return &per_cpu(avc_cache_stats, cpu);
+ 	}
++	(*idx)++;
+ 	return NULL;
+ }
  
- 	phy_led_triggers_unregister(phydev);
- 
--	module_put(phydev->mdio.dev.driver->owner);
-+	if (phydev->mdio.dev.driver)
-+		module_put(phydev->mdio.dev.driver->owner);
- 
- 	/* If the device had no specific driver before (i.e. - it
- 	 * was using the generic driver), we unbind the device
+-- 
+2.25.1
+
 
 
