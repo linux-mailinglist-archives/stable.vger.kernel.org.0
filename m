@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C2027C4D8
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A09B27C345
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729432AbgI2LRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:17:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33298 "EHLO mail.kernel.org"
+        id S1728578AbgI2LET (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:04:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729590AbgI2LQk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:16:40 -0400
+        id S1728574AbgI2LEP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:04:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A66A421D41;
-        Tue, 29 Sep 2020 11:16:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6244021924;
+        Tue, 29 Sep 2020 11:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378196;
-        bh=tuojgmS46utuo0qPVhvteAxqUcE65vAv9kEyAtWaweQ=;
+        s=default; t=1601377454;
+        bh=DjjZnuXmxG8+DQetD0b8tSgVwIQADmWBtrQyC0jnWBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ljuuDR+IVBVdYWAypWgHCwWCi3KYDIHtpgh7mw8nf42u7zjj0Cxkj9gCr2l4jRNpY
-         T4dbHbb5CRPIrJrY6EEGvUkaqh3J5IRD0F5OlW5fNd8S2D7e4e2nk2FAcoGT3K5CNq
-         P9hMRsEFIq2FiWPtE7bGVTGYC3BQxfuf+0RzYTKc=
+        b=eP7Ei3VCt5FzO6GyOHZscJNtIdTJ3GX8Vx1dEtRxn8XdfZZjEK1VZ+xDPiURycLtJ
+         zwdNGoj9tCOImoGjzSWnXu5wPA3Bsa+kCi7IEKcCENS6MpVtWKAP4Msmr4cPIDwdok
+         MnnzWN7SXmxMTk6s+FxrrlzyG7eXExMHij0ThsD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Steinmetz <ast@domdv.de>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 096/166] ALSA: usb-audio: Fix case when USB MIDI interface has more than one extra endpoint descriptor
-Date:   Tue, 29 Sep 2020 13:00:08 +0200
-Message-Id: <20200929105940.008314358@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 42/85] media: tda10071: fix unsigned sign extension overflow
+Date:   Tue, 29 Sep 2020 13:00:09 +0200
+Message-Id: <20200929105930.336089662@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,78 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Steinmetz <ast@domdv.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 5c6cd7021a05a02fcf37f360592d7c18d4d807fb ]
+[ Upstream commit a7463e2dc698075132de9905b89f495df888bb79 ]
 
-The Miditech MIDIFACE 16x16 (USB ID 1290:1749) has more than one extra
-endpoint descriptor.
+The shifting of buf[3] by 24 bits to the left will be promoted to
+a 32 bit signed int and then sign-extended to an unsigned long. In
+the unlikely event that the the top bit of buf[3] is set then all
+then all the upper bits end up as also being set because of
+the sign-extension and this affect the ev->post_bit_error sum.
+Fix this by using the temporary u32 variable bit_error to avoid
+the sign-extension promotion. This also removes the need to do the
+computation twice.
 
-The first extra descriptor is: 0x06 0x30 0x00 0x00 0x00 0x00
+Addresses-Coverity: ("Unintended sign extension")
 
-As the code in snd_usbmidi_get_ms_info() looks only at the
-first extra descriptor to find USB_DT_CS_ENDPOINT the device
-as such is recognized but there is neither input nor output
-configured.
-
-The patch iterates through the extra descriptors to find the
-proper one. With this patch the device is correctly configured.
-
-Signed-off-by: Andreas Steinmetz <ast@domdv.de>
-Link: https://lore.kernel.org/r/1c3b431a86f69e1d60745b6110cdb93c299f120b.camel@domdv.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 267897a4708f ("[media] tda10071: implement DVBv5 statistics")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/midi.c | 29 ++++++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+ drivers/media/dvb-frontends/tda10071.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/sound/usb/midi.c b/sound/usb/midi.c
-index 1bfae7a1c32f1..a3d1c0c1b4a67 100644
---- a/sound/usb/midi.c
-+++ b/sound/usb/midi.c
-@@ -1805,6 +1805,28 @@ static int snd_usbmidi_create_endpoints(struct snd_usb_midi *umidi,
- 	return 0;
- }
+diff --git a/drivers/media/dvb-frontends/tda10071.c b/drivers/media/dvb-frontends/tda10071.c
+index 119d47596ac81..b81887c4f72a9 100644
+--- a/drivers/media/dvb-frontends/tda10071.c
++++ b/drivers/media/dvb-frontends/tda10071.c
+@@ -483,10 +483,11 @@ static int tda10071_read_status(struct dvb_frontend *fe, enum fe_status *status)
+ 			goto error;
  
-+static struct usb_ms_endpoint_descriptor *find_usb_ms_endpoint_descriptor(
-+					struct usb_host_endpoint *hostep)
-+{
-+	unsigned char *extra = hostep->extra;
-+	int extralen = hostep->extralen;
+ 		if (dev->delivery_system == SYS_DVBS) {
+-			dev->dvbv3_ber = buf[0] << 24 | buf[1] << 16 |
+-					 buf[2] << 8 | buf[3] << 0;
+-			dev->post_bit_error += buf[0] << 24 | buf[1] << 16 |
+-					       buf[2] << 8 | buf[3] << 0;
++			u32 bit_error = buf[0] << 24 | buf[1] << 16 |
++					buf[2] << 8 | buf[3] << 0;
 +
-+	while (extralen > 3) {
-+		struct usb_ms_endpoint_descriptor *ms_ep =
-+				(struct usb_ms_endpoint_descriptor *)extra;
-+
-+		if (ms_ep->bLength > 3 &&
-+		    ms_ep->bDescriptorType == USB_DT_CS_ENDPOINT &&
-+		    ms_ep->bDescriptorSubtype == UAC_MS_GENERAL)
-+			return ms_ep;
-+		if (!extra[0])
-+			break;
-+		extralen -= extra[0];
-+		extra += extra[0];
-+	}
-+	return NULL;
-+}
-+
- /*
-  * Returns MIDIStreaming device capabilities.
-  */
-@@ -1842,11 +1864,8 @@ static int snd_usbmidi_get_ms_info(struct snd_usb_midi *umidi,
- 		ep = get_ep_desc(hostep);
- 		if (!usb_endpoint_xfer_bulk(ep) && !usb_endpoint_xfer_int(ep))
- 			continue;
--		ms_ep = (struct usb_ms_endpoint_descriptor *)hostep->extra;
--		if (hostep->extralen < 4 ||
--		    ms_ep->bLength < 4 ||
--		    ms_ep->bDescriptorType != USB_DT_CS_ENDPOINT ||
--		    ms_ep->bDescriptorSubtype != UAC_MS_GENERAL)
-+		ms_ep = find_usb_ms_endpoint_descriptor(hostep);
-+		if (!ms_ep)
- 			continue;
- 		if (usb_endpoint_dir_out(ep)) {
- 			if (endpoints[epidx].out_ep) {
++			dev->dvbv3_ber = bit_error;
++			dev->post_bit_error += bit_error;
+ 			c->post_bit_error.stat[0].scale = FE_SCALE_COUNTER;
+ 			c->post_bit_error.stat[0].uvalue = dev->post_bit_error;
+ 			dev->block_error += buf[4] << 8 | buf[5] << 0;
 -- 
 2.25.1
 
