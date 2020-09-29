@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC7327B98B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:31:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D153327B982
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:31:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727611AbgI2Bb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 21:31:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40064 "EHLO mail.kernel.org"
+        id S1727562AbgI2BbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 21:31:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727473AbgI2BbA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 21:31:00 -0400
+        id S1727410AbgI2BbB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 21:31:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3E1E2080A;
-        Tue, 29 Sep 2020 01:30:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF2EE216C4;
+        Tue, 29 Sep 2020 01:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343059;
-        bh=4H/fR5q1JoOOjC4z3zPdkX31ixnSBx8yrYjHOz3qP/I=;
+        s=default; t=1601343060;
+        bh=m8yyWdT17sxwA4pTD6kXD50OTjR8orcJ4BiXJpbqZAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJ+7UUfstL5VPqQflLnTSbj/NGZWs8De/E+qWMP9ZuhsWHqr9wrYb9q8ArQNWasii
-         860luA0Z8njc6JqyC4oxYM9gc1tQcSbzBwVS+Cd0F623QddysFgeG5psc3vCzO3YU0
-         H90rII5NwxUovQNiDs11Ao0i8Jgqb46Kudeb8VZE=
+        b=WYkzoyBcyzw7/oUVGksf/HHaiD73FNOvm3M4iMhq3Jvj93XtB1v78jO9Hv5WTQMwL
+         gxBQsgK2i5I/dzc/UorKlYJw8BBXMZ/1lzDeKPlXztD8LemyvW7866ZQDm9jTiYlvV
+         IL5bvwzhdwhPZNrTMu7xQIocPmd6Eoc69hQrn2oA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaoliang Yang <xiaoliang.yang_1@nxp.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 25/29] net: dsa: felix: fix some key offsets for IP4_TCP_UDP VCAP IS2 entries
-Date:   Mon, 28 Sep 2020 21:30:22 -0400
-Message-Id: <20200929013027.2406344-25-sashal@kernel.org>
+Cc:     Xianting Tian <tian.xianting@h3c.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 26/29] nvme-pci: fix NULL req in completion handler
+Date:   Mon, 28 Sep 2020 21:30:23 -0400
+Message-Id: <20200929013027.2406344-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013027.2406344-1-sashal@kernel.org>
 References: <20200929013027.2406344-1-sashal@kernel.org>
@@ -43,52 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+From: Xianting Tian <tian.xianting@h3c.com>
 
-[ Upstream commit 8b9e03cd08250c60409099c791e858157838d9eb ]
+[ Upstream commit 50b7c24390a53c78de546215282fb52980f1d7b7 ]
 
-Some of the IS2 IP4_TCP_UDP keys are not correct, like L4_DPORT,
-L4_SPORT and other L4 keys. This prevents offloaded tc-flower rules from
-matching on src_port and dst_port for TCP and UDP packets.
+Currently, we use nvmeq->q_depth as the upper limit for a valid tag in
+nvme_handle_cqe(), it is not correct. Because the available tag number
+is recorded in tagset, which is not equal to nvmeq->q_depth.
 
-Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The nvme driver registers interrupts for queues before initializing the
+tagset, because it uses the number of successful request_irq() calls to
+configure the tagset parameters. This allows a race condition with the
+current tag validity check if the controller happens to produce an
+interrupt with a corrupted CQE before the tagset is initialized.
+
+Replace the driver's indirect tag check with the one already provided by
+the block layer.
+
+Signed-off-by: Xianting Tian <tian.xianting@h3c.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/ocelot/felix_vsc9959.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/nvme/host/pci.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
-index 1dd9e348152d7..7c167a394b762 100644
---- a/drivers/net/dsa/ocelot/felix_vsc9959.c
-+++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
-@@ -607,17 +607,17 @@ struct vcap_field vsc9959_vcap_is2_keys[] = {
- 	[VCAP_IS2_HK_DIP_EQ_SIP]		= {118,   1},
- 	/* IP4_TCP_UDP (TYPE=100) */
- 	[VCAP_IS2_HK_TCP]			= {119,   1},
--	[VCAP_IS2_HK_L4_SPORT]			= {120,  16},
--	[VCAP_IS2_HK_L4_DPORT]			= {136,  16},
-+	[VCAP_IS2_HK_L4_DPORT]			= {120,  16},
-+	[VCAP_IS2_HK_L4_SPORT]			= {136,  16},
- 	[VCAP_IS2_HK_L4_RNG]			= {152,   8},
- 	[VCAP_IS2_HK_L4_SPORT_EQ_DPORT]		= {160,   1},
- 	[VCAP_IS2_HK_L4_SEQUENCE_EQ0]		= {161,   1},
--	[VCAP_IS2_HK_L4_URG]			= {162,   1},
--	[VCAP_IS2_HK_L4_ACK]			= {163,   1},
--	[VCAP_IS2_HK_L4_PSH]			= {164,   1},
--	[VCAP_IS2_HK_L4_RST]			= {165,   1},
--	[VCAP_IS2_HK_L4_SYN]			= {166,   1},
--	[VCAP_IS2_HK_L4_FIN]			= {167,   1},
-+	[VCAP_IS2_HK_L4_FIN]			= {162,   1},
-+	[VCAP_IS2_HK_L4_SYN]			= {163,   1},
-+	[VCAP_IS2_HK_L4_RST]			= {164,   1},
-+	[VCAP_IS2_HK_L4_PSH]			= {165,   1},
-+	[VCAP_IS2_HK_L4_ACK]			= {166,   1},
-+	[VCAP_IS2_HK_L4_URG]			= {167,   1},
- 	[VCAP_IS2_HK_L4_1588_DOM]		= {168,   8},
- 	[VCAP_IS2_HK_L4_1588_VER]		= {176,   4},
- 	/* IP4_OTHER (TYPE=101) */
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 90346cba87d1e..cc3ae9c63a01b 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -942,13 +942,6 @@ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
+ 	struct nvme_completion *cqe = &nvmeq->cqes[idx];
+ 	struct request *req;
+ 
+-	if (unlikely(cqe->command_id >= nvmeq->q_depth)) {
+-		dev_warn(nvmeq->dev->ctrl.device,
+-			"invalid id %d completed on queue %d\n",
+-			cqe->command_id, le16_to_cpu(cqe->sq_id));
+-		return;
+-	}
+-
+ 	/*
+ 	 * AEN requests are special as they don't time out and can
+ 	 * survive any kind of queue freeze and often don't respond to
+@@ -962,6 +955,13 @@ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
+ 	}
+ 
+ 	req = blk_mq_tag_to_rq(nvme_queue_tagset(nvmeq), cqe->command_id);
++	if (unlikely(!req)) {
++		dev_warn(nvmeq->dev->ctrl.device,
++			"invalid id %d completed on queue %d\n",
++			cqe->command_id, le16_to_cpu(cqe->sq_id));
++		return;
++	}
++
+ 	trace_nvme_sq(req, cqe->sq_head, nvmeq->sq_tail);
+ 	nvme_end_request(req, cqe->status, cqe->result);
+ }
 -- 
 2.25.1
 
