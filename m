@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9288C27CBCE
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0970827CD15
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728922AbgI2Mat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:30:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43284 "EHLO mail.kernel.org"
+        id S2387404AbgI2Mlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:41:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728705AbgI2L3L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:29:11 -0400
+        id S1729161AbgI2LNJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:13:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD83123A5A;
-        Tue, 29 Sep 2020 11:23:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75CE021D7F;
+        Tue, 29 Sep 2020 11:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378619;
-        bh=lZ+pWyGp/OxMLaBEKo2kh4hSw1enmeJ7BX5vwLBy3xA=;
+        s=default; t=1601377983;
+        bh=72Vc/L+AA+cnf3ke3EmhQ81aysMdgGh/oAdrEa8H6hA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qNzbfL0lRaXPSEV8dv4cp7NuWBiKZVqfPEaGpyYkvxnZ8Tnugu3JXocKv+cwJdr2L
-         Q1gcUsCRgt2ShA4iaSbLzpJ5ERPukZSYD20M8K3Eiu64xiIlyOe7/iZpkL0WBf94Rl
-         gDeSx3IHjM+Y6/ZqTlUTET7lr1Ngxs9xrAA3Ra+4=
+        b=k+IUvHvyP9hJ1wN2mTzQH/EOJLcDJdN/uv0E5pswtSR3IA3j3PYsKU6/wZduLLo8j
+         mScoDaFNwoc/cVaA9LXRxdgKyb1vn8uZzlFEnPF79Iow8atIEc4DWM3l99rpe62/nu
+         94WSJ5PNamgJrr07Kib+nYYy+DTLva5LUDyxxVSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 049/245] ipv6_route_seq_next should increase position index
-Date:   Tue, 29 Sep 2020 12:58:20 +0200
-Message-Id: <20200929105949.386278964@linuxfoundation.org>
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 003/166] KVM: fix memory leak in kvm_io_bus_unregister_dev()
+Date:   Tue, 29 Sep 2020 12:58:35 +0200
+Message-Id: <20200929105935.360211822@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit 4fc427e0515811250647d44de38d87d7b0e0790f ]
+[ Upstream commit f65886606c2d3b562716de030706dfe1bea4ed5e ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+when kmalloc() fails in kvm_io_bus_unregister_dev(), before removing
+the bus, we should iterate over all other devices linked to it and call
+kvm_iodevice_destructor() for them
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 90db10434b16 ("KVM: kvm_io_bus_unregister_dev() should never fail")
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=f196caa45793d6374707
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20200907185535.233114-1-rkovhaev@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_fib.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ virt/kvm/kvm_main.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/net/ipv6/ip6_fib.c b/net/ipv6/ip6_fib.c
-index 05a206202e23d..b924941b96a31 100644
---- a/net/ipv6/ip6_fib.c
-+++ b/net/ipv6/ip6_fib.c
-@@ -2377,14 +2377,13 @@ static void *ipv6_route_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- 	struct net *net = seq_file_net(seq);
- 	struct ipv6_route_iter *iter = seq->private;
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 71f77ae6c2a66..1e30f8706349e 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -3688,7 +3688,7 @@ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
+ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 			       struct kvm_io_device *dev)
+ {
+-	int i;
++	int i, j;
+ 	struct kvm_io_bus *new_bus, *bus;
  
-+	++(*pos);
- 	if (!v)
- 		goto iter_table;
+ 	bus = kvm_get_bus(kvm, bus_idx);
+@@ -3705,17 +3705,20 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
  
- 	n = rcu_dereference_bh(((struct fib6_info *)v)->fib6_next);
--	if (n) {
--		++*pos;
-+	if (n)
- 		return n;
--	}
+ 	new_bus = kmalloc(sizeof(*bus) + ((bus->dev_count - 1) *
+ 			  sizeof(struct kvm_io_range)), GFP_KERNEL);
+-	if (!new_bus)  {
++	if (new_bus) {
++		memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
++		new_bus->dev_count--;
++		memcpy(new_bus->range + i, bus->range + i + 1,
++		       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
++	} else {
+ 		pr_err("kvm: failed to shrink bus, removing it completely\n");
+-		goto broken;
++		for (j = 0; j < bus->dev_count; j++) {
++			if (j == i)
++				continue;
++			kvm_iodevice_destructor(bus->range[j].dev);
++		}
+ 	}
  
- iter_table:
- 	ipv6_route_check_sernum(iter);
-@@ -2392,8 +2391,6 @@ iter_table:
- 	r = fib6_walk_continue(&iter->w);
- 	spin_unlock_bh(&iter->tbl->tb6_lock);
- 	if (r > 0) {
--		if (v)
--			++*pos;
- 		return iter->w.leaf;
- 	} else if (r < 0) {
- 		fib6_walker_unlink(net, &iter->w);
+-	memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
+-	new_bus->dev_count--;
+-	memcpy(new_bus->range + i, bus->range + i + 1,
+-	       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
+-
+-broken:
+ 	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
+ 	synchronize_srcu_expedited(&kvm->srcu);
+ 	kfree(bus);
 -- 
 2.25.1
 
