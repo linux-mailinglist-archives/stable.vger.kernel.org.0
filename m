@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C09127C8D7
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F3327C8FE
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729367AbgI2Lhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:37:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
+        id S1731731AbgI2MGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:06:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730259AbgI2Lhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730258AbgI2Lhh (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:37:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A022823BC8;
-        Tue, 29 Sep 2020 11:36:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8A3123A6A;
+        Tue, 29 Sep 2020 11:37:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379419;
-        bh=StopoSPyCs7EocPsq1Gp2kQ/vfNkfLuq7EPGBHDEt7c=;
+        s=default; t=1601379421;
+        bh=FH1ZAFozw3UmdYRa+SC+Sc5mujLG3AFb2GJovZPNwD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZUyMEhWf8atYdmSgdeiJ9/8W5R2ENs3czaDOUhd/46gMCv5uv3NAqz7+rv0Yyg8Q
-         CSJVWt0tAI6NiIzVhOezSHmh4yK7UqqrDQjHobCekv/cCazK9RkqtjIpHac/AD5QNp
-         G1TZxynz2oaqEWfg4DVqF0iI/hsygx/40HARhzh4=
+        b=FVroFgidIzzk2WEulMB9WMXlQjo1+DXqqdHe2oQVcAJMyqInnSxy6VSYafhV5lMHj
+         gvWac1nUZGMiq95hKULjRIPDHxWAqJHfDqavujzVjz+PhEd1tnpivXZN6woqK03Lah
+         GpwnV/4WP16ipB/b3QH9Yjbw3a08q8W3T4fTmYHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 124/388] mt76: fix handling full tx queues in mt76_dma_tx_queue_skb_raw
-Date:   Tue, 29 Sep 2020 12:57:35 +0200
-Message-Id: <20200929110016.470522701@linuxfoundation.org>
+Subject: [PATCH 5.4 125/388] ALSA: usb-audio: Dont create a mixer element with bogus volume range
+Date:   Tue, 29 Sep 2020 12:57:36 +0200
+Message-Id: <20200929110016.517001947@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -42,49 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 93eaec7625f13cffb593b471405b017c7e64d4ee ]
+[ Upstream commit e9a0ef0b5ddcbc0d56c65aefc0f18d16e6f71207 ]
 
-Fixes a theoretical issue where it could potentially overwrite an existing
-descriptor entry (and leaking its skb)
+Some USB-audio descriptors provide a bogus volume range (e.g. volume
+min and max are identical), which confuses user-space.
+This patch makes the driver skipping such a control element.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206221
+Link: https://lore.kernel.org/r/20200214144928.23628-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/dma.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ sound/usb/mixer.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
-index 6249a46c19762..026d996612fbe 100644
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -261,10 +261,13 @@ mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, enum mt76_txq_id qid,
- 	struct mt76_queue_buf buf;
- 	dma_addr_t addr;
+diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
+index 9079c380228fc..8aa96ed0b1b56 100644
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -1684,6 +1684,16 @@ static void __build_feature_ctl(struct usb_mixer_interface *mixer,
+ 	/* get min/max values */
+ 	get_min_max_with_quirks(cval, 0, kctl);
  
-+	if (q->queued + 1 >= q->ndesc - 1)
-+		goto error;
++	/* skip a bogus volume range */
++	if (cval->max <= cval->min) {
++		usb_audio_dbg(mixer->chip,
++			      "[%d] FU [%s] skipped due to invalid volume\n",
++			      cval->head.id, kctl->id.name);
++		snd_ctl_free_one(kctl);
++		return;
++	}
 +
- 	addr = dma_map_single(dev->dev, skb->data, skb->len,
- 			      DMA_TO_DEVICE);
- 	if (unlikely(dma_mapping_error(dev->dev, addr)))
--		return -ENOMEM;
-+		goto error;
- 
- 	buf.addr = addr;
- 	buf.len = skb->len;
-@@ -275,6 +278,10 @@ mt76_dma_tx_queue_skb_raw(struct mt76_dev *dev, enum mt76_txq_id qid,
- 	spin_unlock_bh(&q->lock);
- 
- 	return 0;
 +
-+error:
-+	dev_kfree_skb(skb);
-+	return -ENOMEM;
- }
- 
- static int
+ 	if (control == UAC_FU_VOLUME) {
+ 		check_mapped_dB(map, cval);
+ 		if (cval->dBmin < cval->dBmax || !cval->initialized) {
 -- 
 2.25.1
 
