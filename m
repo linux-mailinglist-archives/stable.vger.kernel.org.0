@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA32527C336
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAAA527C4C6
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728512AbgI2LDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:03:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39366 "EHLO mail.kernel.org"
+        id S1729378AbgI2LQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728459AbgI2LDg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:03:36 -0400
+        id S1729576AbgI2LQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:16:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 148C721924;
-        Tue, 29 Sep 2020 11:03:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95D40206A5;
+        Tue, 29 Sep 2020 11:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377415;
-        bh=8nCT9onTS12O7kRGYlMj2GxuwieMrLhg/b0HjITQ+WU=;
+        s=default; t=1601378176;
+        bh=ZIwn71VTK2fauOMlr/olKull/NtNHPDh5lZ9JvYgnbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v1WtgMxYdyZkyOWN/iogjyNlOJyMLcAiioKPBWCxg6qG/isKzo6MulgHstwFrIQhw
-         LqEN9ZUtlrdM75MdO8Mz9lV91RH0H0q+lkW1m3GNfA5rOhnItiGlpsTzc9msC9yfLx
-         O2s6prx5x5aPKYjD1+NH/alqq9qQ1NSrR10V3vp0=
+        b=Mj1Nb9i8MJBNvrWrHmMq4E4nOqqMmCUZa1IA67bAF3Qe3U29szyIaA8jjXUniUVHO
+         eXnIOrWUyTGWoO/iZA7mFAyU4ATfaXhPu2ALuGFZtkyhCMTIIDgFEhNZmnI0h2qrMG
+         xJ8s5c37JXBizISno+4a4oiJCP9y1dYJeMAfvd7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
         "David S. Miller" <davem@davemloft.net>,
-        Song Liu <songliubraving@fb.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 03/85] kprobes: fix kill kprobe which has been marked as gone
-Date:   Tue, 29 Sep 2020 12:59:30 +0200
-Message-Id: <20200929105928.378688564@linuxfoundation.org>
+Subject: [PATCH 4.14 059/166] skbuff: fix a data race in skb_queue_len()
+Date:   Tue, 29 Sep 2020 12:59:31 +0200
+Message-Id: <20200929105938.166163606@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,68 +43,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit b0399092ccebd9feef68d4ceb8d6219a8c0caa05 ]
+[ Upstream commit 86b18aaa2b5b5bb48e609cd591b3d2d0fdbe0442 ]
 
-If a kprobe is marked as gone, we should not kill it again.  Otherwise, we
-can disarm the kprobe more than once.  In that case, the statistics of
-kprobe_ftrace_enabled can unbalance which can lead to that kprobe do not
-work.
+sk_buff.qlen can be accessed concurrently as noticed by KCSAN,
 
-Fixes: e8386a0cb22f ("kprobes: support probing module __exit function")
-Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200822030055.32383-1-songmuchun@bytedance.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ BUG: KCSAN: data-race in __skb_try_recv_from_queue / unix_dgram_sendmsg
+
+ read to 0xffff8a1b1d8a81c0 of 4 bytes by task 5371 on cpu 96:
+  unix_dgram_sendmsg+0x9a9/0xb70 include/linux/skbuff.h:1821
+				 net/unix/af_unix.c:1761
+  ____sys_sendmsg+0x33e/0x370
+  ___sys_sendmsg+0xa6/0xf0
+  __sys_sendmsg+0x69/0xf0
+  __x64_sys_sendmsg+0x51/0x70
+  do_syscall_64+0x91/0xb47
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+ write to 0xffff8a1b1d8a81c0 of 4 bytes by task 1 on cpu 99:
+  __skb_try_recv_from_queue+0x327/0x410 include/linux/skbuff.h:2029
+  __skb_try_recv_datagram+0xbe/0x220
+  unix_dgram_recvmsg+0xee/0x850
+  ____sys_recvmsg+0x1fb/0x210
+  ___sys_recvmsg+0xa2/0xf0
+  __sys_recvmsg+0x66/0xf0
+  __x64_sys_recvmsg+0x51/0x70
+  do_syscall_64+0x91/0xb47
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Since only the read is operating as lockless, it could introduce a logic
+bug in unix_recvq_full() due to the load tearing. Fix it by adding
+a lockless variant of skb_queue_len() and unix_recvq_full() where
+READ_ONCE() is on the read while WRITE_ONCE() is on the write similar to
+the commit d7d16a89350a ("net: add skb_queue_empty_lockless()").
+
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ include/linux/skbuff.h | 14 +++++++++++++-
+ net/unix/af_unix.c     | 11 +++++++++--
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 9241a29a1f9de..574f650eb818b 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2012,6 +2012,9 @@ static void kill_kprobe(struct kprobe *p)
- {
- 	struct kprobe *kp;
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 71c77463d3432..3690985e24a8a 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1674,6 +1674,18 @@ static inline __u32 skb_queue_len(const struct sk_buff_head *list_)
+ 	return list_->qlen;
+ }
  
-+	if (WARN_ON_ONCE(kprobe_gone(p)))
-+		return;
++/**
++ *	skb_queue_len_lockless	- get queue length
++ *	@list_: list to measure
++ *
++ *	Return the length of an &sk_buff queue.
++ *	This variant can be used in lockless contexts.
++ */
++static inline __u32 skb_queue_len_lockless(const struct sk_buff_head *list_)
++{
++	return READ_ONCE(list_->qlen);
++}
 +
- 	p->flags |= KPROBE_FLAG_GONE;
- 	if (kprobe_aggrprobe(p)) {
- 		/*
-@@ -2154,7 +2157,10 @@ static int kprobes_module_callback(struct notifier_block *nb,
- 	mutex_lock(&kprobe_mutex);
- 	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
- 		head = &kprobe_table[i];
--		hlist_for_each_entry_rcu(p, head, hlist)
-+		hlist_for_each_entry_rcu(p, head, hlist) {
-+			if (kprobe_gone(p))
-+				continue;
+ /**
+  *	__skb_queue_head_init - initialize non-spinlock portions of sk_buff_head
+  *	@list: queue to initialize
+@@ -1881,7 +1893,7 @@ static inline void __skb_unlink(struct sk_buff *skb, struct sk_buff_head *list)
+ {
+ 	struct sk_buff *next, *prev;
+ 
+-	list->qlen--;
++	WRITE_ONCE(list->qlen, list->qlen - 1);
+ 	next	   = skb->next;
+ 	prev	   = skb->prev;
+ 	skb->next  = skb->prev = NULL;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 091e93798eacc..44ff3f5c22dfd 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -192,11 +192,17 @@ static inline int unix_may_send(struct sock *sk, struct sock *osk)
+ 	return unix_peer(osk) == NULL || unix_our_peer(sk, osk);
+ }
+ 
+-static inline int unix_recvq_full(struct sock const *sk)
++static inline int unix_recvq_full(const struct sock *sk)
+ {
+ 	return skb_queue_len(&sk->sk_receive_queue) > sk->sk_max_ack_backlog;
+ }
+ 
++static inline int unix_recvq_full_lockless(const struct sock *sk)
++{
++	return skb_queue_len_lockless(&sk->sk_receive_queue) >
++		READ_ONCE(sk->sk_max_ack_backlog);
++}
 +
- 			if (within_module_init((unsigned long)p->addr, mod) ||
- 			    (checkcore &&
- 			     within_module_core((unsigned long)p->addr, mod))) {
-@@ -2165,6 +2171,7 @@ static int kprobes_module_callback(struct notifier_block *nb,
- 				 */
- 				kill_kprobe(p);
- 			}
-+		}
- 	}
- 	mutex_unlock(&kprobe_mutex);
- 	return NOTIFY_DONE;
+ struct sock *unix_peer_get(struct sock *s)
+ {
+ 	struct sock *peer;
+@@ -1792,7 +1798,8 @@ restart_locked:
+ 	 * - unix_peer(sk) == sk by time of get but disconnected before lock
+ 	 */
+ 	if (other != sk &&
+-	    unlikely(unix_peer(other) != sk && unix_recvq_full(other))) {
++	    unlikely(unix_peer(other) != sk &&
++	    unix_recvq_full_lockless(other))) {
+ 		if (timeo) {
+ 			timeo = unix_wait_for_peer(other, timeo);
+ 
 -- 
 2.25.1
 
