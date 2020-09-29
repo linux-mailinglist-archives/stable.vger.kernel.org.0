@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF3F27C73D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CC7A27C666
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:44:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731082AbgI2Lwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:52:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49226 "EHLO mail.kernel.org"
+        id S1730911AbgI2Lot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:44:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730732AbgI2Lre (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:47:34 -0400
+        id S1730892AbgI2Loj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:44:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B428206E5;
-        Tue, 29 Sep 2020 11:47:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ED2C20702;
+        Tue, 29 Sep 2020 11:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380053;
-        bh=/MYqESftCHDCnakZ5FcVDHo7XfhqDQD52Vtw4DqJVx4=;
+        s=default; t=1601379879;
+        bh=6WsAP6oYaEi5qf4frf0uSrvl1iykS3EOWOBorPfZp9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y69JauOhdYGwZsOoRRyTSHQHF/nqnxM7c2pLgN5lbtuky8Q6GaOT/XpvvXvmo8NqX
-         /TjJAdqmMJfOZdc6Fb3DOQUUoWzjyxGMefemp+W07Un7WH+sVKd6LlEwYBx8QomLQQ
-         kB3hIsx1LWhth7n1C8y7Yk1/pUoB5uTbGn19JaF4=
+        b=zc0mqnxwLeA+m8fnaZSMu4ZLEnSYS2wMN19c2d/YJ95YXssK5GLOJV+X77F/a0Eiq
+         vQNaxXF1xn1yJVW3cZBlzTNJ4R1G8beQnldiqhhvJkdCrjUF1B9r6GAcduawgxLwJx
+         lCFV4x2dwf9vQ1qXSosv2ROVhQOpQgBBtcYjTDxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        stable@vger.kernel.org,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 46/99] batman-adv: Add missing include for in_interrupt()
+Subject: [PATCH 5.4 358/388] lib80211: fix unmet direct dependendices config warning when !CRYPTO
 Date:   Tue, 29 Sep 2020 13:01:29 +0200
-Message-Id: <20200929105931.993364209@linuxfoundation.org>
+Message-Id: <20200929110027.795764686@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit 4bba9dab86b6ac15ca560ef1f2b5aa4529cbf784 ]
+[ Upstream commit b959ba9f468b1c581f40e92661ad58b093abaa03 ]
 
-The fix for receiving (internally generated) bla packets outside the
-interrupt context introduced the usage of in_interrupt(). But this
-functionality is only defined in linux/preempt.h which was not included
-with the same patch.
+When LIB80211_CRYPT_CCMP is enabled and CRYPTO is disabled, it results in unmet
+direct dependencies config warning. The reason is that LIB80211_CRYPT_CCMP
+selects CRYPTO_AES and CRYPTO_CCM, which are subordinate to CRYPTO. This is
+reproducible with CRYPTO disabled and R8188EU enabled, where R8188EU selects
+LIB80211_CRYPT_CCMP but does not select or depend on CRYPTO.
 
-Fixes: 279e89b2281a ("batman-adv: bla: use netif_rx_ni when not in interrupt context")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+
+Fixes: a11e2f85481c ("lib80211: use crypto API ccm(aes) transform for CCMP processing")
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Link: https://lore.kernel.org/r/20200909095452.3080-1-fazilyildiran@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bridge_loop_avoidance.c | 1 +
+ net/wireless/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
-index e8e86e52d461a..f8c8c38e258a1 100644
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -25,6 +25,7 @@
- #include <linux/lockdep.h>
- #include <linux/netdevice.h>
- #include <linux/netlink.h>
-+#include <linux/preempt.h>
- #include <linux/rculist.h>
- #include <linux/rcupdate.h>
- #include <linux/seq_file.h>
+diff --git a/net/wireless/Kconfig b/net/wireless/Kconfig
+index 63cf7131f601c..211007c091d59 100644
+--- a/net/wireless/Kconfig
++++ b/net/wireless/Kconfig
+@@ -217,6 +217,7 @@ config LIB80211_CRYPT_WEP
+ 
+ config LIB80211_CRYPT_CCMP
+ 	tristate
++	select CRYPTO
+ 	select CRYPTO_AES
+ 	select CRYPTO_CCM
+ 
 -- 
 2.25.1
 
