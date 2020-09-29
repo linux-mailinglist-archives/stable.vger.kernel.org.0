@@ -2,158 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2D6C27DBEC
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 00:22:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6E8927DC12
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 00:31:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728384AbgI2WW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 18:22:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53882 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728041AbgI2WWP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 18:22:15 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CFA1C061755
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 15:22:15 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id s31so5093397pga.7
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 15:22:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=EEO+bk2i/5riIxD3efcxZ56ob6rCY1J76WlSIVy053k=;
-        b=qyZJED7BuArdYWrcYNx+CPq7QqDuZN82hhHJ6ffmiPCRhiRzzevMXM69T7V2CnvR9N
-         BASMz/zhqqL6xEbLkeoeTFHzbon0eCnS7f9i0U2VjhrrlCU4jaRlgZvAngLK/XDA3g+e
-         Ki602w/NX6Hs+xARH4IRMy0vmepxzpU4uYV22eVij8sbkj6NpMI3g/UtXWEdORuo16jm
-         e49F8kW33llhxQehwP2dMfkaSbGQ/81wiBtf3UDtIbbwwRn+7mq5NQmVYuKmo52XzQop
-         nTgGL3qwxMWF3BFMQ2R3jwVQbgd2M0xqpbdSAHe2C/t73eu325ZYuYFJJXtpFyGO+onq
-         4kxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=EEO+bk2i/5riIxD3efcxZ56ob6rCY1J76WlSIVy053k=;
-        b=R8jORLjgEga812HPLoadpF0hBN08XKmEmqslO16dYPnwH6hLAqpd4QbPvKhN6a9h3y
-         EYrAJ6coKUOR2vcfsHSB30UpcQuleGc0+L4mkvKP22hTlXgSbiXXaeld/Hn2tx0QXl7Z
-         3XGFsCgvetwZsPAMaovcsF3ge8mUh3yTUtmL73dSjXxclLUysm7Wv/78XvceTfFRemQe
-         yYeporWpf2yqkZe9b5jDZZIgCfZSjBrDjWJy9X4eBhq4FFZHf3RXx9thFIImGWHgf1FU
-         C5hStGrEXYtYG6jRW9pAkdBE+FIM8JZNgMolCL6SBVi1b7ID9UbS3AHfLy7JOuAgq63y
-         vozg==
-X-Gm-Message-State: AOAM530SNt68/OIhQEBxhg8pfVgRgd3Ac4tNiQvX4jc85/iWJujoJPrt
-        u8mlKCQDqjtVnv+BFWjNFdsNFH/c/3wLaA==
-X-Google-Smtp-Source: ABdhPJzk23JDizxNfptRg+FThgT8ZZd0mhzr2Ak2raoX7cHyO+3qVa+ow1jkPpZmFDnnSKC8FnJFnw==
-X-Received: by 2002:a63:e057:: with SMTP id n23mr4609250pgj.87.1601418134606;
-        Tue, 29 Sep 2020 15:22:14 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f207sm7005576pfa.54.2020.09.29.15.22.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Sep 2020 15:22:13 -0700 (PDT)
-Message-ID: <5f73b395.1c69fb81.4407e.e90d@mx.google.com>
-Date:   Tue, 29 Sep 2020 15:22:13 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728199AbgI2Wbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 18:31:50 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:36369 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728124AbgI2Wbu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 18:31:50 -0400
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1601418708;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=YkwAgkWJX6QtzYei4hnlo1IwT6pmSKXCDsQMxV6UrsY=;
+        b=HSVGdASkINHCgITuqAFMQ8CmahMd9uNzK28zQETI2FqHfDb4wWWSW49Oj50kex0vmXEaJO
+        VqLM6yOHrpNH0Pt5saabJlGVDZ+QlO7m5Af0YsNrJnI+7HCAVPnDsds6M9DLTqxflomznK
+        HZzhEkpb6CXKiwFeoMe8mEQM/nBhWvg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-377-KEqnqiKPMZi0DBO_wJHiSA-1; Tue, 29 Sep 2020 18:31:44 -0400
+X-MC-Unique: KEqnqiKPMZi0DBO_wJHiSA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 144AE1018F63;
+        Tue, 29 Sep 2020 22:31:43 +0000 (UTC)
+Received: from Ruby.redhat.com (ovpn-121-117.rdu2.redhat.com [10.10.121.117])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 60BD355775;
+        Tue, 29 Sep 2020 22:31:41 +0000 (UTC)
+From:   Lyude Paul <lyude@redhat.com>
+To:     nouveau@lists.freedesktop.org
+Cc:     =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org,
+        Ben Skeggs <bskeggs@redhat.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org (open list:DRM DRIVER FOR NVIDIA
+        GEFORCE/QUADRO GPUS), linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v2 1/2] drm/nouveau/kms/nv50-: Get rid of bogus nouveau_conn_mode_valid()
+Date:   Tue, 29 Sep 2020 18:31:31 -0400
+Message-Id: <20200929223132.333453-1-lyude@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.199-167-g7b80cb61f2b2
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 128 runs,
- 2 regressions (v4.14.199-167-g7b80cb61f2b2)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 128 runs, 2 regressions (v4.14.199-167-g7b=
-80cb61f2b2)
+Ville also pointed out that I got a lot of the logic here wrong as well, whoops.
+While I don't think anyone's likely using 3D output with nouveau, the next patch
+will make nouveau_conn_mode_valid() make a lot less sense. So, let's just get
+rid of it and open-code it like before, while taking care to move the 3D frame
+packing calculations on the dot clock into the right place.
 
-Regressions Summary
--------------------
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Fixes: d6a9efece724 ("drm/nouveau/kms/nv50-: Share DP SST mode_valid() handling with MST")
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.8+
+---
+ drivers/gpu/drm/nouveau/nouveau_connector.c | 36 ++++++---------------
+ drivers/gpu/drm/nouveau/nouveau_dp.c        | 16 ++++++---
+ 2 files changed, 21 insertions(+), 31 deletions(-)
 
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index 49dd0cbc332f..6f21f36719fc 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -1023,29 +1023,6 @@ get_tmds_link_bandwidth(struct drm_connector *connector)
+ 		return 112000 * duallink_scale;
+ }
+ 
+-enum drm_mode_status
+-nouveau_conn_mode_clock_valid(const struct drm_display_mode *mode,
+-			      const unsigned min_clock,
+-			      const unsigned max_clock,
+-			      unsigned int *clock_out)
+-{
+-	unsigned int clock = mode->clock;
+-
+-	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) ==
+-	    DRM_MODE_FLAG_3D_FRAME_PACKING)
+-		clock *= 2;
+-
+-	if (clock < min_clock)
+-		return MODE_CLOCK_LOW;
+-	if (clock > max_clock)
+-		return MODE_CLOCK_HIGH;
+-
+-	if (clock_out)
+-		*clock_out = clock;
+-
+-	return MODE_OK;
+-}
+-
+ static enum drm_mode_status
+ nouveau_connector_mode_valid(struct drm_connector *connector,
+ 			     struct drm_display_mode *mode)
+@@ -1053,7 +1030,7 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
+ 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
+ 	struct nouveau_encoder *nv_encoder = nv_connector->detected_encoder;
+ 	struct drm_encoder *encoder = to_drm_encoder(nv_encoder);
+-	unsigned min_clock = 25000, max_clock = min_clock;
++	unsigned int min_clock = 25000, max_clock = min_clock, clock = mode->clock;
+ 
+ 	switch (nv_encoder->dcb->type) {
+ 	case DCB_OUTPUT_LVDS:
+@@ -1082,8 +1059,15 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
+ 		return MODE_BAD;
+ 	}
+ 
+-	return nouveau_conn_mode_clock_valid(mode, min_clock, max_clock,
+-					     NULL);
++	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) == DRM_MODE_FLAG_3D_FRAME_PACKING)
++		clock *= 2;
++
++	if (clock < min_clock)
++		return MODE_CLOCK_LOW;
++	if (clock > max_clock)
++		return MODE_CLOCK_HIGH;
++
++	return MODE_OK;
+ }
+ 
+ static struct drm_encoder *
+diff --git a/drivers/gpu/drm/nouveau/nouveau_dp.c b/drivers/gpu/drm/nouveau/nouveau_dp.c
+index 7b640e05bd4c..93e3751ad7f1 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_dp.c
++++ b/drivers/gpu/drm/nouveau/nouveau_dp.c
+@@ -232,12 +232,14 @@ nv50_dp_mode_valid(struct drm_connector *connector,
+ 		   unsigned *out_clock)
+ {
+ 	const unsigned min_clock = 25000;
+-	unsigned max_clock, ds_clock, clock;
+-	enum drm_mode_status ret;
++	unsigned max_clock, ds_clock, clock = mode->clock;
+ 
+ 	if (mode->flags & DRM_MODE_FLAG_INTERLACE && !outp->caps.dp_interlace)
+ 		return MODE_NO_INTERLACE;
+ 
++	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) == DRM_MODE_FLAG_3D_FRAME_PACKING)
++		clock *= 2;
++
+ 	max_clock = outp->dp.link_nr * outp->dp.link_bw;
+ 	ds_clock = drm_dp_downstream_max_dotclock(outp->dp.dpcd,
+ 						  outp->dp.downstream_ports);
+@@ -245,9 +247,13 @@ nv50_dp_mode_valid(struct drm_connector *connector,
+ 		max_clock = min(max_clock, ds_clock);
+ 
+ 	clock = mode->clock * (connector->display_info.bpc * 3) / 10;
+-	ret = nouveau_conn_mode_clock_valid(mode, min_clock, max_clock,
+-					    &clock);
++	if (clock < min_clock)
++		return MODE_CLOCK_LOW;
++	if (clock > max_clock)
++		return MODE_CLOCK_HIGH;
++
+ 	if (out_clock)
+ 		*out_clock = clock;
+-	return ret;
++
++	return MODE_OK;
+ }
+-- 
+2.26.2
 
-meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 0/1    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.199-167-g7b80cb61f2b2/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.199-167-g7b80cb61f2b2
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7b80cb61f2b2cf4f291246ded2d1c29e3797c095 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f737ea896b57f0341877176
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-99-167-g7b80cb61f2b2/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
-ama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-99-167-g7b80cb61f2b2/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
-ama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-2-g61393d279614/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f737ea896b57f0341877=
-177
-      failing since 67 days (last pass: v4.14.188-126-g5b1e982af0f8, first =
-fail: v4.14.189)  =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f737e3f117a859bd3877176
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-99-167-g7b80cb61f2b2/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
--p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-99-167-g7b80cb61f2b2/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
--p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-2-g61393d279614/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f737e3f117a859bd3877=
-177
-      failing since 182 days (last pass: v4.14.172-114-g734382e2d26e, first=
- fail: v4.14.174-131-g234ce78cac23)  =20
