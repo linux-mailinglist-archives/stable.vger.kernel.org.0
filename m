@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C01F327C3C2
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0326627C33C
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728469AbgI2LIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:08:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46580 "EHLO mail.kernel.org"
+        id S1728533AbgI2LD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:03:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728978AbgI2LHz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:07:55 -0400
+        id S1728515AbgI2LDx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:03:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31BBA21D7F;
-        Tue, 29 Sep 2020 11:07:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 600A021734;
+        Tue, 29 Sep 2020 11:03:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377674;
-        bh=36ND2MmTltSqR4U5avLiXByONROkFkTO7XP6GSV8vrA=;
+        s=default; t=1601377433;
+        bh=t+hjMmfyg01UEJQInIr+fsuyXy/91PgQueFshlKGzlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PdhRIVhuDGwOUqJZJ3Cgra7n50GZn0x3bjxDOpuOq36d1kSd48u7BxRWacNljzqi3
-         XfyfdvZ2ix7KRd64aZAWIH8+WXE9JwRPPl2h3t2uOhkoAsF+ZlWK2j6QlkIWfz54Ks
-         M6Szsj5gjtO5hB6v414bQzA3hwyxngd4A/s16t74=
+        b=KBRKwrpXeP5cunpJRqFfQsBCm4WtnFE6Qs2moyy62czkFxlKbxkhj8ehJ3CiLLihp
+         /99r/CLUXlw9RMcTT4uhMkawQMsaZmaoIYakC0Eqzc/bpLQx9wBVUtCK8Vecx8mWYl
+         iwiEuKal+yrIpjDtiAdxqbnrempLIDnVxEQE+UQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 031/121] neigh_stat_seq_next() should increase position index
-Date:   Tue, 29 Sep 2020 12:59:35 +0200
-Message-Id: <20200929105931.722066488@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 09/85] net: add __must_check to skb_put_padto()
+Date:   Tue, 29 Sep 2020 12:59:36 +0200
+Message-Id: <20200929105928.681246288@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +42,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 1e3f9f073c47bee7c23e77316b07bc12338c5bba ]
+[ Upstream commit 4a009cb04aeca0de60b73f37b102573354214b52 ]
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+skb_put_padto() and __skb_put_padto() callers
+must check return values or risk use-after-free.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/neighbour.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/skbuff.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 6578d1f8e6c4a..d267dc04d9f74 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -2797,6 +2797,7 @@ static void *neigh_stat_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- 		*pos = cpu+1;
- 		return per_cpu_ptr(tbl->stats, cpu);
- 	}
-+	(*pos)++;
- 	return NULL;
- }
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -2651,7 +2651,7 @@ static inline int skb_padto(struct sk_bu
+  *	is untouched. Otherwise it is extended. Returns zero on
+  *	success. The skb is freed on error.
+  */
+-static inline int skb_put_padto(struct sk_buff *skb, unsigned int len)
++static inline int __must_check skb_put_padto(struct sk_buff *skb, unsigned int len)
+ {
+ 	unsigned int size = skb->len;
  
--- 
-2.25.1
-
 
 
