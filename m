@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1DB827C34D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 215C827C352
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728621AbgI2LEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:04:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40516 "EHLO mail.kernel.org"
+        id S1728627AbgI2LEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:04:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728605AbgI2LEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:04:24 -0400
+        id S1728586AbgI2LEc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:04:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB8A421734;
-        Tue, 29 Sep 2020 11:04:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA35321734;
+        Tue, 29 Sep 2020 11:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377463;
-        bh=l/Lc3v9SvXX1BUfrzvpCyFibGpf8UuFWkaCjJFPWNGA=;
+        s=default; t=1601377471;
+        bh=nV2hnbKtkB2BlDOC4qeSSeGMkvJWmVGMRnEvR21pAkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yysDzyExV8TKuIuggu52kG4m1K3/Y8wuIWT3xrOVHL9LGuKMfdi1yZrfwdA4ivSpJ
-         3CdBARMiWypa7sUNc98AO/q18lFM8Rg5aTKZnTItagpsNGdplpiW5oLjw1N5zUIi9O
-         48Fu5fnJf/AgdvdkK7bfzfRCb3bOqd3E2tdr42xE=
+        b=xwjsv/X2lMlxrPWc6cYbgjJuqbTxiAF5dD45WC56vp9JWpdXnkx5gtJnt1RYnelHI
+         BGPME54sIT3+b2uR1ulmShaZvROocdOsbKMOmkg6RtkppSxjugah1MHFQP1YeWrqiT
+         Q/HljNQJYbKAarYIHdMlvjIT3sHu38RHu+0+oPpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        stable@vger.kernel.org, Liu Song <liu.song11@zte.com.cn>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 45/85] serial: 8250_omap: Fix sleeping function called from invalid context during probe
-Date:   Tue, 29 Sep 2020 13:00:12 +0200
-Message-Id: <20200929105930.486717063@linuxfoundation.org>
+Subject: [PATCH 4.4 47/85] ubifs: Fix out-of-bounds memory access caused by abnormal value of node_len
+Date:   Tue, 29 Sep 2020 13:00:14 +0200
+Message-Id: <20200929105930.589534153@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
 References: <20200929105928.198942536@linuxfoundation.org>
@@ -43,85 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Liu Song <liu.song11@zte.com.cn>
 
-[ Upstream commit 4ce35a3617c0ac758c61122b2218b6c8c9ac9398 ]
+[ Upstream commit acc5af3efa303d5f36cc8c0f61716161f6ca1384 ]
 
-When booting j721e the following bug is printed:
+In “ubifs_check_node”, when the value of "node_len" is abnormal,
+the code will goto label of "out_len" for execution. Then, in the
+following "ubifs_dump_node", if inode type is "UBIFS_DATA_NODE",
+in "print_hex_dump", an out-of-bounds access may occur due to the
+wrong "ch->len".
 
-[    1.154821] BUG: sleeping function called from invalid context at kernel/sched/completion.c:99
-[    1.154827] in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 12, name: kworker/0:1
-[    1.154832] 3 locks held by kworker/0:1/12:
-[    1.154836]  #0: ffff000840030728 ((wq_completion)events){+.+.}, at: process_one_work+0x1d4/0x6e8
-[    1.154852]  #1: ffff80001214fdd8 (deferred_probe_work){+.+.}, at: process_one_work+0x1d4/0x6e8
-[    1.154860]  #2: ffff00084060b170 (&dev->mutex){....}, at: __device_attach+0x38/0x138
-[    1.154872] irq event stamp: 63096
-[    1.154881] hardirqs last  enabled at (63095): [<ffff800010b74318>] _raw_spin_unlock_irqrestore+0x70/0x78
-[    1.154887] hardirqs last disabled at (63096): [<ffff800010b740d8>] _raw_spin_lock_irqsave+0x28/0x80
-[    1.154893] softirqs last  enabled at (62254): [<ffff800010080c88>] _stext+0x488/0x564
-[    1.154899] softirqs last disabled at (62247): [<ffff8000100fdb3c>] irq_exit+0x114/0x140
-[    1.154906] CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.6.0-rc6-next-20200318-00094-g45e4089b0bd3 #221
-[    1.154911] Hardware name: Texas Instruments K3 J721E SoC (DT)
-[    1.154917] Workqueue: events deferred_probe_work_func
-[    1.154923] Call trace:
-[    1.154928]  dump_backtrace+0x0/0x190
-[    1.154933]  show_stack+0x14/0x20
-[    1.154940]  dump_stack+0xe0/0x148
-[    1.154946]  ___might_sleep+0x150/0x1f0
-[    1.154952]  __might_sleep+0x4c/0x80
-[    1.154957]  wait_for_completion_timeout+0x40/0x140
-[    1.154964]  ti_sci_set_device_state+0xa0/0x158
-[    1.154969]  ti_sci_cmd_get_device_exclusive+0x14/0x20
-[    1.154977]  ti_sci_dev_start+0x34/0x50
-[    1.154984]  genpd_runtime_resume+0x78/0x1f8
-[    1.154991]  __rpm_callback+0x3c/0x140
-[    1.154996]  rpm_callback+0x20/0x80
-[    1.155001]  rpm_resume+0x568/0x758
-[    1.155007]  __pm_runtime_resume+0x44/0xb0
-[    1.155013]  omap8250_probe+0x2b4/0x508
-[    1.155019]  platform_drv_probe+0x50/0xa0
-[    1.155023]  really_probe+0xd4/0x318
-[    1.155028]  driver_probe_device+0x54/0xe8
-[    1.155033]  __device_attach_driver+0x80/0xb8
-[    1.155039]  bus_for_each_drv+0x74/0xc0
-[    1.155044]  __device_attach+0xdc/0x138
-[    1.155049]  device_initial_probe+0x10/0x18
-[    1.155053]  bus_probe_device+0x98/0xa0
-[    1.155058]  deferred_probe_work_func+0x74/0xb0
-[    1.155063]  process_one_work+0x280/0x6e8
-[    1.155068]  worker_thread+0x48/0x430
-[    1.155073]  kthread+0x108/0x138
-[    1.155079]  ret_from_fork+0x10/0x18
+Therefore, when the value of "node_len" is abnormal, data length
+should to be adjusted to a reasonable safe range. At this time,
+structured data is not credible, so dump the corrupted data directly
+for analysis.
 
-To fix the bug we need to first call pm_runtime_enable() prior to any
-pm_runtime calls.
-
-Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20200320125200.6772-1-peter.ujfalusi@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Liu Song <liu.song11@zte.com.cn>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ubifs/io.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index c4383573cf668..0377b35d62b80 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -1188,11 +1188,11 @@ static int omap8250_probe(struct platform_device *pdev)
- 	spin_lock_init(&priv->rx_dma_lock);
+diff --git a/fs/ubifs/io.c b/fs/ubifs/io.c
+index 97be412153328..9213a9e046ae0 100644
+--- a/fs/ubifs/io.c
++++ b/fs/ubifs/io.c
+@@ -237,7 +237,7 @@ int ubifs_is_mapped(const struct ubifs_info *c, int lnum)
+ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
+ 		     int offs, int quiet, int must_chk_crc)
+ {
+-	int err = -EINVAL, type, node_len;
++	int err = -EINVAL, type, node_len, dump_node = 1;
+ 	uint32_t crc, node_crc, magic;
+ 	const struct ubifs_ch *ch = buf;
  
- 	device_init_wakeup(&pdev->dev, true);
-+	pm_runtime_enable(&pdev->dev);
- 	pm_runtime_use_autosuspend(&pdev->dev);
- 	pm_runtime_set_autosuspend_delay(&pdev->dev, -1);
- 
- 	pm_runtime_irq_safe(&pdev->dev);
--	pm_runtime_enable(&pdev->dev);
- 
- 	pm_runtime_get_sync(&pdev->dev);
- 
+@@ -290,10 +290,22 @@ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
+ out_len:
+ 	if (!quiet)
+ 		ubifs_err(c, "bad node length %d", node_len);
++	if (type == UBIFS_DATA_NODE && node_len > UBIFS_DATA_NODE_SZ)
++		dump_node = 0;
+ out:
+ 	if (!quiet) {
+ 		ubifs_err(c, "bad node at LEB %d:%d", lnum, offs);
+-		ubifs_dump_node(c, buf);
++		if (dump_node) {
++			ubifs_dump_node(c, buf);
++		} else {
++			int safe_len = min3(node_len, c->leb_size - offs,
++				(int)UBIFS_MAX_DATA_NODE_SZ);
++			pr_err("\tprevent out-of-bounds memory access\n");
++			pr_err("\ttruncated data node length      %d\n", safe_len);
++			pr_err("\tcorrupted data node:\n");
++			print_hex_dump(KERN_ERR, "\t", DUMP_PREFIX_OFFSET, 32, 1,
++					buf, safe_len, 0);
++		}
+ 		dump_stack();
+ 	}
+ 	return err;
 -- 
 2.25.1
 
