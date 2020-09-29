@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FF627C849
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:01:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC6D27CB9F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730881AbgI2MA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:00:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36572 "EHLO mail.kernel.org"
+        id S1729795AbgI2M3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:29:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730585AbgI2Lkx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:40:53 -0400
+        id S1729459AbgI2LcG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:32:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8454C206E5;
-        Tue, 29 Sep 2020 11:40:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31DFE23B1A;
+        Tue, 29 Sep 2020 11:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379645;
-        bh=AiRrw4gYZftgvCZFwosYg7/WVjgkagPGraiwlo0q5IA=;
+        s=default; t=1601378717;
+        bh=pGhwVmzAKmrsyihS5XbA3TPrkvfmkoyMXMpaORXB8ZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iE3NzpX+ZJl9CLQAI+X2ijIBgkaKN2Rv5qKy509FqjL7WBwx20kVSEPgMAiHLy2Yl
-         GazKr1cu2A89QIM72izW9A2PWBTZxDIJUwi1OLFLHFXvub/FpHFGAmiYY43lEt3Tue
-         LG5PNaWz9amJx+VtyxqzRHi6cVN4n6TQUznPj+kg=
+        b=edGX1AG1IYHyZZwyT6yZDTWzbGchg9vYyU9CtyuoMKxkhtq/ZsCjwXvbfqtIuezPA
+         AvMsDEh3gEHdL/2rd5xgkvnvP9UKK1QRBAOgBPBZ6m/FETG3xRwYuMkWVLxYTQ0MuZ
+         MjXrS2lTuSlxKbPOjIxaOEyf9+Jm7d5b/V6XD9zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Tejun Heo <tj@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 225/388] workqueue: Remove the warning in wq_worker_sleeping()
-Date:   Tue, 29 Sep 2020 12:59:16 +0200
-Message-Id: <20200929110021.371056413@linuxfoundation.org>
+Subject: [PATCH 4.19 106/245] media: tda10071: fix unsigned sign extension overflow
+Date:   Tue, 29 Sep 2020 12:59:17 +0200
+Message-Id: <20200929105952.160933968@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,100 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 62849a9612924a655c67cf6962920544aa5c20db ]
+[ Upstream commit a7463e2dc698075132de9905b89f495df888bb79 ]
 
-The kernel test robot triggered a warning with the following race:
-   task-ctx A                            interrupt-ctx B
- worker
-  -> process_one_work()
-    -> work_item()
-      -> schedule();
-         -> sched_submit_work()
-           -> wq_worker_sleeping()
-             -> ->sleeping = 1
-               atomic_dec_and_test(nr_running)
-         __schedule();                *interrupt*
-                                       async_page_fault()
-                                       -> local_irq_enable();
-                                       -> schedule();
-                                          -> sched_submit_work()
-                                            -> wq_worker_sleeping()
-                                               -> if (WARN_ON(->sleeping)) return
-                                          -> __schedule()
-                                            ->  sched_update_worker()
-                                              -> wq_worker_running()
-                                                 -> atomic_inc(nr_running);
-                                                 -> ->sleeping = 0;
+The shifting of buf[3] by 24 bits to the left will be promoted to
+a 32 bit signed int and then sign-extended to an unsigned long. In
+the unlikely event that the the top bit of buf[3] is set then all
+then all the upper bits end up as also being set because of
+the sign-extension and this affect the ev->post_bit_error sum.
+Fix this by using the temporary u32 variable bit_error to avoid
+the sign-extension promotion. This also removes the need to do the
+computation twice.
 
-      ->  sched_update_worker()
-        -> wq_worker_running()
-          if (!->sleeping) return
+Addresses-Coverity: ("Unintended sign extension")
 
-In this context the warning is pointless everything is fine.
-An interrupt before wq_worker_sleeping() will perform the ->sleeping
-assignment (0 -> 1 > 0) twice.
-An interrupt after wq_worker_sleeping() will trigger the warning and
-nr_running will be decremented (by A) and incremented once (only by B, A
-will skip it). This is the case until the ->sleeping is zeroed again in
-wq_worker_running().
-
-Remove the WARN statement because this condition may happen. Document
-that preemption around wq_worker_sleeping() needs to be disabled to
-protect ->sleeping and not just as an optimisation.
-
-Fixes: 6d25be5782e48 ("sched/core, workqueues: Distangle worker accounting from rq lock")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: Tejun Heo <tj@kernel.org>
-Link: https://lkml.kernel.org/r/20200327074308.GY11705@shao2-debian
+Fixes: 267897a4708f ("[media] tda10071: implement DVBv5 statistics")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 3 ++-
- kernel/workqueue.c  | 6 ++++--
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ drivers/media/dvb-frontends/tda10071.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 352239c411a44..79ce22de44095 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -4199,7 +4199,8 @@ static inline void sched_submit_work(struct task_struct *tsk)
- 	 * it wants to wake up a task to maintain concurrency.
- 	 * As this function is called inside the schedule() context,
- 	 * we disable preemption to avoid it calling schedule() again
--	 * in the possible wakeup of a kworker.
-+	 * in the possible wakeup of a kworker and because wq_worker_sleeping()
-+	 * requires it.
- 	 */
- 	if (tsk->flags & PF_WQ_WORKER) {
- 		preempt_disable();
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 1a0c224af6fb3..4aa268582a225 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -864,7 +864,8 @@ void wq_worker_running(struct task_struct *task)
-  * @task: task going to sleep
-  *
-  * This function is called from schedule() when a busy worker is
-- * going to sleep.
-+ * going to sleep. Preemption needs to be disabled to protect ->sleeping
-+ * assignment.
-  */
- void wq_worker_sleeping(struct task_struct *task)
- {
-@@ -881,7 +882,8 @@ void wq_worker_sleeping(struct task_struct *task)
+diff --git a/drivers/media/dvb-frontends/tda10071.c b/drivers/media/dvb-frontends/tda10071.c
+index 097c42d3f8c26..df0c7243eafe4 100644
+--- a/drivers/media/dvb-frontends/tda10071.c
++++ b/drivers/media/dvb-frontends/tda10071.c
+@@ -483,10 +483,11 @@ static int tda10071_read_status(struct dvb_frontend *fe, enum fe_status *status)
+ 			goto error;
  
- 	pool = worker->pool;
- 
--	if (WARN_ON_ONCE(worker->sleeping))
-+	/* Return if preempted before wq_worker_running() was reached */
-+	if (worker->sleeping)
- 		return;
- 
- 	worker->sleeping = 1;
+ 		if (dev->delivery_system == SYS_DVBS) {
+-			dev->dvbv3_ber = buf[0] << 24 | buf[1] << 16 |
+-					 buf[2] << 8 | buf[3] << 0;
+-			dev->post_bit_error += buf[0] << 24 | buf[1] << 16 |
+-					       buf[2] << 8 | buf[3] << 0;
++			u32 bit_error = buf[0] << 24 | buf[1] << 16 |
++					buf[2] << 8 | buf[3] << 0;
++
++			dev->dvbv3_ber = bit_error;
++			dev->post_bit_error += bit_error;
+ 			c->post_bit_error.stat[0].scale = FE_SCALE_COUNTER;
+ 			c->post_bit_error.stat[0].uvalue = dev->post_bit_error;
+ 			dev->block_error += buf[4] << 8 | buf[5] << 0;
 -- 
 2.25.1
 
