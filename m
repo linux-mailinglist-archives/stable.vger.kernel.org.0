@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16E2527C8BB
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:05:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0E5A27C937
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:08:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731547AbgI2MEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:04:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59044 "EHLO mail.kernel.org"
+        id S1729520AbgI2MIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:08:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729075AbgI2Lh5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:57 -0400
+        id S1730226AbgI2Lhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7562F208B8;
-        Tue, 29 Sep 2020 11:37:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE47B23A53;
+        Tue, 29 Sep 2020 11:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379476;
-        bh=5swXM7Lw3oQ3pwfpo1YTkYpwc/i3r976gl6CWmqFdUs=;
+        s=default; t=1601378571;
+        bh=11eSPVVf8e7KV0F2MBEI348k9p8NFpqatHvfZrbQTg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFOvyphLwZF2e3lJhccmF2qWWqP/6A2guvqVcXYy4WrvlXeD4YEWmlWJHsuI3/euV
-         xqfuMoxipn9mOrdyEYi8JSr80NR3ZGS9pzeaCU9xHj/81BxW4Aa9HpX8D9T7saz86G
-         o/qxDE9yw5FE8Ab3LgQWWN2fqGS+4uscnmaX9cmI=
+        b=YPQO3+xeZXlGUKNPHQDzbEyLqu8VMalA9oKz90IeHB0XUPRDNE/rfQlCtwmlaBQXF
+         gt0O1SxP+MmPS4wwzqWVB4llWA/56suLjTpmTERhhZTJCnVHaBEIrSGbnbDEP+oe0n
+         1T3bXgewUnx3SLRuQOhYKcMrv8vuwvN/yJ6aL+E4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        clang-built-linux@googlegroups.com,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 180/388] perf parse-events: Fix 3 use after frees found with clang ASAN
-Date:   Tue, 29 Sep 2020 12:58:31 +0200
-Message-Id: <20200929110019.192000597@linuxfoundation.org>
+Subject: [PATCH 4.19 061/245] ARM: 8948/1: Prevent OOB access in stacktrace
+Date:   Tue, 29 Sep 2020 12:58:32 +0200
+Message-Id: <20200929105949.959908417@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,66 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit d4953f7ef1a2e87ef732823af35361404d13fea8 ]
+[ Upstream commit 40ff1ddb5570284e039e0ff14d7a859a73dc3673 ]
 
-Reproducible with a clang asan build and then running perf test in
-particular 'Parse event definition strings'.
+The stacktrace code can read beyond the stack size, when it attempts to
+read pt_regs from exception frames.
 
-Signed-off-by: Ian Rogers <irogers@google.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: clang-built-linux@googlegroups.com
-Link: http://lore.kernel.org/lkml/20200314170356.62914-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+This can happen on normal, non-corrupt stacks.  Since the unwind
+information in the extable is not correct for function prologues, the
+unwinding code can return data from the stack which is not actually the
+caller function address, and if in_entry_text() happens to succeed on
+this value, we can end up reading data from outside the task's stack
+when attempting to read pt_regs, since there is no bounds check.
+
+Example:
+
+ [<8010e729>] (unwind_backtrace) from [<8010a9c9>] (show_stack+0x11/0x14)
+ [<8010a9c9>] (show_stack) from [<8057d8d7>] (dump_stack+0x87/0xac)
+ [<8057d8d7>] (dump_stack) from [<8012271d>] (tasklet_action_common.constprop.4+0xa5/0xa8)
+ [<8012271d>] (tasklet_action_common.constprop.4) from [<80102333>] (__do_softirq+0x11b/0x31c)
+ [<80102333>] (__do_softirq) from [<80122485>] (irq_exit+0xad/0xd8)
+ [<80122485>] (irq_exit) from [<8015f3d7>] (__handle_domain_irq+0x47/0x84)
+ [<8015f3d7>] (__handle_domain_irq) from [<8036a523>] (gic_handle_irq+0x43/0x78)
+ [<8036a523>] (gic_handle_irq) from [<80101a49>] (__irq_svc+0x69/0xb4)
+ Exception stack(0xeb491f58 to 0xeb491fa0)
+ 1f40:                                                       7eb14794 00000000
+ 1f60: ffffffff 008dd32c 008dd324 ffffffff 008dd314 0000002a 801011e4 eb490000
+ 1f80: 0000002a 7eb1478c 50c5387d eb491fa8 80101001 8023d09c 40080033 ffffffff
+ [<80101a49>] (__irq_svc) from [<8023d09c>] (do_pipe2+0x0/0xac)
+ [<8023d09c>] (do_pipe2) from [<ffffffff>] (0xffffffff)
+ Exception stack(0xeb491fc8 to 0xeb492010)
+ 1fc0:                   008dd314 0000002a 00511ad8 008de4c8 7eb14790 7eb1478c
+ 1fe0: 00511e34 7eb14774 004c8557 76f44098 60080030 7eb14794 00000000 00000000
+ 2000: 00000001 00000000 ea846c00 ea847cc0
+
+In this example, the stack limit is 0xeb492000, but 16 bytes outside the
+stack have been read.
+
+Fix it by adding bounds checks.
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/evsel.c        | 1 +
- tools/perf/util/parse-events.c | 4 ++--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/kernel/stacktrace.c | 2 ++
+ arch/arm/kernel/traps.c      | 6 ++++--
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index a844715a352d8..dfc982baecab4 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -1254,6 +1254,7 @@ void perf_evsel__exit(struct evsel *evsel)
- 	perf_thread_map__put(evsel->core.threads);
- 	zfree(&evsel->group_name);
- 	zfree(&evsel->name);
-+	zfree(&evsel->pmu_name);
- 	perf_evsel__object.fini(evsel);
+diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
+index a4d4a28fe07df..d23ab9ec130a3 100644
+--- a/arch/arm/kernel/stacktrace.c
++++ b/arch/arm/kernel/stacktrace.c
+@@ -115,6 +115,8 @@ static int save_trace(struct stackframe *frame, void *d)
+ 		return 0;
+ 
+ 	regs = (struct pt_regs *)frame->sp;
++	if ((unsigned long)&regs[1] > ALIGN(frame->sp, THREAD_SIZE))
++		return 0;
+ 
+ 	trace->entries[trace->nr_entries++] = regs->ARM_pc;
+ 
+diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
+index badf02ca36938..aec533168f046 100644
+--- a/arch/arm/kernel/traps.c
++++ b/arch/arm/kernel/traps.c
+@@ -67,14 +67,16 @@ static void dump_mem(const char *, const char *, unsigned long, unsigned long);
+ 
+ void dump_backtrace_entry(unsigned long where, unsigned long from, unsigned long frame)
+ {
++	unsigned long end = frame + 4 + sizeof(struct pt_regs);
++
+ #ifdef CONFIG_KALLSYMS
+ 	printk("[<%08lx>] (%ps) from [<%08lx>] (%pS)\n", where, (void *)where, from, (void *)from);
+ #else
+ 	printk("Function entered at [<%08lx>] from [<%08lx>]\n", where, from);
+ #endif
+ 
+-	if (in_entry_text(from))
+-		dump_mem("", "Exception stack", frame + 4, frame + 4 + sizeof(struct pt_regs));
++	if (in_entry_text(from) && end <= ALIGN(frame, THREAD_SIZE))
++		dump_mem("", "Exception stack", frame + 4, end);
  }
  
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 759a99f723fc3..e232dfe07f8fb 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -1344,7 +1344,7 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
- 		evsel = __add_event(list, &parse_state->idx, &attr, NULL, pmu, NULL,
- 				    auto_merge_stats, NULL);
- 		if (evsel) {
--			evsel->pmu_name = name;
-+			evsel->pmu_name = name ? strdup(name) : NULL;
- 			evsel->use_uncore_alias = use_uncore_alias;
- 			return 0;
- 		} else {
-@@ -1385,7 +1385,7 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
- 		evsel->snapshot = info.snapshot;
- 		evsel->metric_expr = info.metric_expr;
- 		evsel->metric_name = info.metric_name;
--		evsel->pmu_name = name;
-+		evsel->pmu_name = name ? strdup(name) : NULL;
- 		evsel->use_uncore_alias = use_uncore_alias;
- 		evsel->percore = config_term_percore(&evsel->config_terms);
- 	}
+ void dump_backtrace_stm(u32 *stack, u32 instruction)
 -- 
 2.25.1
 
