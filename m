@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBDA227C963
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:10:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3635027C8B5
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:05:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731232AbgI2MKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:10:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58100 "EHLO mail.kernel.org"
+        id S1731139AbgI2MEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:04:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730188AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:34 -0400
+        id S1729069AbgI2Lic (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:38:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2D0723A58;
-        Tue, 29 Sep 2020 11:22:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 434B021941;
+        Tue, 29 Sep 2020 11:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378574;
-        bh=HrjJ0jFLb60o1G6BMxIy8NQyRQ1fSNuPiH83ljiFXX8=;
+        s=default; t=1601379485;
+        bh=OaIXy9pjhG6VdpJctz+9+sMtzA7P+US57dK2OhFZ3jE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f88pjPbZTOy+VUrfDQlxTl9zzdL7fOdNRsgHig5UWzKtqEyv8YUQWTBEZPyDvqRZy
-         JjBFKSenYt7lQ2rAwgVFTdFVBQ7MciJj9nmS3wMyVERj3GLiRY7isVG51rLnl4+51I
-         UVmMlnoleE1p2dp7l+6S5Gf89bjLpTY8/wUZTaXU=
+        b=vl119FvJHqFh9Pf46ZxS6z17bln5I4/TgcYrkYVgYbUKs9LCSmIx3NFkvS25Ce6vI
+         mv2M4I8DrqJsy3k8ydcbPuhOBkzvdgU7Czq0K+SDXkGEt3kATDSpb0NhnVmVrYSs8u
+         3Rt5E+4YGSD37JNT2nQPR0gGEREcxXbbv+zax0Zk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mert Dirik <mertdirik@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 062/245] ar5523: Add USB ID of SMCWUSBT-G2 wireless adapter
-Date:   Tue, 29 Sep 2020 12:58:33 +0200
-Message-Id: <20200929105950.010265956@linuxfoundation.org>
+Subject: [PATCH 5.4 183/388] r8169: improve RTL8168b FIFO overflow workaround
+Date:   Tue, 29 Sep 2020 12:58:34 +0200
+Message-Id: <20200929110019.337637946@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mert Dirik <mertdirik@gmail.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 5b362498a79631f283578b64bf6f4d15ed4cc19a ]
+[ Upstream commit 6b02e407cbf8d421477ebb7792cd6380affcd313 ]
 
-Add the required USB ID for running SMCWUSBT-G2 wireless adapter (SMC
-"EZ Connect g").
+So far only the reset bit it set, but the handler executing the reset
+is not scheduled. Therefore nothing will happen until some other action
+schedules the handler. Improve this by ensuring that the handler is
+scheduled.
 
-This device uses ar5523 chipset and requires firmware to be loaded. Even
-though pid of the device is 4507, this patch adds it as 4506 so that
-AR5523_DEVICE_UG macro can set the AR5523_FLAG_PRE_FIRMWARE flag for pid
-4507.
-
-Signed-off-by: Mert Dirik <mertdirik@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ar5523/ar5523.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/realtek/r8169_main.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ar5523/ar5523.c b/drivers/net/wireless/ath/ar5523/ar5523.c
-index da2d179430ca5..4c57e79e5779a 100644
---- a/drivers/net/wireless/ath/ar5523/ar5523.c
-+++ b/drivers/net/wireless/ath/ar5523/ar5523.c
-@@ -1770,6 +1770,8 @@ static const struct usb_device_id ar5523_id_table[] = {
- 	AR5523_DEVICE_UX(0x0846, 0x4300),	/* Netgear / WG111U */
- 	AR5523_DEVICE_UG(0x0846, 0x4250),	/* Netgear / WG111T */
- 	AR5523_DEVICE_UG(0x0846, 0x5f00),	/* Netgear / WPN111 */
-+	AR5523_DEVICE_UG(0x083a, 0x4506),	/* SMC / EZ Connect
-+						   SMCWUSBT-G2 */
- 	AR5523_DEVICE_UG(0x157e, 0x3006),	/* Umedia / AR5523_1 */
- 	AR5523_DEVICE_UX(0x157e, 0x3205),	/* Umedia / AR5523_2 */
- 	AR5523_DEVICE_UG(0x157e, 0x3006),	/* Umedia / TEW444UBEU */
+diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+index 6fa9852e3f97f..903212ad9bb2f 100644
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -6256,8 +6256,7 @@ static irqreturn_t rtl8169_interrupt(int irq, void *dev_instance)
+ 	if (unlikely(status & RxFIFOOver &&
+ 	    tp->mac_version == RTL_GIGA_MAC_VER_11)) {
+ 		netif_stop_queue(tp->dev);
+-		/* XXX - Hack alert. See rtl_task(). */
+-		set_bit(RTL_FLAG_TASK_RESET_PENDING, tp->wk.flags);
++		rtl_schedule_task(tp, RTL_FLAG_TASK_RESET_PENDING);
+ 	}
+ 
+ 	rtl_irq_disable(tp);
 -- 
 2.25.1
 
