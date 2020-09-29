@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3C7527C3A5
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 295D927C3A9
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728917AbgI2LHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:07:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46100 "EHLO mail.kernel.org"
+        id S1728922AbgI2LHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:07:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728584AbgI2LHb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:07:31 -0400
+        id S1728592AbgI2LHc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:07:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2C58221EC;
-        Tue, 29 Sep 2020 11:07:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79E6122204;
+        Tue, 29 Sep 2020 11:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377648;
-        bh=V89uMAhuqb/SCan4YDuqzeK1RgWfdb+uRjMATMBcUJs=;
+        s=default; t=1601377651;
+        bh=FoBam2veeWQfEGkz6ViIW5Dqs9nvjPiWZ1sa5WoABDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mn3Ps2Khdz0I5e8hdnzOG7lx8lmsLv8nBxDZ4kwxvQr/yI0a0D+kBug7y53LKsn/E
-         FjC/ZkrUtx1tTxATHscdPU4dp4/TJZJRVa/SeTdYMaf/IRCcvpnIiGH6NUng1VBpux
-         Q9GG4dNicMaRZzPWLuXXnzpI7BP/TBJWOiSHZokg=
+        b=gs9ASzkZLQ0Cp6rDyrc5IINwTrIk+xTSk2BPwNy/6arOW+6tGhcfdPtjrEb42oC2o
+         034npsPQH4Rgi2xIcNfBZgA4E2wCBAo/NypgdkK9yK8HeXWvcToCaa+hOWb3Q0UkXs
+         JUYHq1Z7z/Ij35tvs6zDzYdHKVPx2yXhPvHBzutk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Wang <weiwan@google.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 007/121] ip: fix tos reflection in ack and reset packets
-Date:   Tue, 29 Sep 2020 12:59:11 +0200
-Message-Id: <20200929105930.552411951@linuxfoundation.org>
+Subject: [PATCH 4.9 008/121] tipc: use skb_unshare() instead in tipc_buf_append()
+Date:   Tue, 29 Sep 2020 12:59:12 +0200
+Message-Id: <20200929105930.597355843@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
@@ -43,43 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit ba9e04a7ddf4f22a10e05bf9403db6b97743c7bf ]
+[ Upstream commit ff48b6222e65ebdba5a403ef1deba6214e749193 ]
 
-Currently, in tcp_v4_reqsk_send_ack() and tcp_v4_send_reset(), we
-echo the TOS value of the received packets in the response.
-However, we do not want to echo the lower 2 ECN bits in accordance
-with RFC 3168 6.1.5 robustness principles.
+In tipc_buf_append() it may change skb's frag_list, and it causes
+problems when this skb is cloned. skb_unclone() doesn't really
+make this skb's flag_list available to change.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Shuang Li has reported an use-after-free issue because of this
+when creating quite a few macvlan dev over the same dev, where
+the broadcast packets will be cloned and go up to the stack:
 
-Signed-off-by: Wei Wang <weiwan@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+ [ ] BUG: KASAN: use-after-free in pskb_expand_head+0x86d/0xea0
+ [ ] Call Trace:
+ [ ]  dump_stack+0x7c/0xb0
+ [ ]  print_address_description.constprop.7+0x1a/0x220
+ [ ]  kasan_report.cold.10+0x37/0x7c
+ [ ]  check_memory_region+0x183/0x1e0
+ [ ]  pskb_expand_head+0x86d/0xea0
+ [ ]  process_backlog+0x1df/0x660
+ [ ]  net_rx_action+0x3b4/0xc90
+ [ ]
+ [ ] Allocated by task 1786:
+ [ ]  kmem_cache_alloc+0xbf/0x220
+ [ ]  skb_clone+0x10a/0x300
+ [ ]  macvlan_broadcast+0x2f6/0x590 [macvlan]
+ [ ]  macvlan_process_broadcast+0x37c/0x516 [macvlan]
+ [ ]  process_one_work+0x66a/0x1060
+ [ ]  worker_thread+0x87/0xb10
+ [ ]
+ [ ] Freed by task 3253:
+ [ ]  kmem_cache_free+0x82/0x2a0
+ [ ]  skb_release_data+0x2c3/0x6e0
+ [ ]  kfree_skb+0x78/0x1d0
+ [ ]  tipc_recvmsg+0x3be/0xa40 [tipc]
+
+So fix it by using skb_unshare() instead, which would create a new
+skb for the cloned frag and it'll be safe to change its frag_list.
+The similar things were also done in sctp_make_reassembled_event(),
+which is using skb_copy().
+
+Reported-by: Shuang Li <shuali@redhat.com>
+Fixes: 37e22164a8a3 ("tipc: rename and move message reassembly function")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_output.c |    3 ++-
+ net/tipc/msg.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -73,6 +73,7 @@
- #include <net/icmp.h>
- #include <net/checksum.h>
- #include <net/inetpeer.h>
-+#include <net/inet_ecn.h>
- #include <net/lwtunnel.h>
- #include <linux/igmp.h>
- #include <linux/netfilter_ipv4.h>
-@@ -1611,7 +1612,7 @@ void ip_send_unicast_reply(struct sock *
- 	if (IS_ERR(rt))
- 		return;
- 
--	inet_sk(sk)->tos = arg->tos;
-+	inet_sk(sk)->tos = arg->tos & ~INET_ECN_MASK;
- 
- 	sk->sk_priority = skb->priority;
- 	sk->sk_protocol = ip_hdr(skb)->protocol;
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -140,7 +140,8 @@ int tipc_buf_append(struct sk_buff **hea
+ 	if (fragid == FIRST_FRAGMENT) {
+ 		if (unlikely(head))
+ 			goto err;
+-		if (unlikely(skb_unclone(frag, GFP_ATOMIC)))
++		frag = skb_unshare(frag, GFP_ATOMIC);
++		if (unlikely(!frag))
+ 			goto err;
+ 		head = *headbuf = frag;
+ 		*buf = NULL;
 
 
