@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDEC727C7B1
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB7427C738
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731083AbgI2Lzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:55:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44038 "EHLO mail.kernel.org"
+        id S1730978AbgI2LwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:52:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730326AbgI2Los (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:44:48 -0400
+        id S1731087AbgI2Lrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:47:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AF01207F7;
-        Tue, 29 Sep 2020 11:44:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6C1E2074A;
+        Tue, 29 Sep 2020 11:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379886;
-        bh=sG5bHEfphADR7PT/n3foG7HOi3+7ybYTmTUm18zAPjc=;
+        s=default; t=1601380060;
+        bh=seLnQgEUke0OmOsRUxxvD7/BgMvfJs1c99Qa1E7c+5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sNACu3PejPHjVrDjd2cYqgVcRKHClmWzMJJXcuuMhM06xMEWk5QqW2kzQGTeKljEK
-         7ANshFkhJVsCuzy7txX/i8GlTg/FN338XR2WRocQpn3leMdk/rsYo5iEE8C0CNTrnG
-         +cLNReddo9ICLDgAzo6dqUjB/zJeWOL6EtxeVurw=
+        b=OdL+TA1nZF1MpR+iAeOV5nvvxc6ruMBUm5XHF2VgyICnUH1Rl+2DXih0qQ0KpoTEE
+         Hdybqh/rfSspVGPSi7CmZmoLetjOpufkoQxcXZR7F2Lc7YWRnLnD4hemi4wjzi0PDF
+         dfdBhzsuAfidNI5ytAYvXmSQDxA6hNrtMvoPg5ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 361/388] regmap: fix page selection for noinc writes
+Subject: [PATCH 5.8 49/99] batman-adv: mcast: fix duplicate mcast packets in BLA backbone from LAN
 Date:   Tue, 29 Sep 2020 13:01:32 +0200
-Message-Id: <20200929110027.940285895@linuxfoundation.org>
+Message-Id: <20200929105932.142214553@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,147 +45,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-[ Upstream commit 05669b63170771d554854c0e465b76dc98fc7c84 ]
+[ Upstream commit 3236d215ad38a3f5372e65cd1e0a52cf93d3c6a2 ]
 
-Non-incrementing writes can fail if register + length crosses page
-border. However for non-incrementing writes we should not check for page
-border crossing. Fix this by passing additional flag to _regmap_raw_write
-and passing length to _regmap_select_page basing on the flag.
+Scenario:
+* Multicast frame send from a BLA backbone (multiple nodes with
+  their bat0 bridged together, with BLA enabled)
 
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Fixes: cdf6b11daa77 ("regmap: Add regmap_noinc_write API")
-Link: https://lore.kernel.org/r/20200917153405.3139200-2-dmitry.baryshkov@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Issue:
+* BLA backbone nodes receive the frame multiple times on bat0
+
+For multicast frames received via batman-adv broadcast packets the
+originator of the broadcast packet is checked before decapsulating and
+forwarding the frame to bat0 (batadv_bla_is_backbone_gw()->
+batadv_recv_bcast_packet()). If it came from a node which shares the
+same BLA backbone with us then it is not forwarded to bat0 to avoid a
+loop.
+
+When sending a multicast frame in a non-4-address batman-adv unicast
+packet we are currently missing this check - and cannot do so because
+the batman-adv unicast packet has no originator address field.
+
+However, we can simply fix this on the sender side by only sending the
+multicast frame via unicasts to interested nodes which do not share the
+same BLA backbone with us. This also nicely avoids some unnecessary
+transmissions on mesh side.
+
+Note that no infinite loop was observed, probably because of dropping
+via batadv_interface_tx()->batadv_bla_tx(). However the duplicates still
+utterly confuse switches/bridges, ICMPv6 duplicate address detection and
+neighbor discovery and therefore leads to long delays before being able
+to establish TCP connections, for instance. And it also leads to the Linux
+bridge printing messages like:
+"br-lan: received packet on eth1 with own address as source address ..."
+
+Fixes: 2d3f6ccc4ea5 ("batman-adv: Modified forwarding behaviour for multicast packets")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/internal.h |  2 +-
- drivers/base/regmap/regcache.c |  2 +-
- drivers/base/regmap/regmap.c   | 21 +++++++++++----------
- 3 files changed, 13 insertions(+), 12 deletions(-)
+ net/batman-adv/multicast.c      | 46 ++++++++++++++++++++++++++-------
+ net/batman-adv/multicast.h      | 15 +++++++++++
+ net/batman-adv/soft-interface.c |  5 ++--
+ 3 files changed, 53 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/base/regmap/internal.h b/drivers/base/regmap/internal.h
-index 3d80c4b43f720..d7c01b70e43db 100644
---- a/drivers/base/regmap/internal.h
-+++ b/drivers/base/regmap/internal.h
-@@ -259,7 +259,7 @@ bool regcache_set_val(struct regmap *map, void *base, unsigned int idx,
- int regcache_lookup_reg(struct regmap *map, unsigned int reg);
+diff --git a/net/batman-adv/multicast.c b/net/batman-adv/multicast.c
+index 9ebdc1e864b96..3aaa6612f8c9f 100644
+--- a/net/batman-adv/multicast.c
++++ b/net/batman-adv/multicast.c
+@@ -51,6 +51,7 @@
+ #include <uapi/linux/batadv_packet.h>
+ #include <uapi/linux/batman_adv.h>
  
- int _regmap_raw_write(struct regmap *map, unsigned int reg,
--		      const void *val, size_t val_len);
-+		      const void *val, size_t val_len, bool noinc);
- 
- void regmap_async_complete_cb(struct regmap_async *async, int ret);
- 
-diff --git a/drivers/base/regmap/regcache.c b/drivers/base/regmap/regcache.c
-index a93cafd7be4f2..7f4b3b62492ca 100644
---- a/drivers/base/regmap/regcache.c
-+++ b/drivers/base/regmap/regcache.c
-@@ -717,7 +717,7 @@ static int regcache_sync_block_raw_flush(struct regmap *map, const void **data,
- 
- 	map->cache_bypass = true;
- 
--	ret = _regmap_raw_write(map, base, *data, count * val_bytes);
-+	ret = _regmap_raw_write(map, base, *data, count * val_bytes, false);
- 	if (ret)
- 		dev_err(map->dev, "Unable to sync registers %#x-%#x. %d\n",
- 			base, cur - map->reg_stride, ret);
-diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
-index 7244319dd2d52..e0893f1b14522 100644
---- a/drivers/base/regmap/regmap.c
-+++ b/drivers/base/regmap/regmap.c
-@@ -1468,7 +1468,7 @@ static void regmap_set_work_buf_flag_mask(struct regmap *map, int max_bytes,
++#include "bridge_loop_avoidance.h"
+ #include "hard-interface.h"
+ #include "hash.h"
+ #include "log.h"
+@@ -1434,6 +1435,35 @@ batadv_mcast_forw_mode(struct batadv_priv *bat_priv, struct sk_buff *skb,
+ 	return BATADV_FORW_ALL;
  }
  
- static int _regmap_raw_write_impl(struct regmap *map, unsigned int reg,
--				  const void *val, size_t val_len)
-+				  const void *val, size_t val_len, bool noinc)
- {
- 	struct regmap_range_node *range;
- 	unsigned long flags;
-@@ -1527,7 +1527,7 @@ static int _regmap_raw_write_impl(struct regmap *map, unsigned int reg,
- 				win_residue, val_len / map->format.val_bytes);
- 			ret = _regmap_raw_write_impl(map, reg, val,
- 						     win_residue *
--						     map->format.val_bytes);
-+						     map->format.val_bytes, noinc);
- 			if (ret != 0)
- 				return ret;
- 
-@@ -1541,7 +1541,7 @@ static int _regmap_raw_write_impl(struct regmap *map, unsigned int reg,
- 			win_residue = range->window_len - win_offset;
++/**
++ * batadv_mcast_forw_send_orig() - send a multicast packet to an originator
++ * @bat_priv: the bat priv with all the soft interface information
++ * @skb: the multicast packet to send
++ * @vid: the vlan identifier
++ * @orig_node: the originator to send the packet to
++ *
++ * Return: NET_XMIT_DROP in case of error or NET_XMIT_SUCCESS otherwise.
++ */
++int batadv_mcast_forw_send_orig(struct batadv_priv *bat_priv,
++				struct sk_buff *skb,
++				unsigned short vid,
++				struct batadv_orig_node *orig_node)
++{
++	/* Avoid sending multicast-in-unicast packets to other BLA
++	 * gateways - they already got the frame from the LAN side
++	 * we share with them.
++	 * TODO: Refactor to take BLA into account earlier, to avoid
++	 * reducing the mcast_fanout count.
++	 */
++	if (batadv_bla_is_backbone_gw_orig(bat_priv, orig_node->orig, vid)) {
++		dev_kfree_skb(skb);
++		return NET_XMIT_SUCCESS;
++	}
++
++	return batadv_send_skb_unicast(bat_priv, skb, BATADV_UNICAST, 0,
++				       orig_node, vid);
++}
++
+ /**
+  * batadv_mcast_forw_tt() - forwards a packet to multicast listeners
+  * @bat_priv: the bat priv with all the soft interface information
+@@ -1471,8 +1501,8 @@ batadv_mcast_forw_tt(struct batadv_priv *bat_priv, struct sk_buff *skb,
+ 			break;
  		}
  
--		ret = _regmap_select_page(map, &reg, range, val_num);
-+		ret = _regmap_select_page(map, &reg, range, noinc ? 1 : val_num);
- 		if (ret != 0)
- 			return ret;
+-		batadv_send_skb_unicast(bat_priv, newskb, BATADV_UNICAST, 0,
+-					orig_entry->orig_node, vid);
++		batadv_mcast_forw_send_orig(bat_priv, newskb, vid,
++					    orig_entry->orig_node);
  	}
-@@ -1749,7 +1749,8 @@ static int _regmap_bus_raw_write(void *context, unsigned int reg,
- 				      map->work_buf +
- 				      map->format.reg_bytes +
- 				      map->format.pad_bytes,
--				      map->format.val_bytes);
-+				      map->format.val_bytes,
-+				      false);
- }
+ 	rcu_read_unlock();
  
- static inline void *_regmap_map_get_context(struct regmap *map)
-@@ -1843,7 +1844,7 @@ int regmap_write_async(struct regmap *map, unsigned int reg, unsigned int val)
- EXPORT_SYMBOL_GPL(regmap_write_async);
+@@ -1513,8 +1543,7 @@ batadv_mcast_forw_want_all_ipv4(struct batadv_priv *bat_priv,
+ 			break;
+ 		}
  
- int _regmap_raw_write(struct regmap *map, unsigned int reg,
--		      const void *val, size_t val_len)
-+		      const void *val, size_t val_len, bool noinc)
- {
- 	size_t val_bytes = map->format.val_bytes;
- 	size_t val_count = val_len / val_bytes;
-@@ -1864,7 +1865,7 @@ int _regmap_raw_write(struct regmap *map, unsigned int reg,
- 
- 	/* Write as many bytes as possible with chunk_size */
- 	for (i = 0; i < chunk_count; i++) {
--		ret = _regmap_raw_write_impl(map, reg, val, chunk_bytes);
-+		ret = _regmap_raw_write_impl(map, reg, val, chunk_bytes, noinc);
- 		if (ret)
- 			return ret;
- 
-@@ -1875,7 +1876,7 @@ int _regmap_raw_write(struct regmap *map, unsigned int reg,
- 
- 	/* Write remaining bytes */
- 	if (val_len)
--		ret = _regmap_raw_write_impl(map, reg, val, val_len);
-+		ret = _regmap_raw_write_impl(map, reg, val, val_len, noinc);
- 
+-		batadv_send_skb_unicast(bat_priv, newskb, BATADV_UNICAST, 0,
+-					orig_node, vid);
++		batadv_mcast_forw_send_orig(bat_priv, newskb, vid, orig_node);
+ 	}
+ 	rcu_read_unlock();
  	return ret;
+@@ -1551,8 +1580,7 @@ batadv_mcast_forw_want_all_ipv6(struct batadv_priv *bat_priv,
+ 			break;
+ 		}
+ 
+-		batadv_send_skb_unicast(bat_priv, newskb, BATADV_UNICAST, 0,
+-					orig_node, vid);
++		batadv_mcast_forw_send_orig(bat_priv, newskb, vid, orig_node);
+ 	}
+ 	rcu_read_unlock();
+ 	return ret;
+@@ -1618,8 +1646,7 @@ batadv_mcast_forw_want_all_rtr4(struct batadv_priv *bat_priv,
+ 			break;
+ 		}
+ 
+-		batadv_send_skb_unicast(bat_priv, newskb, BATADV_UNICAST, 0,
+-					orig_node, vid);
++		batadv_mcast_forw_send_orig(bat_priv, newskb, vid, orig_node);
+ 	}
+ 	rcu_read_unlock();
+ 	return ret;
+@@ -1656,8 +1683,7 @@ batadv_mcast_forw_want_all_rtr6(struct batadv_priv *bat_priv,
+ 			break;
+ 		}
+ 
+-		batadv_send_skb_unicast(bat_priv, newskb, BATADV_UNICAST, 0,
+-					orig_node, vid);
++		batadv_mcast_forw_send_orig(bat_priv, newskb, vid, orig_node);
+ 	}
+ 	rcu_read_unlock();
+ 	return ret;
+diff --git a/net/batman-adv/multicast.h b/net/batman-adv/multicast.h
+index ebf825991ecd9..3e114bc5ca3bb 100644
+--- a/net/batman-adv/multicast.h
++++ b/net/batman-adv/multicast.h
+@@ -46,6 +46,11 @@ enum batadv_forw_mode
+ batadv_mcast_forw_mode(struct batadv_priv *bat_priv, struct sk_buff *skb,
+ 		       struct batadv_orig_node **mcast_single_orig);
+ 
++int batadv_mcast_forw_send_orig(struct batadv_priv *bat_priv,
++				struct sk_buff *skb,
++				unsigned short vid,
++				struct batadv_orig_node *orig_node);
++
+ int batadv_mcast_forw_send(struct batadv_priv *bat_priv, struct sk_buff *skb,
+ 			   unsigned short vid);
+ 
+@@ -71,6 +76,16 @@ batadv_mcast_forw_mode(struct batadv_priv *bat_priv, struct sk_buff *skb,
+ 	return BATADV_FORW_ALL;
  }
-@@ -1908,7 +1909,7 @@ int regmap_raw_write(struct regmap *map, unsigned int reg,
  
- 	map->lock(map->lock_arg);
- 
--	ret = _regmap_raw_write(map, reg, val, val_len);
-+	ret = _regmap_raw_write(map, reg, val, val_len, false);
- 
- 	map->unlock(map->lock_arg);
- 
-@@ -1966,7 +1967,7 @@ int regmap_noinc_write(struct regmap *map, unsigned int reg,
- 			write_len = map->max_raw_write;
- 		else
- 			write_len = val_len;
--		ret = _regmap_raw_write(map, reg, val, write_len);
-+		ret = _regmap_raw_write(map, reg, val, write_len, true);
- 		if (ret)
- 			goto out_unlock;
- 		val = ((u8 *)val) + write_len;
-@@ -2443,7 +2444,7 @@ int regmap_raw_write_async(struct regmap *map, unsigned int reg,
- 
- 	map->async = true;
- 
--	ret = _regmap_raw_write(map, reg, val, val_len);
-+	ret = _regmap_raw_write(map, reg, val, val_len, false);
- 
- 	map->async = false;
- 
++static inline int
++batadv_mcast_forw_send_orig(struct batadv_priv *bat_priv,
++			    struct sk_buff *skb,
++			    unsigned short vid,
++			    struct batadv_orig_node *orig_node)
++{
++	kfree_skb(skb);
++	return NET_XMIT_DROP;
++}
++
+ static inline int
+ batadv_mcast_forw_send(struct batadv_priv *bat_priv, struct sk_buff *skb,
+ 		       unsigned short vid)
+diff --git a/net/batman-adv/soft-interface.c b/net/batman-adv/soft-interface.c
+index f1f1c86f34193..d2183aea4e4ad 100644
+--- a/net/batman-adv/soft-interface.c
++++ b/net/batman-adv/soft-interface.c
+@@ -364,9 +364,8 @@ static netdev_tx_t batadv_interface_tx(struct sk_buff *skb,
+ 				goto dropped;
+ 			ret = batadv_send_skb_via_gw(bat_priv, skb, vid);
+ 		} else if (mcast_single_orig) {
+-			ret = batadv_send_skb_unicast(bat_priv, skb,
+-						      BATADV_UNICAST, 0,
+-						      mcast_single_orig, vid);
++			ret = batadv_mcast_forw_send_orig(bat_priv, skb, vid,
++							  mcast_single_orig);
+ 		} else if (forw_mode == BATADV_FORW_SOME) {
+ 			ret = batadv_mcast_forw_send(bat_priv, skb, vid);
+ 		} else {
 -- 
 2.25.1
 
