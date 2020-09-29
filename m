@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21EF327C74B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:53:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 833D227C590
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:38:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731144AbgI2Lw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:52:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48536 "EHLO mail.kernel.org"
+        id S1729678AbgI2Lgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:36:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730370AbgI2LrM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:47:12 -0400
+        id S1729901AbgI2Lft (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:35:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E807C21924;
-        Tue, 29 Sep 2020 11:47:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6621123A75;
+        Tue, 29 Sep 2020 11:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380031;
-        bh=ZD/xgTH7LS+3kFGKeWYPbAfpEgDKQ0hghjOgRLp8vU4=;
+        s=default; t=1601379034;
+        bh=AX49AqUWxqDdiLUL4AeKCNNJi1j2/uulrraP8hlwN88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHIfOysyVC7q0ESjUkWmHXGgwoxlpjqLfI0XeQdBvi/tX1ZwwVGV9WLFj8aiGnzmd
-         E09sf0G6qFcvabaN0pEe2cTpGCMNiiGIcPDYoc+3jj1/DVz5XmrCbiRLpd/lNJuluM
-         dlKswn+foBzAyJGbyWbM/w5uGxdlnmh0eETF/lH0=
+        b=NnSkMWUQNztV5mueLQSOwQnP3tS16LWGJnFm3G4Kl+hEkUqlJUZpEhUc+P0+tyhuN
+         dEeJwTOvEkJEvwKtKvWE70zlnwtPzINE+Qj105LpzbsG73Cx5RbbhBcJnwwaIXeK5N
+         glyO3TorM0TrU/sZFcM8oPl6n9wtkygmN3ocHVJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Michal Kalderon <michal.kalderon@marvell.com>,
-        Dmitry Bogdanov <dbogdanov@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>,
+        Martin KaFai Lau <kafai@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 37/99] net: qed: Disable aRFS for NPAR and 100G
-Date:   Tue, 29 Sep 2020 13:01:20 +0200
-Message-Id: <20200929105931.553215599@linuxfoundation.org>
+Subject: [PATCH 4.19 230/245] bpf: Fix a rcu warning for bpffs map pretty-print
+Date:   Tue, 29 Sep 2020 13:01:21 +0200
+Message-Id: <20200929105958.179604950@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <dbogdanov@marvell.com>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 2d2fe8433796603091ac8ea235b9165ac5a85f9a ]
+[ Upstream commit ce880cb825fcc22d4e39046a6c3a3a7f6603883d ]
 
-In CMT and NPAR the PF is unknown when the GFS block processes the
-packet. Therefore cannot use searcher as it has a per PF database,
-and thus ARFS must be disabled.
+Running selftest
+  ./btf_btf -p
+the kernel had the following warning:
+  [   51.528185] WARNING: CPU: 3 PID: 1756 at kernel/bpf/hashtab.c:717 htab_map_get_next_key+0x2eb/0x300
+  [   51.529217] Modules linked in:
+  [   51.529583] CPU: 3 PID: 1756 Comm: test_btf Not tainted 5.9.0-rc1+ #878
+  [   51.530346] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.9.3-1.el7.centos 04/01/2014
+  [   51.531410] RIP: 0010:htab_map_get_next_key+0x2eb/0x300
+  ...
+  [   51.542826] Call Trace:
+  [   51.543119]  map_seq_next+0x53/0x80
+  [   51.543528]  seq_read+0x263/0x400
+  [   51.543932]  vfs_read+0xad/0x1c0
+  [   51.544311]  ksys_read+0x5f/0xe0
+  [   51.544689]  do_syscall_64+0x33/0x40
+  [   51.545116]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fixes: d51e4af5c209 ("qed: aRFS infrastructure support")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The related source code in kernel/bpf/hashtab.c:
+  709 static int htab_map_get_next_key(struct bpf_map *map, void *key, void *next_key)
+  710 {
+  711         struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
+  712         struct hlist_nulls_head *head;
+  713         struct htab_elem *l, *next_l;
+  714         u32 hash, key_size;
+  715         int i = 0;
+  716
+  717         WARN_ON_ONCE(!rcu_read_lock_held());
+
+In kernel/bpf/inode.c, bpffs map pretty print calls map->ops->map_get_next_key()
+without holding a rcu_read_lock(), hence causing the above warning.
+To fix the issue, just surrounding map->ops->map_get_next_key() with rcu read lock.
+
+Fixes: a26ca7c982cb ("bpf: btf: Add pretty print support to the basic arraymap")
+Reported-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20200916004401.146277-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_dev.c  | 11 ++++++++++-
- drivers/net/ethernet/qlogic/qed/qed_l2.c   |  3 +++
- drivers/net/ethernet/qlogic/qed/qed_main.c |  2 ++
- include/linux/qed/qed_if.h                 |  1 +
- 4 files changed, 16 insertions(+), 1 deletion(-)
+ kernel/bpf/inode.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
-index dbdac983ccde5..105d9afe825f1 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
-@@ -4191,7 +4191,8 @@ static int qed_hw_get_nvm_info(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
- 			cdev->mf_bits = BIT(QED_MF_LLH_MAC_CLSS) |
- 					BIT(QED_MF_LLH_PROTO_CLSS) |
- 					BIT(QED_MF_LL2_NON_UNICAST) |
--					BIT(QED_MF_INTER_PF_SWITCH);
-+					BIT(QED_MF_INTER_PF_SWITCH) |
-+					BIT(QED_MF_DISABLE_ARFS);
- 			break;
- 		case NVM_CFG1_GLOB_MF_MODE_DEFAULT:
- 			cdev->mf_bits = BIT(QED_MF_LLH_MAC_CLSS) |
-@@ -4204,6 +4205,14 @@ static int qed_hw_get_nvm_info(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+diff --git a/kernel/bpf/inode.c b/kernel/bpf/inode.c
+index c04815bb15cc1..11fade89c1f38 100644
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -207,10 +207,12 @@ static void *map_seq_next(struct seq_file *m, void *v, loff_t *pos)
+ 	else
+ 		prev_key = key;
  
- 		DP_INFO(p_hwfn, "Multi function mode is 0x%lx\n",
- 			cdev->mf_bits);
-+
-+		/* In CMT the PF is unknown when the GFS block processes the
-+		 * packet. Therefore cannot use searcher as it has a per PF
-+		 * database, and thus ARFS must be disabled.
-+		 *
-+		 */
-+		if (QED_IS_CMT(cdev))
-+			cdev->mf_bits |= BIT(QED_MF_DISABLE_ARFS);
++	rcu_read_lock();
+ 	if (map->ops->map_get_next_key(map, prev_key, key)) {
+ 		map_iter(m)->done = true;
+-		return NULL;
++		key = NULL;
  	}
++	rcu_read_unlock();
+ 	return key;
+ }
  
- 	DP_INFO(p_hwfn, "Multi function mode is 0x%lx\n",
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_l2.c b/drivers/net/ethernet/qlogic/qed/qed_l2.c
-index 29810a1aa2106..b2cd153321720 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_l2.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_l2.c
-@@ -2001,6 +2001,9 @@ void qed_arfs_mode_configure(struct qed_hwfn *p_hwfn,
- 			     struct qed_ptt *p_ptt,
- 			     struct qed_arfs_config_params *p_cfg_params)
- {
-+	if (test_bit(QED_MF_DISABLE_ARFS, &p_hwfn->cdev->mf_bits))
-+		return;
-+
- 	if (p_cfg_params->mode != QED_FILTER_CONFIG_MODE_DISABLE) {
- 		qed_gft_config(p_hwfn, p_ptt, p_hwfn->rel_pf_id,
- 			       p_cfg_params->tcp,
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
-index 11367a248d55e..05eff348b22a8 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_main.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
-@@ -289,6 +289,8 @@ int qed_fill_dev_info(struct qed_dev *cdev,
- 		dev_info->fw_eng = FW_ENGINEERING_VERSION;
- 		dev_info->b_inter_pf_switch = test_bit(QED_MF_INTER_PF_SWITCH,
- 						       &cdev->mf_bits);
-+		if (!test_bit(QED_MF_DISABLE_ARFS, &cdev->mf_bits))
-+			dev_info->b_arfs_capable = true;
- 		dev_info->tx_switching = true;
- 
- 		if (hw_info->b_wol_support == QED_WOL_SUPPORT_PME)
-diff --git a/include/linux/qed/qed_if.h b/include/linux/qed/qed_if.h
-index 8cb76405cbce1..78ba1dc54fd57 100644
---- a/include/linux/qed/qed_if.h
-+++ b/include/linux/qed/qed_if.h
-@@ -648,6 +648,7 @@ struct qed_dev_info {
- #define QED_MFW_VERSION_3_OFFSET	24
- 
- 	u32		flash_size;
-+	bool		b_arfs_capable;
- 	bool		b_inter_pf_switch;
- 	bool		tx_switching;
- 	bool		rdma_supported;
 -- 
 2.25.1
 
