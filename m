@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D351327C98D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:12:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C6C127C995
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730743AbgI2MLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:11:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58102 "EHLO mail.kernel.org"
+        id S1732002AbgI2MMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:12:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730165AbgI2Lhd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:33 -0400
+        id S1730157AbgI2Lhc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7194123F35;
-        Tue, 29 Sep 2020 11:35:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4E3723F33;
+        Tue, 29 Sep 2020 11:35:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379302;
-        bh=JYuoka6Dcpa7rPPX+K0pgm8y9LHlMras/8gA7lLYGAY=;
+        s=default; t=1601379305;
+        bh=aUC8huaqVrjSgI8hOO4erWpOFbAXmTFNbEcxZMThqmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WC36FcW8B3ZVhhrMeKuA2MOfvBANoc2UK+2+0n/MuAzI1+Z5H4Ni/W5p+/j79OVIX
-         Wuw0TLIYuyoVOHj2uZU5pBGFm8glA300V837Ht2h1oj8OPs7CiO5YtXrKF5JSNpvXk
-         //9EtQDLFvGkbbk7Mlu68f221b6yEykDtjrTVIF4=
+        b=hD3fHwrHx9nXpFb1bYUo2X3fvDWp97j4FdJH39WXOIX0Fpx+S70FVnAhxD54t9CPT
+         /D2DrkqcESyU7PqUceKy282jG1wXdKhxMI1kBN5h/Z/TMlLwwiekLm33HmvnIgREdj
+         W4TEjR90QFAGO8cv6eisFZAqXPiZyiMaP9A8QYAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Doug Smythies <dsmythies@telus.net>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/388] selftests/ftrace: fix glob selftest
-Date:   Tue, 29 Sep 2020 12:57:14 +0200
-Message-Id: <20200929110015.468105991@linuxfoundation.org>
+Subject: [PATCH 5.4 104/388] tools/power/x86/intel_pstate_tracer: changes for python 3 compatibility
+Date:   Tue, 29 Sep 2020 12:57:15 +0200
+Message-Id: <20200929110015.518993740@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -45,37 +43,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Doug Smythies <doug.smythies@gmail.com>
 
-[ Upstream commit af4ddd607dff7aabd466a4a878e01b9f592a75ab ]
+[ Upstream commit e749e09db30c38f1a275945814b0109e530a07b0 ]
 
-test.d/ftrace/func-filter-glob.tc is failing on s390 because it has
-ARCH_INLINE_SPIN_LOCK and friends set to 'y'. So the usual
-__raw_spin_lock symbol isn't in the ftrace function list. Change
-'*aw*lock' to '*spin*lock' which would hopefully match some of the
-locking functions on all platforms.
+Some syntax needs to be more rigorous for python 3.
+Backwards compatibility tested with python 2.7
 
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Doug Smythies <dsmythies@telus.net>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../testing/selftests/ftrace/test.d/ftrace/func-filter-glob.tc  | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../intel_pstate_tracer.py                    | 22 +++++++++----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-glob.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-glob.tc
-index 27a54a17da65d..f4e92afab14b2 100644
---- a/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-glob.tc
-+++ b/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-glob.tc
-@@ -30,7 +30,7 @@ ftrace_filter_check '*schedule*' '^.*schedule.*$'
- ftrace_filter_check 'schedule*' '^schedule.*$'
+diff --git a/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py b/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py
+index 2d6d342b148f1..1351975d07699 100755
+--- a/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py
++++ b/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py
+@@ -11,11 +11,11 @@ then this utility enables and collects trace data for a user specified interval
+ and generates performance plots.
  
- # filter by *mid*end
--ftrace_filter_check '*aw*lock' '.*aw.*lock$'
-+ftrace_filter_check '*pin*lock' '.*pin.*lock$'
+ Prerequisites:
+-    Python version 2.7.x
++    Python version 2.7.x or higher
+     gnuplot 5.0 or higher
+-    gnuplot-py 1.8
++    gnuplot-py 1.8 or higher
+     (Most of the distributions have these required packages. They may be called
+-     gnuplot-py, phython-gnuplot. )
++     gnuplot-py, phython-gnuplot or phython3-gnuplot, gnuplot-nox, ... )
  
- # filter by start*mid*
- ftrace_filter_check 'mutex*try*' '^mutex.*try.*'
+     HWP (Hardware P-States are disabled)
+     Kernel config for Linux trace is enabled
+@@ -181,7 +181,7 @@ def plot_pstate_cpu_with_sample():
+         g_plot('set xlabel "Samples"')
+         g_plot('set ylabel "P-State"')
+         g_plot('set title "{} : cpu pstate vs. sample : {:%F %H:%M}"'.format(testname, datetime.now()))
+-        title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
++        title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
+         plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_SAMPLE, C_TO)
+         g_plot('title_list = "{}"'.format(title_list))
+         g_plot(plot_str)
+@@ -198,7 +198,7 @@ def plot_pstate_cpu():
+ #    the following command is really cool, but doesn't work with the CPU masking option because it aborts on the first missing file.
+ #    plot_str = 'plot for [i=0:*] file=sprintf("cpu%03d.csv",i) title_s=sprintf("cpu%03d",i) file using 16:7 pt 7 ps 1 title title_s'
+ #
+-    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
++    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
+     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_TO)
+     g_plot('title_list = "{}"'.format(title_list))
+     g_plot(plot_str)
+@@ -212,7 +212,7 @@ def plot_load_cpu():
+     g_plot('set ylabel "CPU load (percent)"')
+     g_plot('set title "{} : cpu loads : {:%F %H:%M}"'.format(testname, datetime.now()))
+ 
+-    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
++    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
+     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_LOAD)
+     g_plot('title_list = "{}"'.format(title_list))
+     g_plot(plot_str)
+@@ -226,7 +226,7 @@ def plot_frequency_cpu():
+     g_plot('set ylabel "CPU Frequency (GHz)"')
+     g_plot('set title "{} : cpu frequencies : {:%F %H:%M}"'.format(testname, datetime.now()))
+ 
+-    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
++    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
+     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_FREQ)
+     g_plot('title_list = "{}"'.format(title_list))
+     g_plot(plot_str)
+@@ -241,7 +241,7 @@ def plot_duration_cpu():
+     g_plot('set ylabel "Timer Duration (MilliSeconds)"')
+     g_plot('set title "{} : cpu durations : {:%F %H:%M}"'.format(testname, datetime.now()))
+ 
+-    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
++    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
+     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_DURATION)
+     g_plot('title_list = "{}"'.format(title_list))
+     g_plot(plot_str)
+@@ -255,7 +255,7 @@ def plot_scaled_cpu():
+     g_plot('set ylabel "Scaled Busy (Unitless)"')
+     g_plot('set title "{} : cpu scaled busy : {:%F %H:%M}"'.format(testname, datetime.now()))
+ 
+-    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
++    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
+     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_SCALED)
+     g_plot('title_list = "{}"'.format(title_list))
+     g_plot(plot_str)
+@@ -269,7 +269,7 @@ def plot_boost_cpu():
+     g_plot('set ylabel "CPU IO Boost (percent)"')
+     g_plot('set title "{} : cpu io boost : {:%F %H:%M}"'.format(testname, datetime.now()))
+ 
+-    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
++    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
+     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_BOOST)
+     g_plot('title_list = "{}"'.format(title_list))
+     g_plot(plot_str)
+@@ -283,7 +283,7 @@ def plot_ghz_cpu():
+     g_plot('set ylabel "TSC Frequency (GHz)"')
+     g_plot('set title "{} : cpu TSC Frequencies (Sanity check calculation) : {:%F %H:%M}"'.format(testname, datetime.now()))
+ 
+-    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
++    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
+     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_GHZ)
+     g_plot('title_list = "{}"'.format(title_list))
+     g_plot(plot_str)
 -- 
 2.25.1
 
