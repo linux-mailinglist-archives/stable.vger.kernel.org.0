@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36F2E27C410
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2948627C377
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729196AbgI2LKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:10:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51846 "EHLO mail.kernel.org"
+        id S1728265AbgI2LFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:05:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728440AbgI2LKs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:10:48 -0400
+        id S1728752AbgI2LFl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:05:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B2D321924;
-        Tue, 29 Sep 2020 11:10:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5605F21734;
+        Tue, 29 Sep 2020 11:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377846;
-        bh=c2YLg0AsSkbgQMOgwIODyvJuPjxfusS+oKmE9libKpQ=;
+        s=default; t=1601377540;
+        bh=4YSqJcbK+OrMYeVr/8dvYuoPQNyRLVf13mBNwX8RGDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AwvZFOAIkiT8FIdzRNEqXEYmPmjkrqNzF8za+VSGCyjPfRcpQjxHCmDxtJB7ooMPN
-         w9VbEPBJyI242aq01t7tP3w6NDm6BW1RdLCuXLddPUpk/COv+ZcJRyvS2xYUr4ExUO
-         SMKLDaflST62QpRIkmPoJevV9++wSNpkccQms40M=
+        b=k9ye4zxZSk7arlUENDj5ZiWnwh5pcPdxlSpBTahyV/tUWXY8a9jX8WcHvTXWWG1+v
+         LuZbT60FRrwiWLMYYidfSLRkoBFUCqN5t78NkcNQoskK3FpnwHTmL19rtqi4oCAosZ
+         U/sC2cWWPwjUW5ePNslCQ+ZwOOZBtsWd6Gw7BrVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Jiri Olsa <jolsa@redhat.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>, x86@kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Zeng Tao <prime.zeng@hisilicon.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 094/121] perf kcore_copy: Fix module map when there are no modules loaded
-Date:   Tue, 29 Sep 2020 13:00:38 +0200
-Message-Id: <20200929105934.847549877@linuxfoundation.org>
+Subject: [PATCH 4.4 72/85] vfio/pci: fix racy on error and request eventfd ctx
+Date:   Tue, 29 Sep 2020 13:00:39 +0200
+Message-Id: <20200929105931.814425033@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,66 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Zeng Tao <prime.zeng@hisilicon.com>
 
-[ Upstream commit 61f82e3fb697a8e85f22fdec786528af73dc36d1 ]
+[ Upstream commit b872d0640840018669032b20b6375a478ed1f923 ]
 
-In the absence of any modules, no "modules" map is created, but there
-are other executable pages to map, due to eBPF JIT, kprobe or ftrace.
-Map them by recognizing that the first "module" symbol is not
-necessarily from a module, and adjust the map accordingly.
+The vfio_pci_release call will free and clear the error and request
+eventfd ctx while these ctx could be in use at the same time in the
+function like vfio_pci_request, and it's expected to protect them under
+the vdev->igate mutex, which is missing in vfio_pci_release.
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: x86@kernel.org
-Link: http://lore.kernel.org/lkml/20200512121922.8997-10-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+This issue is introduced since commit 1518ac272e78 ("vfio/pci: fix memory
+leaks of eventfd ctx"),and since commit 5c5866c593bb ("vfio/pci: Clear
+error and request eventfd ctx after releasing"), it's very easily to
+trigger the kernel panic like this:
+
+[ 9513.904346] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
+[ 9513.913091] Mem abort info:
+[ 9513.915871]   ESR = 0x96000006
+[ 9513.918912]   EC = 0x25: DABT (current EL), IL = 32 bits
+[ 9513.924198]   SET = 0, FnV = 0
+[ 9513.927238]   EA = 0, S1PTW = 0
+[ 9513.930364] Data abort info:
+[ 9513.933231]   ISV = 0, ISS = 0x00000006
+[ 9513.937048]   CM = 0, WnR = 0
+[ 9513.940003] user pgtable: 4k pages, 48-bit VAs, pgdp=0000007ec7d12000
+[ 9513.946414] [0000000000000008] pgd=0000007ec7d13003, p4d=0000007ec7d13003, pud=0000007ec728c003, pmd=0000000000000000
+[ 9513.956975] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+[ 9513.962521] Modules linked in: vfio_pci vfio_virqfd vfio_iommu_type1 vfio hclge hns3 hnae3 [last unloaded: vfio_pci]
+[ 9513.972998] CPU: 4 PID: 1327 Comm: bash Tainted: G        W         5.8.0-rc4+ #3
+[ 9513.980443] Hardware name: Huawei TaiShan 2280 V2/BC82AMDC, BIOS 2280-V2 CS V3.B270.01 05/08/2020
+[ 9513.989274] pstate: 80400089 (Nzcv daIf +PAN -UAO BTYPE=--)
+[ 9513.994827] pc : _raw_spin_lock_irqsave+0x48/0x88
+[ 9513.999515] lr : eventfd_signal+0x6c/0x1b0
+[ 9514.003591] sp : ffff800038a0b960
+[ 9514.006889] x29: ffff800038a0b960 x28: ffff007ef7f4da10
+[ 9514.012175] x27: ffff207eefbbfc80 x26: ffffbb7903457000
+[ 9514.017462] x25: ffffbb7912191000 x24: ffff007ef7f4d400
+[ 9514.022747] x23: ffff20be6e0e4c00 x22: 0000000000000008
+[ 9514.028033] x21: 0000000000000000 x20: 0000000000000000
+[ 9514.033321] x19: 0000000000000008 x18: 0000000000000000
+[ 9514.038606] x17: 0000000000000000 x16: ffffbb7910029328
+[ 9514.043893] x15: 0000000000000000 x14: 0000000000000001
+[ 9514.049179] x13: 0000000000000000 x12: 0000000000000002
+[ 9514.054466] x11: 0000000000000000 x10: 0000000000000a00
+[ 9514.059752] x9 : ffff800038a0b840 x8 : ffff007ef7f4de60
+[ 9514.065038] x7 : ffff007fffc96690 x6 : fffffe01faffb748
+[ 9514.070324] x5 : 0000000000000000 x4 : 0000000000000000
+[ 9514.075609] x3 : 0000000000000000 x2 : 0000000000000001
+[ 9514.080895] x1 : ffff007ef7f4d400 x0 : 0000000000000000
+[ 9514.086181] Call trace:
+[ 9514.088618]  _raw_spin_lock_irqsave+0x48/0x88
+[ 9514.092954]  eventfd_signal+0x6c/0x1b0
+[ 9514.096691]  vfio_pci_request+0x84/0xd0 [vfio_pci]
+[ 9514.101464]  vfio_del_group_dev+0x150/0x290 [vfio]
+[ 9514.106234]  vfio_pci_remove+0x30/0x128 [vfio_pci]
+[ 9514.111007]  pci_device_remove+0x48/0x108
+[ 9514.115001]  device_release_driver_internal+0x100/0x1b8
+[ 9514.120200]  device_release_driver+0x28/0x38
+[ 9514.124452]  pci_stop_bus_device+0x68/0xa8
+[ 9514.128528]  pci_stop_and_remove_bus_device+0x20/0x38
+[ 9514.133557]  pci_iov_remove_virtfn+0xb4/0x128
+[ 9514.137893]  sriov_disable+0x3c/0x108
+[ 9514.141538]  pci_disable_sriov+0x28/0x38
+[ 9514.145445]  hns3_pci_sriov_configure+0x48/0xb8 [hns3]
+[ 9514.150558]  sriov_numvfs_store+0x110/0x198
+[ 9514.154724]  dev_attr_store+0x44/0x60
+[ 9514.158373]  sysfs_kf_write+0x5c/0x78
+[ 9514.162018]  kernfs_fop_write+0x104/0x210
+[ 9514.166010]  __vfs_write+0x48/0x90
+[ 9514.169395]  vfs_write+0xbc/0x1c0
+[ 9514.172694]  ksys_write+0x74/0x100
+[ 9514.176079]  __arm64_sys_write+0x24/0x30
+[ 9514.179987]  el0_svc_common.constprop.4+0x110/0x200
+[ 9514.184842]  do_el0_svc+0x34/0x98
+[ 9514.188144]  el0_svc+0x14/0x40
+[ 9514.191185]  el0_sync_handler+0xb0/0x2d0
+[ 9514.195088]  el0_sync+0x140/0x180
+[ 9514.198389] Code: b9001020 d2800000 52800022 f9800271 (885ffe61)
+[ 9514.204455] ---[ end trace 648de00c8406465f ]---
+[ 9514.212308] note: bash[1327] exited with preempt_count 1
+
+Cc: Qian Cai <cai@lca.pw>
+Cc: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 1518ac272e78 ("vfio/pci: fix memory leaks of eventfd ctx")
+Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol-elf.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/vfio/pci/vfio_pci.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index 5a50326c8158f..e155783c601ab 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1421,6 +1421,7 @@ struct kcore_copy_info {
- 	u64 first_symbol;
- 	u64 last_symbol;
- 	u64 first_module;
-+	u64 first_module_symbol;
- 	u64 last_module_symbol;
- 	struct phdr_data kernel_map;
- 	struct phdr_data modules_map;
-@@ -1435,6 +1436,8 @@ static int kcore_copy__process_kallsyms(void *arg, const char *name, char type,
- 		return 0;
- 
- 	if (strchr(name, '[')) {
-+		if (!kci->first_module_symbol || start < kci->first_module_symbol)
-+			kci->first_module_symbol = start;
- 		if (start > kci->last_module_symbol)
- 			kci->last_module_symbol = start;
- 		return 0;
-@@ -1559,6 +1562,10 @@ static int kcore_copy__calc_maps(struct kcore_copy_info *kci, const char *dir,
- 		kci->etext += page_size;
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 662ea7ec82926..8276ef7f3e834 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -255,14 +255,19 @@ static void vfio_pci_release(void *device_data)
+ 	if (!(--vdev->refcnt)) {
+ 		vfio_spapr_pci_eeh_release(vdev->pdev);
+ 		vfio_pci_disable(vdev);
++		mutex_lock(&vdev->igate);
+ 		if (vdev->err_trigger) {
+ 			eventfd_ctx_put(vdev->err_trigger);
+ 			vdev->err_trigger = NULL;
+ 		}
++		mutex_unlock(&vdev->igate);
++
++		mutex_lock(&vdev->igate);
+ 		if (vdev->req_trigger) {
+ 			eventfd_ctx_put(vdev->req_trigger);
+ 			vdev->req_trigger = NULL;
+ 		}
++		mutex_unlock(&vdev->igate);
  	}
  
-+	if (kci->first_module_symbol &&
-+	    (!kci->first_module || kci->first_module_symbol < kci->first_module))
-+		kci->first_module = kci->first_module_symbol;
-+
- 	kci->first_module = round_down(kci->first_module, page_size);
- 
- 	if (kci->last_module_symbol) {
+ 	mutex_unlock(&driver_lock);
 -- 
 2.25.1
 
