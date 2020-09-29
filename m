@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4CC527C727
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F0527C68A
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:46:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731137AbgI2Lvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:51:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
+        id S1730612AbgI2LqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:46:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731121AbgI2LsS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:48:18 -0400
+        id S1730705AbgI2LqH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:46:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82F1F20702;
-        Tue, 29 Sep 2020 11:48:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A35B1206F7;
+        Tue, 29 Sep 2020 11:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380098;
-        bh=4dhuKEGjKN5Lugen+8MVSN9xqZT6R/7k0bNZwKsS9l4=;
+        s=default; t=1601379967;
+        bh=LBUb+Ez86vd1KkvfpNSX7cCSCYDxuAlWhO/fvNvmpaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cE8h7oAvBcRT/3uxmFMDbuSv9oj4YcmFLVSui+lZfW4klqGfVG/YHXoXmx4B77YPt
-         5g/w+VRAREF46kzgEdKIIMckCT9UinVJYjGA4wiXTLHEre2Pt7MQTm8/b/DAmn7dJu
-         rr+fm9HJ4XDYf+n1kgmzd/Ye9OOHFh5mE/EQ+z60=
+        b=GR9WxQcwabEfehYvGJAe/Lffx2x1pEvhDYjnMLz7thkSP6FJKy4OG3M3UISfMG0q2
+         bkRf8zxI5JBkOOjQCsmaXwBaWGz+3+aznv8B7xKIhMV+QOeEBF/27Lk4KyGnkMqH5x
+         sE4qW1chqSfQHULy2NnMcHAfj6lBiERpp/LX8XM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ray Jui <ray.jui@broadcom.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 67/99] spi: bcm-qspi: Fix probe regression on iProc platforms
+        stable@vger.kernel.org,
+        Charan Teja Reddy <charante@codeaurora.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.4 379/388] dmabuf: fix NULL pointer dereference in dma_buf_release()
 Date:   Tue, 29 Sep 2020 13:01:50 +0200
-Message-Id: <20200929105933.025542564@linuxfoundation.org>
+Message-Id: <20200929110028.811862437@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ray Jui <ray.jui@broadcom.com>
+From: Charan Teja Reddy <charante@codeaurora.org>
 
-[ Upstream commit 00fb259c618ea1198fc51b53a6167aa0d78672a9 ]
+commit 19a508bd1ad8e444de86873bf2f2b2ab8edd6552 upstream.
 
-iProc chips have QSPI controller that does not have the MSPI_REV
-offset. Reading from that offset will cause a bus error. Fix it by
-having MSPI_REV query disabled in the generic compatible string.
+NULL pointer dereference is observed while exporting the dmabuf but
+failed to allocate the 'struct file' which results into the dropping of
+the allocated dentry corresponding to this file in the dmabuf fs, which
+is ending up in dma_buf_release() and accessing the uninitialzed
+dentry->d_fsdata.
 
-Fixes: 3a01f04d74ef ("spi: bcm-qspi: Handle lack of MSPI_REV offset")
-Link: https://lore.kernel.org/linux-arm-kernel/20200909211857.4144718-1-f.fainelli@gmail.com/T/#u
-Signed-off-by: Ray Jui <ray.jui@broadcom.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20200910152539.45584-3-ray.jui@broadcom.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Call stack on 5.4 is below:
+ dma_buf_release+0x2c/0x254 drivers/dma-buf/dma-buf.c:88
+ __dentry_kill+0x294/0x31c fs/dcache.c:584
+ dentry_kill fs/dcache.c:673 [inline]
+ dput+0x250/0x380 fs/dcache.c:859
+ path_put+0x24/0x40 fs/namei.c:485
+ alloc_file_pseudo+0x1a4/0x200 fs/file_table.c:235
+ dma_buf_getfile drivers/dma-buf/dma-buf.c:473 [inline]
+ dma_buf_export+0x25c/0x3ec drivers/dma-buf/dma-buf.c:585
+
+Fix this by checking for the valid pointer in the dentry->d_fsdata.
+
+Fixes: 4ab59c3c638c ("dma-buf: Move dma_buf_release() from fops to dentry_ops")
+Cc: <stable@vger.kernel.org> [5.7+]
+Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/391319/
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi-bcm-qspi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma-buf/dma-buf.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
-index 681d090851756..9cfa15ec8b08c 100644
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -1295,7 +1295,7 @@ static const struct of_device_id bcm_qspi_of_match[] = {
- 	},
- 	{
- 		.compatible = "brcm,spi-bcm-qspi",
--		.data = &bcm_qspi_rev_data,
-+		.data = &bcm_qspi_no_rev_data,
- 	},
- 	{
- 		.compatible = "brcm,spi-bcm7216-qspi",
--- 
-2.25.1
-
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -59,6 +59,8 @@ static void dma_buf_release(struct dentr
+ 	struct dma_buf *dmabuf;
+ 
+ 	dmabuf = dentry->d_fsdata;
++	if (unlikely(!dmabuf))
++		return;
+ 
+ 	BUG_ON(dmabuf->vmapping_counter);
+ 
 
 
