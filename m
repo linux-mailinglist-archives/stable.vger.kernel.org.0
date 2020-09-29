@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B7DA27C36D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F4927C41C
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728738AbgI2LFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:05:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41874 "EHLO mail.kernel.org"
+        id S1729212AbgI2LLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:11:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728736AbgI2LF1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:05:27 -0400
+        id S1728731AbgI2LKd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:10:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9AC5221E8;
-        Tue, 29 Sep 2020 11:05:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D76E206A5;
+        Tue, 29 Sep 2020 11:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377524;
-        bh=5LskZOh2pD9zg+8IVR0T9t1IBdkFEYbOnCrQ+2yn3kE=;
+        s=default; t=1601377832;
+        bh=8kEAr+5ZaO6EHRIDN4ojcnL1eM+CwkacAoRryw7srp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hxibLj5+1UeQgJ/9HU+knOUxLMOXCRWBsX3cU3S1GzKosf+Qfu7jU/49C32Vw/9u5
-         TYPsyqPSL93bW1IEXKL19s34EexF/rBRHulo+d0EvnMjKXTLo5ToayH1XZ04ewAS3f
-         r8qJO+5B0b4fJx55QqC/NAY9nyqzHbg5FIxuQthA=
+        b=o0ZtbueAIe85WRbvRPBTwb78fwxUfOR5uPy0C5wEobH8zSBrWXHGvw9Hgr64B15sJ
+         qdRlCJujgbI+t+FOtgyd95DQG1aIFe5bZHKBEG/w1YgHFs8R2OGE/R8FeYDy3jsAoD
+         2DPpS5arZzOfEez2yFVl80dkisuQbEYuqOSpMPAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        dri-devel@lists.freedesktop.org,
-        Markus Elfring <Markus.Elfring@web.de>,
+        stable@vger.kernel.org, Howard Chung <howardchung@google.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 36/85] drm/omap: fix possible object reference leak
+Subject: [PATCH 4.9 059/121] Bluetooth: L2CAP: handle l2cap config request during open state
 Date:   Tue, 29 Sep 2020 13:00:03 +0200
-Message-Id: <20200929105930.038056887@linuxfoundation.org>
+Message-Id: <20200929105933.105174076@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,58 +43,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wen.yang99@zte.com.cn>
+From: Howard Chung <howardchung@google.com>
 
-[ Upstream commit 47340e46f34a3b1d80e40b43ae3d7a8da34a3541 ]
+[ Upstream commit 96298f640104e4cd9a913a6e50b0b981829b94ff ]
 
-The call to of_find_matching_node returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+According to Core Spec Version 5.2 | Vol 3, Part A 6.1.5,
+the incoming L2CAP_ConfigReq should be handled during
+OPEN state.
 
-Detected by coccinelle with the following warnings:
-drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c:212:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 209, but without a corresponding object release within this function.
-drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c:237:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 209, but without a corresponding object release within this function.
+The section below shows the btmon trace when running
+L2CAP/COS/CFD/BV-12-C before and after this change.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Sebastian Reichel <sebastian.reichel@collabora.com>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Markus Elfring <Markus.Elfring@web.de>
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1554692313-28882-2-git-send-email-wen.yang99@zte.com.cn
+=== Before ===
+...
+> ACL Data RX: Handle 256 flags 0x02 dlen 12                #22
+      L2CAP: Connection Request (0x02) ident 2 len 4
+        PSM: 1 (0x0001)
+        Source CID: 65
+< ACL Data TX: Handle 256 flags 0x00 dlen 16                #23
+      L2CAP: Connection Response (0x03) ident 2 len 8
+        Destination CID: 64
+        Source CID: 65
+        Result: Connection successful (0x0000)
+        Status: No further information available (0x0000)
+< ACL Data TX: Handle 256 flags 0x00 dlen 12                #24
+      L2CAP: Configure Request (0x04) ident 2 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5      #25
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5      #26
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 16                #27
+      L2CAP: Configure Request (0x04) ident 3 len 8
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00                                            ..
+< ACL Data TX: Handle 256 flags 0x00 dlen 18                #28
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+> HCI Event: Number of Completed Packets (0x13) plen 5      #29
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 14                #30
+      L2CAP: Configure Response (0x05) ident 2 len 6
+        Source CID: 64
+        Flags: 0x0000
+        Result: Success (0x0000)
+> ACL Data RX: Handle 256 flags 0x02 dlen 20                #31
+      L2CAP: Configure Request (0x04) ident 3 len 12
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00 91 02 11 11                                ......
+< ACL Data TX: Handle 256 flags 0x00 dlen 14                #32
+      L2CAP: Command Reject (0x01) ident 3 len 6
+        Reason: Invalid CID in request (0x0002)
+        Destination CID: 64
+        Source CID: 65
+> HCI Event: Number of Completed Packets (0x13) plen 5      #33
+        Num handles: 1
+        Handle: 256
+        Count: 1
+...
+=== After ===
+...
+> ACL Data RX: Handle 256 flags 0x02 dlen 12               #22
+      L2CAP: Connection Request (0x02) ident 2 len 4
+        PSM: 1 (0x0001)
+        Source CID: 65
+< ACL Data TX: Handle 256 flags 0x00 dlen 16               #23
+      L2CAP: Connection Response (0x03) ident 2 len 8
+        Destination CID: 64
+        Source CID: 65
+        Result: Connection successful (0x0000)
+        Status: No further information available (0x0000)
+< ACL Data TX: Handle 256 flags 0x00 dlen 12               #24
+      L2CAP: Configure Request (0x04) ident 2 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5     #25
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #26
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 16               #27
+      L2CAP: Configure Request (0x04) ident 3 len 8
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00                                            ..
+< ACL Data TX: Handle 256 flags 0x00 dlen 18               #28
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+> HCI Event: Number of Completed Packets (0x13) plen 5     #29
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 14               #30
+      L2CAP: Configure Response (0x05) ident 2 len 6
+        Source CID: 64
+        Flags: 0x0000
+        Result: Success (0x0000)
+> ACL Data RX: Handle 256 flags 0x02 dlen 20               #31
+      L2CAP: Configure Request (0x04) ident 3 len 12
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00 91 02 11 11                                .....
+< ACL Data TX: Handle 256 flags 0x00 dlen 18               #32
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+< ACL Data TX: Handle 256 flags 0x00 dlen 12               #33
+      L2CAP: Configure Request (0x04) ident 3 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5     #34
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #35
+        Num handles: 1
+        Handle: 256
+        Count: 1
+...
+
+Signed-off-by: Howard Chung <howardchung@google.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/omap2/dss/omapdss-boot-init.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/omap2/dss/omapdss-boot-init.c b/drivers/video/fbdev/omap2/dss/omapdss-boot-init.c
-index 8b6f6d5fdd68b..43186fa8a13c9 100644
---- a/drivers/video/fbdev/omap2/dss/omapdss-boot-init.c
-+++ b/drivers/video/fbdev/omap2/dss/omapdss-boot-init.c
-@@ -194,7 +194,7 @@ static int __init omapdss_boot_init(void)
- 	dss = of_find_matching_node(NULL, omapdss_of_match);
- 
- 	if (dss == NULL || !of_device_is_available(dss))
--		return 0;
-+		goto put_node;
- 
- 	omapdss_walk_device(dss, true);
- 
-@@ -221,6 +221,8 @@ static int __init omapdss_boot_init(void)
- 		kfree(n);
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index de085947c19c2..5e3f5c1ba07d6 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4107,7 +4107,8 @@ static inline int l2cap_config_req(struct l2cap_conn *conn,
+ 		return 0;
  	}
  
-+put_node:
-+	of_node_put(dss);
- 	return 0;
- }
- 
+-	if (chan->state != BT_CONFIG && chan->state != BT_CONNECT2) {
++	if (chan->state != BT_CONFIG && chan->state != BT_CONNECT2 &&
++	    chan->state != BT_CONNECTED) {
+ 		cmd_reject_invalid_cid(conn, cmd->ident, chan->scid,
+ 				       chan->dcid);
+ 		goto unlock;
 -- 
 2.25.1
 
