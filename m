@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D0F627C37E
+	by mail.lfdr.de (Postfix) with ESMTP id 2FF2227C37D
 	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728807AbgI2LGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728434AbgI2LGI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 29 Sep 2020 07:06:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42398 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728785AbgI2LFy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:05:54 -0400
+        id S1728806AbgI2LF5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:05:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59FFC206DB;
-        Tue, 29 Sep 2020 11:05:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47AA121941;
+        Tue, 29 Sep 2020 11:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377553;
-        bh=oWexgkyQ5QqmqqfNAI66bcmREr4+IJ9zW+Zyy8Y73GU=;
+        s=default; t=1601377556;
+        bh=1KKzDc20o8aDiN1xzsaNGjip393iEygRX8kvP7uo80Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=revYlZVFIPj404bbtxzIOoWYq7P/hs35ruZRtTBU4ZkozyALmKXfj0CqF+QUfMDL9
-         0kQQS6eSfVvojWLwtzdrOXED2K39XOi8DZpgN7sa94Jz/pGPHgR7iugQMz/7GJ1HTc
-         LawDlo32VO2+aLiCUUyT3HXdHpgF7YshLHgC5KH0=
+        b=cOw8kkgBiKfe0QajkLEai50DzhqZUQy6xgH87NuBkShTl4zXuWHYnlDbJisQZlfd5
+         Kw/+yRzMk4FeocOWUOsyLOfLAjsY/cA1pqzpRWCppoHNdY0eOQ0Roe5MjsZkT78nyB
+         njLjBkz7ETC8MEEGPb52vjcbRf8T6cEWkcYetEZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <ll@simonwunderlich.de>,
-        Sven Eckelmann <sven@narfation.org>,
+        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 75/85] batman-adv: bla: fix type misuse for backbone_gw hash indexing
-Date:   Tue, 29 Sep 2020 13:00:42 +0200
-Message-Id: <20200929105931.948044761@linuxfoundation.org>
+Subject: [PATCH 4.4 76/85] atm: eni: fix the missed pci_disable_device() for eni_init_one()
+Date:   Tue, 29 Sep 2020 13:00:43 +0200
+Message-Id: <20200929105931.995203053@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
 References: <20200929105928.198942536@linuxfoundation.org>
@@ -44,49 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <ll@simonwunderlich.de>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 097930e85f90f252c44dc0d084598265dd44ca48 ]
+[ Upstream commit c2b947879ca320ac5505c6c29a731ff17da5e805 ]
 
-It seems that due to a copy & paste error the void pointer
-in batadv_choose_backbone_gw() is cast to the wrong type.
+eni_init_one() misses to call pci_disable_device() in an error path.
+Jump to err_disable to fix it.
 
-Fixing this by using "struct batadv_bla_backbone_gw" instead of "struct
-batadv_bla_claim" which better matches the caller's side.
-
-For now it seems that we were lucky because the two structs both have
-their orig/vid and addr/vid in the beginning. However I stumbled over
-this issue when I was trying to add some debug variables in front of
-"orig" in batadv_backbone_gw, which caused hash lookups to fail.
-
-Fixes: 07568d0369f9 ("batman-adv: don't rely on positions in struct for hashing")
-Signed-off-by: Linus Lüssing <ll@simonwunderlich.de>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Fixes: ede58ef28e10 ("atm: remove deprecated use of pci api")
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bridge_loop_avoidance.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/atm/eni.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
-index 9aa5daa551273..1267cbb1a329a 100644
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -73,11 +73,12 @@ static inline u32 batadv_choose_claim(const void *data, u32 size)
- /* return the index of the backbone gateway */
- static inline u32 batadv_choose_backbone_gw(const void *data, u32 size)
- {
--	const struct batadv_bla_claim *claim = (struct batadv_bla_claim *)data;
-+	const struct batadv_bla_backbone_gw *gw;
- 	u32 hash = 0;
+diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
+index ad591a2f7c822..340a1ee79d280 100644
+--- a/drivers/atm/eni.c
++++ b/drivers/atm/eni.c
+@@ -2242,7 +2242,7 @@ static int eni_init_one(struct pci_dev *pci_dev,
  
--	hash = jhash(&claim->addr, sizeof(claim->addr), hash);
--	hash = jhash(&claim->vid, sizeof(claim->vid), hash);
-+	gw = (struct batadv_bla_backbone_gw *)data;
-+	hash = jhash(&gw->orig, sizeof(gw->orig), hash);
-+	hash = jhash(&gw->vid, sizeof(gw->vid), hash);
+ 	rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(32));
+ 	if (rc < 0)
+-		goto out;
++		goto err_disable;
  
- 	return hash % size;
- }
+ 	rc = -ENOMEM;
+ 	eni_dev = kmalloc(sizeof(struct eni_dev), GFP_KERNEL);
 -- 
 2.25.1
 
