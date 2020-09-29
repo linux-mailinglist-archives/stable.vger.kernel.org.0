@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3EF927C429
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFEA627C3BE
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728480AbgI2LLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:11:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53056 "EHLO mail.kernel.org"
+        id S1728678AbgI2LIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:08:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729259AbgI2LLk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:11:40 -0400
+        id S1728828AbgI2LGh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:06:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ECA9208FE;
-        Tue, 29 Sep 2020 11:11:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1470222574;
+        Tue, 29 Sep 2020 11:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377899;
-        bh=Hn2PJTowLedylOVnlk+TZvCigtDRVGkntiTrNgEOTnA=;
+        s=default; t=1601377590;
+        bh=/ZAwuKiXNjc056PuV0zsg3VrZ2lpMBgP7TwugljyCZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gpnz22k99HgxBhdKmMisWTkZsl3Vl7JUIjX3AbM8leWw9cc1+lqvZehUOOk524Dr/
-         0KOSYW+hF1YIM5L+RYRd4dPi5KHh5gJM2ln0089QmISS0N6mW7/IUW0450SMojKgvf
-         629eV3FqmKOj0dP2DqJa5M+AGXdGrmknk5YWw8Tk=
+        b=kBW/EwfWKEDCzJ2bjFvXaJqoyAufzxC5BMXwGyJLpSlIjSDF4xqgBcxW1IYxoWtZZ
+         xHlvF+zFVxK8WbVKowA2vdfQDjPH08cqf5rnYmVSnT0lHfuBKsMRrDNqXK7hg4tqcS
+         F41Z+GgwwxY++BzNi+7MN8WlcK16/bZxrJCyXYuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 085/121] tty: serial: samsung: Correct clock selection logic
-Date:   Tue, 29 Sep 2020 13:00:29 +0200
-Message-Id: <20200929105934.388165636@linuxfoundation.org>
+        stable@vger.kernel.org, Shreyas Joshi <shreyas.joshi@biamp.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 64/85] printk: handle blank console arguments passed in.
+Date:   Tue, 29 Sep 2020 13:00:31 +0200
+Message-Id: <20200929105931.413526638@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Shreyas Joshi <shreyas.joshi@biamp.com>
 
-[ Upstream commit 7d31676a8d91dd18e08853efd1cb26961a38c6a6 ]
+[ Upstream commit 48021f98130880dd74286459a1ef48b5e9bc374f ]
 
-Some variants of the samsung tty driver can pick which clock
-to use for their baud rate generation.  In the DT conversion,
-a default clock was selected to be used if a specific one wasn't
-assigned and then a comparison of which clock rate worked better
-was done.  Unfortunately, the comparison was implemented in such
-a way that only the default clock was ever actually compared.
-Fix this by iterating through all possible clocks, except when a
-specific clock has already been picked via clk_sel (which is
-only possible via board files).
+If uboot passes a blank string to console_setup then it results in
+a trashed memory. Ultimately, the kernel crashes during freeing up
+the memory.
 
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/BN6PR04MB06604E63833EA41837EBF77BA3A30@BN6PR04MB0660.namprd04.prod.outlook.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This fix checks if there is a blank parameter being
+passed to console_setup from uboot. In case it detects that
+the console parameter is blank then it doesn't setup the serial
+device and it gracefully exits.
+
+Link: https://lore.kernel.org/r/20200522065306.83-1-shreyas.joshi@biamp.com
+Signed-off-by: Shreyas Joshi <shreyas.joshi@biamp.com>
+Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+[pmladek@suse.com: Better format the commit message and code, remove unnecessary brackets.]
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/samsung.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/printk/printk.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/tty/serial/samsung.c b/drivers/tty/serial/samsung.c
-index 4dfdb59061bea..8c89697c53573 100644
---- a/drivers/tty/serial/samsung.c
-+++ b/drivers/tty/serial/samsung.c
-@@ -1157,14 +1157,14 @@ static unsigned int s3c24xx_serial_getclk(struct s3c24xx_uart_port *ourport,
- 	struct s3c24xx_uart_info *info = ourport->info;
- 	struct clk *clk;
- 	unsigned long rate;
--	unsigned int cnt, baud, quot, clk_sel, best_quot = 0;
-+	unsigned int cnt, baud, quot, best_quot = 0;
- 	char clkname[MAX_CLK_NAME_LENGTH];
- 	int calc_deviation, deviation = (1 << 30) - 1;
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index e53a976ca28ea..b55dfb3e801f9 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -2032,6 +2032,9 @@ static int __init console_setup(char *str)
+ 	char *s, *options, *brl_options = NULL;
+ 	int idx;
  
--	clk_sel = (ourport->cfg->clk_sel) ? ourport->cfg->clk_sel :
--			ourport->info->def_clk_sel;
- 	for (cnt = 0; cnt < info->num_clks; cnt++) {
--		if (!(clk_sel & (1 << cnt)))
-+		/* Keep selected clock if provided */
-+		if (ourport->cfg->clk_sel &&
-+			!(ourport->cfg->clk_sel & (1 << cnt)))
- 			continue;
++	if (str[0] == 0)
++		return 1;
++
+ 	if (_braille_console_setup(&str, &brl_options))
+ 		return 1;
  
- 		sprintf(clkname, "clk_uart_baud%d", cnt);
 -- 
 2.25.1
 
