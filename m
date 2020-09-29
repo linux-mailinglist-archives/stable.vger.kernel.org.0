@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFEA627C3BE
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6194227C4F1
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728678AbgI2LIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:08:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44064 "EHLO mail.kernel.org"
+        id S1729285AbgI2LW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:22:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728828AbgI2LGh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:06:37 -0400
+        id S1729416AbgI2LTJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:19:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1470222574;
-        Tue, 29 Sep 2020 11:06:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB35221D41;
+        Tue, 29 Sep 2020 11:18:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377590;
-        bh=/ZAwuKiXNjc056PuV0zsg3VrZ2lpMBgP7TwugljyCZc=;
+        s=default; t=1601378285;
+        bh=SdhpDMJTj3MzvxIvsNNng0DO6JHm/lXM7QhxSrmJ4Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBW/EwfWKEDCzJ2bjFvXaJqoyAufzxC5BMXwGyJLpSlIjSDF4xqgBcxW1IYxoWtZZ
-         xHlvF+zFVxK8WbVKowA2vdfQDjPH08cqf5rnYmVSnT0lHfuBKsMRrDNqXK7hg4tqcS
-         F41Z+GgwwxY++BzNi+7MN8WlcK16/bZxrJCyXYuA=
+        b=LN/O5dlbrMRLvXbYV8uw/GrjiWgr4l4MxkWdVse4QLXbA4NnZW7oTP0zGjqm0P1wl
+         FcAg3kyS31Bs7YZGpncpx29VXnPiN0IohEeTZHBVbsya59Jwe8zbPIGFPEqpsK5dmq
+         XDEVdGgUG91qFSTWLM5osuaZdDx532dA6B/2yOgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shreyas Joshi <shreyas.joshi@biamp.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 64/85] printk: handle blank console arguments passed in.
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 119/166] fuse: dont check refcount after stealing page
 Date:   Tue, 29 Sep 2020 13:00:31 +0200
-Message-Id: <20200929105931.413526638@linuxfoundation.org>
+Message-Id: <20200929105941.133738227@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyas Joshi <shreyas.joshi@biamp.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 48021f98130880dd74286459a1ef48b5e9bc374f ]
+[ Upstream commit 32f98877c57bee6bc27f443a96f49678a2cd6a50 ]
 
-If uboot passes a blank string to console_setup then it results in
-a trashed memory. Ultimately, the kernel crashes during freeing up
-the memory.
+page_count() is unstable.  Unless there has been an RCU grace period
+between when the page was removed from the page cache and now, a
+speculative reference may exist from the page cache.
 
-This fix checks if there is a blank parameter being
-passed to console_setup from uboot. In case it detects that
-the console parameter is blank then it doesn't setup the serial
-device and it gracefully exits.
-
-Link: https://lore.kernel.org/r/20200522065306.83-1-shreyas.joshi@biamp.com
-Signed-off-by: Shreyas Joshi <shreyas.joshi@biamp.com>
-Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-[pmladek@suse.com: Better format the commit message and code, remove unnecessary brackets.]
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/printk.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/fuse/dev.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index e53a976ca28ea..b55dfb3e801f9 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2032,6 +2032,9 @@ static int __init console_setup(char *str)
- 	char *s, *options, *brl_options = NULL;
- 	int idx;
- 
-+	if (str[0] == 0)
-+		return 1;
-+
- 	if (_braille_console_setup(&str, &brl_options))
- 		return 1;
- 
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index f580695b7bb9a..1b9c4c19bed29 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -824,7 +824,6 @@ static int fuse_check_page(struct page *page)
+ {
+ 	if (page_mapcount(page) ||
+ 	    page->mapping != NULL ||
+-	    page_count(page) != 1 ||
+ 	    (page->flags & PAGE_FLAGS_CHECK_AT_PREP &
+ 	     ~(1 << PG_locked |
+ 	       1 << PG_referenced |
 -- 
 2.25.1
 
