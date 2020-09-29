@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB3B27C714
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA22527C70C
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731187AbgI2LtB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:49:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51782 "EHLO mail.kernel.org"
+        id S1731133AbgI2LvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:51:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730987AbgI2Ls4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:48:56 -0400
+        id S1731195AbgI2LtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:49:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB2702074A;
-        Tue, 29 Sep 2020 11:48:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C5E12158C;
+        Tue, 29 Sep 2020 11:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380136;
-        bh=VQ4uWf4bw04QSq1Hr9QWlEphd7mef1m+0p9YY6gJILY=;
+        s=default; t=1601380145;
+        bh=RsHOz24AamUalIT+Vh94hhCx8b+xThUBH6MW5GOnlXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r692rr1Tv+VryWhnkKuBCkdgtvHNjhnXqS2SM4YAv7fUhvNxmtWrwPmZVN963O/U5
-         0L1zBUM1Zqs8XrqUk5bbd23xWg180ESbmkxomN71fQ3uW0ksC2P7mnTZYIIuULojPQ
-         9MuDHo1+CTiI35Th1/eRubf64OSDdnzsyJrdb/Go=
+        b=Fc81Mkv1EIuREIV2cDANqIJFcTyFNzyWgr8Tok0Kwg0aX5ylUcvgS1OMWaCkRK/cT
+         TqluEkTXod1HvvLPwdzDioceGgs0Q9cs5FJ1nmJPx71iSln5KriqmfGd41rdHrmcm2
+         6soQvqZ7TCK3Pu1/WTurYf5lxr4bJUhrmGvNfbw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Crispin <john@phrozen.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 56/99] mac80211: fix 80 MHz association to 160/80+80 AP on 6 GHz
-Date:   Tue, 29 Sep 2020 13:01:39 +0200
-Message-Id: <20200929105932.484101409@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 57/99] ALSA: asihpi: fix iounmap in error handler
+Date:   Tue, 29 Sep 2020 13:01:40 +0200
+Message-Id: <20200929105932.534489496@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
 References: <20200929105929.719230296@linuxfoundation.org>
@@ -43,43 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Crispin <john@phrozen.org>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 75bcbd6913de649601f4e7d3fb6d2b5effc24e9e ]
+[ Upstream commit 472eb39103e885f302fd8fd6eff104fcf5503f1b ]
 
-When trying to associate to an AP support 180 or 80+80 MHz on 6 GHz with a
-STA that only has 80 Mhz support the cf2 field inside the chandef will get
-set causing the association to fail when trying to validate the chandef.
-Fix this by checking the support flags prior to setting cf2.
+clang static analysis flags this problem
+hpioctl.c:513:7: warning: Branch condition evaluates to
+  a garbage value
+                if (pci.ap_mem_base[idx]) {
+                    ^~~~~~~~~~~~~~~~~~~~
 
-Fixes: 57fa5e85d53ce ("mac80211: determine chandef from HE 6 GHz operation")
-Signed-off-by: John Crispin <john@phrozen.org>
-Link: https://lore.kernel.org/r/20200918115304.1135693-1-john@phrozen.org
-[reword commit message a bit]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+If there is a failure in the middle of the memory space loop,
+only some of the memory spaces need to be cleaned up.
+
+At the error handler, idx holds the number of successful
+memory spaces mapped.  So rework the handler loop to use the
+old idx.
+
+There is a second problem, the memory space loop conditionally
+iomaps()/sets the mem_base so it is necessay to initize pci.
+
+Fixes: 719f82d3987a ("ALSA: Add support of AudioScience ASI boards")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Link: https://lore.kernel.org/r/20200913165230.17166-1-trix@redhat.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/util.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/pci/asihpi/hpioctl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/util.c b/net/mac80211/util.c
-index dd9f5c7a1ade6..7b1f3645603ca 100644
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -3354,9 +3354,10 @@ bool ieee80211_chandef_he_6ghz_oper(struct ieee80211_sub_if_data *sdata,
- 		he_chandef.center_freq1 =
- 			ieee80211_channel_to_frequency(he_6ghz_oper->ccfs0,
- 						       NL80211_BAND_6GHZ);
--		he_chandef.center_freq2 =
--			ieee80211_channel_to_frequency(he_6ghz_oper->ccfs1,
--						       NL80211_BAND_6GHZ);
-+		if (support_80_80 || support_160)
-+			he_chandef.center_freq2 =
-+				ieee80211_channel_to_frequency(he_6ghz_oper->ccfs1,
-+							       NL80211_BAND_6GHZ);
- 	}
+diff --git a/sound/pci/asihpi/hpioctl.c b/sound/pci/asihpi/hpioctl.c
+index 496dcde9715d6..9790f5108a166 100644
+--- a/sound/pci/asihpi/hpioctl.c
++++ b/sound/pci/asihpi/hpioctl.c
+@@ -343,7 +343,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
+ 	struct hpi_message hm;
+ 	struct hpi_response hr;
+ 	struct hpi_adapter adapter;
+-	struct hpi_pci pci;
++	struct hpi_pci pci = { 0 };
  
- 	if (!cfg80211_chandef_valid(&he_chandef)) {
+ 	memset(&adapter, 0, sizeof(adapter));
+ 
+@@ -499,7 +499,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
+ 	return 0;
+ 
+ err:
+-	for (idx = 0; idx < HPI_MAX_ADAPTER_MEM_SPACES; idx++) {
++	while (--idx >= 0) {
+ 		if (pci.ap_mem_base[idx]) {
+ 			iounmap(pci.ap_mem_base[idx]);
+ 			pci.ap_mem_base[idx] = NULL;
 -- 
 2.25.1
 
