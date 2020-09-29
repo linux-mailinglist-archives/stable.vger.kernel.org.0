@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0338E27C8A0
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:03:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E04E027CA92
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731794AbgI2MD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60298 "EHLO mail.kernel.org"
+        id S1732365AbgI2MUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:20:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729817AbgI2Lie (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:38:34 -0400
+        id S1729867AbgI2Lfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:35:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B65AF21D7F;
-        Tue, 29 Sep 2020 11:38:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57F5723899;
+        Tue, 29 Sep 2020 11:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379490;
-        bh=lCmNF/bJl1nytvv2s1UVQv6Cg4ZFuMUODfcoBieSl0U=;
+        s=default; t=1601378504;
+        bh=96g2gQvYCQ7N+F/W7kbIkBrVEDMbwRt19XM5k1Ibeew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SgFIs8hlCBaCegvTjPxavgOPkfFkQR1DFl3gKD4UNHkQnJXRnZ/Yy0n+DaLw2eRgO
-         T4v7X7MeVPr6sxwkmWKZnxjtAJNWnre84KhdnvvZ4kANKsClXgwij+qcUrvv5n1m7o
-         rMwUGFX1kGyU6B8i5y7IJL4cPAKPfJV0Jkoaypps=
+        b=W9wu+yXMN4bT0agKysW95hzkUNdI3DkBL8pvGxSFTZwdpV3iWS9U6m9GUhMb2e3B6
+         SS2Cw/w+6ClzSBzVR7XtHyKvj06mJRgveE9CLVf+AIZI38q1LPwfcJdI+VU28/W+Rz
+         As2kEx3kdyUzjoj6dc22dKs4zN80LLUZLu1Zwl1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, afzal mohammed <afzal.mohd.ma@gmail.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 157/388] s390/irq: replace setup_irq() by request_irq()
+Subject: [PATCH 4.19 037/245] ubi: Fix producing anchor PEBs
 Date:   Tue, 29 Sep 2020 12:58:08 +0200
-Message-Id: <20200929110018.075648924@linuxfoundation.org>
+Message-Id: <20200929105948.812444468@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +43,272 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 8719b6d29d2851fa84c4074bb2e5adc022911ab8 ]
+[ Upstream commit f9c34bb529975fe9f85b870a80c53a83a3c5a182 ]
 
-request_irq() is preferred over setup_irq(). Invocations of setup_irq()
-occur after memory allocators are ready.
+When a new fastmap is about to be written UBI must make sure it has a
+free block for a fastmap anchor available. For this ubi_update_fastmap()
+calls ubi_ensure_anchor_pebs(). This stopped working with 2e8f08deabbc
+("ubi: Fix races around ubi_refill_pools()"), with this commit the wear
+leveling code is blocked and can no longer produce free PEBs. UBI then
+more often than not falls back to write the new fastmap anchor to the
+same block it was already on which means the same erase block gets
+erased during each fastmap write and wears out quite fast.
 
-Per tglx[1], setup_irq() existed in olden days when allocators were not
-ready by the time early interrupts were initialized.
+As the locking prevents us from producing the anchor PEB when we
+actually need it, this patch changes the strategy for creating the
+anchor PEB. We no longer create it on demand right before we want to
+write a fastmap, but instead we create an anchor PEB right after we have
+written a fastmap. This gives us enough time to produce a new anchor PEB
+before it is needed. To make sure we have an anchor PEB for the very
+first fastmap write we call ubi_ensure_anchor_pebs() during
+initialisation as well.
 
-Hence replace setup_irq() by request_irq().
-
-[1] https://lkml.kernel.org/r/alpine.DEB.2.20.1710191609480.1971@nanos
-
-Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
-Message-Id: <20200304005049.5291-1-afzal.mohd.ma@gmail.com>
-[heiko.carstens@de.ibm.com: replace pr_err with panic]
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 2e8f08deabbc ("ubi: Fix races around ubi_refill_pools()")
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/irq.c  | 8 ++------
- drivers/s390/cio/airq.c | 8 ++------
- drivers/s390/cio/cio.c  | 8 ++------
- 3 files changed, 6 insertions(+), 18 deletions(-)
+ drivers/mtd/ubi/fastmap-wl.c | 31 ++++++++++++++++++-------------
+ drivers/mtd/ubi/fastmap.c    | 14 +++++---------
+ drivers/mtd/ubi/ubi.h        |  6 ++++--
+ drivers/mtd/ubi/wl.c         | 32 ++++++++++++++------------------
+ drivers/mtd/ubi/wl.h         |  1 -
+ 5 files changed, 41 insertions(+), 43 deletions(-)
 
-diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-index 8371855042dc2..da550cb8b31bd 100644
---- a/arch/s390/kernel/irq.c
-+++ b/arch/s390/kernel/irq.c
-@@ -294,11 +294,6 @@ static irqreturn_t do_ext_interrupt(int irq, void *dummy)
- 	return IRQ_HANDLED;
+diff --git a/drivers/mtd/ubi/fastmap-wl.c b/drivers/mtd/ubi/fastmap-wl.c
+index 98f7d6be8d1fc..13efebb400225 100644
+--- a/drivers/mtd/ubi/fastmap-wl.c
++++ b/drivers/mtd/ubi/fastmap-wl.c
+@@ -66,18 +66,6 @@ static void return_unused_pool_pebs(struct ubi_device *ubi,
+ 	}
  }
  
--static struct irqaction external_interrupt = {
--	.name	 = "EXT",
--	.handler = do_ext_interrupt,
--};
+-static int anchor_pebs_available(struct rb_root *root)
+-{
+-	struct rb_node *p;
+-	struct ubi_wl_entry *e;
 -
- void __init init_ext_interrupts(void)
- {
- 	int idx;
-@@ -308,7 +303,8 @@ void __init init_ext_interrupts(void)
- 
- 	irq_set_chip_and_handler(EXT_INTERRUPT,
- 				 &dummy_irq_chip, handle_percpu_irq);
--	setup_irq(EXT_INTERRUPT, &external_interrupt);
-+	if (request_irq(EXT_INTERRUPT, do_ext_interrupt, 0, "EXT", NULL))
-+		panic("Failed to register EXT interrupt\n");
- }
- 
- static DEFINE_SPINLOCK(irq_subclass_lock);
-diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-index 427b2e24a8cea..cb466ed7eb5ef 100644
---- a/drivers/s390/cio/airq.c
-+++ b/drivers/s390/cio/airq.c
-@@ -105,16 +105,12 @@ static irqreturn_t do_airq_interrupt(int irq, void *dummy)
- 	return IRQ_HANDLED;
- }
- 
--static struct irqaction airq_interrupt = {
--	.name	 = "AIO",
--	.handler = do_airq_interrupt,
--};
+-	ubi_rb_for_each_entry(p, e, root, u.rb)
+-		if (e->pnum < UBI_FM_MAX_START)
+-			return 1;
 -
- void __init init_airq_interrupts(void)
- {
- 	irq_set_chip_and_handler(THIN_INTERRUPT,
- 				 &dummy_irq_chip, handle_percpu_irq);
--	setup_irq(THIN_INTERRUPT, &airq_interrupt);
-+	if (request_irq(THIN_INTERRUPT, do_airq_interrupt, 0, "AIO", NULL))
-+		panic("Failed to register AIO interrupt\n");
- }
- 
- static inline unsigned long iv_size(unsigned long bits)
-diff --git a/drivers/s390/cio/cio.c b/drivers/s390/cio/cio.c
-index 18f5458f90e8f..6d716db2a46ab 100644
---- a/drivers/s390/cio/cio.c
-+++ b/drivers/s390/cio/cio.c
-@@ -563,16 +563,12 @@ static irqreturn_t do_cio_interrupt(int irq, void *dummy)
- 	return IRQ_HANDLED;
- }
- 
--static struct irqaction io_interrupt = {
--	.name	 = "I/O",
--	.handler = do_cio_interrupt,
--};
+-	return 0;
+-}
 -
- void __init init_cio_interrupts(void)
+ /**
+  * ubi_wl_get_fm_peb - find a physical erase block with a given maximal number.
+  * @ubi: UBI device description object
+@@ -286,8 +274,26 @@ static struct ubi_wl_entry *get_peb_for_wl(struct ubi_device *ubi)
+ int ubi_ensure_anchor_pebs(struct ubi_device *ubi)
  {
- 	irq_set_chip_and_handler(IO_INTERRUPT,
- 				 &dummy_irq_chip, handle_percpu_irq);
--	setup_irq(IO_INTERRUPT, &io_interrupt);
-+	if (request_irq(IO_INTERRUPT, do_cio_interrupt, 0, "I/O", NULL))
-+		panic("Failed to register I/O interrupt\n");
+ 	struct ubi_work *wrk;
++	struct ubi_wl_entry *anchor;
+ 
+ 	spin_lock(&ubi->wl_lock);
++
++	/* Do we already have an anchor? */
++	if (ubi->fm_anchor) {
++		spin_unlock(&ubi->wl_lock);
++		return 0;
++	}
++
++	/* See if we can find an anchor PEB on the list of free PEBs */
++	anchor = ubi_wl_get_fm_peb(ubi, 1);
++	if (anchor) {
++		ubi->fm_anchor = anchor;
++		spin_unlock(&ubi->wl_lock);
++		return 0;
++	}
++
++	/* No luck, trigger wear leveling to produce a new anchor PEB */
++	ubi->fm_do_produce_anchor = 1;
+ 	if (ubi->wl_scheduled) {
+ 		spin_unlock(&ubi->wl_lock);
+ 		return 0;
+@@ -303,7 +309,6 @@ int ubi_ensure_anchor_pebs(struct ubi_device *ubi)
+ 		return -ENOMEM;
+ 	}
+ 
+-	wrk->anchor = 1;
+ 	wrk->func = &wear_leveling_worker;
+ 	__schedule_ubi_work(ubi, wrk);
+ 	return 0;
+diff --git a/drivers/mtd/ubi/fastmap.c b/drivers/mtd/ubi/fastmap.c
+index 8e292992f84c7..b88ef875236cc 100644
+--- a/drivers/mtd/ubi/fastmap.c
++++ b/drivers/mtd/ubi/fastmap.c
+@@ -1552,14 +1552,6 @@ int ubi_update_fastmap(struct ubi_device *ubi)
+ 		return 0;
+ 	}
+ 
+-	ret = ubi_ensure_anchor_pebs(ubi);
+-	if (ret) {
+-		up_write(&ubi->fm_eba_sem);
+-		up_write(&ubi->work_sem);
+-		up_write(&ubi->fm_protect);
+-		return ret;
+-	}
+-
+ 	new_fm = kzalloc(sizeof(*new_fm), GFP_KERNEL);
+ 	if (!new_fm) {
+ 		up_write(&ubi->fm_eba_sem);
+@@ -1630,7 +1622,8 @@ int ubi_update_fastmap(struct ubi_device *ubi)
+ 	}
+ 
+ 	spin_lock(&ubi->wl_lock);
+-	tmp_e = ubi_wl_get_fm_peb(ubi, 1);
++	tmp_e = ubi->fm_anchor;
++	ubi->fm_anchor = NULL;
+ 	spin_unlock(&ubi->wl_lock);
+ 
+ 	if (old_fm) {
+@@ -1682,6 +1675,9 @@ out_unlock:
+ 	up_write(&ubi->work_sem);
+ 	up_write(&ubi->fm_protect);
+ 	kfree(old_fm);
++
++	ubi_ensure_anchor_pebs(ubi);
++
+ 	return ret;
+ 
+ err:
+diff --git a/drivers/mtd/ubi/ubi.h b/drivers/mtd/ubi/ubi.h
+index d47b9e436e673..d248ec371cc17 100644
+--- a/drivers/mtd/ubi/ubi.h
++++ b/drivers/mtd/ubi/ubi.h
+@@ -504,6 +504,8 @@ struct ubi_debug_info {
+  * @fm_work: fastmap work queue
+  * @fm_work_scheduled: non-zero if fastmap work was scheduled
+  * @fast_attach: non-zero if UBI was attached by fastmap
++ * @fm_anchor: The next anchor PEB to use for fastmap
++ * @fm_do_produce_anchor: If true produce an anchor PEB in wl
+  *
+  * @used: RB-tree of used physical eraseblocks
+  * @erroneous: RB-tree of erroneous used physical eraseblocks
+@@ -612,6 +614,8 @@ struct ubi_device {
+ 	struct work_struct fm_work;
+ 	int fm_work_scheduled;
+ 	int fast_attach;
++	struct ubi_wl_entry *fm_anchor;
++	int fm_do_produce_anchor;
+ 
+ 	/* Wear-leveling sub-system's stuff */
+ 	struct rb_root used;
+@@ -802,7 +806,6 @@ struct ubi_attach_info {
+  * @vol_id: the volume ID on which this erasure is being performed
+  * @lnum: the logical eraseblock number
+  * @torture: if the physical eraseblock has to be tortured
+- * @anchor: produce a anchor PEB to by used by fastmap
+  *
+  * The @func pointer points to the worker function. If the @shutdown argument is
+  * not zero, the worker has to free the resources and exit immediately as the
+@@ -818,7 +821,6 @@ struct ubi_work {
+ 	int vol_id;
+ 	int lnum;
+ 	int torture;
+-	int anchor;
+ };
+ 
+ #include "debug.h"
+diff --git a/drivers/mtd/ubi/wl.c b/drivers/mtd/ubi/wl.c
+index 6f2ac865ff05e..80d64d7e7a8be 100644
+--- a/drivers/mtd/ubi/wl.c
++++ b/drivers/mtd/ubi/wl.c
+@@ -331,13 +331,6 @@ static struct ubi_wl_entry *find_wl_entry(struct ubi_device *ubi,
+ 		}
+ 	}
+ 
+-	/* If no fastmap has been written and this WL entry can be used
+-	 * as anchor PEB, hold it back and return the second best WL entry
+-	 * such that fastmap can use the anchor PEB later. */
+-	if (prev_e && !ubi->fm_disabled &&
+-	    !ubi->fm && e->pnum < UBI_FM_MAX_START)
+-		return prev_e;
+-
+ 	return e;
  }
  
- #ifdef CONFIG_CCW_CONSOLE
+@@ -648,9 +641,6 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+ {
+ 	int err, scrubbing = 0, torture = 0, protect = 0, erroneous = 0;
+ 	int erase = 0, keep = 0, vol_id = -1, lnum = -1;
+-#ifdef CONFIG_MTD_UBI_FASTMAP
+-	int anchor = wrk->anchor;
+-#endif
+ 	struct ubi_wl_entry *e1, *e2;
+ 	struct ubi_vid_io_buf *vidb;
+ 	struct ubi_vid_hdr *vid_hdr;
+@@ -690,11 +680,7 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+ 	}
+ 
+ #ifdef CONFIG_MTD_UBI_FASTMAP
+-	/* Check whether we need to produce an anchor PEB */
+-	if (!anchor)
+-		anchor = !anchor_pebs_available(&ubi->free);
+-
+-	if (anchor) {
++	if (ubi->fm_do_produce_anchor) {
+ 		e1 = find_anchor_wl_entry(&ubi->used);
+ 		if (!e1)
+ 			goto out_cancel;
+@@ -705,6 +691,7 @@ static int wear_leveling_worker(struct ubi_device *ubi, struct ubi_work *wrk,
+ 		self_check_in_wl_tree(ubi, e1, &ubi->used);
+ 		rb_erase(&e1->u.rb, &ubi->used);
+ 		dbg_wl("anchor-move PEB %d to PEB %d", e1->pnum, e2->pnum);
++		ubi->fm_do_produce_anchor = 0;
+ 	} else if (!ubi->scrub.rb_node) {
+ #else
+ 	if (!ubi->scrub.rb_node) {
+@@ -1037,7 +1024,6 @@ static int ensure_wear_leveling(struct ubi_device *ubi, int nested)
+ 		goto out_cancel;
+ 	}
+ 
+-	wrk->anchor = 0;
+ 	wrk->func = &wear_leveling_worker;
+ 	if (nested)
+ 		__schedule_ubi_work(ubi, wrk);
+@@ -1079,8 +1065,15 @@ static int __erase_worker(struct ubi_device *ubi, struct ubi_work *wl_wrk)
+ 	err = sync_erase(ubi, e, wl_wrk->torture);
+ 	if (!err) {
+ 		spin_lock(&ubi->wl_lock);
+-		wl_tree_add(e, &ubi->free);
+-		ubi->free_count++;
++
++		if (!ubi->fm_anchor && e->pnum < UBI_FM_MAX_START) {
++			ubi->fm_anchor = e;
++			ubi->fm_do_produce_anchor = 0;
++		} else {
++			wl_tree_add(e, &ubi->free);
++			ubi->free_count++;
++		}
++
+ 		spin_unlock(&ubi->wl_lock);
+ 
+ 		/*
+@@ -1724,6 +1717,9 @@ int ubi_wl_init(struct ubi_device *ubi, struct ubi_attach_info *ai)
+ 	if (err)
+ 		goto out_free;
+ 
++#ifdef CONFIG_MTD_UBI_FASTMAP
++	ubi_ensure_anchor_pebs(ubi);
++#endif
+ 	return 0;
+ 
+ out_free:
+diff --git a/drivers/mtd/ubi/wl.h b/drivers/mtd/ubi/wl.h
+index a9e2d669acd81..c93a532937863 100644
+--- a/drivers/mtd/ubi/wl.h
++++ b/drivers/mtd/ubi/wl.h
+@@ -2,7 +2,6 @@
+ #ifndef UBI_WL_H
+ #define UBI_WL_H
+ #ifdef CONFIG_MTD_UBI_FASTMAP
+-static int anchor_pebs_available(struct rb_root *root);
+ static void update_fastmap_work_fn(struct work_struct *wrk);
+ static struct ubi_wl_entry *find_anchor_wl_entry(struct rb_root *root);
+ static struct ubi_wl_entry *get_peb_for_wl(struct ubi_device *ubi);
 -- 
 2.25.1
 
