@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2EF527C4AA
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF40A27C31C
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729223AbgI2LPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:15:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60154 "EHLO mail.kernel.org"
+        id S1728390AbgI2LDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:03:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728958AbgI2LPk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:15:40 -0400
+        id S1728388AbgI2LDQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:03:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE2A0206DB;
-        Tue, 29 Sep 2020 11:15:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEB2121941;
+        Tue, 29 Sep 2020 11:03:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378140;
-        bh=kdCZ4BrVF8ROU2kKd1mpNXDzuzgROfIDIy022cO2Ugs=;
+        s=default; t=1601377395;
+        bh=5urpLU8oeS6gDR7Jjp/j4LpHwZGRGcr0hFAeFKjIv6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RpwamiTKhaKEqhvi5YYORMLLX/TQsEC/qOEao5B5qJrUD9S7hFqPrydDPu8TRuCU9
-         2+hkOHlTRe5q7epzuQe6Q0+kE4fOzm/z8+lfVMr/iEQWpNINeCq/tiP/ka6K2W5lqH
-         QRoVwHA/OnhbsKraGuCCQ1uBqvsTr4lLyrW2G0fw=
+        b=mZtH8bYL2+dJLqD17PeSSChYa8pu5tC2AW+k6GvcgWhWbNMRtylgmyjMpRH7qz9tz
+         nQ2ja8oD4ZOCRCF+cvExawgX2k4oQKlsusaHOfcsC0VV9nPZkYWpmhvKVrCOW1dtN3
+         Ubmz+hIDC1iVIM7Kh5x1NH0o4GmLGzHBY1zcKiO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 075/166] ext4: fix a data race at inode->i_disksize
+        stable@vger.kernel.org, Guoju Fang <fangguoju@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 20/85] bcache: fix a lost wake-up problem caused by mca_cannibalize_lock
 Date:   Tue, 29 Sep 2020 12:59:47 +0200
-Message-Id: <20200929105938.966515687@linuxfoundation.org>
+Message-Id: <20200929105929.231342533@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Guoju Fang <fangguoju@gmail.com>
 
-[ Upstream commit dce8e237100f60c28cc66effb526ba65a01d8cb3 ]
+[ Upstream commit 34cf78bf34d48dddddfeeadb44f9841d7864997a ]
 
-KCSAN find inode->i_disksize could be accessed concurrently.
+This patch fix a lost wake-up problem caused by the race between
+mca_cannibalize_lock and bch_cannibalize_unlock.
 
-BUG: KCSAN: data-race in ext4_mark_iloc_dirty / ext4_write_end
+Consider two processes, A and B. Process A is executing
+mca_cannibalize_lock, while process B takes c->btree_cache_alloc_lock
+and is executing bch_cannibalize_unlock. The problem happens that after
+process A executes cmpxchg and will execute prepare_to_wait. In this
+timeslice process B executes wake_up, but after that process A executes
+prepare_to_wait and set the state to TASK_INTERRUPTIBLE. Then process A
+goes to sleep but no one will wake up it. This problem may cause bcache
+device to dead.
 
-write (marked) to 0xffff8b8932f40090 of 8 bytes by task 66792 on cpu 0:
- ext4_write_end+0x53f/0x5b0
- ext4_da_write_end+0x237/0x510
- generic_perform_write+0x1c4/0x2a0
- ext4_buffered_write_iter+0x13a/0x210
- ext4_file_write_iter+0xe2/0x9b0
- new_sync_write+0x29c/0x3a0
- __vfs_write+0x92/0xa0
- vfs_write+0xfc/0x2a0
- ksys_write+0xe8/0x140
- __x64_sys_write+0x4c/0x60
- do_syscall_64+0x8a/0x2a0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-read to 0xffff8b8932f40090 of 8 bytes by task 14414 on cpu 1:
- ext4_mark_iloc_dirty+0x716/0x1190
- ext4_mark_inode_dirty+0xc9/0x360
- ext4_convert_unwritten_extents+0x1bc/0x2a0
- ext4_convert_unwritten_io_end_vec+0xc5/0x150
- ext4_put_io_end+0x82/0x130
- ext4_writepages+0xae7/0x16f0
- do_writepages+0x64/0x120
- __writeback_single_inode+0x7d/0x650
- writeback_sb_inodes+0x3a4/0x860
- __writeback_inodes_wb+0xc4/0x150
- wb_writeback+0x43f/0x510
- wb_workfn+0x3b2/0x8a0
- process_one_work+0x39b/0x7e0
- worker_thread+0x88/0x650
- kthread+0x1d4/0x1f0
- ret_from_fork+0x35/0x40
-
-The plain read is outside of inode->i_data_sem critical section
-which results in a data race. Fix it by adding READ_ONCE().
-
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Link: https://lore.kernel.org/r/1582556566-3909-1-git-send-email-hqjagain@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Guoju Fang <fangguoju@gmail.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/bcache/bcache.h |  1 +
+ drivers/md/bcache/btree.c  | 12 ++++++++----
+ drivers/md/bcache/super.c  |  1 +
+ 3 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 845b8620afcf6..34da8d341c0c4 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5179,7 +5179,7 @@ static int ext4_do_update_inode(handle_t *handle,
- 		raw_inode->i_file_acl_high =
- 			cpu_to_le16(ei->i_file_acl >> 32);
- 	raw_inode->i_file_acl_lo = cpu_to_le32(ei->i_file_acl);
--	if (ei->i_disksize != ext4_isize(inode->i_sb, raw_inode)) {
-+	if (READ_ONCE(ei->i_disksize) != ext4_isize(inode->i_sb, raw_inode)) {
- 		ext4_isize_set(raw_inode, ei->i_disksize);
- 		need_datasync = 1;
+diff --git a/drivers/md/bcache/bcache.h b/drivers/md/bcache/bcache.h
+index 7fe7df56fa334..f0939fc1cfe55 100644
+--- a/drivers/md/bcache/bcache.h
++++ b/drivers/md/bcache/bcache.h
+@@ -547,6 +547,7 @@ struct cache_set {
+ 	 */
+ 	wait_queue_head_t	btree_cache_wait;
+ 	struct task_struct	*btree_cache_alloc_lock;
++	spinlock_t		btree_cannibalize_lock;
+ 
+ 	/*
+ 	 * When we free a btree node, we increment the gen of the bucket the
+diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
+index 122d975220945..bdf6071c1b184 100644
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -841,15 +841,17 @@ out:
+ 
+ static int mca_cannibalize_lock(struct cache_set *c, struct btree_op *op)
+ {
+-	struct task_struct *old;
+-
+-	old = cmpxchg(&c->btree_cache_alloc_lock, NULL, current);
+-	if (old && old != current) {
++	spin_lock(&c->btree_cannibalize_lock);
++	if (likely(c->btree_cache_alloc_lock == NULL)) {
++		c->btree_cache_alloc_lock = current;
++	} else if (c->btree_cache_alloc_lock != current) {
+ 		if (op)
+ 			prepare_to_wait(&c->btree_cache_wait, &op->wait,
+ 					TASK_UNINTERRUPTIBLE);
++		spin_unlock(&c->btree_cannibalize_lock);
+ 		return -EINTR;
  	}
++	spin_unlock(&c->btree_cannibalize_lock);
+ 
+ 	return 0;
+ }
+@@ -884,10 +886,12 @@ static struct btree *mca_cannibalize(struct cache_set *c, struct btree_op *op,
+  */
+ static void bch_cannibalize_unlock(struct cache_set *c)
+ {
++	spin_lock(&c->btree_cannibalize_lock);
+ 	if (c->btree_cache_alloc_lock == current) {
+ 		c->btree_cache_alloc_lock = NULL;
+ 		wake_up(&c->btree_cache_wait);
+ 	}
++	spin_unlock(&c->btree_cannibalize_lock);
+ }
+ 
+ static struct btree *mca_alloc(struct cache_set *c, struct btree_op *op,
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index f7f8fb079d2a9..d73f9ea776861 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1511,6 +1511,7 @@ struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
+ 	sema_init(&c->sb_write_mutex, 1);
+ 	mutex_init(&c->bucket_lock);
+ 	init_waitqueue_head(&c->btree_cache_wait);
++	spin_lock_init(&c->btree_cannibalize_lock);
+ 	init_waitqueue_head(&c->bucket_wait);
+ 	init_waitqueue_head(&c->gc_wait);
+ 	sema_init(&c->uuid_write_mutex, 1);
 -- 
 2.25.1
 
