@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6381827CC36
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB74E27CC1B
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:34:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733073AbgI2MeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:34:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36424 "EHLO mail.kernel.org"
+        id S1733062AbgI2MdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:33:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729672AbgI2LW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729673AbgI2LW5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:22:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C25DC2158C;
-        Tue, 29 Sep 2020 11:20:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7D6721941;
+        Tue, 29 Sep 2020 11:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378435;
-        bh=TFBY+Z38wtEk9WMdT39GZDD/7X9Gp3KLa48tdL5b0mE=;
+        s=default; t=1601378438;
+        bh=9WrMzLLwis3pjlraJCFxtQUYP0Z34B7W4tcZUJSfz2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=In5jKHQFvELdqjBDM4EdcIDT1O3EOJP/QS+4lkLiiHunhuQFh3K3hOdLd11nQp+bW
-         ml6VyLI5i7ggGtU9z/BHneyzzJoUUO9PLp8novSCYfMyLMJ7V55O8QN5sUFyE57WlU
-         wRmSBTYCxE5ppJk7vf+dTHmZ5yitfmPgqrc8OgCU=
+        b=lM3jUFOQ9SRbUkO0Wh2qGlbZELfN6HVpGtFG1OsmIl6/hDDXgANY8W6aEbtjFKVUh
+         HHHqEBanHznPhE8yDKyBEL3fl/xQkRqmuUk7/4RjQy3pa4PnVowzBlivtjRkw9umAI
+         l8jQax38bjVWcD/BvBNJZIMC82b9Bi5iCx7mAsXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Jia He <justin.he@arm.com>,
+        Yibo Cai <Yibo.Cai@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 005/245] ath10k: fix memory leak for tpc_stats_final
-Date:   Tue, 29 Sep 2020 12:57:36 +0200
-Message-Id: <20200929105947.252377992@linuxfoundation.org>
+Subject: [PATCH 4.19 006/245] mm: fix double page fault on arm64 if PTE_AF is cleared
+Date:   Tue, 29 Sep 2020 12:57:37 +0200
+Message-Id: <20200929105947.294421468@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -43,36 +45,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Jia He <justin.he@arm.com>
 
-[ Upstream commit 486a8849843455298d49e694cca9968336ce2327 ]
+[ Upstream commit 83d116c53058d505ddef051e90ab27f57015b025 ]
 
-The memory of ar->debug.tpc_stats_final is reallocated every debugfs
-reading, it should be freed in ath10k_debug_destroy() for the last
-allocation.
+When we tested pmdk unit test [1] vmmalloc_fork TEST3 on arm64 guest, there
+will be a double page fault in __copy_from_user_inatomic of cow_user_page.
 
-Tested HW: QCA9984
-Tested FW: 10.4-3.9.0.2-00035
+To reproduce the bug, the cmd is as follows after you deployed everything:
+make -C src/test/vmmalloc_fork/ TEST_TIME=60m check
 
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Below call trace is from arm64 do_page_fault for debugging purpose:
+[  110.016195] Call trace:
+[  110.016826]  do_page_fault+0x5a4/0x690
+[  110.017812]  do_mem_abort+0x50/0xb0
+[  110.018726]  el1_da+0x20/0xc4
+[  110.019492]  __arch_copy_from_user+0x180/0x280
+[  110.020646]  do_wp_page+0xb0/0x860
+[  110.021517]  __handle_mm_fault+0x994/0x1338
+[  110.022606]  handle_mm_fault+0xe8/0x180
+[  110.023584]  do_page_fault+0x240/0x690
+[  110.024535]  do_mem_abort+0x50/0xb0
+[  110.025423]  el0_da+0x20/0x24
+
+The pte info before __copy_from_user_inatomic is (PTE_AF is cleared):
+[ffff9b007000] pgd=000000023d4f8003, pud=000000023da9b003,
+               pmd=000000023d4b3003, pte=360000298607bd3
+
+As told by Catalin: "On arm64 without hardware Access Flag, copying from
+user will fail because the pte is old and cannot be marked young. So we
+always end up with zeroed page after fork() + CoW for pfn mappings. we
+don't always have a hardware-managed access flag on arm64."
+
+This patch fixes it by calling pte_mkyoung. Also, the parameter is
+changed because vmf should be passed to cow_user_page()
+
+Add a WARN_ON_ONCE when __copy_from_user_inatomic() returns error
+in case there can be some obscure use-case (by Kirill).
+
+[1] https://github.com/pmem/pmdk/tree/master/src/test/vmmalloc_fork
+
+Signed-off-by: Jia He <justin.he@arm.com>
+Reported-by: Yibo Cai <Yibo.Cai@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/debug.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/memory.c | 104 ++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 89 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/debug.c b/drivers/net/wireless/ath/ath10k/debug.c
-index aa333110eaba6..4e980e78ba95c 100644
---- a/drivers/net/wireless/ath/ath10k/debug.c
-+++ b/drivers/net/wireless/ath/ath10k/debug.c
-@@ -2365,6 +2365,7 @@ void ath10k_debug_destroy(struct ath10k *ar)
- 	ath10k_debug_fw_stats_reset(ar);
+diff --git a/mm/memory.c b/mm/memory.c
+index bbf0cc4066c84..fcad8a0d943d3 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -116,6 +116,18 @@ int randomize_va_space __read_mostly =
+ 					2;
+ #endif
  
- 	kfree(ar->debug.tpc_stats);
-+	kfree(ar->debug.tpc_stats_final);
++#ifndef arch_faults_on_old_pte
++static inline bool arch_faults_on_old_pte(void)
++{
++	/*
++	 * Those arches which don't have hw access flag feature need to
++	 * implement their own helper. By default, "true" means pagefault
++	 * will be hit on old pte.
++	 */
++	return true;
++}
++#endif
++
+ static int __init disable_randmaps(char *s)
+ {
+ 	randomize_va_space = 0;
+@@ -2335,32 +2347,82 @@ static inline int pte_unmap_same(struct mm_struct *mm, pmd_t *pmd,
+ 	return same;
  }
  
- int ath10k_debug_register(struct ath10k *ar)
+-static inline void cow_user_page(struct page *dst, struct page *src, unsigned long va, struct vm_area_struct *vma)
++static inline bool cow_user_page(struct page *dst, struct page *src,
++				 struct vm_fault *vmf)
+ {
++	bool ret;
++	void *kaddr;
++	void __user *uaddr;
++	bool force_mkyoung;
++	struct vm_area_struct *vma = vmf->vma;
++	struct mm_struct *mm = vma->vm_mm;
++	unsigned long addr = vmf->address;
++
+ 	debug_dma_assert_idle(src);
+ 
++	if (likely(src)) {
++		copy_user_highpage(dst, src, addr, vma);
++		return true;
++	}
++
+ 	/*
+ 	 * If the source page was a PFN mapping, we don't have
+ 	 * a "struct page" for it. We do a best-effort copy by
+ 	 * just copying from the original user address. If that
+ 	 * fails, we just zero-fill it. Live with it.
+ 	 */
+-	if (unlikely(!src)) {
+-		void *kaddr = kmap_atomic(dst);
+-		void __user *uaddr = (void __user *)(va & PAGE_MASK);
++	kaddr = kmap_atomic(dst);
++	uaddr = (void __user *)(addr & PAGE_MASK);
++
++	/*
++	 * On architectures with software "accessed" bits, we would
++	 * take a double page fault, so mark it accessed here.
++	 */
++	force_mkyoung = arch_faults_on_old_pte() && !pte_young(vmf->orig_pte);
++	if (force_mkyoung) {
++		pte_t entry;
++
++		vmf->pte = pte_offset_map_lock(mm, vmf->pmd, addr, &vmf->ptl);
++		if (!likely(pte_same(*vmf->pte, vmf->orig_pte))) {
++			/*
++			 * Other thread has already handled the fault
++			 * and we don't need to do anything. If it's
++			 * not the case, the fault will be triggered
++			 * again on the same address.
++			 */
++			ret = false;
++			goto pte_unlock;
++		}
+ 
++		entry = pte_mkyoung(vmf->orig_pte);
++		if (ptep_set_access_flags(vma, addr, vmf->pte, entry, 0))
++			update_mmu_cache(vma, addr, vmf->pte);
++	}
++
++	/*
++	 * This really shouldn't fail, because the page is there
++	 * in the page tables. But it might just be unreadable,
++	 * in which case we just give up and fill the result with
++	 * zeroes.
++	 */
++	if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE)) {
+ 		/*
+-		 * This really shouldn't fail, because the page is there
+-		 * in the page tables. But it might just be unreadable,
+-		 * in which case we just give up and fill the result with
+-		 * zeroes.
++		 * Give a warn in case there can be some obscure
++		 * use-case
+ 		 */
+-		if (__copy_from_user_inatomic(kaddr, uaddr, PAGE_SIZE))
+-			clear_page(kaddr);
+-		kunmap_atomic(kaddr);
+-		flush_dcache_page(dst);
+-	} else
+-		copy_user_highpage(dst, src, va, vma);
++		WARN_ON_ONCE(1);
++		clear_page(kaddr);
++	}
++
++	ret = true;
++
++pte_unlock:
++	if (force_mkyoung)
++		pte_unmap_unlock(vmf->pte, vmf->ptl);
++	kunmap_atomic(kaddr);
++	flush_dcache_page(dst);
++
++	return ret;
+ }
+ 
+ static gfp_t __get_fault_gfp_mask(struct vm_area_struct *vma)
+@@ -2514,7 +2576,19 @@ static vm_fault_t wp_page_copy(struct vm_fault *vmf)
+ 				vmf->address);
+ 		if (!new_page)
+ 			goto oom;
+-		cow_user_page(new_page, old_page, vmf->address, vma);
++
++		if (!cow_user_page(new_page, old_page, vmf)) {
++			/*
++			 * COW failed, if the fault was solved by other,
++			 * it's fine. If not, userspace would re-fault on
++			 * the same address and we will handle the fault
++			 * from the second attempt.
++			 */
++			put_page(new_page);
++			if (old_page)
++				put_page(old_page);
++			return 0;
++		}
+ 	}
+ 
+ 	if (mem_cgroup_try_charge_delay(new_page, mm, GFP_KERNEL, &memcg, false))
 -- 
 2.25.1
 
