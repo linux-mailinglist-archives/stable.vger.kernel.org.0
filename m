@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3126F27CD78
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:44:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8406727CDFC
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:48:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387501AbgI2Mob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:44:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47416 "EHLO mail.kernel.org"
+        id S1728365AbgI2LDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:03:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728696AbgI2LIZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:08:25 -0400
+        id S1728337AbgI2LDB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:03:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07F2322207;
-        Tue, 29 Sep 2020 11:08:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6C4420C09;
+        Tue, 29 Sep 2020 11:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377696;
-        bh=M1/GztjogkDW1sQaySry20+xtBUmFDGE9cLdO4u6RNY=;
+        s=default; t=1601377381;
+        bh=WI/pjt1weQQ7po3ewfU8oddQZDYZsLZAP0LT5WBgph8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uxwKd3xBnXCyA7+E2wHaUYQCY32JtJ4tYa1j7goOVzNTrqOZPk2VKtdalmJcSZTCO
-         FnS5WXqO4ZDg29EpbQrtyePDJkGbhYpqMYiBZ7zFOLgUmZGWktqpYKXzHhUwqyvE/e
-         EK/cC/N5zy3HXc3t+JTJYcAEFgA3Kfha+JTLIQE4=
+        b=VLDIiV6u9ke1OEhFGi8t8L+kWQHZdWgOCPYEsgv4s62uUQtFxKLuD5yCDvEKfhiXA
+         Q6Y/N+NZSHpUGTH9SdQ6l5qXi6NdP3tU5h0H9xVypl7wBkeXM5VZtpvJb1Idljg+P2
+         FpzFMm7md/LD4rDWb1B3kcetQokhPmasdVKZp9aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Mandlik <mmandlik@google.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>,
+        Peter Geis <pgwipeout@gmail.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 039/121] Bluetooth: Fix refcount use-after-free issue
+Subject: [PATCH 4.4 16/85] PM / devfreq: tegra30: Fix integer overflow on CPUs freq max out
 Date:   Tue, 29 Sep 2020 12:59:43 +0200
-Message-Id: <20200929105932.122634344@linuxfoundation.org>
+Message-Id: <20200929105929.026530952@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,201 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Mandlik <mmandlik@google.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 6c08fc896b60893c5d673764b0668015d76df462 ]
+[ Upstream commit 53b4b2aeee26f42cde5ff2a16dd0d8590c51a55a ]
 
-There is no lock preventing both l2cap_sock_release() and
-chan->ops->close() from running at the same time.
+There is another kHz-conversion bug in the code, resulting in integer
+overflow. Although, this time the resulting value is 4294966296 and it's
+close to ULONG_MAX, which is okay in this case.
 
-If we consider Thread A running l2cap_chan_timeout() and Thread B running
-l2cap_sock_release(), expected behavior is:
-  A::l2cap_chan_timeout()->l2cap_chan_close()->l2cap_sock_teardown_cb()
-  A::l2cap_chan_timeout()->l2cap_sock_close_cb()->l2cap_sock_kill()
-  B::l2cap_sock_release()->sock_orphan()
-  B::l2cap_sock_release()->l2cap_sock_kill()
-
-where,
-sock_orphan() clears "sk->sk_socket" and l2cap_sock_teardown_cb() marks
-socket as SOCK_ZAPPED.
-
-In l2cap_sock_kill(), there is an "if-statement" that checks if both
-sock_orphan() and sock_teardown() has been run i.e. sk->sk_socket is NULL
-and socket is marked as SOCK_ZAPPED. Socket is killed if the condition is
-satisfied.
-
-In the race condition, following occurs:
-  A::l2cap_chan_timeout()->l2cap_chan_close()->l2cap_sock_teardown_cb()
-  B::l2cap_sock_release()->sock_orphan()
-  B::l2cap_sock_release()->l2cap_sock_kill()
-  A::l2cap_chan_timeout()->l2cap_sock_close_cb()->l2cap_sock_kill()
-
-In this scenario, "if-statement" is true in both B::l2cap_sock_kill() and
-A::l2cap_sock_kill() and we hit "refcount: underflow; use-after-free" bug.
-
-Similar condition occurs at other places where teardown/sock_kill is
-happening:
-  l2cap_disconnect_rsp()->l2cap_chan_del()->l2cap_sock_teardown_cb()
-  l2cap_disconnect_rsp()->l2cap_sock_close_cb()->l2cap_sock_kill()
-
-  l2cap_conn_del()->l2cap_chan_del()->l2cap_sock_teardown_cb()
-  l2cap_conn_del()->l2cap_sock_close_cb()->l2cap_sock_kill()
-
-  l2cap_disconnect_req()->l2cap_chan_del()->l2cap_sock_teardown_cb()
-  l2cap_disconnect_req()->l2cap_sock_close_cb()->l2cap_sock_kill()
-
-  l2cap_sock_cleanup_listen()->l2cap_chan_close()->l2cap_sock_teardown_cb()
-  l2cap_sock_cleanup_listen()->l2cap_sock_kill()
-
-Protect teardown/sock_kill and orphan/sock_kill by adding hold_lock on
-l2cap channel to ensure that the socket is killed only after marked as
-zapped and orphan.
-
-Signed-off-by: Manish Mandlik <mmandlik@google.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Tested-by: Peter Geis <pgwipeout@gmail.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 26 +++++++++++++++-----------
- net/bluetooth/l2cap_sock.c | 16 +++++++++++++---
- 2 files changed, 28 insertions(+), 14 deletions(-)
+ drivers/devfreq/tegra-devfreq.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 11012a5090708..de085947c19c2 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -414,6 +414,9 @@ static void l2cap_chan_timeout(struct work_struct *work)
- 	BT_DBG("chan %p state %s", chan, state_to_string(chan->state));
+diff --git a/drivers/devfreq/tegra-devfreq.c b/drivers/devfreq/tegra-devfreq.c
+index 64a2e02b87d78..0b0de6a049afb 100644
+--- a/drivers/devfreq/tegra-devfreq.c
++++ b/drivers/devfreq/tegra-devfreq.c
+@@ -79,6 +79,8 @@
  
- 	mutex_lock(&conn->chan_lock);
-+	/* __set_chan_timer() calls l2cap_chan_hold(chan) while scheduling
-+	 * this work. No need to call l2cap_chan_hold(chan) here again.
-+	 */
- 	l2cap_chan_lock(chan);
+ #define KHZ							1000
  
- 	if (chan->state == BT_CONNECTED || chan->state == BT_CONFIG)
-@@ -426,12 +429,12 @@ static void l2cap_chan_timeout(struct work_struct *work)
- 
- 	l2cap_chan_close(chan, reason);
- 
--	l2cap_chan_unlock(chan);
--
- 	chan->ops->close(chan);
--	mutex_unlock(&conn->chan_lock);
- 
-+	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
++#define KHZ_MAX						(ULONG_MAX / KHZ)
 +
-+	mutex_unlock(&conn->chan_lock);
- }
+ /* Assume that the bus is saturated if the utilization is 25% */
+ #define BUS_SATURATION_RATIO					25
  
- struct l2cap_chan *l2cap_chan_create(void)
-@@ -1725,9 +1728,9 @@ static void l2cap_conn_del(struct hci_conn *hcon, int err)
+@@ -179,7 +181,7 @@ struct tegra_actmon_emc_ratio {
+ };
  
- 		l2cap_chan_del(chan, err);
- 
--		l2cap_chan_unlock(chan);
--
- 		chan->ops->close(chan);
-+
-+		l2cap_chan_unlock(chan);
- 		l2cap_chan_put(chan);
- 	}
- 
-@@ -4327,6 +4330,7 @@ static inline int l2cap_disconnect_req(struct l2cap_conn *conn,
- 		return 0;
- 	}
- 
-+	l2cap_chan_hold(chan);
- 	l2cap_chan_lock(chan);
- 
- 	rsp.dcid = cpu_to_le16(chan->scid);
-@@ -4335,12 +4339,11 @@ static inline int l2cap_disconnect_req(struct l2cap_conn *conn,
- 
- 	chan->ops->set_shutdown(chan);
- 
--	l2cap_chan_hold(chan);
- 	l2cap_chan_del(chan, ECONNRESET);
- 
--	l2cap_chan_unlock(chan);
--
- 	chan->ops->close(chan);
-+
-+	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
- 
- 	mutex_unlock(&conn->chan_lock);
-@@ -4372,20 +4375,21 @@ static inline int l2cap_disconnect_rsp(struct l2cap_conn *conn,
- 		return 0;
- 	}
- 
-+	l2cap_chan_hold(chan);
- 	l2cap_chan_lock(chan);
- 
- 	if (chan->state != BT_DISCONN) {
- 		l2cap_chan_unlock(chan);
-+		l2cap_chan_put(chan);
- 		mutex_unlock(&conn->chan_lock);
- 		return 0;
- 	}
- 
--	l2cap_chan_hold(chan);
- 	l2cap_chan_del(chan, 0);
- 
--	l2cap_chan_unlock(chan);
--
- 	chan->ops->close(chan);
-+
-+	l2cap_chan_unlock(chan);
- 	l2cap_chan_put(chan);
- 
- 	mutex_unlock(&conn->chan_lock);
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index a8ba752732c98..3db8cfebd069a 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -1038,7 +1038,7 @@ done:
- }
- 
- /* Kill socket (only if zapped and orphan)
-- * Must be called on unlocked socket.
-+ * Must be called on unlocked socket, with l2cap channel lock.
-  */
- static void l2cap_sock_kill(struct sock *sk)
- {
-@@ -1199,8 +1199,15 @@ static int l2cap_sock_release(struct socket *sock)
- 
- 	err = l2cap_sock_shutdown(sock, 2);
- 
-+	l2cap_chan_hold(l2cap_pi(sk)->chan);
-+	l2cap_chan_lock(l2cap_pi(sk)->chan);
-+
- 	sock_orphan(sk);
- 	l2cap_sock_kill(sk);
-+
-+	l2cap_chan_unlock(l2cap_pi(sk)->chan);
-+	l2cap_chan_put(l2cap_pi(sk)->chan);
-+
- 	return err;
- }
- 
-@@ -1218,12 +1225,15 @@ static void l2cap_sock_cleanup_listen(struct sock *parent)
- 		BT_DBG("child chan %p state %s", chan,
- 		       state_to_string(chan->state));
- 
-+		l2cap_chan_hold(chan);
- 		l2cap_chan_lock(chan);
-+
- 		__clear_chan_timer(chan);
- 		l2cap_chan_close(chan, ECONNRESET);
--		l2cap_chan_unlock(chan);
--
- 		l2cap_sock_kill(sk);
-+
-+		l2cap_chan_unlock(chan);
-+		l2cap_chan_put(chan);
- 	}
- }
- 
+ static struct tegra_actmon_emc_ratio actmon_emc_ratios[] = {
+-	{ 1400000, ULONG_MAX },
++	{ 1400000,    KHZ_MAX },
+ 	{ 1200000,    750000 },
+ 	{ 1100000,    600000 },
+ 	{ 1000000,    500000 },
 -- 
 2.25.1
 
