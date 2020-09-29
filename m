@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D555927C772
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB07027C7CB
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730938AbgI2Lxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47386 "EHLO mail.kernel.org"
+        id S1730034AbgI2L4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:56:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730882AbgI2Lq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:46:59 -0400
+        id S1730322AbgI2Lnq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:43:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73331221E7;
-        Tue, 29 Sep 2020 11:46:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43D3D2065C;
+        Tue, 29 Sep 2020 11:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380015;
-        bh=fEJmQhPAKMkbY8sEpsumlVQIeQ+oUynX6P4xKhGDkMU=;
+        s=default; t=1601379825;
+        bh=BCGAqlWnO6+8kS1OsNDT/8VjpLmM3QQVmJ1VQfwz5i0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqIMIw0Qb6WVEeN7IozpDdKsYnlWFjHjrImwnxfCXQ2fpDD5q4w8P7574UlMf24zW
-         TuzdFjbkKh2bGhX/0MG5T1rsZyYaSnUPKz9oSCnXKaiwxiEft4wbcDw6dlp+UghVTs
-         81nu0fzC8F1QnfNidppZb/YNkxiUouLN3kzQphLw=
+        b=QriiEJG0l2TdePt79mnY/cfTqniPxrOXgAYm4sHg1EYospBUzIL8CSzboVaMaIM2L
+         iH0qbnko/JLPj9KYtUuqnp0lf20na+5FU4YseJUE8SSIVe3TSUhemITrdlfN/fezzF
+         Bl/AUNsradog5gmHLCUo/85Kh/6euEH5VPuzX1Us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 22/99] ieee802154/adf7242: check status of adf7242_read_reg
+Subject: [PATCH 5.4 334/388] drm/amdgpu/dc: Require primary plane to be enabled whenever the CRTC is
 Date:   Tue, 29 Sep 2020 13:01:05 +0200
-Message-Id: <20200929105930.818581847@linuxfoundation.org>
+Message-Id: <20200929110026.628268423@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Michel Dänzer <mdaenzer@redhat.com>
 
-[ Upstream commit e3914ed6cf44bfe1f169e26241f8314556fd1ac1 ]
+[ Upstream commit 2f228aab21bbc74e90e267a721215ec8be51daf7 ]
 
-Clang static analysis reports this error
+Don't check drm_crtc_state::active for this either, per its
+documentation in include/drm/drm_crtc.h:
 
-adf7242.c:887:6: warning: Assigned value is garbage or undefined
-        len = len_u8;
-            ^ ~~~~~~
+ * Hence drivers must not consult @active in their various
+ * &drm_mode_config_funcs.atomic_check callback to reject an atomic
+ * commit.
 
-len_u8 is set in
-       adf7242_read_reg(lp, 0, &len_u8);
+atomic_remove_fb disables the CRTC as needed for disabling the primary
+plane.
 
-When this call fails, len_u8 is not set.
+This prevents at least the following problems if the primary plane gets
+disabled (e.g. due to destroying the FB assigned to the primary plane,
+as happens e.g. with mutter in Wayland mode):
 
-So check the return code.
+* The legacy cursor ioctl returned EINVAL for a non-0 cursor FB ID
+  (which enables the cursor plane).
+* If the cursor plane was enabled, changing the legacy DPMS property
+  value from off to on returned EINVAL.
 
-Fixes: 7302b9d90117 ("ieee802154/adf7242: Driver for ADF7242 MAC IEEE802154")
+v2:
+* Minor changes to code comment and commit log, per review feedback.
 
-Signed-off-by: Tom Rix <trix@redhat.com>
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-Link: https://lore.kernel.org/r/20200802142339.21091-1-trix@redhat.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+GitLab: https://gitlab.gnome.org/GNOME/mutter/-/issues/1108
+GitLab: https://gitlab.gnome.org/GNOME/mutter/-/issues/1165
+GitLab: https://gitlab.gnome.org/GNOME/mutter/-/issues/1344
+Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/adf7242.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 32 ++++++-------------
+ 1 file changed, 10 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/net/ieee802154/adf7242.c b/drivers/net/ieee802154/adf7242.c
-index c11f32f644db3..7db9cbd0f5ded 100644
---- a/drivers/net/ieee802154/adf7242.c
-+++ b/drivers/net/ieee802154/adf7242.c
-@@ -882,7 +882,9 @@ static int adf7242_rx(struct adf7242_local *lp)
- 	int ret;
- 	u8 lqi, len_u8, *data;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 60e50181f6d39..2384aa018993d 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -4299,19 +4299,6 @@ static void dm_crtc_helper_disable(struct drm_crtc *crtc)
+ {
+ }
  
--	adf7242_read_reg(lp, 0, &len_u8);
-+	ret = adf7242_read_reg(lp, 0, &len_u8);
-+	if (ret)
-+		return ret;
+-static bool does_crtc_have_active_cursor(struct drm_crtc_state *new_crtc_state)
+-{
+-	struct drm_device *dev = new_crtc_state->crtc->dev;
+-	struct drm_plane *plane;
+-
+-	drm_for_each_plane_mask(plane, dev, new_crtc_state->plane_mask) {
+-		if (plane->type == DRM_PLANE_TYPE_CURSOR)
+-			return true;
+-	}
+-
+-	return false;
+-}
+-
+ static int count_crtc_active_planes(struct drm_crtc_state *new_crtc_state)
+ {
+ 	struct drm_atomic_state *state = new_crtc_state->state;
+@@ -4391,19 +4378,20 @@ static int dm_crtc_helper_atomic_check(struct drm_crtc *crtc,
+ 		return ret;
+ 	}
  
- 	len = len_u8;
+-	/* In some use cases, like reset, no stream is attached */
+-	if (!dm_crtc_state->stream)
+-		return 0;
+-
+ 	/*
+-	 * We want at least one hardware plane enabled to use
+-	 * the stream with a cursor enabled.
++	 * We require the primary plane to be enabled whenever the CRTC is, otherwise
++	 * drm_mode_cursor_universal may end up trying to enable the cursor plane while all other
++	 * planes are disabled, which is not supported by the hardware. And there is legacy
++	 * userspace which stops using the HW cursor altogether in response to the resulting EINVAL.
+ 	 */
+-	if (state->enable && state->active &&
+-	    does_crtc_have_active_cursor(state) &&
+-	    dm_crtc_state->active_planes == 0)
++	if (state->enable &&
++	    !(state->plane_mask & drm_plane_mask(crtc->primary)))
+ 		return -EINVAL;
+ 
++	/* In some use cases, like reset, no stream is attached */
++	if (!dm_crtc_state->stream)
++		return 0;
++
+ 	if (dc_validate_stream(dc, dm_crtc_state->stream) == DC_OK)
+ 		return 0;
  
 -- 
 2.25.1
