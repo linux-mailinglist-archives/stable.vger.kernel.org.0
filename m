@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EA0427CA05
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:16:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0515327CA65
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732243AbgI2MPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:15:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53444 "EHLO mail.kernel.org"
+        id S1730238AbgI2MSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:18:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729682AbgI2LhA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:00 -0400
+        id S1729971AbgI2LgV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:36:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 802EB23EAF;
-        Tue, 29 Sep 2020 11:32:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6338523E22;
+        Tue, 29 Sep 2020 11:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379132;
-        bh=GuydHO9q3hqS4cSCp53Kx8Gu+F5DGVHOJVgrJoPuwi0=;
+        s=default; t=1601379090;
+        bh=Fm6jXLSpDYVGejFkqBr0le1Cr0+VQzM/yBzIoueAvII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2is+gEBYSIprRg74mXD5FM6uTB751gMKlV3GNp/qESuoFOG+ATTl1tDEYNdGybs1V
-         vhTBcmC7WMPfHJ5lr+qToEidg8s1n50XPNUiae+QVGweB5p3nawb4ViXbcg1/I2NIm
-         MKKPBmP4zvLehphB+qU2ckY1+4pM03T+hJt0gMl8=
+        b=LXOx9xLqLXXZHBgovBURE4KEFPzkobiRGo6v+cPNzr1N1ctMd/QM8zJHLnqw3F9kL
+         s6STe6j7ujnoUMFOEuOPamkxMEFfr4rMKERWSLOP+yTf5tcvqKcVfGG9wC3akryzLY
+         zAt7ASDWn4Z8XphF3Xywn1yLQF733CzvPRW75ZSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 009/388] scsi: qla2xxx: Add error handling for PLOGI ELS passthrough
-Date:   Tue, 29 Sep 2020 12:55:40 +0200
-Message-Id: <20200929110010.933632579@linuxfoundation.org>
+Subject: [PATCH 5.4 010/388] ath10k: fix array out-of-bounds access
+Date:   Tue, 29 Sep 2020 12:55:41 +0200
+Message-Id: <20200929110010.984303536@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -44,142 +43,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Miaoqing Pan <miaoqing@codeaurora.org>
 
-[ Upstream commit c76ae845ea836d6128982dcbd41ac35c81e2de63 ]
+[ Upstream commit c5329b2d5b8b4e41be14d31ee8505b4f5607bf9b ]
 
-Add error handling logic to ELS Passthrough relating to NVME devices.
-Current code does not parse error code to take proper recovery action,
-instead it re-logins with the same login parameters that encountered the
-error. Ex: nport handle collision.
+If firmware reports rate_max > WMI_TPC_RATE_MAX(WMI_TPC_FINAL_RATE_MAX)
+or num_tx_chain > WMI_TPC_TX_N_CHAIN, it will cause array out-of-bounds
+access, so print a warning and reset to avoid memory corruption.
 
-Link: https://lore.kernel.org/r/20190912180918.6436-10-hmadhani@marvell.com
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Tested HW: QCA9984
+Tested FW: 10.4-3.9.0.2-00035
+
+Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_iocb.c | 95 +++++++++++++++++++++++++++++++--
- 1 file changed, 92 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath10k/debug.c |  2 +-
+ drivers/net/wireless/ath/ath10k/wmi.c   | 49 ++++++++++++++++---------
+ 2 files changed, 32 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_iocb.c b/drivers/scsi/qla2xxx/qla_iocb.c
-index bdf1994251b9b..2e272fc858ed1 100644
---- a/drivers/scsi/qla2xxx/qla_iocb.c
-+++ b/drivers/scsi/qla2xxx/qla_iocb.c
-@@ -2749,6 +2749,10 @@ static void qla2x00_els_dcmd2_sp_done(srb_t *sp, int res)
- 	struct scsi_qla_host *vha = sp->vha;
- 	struct event_arg ea;
- 	struct qla_work_evt *e;
-+	struct fc_port *conflict_fcport;
-+	port_id_t cid;	/* conflict Nport id */
-+	u32 *fw_status = sp->u.iocb_cmd.u.els_plogi.fw_status;
-+	u16 lid;
+diff --git a/drivers/net/wireless/ath/ath10k/debug.c b/drivers/net/wireless/ath/ath10k/debug.c
+index bd2b5628f850b..40baf25ac99f3 100644
+--- a/drivers/net/wireless/ath/ath10k/debug.c
++++ b/drivers/net/wireless/ath/ath10k/debug.c
+@@ -1516,7 +1516,7 @@ static void ath10k_tpc_stats_print(struct ath10k_tpc_stats *tpc_stats,
+ 	*len += scnprintf(buf + *len, buf_len - *len,
+ 			  "No.  Preamble Rate_code ");
  
- 	ql_dbg(ql_dbg_disc, vha, 0x3072,
- 	    "%s ELS done rc %d hdl=%x, portid=%06x %8phC\n",
-@@ -2760,14 +2764,99 @@ static void qla2x00_els_dcmd2_sp_done(srb_t *sp, int res)
- 	if (sp->flags & SRB_WAKEUP_ON_COMP)
- 		complete(&lio->u.els_plogi.comp);
- 	else {
--		if (res) {
--			set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
--		} else {
-+		switch (fw_status[0]) {
-+		case CS_DATA_UNDERRUN:
-+		case CS_COMPLETE:
- 			memset(&ea, 0, sizeof(ea));
- 			ea.fcport = fcport;
- 			ea.data[0] = MBS_COMMAND_COMPLETE;
- 			ea.sp = sp;
- 			qla24xx_handle_plogi_done_event(vha, &ea);
-+			break;
-+		case CS_IOCB_ERROR:
-+			switch (fw_status[1]) {
-+			case LSC_SCODE_PORTID_USED:
-+				lid = fw_status[2] & 0xffff;
-+				qlt_find_sess_invalidate_other(vha,
-+				    wwn_to_u64(fcport->port_name),
-+				    fcport->d_id, lid, &conflict_fcport);
-+				if (conflict_fcport) {
-+					/*
-+					 * Another fcport shares the same
-+					 * loop_id & nport id; conflict
-+					 * fcport needs to finish cleanup
-+					 * before this fcport can proceed
-+					 * to login.
-+					 */
-+					conflict_fcport->conflict = fcport;
-+					fcport->login_pause = 1;
-+					ql_dbg(ql_dbg_disc, vha, 0x20ed,
-+					    "%s %d %8phC pid %06x inuse with lid %#x post gidpn\n",
-+					    __func__, __LINE__,
-+					    fcport->port_name,
-+					    fcport->d_id.b24, lid);
-+				} else {
-+					ql_dbg(ql_dbg_disc, vha, 0x20ed,
-+					    "%s %d %8phC pid %06x inuse with lid %#x sched del\n",
-+					    __func__, __LINE__,
-+					    fcport->port_name,
-+					    fcport->d_id.b24, lid);
-+					qla2x00_clear_loop_id(fcport);
-+					set_bit(lid, vha->hw->loop_id_map);
-+					fcport->loop_id = lid;
-+					fcport->keep_nport_handle = 0;
-+					qlt_schedule_sess_for_deletion(fcport);
-+				}
-+				break;
-+
-+			case LSC_SCODE_NPORT_USED:
-+				cid.b.domain = (fw_status[2] >> 16) & 0xff;
-+				cid.b.area   = (fw_status[2] >>  8) & 0xff;
-+				cid.b.al_pa  = fw_status[2] & 0xff;
-+				cid.b.rsvd_1 = 0;
-+
-+				ql_dbg(ql_dbg_disc, vha, 0x20ec,
-+				    "%s %d %8phC lid %#x in use with pid %06x post gnl\n",
-+				    __func__, __LINE__, fcport->port_name,
-+				    fcport->loop_id, cid.b24);
-+				set_bit(fcport->loop_id,
-+				    vha->hw->loop_id_map);
-+				fcport->loop_id = FC_NO_LOOP_ID;
-+				qla24xx_post_gnl_work(vha, fcport);
-+				break;
-+
-+			case LSC_SCODE_NOXCB:
-+				vha->hw->exch_starvation++;
-+				if (vha->hw->exch_starvation > 5) {
-+					ql_log(ql_log_warn, vha, 0xd046,
-+					    "Exchange starvation. Resetting RISC\n");
-+					vha->hw->exch_starvation = 0;
-+					set_bit(ISP_ABORT_NEEDED,
-+					    &vha->dpc_flags);
-+					qla2xxx_wake_dpc(vha);
-+				}
-+				/* fall through */
-+			default:
-+				ql_dbg(ql_dbg_disc, vha, 0x20eb,
-+				    "%s %8phC cmd error fw_status 0x%x 0x%x 0x%x\n",
-+				    __func__, sp->fcport->port_name,
-+				    fw_status[0], fw_status[1], fw_status[2]);
-+
-+				fcport->flags &= ~FCF_ASYNC_SENT;
-+				set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
-+				break;
-+			}
-+			break;
-+
-+		default:
-+			ql_dbg(ql_dbg_disc, vha, 0x20eb,
-+			    "%s %8phC cmd error 2 fw_status 0x%x 0x%x 0x%x\n",
-+			    __func__, sp->fcport->port_name,
-+			    fw_status[0], fw_status[1], fw_status[2]);
-+
-+			sp->fcport->flags &= ~FCF_ASYNC_SENT;
-+			set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
-+			break;
- 		}
+-	for (i = 0; i < WMI_TPC_TX_N_CHAIN; i++)
++	for (i = 0; i < tpc_stats->num_tx_chain; i++)
+ 		*len += scnprintf(buf + *len, buf_len - *len,
+ 				  "tpc_value%d ", i);
  
- 		e = qla2x00_alloc_work(vha, QLA_EVT_UNMAP);
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
+index 90f1197a6ad84..2675174cc4fec 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.c
++++ b/drivers/net/wireless/ath/ath10k/wmi.c
+@@ -4668,16 +4668,13 @@ static void ath10k_tpc_config_disp_tables(struct ath10k *ar,
+ 	}
+ 
+ 	pream_idx = 0;
+-	for (i = 0; i < __le32_to_cpu(ev->rate_max); i++) {
++	for (i = 0; i < tpc_stats->rate_max; i++) {
+ 		memset(tpc_value, 0, sizeof(tpc_value));
+ 		memset(buff, 0, sizeof(buff));
+ 		if (i == pream_table[pream_idx])
+ 			pream_idx++;
+ 
+-		for (j = 0; j < WMI_TPC_TX_N_CHAIN; j++) {
+-			if (j >= __le32_to_cpu(ev->num_tx_chain))
+-				break;
+-
++		for (j = 0; j < tpc_stats->num_tx_chain; j++) {
+ 			tpc[j] = ath10k_tpc_config_get_rate(ar, ev, i, j + 1,
+ 							    rate_code[i],
+ 							    type);
+@@ -4790,7 +4787,7 @@ void ath10k_wmi_tpc_config_get_rate_code(u8 *rate_code, u16 *pream_table,
+ 
+ void ath10k_wmi_event_pdev_tpc_config(struct ath10k *ar, struct sk_buff *skb)
+ {
+-	u32 num_tx_chain;
++	u32 num_tx_chain, rate_max;
+ 	u8 rate_code[WMI_TPC_RATE_MAX];
+ 	u16 pream_table[WMI_TPC_PREAM_TABLE_MAX];
+ 	struct wmi_pdev_tpc_config_event *ev;
+@@ -4806,6 +4803,13 @@ void ath10k_wmi_event_pdev_tpc_config(struct ath10k *ar, struct sk_buff *skb)
+ 		return;
+ 	}
+ 
++	rate_max = __le32_to_cpu(ev->rate_max);
++	if (rate_max > WMI_TPC_RATE_MAX) {
++		ath10k_warn(ar, "number of rate is %d greater than TPC configured rate %d\n",
++			    rate_max, WMI_TPC_RATE_MAX);
++		rate_max = WMI_TPC_RATE_MAX;
++	}
++
+ 	tpc_stats = kzalloc(sizeof(*tpc_stats), GFP_ATOMIC);
+ 	if (!tpc_stats)
+ 		return;
+@@ -4822,8 +4826,8 @@ void ath10k_wmi_event_pdev_tpc_config(struct ath10k *ar, struct sk_buff *skb)
+ 		__le32_to_cpu(ev->twice_antenna_reduction);
+ 	tpc_stats->power_limit = __le32_to_cpu(ev->power_limit);
+ 	tpc_stats->twice_max_rd_power = __le32_to_cpu(ev->twice_max_rd_power);
+-	tpc_stats->num_tx_chain = __le32_to_cpu(ev->num_tx_chain);
+-	tpc_stats->rate_max = __le32_to_cpu(ev->rate_max);
++	tpc_stats->num_tx_chain = num_tx_chain;
++	tpc_stats->rate_max = rate_max;
+ 
+ 	ath10k_tpc_config_disp_tables(ar, ev, tpc_stats,
+ 				      rate_code, pream_table,
+@@ -5018,16 +5022,13 @@ ath10k_wmi_tpc_stats_final_disp_tables(struct ath10k *ar,
+ 	}
+ 
+ 	pream_idx = 0;
+-	for (i = 0; i < __le32_to_cpu(ev->rate_max); i++) {
++	for (i = 0; i < tpc_stats->rate_max; i++) {
+ 		memset(tpc_value, 0, sizeof(tpc_value));
+ 		memset(buff, 0, sizeof(buff));
+ 		if (i == pream_table[pream_idx])
+ 			pream_idx++;
+ 
+-		for (j = 0; j < WMI_TPC_TX_N_CHAIN; j++) {
+-			if (j >= __le32_to_cpu(ev->num_tx_chain))
+-				break;
+-
++		for (j = 0; j < tpc_stats->num_tx_chain; j++) {
+ 			tpc[j] = ath10k_wmi_tpc_final_get_rate(ar, ev, i, j + 1,
+ 							       rate_code[i],
+ 							       type, pream_idx);
+@@ -5043,7 +5044,7 @@ ath10k_wmi_tpc_stats_final_disp_tables(struct ath10k *ar,
+ 
+ void ath10k_wmi_event_tpc_final_table(struct ath10k *ar, struct sk_buff *skb)
+ {
+-	u32 num_tx_chain;
++	u32 num_tx_chain, rate_max;
+ 	u8 rate_code[WMI_TPC_FINAL_RATE_MAX];
+ 	u16 pream_table[WMI_TPC_PREAM_TABLE_MAX];
+ 	struct wmi_pdev_tpc_final_table_event *ev;
+@@ -5051,12 +5052,24 @@ void ath10k_wmi_event_tpc_final_table(struct ath10k *ar, struct sk_buff *skb)
+ 
+ 	ev = (struct wmi_pdev_tpc_final_table_event *)skb->data;
+ 
++	num_tx_chain = __le32_to_cpu(ev->num_tx_chain);
++	if (num_tx_chain > WMI_TPC_TX_N_CHAIN) {
++		ath10k_warn(ar, "number of tx chain is %d greater than TPC final configured tx chain %d\n",
++			    num_tx_chain, WMI_TPC_TX_N_CHAIN);
++		return;
++	}
++
++	rate_max = __le32_to_cpu(ev->rate_max);
++	if (rate_max > WMI_TPC_FINAL_RATE_MAX) {
++		ath10k_warn(ar, "number of rate is %d greater than TPC final configured rate %d\n",
++			    rate_max, WMI_TPC_FINAL_RATE_MAX);
++		rate_max = WMI_TPC_FINAL_RATE_MAX;
++	}
++
+ 	tpc_stats = kzalloc(sizeof(*tpc_stats), GFP_ATOMIC);
+ 	if (!tpc_stats)
+ 		return;
+ 
+-	num_tx_chain = __le32_to_cpu(ev->num_tx_chain);
+-
+ 	ath10k_wmi_tpc_config_get_rate_code(rate_code, pream_table,
+ 					    num_tx_chain);
+ 
+@@ -5069,8 +5082,8 @@ void ath10k_wmi_event_tpc_final_table(struct ath10k *ar, struct sk_buff *skb)
+ 		__le32_to_cpu(ev->twice_antenna_reduction);
+ 	tpc_stats->power_limit = __le32_to_cpu(ev->power_limit);
+ 	tpc_stats->twice_max_rd_power = __le32_to_cpu(ev->twice_max_rd_power);
+-	tpc_stats->num_tx_chain = __le32_to_cpu(ev->num_tx_chain);
+-	tpc_stats->rate_max = __le32_to_cpu(ev->rate_max);
++	tpc_stats->num_tx_chain = num_tx_chain;
++	tpc_stats->rate_max = rate_max;
+ 
+ 	ath10k_wmi_tpc_stats_final_disp_tables(ar, ev, tpc_stats,
+ 					       rate_code, pream_table,
 -- 
 2.25.1
 
