@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 775B627C7D4
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:57:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37EC027C641
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:43:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730018AbgI2Lnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:43:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41434 "EHLO mail.kernel.org"
+        id S1730771AbgI2LnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:43:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729937AbgI2LnQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729829AbgI2LnQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:43:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A92652074A;
-        Tue, 29 Sep 2020 11:43:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00BD62076A;
+        Tue, 29 Sep 2020 11:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379789;
-        bh=GM7f6/Yo+DhTZY+DXNizPAXkh5SdHzaJ/cPyt9D+hfI=;
+        s=default; t=1601379791;
+        bh=sryL45D2Xw7qlPOrIrdtKdTGkdCEVjkzq3LYwn5mTFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJWctsi/f5MkBsAldObav+r7VtN+z3lgANzhJhb5WZqif9kts2Ato7J8S9G1QFOzn
-         3M3YN30epkkt9ne6Xgt/xo0HDBk3pzU8lR2NK4idYOxmTu25RZSMSCxFKPwaXPeb/P
-         TJFuAqrAkbkxyrYi1uxQ1mGjubcZiNdh2SZE1NWw=
+        b=XYfcNs3+oLMzemubbeUIgqfsep1cKwPpTKqLYahMBhY7DbH6f/KuUnijZVos+F2oy
+         73nNlGRLz0/7b2UmpEJ2P0ydijprFB2bJKA8Qll3BTeLD4cXApddf7d5jAyVf0+Q7R
+         bdXlTq/Nhb+lyskPKc/I7iy9yBtrBk7UUM3KLucY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Jiri Olsa <jolsa@redhat.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>, x86@kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Vidya Sagar <vidyas@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 288/388] perf kcore_copy: Fix module map when there are no modules loaded
-Date:   Tue, 29 Sep 2020 13:00:19 +0200
-Message-Id: <20200929110024.401905080@linuxfoundation.org>
+Subject: [PATCH 5.4 289/388] PCI: tegra194: Fix runtime PM imbalance on error
+Date:   Tue, 29 Sep 2020 13:00:20 +0200
+Message-Id: <20200929110024.452774500@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -52,66 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 61f82e3fb697a8e85f22fdec786528af73dc36d1 ]
+[ Upstream commit 1c1dbb2c02623db18a50c61b175f19aead800b4e ]
 
-In the absence of any modules, no "modules" map is created, but there
-are other executable pages to map, due to eBPF JIT, kprobe or ftrace.
-Map them by recognizing that the first "module" symbol is not
-necessarily from a module, and adjust the map accordingly.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code. Thus a pairing decrement is needed on
+the error handling path to keep the counter balanced.
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: x86@kernel.org
-Link: http://lore.kernel.org/lkml/20200512121922.8997-10-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lore.kernel.org/r/20200521031355.7022-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Acked-by: Vidya Sagar <vidyas@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol-elf.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/pci/controller/dwc/pcie-tegra194.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/symbol-elf.c b/tools/perf/util/symbol-elf.c
-index 66f4be1df573e..2ec0a32da5793 100644
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1449,6 +1449,7 @@ struct kcore_copy_info {
- 	u64 first_symbol;
- 	u64 last_symbol;
- 	u64 first_module;
-+	u64 first_module_symbol;
- 	u64 last_module_symbol;
- 	size_t phnum;
- 	struct list_head phdrs;
-@@ -1525,6 +1526,8 @@ static int kcore_copy__process_kallsyms(void *arg, const char *name, char type,
- 		return 0;
- 
- 	if (strchr(name, '[')) {
-+		if (!kci->first_module_symbol || start < kci->first_module_symbol)
-+			kci->first_module_symbol = start;
- 		if (start > kci->last_module_symbol)
- 			kci->last_module_symbol = start;
- 		return 0;
-@@ -1722,6 +1725,10 @@ static int kcore_copy__calc_maps(struct kcore_copy_info *kci, const char *dir,
- 		kci->etext += page_size;
+diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
+index f89f5acee72d4..c06b05ab9f787 100644
+--- a/drivers/pci/controller/dwc/pcie-tegra194.c
++++ b/drivers/pci/controller/dwc/pcie-tegra194.c
+@@ -1395,7 +1395,7 @@ static int tegra_pcie_config_rp(struct tegra_pcie_dw *pcie)
+ 	ret = pinctrl_pm_select_default_state(dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to configure sideband pins: %d\n", ret);
+-		goto fail_pinctrl;
++		goto fail_pm_get_sync;
  	}
  
-+	if (kci->first_module_symbol &&
-+	    (!kci->first_module || kci->first_module_symbol < kci->first_module))
-+		kci->first_module = kci->first_module_symbol;
-+
- 	kci->first_module = round_down(kci->first_module, page_size);
+ 	tegra_pcie_init_controller(pcie);
+@@ -1422,9 +1422,8 @@ static int tegra_pcie_config_rp(struct tegra_pcie_dw *pcie)
  
- 	if (kci->last_module_symbol) {
+ fail_host_init:
+ 	tegra_pcie_deinit_controller(pcie);
+-fail_pinctrl:
+-	pm_runtime_put_sync(dev);
+ fail_pm_get_sync:
++	pm_runtime_put_sync(dev);
+ 	pm_runtime_disable(dev);
+ 	return ret;
+ }
 -- 
 2.25.1
 
