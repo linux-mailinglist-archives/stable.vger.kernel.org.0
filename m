@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5BC27C88C
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:02:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1306A27C893
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:03:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730406AbgI2Liy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:38:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60716 "EHLO mail.kernel.org"
+        id S1730704AbgI2MCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:02:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730402AbgI2Lio (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:38:44 -0400
+        id S1729143AbgI2Liu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:38:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB9B42074A;
-        Tue, 29 Sep 2020 11:38:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9976B206E5;
+        Tue, 29 Sep 2020 11:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379523;
-        bh=4aJ98UjtJt7kaQkL7jPD6T/htJNsIC50/6P6Y5BPc+A=;
+        s=default; t=1601379530;
+        bh=xGpQi0Mls+wpXdYop4ZeotRmA30ZWmvbez3egXEdMmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s56hqB9vLjTZpnYxGYIbb1XibKnjqDo/Fmzo3lkcu39j7HEiTtwtJZ0Yf5dK5zPKC
-         tU+3weT3eLCWFuF4olRH6fAyEVyp0pf9kwWvhR8daxwUam8qKj7xKRPrCIHJdfSxG3
-         IEyISqXrvIWCCvzYaQpjljUJXRz/vunBAHnmVNKI=
+        b=s6S7JbB40tSv+h5nYgmt4tOcooXZUeuVYdNg/3PP/uHzVM5ubdYKFEup6xqOcffmV
+         G2ntuF6FtfB3D1QiD1L9Xy08m+vcRPtrsUuJbJv3gg2GqsxoeTX6I3+Eij9YjDjUGo
+         WeLIKJpV2qcprCpscsW+x+ZowIE6UZ7wnGh1g9Y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Raveendran Somu <raveendran.somu@cypress.com>,
-        Chi-hsien Lin <chi-hsien.lin@cypress.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Zhu Yanjun <yanjunz@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 202/388] brcmfmac: Fix double freeing in the fmac usb data path
-Date:   Tue, 29 Sep 2020 12:58:53 +0200
-Message-Id: <20200929110020.261842195@linuxfoundation.org>
+Subject: [PATCH 5.4 204/388] RDMA/rxe: Set sys_image_guid to be aligned with HW IB devices
+Date:   Tue, 29 Sep 2020 12:58:55 +0200
+Message-Id: <20200929110020.358963369@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -45,39 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raveendran Somu <raveendran.somu@cypress.com>
+From: Zhu Yanjun <yanjunz@mellanox.com>
 
-[ Upstream commit 78179869dc3f5c0059bbf5d931a2717f1ad97ecd ]
+[ Upstream commit d0ca2c35dd15a3d989955caec02beea02f735ee6 ]
 
-When the brcmf_fws_process_skb() fails to get hanger slot for
-queuing the skb, it tries to free the skb.
-But the caller brcmf_netdev_start_xmit() of that funciton frees
-the packet on error return value.
-This causes the double freeing and which caused the kernel crash.
+The RXE driver doesn't set sys_image_guid and user space applications see
+zeros. This causes to pyverbs tests to fail with the following traceback,
+because the IBTA spec requires to have valid sys_image_guid.
 
-Signed-off-by: Raveendran Somu <raveendran.somu@cypress.com>
-Signed-off-by: Chi-hsien Lin <chi-hsien.lin@cypress.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1585124429-97371-3-git-send-email-chi-hsien.lin@cypress.com
+ Traceback (most recent call last):
+   File "./tests/test_device.py", line 51, in test_query_device
+     self.verify_device_attr(attr)
+   File "./tests/test_device.py", line 74, in verify_device_attr
+     assert attr.sys_image_guid != 0
+
+In order to fix it, set sys_image_guid to be equal to node_guid.
+
+Before:
+ 5: rxe0: ... node_guid 5054:00ff:feaa:5363 sys_image_guid
+ 0000:0000:0000:0000
+
+After:
+ 5: rxe0: ... node_guid 5054:00ff:feaa:5363 sys_image_guid
+ 5054:00ff:feaa:5363
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20200323112800.1444784-1-leon@kernel.org
+Signed-off-by: Zhu Yanjun <yanjunz@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/infiniband/sw/rxe/rxe.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
-index eadc64454839d..3d36b6ee158bb 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
-@@ -2149,8 +2149,7 @@ int brcmf_fws_process_skb(struct brcmf_if *ifp, struct sk_buff *skb)
- 		brcmf_fws_enq(fws, BRCMF_FWS_SKBSTATE_DELAYED, fifo, skb);
- 		brcmf_fws_schedule_deq(fws);
- 	} else {
--		bphy_err(drvr, "drop skb: no hanger slot\n");
--		brcmf_txfinalize(ifp, skb, false);
-+		bphy_err(drvr, "no hanger slot available\n");
- 		rc = -ENOMEM;
- 	}
- 	brcmf_fws_unlock(fws);
+diff --git a/drivers/infiniband/sw/rxe/rxe.c b/drivers/infiniband/sw/rxe/rxe.c
+index 70c4ea438664d..de5f3efe9fcb4 100644
+--- a/drivers/infiniband/sw/rxe/rxe.c
++++ b/drivers/infiniband/sw/rxe/rxe.c
+@@ -118,6 +118,8 @@ static void rxe_init_device_param(struct rxe_dev *rxe)
+ 	rxe->attr.max_fast_reg_page_list_len	= RXE_MAX_FMR_PAGE_LIST_LEN;
+ 	rxe->attr.max_pkeys			= RXE_MAX_PKEYS;
+ 	rxe->attr.local_ca_ack_delay		= RXE_LOCAL_CA_ACK_DELAY;
++	addrconf_addr_eui48((unsigned char *)&rxe->attr.sys_image_guid,
++			rxe->ndev->dev_addr);
+ 
+ 	rxe->max_ucontext			= RXE_MAX_UCONTEXT;
+ }
 -- 
 2.25.1
 
