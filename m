@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DEA227CB41
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:27:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F0F927CB2E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732717AbgI2MZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50296 "EHLO mail.kernel.org"
+        id S1732306AbgI2MZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729663AbgI2Ldc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729676AbgI2Ldc (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:33:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4698023BDC;
-        Tue, 29 Sep 2020 11:27:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D20D23BDD;
+        Tue, 29 Sep 2020 11:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378857;
-        bh=UE/zt5ax6H4v0FXSLXqzggbfZMly0u9H1SyLBDH6LOw=;
+        s=default; t=1601378860;
+        bh=FYsT9KfWnWhlZjA8kDJ4p//bZ/GFoFMExTtd/EDIMBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zslgsbTErRVz81RVROcl1PZmO4nHbMxnvvy4pjG0iBpbHS9NAfbcSiFZYS6OWrHIt
-         HKyWsuZEaaUpaRSTRjwwK4ieKDiD87SVjeNrL9Y0YeM5gUi9KuWDyQzFhhoYoQST7+
-         zO5HHTr0v8uTVfELW3nWOqZiOi4B0K7bBmaAKXgk=
+        b=2YOG11yC5o0E/giYVenbG6+l42whGkSESXLlQIWYySVO/XMyCIyt1TBX4MUSu8Y3V
+         nC9KmDd+Gky3zxKhGxYCyD3e7DP3yc0G0a7wZSzXLkIv9soifMnpYoH7Fea99q9zBL
+         zxahS7WwXq06cc48NY5OvbQRrJydq0UC0GShTcLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 164/245] ALSA: hda: Fix potential race in unsol event handler
-Date:   Tue, 29 Sep 2020 13:00:15 +0200
-Message-Id: <20200929105954.958847559@linuxfoundation.org>
+Subject: [PATCH 4.19 165/245] powerpc/traps: Make unrecoverable NMIs die instead of panic
+Date:   Tue, 29 Sep 2020 13:00:16 +0200
+Message-Id: <20200929105955.007781528@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -42,53 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit c637fa151259c0f74665fde7cba5b7eac1417ae5 ]
+[ Upstream commit 265d6e588d87194c2fe2d6c240247f0264e0c19b ]
 
-The unsol event handling code has a loop retrieving the read/write
-indices and the arrays without locking while the append to the array
-may happen concurrently.  This may lead to some inconsistency.
-Although there hasn't been any proof of this bad results, it's still
-safer to protect the racy accesses.
+System Reset and Machine Check interrupts that are not recoverable due
+to being nested or interrupting when RI=0 currently panic. This is not
+necessary, and can often just kill the current context and recover.
 
-This patch adds the spinlock protection around the unsol handling loop
-for addressing it.  Here we take bus->reg_lock as the writer side
-snd_hdac_bus_queue_event() is also protected by that lock.
-
-Link: https://lore.kernel.org/r/20200516062556.30951-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Link: https://lore.kernel.org/r/20200508043408.886394-16-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdac_bus.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/kernel/traps.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/hda/hdac_bus.c b/sound/hda/hdac_bus.c
-index 714a51721a313..ab9236e4c157e 100644
---- a/sound/hda/hdac_bus.c
-+++ b/sound/hda/hdac_bus.c
-@@ -155,6 +155,7 @@ static void process_unsol_events(struct work_struct *work)
- 	struct hdac_driver *drv;
- 	unsigned int rp, caddr, res;
+diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
+index d5f351f02c153..7781f0168ce8c 100644
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -430,11 +430,11 @@ out:
+ #ifdef CONFIG_PPC_BOOK3S_64
+ 	BUG_ON(get_paca()->in_nmi == 0);
+ 	if (get_paca()->in_nmi > 1)
+-		nmi_panic(regs, "Unrecoverable nested System Reset");
++		die("Unrecoverable nested System Reset", regs, SIGABRT);
+ #endif
+ 	/* Must die if the interrupt is not recoverable */
+ 	if (!(regs->msr & MSR_RI))
+-		nmi_panic(regs, "Unrecoverable System Reset");
++		die("Unrecoverable System Reset", regs, SIGABRT);
  
-+	spin_lock_irq(&bus->reg_lock);
- 	while (bus->unsol_rp != bus->unsol_wp) {
- 		rp = (bus->unsol_rp + 1) % HDA_UNSOL_QUEUE_SIZE;
- 		bus->unsol_rp = rp;
-@@ -166,10 +167,13 @@ static void process_unsol_events(struct work_struct *work)
- 		codec = bus->caddr_tbl[caddr & 0x0f];
- 		if (!codec || !codec->dev.driver)
- 			continue;
-+		spin_unlock_irq(&bus->reg_lock);
- 		drv = drv_to_hdac_driver(codec->dev.driver);
- 		if (drv->unsol_event)
- 			drv->unsol_event(codec, res);
-+		spin_lock_irq(&bus->reg_lock);
- 	}
-+	spin_unlock_irq(&bus->reg_lock);
- }
+ 	if (!nested)
+ 		nmi_exit();
+@@ -775,7 +775,7 @@ void machine_check_exception(struct pt_regs *regs)
  
- /**
+ 	/* Must die if the interrupt is not recoverable */
+ 	if (!(regs->msr & MSR_RI))
+-		nmi_panic(regs, "Unrecoverable Machine check");
++		die("Unrecoverable Machine check", regs, SIGBUS);
+ 
+ 	return;
+ 
 -- 
 2.25.1
 
