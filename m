@@ -2,246 +2,277 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72ED927D070
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 16:03:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C446627D093
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 16:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730452AbgI2ODg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 10:03:36 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23008 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729073AbgI2ODf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 10:03:35 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08TE29ZI176337
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 10:03:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : subject :
- date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=Hf+/pMkcQ08HhS0y0Ue74TpnT84Eh/mtBP8r3c+7AOg=;
- b=tg9XZqd6fHpLPt1HhJIZwpwLFzbDrefyITzpHZmyf1kl5zkMidygsqfA2/xCF2K0LLAM
- JMTenEtwts265Ak6dr1opO9x8KaokUUlogf2DlhYe37Np8n085jXfLiG4PYj6EwU8SZv
- NsUS0wBDIHfx4/CxVwuKPRay8VJLFQmziIVcfMSBUijeowmogdQ9B1Zvt3g2HeYPJ7XO
- P9CKXIzKfuIwUVxSU0bFPfCrexxk94tNBMkRfztkR1eBriyygGd0RhVggKnxih3w0y1F
- OnFxhhk0le+fWviwiS8PLG0lELOTsFjvu79ONs4KC1PbpIWxrCRrWD9ipJt3JosQF8wp /A== 
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 33v5223gyj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 10:03:33 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08TE21N1008110
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 14:03:31 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma03fra.de.ibm.com with ESMTP id 33v5kg01fd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 14:03:31 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08TE3SHp16056674
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 29 Sep 2020 14:03:28 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9D2345204E;
-        Tue, 29 Sep 2020 14:03:28 +0000 (GMT)
-Received: from pomme.tlslab.ibm.com (unknown [9.145.50.8])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 8307452069;
-        Tue, 29 Sep 2020 14:03:28 +0000 (GMT)
-From:   Laurent Dufour <ldufour@linux.ibm.com>
-To:     stable@vger.kernel.org
-Subject: [PATCH 2/2] mm: don't rely on system state to detect hot-plug operations
-Date:   Tue, 29 Sep 2020 16:03:27 +0200
-Message-Id: <20200929140327.31191-2-ldufour@linux.ibm.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929140327.31191-1-ldufour@linux.ibm.com>
-References: <20200929140327.31191-1-ldufour@linux.ibm.com>
+        id S1729570AbgI2OFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 10:05:33 -0400
+Received: from mx2.suse.de ([195.135.220.15]:50164 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728481AbgI2OFc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 10:05:32 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1601388330;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ppx/XAwVJW65wcKTfoa9Qzd5LPd+RTKcJwjVlw+TwBw=;
+        b=pE2I5pC3FsjPjV05BZGR6xqHgScqksuUYXJv21Ig3TK7YsSRWH87DeijmuLaRnwor6kDGx
+        k5mbZQLUyhPCDw2kiooF3xDGKbuAu5wyuC3ftZ3E027F0rX7+rsqvlM3g0/xIlyJyzjHpR
+        7U3D7Mw/dLyi5G5upOd2O38nsTFRAUM=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 64666AC4D;
+        Tue, 29 Sep 2020 14:05:30 +0000 (UTC)
+Subject: Re: [PATCH 4.4 50/62] XEN uses irqdesc::irq_data_common::handler_data
+ to store a per interrupt XEN data pointer which contains XEN specific
+ information.
+To:     Stefan Bader <stefan.bader@canonical.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Roman Shaposhnik <roman@zededa.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+References: <20200901150920.697676718@linuxfoundation.org>
+ <20200901150923.247002384@linuxfoundation.org>
+ <e958ff30-b7a9-9bd1-b483-542b6d117cc5@canonical.com>
+From:   =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Message-ID: <15f140ef-cfd3-c3b7-9b8c-2a7ba3fab56a@suse.com>
+Date:   Tue, 29 Sep 2020 16:05:29 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-29_04:2020-09-29,2020-09-29 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
- priorityscore=1501 mlxscore=0 impostorscore=0 adultscore=0 bulkscore=0
- phishscore=0 lowpriorityscore=0 mlxlogscore=899 suspectscore=1
- clxscore=1015 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009290120
+In-Reply-To: <e958ff30-b7a9-9bd1-b483-542b6d117cc5@canonical.com>
+Content-Type: multipart/mixed;
+ boundary="------------28F51D861F4C99D5E2D3F176"
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Backport version to the 5.4-stable tree of the commit:
+This is a multi-part message in MIME format.
+--------------28F51D861F4C99D5E2D3F176
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-f85086f95fa3 ("mm: don't rely on system state to detect hot-plug operations")
+On 29.09.20 15:13, Stefan Bader wrote:
+> On 01.09.20 17:10, Greg Kroah-Hartman wrote:
+>> From: Thomas Gleixner <tglx@linutronix.de>
+>>
+>> commit c330fb1ddc0a922f044989492b7fcca77ee1db46 upstream.
+>>
+>> handler data is meant for interrupt handlers and not for storing irq chip
+>> specific information as some devices require handler data to store internal
+>> per interrupt information, e.g. pinctrl/GPIO chained interrupt handlers.
+>>
+>> This obviously creates a conflict of interests and crashes the machine
+>> because the XEN pointer is overwritten by the driver pointer.
+> 
+> I cannot say whether this applies the same for the vanilla 4.4 stable kernels
+> but once this had been applied to our 4.4 based kernels, we observed Xen HVM
+> guests crashing on boot with:
+> 
+> [    0.927538] ACPI: bus type PCI registered
+> [    0.936008] acpiphp: ACPI Hot Plug PCI Controller Driver version: 0.5
+> [    0.948739] PCI: Using configuration type 1 for base access
+> [    0.960007] PCI: Using configuration type 1 for extended access
+> [    0.984340] ACPI: Added _OSI(Module Device)
+> [    0.988010] ACPI: Added _OSI(Processor Device)
+> [    0.992007] ACPI: Added _OSI(3.0 _SCP Extensions)
+> [    0.996013] ACPI: Added _OSI(Processor Aggregator Device)
+> [    1.002103] BUG: unable to handle kernel paging request at ffffffffff5f3000
+> [    1.004000] IP: [<ffffffff810592ff>] mp_irqdomain_activate+0x5f/0xa0
+> [    1.004000] PGD 1e0f067 PUD 1e11067 PMD 1e12067 PTE 0
+> [    1.004000] Oops: 0002 [#1] SMP
+> [    1.004000] Modules linked in:
+> [    1.004000] CPU: 3 PID: 1 Comm: swapper/0 Not tainted 4.4.0-191-generic
+> #221-Ubuntu
+> [    1.004000] Hardware name: Xen HVM domU, BIOS 4.6.5 04/18/2018
+> [    1.004000] task: ffff880107db0000 ti: ffff880107dac000 task.ti: ffff880107dac000
+> [    1.004000] RIP: 0010:[<ffffffff810592ff>]  [<ffffffff810592ff>]
+> mp_irqdomain_activate+0x5f/0xa0
+> [    1.004000] RSP: 0018:ffff880107dafc48  EFLAGS: 00010086
+> [    1.004000] RAX: 0000000000000086 RBX: ffff8800eb852140 RCX: 0000000000000000
+> [    1.004000] RDX: ffffffffff5f3000 RSI: 0000000000000001 RDI: 000000000020c000
+> [    1.004000] RBP: ffff880107dafc50 R08: ffffffff81ebdfd0 R09: 00000000ffffffff
+> [    1.004000] R10: 0000000000000011 R11: 0000000000000009 R12: ffff88010880d400
+> [    1.004000] R13: 0000000000000001 R14: 0000000000000009 R15: ffff8800eb880080
+> [    1.004000] FS:  0000000000000000(0000) GS:ffff880108ec0000(0000)
+> knlGS:0000000000000000
+> [    1.004000] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    1.004000] CR2: ffffffffff5f3000 CR3: 0000000001e0a000 CR4: 00000000000006f0
+> [    1.004000] Stack:
+> [    1.004000]  ffff88010880bc58 ffff880107dafc70 ffffffff810ea644 ffff88010880bc00
+> [    1.004000]  ffff88010880bc58 ffff880107dafca0 ffffffff810e6d88 ffffffff810e1009
+> [    1.004000]  ffff88010880bc00 ffff88010880bca0 ffff8800eb880080 ffff880107dafd38
+> [    1.004000] Call Trace:
+> [    1.004000]  [<ffffffff810ea644>] irq_domain_activate_irq+0x44/0x50
+> [    1.004000]  [<ffffffff810e6d88>] irq_startup+0x38/0x90
+> [    1.004000]  [<ffffffff810e1009>] ? vprintk_default+0x29/0x40
+> [    1.004000]  [<ffffffff810e55e2>] __setup_irq+0x5a2/0x650
+> [    1.004000]  [<ffffffff811fc064>] ? kmem_cache_alloc_trace+0x1d4/0x1f0
+> [    1.004000]  [<ffffffff814a3870>] ? acpi_osi_handler+0xb0/0xb0
+> [    1.004000]  [<ffffffff810e582b>] request_threaded_irq+0xfb/0x1a0
+> [    1.004000]  [<ffffffff814a3870>] ? acpi_osi_handler+0xb0/0xb0
+> [    1.004000]  [<ffffffff814bf624>] ? acpi_ev_sci_dispatch+0x64/0x64
+> [    1.004000]  [<ffffffff814a3f0a>] acpi_os_install_interrupt_handler+0xaa/0x100
+> [    1.004000]  [<ffffffff81fb26e1>] ? acpi_sleep_proc_init+0x28/0x28
+> [    1.004000]  [<ffffffff814bf689>] acpi_ev_install_sci_handler+0x23/0x25
+> [    1.004000]  [<ffffffff814bcf03>] acpi_ev_install_xrupt_handlers+0x1c/0x6c
+> [    1.004000]  [<ffffffff81fb3e9d>] acpi_enable_subsystem+0x8f/0x93
+> [    1.004000]  [<ffffffff81fb276c>] acpi_init+0x8b/0x2c4
+> [    1.004000]  [<ffffffff8141ee1e>] ? kasprintf+0x4e/0x70
+> [    1.004000]  [<ffffffff81fb26e1>] ? acpi_sleep_proc_init+0x28/0x28
+> [    1.004000]  [<ffffffff810021f5>] do_one_initcall+0xb5/0x200
+> [    1.004000]  [<ffffffff810a6fda>] ? parse_args+0x29a/0x4a0
+> [    1.004000]  [<ffffffff81f69152>] kernel_init_freeable+0x177/0x218
+> [    1.004000]  [<ffffffff8185dcf0>] ? rest_init+0x80/0x80
+> [    1.004000]  [<ffffffff8185dcfe>] kernel_init+0xe/0xe0
+> [    1.004000]  [<ffffffff8186ae92>] ret_from_fork+0x42/0x80
+> [    1.004000]  [<ffffffff8185dcf0>] ? rest_init+0x80/0x80
+> [    1.004000] Code: 8d 1c d2 8d ba 0b 02 00 00 44 8d 51 11 42 8b 14 dd 74 ec 10
+> 82 c1 e7 0c 48 63 ff 81 e2 ff 0f 00 00 48 81 ea 00 10 80 00 48 29 fa <44> 89 12
+> 89 72 10 42 8b 14 dd 74 ec 10 82 83 c1 10 81 e2 ff 0f
+> [    1.004000] RIP  [<ffffffff810592ff>] mp_irqdomain_activate+0x5f/0xa0
+> [    1.004000]  RSP <ffff880107dafc48>
+> [    1.004000] CR2: ffffffffff5f3000
+> [    1.004000] ---[ end trace 3201cae5b6bd7be1 ]---
+> [    1.592027] Kernel panic - not syncing: Attempted to kill init!
+> exitcode=0x00000009
+> [    1.592027]
+> 
+> This is from a local server but same stack-trace happens on AWS instances while
+> initializing ACPI SCI. mp_irqdomain_activate is accessing chip_data expecting
+> ioapic data there. Oddly enough more recent kernels seem to do the same but not
+> crashing as HVM guest (neither seen for our 4.15 nor the 5.4).
 
-Cc: stable@vger.kernel.org # 4.19.y
-Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+Hmm, could it be that calling irq_set_chip_data() for a legacy irq is
+a rather bad idea?
+
+Could you please try the attached patch (might need some backport, but
+should be rather easy)?
+
+
+Juergen
+
+--------------28F51D861F4C99D5E2D3F176
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-xen-events-don-t-use-chip_data-for-legacy-IRQs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-xen-events-don-t-use-chip_data-for-legacy-IRQs.patch"
+
+From 35b71ae9cc69cdd151cc3a4d587f67eb8d86007d Mon Sep 17 00:00:00 2001
+From: Juergen Gross <jgross@suse.com>
+Date: Tue, 29 Sep 2020 15:47:21 +0200
+Subject: [PATCH] xen/events: don't use chip_data for legacy IRQs
+
+Storing Xen specific data via chip_data is fine, as long as this isn't
+done for a legacy IRQ.
+
+Use a local array for this purpose in case of legacy IRQs.
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- drivers/base/node.c  | 84 ++++++++++++++++++++++++++++----------------
- include/linux/node.h | 11 +++---
- mm/memory_hotplug.c  |  3 +-
- 3 files changed, 63 insertions(+), 35 deletions(-)
+ drivers/xen/events/events_base.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/base/node.c b/drivers/base/node.c
-index f3565c2dbc52..503e2f90e58e 100644
---- a/drivers/base/node.c
-+++ b/drivers/base/node.c
-@@ -403,10 +403,32 @@ static int __ref get_nid_for_pfn(unsigned long pfn)
- 	return pfn_to_nid(pfn);
- }
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index 90b8f56fbadb..6f02c18fa65c 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -92,6 +92,8 @@ static bool (*pirq_needs_eoi)(unsigned irq);
+ /* Xen will never allocate port zero for any purpose. */
+ #define VALID_EVTCHN(chn)	((chn) != 0)
  
-+static int do_register_memory_block_under_node(int nid,
-+					       struct memory_block *mem_blk)
-+{
-+	int ret;
++static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
 +
-+	/*
-+	 * If this memory block spans multiple nodes, we only indicate
-+	 * the last processed node.
-+	 */
-+	mem_blk->nid = nid;
-+
-+	ret = sysfs_create_link_nowarn(&node_devices[nid]->dev.kobj,
-+				       &mem_blk->dev.kobj,
-+				       kobject_name(&mem_blk->dev.kobj));
-+	if (ret)
-+		return ret;
-+
-+	return sysfs_create_link_nowarn(&mem_blk->dev.kobj,
-+				&node_devices[nid]->dev.kobj,
-+				kobject_name(&node_devices[nid]->dev.kobj));
-+}
-+
- /* register memory section under specified node if it spans that node */
--int register_mem_sect_under_node(struct memory_block *mem_blk, void *arg)
-+int register_mem_block_under_node_early(struct memory_block *mem_blk, void *arg)
+ static struct irq_chip xen_dynamic_chip;
+ static struct irq_chip xen_percpu_chip;
+ static struct irq_chip xen_pirq_chip;
+@@ -156,7 +158,18 @@ int get_evtchn_to_irq(evtchn_port_t evtchn)
+ /* Get info for IRQ */
+ struct irq_info *info_for_irq(unsigned irq)
  {
--	int ret, nid = *(int *)arg;
-+	int nid = *(int *)arg;
- 	unsigned long pfn, sect_start_pfn, sect_end_pfn;
- 
- 	sect_start_pfn = section_nr_to_pfn(mem_blk->start_section_nr);
-@@ -426,38 +448,33 @@ int register_mem_sect_under_node(struct memory_block *mem_blk, void *arg)
- 		}
- 
- 		/*
--		 * We need to check if page belongs to nid only for the boot
--		 * case, during hotplug we know that all pages in the memory
--		 * block belong to the same node.
--		 */
--		if (system_state == SYSTEM_BOOTING) {
--			page_nid = get_nid_for_pfn(pfn);
--			if (page_nid < 0)
--				continue;
--			if (page_nid != nid)
--				continue;
--		}
--
--		/*
--		 * If this memory block spans multiple nodes, we only indicate
--		 * the last processed node.
-+		 * We need to check if page belongs to nid only at the boot
-+		 * case because node's ranges can be interleaved.
- 		 */
--		mem_blk->nid = nid;
--
--		ret = sysfs_create_link_nowarn(&node_devices[nid]->dev.kobj,
--					&mem_blk->dev.kobj,
--					kobject_name(&mem_blk->dev.kobj));
--		if (ret)
--			return ret;
-+		page_nid = get_nid_for_pfn(pfn);
-+		if (page_nid < 0)
-+			continue;
-+		if (page_nid != nid)
-+			continue;
- 
--		return sysfs_create_link_nowarn(&mem_blk->dev.kobj,
--				&node_devices[nid]->dev.kobj,
--				kobject_name(&node_devices[nid]->dev.kobj));
-+		return do_register_memory_block_under_node(nid, mem_blk);
- 	}
- 	/* mem section does not span the specified node */
- 	return 0;
- }
- 
-+/*
-+ * During hotplug we know that all pages in the memory block belong to the same
-+ * node.
-+ */
-+static int register_mem_block_under_node_hotplug(struct memory_block *mem_blk,
-+						 void *arg)
-+{
-+	int nid = *(int *)arg;
-+
-+	return do_register_memory_block_under_node(nid, mem_blk);
-+}
-+
- /*
-  * Unregister a memory block device under the node it spans. Memory blocks
-  * with multiple nodes cannot be offlined and therefore also never be removed.
-@@ -473,10 +490,17 @@ void unregister_memory_block_under_nodes(struct memory_block *mem_blk)
- 			  kobject_name(&node_devices[mem_blk->nid]->dev.kobj));
- }
- 
--int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn)
-+int link_mem_sections(int nid, unsigned long start_pfn, unsigned long end_pfn,
-+		      enum meminit_context context)
- {
--	return walk_memory_range(start_pfn, end_pfn, (void *)&nid,
--					register_mem_sect_under_node);
-+	walk_memory_blocks_func_t func;
-+
-+	if (context == MEMINIT_HOTPLUG)
-+		func = register_mem_block_under_node_hotplug;
+-	return irq_get_chip_data(irq);
++	if (irq < nr_legacy_irqs())
++		return legacy_info_ptrs[irq];
 +	else
-+		func = register_mem_block_under_node_early;
++		return irq_get_chip_data(irq);
++}
 +
-+	return walk_memory_range(start_pfn, end_pfn, (void *)&nid, func);
++static void set_info_for_irq(unsigned int irq, struct irq_info *info)
++{
++	if (irq < nr_legacy_irqs())
++		legacy_info_ptrs[irq] = info;
++	else
++		irq_set_chip_data(irq, info);
  }
  
- #ifdef CONFIG_HUGETLBFS
-diff --git a/include/linux/node.h b/include/linux/node.h
-index 708939bae9aa..a79ec4492650 100644
---- a/include/linux/node.h
-+++ b/include/linux/node.h
-@@ -32,11 +32,13 @@ extern struct node *node_devices[];
- typedef  void (*node_registration_func_t)(struct node *);
+ /* Constructors for packed IRQ information. */
+@@ -377,7 +390,7 @@ static void xen_irq_init(unsigned irq)
+ 	info->type = IRQT_UNBOUND;
+ 	info->refcnt = -1;
  
- #if defined(CONFIG_MEMORY_HOTPLUG_SPARSE) && defined(CONFIG_NUMA)
--extern int link_mem_sections(int nid, unsigned long start_pfn,
--			     unsigned long end_pfn);
-+int link_mem_sections(int nid, unsigned long start_pfn,
-+		      unsigned long end_pfn,
-+		      enum meminit_context context);
- #else
- static inline int link_mem_sections(int nid, unsigned long start_pfn,
--				    unsigned long end_pfn)
-+				    unsigned long end_pfn,
-+				    enum meminit_context context)
+-	irq_set_chip_data(irq, info);
++	set_info_for_irq(irq, info);
+ 
+ 	list_add_tail(&info->list, &xen_irq_list_head);
+ }
+@@ -426,14 +439,14 @@ static int __must_check xen_allocate_irq_gsi(unsigned gsi)
+ 
+ static void xen_free_irq(unsigned irq)
  {
- 	return 0;
- }
-@@ -61,7 +63,8 @@ static inline int register_one_node(int nid)
- 		if (error)
- 			return error;
- 		/* link memory sections under this node */
--		error = link_mem_sections(nid, start_pfn, end_pfn);
-+		error = link_mem_sections(nid, start_pfn, end_pfn,
-+					  MEMINIT_EARLY);
- 	}
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
  
- 	return error;
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index c839c4ad4871..e60e28131f67 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1102,7 +1102,8 @@ int __ref add_memory_resource(int nid, struct resource *res, bool online)
- 	}
+ 	if (WARN_ON(!info))
+ 		return;
  
- 	/* link memory sections under this node.*/
--	ret = link_mem_sections(nid, PFN_DOWN(start), PFN_UP(start + size - 1));
-+	ret = link_mem_sections(nid, PFN_DOWN(start), PFN_UP(start + size - 1),
-+				MEMINIT_HOTPLUG);
- 	BUG_ON(ret);
+ 	list_del(&info->list);
  
- 	/* create new memmap entry */
+-	irq_set_chip_data(irq, NULL);
++	set_info_for_irq(irq, NULL);
+ 
+ 	WARN_ON(info->refcnt > 0);
+ 
+@@ -603,7 +616,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
+ static void __unbind_from_irq(unsigned int irq)
+ {
+ 	evtchn_port_t evtchn = evtchn_from_irq(irq);
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (info->refcnt > 0) {
+ 		info->refcnt--;
+@@ -1108,7 +1121,7 @@ int bind_ipi_to_irqhandler(enum ipi_vector ipi,
+ 
+ void unbind_from_irqhandler(unsigned int irq, void *dev_id)
+ {
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (WARN_ON(!info))
+ 		return;
+@@ -1142,7 +1155,7 @@ int evtchn_make_refcounted(evtchn_port_t evtchn)
+ 	if (irq == -1)
+ 		return -ENOENT;
+ 
+-	info = irq_get_chip_data(irq);
++	info = info_for_irq(irq);
+ 
+ 	if (!info)
+ 		return -ENOENT;
+@@ -1170,7 +1183,7 @@ int evtchn_get(evtchn_port_t evtchn)
+ 	if (irq == -1)
+ 		goto done;
+ 
+-	info = irq_get_chip_data(irq);
++	info = info_for_irq(irq);
+ 
+ 	if (!info)
+ 		goto done;
 -- 
-2.28.0
+2.26.2
 
+
+--------------28F51D861F4C99D5E2D3F176--
