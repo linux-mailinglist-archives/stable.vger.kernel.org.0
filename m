@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9842827C6C7
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94E1327C692
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:46:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731013AbgI2Lsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:48:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51064 "EHLO mail.kernel.org"
+        id S1730533AbgI2Lqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:46:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731155AbgI2Lsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:48:33 -0400
+        id S1730820AbgI2LqA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:46:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E50920702;
-        Tue, 29 Sep 2020 11:48:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD0912075F;
+        Tue, 29 Sep 2020 11:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380113;
-        bh=xa36xPnLHfX5BA6IyyuvTBAULCDnywIqCGXLa7Flf8c=;
+        s=default; t=1601379960;
+        bh=vn4Ck3Nqhb03MhKlGuMww4Bjj3An/RLjc+LKuvoAhps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Hpz1+PM3PNtHnhgAjDopWTkVxeVa46ashd6koqW4Rxz0l+lbsXVCt/On/jvLJADX
-         BGhxMX4sXPAsqNfD3RDLXYgRK1JoIIco7NKjZjG8KWEgqGmMk/kWuMGyqPCElYblex
-         RJKcCR+4SJzqrUQ+D2ZYSI1aYWpxP02Xepkgr5sQ=
+        b=HQ2vGsHhMDZM8GzEhTDOK+HOZEduLJ1pexm9E0+gifbZ2rIaSmrSBDkiRQ9bUqKr8
+         CjN4XhpAOruKj1bqD26UGNDAFrARAhS5QjwglJhjkSV/dnAIgdhORq4Mvzw2S+R6ob
+         OEFYifoLetIbPr6xR/1AKYW5GEBx0VtOEcHCvakU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, p_c_chan@hotmail.com, ecm4@mail.com,
-        perdigao1@yahoo.com, matzes@users.sourceforge.net,
-        rvelascog@gmail.com, Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.8 73/99] x86/ioapic: Unbreak check_timer()
-Date:   Tue, 29 Sep 2020 13:01:56 +0200
-Message-Id: <20200929105933.324441260@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>, linux-ide@vger.kernel.org
+Subject: [PATCH 5.4 386/388] ata: define AC_ERR_OK
+Date:   Tue, 29 Sep 2020 13:01:57 +0200
+Message-Id: <20200929110029.150908256@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Jiri Slaby <jslaby@suse.cz>
 
-commit 86a82ae0b5095ea24c55898a3f025791e7958b21 upstream.
+commit 25937580a5065d6fbd92d9c8ebd47145ad80052e upstream.
 
-Several people reported in the kernel bugzilla that between v4.12 and v4.13
-the magic which works around broken hardware and BIOSes to find the proper
-timer interrupt delivery mode stopped working for some older affected
-platforms which need to fall back to ExtINT delivery mode.
+Since we will return enum ata_completion_errors from qc_prep in the next
+patch, let's define AC_ERR_OK to mark the OK status.
 
-The reason is that the core code changed to keep track of the masked and
-disabled state of an interrupt line more accurately to avoid the expensive
-hardware operations.
-
-That broke an assumption in i8259_make_irq() which invokes
-
-     disable_irq_nosync();
-     irq_set_chip_and_handler();
-     enable_irq();
-
-Up to v4.12 this worked because enable_irq() unconditionally unmasked the
-interrupt line, but after the state tracking improvements this is not
-longer the case because the IO/APIC uses lazy disabling. So the line state
-is unmasked which means that enable_irq() does not call into the new irq
-chip to unmask it.
-
-In principle this is a shortcoming of the core code, but it's more than
-unclear whether the core code should try to reset state. At least this
-cannot be done unconditionally as that would break other existing use cases
-where the chip type is changed, e.g. when changing the trigger type, but
-the callers expect the state to be preserved.
-
-As the way how check_timer() is switching the delivery modes is truly
-unique, the obvious fix is to simply unmask the i8259 manually after
-changing the mode to ExtINT delivery and switching the irq chip to the
-legacy PIC.
-
-Note, that the fixes tag is not really precise, but identifies the commit
-which broke the assumptions in the IO/APIC and i8259 code and that's the
-kernel version to which this needs to be backported.
-
-Fixes: bf22ff45bed6 ("genirq: Avoid unnecessary low level irq function calls")
-Reported-by: p_c_chan@hotmail.com
-Reported-by: ecm4@mail.com
-Reported-by: perdigao1@yahoo.com
-Reported-by: matzes@users.sourceforge.net
-Reported-by: rvelascog@gmail.com
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: p_c_chan@hotmail.com
-Tested-by: matzes@users.sourceforge.net
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=197769
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: linux-ide@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/apic/io_apic.c |    1 +
+ include/linux/libata.h |    1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2243,6 +2243,7 @@ static inline void __init check_timer(vo
- 	legacy_pic->init(0);
- 	legacy_pic->make_irq(0);
- 	apic_write(APIC_LVT0, APIC_DM_EXTINT);
-+	legacy_pic->unmask(0);
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -486,6 +486,7 @@ enum hsm_task_states {
+ };
  
- 	unlock_ExtINT_logic();
- 
+ enum ata_completion_errors {
++	AC_ERR_OK		= 0,	    /* no error */
+ 	AC_ERR_DEV		= (1 << 0), /* device reported error */
+ 	AC_ERR_HSM		= (1 << 1), /* host state machine violation */
+ 	AC_ERR_TIMEOUT		= (1 << 2), /* timeout */
 
 
