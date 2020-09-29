@@ -2,129 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20BE327BD08
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 08:22:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCA4827BD62
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 08:52:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725947AbgI2GWW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 02:22:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45774 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727350AbgI2GWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 02:22:22 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDA56C0613D0
-        for <stable@vger.kernel.org>; Mon, 28 Sep 2020 23:22:21 -0700 (PDT)
-Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1kN91k-0005Qj-Js; Tue, 29 Sep 2020 08:22:16 +0200
-Received: from sha by ptx.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <sha@pengutronix.de>)
-        id 1kN91k-0006OL-AN; Tue, 29 Sep 2020 08:22:16 +0200
-Date:   Tue, 29 Sep 2020 08:22:16 +0200
-From:   Sascha Hauer <s.hauer@pengutronix.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mark Brown <broonie@kernel.org>, linux-spi@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.8 28/29] spi: fsl-dspi: fix use-after-free in
- remove path
-Message-ID: <20200929062216.GL11648@pengutronix.de>
-References: <20200929013027.2406344-1-sashal@kernel.org>
- <20200929013027.2406344-28-sashal@kernel.org>
+        id S1725536AbgI2Gwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 02:52:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59440 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725306AbgI2Gwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 02:52:41 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72184206B7;
+        Tue, 29 Sep 2020 06:52:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601362361;
+        bh=6KqVFDoYR/Ej4IVjg3AKvUD6uYoOzhctINwi+ieMatQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=yhT7FELKUxc9KgxZ0qhglyD6nQB2+kKuq+NjurV4NqUrwHMpecx+oCwslztPLEM5Z
+         kj3sSG7tYf7NPd4QbX/EEj8/lt4FpmJzWOfxlDmkE6S8WMO5duTvFb7VXOlqR9e2ls
+         ZvX5SVevYQ7DLpDKkevFqpCfu/8lesk5ZL3jUYKk=
+Date:   Tue, 29 Sep 2020 08:52:47 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     Steven Rostedt <rostedt@goodmis.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>
+Subject: Re: [PATCH 4.19 38/92] kprobes: Fix NULL pointer dereference at
+ kprobe_ftrace_handler
+Message-ID: <20200929065247.GB2439787@kroah.com>
+References: <20200820091537.490965042@linuxfoundation.org>
+ <20200820091539.592290034@linuxfoundation.org>
+ <CA+G9fYvdQv2Ukvs-UKiEgYaDdBthsWsY=35cQ4YpvMhA0hU5Gg@mail.gmail.com>
+ <20200928180942.100aa6c8@oasis.local.home>
+ <20200928181535.56d7b2cb@oasis.local.home>
+ <20200929144954.56090c5eeb5a36e1f552b315@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200929013027.2406344-28-sashal@kernel.org>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-IRC:  #ptxdist @freenode
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-X-Uptime: 08:20:02 up 222 days, 13:50, 130 users,  load average: 0.00, 0.10,
- 0.15
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
-X-SA-Exim-Mail-From: sha@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200929144954.56090c5eeb5a36e1f552b315@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+On Tue, Sep 29, 2020 at 02:49:54PM +0900, Masami Hiramatsu wrote:
+> Hi,
+> 
+> On Mon, 28 Sep 2020 18:15:35 -0400
+> Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+> > On Mon, 28 Sep 2020 18:09:42 -0400
+> > Steven Rostedt <rostedt@goodmis.org> wrote:
+> > 
+> > > On Tue, 29 Sep 2020 01:32:59 +0530
+> > > Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> > > 
+> > > > stable rc branch 4.19 build warning on arm64.
+> > > > 
+> > > > ../kernel/kprobes.c: In function ‘kill_kprobe’:
+> > > > ../kernel/kprobes.c:1070:33: warning: statement with no effect [-Wunused-value]
+> > > >  1070 | #define disarm_kprobe_ftrace(p) (-ENODEV)
+> > > >       |                                 ^
+> > > > ../kernel/kprobes.c:2090:3: note: in expansion of macro ‘disarm_kprobe_ftrace’
+> > > >  2090 |   disarm_kprobe_ftrace(p);
+> > > >       |   ^~~~~~~~~~~~~~~~~~~~  
+> > > 
+> > > Seems to affect upstream as well.
+> > > 
+> > 
+> > Bah, no (tested the wrong kernel).
+> > 
+> > You want this commit too:
+> > 
+> > 10de795a5addd ("kprobes: Fix compiler warning for !CONFIG_KPROBES_ON_FTRACE")
+> 
+> It seems that this commit's Fixes tag is wrong.
+> 
+> ae6aa16fdc163 (Masami Hiramatsu           2012-06-05 19:28:32 +0900 1079) #define prepare_kprobe(p)     arch_prepare_kprobe(p)
+> 12310e3437554 (Jessica Yu                 2018-01-10 00:51:23 +0100 1080) #define arm_kprobe_ftrace(p)  (-ENODEV)
+> 297f9233b53a0 (Jessica Yu                 2018-01-10 00:51:24 +0100 1081) #define disarm_kprobe_ftrace(p)       (-ENODEV)
+> 
+> Thus, it should have "Fixes: 297f9233b53a ("kprobes: Propagate error from disarm_kprobe_ftrace()")"
+> 
+> $ git tag -l --contains 297f9233b53a | grep "^v[[:digit:].]*$" | cut -f1-2 -d. | uniq
+> v4.16
+> v4.17
+> v4.18
+> v4.19
+> v4.20
+> v5.0
+> v5.1
+> v5.2
+> v5.3
+> v5.4
+> v5.5
+> v5.6
+> v5.7
+> v5.8
+> 
+> So the commit 10de795a5addd must be backported to 4.19.y and 5.4.y.
 
-On Mon, Sep 28, 2020 at 09:30:25PM -0400, Sasha Levin wrote:
-> From: Sascha Hauer <s.hauer@pengutronix.de>
-> 
-> [ Upstream commit 530b5affc675ade5db4a03f04ed7cd66806c8a1a ]
-> 
-> spi_unregister_controller() not only unregisters the controller, but
-> also frees the controller. This will free the driver data with it, so
-> we must not access it later dspi_remove().
-> 
-> Solve this by allocating the driver data separately from the SPI
-> controller.
-> 
-> Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-> Link: https://lore.kernel.org/r/20200923131026.20707-1-s.hauer@pengutronix.de
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/spi/spi-fsl-dspi.c | 12 +++++++-----
->  1 file changed, 7 insertions(+), 5 deletions(-)
+Now queued up, thanks.
 
-This patch causes a regression and shouldn't be applied without the fix
-in https://lkml.org/lkml/2020/9/28/300.
-
-Sascha
-
-> index 91c6affe139c9..aae9f9a7aea6c 100644
-> --- a/drivers/spi/spi-fsl-dspi.c
-> +++ b/drivers/spi/spi-fsl-dspi.c
-> @@ -1273,11 +1273,14 @@ static int dspi_probe(struct platform_device *pdev)
->  	void __iomem *base;
->  	bool big_endian;
->  
-> -	ctlr = spi_alloc_master(&pdev->dev, sizeof(struct fsl_dspi));
-> +	dspi = devm_kzalloc(&pdev->dev, sizeof(*dspi), GFP_KERNEL);
-> +	if (!dspi)
-> +		return -ENOMEM;
-> +
-> +	ctlr = spi_alloc_master(&pdev->dev, 0);
->  	if (!ctlr)
->  		return -ENOMEM;
->  
-> -	dspi = spi_controller_get_devdata(ctlr);
->  	dspi->pdev = pdev;
->  	dspi->ctlr = ctlr;
->  
-> @@ -1414,7 +1417,7 @@ static int dspi_probe(struct platform_device *pdev)
->  	if (dspi->devtype_data->trans_mode != DSPI_DMA_MODE)
->  		ctlr->ptp_sts_supported = true;
->  
-> -	platform_set_drvdata(pdev, ctlr);
-> +	platform_set_drvdata(pdev, dspi);
->  
->  	ret = spi_register_controller(ctlr);
->  	if (ret != 0) {
-> @@ -1437,8 +1440,7 @@ static int dspi_probe(struct platform_device *pdev)
->  
->  static int dspi_remove(struct platform_device *pdev)
->  {
-> -	struct spi_controller *ctlr = platform_get_drvdata(pdev);
-> -	struct fsl_dspi *dspi = spi_controller_get_devdata(ctlr);
-> +	struct fsl_dspi *dspi = platform_get_drvdata(pdev);
->  
->  	/* Disconnect from the SPI framework */
->  	spi_unregister_controller(dspi->ctlr);
-> -- 
-> 2.25.1
-> 
-> 
-
--- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+greg k-h
