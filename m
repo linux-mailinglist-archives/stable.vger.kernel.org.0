@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD49127C558
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D1A127C812
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728594AbgI2Les (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:34:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49134 "EHLO mail.kernel.org"
+        id S1730810AbgI2L6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:58:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729584AbgI2Ld0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:33:26 -0400
+        id S1729604AbgI2Llw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:41:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9FCB23B6C;
-        Tue, 29 Sep 2020 11:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFD64206F7;
+        Tue, 29 Sep 2020 11:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378781;
-        bh=ZOdhtg283gl1Kqzsq95npru5wbrb0UGgTLxBg0NezjI=;
+        s=default; t=1601379712;
+        bh=6uzXXWI0y9hLLOPB61lhgPChBKZfo1sriuNCfxOGg8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VR93ap6VuNXcR7DaKuMA/VYYjKpkEneht1jRO40ZC5+2A/bS0ks9+abQRoSpuQCs3
-         eaYJyEM5uBXG9CvmK0790mTIBVGmd99BdLjeBFvcUtxEZuh1tfpOUmZ3r2L0KXrMI5
-         8vXU1922Wce+E7XcXTLNTq3FvnET4btFem1i225I=
+        b=eWGBZ6uzdOly10QWtuCC08JPR8bmqxSM4Swb7TDX5PlrNZvJUTHc/DNnAeUQgZgr7
+         +Cg2EfVHRTPEL8IdU86knwSnOl0teDiUk1+2eZeBmNZ/K97Zb8nu1eB9w9ioVYf7VR
+         YVSKjBEzS27lxjxp/WtDpuM+Vp2nPtqLU3GSq1hQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Steinmetz <ast@domdv.de>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 135/245] ALSA: usb-audio: Fix case when USB MIDI interface has more than one extra endpoint descriptor
+        stable@vger.kernel.org,
+        Zhang Shengju <zhangshengju@cmss.chinamobile.com>,
+        Tang Bin <tangbin@cmss.chinamobile.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 255/388] USB: EHCI: ehci-mv: fix error handling in mv_ehci_probe()
 Date:   Tue, 29 Sep 2020 12:59:46 +0200
-Message-Id: <20200929105953.557663538@linuxfoundation.org>
+Message-Id: <20200929110022.817735527@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,78 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Steinmetz <ast@domdv.de>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-[ Upstream commit 5c6cd7021a05a02fcf37f360592d7c18d4d807fb ]
+[ Upstream commit c856b4b0fdb5044bca4c0acf9a66f3b5cc01a37a ]
 
-The Miditech MIDIFACE 16x16 (USB ID 1290:1749) has more than one extra
-endpoint descriptor.
+If the function platform_get_irq() failed, the negative value
+returned will not be detected here. So fix error handling in
+mv_ehci_probe(). And when get irq failed, the function
+platform_get_irq() logs an error message, so remove redundant
+message here.
 
-The first extra descriptor is: 0x06 0x30 0x00 0x00 0x00 0x00
-
-As the code in snd_usbmidi_get_ms_info() looks only at the
-first extra descriptor to find USB_DT_CS_ENDPOINT the device
-as such is recognized but there is neither input nor output
-configured.
-
-The patch iterates through the extra descriptors to find the
-proper one. With this patch the device is correctly configured.
-
-Signed-off-by: Andreas Steinmetz <ast@domdv.de>
-Link: https://lore.kernel.org/r/1c3b431a86f69e1d60745b6110cdb93c299f120b.camel@domdv.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Link: https://lore.kernel.org/r/20200508114305.15740-1-tangbin@cmss.chinamobile.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/midi.c | 29 ++++++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+ drivers/usb/host/ehci-mv.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/sound/usb/midi.c b/sound/usb/midi.c
-index 28a3ad8b1d74b..137e1e8718d6f 100644
---- a/sound/usb/midi.c
-+++ b/sound/usb/midi.c
-@@ -1828,6 +1828,28 @@ static int snd_usbmidi_create_endpoints(struct snd_usb_midi *umidi,
- 	return 0;
- }
+diff --git a/drivers/usb/host/ehci-mv.c b/drivers/usb/host/ehci-mv.c
+index 66ec1fdf9fe7d..15b2e8910e9b7 100644
+--- a/drivers/usb/host/ehci-mv.c
++++ b/drivers/usb/host/ehci-mv.c
+@@ -157,9 +157,8 @@ static int mv_ehci_probe(struct platform_device *pdev)
+ 	hcd->regs = ehci_mv->op_regs;
  
-+static struct usb_ms_endpoint_descriptor *find_usb_ms_endpoint_descriptor(
-+					struct usb_host_endpoint *hostep)
-+{
-+	unsigned char *extra = hostep->extra;
-+	int extralen = hostep->extralen;
-+
-+	while (extralen > 3) {
-+		struct usb_ms_endpoint_descriptor *ms_ep =
-+				(struct usb_ms_endpoint_descriptor *)extra;
-+
-+		if (ms_ep->bLength > 3 &&
-+		    ms_ep->bDescriptorType == USB_DT_CS_ENDPOINT &&
-+		    ms_ep->bDescriptorSubtype == UAC_MS_GENERAL)
-+			return ms_ep;
-+		if (!extra[0])
-+			break;
-+		extralen -= extra[0];
-+		extra += extra[0];
-+	}
-+	return NULL;
-+}
-+
- /*
-  * Returns MIDIStreaming device capabilities.
-  */
-@@ -1865,11 +1887,8 @@ static int snd_usbmidi_get_ms_info(struct snd_usb_midi *umidi,
- 		ep = get_ep_desc(hostep);
- 		if (!usb_endpoint_xfer_bulk(ep) && !usb_endpoint_xfer_int(ep))
- 			continue;
--		ms_ep = (struct usb_ms_endpoint_descriptor *)hostep->extra;
--		if (hostep->extralen < 4 ||
--		    ms_ep->bLength < 4 ||
--		    ms_ep->bDescriptorType != USB_DT_CS_ENDPOINT ||
--		    ms_ep->bDescriptorSubtype != UAC_MS_GENERAL)
-+		ms_ep = find_usb_ms_endpoint_descriptor(hostep);
-+		if (!ms_ep)
- 			continue;
- 		if (usb_endpoint_dir_out(ep)) {
- 			if (endpoints[epidx].out_ep) {
+ 	hcd->irq = platform_get_irq(pdev, 0);
+-	if (!hcd->irq) {
+-		dev_err(&pdev->dev, "Cannot get irq.");
+-		retval = -ENODEV;
++	if (hcd->irq < 0) {
++		retval = hcd->irq;
+ 		goto err_disable_clk;
+ 	}
+ 
 -- 
 2.25.1
 
