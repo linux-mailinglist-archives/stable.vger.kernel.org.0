@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C5E27C405
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 345E027C406
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729158AbgI2LK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729161AbgI2LK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 29 Sep 2020 07:10:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50972 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729151AbgI2LKO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:10:14 -0400
+        id S1728543AbgI2LKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:10:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3945B21D46;
-        Tue, 29 Sep 2020 11:10:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E40C621941;
+        Tue, 29 Sep 2020 11:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377813;
-        bh=JhkyNonEfdkzvlR7tiCFHlN7ZQwpU6Pomj+ZQSfG9BQ=;
+        s=default; t=1601377816;
+        bh=eRhLSHWLg8jIE38ZEn7ZZMokZ3lZzVVbn52lcanlTjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kRz/gm17bqoY5azrtGeOPMKkFNCh0BMWWUpb2bZJh9Q/1LyHKb15D4e8oiUXjTJ+c
-         UmJYacTl8KLFUbUscgEE3sjLVtKbcXHi4FGTHYgesUU4c6JKm1t+tEUx1U2IXYfeTt
-         VNqiZmOpUY8V/8SYR/FXAYWUqdmWsJ2FgICOALc0=
+        b=ZoODFOeD65yGpWzlEltd0wITm8XdgrmA3cvpnhGJS8Z0vyecsgn+6BOPpSJuAkcAa
+         +MGrrRM38IvkGhtpjhx6Gfm/gS5CYni39xeIB1rfrkzTZXXLD847nYDBviIpE2QBgS
+         S5JsY62HauzIGWRUz98mOakS2jvQLts6u4mkuzNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Gengming Liu <l.dmxcsnsbh@gmail.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 080/121] dt-bindings: sound: wm8994: Correct required supplies based on actual implementaion
-Date:   Tue, 29 Sep 2020 13:00:24 +0200
-Message-Id: <20200929105934.144790464@linuxfoundation.org>
+Subject: [PATCH 4.9 081/121] atm: fix a memory leak of vcc->user_back
+Date:   Tue, 29 Sep 2020 13:00:25 +0200
+Message-Id: <20200929105934.197711441@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
@@ -44,62 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 8c149b7d75e53be47648742f40fc90d9fc6fa63a ]
+[ Upstream commit 8d9f73c0ad2f20e9fed5380de0a3097825859d03 ]
 
-The required supplies in bindings were actually not matching
-implementation making the bindings incorrect and misleading.  The Linux
-kernel driver requires all supplies to be present.  Also for wlf,wm8994
-uses just DBVDD-supply instead of DBVDDn-supply (n: <1,3>).
+In lec_arp_clear_vccs() only entry->vcc is freed, but vcc
+could be installed on entry->recv_vcc too in lec_vcc_added().
 
-Reported-by: Jonathan Bakker <xc-racer2@live.ca>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20200501133534.6706-1-krzk@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This fixes the following memory leak:
+
+unreferenced object 0xffff8880d9266b90 (size 16):
+  comm "atm2", pid 425, jiffies 4294907980 (age 23.488s)
+  hex dump (first 16 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 6b 6b 6b a5  ............kkk.
+  backtrace:
+    [<(____ptrval____)>] kmem_cache_alloc_trace+0x10e/0x151
+    [<(____ptrval____)>] lane_ioctl+0x4b3/0x569
+    [<(____ptrval____)>] do_vcc_ioctl+0x1ea/0x236
+    [<(____ptrval____)>] svc_ioctl+0x17d/0x198
+    [<(____ptrval____)>] sock_do_ioctl+0x47/0x12f
+    [<(____ptrval____)>] sock_ioctl+0x2f9/0x322
+    [<(____ptrval____)>] vfs_ioctl+0x1e/0x2b
+    [<(____ptrval____)>] ksys_ioctl+0x61/0x80
+    [<(____ptrval____)>] __x64_sys_ioctl+0x16/0x19
+    [<(____ptrval____)>] do_syscall_64+0x57/0x65
+    [<(____ptrval____)>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
+
+Cc: Gengming Liu <l.dmxcsnsbh@gmail.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../devicetree/bindings/sound/wm8994.txt       | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ net/atm/lec.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/sound/wm8994.txt b/Documentation/devicetree/bindings/sound/wm8994.txt
-index 68c4e8d96bed6..b309de00cd836 100644
---- a/Documentation/devicetree/bindings/sound/wm8994.txt
-+++ b/Documentation/devicetree/bindings/sound/wm8994.txt
-@@ -14,9 +14,15 @@ Required properties:
-   - #gpio-cells : Must be 2. The first cell is the pin number and the
-     second cell is used to specify optional parameters (currently unused).
- 
--  - AVDD2-supply, DBVDD1-supply, DBVDD2-supply, DBVDD3-supply, CPVDD-supply,
--    SPKVDD1-supply, SPKVDD2-supply : power supplies for the device, as covered
--    in Documentation/devicetree/bindings/regulator/regulator.txt
-+  - power supplies for the device, as covered in
-+    Documentation/devicetree/bindings/regulator/regulator.txt, depending
-+    on compatible:
-+    - for wlf,wm1811 and wlf,wm8958:
-+      AVDD1-supply, AVDD2-supply, DBVDD1-supply, DBVDD2-supply, DBVDD3-supply,
-+      DCVDD-supply, CPVDD-supply, SPKVDD1-supply, SPKVDD2-supply
-+    - for wlf,wm8994:
-+      AVDD1-supply, AVDD2-supply, DBVDD-supply, DCVDD-supply, CPVDD-supply,
-+      SPKVDD1-supply, SPKVDD2-supply
- 
- Optional properties:
- 
-@@ -68,11 +74,11 @@ codec: wm8994@1a {
- 
- 	lineout1-se;
- 
-+	AVDD1-supply = <&regulator>;
- 	AVDD2-supply = <&regulator>;
- 	CPVDD-supply = <&regulator>;
--	DBVDD1-supply = <&regulator>;
--	DBVDD2-supply = <&regulator>;
--	DBVDD3-supply = <&regulator>;
-+	DBVDD-supply = <&regulator>;
-+	DCVDD-supply = <&regulator>;
- 	SPKVDD1-supply = <&regulator>;
- 	SPKVDD2-supply = <&regulator>;
- };
+diff --git a/net/atm/lec.c b/net/atm/lec.c
+index 704892d79bf19..756429c95e859 100644
+--- a/net/atm/lec.c
++++ b/net/atm/lec.c
+@@ -1290,6 +1290,12 @@ static void lec_arp_clear_vccs(struct lec_arp_table *entry)
+ 		entry->vcc = NULL;
+ 	}
+ 	if (entry->recv_vcc) {
++		struct atm_vcc *vcc = entry->recv_vcc;
++		struct lec_vcc_priv *vpriv = LEC_VCC_PRIV(vcc);
++
++		kfree(vpriv);
++		vcc->user_back = NULL;
++
+ 		entry->recv_vcc->push = entry->old_recv_push;
+ 		vcc_release_async(entry->recv_vcc, -EPIPE);
+ 		entry->recv_vcc = NULL;
 -- 
 2.25.1
 
