@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A88727BA0D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:35:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63DAE27BA02
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728070AbgI2Be6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728074AbgI2Be6 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Sep 2020 21:34:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40906 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727632AbgI2Bba (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727634AbgI2Bba (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Sep 2020 21:31:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64961221E8;
-        Tue, 29 Sep 2020 01:31:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EA0521D92;
+        Tue, 29 Sep 2020 01:31:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343077;
-        bh=KnfAmQCDLWxrgUP4TjvPtfODWHnIpaoEfhe3KY3zoWc=;
+        s=default; t=1601343078;
+        bh=+PBWJoGEZS5W+f3bouiqdzAFX0EqQqm6yTb9tDVhL+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nAKEuzhWPC0e0Ch3BKtTD9T5wvTTbFHVxiMlQqxYK1GPlffd0UHG10ZO9L8qJxv/S
-         ON2q1jDtqBL/PyQ4Pl/GBxv8WVUXYNzhW0mRUCVB4/YN5oknqsN6kzrtDfYVRTzhj+
-         Z7kHt79mQgtot+42PyrOd3T0ZQ7gc1I7PIPOqq7g=
+        b=EExyzrJWieHSe6QFEtfCaR+a+LijdyotorseUIsbhUOz6mPkOByGBw/bber84SCmo
+         V6B7wNR58L5M3tzyTlnOlAtPc4cVzL2200X38RSScYt+QSMmxXEdXwM8SizsJZDcUs
+         NDCR5d2kxsR7QFgvKKuMR9KifaWmkw5i9HAaQ11I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, Qian Cai <cai@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/18] fuse: fix the ->direct_IO() treatment of iov_iter
-Date:   Mon, 28 Sep 2020 21:30:55 -0400
-Message-Id: <20200929013105.2406634-9-sashal@kernel.org>
+Cc:     Xie He <xie.he.0141@gmail.com>, Martin Schiller <ms@dev.tdt.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 10/18] drivers/net/wan/lapbether: Make skb->protocol consistent with the header
+Date:   Mon, 28 Sep 2020 21:30:56 -0400
+Message-Id: <20200929013105.2406634-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013105.2406634-1-sashal@kernel.org>
 References: <20200929013105.2406634-1-sashal@kernel.org>
@@ -41,90 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 933a3752babcf6513117d5773d2b70782d6ad149 ]
+[ Upstream commit 83f9a9c8c1edc222846dc1bde6e3479703e8e5a3 ]
 
-the callers rely upon having any iov_iter_truncate() done inside
-->direct_IO() countered by iov_iter_reexpand().
+This driver is a virtual driver stacked on top of Ethernet interfaces.
 
-Reported-by: Qian Cai <cai@redhat.com>
-Tested-by: Qian Cai <cai@redhat.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+When this driver transmits data on the Ethernet device, the skb->protocol
+setting is inconsistent with the Ethernet header prepended to the skb.
+
+This causes a user listening on the Ethernet interface with an AF_PACKET
+socket, to see different sll_protocol values for incoming and outgoing
+frames, because incoming frames would have this value set by parsing the
+Ethernet header.
+
+This patch changes the skb->protocol value for outgoing Ethernet frames,
+making it consistent with the Ethernet header prepended. This makes a
+user listening on the Ethernet device with an AF_PACKET socket, to see
+the same sll_protocol value for incoming and outgoing frames.
+
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/file.c | 25 ++++++++++++-------------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+ drivers/net/wan/lapbether.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index f8d8a8e34b808..ab4fc1255aca8 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -3074,11 +3074,10 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
- 	ssize_t ret = 0;
- 	struct file *file = iocb->ki_filp;
- 	struct fuse_file *ff = file->private_data;
--	bool async_dio = ff->fc->async_dio;
- 	loff_t pos = 0;
- 	struct inode *inode;
- 	loff_t i_size;
--	size_t count = iov_iter_count(iter);
-+	size_t count = iov_iter_count(iter), shortened = 0;
- 	loff_t offset = iocb->ki_pos;
- 	struct fuse_io_priv *io;
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 2cff914aada55..709e3de0f6af1 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -198,8 +198,6 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
+ 	struct net_device *dev;
+ 	int size = skb->len;
  
-@@ -3086,17 +3085,9 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
- 	inode = file->f_mapping->host;
- 	i_size = i_size_read(inode);
- 
--	if ((iov_iter_rw(iter) == READ) && (offset > i_size))
-+	if ((iov_iter_rw(iter) == READ) && (offset >= i_size))
- 		return 0;
- 
--	/* optimization for short read */
--	if (async_dio && iov_iter_rw(iter) != WRITE && offset + count > i_size) {
--		if (offset >= i_size)
--			return 0;
--		iov_iter_truncate(iter, fuse_round_up(ff->fc, i_size - offset));
--		count = iov_iter_count(iter);
--	}
+-	skb->protocol = htons(ETH_P_X25);
 -
- 	io = kmalloc(sizeof(struct fuse_io_priv), GFP_KERNEL);
- 	if (!io)
- 		return -ENOMEM;
-@@ -3112,15 +3103,22 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
- 	 * By default, we want to optimize all I/Os with async request
- 	 * submission to the client filesystem if supported.
- 	 */
--	io->async = async_dio;
-+	io->async = ff->fc->async_dio;
- 	io->iocb = iocb;
- 	io->blocking = is_sync_kiocb(iocb);
+ 	ptr = skb_push(skb, 2);
  
-+	/* optimization for short read */
-+	if (io->async && !io->write && offset + count > i_size) {
-+		iov_iter_truncate(iter, fuse_round_up(ff->fc, i_size - offset));
-+		shortened = count - iov_iter_count(iter);
-+		count -= shortened;
-+	}
+ 	*ptr++ = size % 256;
+@@ -210,6 +208,8 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
+ 
+ 	skb->dev = dev = lapbeth->ethdev;
+ 
++	skb->protocol = htons(ETH_P_DEC);
 +
- 	/*
- 	 * We cannot asynchronously extend the size of a file.
- 	 * In such case the aio will behave exactly like sync io.
- 	 */
--	if ((offset + count > i_size) && iov_iter_rw(iter) == WRITE)
-+	if ((offset + count > i_size) && io->write)
- 		io->blocking = true;
+ 	skb_reset_network_header(skb);
  
- 	if (io->async && io->blocking) {
-@@ -3138,6 +3136,7 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
- 	} else {
- 		ret = __fuse_direct_read(io, iter, &pos);
- 	}
-+	iov_iter_reexpand(iter, iov_iter_count(iter) + shortened);
- 
- 	if (io->async) {
- 		bool blocking = io->blocking;
+ 	dev_hard_header(skb, dev, ETH_P_DEC, bcast_addr, NULL, 0);
 -- 
 2.25.1
 
