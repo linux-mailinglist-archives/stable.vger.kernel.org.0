@@ -2,136 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D08F127DB26
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 23:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2D6C27DBEC
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 00:22:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728074AbgI2VyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 17:54:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49514 "EHLO
+        id S1728384AbgI2WW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 18:22:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727922AbgI2VyW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 17:54:22 -0400
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422AFC0613D0
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 14:54:22 -0700 (PDT)
-Received: by mail-wr1-x442.google.com with SMTP id c18so7083394wrm.9
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 14:54:22 -0700 (PDT)
+        with ESMTP id S1728041AbgI2WWP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 18:22:15 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CFA1C061755
+        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 15:22:15 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id s31so5093397pga.7
+        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 15:22:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=t2jBOwo5sEDhXI6sp9RzWxuwmvMHiP6RaX4eX1gc5ek=;
-        b=E7hfDS+sXf0kdHhKgC5UazbtiRypEKIfbxuk4uAJRGUY4Lb1SNerVz6Cr/62JW/JVV
-         +3VKzcUZV/WP70E0ZpOD67V3WItA05mKKwDTr0iuIgqQoPRRShaPr0nq8pOzbt5kVw8M
-         irMZi5zjHKotA+EbHKFqaqFOx8tLkd4auMvSU=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=EEO+bk2i/5riIxD3efcxZ56ob6rCY1J76WlSIVy053k=;
+        b=qyZJED7BuArdYWrcYNx+CPq7QqDuZN82hhHJ6ffmiPCRhiRzzevMXM69T7V2CnvR9N
+         BASMz/zhqqL6xEbLkeoeTFHzbon0eCnS7f9i0U2VjhrrlCU4jaRlgZvAngLK/XDA3g+e
+         Ki602w/NX6Hs+xARH4IRMy0vmepxzpU4uYV22eVij8sbkj6NpMI3g/UtXWEdORuo16jm
+         e49F8kW33llhxQehwP2dMfkaSbGQ/81wiBtf3UDtIbbwwRn+7mq5NQmVYuKmo52XzQop
+         nTgGL3qwxMWF3BFMQ2R3jwVQbgd2M0xqpbdSAHe2C/t73eu325ZYuYFJJXtpFyGO+onq
+         4kxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=t2jBOwo5sEDhXI6sp9RzWxuwmvMHiP6RaX4eX1gc5ek=;
-        b=IoJZZYokcnbQjEbNuEXAz2ArfLGLo17HH7gbTu60bk8GR1Q/N45p6rc0A1/pl/wEaG
-         H94Q+mbX1rtqMN1Rjj6WLuZ6y074Lj4RX24AROp3ofBPKkW9LNAkUM1ln0zBZTmvu7nX
-         NNqSv7Aj/3jsra42BGMFPwlZDZZJaevYIae9gfFfCqmQd9b7CGk0XE1dqwtw025K8mYj
-         eL1Oc+DD6GENbU8zd3hddTsvXWfTYlG5yRf3GRbujPdlQLvQXBjfegiXeTGEcEoEYy/7
-         /hdtRgqsoCIjjDu7LMzmCbMnRynJfGG2wG+ZIYuVdd3szTnxuA+09jmA0Fk/gmUA63Sk
-         8HBA==
-X-Gm-Message-State: AOAM532q6BKloMCtSNWBtlZ7bsySkHFydz5mEEyCiIwtBmG62ZvZoimF
-        SoIH1IGsViRDOJIoa481+24pM1iW5vHLHjOXQ78MoQ==
-X-Google-Smtp-Source: ABdhPJznRd6WTGs71o/df2mvqSfUkKUNnhMQvsS+vuMvXGqCVRqBaUUSVoWSnfDqE0sfC1MfaJl2N1S/UK1Fjj/lvR8=
-X-Received: by 2002:adf:93e5:: with SMTP id 92mr6354832wrp.31.1601416460800;
- Tue, 29 Sep 2020 14:54:20 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=EEO+bk2i/5riIxD3efcxZ56ob6rCY1J76WlSIVy053k=;
+        b=R8jORLjgEga812HPLoadpF0hBN08XKmEmqslO16dYPnwH6hLAqpd4QbPvKhN6a9h3y
+         EYrAJ6coKUOR2vcfsHSB30UpcQuleGc0+L4mkvKP22hTlXgSbiXXaeld/Hn2tx0QXl7Z
+         3XGFsCgvetwZsPAMaovcsF3ge8mUh3yTUtmL73dSjXxclLUysm7Wv/78XvceTfFRemQe
+         yYeporWpf2yqkZe9b5jDZZIgCfZSjBrDjWJy9X4eBhq4FFZHf3RXx9thFIImGWHgf1FU
+         C5hStGrEXYtYG6jRW9pAkdBE+FIM8JZNgMolCL6SBVi1b7ID9UbS3AHfLy7JOuAgq63y
+         vozg==
+X-Gm-Message-State: AOAM530SNt68/OIhQEBxhg8pfVgRgd3Ac4tNiQvX4jc85/iWJujoJPrt
+        u8mlKCQDqjtVnv+BFWjNFdsNFH/c/3wLaA==
+X-Google-Smtp-Source: ABdhPJzk23JDizxNfptRg+FThgT8ZZd0mhzr2Ak2raoX7cHyO+3qVa+ow1jkPpZmFDnnSKC8FnJFnw==
+X-Received: by 2002:a63:e057:: with SMTP id n23mr4609250pgj.87.1601418134606;
+        Tue, 29 Sep 2020 15:22:14 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f207sm7005576pfa.54.2020.09.29.15.22.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Sep 2020 15:22:13 -0700 (PDT)
+Message-ID: <5f73b395.1c69fb81.4407e.e90d@mx.google.com>
+Date:   Tue, 29 Sep 2020 15:22:13 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200929105929.719230296@linuxfoundation.org> <20200929105931.461063397@linuxfoundation.org>
-In-Reply-To: <20200929105931.461063397@linuxfoundation.org>
-From:   Justin Forbes <jmforbes@linuxtx.org>
-Date:   Tue, 29 Sep 2020 16:54:10 -0500
-Message-ID: <CAFxkdAoyenpdGV9XoFqtjEW02UVfa_i56NMKdmDFW89GSrZ5cg@mail.gmail.com>
-Subject: Re: [PATCH 5.8 35/99] tools/libbpf: Avoid counting local symbols in
- ABI check
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Tony Ambardar <Tony.Ambardar@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.199-167-g7b80cb61f2b2
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y baseline: 128 runs,
+ 2 regressions (v4.14.199-167-g7b80cb61f2b2)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 29, 2020 at 6:53 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> From: Tony Ambardar <tony.ambardar@gmail.com>
->
-> [ Upstream commit 746f534a4809e07f427f7d13d10f3a6a9641e5c3 ]
->
-> Encountered the following failure building libbpf from kernel 5.8.5 sources
-> with GCC 8.4.0 and binutils 2.34: (long paths shortened)
->
->   Warning: Num of global symbols in sharedobjs/libbpf-in.o (234) does NOT
->   match with num of versioned symbols in libbpf.so (236). Please make sure
->   all LIBBPF_API symbols are versioned in libbpf.map.
-> #  --- libbpf_global_syms.tmp    2020-09-02 07:30:58.920084380 +0000
-> #  +++ libbpf_versioned_syms.tmp 2020-09-02 07:30:58.924084388 +0000
->   @@ -1,3 +1,5 @@
->   +_fini
->   +_init
->    bpf_btf_get_fd_by_id
->    bpf_btf_get_next_id
->    bpf_create_map
->   make[4]: *** [Makefile:210: check_abi] Error 1
->
-> Investigation shows _fini and _init are actually local symbols counted
-> amongst global ones:
->
->   $ readelf --dyn-syms --wide libbpf.so|head -10
->
->   Symbol table '.dynsym' contains 343 entries:
->      Num:    Value  Size Type    Bind   Vis      Ndx Name
->        0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND
->        1: 00004098     0 SECTION LOCAL  DEFAULT   11
->        2: 00004098     8 FUNC    LOCAL  DEFAULT   11 _init@@LIBBPF_0.0.1
->        3: 00023040     8 FUNC    LOCAL  DEFAULT   14 _fini@@LIBBPF_0.0.1
->        4: 00000000     0 OBJECT  GLOBAL DEFAULT  ABS LIBBPF_0.0.4
->        5: 00000000     0 OBJECT  GLOBAL DEFAULT  ABS LIBBPF_0.0.1
->        6: 0000ffa4     8 FUNC    GLOBAL DEFAULT   12 bpf_object__find_map_by_offset@@LIBBPF_0.0.1
->
-> A previous commit filtered global symbols in sharedobjs/libbpf-in.o. Do the
-> same with the libbpf.so DSO for consistent comparison.
->
-> Fixes: 306b267cb3c4 ("libbpf: Verify versioned symbols")
-> Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
-> Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-> Acked-by: Andrii Nakryiko <andriin@fb.com>
-> Link: https://lore.kernel.org/bpf/20200905214831.1565465-1-Tony.Ambardar@gmail.com
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+stable-rc/linux-4.14.y baseline: 128 runs, 2 regressions (v4.14.199-167-g7b=
+80cb61f2b2)
 
-This seems to work everywhere else, but breaks PPC64LE.
+Regressions Summary
+-------------------
 
-Justin
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
 
-> ---
->  tools/lib/bpf/Makefile |    2 ++
->  1 file changed, 2 insertions(+)
->
-> --- a/tools/lib/bpf/Makefile
-> +++ b/tools/lib/bpf/Makefile
-> @@ -152,6 +152,7 @@ GLOBAL_SYM_COUNT = $(shell readelf -s --
->                            awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
->                            sort -u | wc -l)
->  VERSIONED_SYM_COUNT = $(shell readelf --dyn-syms --wide $(OUTPUT)libbpf.so | \
-> +                             awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
->                               grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 | sort -u | wc -l)
->
->  CMD_TARGETS = $(LIB_TARGET) $(PC_FILE)
-> @@ -219,6 +220,7 @@ check_abi: $(OUTPUT)libbpf.so
->                     awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
->                     sort -u > $(OUTPUT)libbpf_global_syms.tmp;           \
->                 readelf --dyn-syms --wide $(OUTPUT)libbpf.so |           \
-> +                   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
->                     grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 |             \
->                     sort -u > $(OUTPUT)libbpf_versioned_syms.tmp;        \
->                 diff -u $(OUTPUT)libbpf_global_syms.tmp                  \
->
->
+meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 0/1    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.199-167-g7b80cb61f2b2/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.199-167-g7b80cb61f2b2
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7b80cb61f2b2cf4f291246ded2d1c29e3797c095 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f737ea896b57f0341877176
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+99-167-g7b80cb61f2b2/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
+ama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+99-167-g7b80cb61f2b2/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
+ama5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-2-g61393d279614/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f737ea896b57f0341877=
+177
+      failing since 67 days (last pass: v4.14.188-126-g5b1e982af0f8, first =
+fail: v4.14.189)  =
+
+
+
+platform              | arch  | lab          | compiler | defconfig       |=
+ results
+----------------------+-------+--------------+----------+-----------------+=
+--------
+meson-gxbb-p200       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
+ 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f737e3f117a859bd3877176
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+99-167-g7b80cb61f2b2/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
+-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+99-167-g7b80cb61f2b2/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
+-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-2-g61393d279614/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f737e3f117a859bd3877=
+177
+      failing since 182 days (last pass: v4.14.172-114-g734382e2d26e, first=
+ fail: v4.14.174-131-g234ce78cac23)  =20
