@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32B6C27C4BC
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:17:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE3F27C3D2
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729184AbgI2LQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:16:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60564 "EHLO mail.kernel.org"
+        id S1728350AbgI2LIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:08:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728454AbgI2LP6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:15:58 -0400
+        id S1728561AbgI2LIq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:08:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1198C208FE;
-        Tue, 29 Sep 2020 11:15:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A368221D43;
+        Tue, 29 Sep 2020 11:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378157;
-        bh=JFcziiMZPj20xMvToNrRfM7rOBWitPffkIwwunEFBcw=;
+        s=default; t=1601377726;
+        bh=jKTBQCaxarY6+3xJ92/SBAR0ppkaD1Igcl8HmuM9NH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o+IdsrqF+ddJ1PzKf8elXUwVQXUblB2nL5GwqjgnJBa9vPiUAuEZQuOuJbtSV+zVS
-         5MSTL9lYOctRNad+BBvL+k8qrQRFwtAFyM5Sg8kRJWWI/0/weQB2FfR3FKg0hQ6c0j
-         cX6lb2z/ZHVEsZ+0zC793jg7KrUODQgbGWmTGqbU=
+        b=UdRQTMfd+xPerw3/bF9s4H/QFsEC0HIUa3cMQyvPelLZt/BsLzN6LyjWt3VCxVXC1
+         hfBKNgcWY0eRFSReATapeOq4/mU7Bcx8XwK+5cAaEpJqh88cK4KeBE/z+jxw8ebBZ0
+         w8767wvRi8ATayo9hNbAaAx99NKrNwCatUbovXHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        dri-devel@lists.freedesktop.org,
+        Markus Elfring <Markus.Elfring@web.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 081/166] media: tda10071: fix unsigned sign extension overflow
+Subject: [PATCH 4.9 049/121] drm/omap: fix possible object reference leak
 Date:   Tue, 29 Sep 2020 12:59:53 +0200
-Message-Id: <20200929105939.259372247@linuxfoundation.org>
+Message-Id: <20200929105932.623608487@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +50,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-[ Upstream commit a7463e2dc698075132de9905b89f495df888bb79 ]
+[ Upstream commit 47340e46f34a3b1d80e40b43ae3d7a8da34a3541 ]
 
-The shifting of buf[3] by 24 bits to the left will be promoted to
-a 32 bit signed int and then sign-extended to an unsigned long. In
-the unlikely event that the the top bit of buf[3] is set then all
-then all the upper bits end up as also being set because of
-the sign-extension and this affect the ev->post_bit_error sum.
-Fix this by using the temporary u32 variable bit_error to avoid
-the sign-extension promotion. This also removes the need to do the
-computation twice.
+The call to of_find_matching_node returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Addresses-Coverity: ("Unintended sign extension")
+Detected by coccinelle with the following warnings:
+drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c:212:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 209, but without a corresponding object release within this function.
+drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c:237:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 209, but without a corresponding object release within this function.
 
-Fixes: 267897a4708f ("[media] tda10071: implement DVBv5 statistics")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org
+Cc: Markus Elfring <Markus.Elfring@web.de>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1554692313-28882-2-git-send-email-wen.yang99@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/tda10071.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/dvb-frontends/tda10071.c b/drivers/media/dvb-frontends/tda10071.c
-index a59f4fd09df60..27466b0d0be86 100644
---- a/drivers/media/dvb-frontends/tda10071.c
-+++ b/drivers/media/dvb-frontends/tda10071.c
-@@ -483,10 +483,11 @@ static int tda10071_read_status(struct dvb_frontend *fe, enum fe_status *status)
- 			goto error;
+diff --git a/drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c b/drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c
+index 136d30484d023..46111e9ee9a25 100644
+--- a/drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c
++++ b/drivers/gpu/drm/omapdrm/dss/omapdss-boot-init.c
+@@ -194,7 +194,7 @@ static int __init omapdss_boot_init(void)
+ 	dss = of_find_matching_node(NULL, omapdss_of_match);
  
- 		if (dev->delivery_system == SYS_DVBS) {
--			dev->dvbv3_ber = buf[0] << 24 | buf[1] << 16 |
--					 buf[2] << 8 | buf[3] << 0;
--			dev->post_bit_error += buf[0] << 24 | buf[1] << 16 |
--					       buf[2] << 8 | buf[3] << 0;
-+			u32 bit_error = buf[0] << 24 | buf[1] << 16 |
-+					buf[2] << 8 | buf[3] << 0;
-+
-+			dev->dvbv3_ber = bit_error;
-+			dev->post_bit_error += bit_error;
- 			c->post_bit_error.stat[0].scale = FE_SCALE_COUNTER;
- 			c->post_bit_error.stat[0].uvalue = dev->post_bit_error;
- 			dev->block_error += buf[4] << 8 | buf[5] << 0;
+ 	if (dss == NULL || !of_device_is_available(dss))
+-		return 0;
++		goto put_node;
+ 
+ 	omapdss_walk_device(dss, true);
+ 
+@@ -219,6 +219,8 @@ static int __init omapdss_boot_init(void)
+ 		kfree(n);
+ 	}
+ 
++put_node:
++	of_node_put(dss);
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
