@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0515327CA65
+	by mail.lfdr.de (Postfix) with ESMTP id 7314F27CA66
 	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730238AbgI2MSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:18:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50310 "EHLO mail.kernel.org"
+        id S1732223AbgI2MS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:18:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729971AbgI2LgV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729972AbgI2LgV (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:36:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6338523E22;
-        Tue, 29 Sep 2020 11:31:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAC7F23E23;
+        Tue, 29 Sep 2020 11:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379090;
-        bh=Fm6jXLSpDYVGejFkqBr0le1Cr0+VQzM/yBzIoueAvII=;
+        s=default; t=1601379093;
+        bh=H8WaB6BrPJvOK0/+mDoNVBymGhqmdOHaFv38C5S0Xow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LXOx9xLqLXXZHBgovBURE4KEFPzkobiRGo6v+cPNzr1N1ctMd/QM8zJHLnqw3F9kL
-         s6STe6j7ujnoUMFOEuOPamkxMEFfr4rMKERWSLOP+yTf5tcvqKcVfGG9wC3akryzLY
-         zAt7ASDWn4Z8XphF3Xywn1yLQF733CzvPRW75ZSg=
+        b=hM40HNjQcg03T2qojviegKp5Dd2nRIRn/cuSeomKqJYO7QnTm7rc5ncKqDQcsAy88
+         23GkN9NfmVFU3G4IpimMIjpMZWZH5Zsqs8wvvwgShSJKN+mOvzsniUY1C2DB6gapbM
+         LaVsYTkySZKfMDk8GioBUTyBDLeCdqdLTlYq7wZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 010/388] ath10k: fix array out-of-bounds access
-Date:   Tue, 29 Sep 2020 12:55:41 +0200
-Message-Id: <20200929110010.984303536@linuxfoundation.org>
+Subject: [PATCH 5.4 011/388] ath10k: fix memory leak for tpc_stats_final
+Date:   Tue, 29 Sep 2020 12:55:42 +0200
+Message-Id: <20200929110011.033121168@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -45,11 +45,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqing Pan <miaoqing@codeaurora.org>
 
-[ Upstream commit c5329b2d5b8b4e41be14d31ee8505b4f5607bf9b ]
+[ Upstream commit 486a8849843455298d49e694cca9968336ce2327 ]
 
-If firmware reports rate_max > WMI_TPC_RATE_MAX(WMI_TPC_FINAL_RATE_MAX)
-or num_tx_chain > WMI_TPC_TX_N_CHAIN, it will cause array out-of-bounds
-access, so print a warning and reset to avoid memory corruption.
+The memory of ar->debug.tpc_stats_final is reallocated every debugfs
+reading, it should be freed in ath10k_debug_destroy() for the last
+allocation.
 
 Tested HW: QCA9984
 Tested FW: 10.4-3.9.0.2-00035
@@ -58,146 +58,21 @@ Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/debug.c |  2 +-
- drivers/net/wireless/ath/ath10k/wmi.c   | 49 ++++++++++++++++---------
- 2 files changed, 32 insertions(+), 19 deletions(-)
+ drivers/net/wireless/ath/ath10k/debug.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/wireless/ath/ath10k/debug.c b/drivers/net/wireless/ath/ath10k/debug.c
-index bd2b5628f850b..40baf25ac99f3 100644
+index 40baf25ac99f3..04c50a26a4f47 100644
 --- a/drivers/net/wireless/ath/ath10k/debug.c
 +++ b/drivers/net/wireless/ath/ath10k/debug.c
-@@ -1516,7 +1516,7 @@ static void ath10k_tpc_stats_print(struct ath10k_tpc_stats *tpc_stats,
- 	*len += scnprintf(buf + *len, buf_len - *len,
- 			  "No.  Preamble Rate_code ");
+@@ -2532,6 +2532,7 @@ void ath10k_debug_destroy(struct ath10k *ar)
+ 	ath10k_debug_fw_stats_reset(ar);
  
--	for (i = 0; i < WMI_TPC_TX_N_CHAIN; i++)
-+	for (i = 0; i < tpc_stats->num_tx_chain; i++)
- 		*len += scnprintf(buf + *len, buf_len - *len,
- 				  "tpc_value%d ", i);
+ 	kfree(ar->debug.tpc_stats);
++	kfree(ar->debug.tpc_stats_final);
+ }
  
-diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
-index 90f1197a6ad84..2675174cc4fec 100644
---- a/drivers/net/wireless/ath/ath10k/wmi.c
-+++ b/drivers/net/wireless/ath/ath10k/wmi.c
-@@ -4668,16 +4668,13 @@ static void ath10k_tpc_config_disp_tables(struct ath10k *ar,
- 	}
- 
- 	pream_idx = 0;
--	for (i = 0; i < __le32_to_cpu(ev->rate_max); i++) {
-+	for (i = 0; i < tpc_stats->rate_max; i++) {
- 		memset(tpc_value, 0, sizeof(tpc_value));
- 		memset(buff, 0, sizeof(buff));
- 		if (i == pream_table[pream_idx])
- 			pream_idx++;
- 
--		for (j = 0; j < WMI_TPC_TX_N_CHAIN; j++) {
--			if (j >= __le32_to_cpu(ev->num_tx_chain))
--				break;
--
-+		for (j = 0; j < tpc_stats->num_tx_chain; j++) {
- 			tpc[j] = ath10k_tpc_config_get_rate(ar, ev, i, j + 1,
- 							    rate_code[i],
- 							    type);
-@@ -4790,7 +4787,7 @@ void ath10k_wmi_tpc_config_get_rate_code(u8 *rate_code, u16 *pream_table,
- 
- void ath10k_wmi_event_pdev_tpc_config(struct ath10k *ar, struct sk_buff *skb)
- {
--	u32 num_tx_chain;
-+	u32 num_tx_chain, rate_max;
- 	u8 rate_code[WMI_TPC_RATE_MAX];
- 	u16 pream_table[WMI_TPC_PREAM_TABLE_MAX];
- 	struct wmi_pdev_tpc_config_event *ev;
-@@ -4806,6 +4803,13 @@ void ath10k_wmi_event_pdev_tpc_config(struct ath10k *ar, struct sk_buff *skb)
- 		return;
- 	}
- 
-+	rate_max = __le32_to_cpu(ev->rate_max);
-+	if (rate_max > WMI_TPC_RATE_MAX) {
-+		ath10k_warn(ar, "number of rate is %d greater than TPC configured rate %d\n",
-+			    rate_max, WMI_TPC_RATE_MAX);
-+		rate_max = WMI_TPC_RATE_MAX;
-+	}
-+
- 	tpc_stats = kzalloc(sizeof(*tpc_stats), GFP_ATOMIC);
- 	if (!tpc_stats)
- 		return;
-@@ -4822,8 +4826,8 @@ void ath10k_wmi_event_pdev_tpc_config(struct ath10k *ar, struct sk_buff *skb)
- 		__le32_to_cpu(ev->twice_antenna_reduction);
- 	tpc_stats->power_limit = __le32_to_cpu(ev->power_limit);
- 	tpc_stats->twice_max_rd_power = __le32_to_cpu(ev->twice_max_rd_power);
--	tpc_stats->num_tx_chain = __le32_to_cpu(ev->num_tx_chain);
--	tpc_stats->rate_max = __le32_to_cpu(ev->rate_max);
-+	tpc_stats->num_tx_chain = num_tx_chain;
-+	tpc_stats->rate_max = rate_max;
- 
- 	ath10k_tpc_config_disp_tables(ar, ev, tpc_stats,
- 				      rate_code, pream_table,
-@@ -5018,16 +5022,13 @@ ath10k_wmi_tpc_stats_final_disp_tables(struct ath10k *ar,
- 	}
- 
- 	pream_idx = 0;
--	for (i = 0; i < __le32_to_cpu(ev->rate_max); i++) {
-+	for (i = 0; i < tpc_stats->rate_max; i++) {
- 		memset(tpc_value, 0, sizeof(tpc_value));
- 		memset(buff, 0, sizeof(buff));
- 		if (i == pream_table[pream_idx])
- 			pream_idx++;
- 
--		for (j = 0; j < WMI_TPC_TX_N_CHAIN; j++) {
--			if (j >= __le32_to_cpu(ev->num_tx_chain))
--				break;
--
-+		for (j = 0; j < tpc_stats->num_tx_chain; j++) {
- 			tpc[j] = ath10k_wmi_tpc_final_get_rate(ar, ev, i, j + 1,
- 							       rate_code[i],
- 							       type, pream_idx);
-@@ -5043,7 +5044,7 @@ ath10k_wmi_tpc_stats_final_disp_tables(struct ath10k *ar,
- 
- void ath10k_wmi_event_tpc_final_table(struct ath10k *ar, struct sk_buff *skb)
- {
--	u32 num_tx_chain;
-+	u32 num_tx_chain, rate_max;
- 	u8 rate_code[WMI_TPC_FINAL_RATE_MAX];
- 	u16 pream_table[WMI_TPC_PREAM_TABLE_MAX];
- 	struct wmi_pdev_tpc_final_table_event *ev;
-@@ -5051,12 +5052,24 @@ void ath10k_wmi_event_tpc_final_table(struct ath10k *ar, struct sk_buff *skb)
- 
- 	ev = (struct wmi_pdev_tpc_final_table_event *)skb->data;
- 
-+	num_tx_chain = __le32_to_cpu(ev->num_tx_chain);
-+	if (num_tx_chain > WMI_TPC_TX_N_CHAIN) {
-+		ath10k_warn(ar, "number of tx chain is %d greater than TPC final configured tx chain %d\n",
-+			    num_tx_chain, WMI_TPC_TX_N_CHAIN);
-+		return;
-+	}
-+
-+	rate_max = __le32_to_cpu(ev->rate_max);
-+	if (rate_max > WMI_TPC_FINAL_RATE_MAX) {
-+		ath10k_warn(ar, "number of rate is %d greater than TPC final configured rate %d\n",
-+			    rate_max, WMI_TPC_FINAL_RATE_MAX);
-+		rate_max = WMI_TPC_FINAL_RATE_MAX;
-+	}
-+
- 	tpc_stats = kzalloc(sizeof(*tpc_stats), GFP_ATOMIC);
- 	if (!tpc_stats)
- 		return;
- 
--	num_tx_chain = __le32_to_cpu(ev->num_tx_chain);
--
- 	ath10k_wmi_tpc_config_get_rate_code(rate_code, pream_table,
- 					    num_tx_chain);
- 
-@@ -5069,8 +5082,8 @@ void ath10k_wmi_event_tpc_final_table(struct ath10k *ar, struct sk_buff *skb)
- 		__le32_to_cpu(ev->twice_antenna_reduction);
- 	tpc_stats->power_limit = __le32_to_cpu(ev->power_limit);
- 	tpc_stats->twice_max_rd_power = __le32_to_cpu(ev->twice_max_rd_power);
--	tpc_stats->num_tx_chain = __le32_to_cpu(ev->num_tx_chain);
--	tpc_stats->rate_max = __le32_to_cpu(ev->rate_max);
-+	tpc_stats->num_tx_chain = num_tx_chain;
-+	tpc_stats->rate_max = rate_max;
- 
- 	ath10k_wmi_tpc_stats_final_disp_tables(ar, ev, tpc_stats,
- 					       rate_code, pream_table,
+ int ath10k_debug_register(struct ath10k *ar)
 -- 
 2.25.1
 
