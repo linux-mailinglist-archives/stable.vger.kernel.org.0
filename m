@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8B5227C819
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:59:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5941427C801
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:58:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731533AbgI2L6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:58:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38458 "EHLO mail.kernel.org"
+        id S1730309AbgI2Llx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730069AbgI2Lll (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:41:41 -0400
+        id S1730358AbgI2Llm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:41:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC67220702;
-        Tue, 29 Sep 2020 11:41:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B7092074A;
+        Tue, 29 Sep 2020 11:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379693;
-        bh=EWJcn+IBaqU5jMI0HlN8uN+YF8Kf7JtXNO7GJDL6Qr4=;
+        s=default; t=1601379695;
+        bh=WOo5LTIppe2Gca6xK6blC/DMnMxCfbZ0tXSNUB62nEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CeMY0i/ntWvJZ+7aZdOjoFkqwkvZNnHxjTpkwzlVpRot0MykYJHsGscRmsUJJ77i
-         ULhubpPNiy+HIB8SkyzbBPEJoVebfQF6UMv2hn8PWiY63grzvPMwX0T6eyYfuKzMkh
-         +FfHF40/4xqNtbNEjtNb5MB2OXSTIMUVi1rjpmSM=
+        b=AuBFbbxJ/rZ5gd5JyZior6UoUlPHMfIMsYqRbr4CP0jjn+k/t/7Wveki+a6UYncA4
+         Vy85UHFISwig7QRj2LHCF0QpCDUGK5zwh29yhZfqusqJfWJiBTU4NeTiuVFWcN8g2/
+         /QBWhGBqfCYCAFVojF7LbsY6u8cYRY+LjdohfEt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shreyas Joshi <shreyas.joshi@biamp.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 276/388] printk: handle blank console arguments passed in.
-Date:   Tue, 29 Sep 2020 13:00:07 +0200
-Message-Id: <20200929110023.812070216@linuxfoundation.org>
+        stable@vger.kernel.org, Yu Chen <chenyu56@huawei.com>,
+        John Stultz <john.stultz@linaro.org>, Li Jun <jun.li@nxp.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 277/388] usb: dwc3: Increase timeout for CmdAct cleared by device controller
+Date:   Tue, 29 Sep 2020 13:00:08 +0200
+Message-Id: <20200929110023.861722320@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,42 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyas Joshi <shreyas.joshi@biamp.com>
+From: Yu Chen <chenyu56@huawei.com>
 
-[ Upstream commit 48021f98130880dd74286459a1ef48b5e9bc374f ]
+[ Upstream commit 1c0e69ae1b9f9004fd72978612ae3463791edc56 ]
 
-If uboot passes a blank string to console_setup then it results in
-a trashed memory. Ultimately, the kernel crashes during freeing up
-the memory.
+If the SS PHY is in P3, there is no pipe_clk, HW may use suspend_clk
+for function, as suspend_clk is slow so EP command need more time to
+complete, e.g, imx8M suspend_clk is 32K, set ep configuration will
+take about 380us per below trace time stamp(44.286278 - 44.285897
+= 0.000381):
 
-This fix checks if there is a blank parameter being
-passed to console_setup from uboot. In case it detects that
-the console parameter is blank then it doesn't setup the serial
-device and it gracefully exits.
+configfs_acm.sh-822   [000] d..1    44.285896: dwc3_writel: addr
+000000006d59aae1 value 00000401
+configfs_acm.sh-822   [000] d..1    44.285897: dwc3_readl: addr
+000000006d59aae1 value 00000401
+... ...
+configfs_acm.sh-822   [000] d..1    44.286278: dwc3_readl: addr
+000000006d59aae1 value 00000001
+configfs_acm.sh-822   [000] d..1    44.286279: dwc3_gadget_ep_cmd:
+ep0out: cmd 'Set Endpoint Configuration' [401] params 00001000
+00000500 00000000 --> status: Successful
 
-Link: https://lore.kernel.org/r/20200522065306.83-1-shreyas.joshi@biamp.com
-Signed-off-by: Shreyas Joshi <shreyas.joshi@biamp.com>
-Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-[pmladek@suse.com: Better format the commit message and code, remove unnecessary brackets.]
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+This was originally found on Hisilicon Kirin Soc that need more time
+for the device controller to clear the CmdAct of DEPCMD.
+
+Signed-off-by: Yu Chen <chenyu56@huawei.com>
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/printk.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/dwc3/gadget.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 971197f5d8ee5..5569ef6bc1839 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2193,6 +2193,9 @@ static int __init console_setup(char *str)
- 	char *s, *options, *brl_options = NULL;
- 	int idx;
- 
-+	if (str[0] == 0)
-+		return 1;
-+
- 	if (_braille_console_setup(&str, &brl_options))
- 		return 1;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 4225544342519..809103254fc64 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -270,7 +270,7 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned cmd,
+ {
+ 	const struct usb_endpoint_descriptor *desc = dep->endpoint.desc;
+ 	struct dwc3		*dwc = dep->dwc;
+-	u32			timeout = 1000;
++	u32			timeout = 5000;
+ 	u32			saved_config = 0;
+ 	u32			reg;
  
 -- 
 2.25.1
