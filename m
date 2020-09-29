@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3404827C865
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27BED27CB90
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731291AbgI2MBv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:01:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35352 "EHLO mail.kernel.org"
+        id S1732825AbgI2M2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:28:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729233AbgI2LkE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:40:04 -0400
+        id S1729477AbgI2LcY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:32:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B42062074A;
-        Tue, 29 Sep 2020 11:40:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93ABA23B1F;
+        Tue, 29 Sep 2020 11:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379604;
-        bh=6/6a8jeCD9rXFbBxNlrS6wkqXNU4bmx5jaM2whCPLAs=;
+        s=default; t=1601378726;
+        bh=hoMDBRCBrzHuduGsdOodBy1gbW/7O6IJYTr325qsCB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0E5vKclYlmk/eP3OjoOiFdsYWJoLuokpC/MCCd0SBZvFFTqrlfejpdZccxEdZmtmr
-         jLy+ELIKdkAbnwp9O7XoHCMy1apa5548GtZJczSa/JZqmEvdpMCum7ZtRHJvJEbreC
-         gbuBqMv9vykfx3NeSmZsgKPxcuxt5eehL56HMBZk=
+        b=N3Ju63twjAnZmN9h5951UjJkv1RvveLI4NhnlqNs1ECxKJ7utqSM9xtkNrhb3b1OU
+         dGZIViBnr//kaB/R3EdD71yHUcqd7KtwB+wGlwT1qj43ycM7uFeGZxGcAC6E/bjmjK
+         4ywl7l0q6iy4qD8kbHc5h6mVS2WqyOEup9i8huqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 237/388] KVM: arm64: vgic-its: Fix memory leak on the error path of vgic_add_lpi()
+        stable@vger.kernel.org, Jordan Crouse <jcrouse@codeaurora.org>,
+        Eric Anholt <eric@anholt.net>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 117/245] drm/msm/a5xx: Always set an OPP supported hardware value
 Date:   Tue, 29 Sep 2020 12:59:28 +0200
-Message-Id: <20200929110021.952662032@linuxfoundation.org>
+Message-Id: <20200929105952.680253925@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Jordan Crouse <jcrouse@codeaurora.org>
 
-[ Upstream commit 57bdb436ce869a45881d8aa4bc5dac8e072dd2b6 ]
+[ Upstream commit 0478b4fc5f37f4d494245fe7bcce3f531cf380e9 ]
 
-If we're going to fail out the vgic_add_lpi(), let's make sure the
-allocated vgic_irq memory is also freed. Though it seems that both
-cases are unlikely to fail.
+If the opp table specifies opp-supported-hw as a property but the driver
+has not set a supported hardware value the OPP subsystem will reject
+all the table entries.
 
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20200414030349.625-3-yuzenghui@huawei.com
+Set a "default" value that will match the default table entries but not
+conflict with any possible real bin values. Also fix a small memory leak
+and free the buffer allocated by nvmem_cell_read().
+
+Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
+Reviewed-by: Eric Anholt <eric@anholt.net>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/arm/vgic/vgic-its.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
-diff --git a/virt/kvm/arm/vgic/vgic-its.c b/virt/kvm/arm/vgic/vgic-its.c
-index f8ad7096555d7..35be0e2a46393 100644
---- a/virt/kvm/arm/vgic/vgic-its.c
-+++ b/virt/kvm/arm/vgic/vgic-its.c
-@@ -96,14 +96,21 @@ out_unlock:
- 	 * We "cache" the configuration table entries in our struct vgic_irq's.
- 	 * However we only have those structs for mapped IRQs, so we read in
- 	 * the respective config data from memory here upon mapping the LPI.
-+	 *
-+	 * Should any of these fail, behave as if we couldn't create the LPI
-+	 * by dropping the refcount and returning the error.
- 	 */
- 	ret = update_lpi_config(kvm, irq, NULL, false);
--	if (ret)
-+	if (ret) {
-+		vgic_put_irq(kvm, irq);
- 		return ERR_PTR(ret);
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index 1fc9a7fa37b45..d29a58bd2f7a3 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -1474,18 +1474,31 @@ static const struct adreno_gpu_funcs funcs = {
+ static void check_speed_bin(struct device *dev)
+ {
+ 	struct nvmem_cell *cell;
+-	u32 bin, val;
++	u32 val;
++
++	/*
++	 * If the OPP table specifies a opp-supported-hw property then we have
++	 * to set something with dev_pm_opp_set_supported_hw() or the table
++	 * doesn't get populated so pick an arbitrary value that should
++	 * ensure the default frequencies are selected but not conflict with any
++	 * actual bins
++	 */
++	val = 0x80;
+ 
+ 	cell = nvmem_cell_get(dev, "speed_bin");
+ 
+-	/* If a nvmem cell isn't defined, nothing to do */
+-	if (IS_ERR(cell))
+-		return;
++	if (!IS_ERR(cell)) {
++		void *buf = nvmem_cell_read(cell, NULL);
++
++		if (!IS_ERR(buf)) {
++			u8 bin = *((u8 *) buf);
+ 
+-	bin = *((u32 *) nvmem_cell_read(cell, NULL));
+-	nvmem_cell_put(cell);
++			val = (1 << bin);
++			kfree(buf);
++		}
+ 
+-	val = (1 << bin);
++		nvmem_cell_put(cell);
 +	}
  
- 	ret = vgic_v3_lpi_sync_pending_status(kvm, irq);
--	if (ret)
-+	if (ret) {
-+		vgic_put_irq(kvm, irq);
- 		return ERR_PTR(ret);
-+	}
- 
- 	return irq;
+ 	dev_pm_opp_set_supported_hw(dev, &val, 1);
  }
 -- 
 2.25.1
