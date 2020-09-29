@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A560827C597
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:38:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A35227C73E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730014AbgI2Lgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:36:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48450 "EHLO mail.kernel.org"
+        id S1730163AbgI2Lwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:52:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729949AbgI2LgR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:36:17 -0400
+        id S1731079AbgI2Lrg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:47:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB5DC23DC3;
-        Tue, 29 Sep 2020 11:31:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81AB4206F7;
+        Tue, 29 Sep 2020 11:47:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379070;
-        bh=KwWo7hJGEpUfbTZjGTOpE2+Ac8/mzRMlek7YtDgOuFc=;
+        s=default; t=1601380056;
+        bh=0gpkqYr6zeW+XZmL6JgbcEWeivALiNbg7XH8JSez6cU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GR+GGVuoXZNpdBkWgmZDLzEEzYfU6kTLjN1XIzHjsDLjfGlDkuPjUlRSSM9haCFeS
-         kuyRwZCOUmnzb20eUKPkzi7N9qD0wO3XgtTFNa1+l828iyDGeXxWJaqfM5lmSeTCzI
-         fmfzs7dCmY2svm/pzXjJyfbL4Zkx4Tmq113xtOWk=
+        b=hYYPpNHyhQ+IPrObaAXa6hU8zj8pWaULCW4zibJ+j0fCWjND5CxQ+C7jYL7IT5Wm8
+         vNQ3Rzb+JCNela2CyNUE9FEH/00wHddW/7fN3CcHpR4rnTg+DBv3btK0io9GC8KrjM
+         oYNh3x7fKxxLTbCpvF+LLK8+S+1cLaaLQ7F5rW5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        David Miller <davem@davemloft.net>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 238/245] kprobes: Fix to check probe enabled before disarm_kprobe_ftrace()
-Date:   Tue, 29 Sep 2020 13:01:29 +0200
-Message-Id: <20200929105958.575304190@linuxfoundation.org>
+        stable@vger.kernel.org, Ciara Loftus <ciara.loftus@intel.com>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 47/99] xsk: Fix number of pinned pages/umem size discrepancy
+Date:   Tue, 29 Sep 2020 13:01:30 +0200
+Message-Id: <20200929105932.042990534@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,99 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Björn Töpel <bjorn.topel@intel.com>
 
-commit 3031313eb3d549b7ad6f9fbcc52ba04412e3eb9e upstream.
+[ Upstream commit 2b1667e54caf95e1e4249d9068eea7a3089a5229 ]
 
-Commit 0cb2f1372baa ("kprobes: Fix NULL pointer dereference at
-kprobe_ftrace_handler") fixed one bug but not completely fixed yet.
-If we run a kprobe_module.tc of ftracetest, kernel showed a warning
-as below.
+For AF_XDP sockets, there was a discrepancy between the number of of
+pinned pages and the size of the umem region.
 
-# ./ftracetest test.d/kprobe/kprobe_module.tc
-=== Ftrace unit tests ===
-[1] Kprobe dynamic event - probing module
-...
-[   22.400215] ------------[ cut here ]------------
-[   22.400962] Failed to disarm kprobe-ftrace at trace_printk_irq_work+0x0/0x7e [trace_printk] (-2)
-[   22.402139] WARNING: CPU: 7 PID: 200 at kernel/kprobes.c:1091 __disarm_kprobe_ftrace.isra.0+0x7e/0xa0
-[   22.403358] Modules linked in: trace_printk(-)
-[   22.404028] CPU: 7 PID: 200 Comm: rmmod Not tainted 5.9.0-rc2+ #66
-[   22.404870] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
-[   22.406139] RIP: 0010:__disarm_kprobe_ftrace.isra.0+0x7e/0xa0
-[   22.406947] Code: 30 8b 03 eb c9 80 3d e5 09 1f 01 00 75 dc 49 8b 34 24 89 c2 48 c7 c7 a0 c2 05 82 89 45 e4 c6 05 cc 09 1f 01 01 e8 a9 c7 f0 ff <0f> 0b 8b 45 e4 eb b9 89 c6 48 c7 c7 70 c2 05 82 89 45 e4 e8 91 c7
-[   22.409544] RSP: 0018:ffffc90000237df0 EFLAGS: 00010286
-[   22.410385] RAX: 0000000000000000 RBX: ffffffff83066024 RCX: 0000000000000000
-[   22.411434] RDX: 0000000000000001 RSI: ffffffff810de8d3 RDI: ffffffff810de8d3
-[   22.412687] RBP: ffffc90000237e10 R08: 0000000000000001 R09: 0000000000000001
-[   22.413762] R10: 0000000000000000 R11: 0000000000000001 R12: ffff88807c478640
-[   22.414852] R13: ffffffff8235ebc0 R14: ffffffffa00060c0 R15: 0000000000000000
-[   22.415941] FS:  00000000019d48c0(0000) GS:ffff88807d7c0000(0000) knlGS:0000000000000000
-[   22.417264] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   22.418176] CR2: 00000000005bb7e3 CR3: 0000000078f7a000 CR4: 00000000000006a0
-[   22.419309] Call Trace:
-[   22.419990]  kill_kprobe+0x94/0x160
-[   22.420652]  kprobes_module_callback+0x64/0x230
-[   22.421470]  notifier_call_chain+0x4f/0x70
-[   22.422184]  blocking_notifier_call_chain+0x49/0x70
-[   22.422979]  __x64_sys_delete_module+0x1ac/0x240
-[   22.423733]  do_syscall_64+0x38/0x50
-[   22.424366]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   22.425176] RIP: 0033:0x4bb81d
-[   22.425741] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e0 ff ff ff f7 d8 64 89 01 48
-[   22.428726] RSP: 002b:00007ffc70fef008 EFLAGS: 00000246 ORIG_RAX: 00000000000000b0
-[   22.430169] RAX: ffffffffffffffda RBX: 00000000019d48a0 RCX: 00000000004bb81d
-[   22.431375] RDX: 0000000000000000 RSI: 0000000000000880 RDI: 00007ffc70fef028
-[   22.432543] RBP: 0000000000000880 R08: 00000000ffffffff R09: 00007ffc70fef320
-[   22.433692] R10: 0000000000656300 R11: 0000000000000246 R12: 00007ffc70fef028
-[   22.434635] R13: 0000000000000000 R14: 0000000000000002 R15: 0000000000000000
-[   22.435682] irq event stamp: 1169
-[   22.436240] hardirqs last  enabled at (1179): [<ffffffff810df542>] console_unlock+0x422/0x580
-[   22.437466] hardirqs last disabled at (1188): [<ffffffff810df19b>] console_unlock+0x7b/0x580
-[   22.438608] softirqs last  enabled at (866): [<ffffffff81c0038e>] __do_softirq+0x38e/0x490
-[   22.439637] softirqs last disabled at (859): [<ffffffff81a00f42>] asm_call_on_stack+0x12/0x20
-[   22.440690] ---[ end trace 1e7ce7e1e4567276 ]---
-[   22.472832] trace_kprobe: This probe might be able to register after target module is loaded. Continue.
+The size of the umem region is used to validate the AF_XDP descriptor
+addresses. The logic that pinned the pages covered by the region only
+took whole pages into consideration, creating a mismatch between the
+size and pinned pages. A user could then pass AF_XDP addresses outside
+the range of pinned pages, but still within the size of the region,
+crashing the kernel.
 
-This is because the kill_kprobe() calls disarm_kprobe_ftrace() even
-if the given probe is not enabled. In that case, ftrace_set_filter_ip()
-fails because the given probe point is not registered to ftrace.
+This change correctly calculates the number of pages to be
+pinned. Further, the size check for the aligned mode is
+simplified. Now the code simply checks if the size is divisible by the
+chunk size.
 
-Fix to check the given (going) probe is enabled before invoking
-disarm_kprobe_ftrace().
-
-Link: https://lkml.kernel.org/r/159888672694.1411785.5987998076694782591.stgit@devnote2
-
-Fixes: 0cb2f1372baa ("kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler")
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David Miller <davem@davemloft.net>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Chengming Zhou <zhouchengming@bytedance.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: bbff2f321a86 ("xsk: new descriptor addressing scheme")
+Reported-by: Ciara Loftus <ciara.loftus@intel.com>
+Signed-off-by: Björn Töpel <bjorn.topel@intel.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Tested-by: Ciara Loftus <ciara.loftus@intel.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20200910075609.7904-1-bjorn.topel@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/xdp/xdp_umem.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2083,9 +2083,10 @@ static void kill_kprobe(struct kprobe *p
+diff --git a/net/xdp/xdp_umem.c b/net/xdp/xdp_umem.c
+index e97db37354e4f..b010bfde01490 100644
+--- a/net/xdp/xdp_umem.c
++++ b/net/xdp/xdp_umem.c
+@@ -303,10 +303,10 @@ static int xdp_umem_account_pages(struct xdp_umem *umem)
  
- 	/*
- 	 * The module is going away. We should disarm the kprobe which
--	 * is using ftrace.
-+	 * is using ftrace, because ftrace framework is still available at
-+	 * MODULE_STATE_GOING notification.
- 	 */
--	if (kprobe_ftrace(p))
-+	if (kprobe_ftrace(p) && !kprobe_disabled(p) && !kprobes_all_disarmed)
- 		disarm_kprobe_ftrace(p);
- }
+ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ {
++	u32 npgs_rem, chunk_size = mr->chunk_size, headroom = mr->headroom;
+ 	bool unaligned_chunks = mr->flags & XDP_UMEM_UNALIGNED_CHUNK_FLAG;
+-	u32 chunk_size = mr->chunk_size, headroom = mr->headroom;
+ 	u64 npgs, addr = mr->addr, size = mr->len;
+-	unsigned int chunks, chunks_per_page;
++	unsigned int chunks, chunks_rem;
+ 	int err;
  
+ 	if (chunk_size < XDP_UMEM_MIN_CHUNK_SIZE || chunk_size > PAGE_SIZE) {
+@@ -336,19 +336,18 @@ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ 	if ((addr + size) < addr)
+ 		return -EINVAL;
+ 
+-	npgs = size >> PAGE_SHIFT;
++	npgs = div_u64_rem(size, PAGE_SIZE, &npgs_rem);
++	if (npgs_rem)
++		npgs++;
+ 	if (npgs > U32_MAX)
+ 		return -EINVAL;
+ 
+-	chunks = (unsigned int)div_u64(size, chunk_size);
++	chunks = (unsigned int)div_u64_rem(size, chunk_size, &chunks_rem);
+ 	if (chunks == 0)
+ 		return -EINVAL;
+ 
+-	if (!unaligned_chunks) {
+-		chunks_per_page = PAGE_SIZE / chunk_size;
+-		if (chunks < chunks_per_page || chunks % chunks_per_page)
+-			return -EINVAL;
+-	}
++	if (!unaligned_chunks && chunks_rem)
++		return -EINVAL;
+ 
+ 	if (headroom >= chunk_size - XDP_PACKET_HEADROOM)
+ 		return -EINVAL;
+-- 
+2.25.1
+
 
 
