@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B9E27CDCE
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99CF927CC72
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:37:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733271AbgI2MrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:47:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43518 "EHLO mail.kernel.org"
+        id S1729831AbgI2Mg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:36:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728322AbgI2LGR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:06:17 -0400
+        id S1729512AbgI2LU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:20:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0A0421941;
-        Tue, 29 Sep 2020 11:06:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B23A5235FC;
+        Tue, 29 Sep 2020 11:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377576;
-        bh=yCotqWN0Fw+n8Uf8OK6nE+mQ+eHrxusx5x9ZCt53jwg=;
+        s=default; t=1601378313;
+        bh=BxAR5DR8sOCt1ML4LtPIcTgM9jluZ75FBve6Fih/zyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRex9wsQrnTbpJn9seFjho3CMj5Fc67ol5Hv5mJ79m3h16fT6VZJFDPTz6V3xb55i
-         UwWx/rzPSKlwjxuAxaMBzmqPSm9IqVIg6YAH1HHVVhIiLHOfPyXCgxprgyMW2Ito6/
-         CBCqL/5/JDGPFKp7h3gh090g1OjZFpwYugnDi4qc=
+        b=KRaRF3W6MIgkWbMoMgQNszwF0t0aKTl2u8NX+WLLs+CVi09gg0a/LGbl+N2iQEY/a
+         tJo+H5KlUw2JWSEmsresH3u+kn4aRWSuCGYjfkk0sWvuTElcVJcWD5tYkMz9qn5Wg2
+         y76lsbV9XtFK1NpCy0Tmpb/ZJVbgquNSA39xBnEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Andy Lavr <andy.lavr@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Joe Perches <joe@perches.com>,
-        Kees Cook <keescook@chromium.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 82/85] lib/string.c: implement stpcpy
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 137/166] cifs: Fix double add page to memcg when cifs_readpages
 Date:   Tue, 29 Sep 2020 13:00:49 +0200
-Message-Id: <20200929105932.277931126@linuxfoundation.org>
+Message-Id: <20200929105942.043778243@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,123 +45,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 1e1b6d63d6340764e00356873e5794225a2a03ea upstream.
+[ Upstream commit 95a3d8f3af9b0d63b43f221b630beaab9739d13a ]
 
-LLVM implemented a recent "libcall optimization" that lowers calls to
-`sprintf(dest, "%s", str)` where the return value is used to
-`stpcpy(dest, str) - dest`.
+When xfstests generic/451, there is an BUG at mm/memcontrol.c:
+  page:ffffea000560f2c0 refcount:2 mapcount:0 mapping:000000008544e0ea
+       index:0xf
+  mapping->aops:cifs_addr_ops dentry name:"tst-aio-dio-cycle-write.451"
+  flags: 0x2fffff80000001(locked)
+  raw: 002fffff80000001 ffffc90002023c50 ffffea0005280088 ffff88815cda0210
+  raw: 000000000000000f 0000000000000000 00000002ffffffff ffff88817287d000
+  page dumped because: VM_BUG_ON_PAGE(page->mem_cgroup)
+  page->mem_cgroup:ffff88817287d000
+  ------------[ cut here ]------------
+  kernel BUG at mm/memcontrol.c:2659!
+  invalid opcode: 0000 [#1] SMP
+  CPU: 2 PID: 2038 Comm: xfs_io Not tainted 5.8.0-rc1 #44
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_
+    073836-buildvm-ppc64le-16.ppc.4
+  RIP: 0010:commit_charge+0x35/0x50
+  Code: 0d 48 83 05 54 b2 02 05 01 48 89 77 38 c3 48 c7
+        c6 78 4a ea ba 48 83 05 38 b2 02 05 01 e8 63 0d9
+  RSP: 0018:ffffc90002023a50 EFLAGS: 00010202
+  RAX: 0000000000000000 RBX: ffff88817287d000 RCX: 0000000000000000
+  RDX: 0000000000000000 RSI: ffff88817ac97ea0 RDI: ffff88817ac97ea0
+  RBP: ffffea000560f2c0 R08: 0000000000000203 R09: 0000000000000005
+  R10: 0000000000000030 R11: ffffc900020237a8 R12: 0000000000000000
+  R13: 0000000000000001 R14: 0000000000000001 R15: ffff88815a1272c0
+  FS:  00007f5071ab0800(0000) GS:ffff88817ac80000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 000055efcd5ca000 CR3: 000000015d312000 CR4: 00000000000006e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   mem_cgroup_charge+0x166/0x4f0
+   __add_to_page_cache_locked+0x4a9/0x710
+   add_to_page_cache_locked+0x15/0x20
+   cifs_readpages+0x217/0x1270
+   read_pages+0x29a/0x670
+   page_cache_readahead_unbounded+0x24f/0x390
+   __do_page_cache_readahead+0x3f/0x60
+   ondemand_readahead+0x1f1/0x470
+   page_cache_async_readahead+0x14c/0x170
+   generic_file_buffered_read+0x5df/0x1100
+   generic_file_read_iter+0x10c/0x1d0
+   cifs_strict_readv+0x139/0x170
+   new_sync_read+0x164/0x250
+   __vfs_read+0x39/0x60
+   vfs_read+0xb5/0x1e0
+   ksys_pread64+0x85/0xf0
+   __x64_sys_pread64+0x22/0x30
+   do_syscall_64+0x69/0x150
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7f5071fcb1af
+  Code: Bad RIP value.
+  RSP: 002b:00007ffde2cdb8e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000011
+  RAX: ffffffffffffffda RBX: 00007ffde2cdb990 RCX: 00007f5071fcb1af
+  RDX: 0000000000001000 RSI: 000055efcd5ca000 RDI: 0000000000000003
+  RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+  R10: 0000000000001000 R11: 0000000000000293 R12: 0000000000000001
+  R13: 000000000009f000 R14: 0000000000000000 R15: 0000000000001000
+  Modules linked in:
+  ---[ end trace 725fa14a3e1af65c ]---
 
-This generally avoids the machinery involved in parsing format strings.
-`stpcpy` is just like `strcpy` except it returns the pointer to the new
-tail of `dest`.  This optimization was introduced into clang-12.
+Since commit 3fea5a499d57 ("mm: memcontrol: convert page cache to a new
+mem_cgroup_charge() API") not cancel the page charge, the pages maybe
+double add to pagecache:
+thread1                       | thread2
+cifs_readpages
+readpages_get_pages
+ add_to_page_cache_locked(head,index=n)=0
+                              | readpages_get_pages
+                              | add_to_page_cache_locked(head,index=n+1)=0
+ add_to_page_cache_locked(head, index=n+1)=-EEXIST
+ then, will next loop with list head page's
+ index=n+1 and the page->mapping not NULL
+readpages_get_pages
+add_to_page_cache_locked(head, index=n+1)
+ commit_charge
+  VM_BUG_ON_PAGE
 
-Implement this so that we don't observe linkage failures due to missing
-symbol definitions for `stpcpy`.
+So, we should not do the next loop when any page add to page cache
+failed.
 
-Similar to last year's fire drill with: commit 5f074f3e192f
-("lib/string.c: implement a basic bcmp")
-
-The kernel is somewhere between a "freestanding" environment (no full
-libc) and "hosted" environment (many symbols from libc exist with the
-same type, function signature, and semantics).
-
-As Peter Anvin notes, there's not really a great way to inform the
-compiler that you're targeting a freestanding environment but would like
-to opt-in to some libcall optimizations (see pr/47280 below), rather
-than opt-out.
-
-Arvind notes, -fno-builtin-* behaves slightly differently between GCC
-and Clang, and Clang is missing many __builtin_* definitions, which I
-consider a bug in Clang and am working on fixing.
-
-Masahiro summarizes the subtle distinction between compilers justly:
-  To prevent transformation from foo() into bar(), there are two ways in
-  Clang to do that; -fno-builtin-foo, and -fno-builtin-bar.  There is
-  only one in GCC; -fno-buitin-foo.
-
-(Any difference in that behavior in Clang is likely a bug from a missing
-__builtin_* definition.)
-
-Masahiro also notes:
-  We want to disable optimization from foo() to bar(),
-  but we may still benefit from the optimization from
-  foo() into something else. If GCC implements the same transform, we
-  would run into a problem because it is not -fno-builtin-bar, but
-  -fno-builtin-foo that disables that optimization.
-
-  In this regard, -fno-builtin-foo would be more future-proof than
-  -fno-built-bar, but -fno-builtin-foo is still potentially overkill. We
-  may want to prevent calls from foo() being optimized into calls to
-  bar(), but we still may want other optimization on calls to foo().
-
-It seems that compilers today don't quite provide the fine grain control
-over which libcall optimizations pseudo-freestanding environments would
-prefer.
-
-Finally, Kees notes that this interface is unsafe, so we should not
-encourage its use.  As such, I've removed the declaration from any
-header, but it still needs to be exported to avoid linkage errors in
-modules.
-
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Suggested-by: Andy Lavr <andy.lavr@gmail.com>
-Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
-Suggested-by: Joe Perches <joe@perches.com>
-Suggested-by: Kees Cook <keescook@chromium.org>
-Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
-Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200914161643.938408-1-ndesaulniers@google.com
-Link: https://bugs.llvm.org/show_bug.cgi?id=47162
-Link: https://bugs.llvm.org/show_bug.cgi?id=47280
-Link: https://github.com/ClangBuiltLinux/linux/issues/1126
-Link: https://man7.org/linux/man-pages/man3/stpcpy.3.html
-Link: https://pubs.opengroup.org/onlinepubs/9699919799/functions/stpcpy.html
-Link: https://reviews.llvm.org/D85963
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/string.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ fs/cifs/file.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -235,6 +235,30 @@ ssize_t strscpy(char *dest, const char *
- EXPORT_SYMBOL(strscpy);
- #endif
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index 0981731132ec0..6c77a96437e61 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -3753,7 +3753,8 @@ readpages_get_pages(struct address_space *mapping, struct list_head *page_list,
+ 			break;
  
-+/**
-+ * stpcpy - copy a string from src to dest returning a pointer to the new end
-+ *          of dest, including src's %NUL-terminator. May overrun dest.
-+ * @dest: pointer to end of string being copied into. Must be large enough
-+ *        to receive copy.
-+ * @src: pointer to the beginning of string being copied from. Must not overlap
-+ *       dest.
-+ *
-+ * stpcpy differs from strcpy in a key way: the return value is a pointer
-+ * to the new %NUL-terminating character in @dest. (For strcpy, the return
-+ * value is a pointer to the start of @dest). This interface is considered
-+ * unsafe as it doesn't perform bounds checking of the inputs. As such it's
-+ * not recommended for usage. Instead, its definition is provided in case
-+ * the compiler lowers other libcalls to stpcpy.
-+ */
-+char *stpcpy(char *__restrict__ dest, const char *__restrict__ src);
-+char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
-+{
-+	while ((*dest++ = *src++) != '\0')
-+		/* nothing */;
-+	return --dest;
-+}
-+EXPORT_SYMBOL(stpcpy);
-+
- #ifndef __HAVE_ARCH_STRCAT
- /**
-  * strcat - Append one %NUL-terminated string to another
+ 		__SetPageLocked(page);
+-		if (add_to_page_cache_locked(page, mapping, page->index, gfp)) {
++		rc = add_to_page_cache_locked(page, mapping, page->index, gfp);
++		if (rc) {
+ 			__ClearPageLocked(page);
+ 			break;
+ 		}
+@@ -3769,6 +3770,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
+ 	struct list_head *page_list, unsigned num_pages)
+ {
+ 	int rc;
++	int err = 0;
+ 	struct list_head tmplist;
+ 	struct cifsFileInfo *open_file = file->private_data;
+ 	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
+@@ -3809,7 +3811,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
+ 	 * the order of declining indexes. When we put the pages in
+ 	 * the rdata->pages, then we want them in increasing order.
+ 	 */
+-	while (!list_empty(page_list)) {
++	while (!list_empty(page_list) && !err) {
+ 		unsigned int i, nr_pages, bytes, rsize;
+ 		loff_t offset;
+ 		struct page *page, *tpage;
+@@ -3832,9 +3834,10 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
+ 			return 0;
+ 		}
+ 
+-		rc = readpages_get_pages(mapping, page_list, rsize, &tmplist,
++		nr_pages = 0;
++		err = readpages_get_pages(mapping, page_list, rsize, &tmplist,
+ 					 &nr_pages, &offset, &bytes);
+-		if (rc) {
++		if (!nr_pages) {
+ 			add_credits_and_wake_if(server, credits, 0);
+ 			break;
+ 		}
+-- 
+2.25.1
+
 
 
