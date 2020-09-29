@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5288827C7B4
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5786227C74E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730884AbgI2Log (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:44:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43702 "EHLO mail.kernel.org"
+        id S1731181AbgI2Lw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:52:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730513AbgI2Lof (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:44:35 -0400
+        id S1730619AbgI2LrJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:47:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE91A20702;
-        Tue, 29 Sep 2020 11:44:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA753208B8;
+        Tue, 29 Sep 2020 11:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379874;
-        bh=Wz0Xl+a9v6kpIAMtAlSYk0PFEd1BZGJvMma9nCDRex8=;
+        s=default; t=1601380029;
+        bh=2u+W+Nwpm0wasmw6uAfef1aBHKvMSSs/OI59KwFlWi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UjZChZwWj3Q5UlY9/dCFih3SkZ3MiHVAyGJAehRkgN+OP36ppnHnDAaQdIskJKMaQ
-         4RRW0RvZwWnATgFFl2uh6YwUKWpMkDL/n3SAy/Sfwtx9B6MyJ8YbhD2Bn8gfPv4R6F
-         quoQMVjIXTp600vzOsRihCTf2LBdgmUJzjgThQPc=
+        b=FYnipV+lEokxqLq4qyoa5VrwTCHMAs7Fx3gBWy/fGtmn3mGc4+NLvEojPSpcghNVB
+         PJpoC49eAaUj4wEY1WQRQeAwLPTb9b+wWgQ00GLm/0Bt/j6C07/Rl8nDwj5GkPbSF5
+         LSQc9a0fqOJYV/5BzgQMucKTlvFQ5XMoWAxp0/Rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Michal Kalderon <michal.kalderon@marvell.com>,
-        Dmitry Bogdanov <dbogdanov@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 348/388] net: qed: Disable aRFS for NPAR and 100G
+Subject: [PATCH 5.8 36/99] drm/vc4/vc4_hdmi: fill ASoC card owner
 Date:   Tue, 29 Sep 2020 13:01:19 +0200
-Message-Id: <20200929110027.307456009@linuxfoundation.org>
+Message-Id: <20200929105931.512197267@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <dbogdanov@marvell.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 2d2fe8433796603091ac8ea235b9165ac5a85f9a ]
+[ Upstream commit ec653df2a0cbc306a4bfcb0e3484d318fa779002 ]
 
-In CMT and NPAR the PF is unknown when the GFS block processes the
-packet. Therefore cannot use searcher as it has a per PF database,
-and thus ARFS must be disabled.
+card->owner is a required property and since commit 81033c6b584b ("ALSA:
+core: Warn on empty module") a warning is issued if it is empty. Fix lack
+of it. This fixes following warning observed on RaspberryPi 3B board
+with ARM 32bit kernel and multi_v7_defconfig:
 
-Fixes: d51e4af5c209 ("qed: aRFS infrastructure support")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+------------[ cut here ]------------
+WARNING: CPU: 1 PID: 210 at sound/core/init.c:207 snd_card_new+0x378/0x398 [snd]
+Modules linked in: vc4(+) snd_soc_core ac97_bus snd_pcm_dmaengine bluetooth snd_pcm snd_timer crc32_arm_ce raspberrypi_hwmon snd soundcore ecdh_generic ecc bcm2835_thermal phy_generic
+CPU: 1 PID: 210 Comm: systemd-udevd Not tainted 5.8.0-rc1-00027-g81033c6b584b #1087
+Hardware name: BCM2835
+[<c03113c0>] (unwind_backtrace) from [<c030bcb4>] (show_stack+0x10/0x14)
+[<c030bcb4>] (show_stack) from [<c071cef8>] (dump_stack+0xd4/0xe8)
+[<c071cef8>] (dump_stack) from [<c0345bfc>] (__warn+0xdc/0xf4)
+[<c0345bfc>] (__warn) from [<c0345cc4>] (warn_slowpath_fmt+0xb0/0xb8)
+[<c0345cc4>] (warn_slowpath_fmt) from [<bf02ff74>] (snd_card_new+0x378/0x398 [snd])
+[<bf02ff74>] (snd_card_new [snd]) from [<bf11f0b4>] (snd_soc_bind_card+0x280/0x99c [snd_soc_core])
+[<bf11f0b4>] (snd_soc_bind_card [snd_soc_core]) from [<bf12f000>] (devm_snd_soc_register_card+0x34/0x6c [snd_soc_core])
+[<bf12f000>] (devm_snd_soc_register_card [snd_soc_core]) from [<bf165654>] (vc4_hdmi_bind+0x43c/0x5f4 [vc4])
+[<bf165654>] (vc4_hdmi_bind [vc4]) from [<c09d660c>] (component_bind_all+0xec/0x24c)
+[<c09d660c>] (component_bind_all) from [<bf15c44c>] (vc4_drm_bind+0xd4/0x174 [vc4])
+[<bf15c44c>] (vc4_drm_bind [vc4]) from [<c09d6ac0>] (try_to_bring_up_master+0x160/0x1b0)
+[<c09d6ac0>] (try_to_bring_up_master) from [<c09d6f38>] (component_master_add_with_match+0xd0/0x104)
+[<c09d6f38>] (component_master_add_with_match) from [<bf15c588>] (vc4_platform_drm_probe+0x9c/0xbc [vc4])
+[<bf15c588>] (vc4_platform_drm_probe [vc4]) from [<c09df740>] (platform_drv_probe+0x6c/0xa4)
+[<c09df740>] (platform_drv_probe) from [<c09dd6f0>] (really_probe+0x210/0x350)
+[<c09dd6f0>] (really_probe) from [<c09dd940>] (driver_probe_device+0x5c/0xb4)
+[<c09dd940>] (driver_probe_device) from [<c09ddb38>] (device_driver_attach+0x58/0x60)
+[<c09ddb38>] (device_driver_attach) from [<c09ddbc0>] (__driver_attach+0x80/0xbc)
+[<c09ddbc0>] (__driver_attach) from [<c09db820>] (bus_for_each_dev+0x68/0xb4)
+[<c09db820>] (bus_for_each_dev) from [<c09dc9f8>] (bus_add_driver+0x130/0x1e8)
+[<c09dc9f8>] (bus_add_driver) from [<c09de648>] (driver_register+0x78/0x110)
+[<c09de648>] (driver_register) from [<c0302038>] (do_one_initcall+0x50/0x220)
+[<c0302038>] (do_one_initcall) from [<c03db544>] (do_init_module+0x60/0x210)
+[<c03db544>] (do_init_module) from [<c03da4f8>] (load_module+0x1e34/0x2338)
+[<c03da4f8>] (load_module) from [<c03dac00>] (sys_finit_module+0xac/0xbc)
+[<c03dac00>] (sys_finit_module) from [<c03000c0>] (ret_fast_syscall+0x0/0x54)
+Exception stack(0xeded9fa8 to 0xeded9ff0)
+...
+---[ end trace 6414689569c2bc08 ]---
+
+Fixes: bb7d78568814 ("drm/vc4: Add HDMI audio support")
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200701073949.28941-1-m.szyprowski@samsung.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_dev.c  | 11 ++++++++++-
- drivers/net/ethernet/qlogic/qed/qed_l2.c   |  3 +++
- drivers/net/ethernet/qlogic/qed/qed_main.c |  2 ++
- include/linux/qed/qed_if.h                 |  1 +
- 4 files changed, 16 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
-index 4456ce5325a74..a923c65532702 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
-@@ -4142,7 +4142,8 @@ static int qed_hw_get_nvm_info(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
- 			cdev->mf_bits = BIT(QED_MF_LLH_MAC_CLSS) |
- 					BIT(QED_MF_LLH_PROTO_CLSS) |
- 					BIT(QED_MF_LL2_NON_UNICAST) |
--					BIT(QED_MF_INTER_PF_SWITCH);
-+					BIT(QED_MF_INTER_PF_SWITCH) |
-+					BIT(QED_MF_DISABLE_ARFS);
- 			break;
- 		case NVM_CFG1_GLOB_MF_MODE_DEFAULT:
- 			cdev->mf_bits = BIT(QED_MF_LLH_MAC_CLSS) |
-@@ -4155,6 +4156,14 @@ static int qed_hw_get_nvm_info(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 625bfcf52dc4d..bdcc54c87d7e8 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1117,6 +1117,7 @@ static int vc4_hdmi_audio_init(struct vc4_hdmi *hdmi)
+ 	card->num_links = 1;
+ 	card->name = "vc4-hdmi";
+ 	card->dev = dev;
++	card->owner = THIS_MODULE;
  
- 		DP_INFO(p_hwfn, "Multi function mode is 0x%lx\n",
- 			cdev->mf_bits);
-+
-+		/* In CMT the PF is unknown when the GFS block processes the
-+		 * packet. Therefore cannot use searcher as it has a per PF
-+		 * database, and thus ARFS must be disabled.
-+		 *
-+		 */
-+		if (QED_IS_CMT(cdev))
-+			cdev->mf_bits |= BIT(QED_MF_DISABLE_ARFS);
- 	}
- 
- 	DP_INFO(p_hwfn, "Multi function mode is 0x%lx\n",
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_l2.c b/drivers/net/ethernet/qlogic/qed/qed_l2.c
-index 1a5fc2ae351c4..8a73482cb7a88 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_l2.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_l2.c
-@@ -2001,6 +2001,9 @@ void qed_arfs_mode_configure(struct qed_hwfn *p_hwfn,
- 			     struct qed_ptt *p_ptt,
- 			     struct qed_arfs_config_params *p_cfg_params)
- {
-+	if (test_bit(QED_MF_DISABLE_ARFS, &p_hwfn->cdev->mf_bits))
-+		return;
-+
- 	if (p_cfg_params->mode != QED_FILTER_CONFIG_MODE_DISABLE) {
- 		qed_gft_config(p_hwfn, p_ptt, p_hwfn->rel_pf_id,
- 			       p_cfg_params->tcp,
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
-index e72f9f1d2e94d..bc1f5b36b5bf2 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_main.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
-@@ -280,6 +280,8 @@ int qed_fill_dev_info(struct qed_dev *cdev,
- 		dev_info->fw_eng = FW_ENGINEERING_VERSION;
- 		dev_info->b_inter_pf_switch = test_bit(QED_MF_INTER_PF_SWITCH,
- 						       &cdev->mf_bits);
-+		if (!test_bit(QED_MF_DISABLE_ARFS, &cdev->mf_bits))
-+			dev_info->b_arfs_capable = true;
- 		dev_info->tx_switching = true;
- 
- 		if (hw_info->b_wol_support == QED_WOL_SUPPORT_PME)
-diff --git a/include/linux/qed/qed_if.h b/include/linux/qed/qed_if.h
-index b5db1ee96d789..65a7355ed07b3 100644
---- a/include/linux/qed/qed_if.h
-+++ b/include/linux/qed/qed_if.h
-@@ -637,6 +637,7 @@ struct qed_dev_info {
- #define QED_MFW_VERSION_3_OFFSET	24
- 
- 	u32		flash_size;
-+	bool		b_arfs_capable;
- 	bool		b_inter_pf_switch;
- 	bool		tx_switching;
- 	bool		rdma_supported;
+ 	/*
+ 	 * Be careful, snd_soc_register_card() calls dev_set_drvdata() and
 -- 
 2.25.1
 
