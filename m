@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E987C27CCA4
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:38:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F2927CDE9
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732213AbgI2MiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:38:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35540 "EHLO mail.kernel.org"
+        id S2387604AbgI2Mrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:47:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728414AbgI2LR5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:17:57 -0400
+        id S1728515AbgI2LEB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:04:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9563321D92;
-        Tue, 29 Sep 2020 11:17:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 172AE21D43;
+        Tue, 29 Sep 2020 11:03:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378274;
-        bh=i2DMmHmiJKxgfQoben/LDYElnPUkUL6ncVxaGBUUpd8=;
+        s=default; t=1601377440;
+        bh=YdD/Nvo27G+e8nrcZ5gaxYJze7xGEk/EPg48EyObEbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ndUx6mS0xAGB9u9GtUhQaKyvMGxGT3BFIrCdu0ARDSt/5M8AlFNAbgLIg4/Puig53
-         eaqdmFWeQ1BtiSJsuxe0xlDSMS6oaTnd13x5X6Gji8ONSlq6hRL8MIy0HdxzMRHbWx
-         uHQt8HW3W67BHW6kDVcjmoGuE9fzyqVz8shHQfq4=
+        b=FVVXySHEK6rF7rOc8Vq3fouR1rt5uVbqQI+/ypHM03qC97iW33CmdT+kdOkxXSO7B
+         iwPKPdPIP9htfq7XHoEYkzAWtLhuvEUnVGj93gFdJxbde5RRSzFs4AiT73nKysXmRx
+         8nterzF1O2f+FXxZCM5NQ/zlVcv++hqtfbdfrqtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhu Yanjun <yanjunz@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 092/166] RDMA/rxe: Set sys_image_guid to be aligned with HW IB devices
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 37/85] dmaengine: tegra-apb: Prevent race conditions on channels freeing
 Date:   Tue, 29 Sep 2020 13:00:04 +0200
-Message-Id: <20200929105939.810529796@linuxfoundation.org>
+Message-Id: <20200929105930.080099662@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjunz@mellanox.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit d0ca2c35dd15a3d989955caec02beea02f735ee6 ]
+[ Upstream commit 8e84172e372bdca20c305d92d51d33640d2da431 ]
 
-The RXE driver doesn't set sys_image_guid and user space applications see
-zeros. This causes to pyverbs tests to fail with the following traceback,
-because the IBTA spec requires to have valid sys_image_guid.
+It's incorrect to check the channel's "busy" state without taking a lock.
+That shouldn't cause any real troubles, nevertheless it's always better
+not to have any race conditions in the code.
 
- Traceback (most recent call last):
-   File "./tests/test_device.py", line 51, in test_query_device
-     self.verify_device_attr(attr)
-   File "./tests/test_device.py", line 74, in verify_device_attr
-     assert attr.sys_image_guid != 0
-
-In order to fix it, set sys_image_guid to be equal to node_guid.
-
-Before:
- 5: rxe0: ... node_guid 5054:00ff:feaa:5363 sys_image_guid
- 0000:0000:0000:0000
-
-After:
- 5: rxe0: ... node_guid 5054:00ff:feaa:5363 sys_image_guid
- 5054:00ff:feaa:5363
-
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20200323112800.1444784-1-leon@kernel.org
-Signed-off-by: Zhu Yanjun <yanjunz@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Jon Hunter <jonathanh@nvidia.com>
+Link: https://lore.kernel.org/r/20200209163356.6439-5-digetx@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/dma/tegra20-apb-dma.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe.c b/drivers/infiniband/sw/rxe/rxe.c
-index 25267a620e0b5..e6770e5c1432c 100644
---- a/drivers/infiniband/sw/rxe/rxe.c
-+++ b/drivers/infiniband/sw/rxe/rxe.c
-@@ -126,6 +126,8 @@ static int rxe_init_device_param(struct rxe_dev *rxe)
- 	rxe->attr.max_fast_reg_page_list_len	= RXE_MAX_FMR_PAGE_LIST_LEN;
- 	rxe->attr.max_pkeys			= RXE_MAX_PKEYS;
- 	rxe->attr.local_ca_ack_delay		= RXE_LOCAL_CA_ACK_DELAY;
-+	addrconf_addr_eui48((unsigned char *)&rxe->attr.sys_image_guid,
-+			rxe->ndev->dev_addr);
+diff --git a/drivers/dma/tegra20-apb-dma.c b/drivers/dma/tegra20-apb-dma.c
+index b5cf5d36de2b4..68c460a2b16ea 100644
+--- a/drivers/dma/tegra20-apb-dma.c
++++ b/drivers/dma/tegra20-apb-dma.c
+@@ -1207,8 +1207,7 @@ static void tegra_dma_free_chan_resources(struct dma_chan *dc)
  
- 	rxe->max_ucontext			= RXE_MAX_UCONTEXT;
+ 	dev_dbg(tdc2dev(tdc), "Freeing channel %d\n", tdc->id);
  
+-	if (tdc->busy)
+-		tegra_dma_terminate_all(dc);
++	tegra_dma_terminate_all(dc);
+ 
+ 	spin_lock_irqsave(&tdc->lock, flags);
+ 	list_splice_init(&tdc->pending_sg_req, &sg_req_list);
 -- 
 2.25.1
 
