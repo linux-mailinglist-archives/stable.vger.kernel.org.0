@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FDFC27C451
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:13:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EED6A27C4FD
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:26:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729073AbgI2LMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:12:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54136 "EHLO mail.kernel.org"
+        id S1728593AbgI2LXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:23:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728712AbgI2LMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:12:23 -0400
+        id S1729112AbgI2LW4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:22:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BFFD21924;
-        Tue, 29 Sep 2020 11:12:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0A4823A6C;
+        Tue, 29 Sep 2020 11:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377943;
-        bh=jsNYaKVgFHpLC/ktuWsKIVg7iwR9LxHLmxcBHAgJsHI=;
+        s=default; t=1601378408;
+        bh=x4DC/3mwkRv39c87u7gtEPrR05bVof9I3RrTVBVWpNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1EbL+J/xOGZNZaTjf/INP6fzzt+Th8AASJXGgxSRAuuk1CKQFsdJhjLULoSYaCsu
-         +u0sQtouuW4qtG70zZqnt1sq3bLACq4CwAvcP3PXJ/D+y38+mlGS/yEhf61lzFRAsj
-         8aK4g4C34Ft08ei6rQLnREhqn2hybAoO9WSA0+5s=
+        b=tk0Z0khx6WHJAUOdJ/nt9yJ+GWsSZ159SNH1MceHjPFSLZzwTtFTfg2zuBlOUMZJe
+         1g8v5X/Ruyh3mTXs1MWrq7WSGF0MY8yL6YNQIIAlhFoxDABZ/5mCjrDYrtJxOVYqZS
+         v4emuSlULtLZX/JSVluHpOHvIJnzFizkzYunM3Vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, linux-ide@vger.kernel.org,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: [PATCH 4.9 121/121] ata: sata_mv, avoid trigerrable BUG_ON
-Date:   Tue, 29 Sep 2020 13:01:05 +0200
-Message-Id: <20200929105936.175135632@linuxfoundation.org>
+        stable@vger.kernel.org, Igor Russkikh <irusskikh@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        Dmitry Bogdanov <dbogdanov@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 155/166] net: qed: RDMA personality shouldnt fail VF load
+Date:   Tue, 29 Sep 2020 13:01:07 +0200
+Message-Id: <20200929105942.927115284@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Dmitry Bogdanov <dbogdanov@marvell.com>
 
-commit e9f691d899188679746eeb96e6cb520459eda9b4 upstream.
+[ Upstream commit ce1cf9e5025f4e2d2198728391f1847b3e168bc6 ]
 
-There are several reports that the BUG_ON on unsupported command in
-mv_qc_prep can be triggered under some circumstances:
-https://bugzilla.suse.com/show_bug.cgi?id=1110252
-https://serverfault.com/questions/888897/raid-problems-after-power-outage
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1652185
-https://bugs.centos.org/view.php?id=14998
+Fix the assert during VF driver installation when the personality is iWARP
 
-Let sata_mv handle the failure gracefully: warn about that incl. the
-failed command number and return an AC_ERR_INVALID error. We can do that
-now thanks to the previous patch.
-
-Remove also the long-standing FIXME.
-
-[v2] use %.2x as commands are defined as hexa.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: linux-ide@vger.kernel.org
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1fe614d10f45 ("qed: Relax VF firmware requirements")
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: Dmitry Bogdanov <dbogdanov@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/sata_mv.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/ata/sata_mv.c
-+++ b/drivers/ata/sata_mv.c
-@@ -2111,12 +2111,10 @@ static enum ata_completion_errors mv_qc_
- 		 * non-NCQ mode are: [RW] STREAM DMA and W DMA FUA EXT, none
- 		 * of which are defined/used by Linux.  If we get here, this
- 		 * driver needs work.
--		 *
--		 * FIXME: modify libata to give qc_prep a return value and
--		 * return error here.
- 		 */
--		BUG_ON(tf->command);
--		break;
-+		ata_port_err(ap, "%s: unsupported command: %.2x\n", __func__,
-+				tf->command);
-+		return AC_ERR_INVALID;
- 	}
- 	mv_crqb_pack_cmd(cw++, tf->nsect, ATA_REG_NSECT, 0);
- 	mv_crqb_pack_cmd(cw++, tf->hob_lbal, ATA_REG_LBAL, 0);
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_sriov.c b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+index 65a53d409e773..bc9eec1bcbf18 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+@@ -96,6 +96,7 @@ static int qed_sp_vf_start(struct qed_hwfn *p_hwfn, struct qed_vf_info *p_vf)
+ 		p_ramrod->personality = PERSONALITY_ETH;
+ 		break;
+ 	case QED_PCI_ETH_ROCE:
++	case QED_PCI_ETH_IWARP:
+ 		p_ramrod->personality = PERSONALITY_RDMA_AND_ETH;
+ 		break;
+ 	default:
+-- 
+2.25.1
+
 
 
