@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D9C27C452
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8286827C45D
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:13:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728318AbgI2LNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:13:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54688 "EHLO mail.kernel.org"
+        id S1729369AbgI2LN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:13:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728882AbgI2LMq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:12:46 -0400
+        id S1728750AbgI2LMu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:12:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58F7C21D41;
-        Tue, 29 Sep 2020 11:12:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D61B206A5;
+        Tue, 29 Sep 2020 11:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377965;
-        bh=iaL3e45IruRr8qToIeRcCDMgGmdkE9DpC1sh9MDbSqs=;
+        s=default; t=1601377968;
+        bh=ixaE49ZtBn7bEd7/OMOgIHGs0SEht3qS8t+u+yax94o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmWqxiI12yGLMBuyzvok4NYFz0f5UZFAOdQ3A9yaIsS37FUpVwtCfCI4K9jS/1Ww9
-         m8dPfKNpYtnNgEQl/cK+4AHkz0h7NSM2GGTrkucBp7LQBPMbxje0vPtx/1nPP0EXvc
-         1j0+6GegWcZkuaJZfHB1lfkHLrpOgz0rPMDYLSDM=
+        b=TdeKriCxqIQevEzFWfRvMW+OBf+sXzER/LpWpPs2+ZwWQmoDzrpvg+LR3FA+IFjtd
+         nDaA3UgqDfJCah85WFmcxtn5U+pxmnAjKAMoPLiWC9lx5RV4N2pCczVTy2tCx2ibkI
+         7zL9Bkho7P8aDV3iTfx20Fop4rF+WxSve9fAyjao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kfir Itzhak <mastertheknife@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>,
+        Mark Gray <mark.d.gray@redhat.com>,
+        Greg Rose <gvrose8192@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 015/166] ipv4: Update exception handling for multipath routes via same device
-Date:   Tue, 29 Sep 2020 12:58:47 +0200
-Message-Id: <20200929105935.952255707@linuxfoundation.org>
+Subject: [PATCH 4.14 016/166] geneve: add transport ports in route lookup for geneve
+Date:   Tue, 29 Sep 2020 12:58:48 +0200
+Message-Id: <20200929105935.996049980@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -43,159 +44,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Mark Gray <mark.d.gray@redhat.com>
 
-[ Upstream commit 2fbc6e89b2f1403189e624cabaf73e189c5e50c6 ]
+[ Upstream commit 34beb21594519ce64a55a498c2fe7d567bc1ca20 ]
 
-Kfir reported that pmtu exceptions are not created properly for
-deployments where multipath routes use the same device.
+This patch adds transport ports information for route lookup so that
+IPsec can select Geneve tunnel traffic to do encryption. This is
+needed for OVS/OVN IPsec with encrypted Geneve tunnels.
 
-After some digging I see 2 compounding problems:
-1. ip_route_output_key_hash_rcu is updating the flowi4_oif *after*
-   the route lookup. This is the second use case where this has
-   been a problem (the first is related to use of vti devices with
-   VRF). I can not find any reason for the oif to be changed after the
-   lookup; the code goes back to the start of git. It does not seem
-   logical so remove it.
+This can be tested by configuring a host-host VPN using an IKE
+daemon and specifying port numbers. For example, for an
+Openswan-type configuration, the following parameters should be
+configured on both hosts and IPsec set up as-per normal:
 
-2. fib_lookups for exceptions do not call fib_select_path to handle
-   multipath route selection based on the hash.
+$ cat /etc/ipsec.conf
 
-The end result is that the fib_lookup used to add the exception
-always creates it based using the first leg of the route.
+conn in
+...
+left=$IP1
+right=$IP2
+...
+leftprotoport=udp/6081
+rightprotoport=udp
+...
+conn out
+...
+left=$IP1
+right=$IP2
+...
+leftprotoport=udp
+rightprotoport=udp/6081
+...
 
-An example topology showing the problem:
+The tunnel can then be setup using "ip" on both hosts (but
+changing the relevant IP addresses):
 
-                 |  host1
-             +------+
-             | eth0 |  .209
-             +------+
-                 |
-             +------+
-     switch  | br0  |
-             +------+
-                 |
-       +---------+---------+
-       | host2             |  host3
-   +------+             +------+
-   | eth0 | .250        | eth0 | 192.168.252.252
-   +------+             +------+
+$ ip link add tun type geneve id 1000 remote $IP2
+$ ip addr add 192.168.0.1/24 dev tun
+$ ip link set tun up
 
-   +-----+             +-----+
-   | vti | .2          | vti | 192.168.247.3
-   +-----+             +-----+
-       \                  /
- =================================
- tunnels
-         192.168.247.1/24
+This can then be tested by pinging from $IP1:
 
-for h in host1 host2 host3; do
-        ip netns add ${h}
-        ip -netns ${h} link set lo up
-        ip netns exec ${h} sysctl -wq net.ipv4.ip_forward=1
-done
+$ ping 192.168.0.2
 
-ip netns add switch
-ip -netns switch li set lo up
-ip -netns switch link add br0 type bridge stp 0
-ip -netns switch link set br0 up
+Without this patch the traffic is unencrypted on the wire.
 
-for n in 1 2 3; do
-        ip -netns switch link add eth-sw type veth peer name eth-h${n}
-        ip -netns switch li set eth-h${n} master br0 up
-        ip -netns switch li set eth-sw netns host${n} name eth0
-done
-
-ip -netns host1 addr add 192.168.252.209/24 dev eth0
-ip -netns host1 link set dev eth0 up
-ip -netns host1 route add 192.168.247.0/24 \
-        nexthop via 192.168.252.250 dev eth0 nexthop via 192.168.252.252 dev eth0
-
-ip -netns host2 addr add 192.168.252.250/24 dev eth0
-ip -netns host2 link set dev eth0 up
-
-ip -netns host2 addr add 192.168.252.252/24 dev eth0
-ip -netns host3 link set dev eth0 up
-
-ip netns add tunnel
-ip -netns tunnel li set lo up
-ip -netns tunnel li add br0 type bridge
-ip -netns tunnel li set br0 up
-for n in $(seq 11 20); do
-        ip -netns tunnel addr add dev br0 192.168.247.${n}/24
-done
-
-for n in 2 3
-do
-        ip -netns tunnel link add vti${n} type veth peer name eth${n}
-        ip -netns tunnel link set eth${n} mtu 1360 master br0 up
-        ip -netns tunnel link set vti${n} netns host${n} mtu 1360 up
-        ip -netns host${n} addr add dev vti${n} 192.168.247.${n}/24
-done
-ip -netns tunnel ro add default nexthop via 192.168.247.2 nexthop via 192.168.247.3
-
-ip netns exec host1 ping -M do -s 1400 -c3 -I 192.168.252.209 192.168.247.11
-ip netns exec host1 ping -M do -s 1400 -c3 -I 192.168.252.209 192.168.247.15
-ip -netns host1 ro ls cache
-
-Before this patch the cache always shows exceptions against the first
-leg in the multipath route; 192.168.252.250 per this example. Since the
-hash has an initial random seed, you may need to vary the final octet
-more than what is listed. In my tests, using addresses between 11 and 19
-usually found 1 that used both legs.
-
-With this patch, the cache will have exceptions for both legs.
-
-Fixes: 4895c771c7f0 ("ipv4: Add FIB nexthop exceptions")
-Reported-by: Kfir Itzhak <mastertheknife@gmail.com>
-Signed-off-by: David Ahern <dsahern@kernel.org>
+Fixes: 2d07dc79fe04 ("geneve: add initial netdev driver for GENEVE tunnels")
+Signed-off-by: Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>
+Signed-off-by: Mark Gray <mark.d.gray@redhat.com>
+Reviewed-by: Greg Rose <gvrose8192@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/route.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/geneve.c |   37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -794,6 +794,8 @@ static void __ip_do_redirect(struct rtab
- 			if (fib_lookup(net, fl4, &res, 0) == 0) {
- 				struct fib_nh *nh = &FIB_RES_NH(res);
- 
-+				fib_select_path(net, &res, fl4, skb);
-+				nh = &FIB_RES_NH(res);
- 				update_or_create_fnhe(nh, fl4->daddr, new_gw,
- 						0, false,
- 						jiffies + ip_rt_gc_timeout);
-@@ -1010,6 +1012,7 @@ out:	kfree_skb(skb);
- static void __ip_rt_update_pmtu(struct rtable *rt, struct flowi4 *fl4, u32 mtu)
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -716,7 +716,8 @@ static struct rtable *geneve_get_v4_rt(s
+ 				       struct net_device *dev,
+ 				       struct geneve_sock *gs4,
+ 				       struct flowi4 *fl4,
+-				       const struct ip_tunnel_info *info)
++				       const struct ip_tunnel_info *info,
++				       __be16 dport, __be16 sport)
  {
- 	struct dst_entry *dst = &rt->dst;
-+	struct net *net = dev_net(dst->dev);
- 	u32 old_mtu = ipv4_mtu(dst);
- 	struct fib_result res;
- 	bool lock = false;
-@@ -1030,9 +1033,11 @@ static void __ip_rt_update_pmtu(struct r
- 		return;
+ 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
+ 	struct geneve_dev *geneve = netdev_priv(dev);
+@@ -732,6 +733,8 @@ static struct rtable *geneve_get_v4_rt(s
+ 	fl4->flowi4_proto = IPPROTO_UDP;
+ 	fl4->daddr = info->key.u.ipv4.dst;
+ 	fl4->saddr = info->key.u.ipv4.src;
++	fl4->fl4_dport = dport;
++	fl4->fl4_sport = sport;
  
- 	rcu_read_lock();
--	if (fib_lookup(dev_net(dst->dev), fl4, &res, 0) == 0) {
--		struct fib_nh *nh = &FIB_RES_NH(res);
-+	if (fib_lookup(net, fl4, &res, 0) == 0) {
-+		struct fib_nh *nh;
+ 	tos = info->key.tos;
+ 	if ((tos == 1) && !geneve->collect_md) {
+@@ -766,7 +769,8 @@ static struct dst_entry *geneve_get_v6_d
+ 					   struct net_device *dev,
+ 					   struct geneve_sock *gs6,
+ 					   struct flowi6 *fl6,
+-					   const struct ip_tunnel_info *info)
++					   const struct ip_tunnel_info *info,
++					   __be16 dport, __be16 sport)
+ {
+ 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
+ 	struct geneve_dev *geneve = netdev_priv(dev);
+@@ -782,6 +786,9 @@ static struct dst_entry *geneve_get_v6_d
+ 	fl6->flowi6_proto = IPPROTO_UDP;
+ 	fl6->daddr = info->key.u.ipv6.dst;
+ 	fl6->saddr = info->key.u.ipv6.src;
++	fl6->fl6_dport = dport;
++	fl6->fl6_sport = sport;
++
+ 	prio = info->key.tos;
+ 	if ((prio == 1) && !geneve->collect_md) {
+ 		prio = ip_tunnel_get_dsfield(ip_hdr(skb), skb);
+@@ -828,7 +835,9 @@ static int geneve_xmit_skb(struct sk_buf
+ 	__be16 df;
+ 	int err;
  
-+		fib_select_path(net, &res, fl4, NULL);
-+		nh = &FIB_RES_NH(res);
- 		update_or_create_fnhe(nh, fl4->daddr, 0, mtu, lock,
- 				      jiffies + ip_rt_mtu_expires);
+-	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
++	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
++	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
++			      geneve->info.key.tp_dst, sport);
+ 	if (IS_ERR(rt))
+ 		return PTR_ERR(rt);
+ 
+@@ -839,7 +848,6 @@ static int geneve_xmit_skb(struct sk_buf
+ 		skb_dst_update_pmtu(skb, mtu);
  	}
-@@ -2505,8 +2510,6 @@ struct rtable *ip_route_output_key_hash_
- 	fib_select_path(net, res, fl4, skb);
  
- 	dev_out = FIB_RES_DEV(*res);
--	fl4->flowi4_oif = dev_out->ifindex;
--
+-	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+ 	if (geneve->collect_md) {
+ 		tos = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
+ 		ttl = key->ttl;
+@@ -874,7 +882,9 @@ static int geneve6_xmit_skb(struct sk_bu
+ 	__be16 sport;
+ 	int err;
  
- make_route:
- 	rth = __mkroute_output(res, fl4, orig_oif, dev_out, flags);
+-	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
++	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
++	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
++				geneve->info.key.tp_dst, sport);
+ 	if (IS_ERR(dst))
+ 		return PTR_ERR(dst);
+ 
+@@ -885,7 +895,6 @@ static int geneve6_xmit_skb(struct sk_bu
+ 		skb_dst_update_pmtu(skb, mtu);
+ 	}
+ 
+-	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+ 	if (geneve->collect_md) {
+ 		prio = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
+ 		ttl = key->ttl;
+@@ -963,13 +972,18 @@ static int geneve_fill_metadata_dst(stru
+ {
+ 	struct ip_tunnel_info *info = skb_tunnel_info(skb);
+ 	struct geneve_dev *geneve = netdev_priv(dev);
++	__be16 sport;
+ 
+ 	if (ip_tunnel_info_af(info) == AF_INET) {
+ 		struct rtable *rt;
+ 		struct flowi4 fl4;
++
+ 		struct geneve_sock *gs4 = rcu_dereference(geneve->sock4);
++		sport = udp_flow_src_port(geneve->net, skb,
++					  1, USHRT_MAX, true);
+ 
+-		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
++		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
++				      geneve->info.key.tp_dst, sport);
+ 		if (IS_ERR(rt))
+ 			return PTR_ERR(rt);
+ 
+@@ -979,9 +993,13 @@ static int geneve_fill_metadata_dst(stru
+ 	} else if (ip_tunnel_info_af(info) == AF_INET6) {
+ 		struct dst_entry *dst;
+ 		struct flowi6 fl6;
++
+ 		struct geneve_sock *gs6 = rcu_dereference(geneve->sock6);
++		sport = udp_flow_src_port(geneve->net, skb,
++					  1, USHRT_MAX, true);
+ 
+-		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
++		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
++					geneve->info.key.tp_dst, sport);
+ 		if (IS_ERR(dst))
+ 			return PTR_ERR(dst);
+ 
+@@ -992,8 +1010,7 @@ static int geneve_fill_metadata_dst(stru
+ 		return -EINVAL;
+ 	}
+ 
+-	info->key.tp_src = udp_flow_src_port(geneve->net, skb,
+-					     1, USHRT_MAX, true);
++	info->key.tp_src = sport;
+ 	info->key.tp_dst = geneve->info.key.tp_dst;
+ 	return 0;
+ }
 
 
