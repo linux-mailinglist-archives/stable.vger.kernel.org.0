@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2378527CCEC
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:40:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B58727CBD4
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728974AbgI2Mka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:40:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58836 "EHLO mail.kernel.org"
+        id S1732965AbgI2Mav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:30:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729248AbgI2LOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:14:50 -0400
+        id S1729313AbgI2L3g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:29:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A63B20848;
-        Tue, 29 Sep 2020 11:14:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA9CD23A6C;
+        Tue, 29 Sep 2020 11:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378090;
-        bh=ZAE7QSARf1WPP7/bAdPuERVxfF2+6yJ1LQxVf2+g+40=;
+        s=default; t=1601378647;
+        bh=Mmmn4O9DHxEkZ0A4g/zA5vFLwhO4s+XICS06F85x+Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwIae0jdNBRh7j6ft2acevEAWsHR4dZu0wctUpG2/k4SEqv4/jYRDV9MRfH5d4VJ5
-         lWJvzSeFQAM82vYO/6ICsckjxNGJZwpTxwQBZlFLnEG2zgSvnT8dy5uCEGxVhytf7U
-         0BY3mqb3ShtwFLoVYs0EEMTRAw0sX5cl95N2rgT8=
+        b=PNqrJYDnzp9+XlNZu0PbDZ1OSic1hOq8UxKa7rbCShbKHjj+rcwtZHqDZI971Jjxm
+         /fbtAu9AosJ0yur6P4PkNnt/kYmrHizMmAHVGTqhrLVWELAaOfNG6gxzfaN/z526F/
+         oDdF/DM58zH/GEXozhS2FNVSJAUe7M5RQ7tyJyak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 027/166] ALSA: hda/realtek - Couldnt detect Mic if booting with headset plugged
-Date:   Tue, 29 Sep 2020 12:58:59 +0200
-Message-Id: <20200929105936.557926254@linuxfoundation.org>
+        stable@vger.kernel.org, Amelie Delaunay <amelie.delaunay@st.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 089/245] dmaengine: stm32-dma: use vchan_terminate_vdesc() in .terminate_all
+Date:   Tue, 29 Sep 2020 12:59:00 +0200
+Message-Id: <20200929105951.319112891@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Amelie Delaunay <amelie.delaunay@st.com>
 
-commit 3f74249057827c5f6676c41c18f6be12ce1469ce upstream.
+[ Upstream commit d80cbef35bf89b763f06e03bb4ff8f933bf012c5 ]
 
-We found a Mic detection issue on many Lenovo laptops, those laptops
-belong to differnt models and they have different audio design like
-internal mic connects to the codec or PCH, they all have this problem,
-the problem is if plugging a headset before powerup/reboot the
-machine, after booting up, the headphone could be detected but Mic
-couldn't. If we plug out and plug in the headset, both headphone and
-Mic could be detected then.
+To avoid race with vchan_complete, use the race free way to terminate
+running transfer.
 
-Through debugging we found the codec on those laptops are same, it is
-alc257, and if we don't disable the 3k pulldown in alc256_shutup(),
-the issue will be fixed. So far there is no pop noise or power
-consumption regression on those laptops after this change.
+Move vdesc->node list_del in stm32_dma_start_transfer instead of in
+stm32_mdma_chan_complete to avoid another race in vchan_dma_desc_free_list.
 
-Cc: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20200914065118.19238-1-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
+Link: https://lore.kernel.org/r/20200129153628.29329-9-amelie.delaunay@st.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/dma/stm32-dma.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3154,7 +3154,11 @@ static void alc256_shutup(struct hda_cod
+diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
+index 4903a408fc146..ac7af440f8658 100644
+--- a/drivers/dma/stm32-dma.c
++++ b/drivers/dma/stm32-dma.c
+@@ -494,8 +494,10 @@ static int stm32_dma_terminate_all(struct dma_chan *c)
  
- 	/* 3k pull low control for Headset jack. */
- 	/* NOTE: call this before clearing the pin, otherwise codec stalls */
--	alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
-+	/* If disable 3k pulldown control for alc257, the Mic detection will not work correctly
-+	 * when booting with headset plugged. So skip setting it for the codec alc257
-+	 */
-+	if (codec->core.vendor_id != 0x10ec0257)
-+		alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
+ 	spin_lock_irqsave(&chan->vchan.lock, flags);
  
- 	snd_hda_codec_write(codec, hp_pin, 0,
- 			    AC_VERB_SET_PIN_WIDGET_CONTROL, 0x0);
+-	if (chan->busy) {
+-		stm32_dma_stop(chan);
++	if (chan->desc) {
++		vchan_terminate_vdesc(&chan->desc->vdesc);
++		if (chan->busy)
++			stm32_dma_stop(chan);
+ 		chan->desc = NULL;
+ 	}
+ 
+@@ -551,6 +553,8 @@ static void stm32_dma_start_transfer(struct stm32_dma_chan *chan)
+ 		if (!vdesc)
+ 			return;
+ 
++		list_del(&vdesc->node);
++
+ 		chan->desc = to_stm32_dma_desc(vdesc);
+ 		chan->next_sg = 0;
+ 	}
+@@ -628,7 +632,6 @@ static void stm32_dma_handle_chan_done(struct stm32_dma_chan *chan)
+ 		} else {
+ 			chan->busy = false;
+ 			if (chan->next_sg == chan->desc->num_sgs) {
+-				list_del(&chan->desc->vdesc.node);
+ 				vchan_cookie_complete(&chan->desc->vdesc);
+ 				chan->desc = NULL;
+ 			}
+-- 
+2.25.1
+
 
 
