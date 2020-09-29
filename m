@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73AB527C83A
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:00:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5A727C831
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730912AbgI2L7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:59:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36576 "EHLO mail.kernel.org"
+        id S1728570AbgI2L7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:59:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730594AbgI2Lky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:40:54 -0400
+        id S1730598AbgI2Lk5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:40:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93A17206A5;
-        Tue, 29 Sep 2020 11:40:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D95D0206DB;
+        Tue, 29 Sep 2020 11:40:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379654;
-        bh=2dQoNSLwcFHgL9nUDXpmWel0uijiSICTv+90Rw3dA60=;
+        s=default; t=1601379656;
+        bh=4QEX68LXmMj1dBXpx9bC+bzvAKqkEWyUNcAaYFv82EY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PsZRO6eQ2mV4Rmp4xVgWCvMfUTMJhuMPZDXRMLQS1H2WzuvcAiDQZliot4OmzPbbh
-         8YfJqkL6959Uvi2K0hRRXRNhpskPCBzMrqYAlslxW7Xsvh+Xzlz52xh57+TuM+IB2/
-         y0KEq2XxJHbWui0EeCKMJwDYH5A4f/5nUzKuz76M=
+        b=HDeKhFCRp+dI/TNSYuKVM7zdKr+nbh0CJrxHHy94GfguJcIOztMKNrMPqIhcqpRTU
+         7hY9EDA405PsoCAInAxoAbd8IAFrX7LByfEMBSXUgamR651K7FgNqVNEKJF8udG4sw
+         qyJrUsvBsGEL1fv5o/oPvU+bGcG0jBJvLCqD9qH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Inki Dae <inki.dae@samsung.com>,
+        Shengju Zhang <zhangshengju@cmss.chinamobile.com>,
+        Tang Bin <tangbin@cmss.chinamobile.com>,
+        Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 260/388] drm/exynos: dsi: Remove bridge node reference in error handling path in probe function
-Date:   Tue, 29 Sep 2020 12:59:51 +0200
-Message-Id: <20200929110023.057281005@linuxfoundation.org>
+Subject: [PATCH 5.4 261/388] ipmi:bt-bmc: Fix error handling and status check
+Date:   Tue, 29 Sep 2020 12:59:52 +0200
+Message-Id: <20200929110023.107774539@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -44,80 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-[ Upstream commit 547a7348633b1f9923551f94ac3157a613d2c9f2 ]
+[ Upstream commit 49826937e7c7917140515aaf10c17bedcc4acaad ]
 
-'exynos_dsi_parse_dt()' takes a reference to 'dsi->in_bridge_node'.
-This must be released in the error handling path.
+If the function platform_get_irq() failed, the negative value
+returned will not be detected here. So fix error handling in
+bt_bmc_config_irq(). And in the function bt_bmc_probe(),
+when get irq failed, it will print error message. So use
+platform_get_irq_optional() to simplify code. Finally in the
+function bt_bmc_remove() should make the right status check
+if get irq failed.
 
-In order to do that, add an error handling path and move the
-'exynos_dsi_parse_dt()' call from the beginning to the end of the probe
-function to ease the error handling path.
-This function only sets some variables which are used only in the
-'transfer' function.
-
-The call chain is:
-   .transfer
-    --> exynos_dsi_host_transfer
-      --> exynos_dsi_init
-        --> exynos_dsi_enable_clock  (use burst_clk_rate and esc_clk_rate)
-          --> exynos_dsi_set_pll     (use pll_clk_rate)
-
-While at it, also handle cases where 'component_add()' fails.
-
-This patch is similar to commit 70505c2ef94b ("drm/exynos: dsi: Remove bridge node reference in removal")
-which fixed the issue in the remove function.
-
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
+Signed-off-by: Shengju Zhang <zhangshengju@cmss.chinamobile.com>
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Message-Id: <20200505102906.17196-1-tangbin@cmss.chinamobile.com>
+[Also set bt_bmc->irq to a negative value if devm_request_irq() fails.]
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_dsi.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/char/ipmi/bt-bmc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-index 8ed94c9948008..b83acd696774b 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-@@ -1741,10 +1741,6 @@ static int exynos_dsi_probe(struct platform_device *pdev)
- 	dsi->dev = dev;
- 	dsi->driver_data = of_device_get_match_data(dev);
+diff --git a/drivers/char/ipmi/bt-bmc.c b/drivers/char/ipmi/bt-bmc.c
+index 40b9927c072c9..89a8faa9b6cfa 100644
+--- a/drivers/char/ipmi/bt-bmc.c
++++ b/drivers/char/ipmi/bt-bmc.c
+@@ -399,15 +399,15 @@ static int bt_bmc_config_irq(struct bt_bmc *bt_bmc,
+ 	struct device *dev = &pdev->dev;
+ 	int rc;
  
--	ret = exynos_dsi_parse_dt(dsi);
--	if (ret)
--		return ret;
--
- 	dsi->supplies[0].supply = "vddcore";
- 	dsi->supplies[1].supply = "vddio";
- 	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(dsi->supplies),
-@@ -1805,11 +1801,25 @@ static int exynos_dsi_probe(struct platform_device *pdev)
- 		return ret;
+-	bt_bmc->irq = platform_get_irq(pdev, 0);
+-	if (!bt_bmc->irq)
+-		return -ENODEV;
++	bt_bmc->irq = platform_get_irq_optional(pdev, 0);
++	if (bt_bmc->irq < 0)
++		return bt_bmc->irq;
+ 
+ 	rc = devm_request_irq(dev, bt_bmc->irq, bt_bmc_irq, IRQF_SHARED,
+ 			      DEVICE_NAME, bt_bmc);
+ 	if (rc < 0) {
+ 		dev_warn(dev, "Unable to request IRQ %d\n", bt_bmc->irq);
+-		bt_bmc->irq = 0;
++		bt_bmc->irq = rc;
+ 		return rc;
  	}
  
-+	ret = exynos_dsi_parse_dt(dsi);
-+	if (ret)
-+		return ret;
-+
- 	platform_set_drvdata(pdev, &dsi->encoder);
+@@ -479,7 +479,7 @@ static int bt_bmc_probe(struct platform_device *pdev)
  
- 	pm_runtime_enable(dev);
+ 	bt_bmc_config_irq(bt_bmc, pdev);
  
--	return component_add(dev, &exynos_dsi_component_ops);
-+	ret = component_add(dev, &exynos_dsi_component_ops);
-+	if (ret)
-+		goto err_disable_runtime;
-+
-+	return 0;
-+
-+err_disable_runtime:
-+	pm_runtime_disable(dev);
-+	of_node_put(dsi->in_bridge_node);
-+
-+	return ret;
+-	if (bt_bmc->irq) {
++	if (bt_bmc->irq >= 0) {
+ 		dev_info(dev, "Using IRQ %d\n", bt_bmc->irq);
+ 	} else {
+ 		dev_info(dev, "No IRQ; using timer\n");
+@@ -505,7 +505,7 @@ static int bt_bmc_remove(struct platform_device *pdev)
+ 	struct bt_bmc *bt_bmc = dev_get_drvdata(&pdev->dev);
+ 
+ 	misc_deregister(&bt_bmc->miscdev);
+-	if (!bt_bmc->irq)
++	if (bt_bmc->irq < 0)
+ 		del_timer_sync(&bt_bmc->poll_timer);
+ 	return 0;
  }
- 
- static int exynos_dsi_remove(struct platform_device *pdev)
 -- 
 2.25.1
 
