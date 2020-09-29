@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 814A027C9AD
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:12:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5254C27C997
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732131AbgI2MMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:12:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
+        id S1730558AbgI2MMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:12:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730125AbgI2Lha (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:30 -0400
+        id S1730155AbgI2Lhc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66C5123F29;
-        Tue, 29 Sep 2020 11:34:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 337DC23B9B;
+        Tue, 29 Sep 2020 11:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379284;
-        bh=z3cq8uP5j9vPCTvW5PJyOHpJbQY4CZsfSa+iok3AV/c=;
+        s=default; t=1601379309;
+        bh=Ez7h5Y7dNN75H9HX5nWi6Lv6jInqTF30XzoxscAwpBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=it88nJMSU65rKUZ66b51LSG2UtitHxFuQFfukcGyrYgW2r4d6ldaQ1WYE9GemQvDW
-         q/kKoAHqqoQbckXJtOQQa3PbemjqvRVrsipY2UIWRrjBAowQYqUjmGLtGcTHSQVAVO
-         Aa7XJAgVHWmrTVio0aTc+Qr1co/9hwbbv3DIdmoQ=
+        b=2TNCQnb1q0HfcuXtjxeot7vKx+j623/oTduzy3rmuAAzV0DUSVVugW0fgEcjs/DOn
+         Tz4Vi1twwiQmudDYJr+QD33fMJr2UohZnRFQYZhOp2GQ+lDTCTlrzsDYbn7Xdq+kjN
+         EB1lgfZj98bebwA6ZMVakd1Ml9pFo1wb4403lTcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Kou <qdkevin.kou@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/388] sctp: move trace_sctp_probe_path into sctp_outq_sack
-Date:   Tue, 29 Sep 2020 12:56:58 +0200
-Message-Id: <20200929110014.696192062@linuxfoundation.org>
+Subject: [PATCH 5.4 088/388] ACPI: EC: Reference count query handlers under lock
+Date:   Tue, 29 Sep 2020 12:56:59 +0200
+Message-Id: <20200929110014.744953208@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -44,179 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Kou <qdkevin.kou@gmail.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit f643ee295c1c63bc117fb052d4da681354d6f732 ]
+[ Upstream commit 3df663a147fe077a6ee8444ec626738946e65547 ]
 
-The original patch bringed in the "SCTP ACK tracking trace event"
-feature was committed at Dec.20, 2017, it replaced jprobe usage
-with trace events, and bringed in two trace events, one is
-TRACE_EVENT(sctp_probe), another one is TRACE_EVENT(sctp_probe_path).
-The original patch intended to trigger the trace_sctp_probe_path in
-TRACE_EVENT(sctp_probe) as below code,
+There is a race condition in acpi_ec_get_query_handler()
+theoretically allowing query handlers to go away before refernce
+counting them.
 
-+TRACE_EVENT(sctp_probe,
-+
-+	TP_PROTO(const struct sctp_endpoint *ep,
-+		 const struct sctp_association *asoc,
-+		 struct sctp_chunk *chunk),
-+
-+	TP_ARGS(ep, asoc, chunk),
-+
-+	TP_STRUCT__entry(
-+		__field(__u64, asoc)
-+		__field(__u32, mark)
-+		__field(__u16, bind_port)
-+		__field(__u16, peer_port)
-+		__field(__u32, pathmtu)
-+		__field(__u32, rwnd)
-+		__field(__u16, unack_data)
-+	),
-+
-+	TP_fast_assign(
-+		struct sk_buff *skb = chunk->skb;
-+
-+		__entry->asoc = (unsigned long)asoc;
-+		__entry->mark = skb->mark;
-+		__entry->bind_port = ep->base.bind_addr.port;
-+		__entry->peer_port = asoc->peer.port;
-+		__entry->pathmtu = asoc->pathmtu;
-+		__entry->rwnd = asoc->peer.rwnd;
-+		__entry->unack_data = asoc->unack_data;
-+
-+		if (trace_sctp_probe_path_enabled()) {
-+			struct sctp_transport *sp;
-+
-+			list_for_each_entry(sp, &asoc->peer.transport_addr_list,
-+					    transports) {
-+				trace_sctp_probe_path(sp, asoc);
-+			}
-+		}
-+	),
+In order to avoid it, call kref_get() on query handlers under
+ec->mutex.
 
-But I found it did not work when I did testing, and trace_sctp_probe_path
-had no output, I finally found that there is trace buffer lock
-operation(trace_event_buffer_reserve) in include/trace/trace_events.h:
+Also simplify the code a bit while at it.
 
-static notrace void							\
-trace_event_raw_event_##call(void *__data, proto)			\
-{									\
-	struct trace_event_file *trace_file = __data;			\
-	struct trace_event_data_offsets_##call __maybe_unused __data_offsets;\
-	struct trace_event_buffer fbuffer;				\
-	struct trace_event_raw_##call *entry;				\
-	int __data_size;						\
-									\
-	if (trace_trigger_soft_disabled(trace_file))			\
-		return;							\
-									\
-	__data_size = trace_event_get_offsets_##call(&__data_offsets, args); \
-									\
-	entry = trace_event_buffer_reserve(&fbuffer, trace_file,	\
-				 sizeof(*entry) + __data_size);		\
-									\
-	if (!entry)							\
-		return;							\
-									\
-	tstruct								\
-									\
-	{ assign; }							\
-									\
-	trace_event_buffer_commit(&fbuffer);				\
-}
-
-The reason caused no output of trace_sctp_probe_path is that
-trace_sctp_probe_path written in TP_fast_assign part of
-TRACE_EVENT(sctp_probe), and it will be placed( { assign; } ) after the
-trace_event_buffer_reserve() when compiler expands Macro,
-
-        entry = trace_event_buffer_reserve(&fbuffer, trace_file,        \
-                                 sizeof(*entry) + __data_size);         \
-                                                                        \
-        if (!entry)                                                     \
-                return;                                                 \
-                                                                        \
-        tstruct                                                         \
-                                                                        \
-        { assign; }                                                     \
-
-so trace_sctp_probe_path finally can not acquire trace_event_buffer
-and return no output, that is to say the nest of tracepoint entry function
-is not allowed. The function call flow is:
-
-trace_sctp_probe()
--> trace_event_raw_event_sctp_probe()
- -> lock buffer
- -> trace_sctp_probe_path()
-   -> trace_event_raw_event_sctp_probe_path()  --nested
-   -> buffer has been locked and return no output.
-
-This patch is to remove trace_sctp_probe_path from the TP_fast_assign
-part of TRACE_EVENT(sctp_probe) to avoid the nest of entry function,
-and trigger sctp_probe_path_trace in sctp_outq_sack.
-
-After this patch, you can enable both events individually,
-  # cd /sys/kernel/debug/tracing
-  # echo 1 > events/sctp/sctp_probe/enable
-  # echo 1 > events/sctp/sctp_probe_path/enable
-
-Or, you can enable all the events under sctp.
-
-  # echo 1 > events/sctp/enable
-
-Signed-off-by: Kevin Kou <qdkevin.kou@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/sctp.h | 9 ---------
- net/sctp/outqueue.c         | 6 ++++++
- 2 files changed, 6 insertions(+), 9 deletions(-)
+ drivers/acpi/ec.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/include/trace/events/sctp.h b/include/trace/events/sctp.h
-index 7475c7be165aa..d4aac34365955 100644
---- a/include/trace/events/sctp.h
-+++ b/include/trace/events/sctp.h
-@@ -75,15 +75,6 @@ TRACE_EVENT(sctp_probe,
- 		__entry->pathmtu = asoc->pathmtu;
- 		__entry->rwnd = asoc->peer.rwnd;
- 		__entry->unack_data = asoc->unack_data;
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index 57eacdcbf8208..1ec55345252b6 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -1043,29 +1043,21 @@ void acpi_ec_unblock_transactions(void)
+ /* --------------------------------------------------------------------------
+                                 Event Management
+    -------------------------------------------------------------------------- */
+-static struct acpi_ec_query_handler *
+-acpi_ec_get_query_handler(struct acpi_ec_query_handler *handler)
+-{
+-	if (handler)
+-		kref_get(&handler->kref);
+-	return handler;
+-}
 -
--		if (trace_sctp_probe_path_enabled()) {
--			struct sctp_transport *sp;
--
--			list_for_each_entry(sp, &asoc->peer.transport_addr_list,
--					    transports) {
--				trace_sctp_probe_path(sp, asoc);
--			}
--		}
- 	),
+ static struct acpi_ec_query_handler *
+ acpi_ec_get_query_handler_by_value(struct acpi_ec *ec, u8 value)
+ {
+ 	struct acpi_ec_query_handler *handler;
+-	bool found = false;
  
- 	TP_printk("asoc=%#llx mark=%#x bind_port=%d peer_port=%d pathmtu=%d "
-diff --git a/net/sctp/outqueue.c b/net/sctp/outqueue.c
-index 0dab62b67b9a4..adceb226ffab3 100644
---- a/net/sctp/outqueue.c
-+++ b/net/sctp/outqueue.c
-@@ -36,6 +36,7 @@
- #include <net/sctp/sctp.h>
- #include <net/sctp/sm.h>
- #include <net/sctp/stream_sched.h>
-+#include <trace/events/sctp.h>
+ 	mutex_lock(&ec->mutex);
+ 	list_for_each_entry(handler, &ec->list, node) {
+ 		if (value == handler->query_bit) {
+-			found = true;
+-			break;
++			kref_get(&handler->kref);
++			mutex_unlock(&ec->mutex);
++			return handler;
+ 		}
+ 	}
+ 	mutex_unlock(&ec->mutex);
+-	return found ? acpi_ec_get_query_handler(handler) : NULL;
++	return NULL;
+ }
  
- /* Declare internal functions here.  */
- static int sctp_acked(struct sctp_sackhdr *sack, __u32 tsn);
-@@ -1238,6 +1239,11 @@ int sctp_outq_sack(struct sctp_outq *q, struct sctp_chunk *chunk)
- 	/* Grab the association's destination address list. */
- 	transport_list = &asoc->peer.transport_addr_list;
- 
-+	/* SCTP path tracepoint for congestion control debugging. */
-+	list_for_each_entry(transport, transport_list, transports) {
-+		trace_sctp_probe_path(transport, asoc);
-+	}
-+
- 	sack_ctsn = ntohl(sack->cum_tsn_ack);
- 	gap_ack_blocks = ntohs(sack->num_gap_ack_blocks);
- 	asoc->stats.gapcnt += gap_ack_blocks;
+ static void acpi_ec_query_handler_release(struct kref *kref)
 -- 
 2.25.1
 
