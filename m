@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 619C427CD5E
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:44:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C12E927CD62
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729478AbgI2MnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:43:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50314 "EHLO mail.kernel.org"
+        id S1731088AbgI2Mnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:43:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729092AbgI2LJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729091AbgI2LJs (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:09:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91622221F0;
-        Tue, 29 Sep 2020 11:09:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71605221EF;
+        Tue, 29 Sep 2020 11:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377783;
-        bh=CM75nd8kgWpkZbuZK2jNXYJcq2Zfe/ixqzZG0K+l4V4=;
+        s=default; t=1601377786;
+        bh=nV2hnbKtkB2BlDOC4qeSSeGMkvJWmVGMRnEvR21pAkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pc5lBROHG+Ftf8OkVUT1/6uRZx6K0zcN5DJrmgPPQZZrV+o2o+QTaF/Utuct7pYNr
-         7xwPxQAeAod3CV1lgX2Cn8XhZY2SxRdtSX8aUNQHMoBTj8l2TD4k6sJ9VK/FmpHac+
-         8cy3inw9bSfIjt/7PfeNC9Qf0aMDDwiZshuflHJc=
+        b=DEQi5tvwkE0zJMiVhHqSqx9+ONE8qiEv6ppi01S6N29xA4vy/8UYmiACXBPHw3VpD
+         kuh0tqTpsX819O/EySuf7TpA7Lk7qYqJ8xbw+4R4XuprPJgJq8KjMZ6N5KTY7SIX88
+         MMNy4lRW0V0PCekp818kTeO4cmGxSXhey770slRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Liu Song <liu.song11@zte.com.cn>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 070/121] svcrdma: Fix leak of transport addresses
-Date:   Tue, 29 Sep 2020 13:00:14 +0200
-Message-Id: <20200929105933.641340209@linuxfoundation.org>
+Subject: [PATCH 4.9 071/121] ubifs: Fix out-of-bounds memory access caused by abnormal value of node_len
+Date:   Tue, 29 Sep 2020 13:00:15 +0200
+Message-Id: <20200929105933.693135346@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
@@ -42,54 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Liu Song <liu.song11@zte.com.cn>
 
-[ Upstream commit 1a33d8a284b1e85e03b8c7b1ea8fb985fccd1d71 ]
+[ Upstream commit acc5af3efa303d5f36cc8c0f61716161f6ca1384 ]
 
-Kernel memory leak detected:
+In “ubifs_check_node”, when the value of "node_len" is abnormal,
+the code will goto label of "out_len" for execution. Then, in the
+following "ubifs_dump_node", if inode type is "UBIFS_DATA_NODE",
+in "print_hex_dump", an out-of-bounds access may occur due to the
+wrong "ch->len".
 
-unreferenced object 0xffff888849cdf480 (size 8):
-  comm "kworker/u8:3", pid 2086, jiffies 4297898756 (age 4269.856s)
-  hex dump (first 8 bytes):
-    30 00 cd 49 88 88 ff ff                          0..I....
-  backtrace:
-    [<00000000acfc370b>] __kmalloc_track_caller+0x137/0x183
-    [<00000000a2724354>] kstrdup+0x2b/0x43
-    [<0000000082964f84>] xprt_rdma_format_addresses+0x114/0x17d [rpcrdma]
-    [<00000000dfa6ed00>] xprt_setup_rdma_bc+0xc0/0x10c [rpcrdma]
-    [<0000000073051a83>] xprt_create_transport+0x3f/0x1a0 [sunrpc]
-    [<0000000053531a8e>] rpc_create+0x118/0x1cd [sunrpc]
-    [<000000003a51b5f8>] setup_callback_client+0x1a5/0x27d [nfsd]
-    [<000000001bd410af>] nfsd4_process_cb_update.isra.7+0x16c/0x1ac [nfsd]
-    [<000000007f4bbd56>] nfsd4_run_cb_work+0x4c/0xbd [nfsd]
-    [<0000000055c5586b>] process_one_work+0x1b2/0x2fe
-    [<00000000b1e3e8ef>] worker_thread+0x1a6/0x25a
-    [<000000005205fb78>] kthread+0xf6/0xfb
-    [<000000006d2dc057>] ret_from_fork+0x3a/0x50
+Therefore, when the value of "node_len" is abnormal, data length
+should to be adjusted to a reasonable safe range. At this time,
+structured data is not credible, so dump the corrupted data directly
+for analysis.
 
-Introduce a call to xprt_rdma_free_addresses() similar to the way
-that the TCP backchannel releases a transport's peer address
-strings.
-
-Fixes: 5d252f90a800 ("svcrdma: Add class for RDMA backwards direction transport")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Liu Song <liu.song11@zte.com.cn>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/svc_rdma_backchannel.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ubifs/io.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/xprtrdma/svc_rdma_backchannel.c b/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-index 6035c5a380a6b..b3d48c6243c80 100644
---- a/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-+++ b/net/sunrpc/xprtrdma/svc_rdma_backchannel.c
-@@ -277,6 +277,7 @@ xprt_rdma_bc_put(struct rpc_xprt *xprt)
+diff --git a/fs/ubifs/io.c b/fs/ubifs/io.c
+index 97be412153328..9213a9e046ae0 100644
+--- a/fs/ubifs/io.c
++++ b/fs/ubifs/io.c
+@@ -237,7 +237,7 @@ int ubifs_is_mapped(const struct ubifs_info *c, int lnum)
+ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
+ 		     int offs, int quiet, int must_chk_crc)
  {
- 	dprintk("svcrdma: %s: xprt %p\n", __func__, xprt);
+-	int err = -EINVAL, type, node_len;
++	int err = -EINVAL, type, node_len, dump_node = 1;
+ 	uint32_t crc, node_crc, magic;
+ 	const struct ubifs_ch *ch = buf;
  
-+	xprt_rdma_free_addresses(xprt);
- 	xprt_free(xprt);
- 	module_put(THIS_MODULE);
- }
+@@ -290,10 +290,22 @@ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
+ out_len:
+ 	if (!quiet)
+ 		ubifs_err(c, "bad node length %d", node_len);
++	if (type == UBIFS_DATA_NODE && node_len > UBIFS_DATA_NODE_SZ)
++		dump_node = 0;
+ out:
+ 	if (!quiet) {
+ 		ubifs_err(c, "bad node at LEB %d:%d", lnum, offs);
+-		ubifs_dump_node(c, buf);
++		if (dump_node) {
++			ubifs_dump_node(c, buf);
++		} else {
++			int safe_len = min3(node_len, c->leb_size - offs,
++				(int)UBIFS_MAX_DATA_NODE_SZ);
++			pr_err("\tprevent out-of-bounds memory access\n");
++			pr_err("\ttruncated data node length      %d\n", safe_len);
++			pr_err("\tcorrupted data node:\n");
++			print_hex_dump(KERN_ERR, "\t", DUMP_PREFIX_OFFSET, 32, 1,
++					buf, safe_len, 0);
++		}
+ 		dump_stack();
+ 	}
+ 	return err;
 -- 
 2.25.1
 
