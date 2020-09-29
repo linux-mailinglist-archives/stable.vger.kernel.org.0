@@ -2,55 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F1F27C9ED
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:16:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A951A27C9D1
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:14:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730489AbgI2MPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:15:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58078 "EHLO mail.kernel.org"
+        id S1732181AbgI2MOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:14:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728388AbgI2Lh2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730107AbgI2Lh2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:37:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0D3523B21;
-        Tue, 29 Sep 2020 11:33:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFC6A23B23;
+        Tue, 29 Sep 2020 11:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379226;
-        bh=kNFZsopbVyVAJ8OKMfB9Qlukt+X2Zi5I8g5+zko9C/A=;
+        s=default; t=1601379228;
+        bh=7OB6RWjA1q5chzgCBY94D09Hb0OdN7JRaoGvy11b7iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+XR4WAilYBvma41mD61p+qAc5yn3qPoMoOcUC29Yc790Pf8YAsWFbYhjkABh68DT
-         TSpK1RGwAD1v2HXRkXH5R+BOMYRtVKVOF3q1AreJGrjlnpJ1owE/5dcLcFocyzL7Qf
-         M2ZNVE0KvU6A6J8DJ20RAOUNqCDdySnnDftwqzhM=
+        b=IV9/MImZmtAVW74dqAikx0SgF3F8k9z3+jXSLmMDYF+0qxZDJrSsfo3+1Ypi+LKzL
+         2K35V2NgdVyz7GZc2DJY+u96B6mJEUsAejKowTX26ytCx1L8Nnb38N9w5dCzvruBx/
+         Yohh56biYRfugmv2NLVEUO4J0ej25Tu3DFYWodow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jeff Layton <jlayton@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Nadia Derbey <Nadia.Derbey@bull.net>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        Dan Carpenter <error27@gmail.com>,
+        Julia Lawall <julia.lawall@lip6.fr>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        YueHaibing <yuehaibing@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/388] kernel/notifier.c: intercept duplicate registrations to avoid infinite loops
-Date:   Tue, 29 Sep 2020 12:56:40 +0200
-Message-Id: <20200929110013.833689836@linuxfoundation.org>
+Subject: [PATCH 5.4 070/388] kernel/sys.c: avoid copying possible padding bytes in copy_to_user
+Date:   Tue, 29 Sep 2020 12:56:41 +0200
+Message-Id: <20200929110013.885898127@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -62,84 +48,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoming Ni <nixiaoming@huawei.com>
+From: Joe Perches <joe@perches.com>
 
-[ Upstream commit 1a50cb80f219c44adb6265f5071b81fc3c1deced ]
+[ Upstream commit 5e1aada08cd19ea652b2d32a250501d09b02ff2e ]
 
-Registering the same notifier to a hook repeatedly can cause the hook
-list to form a ring or lose other members of the list.
+Initialization is not guaranteed to zero padding bytes so use an
+explicit memset instead to avoid leaking any kernel content in any
+possible padding bytes.
 
-  case1: An infinite loop in notifier_chain_register() can cause soft lockup
-          atomic_notifier_chain_register(&test_notifier_list, &test1);
-          atomic_notifier_chain_register(&test_notifier_list, &test1);
-          atomic_notifier_chain_register(&test_notifier_list, &test2);
-
-  case2: An infinite loop in notifier_chain_register() can cause soft lockup
-          atomic_notifier_chain_register(&test_notifier_list, &test1);
-          atomic_notifier_chain_register(&test_notifier_list, &test1);
-          atomic_notifier_call_chain(&test_notifier_list, 0, NULL);
-
-  case3: lose other hook test2
-          atomic_notifier_chain_register(&test_notifier_list, &test1);
-          atomic_notifier_chain_register(&test_notifier_list, &test2);
-          atomic_notifier_chain_register(&test_notifier_list, &test1);
-
-  case4: Unregister returns 0, but the hook is still in the linked list,
-         and it is not really registered. If you call
-         notifier_call_chain after ko is unloaded, it will trigger oops.
-
-If the system is configured with softlockup_panic and the same hook is
-repeatedly registered on the panic_notifier_list, it will cause a loop
-panic.
-
-Add a check in notifier_chain_register(), intercepting duplicate
-registrations to avoid infinite loops
-
-Link: http://lkml.kernel.org/r/1568861888-34045-2-git-send-email-nixiaoming@huawei.com
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Reviewed-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Anna Schumaker <anna.schumaker@netapp.com>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: J. Bruce Fields <bfields@fieldses.org>
-Cc: Chuck Lever <chuck.lever@oracle.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jeff Layton <jlayton@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Nadia Derbey <Nadia.Derbey@bull.net>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Sam Protsenko <semen.protsenko@linaro.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>
+Link: http://lkml.kernel.org/r/dfa331c00881d61c8ee51577a082d8bebd61805c.camel@perches.com
+Signed-off-by: Joe Perches <joe@perches.com>
+Cc: Dan Carpenter <error27@gmail.com>
+Cc: Julia Lawall <julia.lawall@lip6.fr>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Xiaoming Ni <nixiaoming@huawei.com>
-Cc: YueHaibing <yuehaibing@huawei.com>
+Cc: Kees Cook <keescook@chromium.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/notifier.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/sys.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/notifier.c b/kernel/notifier.c
-index 157d7c29f7207..f6d5ffe4e72ec 100644
---- a/kernel/notifier.c
-+++ b/kernel/notifier.c
-@@ -23,7 +23,10 @@ static int notifier_chain_register(struct notifier_block **nl,
- 		struct notifier_block *n)
+diff --git a/kernel/sys.c b/kernel/sys.c
+index a611d1d58c7d0..3459a5ce0da01 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1279,11 +1279,13 @@ SYSCALL_DEFINE1(uname, struct old_utsname __user *, name)
+ 
+ SYSCALL_DEFINE1(olduname, struct oldold_utsname __user *, name)
  {
- 	while ((*nl) != NULL) {
--		WARN_ONCE(((*nl) == n), "double register detected");
-+		if (unlikely((*nl) == n)) {
-+			WARN(1, "double register detected");
-+			return 0;
-+		}
- 		if (n->priority > (*nl)->priority)
- 			break;
- 		nl = &((*nl)->next);
+-	struct oldold_utsname tmp = {};
++	struct oldold_utsname tmp;
+ 
+ 	if (!name)
+ 		return -EFAULT;
+ 
++	memset(&tmp, 0, sizeof(tmp));
++
+ 	down_read(&uts_sem);
+ 	memcpy(&tmp.sysname, &utsname()->sysname, __OLD_UTS_LEN);
+ 	memcpy(&tmp.nodename, &utsname()->nodename, __OLD_UTS_LEN);
 -- 
 2.25.1
 
