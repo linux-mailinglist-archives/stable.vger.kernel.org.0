@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4FC027C41F
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B7BC27C37B
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728476AbgI2LLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:11:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52232 "EHLO mail.kernel.org"
+        id S1728409AbgI2LGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:06:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729213AbgI2LLE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:11:04 -0400
+        id S1728380AbgI2LGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:06:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46BBC221E8;
-        Tue, 29 Sep 2020 11:11:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0C3A21D46;
+        Tue, 29 Sep 2020 11:06:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377863;
-        bh=owqMCSq/juuzMI9jS1ARy6GjOUuI6uienC/99N+q3/w=;
+        s=default; t=1601377562;
+        bh=/ALTlSTTomaL7eHD2FljyEB1C+r2rap3GCaH24L+beM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NAih8WB8I0Fqe4Jw7kjEwOU3VwAARU6UzdxYLDV/PM8O8FWEInFvQX2mbGk7sE0hS
-         ir4Zp8L2yD5aXUROqwFR0xLx9W5w5V2YxSCLC2nzxWPtu9vYMIPfo3uP8hfAbFwYyn
-         ljTeBpp6OMaCcxfDo5ll4n/UDCJJM6UHBMEzgDtY=
+        b=g2eDwT2F77KwWcgqaP49GIKI0kx2yqz+20cCOvcSRNmY0aOjpHnBoKr0oBNxlj8hN
+         PR/0vVI3+zlHRlT/3SQTsrOplwx0Pxy4byuRTfStPqb/w+uOP3kAZkwRWPE7g8OC11
+         KOQNBVyaxynxxQx71PWd0zYDFi2jhfw4bDI8Ud1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 100/121] cifs: Fix double add page to memcg when cifs_readpages
-Date:   Tue, 29 Sep 2020 13:00:44 +0200
-Message-Id: <20200929105935.136272336@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 78/85] ALSA: asihpi: fix iounmap in error handler
+Date:   Tue, 29 Sep 2020 13:00:45 +0200
+Message-Id: <20200929105932.095294562@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,143 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 95a3d8f3af9b0d63b43f221b630beaab9739d13a ]
+[ Upstream commit 472eb39103e885f302fd8fd6eff104fcf5503f1b ]
 
-When xfstests generic/451, there is an BUG at mm/memcontrol.c:
-  page:ffffea000560f2c0 refcount:2 mapcount:0 mapping:000000008544e0ea
-       index:0xf
-  mapping->aops:cifs_addr_ops dentry name:"tst-aio-dio-cycle-write.451"
-  flags: 0x2fffff80000001(locked)
-  raw: 002fffff80000001 ffffc90002023c50 ffffea0005280088 ffff88815cda0210
-  raw: 000000000000000f 0000000000000000 00000002ffffffff ffff88817287d000
-  page dumped because: VM_BUG_ON_PAGE(page->mem_cgroup)
-  page->mem_cgroup:ffff88817287d000
-  ------------[ cut here ]------------
-  kernel BUG at mm/memcontrol.c:2659!
-  invalid opcode: 0000 [#1] SMP
-  CPU: 2 PID: 2038 Comm: xfs_io Not tainted 5.8.0-rc1 #44
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_
-    073836-buildvm-ppc64le-16.ppc.4
-  RIP: 0010:commit_charge+0x35/0x50
-  Code: 0d 48 83 05 54 b2 02 05 01 48 89 77 38 c3 48 c7
-        c6 78 4a ea ba 48 83 05 38 b2 02 05 01 e8 63 0d9
-  RSP: 0018:ffffc90002023a50 EFLAGS: 00010202
-  RAX: 0000000000000000 RBX: ffff88817287d000 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: ffff88817ac97ea0 RDI: ffff88817ac97ea0
-  RBP: ffffea000560f2c0 R08: 0000000000000203 R09: 0000000000000005
-  R10: 0000000000000030 R11: ffffc900020237a8 R12: 0000000000000000
-  R13: 0000000000000001 R14: 0000000000000001 R15: ffff88815a1272c0
-  FS:  00007f5071ab0800(0000) GS:ffff88817ac80000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 000055efcd5ca000 CR3: 000000015d312000 CR4: 00000000000006e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   mem_cgroup_charge+0x166/0x4f0
-   __add_to_page_cache_locked+0x4a9/0x710
-   add_to_page_cache_locked+0x15/0x20
-   cifs_readpages+0x217/0x1270
-   read_pages+0x29a/0x670
-   page_cache_readahead_unbounded+0x24f/0x390
-   __do_page_cache_readahead+0x3f/0x60
-   ondemand_readahead+0x1f1/0x470
-   page_cache_async_readahead+0x14c/0x170
-   generic_file_buffered_read+0x5df/0x1100
-   generic_file_read_iter+0x10c/0x1d0
-   cifs_strict_readv+0x139/0x170
-   new_sync_read+0x164/0x250
-   __vfs_read+0x39/0x60
-   vfs_read+0xb5/0x1e0
-   ksys_pread64+0x85/0xf0
-   __x64_sys_pread64+0x22/0x30
-   do_syscall_64+0x69/0x150
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f5071fcb1af
-  Code: Bad RIP value.
-  RSP: 002b:00007ffde2cdb8e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000011
-  RAX: ffffffffffffffda RBX: 00007ffde2cdb990 RCX: 00007f5071fcb1af
-  RDX: 0000000000001000 RSI: 000055efcd5ca000 RDI: 0000000000000003
-  RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000001000 R11: 0000000000000293 R12: 0000000000000001
-  R13: 000000000009f000 R14: 0000000000000000 R15: 0000000000001000
-  Modules linked in:
-  ---[ end trace 725fa14a3e1af65c ]---
+clang static analysis flags this problem
+hpioctl.c:513:7: warning: Branch condition evaluates to
+  a garbage value
+                if (pci.ap_mem_base[idx]) {
+                    ^~~~~~~~~~~~~~~~~~~~
 
-Since commit 3fea5a499d57 ("mm: memcontrol: convert page cache to a new
-mem_cgroup_charge() API") not cancel the page charge, the pages maybe
-double add to pagecache:
-thread1                       | thread2
-cifs_readpages
-readpages_get_pages
- add_to_page_cache_locked(head,index=n)=0
-                              | readpages_get_pages
-                              | add_to_page_cache_locked(head,index=n+1)=0
- add_to_page_cache_locked(head, index=n+1)=-EEXIST
- then, will next loop with list head page's
- index=n+1 and the page->mapping not NULL
-readpages_get_pages
-add_to_page_cache_locked(head, index=n+1)
- commit_charge
-  VM_BUG_ON_PAGE
+If there is a failure in the middle of the memory space loop,
+only some of the memory spaces need to be cleaned up.
 
-So, we should not do the next loop when any page add to page cache
-failed.
+At the error handler, idx holds the number of successful
+memory spaces mapped.  So rework the handler loop to use the
+old idx.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+There is a second problem, the memory space loop conditionally
+iomaps()/sets the mem_base so it is necessay to initize pci.
+
+Fixes: 719f82d3987a ("ALSA: Add support of AudioScience ASI boards")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Link: https://lore.kernel.org/r/20200913165230.17166-1-trix@redhat.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ sound/pci/asihpi/hpioctl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index dca78b6e9ea32..24508b69e78b7 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3531,7 +3531,8 @@ readpages_get_pages(struct address_space *mapping, struct list_head *page_list,
- 			break;
+diff --git a/sound/pci/asihpi/hpioctl.c b/sound/pci/asihpi/hpioctl.c
+index 7a32abbe0cef8..4bdcb7443b1f5 100644
+--- a/sound/pci/asihpi/hpioctl.c
++++ b/sound/pci/asihpi/hpioctl.c
+@@ -346,7 +346,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
+ 	struct hpi_message hm;
+ 	struct hpi_response hr;
+ 	struct hpi_adapter adapter;
+-	struct hpi_pci pci;
++	struct hpi_pci pci = { 0 };
  
- 		__SetPageLocked(page);
--		if (add_to_page_cache_locked(page, mapping, page->index, gfp)) {
-+		rc = add_to_page_cache_locked(page, mapping, page->index, gfp);
-+		if (rc) {
- 			__ClearPageLocked(page);
- 			break;
- 		}
-@@ -3547,6 +3548,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 	struct list_head *page_list, unsigned num_pages)
- {
- 	int rc;
-+	int err = 0;
- 	struct list_head tmplist;
- 	struct cifsFileInfo *open_file = file->private_data;
- 	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
-@@ -3587,7 +3589,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 	 * the order of declining indexes. When we put the pages in
- 	 * the rdata->pages, then we want them in increasing order.
- 	 */
--	while (!list_empty(page_list)) {
-+	while (!list_empty(page_list) && !err) {
- 		unsigned int i, nr_pages, bytes, rsize;
- 		loff_t offset;
- 		struct page *page, *tpage;
-@@ -3610,9 +3612,10 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 			return 0;
- 		}
+ 	memset(&adapter, 0, sizeof(adapter));
  
--		rc = readpages_get_pages(mapping, page_list, rsize, &tmplist,
-+		nr_pages = 0;
-+		err = readpages_get_pages(mapping, page_list, rsize, &tmplist,
- 					 &nr_pages, &offset, &bytes);
--		if (rc) {
-+		if (!nr_pages) {
- 			add_credits_and_wake_if(server, credits, 0);
- 			break;
- 		}
+@@ -502,7 +502,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
+ 	return 0;
+ 
+ err:
+-	for (idx = 0; idx < HPI_MAX_ADAPTER_MEM_SPACES; idx++) {
++	while (--idx >= 0) {
+ 		if (pci.ap_mem_base[idx]) {
+ 			iounmap(pci.ap_mem_base[idx]);
+ 			pci.ap_mem_base[idx] = NULL;
 -- 
 2.25.1
 
