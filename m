@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4DFA27C38E
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B55F27C41A
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728858AbgI2LGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:06:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44380 "EHLO mail.kernel.org"
+        id S1729204AbgI2LLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:11:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728454AbgI2LGt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:06:49 -0400
+        id S1728403AbgI2LKj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:10:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EEB521941;
-        Tue, 29 Sep 2020 11:06:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 758B42158C;
+        Tue, 29 Sep 2020 11:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377608;
-        bh=eiz7aoc8IANfM5Zam+W3qobqu1VmS3mANYdwlS2WVIc=;
+        s=default; t=1601377838;
+        bh=I9bS6SkRc7TyTmXyDzVNh/4sq7YSRbmQQLhzA2EijBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ej6MU18kJwA4B0KocQfS8rQNbHwoTWGwDL1e9NaRg8MD1SPKAKeZcGA3CXNKjvRZh
-         LzoCFdv+tEvO6o68lu+erneU0prU+EAYR7noQlGVhxeGmTyZ68RxqzvzNNqFsZ7vn9
-         1n0F63tvvTt1WvwYc70VB0uX/Wgwe/g4A06v62GE=
+        b=bGrM2ooBSiivRLW24uVEEXrAUQk+yz6skls4WkLRT/cCF1/3ge/TS9uQu7RCveLxd
+         4849jM91uVcR8JzhHoXd1LcPSTYIfwHODkrEbsW8S6fQ4bZHzpCpm2hfUIh0Revmuj
+         TThdyirKrMMBzoeG8B3whTt5OL/ZQ4RFdJ9DU5z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Sonny Sasaka <sonnysasaka@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 60/85] ALSA: hda: Fix potential race in unsol event handler
+Subject: [PATCH 4.9 083/121] Bluetooth: Handle Inquiry Cancel error after Inquiry Complete
 Date:   Tue, 29 Sep 2020 13:00:27 +0200
-Message-Id: <20200929105931.213540294@linuxfoundation.org>
+Message-Id: <20200929105934.294458239@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Sonny Sasaka <sonnysasaka@chromium.org>
 
-[ Upstream commit c637fa151259c0f74665fde7cba5b7eac1417ae5 ]
+[ Upstream commit adf1d6926444029396861413aba8a0f2a805742a ]
 
-The unsol event handling code has a loop retrieving the read/write
-indices and the arrays without locking while the append to the array
-may happen concurrently.  This may lead to some inconsistency.
-Although there hasn't been any proof of this bad results, it's still
-safer to protect the racy accesses.
+After sending Inquiry Cancel command to the controller, it is possible
+that Inquiry Complete event comes before Inquiry Cancel command complete
+event. In this case the Inquiry Cancel command will have status of
+Command Disallowed since there is no Inquiry session to be cancelled.
+This case should not be treated as error, otherwise we can reach an
+inconsistent state.
 
-This patch adds the spinlock protection around the unsol handling loop
-for addressing it.  Here we take bus->reg_lock as the writer side
-snd_hdac_bus_queue_event() is also protected by that lock.
+Example of a btmon trace when this happened:
 
-Link: https://lore.kernel.org/r/20200516062556.30951-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+< HCI Command: Inquiry Cancel (0x01|0x0002) plen 0
+> HCI Event: Inquiry Complete (0x01) plen 1
+        Status: Success (0x00)
+> HCI Event: Command Complete (0x0e) plen 4
+      Inquiry Cancel (0x01|0x0002) ncmd 1
+        Status: Command Disallowed (0x0c)
+
+Signed-off-by: Sonny Sasaka <sonnysasaka@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdac_bus.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/bluetooth/hci_event.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/sound/hda/hdac_bus.c b/sound/hda/hdac_bus.c
-index 0e81ea89a5965..e3f68a76d90eb 100644
---- a/sound/hda/hdac_bus.c
-+++ b/sound/hda/hdac_bus.c
-@@ -155,6 +155,7 @@ static void process_unsol_events(struct work_struct *work)
- 	struct hdac_driver *drv;
- 	unsigned int rp, caddr, res;
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 700a2eb161490..d6da119f5082e 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -41,12 +41,27 @@
  
-+	spin_lock_irq(&bus->reg_lock);
- 	while (bus->unsol_rp != bus->unsol_wp) {
- 		rp = (bus->unsol_rp + 1) % HDA_UNSOL_QUEUE_SIZE;
- 		bus->unsol_rp = rp;
-@@ -166,10 +167,13 @@ static void process_unsol_events(struct work_struct *work)
- 		codec = bus->caddr_tbl[caddr & 0x0f];
- 		if (!codec || !codec->dev.driver)
- 			continue;
-+		spin_unlock_irq(&bus->reg_lock);
- 		drv = drv_to_hdac_driver(codec->dev.driver);
- 		if (drv->unsol_event)
- 			drv->unsol_event(codec, res);
-+		spin_lock_irq(&bus->reg_lock);
- 	}
-+	spin_unlock_irq(&bus->reg_lock);
- }
+ /* Handle HCI Event packets */
  
- /**
+-static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb)
++static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb,
++				  u8 *new_status)
+ {
+ 	__u8 status = *((__u8 *) skb->data);
+ 
+ 	BT_DBG("%s status 0x%2.2x", hdev->name, status);
+ 
++	/* It is possible that we receive Inquiry Complete event right
++	 * before we receive Inquiry Cancel Command Complete event, in
++	 * which case the latter event should have status of Command
++	 * Disallowed (0x0c). This should not be treated as error, since
++	 * we actually achieve what Inquiry Cancel wants to achieve,
++	 * which is to end the last Inquiry session.
++	 */
++	if (status == 0x0c && !test_bit(HCI_INQUIRY, &hdev->flags)) {
++		bt_dev_warn(hdev, "Ignoring error of Inquiry Cancel command");
++		status = 0x00;
++	}
++
++	*new_status = status;
++
+ 	if (status)
+ 		return;
+ 
+@@ -2772,7 +2787,7 @@ static void hci_cmd_complete_evt(struct hci_dev *hdev, struct sk_buff *skb,
+ 
+ 	switch (*opcode) {
+ 	case HCI_OP_INQUIRY_CANCEL:
+-		hci_cc_inquiry_cancel(hdev, skb);
++		hci_cc_inquiry_cancel(hdev, skb, status);
+ 		break;
+ 
+ 	case HCI_OP_PERIODIC_INQ:
 -- 
 2.25.1
 
