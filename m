@@ -2,197 +2,323 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A25027D350
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 18:06:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5483D27D360
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 18:13:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728424AbgI2QGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 12:06:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54246 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728401AbgI2QGg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 12:06:36 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EAE3A2075E;
-        Tue, 29 Sep 2020 16:06:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601395595;
-        bh=17d99Pj6ycmLH+9l46C3/Edq052XmfsvQxsWb+F7NNE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Kourp7UCKmdccjNehxnXxkmQ0/4dQBrnQoOL6667NR+fXDyby/Ll+FQhXbzvRsXBV
-         D+3nr0Hm8/MyicnEJN5jXv1J5bmpm9WwwK4v3NIFI/DDXCHJ+uEjZrmEMwdhoLywQh
-         WmtVy5OrJk6Tu7wtYZap1ZEvce6lH3pZDxZCZLsg=
-Date:   Tue, 29 Sep 2020 12:06:33 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 4.19 146/245] perf stat: Force error in fallback on :k
- events
-Message-ID: <20200929160633.GA2415204@sasha-vm>
-References: <20200929105946.978650816@linuxfoundation.org>
- <20200929105954.090876288@linuxfoundation.org>
- <CA+G9fYs-gqkrwzFeMQ1NpV_BfYPrV2CCOKJv6QE7U3mhc56F9w@mail.gmail.com>
- <20200929142717.GB1203131@kroah.com>
+        id S1725497AbgI2QNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 12:13:00 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21142 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728424AbgI2QNA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 12:13:00 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 08TG3JCb085238;
+        Tue, 29 Sep 2020 12:12:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=GkCbIDK+Ukaw9HMOTh+guU22FZwj2bgPbepNrrMCtb0=;
+ b=QOtu6jcXUdKOEJom2z1Ou1tj/xcbjuq6nPSXE8uvLKsDiTPY24MCfkrFVrQdWx5AuDw8
+ bsEkj+elwa/hMWtkRsvK30wfARX4v0hlxsOnQ615MHQyXH5noOxee3zHJCBzA2t2CI+D
+ RXCqsRKqoFrDwembSIDOuarLgCuLvVDnvo9nOjtYi9hexGbtmkDZcCqp3BiiOZoU/ZDg
+ Kp+b96vwJ/PNi5Uln6W0dqLVuU4mUJDTL+p3+WxRyaYj5qdBUoDPE8xIUkDhsWu2Bxb0
+ dpAnCLMTLK6LC1A1HPHzLvqWHzMxMEmHyC/uu5Zq89dGCw6yHXq3LYzUTR2g5JVgPTL8 Hw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33v7thry6m-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Sep 2020 12:12:48 -0400
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08TG3Fhj084975;
+        Tue, 29 Sep 2020 12:12:48 -0400
+Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 33v7thry5k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Sep 2020 12:12:47 -0400
+Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
+        by ppma01fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08TG8hTW013676;
+        Tue, 29 Sep 2020 16:12:45 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma01fra.de.ibm.com with ESMTP id 33sw989uxk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 29 Sep 2020 16:12:45 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 08TGCgl923396776
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 29 Sep 2020 16:12:42 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7E30A4204B;
+        Tue, 29 Sep 2020 16:12:42 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 140934204C;
+        Tue, 29 Sep 2020 16:12:42 +0000 (GMT)
+Received: from pomme.tlslab.ibm.com (unknown [9.145.50.8])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 29 Sep 2020 16:12:42 +0000 (GMT)
+From:   Laurent Dufour <ldufour@linux.ibm.com>
+To:     stable@vger.kernel.org
+Cc:     David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Scott Cheloha <cheloha@linux.ibm.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 1/2] mm: replace memmap_context by memplug_context
+Date:   Tue, 29 Sep 2020 18:12:39 +0200
+Message-Id: <20200929161240.62061-1-ldufour@linux.ibm.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200929142717.GB1203131@kroah.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-29_10:2020-09-29,2020-09-29 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ bulkscore=0 lowpriorityscore=0 mlxlogscore=999 impostorscore=0
+ malwarescore=0 adultscore=0 clxscore=1015 suspectscore=0 phishscore=0
+ mlxscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2009290136
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 29, 2020 at 04:27:17PM +0200, Greg Kroah-Hartman wrote:
->On Tue, Sep 29, 2020 at 07:03:46PM +0530, Naresh Kamboju wrote:
->> On Tue, 29 Sep 2020 at 17:54, Greg Kroah-Hartman
->> <gregkh@linuxfoundation.org> wrote:
->> >
->> > From: Stephane Eranian <eranian@google.com>
->> >
->> > [ Upstream commit bec49a9e05db3dbdca696fa07c62c52638fb6371 ]
->> >
->> > When it is not possible for a non-privilege perf command to monitor at
->> > the kernel level (:k), the fallback code forces a :u. That works if the
->> > event was previously monitoring both levels.  But if the event was
->> > already constrained to kernel only, then it does not make sense to
->> > restrict it to user only.
->> >
->> > Given the code works by exclusion, a kernel only event would have:
->> >
->> >   attr->exclude_user = 1
->> >
->> > The fallback code would add:
->> >
->> >   attr->exclude_kernel = 1
->> >
->> > In the end the end would not monitor in either the user level or kernel
->> > level. In other words, it would count nothing.
->> >
->> > An event programmed to monitor kernel only cannot be switched to user
->> > only without seriously warning the user.
->> >
->> > This patch forces an error in this case to make it clear the request
->> > cannot really be satisfied.
->> >
->> > Behavior with paranoid 1:
->> >
->> >   $ sudo bash -c "echo 1 > /proc/sys/kernel/perf_event_paranoid"
->> >   $ perf stat -e cycles:k sleep 1
->> >
->> >    Performance counter stats for 'sleep 1':
->> >
->> >            1,520,413      cycles:k
->> >
->> >          1.002361664 seconds time elapsed
->> >
->> >          0.002480000 seconds user
->> >          0.000000000 seconds sys
->> >
->> > Old behavior with paranoid 2:
->> >
->> >   $ sudo bash -c "echo 2 > /proc/sys/kernel/perf_event_paranoid"
->> >   $ perf stat -e cycles:k sleep 1
->> >    Performance counter stats for 'sleep 1':
->> >
->> >                    0      cycles:ku
->> >
->> >          1.002358127 seconds time elapsed
->> >
->> >          0.002384000 seconds user
->> >          0.000000000 seconds sys
->> >
->> > New behavior with paranoid 2:
->> >
->> >   $ sudo bash -c "echo 2 > /proc/sys/kernel/perf_event_paranoid"
->> >   $ perf stat -e cycles:k sleep 1
->> >   Error:
->> >   You may not have permission to collect stats.
->> >
->> >   Consider tweaking /proc/sys/kernel/perf_event_paranoid,
->> >   which controls use of the performance events system by
->> >   unprivileged users (without CAP_PERFMON or CAP_SYS_ADMIN).
->> >
->> >   The current value is 2:
->> >
->> >     -1: Allow use of (almost) all events by all users
->> >         Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
->> >   >= 0: Disallow ftrace function tracepoint by users without CAP_PERFMON or CAP_SYS_ADMIN
->> >         Disallow raw tracepoint access by users without CAP_SYS_PERFMON or CAP_SYS_ADMIN
->> >   >= 1: Disallow CPU event access by users without CAP_PERFMON or CAP_SYS_ADMIN
->> >   >= 2: Disallow kernel profiling by users without CAP_PERFMON or CAP_SYS_ADMIN
->> >
->> >   To make this setting permanent, edit /etc/sysctl.conf too, e.g.:
->> >
->> >           kernel.perf_event_paranoid = -1
->> >
->> > v2 of this patch addresses the review feedback from jolsa@redhat.com.
->> >
->> > Signed-off-by: Stephane Eranian <eranian@google.com>
->> > Reviewed-by: Ian Rogers <irogers@google.com>
->> > Acked-by: Jiri Olsa <jolsa@redhat.com>
->> > Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
->> > Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
->> > Cc: Jiri Olsa <jolsa@redhat.com>
->> > Cc: Mark Rutland <mark.rutland@arm.com>
->> > Cc: Namhyung Kim <namhyung@kernel.org>
->> > Cc: Peter Zijlstra <peterz@infradead.org>
->> > Link: http://lore.kernel.org/lkml/20200414161550.225588-1-irogers@google.com
->> > Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
->> > Signed-off-by: Sasha Levin <sashal@kernel.org>
->>
->> perf failed on stable rc branch 4.19 on all devices.
->>
->> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
->>
->> build warning and errors,
->> -----------------------------------
->> In file included from util/evlist.h:15:0,
->>                  from util/evsel.c:30:
->> util/evsel.c: In function 'perf_evsel__exit':
->> util/util.h:25:28: warning: passing argument 1 of 'free' discards
->> 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
->>  #define zfree(ptr) ({ free(*ptr); *ptr = NULL; })
->>                             ^
->> util/evsel.c:1293:2: note: in expansion of macro 'zfree'
->>   zfree(&evsel->pmu_name);
->>   ^~~~~
->> In file included from
->> /srv/oe/build/tmp-lkft-glibc/work/intel_corei7_64-linaro-linux/perf/1.0-r9/perf-1.0/tools/perf/arch/x86/include/perf_regs.h:5:0,
->>                  from util/perf_regs.h:27,
->>                  from util/event.h:11,
->>                  from util/callchain.h:8,
->>                  from util/evsel.c:26:
->> perf/1.0-r9/recipe-sysroot/usr/include/stdlib.h:563:13: note: expected
->> 'void *' but argument is of type 'const char *'
->>  extern void free (void *__ptr) __THROW;
->>              ^~~~
->> util/evsel.c: In function 'perf_evsel__fallback':
->> util/evsel.c:2802:14: error: 'struct perf_evsel' has no member named
->> 'core'; did you mean 'node'?
->>    if (evsel->core.attr.exclude_user)
->>               ^~~~
->>               node
->
->I thought Sasha had dropped all of the offending patches.  I'll go drop
->this one and push out a new 4.19-rc release.
+Backport version to the 5.4-stable tree of:
+[ Upstream commit c1d0da83358a2316d9be7f229f26126dbaa07468 ]
 
-I did, looks like this a new report.
+Patch series "mm: fix memory to node bad links in sysfs", v3.
 
->But note, the latest 4.19.y tree doesn't even build perf for me, so I
->can't really check this locally :(
+Sometimes, firmware may expose interleaved memory layout like this:
 
-Same here. Naresh, does perf builds "out of the box" for you, or do you
-carry any patches on top?
+ Early memory node ranges
+   node   1: [mem 0x0000000000000000-0x000000011fffffff]
+   node   2: [mem 0x0000000120000000-0x000000014fffffff]
+   node   1: [mem 0x0000000150000000-0x00000001ffffffff]
+   node   0: [mem 0x0000000200000000-0x000000048fffffff]
+   node   2: [mem 0x0000000490000000-0x00000007ffffffff]
 
+In that case, we can see memory blocks assigned to multiple nodes in
+sysfs:
+
+  $ ls -l /sys/devices/system/memory/memory21
+  total 0
+  lrwxrwxrwx 1 root root     0 Aug 24 05:27 node1 -> ../../node/node1
+  lrwxrwxrwx 1 root root     0 Aug 24 05:27 node2 -> ../../node/node2
+  -rw-r--r-- 1 root root 65536 Aug 24 05:27 online
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 phys_device
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 phys_index
+  drwxr-xr-x 2 root root     0 Aug 24 05:27 power
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 removable
+  -rw-r--r-- 1 root root 65536 Aug 24 05:27 state
+  lrwxrwxrwx 1 root root     0 Aug 24 05:25 subsystem -> ../../../../bus/memory
+  -rw-r--r-- 1 root root 65536 Aug 24 05:25 uevent
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 valid_zones
+
+The same applies in the node's directory with a memory21 link in both
+the node1 and node2's directory.
+
+This is wrong but doesn't prevent the system to run.  However when
+later, one of these memory blocks is hot-unplugged and then hot-plugged,
+the system is detecting an inconsistency in the sysfs layout and a
+BUG_ON() is raised:
+
+  kernel BUG at /Users/laurent/src/linux-ppc/mm/memory_hotplug.c:1084!
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in: rpadlpar_io rpaphp pseries_rng rng_core vmx_crypto gf128mul binfmt_misc ip_tables x_tables xfs libcrc32c crc32c_vpmsum autofs4
+  CPU: 8 PID: 10256 Comm: drmgr Not tainted 5.9.0-rc1+ #25
+  Call Trace:
+    add_memory_resource+0x23c/0x340 (unreliable)
+    __add_memory+0x5c/0xf0
+    dlpar_add_lmb+0x1b4/0x500
+    dlpar_memory+0x1f8/0xb80
+    handle_dlpar_errorlog+0xc0/0x190
+    dlpar_store+0x198/0x4a0
+    kobj_attr_store+0x30/0x50
+    sysfs_kf_write+0x64/0x90
+    kernfs_fop_write+0x1b0/0x290
+    vfs_write+0xe8/0x290
+    ksys_write+0xdc/0x130
+    system_call_exception+0x160/0x270
+    system_call_common+0xf0/0x27c
+
+This has been seen on PowerPC LPAR.
+
+The root cause of this issue is that when node's memory is registered,
+the range used can overlap another node's range, thus the memory block
+is registered to multiple nodes in sysfs.
+
+There are two issues here:
+
+ (a) The sysfs memory and node's layouts are broken due to these
+     multiple links
+
+ (b) The link errors in link_mem_sections() should not lead to a system
+     panic.
+
+To address (a) register_mem_sect_under_node should not rely on the
+system state to detect whether the link operation is triggered by a hot
+plug operation or not.  This is addressed by the patches 1 and 2 of this
+series.
+
+Issue (b) will be addressed separately.
+
+This patch (of 2):
+
+The memmap_context enum is used to detect whether a memory operation is
+due to a hot-add operation or happening at boot time.
+
+Make it general to the hotplug operation and rename it as
+meminit_context.
+
+There is no functional change introduced by this patch
+
+Suggested-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J . Wysocki" <rafael@kernel.org>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Scott Cheloha <cheloha@linux.ibm.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: <stable@vger.kernel.org> # 5.4.y
+Link: https://lkml.kernel.org/r/20200915094143.79181-1-ldufour@linux.ibm.com
+Link: https://lkml.kernel.org/r/20200915132624.9723-1-ldufour@linux.ibm.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+---
+ arch/ia64/mm/init.c    |  6 +++---
+ include/linux/mm.h     |  2 +-
+ include/linux/mmzone.h | 11 ++++++++---
+ mm/memory_hotplug.c    |  2 +-
+ mm/page_alloc.c        | 10 +++++-----
+ 5 files changed, 18 insertions(+), 13 deletions(-)
+
+diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
+index a6dd80a2c939..ee50506d86f4 100644
+--- a/arch/ia64/mm/init.c
++++ b/arch/ia64/mm/init.c
+@@ -518,7 +518,7 @@ virtual_memmap_init(u64 start, u64 end, void *arg)
+ 	if (map_start < map_end)
+ 		memmap_init_zone((unsigned long)(map_end - map_start),
+ 				 args->nid, args->zone, page_to_pfn(map_start),
+-				 MEMMAP_EARLY, NULL);
++				 MEMINIT_EARLY, NULL);
+ 	return 0;
+ }
+ 
+@@ -527,8 +527,8 @@ memmap_init (unsigned long size, int nid, unsigned long zone,
+ 	     unsigned long start_pfn)
+ {
+ 	if (!vmem_map) {
+-		memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY,
+-				NULL);
++		memmap_init_zone(size, nid, zone, start_pfn,
++				 MEMINIT_EARLY, NULL);
+ 	} else {
+ 		struct page *start;
+ 		struct memmap_init_callback_data args;
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 3285dae06c03..34119f393a80 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2208,7 +2208,7 @@ static inline void zero_resv_unavail(void) {}
+ 
+ extern void set_dma_reserve(unsigned long new_dma_reserve);
+ extern void memmap_init_zone(unsigned long, int, unsigned long, unsigned long,
+-		enum memmap_context, struct vmem_altmap *);
++		enum meminit_context, struct vmem_altmap *);
+ extern void setup_per_zone_wmarks(void);
+ extern int __meminit init_per_zone_wmark_min(void);
+ extern void mem_init(void);
+diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+index 85804ba62215..a90aba3d6afb 100644
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -822,10 +822,15 @@ bool zone_watermark_ok(struct zone *z, unsigned int order,
+ 		unsigned int alloc_flags);
+ bool zone_watermark_ok_safe(struct zone *z, unsigned int order,
+ 		unsigned long mark, int classzone_idx);
+-enum memmap_context {
+-	MEMMAP_EARLY,
+-	MEMMAP_HOTPLUG,
++/*
++ * Memory initialization context, use to differentiate memory added by
++ * the platform statically or via memory hotplug interface.
++ */
++enum meminit_context {
++	MEMINIT_EARLY,
++	MEMINIT_HOTPLUG,
+ };
++
+ extern void init_currently_empty_zone(struct zone *zone, unsigned long start_pfn,
+ 				     unsigned long size);
+ 
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 3eb0b311b4a1..6a4b3a01e1b6 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -725,7 +725,7 @@ void __ref move_pfn_range_to_zone(struct zone *zone, unsigned long start_pfn,
+ 	 * are reserved so nobody should be touching them so we should be safe
+ 	 */
+ 	memmap_init_zone(nr_pages, nid, zone_idx(zone), start_pfn,
+-			MEMMAP_HOTPLUG, altmap);
++			 MEMINIT_HOTPLUG, altmap);
+ 
+ 	set_zone_contiguous(zone);
+ }
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 67a9943aa595..373ca5780758 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5875,7 +5875,7 @@ overlap_memmap_init(unsigned long zone, unsigned long *pfn)
+  * done. Non-atomic initialization, single-pass.
+  */
+ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+-		unsigned long start_pfn, enum memmap_context context,
++		unsigned long start_pfn, enum meminit_context context,
+ 		struct vmem_altmap *altmap)
+ {
+ 	unsigned long pfn, end_pfn = start_pfn + size;
+@@ -5907,7 +5907,7 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+ 		 * There can be holes in boot-time mem_map[]s handed to this
+ 		 * function.  They do not exist on hotplugged memory.
+ 		 */
+-		if (context == MEMMAP_EARLY) {
++		if (context == MEMINIT_EARLY) {
+ 			if (!early_pfn_valid(pfn))
+ 				continue;
+ 			if (!early_pfn_in_nid(pfn, nid))
+@@ -5920,7 +5920,7 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+ 
+ 		page = pfn_to_page(pfn);
+ 		__init_single_page(page, pfn, zone, nid);
+-		if (context == MEMMAP_HOTPLUG)
++		if (context == MEMINIT_HOTPLUG)
+ 			__SetPageReserved(page);
+ 
+ 		/*
+@@ -6002,7 +6002,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
+ 		 * check here not to call set_pageblock_migratetype() against
+ 		 * pfn out of zone.
+ 		 *
+-		 * Please note that MEMMAP_HOTPLUG path doesn't clear memmap
++		 * Please note that MEMINIT_HOTPLUG path doesn't clear memmap
+ 		 * because this is done early in section_activate()
+ 		 */
+ 		if (!(pfn & (pageblock_nr_pages - 1))) {
+@@ -6028,7 +6028,7 @@ static void __meminit zone_init_free_lists(struct zone *zone)
+ void __meminit __weak memmap_init(unsigned long size, int nid,
+ 				  unsigned long zone, unsigned long start_pfn)
+ {
+-	memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY, NULL);
++	memmap_init_zone(size, nid, zone, start_pfn, MEMINIT_EARLY, NULL);
+ }
+ 
+ static int zone_batchsize(struct zone *zone)
 -- 
-Thanks,
-Sasha
+2.28.0
+
