@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4CB27C399
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A25E027C396
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728890AbgI2LHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:07:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45048 "EHLO mail.kernel.org"
+        id S1728591AbgI2LHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:07:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728879AbgI2LHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:07:03 -0400
+        id S1728890AbgI2LHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:07:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB52021D7D;
-        Tue, 29 Sep 2020 11:07:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C53D21D46;
+        Tue, 29 Sep 2020 11:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377622;
-        bh=dohjpOr0OAQhlF+dnzRhyyW82Oenaegp3P3XhmWxpvE=;
+        s=default; t=1601377625;
+        bh=091m4M7DrV1vRuPNPHolt4TEHgkh3oq1VqsrfRPWBhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PicKAKmA1UCzWxAev4qDLIPNMs5ctS96jff6w2UB15oXpCCG5L22xytYi5D5RDM16
-         l78aAcoIxhc7z0QkpqOgkaX6Ve8qzt31YyMz9y5h2UqdOWQxt5qFMW9SGnCunq+3S3
-         aboyvhFf26UmP/4TgQOTOWCnCTGmoJfzsopTNU6Q=
+        b=x9QItAdJkMFiujbowhAFPaM0DxVeSnDUJYkAkCFDZDcFM/pUTblvi2Fa/B7FpU163
+         OM3QTHM2ev6Kp+PSbmqxrlT3AkYS/4lN+27Dd/axLVj9MssLWf4iKZdsbcyOFUFzOs
+         CeY+p/UT72jOOtvsv2xSsh/H0zXMGjnB486NtnlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.9 013/121] serial: 8250: Avoid error message on reprobe
-Date:   Tue, 29 Sep 2020 12:59:17 +0200
-Message-Id: <20200929105930.837077444@linuxfoundation.org>
+        stable@vger.kernel.org, Balsundar P <balsundar.p@microsemi.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 014/121] scsi: aacraid: fix illegal IO beyond last LBA
+Date:   Tue, 29 Sep 2020 12:59:18 +0200
+Message-Id: <20200929105930.889192350@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
@@ -43,76 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Balsundar P <balsundar.p@microsemi.com>
 
-commit e0a851fe6b9b619527bd928aa93caaddd003f70c upstream.
+[ Upstream commit c86fbe484c10b2cd1e770770db2d6b2c88801c1d ]
 
-If the call to uart_add_one_port() in serial8250_register_8250_port()
-fails, a half-initialized entry in the serial_8250ports[] array is left
-behind.
+The driver fails to handle data when read or written beyond device reported
+LBA, which triggers kernel panic
 
-A subsequent reprobe of the same serial port causes that entry to be
-reused.  Because uart->port.dev is set, uart_remove_one_port() is called
-for the half-initialized entry and bails out with an error message:
-
-bcm2835-aux-uart 3f215040.serial: Removing wrong port: (null) != (ptrval)
-
-The same happens on failure of mctrl_gpio_init() since commit
-4a96895f74c9 ("tty/serial/8250: use mctrl_gpio helpers").
-
-Fix by zeroing the uart->port.dev pointer in the probe error path.
-
-The bug was introduced in v2.6.10 by historical commit befff6f5bf5f
-("[SERIAL] Add new port registration/unregistration functions."):
-https://git.kernel.org/tglx/history/c/befff6f5bf5f
-
-The commit added an unconditional call to uart_remove_one_port() in
-serial8250_register_port().  In v3.7, commit 835d844d1a28 ("8250_pnp:
-do pnp probe before legacy probe") made that call conditional on
-uart->port.dev which allows me to fix the issue by zeroing that pointer
-in the error path.  Thus, the present commit will fix the problem as far
-back as v3.7 whereas still older versions need to also cherry-pick
-835d844d1a28.
-
-Fixes: 835d844d1a28 ("8250_pnp: do pnp probe before legacy probe")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v2.6.10
-Cc: stable@vger.kernel.org # v2.6.10: 835d844d1a28: 8250_pnp: do pnp probe before legacy
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/b4a072013ee1a1d13ee06b4325afb19bda57ca1b.1589285873.git.lukas@wunner.de
-[iwamatsu: Backported to 4.4, 4.9: adjust context]
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/1571120524-6037-2-git-send-email-balsundar.p@microsemi.com
+Signed-off-by: Balsundar P <balsundar.p@microsemi.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_core.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/scsi/aacraid/aachba.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -1046,8 +1046,10 @@ int serial8250_register_8250_port(struct
+diff --git a/drivers/scsi/aacraid/aachba.c b/drivers/scsi/aacraid/aachba.c
+index 065f11a1964d4..39deea8601d68 100644
+--- a/drivers/scsi/aacraid/aachba.c
++++ b/drivers/scsi/aacraid/aachba.c
+@@ -1929,13 +1929,13 @@ static int aac_read(struct scsi_cmnd * scsicmd)
+ 		scsicmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8 |
+ 			SAM_STAT_CHECK_CONDITION;
+ 		set_sense(&dev->fsa_dev[cid].sense_data,
+-			  HARDWARE_ERROR, SENCODE_INTERNAL_TARGET_FAILURE,
++			  ILLEGAL_REQUEST, SENCODE_LBA_OUT_OF_RANGE,
+ 			  ASENCODE_INTERNAL_TARGET_FAILURE, 0, 0);
+ 		memcpy(scsicmd->sense_buffer, &dev->fsa_dev[cid].sense_data,
+ 		       min_t(size_t, sizeof(dev->fsa_dev[cid].sense_data),
+ 			     SCSI_SENSE_BUFFERSIZE));
+ 		scsicmd->scsi_done(scsicmd);
+-		return 1;
++		return 0;
+ 	}
  
- 			ret = uart_add_one_port(&serial8250_reg,
- 						&uart->port);
--			if (ret == 0)
--				ret = uart->port.line;
-+			if (ret)
-+				goto err;
-+
-+			ret = uart->port.line;
- 		} else {
- 			dev_info(uart->port.dev,
- 				"skipping CIR port at 0x%lx / 0x%llx, IRQ %d\n",
-@@ -1061,6 +1063,11 @@ int serial8250_register_8250_port(struct
- 	mutex_unlock(&serial_mutex);
+ 	dprintk((KERN_DEBUG "aac_read[cpu %d]: lba = %llu, t = %ld.\n",
+@@ -2023,13 +2023,13 @@ static int aac_write(struct scsi_cmnd * scsicmd)
+ 		scsicmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8 |
+ 			SAM_STAT_CHECK_CONDITION;
+ 		set_sense(&dev->fsa_dev[cid].sense_data,
+-			  HARDWARE_ERROR, SENCODE_INTERNAL_TARGET_FAILURE,
++			  ILLEGAL_REQUEST, SENCODE_LBA_OUT_OF_RANGE,
+ 			  ASENCODE_INTERNAL_TARGET_FAILURE, 0, 0);
+ 		memcpy(scsicmd->sense_buffer, &dev->fsa_dev[cid].sense_data,
+ 		       min_t(size_t, sizeof(dev->fsa_dev[cid].sense_data),
+ 			     SCSI_SENSE_BUFFERSIZE));
+ 		scsicmd->scsi_done(scsicmd);
+-		return 1;
++		return 0;
+ 	}
  
- 	return ret;
-+
-+err:
-+	uart->port.dev = NULL;
-+	mutex_unlock(&serial_mutex);
-+	return ret;
- }
- EXPORT_SYMBOL(serial8250_register_8250_port);
- 
+ 	dprintk((KERN_DEBUG "aac_write[cpu %d]: lba = %llu, t = %ld.\n",
+-- 
+2.25.1
+
 
 
