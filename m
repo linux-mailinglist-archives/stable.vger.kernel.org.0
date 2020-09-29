@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB3CA27C442
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:13:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4A027C438
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:12:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728705AbgI2LM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:12:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54192 "EHLO mail.kernel.org"
+        id S1728666AbgI2LMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:12:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729319AbgI2LM0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:12:26 -0400
+        id S1729312AbgI2LMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:12:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 197D721D46;
-        Tue, 29 Sep 2020 11:12:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8D3220848;
+        Tue, 29 Sep 2020 11:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377945;
-        bh=mTj9LzB/u1SlBTV7r0y1PLzGi3Nkjo/lyZBSQnlSWIA=;
+        s=default; t=1601377929;
+        bh=mBq3HRnZpYAa0n/BmMqY8IXTKdIxNWbjeafZfJ4ORB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahRwS2/QBMH/Jd6Y5rV24pMurq6Kx8K42bkke9dihxKs3LGctaMcjlLmfWQvrSqCE
-         24nPC1j28odX9T9WScSNvlS+3ATY8yr0wCBs7BQKMRDQZHhuSOHBup2Gx2h4WliRBA
-         fHsjEj6ZIoI+CVzmTw2pl48Qtm/qDjX6TOH/QCmQ=
+        b=fYd1dLMJO/sIrvDdCdEz1RyHSFNYxBoTHQDW5dwZC0GJlRF4qYppmqzBtU0HD0qPu
+         H6eAKqTRZnNRDyuNvfgO/p8youpOMOAQpjS9fcdNxlg+WV7RzekcmdycpE6Z1+ENYN
+         SezikXyPbEJiSrxvnusm5hMwaOMsTmnCye1/HPoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 115/121] ALSA: asihpi: fix iounmap in error handler
-Date:   Tue, 29 Sep 2020 13:00:59 +0200
-Message-Id: <20200929105935.881446841@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 116/121] MIPS: Add the missing CPU_1074K into __get_cpu_type()
+Date:   Tue, 29 Sep 2020 13:01:00 +0200
+Message-Id: <20200929105935.931581357@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
@@ -42,57 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Wei Li <liwei391@huawei.com>
 
-[ Upstream commit 472eb39103e885f302fd8fd6eff104fcf5503f1b ]
+[ Upstream commit e393fbe6fa27af23f78df6e16a8fd2963578a8c4 ]
 
-clang static analysis flags this problem
-hpioctl.c:513:7: warning: Branch condition evaluates to
-  a garbage value
-                if (pci.ap_mem_base[idx]) {
-                    ^~~~~~~~~~~~~~~~~~~~
+Commit 442e14a2c55e ("MIPS: Add 1074K CPU support explicitly.") split
+1074K from the 74K as an unique CPU type, while it missed to add the
+'CPU_1074K' in __get_cpu_type(). So let's add it back.
 
-If there is a failure in the middle of the memory space loop,
-only some of the memory spaces need to be cleaned up.
-
-At the error handler, idx holds the number of successful
-memory spaces mapped.  So rework the handler loop to use the
-old idx.
-
-There is a second problem, the memory space loop conditionally
-iomaps()/sets the mem_base so it is necessay to initize pci.
-
-Fixes: 719f82d3987a ("ALSA: Add support of AudioScience ASI boards")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Link: https://lore.kernel.org/r/20200913165230.17166-1-trix@redhat.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 442e14a2c55e ("MIPS: Add 1074K CPU support explicitly.")
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/asihpi/hpioctl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/include/asm/cpu-type.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/asihpi/hpioctl.c b/sound/pci/asihpi/hpioctl.c
-index 3ef9af53ef497..0d5ff00cdabca 100644
---- a/sound/pci/asihpi/hpioctl.c
-+++ b/sound/pci/asihpi/hpioctl.c
-@@ -346,7 +346,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
- 	struct hpi_message hm;
- 	struct hpi_response hr;
- 	struct hpi_adapter adapter;
--	struct hpi_pci pci;
-+	struct hpi_pci pci = { 0 };
- 
- 	memset(&adapter, 0, sizeof(adapter));
- 
-@@ -502,7 +502,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
- 	return 0;
- 
- err:
--	for (idx = 0; idx < HPI_MAX_ADAPTER_MEM_SPACES; idx++) {
-+	while (--idx >= 0) {
- 		if (pci.ap_mem_base[idx]) {
- 			iounmap(pci.ap_mem_base[idx]);
- 			pci.ap_mem_base[idx] = NULL;
+diff --git a/arch/mips/include/asm/cpu-type.h b/arch/mips/include/asm/cpu-type.h
+index bdd6dc18e65c6..941efd8783344 100644
+--- a/arch/mips/include/asm/cpu-type.h
++++ b/arch/mips/include/asm/cpu-type.h
+@@ -47,6 +47,7 @@ static inline int __pure __get_cpu_type(const int cpu_type)
+ 	case CPU_34K:
+ 	case CPU_1004K:
+ 	case CPU_74K:
++	case CPU_1074K:
+ 	case CPU_M14KC:
+ 	case CPU_M14KEC:
+ 	case CPU_INTERAPTIV:
 -- 
 2.25.1
 
