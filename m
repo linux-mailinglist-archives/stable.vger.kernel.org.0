@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F6527C559
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:34:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C61227C803
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729442AbgI2Let (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:34:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46898 "EHLO mail.kernel.org"
+        id S1730684AbgI2LmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:42:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728870AbgI2Ld0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:33:26 -0400
+        id S1730671AbgI2Ll5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:41:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50B2A23B70;
-        Tue, 29 Sep 2020 11:26:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C72D206A5;
+        Tue, 29 Sep 2020 11:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378786;
-        bh=0LrM5zFtDMDKUYhqhX2N7sngP1jag7D1RZSI4wh543E=;
+        s=default; t=1601379716;
+        bh=mQuNhQ2qow8drIVBTh6YiAbV1CoN1qj3OWdYWoENEcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEqBVDMw/Ho3pGxq5TVS8DKQE69jR/BOZvsmUSME/UJr/bO+eBUJMYpJ5XKcyPWTl
-         4WVTg1bNXB/Rr4Roj8fnE/cXpMvpnwGHBJ/+OJeAkxvQcydCrq9e7pxq0C18B3TRZG
-         k6ZG2RpGI7DxcCag9qOoaildznmQHDbk1JRjifck=
+        b=yzHrawHXFIHxS7I/A+Te3n8WqNpXZKNc40WTr9jI3GaSXRgqLyKXVHWy0b4WHbIAn
+         BN3z6v3/pdlDx90LBNRI5rQQwGzHs+rFmB1SeCKtbDhKVgY0HqlHzbQBzb8sXNxRqE
+         TBiiigjWl5UWxw90RtKtVYkWpu5N36owKsb25aJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Ying Xue <ying.xue@windriver.com>,
+        Jon Maloy <jmaloy@redhat.com>,
+        Thang Ngo <thang.h.ngo@dektech.com.au>,
+        Tuong Lien <tuong.t.lien@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 137/245] NFS: Fix races nfs_page_group_destroy() vs nfs_destroy_unlinked_subrequests()
+Subject: [PATCH 5.4 257/388] tipc: fix memory leak in service subscripting
 Date:   Tue, 29 Sep 2020 12:59:48 +0200
-Message-Id: <20200929105953.655274955@linuxfoundation.org>
+Message-Id: <20200929110022.914885230@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,168 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Tuong Lien <tuong.t.lien@dektech.com.au>
 
-[ Upstream commit 08ca8b21f760c0ed5034a5c122092eec22ccf8f4 ]
+[ Upstream commit 0771d7df819284d46cf5cfb57698621b503ec17f ]
 
-When a subrequest is being detached from the subgroup, we want to
-ensure that it is not holding the group lock, or in the process
-of waiting for the group lock.
+Upon receipt of a service subscription request from user via a topology
+connection, one 'sub' object will be allocated in kernel, so it will be
+able to send an event of the service if any to the user correspondingly
+then. Also, in case of any failure, the connection will be shutdown and
+all the pertaining 'sub' objects will be freed.
 
-Fixes: 5b2b5187fa85 ("NFS: Fix nfs_page_group_destroy() and nfs_lock_and_join_requests() race cases")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+However, there is a race condition as follows resulting in memory leak:
+
+       receive-work       connection        send-work
+              |                |                |
+        sub-1 |<------//-------|                |
+        sub-2 |<------//-------|                |
+              |                |<---------------| evt for sub-x
+        sub-3 |<------//-------|                |
+              :                :                :
+              :                :                :
+              |       /--------|                |
+              |       |        * peer closed    |
+              |       |        |                |
+              |       |        |<-------X-------| evt for sub-y
+              |       |        |<===============|
+        sub-n |<------/        X    shutdown    |
+    -> orphan |                                 |
+
+That is, the 'receive-work' may get the last subscription request while
+the 'send-work' is shutting down the connection due to peer close.
+
+We had a 'lock' on the connection, so the two actions cannot be carried
+out simultaneously. If the last subscription is allocated e.g. 'sub-n',
+before the 'send-work' closes the connection, there will be no issue at
+all, the 'sub' objects will be freed. In contrast the last subscription
+will become orphan since the connection was closed, and we released all
+references.
+
+This commit fixes the issue by simply adding one test if the connection
+remains in 'connected' state right after we obtain the connection lock,
+then a subscription object can be created as usual, otherwise we ignore
+it.
+
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Reported-by: Thang Ngo <thang.h.ngo@dektech.com.au>
+Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pagelist.c        | 67 +++++++++++++++++++++++++++-------------
- fs/nfs/write.c           | 10 ++++--
- include/linux/nfs_page.h |  2 ++
- 3 files changed, 55 insertions(+), 24 deletions(-)
+ net/tipc/topsrv.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index 5dae7c85d9b6e..2c7d76b4c5e18 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -132,47 +132,70 @@ nfs_async_iocounter_wait(struct rpc_task *task, struct nfs_lock_context *l_ctx)
- EXPORT_SYMBOL_GPL(nfs_async_iocounter_wait);
- 
- /*
-- * nfs_page_group_lock - lock the head of the page group
-- * @req - request in group that is to be locked
-+ * nfs_page_set_headlock - set the request PG_HEADLOCK
-+ * @req: request that is to be locked
-  *
-- * this lock must be held when traversing or modifying the page
-- * group list
-+ * this lock must be held when modifying req->wb_head
-  *
-  * return 0 on success, < 0 on error
-  */
- int
--nfs_page_group_lock(struct nfs_page *req)
-+nfs_page_set_headlock(struct nfs_page *req)
- {
--	struct nfs_page *head = req->wb_head;
--
--	WARN_ON_ONCE(head != head->wb_head);
--
--	if (!test_and_set_bit(PG_HEADLOCK, &head->wb_flags))
-+	if (!test_and_set_bit(PG_HEADLOCK, &req->wb_flags))
- 		return 0;
- 
--	set_bit(PG_CONTENDED1, &head->wb_flags);
-+	set_bit(PG_CONTENDED1, &req->wb_flags);
- 	smp_mb__after_atomic();
--	return wait_on_bit_lock(&head->wb_flags, PG_HEADLOCK,
-+	return wait_on_bit_lock(&req->wb_flags, PG_HEADLOCK,
- 				TASK_UNINTERRUPTIBLE);
- }
- 
- /*
-- * nfs_page_group_unlock - unlock the head of the page group
-- * @req - request in group that is to be unlocked
-+ * nfs_page_clear_headlock - clear the request PG_HEADLOCK
-+ * @req: request that is to be locked
-  */
- void
--nfs_page_group_unlock(struct nfs_page *req)
-+nfs_page_clear_headlock(struct nfs_page *req)
- {
--	struct nfs_page *head = req->wb_head;
--
--	WARN_ON_ONCE(head != head->wb_head);
--
- 	smp_mb__before_atomic();
--	clear_bit(PG_HEADLOCK, &head->wb_flags);
-+	clear_bit(PG_HEADLOCK, &req->wb_flags);
- 	smp_mb__after_atomic();
--	if (!test_bit(PG_CONTENDED1, &head->wb_flags))
-+	if (!test_bit(PG_CONTENDED1, &req->wb_flags))
- 		return;
--	wake_up_bit(&head->wb_flags, PG_HEADLOCK);
-+	wake_up_bit(&req->wb_flags, PG_HEADLOCK);
-+}
-+
-+/*
-+ * nfs_page_group_lock - lock the head of the page group
-+ * @req: request in group that is to be locked
-+ *
-+ * this lock must be held when traversing or modifying the page
-+ * group list
-+ *
-+ * return 0 on success, < 0 on error
-+ */
-+int
-+nfs_page_group_lock(struct nfs_page *req)
-+{
-+	int ret;
-+
-+	ret = nfs_page_set_headlock(req);
-+	if (ret || req->wb_head == req)
-+		return ret;
-+	return nfs_page_set_headlock(req->wb_head);
-+}
-+
-+/*
-+ * nfs_page_group_unlock - unlock the head of the page group
-+ * @req: request in group that is to be unlocked
-+ */
-+void
-+nfs_page_group_unlock(struct nfs_page *req)
-+{
-+	if (req != req->wb_head)
-+		nfs_page_clear_headlock(req->wb_head);
-+	nfs_page_clear_headlock(req);
- }
- 
- /*
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index 63d20308a9bb7..d419d89b91f7c 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -416,22 +416,28 @@ nfs_destroy_unlinked_subrequests(struct nfs_page *destroy_list,
- 		destroy_list = (subreq->wb_this_page == old_head) ?
- 				   NULL : subreq->wb_this_page;
- 
-+		/* Note: lock subreq in order to change subreq->wb_head */
-+		nfs_page_set_headlock(subreq);
- 		WARN_ON_ONCE(old_head != subreq->wb_head);
- 
- 		/* make sure old group is not used */
- 		subreq->wb_this_page = subreq;
-+		subreq->wb_head = subreq;
- 
- 		clear_bit(PG_REMOVE, &subreq->wb_flags);
- 
- 		/* Note: races with nfs_page_group_destroy() */
- 		if (!kref_read(&subreq->wb_kref)) {
- 			/* Check if we raced with nfs_page_group_destroy() */
--			if (test_and_clear_bit(PG_TEARDOWN, &subreq->wb_flags))
-+			if (test_and_clear_bit(PG_TEARDOWN, &subreq->wb_flags)) {
-+				nfs_page_clear_headlock(subreq);
- 				nfs_free_request(subreq);
-+			} else
-+				nfs_page_clear_headlock(subreq);
- 			continue;
- 		}
-+		nfs_page_clear_headlock(subreq);
- 
--		subreq->wb_head = subreq;
- 		nfs_release_request(old_head);
- 
- 		if (test_and_clear_bit(PG_INODE_REF, &subreq->wb_flags)) {
-diff --git a/include/linux/nfs_page.h b/include/linux/nfs_page.h
-index ad69430fd0eb5..5162fc1533c2f 100644
---- a/include/linux/nfs_page.h
-+++ b/include/linux/nfs_page.h
-@@ -142,6 +142,8 @@ extern	void nfs_unlock_and_release_request(struct nfs_page *);
- extern int nfs_page_group_lock(struct nfs_page *);
- extern void nfs_page_group_unlock(struct nfs_page *);
- extern bool nfs_page_group_sync_on_bit(struct nfs_page *, unsigned int);
-+extern	int nfs_page_set_headlock(struct nfs_page *req);
-+extern void nfs_page_clear_headlock(struct nfs_page *req);
- extern bool nfs_async_iocounter_wait(struct rpc_task *, struct nfs_lock_context *);
- 
- /*
+diff --git a/net/tipc/topsrv.c b/net/tipc/topsrv.c
+index 73dbed0c4b6b8..931c426673c02 100644
+--- a/net/tipc/topsrv.c
++++ b/net/tipc/topsrv.c
+@@ -400,7 +400,9 @@ static int tipc_conn_rcv_from_sock(struct tipc_conn *con)
+ 		return -EWOULDBLOCK;
+ 	if (ret == sizeof(s)) {
+ 		read_lock_bh(&sk->sk_callback_lock);
+-		ret = tipc_conn_rcv_sub(srv, con, &s);
++		/* RACE: the connection can be closed in the meantime */
++		if (likely(connected(con)))
++			ret = tipc_conn_rcv_sub(srv, con, &s);
+ 		read_unlock_bh(&sk->sk_callback_lock);
+ 		if (!ret)
+ 			return 0;
 -- 
 2.25.1
 
