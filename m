@@ -2,79 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E27BD27BDE7
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 09:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8B5B27BE19
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 09:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725787AbgI2HXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 03:23:47 -0400
-Received: from asavdk4.altibox.net ([109.247.116.15]:56528 "EHLO
-        asavdk4.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725779AbgI2HXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 03:23:47 -0400
-X-Greylist: delayed 347 seconds by postgrey-1.27 at vger.kernel.org; Tue, 29 Sep 2020 03:23:46 EDT
-Received: from ravnborg.org (unknown [188.228.123.71])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by asavdk4.altibox.net (Postfix) with ESMTPS id 08D27804E5;
-        Tue, 29 Sep 2020 09:17:55 +0200 (CEST)
-Date:   Tue, 29 Sep 2020 09:17:54 +0200
-From:   Sam Ravnborg <sam@ravnborg.org>
-To:     Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     dri-devel@lists.freedesktop.org, Heiko Stuebner <heiko@sntech.de>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org,
-        Sandy Huang <hjc@rock-chips.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v1 1/2] drm/rockchip: fix build due to undefined
- drm_gem_cma_vm_ops
-Message-ID: <20200929071754.GA736868@ravnborg.org>
-References: <20200925215524.2899527-1-sam@ravnborg.org>
- <20200925215524.2899527-2-sam@ravnborg.org>
- <83650213-3b09-aea0-4485-cd20de1d9548@suse.de>
+        id S1725536AbgI2Hgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 03:36:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57140 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725320AbgI2Hgn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 03:36:43 -0400
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97132C061755
+        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 00:36:43 -0700 (PDT)
+Received: by mail-qk1-x742.google.com with SMTP id d20so3455230qka.5
+        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 00:36:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=EDFuo1ZLyZiZTpAkIJbsaoCKkYRUaCkl5PLIzgD93/A=;
+        b=sld2fx1VQIDpohclVE6Cw7txVsXwvh/c2eSdeDv6c5MGeP5LN2gegYnqRRKu2u5mMu
+         PWRaJ+5B22cq73lU54r6l3AjL3qMUc0bha+I5hp3FTPdsMllm5kr3dzNqLvYpsoewVPy
+         TqO1NbjoQYUhkhb3x/LRqhnyv3TMGsgtgx8UpxrARR1f97ZM3gA7NQ5QU3FobbCX5NQk
+         gxZ7FemhIYYSeU7vA9jNtYNXJzKNhiubzTSvjW07+4S5R6tzD5RUJjAaLRZph35oU2fw
+         0dV9HUMwAl3KBHis11nawhQyvIYJ9Z+kro+Xp/fxaxebgAhV2VZmtPXalACj9F4pn915
+         SBHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=EDFuo1ZLyZiZTpAkIJbsaoCKkYRUaCkl5PLIzgD93/A=;
+        b=e2JNCseCO84hINTprfhsmEJJl0evfGNW5K+52vIg8qnkN6KCHqeGdOXsGPR8lKAF0U
+         8Shj/CiK2lHUDhXXAZnvRXMcsXSIChezXKepfscseP3REH84GsagkXszgQzNNx5jM9+8
+         52ErnNjrAiulp+pZN8v0kRyduTRnQnrCl5FrRCPFHRaOhDnJMiW7ywqv0+K8s/14mjCe
+         JZcspnU9jEM7BpZza7Pq712uEyfPAZL/7hOMjkKIAsoynfoFvbigB02OrgvYFg1FgPrt
+         3E49Jnn4utB0d3NKjwY7sFnYCiO46bQEl8H3hgJY+E12AZ6fZaBlOdO1/Z2M97UJ/SCq
+         wi2w==
+X-Gm-Message-State: AOAM5327cUfEn87qlG3mUrO5yzh4FQNjGOfyd9YIrR7Yi+2QwOxKYFMQ
+        cdK9ndIua7XcthAeAkrgUvXn+YUZEGwUTlglY3A=
+X-Google-Smtp-Source: ABdhPJxoXlL+qm8lH2skq/GLGK4HJdmJwjp5FkKovgYw7qiuKk7JMCsPUfnGxYF8WHyUzdt/8+voTdl2xc0OrU8Qu9s=
+X-Received: by 2002:a05:620a:4e7:: with SMTP id b7mr3222355qkh.415.1601365002716;
+ Tue, 29 Sep 2020 00:36:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <83650213-3b09-aea0-4485-cd20de1d9548@suse.de>
-X-CMAE-Score: 0
-X-CMAE-Analysis: v=2.3 cv=A5ZCwZeG c=1 sm=1 tr=0
-        a=S6zTFyMACwkrwXSdXUNehg==:117 a=S6zTFyMACwkrwXSdXUNehg==:17
-        a=IkcTkHD0fZMA:10 a=7gkXJVJtAAAA:8 a=nVws210Im4UeU8Tq7v4A:9
-        a=QEXdDO2ut3YA:10 a=E9Po1WZjFZOl8hwRPBS3:22
+Received: by 2002:ac8:4e48:0:0:0:0:0 with HTTP; Tue, 29 Sep 2020 00:36:42
+ -0700 (PDT)
+Reply-To: ulricamica@aol.com
+From:   Mrs Ulrica Mica <soudynoeline@gmail.com>
+Date:   Tue, 29 Sep 2020 00:36:42 -0700
+Message-ID: <CA+Yk4zMF+i5mTT6e99BzVwhFtnewX-PkMRWfvYx04-2exgU9WQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 29, 2020 at 08:53:06AM +0200, Thomas Zimmermann wrote:
-> Hi Sam
-> 
-> Am 25.09.20 um 23:55 schrieb Sam Ravnborg:
-> > Commit 0d590af3140d ("drm/rockchip: Convert to drm_gem_object_funcs")
-> > introduced the following build error:
-> > 
-> > rockchip_drm_gem.c:304:13: error: ‘drm_gem_cma_vm_ops’ undeclared here
-> >   304 |  .vm_ops = &drm_gem_cma_vm_ops,
-> >       |             ^~~~~~~~~~~~~~~~~~
-> >       |             drm_gem_mmap_obj
-> > 
-> > Fixed by adding missing include file.
-> > 
-> > Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-> 
-> Didn't you review exactly this change yesterday? Anyway, you should add
-Yep.
-
-> 
-> Fixes: 0d590af3140d ("drm/rockchip: Convert to drm_gem_object_funcs")
-> 
-> and
-> 
-> Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-> 
-> It might happen that I land my patch first, depending on the urgency of
-> the issue.
-I expect you to land the patch you made asap so we can have the build
-fixed again.
-
-
-	Sam
+-- 
+Hello Dear. How are you, I am Mrs Urlca Mica, Can we discuss?
