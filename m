@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7186327C3BD
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E89427C412
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728663AbgI2LIV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:08:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44314 "EHLO mail.kernel.org"
+        id S1728950AbgI2LLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:11:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728513AbgI2LGq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:06:46 -0400
+        id S1728899AbgI2LKo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:10:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B196621D46;
-        Tue, 29 Sep 2020 11:06:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6693221E7;
+        Tue, 29 Sep 2020 11:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377605;
-        bh=3T9CsaQ3l2wYOtqtsfLNFqmg+/ln9/Tg2eV+eIuG2Mw=;
+        s=default; t=1601377843;
+        bh=z9P05llSOK1BE4OuzBrnxM1RTArEo67X2fzkWvR9Lew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1btUoPcZ9ilEcwFxpj4Gme3Hc45Awcre0oZuuWC41/O78sE7n2SpiEOb6jJKnrgp+
-         GZ87R2UXmYnI9gbZQ1BoynEsVNquAbBjiQbDR/wvUOZdE/Z2sJ3hxegUAmWOMTOeuF
-         uljYrJfZiWJo2hdg3IDz2mVIQhY9YDWWWJ7PQNF0=
+        b=wQME6x8LdfrCBgSZH0TlEME5Jv9/fUcJ75vOYCdWVo9ywCHG+eYyvmdXS4K8Fk2ni
+         kjzjHB5Xifgwg05GqVoCIdsKQGOaQus25RZJ00xDRkSExoxmSHIUsEEetZm/39nGIf
+         wlY+VKDxjvJzxQ5uxK5315j7FKc1782lPLa5AEIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Ron Minnich <rminnich@google.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Xie XiuQi <xiexiuqi@huawei.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Hongbo Yao <yaohongbo@huawei.com>,
+        Jiri Olsa <jolsa@redhat.com>, Li Bin <huawei.libin@huawei.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 69/85] mtd: parser: cmdline: Support MTD names containing one or more colons
-Date:   Tue, 29 Sep 2020 13:00:36 +0200
-Message-Id: <20200929105931.665756933@linuxfoundation.org>
+Subject: [PATCH 4.9 093/121] perf util: Fix memory leak of prefix_if_not_in
+Date:   Tue, 29 Sep 2020 13:00:37 +0200
+Message-Id: <20200929105934.794999178@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <boris.brezillon@collabora.com>
+From: Xie XiuQi <xiexiuqi@huawei.com>
 
-[ Upstream commit eb13fa0227417e84aecc3bd9c029d376e33474d3 ]
+[ Upstream commit 07e9a6f538cbeecaf5c55b6f2991416f873cdcbd ]
 
-Looks like some drivers define MTD names with a colon in it, thus
-making mtdpart= parsing impossible. Let's fix the parser to gracefully
-handle that case: the last ':' in a partition definition sequence is
-considered instead of the first one.
+Need to free "str" before return when asprintf() failed to avoid memory
+leak.
 
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Ron Minnich <rminnich@google.com>
-Tested-by: Ron Minnich <rminnich@google.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Hongbo Yao <yaohongbo@huawei.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Li Bin <huawei.libin@huawei.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/20200521133218.30150-4-liwei391@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/cmdlinepart.c | 23 ++++++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
+ tools/perf/util/sort.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/cmdlinepart.c b/drivers/mtd/cmdlinepart.c
-index 08f62987cc37c..ffbc9b304beb2 100644
---- a/drivers/mtd/cmdlinepart.c
-+++ b/drivers/mtd/cmdlinepart.c
-@@ -228,12 +228,29 @@ static int mtdpart_setup_real(char *s)
- 		struct cmdline_mtd_partition *this_mtd;
- 		struct mtd_partition *parts;
- 		int mtd_id_len, num_parts;
--		char *p, *mtd_id;
-+		char *p, *mtd_id, *semicol;
-+
-+		/*
-+		 * Replace the first ';' by a NULL char so strrchr can work
-+		 * properly.
-+		 */
-+		semicol = strchr(s, ';');
-+		if (semicol)
-+			*semicol = '\0';
+diff --git a/tools/perf/util/sort.c b/tools/perf/util/sort.c
+index 031e64ce71564..013e3f5102258 100644
+--- a/tools/perf/util/sort.c
++++ b/tools/perf/util/sort.c
+@@ -2532,7 +2532,7 @@ static char *prefix_if_not_in(const char *pre, char *str)
+ 		return str;
  
- 		mtd_id = s;
+ 	if (asprintf(&n, "%s,%s", pre, str) < 0)
+-		return NULL;
++		n = NULL;
  
--		/* fetch <mtd-id> */
--		p = strchr(s, ':');
-+		/*
-+		 * fetch <mtd-id>. We use strrchr to ignore all ':' that could
-+		 * be present in the MTD name, only the last one is interpreted
-+		 * as an <mtd-id>/<part-definition> separator.
-+		 */
-+		p = strrchr(s, ':');
-+
-+		/* Restore the ';' now. */
-+		if (semicol)
-+			*semicol = ';';
-+
- 		if (!p) {
- 			pr_err("no mtd-id\n");
- 			return -EINVAL;
+ 	free(str);
+ 	return n;
 -- 
 2.25.1
 
