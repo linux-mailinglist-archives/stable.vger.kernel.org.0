@@ -2,94 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F8427CC15
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 013AA27CE48
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732846AbgI2MdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:33:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37340 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729206AbgI2LW5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:22:57 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D5D923A5F;
-        Tue, 29 Sep 2020 11:19:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378397;
-        bh=jsNYaKVgFHpLC/ktuWsKIVg7iwR9LxHLmxcBHAgJsHI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TI7ZDqx0XpMowAgSX5/bXIRAQfhNSAfMM8oEfzVn+uNIwg0B15BSwkN3a3rgjUoTk
-         SsGXinzBDFgrOGnQ6nwrgTN6OqrVmkbR7dm0fj3709HrQJXIzqVTLvbbyVXyULgaeQ
-         WKwZIV/XAhpCLo65qUocS8aaRQEBCdTPQexTBWec=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>, linux-ide@vger.kernel.org,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: [PATCH 4.14 166/166] ata: sata_mv, avoid trigerrable BUG_ON
-Date:   Tue, 29 Sep 2020 13:01:18 +0200
-Message-Id: <20200929105943.488679849@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1727495AbgI2M6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:58:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50850 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726431AbgI2M6G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 08:58:06 -0400
+Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D116AC061755
+        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 05:58:05 -0700 (PDT)
+Received: by mail-qv1-xf42.google.com with SMTP id b13so2188762qvl.2
+        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 05:58:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=nzh3zv1JvT51DHKWka/hB8gvItiKQBW3uHlERj+52ug=;
+        b=H/4CsnVkWPl+uykpWX4gCTufJyH+2nBpmLN254KoKLVK+w8ADjQh9fRufGB7YR4Zk0
+         cT20GwIXPLZN1XiZU5J87vfgOC3Z+WtzWBSksQOWP+ethSc03vnJxvdEpBtkLty463Zi
+         buo8B5tYeOnjq77+/YYBiwXmYnn7l4GqZ2CMo/e18rck5IqGCK1bKSYCD51O6ZzSvk/f
+         OBAny/hEhlBYH4pgtC3NXXoXMNCYILyCqQg8CAI8BkUUeca7w6xCVDfyC0B4N3cVlIky
+         khe6jMn97Kr5wQfNQQVmUmHCsHRg91Wq6DvMisVsJEotUcJnu3YBbQjU5iHowQHzMqMV
+         X0Xg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=nzh3zv1JvT51DHKWka/hB8gvItiKQBW3uHlERj+52ug=;
+        b=gFxtmZZP9zuBbXmA4fvPhy3XFGKGRRnaelTS59vAqbcp2mvi9nzRpeLFwaP8O1u1wC
+         f34qXvzwk7pvn4zPDhXnIVKGvJhBIgHGQcJg/hCYDs7Jbe1gRBfNF3o3LZr+d17/+yV8
+         hq2wikwJekLQMEa6qLB5m+AMA8kzJvKHFRm1Yd8qnsJKBKB1T4U3nktc0SB1ifoeGNpv
+         B2xeCIY0d8JXGef0hrzAmvHlyyN6Xty5HZ1td7ii3qKSHRh9CBk9uDBHqKpswg0zpSiC
+         L4Kp1PaulXq/iPGFvodjMGHlNddkJO0/hMlmKdtzpfYV3rmlXVxuBQN3yTF3o3Wly9Lw
+         Cj6A==
+X-Gm-Message-State: AOAM532ZisRKbMloEclusPa8SDkk2NKmgHk7r8yX/+AP4vIaWWlAVRS4
+        zEtin5agGC8EhrZQlwigtuWjl3lMBBfp7BCc
+X-Google-Smtp-Source: ABdhPJx6FKVGCobWjuuHLqvOPp3dPQmYxturWif6RW/dMAyStS4Nwx4LhRcFBuyqgTo9tXLnL/6DOg==
+X-Received: by 2002:a0c:8e47:: with SMTP id w7mr4291254qvb.18.1601384284993;
+        Tue, 29 Sep 2020 05:58:04 -0700 (PDT)
+Received: from maple.netwinder.org (rfs.netwinder.org. [206.248.184.2])
+        by smtp.gmail.com with ESMTPSA id m97sm5264431qte.55.2020.09.29.05.58.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Sep 2020 05:58:03 -0700 (PDT)
+From:   Ralph Siemsen <ralph.siemsen@linaro.org>
+To:     trivial@kernel.org, mel@csn.ul.ie
+Cc:     vinayakm.list@gmail.com, Ralph Siemsen <ralph.siemsen@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH]  Documentation/trace/postprocess/trace-pagealloc-postprocess.pl: fix the traceevent regex
+Date:   Tue, 29 Sep 2020 08:57:42 -0400
+Message-Id: <20200929125742.14770-1-ralph.siemsen@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+Similar to bd7278166aaf8b33da1a3ee437354e2ed88bf70f ("Documentation/
+trace/postprocess/trace-vmscan-postprocess.pl: fix the traceevent
+regex"), but applied to the trace-pagealoc-postprocess.pl script.
 
-commit e9f691d899188679746eeb96e6cb520459eda9b4 upstream.
+When irq, preempt and lockdep fields are printed (field 3 in the example
+below) in the trace output, the script fails.
 
-There are several reports that the BUG_ON on unsupported command in
-mv_qc_prep can be triggered under some circumstances:
-https://bugzilla.suse.com/show_bug.cgi?id=1110252
-https://serverfault.com/questions/888897/raid-problems-after-power-outage
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1652185
-https://bugs.centos.org/view.php?id=14998
+An example entry:
+  kswapd0-610   [000] ...1   158.112152: mm_vmscan_kswapd_wake: nid=0 order=0
 
-Let sata_mv handle the failure gracefully: warn about that incl. the
-failed command number and return an AC_ERR_INVALID error. We can do that
-now thanks to the previous patch.
-
-Remove also the long-standing FIXME.
-
-[v2] use %.2x as commands are defined as hexa.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: linux-ide@vger.kernel.org
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Ralph Siemsen <ralph.siemsen@linaro.org>
+Cc: stable@vger.kernel.org
+Change-Id: I07e0d6f52ae7bf1de5c4054fb2ad0cef85d18513
 ---
- drivers/ata/sata_mv.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ .../trace/postprocess/trace-pagealloc-postprocess.pl      | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/ata/sata_mv.c
-+++ b/drivers/ata/sata_mv.c
-@@ -2111,12 +2111,10 @@ static enum ata_completion_errors mv_qc_
- 		 * non-NCQ mode are: [RW] STREAM DMA and W DMA FUA EXT, none
- 		 * of which are defined/used by Linux.  If we get here, this
- 		 * driver needs work.
--		 *
--		 * FIXME: modify libata to give qc_prep a return value and
--		 * return error here.
- 		 */
--		BUG_ON(tf->command);
--		break;
-+		ata_port_err(ap, "%s: unsupported command: %.2x\n", __func__,
-+				tf->command);
-+		return AC_ERR_INVALID;
- 	}
- 	mv_crqb_pack_cmd(cw++, tf->nsect, ATA_REG_NSECT, 0);
- 	mv_crqb_pack_cmd(cw++, tf->hob_lbal, ATA_REG_LBAL, 0);
-
+diff --git a/Documentation/trace/postprocess/trace-pagealloc-postprocess.pl b/Documentation/trace/postprocess/trace-pagealloc-postprocess.pl
+index 0a120aae33ce..94efc7fb272e 100644
+--- a/Documentation/trace/postprocess/trace-pagealloc-postprocess.pl
++++ b/Documentation/trace/postprocess/trace-pagealloc-postprocess.pl
+@@ -84,7 +84,7 @@ my $regex_fragdetails;
+ 
+ # Static regex used. Specified like this for readability and for use with /o
+ #                      (process_pid)     (cpus      )   ( time  )   (tpoint    ) (details)
+-my $regex_traceevent = '\s*([a-zA-Z0-9-]*)\s*(\[[0-9]*\])\s*([0-9.]*):\s*([a-zA-Z_]*):\s*(.*)';
++my $regex_traceevent = '\s*([a-zA-Z0-9-]*)\s*(\[[0-9]*\])(\s*[dX.][Nnp.][Hhs.][0-9a-fA-F.]*|)\s*([0-9.]*):\s*([a-zA-Z_]*):\s*(.*)';
+ my $regex_statname = '[-0-9]*\s\((.*)\).*';
+ my $regex_statppid = '[-0-9]*\s\(.*\)\s[A-Za-z]\s([0-9]*).*';
+ 
+@@ -195,7 +195,7 @@ EVENT_PROCESS:
+ 	while ($traceevent = <STDIN>) {
+ 		if ($traceevent =~ /$regex_traceevent/o) {
+ 			$process_pid = $1;
+-			$tracepoint = $4;
++			$tracepoint = $5;
+ 
+ 			if ($opt_read_procstat || $opt_prepend_parent) {
+ 				$process_pid =~ /(.*)-([0-9]*)$/;
+@@ -215,7 +215,7 @@ EVENT_PROCESS:
+ 
+ 			# Unnecessary in this script. Uncomment if required
+ 			# $cpus = $2;
+-			# $timestamp = $3;
++			# $timestamp = $4;
+ 		} else {
+ 			next;
+ 		}
+@@ -236,7 +236,7 @@ EVENT_PROCESS:
+ 		} elsif ($tracepoint eq "mm_page_alloc_extfrag") {
+ 
+ 			# Extract the details of the event now
+-			$details = $5;
++			$details = $6;
+ 
+ 			my ($page, $pfn);
+ 			my ($alloc_order, $fallback_order, $pageblock_order);
+-- 
+2.17.1
 
