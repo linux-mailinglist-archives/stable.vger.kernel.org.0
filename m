@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7BC27C37B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDB3427C431
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728409AbgI2LGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:06:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42608 "EHLO mail.kernel.org"
+        id S1728493AbgI2LL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:11:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728380AbgI2LGD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:06:03 -0400
+        id S1729240AbgI2LLb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:11:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0C3A21D46;
-        Tue, 29 Sep 2020 11:06:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58F6F21924;
+        Tue, 29 Sep 2020 11:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377562;
-        bh=/ALTlSTTomaL7eHD2FljyEB1C+r2rap3GCaH24L+beM=;
+        s=default; t=1601377880;
+        bh=4XE1DWf9nEaI5nkMyoVhNtkeaLmFM9LshbFKtDEupbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2eDwT2F77KwWcgqaP49GIKI0kx2yqz+20cCOvcSRNmY0aOjpHnBoKr0oBNxlj8hN
-         PR/0vVI3+zlHRlT/3SQTsrOplwx0Pxy4byuRTfStPqb/w+uOP3kAZkwRWPE7g8OC11
-         KOQNBVyaxynxxQx71PWd0zYDFi2jhfw4bDI8Ud1M=
+        b=psfB7KjcHSf/bu6idl/YLS2BQ94msH+DJ1pOruH5v6X5Rf3wjxUojZzh8Xdy5Z3au
+         sKpfDSn7w+dE/46c5+ntG4ASpjCSVbx7NzXl622JZ28Ae8gIVFYSNFEqn7FOUTkuoX
+         HMXelI214tKChfUFetaIC9MMuOLqvOAJhF931wJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 78/85] ALSA: asihpi: fix iounmap in error handler
-Date:   Tue, 29 Sep 2020 13:00:45 +0200
-Message-Id: <20200929105932.095294562@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 105/121] objtool: Fix noreturn detection for ignored functions
+Date:   Tue, 29 Sep 2020 13:00:49 +0200
+Message-Id: <20200929105935.386215422@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 472eb39103e885f302fd8fd6eff104fcf5503f1b ]
+[ Upstream commit db6c6a0df840e3f52c84cc302cc1a08ba11a4416 ]
 
-clang static analysis flags this problem
-hpioctl.c:513:7: warning: Branch condition evaluates to
-  a garbage value
-                if (pci.ap_mem_base[idx]) {
-                    ^~~~~~~~~~~~~~~~~~~~
+When a function is annotated with STACK_FRAME_NON_STANDARD, objtool
+doesn't validate its code paths.  It also skips sibling call detection
+within the function.
 
-If there is a failure in the middle of the memory space loop,
-only some of the memory spaces need to be cleaned up.
+But sibling call detection is actually needed for the case where the
+ignored function doesn't have any return instructions.  Otherwise
+objtool naively marks the function as implicit static noreturn, which
+affects the reachability of its callers, resulting in "unreachable
+instruction" warnings.
 
-At the error handler, idx holds the number of successful
-memory spaces mapped.  So rework the handler loop to use the
-old idx.
+Fix it by just enabling sibling call detection for ignored functions.
+The 'insn->ignore' check in add_jump_destinations() is no longer needed
+after
 
-There is a second problem, the memory space loop conditionally
-iomaps()/sets the mem_base so it is necessay to initize pci.
+  e6da9567959e ("objtool: Don't use ignore flag for fake jumps").
 
-Fixes: 719f82d3987a ("ALSA: Add support of AudioScience ASI boards")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Link: https://lore.kernel.org/r/20200913165230.17166-1-trix@redhat.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes the following warning:
+
+  arch/x86/kvm/vmx/vmx.o: warning: objtool: vmx_handle_exit_irqoff()+0x142: unreachable instruction
+
+which triggers on an allmodconfig with CONFIG_GCOV_KERNEL unset.
+
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lkml.kernel.org/r/5b1e2536cdbaa5246b60d7791b76130a74082c62.1599751464.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/asihpi/hpioctl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/objtool/check.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/asihpi/hpioctl.c b/sound/pci/asihpi/hpioctl.c
-index 7a32abbe0cef8..4bdcb7443b1f5 100644
---- a/sound/pci/asihpi/hpioctl.c
-+++ b/sound/pci/asihpi/hpioctl.c
-@@ -346,7 +346,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
- 	struct hpi_message hm;
- 	struct hpi_response hr;
- 	struct hpi_adapter adapter;
--	struct hpi_pci pci;
-+	struct hpi_pci pci = { 0 };
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index c7399d7f4bc77..31c512f19662e 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -502,7 +502,7 @@ static int add_jump_destinations(struct objtool_file *file)
+ 		    insn->type != INSN_JUMP_UNCONDITIONAL)
+ 			continue;
  
- 	memset(&adapter, 0, sizeof(adapter));
+-		if (insn->ignore || insn->offset == FAKE_JUMP_OFFSET)
++		if (insn->offset == FAKE_JUMP_OFFSET)
+ 			continue;
  
-@@ -502,7 +502,7 @@ int asihpi_adapter_probe(struct pci_dev *pci_dev,
- 	return 0;
- 
- err:
--	for (idx = 0; idx < HPI_MAX_ADAPTER_MEM_SPACES; idx++) {
-+	while (--idx >= 0) {
- 		if (pci.ap_mem_base[idx]) {
- 			iounmap(pci.ap_mem_base[idx]);
- 			pci.ap_mem_base[idx] = NULL;
+ 		rela = find_rela_by_dest_range(insn->sec, insn->offset,
 -- 
 2.25.1
 
