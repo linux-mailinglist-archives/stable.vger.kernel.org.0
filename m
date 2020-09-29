@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B478027CC8E
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:37:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A6DA27CC60
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728786AbgI2MhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:37:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37340 "EHLO mail.kernel.org"
+        id S1729721AbgI2Mfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:35:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729486AbgI2LU6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:20:58 -0400
+        id S1729516AbgI2LVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:21:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32F112395A;
-        Tue, 29 Sep 2020 11:18:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDFA823976;
+        Tue, 29 Sep 2020 11:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378329;
-        bh=g0g8js2g58QMBPozju3ghyMNyjPxgzjchUVAoHycwlo=;
+        s=default; t=1601378332;
+        bh=Cf7xS9Ye16I/rRbwdQS5QMVl486jyUqcJUXvbPZiT30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfYLokDxCpzZ7z6zscsbhpUTirE8HdD3nnAKUFwdJJkMB/rgkmBTty6eYZs/z8YV4
-         dgSgkZTMU6a+TqjNWwtUAaLdQn6aG347uqN4bhu10l+Msh7s7PpuO+E/UKOGxPQZOY
-         6iMK6Vof8AHBrdnDQpVPnr5wZ8z7XYQd1FGxHQmU=
+        b=O4XhHp8CFI17K3cbTP9BMXkImEWkY7fdV4EB6ZLG9RX0yk4+Uad9TtfxIQDAKtpzP
+         qfeBDWV4fwR6qDav9bCA2OyT3asOawrDrMufoaMhooIjskVBLFSGNnywaKl0Ny6FD/
+         Pz5zTw1+iKsfYp48QYuGK4im401fw1xYoLB+jYoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 142/166] btrfs: qgroup: fix data leak caused by race between writeback and truncate
-Date:   Tue, 29 Sep 2020 13:00:54 +0200
-Message-Id: <20200929105942.284255358@linuxfoundation.org>
+Subject: [PATCH 4.14 143/166] s390/init: add missing __init annotations
+Date:   Tue, 29 Sep 2020 13:00:55 +0200
+Message-Id: <20200929105942.336462640@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -43,116 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit fa91e4aa1716004ea8096d5185ec0451e206aea0 ]
+[ Upstream commit fcb2b70cdb194157678fb1a75f9ff499aeba3d2a ]
 
-[BUG]
-When running tests like generic/013 on test device with btrfs quota
-enabled, it can normally lead to data leak, detected at unmount time:
+Add __init to reserve_memory_end, reserve_oldmem and remove_oldmem.
+Sometimes these functions are not inlined, and then the build
+complains about section mismatch.
 
-  BTRFS warning (device dm-3): qgroup 0/5 has unreleased space, type 0 rsv 4096
-  ------------[ cut here ]------------
-  WARNING: CPU: 11 PID: 16386 at fs/btrfs/disk-io.c:4142 close_ctree+0x1dc/0x323 [btrfs]
-  RIP: 0010:close_ctree+0x1dc/0x323 [btrfs]
-  Call Trace:
-   btrfs_put_super+0x15/0x17 [btrfs]
-   generic_shutdown_super+0x72/0x110
-   kill_anon_super+0x18/0x30
-   btrfs_kill_super+0x17/0x30 [btrfs]
-   deactivate_locked_super+0x3b/0xa0
-   deactivate_super+0x40/0x50
-   cleanup_mnt+0x135/0x190
-   __cleanup_mnt+0x12/0x20
-   task_work_run+0x64/0xb0
-   __prepare_exit_to_usermode+0x1bc/0x1c0
-   __syscall_return_slowpath+0x47/0x230
-   do_syscall_64+0x64/0xb0
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  ---[ end trace caf08beafeca2392 ]---
-  BTRFS error (device dm-3): qgroup reserved space leaked
-
-[CAUSE]
-In the offending case, the offending operations are:
-2/6: writev f2X[269 1 0 0 0 0] [1006997,67,288] 0
-2/7: truncate f2X[269 1 0 0 48 1026293] 18388 0
-
-The following sequence of events could happen after the writev():
-	CPU1 (writeback)		|		CPU2 (truncate)
------------------------------------------------------------------
-btrfs_writepages()			|
-|- extent_write_cache_pages()		|
-   |- Got page for 1003520		|
-   |  1003520 is Dirty, no writeback	|
-   |  So (!clear_page_dirty_for_io())   |
-   |  gets called for it		|
-   |- Now page 1003520 is Clean.	|
-   |					| btrfs_setattr()
-   |					| |- btrfs_setsize()
-   |					|    |- truncate_setsize()
-   |					|       New i_size is 18388
-   |- __extent_writepage()		|
-   |  |- page_offset() > i_size		|
-      |- btrfs_invalidatepage()		|
-	 |- Page is clean, so no qgroup |
-	    callback executed
-
-This means, the qgroup reserved data space is not properly released in
-btrfs_invalidatepage() as the page is Clean.
-
-[FIX]
-Instead of checking the dirty bit of a page, call
-btrfs_qgroup_free_data() unconditionally in btrfs_invalidatepage().
-
-As qgroup rsv are completely bound to the QGROUP_RESERVED bit of
-io_tree, not bound to page status, thus we won't cause double freeing
-anyway.
-
-Fixes: 0b34c261e235 ("btrfs: qgroup: Prevent qgroup->reserved from going subzero")
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ arch/s390/kernel/setup.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 17856e92b93d1..c9e7b92d0f212 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -9204,20 +9204,17 @@ again:
- 	/*
- 	 * Qgroup reserved space handler
- 	 * Page here will be either
--	 * 1) Already written to disk
--	 *    In this case, its reserved space is released from data rsv map
--	 *    and will be freed by delayed_ref handler finally.
--	 *    So even we call qgroup_free_data(), it won't decrease reserved
--	 *    space.
--	 * 2) Not written to disk
--	 *    This means the reserved space should be freed here. However,
--	 *    if a truncate invalidates the page (by clearing PageDirty)
--	 *    and the page is accounted for while allocating extent
--	 *    in btrfs_check_data_free_space() we let delayed_ref to
--	 *    free the entire extent.
-+	 * 1) Already written to disk or ordered extent already submitted
-+	 *    Then its QGROUP_RESERVED bit in io_tree is already cleaned.
-+	 *    Qgroup will be handled by its qgroup_record then.
-+	 *    btrfs_qgroup_free_data() call will do nothing here.
-+	 *
-+	 * 2) Not written to disk yet
-+	 *    Then btrfs_qgroup_free_data() call will clear the QGROUP_RESERVED
-+	 *    bit of its io_tree, and free the qgroup reserved data space.
-+	 *    Since the IO will never happen for this page.
- 	 */
--	if (PageDirty(page))
--		btrfs_qgroup_free_data(inode, NULL, page_start, PAGE_SIZE);
-+	btrfs_qgroup_free_data(inode, NULL, page_start, PAGE_SIZE);
- 	if (!inode_evicting) {
- 		clear_extent_bit(tree, page_start, page_end,
- 				 EXTENT_LOCKED | EXTENT_DIRTY |
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 5c2558cc6977a..42025e33a4e07 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -540,7 +540,7 @@ static struct notifier_block kdump_mem_nb = {
+ /*
+  * Make sure that the area behind memory_end is protected
+  */
+-static void reserve_memory_end(void)
++static void __init reserve_memory_end(void)
+ {
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (ipl_info.type == IPL_TYPE_FCP_DUMP &&
+@@ -558,7 +558,7 @@ static void reserve_memory_end(void)
+ /*
+  * Make sure that oldmem, where the dump is stored, is protected
+  */
+-static void reserve_oldmem(void)
++static void __init reserve_oldmem(void)
+ {
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (OLDMEM_BASE)
+@@ -570,7 +570,7 @@ static void reserve_oldmem(void)
+ /*
+  * Make sure that oldmem, where the dump is stored, is protected
+  */
+-static void remove_oldmem(void)
++static void __init remove_oldmem(void)
+ {
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (OLDMEM_BASE)
 -- 
 2.25.1
 
