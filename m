@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B60DE27C779
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:54:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A74427C722
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730712AbgI2Lpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:45:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
+        id S1731232AbgI2Lvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:51:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729724AbgI2Lp1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:45:27 -0400
+        id S1731119AbgI2LsQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:48:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F40CA206E5;
-        Tue, 29 Sep 2020 11:45:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EB85206F7;
+        Tue, 29 Sep 2020 11:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379926;
-        bh=3G74lMHIvO2jqUSsc3xQbKaOeDcz4Un0sJZvzINicxY=;
+        s=default; t=1601380095;
+        bh=dHLNmb2pX13O08CVrF8T285nOhi98ZB73yvaJnTPrSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aevQEA4//fERMFZsgnzHxuQu4RY0/DHPscVXNq5fVlP+Fr+Gn7YlF8pY7Lu1SaWaO
-         vZ0ypJQqg+mL+K9TMIYIJSNPtgVj0w9pU1EXT+2yggwGltgi/ugfLJIJ8fHHcBcut/
-         b16UrwP36KpZd5MmVGPuqKL5G+neaCUGEPkFmGXQ=
+        b=FzxNCPmhd8/QG3ka7zG55J4kQ3xbf5WAsc2E+VRHxjj9+gJDIVMkTwA+Mim+7fbOt
+         YNv1007PLrnZHuUwQoCi6xWpCfG7gKdECv6QYowFZ5qA54Ru9V5j0ECmhVG2hbNCNq
+         +mKP9ZPXFQNe/ssNPseTGIJa8Bp+w6mox8o2LAEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 377/388] kprobes: tracing/kprobes: Fix to kill kprobes on initmem after boot
-Date:   Tue, 29 Sep 2020 13:01:48 +0200
-Message-Id: <20200929110028.712621169@linuxfoundation.org>
+        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 66/99] regulator: axp20x: fix LDO2/4 description
+Date:   Tue, 29 Sep 2020 13:01:49 +0200
+Message-Id: <20200929105932.980715248@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,104 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Icenowy Zheng <icenowy@aosc.io>
 
-commit 82d083ab60c3693201c6f5c7a5f23a6ed422098d upstream.
+[ Upstream commit fbb5a79d2fe7b01c6424fbbc04368373b1672d61 ]
 
-Since kprobe_event= cmdline option allows user to put kprobes on the
-functions in initmem, kprobe has to make such probes gone after boot.
-Currently the probes on the init functions in modules will be handled
-by module callback, but the kernel init text isn't handled.
-Without this, kprobes may access non-exist text area to disable or
-remove it.
+Currently we wrongly set the mask of value of LDO2/4 both to the mask of
+LDO2, and the LDO4 voltage configuration is left untouched. This leads
+to conflict when LDO2/4 are both in use.
 
-Link: https://lkml.kernel.org/r/159972810544.428528.1839307531600646955.stgit@devnote2
+Fix this issue by setting different vsel_mask to both regulators.
 
-Fixes: 970988e19eb0 ("tracing/kprobe: Add kprobe_event= boot parameter")
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: db4a555f7c4c ("regulator: axp20x: use defines for masks")
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Link: https://lore.kernel.org/r/20200923005142.147135-1-icenowy@aosc.io
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kprobes.h |    5 +++++
- init/main.c             |    2 ++
- kernel/kprobes.c        |   22 ++++++++++++++++++++++
- 3 files changed, 29 insertions(+)
+ drivers/regulator/axp20x-regulator.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/include/linux/kprobes.h
-+++ b/include/linux/kprobes.h
-@@ -369,6 +369,8 @@ void unregister_kretprobes(struct kretpr
- void kprobe_flush_task(struct task_struct *tk);
- void recycle_rp_inst(struct kretprobe_instance *ri, struct hlist_head *head);
+diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
+index fbc95cadaf539..126649c172e11 100644
+--- a/drivers/regulator/axp20x-regulator.c
++++ b/drivers/regulator/axp20x-regulator.c
+@@ -42,8 +42,9 @@
  
-+void kprobe_free_init_mem(void);
-+
- int disable_kprobe(struct kprobe *kp);
- int enable_kprobe(struct kprobe *kp);
+ #define AXP20X_DCDC2_V_OUT_MASK		GENMASK(5, 0)
+ #define AXP20X_DCDC3_V_OUT_MASK		GENMASK(7, 0)
+-#define AXP20X_LDO24_V_OUT_MASK		GENMASK(7, 4)
++#define AXP20X_LDO2_V_OUT_MASK		GENMASK(7, 4)
+ #define AXP20X_LDO3_V_OUT_MASK		GENMASK(6, 0)
++#define AXP20X_LDO4_V_OUT_MASK		GENMASK(3, 0)
+ #define AXP20X_LDO5_V_OUT_MASK		GENMASK(7, 4)
  
-@@ -426,6 +428,9 @@ static inline void unregister_kretprobes
- static inline void kprobe_flush_task(struct task_struct *tk)
- {
- }
-+static inline void kprobe_free_init_mem(void)
-+{
-+}
- static inline int disable_kprobe(struct kprobe *kp)
- {
- 	return -ENOSYS;
---- a/init/main.c
-+++ b/init/main.c
-@@ -32,6 +32,7 @@
- #include <linux/nmi.h>
- #include <linux/percpu.h>
- #include <linux/kmod.h>
-+#include <linux/kprobes.h>
- #include <linux/vmalloc.h>
- #include <linux/kernel_stat.h>
- #include <linux/start_kernel.h>
-@@ -1111,6 +1112,7 @@ static int __ref kernel_init(void *unuse
- 	kernel_init_freeable();
- 	/* need to finish all async __init code before freeing the memory */
- 	async_synchronize_full();
-+	kprobe_free_init_mem();
- 	ftrace_free_init_mem();
- 	free_initmem();
- 	mark_readonly();
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2309,6 +2309,28 @@ static struct notifier_block kprobe_modu
- extern unsigned long __start_kprobe_blacklist[];
- extern unsigned long __stop_kprobe_blacklist[];
- 
-+void kprobe_free_init_mem(void)
-+{
-+	void *start = (void *)(&__init_begin);
-+	void *end = (void *)(&__init_end);
-+	struct hlist_head *head;
-+	struct kprobe *p;
-+	int i;
-+
-+	mutex_lock(&kprobe_mutex);
-+
-+	/* Kill all kprobes on initmem */
-+	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
-+		head = &kprobe_table[i];
-+		hlist_for_each_entry(p, head, hlist) {
-+			if (start <= (void *)p->addr && (void *)p->addr < end)
-+				kill_kprobe(p);
-+		}
-+	}
-+
-+	mutex_unlock(&kprobe_mutex);
-+}
-+
- static int __init init_kprobes(void)
- {
- 	int i, err = 0;
+ #define AXP20X_PWR_OUT_EXTEN_MASK	BIT_MASK(0)
+@@ -542,14 +543,14 @@ static const struct regulator_desc axp20x_regulators[] = {
+ 		 AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_DCDC3_MASK),
+ 	AXP_DESC_FIXED(AXP20X, LDO1, "ldo1", "acin", 1300),
+ 	AXP_DESC(AXP20X, LDO2, "ldo2", "ldo24in", 1800, 3300, 100,
+-		 AXP20X_LDO24_V_OUT, AXP20X_LDO24_V_OUT_MASK,
++		 AXP20X_LDO24_V_OUT, AXP20X_LDO2_V_OUT_MASK,
+ 		 AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_LDO2_MASK),
+ 	AXP_DESC(AXP20X, LDO3, "ldo3", "ldo3in", 700, 3500, 25,
+ 		 AXP20X_LDO3_V_OUT, AXP20X_LDO3_V_OUT_MASK,
+ 		 AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_LDO3_MASK),
+ 	AXP_DESC_RANGES(AXP20X, LDO4, "ldo4", "ldo24in",
+ 			axp20x_ldo4_ranges, AXP20X_LDO4_V_OUT_NUM_VOLTAGES,
+-			AXP20X_LDO24_V_OUT, AXP20X_LDO24_V_OUT_MASK,
++			AXP20X_LDO24_V_OUT, AXP20X_LDO4_V_OUT_MASK,
+ 			AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_LDO4_MASK),
+ 	AXP_DESC_IO(AXP20X, LDO5, "ldo5", "ldo5in", 1800, 3300, 100,
+ 		    AXP20X_LDO5_V_OUT, AXP20X_LDO5_V_OUT_MASK,
+-- 
+2.25.1
+
 
 
