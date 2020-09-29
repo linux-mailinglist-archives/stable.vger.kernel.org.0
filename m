@@ -2,111 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCA4827BD62
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 08:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D90727BD64
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 08:53:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725536AbgI2Gwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 02:52:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59440 "EHLO mail.kernel.org"
+        id S1725784AbgI2GxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 02:53:12 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49006 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725306AbgI2Gwl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 02:52:41 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72184206B7;
-        Tue, 29 Sep 2020 06:52:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601362361;
-        bh=6KqVFDoYR/Ej4IVjg3AKvUD6uYoOzhctINwi+ieMatQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yhT7FELKUxc9KgxZ0qhglyD6nQB2+kKuq+NjurV4NqUrwHMpecx+oCwslztPLEM5Z
-         kj3sSG7tYf7NPd4QbX/EEj8/lt4FpmJzWOfxlDmkE6S8WMO5duTvFb7VXOlqR9e2ls
-         ZvX5SVevYQ7DLpDKkevFqpCfu/8lesk5ZL3jUYKk=
-Date:   Tue, 29 Sep 2020 08:52:47 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Masami Hiramatsu <mhiramat@kernel.org>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>
-Subject: Re: [PATCH 4.19 38/92] kprobes: Fix NULL pointer dereference at
- kprobe_ftrace_handler
-Message-ID: <20200929065247.GB2439787@kroah.com>
-References: <20200820091537.490965042@linuxfoundation.org>
- <20200820091539.592290034@linuxfoundation.org>
- <CA+G9fYvdQv2Ukvs-UKiEgYaDdBthsWsY=35cQ4YpvMhA0hU5Gg@mail.gmail.com>
- <20200928180942.100aa6c8@oasis.local.home>
- <20200928181535.56d7b2cb@oasis.local.home>
- <20200929144954.56090c5eeb5a36e1f552b315@kernel.org>
+        id S1725535AbgI2GxM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 02:53:12 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id C20E5AA55;
+        Tue, 29 Sep 2020 06:53:10 +0000 (UTC)
+Subject: Re: [PATCH v1 1/2] drm/rockchip: fix build due to undefined
+ drm_gem_cma_vm_ops
+To:     Sam Ravnborg <sam@ravnborg.org>, dri-devel@lists.freedesktop.org,
+        Heiko Stuebner <heiko@sntech.de>
+Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org,
+        Sandy Huang <hjc@rock-chips.com>, stable@vger.kernel.org
+References: <20200925215524.2899527-1-sam@ravnborg.org>
+ <20200925215524.2899527-2-sam@ravnborg.org>
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <83650213-3b09-aea0-4485-cd20de1d9548@suse.de>
+Date:   Tue, 29 Sep 2020 08:53:06 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200929144954.56090c5eeb5a36e1f552b315@kernel.org>
+In-Reply-To: <20200925215524.2899527-2-sam@ravnborg.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="6YHHtMbT7KHuJuTcxyCa8HKASYuntrLh1"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 29, 2020 at 02:49:54PM +0900, Masami Hiramatsu wrote:
-> Hi,
-> 
-> On Mon, 28 Sep 2020 18:15:35 -0400
-> Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> > On Mon, 28 Sep 2020 18:09:42 -0400
-> > Steven Rostedt <rostedt@goodmis.org> wrote:
-> > 
-> > > On Tue, 29 Sep 2020 01:32:59 +0530
-> > > Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> > > 
-> > > > stable rc branch 4.19 build warning on arm64.
-> > > > 
-> > > > ../kernel/kprobes.c: In function ‘kill_kprobe’:
-> > > > ../kernel/kprobes.c:1070:33: warning: statement with no effect [-Wunused-value]
-> > > >  1070 | #define disarm_kprobe_ftrace(p) (-ENODEV)
-> > > >       |                                 ^
-> > > > ../kernel/kprobes.c:2090:3: note: in expansion of macro ‘disarm_kprobe_ftrace’
-> > > >  2090 |   disarm_kprobe_ftrace(p);
-> > > >       |   ^~~~~~~~~~~~~~~~~~~~  
-> > > 
-> > > Seems to affect upstream as well.
-> > > 
-> > 
-> > Bah, no (tested the wrong kernel).
-> > 
-> > You want this commit too:
-> > 
-> > 10de795a5addd ("kprobes: Fix compiler warning for !CONFIG_KPROBES_ON_FTRACE")
-> 
-> It seems that this commit's Fixes tag is wrong.
-> 
-> ae6aa16fdc163 (Masami Hiramatsu           2012-06-05 19:28:32 +0900 1079) #define prepare_kprobe(p)     arch_prepare_kprobe(p)
-> 12310e3437554 (Jessica Yu                 2018-01-10 00:51:23 +0100 1080) #define arm_kprobe_ftrace(p)  (-ENODEV)
-> 297f9233b53a0 (Jessica Yu                 2018-01-10 00:51:24 +0100 1081) #define disarm_kprobe_ftrace(p)       (-ENODEV)
-> 
-> Thus, it should have "Fixes: 297f9233b53a ("kprobes: Propagate error from disarm_kprobe_ftrace()")"
-> 
-> $ git tag -l --contains 297f9233b53a | grep "^v[[:digit:].]*$" | cut -f1-2 -d. | uniq
-> v4.16
-> v4.17
-> v4.18
-> v4.19
-> v4.20
-> v5.0
-> v5.1
-> v5.2
-> v5.3
-> v5.4
-> v5.5
-> v5.6
-> v5.7
-> v5.8
-> 
-> So the commit 10de795a5addd must be backported to 4.19.y and 5.4.y.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--6YHHtMbT7KHuJuTcxyCa8HKASYuntrLh1
+Content-Type: multipart/mixed; boundary="a4Uvht4Eoz86hwhsz3CYNBhxRUzoaASBQ";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Sam Ravnborg <sam@ravnborg.org>, dri-devel@lists.freedesktop.org,
+ Heiko Stuebner <heiko@sntech.de>
+Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+ linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org,
+ Sandy Huang <hjc@rock-chips.com>, stable@vger.kernel.org
+Message-ID: <83650213-3b09-aea0-4485-cd20de1d9548@suse.de>
+Subject: Re: [PATCH v1 1/2] drm/rockchip: fix build due to undefined
+ drm_gem_cma_vm_ops
+References: <20200925215524.2899527-1-sam@ravnborg.org>
+ <20200925215524.2899527-2-sam@ravnborg.org>
+In-Reply-To: <20200925215524.2899527-2-sam@ravnborg.org>
 
-Now queued up, thanks.
+--a4Uvht4Eoz86hwhsz3CYNBhxRUzoaASBQ
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-greg k-h
+Hi Sam
+
+Am 25.09.20 um 23:55 schrieb Sam Ravnborg:
+> Commit 0d590af3140d ("drm/rockchip: Convert to drm_gem_object_funcs")
+> introduced the following build error:
+>=20
+> rockchip_drm_gem.c:304:13: error: =E2=80=98drm_gem_cma_vm_ops=E2=80=99 =
+undeclared here
+>   304 |  .vm_ops =3D &drm_gem_cma_vm_ops,
+>       |             ^~~~~~~~~~~~~~~~~~
+>       |             drm_gem_mmap_obj
+>=20
+> Fixed by adding missing include file.
+>=20
+> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+
+Didn't you review exactly this change yesterday? Anyway, you should add
+
+Fixes: 0d590af3140d ("drm/rockchip: Convert to drm_gem_object_funcs")
+
+and
+
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+
+It might happen that I land my patch first, depending on the urgency of
+the issue.
+
+Best regards
+Thomas
+
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: Sandy Huang <hjc@rock-chips.com>
+> Cc: "Heiko St=C3=BCbner" <heiko@sntech.de>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-rockchip@lists.infradead.org
+> ---
+>  drivers/gpu/drm/rockchip/rockchip_drm_gem.c | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_gem.c b/drivers/gpu/=
+drm/rockchip/rockchip_drm_gem.c
+> index bb3578469b03..6da15faf0192 100644
+> --- a/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
+> +++ b/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
+> @@ -10,6 +10,7 @@
+> =20
+>  #include <drm/drm.h>
+>  #include <drm/drm_gem.h>
+> +#include <drm/drm_gem_cma_helper.h>
+>  #include <drm/drm_prime.h>
+>  #include <drm/drm_vma_manager.h>
+> =20
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--a4Uvht4Eoz86hwhsz3CYNBhxRUzoaASBQ--
+
+--6YHHtMbT7KHuJuTcxyCa8HKASYuntrLh1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQFIBAEBCAAyFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl9y2dUUHHR6aW1tZXJt
+YW5uQHN1c2UuZGUACgkQaA3BHVMLeiOlhgf8DYDzFCpHX12ZpZHqFk3OQ9J9L89O
+pGoo9DVE8T363kMseRMt4gjR/MqCz6x9iaQj5Eh+9wFomogly/P4dIiZvuWXT4qI
+siLNbwiRT9VC3a4BqsI+bU938ftr+0fTV4J9BqVCr/arFBKhKldyofvXYtJK2stm
+58BPLvKLF9C7aORDCFA8+YMTgIuIALOtr9k6+W3K9PqcC1oG7QdvK8Yv7cop2hI3
+hD+j0qqPtI20sDcqEm2zs3vt6qMLSqvd29n3ax27FMu862XIp3n+d7v6qWhK67L8
+EdEoRjJG1gFjZ5fEzhMCs+iH16OrfKAicd6sYApBCgr4rq1obJmkLjlTzA==
+=qy3O
+-----END PGP SIGNATURE-----
+
+--6YHHtMbT7KHuJuTcxyCa8HKASYuntrLh1--
