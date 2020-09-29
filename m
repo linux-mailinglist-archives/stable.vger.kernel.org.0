@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61F1C27B996
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:32:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D237727B993
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727729AbgI2Bb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 21:31:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40922 "EHLO mail.kernel.org"
+        id S1727709AbgI2Bbt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 21:31:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727686AbgI2Bbm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 21:31:42 -0400
+        id S1727695AbgI2Bbn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 21:31:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3A63239EB;
-        Tue, 29 Sep 2020 01:31:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3254322262;
+        Tue, 29 Sep 2020 01:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343101;
-        bh=Ak6GE/liPjRXz6MnM8+Df0zDvcpb/b6eeWLGNki6Xa0=;
+        s=default; t=1601343102;
+        bh=BzMNSrDRWu5PHra6SIrk//x0rIMv7+Gij9DQf6TWKqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sM4Y4rxHAGc2bkp6vLVUeIPT0p8bX+Lnag0H8tTUFCBl+qgoiwOpEy22LMeh4kTvA
-         v1i+SUMehrY21ej4pO4hbIcuQdWIKrhZqQEh6fRt+v/ej/V5IAg+45vf/vMfA5n6ne
-         wiJ5i2R2xAELWJxXXPn5T9AarAXhEANWAGoyjCoM=
+        b=iWjRT9e6tVPiWOg1vyLTt+s5Hicrvsp3YMS0mle+JQwvVIxF00C2oVhbzgrPwhZl7
+         tI6kcnQO6VS5mryk2IEeFhIE+kQoYlA8YD5Pz81OnhOakwzLfwpomg9OGAutKQUmvH
+         4+ZvzRmYHnlKc/1qKkgk9S+IqZwBteuRRg+i/z9g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 09/11] mac80211: do not allow bigger VHT MPDUs than the hardware supports
-Date:   Mon, 28 Sep 2020 21:31:27 -0400
-Message-Id: <20200929013129.2406832-9-sashal@kernel.org>
+Cc:     Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 10/11] spi: fsl-espi: Only process interrupts for expected events
+Date:   Mon, 28 Sep 2020 21:31:28 -0400
+Message-Id: <20200929013129.2406832-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013129.2406832-1-sashal@kernel.org>
 References: <20200929013129.2406832-1-sashal@kernel.org>
@@ -43,46 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit 3bd5c7a28a7c3aba07a2d300d43f8e988809e147 ]
+[ Upstream commit b867eef4cf548cd9541225aadcdcee644669b9e1 ]
 
-Limit maximum VHT MPDU size by local capability.
+The SPIE register contains counts for the TX FIFO so any time the irq
+handler was invoked we would attempt to process the RX/TX fifos. Use the
+SPIM value to mask the events so that we only process interrupts that
+were expected.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20200917125031.45009-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+This was a latent issue exposed by commit 3282a3da25bd ("powerpc/64:
+Implement soft interrupt replay in C").
+
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20200904002812.7300-1-chris.packham@alliedtelesis.co.nz
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/vht.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/spi/spi-fsl-espi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/vht.c b/net/mac80211/vht.c
-index 259325cbcc314..4d154efb80c88 100644
---- a/net/mac80211/vht.c
-+++ b/net/mac80211/vht.c
-@@ -170,10 +170,7 @@ ieee80211_vht_cap_ie_to_sta_vht_cap(struct ieee80211_sub_if_data *sdata,
- 	/* take some capabilities as-is */
- 	cap_info = le32_to_cpu(vht_cap_ie->vht_cap_info);
- 	vht_cap->cap = cap_info;
--	vht_cap->cap &= IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_3895 |
--			IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_7991 |
--			IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_11454 |
--			IEEE80211_VHT_CAP_RXLDPC |
-+	vht_cap->cap &= IEEE80211_VHT_CAP_RXLDPC |
- 			IEEE80211_VHT_CAP_VHT_TXOP_PS |
- 			IEEE80211_VHT_CAP_HTC_VHT |
- 			IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_MASK |
-@@ -182,6 +179,9 @@ ieee80211_vht_cap_ie_to_sta_vht_cap(struct ieee80211_sub_if_data *sdata,
- 			IEEE80211_VHT_CAP_RX_ANTENNA_PATTERN |
- 			IEEE80211_VHT_CAP_TX_ANTENNA_PATTERN;
+diff --git a/drivers/spi/spi-fsl-espi.c b/drivers/spi/spi-fsl-espi.c
+index 1e8ff6256079f..b8dd75b8518b5 100644
+--- a/drivers/spi/spi-fsl-espi.c
++++ b/drivers/spi/spi-fsl-espi.c
+@@ -559,13 +559,14 @@ static void fsl_espi_cpu_irq(struct fsl_espi *espi, u32 events)
+ static irqreturn_t fsl_espi_irq(s32 irq, void *context_data)
+ {
+ 	struct fsl_espi *espi = context_data;
+-	u32 events;
++	u32 events, mask;
  
-+	vht_cap->cap |= min_t(u32, cap_info & IEEE80211_VHT_CAP_MAX_MPDU_MASK,
-+			      own_cap.cap & IEEE80211_VHT_CAP_MAX_MPDU_MASK);
-+
- 	/* and some based on our own capabilities */
- 	switch (own_cap.cap & IEEE80211_VHT_CAP_SUPP_CHAN_WIDTH_MASK) {
- 	case IEEE80211_VHT_CAP_SUPP_CHAN_WIDTH_160MHZ:
+ 	spin_lock(&espi->lock);
+ 
+ 	/* Get interrupt events(tx/rx) */
+ 	events = fsl_espi_read_reg(espi, ESPI_SPIE);
+-	if (!events) {
++	mask = fsl_espi_read_reg(espi, ESPI_SPIM);
++	if (!(events & mask)) {
+ 		spin_unlock(&espi->lock);
+ 		return IRQ_NONE;
+ 	}
 -- 
 2.25.1
 
