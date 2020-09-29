@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E06A27CD08
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5522B27CBBA
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733092AbgI2MlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:41:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56356 "EHLO mail.kernel.org"
+        id S1727650AbgI2MaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:30:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729389AbgI2LNr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:13:47 -0400
+        id S1729237AbgI2LaX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:30:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0090721924;
-        Tue, 29 Sep 2020 11:13:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0582623ACA;
+        Tue, 29 Sep 2020 11:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378026;
-        bh=yqRipaG9eyydr+dy1Kt9Iuj9ECa+KtOXIpqR2On9Yu0=;
+        s=default; t=1601378675;
+        bh=+pU0invXC4/YrAgQHq5Xiv0cJU+MIJEVjntsabr4JjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQ4S2ZWeL+BEtAIbbCXdtcCAG+9mXkvgtVChP3YFUOrfqoWRdcXK3W/koNsKIoAao
-         wuBqso0sMGA3Gq+NfckwZhrQ7cVYk14OP/Dqf+IVshwpEXV9NiO5MZj2DTX8cTmK+o
-         5LqKSn8mP/cfKQvWGnvST/n4gYM/QbE5jAFVVHho=
+        b=BzVtX/LjvtrE3wMo1pb+BoNy8Umf4/NYfYjAkGIH9TA/R3RiceTAEklfxpjSyaZHy
+         5rdf5dj9luDKDW+ZQw+TmB5xu3uH0/6RrOGNVv2UfkJ+QhZvzyMN0wzc8O0QXzNs0E
+         yL+a3bMinIOX2nbnEKW/YSIkVLHgpI7rWxOv5LI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 036/166] xfs: fix attr leaf header freemap.size underflow
-Date:   Tue, 29 Sep 2020 12:59:08 +0200
-Message-Id: <20200929105937.007738158@linuxfoundation.org>
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 098/245] ext4: fix a data race at inode->i_disksize
+Date:   Tue, 29 Sep 2020 12:59:09 +0200
+Message-Id: <20200929105951.767336502@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-[ Upstream commit 2a2b5932db67586bacc560cc065d62faece5b996 ]
+[ Upstream commit dce8e237100f60c28cc66effb526ba65a01d8cb3 ]
 
-The leaf format xattr addition helper xfs_attr3_leaf_add_work()
-adjusts the block freemap in a couple places. The first update drops
-the size of the freemap that the caller had already selected to
-place the xattr name/value data. Before the function returns, it
-also checks whether the entries array has encroached on a freemap
-range by virtue of the new entry addition. This is necessary because
-the entries array grows from the start of the block (but end of the
-block header) towards the end of the block while the name/value data
-grows from the end of the block in the opposite direction. If the
-associated freemap is already empty, however, size is zero and the
-subtraction underflows the field and causes corruption.
+KCSAN find inode->i_disksize could be accessed concurrently.
 
-This is reproduced rarely by generic/070. The observed behavior is
-that a smaller sized freemap is aligned to the end of the entries
-list, several subsequent xattr additions land in larger freemaps and
-the entries list expands into the smaller freemap until it is fully
-consumed and then underflows. Note that it is not otherwise a
-corruption for the entries array to consume an empty freemap because
-the nameval list (i.e. the firstused pointer in the xattr header)
-starts beyond the end of the corrupted freemap.
+BUG: KCSAN: data-race in ext4_mark_iloc_dirty / ext4_write_end
 
-Update the freemap size modification to account for the fact that
-the freemap entry can be empty and thus stale.
+write (marked) to 0xffff8b8932f40090 of 8 bytes by task 66792 on cpu 0:
+ ext4_write_end+0x53f/0x5b0
+ ext4_da_write_end+0x237/0x510
+ generic_perform_write+0x1c4/0x2a0
+ ext4_buffered_write_iter+0x13a/0x210
+ ext4_file_write_iter+0xe2/0x9b0
+ new_sync_write+0x29c/0x3a0
+ __vfs_write+0x92/0xa0
+ vfs_write+0xfc/0x2a0
+ ksys_write+0xe8/0x140
+ __x64_sys_write+0x4c/0x60
+ do_syscall_64+0x8a/0x2a0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+read to 0xffff8b8932f40090 of 8 bytes by task 14414 on cpu 1:
+ ext4_mark_iloc_dirty+0x716/0x1190
+ ext4_mark_inode_dirty+0xc9/0x360
+ ext4_convert_unwritten_extents+0x1bc/0x2a0
+ ext4_convert_unwritten_io_end_vec+0xc5/0x150
+ ext4_put_io_end+0x82/0x130
+ ext4_writepages+0xae7/0x16f0
+ do_writepages+0x64/0x120
+ __writeback_single_inode+0x7d/0x650
+ writeback_sb_inodes+0x3a4/0x860
+ __writeback_inodes_wb+0xc4/0x150
+ wb_writeback+0x43f/0x510
+ wb_workfn+0x3b2/0x8a0
+ process_one_work+0x39b/0x7e0
+ worker_thread+0x88/0x650
+ kthread+0x1d4/0x1f0
+ ret_from_fork+0x35/0x40
+
+The plain read is outside of inode->i_data_sem critical section
+which results in a data race. Fix it by adding READ_ONCE().
+
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Link: https://lore.kernel.org/r/1582556566-3909-1-git-send-email-hqjagain@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ext4/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
-index 299d17b088e21..facb83031ba77 100644
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -1335,7 +1335,9 @@ xfs_attr3_leaf_add_work(
- 	for (i = 0; i < XFS_ATTR_LEAF_MAPSIZE; i++) {
- 		if (ichdr->freemap[i].base == tmp) {
- 			ichdr->freemap[i].base += sizeof(xfs_attr_leaf_entry_t);
--			ichdr->freemap[i].size -= sizeof(xfs_attr_leaf_entry_t);
-+			ichdr->freemap[i].size -=
-+				min_t(uint16_t, ichdr->freemap[i].size,
-+						sizeof(xfs_attr_leaf_entry_t));
- 		}
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index cd833f4e64ef1..52be4c9650241 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5315,7 +5315,7 @@ static int ext4_do_update_inode(handle_t *handle,
+ 		raw_inode->i_file_acl_high =
+ 			cpu_to_le16(ei->i_file_acl >> 32);
+ 	raw_inode->i_file_acl_lo = cpu_to_le32(ei->i_file_acl);
+-	if (ei->i_disksize != ext4_isize(inode->i_sb, raw_inode)) {
++	if (READ_ONCE(ei->i_disksize) != ext4_isize(inode->i_sb, raw_inode)) {
+ 		ext4_isize_set(raw_inode, ei->i_disksize);
+ 		need_datasync = 1;
  	}
- 	ichdr->usedbytes += xfs_attr_leaf_entsize(leaf, args->index);
 -- 
 2.25.1
 
