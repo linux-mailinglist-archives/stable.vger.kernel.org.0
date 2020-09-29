@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC66327B9B9
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFDC327B9D5
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:34:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727427AbgI2Bc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 21:32:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41824 "EHLO mail.kernel.org"
+        id S1727976AbgI2Bda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 21:33:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727764AbgI2BcI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 21:32:08 -0400
+        id S1727763AbgI2BcH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 21:32:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2678922262;
-        Tue, 29 Sep 2020 01:31:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEEDA22204;
+        Tue, 29 Sep 2020 01:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343116;
-        bh=DxmXQ0Tdp39gX86Jbi3MkEGmk5C1zYx5p0z3mnIsGPM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nNP4JzzwiUhRsajLCmo+uqgcnV5tSyeWg4Ez8dGLxFIzj0fa9+x12cTdZ2NyTQFP2
-         LY/n/Pd6DPopT8Fp8QxhPnhv8V9Q93pWiGc1+m6HqereTFa6jUD8gU/Swv1vRD0VdC
-         Jh0huIg82yItOGfoSLszVKoegDjKSvrn7y+jZsnw=
+        s=default; t=1601343119;
+        bh=omDmb/EHkfaofnfyWtsh79Yx1RS9yvzCCe9Y5cUMIIs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hr7N6wSzJ4VjjGCK8H0/jiAvFF32k0WzYLmQaqkqV4ahPMcpSb8zofFjtK0DTURcx
+         cjygfLNkeDr/GoNd+8tO4Ssry8XGK2L4aEB6n3nA7uVqWJSOdSfuK6m+i03ODQQe1e
+         COnVunG549U2FmOosOWguYzbfAdncAErjotg/6mI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <james.smart@broadcom.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 9/9] nvme-fc: fail new connections to a deleted host or remote port
-Date:   Mon, 28 Sep 2020 21:31:44 -0400
-Message-Id: <20200929013144.2406985-9-sashal@kernel.org>
+Cc:     Lucy Yan <lucyyan@google.com>, Moritz Fischer <mdf@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 1/5] net: dec: de2104x: Increase receive ring size for Tulip
+Date:   Mon, 28 Sep 2020 21:31:53 -0400
+Message-Id: <20200929013157.2407108-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200929013144.2406985-1-sashal@kernel.org>
-References: <20200929013144.2406985-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,47 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <james.smart@broadcom.com>
+From: Lucy Yan <lucyyan@google.com>
 
-[ Upstream commit 9e0e8dac985d4bd07d9e62922b9d189d3ca2fccf ]
+[ Upstream commit ee460417d254d941dfea5fb7cff841f589643992 ]
 
-The lldd may have made calls to delete a remote port or local port and
-the delete is in progress when the cli then attempts to create a new
-controller. Currently, this proceeds without error although it can't be
-very successful.
+Increase Rx ring size to address issue where hardware is reaching
+the receive work limit.
 
-Fix this by validating that both the host port and remote port are
-present when a new controller is to be created.
+Before:
 
-Signed-off-by: James Smart <james.smart@broadcom.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[  102.223342] de2104x 0000:17:00.0 eth0: rx work limit reached
+[  102.245695] de2104x 0000:17:00.0 eth0: rx work limit reached
+[  102.251387] de2104x 0000:17:00.0 eth0: rx work limit reached
+[  102.267444] de2104x 0000:17:00.0 eth0: rx work limit reached
+
+Signed-off-by: Lucy Yan <lucyyan@google.com>
+Reviewed-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/dec/tulip/de2104x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index e95d2f75713e1..7e3f3055a6777 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -3012,12 +3012,14 @@ nvme_fc_create_ctrl(struct device *dev, struct nvmf_ctrl_options *opts)
- 	spin_lock_irqsave(&nvme_fc_lock, flags);
- 	list_for_each_entry(lport, &nvme_fc_lport_list, port_list) {
- 		if (lport->localport.node_name != laddr.nn ||
--		    lport->localport.port_name != laddr.pn)
-+		    lport->localport.port_name != laddr.pn ||
-+		    lport->localport.port_state != FC_OBJSTATE_ONLINE)
- 			continue;
+diff --git a/drivers/net/ethernet/dec/tulip/de2104x.c b/drivers/net/ethernet/dec/tulip/de2104x.c
+index cadcee645f74e..11ce50a057998 100644
+--- a/drivers/net/ethernet/dec/tulip/de2104x.c
++++ b/drivers/net/ethernet/dec/tulip/de2104x.c
+@@ -91,7 +91,7 @@ MODULE_PARM_DESC (rx_copybreak, "de2104x Breakpoint at which Rx packets are copi
+ #define DSL			CONFIG_DE2104X_DSL
+ #endif
  
- 		list_for_each_entry(rport, &lport->endp_list, endp_list) {
- 			if (rport->remoteport.node_name != raddr.nn ||
--			    rport->remoteport.port_name != raddr.pn)
-+			    rport->remoteport.port_name != raddr.pn ||
-+			    rport->remoteport.port_state != FC_OBJSTATE_ONLINE)
- 				continue;
- 
- 			/* if fail to get reference fall through. Will error */
+-#define DE_RX_RING_SIZE		64
++#define DE_RX_RING_SIZE		128
+ #define DE_TX_RING_SIZE		64
+ #define DE_RING_BYTES		\
+ 		((sizeof(struct de_desc) * DE_RX_RING_SIZE) +	\
 -- 
 2.25.1
 
