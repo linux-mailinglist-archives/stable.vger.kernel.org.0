@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0FBA27C671
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F25E27C707
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730302AbgI2LpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:45:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44930 "EHLO mail.kernel.org"
+        id S1731000AbgI2Lus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:50:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730945AbgI2LpP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:45:15 -0400
+        id S1731037AbgI2LtM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:49:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3FDB20702;
-        Tue, 29 Sep 2020 11:45:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89F482074A;
+        Tue, 29 Sep 2020 11:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379913;
-        bh=Fjd+qrSiNHS4O9k0/sEotJDUizzL/aeCH1SIYodH7jM=;
+        s=default; t=1601380152;
+        bh=AFAdwoIEJTwGbByHoooi5FVhgMdgQhCj+7xs7rhiyAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4gFzcp0XA/47AKRHl/OANSDb3eeFMKe+g74rsXlT1MYDbNO1+9o2OGnHXoIcIsxy
-         QSnIA1xS0+hRpz1Fbl3ujyxCtsxq9OTuDZH3UL5h9YA2ezPG+uHkM3dqE+imVuPJYY
-         vohG2ubB+3erHo1kqH/eRy+sZWQgLcVouQjQKUI0=
+        b=mU1NyLM+twgmVDz74zaFTp6CQVbTs1E+eMMGxhLhed2q/xrG8Q4Z0uZ8YbCUpjsGw
+         srVIBDDSH18WPY2UJ6MZwL4ULqivmNAticgbwFR2Zhx7xYo+3RbmZskkv/P3UMb366
+         FJFlzxZcie7b1ssa4+MLArhIO6GaZWA8vLpMALp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 372/388] ALSA: hda/realtek: Enable front panel headset LED on Lenovo ThinkStation P520
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 60/99] regmap: fix page selection for noinc reads
 Date:   Tue, 29 Sep 2020 13:01:43 +0200
-Message-Id: <20200929110028.473436978@linuxfoundation.org>
+Message-Id: <20200929105932.682229460@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit f73bbf639b32acb6b409e188fdde5644b301978f upstream.
+[ Upstream commit 4003324856311faebb46cbd56a1616bd3f3b67c2 ]
 
-On Lenovo P520, the front panel headset LED isn't lit up right now.
+Non-incrementing reads can fail if register + length crosses page
+border. However for non-incrementing reads we should not check for page
+border crossing. Fix this by passing additional flag to _regmap_raw_read
+and passing length to _regmap_select_page basing on the flag.
 
-Realtek states that the LED needs to be enabled by ALC233's GPIO2, so
-let's do it accordingly to light the LED up.
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Acked-by: Hui Wang <hui.wang@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200914070231.13192-1-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 74fe7b551f33 ("regmap: Add regmap_noinc_read API")
+Link: https://lore.kernel.org/r/20200917153405.3139200-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/base/regmap/regmap.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6036,6 +6036,7 @@ static void alc_fixup_thinkpad_acpi(stru
- #include "hp_x360_helper.c"
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 795a62a040220..71a3e1d1e3be8 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -2455,7 +2455,7 @@ int regmap_raw_write_async(struct regmap *map, unsigned int reg,
+ EXPORT_SYMBOL_GPL(regmap_raw_write_async);
  
- enum {
-+	ALC269_FIXUP_GPIO2,
- 	ALC269_FIXUP_SONY_VAIO,
- 	ALC275_FIXUP_SONY_VAIO_GPIO2,
- 	ALC269_FIXUP_DELL_M101Z,
-@@ -6217,6 +6218,10 @@ enum {
- };
+ static int _regmap_raw_read(struct regmap *map, unsigned int reg, void *val,
+-			    unsigned int val_len)
++			    unsigned int val_len, bool noinc)
+ {
+ 	struct regmap_range_node *range;
+ 	int ret;
+@@ -2468,7 +2468,7 @@ static int _regmap_raw_read(struct regmap *map, unsigned int reg, void *val,
+ 	range = _regmap_range_lookup(map, reg);
+ 	if (range) {
+ 		ret = _regmap_select_page(map, &reg, range,
+-					  val_len / map->format.val_bytes);
++					  noinc ? 1 : val_len / map->format.val_bytes);
+ 		if (ret != 0)
+ 			return ret;
+ 	}
+@@ -2506,7 +2506,7 @@ static int _regmap_bus_read(void *context, unsigned int reg,
+ 	if (!map->format.parse_val)
+ 		return -EINVAL;
  
- static const struct hda_fixup alc269_fixups[] = {
-+	[ALC269_FIXUP_GPIO2] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc_fixup_gpio2,
-+	},
- 	[ALC269_FIXUP_SONY_VAIO] = {
- 		.type = HDA_FIXUP_PINCTLS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -7036,6 +7041,8 @@ static const struct hda_fixup alc269_fix
- 	[ALC233_FIXUP_LENOVO_MULTI_CODECS] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc233_alc662_fixup_lenovo_dual_codecs,
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_GPIO2
- 	},
- 	[ALC233_FIXUP_ACER_HEADSET_MIC] = {
- 		.type = HDA_FIXUP_VERBS,
+-	ret = _regmap_raw_read(map, reg, work_val, map->format.val_bytes);
++	ret = _regmap_raw_read(map, reg, work_val, map->format.val_bytes, false);
+ 	if (ret == 0)
+ 		*val = map->format.parse_val(work_val);
+ 
+@@ -2622,7 +2622,7 @@ int regmap_raw_read(struct regmap *map, unsigned int reg, void *val,
+ 
+ 		/* Read bytes that fit into whole chunks */
+ 		for (i = 0; i < chunk_count; i++) {
+-			ret = _regmap_raw_read(map, reg, val, chunk_bytes);
++			ret = _regmap_raw_read(map, reg, val, chunk_bytes, false);
+ 			if (ret != 0)
+ 				goto out;
+ 
+@@ -2633,7 +2633,7 @@ int regmap_raw_read(struct regmap *map, unsigned int reg, void *val,
+ 
+ 		/* Read remaining bytes */
+ 		if (val_len) {
+-			ret = _regmap_raw_read(map, reg, val, val_len);
++			ret = _regmap_raw_read(map, reg, val, val_len, false);
+ 			if (ret != 0)
+ 				goto out;
+ 		}
+@@ -2708,7 +2708,7 @@ int regmap_noinc_read(struct regmap *map, unsigned int reg,
+ 			read_len = map->max_raw_read;
+ 		else
+ 			read_len = val_len;
+-		ret = _regmap_raw_read(map, reg, val, read_len);
++		ret = _regmap_raw_read(map, reg, val, read_len, true);
+ 		if (ret)
+ 			goto out_unlock;
+ 		val = ((u8 *)val) + read_len;
+-- 
+2.25.1
+
 
 
