@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FF2227C37D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78FD927C37C
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728434AbgI2LGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:06:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42458 "EHLO mail.kernel.org"
+        id S1728416AbgI2LGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:06:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728806AbgI2LF5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:05:57 -0400
+        id S1728376AbgI2LGA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:06:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47AA121941;
-        Tue, 29 Sep 2020 11:05:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 231CE21D43;
+        Tue, 29 Sep 2020 11:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377556;
-        bh=1KKzDc20o8aDiN1xzsaNGjip393iEygRX8kvP7uo80Y=;
+        s=default; t=1601377559;
+        bh=qvdzGrCdpR/msg3CcRf0BZHpDkIJbQyWbMMnvIg9k3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cOw8kkgBiKfe0QajkLEai50DzhqZUQy6xgH87NuBkShTl4zXuWHYnlDbJisQZlfd5
-         Kw/+yRzMk4FeocOWUOsyLOfLAjsY/cA1pqzpRWCppoHNdY0eOQ0Roe5MjsZkT78nyB
-         njLjBkz7ETC8MEEGPb52vjcbRf8T6cEWkcYetEZI=
+        b=xqFx9FuG+kt2YEbuRfoQto/7+5sw70cm4Fso43TNrdbdnsDm8psr3omMj1OqcMIV+
+         QMLHZQ2hlVzrHkHWIumF0sBcfccG0CBEYx3qKdRytj4WGNpoiJR/lBNoGl0VMu+B5j
+         t7KvWAakH5EzxDkhWKloXgV+Rtc49B5PimiT6MWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 76/85] atm: eni: fix the missed pci_disable_device() for eni_init_one()
-Date:   Tue, 29 Sep 2020 13:00:43 +0200
-Message-Id: <20200929105931.995203053@linuxfoundation.org>
+Subject: [PATCH 4.4 77/85] batman-adv: mcast/TT: fix wrongly dropped or rerouted packets
+Date:   Tue, 29 Sep 2020 13:00:44 +0200
+Message-Id: <20200929105932.043179957@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
 References: <20200929105928.198942536@linuxfoundation.org>
@@ -43,34 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-[ Upstream commit c2b947879ca320ac5505c6c29a731ff17da5e805 ]
+[ Upstream commit 7dda5b3384121181c4e79f6eaeac2b94c0622c8d ]
 
-eni_init_one() misses to call pci_disable_device() in an error path.
-Jump to err_disable to fix it.
+The unicast packet rerouting code makes several assumptions. For
+instance it assumes that there is always exactly one destination in the
+TT. This breaks for multicast frames in a unicast packets in several ways:
 
-Fixes: ede58ef28e10 ("atm: remove deprecated use of pci api")
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+For one thing if there is actually no TT entry and the destination node
+was selected due to the multicast tvlv flags it announced. Then an
+intermediate node will wrongly drop the packet.
+
+For another thing if there is a TT entry but the TTVN of this entry is
+newer than the originally addressed destination node: Then the
+intermediate node will wrongly redirect the packet, leading to
+duplicated multicast packets at a multicast listener and missing
+packets at other multicast listeners or multicast routers.
+
+Fixing this by not applying the unicast packet rerouting to batman-adv
+unicast packets with a multicast payload. We are not able to detect a
+roaming multicast listener at the moment and will just continue to send
+the multicast frame to both the new and old destination for a while in
+case of such a roaming multicast listener.
+
+Fixes: a73105b8d4c7 ("batman-adv: improved client announcement mechanism")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/eni.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/batman-adv/routing.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
-index ad591a2f7c822..340a1ee79d280 100644
---- a/drivers/atm/eni.c
-+++ b/drivers/atm/eni.c
-@@ -2242,7 +2242,7 @@ static int eni_init_one(struct pci_dev *pci_dev,
+diff --git a/net/batman-adv/routing.c b/net/batman-adv/routing.c
+index b3e8b0e3073c2..e470410abb44d 100644
+--- a/net/batman-adv/routing.c
++++ b/net/batman-adv/routing.c
+@@ -782,6 +782,10 @@ static int batadv_check_unicast_ttvn(struct batadv_priv *bat_priv,
+ 	vid = batadv_get_vid(skb, hdr_len);
+ 	ethhdr = (struct ethhdr *)(skb->data + hdr_len);
  
- 	rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(32));
- 	if (rc < 0)
--		goto out;
-+		goto err_disable;
- 
- 	rc = -ENOMEM;
- 	eni_dev = kmalloc(sizeof(struct eni_dev), GFP_KERNEL);
++	/* do not reroute multicast frames in a unicast header */
++	if (is_multicast_ether_addr(ethhdr->h_dest))
++		return true;
++
+ 	/* check if the destination client was served by this node and it is now
+ 	 * roaming. In this case, it means that the node has got a ROAM_ADV
+ 	 * message and that it knows the new destination in the mesh to re-route
 -- 
 2.25.1
 
