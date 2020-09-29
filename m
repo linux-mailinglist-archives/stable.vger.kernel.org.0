@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E2C027CBBE
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C60BA27CBBB
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732293AbgI2MaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:30:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43248 "EHLO mail.kernel.org"
+        id S1732173AbgI2MaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:30:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728911AbgI2LaW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728925AbgI2LaW (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:30:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7B2C23AC4;
-        Tue, 29 Sep 2020 11:24:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97B8223AC6;
+        Tue, 29 Sep 2020 11:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378664;
-        bh=ImTRKb94lE3xeBXXwJj20T94jw7cV/krNVNyYknpLAU=;
+        s=default; t=1601378667;
+        bh=AShoZ/zcsQ+0JyFsrrHuJ43dI7sw9OdznJeA6RIcGJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=da9dgVPH8AWr7URLSsCuPfuY/tS62+90u1HgsG2JtdCMS5khQOUPQAv8X3cItxYTD
-         PsNEKhFX6PklODsx6Lxq81Mv2EHmvXzVqMCK96HaNkY3URjFwgyhMtLcOin4HvO5FC
-         ItZTxuZwX5MRpSiC10uvuMDDd7KhKxFhSY39MLp4=
+        b=K0vnL5UsgW7zaCdCoJQF7WqPux8WaHxjhb8SI1zmgPWvPUx9gUJ+IaGlVUSR6bomQ
+         cPhSBuQzLLvh1k1VfzdOU3t88lU02th0dgRIsadkkV/W+qZbXHzAN8nc3+7IVxslh1
+         37nVEwByFAPq78he99yQDlWOCHUNwpWlccx3CKZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Wei Xu <xuwei5@hisilicon.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 094/245] bus: hisi_lpc: Fixup IO ports addresses to avoid use-after-free in host removal
-Date:   Tue, 29 Sep 2020 12:59:05 +0200
-Message-Id: <20200929105951.568329213@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        =?UTF-8?q?Josef=20M=C3=B6llers?= <josef.moellers@suse.com>
+Subject: [PATCH 4.19 095/245] media: go7007: Fix URB type for interrupt handling
+Date:   Tue, 29 Sep 2020 12:59:06 +0200
+Message-Id: <20200929105951.620667140@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -42,146 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit a6dd255bdd7d00bbdbf78ba00bde9fc64f86c3a7 ]
+[ Upstream commit a3ea410cac41b19a5490aad7fe6d9a9a772e646e ]
 
-Some released ACPI FW for Huawei boards describes incorrect the port IO
-address range for child devices, in that it tells us the IO port max range
-is 0x3fff for each child device, which is not correct. The address range
-should be [e4:e8) or similar. With this incorrect upper range, the child
-device IO port resources overlap.
+Josef reported that his old-and-good Plextor ConvertX M402U video
+converter spews lots of WARNINGs on the recent kernels, and it turned
+out that the device uses a bulk endpoint for interrupt handling just
+like 2250 board.
 
-As such, the kernel thinks that the LPC host serial device is a child of
-the IPMI device:
+For fixing it, generalize the check with the proper verification of
+the endpoint instead of hard-coded board type check.
 
-root@(none)$ more /proc/ioports
-[...]
-00ffc0e3-00ffffff : hisi-lpc-ipmi.0.auto
-  00ffc0e3-00ffc0e3 : ipmi_si
-  00ffc0e4-00ffc0e4 : ipmi_si
-  00ffc0e5-00ffc0e5 : ipmi_si
-  00ffc2f7-00ffffff : serial8250.1.auto
-    00ffc2f7-00ffc2fe : serial
-root@(none)$
+Fixes: 7e5219d18e93 ("[media] go7007: Fix 2250 urb type")
+Reported-and-tested-by: Josef Möllers <josef.moellers@suse.com>
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1162583
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206427
 
-They should both be siblings. Note that these are logical PIO addresses,
-which have a direct mapping from the FW IO port ranges.
-
-This shows up as a real issue when we enable CONFIG_KASAN and
-CONFIG_DEBUG_TEST_DRIVER_REMOVE - we see use-after-free warnings in the
-host removal path:
-
-==================================================================
-BUG: KASAN: use-after-free in release_resource+0x38/0xc8
-Read of size 8 at addr ffff0026accdbc38 by task swapper/0/1
-
-CPU: 2 PID: 1 Comm: swapper/0 Not tainted 5.5.0-rc6-00001-g68e186e77b5c-dirty #1593
-Hardware name: Huawei Taishan 2180 /D03, BIOS Hisilicon D03 IT20 Nemo 2.0 RC0 03/30/2018
-Call trace:
-dump_backtrace+0x0/0x290
-show_stack+0x14/0x20
-dump_stack+0xf0/0x14c
-print_address_description.isra.9+0x6c/0x3b8
-__kasan_report+0x12c/0x23c
-kasan_report+0xc/0x18
-__asan_load8+0x94/0xb8
-release_resource+0x38/0xc8
-platform_device_del.part.10+0x80/0xe0
-platform_device_unregister+0x20/0x38
-hisi_lpc_acpi_remove_subdev+0x10/0x20
-device_for_each_child+0xc8/0x128
-hisi_lpc_acpi_remove+0x4c/0xa8
-hisi_lpc_remove+0xbc/0xc0
-platform_drv_remove+0x3c/0x68
-really_probe+0x174/0x548
-driver_probe_device+0x7c/0x148
-device_driver_attach+0x94/0xa0
-__driver_attach+0xa4/0x110
-bus_for_each_dev+0xe8/0x158
-driver_attach+0x30/0x40
-bus_add_driver+0x234/0x2f0
-driver_register+0xbc/0x1d0
-__platform_driver_register+0x7c/0x88
-hisi_lpc_driver_init+0x18/0x20
-do_one_initcall+0xb4/0x258
-kernel_init_freeable+0x248/0x2c0
-kernel_init+0x10/0x118
-ret_from_fork+0x10/0x1c
-
-...
-
-The issue here is that the kernel created an incorrect parent-child
-resource dependency between two devices, and references the false parent
-node when deleting the second child device, when it had been deleted
-already.
-
-Fix up the child device resources from FW to create proper IO port
-resource relationships for broken FW.
-
-With this, the IO port layout looks more healthy:
-
-root@(none)$ more /proc/ioports
-[...]
-00ffc0e3-00ffc0e7 : hisi-lpc-ipmi.0.auto
-  00ffc0e3-00ffc0e3 : ipmi_si
-  00ffc0e4-00ffc0e4 : ipmi_si
-  00ffc0e5-00ffc0e5 : ipmi_si
-00ffc2f7-00ffc2ff : serial8250.1.auto
-  00ffc2f7-00ffc2fe : serial
-
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/hisi_lpc.c | 27 +++++++++++++++++++++++++--
- 1 file changed, 25 insertions(+), 2 deletions(-)
+ drivers/media/usb/go7007/go7007-usb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/hisi_lpc.c b/drivers/bus/hisi_lpc.c
-index e31c02dc77709..cbd970fb02f18 100644
---- a/drivers/bus/hisi_lpc.c
-+++ b/drivers/bus/hisi_lpc.c
-@@ -358,6 +358,26 @@ static int hisi_lpc_acpi_xlat_io_res(struct acpi_device *adev,
- 	return 0;
- }
+diff --git a/drivers/media/usb/go7007/go7007-usb.c b/drivers/media/usb/go7007/go7007-usb.c
+index 19c6a0354ce00..b84a6f6548610 100644
+--- a/drivers/media/usb/go7007/go7007-usb.c
++++ b/drivers/media/usb/go7007/go7007-usb.c
+@@ -1052,6 +1052,7 @@ static int go7007_usb_probe(struct usb_interface *intf,
+ 	struct go7007_usb *usb;
+ 	const struct go7007_usb_board *board;
+ 	struct usb_device *usbdev = interface_to_usbdev(intf);
++	struct usb_host_endpoint *ep;
+ 	unsigned num_i2c_devs;
+ 	char *name;
+ 	int video_pipe, i, v_urb_len;
+@@ -1148,7 +1149,8 @@ static int go7007_usb_probe(struct usb_interface *intf,
+ 	if (usb->intr_urb->transfer_buffer == NULL)
+ 		goto allocfail;
  
-+/*
-+ * Released firmware describes the IO port max address as 0x3fff, which is
-+ * the max host bus address. Fixup to a proper range. This will probably
-+ * never be fixed in firmware.
-+ */
-+static void hisi_lpc_acpi_fixup_child_resource(struct device *hostdev,
-+					       struct resource *r)
-+{
-+	if (r->end != 0x3fff)
-+		return;
-+
-+	if (r->start == 0xe4)
-+		r->end = 0xe4 + 0x04 - 1;
-+	else if (r->start == 0x2f8)
-+		r->end = 0x2f8 + 0x08 - 1;
-+	else
-+		dev_warn(hostdev, "unrecognised resource %pR to fixup, ignoring\n",
-+			 r);
-+}
-+
- /*
-  * hisi_lpc_acpi_set_io_res - set the resources for a child
-  * @child: the device node to be updated the I/O resource
-@@ -419,8 +439,11 @@ static int hisi_lpc_acpi_set_io_res(struct device *child,
- 		return -ENOMEM;
- 	}
- 	count = 0;
--	list_for_each_entry(rentry, &resource_list, node)
--		resources[count++] = *rentry->res;
-+	list_for_each_entry(rentry, &resource_list, node) {
-+		resources[count] = *rentry->res;
-+		hisi_lpc_acpi_fixup_child_resource(hostdev, &resources[count]);
-+		count++;
-+	}
- 
- 	acpi_dev_free_resource_list(&resource_list);
- 
+-	if (go->board_id == GO7007_BOARDID_SENSORAY_2250)
++	ep = usb->usbdev->ep_in[4];
++	if (usb_endpoint_type(&ep->desc) == USB_ENDPOINT_XFER_BULK)
+ 		usb_fill_bulk_urb(usb->intr_urb, usb->usbdev,
+ 			usb_rcvbulkpipe(usb->usbdev, 4),
+ 			usb->intr_urb->transfer_buffer, 2*sizeof(u16),
 -- 
 2.25.1
 
