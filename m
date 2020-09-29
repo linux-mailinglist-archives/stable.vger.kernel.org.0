@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9196927C48B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:15:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A4D27C48F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729467AbgI2LOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:14:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58756 "EHLO mail.kernel.org"
+        id S1729468AbgI2LOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:14:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729463AbgI2LOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:14:47 -0400
+        id S1729251AbgI2LOx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:14:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADE9D221EC;
-        Tue, 29 Sep 2020 11:14:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 631F521D41;
+        Tue, 29 Sep 2020 11:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378087;
-        bh=apXheJrvF9UwGoNCAJr1Ny8+KPRGtK5Z20uSuDveaZE=;
+        s=default; t=1601378092;
+        bh=Kvg4TYtCRyYFiO+X6QdpTQiPvFHaswMRec8XtHXSmN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ioc+TD+qiQxZHViokqCmyl+wwCaAPn8meDDO0wv3AOpY9H4kMu4B5j5vmhXOVbO6n
-         ti6wW2RbaPA2/fljINIkzJh23cZzlVkvkOrGr2BfT8E6+PwKi6udBK9VikVilcJvWs
-         rYwD/ikL4wmmvMqwF0wDt0DTAboGrHHIrfu16jFE=
+        b=tMvQHCAZwZA9HaWRiDXCJE7IaUQggORW6DLRR6mmUcquA0tgMJ78mQAH63U324e62
+         6CO3ffpQTyF2IAodV6q8qRqdXz3yf9uFj5p+9IZo4lB4e0zgfq4AHS1a5BJu6PzBhr
+         z810WILx6C3AeNV1bhGv8kXWDZ712EIr9F2+scX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 026/166] ALSA: usb-audio: Add delay quirk for H570e USB headsets
-Date:   Tue, 29 Sep 2020 12:58:58 +0200
-Message-Id: <20200929105936.505973703@linuxfoundation.org>
+        stable@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>,
+        Peter Geis <pgwipeout@gmail.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 028/166] PM / devfreq: tegra30: Fix integer overflow on CPUs freq max out
+Date:   Tue, 29 Sep 2020 12:59:00 +0200
+Message-Id: <20200929105936.611988570@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -43,40 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 315c7ad7a701baba28c628c4c5426b3d9617ceed upstream.
+[ Upstream commit 53b4b2aeee26f42cde5ff2a16dd0d8590c51a55a ]
 
-Needs the same delay as H650e
+There is another kHz-conversion bug in the code, resulting in integer
+overflow. Although, this time the resulting value is 4294966296 and it's
+close to ULONG_MAX, which is okay in this case.
 
-Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200910085328.19188-1-joakim.tjernlund@infinera.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Tested-by: Peter Geis <pgwipeout@gmail.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/devfreq/tegra-devfreq.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1322,12 +1322,13 @@ void snd_usb_ctl_msg_quirk(struct usb_de
- 	    && (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
- 		mdelay(20);
+diff --git a/drivers/devfreq/tegra-devfreq.c b/drivers/devfreq/tegra-devfreq.c
+index 6627a7dce95c4..f6a2dd6b188fa 100644
+--- a/drivers/devfreq/tegra-devfreq.c
++++ b/drivers/devfreq/tegra-devfreq.c
+@@ -79,6 +79,8 @@
  
--	/* Zoom R16/24, Logitech H650e, Jabra 550a, Kingston HyperX needs a tiny
--	 * delay here, otherwise requests like get/set frequency return as
--	 * failed despite actually succeeding.
-+	/* Zoom R16/24, Logitech H650e/H570e, Jabra 550a, Kingston HyperX
-+	 *  needs a tiny delay here, otherwise requests like get/set
-+	 *  frequency return as failed despite actually succeeding.
- 	 */
- 	if ((chip->usb_id == USB_ID(0x1686, 0x00dd) ||
- 	     chip->usb_id == USB_ID(0x046d, 0x0a46) ||
-+	     chip->usb_id == USB_ID(0x046d, 0x0a56) ||
- 	     chip->usb_id == USB_ID(0x0b0e, 0x0349) ||
- 	     chip->usb_id == USB_ID(0x0951, 0x16ad)) &&
- 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ #define KHZ							1000
+ 
++#define KHZ_MAX						(ULONG_MAX / KHZ)
++
+ /* Assume that the bus is saturated if the utilization is 25% */
+ #define BUS_SATURATION_RATIO					25
+ 
+@@ -179,7 +181,7 @@ struct tegra_actmon_emc_ratio {
+ };
+ 
+ static struct tegra_actmon_emc_ratio actmon_emc_ratios[] = {
+-	{ 1400000, ULONG_MAX },
++	{ 1400000,    KHZ_MAX },
+ 	{ 1200000,    750000 },
+ 	{ 1100000,    600000 },
+ 	{ 1000000,    500000 },
+-- 
+2.25.1
+
 
 
