@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18AAD27CB92
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3404827C865
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732835AbgI2M2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:28:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49122 "EHLO mail.kernel.org"
+        id S1731291AbgI2MBv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:01:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729112AbgI2LcX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:32:23 -0400
+        id S1729233AbgI2LkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:40:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCCE823B1C;
-        Tue, 29 Sep 2020 11:25:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B42062074A;
+        Tue, 29 Sep 2020 11:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378723;
-        bh=MwGFtKWSGpn1CofDZXm/j7WAMuhx+zTxLN826jRE7rE=;
+        s=default; t=1601379604;
+        bh=6/6a8jeCD9rXFbBxNlrS6wkqXNU4bmx5jaM2whCPLAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9nSCoNOObCjrweGww4JgrSDUxCXfqxUBdEVX6pqKrlc3n6kkxYxHjoiuZJ2X1r93
-         I384DRBi4ktsdsmVrZcBnj7WB9mB4QT5HkQ2Uk3/84MA3yEn5whVbKs/3dEf3oDUF1
-         sN2Sr9ltiAbCHiWXlOzonPqJrZDsUSnhtytP5ReE=
+        b=0E5vKclYlmk/eP3OjoOiFdsYWJoLuokpC/MCCd0SBZvFFTqrlfejpdZccxEdZmtmr
+         jLy+ELIKdkAbnwp9O7XoHCMy1apa5548GtZJczSa/JZqmEvdpMCum7ZtRHJvJEbreC
+         gbuBqMv9vykfx3NeSmZsgKPxcuxt5eehL56HMBZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 116/245] drm/msm: fix leaks if initialization fails
-Date:   Tue, 29 Sep 2020 12:59:27 +0200
-Message-Id: <20200929105952.630300573@linuxfoundation.org>
+        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 237/388] KVM: arm64: vgic-its: Fix memory leak on the error path of vgic_add_lpi()
+Date:   Tue, 29 Sep 2020 12:59:28 +0200
+Message-Id: <20200929110021.952662032@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@denx.de>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-[ Upstream commit 66be340f827554cb1c8a1ed7dea97920b4085af2 ]
+[ Upstream commit 57bdb436ce869a45881d8aa4bc5dac8e072dd2b6 ]
 
-We should free resources in unlikely case of allocation failure.
+If we're going to fail out the vgic_add_lpi(), let's make sure the
+allocated vgic_irq memory is also freed. Though it seems that both
+cases are unlikely to fail.
 
-Signed-off-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200414030349.625-3-yuzenghui@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ virt/kvm/arm/vgic/vgic-its.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index 7f45486b6650b..3ba3ae9749bec 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -495,8 +495,10 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
- 	if (!dev->dma_parms) {
- 		dev->dma_parms = devm_kzalloc(dev, sizeof(*dev->dma_parms),
- 					      GFP_KERNEL);
--		if (!dev->dma_parms)
--			return -ENOMEM;
-+		if (!dev->dma_parms) {
-+			ret = -ENOMEM;
-+			goto err_msm_uninit;
-+		}
- 	}
- 	dma_set_max_seg_size(dev, DMA_BIT_MASK(32));
+diff --git a/virt/kvm/arm/vgic/vgic-its.c b/virt/kvm/arm/vgic/vgic-its.c
+index f8ad7096555d7..35be0e2a46393 100644
+--- a/virt/kvm/arm/vgic/vgic-its.c
++++ b/virt/kvm/arm/vgic/vgic-its.c
+@@ -96,14 +96,21 @@ out_unlock:
+ 	 * We "cache" the configuration table entries in our struct vgic_irq's.
+ 	 * However we only have those structs for mapped IRQs, so we read in
+ 	 * the respective config data from memory here upon mapping the LPI.
++	 *
++	 * Should any of these fail, behave as if we couldn't create the LPI
++	 * by dropping the refcount and returning the error.
+ 	 */
+ 	ret = update_lpi_config(kvm, irq, NULL, false);
+-	if (ret)
++	if (ret) {
++		vgic_put_irq(kvm, irq);
+ 		return ERR_PTR(ret);
++	}
  
+ 	ret = vgic_v3_lpi_sync_pending_status(kvm, irq);
+-	if (ret)
++	if (ret) {
++		vgic_put_irq(kvm, irq);
+ 		return ERR_PTR(ret);
++	}
+ 
+ 	return irq;
+ }
 -- 
 2.25.1
 
