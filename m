@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 728CB27C7A5
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F4F827C79A
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:55:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728573AbgI2LzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:55:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44622 "EHLO mail.kernel.org"
+        id S1729333AbgI2LpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:45:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730933AbgI2LpD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:45:03 -0400
+        id S1730929AbgI2LpE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:45:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11A872074A;
-        Tue, 29 Sep 2020 11:45:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A77B4206E5;
+        Tue, 29 Sep 2020 11:45:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379901;
-        bh=AjV7tlE3WV/KPZtGiaovV84JTCCzUCgfxYQlAF/Oq6k=;
+        s=default; t=1601379904;
+        bh=QWEe9lXeetwnmN3RorUwCPYnWoDrXGcTsLriocZ7dK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y95El5Bj/3CQnDF9POhkSfqucME0athT4nN3aPOfjqCRCpXbJLF6WKPr0DL5h4r8L
-         EETy1GxFjebrvs/Zu5AbzoApnZjC8nNetuv5qfYmXChfsmexR/K0CUUMnyR0dlFfYl
-         3HnaVEk+X79ieKR9+WaXzJPMH2na19hyYZ+2lX/c=
+        b=s1Qd50hSYXqbzA7l4KguZUZlPYSn/ABm0mUfMQ6yTJSok1pTpVD+/EnJhSogMYQro
+         A1RqVbZX32e/uOVIGFq9gvKXHZwCn3smG5rzTaiUabUuHt0ad3QSP6/57rw4mtLIoj
+         +2DymHlMoMXvjn32eTQaqXm1pnm24iwXwYIxVANw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dan Williams <dan.j.wiilliams@intel.com>,
-        Jan Kara <jack@suse.cz>, Jeff Moyer <jmoyer@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Toshi Kani <toshi.kani@hpe.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Matthew Wilcox <mawilcox@microsoft.com>,
-        Ross Zwisler <ross.zwisler@linux.intel.com>,
-        Ingo Molnar <mingo@elte.hu>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 367/388] arch/x86/lib/usercopy_64.c: fix __copy_user_flushcache() cache writeback
-Date:   Tue, 29 Sep 2020 13:01:38 +0200
-Message-Id: <20200929110028.233217533@linuxfoundation.org>
+        stable@vger.kernel.org, p_c_chan@hotmail.com, ecm4@mail.com,
+        perdigao1@yahoo.com, matzes@users.sourceforge.net,
+        rvelascog@gmail.com, Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 368/388] x86/ioapic: Unbreak check_timer()
+Date:   Tue, 29 Sep 2020 13:01:39 +0200
+Message-Id: <20200929110028.281082680@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -53,49 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit a1cd6c2ae47ee10ff21e62475685d5b399e2ed4a upstream.
+commit 86a82ae0b5095ea24c55898a3f025791e7958b21 upstream.
 
-If we copy less than 8 bytes and if the destination crosses a cache
-line, __copy_user_flushcache would invalidate only the first cache line.
+Several people reported in the kernel bugzilla that between v4.12 and v4.13
+the magic which works around broken hardware and BIOSes to find the proper
+timer interrupt delivery mode stopped working for some older affected
+platforms which need to fall back to ExtINT delivery mode.
 
-This patch makes it invalidate the second cache line as well.
+The reason is that the core code changed to keep track of the masked and
+disabled state of an interrupt line more accurately to avoid the expensive
+hardware operations.
 
-Fixes: 0aed55af88345b ("x86, uaccess: introduce copy_from_iter_flushcache for pmem / cache-bypass operations")
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Dan Williams <dan.j.wiilliams@intel.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Jeff Moyer <jmoyer@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Matthew Wilcox <mawilcox@microsoft.com>
-Cc: Ross Zwisler <ross.zwisler@linux.intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/alpine.LRH.2.02.2009161451140.21915@file01.intranet.prod.int.rdu2.redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+That broke an assumption in i8259_make_irq() which invokes
+
+     disable_irq_nosync();
+     irq_set_chip_and_handler();
+     enable_irq();
+
+Up to v4.12 this worked because enable_irq() unconditionally unmasked the
+interrupt line, but after the state tracking improvements this is not
+longer the case because the IO/APIC uses lazy disabling. So the line state
+is unmasked which means that enable_irq() does not call into the new irq
+chip to unmask it.
+
+In principle this is a shortcoming of the core code, but it's more than
+unclear whether the core code should try to reset state. At least this
+cannot be done unconditionally as that would break other existing use cases
+where the chip type is changed, e.g. when changing the trigger type, but
+the callers expect the state to be preserved.
+
+As the way how check_timer() is switching the delivery modes is truly
+unique, the obvious fix is to simply unmask the i8259 manually after
+changing the mode to ExtINT delivery and switching the irq chip to the
+legacy PIC.
+
+Note, that the fixes tag is not really precise, but identifies the commit
+which broke the assumptions in the IO/APIC and i8259 code and that's the
+kernel version to which this needs to be backported.
+
+Fixes: bf22ff45bed6 ("genirq: Avoid unnecessary low level irq function calls")
+Reported-by: p_c_chan@hotmail.com
+Reported-by: ecm4@mail.com
+Reported-by: perdigao1@yahoo.com
+Reported-by: matzes@users.sourceforge.net
+Reported-by: rvelascog@gmail.com
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: p_c_chan@hotmail.com
+Tested-by: matzes@users.sourceforge.net
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=197769
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/lib/usercopy_64.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/apic/io_apic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/lib/usercopy_64.c
-+++ b/arch/x86/lib/usercopy_64.c
-@@ -120,7 +120,7 @@ long __copy_user_flushcache(void *dst, c
- 	 */
- 	if (size < 8) {
- 		if (!IS_ALIGNED(dest, 4) || size != 4)
--			clean_cache_range(dst, 1);
-+			clean_cache_range(dst, size);
- 	} else {
- 		if (!IS_ALIGNED(dest, 8)) {
- 			dest = ALIGN(dest, boot_cpu_data.x86_clflush_size);
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -2256,6 +2256,7 @@ static inline void __init check_timer(vo
+ 	legacy_pic->init(0);
+ 	legacy_pic->make_irq(0);
+ 	apic_write(APIC_LVT0, APIC_DM_EXTINT);
++	legacy_pic->unmask(0);
+ 
+ 	unlock_ExtINT_logic();
+ 
 
 
