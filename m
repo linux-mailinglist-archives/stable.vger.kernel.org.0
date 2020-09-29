@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6AAC27C4D6
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:17:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1DB827C34D
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728699AbgI2LRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:17:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33502 "EHLO mail.kernel.org"
+        id S1728621AbgI2LEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:04:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729611AbgI2LQs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:16:48 -0400
+        id S1728605AbgI2LEY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:04:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F98E206A5;
-        Tue, 29 Sep 2020 11:16:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB8A421734;
+        Tue, 29 Sep 2020 11:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378207;
-        bh=coewqD0ZjIG/fSjV2ryhd1Cfjd2vswYmnGMbu0EDkPg=;
+        s=default; t=1601377463;
+        bh=l/Lc3v9SvXX1BUfrzvpCyFibGpf8UuFWkaCjJFPWNGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=REtZmKdlCZ1NC/j19Lpz71i8IZWr0GLwrmPYm0NKQGQ2KazapJRWqbd1jpTvJ5kbS
-         srCbhnIACoKBgR2FyMttPqOOrn3qOOslZ6aX3Z1bwezG9qKkNMBnLh2cnPI8JEVFHs
-         18Uabr4+YC5cLi2EY5ab4NzNQYoKCI1qK9Mmlb7w=
+        b=yysDzyExV8TKuIuggu52kG4m1K3/Y8wuIWT3xrOVHL9LGuKMfdi1yZrfwdA4ivSpJ
+         3CdBARMiWypa7sUNc98AO/q18lFM8Rg5aTKZnTItagpsNGdplpiW5oLjw1N5zUIi9O
+         48Fu5fnJf/AgdvdkK7bfzfRCb3bOqd3E2tdr42xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Marco Elver <elver@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 100/166] mm/vmscan.c: fix data races using kswapd_classzone_idx
+Subject: [PATCH 4.4 45/85] serial: 8250_omap: Fix sleeping function called from invalid context during probe
 Date:   Tue, 29 Sep 2020 13:00:12 +0200
-Message-Id: <20200929105940.204483429@linuxfoundation.org>
+Message-Id: <20200929105930.486717063@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,200 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit 5644e1fbbfe15ad06785502bbfe5751223e5841d ]
+[ Upstream commit 4ce35a3617c0ac758c61122b2218b6c8c9ac9398 ]
 
-pgdat->kswapd_classzone_idx could be accessed concurrently in
-wakeup_kswapd().  Plain writes and reads without any lock protection
-result in data races.  Fix them by adding a pair of READ|WRITE_ONCE() as
-well as saving a branch (compilers might well optimize the original code
-in an unintentional way anyway).  While at it, also take care of
-pgdat->kswapd_order and non-kswapd threads in allow_direct_reclaim().  The
-data races were reported by KCSAN,
+When booting j721e the following bug is printed:
 
- BUG: KCSAN: data-race in wakeup_kswapd / wakeup_kswapd
+[    1.154821] BUG: sleeping function called from invalid context at kernel/sched/completion.c:99
+[    1.154827] in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 12, name: kworker/0:1
+[    1.154832] 3 locks held by kworker/0:1/12:
+[    1.154836]  #0: ffff000840030728 ((wq_completion)events){+.+.}, at: process_one_work+0x1d4/0x6e8
+[    1.154852]  #1: ffff80001214fdd8 (deferred_probe_work){+.+.}, at: process_one_work+0x1d4/0x6e8
+[    1.154860]  #2: ffff00084060b170 (&dev->mutex){....}, at: __device_attach+0x38/0x138
+[    1.154872] irq event stamp: 63096
+[    1.154881] hardirqs last  enabled at (63095): [<ffff800010b74318>] _raw_spin_unlock_irqrestore+0x70/0x78
+[    1.154887] hardirqs last disabled at (63096): [<ffff800010b740d8>] _raw_spin_lock_irqsave+0x28/0x80
+[    1.154893] softirqs last  enabled at (62254): [<ffff800010080c88>] _stext+0x488/0x564
+[    1.154899] softirqs last disabled at (62247): [<ffff8000100fdb3c>] irq_exit+0x114/0x140
+[    1.154906] CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.6.0-rc6-next-20200318-00094-g45e4089b0bd3 #221
+[    1.154911] Hardware name: Texas Instruments K3 J721E SoC (DT)
+[    1.154917] Workqueue: events deferred_probe_work_func
+[    1.154923] Call trace:
+[    1.154928]  dump_backtrace+0x0/0x190
+[    1.154933]  show_stack+0x14/0x20
+[    1.154940]  dump_stack+0xe0/0x148
+[    1.154946]  ___might_sleep+0x150/0x1f0
+[    1.154952]  __might_sleep+0x4c/0x80
+[    1.154957]  wait_for_completion_timeout+0x40/0x140
+[    1.154964]  ti_sci_set_device_state+0xa0/0x158
+[    1.154969]  ti_sci_cmd_get_device_exclusive+0x14/0x20
+[    1.154977]  ti_sci_dev_start+0x34/0x50
+[    1.154984]  genpd_runtime_resume+0x78/0x1f8
+[    1.154991]  __rpm_callback+0x3c/0x140
+[    1.154996]  rpm_callback+0x20/0x80
+[    1.155001]  rpm_resume+0x568/0x758
+[    1.155007]  __pm_runtime_resume+0x44/0xb0
+[    1.155013]  omap8250_probe+0x2b4/0x508
+[    1.155019]  platform_drv_probe+0x50/0xa0
+[    1.155023]  really_probe+0xd4/0x318
+[    1.155028]  driver_probe_device+0x54/0xe8
+[    1.155033]  __device_attach_driver+0x80/0xb8
+[    1.155039]  bus_for_each_drv+0x74/0xc0
+[    1.155044]  __device_attach+0xdc/0x138
+[    1.155049]  device_initial_probe+0x10/0x18
+[    1.155053]  bus_probe_device+0x98/0xa0
+[    1.155058]  deferred_probe_work_func+0x74/0xb0
+[    1.155063]  process_one_work+0x280/0x6e8
+[    1.155068]  worker_thread+0x48/0x430
+[    1.155073]  kthread+0x108/0x138
+[    1.155079]  ret_from_fork+0x10/0x18
 
- write to 0xffff9f427ffff2dc of 4 bytes by task 7454 on cpu 13:
-  wakeup_kswapd+0xf1/0x400
-  wakeup_kswapd at mm/vmscan.c:3967
-  wake_all_kswapds+0x59/0xc0
-  wake_all_kswapds at mm/page_alloc.c:4241
-  __alloc_pages_slowpath+0xdcc/0x1290
-  __alloc_pages_slowpath at mm/page_alloc.c:4512
-  __alloc_pages_nodemask+0x3bb/0x450
-  alloc_pages_vma+0x8a/0x2c0
-  do_anonymous_page+0x16e/0x6f0
-  __handle_mm_fault+0xcd5/0xd40
-  handle_mm_fault+0xfc/0x2f0
-  do_page_fault+0x263/0x6f9
-  page_fault+0x34/0x40
+To fix the bug we need to first call pm_runtime_enable() prior to any
+pm_runtime calls.
 
- 1 lock held by mtest01/7454:
-  #0: ffff9f425afe8808 (&mm->mmap_sem#2){++++}, at:
- do_page_fault+0x143/0x6f9
- do_user_addr_fault at arch/x86/mm/fault.c:1405
- (inlined by) do_page_fault at arch/x86/mm/fault.c:1539
- irq event stamp: 6944085
- count_memcg_event_mm+0x1a6/0x270
- count_memcg_event_mm+0x119/0x270
- __do_softirq+0x34c/0x57c
- irq_exit+0xa2/0xc0
-
- read to 0xffff9f427ffff2dc of 4 bytes by task 7472 on cpu 38:
-  wakeup_kswapd+0xc8/0x400
-  wake_all_kswapds+0x59/0xc0
-  __alloc_pages_slowpath+0xdcc/0x1290
-  __alloc_pages_nodemask+0x3bb/0x450
-  alloc_pages_vma+0x8a/0x2c0
-  do_anonymous_page+0x16e/0x6f0
-  __handle_mm_fault+0xcd5/0xd40
-  handle_mm_fault+0xfc/0x2f0
-  do_page_fault+0x263/0x6f9
-  page_fault+0x34/0x40
-
- 1 lock held by mtest01/7472:
-  #0: ffff9f425a9ac148 (&mm->mmap_sem#2){++++}, at:
- do_page_fault+0x143/0x6f9
- irq event stamp: 6793561
- count_memcg_event_mm+0x1a6/0x270
- count_memcg_event_mm+0x119/0x270
- __do_softirq+0x34c/0x57c
- irq_exit+0xa2/0xc0
-
- BUG: KCSAN: data-race in kswapd / wakeup_kswapd
-
- write to 0xffff90973ffff2dc of 4 bytes by task 820 on cpu 6:
-  kswapd+0x27c/0x8d0
-  kthread+0x1e0/0x200
-  ret_from_fork+0x27/0x50
-
- read to 0xffff90973ffff2dc of 4 bytes by task 6299 on cpu 0:
-  wakeup_kswapd+0xf3/0x450
-  wake_all_kswapds+0x59/0xc0
-  __alloc_pages_slowpath+0xdcc/0x1290
-  __alloc_pages_nodemask+0x3bb/0x450
-  alloc_pages_vma+0x8a/0x2c0
-  do_anonymous_page+0x170/0x700
-  __handle_mm_fault+0xc9f/0xd00
-  handle_mm_fault+0xfc/0x2f0
-  do_page_fault+0x263/0x6f9
-  page_fault+0x34/0x40
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Link: http://lkml.kernel.org/r/1582749472-5171-1-git-send-email-cai@lca.pw
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20200320125200.6772-1-peter.ujfalusi@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/vmscan.c | 45 ++++++++++++++++++++++++++-------------------
- 1 file changed, 26 insertions(+), 19 deletions(-)
+ drivers/tty/serial/8250/8250_omap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index c6962aa5ddb40..5ee6fbdec8a8d 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -2950,8 +2950,9 @@ static bool allow_direct_reclaim(pg_data_t *pgdat)
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index c4383573cf668..0377b35d62b80 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -1188,11 +1188,11 @@ static int omap8250_probe(struct platform_device *pdev)
+ 	spin_lock_init(&priv->rx_dma_lock);
  
- 	/* kswapd must be awake if processes are being throttled */
- 	if (!wmark_ok && waitqueue_active(&pgdat->kswapd_wait)) {
--		pgdat->kswapd_classzone_idx = min(pgdat->kswapd_classzone_idx,
--						(enum zone_type)ZONE_NORMAL);
-+		if (READ_ONCE(pgdat->kswapd_classzone_idx) > ZONE_NORMAL)
-+			WRITE_ONCE(pgdat->kswapd_classzone_idx, ZONE_NORMAL);
-+
- 		wake_up_interruptible(&pgdat->kswapd_wait);
- 	}
+ 	device_init_wakeup(&pdev->dev, true);
++	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_use_autosuspend(&pdev->dev);
+ 	pm_runtime_set_autosuspend_delay(&pdev->dev, -1);
  
-@@ -3451,9 +3452,9 @@ out:
- static enum zone_type kswapd_classzone_idx(pg_data_t *pgdat,
- 					   enum zone_type prev_classzone_idx)
- {
--	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
--		return prev_classzone_idx;
--	return pgdat->kswapd_classzone_idx;
-+	enum zone_type curr_idx = READ_ONCE(pgdat->kswapd_classzone_idx);
-+
-+	return curr_idx == MAX_NR_ZONES ? prev_classzone_idx : curr_idx;
- }
+ 	pm_runtime_irq_safe(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
  
- static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_order,
-@@ -3497,8 +3498,11 @@ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_o
- 		 * the previous request that slept prematurely.
- 		 */
- 		if (remaining) {
--			pgdat->kswapd_classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
--			pgdat->kswapd_order = max(pgdat->kswapd_order, reclaim_order);
-+			WRITE_ONCE(pgdat->kswapd_classzone_idx,
-+				   kswapd_classzone_idx(pgdat, classzone_idx));
-+
-+			if (READ_ONCE(pgdat->kswapd_order) < reclaim_order)
-+				WRITE_ONCE(pgdat->kswapd_order, reclaim_order);
- 		}
- 
- 		finish_wait(&pgdat->kswapd_wait, &wait);
-@@ -3580,12 +3584,12 @@ static int kswapd(void *p)
- 	tsk->flags |= PF_MEMALLOC | PF_SWAPWRITE | PF_KSWAPD;
- 	set_freezable();
- 
--	pgdat->kswapd_order = 0;
--	pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
-+	WRITE_ONCE(pgdat->kswapd_order, 0);
-+	WRITE_ONCE(pgdat->kswapd_classzone_idx, MAX_NR_ZONES);
- 	for ( ; ; ) {
- 		bool ret;
- 
--		alloc_order = reclaim_order = pgdat->kswapd_order;
-+		alloc_order = reclaim_order = READ_ONCE(pgdat->kswapd_order);
- 		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
- 
- kswapd_try_sleep:
-@@ -3593,10 +3597,10 @@ kswapd_try_sleep:
- 					classzone_idx);
- 
- 		/* Read the new order and classzone_idx */
--		alloc_order = reclaim_order = pgdat->kswapd_order;
-+		alloc_order = reclaim_order = READ_ONCE(pgdat->kswapd_order);
- 		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
--		pgdat->kswapd_order = 0;
--		pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
-+		WRITE_ONCE(pgdat->kswapd_order, 0);
-+		WRITE_ONCE(pgdat->kswapd_classzone_idx, MAX_NR_ZONES);
- 
- 		ret = try_to_freeze();
- 		if (kthread_should_stop())
-@@ -3638,20 +3642,23 @@ kswapd_try_sleep:
- void wakeup_kswapd(struct zone *zone, int order, enum zone_type classzone_idx)
- {
- 	pg_data_t *pgdat;
-+	enum zone_type curr_idx;
- 
- 	if (!managed_zone(zone))
- 		return;
- 
- 	if (!cpuset_zone_allowed(zone, GFP_KERNEL | __GFP_HARDWALL))
- 		return;
-+
- 	pgdat = zone->zone_pgdat;
-+	curr_idx = READ_ONCE(pgdat->kswapd_classzone_idx);
-+
-+	if (curr_idx == MAX_NR_ZONES || curr_idx < classzone_idx)
-+		WRITE_ONCE(pgdat->kswapd_classzone_idx, classzone_idx);
-+
-+	if (READ_ONCE(pgdat->kswapd_order) < order)
-+		WRITE_ONCE(pgdat->kswapd_order, order);
- 
--	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
--		pgdat->kswapd_classzone_idx = classzone_idx;
--	else
--		pgdat->kswapd_classzone_idx = max(pgdat->kswapd_classzone_idx,
--						  classzone_idx);
--	pgdat->kswapd_order = max(pgdat->kswapd_order, order);
- 	if (!waitqueue_active(&pgdat->kswapd_wait))
- 		return;
+ 	pm_runtime_get_sync(&pdev->dev);
  
 -- 
 2.25.1
