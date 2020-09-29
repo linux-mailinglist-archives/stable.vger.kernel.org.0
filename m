@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F35B27C35B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B231B27C4E2
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:19:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728682AbgI2LFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:05:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41104 "EHLO mail.kernel.org"
+        id S1729590AbgI2LRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:17:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728668AbgI2LEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:04:52 -0400
+        id S1729301AbgI2LRV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:17:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1B4D20C09;
-        Tue, 29 Sep 2020 11:04:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F8F8206DB;
+        Tue, 29 Sep 2020 11:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377491;
-        bh=OYL88p2MpTjomQuoo+r7Vw4vpYgnhDKWkh8UXNmMVcU=;
+        s=default; t=1601378241;
+        bh=JhkyNonEfdkzvlR7tiCFHlN7ZQwpU6Pomj+ZQSfG9BQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SU5cgzreH0c36Rp2naILWPSp9sayyvhsF1Wau6PknGXlGKtF5xTCOinKdKYhRD/5R
-         MCbo4J42OdHWshPAsgAyIn+gRZnMmbVhAW4G8NJ5x0QwafjoWI3zFT+0KSbXy7wyep
-         VYWz032C33ynC6UzKbwTWi2ITiqfNH4MJdFZ7OEI=
+        b=VRQIaEgvQUpOpJqFaAg95OXj8xDRKtW6SQCB6GPx5BqmdqDLQR0E612XBIeQzHeNq
+         3rq+etiFWDoTn9Ubvect1cF7LRYpUv2+Zk9f+vxTMwAL3c2UfPBBNeh10zLJx+qoMG
+         WVvN+Uqf9Z7JSWkrJZTyICNaK05HIPlaYesioSYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Krzysztof Kozlowski <krzk@kernel.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 54/85] dt-bindings: sound: wm8994: Correct required supplies based on actual implementaion
-Date:   Tue, 29 Sep 2020 13:00:21 +0200
-Message-Id: <20200929105930.929084953@linuxfoundation.org>
+Subject: [PATCH 4.14 110/166] dt-bindings: sound: wm8994: Correct required supplies based on actual implementaion
+Date:   Tue, 29 Sep 2020 13:00:22 +0200
+Message-Id: <20200929105940.694714967@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,7 +63,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+), 6 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/sound/wm8994.txt b/Documentation/devicetree/bindings/sound/wm8994.txt
-index e045e90a0924b..0f03b8228d080 100644
+index 68c4e8d96bed6..b309de00cd836 100644
 --- a/Documentation/devicetree/bindings/sound/wm8994.txt
 +++ b/Documentation/devicetree/bindings/sound/wm8994.txt
 @@ -14,9 +14,15 @@ Required properties:
