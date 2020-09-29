@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72B6F27C7C4
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 014C227C75A
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:53:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730825AbgI2L4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:56:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42870 "EHLO mail.kernel.org"
+        id S1730290AbgI2LxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:53:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730844AbgI2LoH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:44:07 -0400
+        id S1730881AbgI2LrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:47:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AC2A20702;
-        Tue, 29 Sep 2020 11:44:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E956B206F7;
+        Tue, 29 Sep 2020 11:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379847;
-        bh=BKH9r4yIQiZ/rAj4TrW1F8CSwOfyzGLFJ/r3D1aySd0=;
+        s=default; t=1601380020;
+        bh=YyTHnaHcQzf24/k/Rb3DPJ5xGybphhRFbp5wDu/aL44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tkxoNVw0A7mbXfLukunG1DilHryquYnTGcUYw2r5U7OAFlGx5g2Od83rn29zhBPn9
-         QlngnU2dSkua179YfH1vEXY2ybFoT7NmoqNziS+zyS/KFpokMIeK6Ua+TTjDq9Sx/y
-         EOIkWN16/F2yCMXoltNJsgkF7voUVK/DQ4IouxxQ=
+        b=k/UYDPgON9gHTHffAvkXscyqxazNKJupgGmcMG89YLlB7qAaUQEspPDyA/e83xikK
+         CLHGxdiFhhlwTxmBWAVhEcMtdVY6KwxlFtU4e4xZObJGqaLJOgQaKlOzlLGh43ookN
+         pWNOjekbE92nn53sai00kdTFgZyunf+SRtMVMe/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 343/388] batman-adv: mcast/TT: fix wrongly dropped or rerouted packets
-Date:   Tue, 29 Sep 2020 13:01:14 +0200
-Message-Id: <20200929110027.063660204@linuxfoundation.org>
+Subject: [PATCH 5.8 32/99] netfilter: nft_meta: use socket user_ns to retrieve skuid and skgid
+Date:   Tue, 29 Sep 2020 13:01:15 +0200
+Message-Id: <20200929105931.310039891@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <linus.luessing@c0d3.blue>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 7dda5b3384121181c4e79f6eaeac2b94c0622c8d ]
+[ Upstream commit 0c92411bb81de9bc516d6924f50289d8d5f880e5 ]
 
-The unicast packet rerouting code makes several assumptions. For
-instance it assumes that there is always exactly one destination in the
-TT. This breaks for multicast frames in a unicast packets in several ways:
+... instead of using init_user_ns.
 
-For one thing if there is actually no TT entry and the destination node
-was selected due to the multicast tvlv flags it announced. Then an
-intermediate node will wrongly drop the packet.
-
-For another thing if there is a TT entry but the TTVN of this entry is
-newer than the originally addressed destination node: Then the
-intermediate node will wrongly redirect the packet, leading to
-duplicated multicast packets at a multicast listener and missing
-packets at other multicast listeners or multicast routers.
-
-Fixing this by not applying the unicast packet rerouting to batman-adv
-unicast packets with a multicast payload. We are not able to detect a
-roaming multicast listener at the moment and will just continue to send
-the multicast frame to both the new and old destination for a while in
-case of such a roaming multicast listener.
-
-Fixes: a73105b8d4c7 ("batman-adv: improved client announcement mechanism")
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Tested-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/routing.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/netfilter/nft_meta.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/batman-adv/routing.c b/net/batman-adv/routing.c
-index f0f864820dead..708e90cb18a6e 100644
---- a/net/batman-adv/routing.c
-+++ b/net/batman-adv/routing.c
-@@ -826,6 +826,10 @@ static bool batadv_check_unicast_ttvn(struct batadv_priv *bat_priv,
- 	vid = batadv_get_vid(skb, hdr_len);
- 	ethhdr = (struct ethhdr *)(skb->data + hdr_len);
+diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
+index 7bc6537f3ccb5..b37bd02448d8c 100644
+--- a/net/netfilter/nft_meta.c
++++ b/net/netfilter/nft_meta.c
+@@ -147,11 +147,11 @@ nft_meta_get_eval_skugid(enum nft_meta_keys key,
  
-+	/* do not reroute multicast frames in a unicast header */
-+	if (is_multicast_ether_addr(ethhdr->h_dest))
-+		return true;
-+
- 	/* check if the destination client was served by this node and it is now
- 	 * roaming. In this case, it means that the node has got a ROAM_ADV
- 	 * message and that it knows the new destination in the mesh to re-route
+ 	switch (key) {
+ 	case NFT_META_SKUID:
+-		*dest = from_kuid_munged(&init_user_ns,
++		*dest = from_kuid_munged(sock_net(sk)->user_ns,
+ 					 sock->file->f_cred->fsuid);
+ 		break;
+ 	case NFT_META_SKGID:
+-		*dest =	from_kgid_munged(&init_user_ns,
++		*dest =	from_kgid_munged(sock_net(sk)->user_ns,
+ 					 sock->file->f_cred->fsgid);
+ 		break;
+ 	default:
 -- 
 2.25.1
 
