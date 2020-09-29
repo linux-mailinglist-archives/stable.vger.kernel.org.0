@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74EA027CD1B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E40427CBCB
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729161AbgI2Mly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:41:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54420 "EHLO mail.kernel.org"
+        id S1729094AbgI2Mas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:30:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729335AbgI2LMf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:12:35 -0400
+        id S1729328AbgI2L3K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:29:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03848206A5;
-        Tue, 29 Sep 2020 11:12:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2E3E21D7D;
+        Tue, 29 Sep 2020 11:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377954;
-        bh=FoBam2veeWQfEGkz6ViIW5Dqs9nvjPiWZ1sa5WoABDE=;
+        s=default; t=1601378605;
+        bh=ib6bpCU15aURJm9xCQYHOv2BKz+a24vt1oq41Qm4p5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSjJyxWvQ/KQMdtKZpLeLfA8Z1256KoT2ABqjLgq+E051SdLnuc2nf+cgM6bJIcc2
-         XBu7BruusMNUyE+Xg21Pd6KVpQdTfau18HijMIPP37eUdXA7xPxBEX2dADUT+7KDJP
-         9T5Rpe9gSKXFze9UlLQU+lWZ0gqmZZrHKiCuWNus=
+        b=wwWAkYjF7LZotbhB3XYsynSjOoYMNcOFI/GhthZIEwufN5joeSMp2HaI0onBvgcK8
+         sHobw02DJtwr2sO8Qfx3VVCIgGbONbZ6zHnAuLb+DUGSiyslYYEFdAMULnxqhsQkwy
+         LLHSu54gBp0B29CRd7qZwKu5xKByeo5nsrCiTfoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 011/166] tipc: use skb_unshare() instead in tipc_buf_append()
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 072/245] skbuff: fix a data race in skb_queue_len()
 Date:   Tue, 29 Sep 2020 12:58:43 +0200
-Message-Id: <20200929105935.750982080@linuxfoundation.org>
+Message-Id: <20200929105950.502188103@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +43,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit ff48b6222e65ebdba5a403ef1deba6214e749193 ]
+[ Upstream commit 86b18aaa2b5b5bb48e609cd591b3d2d0fdbe0442 ]
 
-In tipc_buf_append() it may change skb's frag_list, and it causes
-problems when this skb is cloned. skb_unclone() doesn't really
-make this skb's flag_list available to change.
+sk_buff.qlen can be accessed concurrently as noticed by KCSAN,
 
-Shuang Li has reported an use-after-free issue because of this
-when creating quite a few macvlan dev over the same dev, where
-the broadcast packets will be cloned and go up to the stack:
+ BUG: KCSAN: data-race in __skb_try_recv_from_queue / unix_dgram_sendmsg
 
- [ ] BUG: KASAN: use-after-free in pskb_expand_head+0x86d/0xea0
- [ ] Call Trace:
- [ ]  dump_stack+0x7c/0xb0
- [ ]  print_address_description.constprop.7+0x1a/0x220
- [ ]  kasan_report.cold.10+0x37/0x7c
- [ ]  check_memory_region+0x183/0x1e0
- [ ]  pskb_expand_head+0x86d/0xea0
- [ ]  process_backlog+0x1df/0x660
- [ ]  net_rx_action+0x3b4/0xc90
- [ ]
- [ ] Allocated by task 1786:
- [ ]  kmem_cache_alloc+0xbf/0x220
- [ ]  skb_clone+0x10a/0x300
- [ ]  macvlan_broadcast+0x2f6/0x590 [macvlan]
- [ ]  macvlan_process_broadcast+0x37c/0x516 [macvlan]
- [ ]  process_one_work+0x66a/0x1060
- [ ]  worker_thread+0x87/0xb10
- [ ]
- [ ] Freed by task 3253:
- [ ]  kmem_cache_free+0x82/0x2a0
- [ ]  skb_release_data+0x2c3/0x6e0
- [ ]  kfree_skb+0x78/0x1d0
- [ ]  tipc_recvmsg+0x3be/0xa40 [tipc]
+ read to 0xffff8a1b1d8a81c0 of 4 bytes by task 5371 on cpu 96:
+  unix_dgram_sendmsg+0x9a9/0xb70 include/linux/skbuff.h:1821
+				 net/unix/af_unix.c:1761
+  ____sys_sendmsg+0x33e/0x370
+  ___sys_sendmsg+0xa6/0xf0
+  __sys_sendmsg+0x69/0xf0
+  __x64_sys_sendmsg+0x51/0x70
+  do_syscall_64+0x91/0xb47
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-So fix it by using skb_unshare() instead, which would create a new
-skb for the cloned frag and it'll be safe to change its frag_list.
-The similar things were also done in sctp_make_reassembled_event(),
-which is using skb_copy().
+ write to 0xffff8a1b1d8a81c0 of 4 bytes by task 1 on cpu 99:
+  __skb_try_recv_from_queue+0x327/0x410 include/linux/skbuff.h:2029
+  __skb_try_recv_datagram+0xbe/0x220
+  unix_dgram_recvmsg+0xee/0x850
+  ____sys_recvmsg+0x1fb/0x210
+  ___sys_recvmsg+0xa2/0xf0
+  __sys_recvmsg+0x66/0xf0
+  __x64_sys_recvmsg+0x51/0x70
+  do_syscall_64+0x91/0xb47
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Reported-by: Shuang Li <shuali@redhat.com>
-Fixes: 37e22164a8a3 ("tipc: rename and move message reassembly function")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Since only the read is operating as lockless, it could introduce a logic
+bug in unix_recvq_full() due to the load tearing. Fix it by adding
+a lockless variant of skb_queue_len() and unix_recvq_full() where
+READ_ONCE() is on the read while WRITE_ONCE() is on the write similar to
+the commit d7d16a89350a ("net: add skb_queue_empty_lockless()").
+
+Signed-off-by: Qian Cai <cai@lca.pw>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/msg.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/skbuff.h | 14 +++++++++++++-
+ net/unix/af_unix.c     | 11 +++++++++--
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -140,7 +140,8 @@ int tipc_buf_append(struct sk_buff **hea
- 	if (fragid == FIRST_FRAGMENT) {
- 		if (unlikely(head))
- 			goto err;
--		if (unlikely(skb_unclone(frag, GFP_ATOMIC)))
-+		frag = skb_unshare(frag, GFP_ATOMIC);
-+		if (unlikely(!frag))
- 			goto err;
- 		head = *headbuf = frag;
- 		*buf = NULL;
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index cbc0294f39899..703ce71caeacb 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1688,6 +1688,18 @@ static inline __u32 skb_queue_len(const struct sk_buff_head *list_)
+ 	return list_->qlen;
+ }
+ 
++/**
++ *	skb_queue_len_lockless	- get queue length
++ *	@list_: list to measure
++ *
++ *	Return the length of an &sk_buff queue.
++ *	This variant can be used in lockless contexts.
++ */
++static inline __u32 skb_queue_len_lockless(const struct sk_buff_head *list_)
++{
++	return READ_ONCE(list_->qlen);
++}
++
+ /**
+  *	__skb_queue_head_init - initialize non-spinlock portions of sk_buff_head
+  *	@list: queue to initialize
+@@ -1895,7 +1907,7 @@ static inline void __skb_unlink(struct sk_buff *skb, struct sk_buff_head *list)
+ {
+ 	struct sk_buff *next, *prev;
+ 
+-	list->qlen--;
++	WRITE_ONCE(list->qlen, list->qlen - 1);
+ 	next	   = skb->next;
+ 	prev	   = skb->prev;
+ 	skb->next  = skb->prev = NULL;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 2318e2e2748f4..2020306468af4 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -192,11 +192,17 @@ static inline int unix_may_send(struct sock *sk, struct sock *osk)
+ 	return unix_peer(osk) == NULL || unix_our_peer(sk, osk);
+ }
+ 
+-static inline int unix_recvq_full(struct sock const *sk)
++static inline int unix_recvq_full(const struct sock *sk)
+ {
+ 	return skb_queue_len(&sk->sk_receive_queue) > sk->sk_max_ack_backlog;
+ }
+ 
++static inline int unix_recvq_full_lockless(const struct sock *sk)
++{
++	return skb_queue_len_lockless(&sk->sk_receive_queue) >
++		READ_ONCE(sk->sk_max_ack_backlog);
++}
++
+ struct sock *unix_peer_get(struct sock *s)
+ {
+ 	struct sock *peer;
+@@ -1788,7 +1794,8 @@ restart_locked:
+ 	 * - unix_peer(sk) == sk by time of get but disconnected before lock
+ 	 */
+ 	if (other != sk &&
+-	    unlikely(unix_peer(other) != sk && unix_recvq_full(other))) {
++	    unlikely(unix_peer(other) != sk &&
++	    unix_recvq_full_lockless(other))) {
+ 		if (timeo) {
+ 			timeo = unix_wait_for_peer(other, timeo);
+ 
+-- 
+2.25.1
+
 
 
