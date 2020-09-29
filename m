@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41AE027C4C9
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 702E327C33F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728880AbgI2LQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:16:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60790 "EHLO mail.kernel.org"
+        id S1728549AbgI2LEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:04:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729557AbgI2LQH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:16:07 -0400
+        id S1728530AbgI2LD6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:03:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5771206DB;
-        Tue, 29 Sep 2020 11:16:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA26F21734;
+        Tue, 29 Sep 2020 11:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378166;
-        bh=ebj9lJkI57ng6Tqyc3i4ARW/ZirUUSd+psChkdtWmhU=;
+        s=default; t=1601377438;
+        bh=TYVQuGaZCsaS6HBn6FNNyf29z3P4FsrFBUAxzFSRrUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQrRJaiNFuGOdWPH88XoFxJ4WVYHNHDRIxvvUBibm8LyqfTykm7pAuPWAjiboBW53
-         21DtOZJBjKX8Iph4RGGtgTrzKalfNAv/KZUkhwMeK5+A71qdKWwSAmDWsU7ZFFAT7h
-         oeux1CF7994L/mGvpT8YDxWYZb5mC7VBCJqlCjCw=
+        b=JbbrkBVQFzKo6uxDG0Ok2E/XJkEIK6pKCEkNEzoq+GRbzE2XKjq/HyNdAuieQXCqX
+         5MhnIv9gPxwysXv2xhKUJa1VzxBnuH2cGXGTEaKUOEdY/Ppdy90y6/QU7oXzwVBlP2
+         UNisixuyef7TxzYIJfzZgsn3X9sxQAHI1zC2Nfbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        stable@vger.kernel.org, Mert Dirik <mertdirik@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 083/166] tpm: ibmvtpm: Wait for buffer to be set before proceeding
+Subject: [PATCH 4.4 28/85] ar5523: Add USB ID of SMCWUSBT-G2 wireless adapter
 Date:   Tue, 29 Sep 2020 12:59:55 +0200
-Message-Id: <20200929105939.359320011@linuxfoundation.org>
+Message-Id: <20200929105929.639843756@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Mert Dirik <mertdirik@gmail.com>
 
-[ Upstream commit d8d74ea3c00214aee1e1826ca18e77944812b9b4 ]
+[ Upstream commit 5b362498a79631f283578b64bf6f4d15ed4cc19a ]
 
-Synchronize with the results from the CRQs before continuing with
-the initialization. This avoids trying to send TPM commands while
-the rtce buffer has not been allocated, yet.
+Add the required USB ID for running SMCWUSBT-G2 wireless adapter (SMC
+"EZ Connect g").
 
-This patch fixes an existing race condition that may occurr if the
-hypervisor does not quickly respond to the VTPM_GET_RTCE_BUFFER_SIZE
-request sent during initialization and therefore the ibmvtpm->rtce_buf
-has not been allocated at the time the first TPM command is sent.
+This device uses ar5523 chipset and requires firmware to be loaded. Even
+though pid of the device is 4507, this patch adds it as 4506 so that
+AR5523_DEVICE_UG macro can set the AR5523_FLAG_PRE_FIRMWARE flag for pid
+4507.
 
-Fixes: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM")
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Acked-by: Nayna Jain <nayna@linux.ibm.com>
-Tested-by: Nayna Jain <nayna@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Mert Dirik <mertdirik@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c | 9 +++++++++
- drivers/char/tpm/tpm_ibmvtpm.h | 1 +
- 2 files changed, 10 insertions(+)
+ drivers/net/wireless/ath/ar5523/ar5523.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
-index 569e93e1f06cc..3ba67bc6baba0 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -588,6 +588,7 @@ static irqreturn_t ibmvtpm_interrupt(int irq, void *vtpm_instance)
- 	 */
- 	while ((crq = ibmvtpm_crq_get_next(ibmvtpm)) != NULL) {
- 		ibmvtpm_crq_process(crq, ibmvtpm);
-+		wake_up_interruptible(&ibmvtpm->crq_queue.wq);
- 		crq->valid = 0;
- 		smp_wmb();
- 	}
-@@ -635,6 +636,7 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
- 	}
- 
- 	crq_q->num_entry = CRQ_RES_BUF_SIZE / sizeof(*crq_q->crq_addr);
-+	init_waitqueue_head(&crq_q->wq);
- 	ibmvtpm->crq_dma_handle = dma_map_single(dev, crq_q->crq_addr,
- 						 CRQ_RES_BUF_SIZE,
- 						 DMA_BIDIRECTIONAL);
-@@ -687,6 +689,13 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
- 	if (rc)
- 		goto init_irq_cleanup;
- 
-+	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
-+				ibmvtpm->rtce_buf != NULL,
-+				HZ)) {
-+		dev_err(dev, "CRQ response timed out\n");
-+		goto init_irq_cleanup;
-+	}
-+
- 	return tpm_chip_register(chip);
- init_irq_cleanup:
- 	do {
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
-index 91dfe766d0800..4f6a124601db4 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.h
-+++ b/drivers/char/tpm/tpm_ibmvtpm.h
-@@ -31,6 +31,7 @@ struct ibmvtpm_crq_queue {
- 	struct ibmvtpm_crq *crq_addr;
- 	u32 index;
- 	u32 num_entry;
-+	wait_queue_head_t wq;
- };
- 
- struct ibmvtpm_dev {
+diff --git a/drivers/net/wireless/ath/ar5523/ar5523.c b/drivers/net/wireless/ath/ar5523/ar5523.c
+index 5bf22057459e6..bc6330b437958 100644
+--- a/drivers/net/wireless/ath/ar5523/ar5523.c
++++ b/drivers/net/wireless/ath/ar5523/ar5523.c
+@@ -1774,6 +1774,8 @@ static struct usb_device_id ar5523_id_table[] = {
+ 	AR5523_DEVICE_UX(0x0846, 0x4300),	/* Netgear / WG111U */
+ 	AR5523_DEVICE_UG(0x0846, 0x4250),	/* Netgear / WG111T */
+ 	AR5523_DEVICE_UG(0x0846, 0x5f00),	/* Netgear / WPN111 */
++	AR5523_DEVICE_UG(0x083a, 0x4506),	/* SMC / EZ Connect
++						   SMCWUSBT-G2 */
+ 	AR5523_DEVICE_UG(0x157e, 0x3006),	/* Umedia / AR5523_1 */
+ 	AR5523_DEVICE_UX(0x157e, 0x3205),	/* Umedia / AR5523_2 */
+ 	AR5523_DEVICE_UG(0x157e, 0x3006),	/* Umedia / TEW444UBEU */
 -- 
 2.25.1
 
