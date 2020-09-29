@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89EDE27C95E
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:10:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A21B27C916
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:07:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730769AbgI2MKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:10:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54448 "EHLO mail.kernel.org"
+        id S1731871AbgI2MH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:07:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730196AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:34 -0400
+        id S1730238AbgI2Lhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23E1F23976;
-        Tue, 29 Sep 2020 11:22:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13E862376F;
+        Tue, 29 Sep 2020 11:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378531;
-        bh=x93slcT6lqF7N3ajgrVNaePxm5mU01HcyMY13yicPS0=;
+        s=default; t=1601379381;
+        bh=Hcyl6z3B1/m/mJGIPwQu7w5hswHWOPYrcDWuFQMM60k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9GaX4LT7ni4LVi9QIoI57OBYFlzD8DmnhJY/23vTlPbaRA7MacTF03004t0y04j2
-         kvKfoKGCSFjvWLw0axI7Yxc9yPGWdtQsUgLpPB95/WYze+UrxOAK2KjleVfbXXSJBk
-         K7ZvGnN5IXtISR//JUr0oCuG13M4aB17Knl0xfNI=
+        b=BXqLDv3BZS27UNZaJZ2Fi4jejwxsY1tzM6N2JAkWDEhySD3HBcd1rZKDXNHONlwXv
+         z2yid+WUpmlLxBTy3+ch4jv341tSy1ZZqG1C9bBmQusiOite9ncU1Uozj1lAw0GyOH
+         h1JJqfq6reYvR2+xUfwVi1yGkaO/qpagXxD7K7W8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Andy Lavr <andy.lavr@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Joe Perches <joe@perches.com>,
-        Kees Cook <keescook@chromium.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 017/245] lib/string.c: implement stpcpy
-Date:   Tue, 29 Sep 2020 12:57:48 +0200
-Message-Id: <20200929105947.829343036@linuxfoundation.org>
+        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 138/388] drm/omap: dss: Cleanup DSS ports on initialisation failure
+Date:   Tue, 29 Sep 2020 12:57:49 +0200
+Message-Id: <20200929110017.154776386@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,123 +46,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-commit 1e1b6d63d6340764e00356873e5794225a2a03ea upstream.
+[ Upstream commit 2a0a3ae17d36fa86dcf7c8e8d7b7f056ebd6c064 ]
 
-LLVM implemented a recent "libcall optimization" that lowers calls to
-`sprintf(dest, "%s", str)` where the return value is used to
-`stpcpy(dest, str) - dest`.
+When the DSS initialises its output DPI and SDI ports, failures don't
+clean up previous successfully initialised ports. This can lead to
+resource leak or memory corruption. Fix it.
 
-This generally avoids the machinery involved in parsing format strings.
-`stpcpy` is just like `strcpy` except it returns the pointer to the new
-tail of `dest`.  This optimization was introduced into clang-12.
-
-Implement this so that we don't observe linkage failures due to missing
-symbol definitions for `stpcpy`.
-
-Similar to last year's fire drill with: commit 5f074f3e192f
-("lib/string.c: implement a basic bcmp")
-
-The kernel is somewhere between a "freestanding" environment (no full
-libc) and "hosted" environment (many symbols from libc exist with the
-same type, function signature, and semantics).
-
-As Peter Anvin notes, there's not really a great way to inform the
-compiler that you're targeting a freestanding environment but would like
-to opt-in to some libcall optimizations (see pr/47280 below), rather
-than opt-out.
-
-Arvind notes, -fno-builtin-* behaves slightly differently between GCC
-and Clang, and Clang is missing many __builtin_* definitions, which I
-consider a bug in Clang and am working on fixing.
-
-Masahiro summarizes the subtle distinction between compilers justly:
-  To prevent transformation from foo() into bar(), there are two ways in
-  Clang to do that; -fno-builtin-foo, and -fno-builtin-bar.  There is
-  only one in GCC; -fno-buitin-foo.
-
-(Any difference in that behavior in Clang is likely a bug from a missing
-__builtin_* definition.)
-
-Masahiro also notes:
-  We want to disable optimization from foo() to bar(),
-  but we may still benefit from the optimization from
-  foo() into something else. If GCC implements the same transform, we
-  would run into a problem because it is not -fno-builtin-bar, but
-  -fno-builtin-foo that disables that optimization.
-
-  In this regard, -fno-builtin-foo would be more future-proof than
-  -fno-built-bar, but -fno-builtin-foo is still potentially overkill. We
-  may want to prevent calls from foo() being optimized into calls to
-  bar(), but we still may want other optimization on calls to foo().
-
-It seems that compilers today don't quite provide the fine grain control
-over which libcall optimizations pseudo-freestanding environments would
-prefer.
-
-Finally, Kees notes that this interface is unsafe, so we should not
-encourage its use.  As such, I've removed the declaration from any
-header, but it still needs to be exported to avoid linkage errors in
-modules.
-
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Suggested-by: Andy Lavr <andy.lavr@gmail.com>
-Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
-Suggested-by: Joe Perches <joe@perches.com>
-Suggested-by: Kees Cook <keescook@chromium.org>
-Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
-Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200914161643.938408-1-ndesaulniers@google.com
-Link: https://bugs.llvm.org/show_bug.cgi?id=47162
-Link: https://bugs.llvm.org/show_bug.cgi?id=47280
-Link: https://github.com/ClangBuiltLinux/linux/issues/1126
-Link: https://man7.org/linux/man-pages/man3/stpcpy.3.html
-Link: https://pubs.opengroup.org/onlinepubs/9699919799/functions/stpcpy.html
-Link: https://reviews.llvm.org/D85963
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200226112514.12455-22-laurent.pinchart@ideasonboard.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/string.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/gpu/drm/omapdrm/dss/dss.c | 43 +++++++++++++++++++------------
+ 1 file changed, 26 insertions(+), 17 deletions(-)
 
---- a/lib/string.c
-+++ b/lib/string.c
-@@ -236,6 +236,30 @@ ssize_t strscpy(char *dest, const char *
- EXPORT_SYMBOL(strscpy);
- #endif
+diff --git a/drivers/gpu/drm/omapdrm/dss/dss.c b/drivers/gpu/drm/omapdrm/dss/dss.c
+index 4bdd63b571002..ac93dae2a9c84 100644
+--- a/drivers/gpu/drm/omapdrm/dss/dss.c
++++ b/drivers/gpu/drm/omapdrm/dss/dss.c
+@@ -1151,46 +1151,38 @@ static const struct dss_features dra7xx_dss_feats = {
+ 	.has_lcd_clk_src	=	true,
+ };
  
-+/**
-+ * stpcpy - copy a string from src to dest returning a pointer to the new end
-+ *          of dest, including src's %NUL-terminator. May overrun dest.
-+ * @dest: pointer to end of string being copied into. Must be large enough
-+ *        to receive copy.
-+ * @src: pointer to the beginning of string being copied from. Must not overlap
-+ *       dest.
-+ *
-+ * stpcpy differs from strcpy in a key way: the return value is a pointer
-+ * to the new %NUL-terminating character in @dest. (For strcpy, the return
-+ * value is a pointer to the start of @dest). This interface is considered
-+ * unsafe as it doesn't perform bounds checking of the inputs. As such it's
-+ * not recommended for usage. Instead, its definition is provided in case
-+ * the compiler lowers other libcalls to stpcpy.
-+ */
-+char *stpcpy(char *__restrict__ dest, const char *__restrict__ src);
-+char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
-+{
-+	while ((*dest++ = *src++) != '\0')
-+		/* nothing */;
-+	return --dest;
-+}
-+EXPORT_SYMBOL(stpcpy);
+-static int dss_init_ports(struct dss_device *dss)
++static void __dss_uninit_ports(struct dss_device *dss, unsigned int num_ports)
+ {
+ 	struct platform_device *pdev = dss->pdev;
+ 	struct device_node *parent = pdev->dev.of_node;
+ 	struct device_node *port;
+ 	unsigned int i;
+-	int r;
+ 
+-	for (i = 0; i < dss->feat->num_ports; i++) {
++	for (i = 0; i < num_ports; i++) {
+ 		port = of_graph_get_port_by_id(parent, i);
+ 		if (!port)
+ 			continue;
+ 
+ 		switch (dss->feat->ports[i]) {
+ 		case OMAP_DISPLAY_TYPE_DPI:
+-			r = dpi_init_port(dss, pdev, port, dss->feat->model);
+-			if (r)
+-				return r;
++			dpi_uninit_port(port);
+ 			break;
+-
+ 		case OMAP_DISPLAY_TYPE_SDI:
+-			r = sdi_init_port(dss, pdev, port);
+-			if (r)
+-				return r;
++			sdi_uninit_port(port);
+ 			break;
+-
+ 		default:
+ 			break;
+ 		}
+ 	}
+-
+-	return 0;
+ }
+ 
+-static void dss_uninit_ports(struct dss_device *dss)
++static int dss_init_ports(struct dss_device *dss)
+ {
+ 	struct platform_device *pdev = dss->pdev;
+ 	struct device_node *parent = pdev->dev.of_node;
+ 	struct device_node *port;
+-	int i;
++	unsigned int i;
++	int r;
+ 
+ 	for (i = 0; i < dss->feat->num_ports; i++) {
+ 		port = of_graph_get_port_by_id(parent, i);
+@@ -1199,15 +1191,32 @@ static void dss_uninit_ports(struct dss_device *dss)
+ 
+ 		switch (dss->feat->ports[i]) {
+ 		case OMAP_DISPLAY_TYPE_DPI:
+-			dpi_uninit_port(port);
++			r = dpi_init_port(dss, pdev, port, dss->feat->model);
++			if (r)
++				goto error;
+ 			break;
 +
- #ifndef __HAVE_ARCH_STRCAT
- /**
-  * strcat - Append one %NUL-terminated string to another
+ 		case OMAP_DISPLAY_TYPE_SDI:
+-			sdi_uninit_port(port);
++			r = sdi_init_port(dss, pdev, port);
++			if (r)
++				goto error;
+ 			break;
++
+ 		default:
+ 			break;
+ 		}
+ 	}
++
++	return 0;
++
++error:
++	__dss_uninit_ports(dss, i);
++	return r;
++}
++
++static void dss_uninit_ports(struct dss_device *dss)
++{
++	__dss_uninit_ports(dss, dss->feat->num_ports);
+ }
+ 
+ static int dss_video_pll_probe(struct dss_device *dss)
+-- 
+2.25.1
+
 
 
