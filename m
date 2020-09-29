@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D10F827C51F
+	by mail.lfdr.de (Postfix) with ESMTP id 45EC427C51E
 	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:31:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728993AbgI2LbB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:31:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43570 "EHLO mail.kernel.org"
+        id S1729361AbgI2La7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:30:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728441AbgI2L3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728993AbgI2L3Y (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:29:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C28BF23A61;
-        Tue, 29 Sep 2020 11:23:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88DF623A63;
+        Tue, 29 Sep 2020 11:23:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378636;
-        bh=elcW+3rFUndpO2AS3fsDWk3P0VNT7odMINnacH0N4jk=;
+        s=default; t=1601378639;
+        bh=OOeHGkTyHf/xxJPobnQ823AgM3ilCrmnscfvk67GYOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntWMR0H03C5rZ7DGVoxkQeoxeIG1nCkBQ9IftXhJEmhw2dUESrarK2qFsx1aNH79F
-         Sk6nYmfTJ+rQvLXrnpE3y+79jc/0ctWAJtziPtHSlCfpca5KWBRWQ3BXW4hErtGSBQ
-         tcmXG/ZouddPnCXMG/3WtMPyX3p+ruAuDaQPFKcw=
+        b=VeRsO/5a0ErEyORxOd9xzKgGJJ8iTS5pIJeJO0yIRTFNwiqqqB9N++SLVb8oajFvr
+         IDlmrAOvN/Eq+OzEjRxq0KIrCCAp8irn2We4Q9VBLfYuDrc8cbfejByuR65rdeiHHe
+         upcLf24ankRONwexGPAsBS8Cok9jgBE5AGD3ek+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amelie Delaunay <amelie.delaunay@st.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/245] dmaengine: stm32-mdma: use vchan_terminate_vdesc() in .terminate_all
-Date:   Tue, 29 Sep 2020 12:58:56 +0200
-Message-Id: <20200929105951.128539030@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Steve Longerbeam <slongerbeam@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 086/245] media: staging/imx: Missing assignment in imx_media_capture_device_register()
+Date:   Tue, 29 Sep 2020 12:58:57 +0200
+Message-Id: <20200929105951.178054998@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -42,58 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@st.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit dfc708812a2acfc0ca56f56233b3c3e7b0d4ffe7 ]
+[ Upstream commit ef0ed05dcef8a74178a8b480cce23a377b1de2b8 ]
 
-To avoid race with vchan_complete, use the race free way to terminate
-running transfer.
+There was supposed to be a "ret = " assignment here, otherwise the
+error handling on the next line won't work.
 
-Move vdesc->node list_del in stm32_mdma_start_transfer instead of in
-stm32_mdma_xfer_end to avoid another race in vchan_dma_desc_free_list.
-
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-Link: https://lore.kernel.org/r/20200127085334.13163-7-amelie.delaunay@st.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 64b5a49df486 ("[media] media: imx: Add Capture Device Interface")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Steve Longerbeam <slongerbeam@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/stm32-mdma.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/staging/media/imx/imx-media-capture.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/stm32-mdma.c b/drivers/dma/stm32-mdma.c
-index 8c3c3e5b812a8..9c6867916e890 100644
---- a/drivers/dma/stm32-mdma.c
-+++ b/drivers/dma/stm32-mdma.c
-@@ -1137,6 +1137,8 @@ static void stm32_mdma_start_transfer(struct stm32_mdma_chan *chan)
- 		return;
- 	}
- 
-+	list_del(&vdesc->node);
-+
- 	chan->desc = to_stm32_mdma_desc(vdesc);
- 	hwdesc = chan->desc->node[0].hwdesc;
- 	chan->curr_hwdesc = 0;
-@@ -1252,8 +1254,10 @@ static int stm32_mdma_terminate_all(struct dma_chan *c)
- 	LIST_HEAD(head);
- 
- 	spin_lock_irqsave(&chan->vchan.lock, flags);
--	if (chan->busy) {
--		stm32_mdma_stop(chan);
-+	if (chan->desc) {
-+		vchan_terminate_vdesc(&chan->desc->vdesc);
-+		if (chan->busy)
-+			stm32_mdma_stop(chan);
- 		chan->desc = NULL;
- 	}
- 	vchan_get_all_descriptors(&chan->vchan, &head);
-@@ -1341,7 +1345,6 @@ static enum dma_status stm32_mdma_tx_status(struct dma_chan *c,
- 
- static void stm32_mdma_xfer_end(struct stm32_mdma_chan *chan)
- {
--	list_del(&chan->desc->vdesc.node);
- 	vchan_cookie_complete(&chan->desc->vdesc);
- 	chan->desc = NULL;
- 	chan->busy = false;
+diff --git a/drivers/staging/media/imx/imx-media-capture.c b/drivers/staging/media/imx/imx-media-capture.c
+index 256039ce561e6..81a3370551dbc 100644
+--- a/drivers/staging/media/imx/imx-media-capture.c
++++ b/drivers/staging/media/imx/imx-media-capture.c
+@@ -678,7 +678,7 @@ int imx_media_capture_device_register(struct imx_media_video_dev *vdev)
+ 	/* setup default format */
+ 	fmt_src.pad = priv->src_sd_pad;
+ 	fmt_src.which = V4L2_SUBDEV_FORMAT_ACTIVE;
+-	v4l2_subdev_call(sd, pad, get_fmt, NULL, &fmt_src);
++	ret = v4l2_subdev_call(sd, pad, get_fmt, NULL, &fmt_src);
+ 	if (ret) {
+ 		v4l2_err(sd, "failed to get src_sd format\n");
+ 		goto unreg;
 -- 
 2.25.1
 
