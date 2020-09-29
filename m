@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EFD327C71E
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0455727C788
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730949AbgI2Lve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:51:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50574 "EHLO mail.kernel.org"
+        id S1730963AbgI2Lyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:54:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731124AbgI2LsV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:48:21 -0400
+        id S1729887AbgI2Lpr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:45:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA4D52075F;
-        Tue, 29 Sep 2020 11:48:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E947E20848;
+        Tue, 29 Sep 2020 11:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380100;
-        bh=JWUZ9TvXHYgg36QPlpyBGEFi3X8ZSm9V9UphXQ3IXXs=;
+        s=default; t=1601379946;
+        bh=WtJ1Sl6cCrIO9XKo/mxPthN63NtqLzILI6fpQuq1s1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HWTDVDip9TAULr7bPl8i8Lq/h+KlYUVqgDjKR3pBr/HrGQ8AJheAPa7Hq8XyaCtag
-         w6e2FjEv1mDNpxhVfNcdNm0NuveMW8dMF2weC2sxxFKnGHxHyUTIHxIQHVixmdyvVw
-         g9GJTrYtxZM5yIX1qLV9JGbpVNK4YkECEqx9fcfY=
+        b=fvAlCYdAb4Kom3pKujfNHsdKusr/NmsVgWiHGVmMxBJufqONcW5Rzei47yLf2nEOv
+         mAgaaASBpY0QX33YdWCA+ql91NE9b6jl9BexOCcey6imWaKWqbctJHSNlBOKMgCNj7
+         Vm44wXTYb0jzHxquEBxFfbiH0ay/Z2wiOMycPUz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 68/99] KVM: x86: Reset MMU context if guest toggles CR4.SMAP or CR4.PKE
+        stable@vger.kernel.org, Gao Xiang <hsiangkao@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Rafael Aquini <aquini@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Carlos Maiolino <cmaiolino@redhat.com>,
+        Eric Sandeen <esandeen@redhat.com>,
+        Dave Chinner <david@fromorbit.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 380/388] mm, THP, swap: fix allocating cluster for swapfile by mistake
 Date:   Tue, 29 Sep 2020 13:01:51 +0200
-Message-Id: <20200929105933.073320085@linuxfoundation.org>
+Message-Id: <20200929110028.862419888@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +50,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Gao Xiang <hsiangkao@redhat.com>
 
-[ Upstream commit 8d214c481611b29458a57913bd786f0ac06f0605 ]
+commit 41663430588c737dd735bad5a0d1ba325dcabd59 upstream.
 
-Reset the MMU context during kvm_set_cr4() if SMAP or PKE is toggled.
-Recent commits to (correctly) not reload PDPTRs when SMAP/PKE are
-toggled inadvertantly skipped the MMU context reset due to the mask
-of bits that triggers PDPTR loads also being used to trigger MMU context
-resets.
+SWP_FS is used to make swap_{read,write}page() go through the
+filesystem, and it's only used for swap files over NFS.  So, !SWP_FS
+means non NFS for now, it could be either file backed or device backed.
+Something similar goes with legacy SWP_FILE.
 
-Fixes: 427890aff855 ("kvm: x86: Toggling CR4.SMAP does not load PDPTEs in PAE mode")
-Fixes: cb957adb4ea4 ("kvm: x86: Toggling CR4.PKE does not load PDPTEs in PAE mode")
-Cc: Jim Mattson <jmattson@google.com>
-Cc: Peter Shier <pshier@google.com>
-Cc: Oliver Upton <oupton@google.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200923215352.17756-1-sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So in order to achieve the goal of the original patch, SWP_BLKDEV should
+be used instead.
+
+FS corruption can be observed with SSD device + XFS + fragmented
+swapfile due to CONFIG_THP_SWAP=y.
+
+I reproduced the issue with the following details:
+
+Environment:
+
+  QEMU + upstream kernel + buildroot + NVMe (2 GB)
+
+Kernel config:
+
+  CONFIG_BLK_DEV_NVME=y
+  CONFIG_THP_SWAP=y
+
+Some reproducible steps:
+
+  mkfs.xfs -f /dev/nvme0n1
+  mkdir /tmp/mnt
+  mount /dev/nvme0n1 /tmp/mnt
+  bs="32k"
+  sz="1024m"    # doesn't matter too much, I also tried 16m
+  xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+  xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+  xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+  xfs_io -f -c "pwrite -F -S 0 -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
+  xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fsync" /tmp/mnt/sw
+
+  mkswap /tmp/mnt/sw
+  swapon /tmp/mnt/sw
+
+  stress --vm 2 --vm-bytes 600M   # doesn't matter too much as well
+
+Symptoms:
+ - FS corruption (e.g. checksum failure)
+ - memory corruption at: 0xd2808010
+ - segfault
+
+Fixes: f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
+Fixes: 38d8b4e6bdc8 ("mm, THP, swap: delay splitting THP during swap out")
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Acked-by: Rafael Aquini <aquini@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Carlos Maiolino <cmaiolino@redhat.com>
+Cc: Eric Sandeen <esandeen@redhat.com>
+Cc: Dave Chinner <david@fromorbit.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200820045323.7809-1-hsiangkao@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kvm/x86.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/swapfile.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index f5481ae588aff..a04f8abd0ead9 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -968,6 +968,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
- 	unsigned long old_cr4 = kvm_read_cr4(vcpu);
- 	unsigned long pdptr_bits = X86_CR4_PGE | X86_CR4_PSE | X86_CR4_PAE |
- 				   X86_CR4_SMEP;
-+	unsigned long mmu_role_bits = pdptr_bits | X86_CR4_SMAP | X86_CR4_PKE;
- 
- 	if (kvm_valid_cr4(vcpu, cr4))
- 		return 1;
-@@ -995,7 +996,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
- 	if (kvm_x86_ops.set_cr4(vcpu, cr4))
- 		return 1;
- 
--	if (((cr4 ^ old_cr4) & pdptr_bits) ||
-+	if (((cr4 ^ old_cr4) & mmu_role_bits) ||
- 	    (!(cr4 & X86_CR4_PCIDE) && (old_cr4 & X86_CR4_PCIDE)))
- 		kvm_mmu_reset_context(vcpu);
- 
--- 
-2.25.1
-
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -1038,7 +1038,7 @@ start_over:
+ 			goto nextsi;
+ 		}
+ 		if (size == SWAPFILE_CLUSTER) {
+-			if (!(si->flags & SWP_FS))
++			if (si->flags & SWP_BLKDEV)
+ 				n_ret = swap_alloc_cluster(si, swp_entries);
+ 		} else
+ 			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
 
 
