@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E75527CD31
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:42:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC3727CC94
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:37:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728749AbgI2LL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:11:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52088 "EHLO mail.kernel.org"
+        id S1732225AbgI2MhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:37:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729202AbgI2LK6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:10:58 -0400
+        id S1729423AbgI2LU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:20:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0255206A5;
-        Tue, 29 Sep 2020 11:10:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28577221F0;
+        Tue, 29 Sep 2020 11:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377858;
-        bh=7TO7qrRdF2w3UgLtQoTyJX5GGyPldyKEtr4DfDZyzR0=;
+        s=default; t=1601378293;
+        bh=Esh9XX7sK0QzwJY5HJxLpsdnFAvWg67UV2BrQKFtAKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6MgarHzhEBOzAVLqWZ/hPpt6ksk0ojxHphxQtw+jLJZacCdh0Oin6fbPax/Z8dmV
-         s7fUL/IUDDYwRPsgZ4gr0gV0ISifj8i2z9qSAh6daq+LV7eE8HyYTyBuYeFtiNCrLG
-         +4nZnFcdY3L/NTPwN7AV7sYUhwhRvl7R3nUptO9Y=
+        b=hwrmecxX2qDQ9YWYcutc9+sZeDa6AhxlEDs7wAl30Y+VenAoD8Yh/g/2ZH8aKqwmn
+         2OkhSAg4CZtammD6XWnmhuRJ+Pz2a2UFbcRkNtlStenOEk8ZpqdRcaJb9uukk5TP11
+         jVWiSftZztJEqKnO4kVt3k+rExNlldmrPc8Qu73w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 098/121] x86/speculation/mds: Mark mds_user_clear_cpu_buffers() __always_inline
+Subject: [PATCH 4.14 130/166] mtd: rawnand: omap_elm: Fix runtime PM imbalance on error
 Date:   Tue, 29 Sep 2020 13:00:42 +0200
-Message-Id: <20200929105935.036192257@linuxfoundation.org>
+Message-Id: <20200929105941.691133462@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit a7ef9ba986b5fae9d80f8a7b31db0423687efe4e ]
+[ Upstream commit 37f7212148cf1d796135cdf8d0c7fee13067674b ]
 
-Prevent the compiler from uninlining and creating traceable/probable
-functions as this is invoked _after_ context tracking switched to
-CONTEXT_USER and rcu idle.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+when it returns an error code. Thus a pairing decrement is needed on
+the error handling path to keep the counter balanced.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Alexandre Chartre <alexandre.chartre@oracle.com>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200505134340.902709267@linutronix.de
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200522104008.28340-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/nospec-branch.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/omap_elm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index 4af16acc001a3..204a5ce65afda 100644
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -321,7 +321,7 @@ DECLARE_STATIC_KEY_FALSE(mds_idle_clear);
-  * combination with microcode which triggers a CPU buffer flush when the
-  * instruction is executed.
-  */
--static inline void mds_clear_cpu_buffers(void)
-+static __always_inline void mds_clear_cpu_buffers(void)
- {
- 	static const u16 ds = __KERNEL_DS;
- 
-@@ -342,7 +342,7 @@ static inline void mds_clear_cpu_buffers(void)
-  *
-  * Clear CPU buffers if the corresponding static key is enabled
-  */
--static inline void mds_user_clear_cpu_buffers(void)
-+static __always_inline void mds_user_clear_cpu_buffers(void)
- {
- 	if (static_branch_likely(&mds_user_clear))
- 		mds_clear_cpu_buffers();
+diff --git a/drivers/mtd/nand/omap_elm.c b/drivers/mtd/nand/omap_elm.c
+index a3f32f939cc17..6736777a41567 100644
+--- a/drivers/mtd/nand/omap_elm.c
++++ b/drivers/mtd/nand/omap_elm.c
+@@ -421,6 +421,7 @@ static int elm_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 	if (pm_runtime_get_sync(&pdev->dev) < 0) {
+ 		ret = -EINVAL;
++		pm_runtime_put_sync(&pdev->dev);
+ 		pm_runtime_disable(&pdev->dev);
+ 		dev_err(&pdev->dev, "can't enable clock\n");
+ 		return ret;
 -- 
 2.25.1
 
