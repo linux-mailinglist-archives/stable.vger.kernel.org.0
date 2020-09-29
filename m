@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCBA27C94C
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:09:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D30D27C8BE
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:05:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731612AbgI2MJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:09:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52840 "EHLO mail.kernel.org"
+        id S1731744AbgI2MER (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:04:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730205AbgI2Lhf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:35 -0400
+        id S1730312AbgI2Lhu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E87EE23A40;
-        Tue, 29 Sep 2020 11:22:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFEBA206E5;
+        Tue, 29 Sep 2020 11:37:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378557;
-        bh=jE3e13qSpJMENANMV8jXxE2G5zeQxR+Lw9XEoDM/qEs=;
+        s=default; t=1601379470;
+        bh=30aueBxnLewts4sm1SeRzuk0NwIdhEbuLDPo3L7enzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1XYhKQSjd00ktkrsq5v6ECfZmIdlzfCSe5AnfTMFbvCat9fOrn4QIOgmdLjGSp8SG
-         aUi9lNfI+2PgdoGG4+YEUGiP6MmyRLdbdNxaU34QI/vs8VkDX+YegrBlK+raYURA1E
-         yUrkpOppbvjoWRzA3aR2umwnqPnCLupPm9sSK99A=
+        b=sXouKY5S2niotCguDVPzw8zVCKdU0HwGmbxza7qI1jI4PsZ8MRTB2jXv0ch+1CvII
+         UGF+mAR1fFVyxO4jCI6Tcf+fUVQfaynmK8PxrNydiwNRDRPc4TNsVU/2yQiGsTn14w
+         8/bpPouIL1/wUUYimvGKilciMfyYhfoAgvuWa9p4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 057/245] s390/cpum_sf: Use kzalloc and minor changes
+Subject: [PATCH 5.4 177/388] tracing: Use address-of operator on section symbols
 Date:   Tue, 29 Sep 2020 12:58:28 +0200
-Message-Id: <20200929105949.771440541@linuxfoundation.org>
+Message-Id: <20200929110019.053622499@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 32dab6828c42f087439d3e2617dc7283546bd8f7 ]
+[ Upstream commit bf2cbe044da275021b2de5917240411a19e5c50d ]
 
-Use kzalloc() to allocate auxiliary buffer structure initialized
-with all zeroes to avoid random value in trace output.
+Clang warns:
 
-Avoid double access to SBD hardware flags.
+../kernel/trace/trace.c:9335:33: warning: array comparison always
+evaluates to true [-Wtautological-compare]
+        if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
+                                       ^
+1 warning generated.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+These are not true arrays, they are linker defined symbols, which are
+just addresses. Using the address of operator silences the warning and
+does not change the runtime result of the check (tested with some print
+statements compiled in with clang + ld.lld and gcc + ld.bfd in QEMU).
+
+Link: http://lkml.kernel.org/r/20200220051011.26113-1-natechancellor@gmail.com
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/893
+Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ kernel/trace/trace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 74a296cea21cc..0e6d01225a670 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1377,8 +1377,8 @@ static int aux_output_begin(struct perf_output_handle *handle,
- 		idx = aux->empty_mark + 1;
- 		for (i = 0; i < range_scan; i++, idx++) {
- 			te = aux_sdb_trailer(aux, idx);
--			te->flags = te->flags & ~SDB_TE_BUFFER_FULL_MASK;
--			te->flags = te->flags & ~SDB_TE_ALERT_REQ_MASK;
-+			te->flags &= ~(SDB_TE_BUFFER_FULL_MASK |
-+				       SDB_TE_ALERT_REQ_MASK);
- 			te->overflow = 0;
- 		}
- 		/* Save the position of empty SDBs */
-@@ -1425,8 +1425,7 @@ static bool aux_set_alert(struct aux_buffer *aux, unsigned long alert_index,
- 	te = aux_sdb_trailer(aux, alert_index);
- 	do {
- 		orig_flags = te->flags;
--		orig_overflow = te->overflow;
--		*overflow = orig_overflow;
-+		*overflow = orig_overflow = te->overflow;
- 		if (orig_flags & SDB_TE_BUFFER_FULL_MASK) {
- 			/*
- 			 * SDB is already set by hardware.
-@@ -1660,7 +1659,7 @@ static void *aux_buffer_setup(struct perf_event *event, void **pages,
- 	}
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 9007f5edbb207..db8162b34ef64 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -9146,7 +9146,7 @@ __init static int tracer_alloc_buffers(void)
+ 		goto out_free_buffer_mask;
  
- 	/* Allocate aux_buffer struct for the event */
--	aux = kmalloc(sizeof(struct aux_buffer), GFP_KERNEL);
-+	aux = kzalloc(sizeof(struct aux_buffer), GFP_KERNEL);
- 	if (!aux)
- 		goto no_aux;
- 	sfb = &aux->sfb;
+ 	/* Only allocate trace_printk buffers if a trace_printk exists */
+-	if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
++	if (&__stop___trace_bprintk_fmt != &__start___trace_bprintk_fmt)
+ 		/* Must be called before global_trace.buffer is allocated */
+ 		trace_printk_init_buffers();
+ 
 -- 
 2.25.1
 
