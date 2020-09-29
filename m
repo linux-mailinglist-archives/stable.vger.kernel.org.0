@@ -2,84 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C207227D9BF
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 23:06:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 450AA27D9C0
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 23:08:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726643AbgI2VGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 17:06:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41962 "EHLO
+        id S1728820AbgI2VIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 17:08:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729296AbgI2VGM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 17:06:12 -0400
-Received: from mx0b-00190b01.pphosted.com (mx0b-00190b01.pphosted.com [IPv6:2620:100:9005:57f::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 052F0C061755
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 14:06:11 -0700 (PDT)
-Received: from pps.filterd (m0050102.ppops.net [127.0.0.1])
-        by m0050102.ppops.net-00190b01. (8.16.0.42/8.16.0.42) with SMTP id 08TL0xKo021731;
-        Tue, 29 Sep 2020 22:06:11 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=from : to : cc :
- subject : date : message-id : content-type : content-transfer-encoding :
- mime-version; s=jan2016.eng;
- bh=Akmpk6dAx2xbbTQRdChpr7bjYHZHho3FysaagPyfY5E=;
- b=IIi2ZpsXgPNtzMaguX695Jp0ZHAuQGX2IkeBqsVJ5iza9x6orUYcmg6kEikJ1WxYedzl
- /UP4+F1giybg6Sj+W9GSyKJcK0Uid5boy20cvvlxo2jm0S1x/5NP8BzKU/5PXZG1mc9M
- YPtc53R0NgrS8lFe+hAPv7V92AytzB3kJYxgqXGoerm3eWECtx9usVun7wQFRQ28AJiI
- AWctTDjNnKR+aRB7MojxR3TkZXWFfiISR2CFu4GWvXCyjWZF6f59UvxjD1snRE+FsToE
- IaG47qoxhCaLg1ijn7djhFeOfk2lidxXjv7Ij0CKFzyZx9Bl3W+vr5SPMYY8DNdIqUeK 5Q== 
-Received: from prod-mail-ppoint3 (a72-247-45-31.deploy.static.akamaitechnologies.com [72.247.45.31] (may be forged))
-        by m0050102.ppops.net-00190b01. with ESMTP id 33stqm5w02-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Sep 2020 22:06:11 +0100
-Received: from pps.filterd (prod-mail-ppoint3.akamai.com [127.0.0.1])
-        by prod-mail-ppoint3.akamai.com (8.16.0.42/8.16.0.42) with SMTP id 08TL5mZ1027619;
-        Tue, 29 Sep 2020 17:06:10 -0400
-Received: from email.msg.corp.akamai.com ([172.27.165.118])
-        by prod-mail-ppoint3.akamai.com with ESMTP id 33t0yxtnrb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Tue, 29 Sep 2020 17:06:10 -0400
-Received: from ustx2ex-dag1mb6.msg.corp.akamai.com (172.27.165.124) by
- ustx2ex-dag1mb2.msg.corp.akamai.com (172.27.165.120) with Microsoft SMTP
- Server (TLS) id 15.0.1497.2; Tue, 29 Sep 2020 16:06:09 -0500
-Received: from ustx2ex-dag1mb6.msg.corp.akamai.com ([172.27.165.124]) by
- ustx2ex-dag1mb6.msg.corp.akamai.com ([172.27.165.124]) with mapi id
- 15.00.1497.006; Tue, 29 Sep 2020 16:06:09 -0500
-From:   "Banerjee, Debabrata" <dbanerje@akamai.com>
-To:     "'stable@vger.kernel.org'" <stable@vger.kernel.org>
-CC:     'Konstantin Khlebnikov' <khlebnikov@yandex-team.ru>
-Subject: block/diskstats: more accurate approximation of io_ticks for slow
- disks
-Thread-Topic: block/diskstats: more accurate approximation of io_ticks for
- slow disks
-Thread-Index: AdaWo1DS0JdD8FofSbOj6tZpu0wINg==
-Date:   Tue, 29 Sep 2020 21:06:09 +0000
-Message-ID: <5556dc903145475bbe9fc5fa7d116a05@ustx2ex-dag1mb6.msg.corp.akamai.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [172.28.122.90]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S1727347AbgI2VIL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 17:08:11 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B9A0C061755;
+        Tue, 29 Sep 2020 14:08:11 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id 95so5847984ota.13;
+        Tue, 29 Sep 2020 14:08:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=PlmNXw7ZpFTwSV3L+F5jDFoW1vvdajkclsGk3mMsf4k=;
+        b=mXmdQXAsrxqScrzTvmHDTNHXXq/PBtM6GvG22NOOWp8K5sqChjRxJYFMi9JfMCiW1A
+         yGXoIzQK60jUF06Zrxpj8jn0nAxuHiwim01gSOKBFSA9eL+SZPjsPvxXkTahWnAx5OTx
+         jRJ9LZIVMquVE8YzPGNaW/i5qW+FtqJ5DrA2XNr1konCcDZr/d+LzQ3N/hSRkEx4xOA6
+         cbiW3TMHroFVDHbYwEqkv7txMjv2vIZZh04wiEOvHaWE3NeB472Iq/ji133B5BzFcLoc
+         XPND7vGkt2msl4r0/fDWKgTFePxHgneXH3OUUBg4gknHY18jBmDBXcU/9ysdChS9eMkD
+         AW4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to:user-agent;
+        bh=PlmNXw7ZpFTwSV3L+F5jDFoW1vvdajkclsGk3mMsf4k=;
+        b=U6symX+C+lrobPdUP+3qg847HPmGH5UuaI4+ItRJAia4vbg9uDE4XA08Wx2VCYmnGt
+         yPi1eDvHMAADLR2ZDeYS1i7xvKVhv62GfgQnPspmlVcqLtG2obhxcgAEDPybDfMmsV4P
+         mj9t6qAiloD43PMNZRneOQte9q2XibS4MKphE3SpPvUfBF8SVOj1eYNrOnAG93K07I9G
+         HsvBmMAveQpyKtqfXakRoUeq9N2/28fvASjLvV1F7sAAGZNKARV6VGy/wS+3zQbnhGTb
+         oqBkWM1OBkQf+VO066BXORSjTQcDje+LcqgZ+eD9Qm8iolhkQ+2ivI1MoOoUheNFhfvu
+         kw6Q==
+X-Gm-Message-State: AOAM532RRCaE6C0S7ndGyLKwVfHZT01CEfNYgbs+rlrPXTSw0s5D5/Xm
+        e1XVZgLORqv+K7bSF90GGSA=
+X-Google-Smtp-Source: ABdhPJxPrDKCJz+3VJEX/ZpKrEq+OWZrCRe2f53nK42EpGgT86sw4rpedKOYdAnMc+C8WB8Ls5li/Q==
+X-Received: by 2002:a9d:4cd:: with SMTP id 71mr3891833otm.276.1601413690631;
+        Tue, 29 Sep 2020 14:08:10 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id m12sm1283417otq.8.2020.09.29.14.08.09
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 29 Sep 2020 14:08:10 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 29 Sep 2020 14:08:09 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 000/244] 4.19.149-rc2 review
+Message-ID: <20200929210809.GA154271@roeck-us.net>
+References: <20200929142826.951084251@linuxfoundation.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-29_14:2020-09-29,2020-09-29 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxlogscore=846
- adultscore=0 suspectscore=0 bulkscore=0 malwarescore=0 phishscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009290179
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-09-29_14:2020-09-29,2020-09-29 signatures=0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200929142826.951084251@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit: 2b8bd423614c595540eaadcfbc702afe8e155e50
+On Tue, Sep 29, 2020 at 04:29:27PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.149 release.
+> There are 244 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 01 Oct 2020 14:27:43 +0000.
+> Anything received after that time might be too late.
+> 
 
-Please apply to linux-5.4.y. Without this fix, disk utilization reporting i=
-s
-unusable, especially on spinning disks.
+For v4.19.148-245-g78ef55b:
 
-Thanks,
-Deb
+Build results:
+	total: 155 pass: 153 fail: 2
+Failed builds:
+	i386:tools/perf
+	x86_64:tools/perf
+Qemu test results:
+	total: 421 pass: 421 fail: 0
 
+perf build error:
+
+util/evsel.c: In function ‘perf_evsel__exit’:
+util/util.h:25:28: error: passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type
+
+Guenter
