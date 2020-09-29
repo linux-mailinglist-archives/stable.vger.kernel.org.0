@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B11727C361
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4DFA27C38E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728711AbgI2LFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:05:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41476 "EHLO mail.kernel.org"
+        id S1728858AbgI2LGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728698AbgI2LFI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:05:08 -0400
+        id S1728454AbgI2LGt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:06:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A978621941;
-        Tue, 29 Sep 2020 11:05:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EEB521941;
+        Tue, 29 Sep 2020 11:06:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377508;
-        bh=sOCtSWmKPwPkZb6/PW0IcGF1QMutoq7hH15WnwEanmg=;
+        s=default; t=1601377608;
+        bh=eiz7aoc8IANfM5Zam+W3qobqu1VmS3mANYdwlS2WVIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TPVz8d6CxcC8U+YHxBNlQATxgGxCpva+7hWouHphnLglkv9RkW3psKVykRdVkn/LV
-         OM0Bl3D0DmCj1J1HVMrZ/U7Fnb+gf6MAZuE2cjjjgha4BcvCsPp9hZAl3fO1eafP6W
-         ff2lwLE8orcsJeZPARGxAxI5+TKUcQ8qYWW6HKfc=
+        b=ej6MU18kJwA4B0KocQfS8rQNbHwoTWGwDL1e9NaRg8MD1SPKAKeZcGA3CXNKjvRZh
+         LzoCFdv+tEvO6o68lu+erneU0prU+EAYR7noQlGVhxeGmTyZ68RxqzvzNNqFsZ7vn9
+         1n0F63tvvTt1WvwYc70VB0uX/Wgwe/g4A06v62GE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 59/85] tty: serial: samsung: Correct clock selection logic
-Date:   Tue, 29 Sep 2020 13:00:26 +0200
-Message-Id: <20200929105931.168658200@linuxfoundation.org>
+Subject: [PATCH 4.4 60/85] ALSA: hda: Fix potential race in unsol event handler
+Date:   Tue, 29 Sep 2020 13:00:27 +0200
+Message-Id: <20200929105931.213540294@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
 References: <20200929105928.198942536@linuxfoundation.org>
@@ -43,52 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 7d31676a8d91dd18e08853efd1cb26961a38c6a6 ]
+[ Upstream commit c637fa151259c0f74665fde7cba5b7eac1417ae5 ]
 
-Some variants of the samsung tty driver can pick which clock
-to use for their baud rate generation.  In the DT conversion,
-a default clock was selected to be used if a specific one wasn't
-assigned and then a comparison of which clock rate worked better
-was done.  Unfortunately, the comparison was implemented in such
-a way that only the default clock was ever actually compared.
-Fix this by iterating through all possible clocks, except when a
-specific clock has already been picked via clk_sel (which is
-only possible via board files).
+The unsol event handling code has a loop retrieving the read/write
+indices and the arrays without locking while the append to the array
+may happen concurrently.  This may lead to some inconsistency.
+Although there hasn't been any proof of this bad results, it's still
+safer to protect the racy accesses.
 
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/BN6PR04MB06604E63833EA41837EBF77BA3A30@BN6PR04MB0660.namprd04.prod.outlook.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch adds the spinlock protection around the unsol handling loop
+for addressing it.  Here we take bus->reg_lock as the writer side
+snd_hdac_bus_queue_event() is also protected by that lock.
+
+Link: https://lore.kernel.org/r/20200516062556.30951-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/samsung.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/hda/hdac_bus.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/tty/serial/samsung.c b/drivers/tty/serial/samsung.c
-index 70a51d0bc6044..42aa37515e9bd 100644
---- a/drivers/tty/serial/samsung.c
-+++ b/drivers/tty/serial/samsung.c
-@@ -1151,14 +1151,14 @@ static unsigned int s3c24xx_serial_getclk(struct s3c24xx_uart_port *ourport,
- 	struct s3c24xx_uart_info *info = ourport->info;
- 	struct clk *clk;
- 	unsigned long rate;
--	unsigned int cnt, baud, quot, clk_sel, best_quot = 0;
-+	unsigned int cnt, baud, quot, best_quot = 0;
- 	char clkname[MAX_CLK_NAME_LENGTH];
- 	int calc_deviation, deviation = (1 << 30) - 1;
+diff --git a/sound/hda/hdac_bus.c b/sound/hda/hdac_bus.c
+index 0e81ea89a5965..e3f68a76d90eb 100644
+--- a/sound/hda/hdac_bus.c
++++ b/sound/hda/hdac_bus.c
+@@ -155,6 +155,7 @@ static void process_unsol_events(struct work_struct *work)
+ 	struct hdac_driver *drv;
+ 	unsigned int rp, caddr, res;
  
--	clk_sel = (ourport->cfg->clk_sel) ? ourport->cfg->clk_sel :
--			ourport->info->def_clk_sel;
- 	for (cnt = 0; cnt < info->num_clks; cnt++) {
--		if (!(clk_sel & (1 << cnt)))
-+		/* Keep selected clock if provided */
-+		if (ourport->cfg->clk_sel &&
-+			!(ourport->cfg->clk_sel & (1 << cnt)))
++	spin_lock_irq(&bus->reg_lock);
+ 	while (bus->unsol_rp != bus->unsol_wp) {
+ 		rp = (bus->unsol_rp + 1) % HDA_UNSOL_QUEUE_SIZE;
+ 		bus->unsol_rp = rp;
+@@ -166,10 +167,13 @@ static void process_unsol_events(struct work_struct *work)
+ 		codec = bus->caddr_tbl[caddr & 0x0f];
+ 		if (!codec || !codec->dev.driver)
  			continue;
++		spin_unlock_irq(&bus->reg_lock);
+ 		drv = drv_to_hdac_driver(codec->dev.driver);
+ 		if (drv->unsol_event)
+ 			drv->unsol_event(codec, res);
++		spin_lock_irq(&bus->reg_lock);
+ 	}
++	spin_unlock_irq(&bus->reg_lock);
+ }
  
- 		sprintf(clkname, "clk_uart_baud%d", cnt);
+ /**
 -- 
 2.25.1
 
