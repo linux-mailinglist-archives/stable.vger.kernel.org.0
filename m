@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 769F727C720
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB5A127C651
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731116AbgI2LsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:48:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49758 "EHLO mail.kernel.org"
+        id S1730823AbgI2Lnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731076AbgI2Lrw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:47:52 -0400
+        id S1730821AbgI2Lnx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:43:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 196372075F;
-        Tue, 29 Sep 2020 11:47:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79F7B206E5;
+        Tue, 29 Sep 2020 11:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380071;
-        bh=aBHTMFLNmiI9KBvtRJM682QRS7ezA0sOn0tDYURtik0=;
+        s=default; t=1601379833;
+        bh=LoAXF5XTR4w9T6a3sMyjEc6yieQF+GoGSbOwzvnNPLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=luIymfDlA4DIwEZNadojBOGw23AE82j6OBhU5beXvn0KHCaAWmVksZwP+YWVRkeYC
-         vxYAtJPYQ3Fsx+lXXtzK3vVWeFQyWSqTJi04A82NSmbLcPhMW5U/U4vOGq7VHC0YcB
-         4CwhPmKgwPkFHVD5FOtvRYwII4mYwN7QnGEafjZ4=
+        b=rWn9hdh+3Q/WXjgb8c9C+FoZN3Es4qR38ziFGuy3EFKbaRapwfjrztDAwcz8fyiI5
+         KF03xAb9zr2ReNCBGGgGdgu6jXMEuZiqcFVHE3dmp47KdYvg8k45xddMFJ6vwnayzI
+         5HHGoAmJxRPPepsX2ltICwQF1b6vIDqrQK/dxOEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <ll@simonwunderlich.de>,
-        Sven Eckelmann <sven@narfation.org>,
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 25/99] batman-adv: bla: fix type misuse for backbone_gw hash indexing
+Subject: [PATCH 5.4 337/388] ieee802154: fix one possible memleak in ca8210_dev_com_init
 Date:   Tue, 29 Sep 2020 13:01:08 +0200
-Message-Id: <20200929105930.963719043@linuxfoundation.org>
+Message-Id: <20200929110026.776642274@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <ll@simonwunderlich.de>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit 097930e85f90f252c44dc0d084598265dd44ca48 ]
+[ Upstream commit 88f46b3fe2ac41c381770ebad9f2ee49346b57a2 ]
 
-It seems that due to a copy & paste error the void pointer
-in batadv_choose_backbone_gw() is cast to the wrong type.
+We should call destroy_workqueue to destroy mlme_workqueue in error branch.
 
-Fixing this by using "struct batadv_bla_backbone_gw" instead of "struct
-batadv_bla_claim" which better matches the caller's side.
-
-For now it seems that we were lucky because the two structs both have
-their orig/vid and addr/vid in the beginning. However I stumbled over
-this issue when I was trying to add some debug variables in front of
-"orig" in batadv_backbone_gw, which caused hash lookups to fail.
-
-Fixes: 07568d0369f9 ("batman-adv: don't rely on positions in struct for hashing")
-Signed-off-by: Linus Lüssing <ll@simonwunderlich.de>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Fixes: ded845a781a5 ("ieee802154: Add CA8210 IEEE 802.15.4 device driver")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Link: https://lore.kernel.org/r/20200720143315.40523-1-liujian56@huawei.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bridge_loop_avoidance.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ieee802154/ca8210.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
-index cfb9e16afe38a..e8e86e52d461a 100644
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -83,11 +83,12 @@ static inline u32 batadv_choose_claim(const void *data, u32 size)
-  */
- static inline u32 batadv_choose_backbone_gw(const void *data, u32 size)
- {
--	const struct batadv_bla_claim *claim = (struct batadv_bla_claim *)data;
-+	const struct batadv_bla_backbone_gw *gw;
- 	u32 hash = 0;
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index 430c937861534..25dbea302fb6d 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -2924,6 +2924,7 @@ static int ca8210_dev_com_init(struct ca8210_priv *priv)
+ 	);
+ 	if (!priv->irq_workqueue) {
+ 		dev_crit(&priv->spi->dev, "alloc of irq_workqueue failed!\n");
++		destroy_workqueue(priv->mlme_workqueue);
+ 		return -ENOMEM;
+ 	}
  
--	hash = jhash(&claim->addr, sizeof(claim->addr), hash);
--	hash = jhash(&claim->vid, sizeof(claim->vid), hash);
-+	gw = (struct batadv_bla_backbone_gw *)data;
-+	hash = jhash(&gw->orig, sizeof(gw->orig), hash);
-+	hash = jhash(&gw->vid, sizeof(gw->vid), hash);
- 
- 	return hash % size;
- }
 -- 
 2.25.1
 
