@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40A5727CBBC
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9AF327CBB1
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730430AbgI2MaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:30:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46898 "EHLO mail.kernel.org"
+        id S1732884AbgI2M3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:29:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729321AbgI2LaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:30:23 -0400
+        id S1728378AbgI2LaY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:30:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DEBC23AC8;
-        Tue, 29 Sep 2020 11:24:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D4D923AC9;
+        Tue, 29 Sep 2020 11:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378670;
-        bh=X7HvMDAeXbk7Y56Bs6YVhdAtjtsCFbi4aOnIKUSW0JQ=;
+        s=default; t=1601378672;
+        bh=wQXJfT8WA5kfeNeMHishl9gXwYueYqlkMbStvBPTDrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bnBcUenn7EBmLHFy14DZ7GDKhsZziVgLf0qmJ7xpa4ojCl3ao19eGq0U+ly+LvrMt
-         GPXpALBzFGDBSPZNfNPhkQj17PWJRbME2P+2p0p43a1+ibRSl8+kB/QLnxlRN0YW29
-         IzIa56NEqw0eJdCT7aTsHBRuME3NdVd32zHSH4JQ=
+        b=AX2UNMIDjcZkPBpw35lsfzUyeTf0tq71uu5UkwLBxtihmIA/5YeSsLYgm67V1FY4G
+         82CR5jaAGpkOz1FSSy7MZ+YGonpK0WiWEwHpdlJIHAJSRCv7N/tBTfvum5BgJNt57w
+         t8Dv/r05JQKH9t0SKwf2bAOwAiwmhT+qE6yopBf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Michaud <alainm@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 096/245] Bluetooth: guard against controllers sending zerod events
-Date:   Tue, 29 Sep 2020 12:59:07 +0200
-Message-Id: <20200929105951.668508328@linuxfoundation.org>
+Subject: [PATCH 4.19 097/245] timekeeping: Prevent 32bit truncation in scale64_check_overflow()
+Date:   Tue, 29 Sep 2020 12:59:08 +0200
+Message-Id: <20200929105951.718285648@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -43,45 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Michaud <alainm@chromium.org>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-[ Upstream commit 08bb4da90150e2a225f35e0f642cdc463958d696 ]
+[ Upstream commit 4cbbc3a0eeed675449b1a4d080008927121f3da3 ]
 
-Some controllers have been observed to send zero'd events under some
-conditions.  This change guards against this condition as well as adding
-a trace to facilitate diagnosability of this condition.
+While unlikely the divisor in scale64_check_overflow() could be >= 32bit in
+scale64_check_overflow(). do_div() truncates the divisor to 32bit at least
+on 32bit platforms.
 
-Signed-off-by: Alain Michaud <alainm@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Use div64_u64() instead to avoid the truncation to 32-bit.
+
+[ tglx: Massaged changelog ]
+
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20200120100523.45656-1-wenyang@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/time/timekeeping.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 2b4a7cf03041b..ec6b3a87b3e7f 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5738,6 +5738,11 @@ void hci_event_packet(struct hci_dev *hdev, struct sk_buff *skb)
- 	u8 status = 0, event = hdr->evt, req_evt = 0;
- 	u16 opcode = HCI_OP_NOP;
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index 81ee5b83c9200..c66fd11d94bc4 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -1004,9 +1004,8 @@ static int scale64_check_overflow(u64 mult, u64 div, u64 *base)
+ 	    ((int)sizeof(u64)*8 - fls64(mult) < fls64(rem)))
+ 		return -EOVERFLOW;
+ 	tmp *= mult;
+-	rem *= mult;
  
-+	if (!event) {
-+		bt_dev_warn(hdev, "Received unexpected HCI Event 00000000");
-+		goto done;
-+	}
-+
- 	if (hdev->sent_cmd && bt_cb(hdev->sent_cmd)->hci.req_event == event) {
- 		struct hci_command_hdr *cmd_hdr = (void *) hdev->sent_cmd->data;
- 		opcode = __le16_to_cpu(cmd_hdr->opcode);
-@@ -5949,6 +5954,7 @@ void hci_event_packet(struct hci_dev *hdev, struct sk_buff *skb)
- 		req_complete_skb(hdev, status, opcode, orig_skb);
- 	}
- 
-+done:
- 	kfree_skb(orig_skb);
- 	kfree_skb(skb);
- 	hdev->stat.evt_rx++;
+-	do_div(rem, div);
++	rem = div64_u64(rem * mult, div);
+ 	*base = tmp + rem;
+ 	return 0;
+ }
 -- 
 2.25.1
 
