@@ -2,120 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD6327C014
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 10:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39CBB27C256
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 12:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727730AbgI2Iw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 04:52:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40582 "EHLO
+        id S1725765AbgI2KZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 06:25:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725372AbgI2IwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 04:52:25 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B019C061755
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 01:52:25 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id 197so3301245pge.8
-        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 01:52:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KQTxS5+Ju3sga4dx6qQK/VYvQYApyK7bVlcwyUqJ2vY=;
-        b=P9WYmJCiTUcoJp9k1bWBsBXR4fUZwK+Kan+de1jfLUTj81oAtjSvSu4GSTNDcU/P1t
-         dnkaD3AzICg9gCjDt7t2DAxjsqdXpJqVat7bA/H4LjW0w10yOgnjc41SDwPM31Wxi0Iy
-         Wg8yNN+7jjL7ERVT6TevESi90XpWBSRQtfAI23ioebS6FI/juLbLrVr2Zv/111PQf3MS
-         WSxN61zx3rs2Pbsa76iuY6vFR148kSKQd+H3nle8pKnGWj3N3SIKmFJ6H4YFmsyYvxpr
-         qFpS/GCC5UPgR1SXUh25dlEaKEhmaXj+PN8bPEAHD+XLnDzh2bPGNDMymDmD7DU11sZM
-         A31A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KQTxS5+Ju3sga4dx6qQK/VYvQYApyK7bVlcwyUqJ2vY=;
-        b=SehhWD7J38GaS9FH12zUbsoCwBzhLfcpz2wXpLMl4srIRHfALzYWosIKK2abd9fOZa
-         8U9JqxhwFv3ObZTkB8ujJQy6ijdcXVtZYY4JefGh383rtjhWbCPqDIMOhdA531A5emdp
-         dT9pvlJ6HyhD1fQkyHvILI2ckZ69b0MdbmjcWYY7nkd99sOqgzKnBwawudzAPWSaxDUi
-         2weUzPvjlnqyBW9qYgRZDqocappovohgTt5j8apYnmHobdFH2IZhb8WKJtjh+wDrGsI4
-         WgHpFFObuynUry+sQUqihDHKC/4UeSpsUH8z+LX5UO1tTAzEJkv9Ri0JKrkWRyP69biJ
-         iOlw==
-X-Gm-Message-State: AOAM530Q4iwl4GEQrMSixpafhb8lrxMJs8fW+qKHzInD1H+/Yrp3cqr8
-        5K27xAMQY5LIXZqn5VlUQC0+4daof2XU/g==
-X-Google-Smtp-Source: ABdhPJzPxjv7Ey/0sN9/iuKg0dP/o/efel95XOVXSM7uZjPxWRRBg83wSB1WWkYtEDDS7iWwGmvzkg==
-X-Received: by 2002:a17:902:b688:b029:d2:43a9:ef1f with SMTP id c8-20020a170902b688b02900d243a9ef1fmr3491658pls.9.1601369544403;
-        Tue, 29 Sep 2020 01:52:24 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x3sm4550833pfo.95.2020.09.29.01.52.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Sep 2020 01:52:23 -0700 (PDT)
-Message-ID: <5f72f5c7.1c69fb81.7ac07.96de@mx.google.com>
-Date:   Tue, 29 Sep 2020 01:52:23 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1725372AbgI2KZY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 06:25:24 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76740C061755;
+        Tue, 29 Sep 2020 03:25:24 -0700 (PDT)
+Received: from zn.tnic (p200300ec2f0ead0084926be0aaf8b723.dip0.t-ipconnect.de [IPv6:2003:ec:2f0e:ad00:8492:6be0:aaf8:b723])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 753C21EC034B;
+        Tue, 29 Sep 2020 12:25:21 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1601375121;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=vD3s6odY/cyE9Bx1q0oRZfhly7bcVfpKxNIBv+AD3wk=;
+        b=ShLtAJ1+ONETkeLGQIFpUr5YpYO4Y8avI/Jwm/uh7pk67leh6pvbESMFqfa71vUJRYBzXL
+        Utw8bgAfPDECvMhnh48UTxadK4tT9xzoHIe9xly+7QEHld/P6HTUArNTnmwb8000XJnLXZ
+        noscDle3MKpVzFNcmkIiIUTBqk1oOjk=
+Date:   Tue, 29 Sep 2020 12:25:12 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     mingo@redhat.com, x86@kernel.org, stable@vger.kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org,
+        jack@suse.cz
+Subject: Re: [PATCH v9 1/2] x86, powerpc: Rename memcpy_mcsafe() to
+ copy_mc_to_{user, kernel}()
+Message-ID: <20200929102512.GB21110@zn.tnic>
+References: <160087928642.3520.17063139768910633998.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <160087929294.3520.12013578778066801369.stgit@dwillia2-desk3.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Kernel: v5.4.68
-Subject: stable/linux-5.4.y baseline: 166 runs, 1 regressions (v5.4.68)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <160087929294.3520.12013578778066801369.stgit@dwillia2-desk3.amr.corp.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y baseline: 166 runs, 1 regressions (v5.4.68)
+On Wed, Sep 23, 2020 at 09:41:33AM -0700, Dan Williams wrote:
+> The rename replaces a single top-level memcpy_mcsafe() with either
+> copy_mc_to_user(), or copy_mc_to_kernel().
 
-Regressions Summary
--------------------
+What is "copy_mc" supposed to mean? Especially if it is called that on
+two arches...
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index 7101ac64bb20..e876b3a087f9 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -75,7 +75,7 @@ config X86
+>  	select ARCH_HAS_PTE_DEVMAP		if X86_64
+>  	select ARCH_HAS_PTE_SPECIAL
+>  	select ARCH_HAS_UACCESS_FLUSHCACHE	if X86_64
+> -	select ARCH_HAS_UACCESS_MCSAFE		if X86_64 && X86_MCE
+> +	select ARCH_HAS_COPY_MC			if X86_64
 
+X86_MCE is dropped here. So if I have a build which has
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
-v5.4.68/plan/baseline/
+# CONFIG_X86_MCE is not set
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.4.y
-  Describe: v5.4.68
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      5d087e3578cf9cbd850a6f0a5c8b8169f22b5272 =
+One of those quirks like:
 
+        /*
+         * CAPID0{7:6} indicate whether this is an advanced RAS SKU
+         * CAPID5{8:5} indicate that various NVDIMM usage modes are
+         * enabled, so memory machine check recovery is also enabled.
+         */
+        if ((capid0 & 0xc0) == 0xc0 || (capid5 & 0x1e0))
+                enable_copy_mc_fragile();
 
+will still call enable_copy_mc_fragile() and none of those platforms
+need MCE functionality?
 
-Test Regressions
----------------- =
+But there's a hunk in here which sets it in the MCE code:
 
+        if (mca_cfg.recovery)
+                enable_copy_mc_fragile();
 
+So which is it? They need it or they don't?
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+The comment over copy_mc_to_kernel() says:
 
+ * Call into the 'fragile' version on systems that have trouble
+ * actually do machine check recovery
 
-  Details:     https://kernelci.org/test/plan/id/5f72bba753f77a880fbf9dcb
+If CONFIG_X86_MCE is not set, I'll say. :)
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.68/arm=
-/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.68/arm=
-/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05/armel/baseline/rootfs.cpio.gz =
+> +++ b/arch/x86/lib/copy_mc.c
+> @@ -0,0 +1,66 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/* Copyright(c) 2016-2020 Intel Corporation. All rights reserved. */
+> +
+> +#include <linux/jump_label.h>
+> +#include <linux/uaccess.h>
+> +#include <linux/export.h>
+> +#include <linux/string.h>
+> +#include <linux/types.h>
+> +
+> +static DEFINE_STATIC_KEY_FALSE(copy_mc_fragile_key);
+> +
+> +void enable_copy_mc_fragile(void)
+> +{
+> +	static_branch_inc(&copy_mc_fragile_key);
+> +}
+> +
+> +/**
+> + * copy_mc_to_kernel - memory copy that that handles source exceptions
 
+One "that" is enough.
 
-  * baseline.login: https://kernelci.org/test/case/id/5f72bba753f77a880fbf9=
-dcc
-      failing since 103 days (last pass: v5.4.46, first fail: v5.4.47)  =20
+...
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
