@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E109927C3DE
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A24FC27C346
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728757AbgI2LJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:09:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49550 "EHLO mail.kernel.org"
+        id S1728581AbgI2LEU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:04:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729077AbgI2LJT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:09:19 -0400
+        id S1728566AbgI2LEM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:04:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6266221941;
-        Tue, 29 Sep 2020 11:09:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 623D021D7F;
+        Tue, 29 Sep 2020 11:04:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377757;
-        bh=muIuyhP/cJjVwo+TG7Ox+ClqqRg1N6YBSaL2OCN8hIk=;
+        s=default; t=1601377451;
+        bh=4VeEx4Bn4wUKIRHmnGHk6hZdQ1MlXkjkfxA8fr7dEWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fHsQUWvYMHcLvqVP8nnFCNjxnMgCwf4JiURTqMUR6tkiKPBku12W9N0GtdLiQH8mO
-         fai2yMSQyOpS7ET8NyGK4fAsoydhAff1LMsYqY4IuVwrnU0aoJ1JUXEEDmj6aOwYiK
-         grAyuLxvjYZvEQxQEvkaJrcwQ3lhUdzlGF6MU8qw=
+        b=iLN4ijGJagx6uE49XXvoMTbY0XLvriIRne6dQkwCDIfOk28BHAkc+xqfQ0k4sXWxy
+         jf6ZEa2nGsCN9/3KkhvuRKL9QDYY2/ewVQFMxJX/4cGD/80iGT2C9coSqRk0dEdi+C
+         4CkF9WZ57px/KSvSZANDBhHDAA0PErbdBYShBeas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Berger <stefanb@linux.ibm.com>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        stable@vger.kernel.org, Howard Chung <howardchung@google.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 062/121] tpm: ibmvtpm: Wait for buffer to be set before proceeding
-Date:   Tue, 29 Sep 2020 13:00:06 +0200
-Message-Id: <20200929105933.245725275@linuxfoundation.org>
+Subject: [PATCH 4.4 41/85] Bluetooth: L2CAP: handle l2cap config request during open state
+Date:   Tue, 29 Sep 2020 13:00:08 +0200
+Message-Id: <20200929105930.282334426@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +43,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Howard Chung <howardchung@google.com>
 
-[ Upstream commit d8d74ea3c00214aee1e1826ca18e77944812b9b4 ]
+[ Upstream commit 96298f640104e4cd9a913a6e50b0b981829b94ff ]
 
-Synchronize with the results from the CRQs before continuing with
-the initialization. This avoids trying to send TPM commands while
-the rtce buffer has not been allocated, yet.
+According to Core Spec Version 5.2 | Vol 3, Part A 6.1.5,
+the incoming L2CAP_ConfigReq should be handled during
+OPEN state.
 
-This patch fixes an existing race condition that may occurr if the
-hypervisor does not quickly respond to the VTPM_GET_RTCE_BUFFER_SIZE
-request sent during initialization and therefore the ibmvtpm->rtce_buf
-has not been allocated at the time the first TPM command is sent.
+The section below shows the btmon trace when running
+L2CAP/COS/CFD/BV-12-C before and after this change.
 
-Fixes: 132f76294744 ("drivers/char/tpm: Add new device driver to support IBM vTPM")
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Acked-by: Nayna Jain <nayna@linux.ibm.com>
-Tested-by: Nayna Jain <nayna@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+=== Before ===
+...
+> ACL Data RX: Handle 256 flags 0x02 dlen 12                #22
+      L2CAP: Connection Request (0x02) ident 2 len 4
+        PSM: 1 (0x0001)
+        Source CID: 65
+< ACL Data TX: Handle 256 flags 0x00 dlen 16                #23
+      L2CAP: Connection Response (0x03) ident 2 len 8
+        Destination CID: 64
+        Source CID: 65
+        Result: Connection successful (0x0000)
+        Status: No further information available (0x0000)
+< ACL Data TX: Handle 256 flags 0x00 dlen 12                #24
+      L2CAP: Configure Request (0x04) ident 2 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5      #25
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5      #26
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 16                #27
+      L2CAP: Configure Request (0x04) ident 3 len 8
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00                                            ..
+< ACL Data TX: Handle 256 flags 0x00 dlen 18                #28
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+> HCI Event: Number of Completed Packets (0x13) plen 5      #29
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 14                #30
+      L2CAP: Configure Response (0x05) ident 2 len 6
+        Source CID: 64
+        Flags: 0x0000
+        Result: Success (0x0000)
+> ACL Data RX: Handle 256 flags 0x02 dlen 20                #31
+      L2CAP: Configure Request (0x04) ident 3 len 12
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00 91 02 11 11                                ......
+< ACL Data TX: Handle 256 flags 0x00 dlen 14                #32
+      L2CAP: Command Reject (0x01) ident 3 len 6
+        Reason: Invalid CID in request (0x0002)
+        Destination CID: 64
+        Source CID: 65
+> HCI Event: Number of Completed Packets (0x13) plen 5      #33
+        Num handles: 1
+        Handle: 256
+        Count: 1
+...
+=== After ===
+...
+> ACL Data RX: Handle 256 flags 0x02 dlen 12               #22
+      L2CAP: Connection Request (0x02) ident 2 len 4
+        PSM: 1 (0x0001)
+        Source CID: 65
+< ACL Data TX: Handle 256 flags 0x00 dlen 16               #23
+      L2CAP: Connection Response (0x03) ident 2 len 8
+        Destination CID: 64
+        Source CID: 65
+        Result: Connection successful (0x0000)
+        Status: No further information available (0x0000)
+< ACL Data TX: Handle 256 flags 0x00 dlen 12               #24
+      L2CAP: Configure Request (0x04) ident 2 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5     #25
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #26
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 16               #27
+      L2CAP: Configure Request (0x04) ident 3 len 8
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00                                            ..
+< ACL Data TX: Handle 256 flags 0x00 dlen 18               #28
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+> HCI Event: Number of Completed Packets (0x13) plen 5     #29
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 14               #30
+      L2CAP: Configure Response (0x05) ident 2 len 6
+        Source CID: 64
+        Flags: 0x0000
+        Result: Success (0x0000)
+> ACL Data RX: Handle 256 flags 0x02 dlen 20               #31
+      L2CAP: Configure Request (0x04) ident 3 len 12
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00 91 02 11 11                                .....
+< ACL Data TX: Handle 256 flags 0x00 dlen 18               #32
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+< ACL Data TX: Handle 256 flags 0x00 dlen 12               #33
+      L2CAP: Configure Request (0x04) ident 3 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5     #34
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #35
+        Num handles: 1
+        Handle: 256
+        Count: 1
+...
+
+Signed-off-by: Howard Chung <howardchung@google.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c | 9 +++++++++
- drivers/char/tpm/tpm_ibmvtpm.h | 1 +
- 2 files changed, 10 insertions(+)
+ net/bluetooth/l2cap_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
-index 84eca4f93b828..0fad6cf37bab4 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -550,6 +550,7 @@ static irqreturn_t ibmvtpm_interrupt(int irq, void *vtpm_instance)
- 	 */
- 	while ((crq = ibmvtpm_crq_get_next(ibmvtpm)) != NULL) {
- 		ibmvtpm_crq_process(crq, ibmvtpm);
-+		wake_up_interruptible(&ibmvtpm->crq_queue.wq);
- 		crq->valid = 0;
- 		smp_wmb();
- 	}
-@@ -596,6 +597,7 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index f6112f495a36c..f2db50da8ce2e 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4096,7 +4096,8 @@ static inline int l2cap_config_req(struct l2cap_conn *conn,
+ 		return 0;
  	}
  
- 	crq_q->num_entry = CRQ_RES_BUF_SIZE / sizeof(*crq_q->crq_addr);
-+	init_waitqueue_head(&crq_q->wq);
- 	ibmvtpm->crq_dma_handle = dma_map_single(dev, crq_q->crq_addr,
- 						 CRQ_RES_BUF_SIZE,
- 						 DMA_BIDIRECTIONAL);
-@@ -648,6 +650,13 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
- 	if (rc)
- 		goto init_irq_cleanup;
- 
-+	if (!wait_event_timeout(ibmvtpm->crq_queue.wq,
-+				ibmvtpm->rtce_buf != NULL,
-+				HZ)) {
-+		dev_err(dev, "CRQ response timed out\n");
-+		goto init_irq_cleanup;
-+	}
-+
- 	return tpm_chip_register(chip);
- init_irq_cleanup:
- 	do {
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
-index 91dfe766d0800..4f6a124601db4 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.h
-+++ b/drivers/char/tpm/tpm_ibmvtpm.h
-@@ -31,6 +31,7 @@ struct ibmvtpm_crq_queue {
- 	struct ibmvtpm_crq *crq_addr;
- 	u32 index;
- 	u32 num_entry;
-+	wait_queue_head_t wq;
- };
- 
- struct ibmvtpm_dev {
+-	if (chan->state != BT_CONFIG && chan->state != BT_CONNECT2) {
++	if (chan->state != BT_CONFIG && chan->state != BT_CONNECT2 &&
++	    chan->state != BT_CONNECTED) {
+ 		cmd_reject_invalid_cid(conn, cmd->ident, chan->scid,
+ 				       chan->dcid);
+ 		goto unlock;
 -- 
 2.25.1
 
