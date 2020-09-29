@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9004427C945
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:09:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3D9627C92C
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730297AbgI2MJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:09:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56994 "EHLO mail.kernel.org"
+        id S1730219AbgI2MIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:08:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730212AbgI2Lhf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:35 -0400
+        id S1730227AbgI2Lhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FFD523AA7;
-        Tue, 29 Sep 2020 11:35:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76A0E23AA8;
+        Tue, 29 Sep 2020 11:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379343;
-        bh=4ArYKZ/cOZ/rDNpNLfku/rCgHABEw+VMVH8kjYJ4YY4=;
+        s=default; t=1601379345;
+        bh=OzleeDIta0QfHtPpyIbCwpHJnZGHsVVa7sJkl6FetZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lrMkhv6Hd5Cjxp1S8FrJwlukpviC9SDjRBfyuFr595+k/1gbADoduG3O2Zu7k/vjE
-         aHK1OZLEp0dsN9xTWrcJmXWbTV090kwxyxhiArv4PbyZpRGlOTNPUEfpsX1gU2TNIe
-         V571dlUi6mF5RKRo1hsmaAizyZdqm4wrFJygNqLc=
+        b=V4qwd3JqTnzsbAEAJZIEvIrXgPhb1O6Cim3mdrv51nr6EMaWlhb3mDDgbqn5dIxUg
+         UM3SCYY3yLMDLCa6YUNv9pwaJzXrEvyaPE/iWiQelkTjR0lFiawAbK9YpxYMlujIYQ
+         SxxlohwCRIoc66e2A+WvnDOZr0Yp8ZYd3gv47uKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Can Guo <cang@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        David Francis <David.Francis@amd.com>,
+        Mikita Lipski <mikita.lipski@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/388] scsi: ufs: Fix a race condition in the tracing code
-Date:   Tue, 29 Sep 2020 12:57:01 +0200
-Message-Id: <20200929110014.844069170@linuxfoundation.org>
+Subject: [PATCH 5.4 091/388] drm/amd/display: Initialize DSC PPS variables to 0
+Date:   Tue, 29 Sep 2020 12:57:02 +0200
+Message-Id: <20200929110014.885947112@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -49,46 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: David Francis <David.Francis@amd.com>
 
-[ Upstream commit eacf36f5bebde5089dddb3d5bfcbeab530b01f8a ]
+[ Upstream commit b6adc57cff616da18ff8cff028d2ddf585c97334 ]
 
-Starting execution of a command before tracing a command may cause the
-completion handler to free data while it is being traced. Fix this race by
-tracing a command before it is submitted.
+For DSC MST, sometimes monitors would break out
+in full-screen static. The issue traced back to the
+PPS generation code, where these variables were being used
+uninitialized and were picking up garbage.
 
-Cc: Bean Huo <beanhuo@micron.com>
-Cc: Can Guo <cang@codeaurora.org>
-Cc: Avri Altman <avri.altman@wdc.com>
-Cc: Stanley Chu <stanley.chu@mediatek.com>
-Cc: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20191224220248.30138-5-bvanassche@acm.org
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+memset to 0 to avoid this
+
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: David Francis <David.Francis@amd.com>
+Signed-off-by: Mikita Lipski <mikita.lipski@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c | 3 +++
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_dsc.c   | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 020a93a40a982..d538b3d4f74a5 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1888,12 +1888,12 @@ void ufshcd_send_command(struct ufs_hba *hba, unsigned int task_tag)
- {
- 	hba->lrb[task_tag].issue_time_stamp = ktime_get();
- 	hba->lrb[task_tag].compl_time_stamp = ktime_set(0, 0);
-+	ufshcd_add_command_trace(hba, task_tag, "send");
- 	ufshcd_clk_scaling_start_busy(hba);
- 	__set_bit(task_tag, &hba->outstanding_reqs);
- 	ufshcd_writel(hba, 1 << task_tag, REG_UTP_TRANSFER_REQ_DOOR_BELL);
- 	/* Make sure that doorbell is committed immediately */
- 	wmb();
--	ufshcd_add_command_trace(hba, task_tag, "send");
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
+index a519dbc5ecb65..5d6cbaebebc03 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
+@@ -496,6 +496,9 @@ bool dp_set_dsc_pps_sdp(struct pipe_ctx *pipe_ctx, bool enable)
+ 		struct dsc_config dsc_cfg;
+ 		uint8_t dsc_packed_pps[128];
  
- /**
++		memset(&dsc_cfg, 0, sizeof(dsc_cfg));
++		memset(dsc_packed_pps, 0, 128);
++
+ 		/* Enable DSC hw block */
+ 		dsc_cfg.pic_width = stream->timing.h_addressable + stream->timing.h_border_left + stream->timing.h_border_right;
+ 		dsc_cfg.pic_height = stream->timing.v_addressable + stream->timing.v_border_top + stream->timing.v_border_bottom;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_dsc.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_dsc.c
+index 1b419407af942..01040501d40e3 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_dsc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_dsc.c
+@@ -207,6 +207,9 @@ static bool dsc2_get_packed_pps(struct display_stream_compressor *dsc, const str
+ 	struct dsc_reg_values dsc_reg_vals;
+ 	struct dsc_optc_config dsc_optc_cfg;
+ 
++	memset(&dsc_reg_vals, 0, sizeof(dsc_reg_vals));
++	memset(&dsc_optc_cfg, 0, sizeof(dsc_optc_cfg));
++
+ 	DC_LOG_DSC("Getting packed DSC PPS for DSC Config:");
+ 	dsc_config_log(dsc, dsc_cfg);
+ 	DC_LOG_DSC("DSC Picture Parameter Set (PPS):");
 -- 
 2.25.1
 
