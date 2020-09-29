@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A19A27CA21
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62E3A27C9FE
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:16:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731732AbgI2MQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:16:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
+        id S1730102AbgI2MPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:15:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730053AbgI2LhA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:00 -0400
+        id S1728566AbgI2Lh1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBC9D23AFE;
-        Tue, 29 Sep 2020 11:32:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4335C23EF2;
+        Tue, 29 Sep 2020 11:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379176;
-        bh=4UkWMQ5lkT97tKJhnYAj2X2rEuvziKSV5SVl6Ys3b9M=;
+        s=default; t=1601379178;
+        bh=VmeZ1DFYbzu3R/HAnt7aUFll3uASV6SeN1Pfm3K1Ubs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XKNPlo5piXUXnd/keJ8sVmzhCqINXT1VZEgW7NuRJ6+AITZA0kPFJR3piUrpz1C2z
-         T+hnUik/pI7n/zfTc4S78+4LNW15cev8mHhcuNb/BF+D2KRQZfahn5hRi6cEIShQsY
-         HijeQ2c0b2x/fkLrSbEP8qiuB6nMa9umHWFb7CoQ=
+        b=jFFWdj+QOU7ckXrRXc6Sk9w5KmTdOlYvygNl3EEsrgPPXJ1Gljj1r0LWqB9/hL6sI
+         wNZETiDutDGbR3f1phaD0BfxnenSiDPTOQ9WVNqGMmNykSLz+11twdRG2IzpHlmRDh
+         qJxPkfgkd58i9RPbxwq+wwvkieRLPnGPQwzANoVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Kit Chow <kchow@gigaio.com>,
+        Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 046/388] RDMA/i40iw: Fix potential use after free
-Date:   Tue, 29 Sep 2020 12:56:17 +0200
-Message-Id: <20200929110012.719349630@linuxfoundation.org>
+Subject: [PATCH 5.4 047/388] PCI: Avoid double hpmemsize MMIO window assignment
+Date:   Tue, 29 Sep 2020 12:56:18 +0200
+Message-Id: <20200929110012.771674677@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,37 +46,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
 
-[ Upstream commit da046d5f895fca18d63b15ac8faebd5bf784e23a ]
+[ Upstream commit c13704f5685deb7d6eb21e293233e0901ed77377 ]
 
-Release variable dst after logging dst->error to avoid possible use after
-free.
+Previously, the kernel sometimes assigned more MMIO or MMIO_PREF space than
+desired.  For example, if the user requested 128M of space with
+"pci=realloc,hpmemsize=128M", we sometimes assigned 256M:
 
-Link: https://lore.kernel.org/r/1573022651-37171-1-git-send-email-bianpan2016@163.com
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+  pci 0000:06:01.0: BAR 14: assigned [mem 0x90100000-0xa00fffff] = 256M
+  pci 0000:06:04.0: BAR 14: assigned [mem 0xa0200000-0xb01fffff] = 256M
+
+With this patch applied:
+
+  pci 0000:06:01.0: BAR 14: assigned [mem 0x90100000-0x980fffff] = 128M
+  pci 0000:06:04.0: BAR 14: assigned [mem 0x98200000-0xa01fffff] = 128M
+
+This happened when in the first pass, the MMIO_PREF succeeded but the MMIO
+failed. In the next pass, because MMIO_PREF was already assigned, the
+attempt to assign MMIO_PREF returned an error code instead of success
+(nothing more to do, already allocated). Hence, the size which was actually
+allocated, but thought to have failed, was placed in the MMIO window.
+
+The bug resulted in the MMIO_PREF being added to the MMIO window, which
+meant doubling if MMIO_PREF size = MMIO size. With a large MMIO_PREF, the
+MMIO window would likely fail to be assigned altogether due to lack of
+32-bit address space.
+
+Change find_free_bus_resource() to do the following:
+
+  - Return first unassigned resource of the correct type.
+  - If there is none, return first assigned resource of the correct type.
+  - If none of the above, return NULL.
+
+Returning an assigned resource of the correct type allows the caller to
+distinguish between already assigned and no resource of the correct type.
+
+Add checks in pbus_size_io() and pbus_size_mem() to return success if
+resource returned from find_free_bus_resource() is already allocated.
+
+This avoids pbus_size_io() and pbus_size_mem() returning error code to
+__pci_bus_size_bridges() when a resource has been successfully assigned in
+a previous pass. This fixes the existing behaviour where space for a
+resource could be reserved multiple times in different parent bridge
+windows.
+
+Link: https://lore.kernel.org/lkml/20190531171216.20532-2-logang@deltatee.com/T/#u
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=203243
+Link: https://lore.kernel.org/r/PS2P216MB075563AA6AD242AA666EDC6A80760@PS2P216MB0755.KORP216.PROD.OUTLOOK.COM
+Reported-by: Kit Chow <kchow@gigaio.com>
+Reported-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+Signed-off-by: Nicholas Johnson <nicholas.johnson-opensource@outlook.com.au>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/i40iw/i40iw_cm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/setup-bus.c | 38 +++++++++++++++++++++++++++-----------
+ 1 file changed, 27 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/infiniband/hw/i40iw/i40iw_cm.c b/drivers/infiniband/hw/i40iw/i40iw_cm.c
-index b1df93b69df44..fa7a5ff498c73 100644
---- a/drivers/infiniband/hw/i40iw/i40iw_cm.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_cm.c
-@@ -2074,9 +2074,9 @@ static int i40iw_addr_resolve_neigh_ipv6(struct i40iw_device *iwdev,
- 	dst = i40iw_get_dst_ipv6(&src_addr, &dst_addr);
- 	if (!dst || dst->error) {
- 		if (dst) {
--			dst_release(dst);
- 			i40iw_pr_err("ip6_route_output returned dst->error = %d\n",
- 				     dst->error);
-+			dst_release(dst);
- 		}
- 		return rc;
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index 5356630e0e483..44f4866d95d8c 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -752,24 +752,32 @@ static void pci_bridge_check_ranges(struct pci_bus *bus)
+ }
+ 
+ /*
+- * Helper function for sizing routines: find first available bus resource
+- * of a given type.  Note: we intentionally skip the bus resources which
+- * have already been assigned (that is, have non-NULL parent resource).
++ * Helper function for sizing routines.  Assigned resources have non-NULL
++ * parent resource.
++ *
++ * Return first unassigned resource of the correct type.  If there is none,
++ * return first assigned resource of the correct type.  If none of the
++ * above, return NULL.
++ *
++ * Returning an assigned resource of the correct type allows the caller to
++ * distinguish between already assigned and no resource of the correct type.
+  */
+-static struct resource *find_free_bus_resource(struct pci_bus *bus,
+-					       unsigned long type_mask,
+-					       unsigned long type)
++static struct resource *find_bus_resource_of_type(struct pci_bus *bus,
++						  unsigned long type_mask,
++						  unsigned long type)
+ {
++	struct resource *r, *r_assigned = NULL;
+ 	int i;
+-	struct resource *r;
+ 
+ 	pci_bus_for_each_resource(bus, r, i) {
+ 		if (r == &ioport_resource || r == &iomem_resource)
+ 			continue;
+ 		if (r && (r->flags & type_mask) == type && !r->parent)
+ 			return r;
++		if (r && (r->flags & type_mask) == type && !r_assigned)
++			r_assigned = r;
  	}
+-	return NULL;
++	return r_assigned;
+ }
+ 
+ static resource_size_t calculate_iosize(resource_size_t size,
+@@ -866,8 +874,8 @@ static void pbus_size_io(struct pci_bus *bus, resource_size_t min_size,
+ 			 struct list_head *realloc_head)
+ {
+ 	struct pci_dev *dev;
+-	struct resource *b_res = find_free_bus_resource(bus, IORESOURCE_IO,
+-							IORESOURCE_IO);
++	struct resource *b_res = find_bus_resource_of_type(bus, IORESOURCE_IO,
++							   IORESOURCE_IO);
+ 	resource_size_t size = 0, size0 = 0, size1 = 0;
+ 	resource_size_t children_add_size = 0;
+ 	resource_size_t min_align, align;
+@@ -875,6 +883,10 @@ static void pbus_size_io(struct pci_bus *bus, resource_size_t min_size,
+ 	if (!b_res)
+ 		return;
+ 
++	/* If resource is already assigned, nothing more to do */
++	if (b_res->parent)
++		return;
++
+ 	min_align = window_alignment(bus, IORESOURCE_IO);
+ 	list_for_each_entry(dev, &bus->devices, bus_list) {
+ 		int i;
+@@ -978,7 +990,7 @@ static int pbus_size_mem(struct pci_bus *bus, unsigned long mask,
+ 	resource_size_t min_align, align, size, size0, size1;
+ 	resource_size_t aligns[18]; /* Alignments from 1MB to 128GB */
+ 	int order, max_order;
+-	struct resource *b_res = find_free_bus_resource(bus,
++	struct resource *b_res = find_bus_resource_of_type(bus,
+ 					mask | IORESOURCE_PREFETCH, type);
+ 	resource_size_t children_add_size = 0;
+ 	resource_size_t children_add_align = 0;
+@@ -987,6 +999,10 @@ static int pbus_size_mem(struct pci_bus *bus, unsigned long mask,
+ 	if (!b_res)
+ 		return -ENOSPC;
+ 
++	/* If resource is already assigned, nothing more to do */
++	if (b_res->parent)
++		return 0;
++
+ 	memset(aligns, 0, sizeof(aligns));
+ 	max_order = 0;
+ 	size = 0;
 -- 
 2.25.1
 
