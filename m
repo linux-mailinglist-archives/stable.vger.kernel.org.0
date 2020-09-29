@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D95AA27CC77
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:37:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25E8927CD26
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:42:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733011AbgI2Mgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:36:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36426 "EHLO mail.kernel.org"
+        id S1728786AbgI2MmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:42:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729510AbgI2LU6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:20:58 -0400
+        id S1728713AbgI2LL4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:11:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DB612376E;
-        Tue, 29 Sep 2020 11:18:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0836A21924;
+        Tue, 29 Sep 2020 11:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378316;
+        s=default; t=1601377915;
         bh=Qnb7v+IqHLj39Yydb1cSs7Vz5UOoaqF/j5QMD0w0o8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=evvxafZlxNgNDfbRxzTAzeNZ0FkuYd/J/Txj2ECKScq4YN0HGuuweV8CTQ1j5K+Cc
-         /T98m+jZMpT5lLEss2tM4crFdFrCc4OOEI+Tpgw1EW0j4Cfqmy6TMLHySzGPo1Yb0S
-         vrKFLV0jLuuSmcdy9oX60/ZXplOYbbCvumgq37lg=
+        b=hFxIIkyXGGVvGgKGt54SMnoBI953ErtTYa2qiZA8zX4KtRGqNRfk6kjJoyUGOAX2g
+         V5I+nD7IEB1xvVB+hebeae684I/8NsGfm7wPWXYjTOhMZ5VPghnGmCrj9vT/OKOfVB
+         KPbJOFkc9P0lXOvnBAJ6Hgg81hTodtX9JPP4qaU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 120/166] USB: EHCI: ehci-mv: fix less than zero comparison of an unsigned int
+Subject: [PATCH 4.9 088/121] USB: EHCI: ehci-mv: fix less than zero comparison of an unsigned int
 Date:   Tue, 29 Sep 2020 13:00:32 +0200
-Message-Id: <20200929105941.184889136@linuxfoundation.org>
+Message-Id: <20200929105934.539351655@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
