@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D24B527CDAA
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:46:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9AA727CD23
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729447AbgI2MqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:46:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44068 "EHLO mail.kernel.org"
+        id S1728954AbgI2LL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:11:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728824AbgI2LGg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:06:36 -0400
+        id S1729283AbgI2LL7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:11:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F940221F0;
-        Tue, 29 Sep 2020 11:06:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1CD721D41;
+        Tue, 29 Sep 2020 11:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377593;
-        bh=V0NTd4ZixCZ9X3p6BTB3qeNfiGBGEPMR0MYLRhFcSZs=;
+        s=default; t=1601377918;
+        bh=Q/lzbgeeIn5vRIrQzAfRoOEvuiHT7pVV4xIhawwJ3fk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=An5+xfFy4THR7B1ymOkjJmNRpn4FKi9ksFWH/h6IcIZ7xBYw0XBiz9q1DefIbhr6s
-         Zt9uJoUS4NQZWq5px6kPWEtvFy0q5qHL/TTGkx1Ndn+ww2s9whVqjKngIFcTa+N7M+
-         phuc02BNOIS8WsRT5lqCncjK4oGnQePlMw0j1Ims=
+        b=lU37OfU0sfR0K+qia2bFi4Qk4Eeg0J24SgcBnArp0gsBRV4M0IDSuiXW6p9iCErAM
+         SM3McdpdvLT12VRrHOHGXTaaYQt5n0LMjyxwoAiGLWhC8RG6PqFtivHyJFLN7pkNxl
+         GoV0bywF0w7j6pqhQ5mpa0F3q4Y5cM/3nRXEFrIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        Maxim Zhukov <mussitantesmortem@gmail.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 65/85] vfio/pci: fix memory leaks of eventfd ctx
-Date:   Tue, 29 Sep 2020 13:00:32 +0200
-Message-Id: <20200929105931.467342982@linuxfoundation.org>
+Subject: [PATCH 4.9 089/121] e1000: Do not perform reset in reset_task if we are already down
+Date:   Tue, 29 Sep 2020 13:00:33 +0200
+Message-Id: <20200929105934.589035998@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 
-[ Upstream commit 1518ac272e789cae8c555d69951b032a275b7602 ]
+[ Upstream commit 49ee3c2ab5234757bfb56a0b3a3cb422f427e3a3 ]
 
-Finished a qemu-kvm (-device vfio-pci,host=0001:01:00.0) triggers a few
-memory leaks after a while because vfio_pci_set_ctx_trigger_single()
-calls eventfd_ctx_fdget() without the matching eventfd_ctx_put() later.
-Fix it by calling eventfd_ctx_put() for those memory in
-vfio_pci_release() before vfio_device_release().
+We are seeing a deadlock in e1000 down when NAPI is being disabled. Looking
+over the kernel function trace of the system it appears that the interface
+is being closed and then a reset is hitting which deadlocks the interface
+as the NAPI interface is already disabled.
 
-unreferenced object 0xebff008981cc2b00 (size 128):
-  comm "qemu-kvm", pid 4043, jiffies 4294994816 (age 9796.310s)
-  hex dump (first 32 bytes):
-    01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
-    ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
-  backtrace:
-    [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
-    [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
-    [<000000005fcec025>] do_eventfd+0x54/0x1ac
-    [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
-    [<00000000b819758c>] do_el0_svc+0x128/0x1dc
-    [<00000000b244e810>] el0_sync_handler+0xd0/0x268
-    [<00000000d495ef94>] el0_sync+0x164/0x180
-unreferenced object 0x29ff008981cc4180 (size 128):
-  comm "qemu-kvm", pid 4043, jiffies 4294994818 (age 9796.290s)
-  hex dump (first 32 bytes):
-    01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
-    ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
-  backtrace:
-    [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
-    [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
-    [<000000005fcec025>] do_eventfd+0x54/0x1ac
-    [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
-    [<00000000b819758c>] do_el0_svc+0x128/0x1dc
-    [<00000000b244e810>] el0_sync_handler+0xd0/0x268
-    [<00000000d495ef94>] el0_sync+0x164/0x180
+To prevent this from happening I am disabling the reset task when
+__E1000_DOWN is already set. In addition code has been added so that we set
+the __E1000_DOWN while holding the __E1000_RESET flag in e1000_close in
+order to guarantee that the reset task will not run after we have started
+the close call.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Tested-by: Maxim Zhukov <mussitantesmortem@gmail.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/intel/e1000/e1000_main.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 7a82735d53087..ab765770e8dd6 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -255,6 +255,10 @@ static void vfio_pci_release(void *device_data)
- 	if (!(--vdev->refcnt)) {
- 		vfio_spapr_pci_eeh_release(vdev->pdev);
- 		vfio_pci_disable(vdev);
-+		if (vdev->err_trigger)
-+			eventfd_ctx_put(vdev->err_trigger);
-+		if (vdev->req_trigger)
-+			eventfd_ctx_put(vdev->req_trigger);
- 	}
+diff --git a/drivers/net/ethernet/intel/e1000/e1000_main.c b/drivers/net/ethernet/intel/e1000/e1000_main.c
+index 3b16ee0de246e..c30792b761ee3 100644
+--- a/drivers/net/ethernet/intel/e1000/e1000_main.c
++++ b/drivers/net/ethernet/intel/e1000/e1000_main.c
+@@ -568,8 +568,13 @@ void e1000_reinit_locked(struct e1000_adapter *adapter)
+ 	WARN_ON(in_interrupt());
+ 	while (test_and_set_bit(__E1000_RESETTING, &adapter->flags))
+ 		msleep(1);
+-	e1000_down(adapter);
+-	e1000_up(adapter);
++
++	/* only run the task if not already down */
++	if (!test_bit(__E1000_DOWN, &adapter->flags)) {
++		e1000_down(adapter);
++		e1000_up(adapter);
++	}
++
+ 	clear_bit(__E1000_RESETTING, &adapter->flags);
+ }
  
- 	mutex_unlock(&driver_lock);
+@@ -1456,10 +1461,15 @@ int e1000_close(struct net_device *netdev)
+ 	struct e1000_hw *hw = &adapter->hw;
+ 	int count = E1000_CHECK_RESET_COUNT;
+ 
+-	while (test_bit(__E1000_RESETTING, &adapter->flags) && count--)
++	while (test_and_set_bit(__E1000_RESETTING, &adapter->flags) && count--)
+ 		usleep_range(10000, 20000);
+ 
+-	WARN_ON(test_bit(__E1000_RESETTING, &adapter->flags));
++	WARN_ON(count < 0);
++
++	/* signal that we're down so that the reset task will no longer run */
++	set_bit(__E1000_DOWN, &adapter->flags);
++	clear_bit(__E1000_RESETTING, &adapter->flags);
++
+ 	e1000_down(adapter);
+ 	e1000_power_down_phy(adapter);
+ 	e1000_free_irq(adapter);
 -- 
 2.25.1
 
