@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9CA727C634
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9043027C631
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729877AbgI2Lmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:42:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40118 "EHLO mail.kernel.org"
+        id S1730731AbgI2Lmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:42:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730686AbgI2Lmd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:42:33 -0400
+        id S1730470AbgI2Lmf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:42:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02F89206DB;
-        Tue, 29 Sep 2020 11:42:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BE7520702;
+        Tue, 29 Sep 2020 11:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379752;
-        bh=9H2IkHGf1BKs826WwCRNNg56rcCbpHAkxILLNh04e8s=;
+        s=default; t=1601379754;
+        bh=yGyQvtcrzzOsuLns5qoWHAXVBcKYt/j9EFNRVIfjoHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eC9s8F4QVcp7QEY59OR3raWqSaFn1C4cPZFAke+e052Rh4BXLeOSnnRPDImZfUKOF
-         f2LmOdAhyclptBOxGLk+3bpZ5bzbWlnn580j3wXckhQbx7cGygxxo9yL46JlRDRZmY
-         127HIsF2nGed1juSt3LqW9vhhBu3jxQV3nbC+tPE=
+        b=Vb1IUDodbXAeTZHTsoP+fDWXiHoDijxKaHpBwHnQV+nJDf8jxfJT9CkxXRtIuFoFs
+         1xL+2sNZJl6E6oHZF/rverkWCfaXHRAUD8nA+fKWMF64SnPNyk6oiGW5Wt8nDAh2Jp
+         Ei3VFD/DtpHxHHKanwcbfziNasfihYyKNJOm8l2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Daniel Wagner <dwagner@suse.de>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 302/388] NFS: nfs_xdr_status should record the procedure name
-Date:   Tue, 29 Sep 2020 13:00:33 +0200
-Message-Id: <20200929110025.085021206@linuxfoundation.org>
+Subject: [PATCH 5.4 303/388] vfio/pci: Clear error and request eventfd ctx after releasing
+Date:   Tue, 29 Sep 2020 13:00:34 +0200
+Message-Id: <20200929110025.132412620@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,59 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit 5be5945864ea143fda628e8179c8474457af1f43 ]
+[ Upstream commit 5c5866c593bbd444d0339ede6a8fb5f14ff66d72 ]
 
-When sunrpc trace points are not enabled, the recorded task ID
-information alone is not helpful.
+The next use of the device will generate an underflow from the
+stale reference.
 
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Cc: Qian Cai <cai@lca.pw>
+Fixes: 1518ac272e78 ("vfio/pci: fix memory leaks of eventfd ctx")
+Reported-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Tested-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfstrace.h | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/vfio/pci/vfio_pci.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfstrace.h b/fs/nfs/nfstrace.h
-index 361cc10d6f95d..c8081d2b4166a 100644
---- a/fs/nfs/nfstrace.h
-+++ b/fs/nfs/nfstrace.h
-@@ -1147,7 +1147,12 @@ TRACE_EVENT(nfs_xdr_status,
- 			__field(unsigned int, task_id)
- 			__field(unsigned int, client_id)
- 			__field(u32, xid)
-+			__field(int, version)
- 			__field(unsigned long, error)
-+			__string(program,
-+				 xdr->rqst->rq_task->tk_client->cl_program->name)
-+			__string(procedure,
-+				 xdr->rqst->rq_task->tk_msg.rpc_proc->p_name)
- 		),
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 12f7691e8b6ca..b669be5a20066 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -474,10 +474,14 @@ static void vfio_pci_release(void *device_data)
+ 	if (!(--vdev->refcnt)) {
+ 		vfio_spapr_pci_eeh_release(vdev->pdev);
+ 		vfio_pci_disable(vdev);
+-		if (vdev->err_trigger)
++		if (vdev->err_trigger) {
+ 			eventfd_ctx_put(vdev->err_trigger);
+-		if (vdev->req_trigger)
++			vdev->err_trigger = NULL;
++		}
++		if (vdev->req_trigger) {
+ 			eventfd_ctx_put(vdev->req_trigger);
++			vdev->req_trigger = NULL;
++		}
+ 	}
  
- 		TP_fast_assign(
-@@ -1157,13 +1162,19 @@ TRACE_EVENT(nfs_xdr_status,
- 			__entry->task_id = task->tk_pid;
- 			__entry->client_id = task->tk_client->cl_clid;
- 			__entry->xid = be32_to_cpu(rqstp->rq_xid);
-+			__entry->version = task->tk_client->cl_vers;
- 			__entry->error = error;
-+			__assign_str(program,
-+				     task->tk_client->cl_program->name)
-+			__assign_str(procedure, task->tk_msg.rpc_proc->p_name)
- 		),
- 
- 		TP_printk(
--			"task:%u@%d xid=0x%08x error=%ld (%s)",
-+			"task:%u@%d xid=0x%08x %sv%d %s error=%ld (%s)",
- 			__entry->task_id, __entry->client_id, __entry->xid,
--			-__entry->error, nfs_show_status(__entry->error)
-+			__get_str(program), __entry->version,
-+			__get_str(procedure), -__entry->error,
-+			nfs_show_status(__entry->error)
- 		)
- );
- 
+ 	mutex_unlock(&vdev->reflck->lock);
 -- 
 2.25.1
 
