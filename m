@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C03427C475
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 617E527C473
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728909AbgI2LON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:14:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55488 "EHLO mail.kernel.org"
+        id S1728388AbgI2LOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:14:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727985AbgI2LNP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:13:15 -0400
+        id S1729352AbgI2LNV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:13:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7F2A21924;
-        Tue, 29 Sep 2020 11:13:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFB1F2158C;
+        Tue, 29 Sep 2020 11:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377994;
-        bh=/N8R8pe930A8Psal2Q5+o+U4C3yW6ZaKIoCVHjkSWmI=;
+        s=default; t=1601378000;
+        bh=uRBqL4UMxaM/h/T1q8XpgguM/2SBpklTv/zEIpHhygs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UkQD60bCXJMC93XZUbstoBogO1PINfLFtiL74m2irLoZCKyI+A/n0786if1SBgllw
-         IjJSx2f2Q4ITO0MCiMhHpFhWCTDWJSzJk9mUn0cSFQMbuZnxsFURVRpp7KNJkozCfi
-         +GsTtpFtpqso2DJ6qyBq5lSWoGRQJZf8nsaV+bGI=
+        b=aaLdLT40CdHktdZ4m3QhCT6n6szLAF4vlj+93VmQJqnv2IzqzKNyBTHY5NEfCMn3q
+         q7xVgIgILOiR7NaWxmTNvmX1gj8QY8Pb0z10dNAteSk4tRketjeBo2AR5k/ioaWh0a
+         63wbXUfZUQfEsOEM2/ju4t8IibcOVegLu1PELw3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        ChenNan Of Chaitin Security Research Lab 
-        <whutchennan@gmail.com>, Dan Carpenter <dan.carpenter@oracle.com>,
-        Eric Dumazet <edumazet@google.com>,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 007/166] hdlc_ppp: add range checks in ppp_cp_parse_cr()
-Date:   Tue, 29 Sep 2020 12:58:39 +0200
-Message-Id: <20200929105935.559876998@linuxfoundation.org>
+Subject: [PATCH 4.14 009/166] net: ipv6: fix kconfig dependency warning for IPV6_SEG6_HMAC
+Date:   Tue, 29 Sep 2020 12:58:41 +0200
+Message-Id: <20200929105935.662502376@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -45,80 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit 66d42ed8b25b64eb63111a2b8582c5afc8bf1105 ]
+[ Upstream commit db7cd91a4be15e1485d6b58c6afc8761c59c4efb ]
 
-There are a couple bugs here:
-1) If opt[1] is zero then this results in a forever loop.  If the value
-   is less than 2 then it is invalid.
-2) It assumes that "len" is more than sizeof(valid_accm) or 6 which can
-   result in memory corruption.
+When IPV6_SEG6_HMAC is enabled and CRYPTO is disabled, it results in the
+following Kbuild warning:
 
-In the case of LCP_OPTION_ACCM, then  we should check "opt[1]" instead
-of "len" because, if "opt[1]" is less than sizeof(valid_accm) then
-"nak_len" gets out of sync and it can lead to memory corruption in the
-next iterations through the loop.  In case of LCP_OPTION_MAGIC, the
-only valid value for opt[1] is 6, but the code is trying to log invalid
-data so we should only discard the data when "len" is less than 6
-because that leads to a read overflow.
+WARNING: unmet direct dependencies detected for CRYPTO_HMAC
+  Depends on [n]: CRYPTO [=n]
+  Selected by [y]:
+  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
 
-Reported-by: ChenNan Of Chaitin Security Research Lab  <whutchennan@gmail.com>
-Fixes: e022c2f07ae5 ("WAN: new synchronous PPP implementation for generic HDLC.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+WARNING: unmet direct dependencies detected for CRYPTO_SHA1
+  Depends on [n]: CRYPTO [=n]
+  Selected by [y]:
+  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
+
+WARNING: unmet direct dependencies detected for CRYPTO_SHA256
+  Depends on [n]: CRYPTO [=n]
+  Selected by [y]:
+  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
+
+The reason is that IPV6_SEG6_HMAC selects CRYPTO_HMAC, CRYPTO_SHA1, and
+CRYPTO_SHA256 without depending on or selecting CRYPTO while those configs
+are subordinate to CRYPTO.
+
+Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+
+Fixes: bf355b8d2c30 ("ipv6: sr: add core files for SR HMAC support")
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wan/hdlc_ppp.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ net/ipv6/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wan/hdlc_ppp.c
-+++ b/drivers/net/wan/hdlc_ppp.c
-@@ -386,11 +386,8 @@ static void ppp_cp_parse_cr(struct net_d
- 	}
- 
- 	for (opt = data; len; len -= opt[1], opt += opt[1]) {
--		if (len < 2 || len < opt[1]) {
--			dev->stats.rx_errors++;
--			kfree(out);
--			return; /* bad packet, drop silently */
--		}
-+		if (len < 2 || opt[1] < 2 || len < opt[1])
-+			goto err_out;
- 
- 		if (pid == PID_LCP)
- 			switch (opt[0]) {
-@@ -398,6 +395,8 @@ static void ppp_cp_parse_cr(struct net_d
- 				continue; /* MRU always OK and > 1500 bytes? */
- 
- 			case LCP_OPTION_ACCM: /* async control character map */
-+				if (opt[1] < sizeof(valid_accm))
-+					goto err_out;
- 				if (!memcmp(opt, valid_accm,
- 					    sizeof(valid_accm)))
- 					continue;
-@@ -409,6 +408,8 @@ static void ppp_cp_parse_cr(struct net_d
- 				}
- 				break;
- 			case LCP_OPTION_MAGIC:
-+				if (len < 6)
-+					goto err_out;
- 				if (opt[1] != 6 || (!opt[2] && !opt[3] &&
- 						    !opt[4] && !opt[5]))
- 					break; /* reject invalid magic number */
-@@ -427,6 +428,11 @@ static void ppp_cp_parse_cr(struct net_d
- 		ppp_cp_event(dev, pid, RCR_GOOD, CP_CONF_ACK, id, req_len, data);
- 
- 	kfree(out);
-+	return;
-+
-+err_out:
-+	dev->stats.rx_errors++;
-+	kfree(out);
- }
- 
- static int ppp_rx(struct sk_buff *skb)
+--- a/net/ipv6/Kconfig
++++ b/net/ipv6/Kconfig
+@@ -321,6 +321,7 @@ config IPV6_SEG6_LWTUNNEL
+ config IPV6_SEG6_HMAC
+ 	bool "IPv6: Segment Routing HMAC support"
+ 	depends on IPV6
++	select CRYPTO
+ 	select CRYPTO_HMAC
+ 	select CRYPTO_SHA1
+ 	select CRYPTO_SHA256
 
 
