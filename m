@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 581DA27C4ED
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3320D27C40A
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729125AbgI2LTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34428 "EHLO mail.kernel.org"
+        id S1728860AbgI2LKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:10:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729634AbgI2LRf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:17:35 -0400
+        id S1728440AbgI2LK2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:10:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B8F9206DB;
-        Tue, 29 Sep 2020 11:17:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 094AF21941;
+        Tue, 29 Sep 2020 11:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378254;
-        bh=u0gIlx+26lPy9i8hc8Z2XqPWMlpcGLOnbaDcSsjvkrE=;
+        s=default; t=1601377827;
+        bh=8o9zybgIuHAYYolfy9YI06KREygAviigU0xC/9gLius=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w2clj4SizrnxKoqqKE2Ck0PY7IysA3ll2ejXvEE83RrwH5u/HhP6j+5EPGhv0rvyB
-         4vSgbBn0dzTugWE3woXbXSbXrAjZJGjoykuSjfFVf7U1RRp1BpvZwdDEv+KiIvHuJp
-         kyGdabqOhyvCuFjPvE2JUboT/V6Wkk4ZTVpEZA70=
+        b=zKwkPV4VhsmCuVDmxohZx7+5HVDNoBH0wu8zkZyK95hyyCfKidr7tFdoSM3tQYPSB
+         AL6j9u7r735bIGQompMqOaVv8jf3z7/cgzk7aq9b6X1ZrOMy9cpLPtWT4GhunUlPIo
+         /HP8lPSv+7nerk6OJZOHJ+B1PbacwdNuH6uUzoRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 088/166] serial: 8250: 8250_omap: Terminate DMA before pushing data on RX timeout
-Date:   Tue, 29 Sep 2020 13:00:00 +0200
-Message-Id: <20200929105939.608685288@linuxfoundation.org>
+Subject: [PATCH 4.9 057/121] timekeeping: Prevent 32bit truncation in scale64_check_overflow()
+Date:   Tue, 29 Sep 2020 13:00:01 +0200
+Message-Id: <20200929105933.005798011@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Raghavendra <vigneshr@ti.com>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-[ Upstream commit 7cf4df30a98175033e9849f7f16c46e96ba47f41 ]
+[ Upstream commit 4cbbc3a0eeed675449b1a4d080008927121f3da3 ]
 
-Terminate and flush DMA internal buffers, before pushing RX data to
-higher layer. Otherwise, this will lead to data corruption, as driver
-would end up pushing stale buffer data to higher layer while actual data
-is still stuck inside DMA hardware and has yet not arrived at the
-memory.
-While at that, replace deprecated dmaengine_terminate_all() with
-dmaengine_terminate_async().
+While unlikely the divisor in scale64_check_overflow() could be >= 32bit in
+scale64_check_overflow(). do_div() truncates the divisor to 32bit at least
+on 32bit platforms.
 
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Link: https://lore.kernel.org/r/20200319110344.21348-2-vigneshr@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Use div64_u64() instead to avoid the truncation to 32-bit.
+
+[ tglx: Massaged changelog ]
+
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20200120100523.45656-1-wenyang@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/time/timekeeping.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 33df33a9e646a..726852ebef855 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -773,7 +773,10 @@ static void __dma_rx_do_complete(struct uart_8250_port *p)
- 	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index e24e1f0c56906..e21b4d8b72405 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -950,9 +950,8 @@ static int scale64_check_overflow(u64 mult, u64 div, u64 *base)
+ 	    ((int)sizeof(u64)*8 - fls64(mult) < fls64(rem)))
+ 		return -EOVERFLOW;
+ 	tmp *= mult;
+-	rem *= mult;
  
- 	count = dma->rx_size - state.residue;
--
-+	if (count < dma->rx_size)
-+		dmaengine_terminate_async(dma->rxchan);
-+	if (!count)
-+		goto unlock;
- 	ret = tty_insert_flip_string(tty_port, dma->rx_buf, count);
- 
- 	p->port.icount.rx += ret;
-@@ -833,7 +836,6 @@ static void omap_8250_rx_dma_flush(struct uart_8250_port *p)
- 	spin_unlock_irqrestore(&priv->rx_dma_lock, flags);
- 
- 	__dma_rx_do_complete(p);
--	dmaengine_terminate_all(dma->rxchan);
+-	do_div(rem, div);
++	rem = div64_u64(rem * mult, div);
+ 	*base = tmp + rem;
+ 	return 0;
  }
- 
- static int omap_8250_rx_dma(struct uart_8250_port *p)
 -- 
 2.25.1
 
