@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 799C227C835
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50CE827C838
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:00:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731315AbgI2L74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:59:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36580 "EHLO mail.kernel.org"
+        id S1730646AbgI2L7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:59:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730583AbgI2Lky (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730577AbgI2Lky (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:40:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15B46206F7;
-        Tue, 29 Sep 2020 11:40:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9867206FC;
+        Tue, 29 Sep 2020 11:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379633;
-        bh=hQzgCEQXCPPfm/nUC4Z/h/yFQmbA9POxouv97PfeJ7o=;
+        s=default; t=1601379638;
+        bh=98vlF7MFnIhek5WiqRtqmVbtIyT3JZIyG51Hp+uZ44Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQ7KOuSFdOujg2HFWP40Y1CXtbp+++DJ2EascRdDug808cZLmkBYC9eltjo5gOL2P
-         3pro6m7aZdrr+pe49mWI3yDXFzEvHOE7L5EO3M86k4ZzRZZSQJ1HqmMssqMZArAMpl
-         D/hNnpTBbfGcb3fURXqwjIxFUOGgZ6Bw0+3qd9Bs=
+        b=txwymT6AevSjFyNeWk/mTQawtNLtyCinS9XGdEQSgvPN1hcYz8BbqjGmCuOtObPjc
+         SxrSy6diZJxzQ3GCNrDo2/k0Yt/QCARxTF+fhfYrViqOdun3RwjpdH8d1aF8u9KBnr
+         4Uye7xm3gZsmkmaR+nPaaRd6WD/Lhz5a8Ajr6UbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xianting Tian <xianting_tian@126.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
         Andrew Morton <akpm@linux-foundation.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jan Kara <jack@suse.cz>, yubin@h3c.com,
+        Marco Elver <elver@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 220/388] mm/filemap.c: clear page error before actual read
-Date:   Tue, 29 Sep 2020 12:59:11 +0200
-Message-Id: <20200929110021.125697414@linuxfoundation.org>
+Subject: [PATCH 5.4 222/388] mm/vmscan.c: fix data races using kswapd_classzone_idx
+Date:   Tue, 29 Sep 2020 12:59:13 +0200
+Message-Id: <20200929110021.224677721@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -46,145 +46,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting_tian@126.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit faffdfa04fa11ccf048cebdde73db41ede0679e0 ]
+[ Upstream commit 5644e1fbbfe15ad06785502bbfe5751223e5841d ]
 
-Mount failure issue happens under the scenario: Application forked dozens
-of threads to mount the same number of cramfs images separately in docker,
-but several mounts failed with high probability.  Mount failed due to the
-checking result of the page(read from the superblock of loop dev) is not
-uptodate after wait_on_page_locked(page) returned in function cramfs_read:
+pgdat->kswapd_classzone_idx could be accessed concurrently in
+wakeup_kswapd().  Plain writes and reads without any lock protection
+result in data races.  Fix them by adding a pair of READ|WRITE_ONCE() as
+well as saving a branch (compilers might well optimize the original code
+in an unintentional way anyway).  While at it, also take care of
+pgdat->kswapd_order and non-kswapd threads in allow_direct_reclaim().  The
+data races were reported by KCSAN,
 
-   wait_on_page_locked(page);
-   if (!PageUptodate(page)) {
-      ...
-   }
+ BUG: KCSAN: data-race in wakeup_kswapd / wakeup_kswapd
 
-The reason of the checking result of the page not uptodate: systemd-udevd
-read the loopX dev before mount, because the status of loopX is Lo_unbound
-at this time, so loop_make_request directly trigger the calling of io_end
-handler end_buffer_async_read, which called SetPageError(page).  So It
-caused the page can't be set to uptodate in function
-end_buffer_async_read:
+ write to 0xffff9f427ffff2dc of 4 bytes by task 7454 on cpu 13:
+  wakeup_kswapd+0xf1/0x400
+  wakeup_kswapd at mm/vmscan.c:3967
+  wake_all_kswapds+0x59/0xc0
+  wake_all_kswapds at mm/page_alloc.c:4241
+  __alloc_pages_slowpath+0xdcc/0x1290
+  __alloc_pages_slowpath at mm/page_alloc.c:4512
+  __alloc_pages_nodemask+0x3bb/0x450
+  alloc_pages_vma+0x8a/0x2c0
+  do_anonymous_page+0x16e/0x6f0
+  __handle_mm_fault+0xcd5/0xd40
+  handle_mm_fault+0xfc/0x2f0
+  do_page_fault+0x263/0x6f9
+  page_fault+0x34/0x40
 
-   if(page_uptodate && !PageError(page)) {
-      SetPageUptodate(page);
-   }
+ 1 lock held by mtest01/7454:
+  #0: ffff9f425afe8808 (&mm->mmap_sem#2){++++}, at:
+ do_page_fault+0x143/0x6f9
+ do_user_addr_fault at arch/x86/mm/fault.c:1405
+ (inlined by) do_page_fault at arch/x86/mm/fault.c:1539
+ irq event stamp: 6944085
+ count_memcg_event_mm+0x1a6/0x270
+ count_memcg_event_mm+0x119/0x270
+ __do_softirq+0x34c/0x57c
+ irq_exit+0xa2/0xc0
 
-Then mount operation is performed, it used the same page which is just
-accessed by systemd-udevd above, Because this page is not uptodate, it
-will launch a actual read via submit_bh, then wait on this page by calling
-wait_on_page_locked(page).  When the I/O of the page done, io_end handler
-end_buffer_async_read is called, because no one cleared the page
-error(during the whole read path of mount), which is caused by
-systemd-udevd reading, so this page is still in "PageError" status, which
-can't be set to uptodate in function end_buffer_async_read, then caused
-mount failure.
+ read to 0xffff9f427ffff2dc of 4 bytes by task 7472 on cpu 38:
+  wakeup_kswapd+0xc8/0x400
+  wake_all_kswapds+0x59/0xc0
+  __alloc_pages_slowpath+0xdcc/0x1290
+  __alloc_pages_nodemask+0x3bb/0x450
+  alloc_pages_vma+0x8a/0x2c0
+  do_anonymous_page+0x16e/0x6f0
+  __handle_mm_fault+0xcd5/0xd40
+  handle_mm_fault+0xfc/0x2f0
+  do_page_fault+0x263/0x6f9
+  page_fault+0x34/0x40
 
-But sometimes mount succeed even through systemd-udeved read loopX dev
-just before, The reason is systemd-udevd launched other loopX read just
-between step 3.1 and 3.2, the steps as below:
+ 1 lock held by mtest01/7472:
+  #0: ffff9f425a9ac148 (&mm->mmap_sem#2){++++}, at:
+ do_page_fault+0x143/0x6f9
+ irq event stamp: 6793561
+ count_memcg_event_mm+0x1a6/0x270
+ count_memcg_event_mm+0x119/0x270
+ __do_softirq+0x34c/0x57c
+ irq_exit+0xa2/0xc0
 
-1, loopX dev default status is Lo_unbound;
-2, systemd-udved read loopX dev (page is set to PageError);
-3, mount operation
-   1) set loopX status to Lo_bound;
-   ==>systemd-udevd read loopX dev<==
-   2) read loopX dev(page has no error)
-   3) mount succeed
+ BUG: KCSAN: data-race in kswapd / wakeup_kswapd
 
-As the loopX dev status is set to Lo_bound after step 3.1, so the other
-loopX dev read by systemd-udevd will go through the whole I/O stack, part
-of the call trace as below:
+ write to 0xffff90973ffff2dc of 4 bytes by task 820 on cpu 6:
+  kswapd+0x27c/0x8d0
+  kthread+0x1e0/0x200
+  ret_from_fork+0x27/0x50
 
-   SYS_read
-      vfs_read
-          do_sync_read
-              blkdev_aio_read
-                 generic_file_aio_read
-                     do_generic_file_read:
-                        ClearPageError(page);
-                        mapping->a_ops->readpage(filp, page);
+ read to 0xffff90973ffff2dc of 4 bytes by task 6299 on cpu 0:
+  wakeup_kswapd+0xf3/0x450
+  wake_all_kswapds+0x59/0xc0
+  __alloc_pages_slowpath+0xdcc/0x1290
+  __alloc_pages_nodemask+0x3bb/0x450
+  alloc_pages_vma+0x8a/0x2c0
+  do_anonymous_page+0x170/0x700
+  __handle_mm_fault+0xc9f/0xd00
+  handle_mm_fault+0xfc/0x2f0
+  do_page_fault+0x263/0x6f9
+  page_fault+0x34/0x40
 
-here, mapping->a_ops->readpage() is blkdev_readpage.  In latest kernel,
-some function name changed, the call trace as below:
-
-   blkdev_read_iter
-      generic_file_read_iter
-         generic_file_buffered_read:
-            /*
-             * A previous I/O error may have been due to temporary
-             * failures, eg. mutipath errors.
-             * Pg_error will be set again if readpage fails.
-             */
-            ClearPageError(page);
-            /* Start the actual read. The read will unlock the page*/
-            error=mapping->a_ops->readpage(flip, page);
-
-We can see ClearPageError(page) is called before the actual read,
-then the read in step 3.2 succeed.
-
-This patch is to add the calling of ClearPageError just before the actual
-read of read path of cramfs mount.  Without the patch, the call trace as
-below when performing cramfs mount:
-
-   do_mount
-      cramfs_read
-         cramfs_blkdev_read
-            read_cache_page
-               do_read_cache_page:
-                  filler(data, page);
-                  or
-                  mapping->a_ops->readpage(data, page);
-
-With the patch, the call trace as below when performing mount:
-
-   do_mount
-      cramfs_read
-         cramfs_blkdev_read
-            read_cache_page:
-               do_read_cache_page:
-                  ClearPageError(page); <== new add
-                  filler(data, page);
-                  or
-                  mapping->a_ops->readpage(data, page);
-
-With the patch, mount operation trigger the calling of
-ClearPageError(page) before the actual read, the page has no error if no
-additional page error happen when I/O done.
-
-Signed-off-by: Xianting Tian <xianting_tian@126.com>
+Signed-off-by: Qian Cai <cai@lca.pw>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Jan Kara <jack@suse.cz>
-Cc: <yubin@h3c.com>
-Link: http://lkml.kernel.org/r/1583318844-22971-1-git-send-email-xianting_tian@126.com
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Marco Elver <elver@google.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Link: http://lkml.kernel.org/r/1582749472-5171-1-git-send-email-cai@lca.pw
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/filemap.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ mm/vmscan.c | 45 ++++++++++++++++++++++++++-------------------
+ 1 file changed, 26 insertions(+), 19 deletions(-)
 
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 18c1f58300742..51b2cb5aa5030 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -2845,6 +2845,14 @@ filler:
- 		unlock_page(page);
- 		goto out;
- 	}
-+
-+	/*
-+	 * A previous I/O error may have been due to temporary
-+	 * failures.
-+	 * Clear page error before actual read, PG_error will be
-+	 * set again if read page fails.
-+	 */
-+	ClearPageError(page);
- 	goto filler;
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 6db9176d8c63e..10feb872d9a4f 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -3168,8 +3168,9 @@ static bool allow_direct_reclaim(pg_data_t *pgdat)
  
- out:
+ 	/* kswapd must be awake if processes are being throttled */
+ 	if (!wmark_ok && waitqueue_active(&pgdat->kswapd_wait)) {
+-		pgdat->kswapd_classzone_idx = min(pgdat->kswapd_classzone_idx,
+-						(enum zone_type)ZONE_NORMAL);
++		if (READ_ONCE(pgdat->kswapd_classzone_idx) > ZONE_NORMAL)
++			WRITE_ONCE(pgdat->kswapd_classzone_idx, ZONE_NORMAL);
++
+ 		wake_up_interruptible(&pgdat->kswapd_wait);
+ 	}
+ 
+@@ -3801,9 +3802,9 @@ out:
+ static enum zone_type kswapd_classzone_idx(pg_data_t *pgdat,
+ 					   enum zone_type prev_classzone_idx)
+ {
+-	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
+-		return prev_classzone_idx;
+-	return pgdat->kswapd_classzone_idx;
++	enum zone_type curr_idx = READ_ONCE(pgdat->kswapd_classzone_idx);
++
++	return curr_idx == MAX_NR_ZONES ? prev_classzone_idx : curr_idx;
+ }
+ 
+ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_order,
+@@ -3847,8 +3848,11 @@ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_o
+ 		 * the previous request that slept prematurely.
+ 		 */
+ 		if (remaining) {
+-			pgdat->kswapd_classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
+-			pgdat->kswapd_order = max(pgdat->kswapd_order, reclaim_order);
++			WRITE_ONCE(pgdat->kswapd_classzone_idx,
++				   kswapd_classzone_idx(pgdat, classzone_idx));
++
++			if (READ_ONCE(pgdat->kswapd_order) < reclaim_order)
++				WRITE_ONCE(pgdat->kswapd_order, reclaim_order);
+ 		}
+ 
+ 		finish_wait(&pgdat->kswapd_wait, &wait);
+@@ -3925,12 +3929,12 @@ static int kswapd(void *p)
+ 	tsk->flags |= PF_MEMALLOC | PF_SWAPWRITE | PF_KSWAPD;
+ 	set_freezable();
+ 
+-	pgdat->kswapd_order = 0;
+-	pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
++	WRITE_ONCE(pgdat->kswapd_order, 0);
++	WRITE_ONCE(pgdat->kswapd_classzone_idx, MAX_NR_ZONES);
+ 	for ( ; ; ) {
+ 		bool ret;
+ 
+-		alloc_order = reclaim_order = pgdat->kswapd_order;
++		alloc_order = reclaim_order = READ_ONCE(pgdat->kswapd_order);
+ 		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
+ 
+ kswapd_try_sleep:
+@@ -3938,10 +3942,10 @@ kswapd_try_sleep:
+ 					classzone_idx);
+ 
+ 		/* Read the new order and classzone_idx */
+-		alloc_order = reclaim_order = pgdat->kswapd_order;
++		alloc_order = reclaim_order = READ_ONCE(pgdat->kswapd_order);
+ 		classzone_idx = kswapd_classzone_idx(pgdat, classzone_idx);
+-		pgdat->kswapd_order = 0;
+-		pgdat->kswapd_classzone_idx = MAX_NR_ZONES;
++		WRITE_ONCE(pgdat->kswapd_order, 0);
++		WRITE_ONCE(pgdat->kswapd_classzone_idx, MAX_NR_ZONES);
+ 
+ 		ret = try_to_freeze();
+ 		if (kthread_should_stop())
+@@ -3985,20 +3989,23 @@ void wakeup_kswapd(struct zone *zone, gfp_t gfp_flags, int order,
+ 		   enum zone_type classzone_idx)
+ {
+ 	pg_data_t *pgdat;
++	enum zone_type curr_idx;
+ 
+ 	if (!managed_zone(zone))
+ 		return;
+ 
+ 	if (!cpuset_zone_allowed(zone, gfp_flags))
+ 		return;
++
+ 	pgdat = zone->zone_pgdat;
++	curr_idx = READ_ONCE(pgdat->kswapd_classzone_idx);
++
++	if (curr_idx == MAX_NR_ZONES || curr_idx < classzone_idx)
++		WRITE_ONCE(pgdat->kswapd_classzone_idx, classzone_idx);
++
++	if (READ_ONCE(pgdat->kswapd_order) < order)
++		WRITE_ONCE(pgdat->kswapd_order, order);
+ 
+-	if (pgdat->kswapd_classzone_idx == MAX_NR_ZONES)
+-		pgdat->kswapd_classzone_idx = classzone_idx;
+-	else
+-		pgdat->kswapd_classzone_idx = max(pgdat->kswapd_classzone_idx,
+-						  classzone_idx);
+-	pgdat->kswapd_order = max(pgdat->kswapd_order, order);
+ 	if (!waitqueue_active(&pgdat->kswapd_wait))
+ 		return;
+ 
 -- 
 2.25.1
 
