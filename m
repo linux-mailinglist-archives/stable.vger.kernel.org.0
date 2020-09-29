@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E33F27CD80
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF35927CCE1
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:40:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387430AbgI2Moa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:44:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47408 "EHLO mail.kernel.org"
+        id S1732646AbgI2MkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:40:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728897AbgI2LIZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:08:25 -0400
+        id S1728974AbgI2LPU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:15:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3386221EC;
-        Tue, 29 Sep 2020 11:08:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB31B21D46;
+        Tue, 29 Sep 2020 11:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377686;
-        bh=O1N3xvzafJqnyywSpJuDZkLV4BkNbeFk3C5kxioaO1w=;
+        s=default; t=1601378120;
+        bh=tzXAOwd1wTK8SX7o1NLibeIXwStPrR4UhFbdLbS559Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JawGQJE2Hy8K4Qp06ZW5h6jylPYnLG+QFD23UxNW1Zw9e8YTsnTbzzvikmluPE0tT
-         siNVLyqOfHwfvzrWXETDx+JbQ9pyaEZEt687zr5+N5WoM5wwfTjyI6oD0JatS7G/bE
-         IhCzOE760CKdDb0iWqTGPbrAgZDbA0rZxxZZ7PLw=
+        b=pjjjHdvta8tQZJTV8MwRvJEDMFB1fTl9yGZVJunJKLx1ta0HL9h3PY6xcv/KRod/z
+         7M4T14TMrti0OTyVtAxzUFgH1MZ/mLsMOEoUPXL65dv9kQHIXGi5Ow6jM7lKf4Ix/3
+         ry6XWxNzLWO3s3KkxX/D9CnudBxdDOttK+h9Buvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Fend <matthias.fend@wolfvision.net>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 036/121] dmaengine: zynqmp_dma: fix burst length configuration
-Date:   Tue, 29 Sep 2020 12:59:40 +0200
-Message-Id: <20200929105931.974502125@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Shi <alex.shi@linux.alibaba.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 069/166] x86/pkeys: Add check for pkey "overflow"
+Date:   Tue, 29 Sep 2020 12:59:41 +0200
+Message-Id: <20200929105938.667832315@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,89 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Fend <matthias.fend@wolfvision.net>
+From: Dave Hansen <dave.hansen@linux.intel.com>
 
-[ Upstream commit cc88525ebffc757e00cc5a5d61da6271646c7f5f ]
+[ Upstream commit 16171bffc829272d5e6014bad48f680cb50943d9 ]
 
-Since the dma engine expects the burst length register content as
-power of 2 value, the burst length needs to be converted first.
-Additionally add a burst length range check to avoid corrupting unrelated
-register bits.
+Alex Shi reported the pkey macros above arch_set_user_pkey_access()
+to be unused.  They are unused, and even refer to a nonexistent
+CONFIG option.
 
-Signed-off-by: Matthias Fend <matthias.fend@wolfvision.net>
-Link: https://lore.kernel.org/r/20200115102249.24398-1-matthias.fend@wolfvision.net
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+But, they might have served a good use, which was to ensure that
+the code does not try to set values that would not fit in the
+PKRU register.  As it stands, a too-large 'pkey' value would
+be likely to silently overflow the u32 new_pkru_bits.
+
+Add a check to look for overflows.  Also add a comment to remind
+any future developer to closely examine the types used to store
+pkey values if arch_max_pkey() ever changes.
+
+This boots and passes the x86 pkey selftests.
+
+Reported-by: Alex Shi <alex.shi@linux.alibaba.com>
+Signed-off-by: Dave Hansen <dave.hansen@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200122165346.AD4DA150@viggo.jf.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/zynqmp_dma.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ arch/x86/include/asm/pkeys.h | 5 +++++
+ arch/x86/kernel/fpu/xstate.c | 9 +++++++--
+ 2 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c
-index 9069fb8543196..514763dcc3758 100644
---- a/drivers/dma/xilinx/zynqmp_dma.c
-+++ b/drivers/dma/xilinx/zynqmp_dma.c
-@@ -125,10 +125,12 @@
- /* Max transfer size per descriptor */
- #define ZYNQMP_DMA_MAX_TRANS_LEN	0x40000000
+diff --git a/arch/x86/include/asm/pkeys.h b/arch/x86/include/asm/pkeys.h
+index 851c04b7a0922..1572a436bc087 100644
+--- a/arch/x86/include/asm/pkeys.h
++++ b/arch/x86/include/asm/pkeys.h
+@@ -4,6 +4,11 @@
  
-+/* Max burst lengths */
-+#define ZYNQMP_DMA_MAX_DST_BURST_LEN    32768U
-+#define ZYNQMP_DMA_MAX_SRC_BURST_LEN    32768U
+ #define ARCH_DEFAULT_PKEY	0
+ 
++/*
++ * If more than 16 keys are ever supported, a thorough audit
++ * will be necessary to ensure that the types that store key
++ * numbers and masks have sufficient capacity.
++ */
+ #define arch_max_pkey() (boot_cpu_has(X86_FEATURE_OSPKE) ? 16 : 1)
+ 
+ extern int arch_set_user_pkey_access(struct task_struct *tsk, int pkey,
+diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
+index 4b900035f2202..601a5da1d196a 100644
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -907,8 +907,6 @@ const void *get_xsave_field_ptr(int xsave_state)
+ 
+ #ifdef CONFIG_ARCH_HAS_PKEYS
+ 
+-#define NR_VALID_PKRU_BITS (CONFIG_NR_PROTECTION_KEYS * 2)
+-#define PKRU_VALID_MASK (NR_VALID_PKRU_BITS - 1)
+ /*
+  * This will go out and modify PKRU register to set the access
+  * rights for @pkey to @init_val.
+@@ -927,6 +925,13 @@ int arch_set_user_pkey_access(struct task_struct *tsk, int pkey,
+ 	if (!boot_cpu_has(X86_FEATURE_OSPKE))
+ 		return -EINVAL;
+ 
++	/*
++	 * This code should only be called with valid 'pkey'
++	 * values originating from in-kernel users.  Complain
++	 * if a bad value is observed.
++	 */
++	WARN_ON_ONCE(pkey >= arch_max_pkey());
 +
- /* Reset values for data attributes */
- #define ZYNQMP_DMA_AXCACHE_VAL		0xF
--#define ZYNQMP_DMA_ARLEN_RST_VAL	0xF
--#define ZYNQMP_DMA_AWLEN_RST_VAL	0xF
- 
- #define ZYNQMP_DMA_SRC_ISSUE_RST_VAL	0x1F
- 
-@@ -527,17 +529,19 @@ static void zynqmp_dma_handle_ovfl_int(struct zynqmp_dma_chan *chan, u32 status)
- 
- static void zynqmp_dma_config(struct zynqmp_dma_chan *chan)
- {
--	u32 val;
-+	u32 val, burst_val;
- 
- 	val = readl(chan->regs + ZYNQMP_DMA_CTRL0);
- 	val |= ZYNQMP_DMA_POINT_TYPE_SG;
- 	writel(val, chan->regs + ZYNQMP_DMA_CTRL0);
- 
- 	val = readl(chan->regs + ZYNQMP_DMA_DATA_ATTR);
-+	burst_val = __ilog2_u32(chan->src_burst_len);
- 	val = (val & ~ZYNQMP_DMA_ARLEN) |
--		(chan->src_burst_len << ZYNQMP_DMA_ARLEN_OFST);
-+		((burst_val << ZYNQMP_DMA_ARLEN_OFST) & ZYNQMP_DMA_ARLEN);
-+	burst_val = __ilog2_u32(chan->dst_burst_len);
- 	val = (val & ~ZYNQMP_DMA_AWLEN) |
--		(chan->dst_burst_len << ZYNQMP_DMA_AWLEN_OFST);
-+		((burst_val << ZYNQMP_DMA_AWLEN_OFST) & ZYNQMP_DMA_AWLEN);
- 	writel(val, chan->regs + ZYNQMP_DMA_DATA_ATTR);
- }
- 
-@@ -551,8 +555,10 @@ static int zynqmp_dma_device_config(struct dma_chan *dchan,
- {
- 	struct zynqmp_dma_chan *chan = to_chan(dchan);
- 
--	chan->src_burst_len = config->src_maxburst;
--	chan->dst_burst_len = config->dst_maxburst;
-+	chan->src_burst_len = clamp(config->src_maxburst, 1U,
-+		ZYNQMP_DMA_MAX_SRC_BURST_LEN);
-+	chan->dst_burst_len = clamp(config->dst_maxburst, 1U,
-+		ZYNQMP_DMA_MAX_DST_BURST_LEN);
- 
- 	return 0;
- }
-@@ -968,8 +974,8 @@ static int zynqmp_dma_chan_probe(struct zynqmp_dma_device *zdev,
- 		return PTR_ERR(chan->regs);
- 
- 	chan->bus_width = ZYNQMP_DMA_BUS_WIDTH_64;
--	chan->dst_burst_len = ZYNQMP_DMA_AWLEN_RST_VAL;
--	chan->src_burst_len = ZYNQMP_DMA_ARLEN_RST_VAL;
-+	chan->dst_burst_len = ZYNQMP_DMA_MAX_DST_BURST_LEN;
-+	chan->src_burst_len = ZYNQMP_DMA_MAX_SRC_BURST_LEN;
- 	err = of_property_read_u32(node, "xlnx,bus-width", &chan->bus_width);
- 	if (err < 0) {
- 		dev_err(&pdev->dev, "missing xlnx,bus-width property\n");
+ 	/* Set the bits we need in PKRU:  */
+ 	if (init_val & PKEY_DISABLE_ACCESS)
+ 		new_pkru_bits |= PKRU_AD_BIT;
 -- 
 2.25.1
 
