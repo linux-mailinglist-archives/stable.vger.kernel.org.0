@@ -2,86 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C892527DC5E
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 00:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8B1727DCBA
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 01:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728192AbgI2W6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 18:58:46 -0400
-Received: from mga14.intel.com ([192.55.52.115]:62972 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728156AbgI2W6p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 18:58:45 -0400
-IronPort-SDR: tvBJr29/btbKMWn+Rm+fW1z6k+0am/T0i0vt1G5kB7aHeIOO17+MeTfPSgxqii54NHTpHxpUKH
- uHwXkGW9Gi5A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9759"; a="161529615"
-X-IronPort-AV: E=Sophos;i="5.77,320,1596524400"; 
-   d="scan'208";a="161529615"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Sep 2020 15:58:45 -0700
-IronPort-SDR: Uj9QCJcFJ5DlQ3q1dZ6+/KE7nBKWryO4CNTveA4wVwXU3Opvj6GUQDQYzenm3iJFYYKWNoV/xw
- omGIW1zPmSdA==
-X-IronPort-AV: E=Sophos;i="5.77,320,1596524400"; 
-   d="scan'208";a="493997635"
-Received: from jwilliam-mobl.ger.corp.intel.com (HELO localhost) ([10.252.47.189])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Sep 2020 15:58:43 -0700
-Date:   Wed, 30 Sep 2020 01:58:41 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        David Howells <dhowells@redhat.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] KEYS: trusted: Reserve TPM for seal and unseal
- operations
-Message-ID: <20200929225841.GA805025@linux.intel.com>
-References: <20200929225141.804688-1-jarkko.sakkinen@linux.intel.com>
- <20200929225141.804688-2-jarkko.sakkinen@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200929225141.804688-2-jarkko.sakkinen@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+        id S1728487AbgI2XfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 19:35:06 -0400
+Received: from ma1-aaemail-dr-lapp03.apple.com ([17.171.2.72]:52200 "EHLO
+        ma1-aaemail-dr-lapp03.apple.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726637AbgI2XfG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 19:35:06 -0400
+X-Greylist: delayed 9537 seconds by postgrey-1.27 at vger.kernel.org; Tue, 29 Sep 2020 19:35:05 EDT
+Received: from pps.filterd (ma1-aaemail-dr-lapp03.apple.com [127.0.0.1])
+        by ma1-aaemail-dr-lapp03.apple.com (8.16.0.42/8.16.0.42) with SMTP id 08TKrx7f037958;
+        Tue, 29 Sep 2020 13:56:07 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=apple.com; h=to : cc : from :
+ subject : message-id : date : mime-version : content-type :
+ content-transfer-encoding; s=20180706;
+ bh=hwbAYNKOdwXRdT2BWJo4hDVnnOeiZHos5vUGljLHDEI=;
+ b=q7yDFPC2wKWB2TbAVcjF3Eh2KlvulVUvgIH9IWV70aE60MbcBH9aorbrPWTLZ3HO4oay
+ Rivo6rUI86lRpMiU4F+uOamjm1ntnwC88k++W/IEg5vk0Q2ERLyM5iUdr0EAPMuFnz5t
+ OmbldSmJSJ4p/86F9Mol9IMvlO7SRwZ+Rks7SUK+pgIqP9fnPLTudOxJPTeviv/VZBZ/
+ Qmu7zCPSokSu96tGqlZjPx/tjORbc5SjIoLCI1J4rfbmkFMy1GY8S1Df8hskM20MlP1B
+ 3uYuRcyBBhhKDQubOLK/wcjJWk/arasHrRQTNIvTPWYYfuSV+6mp97I4tAdgtCVvxaSj fA== 
+Received: from rn-mailsvcp-mta-lapp04.rno.apple.com (rn-mailsvcp-mta-lapp04.rno.apple.com [10.225.203.152])
+        by ma1-aaemail-dr-lapp03.apple.com with ESMTP id 33t4mur2xv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO);
+        Tue, 29 Sep 2020 13:56:07 -0700
+Received: from rn-mailsvcp-mmp-lapp01.rno.apple.com
+ (rn-mailsvcp-mmp-lapp01.rno.apple.com [17.179.253.14])
+ by rn-mailsvcp-mta-lapp04.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.6.20200729 64bit (built Jul 29
+ 2020)) with ESMTPS id <0QHF00VDQU1Z4JA0@rn-mailsvcp-mta-lapp04.rno.apple.com>;
+ Tue, 29 Sep 2020 13:53:59 -0700 (PDT)
+Received: from process_milters-daemon.rn-mailsvcp-mmp-lapp01.rno.apple.com by
+ rn-mailsvcp-mmp-lapp01.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.6.20200729 64bit (built Jul 29
+ 2020)) id <0QHF00M00T4XOG00@rn-mailsvcp-mmp-lapp01.rno.apple.com>; Tue,
+ 29 Sep 2020 13:53:59 -0700 (PDT)
+X-Va-A: 
+X-Va-T-CD: a7df34be26ac7dd9260bc16392ad79bf
+X-Va-E-CD: cdbd4e8ba158a4eeb1086510058b468d
+X-Va-R-CD: b09c8571ca93436fe02decf8e7b2fa5a
+X-Va-CD: 0
+X-Va-ID: 97ac0b7e-bb44-457f-b077-1610cb62652f
+X-V-A:  
+X-V-T-CD: a7df34be26ac7dd9260bc16392ad79bf
+X-V-E-CD: cdbd4e8ba158a4eeb1086510058b468d
+X-V-R-CD: b09c8571ca93436fe02decf8e7b2fa5a
+X-V-CD: 0
+X-V-ID: 2ff10da3-3a89-4871-88a4-82f3fa6ff18d
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-29_14:2020-09-29,2020-09-29 signatures=0
+Received: from [17.149.214.207] (unknown [17.149.214.207])
+ by rn-mailsvcp-mmp-lapp01.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.6.20200729 64bit (built Jul 29
+ 2020))
+ with ESMTPSA id <0QHF00CJ1U1ZH600@rn-mailsvcp-mmp-lapp01.rno.apple.com>; Tue,
+ 29 Sep 2020 13:53:59 -0700 (PDT)
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        Andrew Forgue <andrewf@apple.com>
+From:   Vishnu Rangayyan <vrangayyan@apple.com>
+Subject: vsock fix for 5.4 stable
+Message-id: <4871038a-6ab7-4c44-875c-2d04012de34a@apple.com>
+Date:   Tue, 29 Sep 2020 13:53:58 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
+ Gecko/20100101 Thunderbird/68.12.0
+MIME-version: 1.0
+Content-type: text/plain; charset=utf-8; format=flowed
+Content-language: en-US
+Content-transfer-encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-29_14:2020-09-29,2020-09-29 signatures=0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 30, 2020 at 01:51:41AM +0300, Jarkko Sakkinen wrote:
-> When TPM 2.0 trusted keys code was moved to the trusted keys subsystem,
-> the operations were unwrapped from tpm_try_get_ops() and tpm_put_ops(),
-> which are used to take temporarily the ownership of the TPM chip. The
-> ownership is only taken inside tpm_send(), but this is not sufficient,
-> as in the key load TPM2_CC_LOAD, TPM2_CC_UNSEAL and TPM2_FLUSH_CONTEXT
-> need to be done as a one single atom.
-> 
-> Fix this issue by introducting trusted_tpm_load() and trusted_tpm_new(),
-> which wrap these operations, and take the TPM chip ownership before
-> sending anything. Use tpm_transmit_cmd() to send TPM commands instead
-> of tpm_send(), reverting back to the old behaviour.
-> 
-> Fixes: 2e19e10131a0 ("KEYS: trusted: Move TPM2 trusted keys code")
-> Reported-by: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-> Cc: Sumit Garg <sumit.garg@linaro.org>
-> Cc: David Howells <dhowells@redhat.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Hi,
 
-I double checked that patches were in my BuildRoot rootfs and kernel.
+Can we have this backport applied to 5.4 stable, its more of a required 
+fix than an enhancement.
 
-I also did an update to tpm2-scripts:
+commit df12eb6d6cd920ab2f0e0a43cd6e1c23a05cea91 upstream
 
-https://git.kernel.org/pub/scm/linux/kernel/git/jarkko/tpm2-scripts.git/
+The call has a minor api change in 5.4 vs higher, only the pkt arg is 
+required.
 
-See the tip commit. That explains my ASN.1 testing issues. Now that test
-script fully works again in all of my machines.
-
-Lessons learned, or more like, how do we disclose this kind of testing
-issue in future: I suggest that we migrate keyctl-smoke.sh (can be
-possibly renamed) to the kernel selftests, and keep it up to date.
-
-It would also degrade possible stability issues in trusted keys if
-everyone has standard point of reference.
-
-Thoughts?
-
-/Jarkko
+diff --git a/net/vmw_vsock/virtio_transport_common.c 
+b/net/vmw_vsock/virtio_transport_common.c
+index d9f0c9c5425a..2f696124bab6 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1153,6 +1153,7 @@ void virtio_transport_recv_pkt(struct 
+virtio_transport *t,
+  		virtio_transport_free_pkt(pkt);
+  		break;
+  	default:
++		(void)virtio_transport_reset_no_sock(pkt);
+  		virtio_transport_free_pkt(pkt);
+  		break;
+  	}
+-- 
