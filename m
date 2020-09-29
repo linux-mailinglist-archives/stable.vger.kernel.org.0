@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E55A227C799
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:55:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F76427C706
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730930AbgI2LpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:45:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44768 "EHLO mail.kernel.org"
+        id S1730945AbgI2LtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:49:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729281AbgI2LpH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:45:07 -0400
+        id S1731172AbgI2LtI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:49:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19453206F7;
-        Tue, 29 Sep 2020 11:45:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD048206F7;
+        Tue, 29 Sep 2020 11:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379906;
-        bh=aIWFsTayFUhKqrCsf4H3+ezdQTHwjkKAY/nmD9936E4=;
+        s=default; t=1601380147;
+        bh=gmUfHcRNOMsi8iXW2jc6KIgwQ4oBWMzx6TbG1531NnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tb26Ci3Ra0fto13bnzE+xdvb/Whsl6o0BwtuekwnKMAp/fA91btvYj/UFYY+DbVA1
-         x3C8zP4Zm9/HB+heSZ9N/MxkrNUAYv9nkeO6D0Nfn17+KU6nsYMXlgQAEiOlOfS4jw
-         tYoR0g3ZPy++xXoRCX+IruKjflJDwzoIbeR+vI/c=
+        b=YHxTWsdk5wPHr85nKTEptnPhssmYTlQ8Xk3S2CoPXCYkC+RedfrUlasaR7oSarv8G
+         ns8OZ0AAsIYBIxQ035oEvGrLpmOXLupYieQipnzEX6Bont8OIS+v2dRfdZ3HF8Uoz8
+         A/Pd8/IEogAkl6XM/3ThVDcN3O7ithR5EV+Jw4lA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <james.smart@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 369/388] scsi: lpfc: Fix initial FLOGI failure due to BBSCN not supported
-Date:   Tue, 29 Sep 2020 13:01:40 +0200
-Message-Id: <20200929110028.328001972@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 58/99] io_uring: fix openat/openat2 unified prep handling
+Date:   Tue, 29 Sep 2020 13:01:41 +0200
+Message-Id: <20200929105932.583523181@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,173 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <james.smart@broadcom.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 7f04839ec4483563f38062b4dd90253e45447198 upstream.
+[ Upstream commit 4eb8dded6b82e184c09bb963bea0335fa3f30b55 ]
 
-Initial FLOGIs are failing with the following message:
+A previous commit unified how we handle prep for these two functions,
+but this means that we check the allowed context (SQPOLL, specifically)
+later than we should. Move the ring type checking into the two parent
+functions, instead of doing it after we've done some setup work.
 
- lpfc 0000:13:00.1: 1:(0):0820 FLOGI Failed (x300). BBCredit Not Supported
-
-In a prior patch, the READ_SPARAM command was re-ordered to post after
-CONFIG_LINK as the driver is expected to update the driver's copy of the
-service parameters for the FLOGI payload. If the bb-credit recovery feature
-is enabled, this is fine. But on adapters were bb-credit recovery isn't
-enabled, it would cause the FLOGI to fail.
-
-Fix by restoring the original command order (READ_SPARAM before
-CONFIG_LINK), and after issuing CONFIG_LINK, detect bb-credit recovery
-support and reissuing READ_SPARAM to obtain the updated service parameters
-(effectively adding in the fix command order).
-
-[mkp: corrected SHA]
-
-Link: https://lore.kernel.org/r/20200911200147.110826-1-james.smart@broadcom.com
-Fixes: 835214f5d5f5 ("scsi: lpfc: Fix broken Credit Recovery after driver load")
-CC: <stable@vger.kernel.org> # v5.7+
-Co-developed-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: ec65fea5a8d7 ("io_uring: deduplicate io_openat{,2}_prep()")
+Reported-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_hbadisc.c |   76 ++++++++++++++++++++++++++-------------
- 1 file changed, 52 insertions(+), 24 deletions(-)
+ fs/io_uring.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -73,6 +73,7 @@ static void lpfc_disc_timeout_handler(st
- static void lpfc_disc_flush_list(struct lpfc_vport *vport);
- static void lpfc_unregister_fcfi_cmpl(struct lpfc_hba *, LPFC_MBOXQ_t *);
- static int lpfc_fcf_inuse(struct lpfc_hba *);
-+static void lpfc_mbx_cmpl_read_sparam(struct lpfc_hba *, LPFC_MBOXQ_t *);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index d05023ca74bdc..849e39c3cfcd7 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3056,8 +3056,6 @@ static int __io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
+ 	const char __user *fname;
+ 	int ret;
  
- void
- lpfc_terminate_rport_io(struct fc_rport *rport)
-@@ -1134,11 +1135,13 @@ out:
- 	return;
- }
- 
--
- void
- lpfc_mbx_cmpl_local_config_link(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
+-	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
+-		return -EINVAL;
+ 	if (unlikely(sqe->ioprio || sqe->buf_index))
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
+@@ -3084,6 +3082,8 @@ static int io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  {
- 	struct lpfc_vport *vport = pmb->vport;
-+	LPFC_MBOXQ_t *sparam_mb;
-+	struct lpfc_dmabuf *sparam_mp;
-+	int rc;
+ 	u64 flags, mode;
  
- 	if (pmb->u.mb.mbxStatus)
- 		goto out;
-@@ -1163,12 +1166,42 @@ lpfc_mbx_cmpl_local_config_link(struct l
- 	}
++	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
++		return -EINVAL;
+ 	if (req->flags & REQ_F_NEED_CLEANUP)
+ 		return 0;
+ 	mode = READ_ONCE(sqe->len);
+@@ -3098,6 +3098,8 @@ static int io_openat2_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	size_t len;
+ 	int ret;
  
- 	/* Start discovery by sending a FLOGI. port_state is identically
--	 * LPFC_FLOGI while waiting for FLOGI cmpl. Check if sending
--	 * the FLOGI is being deferred till after MBX_READ_SPARAM completes.
-+	 * LPFC_FLOGI while waiting for FLOGI cmpl.
- 	 */
- 	if (vport->port_state != LPFC_FLOGI) {
--		if (!(phba->hba_flag & HBA_DEFER_FLOGI))
-+		/* Issue MBX_READ_SPARAM to update CSPs before FLOGI if
-+		 * bb-credit recovery is in place.
-+		 */
-+		if (phba->bbcredit_support && phba->cfg_enable_bbcr &&
-+		    !(phba->link_flag & LS_LOOPBACK_MODE)) {
-+			sparam_mb = mempool_alloc(phba->mbox_mem_pool,
-+						  GFP_KERNEL);
-+			if (!sparam_mb)
-+				goto sparam_out;
-+
-+			rc = lpfc_read_sparam(phba, sparam_mb, 0);
-+			if (rc) {
-+				mempool_free(sparam_mb, phba->mbox_mem_pool);
-+				goto sparam_out;
-+			}
-+			sparam_mb->vport = vport;
-+			sparam_mb->mbox_cmpl = lpfc_mbx_cmpl_read_sparam;
-+			rc = lpfc_sli_issue_mbox(phba, sparam_mb, MBX_NOWAIT);
-+			if (rc == MBX_NOT_FINISHED) {
-+				sparam_mp = (struct lpfc_dmabuf *)
-+						sparam_mb->ctx_buf;
-+				lpfc_mbuf_free(phba, sparam_mp->virt,
-+					       sparam_mp->phys);
-+				kfree(sparam_mp);
-+				sparam_mb->ctx_buf = NULL;
-+				mempool_free(sparam_mb, phba->mbox_mem_pool);
-+				goto sparam_out;
-+			}
-+
-+			phba->hba_flag |= HBA_DEFER_FLOGI;
-+		}  else {
- 			lpfc_initial_flogi(vport);
-+		}
- 	} else {
- 		if (vport->fc_flag & FC_PT2PT)
- 			lpfc_disc_start(vport);
-@@ -1180,6 +1213,7 @@ out:
- 			 "0306 CONFIG_LINK mbxStatus error x%x "
- 			 "HBA state x%x\n",
- 			 pmb->u.mb.mbxStatus, vport->port_state);
-+sparam_out:
- 	mempool_free(pmb, phba->mbox_mem_pool);
- 
- 	lpfc_linkdown(phba);
-@@ -3237,21 +3271,6 @@ lpfc_mbx_process_link_up(struct lpfc_hba
- 	lpfc_linkup(phba);
- 	sparam_mbox = NULL;
- 
--	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
--		cfglink_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
--		if (!cfglink_mbox)
--			goto out;
--		vport->port_state = LPFC_LOCAL_CFG_LINK;
--		lpfc_config_link(phba, cfglink_mbox);
--		cfglink_mbox->vport = vport;
--		cfglink_mbox->mbox_cmpl = lpfc_mbx_cmpl_local_config_link;
--		rc = lpfc_sli_issue_mbox(phba, cfglink_mbox, MBX_NOWAIT);
--		if (rc == MBX_NOT_FINISHED) {
--			mempool_free(cfglink_mbox, phba->mbox_mem_pool);
--			goto out;
--		}
--	}
--
- 	sparam_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
- 	if (!sparam_mbox)
- 		goto out;
-@@ -3272,7 +3291,20 @@ lpfc_mbx_process_link_up(struct lpfc_hba
- 		goto out;
- 	}
- 
--	if (phba->hba_flag & HBA_FCOE_MODE) {
-+	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
-+		cfglink_mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
-+		if (!cfglink_mbox)
-+			goto out;
-+		vport->port_state = LPFC_LOCAL_CFG_LINK;
-+		lpfc_config_link(phba, cfglink_mbox);
-+		cfglink_mbox->vport = vport;
-+		cfglink_mbox->mbox_cmpl = lpfc_mbx_cmpl_local_config_link;
-+		rc = lpfc_sli_issue_mbox(phba, cfglink_mbox, MBX_NOWAIT);
-+		if (rc == MBX_NOT_FINISHED) {
-+			mempool_free(cfglink_mbox, phba->mbox_mem_pool);
-+			goto out;
-+		}
-+	} else {
- 		vport->port_state = LPFC_VPORT_UNKNOWN;
- 		/*
- 		 * Add the driver's default FCF record at FCF index 0 now. This
-@@ -3329,10 +3361,6 @@ lpfc_mbx_process_link_up(struct lpfc_hba
- 		}
- 		/* Reset FCF roundrobin bmask for new discovery */
- 		lpfc_sli4_clear_fcf_rr_bmask(phba);
--	} else {
--		if (phba->bbcredit_support && phba->cfg_enable_bbcr &&
--		    !(phba->link_flag & LS_LOOPBACK_MODE))
--			phba->hba_flag |= HBA_DEFER_FLOGI;
- 	}
- 
- 	/* Prepare for LINK up registrations */
++	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
++		return -EINVAL;
+ 	if (req->flags & REQ_F_NEED_CLEANUP)
+ 		return 0;
+ 	how = u64_to_user_ptr(READ_ONCE(sqe->addr2));
+-- 
+2.25.1
+
 
 
