@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3926927C335
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32B6C27C4BC
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:17:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728454AbgI2LDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:03:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39306 "EHLO mail.kernel.org"
+        id S1729184AbgI2LQL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:16:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727650AbgI2LDd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:03:33 -0400
+        id S1728454AbgI2LP6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:15:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E77121941;
-        Tue, 29 Sep 2020 11:03:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1198C208FE;
+        Tue, 29 Sep 2020 11:15:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377413;
-        bh=ixiKP5ebtCVabbnLNtAoOCME0WDdtOAHQ4omwdFkL4k=;
+        s=default; t=1601378157;
+        bh=JFcziiMZPj20xMvToNrRfM7rOBWitPffkIwwunEFBcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pSVwVckJdJLN6s9awxQYUJjZn0PivHxvAXRoDl7szxZP970kVUsYrbA3NIN1oyhGM
-         eIqDk22GrplKT1y1TbPhrN5Uj2EyspvUkllrUZdZFAAuTTmrFqX87qUvuiUo09qo+g
-         kaCQP730hQ7j2pdqU2eH5A5BblknSFSerfyxvTBk=
+        b=o+IdsrqF+ddJ1PzKf8elXUwVQXUblB2nL5GwqjgnJBa9vPiUAuEZQuOuJbtSV+zVS
+         5MSTL9lYOctRNad+BBvL+k8qrQRFwtAFyM5Sg8kRJWWI/0/weQB2FfR3FKg0hQ6c0j
+         cX6lb2z/ZHVEsZ+0zC793jg7KrUODQgbGWmTGqbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 26/85] ACPI: EC: Reference count query handlers under lock
+Subject: [PATCH 4.14 081/166] media: tda10071: fix unsigned sign extension overflow
 Date:   Tue, 29 Sep 2020 12:59:53 +0200
-Message-Id: <20200929105929.540559178@linuxfoundation.org>
+Message-Id: <20200929105939.259372247@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 3df663a147fe077a6ee8444ec626738946e65547 ]
+[ Upstream commit a7463e2dc698075132de9905b89f495df888bb79 ]
 
-There is a race condition in acpi_ec_get_query_handler()
-theoretically allowing query handlers to go away before refernce
-counting them.
+The shifting of buf[3] by 24 bits to the left will be promoted to
+a 32 bit signed int and then sign-extended to an unsigned long. In
+the unlikely event that the the top bit of buf[3] is set then all
+then all the upper bits end up as also being set because of
+the sign-extension and this affect the ev->post_bit_error sum.
+Fix this by using the temporary u32 variable bit_error to avoid
+the sign-extension promotion. This also removes the need to do the
+computation twice.
 
-In order to avoid it, call kref_get() on query handlers under
-ec->mutex.
+Addresses-Coverity: ("Unintended sign extension")
 
-Also simplify the code a bit while at it.
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 267897a4708f ("[media] tda10071: implement DVBv5 statistics")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ drivers/media/dvb-frontends/tda10071.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index 43f20328f830e..3096c087b7328 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -943,29 +943,21 @@ void acpi_ec_unblock_transactions_early(void)
- /* --------------------------------------------------------------------------
-                                 Event Management
-    -------------------------------------------------------------------------- */
--static struct acpi_ec_query_handler *
--acpi_ec_get_query_handler(struct acpi_ec_query_handler *handler)
--{
--	if (handler)
--		kref_get(&handler->kref);
--	return handler;
--}
--
- static struct acpi_ec_query_handler *
- acpi_ec_get_query_handler_by_value(struct acpi_ec *ec, u8 value)
- {
- 	struct acpi_ec_query_handler *handler;
--	bool found = false;
+diff --git a/drivers/media/dvb-frontends/tda10071.c b/drivers/media/dvb-frontends/tda10071.c
+index a59f4fd09df60..27466b0d0be86 100644
+--- a/drivers/media/dvb-frontends/tda10071.c
++++ b/drivers/media/dvb-frontends/tda10071.c
+@@ -483,10 +483,11 @@ static int tda10071_read_status(struct dvb_frontend *fe, enum fe_status *status)
+ 			goto error;
  
- 	mutex_lock(&ec->mutex);
- 	list_for_each_entry(handler, &ec->list, node) {
- 		if (value == handler->query_bit) {
--			found = true;
--			break;
-+			kref_get(&handler->kref);
-+			mutex_unlock(&ec->mutex);
-+			return handler;
- 		}
- 	}
- 	mutex_unlock(&ec->mutex);
--	return found ? acpi_ec_get_query_handler(handler) : NULL;
-+	return NULL;
- }
- 
- static void acpi_ec_query_handler_release(struct kref *kref)
+ 		if (dev->delivery_system == SYS_DVBS) {
+-			dev->dvbv3_ber = buf[0] << 24 | buf[1] << 16 |
+-					 buf[2] << 8 | buf[3] << 0;
+-			dev->post_bit_error += buf[0] << 24 | buf[1] << 16 |
+-					       buf[2] << 8 | buf[3] << 0;
++			u32 bit_error = buf[0] << 24 | buf[1] << 16 |
++					buf[2] << 8 | buf[3] << 0;
++
++			dev->dvbv3_ber = bit_error;
++			dev->post_bit_error += bit_error;
+ 			c->post_bit_error.stat[0].scale = FE_SCALE_COUNTER;
+ 			c->post_bit_error.stat[0].uvalue = dev->post_bit_error;
+ 			dev->block_error += buf[4] << 8 | buf[5] << 0;
 -- 
 2.25.1
 
