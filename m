@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F9E127C3B8
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03DCB27C480
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728417AbgI2LIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:08:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
+        id S1728783AbgI2LOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:14:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728897AbgI2LHI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:07:08 -0400
+        id S1729413AbgI2LOV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:14:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C68A21D43;
-        Tue, 29 Sep 2020 11:07:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB00522262;
+        Tue, 29 Sep 2020 11:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377627;
-        bh=EK4ExL+4XPc6rfQSetuscZT39buHQChcqefi/2nI/KE=;
+        s=default; t=1601378060;
+        bh=X7bnE5uynvYKEtswHr7q+4KIlMgYGOBnPmOIZlhFaIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hpQguUsqjFC4Ben2uvN1qOI/uNfz2cuYylKpMOW1tH+OR2pTHxDa8Fe2+0goXKkea
-         AYjBTAyryb+97Gula7f1pEPwG6+pEiMTKlH6tKISxwKgqBDP75wxnvN7v0X9Iyli0z
-         F4m5UC3QfPzRqU1d17VoZ72z/k22I7lkwWqe640Y=
+        b=pZhFgJtG7LEc8Euv7mcx5jrhNz3aPJJpsJiOgeIWeIbGzj32y7awefWMIVDB+K7+Q
+         hT6XsUwUvFiS+/f0KweZf9NmdeTVnfJSmwAWNto7oe1lJDXDh+DZsrFTGOtYMfr9ln
+         gSNQq6LPU2RFEt8oG3Q/fqDq5io9PiYmMMkH2i7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fuqian Huang <huangfq.daxian@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 015/121] m68k: q40: Fix info-leak in rtc_ioctl
+Subject: [PATCH 4.14 047/166] ACPI: EC: Reference count query handlers under lock
 Date:   Tue, 29 Sep 2020 12:59:19 +0200
-Message-Id: <20200929105930.940769554@linuxfoundation.org>
+Message-Id: <20200929105937.556170654@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fuqian Huang <huangfq.daxian@gmail.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 7cf78b6b12fd5550545e4b73b35dca18bd46b44c ]
+[ Upstream commit 3df663a147fe077a6ee8444ec626738946e65547 ]
 
-When the option is RTC_PLL_GET, pll will be copied to userland
-via copy_to_user. pll is initialized using mach_get_rtc_pll indirect
-call and mach_get_rtc_pll is only assigned with function
-q40_get_rtc_pll in arch/m68k/q40/config.c.
-In function q40_get_rtc_pll, the field pll_ctrl is not initialized.
-This will leak uninitialized stack content to userland.
-Fix this by zeroing the uninitialized field.
+There is a race condition in acpi_ec_get_query_handler()
+theoretically allowing query handlers to go away before refernce
+counting them.
 
-Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
-Link: https://lore.kernel.org/r/20190927121544.7650-1-huangfq.daxian@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+In order to avoid it, call kref_get() on query handlers under
+ec->mutex.
+
+Also simplify the code a bit while at it.
+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/q40/config.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/ec.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/arch/m68k/q40/config.c b/arch/m68k/q40/config.c
-index ea89a24f46000..cc0f924bbdd2d 100644
---- a/arch/m68k/q40/config.c
-+++ b/arch/m68k/q40/config.c
-@@ -303,6 +303,7 @@ static int q40_get_rtc_pll(struct rtc_pll_info *pll)
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index ebfc06f29f7b2..37aacb39e6922 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -1062,29 +1062,21 @@ void acpi_ec_unblock_transactions(void)
+ /* --------------------------------------------------------------------------
+                                 Event Management
+    -------------------------------------------------------------------------- */
+-static struct acpi_ec_query_handler *
+-acpi_ec_get_query_handler(struct acpi_ec_query_handler *handler)
+-{
+-	if (handler)
+-		kref_get(&handler->kref);
+-	return handler;
+-}
+-
+ static struct acpi_ec_query_handler *
+ acpi_ec_get_query_handler_by_value(struct acpi_ec *ec, u8 value)
  {
- 	int tmp = Q40_RTC_CTRL;
+ 	struct acpi_ec_query_handler *handler;
+-	bool found = false;
  
-+	pll->pll_ctrl = 0;
- 	pll->pll_value = tmp & Q40_RTC_PLL_MASK;
- 	if (tmp & Q40_RTC_PLL_SIGN)
- 		pll->pll_value = -pll->pll_value;
+ 	mutex_lock(&ec->mutex);
+ 	list_for_each_entry(handler, &ec->list, node) {
+ 		if (value == handler->query_bit) {
+-			found = true;
+-			break;
++			kref_get(&handler->kref);
++			mutex_unlock(&ec->mutex);
++			return handler;
+ 		}
+ 	}
+ 	mutex_unlock(&ec->mutex);
+-	return found ? acpi_ec_get_query_handler(handler) : NULL;
++	return NULL;
+ }
+ 
+ static void acpi_ec_query_handler_release(struct kref *kref)
 -- 
 2.25.1
 
