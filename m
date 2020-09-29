@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32BEB27C980
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6170C27C94E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:09:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731133AbgI2MLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:11:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53440 "EHLO mail.kernel.org"
+        id S1731936AbgI2MJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:09:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730173AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:34 -0400
+        id S1730211AbgI2Lhf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89C9A23BCE;
-        Tue, 29 Sep 2020 11:35:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E608923A9B;
+        Tue, 29 Sep 2020 11:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379330;
-        bh=T6mR97KSK3mQAcRVINKVqt1yKOVBS7sfxQ4KrGiyM2M=;
+        s=default; t=1601379332;
+        bh=f0+XAjM5+5/LhxBHnBVlXukbbef4qgWjJksQ0qln4Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQpm9oFyWQo7vEEqhhHbG7UA/0CI/yuDyhUflkO2347EkWTW+hqCb+xDVAK/jhxTy
-         f3euAOxSL2mFWGxfP6XwVpb93ULDdheXnDw03zkTtlrsttQzNi+xOY9THmhuFnJRTD
-         bUBBXg04khuDOZUNgR1P/ZdVhQhBzMb++LnCB8QE=
+        b=rI5V2K6gYHpQYI6xqjPjRVBCzbUbRaegAPPuoo+ZUowJesJ43/TeuuKWOhQMrJox1
+         620lo++2c2It6rNtOL/Ix5MQVzE0/zLA+DxqknJsn/rn+HWEcYPvyQchz7wIxTbMaU
+         vMKae7CT9D8HhFhnkBE3NLlJYIkhgdbYnN+t0Th4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Grubb <sgrubb@redhat.com>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
         Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 114/388] audit: CONFIG_CHANGE dont log internal bookkeeping as an event
-Date:   Tue, 29 Sep 2020 12:57:25 +0200
-Message-Id: <20200929110015.994243454@linuxfoundation.org>
+Subject: [PATCH 5.4 115/388] selinux: sel_avc_get_stat_idx should increase position index
+Date:   Tue, 29 Sep 2020 12:57:26 +0200
+Message-Id: <20200929110016.042059993@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,46 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Grubb <sgrubb@redhat.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 70b3eeed49e8190d97139806f6fbaf8964306cdb ]
+[ Upstream commit 8d269a8e2a8f0bca89022f4ec98de460acb90365 ]
 
-Common Criteria calls out for any action that modifies the audit trail to
-be recorded. That usually is interpreted to mean insertion or removal of
-rules. It is not required to log modification of the inode information
-since the watch is still in effect. Additionally, if the rule is a never
-rule and the underlying file is one they do not want events for, they
-get an event for this bookkeeping update against their wishes.
+If seq_file .next function does not change position index,
+read after some lseek can generate unexpected output.
 
-Since no device/inode info is logged at insertion and no device/inode
-information is logged on update, there is nothing meaningful being
-communicated to the admin by the CONFIG_CHANGE updated_rules event. One
-can assume that the rule was not "modified" because it is still watching
-the intended target. If the device or inode cannot be resolved, then
-audit_panic is called which is sufficient.
+$ dd if=/sys/fs/selinux/avc/cache_stats # usual output
+lookups hits misses allocations reclaims frees
+817223 810034 7189 7189 6992 7037
+1934894 1926896 7998 7998 7632 7683
+1322812 1317176 5636 5636 5456 5507
+1560571 1551548 9023 9023 9056 9115
+0+1 records in
+0+1 records out
+189 bytes copied, 5,1564e-05 s, 3,7 MB/s
 
-The correct resolution is to drop logging config_update events since
-the watch is still in effect but just on another unknown inode.
+$# read after lseek to midle of last line
+$ dd if=/sys/fs/selinux/avc/cache_stats bs=180 skip=1
+dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
+056 9115   <<<< end of last line
+1560571 1551548 9023 9023 9056 9115  <<< whole last line once again
+0+1 records in
+0+1 records out
+45 bytes copied, 8,7221e-05 s, 516 kB/s
 
-Signed-off-by: Steve Grubb <sgrubb@redhat.com>
+$# read after lseek beyond  end of of file
+$ dd if=/sys/fs/selinux/avc/cache_stats bs=1000 skip=1
+dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
+1560571 1551548 9023 9023 9056 9115  <<<< generates whole last line
+0+1 records in
+0+1 records out
+36 bytes copied, 9,0934e-05 s, 396 kB/s
+
+https://bugzilla.kernel.org/show_bug.cgi?id=206283
+
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit_watch.c | 2 --
- 1 file changed, 2 deletions(-)
+ security/selinux/selinuxfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/audit_watch.c b/kernel/audit_watch.c
-index 4508d5e0cf696..8a8fd732ff6d0 100644
---- a/kernel/audit_watch.c
-+++ b/kernel/audit_watch.c
-@@ -302,8 +302,6 @@ static void audit_update_watch(struct audit_parent *parent,
- 			if (oentry->rule.exe)
- 				audit_remove_mark(oentry->rule.exe);
- 
--			audit_watch_log_rule_change(r, owatch, "updated_rules");
--
- 			call_rcu(&oentry->rcu, audit_free_rule_rcu);
- 		}
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index e6c7643c3fc08..e9eaff90cbccd 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1508,6 +1508,7 @@ static struct avc_cache_stats *sel_avc_get_stat_idx(loff_t *idx)
+ 		*idx = cpu + 1;
+ 		return &per_cpu(avc_cache_stats, cpu);
+ 	}
++	(*idx)++;
+ 	return NULL;
+ }
  
 -- 
 2.25.1
