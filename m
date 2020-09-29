@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8061F27C67F
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4CC527C727
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730704AbgI2Lpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:45:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45494 "EHLO mail.kernel.org"
+        id S1731137AbgI2Lvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:51:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728615AbgI2Lp3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:45:29 -0400
+        id S1731121AbgI2LsS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:48:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 326BB20848;
-        Tue, 29 Sep 2020 11:45:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82F1F20702;
+        Tue, 29 Sep 2020 11:48:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379928;
-        bh=VwKYcLdKdyLywwkV/IU6tgV8uptS/9x4Zk9BQYEnp6M=;
+        s=default; t=1601380098;
+        bh=4dhuKEGjKN5Lugen+8MVSN9xqZT6R/7k0bNZwKsS9l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IdbcwDLDxOYwb20VOSJUoeJCaZIJnWoYJQC2/o0zi1rqa7n6aqJQOR0dDP/Yw7C8G
-         gjfTH9ZE1ePuT4A00VrSpdBFMCG3y88spjMA5KNg1JCrqTos5NAdRIcdzQKW3iD16C
-         GzOfqZfposOet6UcCBD4mlMdn140+94MYut+wdGw=
+        b=cE8h7oAvBcRT/3uxmFMDbuSv9oj4YcmFLVSui+lZfW4klqGfVG/YHXoXmx4B77YPt
+         5g/w+VRAREF46kzgEdKIIMckCT9UinVJYjGA4wiXTLHEre2Pt7MQTm8/b/DAmn7dJu
+         rr+fm9HJ4XDYf+n1kgmzd/Ye9OOHFh5mE/EQ+z60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 378/388] btrfs: fix overflow when copying corrupt csums for a message
-Date:   Tue, 29 Sep 2020 13:01:49 +0200
-Message-Id: <20200929110028.760543733@linuxfoundation.org>
+        stable@vger.kernel.org, Ray Jui <ray.jui@broadcom.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 67/99] spi: bcm-qspi: Fix probe regression on iProc platforms
+Date:   Tue, 29 Sep 2020 13:01:50 +0200
+Message-Id: <20200929105933.025542564@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,105 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Ray Jui <ray.jui@broadcom.com>
 
-commit 35be8851d172c6e3db836c0f28c19087b10c9e00 upstream.
+[ Upstream commit 00fb259c618ea1198fc51b53a6167aa0d78672a9 ]
 
-Syzkaller reported a buffer overflow in btree_readpage_end_io_hook()
-when loop mounting a crafted image:
+iProc chips have QSPI controller that does not have the MSPI_REV
+offset. Reading from that offset will cause a bus error. Fix it by
+having MSPI_REV query disabled in the generic compatible string.
 
-  detected buffer overflow in memcpy
-  ------------[ cut here ]------------
-  kernel BUG at lib/string.c:1129!
-  invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-  CPU: 1 PID: 26 Comm: kworker/u4:2 Not tainted 5.9.0-rc4-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Workqueue: btrfs-endio-meta btrfs_work_helper
-  RIP: 0010:fortify_panic+0xf/0x20 lib/string.c:1129
-  RSP: 0018:ffffc90000e27980 EFLAGS: 00010286
-  RAX: 0000000000000022 RBX: ffff8880a80dca64 RCX: 0000000000000000
-  RDX: ffff8880a90860c0 RSI: ffffffff815dba07 RDI: fffff520001c4f22
-  RBP: ffff8880a80dca00 R08: 0000000000000022 R09: ffff8880ae7318e7
-  R10: 0000000000000000 R11: 0000000000077578 R12: 00000000ffffff6e
-  R13: 0000000000000008 R14: ffffc90000e27a40 R15: 1ffff920001c4f3c
-  FS:  0000000000000000(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000557335f440d0 CR3: 000000009647d000 CR4: 00000000001506e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   memcpy include/linux/string.h:405 [inline]
-   btree_readpage_end_io_hook.cold+0x206/0x221 fs/btrfs/disk-io.c:642
-   end_bio_extent_readpage+0x4de/0x10c0 fs/btrfs/extent_io.c:2854
-   bio_endio+0x3cf/0x7f0 block/bio.c:1449
-   end_workqueue_fn+0x114/0x170 fs/btrfs/disk-io.c:1695
-   btrfs_work_helper+0x221/0xe20 fs/btrfs/async-thread.c:318
-   process_one_work+0x94c/0x1670 kernel/workqueue.c:2269
-   worker_thread+0x64c/0x1120 kernel/workqueue.c:2415
-   kthread+0x3b5/0x4a0 kernel/kthread.c:292
-   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-  Modules linked in:
-  ---[ end trace b68924293169feef ]---
-  RIP: 0010:fortify_panic+0xf/0x20 lib/string.c:1129
-  RSP: 0018:ffffc90000e27980 EFLAGS: 00010286
-  RAX: 0000000000000022 RBX: ffff8880a80dca64 RCX: 0000000000000000
-  RDX: ffff8880a90860c0 RSI: ffffffff815dba07 RDI: fffff520001c4f22
-  RBP: ffff8880a80dca00 R08: 0000000000000022 R09: ffff8880ae7318e7
-  R10: 0000000000000000 R11: 0000000000077578 R12: 00000000ffffff6e
-  R13: 0000000000000008 R14: ffffc90000e27a40 R15: 1ffff920001c4f3c
-  FS:  0000000000000000(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f95b7c4d008 CR3: 000000009647d000 CR4: 00000000001506e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-The overflow happens, because in btree_readpage_end_io_hook() we assume
-that we have found a 4 byte checksum instead of the real possible 32
-bytes we have for the checksums.
-
-With the fix applied:
-
-[   35.726623] BTRFS: device fsid 815caf9a-dc43-4d2a-ac54-764b8333d765 devid 1 transid 5 /dev/loop0 scanned by syz-repro (215)
-[   35.738994] BTRFS info (device loop0): disk space caching is enabled
-[   35.738998] BTRFS info (device loop0): has skinny extents
-[   35.743337] BTRFS warning (device loop0): loop0 checksum verify failed on 1052672 wanted 0xf9c035fc8d239a54 found 0x67a25c14b7eabcf9 level 0
-[   35.743420] BTRFS error (device loop0): failed to read chunk root
-[   35.745899] BTRFS error (device loop0): open_ctree failed
-
-Reported-by: syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com
-Fixes: d5178578bcd4 ("btrfs: directly call into crypto framework for checksumming")
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 3a01f04d74ef ("spi: bcm-qspi: Handle lack of MSPI_REV offset")
+Link: https://lore.kernel.org/linux-arm-kernel/20200909211857.4144718-1-f.fainelli@gmail.com/T/#u
+Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20200910152539.45584-3-ray.jui@broadcom.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/spi/spi-bcm-qspi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -649,16 +649,15 @@ static int btree_readpage_end_io_hook(st
- 		goto err;
- 
- 	if (memcmp_extent_buffer(eb, result, 0, csum_size)) {
--		u32 val;
--		u32 found = 0;
--
--		memcpy(&found, result, csum_size);
-+		u8 val[BTRFS_CSUM_SIZE] = { 0 };
- 
- 		read_extent_buffer(eb, &val, 0, csum_size);
- 		btrfs_warn_rl(fs_info,
--		"%s checksum verify failed on %llu wanted %x found %x level %d",
-+	"%s checksum verify failed on %llu wanted " CSUM_FMT " found " CSUM_FMT " level %d",
- 			      fs_info->sb->s_id, eb->start,
--			      val, found, btrfs_header_level(eb));
-+			      CSUM_FMT_VALUE(csum_size, val),
-+			      CSUM_FMT_VALUE(csum_size, result),
-+			      btrfs_header_level(eb));
- 		ret = -EUCLEAN;
- 		goto err;
- 	}
+diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
+index 681d090851756..9cfa15ec8b08c 100644
+--- a/drivers/spi/spi-bcm-qspi.c
++++ b/drivers/spi/spi-bcm-qspi.c
+@@ -1295,7 +1295,7 @@ static const struct of_device_id bcm_qspi_of_match[] = {
+ 	},
+ 	{
+ 		.compatible = "brcm,spi-bcm-qspi",
+-		.data = &bcm_qspi_rev_data,
++		.data = &bcm_qspi_no_rev_data,
+ 	},
+ 	{
+ 		.compatible = "brcm,spi-bcm7216-qspi",
+-- 
+2.25.1
+
 
 
