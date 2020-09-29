@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD51727C8EF
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:06:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D775327C94D
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:09:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730002AbgI2MGH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:06:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52840 "EHLO mail.kernel.org"
+        id S1731926AbgI2MJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:09:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730262AbgI2Lhh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:37 -0400
+        id S1730208AbgI2Lhf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F9AD23AAA;
-        Tue, 29 Sep 2020 11:37:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3514D23977;
+        Tue, 29 Sep 2020 11:22:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379425;
-        bh=dXqid0EveklIBeAqwc46Po+qvIxMoRmnRcFaorsmBgs=;
+        s=default; t=1601378534;
+        bh=XooXO7f0+p2i4ItHkoDZBtIGouKukXVbkWk0foHqTds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IW5tR4KFBzb3tdTV8g9VlcnlM5TPS8fbEofBXKM9sm1dyu/Ke5vvrmaOfejLIc01K
-         VMtVsRJfdW5n0/rr2PCp8JFfnfoWX2hD314+r4+FGcZzfAx9B/vNURn/zMX0VgI2ab
-         B313saKBBRukXmV5bGWESiDlFpaEpkiRotCMmGOo=
+        b=TX0gmt+N0wuYE7Kfr+W85uv0cepykE5fql7rOZ4jobQE+8WTtj0x04NWuw3Y4LCkW
+         huuElpT7BY5s16Xb3pOsIYOVoFSVzQc5cXg/BEsmEL6w8KbNYAMq6o2/yQvsPHNxEi
+         t8CNfeXh1zzD6QHtWLHSoOkBHsuC0i/XuNPI4srs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Fuqian Huang <huangfq.daxian@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 127/388] RDMA/rxe: Fix configuration of atomic queue pair attributes
-Date:   Tue, 29 Sep 2020 12:57:38 +0200
-Message-Id: <20200929110016.615411806@linuxfoundation.org>
+Subject: [PATCH 4.19 008/245] m68k: q40: Fix info-leak in rtc_ioctl
+Date:   Tue, 29 Sep 2020 12:57:39 +0200
+Message-Id: <20200929105947.395169493@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Fuqian Huang <huangfq.daxian@gmail.com>
 
-[ Upstream commit fb3063d31995cc4cf1d47a406bb61d6fb1b1d58d ]
+[ Upstream commit 7cf78b6b12fd5550545e4b73b35dca18bd46b44c ]
 
->From the comment above the definition of the roundup_pow_of_two() macro:
+When the option is RTC_PLL_GET, pll will be copied to userland
+via copy_to_user. pll is initialized using mach_get_rtc_pll indirect
+call and mach_get_rtc_pll is only assigned with function
+q40_get_rtc_pll in arch/m68k/q40/config.c.
+In function q40_get_rtc_pll, the field pll_ctrl is not initialized.
+This will leak uninitialized stack content to userland.
+Fix this by zeroing the uninitialized field.
 
-     The result is undefined when n == 0.
-
-Hence only pass positive values to roundup_pow_of_two(). This patch fixes
-the following UBSAN complaint:
-
-  UBSAN: Undefined behaviour in ./include/linux/log2.h:57:13
-  shift exponent 64 is too large for 64-bit type 'long unsigned int'
-  Call Trace:
-   dump_stack+0xa5/0xe6
-   ubsan_epilogue+0x9/0x26
-   __ubsan_handle_shift_out_of_bounds.cold+0x4c/0xf9
-   rxe_qp_from_attr.cold+0x37/0x5d [rdma_rxe]
-   rxe_modify_qp+0x59/0x70 [rdma_rxe]
-   _ib_modify_qp+0x5aa/0x7c0 [ib_core]
-   ib_modify_qp+0x3b/0x50 [ib_core]
-   cma_modify_qp_rtr+0x234/0x260 [rdma_cm]
-   __rdma_accept+0x1a7/0x650 [rdma_cm]
-   nvmet_rdma_cm_handler+0x1286/0x14cd [nvmet_rdma]
-   cma_cm_event_handler+0x6b/0x330 [rdma_cm]
-   cma_ib_req_handler+0xe60/0x22d0 [rdma_cm]
-   cm_process_work+0x30/0x140 [ib_cm]
-   cm_req_handler+0x11f4/0x1cd0 [ib_cm]
-   cm_work_handler+0xb8/0x344e [ib_cm]
-   process_one_work+0x569/0xb60
-   worker_thread+0x7a/0x5d0
-   kthread+0x1e6/0x210
-   ret_from_fork+0x24/0x30
-
-Link: https://lore.kernel.org/r/20200217205714.26937-1-bvanassche@acm.org
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
+Link: https://lore.kernel.org/r/20190927121544.7650-1-huangfq.daxian@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_qp.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/m68k/q40/config.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index e2c6d1cedf416..f85273883794b 100644
---- a/drivers/infiniband/sw/rxe/rxe_qp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -592,15 +592,16 @@ int rxe_qp_from_attr(struct rxe_qp *qp, struct ib_qp_attr *attr, int mask,
- 	int err;
+diff --git a/arch/m68k/q40/config.c b/arch/m68k/q40/config.c
+index 96810d91da2bd..4a25ce6a1823d 100644
+--- a/arch/m68k/q40/config.c
++++ b/arch/m68k/q40/config.c
+@@ -273,6 +273,7 @@ static int q40_get_rtc_pll(struct rtc_pll_info *pll)
+ {
+ 	int tmp = Q40_RTC_CTRL;
  
- 	if (mask & IB_QP_MAX_QP_RD_ATOMIC) {
--		int max_rd_atomic = __roundup_pow_of_two(attr->max_rd_atomic);
-+		int max_rd_atomic = attr->max_rd_atomic ?
-+			roundup_pow_of_two(attr->max_rd_atomic) : 0;
- 
- 		qp->attr.max_rd_atomic = max_rd_atomic;
- 		atomic_set(&qp->req.rd_atomic, max_rd_atomic);
- 	}
- 
- 	if (mask & IB_QP_MAX_DEST_RD_ATOMIC) {
--		int max_dest_rd_atomic =
--			__roundup_pow_of_two(attr->max_dest_rd_atomic);
-+		int max_dest_rd_atomic = attr->max_dest_rd_atomic ?
-+			roundup_pow_of_two(attr->max_dest_rd_atomic) : 0;
- 
- 		qp->attr.max_dest_rd_atomic = max_dest_rd_atomic;
- 
++	pll->pll_ctrl = 0;
+ 	pll->pll_value = tmp & Q40_RTC_PLL_MASK;
+ 	if (tmp & Q40_RTC_PLL_SIGN)
+ 		pll->pll_value = -pll->pll_value;
 -- 
 2.25.1
 
