@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A86FD27C9F4
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:16:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC9927C975
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732210AbgI2MPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:15:15 -0400
+        id S1730183AbgI2Lhd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:37:33 -0400
 Received: from mail.kernel.org ([198.145.29.99]:56994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730092AbgI2Lh2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:28 -0400
+        id S1730110AbgI2Lh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 662E7208FE;
-        Tue, 29 Sep 2020 11:33:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9FC623B27;
+        Tue, 29 Sep 2020 11:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379212;
-        bh=JABLUdjNq2imK1wjeCunrhCzek4I+Lgbd0ewlVoivLU=;
+        s=default; t=1601379237;
+        bh=sqlLud8CEaAaBFbB3Brfhi39Fv7Pc8MrM/ur4dg+zwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMJFca/r44/SGlcGLi63z/n8WaSiyKj9a1Mc53hRb72ivJ+d/Fgezz9FX/9lR2V5Z
-         4TBWKlidpZp7u/GDPm0WTKm0ugdj7eseQ77IbFmG2m0TS69lfPUcoW1SqVv7PT6PQX
-         Iys5DF1vj9O03mgGwq9eUTvac3J3KB3unxrL/ao4=
+        b=qveqvEdW2V5Yz/6Y4rJm9Ty1a/+0VyTlu+gpIjS01o3gORLI146Ihj+zUrvt7rbZY
+         huJMAU+4LbpwZHSXY9q6eEAfCgONJXHwuTE4JRTl15wmVP9WVBXdrccw2huZuaOCeL
+         ftEVuzuoQHnsSNENW/DkC9dPYR1gcagXE9LrwaCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 055/388] mt76: do not use devm API for led classdev
-Date:   Tue, 29 Sep 2020 12:56:26 +0200
-Message-Id: <20200929110013.158835994@linuxfoundation.org>
+Subject: [PATCH 5.4 056/388] mt76: add missing locking around ampdu action
+Date:   Tue, 29 Sep 2020 12:56:27 +0200
+Message-Id: <20200929110013.207210372@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -44,46 +44,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 36f7e2b2bb1de86f0072cd49ca93d82b9e8fd894 ]
+[ Upstream commit 1a817fa73c3b27a593aadf0029de24db1bbc1a3e ]
 
-With the devm API, the unregister happens after the device cleanup is done,
-after which the struct mt76_dev which contains the led_cdev has already been
-freed. This leads to a use-after-free bug that can crash the system.
+This is needed primarily to avoid races in dealing with rx aggregation
+related data structures
 
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mac80211.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7603/main.c  | 2 ++
+ drivers/net/wireless/mediatek/mt76/mt7615/main.c  | 2 ++
+ drivers/net/wireless/mediatek/mt76/mt76x02_util.c | 2 ++
+ 3 files changed, 6 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mac80211.c b/drivers/net/wireless/mediatek/mt76/mac80211.c
-index 1a2c143b34d01..7be5806a1c398 100644
---- a/drivers/net/wireless/mediatek/mt76/mac80211.c
-+++ b/drivers/net/wireless/mediatek/mt76/mac80211.c
-@@ -105,7 +105,15 @@ static int mt76_led_init(struct mt76_dev *dev)
- 		dev->led_al = of_property_read_bool(np, "led-active-low");
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/main.c b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
+index 25d5b1608bc91..0a5695c3d9241 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7603/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
+@@ -561,6 +561,7 @@ mt7603_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 
+ 	mtxq = (struct mt76_txq *)txq->drv_priv;
+ 
++	mutex_lock(&dev->mt76.mutex);
+ 	switch (action) {
+ 	case IEEE80211_AMPDU_RX_START:
+ 		mt76_rx_aggr_start(&dev->mt76, &msta->wcid, tid, ssn,
+@@ -590,6 +591,7 @@ mt7603_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 		ieee80211_stop_tx_ba_cb_irqsafe(vif, sta->addr, tid);
+ 		break;
  	}
++	mutex_unlock(&dev->mt76.mutex);
  
--	return devm_led_classdev_register(dev->dev, &dev->led_cdev);
-+	return led_classdev_register(dev->dev, &dev->led_cdev);
-+}
-+
-+static void mt76_led_cleanup(struct mt76_dev *dev)
-+{
-+	if (!dev->led_cdev.brightness_set && !dev->led_cdev.blink_set)
-+		return;
-+
-+	led_classdev_unregister(&dev->led_cdev);
+ 	return 0;
  }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+index 87c748715b5d7..38183aef0eb92 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+@@ -455,6 +455,7 @@ mt7615_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
  
- static void mt76_init_stream_cap(struct mt76_dev *dev,
-@@ -360,6 +368,7 @@ void mt76_unregister_device(struct mt76_dev *dev)
- {
- 	struct ieee80211_hw *hw = dev->hw;
+ 	mtxq = (struct mt76_txq *)txq->drv_priv;
  
-+	mt76_led_cleanup(dev);
- 	mt76_tx_status_check(dev, NULL, true);
- 	ieee80211_unregister_hw(hw);
++	mutex_lock(&dev->mt76.mutex);
+ 	switch (action) {
+ 	case IEEE80211_AMPDU_RX_START:
+ 		mt76_rx_aggr_start(&dev->mt76, &msta->wcid, tid, ssn,
+@@ -485,6 +486,7 @@ mt7615_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 		ieee80211_stop_tx_ba_cb_irqsafe(vif, sta->addr, tid);
+ 		break;
+ 	}
++	mutex_unlock(&dev->mt76.mutex);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
+index aec73a0295e86..de0d6f21c621c 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
+@@ -371,6 +371,7 @@ int mt76x02_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 
+ 	mtxq = (struct mt76_txq *)txq->drv_priv;
+ 
++	mutex_lock(&dev->mt76.mutex);
+ 	switch (action) {
+ 	case IEEE80211_AMPDU_RX_START:
+ 		mt76_rx_aggr_start(&dev->mt76, &msta->wcid, tid,
+@@ -400,6 +401,7 @@ int mt76x02_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 		ieee80211_stop_tx_ba_cb_irqsafe(vif, sta->addr, tid);
+ 		break;
+ 	}
++	mutex_unlock(&dev->mt76.mutex);
+ 
+ 	return 0;
  }
 -- 
 2.25.1
