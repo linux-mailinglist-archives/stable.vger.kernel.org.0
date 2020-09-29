@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B4A027C438
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01C9C27C44E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:13:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728666AbgI2LMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:12:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53810 "EHLO mail.kernel.org"
+        id S1729351AbgI2LMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:12:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729312AbgI2LMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:12:09 -0400
+        id S1728469AbgI2LMP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:12:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8D3220848;
-        Tue, 29 Sep 2020 11:12:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9692F2158C;
+        Tue, 29 Sep 2020 11:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377929;
-        bh=mBq3HRnZpYAa0n/BmMqY8IXTKdIxNWbjeafZfJ4ORB8=;
+        s=default; t=1601377934;
+        bh=yCotqWN0Fw+n8Uf8OK6nE+mQ+eHrxusx5x9ZCt53jwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fYd1dLMJO/sIrvDdCdEz1RyHSFNYxBoTHQDW5dwZC0GJlRF4qYppmqzBtU0HD0qPu
-         H6eAKqTRZnNRDyuNvfgO/p8youpOMOAQpjS9fcdNxlg+WV7RzekcmdycpE6Z1+ENYN
-         SezikXyPbEJiSrxvnusm5hMwaOMsTmnCye1/HPoE=
+        b=zf4XdTC1PyUyVnEMqE9GHONeI7DvsiXNISJAR7f7hyTSSr4fNcQZprBnEy4sK6RkG
+         hfAzEWT6CkjSBgvjpNHDiTC7FR7rOcg+Tl3q7j1c87ARaOjscjxkCcSeYlXPNjiJTV
+         at5l97vOs2z8JQEZ+dP0dBVohqq1nBAPRzddP7mQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 116/121] MIPS: Add the missing CPU_1074K into __get_cpu_type()
-Date:   Tue, 29 Sep 2020 13:01:00 +0200
-Message-Id: <20200929105935.931581357@linuxfoundation.org>
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Andy Lavr <andy.lavr@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Joe Perches <joe@perches.com>,
+        Kees Cook <keescook@chromium.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 118/121] lib/string.c: implement stpcpy
+Date:   Tue, 29 Sep 2020 13:01:02 +0200
+Message-Id: <20200929105936.030985810@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
@@ -43,36 +51,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit e393fbe6fa27af23f78df6e16a8fd2963578a8c4 ]
+commit 1e1b6d63d6340764e00356873e5794225a2a03ea upstream.
 
-Commit 442e14a2c55e ("MIPS: Add 1074K CPU support explicitly.") split
-1074K from the 74K as an unique CPU type, while it missed to add the
-'CPU_1074K' in __get_cpu_type(). So let's add it back.
+LLVM implemented a recent "libcall optimization" that lowers calls to
+`sprintf(dest, "%s", str)` where the return value is used to
+`stpcpy(dest, str) - dest`.
 
-Fixes: 442e14a2c55e ("MIPS: Add 1074K CPU support explicitly.")
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This generally avoids the machinery involved in parsing format strings.
+`stpcpy` is just like `strcpy` except it returns the pointer to the new
+tail of `dest`.  This optimization was introduced into clang-12.
+
+Implement this so that we don't observe linkage failures due to missing
+symbol definitions for `stpcpy`.
+
+Similar to last year's fire drill with: commit 5f074f3e192f
+("lib/string.c: implement a basic bcmp")
+
+The kernel is somewhere between a "freestanding" environment (no full
+libc) and "hosted" environment (many symbols from libc exist with the
+same type, function signature, and semantics).
+
+As Peter Anvin notes, there's not really a great way to inform the
+compiler that you're targeting a freestanding environment but would like
+to opt-in to some libcall optimizations (see pr/47280 below), rather
+than opt-out.
+
+Arvind notes, -fno-builtin-* behaves slightly differently between GCC
+and Clang, and Clang is missing many __builtin_* definitions, which I
+consider a bug in Clang and am working on fixing.
+
+Masahiro summarizes the subtle distinction between compilers justly:
+  To prevent transformation from foo() into bar(), there are two ways in
+  Clang to do that; -fno-builtin-foo, and -fno-builtin-bar.  There is
+  only one in GCC; -fno-buitin-foo.
+
+(Any difference in that behavior in Clang is likely a bug from a missing
+__builtin_* definition.)
+
+Masahiro also notes:
+  We want to disable optimization from foo() to bar(),
+  but we may still benefit from the optimization from
+  foo() into something else. If GCC implements the same transform, we
+  would run into a problem because it is not -fno-builtin-bar, but
+  -fno-builtin-foo that disables that optimization.
+
+  In this regard, -fno-builtin-foo would be more future-proof than
+  -fno-built-bar, but -fno-builtin-foo is still potentially overkill. We
+  may want to prevent calls from foo() being optimized into calls to
+  bar(), but we still may want other optimization on calls to foo().
+
+It seems that compilers today don't quite provide the fine grain control
+over which libcall optimizations pseudo-freestanding environments would
+prefer.
+
+Finally, Kees notes that this interface is unsafe, so we should not
+encourage its use.  As such, I've removed the declaration from any
+header, but it still needs to be exported to avoid linkage errors in
+modules.
+
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Suggested-by: Andy Lavr <andy.lavr@gmail.com>
+Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
+Suggested-by: Joe Perches <joe@perches.com>
+Suggested-by: Kees Cook <keescook@chromium.org>
+Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200914161643.938408-1-ndesaulniers@google.com
+Link: https://bugs.llvm.org/show_bug.cgi?id=47162
+Link: https://bugs.llvm.org/show_bug.cgi?id=47280
+Link: https://github.com/ClangBuiltLinux/linux/issues/1126
+Link: https://man7.org/linux/man-pages/man3/stpcpy.3.html
+Link: https://pubs.opengroup.org/onlinepubs/9699919799/functions/stpcpy.html
+Link: https://reviews.llvm.org/D85963
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/mips/include/asm/cpu-type.h | 1 +
- 1 file changed, 1 insertion(+)
+ lib/string.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/arch/mips/include/asm/cpu-type.h b/arch/mips/include/asm/cpu-type.h
-index bdd6dc18e65c6..941efd8783344 100644
---- a/arch/mips/include/asm/cpu-type.h
-+++ b/arch/mips/include/asm/cpu-type.h
-@@ -47,6 +47,7 @@ static inline int __pure __get_cpu_type(const int cpu_type)
- 	case CPU_34K:
- 	case CPU_1004K:
- 	case CPU_74K:
-+	case CPU_1074K:
- 	case CPU_M14KC:
- 	case CPU_M14KEC:
- 	case CPU_INTERAPTIV:
--- 
-2.25.1
-
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -235,6 +235,30 @@ ssize_t strscpy(char *dest, const char *
+ EXPORT_SYMBOL(strscpy);
+ #endif
+ 
++/**
++ * stpcpy - copy a string from src to dest returning a pointer to the new end
++ *          of dest, including src's %NUL-terminator. May overrun dest.
++ * @dest: pointer to end of string being copied into. Must be large enough
++ *        to receive copy.
++ * @src: pointer to the beginning of string being copied from. Must not overlap
++ *       dest.
++ *
++ * stpcpy differs from strcpy in a key way: the return value is a pointer
++ * to the new %NUL-terminating character in @dest. (For strcpy, the return
++ * value is a pointer to the start of @dest). This interface is considered
++ * unsafe as it doesn't perform bounds checking of the inputs. As such it's
++ * not recommended for usage. Instead, its definition is provided in case
++ * the compiler lowers other libcalls to stpcpy.
++ */
++char *stpcpy(char *__restrict__ dest, const char *__restrict__ src);
++char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
++{
++	while ((*dest++ = *src++) != '\0')
++		/* nothing */;
++	return --dest;
++}
++EXPORT_SYMBOL(stpcpy);
++
+ #ifndef __HAVE_ARCH_STRCAT
+ /**
+  * strcat - Append one %NUL-terminated string to another
 
 
