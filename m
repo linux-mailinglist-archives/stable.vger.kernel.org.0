@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4737227CADF
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21D4527CAD5
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:22:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732569AbgI2MWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:22:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53442 "EHLO mail.kernel.org"
+        id S1731820AbgI2MW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:22:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729787AbgI2LfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:35:10 -0400
+        id S1729806AbgI2LfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:35:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D86923CD2;
-        Tue, 29 Sep 2020 11:29:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E666523CD4;
+        Tue, 29 Sep 2020 11:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378942;
-        bh=w9/dF34yqfD0gfq1T/vSXrp3nYlmGnFhMvWOctXiNpc=;
+        s=default; t=1601378945;
+        bh=58wuEjHLT0tsDESkEIfgrC0DoSY3ECxTn66pktqCgXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFyeMk5ZZln1Goo+1DDSEUsgNkJxwdGj0IIZXevOK2kREULMAMZkhsde74UVnRQqX
-         4oB8ojY2YKE0kT9RkxInLF5ybGAi4xciITIRmV2MkCwBDq5+HhwrMMPDpQNkekCZS0
-         zk8rQmWwwcSbzE9qNy/N8CArpr260/SD59ihqgJ4=
+        b=jGehZ0Yyxe9GGZo3P5YeUvi+ZB+5hCuzz3DGYAZTmFIxRFXMb3pNL8noGbDq7Z85Q
+         I9UwkySGFLxVqjklm3a6BQFx4RYURmMKMcWFrOdGSeb8izfzQFlSDu9aMgOdTOCET8
+         8yCd2RrLzSsv8xPVq16nlYpZTHAmDv6YAeWKmDpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 195/245] cifs: Fix double add page to memcg when cifs_readpages
-Date:   Tue, 29 Sep 2020 13:00:46 +0200
-Message-Id: <20200929105956.469895949@linuxfoundation.org>
+        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 196/245] nvme: fix possible deadlock when I/O is blocked
+Date:   Tue, 29 Sep 2020 13:00:47 +0200
+Message-Id: <20200929105956.511527430@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -45,143 +43,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 95a3d8f3af9b0d63b43f221b630beaab9739d13a ]
+[ Upstream commit 3b4b19721ec652ad2c4fe51dfbe5124212b5f581 ]
 
-When xfstests generic/451, there is an BUG at mm/memcontrol.c:
-  page:ffffea000560f2c0 refcount:2 mapcount:0 mapping:000000008544e0ea
-       index:0xf
-  mapping->aops:cifs_addr_ops dentry name:"tst-aio-dio-cycle-write.451"
-  flags: 0x2fffff80000001(locked)
-  raw: 002fffff80000001 ffffc90002023c50 ffffea0005280088 ffff88815cda0210
-  raw: 000000000000000f 0000000000000000 00000002ffffffff ffff88817287d000
-  page dumped because: VM_BUG_ON_PAGE(page->mem_cgroup)
-  page->mem_cgroup:ffff88817287d000
-  ------------[ cut here ]------------
-  kernel BUG at mm/memcontrol.c:2659!
-  invalid opcode: 0000 [#1] SMP
-  CPU: 2 PID: 2038 Comm: xfs_io Not tainted 5.8.0-rc1 #44
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_
-    073836-buildvm-ppc64le-16.ppc.4
-  RIP: 0010:commit_charge+0x35/0x50
-  Code: 0d 48 83 05 54 b2 02 05 01 48 89 77 38 c3 48 c7
-        c6 78 4a ea ba 48 83 05 38 b2 02 05 01 e8 63 0d9
-  RSP: 0018:ffffc90002023a50 EFLAGS: 00010202
-  RAX: 0000000000000000 RBX: ffff88817287d000 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: ffff88817ac97ea0 RDI: ffff88817ac97ea0
-  RBP: ffffea000560f2c0 R08: 0000000000000203 R09: 0000000000000005
-  R10: 0000000000000030 R11: ffffc900020237a8 R12: 0000000000000000
-  R13: 0000000000000001 R14: 0000000000000001 R15: ffff88815a1272c0
-  FS:  00007f5071ab0800(0000) GS:ffff88817ac80000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 000055efcd5ca000 CR3: 000000015d312000 CR4: 00000000000006e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   mem_cgroup_charge+0x166/0x4f0
-   __add_to_page_cache_locked+0x4a9/0x710
-   add_to_page_cache_locked+0x15/0x20
-   cifs_readpages+0x217/0x1270
-   read_pages+0x29a/0x670
-   page_cache_readahead_unbounded+0x24f/0x390
-   __do_page_cache_readahead+0x3f/0x60
-   ondemand_readahead+0x1f1/0x470
-   page_cache_async_readahead+0x14c/0x170
-   generic_file_buffered_read+0x5df/0x1100
-   generic_file_read_iter+0x10c/0x1d0
-   cifs_strict_readv+0x139/0x170
-   new_sync_read+0x164/0x250
-   __vfs_read+0x39/0x60
-   vfs_read+0xb5/0x1e0
-   ksys_pread64+0x85/0xf0
-   __x64_sys_pread64+0x22/0x30
-   do_syscall_64+0x69/0x150
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f5071fcb1af
-  Code: Bad RIP value.
-  RSP: 002b:00007ffde2cdb8e0 EFLAGS: 00000293 ORIG_RAX: 0000000000000011
-  RAX: ffffffffffffffda RBX: 00007ffde2cdb990 RCX: 00007f5071fcb1af
-  RDX: 0000000000001000 RSI: 000055efcd5ca000 RDI: 0000000000000003
-  RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000001000 R11: 0000000000000293 R12: 0000000000000001
-  R13: 000000000009f000 R14: 0000000000000000 R15: 0000000000001000
-  Modules linked in:
-  ---[ end trace 725fa14a3e1af65c ]---
+Revert fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
+in nvme_validate_ns")
 
-Since commit 3fea5a499d57 ("mm: memcontrol: convert page cache to a new
-mem_cgroup_charge() API") not cancel the page charge, the pages maybe
-double add to pagecache:
-thread1                       | thread2
-cifs_readpages
-readpages_get_pages
- add_to_page_cache_locked(head,index=n)=0
-                              | readpages_get_pages
-                              | add_to_page_cache_locked(head,index=n+1)=0
- add_to_page_cache_locked(head, index=n+1)=-EEXIST
- then, will next loop with list head page's
- index=n+1 and the page->mapping not NULL
-readpages_get_pages
-add_to_page_cache_locked(head, index=n+1)
- commit_charge
-  VM_BUG_ON_PAGE
+When adding a new namespace to the head disk (via nvme_mpath_set_live)
+we will see partition scan which triggers I/O on the mpath device node.
+This process will usually be triggered from the scan_work which holds
+the scan_lock. If I/O blocks (if we got ana change currently have only
+available paths but none are accessible) this can deadlock on the head
+disk bd_mutex as both partition scan I/O takes it, and head disk revalidation
+takes it to check for resize (also triggered from scan_work on a different
+path). See trace [1].
 
-So, we should not do the next loop when any page add to page cache
-failed.
+The mpath disk revalidation was originally added to detect online disk
+size change, but this is no longer needed since commit cb224c3af4df
+("nvme: Convert to use set_capacity_revalidate_and_notify") which already
+updates resize info without unnecessarily revalidating the disk (the
+mpath disk doesn't even implement .revalidate_disk fop).
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Acked-by: Ronnie Sahlberg <lsahlber@redhat.com>
+[1]:
+--
+kernel: INFO: task kworker/u65:9:494 blocked for more than 241 seconds.
+kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
+kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+kernel: kworker/u65:9   D    0   494      2 0x80004000
+kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
+kernel: Call Trace:
+kernel:  __schedule+0x2b9/0x6c0
+kernel:  schedule+0x42/0xb0
+kernel:  schedule_preempt_disabled+0xe/0x10
+kernel:  __mutex_lock.isra.0+0x182/0x4f0
+kernel:  __mutex_lock_slowpath+0x13/0x20
+kernel:  mutex_lock+0x2e/0x40
+kernel:  revalidate_disk+0x63/0xa0
+kernel:  __nvme_revalidate_disk+0xfe/0x110 [nvme_core]
+kernel:  nvme_revalidate_disk+0xa4/0x160 [nvme_core]
+kernel:  ? evict+0x14c/0x1b0
+kernel:  revalidate_disk+0x2b/0xa0
+kernel:  nvme_validate_ns+0x49/0x940 [nvme_core]
+kernel:  ? blk_mq_free_request+0xd2/0x100
+kernel:  ? __nvme_submit_sync_cmd+0xbe/0x1e0 [nvme_core]
+kernel:  nvme_scan_work+0x24f/0x380 [nvme_core]
+kernel:  process_one_work+0x1db/0x380
+kernel:  worker_thread+0x249/0x400
+kernel:  kthread+0x104/0x140
+kernel:  ? process_one_work+0x380/0x380
+kernel:  ? kthread_park+0x80/0x80
+kernel:  ret_from_fork+0x1f/0x40
+...
+kernel: INFO: task kworker/u65:1:2630 blocked for more than 241 seconds.
+kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
+kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+kernel: kworker/u65:1   D    0  2630      2 0x80004000
+kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
+kernel: Call Trace:
+kernel:  __schedule+0x2b9/0x6c0
+kernel:  schedule+0x42/0xb0
+kernel:  io_schedule+0x16/0x40
+kernel:  do_read_cache_page+0x438/0x830
+kernel:  ? __switch_to_asm+0x34/0x70
+kernel:  ? file_fdatawait_range+0x30/0x30
+kernel:  read_cache_page+0x12/0x20
+kernel:  read_dev_sector+0x27/0xc0
+kernel:  read_lba+0xc1/0x220
+kernel:  ? kmem_cache_alloc_trace+0x19c/0x230
+kernel:  efi_partition+0x1e6/0x708
+kernel:  ? vsnprintf+0x39e/0x4e0
+kernel:  ? snprintf+0x49/0x60
+kernel:  check_partition+0x154/0x244
+kernel:  rescan_partitions+0xae/0x280
+kernel:  __blkdev_get+0x40f/0x560
+kernel:  blkdev_get+0x3d/0x140
+kernel:  __device_add_disk+0x388/0x480
+kernel:  device_add_disk+0x13/0x20
+kernel:  nvme_mpath_set_live+0x119/0x140 [nvme_core]
+kernel:  nvme_update_ns_ana_state+0x5c/0x60 [nvme_core]
+kernel:  nvme_set_ns_ana_state+0x1e/0x30 [nvme_core]
+kernel:  nvme_parse_ana_log+0xa1/0x180 [nvme_core]
+kernel:  ? nvme_update_ns_ana_state+0x60/0x60 [nvme_core]
+kernel:  nvme_mpath_add_disk+0x47/0x90 [nvme_core]
+kernel:  nvme_validate_ns+0x396/0x940 [nvme_core]
+kernel:  ? blk_mq_free_request+0xd2/0x100
+kernel:  nvme_scan_work+0x24f/0x380 [nvme_core]
+kernel:  process_one_work+0x1db/0x380
+kernel:  worker_thread+0x249/0x400
+kernel:  kthread+0x104/0x140
+kernel:  ? process_one_work+0x380/0x380
+kernel:  ? kthread_park+0x80/0x80
+kernel:  ret_from_fork+0x1f/0x40
+--
+
+Fixes: fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
+in nvme_validate_ns")
+Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/nvme/host/core.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index e78b52c582f18..5cb15649adb07 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3804,7 +3804,8 @@ readpages_get_pages(struct address_space *mapping, struct list_head *page_list,
- 			break;
- 
- 		__SetPageLocked(page);
--		if (add_to_page_cache_locked(page, mapping, page->index, gfp)) {
-+		rc = add_to_page_cache_locked(page, mapping, page->index, gfp);
-+		if (rc) {
- 			__ClearPageLocked(page);
- 			break;
- 		}
-@@ -3820,6 +3821,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 	struct list_head *page_list, unsigned num_pages)
- {
- 	int rc;
-+	int err = 0;
- 	struct list_head tmplist;
- 	struct cifsFileInfo *open_file = file->private_data;
- 	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
-@@ -3860,7 +3862,7 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 	 * the order of declining indexes. When we put the pages in
- 	 * the rdata->pages, then we want them in increasing order.
- 	 */
--	while (!list_empty(page_list)) {
-+	while (!list_empty(page_list) && !err) {
- 		unsigned int i, nr_pages, bytes, rsize;
- 		loff_t offset;
- 		struct page *page, *tpage;
-@@ -3883,9 +3885,10 @@ static int cifs_readpages(struct file *file, struct address_space *mapping,
- 			return 0;
- 		}
- 
--		rc = readpages_get_pages(mapping, page_list, rsize, &tmplist,
-+		nr_pages = 0;
-+		err = readpages_get_pages(mapping, page_list, rsize, &tmplist,
- 					 &nr_pages, &offset, &bytes);
--		if (rc) {
-+		if (!nr_pages) {
- 			add_credits_and_wake_if(server, credits, 0);
- 			break;
- 		}
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index faa7feebb6095..84fcfcdb8ba5f 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1599,7 +1599,6 @@ static void __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
+ 	if (ns->head->disk) {
+ 		nvme_update_disk_info(ns->head->disk, ns, id);
+ 		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
+-		revalidate_disk(ns->head->disk);
+ 	}
+ #endif
+ }
 -- 
 2.25.1
 
