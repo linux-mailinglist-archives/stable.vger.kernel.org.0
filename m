@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 295D927C3A9
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8900227C3AC
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:08:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728922AbgI2LHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:07:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46102 "EHLO mail.kernel.org"
+        id S1728621AbgI2LHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:07:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728592AbgI2LHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:07:32 -0400
+        id S1728929AbgI2LHe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:07:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79E6122204;
-        Tue, 29 Sep 2020 11:07:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 590A021941;
+        Tue, 29 Sep 2020 11:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377651;
-        bh=FoBam2veeWQfEGkz6ViIW5Dqs9nvjPiWZ1sa5WoABDE=;
+        s=default; t=1601377653;
+        bh=Veag+uA5foloV/DZpIdVtQ1n/BM2tWmKVfB4H+PkMM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gs9ASzkZLQ0Cp6rDyrc5IINwTrIk+xTSk2BPwNy/6arOW+6tGhcfdPtjrEb42oC2o
-         034npsPQH4Rgi2xIcNfBZgA4E2wCBAo/NypgdkK9yK8HeXWvcToCaa+hOWb3Q0UkXs
-         JUYHq1Z7z/Ij35tvs6zDzYdHKVPx2yXhPvHBzutk=
+        b=ChZapO5Tywr3UYaOxrqFD41oOR20QUu9sL30o/UBkQzblmeBNRuXHE22V34fPQCN2
+         ltw0dPY1kLxflPz4/SiaBi2D+xpjPRMKfhFaixKit0S/s0c4Y6ww1maFLHxHuslHnF
+         c0zaUAeyhWp8PGgL0CKsS7RdxzCCQSlmV/lFXzhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 008/121] tipc: use skb_unshare() instead in tipc_buf_append()
-Date:   Tue, 29 Sep 2020 12:59:12 +0200
-Message-Id: <20200929105930.597355843@linuxfoundation.org>
+Subject: [PATCH 4.9 009/121] bnxt_en: Protect bnxt_set_eee() and bnxt_set_pauseparam() with mutex.
+Date:   Tue, 29 Sep 2020 12:59:13 +0200
+Message-Id: <20200929105930.647315776@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
@@ -43,67 +43,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit ff48b6222e65ebdba5a403ef1deba6214e749193 ]
+[ Upstream commit a53906908148d64423398a62c4435efb0d09652c ]
 
-In tipc_buf_append() it may change skb's frag_list, and it causes
-problems when this skb is cloned. skb_unclone() doesn't really
-make this skb's flag_list available to change.
+All changes related to bp->link_info require the protection of the
+link_lock mutex.  It's not sufficient to rely just on RTNL.
 
-Shuang Li has reported an use-after-free issue because of this
-when creating quite a few macvlan dev over the same dev, where
-the broadcast packets will be cloned and go up to the stack:
-
- [ ] BUG: KASAN: use-after-free in pskb_expand_head+0x86d/0xea0
- [ ] Call Trace:
- [ ]  dump_stack+0x7c/0xb0
- [ ]  print_address_description.constprop.7+0x1a/0x220
- [ ]  kasan_report.cold.10+0x37/0x7c
- [ ]  check_memory_region+0x183/0x1e0
- [ ]  pskb_expand_head+0x86d/0xea0
- [ ]  process_backlog+0x1df/0x660
- [ ]  net_rx_action+0x3b4/0xc90
- [ ]
- [ ] Allocated by task 1786:
- [ ]  kmem_cache_alloc+0xbf/0x220
- [ ]  skb_clone+0x10a/0x300
- [ ]  macvlan_broadcast+0x2f6/0x590 [macvlan]
- [ ]  macvlan_process_broadcast+0x37c/0x516 [macvlan]
- [ ]  process_one_work+0x66a/0x1060
- [ ]  worker_thread+0x87/0xb10
- [ ]
- [ ] Freed by task 3253:
- [ ]  kmem_cache_free+0x82/0x2a0
- [ ]  skb_release_data+0x2c3/0x6e0
- [ ]  kfree_skb+0x78/0x1d0
- [ ]  tipc_recvmsg+0x3be/0xa40 [tipc]
-
-So fix it by using skb_unshare() instead, which would create a new
-skb for the cloned frag and it'll be safe to change its frag_list.
-The similar things were also done in sctp_make_reassembled_event(),
-which is using skb_copy().
-
-Reported-by: Shuang Li <shuali@redhat.com>
-Fixes: 37e22164a8a3 ("tipc: rename and move message reassembly function")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Fixes: 163e9ef63641 ("bnxt_en: Fix race when modifying pause settings.")
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/msg.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |   31 ++++++++++++++--------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -140,7 +140,8 @@ int tipc_buf_append(struct sk_buff **hea
- 	if (fragid == FIRST_FRAGMENT) {
- 		if (unlikely(head))
- 			goto err;
--		if (unlikely(skb_unclone(frag, GFP_ATOMIC)))
-+		frag = skb_unshare(frag, GFP_ATOMIC);
-+		if (unlikely(!frag))
- 			goto err;
- 		head = *headbuf = frag;
- 		*buf = NULL;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -1000,9 +1000,12 @@ static int bnxt_set_pauseparam(struct ne
+ 	if (!BNXT_SINGLE_PF(bp))
+ 		return -EOPNOTSUPP;
+ 
++	mutex_lock(&bp->link_lock);
+ 	if (epause->autoneg) {
+-		if (!(link_info->autoneg & BNXT_AUTONEG_SPEED))
+-			return -EINVAL;
++		if (!(link_info->autoneg & BNXT_AUTONEG_SPEED)) {
++			rc = -EINVAL;
++			goto pause_exit;
++		}
+ 
+ 		link_info->autoneg |= BNXT_AUTONEG_FLOW_CTRL;
+ 		if (bp->hwrm_spec_code >= 0x10201)
+@@ -1023,11 +1026,11 @@ static int bnxt_set_pauseparam(struct ne
+ 	if (epause->tx_pause)
+ 		link_info->req_flow_ctrl |= BNXT_LINK_PAUSE_TX;
+ 
+-	if (netif_running(dev)) {
+-		mutex_lock(&bp->link_lock);
++	if (netif_running(dev))
+ 		rc = bnxt_hwrm_set_pause(bp);
+-		mutex_unlock(&bp->link_lock);
+-	}
++
++pause_exit:
++	mutex_unlock(&bp->link_lock);
+ 	return rc;
+ }
+ 
+@@ -1671,8 +1674,7 @@ static int bnxt_set_eee(struct net_devic
+ 	struct bnxt *bp = netdev_priv(dev);
+ 	struct ethtool_eee *eee = &bp->eee;
+ 	struct bnxt_link_info *link_info = &bp->link_info;
+-	u32 advertising =
+-		 _bnxt_fw_to_ethtool_adv_spds(link_info->advertising, 0);
++	u32 advertising;
+ 	int rc = 0;
+ 
+ 	if (!BNXT_SINGLE_PF(bp))
+@@ -1681,19 +1683,23 @@ static int bnxt_set_eee(struct net_devic
+ 	if (!(bp->flags & BNXT_FLAG_EEE_CAP))
+ 		return -EOPNOTSUPP;
+ 
++	mutex_lock(&bp->link_lock);
++	advertising = _bnxt_fw_to_ethtool_adv_spds(link_info->advertising, 0);
+ 	if (!edata->eee_enabled)
+ 		goto eee_ok;
+ 
+ 	if (!(link_info->autoneg & BNXT_AUTONEG_SPEED)) {
+ 		netdev_warn(dev, "EEE requires autoneg\n");
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto eee_exit;
+ 	}
+ 	if (edata->tx_lpi_enabled) {
+ 		if (bp->lpi_tmr_hi && (edata->tx_lpi_timer > bp->lpi_tmr_hi ||
+ 				       edata->tx_lpi_timer < bp->lpi_tmr_lo)) {
+ 			netdev_warn(dev, "Valid LPI timer range is %d and %d microsecs\n",
+ 				    bp->lpi_tmr_lo, bp->lpi_tmr_hi);
+-			return -EINVAL;
++			rc = -EINVAL;
++			goto eee_exit;
+ 		} else if (!bp->lpi_tmr_hi) {
+ 			edata->tx_lpi_timer = eee->tx_lpi_timer;
+ 		}
+@@ -1703,7 +1709,8 @@ static int bnxt_set_eee(struct net_devic
+ 	} else if (edata->advertised & ~advertising) {
+ 		netdev_warn(dev, "EEE advertised %x must be a subset of autoneg advertised speeds %x\n",
+ 			    edata->advertised, advertising);
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto eee_exit;
+ 	}
+ 
+ 	eee->advertised = edata->advertised;
+@@ -1715,6 +1722,8 @@ eee_ok:
+ 	if (netif_running(dev))
+ 		rc = bnxt_hwrm_set_link_setting(bp, false, true);
+ 
++eee_exit:
++	mutex_unlock(&bp->link_lock);
+ 	return rc;
+ }
+ 
 
 
