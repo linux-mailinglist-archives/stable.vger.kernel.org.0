@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AF327CBB1
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E06A27CD08
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732884AbgI2M3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:29:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41880 "EHLO mail.kernel.org"
+        id S1733092AbgI2MlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:41:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728378AbgI2LaY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:30:24 -0400
+        id S1729389AbgI2LNr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:13:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D4D923AC9;
-        Tue, 29 Sep 2020 11:24:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0090721924;
+        Tue, 29 Sep 2020 11:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378672;
-        bh=wQXJfT8WA5kfeNeMHishl9gXwYueYqlkMbStvBPTDrM=;
+        s=default; t=1601378026;
+        bh=yqRipaG9eyydr+dy1Kt9Iuj9ECa+KtOXIpqR2On9Yu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AX2UNMIDjcZkPBpw35lsfzUyeTf0tq71uu5UkwLBxtihmIA/5YeSsLYgm67V1FY4G
-         82CR5jaAGpkOz1FSSy7MZ+YGonpK0WiWEwHpdlJIHAJSRCv7N/tBTfvum5BgJNt57w
-         t8Dv/r05JQKH9t0SKwf2bAOwAiwmhT+qE6yopBf4=
+        b=nQ4S2ZWeL+BEtAIbbCXdtcCAG+9mXkvgtVChP3YFUOrfqoWRdcXK3W/koNsKIoAao
+         wuBqso0sMGA3Gq+NfckwZhrQ7cVYk14OP/Dqf+IVshwpEXV9NiO5MZj2DTX8cTmK+o
+         5LqKSn8mP/cfKQvWGnvST/n4gYM/QbE5jAFVVHho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 097/245] timekeeping: Prevent 32bit truncation in scale64_check_overflow()
+Subject: [PATCH 4.14 036/166] xfs: fix attr leaf header freemap.size underflow
 Date:   Tue, 29 Sep 2020 12:59:08 +0200
-Message-Id: <20200929105951.718285648@linuxfoundation.org>
+Message-Id: <20200929105937.007738158@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit 4cbbc3a0eeed675449b1a4d080008927121f3da3 ]
+[ Upstream commit 2a2b5932db67586bacc560cc065d62faece5b996 ]
 
-While unlikely the divisor in scale64_check_overflow() could be >= 32bit in
-scale64_check_overflow(). do_div() truncates the divisor to 32bit at least
-on 32bit platforms.
+The leaf format xattr addition helper xfs_attr3_leaf_add_work()
+adjusts the block freemap in a couple places. The first update drops
+the size of the freemap that the caller had already selected to
+place the xattr name/value data. Before the function returns, it
+also checks whether the entries array has encroached on a freemap
+range by virtue of the new entry addition. This is necessary because
+the entries array grows from the start of the block (but end of the
+block header) towards the end of the block while the name/value data
+grows from the end of the block in the opposite direction. If the
+associated freemap is already empty, however, size is zero and the
+subtraction underflows the field and causes corruption.
 
-Use div64_u64() instead to avoid the truncation to 32-bit.
+This is reproduced rarely by generic/070. The observed behavior is
+that a smaller sized freemap is aligned to the end of the entries
+list, several subsequent xattr additions land in larger freemaps and
+the entries list expands into the smaller freemap until it is fully
+consumed and then underflows. Note that it is not otherwise a
+corruption for the entries array to consume an empty freemap because
+the nameval list (i.e. the firstused pointer in the xattr header)
+starts beyond the end of the corrupted freemap.
 
-[ tglx: Massaged changelog ]
+Update the freemap size modification to account for the fact that
+the freemap entry can be empty and thus stale.
 
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20200120100523.45656-1-wenyang@linux.alibaba.com
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/timekeeping.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/xfs/libxfs/xfs_attr_leaf.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index 81ee5b83c9200..c66fd11d94bc4 100644
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -1004,9 +1004,8 @@ static int scale64_check_overflow(u64 mult, u64 div, u64 *base)
- 	    ((int)sizeof(u64)*8 - fls64(mult) < fls64(rem)))
- 		return -EOVERFLOW;
- 	tmp *= mult;
--	rem *= mult;
- 
--	do_div(rem, div);
-+	rem = div64_u64(rem * mult, div);
- 	*base = tmp + rem;
- 	return 0;
- }
+diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
+index 299d17b088e21..facb83031ba77 100644
+--- a/fs/xfs/libxfs/xfs_attr_leaf.c
++++ b/fs/xfs/libxfs/xfs_attr_leaf.c
+@@ -1335,7 +1335,9 @@ xfs_attr3_leaf_add_work(
+ 	for (i = 0; i < XFS_ATTR_LEAF_MAPSIZE; i++) {
+ 		if (ichdr->freemap[i].base == tmp) {
+ 			ichdr->freemap[i].base += sizeof(xfs_attr_leaf_entry_t);
+-			ichdr->freemap[i].size -= sizeof(xfs_attr_leaf_entry_t);
++			ichdr->freemap[i].size -=
++				min_t(uint16_t, ichdr->freemap[i].size,
++						sizeof(xfs_attr_leaf_entry_t));
+ 		}
+ 	}
+ 	ichdr->usedbytes += xfs_attr_leaf_entsize(leaf, args->index);
 -- 
 2.25.1
 
