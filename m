@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B3DC27C7D6
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1043C27C76A
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:54:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731540AbgI2L4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:56:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42156 "EHLO mail.kernel.org"
+        id S1731249AbgI2Lxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:53:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730800AbgI2Lnl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:43:41 -0400
+        id S1730986AbgI2Lqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:46:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED34C2076A;
-        Tue, 29 Sep 2020 11:43:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B860620848;
+        Tue, 29 Sep 2020 11:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379814;
-        bh=0D7uARIEhqAt+0BC7YtnuY3eNgTy+QSF5MECcVALQUI=;
+        s=default; t=1601379989;
+        bh=puesQLL1vTui9u2CuuuBOVYfBiDNpon7FKU4BmliOZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RmgZr2OOG2Z10nWiNBTtaag1FDYDQvecFarvavnQdDET9jvvXgYuXxxCrLqwTuiHQ
-         ydgCKxaZKd1JosTNn/4h3fPblnxPN6mP7zcjiOTJtZSe3XfIJWwUi187ehOEpseXaX
-         XKydAF5ITzbOH2ARdlw8kWH+rZR99+vW2ul4gpuM=
+        b=stdF3KnU2vxiLNspN7g6keZ7R8ZGXrpINrUy0sVKwOu8z+6l1/qGCdwWF7y5WPV3a
+         JlqRC0hLYerTO81xAFwZaUMr2XBINDQkLpUUPNr9xyPT0aUbOzaD2hRJb1Y3YzUi2p
+         ZM7Gbc/dRwV7ND5OBYH67N3LoyX0ZEmySmGAjic4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 330/388] lockdep: fix order in trace_hardirqs_off_caller()
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 18/99] objtool: Fix noreturn detection for ignored functions
 Date:   Tue, 29 Sep 2020 13:01:01 +0200
-Message-Id: <20200929110026.433752204@linuxfoundation.org>
+Message-Id: <20200929105930.615718036@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 73ac74c7d489756d2313219a108809921dbfaea1 ]
+[ Upstream commit db6c6a0df840e3f52c84cc302cc1a08ba11a4416 ]
 
-Switch order so that locking state is consistent even
-if the IRQ tracer calls into lockdep again.
+When a function is annotated with STACK_FRAME_NON_STANDARD, objtool
+doesn't validate its code paths.  It also skips sibling call detection
+within the function.
 
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+But sibling call detection is actually needed for the case where the
+ignored function doesn't have any return instructions.  Otherwise
+objtool naively marks the function as implicit static noreturn, which
+affects the reachability of its callers, resulting in "unreachable
+instruction" warnings.
+
+Fix it by just enabling sibling call detection for ignored functions.
+The 'insn->ignore' check in add_jump_destinations() is no longer needed
+after
+
+  e6da9567959e ("objtool: Don't use ignore flag for fake jumps").
+
+Fixes the following warning:
+
+  arch/x86/kvm/vmx/vmx.o: warning: objtool: vmx_handle_exit_irqoff()+0x142: unreachable instruction
+
+which triggers on an allmodconfig with CONFIG_GCOV_KERNEL unset.
+
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lkml.kernel.org/r/5b1e2536cdbaa5246b60d7791b76130a74082c62.1599751464.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_preemptirq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/objtool/check.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace_preemptirq.c b/kernel/trace/trace_preemptirq.c
-index 4d8e99fdbbbee..26b06b09c9f68 100644
---- a/kernel/trace/trace_preemptirq.c
-+++ b/kernel/trace/trace_preemptirq.c
-@@ -63,14 +63,14 @@ NOKPROBE_SYMBOL(trace_hardirqs_on_caller);
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 5e0d70a89fb87..773e6c7ee5f93 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -619,7 +619,7 @@ static int add_jump_destinations(struct objtool_file *file)
+ 		if (!is_static_jump(insn))
+ 			continue;
  
- __visible void trace_hardirqs_off_caller(unsigned long caller_addr)
- {
-+	lockdep_hardirqs_off(CALLER_ADDR0);
-+
- 	if (!this_cpu_read(tracing_irq_cpu)) {
- 		this_cpu_write(tracing_irq_cpu, 1);
- 		tracer_hardirqs_off(CALLER_ADDR0, caller_addr);
- 		if (!in_nmi())
- 			trace_irq_disable_rcuidle(CALLER_ADDR0, caller_addr);
- 	}
--
--	lockdep_hardirqs_off(CALLER_ADDR0);
- }
- EXPORT_SYMBOL(trace_hardirqs_off_caller);
- NOKPROBE_SYMBOL(trace_hardirqs_off_caller);
+-		if (insn->ignore || insn->offset == FAKE_JUMP_OFFSET)
++		if (insn->offset == FAKE_JUMP_OFFSET)
+ 			continue;
+ 
+ 		rela = find_rela_by_dest_range(file->elf, insn->sec,
 -- 
 2.25.1
 
