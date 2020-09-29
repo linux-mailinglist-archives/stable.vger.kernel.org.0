@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6B927CC27
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1FD827CC26
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:34:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732711AbgI2Mdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732567AbgI2Mdy (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 29 Sep 2020 08:33:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35550 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729667AbgI2LW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729669AbgI2LW5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:22:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7780123A79;
-        Tue, 29 Sep 2020 11:20:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A67723A7B;
+        Tue, 29 Sep 2020 11:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378427;
-        bh=iIoe9rF3fxuu/KeHKsyO6kcjW6wrMwwZhFy097x6dj8=;
+        s=default; t=1601378429;
+        bh=1skrjOFlpg33Li9byXbrIzTcZgSsfVl0JOdN91rhDYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1fTESVjpfRHhiFCvvCQooBrR2eKIykJvEdJDu5i11LOcMPM6ghQQ15PXfyeJu8XNJ
-         Dp9nZcj7sh8VbsE/eiKWEpcId1X2DTz/a+/dwjzF5jR4oFg8XO4mVCVBYhh36K9bMH
-         IrU+19qZGTyidFYD2WjlEcsT3dsz8/hdt7mJKt/o=
+        b=msEOhEVHvEeX0RygTAwqzYFBawv9La2eKcGBZQ37oGZLehG3P592V0atURKHEcwze
+         tBY9cHxbCujo8TvSuvKzLHxWE1RLK4gvYuaRtoK5qXrjS3fbt/BZw5ElRmiRvat+kW
+         ER98RQX0qQ8X4+55y9JRTUhC6nUtB9t1Iu/bPL3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        zhengbin <zhengbin13@huawei.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 002/245] media: mc-device.c: fix memleak in media_device_register_entity
-Date:   Tue, 29 Sep 2020 12:57:33 +0200
-Message-Id: <20200929105947.106371476@linuxfoundation.org>
+Subject: [PATCH 4.19 003/245] dma-fence: Serialise signal enabling (dma_fence_enable_sw_signaling)
+Date:   Tue, 29 Sep 2020 12:57:34 +0200
+Message-Id: <20200929105947.155740689@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -45,112 +43,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhengbin <zhengbin13@huawei.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 713f871b30a66dc4daff4d17b760c9916aaaf2e1 ]
+[ Upstream commit 9c98f021e4e717ffd9948fa65340ea3ef12b7935 ]
 
-In media_device_register_entity, if media_graph_walk_init fails,
-need to free the previously memory.
+Make dma_fence_enable_sw_signaling() behave like its
+dma_fence_add_callback() and dma_fence_default_wait() counterparts and
+perform the test to enable signaling under the fence->lock, along with
+the action to do so. This ensure that should an implementation be trying
+to flush the cb_list (by signaling) on retirement before freeing the
+fence, it can do so in a race-free manner.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: zhengbin <zhengbin13@huawei.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+See also 0fc89b6802ba ("dma-fence: Simply wrap dma_fence_signal_locked
+with dma_fence_signal").
+
+v2: Refactor all 3 enable_signaling paths to use a common function.
+v3: Don't argue, just keep the tracepoint in the existing spot.
+
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191004101140.32713-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/media-device.c | 65 ++++++++++++++++++------------------
- 1 file changed, 33 insertions(+), 32 deletions(-)
+ drivers/dma-buf/dma-fence.c | 78 +++++++++++++++++--------------------
+ 1 file changed, 35 insertions(+), 43 deletions(-)
 
-diff --git a/drivers/media/media-device.c b/drivers/media/media-device.c
-index ed518b1f82e4a..d04ed438a45de 100644
---- a/drivers/media/media-device.c
-+++ b/drivers/media/media-device.c
-@@ -568,6 +568,38 @@ static void media_device_release(struct media_devnode *devnode)
- 	dev_dbg(devnode->parent, "Media device released\n");
+diff --git a/drivers/dma-buf/dma-fence.c b/drivers/dma-buf/dma-fence.c
+index 1551ca7df3941..8586cc05def17 100644
+--- a/drivers/dma-buf/dma-fence.c
++++ b/drivers/dma-buf/dma-fence.c
+@@ -244,6 +244,30 @@ void dma_fence_free(struct dma_fence *fence)
  }
+ EXPORT_SYMBOL(dma_fence_free);
  
-+static void __media_device_unregister_entity(struct media_entity *entity)
++static bool __dma_fence_enable_signaling(struct dma_fence *fence)
 +{
-+	struct media_device *mdev = entity->graph_obj.mdev;
-+	struct media_link *link, *tmp;
-+	struct media_interface *intf;
-+	unsigned int i;
++	bool was_set;
 +
-+	ida_free(&mdev->entity_internal_idx, entity->internal_idx);
++	lockdep_assert_held(fence->lock);
 +
-+	/* Remove all interface links pointing to this entity */
-+	list_for_each_entry(intf, &mdev->interfaces, graph_obj.list) {
-+		list_for_each_entry_safe(link, tmp, &intf->links, list) {
-+			if (link->entity == entity)
-+				__media_remove_intf_link(link);
++	was_set = test_and_set_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
++				   &fence->flags);
++
++	if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
++		return false;
++
++	if (!was_set && fence->ops->enable_signaling) {
++		trace_dma_fence_enable_signal(fence);
++
++		if (!fence->ops->enable_signaling(fence)) {
++			dma_fence_signal_locked(fence);
++			return false;
 +		}
 +	}
 +
-+	/* Remove all data links that belong to this entity */
-+	__media_entity_remove_links(entity);
-+
-+	/* Remove all pads that belong to this entity */
-+	for (i = 0; i < entity->num_pads; i++)
-+		media_gobj_destroy(&entity->pads[i].graph_obj);
-+
-+	/* Remove the entity */
-+	media_gobj_destroy(&entity->graph_obj);
-+
-+	/* invoke entity_notify callbacks to handle entity removal?? */
-+
-+	entity->graph_obj.mdev = NULL;
++	return true;
 +}
 +
  /**
-  * media_device_register_entity - Register an entity with a media device
-  * @mdev:	The media device
-@@ -625,6 +657,7 @@ int __must_check media_device_register_entity(struct media_device *mdev,
- 		 */
- 		ret = media_graph_walk_init(&new, mdev);
- 		if (ret) {
-+			__media_device_unregister_entity(entity);
- 			mutex_unlock(&mdev->graph_mutex);
- 			return ret;
- 		}
-@@ -637,38 +670,6 @@ int __must_check media_device_register_entity(struct media_device *mdev,
- }
- EXPORT_SYMBOL_GPL(media_device_register_entity);
+  * dma_fence_enable_sw_signaling - enable signaling on fence
+  * @fence: the fence to enable
+@@ -256,19 +280,12 @@ void dma_fence_enable_sw_signaling(struct dma_fence *fence)
+ {
+ 	unsigned long flags;
  
--static void __media_device_unregister_entity(struct media_entity *entity)
--{
--	struct media_device *mdev = entity->graph_obj.mdev;
--	struct media_link *link, *tmp;
--	struct media_interface *intf;
--	unsigned int i;
+-	if (!test_and_set_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
+-			      &fence->flags) &&
+-	    !test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags) &&
+-	    fence->ops->enable_signaling) {
+-		trace_dma_fence_enable_signal(fence);
 -
--	ida_free(&mdev->entity_internal_idx, entity->internal_idx);
+-		spin_lock_irqsave(fence->lock, flags);
 -
--	/* Remove all interface links pointing to this entity */
--	list_for_each_entry(intf, &mdev->interfaces, graph_obj.list) {
--		list_for_each_entry_safe(link, tmp, &intf->links, list) {
--			if (link->entity == entity)
--				__media_remove_intf_link(link);
+-		if (!fence->ops->enable_signaling(fence))
+-			dma_fence_signal_locked(fence);
++	if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
++		return;
+ 
+-		spin_unlock_irqrestore(fence->lock, flags);
+-	}
++	spin_lock_irqsave(fence->lock, flags);
++	__dma_fence_enable_signaling(fence);
++	spin_unlock_irqrestore(fence->lock, flags);
+ }
+ EXPORT_SYMBOL(dma_fence_enable_sw_signaling);
+ 
+@@ -302,7 +319,6 @@ int dma_fence_add_callback(struct dma_fence *fence, struct dma_fence_cb *cb,
+ {
+ 	unsigned long flags;
+ 	int ret = 0;
+-	bool was_set;
+ 
+ 	if (WARN_ON(!fence || !func))
+ 		return -EINVAL;
+@@ -314,25 +330,14 @@ int dma_fence_add_callback(struct dma_fence *fence, struct dma_fence_cb *cb,
+ 
+ 	spin_lock_irqsave(fence->lock, flags);
+ 
+-	was_set = test_and_set_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
+-				   &fence->flags);
+-
+-	if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+-		ret = -ENOENT;
+-	else if (!was_set && fence->ops->enable_signaling) {
+-		trace_dma_fence_enable_signal(fence);
+-
+-		if (!fence->ops->enable_signaling(fence)) {
+-			dma_fence_signal_locked(fence);
+-			ret = -ENOENT;
 -		}
 -	}
 -
--	/* Remove all data links that belong to this entity */
--	__media_entity_remove_links(entity);
+-	if (!ret) {
++	if (__dma_fence_enable_signaling(fence)) {
+ 		cb->func = func;
+ 		list_add_tail(&cb->node, &fence->cb_list);
+-	} else
++	} else {
+ 		INIT_LIST_HEAD(&cb->node);
++		ret = -ENOENT;
++	}
++
+ 	spin_unlock_irqrestore(fence->lock, flags);
+ 
+ 	return ret;
+@@ -432,7 +437,6 @@ dma_fence_default_wait(struct dma_fence *fence, bool intr, signed long timeout)
+ 	struct default_wait_cb cb;
+ 	unsigned long flags;
+ 	signed long ret = timeout ? timeout : 1;
+-	bool was_set;
+ 
+ 	if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+ 		return ret;
+@@ -444,21 +448,9 @@ dma_fence_default_wait(struct dma_fence *fence, bool intr, signed long timeout)
+ 		goto out;
+ 	}
+ 
+-	was_set = test_and_set_bit(DMA_FENCE_FLAG_ENABLE_SIGNAL_BIT,
+-				   &fence->flags);
 -
--	/* Remove all pads that belong to this entity */
--	for (i = 0; i < entity->num_pads; i++)
--		media_gobj_destroy(&entity->pads[i].graph_obj);
+-	if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
++	if (!__dma_fence_enable_signaling(fence))
+ 		goto out;
+ 
+-	if (!was_set && fence->ops->enable_signaling) {
+-		trace_dma_fence_enable_signal(fence);
 -
--	/* Remove the entity */
--	media_gobj_destroy(&entity->graph_obj);
+-		if (!fence->ops->enable_signaling(fence)) {
+-			dma_fence_signal_locked(fence);
+-			goto out;
+-		}
+-	}
 -
--	/* invoke entity_notify callbacks to handle entity removal?? */
--
--	entity->graph_obj.mdev = NULL;
--}
--
- void media_device_unregister_entity(struct media_entity *entity)
- {
- 	struct media_device *mdev = entity->graph_obj.mdev;
+ 	if (!timeout) {
+ 		ret = 0;
+ 		goto out;
 -- 
 2.25.1
 
