@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAAA527C4C6
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:17:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F3627C32A
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729378AbgI2LQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:16:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32814 "EHLO mail.kernel.org"
+        id S1728457AbgI2LDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:03:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729576AbgI2LQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:16:17 -0400
+        id S1728474AbgI2LDj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:03:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95D40206A5;
-        Tue, 29 Sep 2020 11:16:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31DBE21941;
+        Tue, 29 Sep 2020 11:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378176;
-        bh=ZIwn71VTK2fauOMlr/olKull/NtNHPDh5lZ9JvYgnbI=;
+        s=default; t=1601377418;
+        bh=uSLbclAto7chEjqnjOZyqiyMChQzMQjMHwUjFrhRau4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mj1Nb9i8MJBNvrWrHmMq4E4nOqqMmCUZa1IA67bAF3Qe3U29szyIaA8jjXUniUVHO
-         eXnIOrWUyTGWoO/iZA7mFAyU4ATfaXhPu2ALuGFZtkyhCMTIIDgFEhNZmnI0h2qrMG
-         xJ8s5c37JXBizISno+4a4oiJCP9y1dYJeMAfvd7o=
+        b=RGwRfxAHIYbINd2VA+bw/Rr8UOVeSV/zi8QIeUTkGVpzGqL/E8g82qcUMTB3tmVSz
+         6i+wZ0JzfkCpMazswxJvFrgehYNA08OvPVrcEyX7+z3cdaO+0ZlMScQIYMluVCJcjl
+         id/hXiN2PDXQSd38/tRozSR7l0vS53HhYt8JzWto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 059/166] skbuff: fix a data race in skb_queue_len()
+Subject: [PATCH 4.4 04/85] ftrace: Setup correct FTRACE_FL_REGS flags for module
 Date:   Tue, 29 Sep 2020 12:59:31 +0200
-Message-Id: <20200929105938.166163606@linuxfoundation.org>
+Message-Id: <20200929105928.428212623@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,114 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Chengming Zhou <zhouchengming@bytedance.com>
 
-[ Upstream commit 86b18aaa2b5b5bb48e609cd591b3d2d0fdbe0442 ]
+[ Upstream commit 8a224ffb3f52b0027f6b7279854c71a31c48fc97 ]
 
-sk_buff.qlen can be accessed concurrently as noticed by KCSAN,
+When module loaded and enabled, we will use __ftrace_replace_code
+for module if any ftrace_ops referenced it found. But we will get
+wrong ftrace_addr for module rec in ftrace_get_addr_new, because
+rec->flags has not been setup correctly. It can cause the callback
+function of a ftrace_ops has FTRACE_OPS_FL_SAVE_REGS to be called
+with pt_regs set to NULL.
+So setup correct FTRACE_FL_REGS flags for rec when we call
+referenced_filters to find ftrace_ops references it.
 
- BUG: KCSAN: data-race in __skb_try_recv_from_queue / unix_dgram_sendmsg
+Link: https://lkml.kernel.org/r/20200728180554.65203-1-zhouchengming@bytedance.com
 
- read to 0xffff8a1b1d8a81c0 of 4 bytes by task 5371 on cpu 96:
-  unix_dgram_sendmsg+0x9a9/0xb70 include/linux/skbuff.h:1821
-				 net/unix/af_unix.c:1761
-  ____sys_sendmsg+0x33e/0x370
-  ___sys_sendmsg+0xa6/0xf0
-  __sys_sendmsg+0x69/0xf0
-  __x64_sys_sendmsg+0x51/0x70
-  do_syscall_64+0x91/0xb47
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
- write to 0xffff8a1b1d8a81c0 of 4 bytes by task 1 on cpu 99:
-  __skb_try_recv_from_queue+0x327/0x410 include/linux/skbuff.h:2029
-  __skb_try_recv_datagram+0xbe/0x220
-  unix_dgram_recvmsg+0xee/0x850
-  ____sys_recvmsg+0x1fb/0x210
-  ___sys_recvmsg+0xa2/0xf0
-  __sys_recvmsg+0x66/0xf0
-  __x64_sys_recvmsg+0x51/0x70
-  do_syscall_64+0x91/0xb47
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Since only the read is operating as lockless, it could introduce a logic
-bug in unix_recvq_full() due to the load tearing. Fix it by adding
-a lockless variant of skb_queue_len() and unix_recvq_full() where
-READ_ONCE() is on the read while WRITE_ONCE() is on the write similar to
-the commit d7d16a89350a ("net: add skb_queue_empty_lockless()").
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Fixes: 8c4f3c3fa9681 ("ftrace: Check module functions being traced on reload")
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h | 14 +++++++++++++-
- net/unix/af_unix.c     | 11 +++++++++--
- 2 files changed, 22 insertions(+), 3 deletions(-)
+ kernel/trace/ftrace.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 71c77463d3432..3690985e24a8a 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1674,6 +1674,18 @@ static inline __u32 skb_queue_len(const struct sk_buff_head *list_)
- 	return list_->qlen;
- }
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index e4c6f89b6b11f..89ed01911a9a2 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -2823,8 +2823,11 @@ static int referenced_filters(struct dyn_ftrace *rec)
+ 	int cnt = 0;
  
-+/**
-+ *	skb_queue_len_lockless	- get queue length
-+ *	@list_: list to measure
-+ *
-+ *	Return the length of an &sk_buff queue.
-+ *	This variant can be used in lockless contexts.
-+ */
-+static inline __u32 skb_queue_len_lockless(const struct sk_buff_head *list_)
-+{
-+	return READ_ONCE(list_->qlen);
-+}
-+
- /**
-  *	__skb_queue_head_init - initialize non-spinlock portions of sk_buff_head
-  *	@list: queue to initialize
-@@ -1881,7 +1893,7 @@ static inline void __skb_unlink(struct sk_buff *skb, struct sk_buff_head *list)
- {
- 	struct sk_buff *next, *prev;
+ 	for (ops = ftrace_ops_list; ops != &ftrace_list_end; ops = ops->next) {
+-		if (ops_references_rec(ops, rec))
+-		    cnt++;
++		if (ops_references_rec(ops, rec)) {
++			cnt++;
++			if (ops->flags & FTRACE_OPS_FL_SAVE_REGS)
++				rec->flags |= FTRACE_FL_REGS;
++		}
+ 	}
  
--	list->qlen--;
-+	WRITE_ONCE(list->qlen, list->qlen - 1);
- 	next	   = skb->next;
- 	prev	   = skb->prev;
- 	skb->next  = skb->prev = NULL;
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index 091e93798eacc..44ff3f5c22dfd 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -192,11 +192,17 @@ static inline int unix_may_send(struct sock *sk, struct sock *osk)
- 	return unix_peer(osk) == NULL || unix_our_peer(sk, osk);
- }
+ 	return cnt;
+@@ -2874,7 +2877,7 @@ static int ftrace_update_code(struct module *mod, struct ftrace_page *new_pgs)
+ 			p = &pg->records[i];
+ 			if (test)
+ 				cnt += referenced_filters(p);
+-			p->flags = cnt;
++			p->flags += cnt;
  
--static inline int unix_recvq_full(struct sock const *sk)
-+static inline int unix_recvq_full(const struct sock *sk)
- {
- 	return skb_queue_len(&sk->sk_receive_queue) > sk->sk_max_ack_backlog;
- }
- 
-+static inline int unix_recvq_full_lockless(const struct sock *sk)
-+{
-+	return skb_queue_len_lockless(&sk->sk_receive_queue) >
-+		READ_ONCE(sk->sk_max_ack_backlog);
-+}
-+
- struct sock *unix_peer_get(struct sock *s)
- {
- 	struct sock *peer;
-@@ -1792,7 +1798,8 @@ restart_locked:
- 	 * - unix_peer(sk) == sk by time of get but disconnected before lock
- 	 */
- 	if (other != sk &&
--	    unlikely(unix_peer(other) != sk && unix_recvq_full(other))) {
-+	    unlikely(unix_peer(other) != sk &&
-+	    unix_recvq_full_lockless(other))) {
- 		if (timeo) {
- 			timeo = unix_wait_for_peer(other, timeo);
- 
+ 			/*
+ 			 * Do the initial record conversion from mcount jump
 -- 
 2.25.1
 
