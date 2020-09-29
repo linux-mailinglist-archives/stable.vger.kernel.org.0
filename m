@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE8A427C4F2
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E14227C386
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729496AbgI2LXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:23:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36426 "EHLO mail.kernel.org"
+        id S1728734AbgI2LGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:06:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729372AbgI2LTJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:19:09 -0400
+        id S1728126AbgI2LFL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:05:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD0C8206A5;
-        Tue, 29 Sep 2020 11:18:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08ED620C09;
+        Tue, 29 Sep 2020 11:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378282;
-        bh=Z8IHuZLsc5cY1jPzZYhol1bmEhwUKDZVsue0I66Qxlc=;
+        s=default; t=1601377510;
+        bh=SQaBKSkiYQ6kVs5Ju1rSEjGVPCqXz8ymsFbpTrxbToQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BypB180PpLapNa8MWZ+3j2GlVWlkDaRp9oTfsWZBB6sUWaRe7uqKeOKk3dYCAvTb5
-         KNGL7XR0Up6qqBshO0gm5UyIWYh/o+UKjvw3qYe2c1Nh2y24PROSC+4ItiXTMTzUd8
-         QcHcZduJItZnpg4AGb5qx2CHOn7TVyeXszGCq/ek=
+        b=mngGFJIa2LUAIIqBeZPMqxl83VQZwCUzxGLujqn66mSHwWLO+xYcOzh5UpRUqFXT2
+         WtOI5Iozsnzf3mqGbnK9QpxvwzRYV1iziR7VBF+3fg8FW0yyxJbiqnf+LKrBbnwrFZ
+         ANNxmDLNkMC+Hjis8ay2CWE+K54upuFvY+nGR6ak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org,
+        syzbot+c3c5bdea7863886115dc@syzkaller.appspotmail.com,
+        Manish Mandlik <mmandlik@google.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 085/166] tracing: Use address-of operator on section symbols
-Date:   Tue, 29 Sep 2020 12:59:57 +0200
-Message-Id: <20200929105939.459306524@linuxfoundation.org>
+Subject: [PATCH 4.4 31/85] Bluetooth: prefetch channel before killing sock
+Date:   Tue, 29 Sep 2020 12:59:58 +0200
+Message-Id: <20200929105929.781820236@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Hillf Danton <hdanton@sina.com>
 
-[ Upstream commit bf2cbe044da275021b2de5917240411a19e5c50d ]
+[ Upstream commit 2a154903cec20fb64ff4d7d617ca53c16f8fd53a ]
 
-Clang warns:
+Prefetch channel before killing sock in order to fix UAF like
 
-../kernel/trace/trace.c:9335:33: warning: array comparison always
-evaluates to true [-Wtautological-compare]
-        if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
-                                       ^
-1 warning generated.
+ BUG: KASAN: use-after-free in l2cap_sock_release+0x24c/0x290 net/bluetooth/l2cap_sock.c:1212
+ Read of size 8 at addr ffff8880944904a0 by task syz-fuzzer/9751
 
-These are not true arrays, they are linker defined symbols, which are
-just addresses. Using the address of operator silences the warning and
-does not change the runtime result of the check (tested with some print
-statements compiled in with clang + ld.lld and gcc + ld.bfd in QEMU).
-
-Link: http://lkml.kernel.org/r/20200220051011.26113-1-natechancellor@gmail.com
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/893
-Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reported-by: syzbot+c3c5bdea7863886115dc@syzkaller.appspotmail.com
+Fixes: 6c08fc896b60 ("Bluetooth: Fix refcount use-after-free issue")
+Cc: Manish Mandlik <mmandlik@google.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/l2cap_sock.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 22759f5607192..19526297a5b1c 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -8346,7 +8346,7 @@ __init static int tracer_alloc_buffers(void)
- 		goto out_free_buffer_mask;
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index cb024c25530a3..e562385d9440e 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -1189,6 +1189,7 @@ static int l2cap_sock_release(struct socket *sock)
+ {
+ 	struct sock *sk = sock->sk;
+ 	int err;
++	struct l2cap_chan *chan;
  
- 	/* Only allocate trace_printk buffers if a trace_printk exists */
--	if (__stop___trace_bprintk_fmt != __start___trace_bprintk_fmt)
-+	if (&__stop___trace_bprintk_fmt != &__start___trace_bprintk_fmt)
- 		/* Must be called before global_trace.buffer is allocated */
- 		trace_printk_init_buffers();
+ 	BT_DBG("sock %p, sk %p", sock, sk);
  
+@@ -1198,15 +1199,16 @@ static int l2cap_sock_release(struct socket *sock)
+ 	bt_sock_unlink(&l2cap_sk_list, sk);
+ 
+ 	err = l2cap_sock_shutdown(sock, 2);
++	chan = l2cap_pi(sk)->chan;
+ 
+-	l2cap_chan_hold(l2cap_pi(sk)->chan);
+-	l2cap_chan_lock(l2cap_pi(sk)->chan);
++	l2cap_chan_hold(chan);
++	l2cap_chan_lock(chan);
+ 
+ 	sock_orphan(sk);
+ 	l2cap_sock_kill(sk);
+ 
+-	l2cap_chan_unlock(l2cap_pi(sk)->chan);
+-	l2cap_chan_put(l2cap_pi(sk)->chan);
++	l2cap_chan_unlock(chan);
++	l2cap_chan_put(chan);
+ 
+ 	return err;
+ }
 -- 
 2.25.1
 
