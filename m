@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFAD727C748
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 686C827C6BC
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:48:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730852AbgI2LrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:47:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
+        id S1730994AbgI2LsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:48:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730832AbgI2Lqh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:46:37 -0400
+        id S1730673AbgI2LsK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:48:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80AEC21924;
-        Tue, 29 Sep 2020 11:46:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 659E32158C;
+        Tue, 29 Sep 2020 11:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379996;
-        bh=MUZRsexWMj6Nd/NnD6DI0oJmeatgMcYrj1QVcG2F8sA=;
+        s=default; t=1601380084;
+        bh=nscEwxwc6U/SkxtkUjLEY5F41Cu3CY1Vilu22rDfEww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2NAZfBPsMwFy4RN+CGMwB6ZwMPDu8sJXGZOVV30CD+jJ4bH/B9IRqDhf8aZo1ozul
-         g+JhCsLcpQ0gqLTcGB5dDPvVPjTmGkQ16y5s/lx5djCnZ+GdrjyWhYLY4hZRZMtPS1
-         4npPVfddvr4IjMiANX7gxPF5MOxkAXVUxViUuN3A=
+        b=Tadu75FJRnt0P2NbayxKrqh6BZLUhUbqLNhL3jz6u6FzlVsXypvlHKtPLevW5IgBG
+         DCI3QHj6AwW8YiklGO2OAK8VfBnHWi77XxLcPzHZwLCURn57IrFtl53l0Uiw1Aw927
+         uP47Iez7fOy5ZxhsFWinMonW51YCG9v7YUA7CM98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 20/99] riscv: Fix Kendryte K210 device tree
-Date:   Tue, 29 Sep 2020 13:01:03 +0200
-Message-Id: <20200929105930.719771733@linuxfoundation.org>
+Subject: [PATCH 5.8 21/99] ieee802154: fix one possible memleak in ca8210_dev_com_init
+Date:   Tue, 29 Sep 2020 13:01:04 +0200
+Message-Id: <20200929105930.769867380@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
 References: <20200929105929.719230296@linuxfoundation.org>
@@ -43,50 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit f025d9d9934b84cd03b7796072d10686029c408e ]
+[ Upstream commit 88f46b3fe2ac41c381770ebad9f2ee49346b57a2 ]
 
-The Kendryte K210 SoC CLINT is compatible with Sifive clint v0
-(sifive,clint0). Fix the Kendryte K210 device tree clint entry to be
-inline with the sifive timer definition documented in
-Documentation/devicetree/bindings/timer/sifive,clint.yaml.
-The device tree clint entry is renamed similarly to u-boot device tree
-definition to improve compatibility with u-boot defined device tree.
-To ensure correct initialization, the interrup-cells attribute is added
-and the interrupt-extended attribute definition fixed.
+We should call destroy_workqueue to destroy mlme_workqueue in error branch.
 
-This fixes boot failures with Kendryte K210 SoC boards.
-
-Note that the clock referenced is kept as K210_CLK_ACLK, which does not
-necessarilly match the clint MTIME increment rate. This however does not
-seem to cause any problem for now.
-
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Fixes: ded845a781a5 ("ieee802154: Add CA8210 IEEE 802.15.4 device driver")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Link: https://lore.kernel.org/r/20200720143315.40523-1-liujian56@huawei.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/kendryte/k210.dtsi | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ieee802154/ca8210.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/riscv/boot/dts/kendryte/k210.dtsi b/arch/riscv/boot/dts/kendryte/k210.dtsi
-index c1df56ccb8d55..d2d0ff6456325 100644
---- a/arch/riscv/boot/dts/kendryte/k210.dtsi
-+++ b/arch/riscv/boot/dts/kendryte/k210.dtsi
-@@ -95,10 +95,12 @@
- 			#clock-cells = <1>;
- 		};
- 
--		clint0: interrupt-controller@2000000 {
-+		clint0: clint@2000000 {
-+			#interrupt-cells = <1>;
- 			compatible = "riscv,clint0";
- 			reg = <0x2000000 0xC000>;
--			interrupts-extended = <&cpu0_intc 3>,  <&cpu1_intc 3>;
-+			interrupts-extended =  <&cpu0_intc 3 &cpu0_intc 7
-+						&cpu1_intc 3 &cpu1_intc 7>;
- 			clocks = <&sysctl K210_CLK_ACLK>;
- 		};
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index e04c3b60cae78..4eb64709d44cb 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -2925,6 +2925,7 @@ static int ca8210_dev_com_init(struct ca8210_priv *priv)
+ 	);
+ 	if (!priv->irq_workqueue) {
+ 		dev_crit(&priv->spi->dev, "alloc of irq_workqueue failed!\n");
++		destroy_workqueue(priv->mlme_workqueue);
+ 		return -ENOMEM;
+ 	}
  
 -- 
 2.25.1
