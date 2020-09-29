@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AF1E27B968
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:30:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 534B627BA43
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727288AbgI2Baj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 21:30:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39510 "EHLO mail.kernel.org"
+        id S1727265AbgI2Bae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 21:30:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727344AbgI2Bah (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 21:30:37 -0400
+        id S1726379AbgI2Bab (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 21:30:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 880A321D7D;
-        Tue, 29 Sep 2020 01:30:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACD3621734;
+        Tue, 29 Sep 2020 01:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343037;
-        bh=unoHxtSRdKvnphH9lXj1ePIn2asvOMskiEcRPQoPudE=;
+        s=default; t=1601343030;
+        bh=zB0SGeeoNPVMkVnQLXd5mspfS30Xe6OaobqccoNYGuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SU4PNONJi/SgfWd74Y21rYvMHi5XG6B8hZy+28FeDRQMWphHp53EdUMXzqCn4ftyf
-         eyUjF82Le5BBHLNaXJ6SEfX9ZI5lgm15Eopu/2uYQ3h+9Tmf5LGMLIga0hyMFfKQh5
-         olLr9E2Y9xeqIU8nyRgZRctdZQlnvqHLMur3n1DY=
+        b=DQpo1itrfHYIa3bfnoMVkPwryZ7WZ/jrEMBr4My59eNxYqJEzVGgsMBFFxzuXYrXR
+         biaoBXMdWEeFagKD5o6sotBwbtzgJzY5J5ty4AtPTPhYYonebFCNPLJFtZjMUNiLmN
+         wkvo1X8d8W1/55P0sRhoHIXjTzgP8mQYurOQbpEM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Cerveny <m.cerveny@computer.org>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 07/29] drm/sun4i: mixer: Extend regmap max_register
-Date:   Mon, 28 Sep 2020 21:30:04 -0400
-Message-Id: <20200929013027.2406344-7-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 02/29] vboxsf: Fix the check for the old binary mount-arguments struct
+Date:   Mon, 28 Sep 2020 21:29:59 -0400
+Message-Id: <20200929013027.2406344-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013027.2406344-1-sashal@kernel.org>
 References: <20200929013027.2406344-1-sashal@kernel.org>
@@ -45,34 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Cerveny <m.cerveny@computer.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 74ea06164cda81dc80e97790164ca533fd7e3087 ]
+[ Upstream commit 9d682ea6bcc76b8b2691c79add59f7d99c881635 ]
 
-Better guess. Secondary CSC registers are from 0xF0000.
+Fix the check for the mainline vboxsf code being used with the old
+mount.vboxsf mount binary from the out-of-tree vboxsf version doing
+a comparison between signed and unsigned data types.
 
-Signed-off-by: Martin Cerveny <m.cerveny@computer.org>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200906162140.5584-3-m.cerveny@computer.org
+This fixes the following smatch warnings:
+
+fs/vboxsf/super.c:390 vboxsf_parse_monolithic() warn: impossible condition '(options[1] == (255)) => ((-128)-127 == 255)'
+fs/vboxsf/super.c:391 vboxsf_parse_monolithic() warn: impossible condition '(options[2] == (254)) => ((-128)-127 == 254)'
+fs/vboxsf/super.c:392 vboxsf_parse_monolithic() warn: impossible condition '(options[3] == (253)) => ((-128)-127 == 253)'
+
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun8i_mixer.c | 2 +-
+ fs/vboxsf/super.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun8i_mixer.c b/drivers/gpu/drm/sun4i/sun8i_mixer.c
-index cc4fb916318f3..c3304028e3dcd 100644
---- a/drivers/gpu/drm/sun4i/sun8i_mixer.c
-+++ b/drivers/gpu/drm/sun4i/sun8i_mixer.c
-@@ -307,7 +307,7 @@ static struct regmap_config sun8i_mixer_regmap_config = {
- 	.reg_bits	= 32,
- 	.val_bits	= 32,
- 	.reg_stride	= 4,
--	.max_register	= 0xbfffc, /* guessed */
-+	.max_register	= 0xffffc, /* guessed */
- };
+diff --git a/fs/vboxsf/super.c b/fs/vboxsf/super.c
+index 8fe03b4a0d2b0..25aade3441922 100644
+--- a/fs/vboxsf/super.c
++++ b/fs/vboxsf/super.c
+@@ -384,7 +384,7 @@ static int vboxsf_setup(void)
  
- static int sun8i_mixer_of_get_id(struct device_node *node)
+ static int vboxsf_parse_monolithic(struct fs_context *fc, void *data)
+ {
+-	char *options = data;
++	unsigned char *options = data;
+ 
+ 	if (options && options[0] == VBSF_MOUNT_SIGNATURE_BYTE_0 &&
+ 		       options[1] == VBSF_MOUNT_SIGNATURE_BYTE_1 &&
 -- 
 2.25.1
 
