@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FB4327C58E
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9144C27C7CF
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728602AbgI2Lgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:36:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
+        id S1728542AbgI2L4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729907AbgI2Lft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:35:49 -0400
+        id S1730361AbgI2Lnl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:43:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29CF223D97;
-        Tue, 29 Sep 2020 11:30:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8D342083B;
+        Tue, 29 Sep 2020 11:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379052;
-        bh=MdUKsgIK7/XLrFbqnswTNRxhEGOstKAHiiyS57mqC18=;
+        s=default; t=1601379812;
+        bh=9U5DjPY2LAXq6BMKDx6lQU+gix9AI4zkUU8NTib7LME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rL4HUvE+oHC1Qa8Ho9hiUVI4x6ayjGMyYkytoBr9InuNb/VrPWYnnVz0wlNOmZkOz
-         u9zTXEuQf7ve6+rUrK6wwYDKp6w44nXnZVQoRoY9GBUnk9nXcLQR3SrgzBEqHl7eKm
-         CfwimOwAZ+3AIGXOX+1F0TBJZLTfPV3z3Zqwb1Ok=
+        b=DJCve9o2TCV8oS95pVjoBg9fT0r4xY04w4WnuxCWmtt+jqWfaidjJMi3V6O0vI7NV
+         YCL311YhLTrUIC57Vj0Ovc2pSqbXuvvZ6AUPJHjxZPmP8BhABz5IxLxE0Vx4o/VQsC
+         ouT+V+ggPKIh8bmIXqcb1XLSOQNuptA5OP5d7Rb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Palmer Dabbelt <palmerdabbelt@google.com>,
-        Guo Ren <guoren@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 209/245] RISC-V: Take text_mutex in ftrace_init_nop()
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 329/388] s390/init: add missing __init annotations
 Date:   Tue, 29 Sep 2020 13:01:00 +0200
-Message-Id: <20200929105957.146781978@linuxfoundation.org>
+Message-Id: <20200929110026.387334475@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,69 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmerdabbelt@google.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 66d18dbda8469a944dfec6c49d26d5946efba218 ]
+[ Upstream commit fcb2b70cdb194157678fb1a75f9ff499aeba3d2a ]
 
-Without this we get lockdep failures.  They're spurious failures as SMP isn't
-up when ftrace_init_nop() is called.  As far as I can tell the easiest fix is
-to just take the lock, which also seems like the safest fix.
+Add __init to reserve_memory_end, reserve_oldmem and remove_oldmem.
+Sometimes these functions are not inlined, and then the build
+complains about section mismatch.
 
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Acked-by: Guo Ren <guoren@kernel.org>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/ftrace.h |  7 +++++++
- arch/riscv/kernel/ftrace.c      | 19 +++++++++++++++++++
- 2 files changed, 26 insertions(+)
+ arch/s390/kernel/setup.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
-index c6dcc5291f972..02fbc175142e2 100644
---- a/arch/riscv/include/asm/ftrace.h
-+++ b/arch/riscv/include/asm/ftrace.h
-@@ -63,4 +63,11 @@ do {									\
-  * Let auipc+jalr be the basic *mcount unit*, so we make it 8 bytes here.
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 82ef081e7448e..61c02a162d378 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -627,7 +627,7 @@ static struct notifier_block kdump_mem_nb = {
+ /*
+  * Make sure that the area behind memory_end is protected
   */
- #define MCOUNT_INSN_SIZE 8
-+
-+#ifndef __ASSEMBLY__
-+struct dyn_ftrace;
-+int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec);
-+#define ftrace_init_nop ftrace_init_nop
-+#endif
-+
- #endif
-diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
-index 6d39f64e4dce4..fa8530f05ed4f 100644
---- a/arch/riscv/kernel/ftrace.c
-+++ b/arch/riscv/kernel/ftrace.c
-@@ -88,6 +88,25 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
- 	return __ftrace_modify_call(rec->ip, addr, false);
- }
- 
-+
-+/*
-+ * This is called early on, and isn't wrapped by
-+ * ftrace_arch_code_modify_{prepare,post_process}() and therefor doesn't hold
-+ * text_mutex, which triggers a lockdep failure.  SMP isn't running so we could
-+ * just directly poke the text, but it's simpler to just take the lock
-+ * ourselves.
-+ */
-+int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec)
-+{
-+	int out;
-+
-+	ftrace_arch_code_modify_prepare();
-+	out = ftrace_make_nop(mod, rec, MCOUNT_ADDR);
-+	ftrace_arch_code_modify_post_process();
-+
-+	return out;
-+}
-+
- int ftrace_update_ftrace_func(ftrace_func_t func)
+-static void reserve_memory_end(void)
++static void __init reserve_memory_end(void)
  {
- 	int ret = __ftrace_modify_call((unsigned long)&ftrace_call,
+ 	if (memory_end_set)
+ 		memblock_reserve(memory_end, ULONG_MAX);
+@@ -636,7 +636,7 @@ static void reserve_memory_end(void)
+ /*
+  * Make sure that oldmem, where the dump is stored, is protected
+  */
+-static void reserve_oldmem(void)
++static void __init reserve_oldmem(void)
+ {
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (OLDMEM_BASE)
+@@ -648,7 +648,7 @@ static void reserve_oldmem(void)
+ /*
+  * Make sure that oldmem, where the dump is stored, is protected
+  */
+-static void remove_oldmem(void)
++static void __init remove_oldmem(void)
+ {
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (OLDMEM_BASE)
 -- 
 2.25.1
 
