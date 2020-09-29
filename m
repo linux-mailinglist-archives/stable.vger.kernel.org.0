@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A25E027C396
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 172AC27C488
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728591AbgI2LHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:07:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45202 "EHLO mail.kernel.org"
+        id S1729442AbgI2LOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:14:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728890AbgI2LHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:07:05 -0400
+        id S1729410AbgI2LOT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:14:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C53D21D46;
-        Tue, 29 Sep 2020 11:07:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A2AF208FE;
+        Tue, 29 Sep 2020 11:14:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377625;
-        bh=091m4M7DrV1vRuPNPHolt4TEHgkh3oq1VqsrfRPWBhs=;
+        s=default; t=1601378057;
+        bh=HcjsIQJ2wG7xbyWwQkeT9I6skDkr2DsBikFXcv6uPFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9QItAdJkMFiujbowhAFPaM0DxVeSnDUJYkAkCFDZDcFM/pUTblvi2Fa/B7FpU163
-         OM3QTHM2ev6Kp+PSbmqxrlT3AkYS/4lN+27Dd/axLVj9MssLWf4iKZdsbcyOFUFzOs
-         CeY+p/UT72jOOtvsv2xSsh/H0zXMGjnB486NtnlY=
+        b=wfmtnCOPOUc80o5eh8RJyL3SdVW9bJHkc8NXSe0iWZA0BaaxYyHh/3cDij1WZFECV
+         TuiYRv3uyEZQd/6CVf2fBZyrFxZ/PqF3NrPn2Vz+cBRr5P+SsvOKhWVep4+9Bzp+Vd
+         hyl9oY1eTm9EQRAjbRpf6EZygwy2BnZsg28U7axU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Balsundar P <balsundar.p@microsemi.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Nikhil Devshatwar <nikhil.nd@ti.com>,
+        Benoit Parrot <bparrot@ti.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 014/121] scsi: aacraid: fix illegal IO beyond last LBA
+Subject: [PATCH 4.14 046/166] media: ti-vpe: cal: Restrict DMA to avoid memory corruption
 Date:   Tue, 29 Sep 2020 12:59:18 +0200
-Message-Id: <20200929105930.889192350@linuxfoundation.org>
+Message-Id: <20200929105937.503880775@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Balsundar P <balsundar.p@microsemi.com>
+From: Nikhil Devshatwar <nikhil.nd@ti.com>
 
-[ Upstream commit c86fbe484c10b2cd1e770770db2d6b2c88801c1d ]
+[ Upstream commit 6e72eab2e7b7a157d554b8f9faed7676047be7c1 ]
 
-The driver fails to handle data when read or written beyond device reported
-LBA, which triggers kernel panic
+When setting DMA for video capture from CSI channel, if the DMA size
+is not given, it ends up writing as much data as sent by the camera.
 
-Link: https://lore.kernel.org/r/1571120524-6037-2-git-send-email-balsundar.p@microsemi.com
-Signed-off-by: Balsundar P <balsundar.p@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This may lead to overwriting the buffers causing memory corruption.
+Observed green lines on the default framebuffer.
+
+Restrict the DMA to maximum height as specified in the S_FMT ioctl.
+
+Signed-off-by: Nikhil Devshatwar <nikhil.nd@ti.com>
+Signed-off-by: Benoit Parrot <bparrot@ti.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aacraid/aachba.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/platform/ti-vpe/cal.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/aacraid/aachba.c b/drivers/scsi/aacraid/aachba.c
-index 065f11a1964d4..39deea8601d68 100644
---- a/drivers/scsi/aacraid/aachba.c
-+++ b/drivers/scsi/aacraid/aachba.c
-@@ -1929,13 +1929,13 @@ static int aac_read(struct scsi_cmnd * scsicmd)
- 		scsicmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8 |
- 			SAM_STAT_CHECK_CONDITION;
- 		set_sense(&dev->fsa_dev[cid].sense_data,
--			  HARDWARE_ERROR, SENCODE_INTERNAL_TARGET_FAILURE,
-+			  ILLEGAL_REQUEST, SENCODE_LBA_OUT_OF_RANGE,
- 			  ASENCODE_INTERNAL_TARGET_FAILURE, 0, 0);
- 		memcpy(scsicmd->sense_buffer, &dev->fsa_dev[cid].sense_data,
- 		       min_t(size_t, sizeof(dev->fsa_dev[cid].sense_data),
- 			     SCSI_SENSE_BUFFERSIZE));
- 		scsicmd->scsi_done(scsicmd);
--		return 1;
-+		return 0;
- 	}
+diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
+index b6dcae1ecc1be..ad344e642ddb7 100644
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -687,12 +687,13 @@ static void pix_proc_config(struct cal_ctx *ctx)
+ }
  
- 	dprintk((KERN_DEBUG "aac_read[cpu %d]: lba = %llu, t = %ld.\n",
-@@ -2023,13 +2023,13 @@ static int aac_write(struct scsi_cmnd * scsicmd)
- 		scsicmd->result = DID_OK << 16 | COMMAND_COMPLETE << 8 |
- 			SAM_STAT_CHECK_CONDITION;
- 		set_sense(&dev->fsa_dev[cid].sense_data,
--			  HARDWARE_ERROR, SENCODE_INTERNAL_TARGET_FAILURE,
-+			  ILLEGAL_REQUEST, SENCODE_LBA_OUT_OF_RANGE,
- 			  ASENCODE_INTERNAL_TARGET_FAILURE, 0, 0);
- 		memcpy(scsicmd->sense_buffer, &dev->fsa_dev[cid].sense_data,
- 		       min_t(size_t, sizeof(dev->fsa_dev[cid].sense_data),
- 			     SCSI_SENSE_BUFFERSIZE));
- 		scsicmd->scsi_done(scsicmd);
--		return 1;
-+		return 0;
- 	}
+ static void cal_wr_dma_config(struct cal_ctx *ctx,
+-			      unsigned int width)
++			      unsigned int width, unsigned int height)
+ {
+ 	u32 val;
  
- 	dprintk((KERN_DEBUG "aac_write[cpu %d]: lba = %llu, t = %ld.\n",
+ 	val = reg_read(ctx->dev, CAL_WR_DMA_CTRL(ctx->csi2_port));
+ 	set_field(&val, ctx->csi2_port, CAL_WR_DMA_CTRL_CPORT_MASK);
++	set_field(&val, height, CAL_WR_DMA_CTRL_YSIZE_MASK);
+ 	set_field(&val, CAL_WR_DMA_CTRL_DTAG_PIX_DAT,
+ 		  CAL_WR_DMA_CTRL_DTAG_MASK);
+ 	set_field(&val, CAL_WR_DMA_CTRL_MODE_CONST,
+@@ -1318,7 +1319,8 @@ static int cal_start_streaming(struct vb2_queue *vq, unsigned int count)
+ 	csi2_lane_config(ctx);
+ 	csi2_ctx_config(ctx);
+ 	pix_proc_config(ctx);
+-	cal_wr_dma_config(ctx, ctx->v_fmt.fmt.pix.bytesperline);
++	cal_wr_dma_config(ctx, ctx->v_fmt.fmt.pix.bytesperline,
++			  ctx->v_fmt.fmt.pix.height);
+ 	cal_wr_dma_addr(ctx, addr);
+ 	csi2_ppi_enable(ctx);
+ 
 -- 
 2.25.1
 
