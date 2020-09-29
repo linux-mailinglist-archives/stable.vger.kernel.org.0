@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FD027CAB6
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:22:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C6A27CAA0
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:22:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730429AbgI2MUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:20:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48452 "EHLO mail.kernel.org"
+        id S1732485AbgI2MUV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:20:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729862AbgI2Lff (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729863AbgI2Lff (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:35:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12BA023D58;
-        Tue, 29 Sep 2020 11:30:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57CBB23D67;
+        Tue, 29 Sep 2020 11:30:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379010;
-        bh=CkbZw2iR72YPVBHla3vxgu/SEr0oCE0h/9bxWDcKT2o=;
+        s=default; t=1601379018;
+        bh=HDHzSSMFUvnn4jTu2Ao9fJ138/+9kFop2Tk/2G5kWfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hDmWRjvPfUM9ZzO0rXVC3r2UhwNjOEdnsjzu6tpaYtmxqSy3NtE0opS0d7sdXKaSn
-         ck1VNtQGdNcClFwE2F32JlQrtFjJBZTRbkrqITgPh5nRvhCzbYLGzwEdfnf9ZqmZOW
-         ldTD8x4vsGwWa8joVRT41wKGxNkfFhjXEWN0wI1w=
+        b=BI+s6UhvzS4gzodYSYNfQalRpnBmwzRklc0/VV9EfcnAU9PR4mr9xxlL8TP//vBs6
+         oy3dXMtyhnZByjZBSYXE0SKW2xm8PQSrcmSkvvpBz1ThHZrQfDbqCN4XNprlJMnEUR
+         wxNTcznxC7oyppoWY/mRRCUflzCM8R7V3wS4+1lE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        stable@vger.kernel.org, Bryce Kahle <bryce.kahle@datadoghq.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 221/245] batman-adv: mcast/TT: fix wrongly dropped or rerouted packets
-Date:   Tue, 29 Sep 2020 13:01:12 +0200
-Message-Id: <20200929105957.733740915@linuxfoundation.org>
+Subject: [PATCH 4.19 223/245] bpf: Fix clobbering of r2 in bpf_gen_ld_abs
+Date:   Tue, 29 Sep 2020 13:01:14 +0200
+Message-Id: <20200929105957.836545686@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -45,54 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <linus.luessing@c0d3.blue>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 7dda5b3384121181c4e79f6eaeac2b94c0622c8d ]
+[ Upstream commit e6a18d36118bea3bf497c9df4d9988b6df120689 ]
 
-The unicast packet rerouting code makes several assumptions. For
-instance it assumes that there is always exactly one destination in the
-TT. This breaks for multicast frames in a unicast packets in several ways:
+Bryce reported that he saw the following with:
 
-For one thing if there is actually no TT entry and the destination node
-was selected due to the multicast tvlv flags it announced. Then an
-intermediate node will wrongly drop the packet.
+  0:  r6 = r1
+  1:  r1 = 12
+  2:  r0 = *(u16 *)skb[r1]
 
-For another thing if there is a TT entry but the TTVN of this entry is
-newer than the originally addressed destination node: Then the
-intermediate node will wrongly redirect the packet, leading to
-duplicated multicast packets at a multicast listener and missing
-packets at other multicast listeners or multicast routers.
+The xlated sequence was incorrectly clobbering r2 with pointer
+value of r6 ...
 
-Fixing this by not applying the unicast packet rerouting to batman-adv
-unicast packets with a multicast payload. We are not able to detect a
-roaming multicast listener at the moment and will just continue to send
-the multicast frame to both the new and old destination for a while in
-case of such a roaming multicast listener.
+  0: (bf) r6 = r1
+  1: (b7) r1 = 12
+  2: (bf) r1 = r6
+  3: (bf) r2 = r1
+  4: (85) call bpf_skb_load_helper_16_no_cache#7692160
 
-Fixes: a73105b8d4c7 ("batman-adv: improved client announcement mechanism")
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+... and hence call to the load helper never succeeded given the
+offset was too high. Fix it by reordering the load of r6 to r1.
+
+Other than that the insn has similar calling convention than BPF
+helpers, that is, r0 - r5 are scratch regs, so nothing else
+affected after the insn.
+
+Fixes: e0cea7ce988c ("bpf: implement ld_abs/ld_ind in native bpf")
+Reported-by: Bryce Kahle <bryce.kahle@datadoghq.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/cace836e4d07bb63b1a53e49c5dfb238a040c298.1599512096.git.daniel@iogearbox.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/routing.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/core/filter.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/batman-adv/routing.c b/net/batman-adv/routing.c
-index cc3ed93a6d513..98af41e3810dc 100644
---- a/net/batman-adv/routing.c
-+++ b/net/batman-adv/routing.c
-@@ -838,6 +838,10 @@ static bool batadv_check_unicast_ttvn(struct batadv_priv *bat_priv,
- 	vid = batadv_get_vid(skb, hdr_len);
- 	ethhdr = (struct ethhdr *)(skb->data + hdr_len);
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 25a2c3186e14a..557bd5cc8f94c 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -5418,8 +5418,6 @@ static int bpf_gen_ld_abs(const struct bpf_insn *orig,
+ 	bool indirect = BPF_MODE(orig->code) == BPF_IND;
+ 	struct bpf_insn *insn = insn_buf;
  
-+	/* do not reroute multicast frames in a unicast header */
-+	if (is_multicast_ether_addr(ethhdr->h_dest))
-+		return true;
-+
- 	/* check if the destination client was served by this node and it is now
- 	 * roaming. In this case, it means that the node has got a ROAM_ADV
- 	 * message and that it knows the new destination in the mesh to re-route
+-	/* We're guaranteed here that CTX is in R6. */
+-	*insn++ = BPF_MOV64_REG(BPF_REG_1, BPF_REG_CTX);
+ 	if (!indirect) {
+ 		*insn++ = BPF_MOV64_IMM(BPF_REG_2, orig->imm);
+ 	} else {
+@@ -5427,6 +5425,8 @@ static int bpf_gen_ld_abs(const struct bpf_insn *orig,
+ 		if (orig->imm)
+ 			*insn++ = BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, orig->imm);
+ 	}
++	/* We're guaranteed here that CTX is in R6. */
++	*insn++ = BPF_MOV64_REG(BPF_REG_1, BPF_REG_CTX);
+ 
+ 	switch (BPF_SIZE(orig->code)) {
+ 	case BPF_B:
 -- 
 2.25.1
 
