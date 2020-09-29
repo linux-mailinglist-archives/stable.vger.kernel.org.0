@@ -2,47 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5742D27C877
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:02:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FCE327C872
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731758AbgI2MCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:02:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33642 "EHLO mail.kernel.org"
+        id S1730489AbgI2MCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:02:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730460AbgI2LjM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:39:12 -0400
+        id S1729696AbgI2LjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:39:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A3842083B;
-        Tue, 29 Sep 2020 11:39:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BB65208B8;
+        Tue, 29 Sep 2020 11:39:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379552;
-        bh=rWMufWl3bYjWXmiA1ctYATk98OZ2gdOzkhxi01F/kE4=;
+        s=default; t=1601379558;
+        bh=L5kmpAn79D/tXs9IeDbby86Z83ojvIcGboEfiX1DnFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x1mkLpQeN8hTEP+eE9Sex4LZOq2KAptXBchgebWsOx2L5BDxMWApZbQFuWxwlPy97
-         0B+wXH+Zqn7xvsJR8+lckq7Ox27lC4lEvgwZjSQ65435NNVGEqRB0jtjiyDvq8pIcS
-         AUcjqJfA9tyDIHrVNk4wzqjYBKvRoyEYqv4D/+yk=
+        b=DfIX2l8SQD21iSI8lLJVmvqdHaYybVjGqBoinO0nX9ygrWYkyWGlVgraQ1K2DrAb6
+         CZrwDQcv4OGVP86QmeHpK6hOLbDjwQVwnfh4VrT7ztrJ82CU1fd3rH+oj3Y/sPq1p7
+         AKlEYJKzEmGtJL5M0R4w+5sEHdZcB0vNoSc8lQUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Don Zickus <dzickus@redhat.com>, He Zhe <zhe.he@windriver.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        kernel-janitors@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 187/388] perf cpumap: Fix snprintf overflow check
-Date:   Tue, 29 Sep 2020 12:58:38 +0200
-Message-Id: <20200929110019.529864567@linuxfoundation.org>
+Subject: [PATCH 5.4 188/388] net: axienet: Convert DMA error handler to a work queue
+Date:   Tue, 29 Sep 2020 12:58:39 +0200
+Message-Id: <20200929110019.579418764@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -54,88 +43,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit d74b181a028bb5a468f0c609553eff6a8fdf4887 ]
+[ Upstream commit 24201a64770afe2e17050b2ab9e8c0e24e9c23b2 ]
 
-'snprintf' returns the number of characters which would be generated for
-the given input.
+The DMA error handler routine is currently a tasklet, scheduled to run
+after the DMA error IRQ was handled.
+However it needs to take the MDIO mutex, which is not allowed to do in a
+tasklet. A kernel (with debug options) complains consequently:
+[  614.050361] net eth0: DMA Tx error 0x174019
+[  614.064002] net eth0: Current BD is at: 0x8f84aa0ce
+[  614.080195] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:935
+[  614.109484] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 40, name: kworker/u4:4
+[  614.135428] 3 locks held by kworker/u4:4/40:
+[  614.149075]  #0: ffff000879863328 ((wq_completion)rpciod){....}, at: process_one_work+0x1f0/0x6a8
+[  614.177528]  #1: ffff80001251bdf8 ((work_completion)(&task->u.tk_work)){....}, at: process_one_work+0x1f0/0x6a8
+[  614.209033]  #2: ffff0008784e0110 (sk_lock-AF_INET-RPC){....}, at: tcp_sendmsg+0x24/0x58
+[  614.235429] CPU: 0 PID: 40 Comm: kworker/u4:4 Not tainted 5.6.0-rc3-00926-g4a165a9d5921 #26
+[  614.260854] Hardware name: ARM Test FPGA (DT)
+[  614.274734] Workqueue: rpciod rpc_async_schedule
+[  614.289022] Call trace:
+[  614.296871]  dump_backtrace+0x0/0x1a0
+[  614.308311]  show_stack+0x14/0x20
+[  614.318751]  dump_stack+0xbc/0x100
+[  614.329403]  ___might_sleep+0xf0/0x140
+[  614.341018]  __might_sleep+0x4c/0x80
+[  614.352201]  __mutex_lock+0x5c/0x8a8
+[  614.363348]  mutex_lock_nested+0x1c/0x28
+[  614.375654]  axienet_dma_err_handler+0x38/0x388
+[  614.389999]  tasklet_action_common.isra.15+0x160/0x1a8
+[  614.405894]  tasklet_action+0x24/0x30
+[  614.417297]  efi_header_end+0xe0/0x494
+[  614.429020]  irq_exit+0xd0/0xd8
+[  614.439047]  __handle_domain_irq+0x60/0xb0
+[  614.451877]  gic_handle_irq+0xdc/0x2d0
+[  614.463486]  el1_irq+0xcc/0x180
+[  614.473451]  __tcp_transmit_skb+0x41c/0xb58
+[  614.486513]  tcp_write_xmit+0x224/0x10a0
+[  614.498792]  __tcp_push_pending_frames+0x38/0xc8
+[  614.513126]  tcp_rcv_established+0x41c/0x820
+[  614.526301]  tcp_v4_do_rcv+0x8c/0x218
+[  614.537784]  __release_sock+0x5c/0x108
+[  614.549466]  release_sock+0x34/0xa0
+[  614.560318]  tcp_sendmsg+0x40/0x58
+[  614.571053]  inet_sendmsg+0x40/0x68
+[  614.582061]  sock_sendmsg+0x18/0x30
+[  614.593074]  xs_sendpages+0x218/0x328
+[  614.604506]  xs_tcp_send_request+0xa0/0x1b8
+[  614.617461]  xprt_transmit+0xc8/0x4f0
+[  614.628943]  call_transmit+0x8c/0xa0
+[  614.640028]  __rpc_execute+0xbc/0x6f8
+[  614.651380]  rpc_async_schedule+0x28/0x48
+[  614.663846]  process_one_work+0x298/0x6a8
+[  614.676299]  worker_thread+0x40/0x490
+[  614.687687]  kthread+0x134/0x138
+[  614.697804]  ret_from_fork+0x10/0x18
+[  614.717319] xilinx_axienet 7fe00000.ethernet eth0: Link is Down
+[  615.748343] xilinx_axienet 7fe00000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
 
-If the returned value is *greater than* or equal to the buffer size, it
-means that the output has been truncated.
+Since tasklets are not really popular anymore anyway, lets convert this
+over to a work queue, which can sleep and thus can take the MDIO mutex.
 
-Fix the overflow test accordingly.
-
-Fixes: 7780c25bae59f ("perf tools: Allow ability to map cpus to nodes easily")
-Fixes: 92a7e1278005b ("perf cpumap: Add cpu__max_present_cpu()")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Suggested-by: David Laight <David.Laight@ACULAB.COM>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Don Zickus <dzickus@redhat.com>
-Cc: He Zhe <zhe.he@windriver.com>
-Cc: Jan Stancek <jstancek@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: kernel-janitors@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200324070319.10901-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/cpumap.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/xilinx/xilinx_axienet.h  |  2 +-
+ .../net/ethernet/xilinx/xilinx_axienet_main.c | 24 +++++++++----------
+ 2 files changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/tools/perf/util/cpumap.c b/tools/perf/util/cpumap.c
-index a22c1114e880d..324ec0456c83f 100644
---- a/tools/perf/util/cpumap.c
-+++ b/tools/perf/util/cpumap.c
-@@ -299,7 +299,7 @@ static void set_max_cpu_num(void)
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet.h b/drivers/net/ethernet/xilinx/xilinx_axienet.h
+index 2dacfc85b3baa..04e51af32178c 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet.h
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet.h
+@@ -435,7 +435,7 @@ struct axienet_local {
+ 	void __iomem *regs;
+ 	void __iomem *dma_regs;
  
- 	/* get the highest possible cpu number for a sparse allocation */
- 	ret = snprintf(path, PATH_MAX, "%s/devices/system/cpu/possible", mnt);
--	if (ret == PATH_MAX) {
-+	if (ret >= PATH_MAX) {
- 		pr_err("sysfs path crossed PATH_MAX(%d) size\n", PATH_MAX);
- 		goto out;
+-	struct tasklet_struct dma_err_tasklet;
++	struct work_struct dma_err_task;
+ 
+ 	int tx_irq;
+ 	int rx_irq;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index 479325eeaf8a0..345a795666e92 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -806,7 +806,7 @@ static irqreturn_t axienet_tx_irq(int irq, void *_ndev)
+ 		/* Write to the Rx channel control register */
+ 		axienet_dma_out32(lp, XAXIDMA_RX_CR_OFFSET, cr);
+ 
+-		tasklet_schedule(&lp->dma_err_tasklet);
++		schedule_work(&lp->dma_err_task);
+ 		axienet_dma_out32(lp, XAXIDMA_TX_SR_OFFSET, status);
  	}
-@@ -310,7 +310,7 @@ static void set_max_cpu_num(void)
+ out:
+@@ -855,7 +855,7 @@ static irqreturn_t axienet_rx_irq(int irq, void *_ndev)
+ 		/* write to the Rx channel control register */
+ 		axienet_dma_out32(lp, XAXIDMA_RX_CR_OFFSET, cr);
  
- 	/* get the highest present cpu number for a sparse allocation */
- 	ret = snprintf(path, PATH_MAX, "%s/devices/system/cpu/present", mnt);
--	if (ret == PATH_MAX) {
-+	if (ret >= PATH_MAX) {
- 		pr_err("sysfs path crossed PATH_MAX(%d) size\n", PATH_MAX);
- 		goto out;
+-		tasklet_schedule(&lp->dma_err_tasklet);
++		schedule_work(&lp->dma_err_task);
+ 		axienet_dma_out32(lp, XAXIDMA_RX_SR_OFFSET, status);
  	}
-@@ -338,7 +338,7 @@ static void set_max_node_num(void)
+ out:
+@@ -891,7 +891,7 @@ static irqreturn_t axienet_eth_irq(int irq, void *_ndev)
+ 	return IRQ_HANDLED;
+ }
  
- 	/* get the highest possible cpu number for a sparse allocation */
- 	ret = snprintf(path, PATH_MAX, "%s/devices/system/node/possible", mnt);
--	if (ret == PATH_MAX) {
-+	if (ret >= PATH_MAX) {
- 		pr_err("sysfs path crossed PATH_MAX(%d) size\n", PATH_MAX);
- 		goto out;
- 	}
-@@ -423,7 +423,7 @@ int cpu__setup_cpunode_map(void)
- 		return 0;
+-static void axienet_dma_err_handler(unsigned long data);
++static void axienet_dma_err_handler(struct work_struct *work);
  
- 	n = snprintf(path, PATH_MAX, "%s/devices/system/node", mnt);
--	if (n == PATH_MAX) {
-+	if (n >= PATH_MAX) {
- 		pr_err("sysfs path crossed PATH_MAX(%d) size\n", PATH_MAX);
- 		return -1;
- 	}
-@@ -438,7 +438,7 @@ int cpu__setup_cpunode_map(void)
- 			continue;
+ /**
+  * axienet_open - Driver open routine.
+@@ -935,9 +935,8 @@ static int axienet_open(struct net_device *ndev)
  
- 		n = snprintf(buf, PATH_MAX, "%s/%s", path, dent1->d_name);
--		if (n == PATH_MAX) {
-+		if (n >= PATH_MAX) {
- 			pr_err("sysfs path crossed PATH_MAX(%d) size\n", PATH_MAX);
- 			continue;
- 		}
+ 	phylink_start(lp->phylink);
+ 
+-	/* Enable tasklets for Axi DMA error handling */
+-	tasklet_init(&lp->dma_err_tasklet, axienet_dma_err_handler,
+-		     (unsigned long) lp);
++	/* Enable worker thread for Axi DMA error handling */
++	INIT_WORK(&lp->dma_err_task, axienet_dma_err_handler);
+ 
+ 	/* Enable interrupts for Axi DMA Tx */
+ 	ret = request_irq(lp->tx_irq, axienet_tx_irq, IRQF_SHARED,
+@@ -966,7 +965,7 @@ err_rx_irq:
+ err_tx_irq:
+ 	phylink_stop(lp->phylink);
+ 	phylink_disconnect_phy(lp->phylink);
+-	tasklet_kill(&lp->dma_err_tasklet);
++	cancel_work_sync(&lp->dma_err_task);
+ 	dev_err(lp->dev, "request_irq() failed\n");
+ 	return ret;
+ }
+@@ -1025,7 +1024,7 @@ static int axienet_stop(struct net_device *ndev)
+ 	axienet_mdio_enable(lp);
+ 	mutex_unlock(&lp->mii_bus->mdio_lock);
+ 
+-	tasklet_kill(&lp->dma_err_tasklet);
++	cancel_work_sync(&lp->dma_err_task);
+ 
+ 	if (lp->eth_irq > 0)
+ 		free_irq(lp->eth_irq, ndev);
+@@ -1505,17 +1504,18 @@ static const struct phylink_mac_ops axienet_phylink_ops = {
+ };
+ 
+ /**
+- * axienet_dma_err_handler - Tasklet handler for Axi DMA Error
+- * @data:	Data passed
++ * axienet_dma_err_handler - Work queue task for Axi DMA Error
++ * @work:	pointer to work_struct
+  *
+  * Resets the Axi DMA and Axi Ethernet devices, and reconfigures the
+  * Tx/Rx BDs.
+  */
+-static void axienet_dma_err_handler(unsigned long data)
++static void axienet_dma_err_handler(struct work_struct *work)
+ {
+ 	u32 axienet_status;
+ 	u32 cr, i;
+-	struct axienet_local *lp = (struct axienet_local *) data;
++	struct axienet_local *lp = container_of(work, struct axienet_local,
++						dma_err_task);
+ 	struct net_device *ndev = lp->ndev;
+ 	struct axidma_bd *cur_p;
+ 
 -- 
 2.25.1
 
