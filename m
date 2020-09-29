@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C82127C7BF
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B02427C57F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:38:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728570AbgI2L4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:56:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43140 "EHLO mail.kernel.org"
+        id S1729917AbgI2Lfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:35:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730853AbgI2LoQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:44:16 -0400
+        id S1729849AbgI2Lfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:35:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83A10206F7;
-        Tue, 29 Sep 2020 11:44:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 960B523D6A;
+        Tue, 29 Sep 2020 11:30:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379856;
-        bh=/lT7H3OXzxcu3Vz67CeNXX/b3kJ+nN8VHCCoEPiHmxM=;
+        s=default; t=1601379026;
+        bh=kSCDKhv1JavVbi/0NRSntfznRBmqm3QRV4EwHp1XAwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZbHo8mREAMUo/+5hMi5PTGtSrOlY1uP1QWtkK/704KAobd8gnMw2Kjwsfd7iK+kzr
-         1dcid+4xPYmlaadQPjUvtrHASKnOFLwBQe3Zq+DR4yVmdVW74RTQHHJeXVY7A/nKxD
-         VP7BTUDXLmGsAMAjTQZp2+UfjGWGscWy+DFgLZXQ=
+        b=MNCz8fKGrXNx59ew81DMo14gZUyIRYsEhBDBxqeSPNkGLHmSPesQo1xoCPqSJz+SJ
+         RmDpI3mW5TjrvE93T4assZ4/HCSEb+6P3BPtF93x3LPOy76+cjztpX0Xc9jSbYpM5f
+         bytb/yrdmwy6Ad/Y3furyjR/P+o5DMXajfJRdT+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bryce Kahle <bryce.kahle@datadoghq.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Martin Cerveny <m.cerveny@computer.org>,
+        Jernej Skrabec <jernej.skrabec@siol.net>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 346/388] bpf: Fix clobbering of r2 in bpf_gen_ld_abs
+Subject: [PATCH 4.19 226/245] drm/sun4i: sun8i-csc: Secondary CSC register correction
 Date:   Tue, 29 Sep 2020 13:01:17 +0200
-Message-Id: <20200929110027.210377484@linuxfoundation.org>
+Message-Id: <20200929105957.984088346@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Martin Cerveny <m.cerveny@computer.org>
 
-[ Upstream commit e6a18d36118bea3bf497c9df4d9988b6df120689 ]
+[ Upstream commit cab4c03b4ba54c8d9378298cacb8bc0fd74ceece ]
 
-Bryce reported that he saw the following with:
+"Allwinner V3s" has secondary video layer (VI).
+Decoded video is displayed in wrong colors until
+secondary CSC registers are programmed correctly.
 
-  0:  r6 = r1
-  1:  r1 = 12
-  2:  r0 = *(u16 *)skb[r1]
-
-The xlated sequence was incorrectly clobbering r2 with pointer
-value of r6 ...
-
-  0: (bf) r6 = r1
-  1: (b7) r1 = 12
-  2: (bf) r1 = r6
-  3: (bf) r2 = r1
-  4: (85) call bpf_skb_load_helper_16_no_cache#7692160
-
-... and hence call to the load helper never succeeded given the
-offset was too high. Fix it by reordering the load of r6 to r1.
-
-Other than that the insn has similar calling convention than BPF
-helpers, that is, r0 - r5 are scratch regs, so nothing else
-affected after the insn.
-
-Fixes: e0cea7ce988c ("bpf: implement ld_abs/ld_ind in native bpf")
-Reported-by: Bryce Kahle <bryce.kahle@datadoghq.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/cace836e4d07bb63b1a53e49c5dfb238a040c298.1599512096.git.daniel@iogearbox.net
+Fixes: 883029390550 ("drm/sun4i: Add DE2 CSC library")
+Signed-off-by: Martin Cerveny <m.cerveny@computer.org>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200906162140.5584-2-m.cerveny@computer.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/sun4i/sun8i_csc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index cf2a68513bfd5..c441f9961e917 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -6791,8 +6791,6 @@ static int bpf_gen_ld_abs(const struct bpf_insn *orig,
- 	bool indirect = BPF_MODE(orig->code) == BPF_IND;
- 	struct bpf_insn *insn = insn_buf;
+diff --git a/drivers/gpu/drm/sun4i/sun8i_csc.h b/drivers/gpu/drm/sun4i/sun8i_csc.h
+index 880e8fbb08556..242752b2d328c 100644
+--- a/drivers/gpu/drm/sun4i/sun8i_csc.h
++++ b/drivers/gpu/drm/sun4i/sun8i_csc.h
+@@ -14,7 +14,7 @@ struct sun8i_mixer;
  
--	/* We're guaranteed here that CTX is in R6. */
--	*insn++ = BPF_MOV64_REG(BPF_REG_1, BPF_REG_CTX);
- 	if (!indirect) {
- 		*insn++ = BPF_MOV64_IMM(BPF_REG_2, orig->imm);
- 	} else {
-@@ -6800,6 +6798,8 @@ static int bpf_gen_ld_abs(const struct bpf_insn *orig,
- 		if (orig->imm)
- 			*insn++ = BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, orig->imm);
- 	}
-+	/* We're guaranteed here that CTX is in R6. */
-+	*insn++ = BPF_MOV64_REG(BPF_REG_1, BPF_REG_CTX);
+ /* VI channel CSC units offsets */
+ #define CCSC00_OFFSET 0xAA050
+-#define CCSC01_OFFSET 0xFA000
++#define CCSC01_OFFSET 0xFA050
+ #define CCSC10_OFFSET 0xA0000
+ #define CCSC11_OFFSET 0xF0000
  
- 	switch (BPF_SIZE(orig->code)) {
- 	case BPF_B:
 -- 
 2.25.1
 
