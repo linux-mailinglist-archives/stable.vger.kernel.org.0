@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9309827C39E
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:08:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A083427C3AA
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728881AbgI2LHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:07:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44432 "EHLO mail.kernel.org"
+        id S1728590AbgI2LHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:07:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728861AbgI2LGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:06:52 -0400
+        id S1728866AbgI2LHO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:07:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A377E21D7D;
-        Tue, 29 Sep 2020 11:06:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CA6A21D46;
+        Tue, 29 Sep 2020 11:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377611;
-        bh=IU6ZR18VAbdvVKXPApeLcq2M46/qop60Mav5MIT49AM=;
+        s=default; t=1601377633;
+        bh=tSx6nNkkj72nzkCz4hDeAGHMhtGpVKtr9FMBzPm5iaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WPV+9hBLZ8RkQ5+2PnVT6pWegaMpaGL/dBRh7zauhtBU2xT2Hob1cOC9Lh+Vsn6cy
-         ealr4qilNmk7mH1fLUcppPHqdjd+9PffGCPK6/TpMN6y2kcnnU5imUmZQEcFrLVugp
-         xXuKQpmHUW1GVpTjFE53LIO369SmRMnv7zVd/CT8=
+        b=VWFq8HiaFYGk+I8YycZ41wyA2Cz8qIy4ABtS+IrNjrKv1asjO+tYOf9enLnPTQDUD
+         edusUjVs1SkC0s+kH8AueFFYqJb8L2mCfH0+9obJ9TV7qqlYdFWxNN93aILFcnV0HO
+         PI+NL5ul+KSWFqxXvo8XKvBQL5+v1w1xlxfE6p0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Salyzyn <salyzyn@android.com>,
-        netdev@vger.kernel.org, kernel-team@android.com,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 001/121] af_key: pfkey_dump needs parameter validation
-Date:   Tue, 29 Sep 2020 12:59:05 +0200
-Message-Id: <20200929105930.251873166@linuxfoundation.org>
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 002/121] KVM: fix memory leak in kvm_io_bus_unregister_dev()
+Date:   Tue, 29 Sep 2020 12:59:06 +0200
+Message-Id: <20200929105930.303978981@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
 References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,46 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Salyzyn <salyzyn@android.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-commit 37bd22420f856fcd976989f1d4f1f7ad28e1fcac upstream.
+[ Upstream commit f65886606c2d3b562716de030706dfe1bea4ed5e ]
 
-In pfkey_dump() dplen and splen can both be specified to access the
-xfrm_address_t structure out of bounds in__xfrm_state_filter_match()
-when it calls addr_match() with the indexes.  Return EINVAL if either
-are out of range.
+when kmalloc() fails in kvm_io_bus_unregister_dev(), before removing
+the bus, we should iterate over all other devices linked to it and call
+kvm_iodevice_destructor() for them
 
-Signed-off-by: Mark Salyzyn <salyzyn@android.com>
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: kernel-team@android.com
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 90db10434b16 ("KVM: kvm_io_bus_unregister_dev() should never fail")
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?extid=f196caa45793d6374707
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20200907185535.233114-1-rkovhaev@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/key/af_key.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ virt/kvm/kvm_main.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -1873,6 +1873,13 @@ static int pfkey_dump(struct sock *sk, s
- 	if (ext_hdrs[SADB_X_EXT_FILTER - 1]) {
- 		struct sadb_x_filter *xfilter = ext_hdrs[SADB_X_EXT_FILTER - 1];
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 4e4bb5dd2dcd5..010d8aee9346b 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -3639,7 +3639,7 @@ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
+ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 			       struct kvm_io_device *dev)
+ {
+-	int i;
++	int i, j;
+ 	struct kvm_io_bus *new_bus, *bus;
  
-+		if ((xfilter->sadb_x_filter_splen >=
-+			(sizeof(xfrm_address_t) << 3)) ||
-+		    (xfilter->sadb_x_filter_dplen >=
-+			(sizeof(xfrm_address_t) << 3))) {
-+			mutex_unlock(&pfk->dump_lock);
-+			return -EINVAL;
+ 	bus = kvm->buses[bus_idx];
+@@ -3656,17 +3656,20 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+ 
+ 	new_bus = kmalloc(sizeof(*bus) + ((bus->dev_count - 1) *
+ 			  sizeof(struct kvm_io_range)), GFP_KERNEL);
+-	if (!new_bus)  {
++	if (new_bus) {
++		memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
++		new_bus->dev_count--;
++		memcpy(new_bus->range + i, bus->range + i + 1,
++		       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
++	} else {
+ 		pr_err("kvm: failed to shrink bus, removing it completely\n");
+-		goto broken;
++		for (j = 0; j < bus->dev_count; j++) {
++			if (j == i)
++				continue;
++			kvm_iodevice_destructor(bus->range[j].dev);
 +		}
- 		filter = kmalloc(sizeof(*filter), GFP_KERNEL);
- 		if (filter == NULL) {
- 			mutex_unlock(&pfk->dump_lock);
+ 	}
+ 
+-	memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
+-	new_bus->dev_count--;
+-	memcpy(new_bus->range + i, bus->range + i + 1,
+-	       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
+-
+-broken:
+ 	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
+ 	synchronize_srcu_expedited(&kvm->srcu);
+ 	kfree(bus);
+-- 
+2.25.1
+
 
 
