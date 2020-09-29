@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A46027CD30
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:42:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C8B27CC8D
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:37:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728921AbgI2LL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:11:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51946 "EHLO mail.kernel.org"
+        id S1730500AbgI2MhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:37:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729194AbgI2LKw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:10:52 -0400
+        id S1729021AbgI2LU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:20:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9628720848;
-        Tue, 29 Sep 2020 11:10:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5138E221EC;
+        Tue, 29 Sep 2020 11:18:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377852;
-        bh=sTH9H5cLkDDkeT7+8BSnxFuTL3G71zT6DoZ7bdCP3GE=;
+        s=default; t=1601378288;
+        bh=vqwQ4uYZt+75ixq6ZlMMvT+NDrK26h6eRVKJj8lUKow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G2l5qnXiRXoc4dmM7a02nJ4Ar8W+17SuF6gouRZ+uIu4QhrvUci4B11CmDp/xx3Yd
-         D32k3gMZ3RzKw9KIx8A0Q2zGTwmQmcIb8wrTcQHVxEZMKycCFafU1qi11aFoHaahim
-         8/A/P0TBVOznPkOCV2Dze9D6As21YJeDMFRbcjhI=
+        b=lvwZtqzM277AgH2hYQWid9cCh/kEK2Ox/GywDH37w+0mjGyD2J9hmDpOkb6fnF3Ng
+         1C4JXNiYf2CZ2prjZ1LvXj6wLakD2YWf/IvZwtljYKPDzkJlG7aMZqwQDfVdXcLhWv
+         5kx/VnpATB/8caMrGGsFonMpy1FXGkxYCx/KT8Zg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Xie XiuQi <xiexiuqi@huawei.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Hongbo Yao <yaohongbo@huawei.com>,
+        Jiri Olsa <jolsa@redhat.com>, Li Bin <huawei.libin@huawei.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 096/121] ceph: fix potential race in ceph_check_caps
+Subject: [PATCH 4.14 128/166] perf util: Fix memory leak of prefix_if_not_in
 Date:   Tue, 29 Sep 2020 13:00:40 +0200
-Message-Id: <20200929105934.940310959@linuxfoundation.org>
+Message-Id: <20200929105941.590892479@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Xie XiuQi <xiexiuqi@huawei.com>
 
-[ Upstream commit dc3da0461cc4b76f2d0c5b12247fcb3b520edbbf ]
+[ Upstream commit 07e9a6f538cbeecaf5c55b6f2991416f873cdcbd ]
 
-Nothing ensures that session will still be valid by the time we
-dereference the pointer. Take and put a reference.
+Need to free "str" before return when asprintf() failed to avoid memory
+leak.
 
-In principle, we should always be able to get a reference here, but
-throw a warning if that's ever not the case.
-
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Hongbo Yao <yaohongbo@huawei.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Li Bin <huawei.libin@huawei.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: http://lore.kernel.org/lkml/20200521133218.30150-4-liwei391@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ tools/perf/util/sort.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index e11aacb35d6b5..cbd92dd89de16 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1807,12 +1807,24 @@ ack:
- 			if (mutex_trylock(&session->s_mutex) == 0) {
- 				dout("inverting session/ino locks on %p\n",
- 				     session);
-+				session = ceph_get_mds_session(session);
- 				spin_unlock(&ci->i_ceph_lock);
- 				if (took_snap_rwsem) {
- 					up_read(&mdsc->snap_rwsem);
- 					took_snap_rwsem = 0;
- 				}
--				mutex_lock(&session->s_mutex);
-+				if (session) {
-+					mutex_lock(&session->s_mutex);
-+					ceph_put_mds_session(session);
-+				} else {
-+					/*
-+					 * Because we take the reference while
-+					 * holding the i_ceph_lock, it should
-+					 * never be NULL. Throw a warning if it
-+					 * ever is.
-+					 */
-+					WARN_ON_ONCE(true);
-+				}
- 				goto retry;
- 			}
- 		}
+diff --git a/tools/perf/util/sort.c b/tools/perf/util/sort.c
+index 84a33f1e9ec92..cd870129131e1 100644
+--- a/tools/perf/util/sort.c
++++ b/tools/perf/util/sort.c
+@@ -2667,7 +2667,7 @@ static char *prefix_if_not_in(const char *pre, char *str)
+ 		return str;
+ 
+ 	if (asprintf(&n, "%s,%s", pre, str) < 0)
+-		return NULL;
++		n = NULL;
+ 
+ 	free(str);
+ 	return n;
 -- 
 2.25.1
 
