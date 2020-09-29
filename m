@@ -2,69 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF9B427C513
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C03427C475
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728871AbgI2LaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:30:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39500 "EHLO mail.kernel.org"
+        id S1728909AbgI2LON (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:14:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728908AbgI2L3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:29:09 -0400
+        id S1727985AbgI2LNP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:13:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D9562158C;
-        Tue, 29 Sep 2020 11:23:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7F2A21924;
+        Tue, 29 Sep 2020 11:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378591;
-        bh=cSiETaOBpIVW8HiynNuhSKyL08OZPxS1OwjuM5Z8U4w=;
+        s=default; t=1601377994;
+        bh=/N8R8pe930A8Psal2Q5+o+U4C3yW6ZaKIoCVHjkSWmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nBHrJvpbSPJMP40dvpaY2LtQKdzpx+qkq1NUHEiz/gC7nak5E32YHo9GBmJI7Dl5F
-         fBF8vYYE+drZStwRjWNhMlWmxSl5aIeudr/f2M/bYc8VXYt6kuu+VI1NiHhGFITF7I
-         sgviuy9DR+JOC1s1cy40GFnUyIsGNGACnd9UnOsQ=
+        b=UkQD60bCXJMC93XZUbstoBogO1PINfLFtiL74m2irLoZCKyI+A/n0786if1SBgllw
+         IjJSx2f2Q4ITO0MCiMhHpFhWCTDWJSzJk9mUn0cSFQMbuZnxsFURVRpp7KNJkozCfi
+         +GsTtpFtpqso2DJ6qyBq5lSWoGRQJZf8nsaV+bGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexandre Ghiti <alex@ghiti.fr>,
-        Andy Lutomirski <luto@kernel.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        James Hogan <jhogan@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Jerome Glisse <jglisse@redhat.com>,
-        "Liang, Kan" <kan.liang@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Burton <paul.burton@mips.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Will Deacon <will@kernel.org>, Zong Li <zong.li@sifive.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 068/245] mm: pagewalk: fix termination condition in walk_pte_range()
+        stable@vger.kernel.org,
+        ChenNan Of Chaitin Security Research Lab 
+        <whutchennan@gmail.com>, Dan Carpenter <dan.carpenter@oracle.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 007/166] hdlc_ppp: add range checks in ppp_cp_parse_cr()
 Date:   Tue, 29 Sep 2020 12:58:39 +0200
-Message-Id: <20200929105950.299639581@linuxfoundation.org>
+Message-Id: <20200929105935.559876998@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -73,73 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c02a98753e0a36ba65a05818626fa6adeb4e7c97 ]
+[ Upstream commit 66d42ed8b25b64eb63111a2b8582c5afc8bf1105 ]
 
-If walk_pte_range() is called with a 'end' argument that is beyond the
-last page of memory (e.g.  ~0UL) then the comparison between 'addr' and
-'end' will always fail and the loop will be infinite.  Instead change the
-comparison to >= while accounting for overflow.
+There are a couple bugs here:
+1) If opt[1] is zero then this results in a forever loop.  If the value
+   is less than 2 then it is invalid.
+2) It assumes that "len" is more than sizeof(valid_accm) or 6 which can
+   result in memory corruption.
 
-Link: http://lkml.kernel.org/r/20191218162402.45610-15-steven.price@arm.com
-Signed-off-by: Steven Price <steven.price@arm.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Alexandre Ghiti <alex@ghiti.fr>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: "Liang, Kan" <kan.liang@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Zong Li <zong.li@sifive.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In the case of LCP_OPTION_ACCM, then  we should check "opt[1]" instead
+of "len" because, if "opt[1]" is less than sizeof(valid_accm) then
+"nak_len" gets out of sync and it can lead to memory corruption in the
+next iterations through the loop.  In case of LCP_OPTION_MAGIC, the
+only valid value for opt[1] is 6, but the code is trying to log invalid
+data so we should only discard the data when "len" is less than 6
+because that leads to a read overflow.
+
+Reported-by: ChenNan Of Chaitin Security Research Lab  <whutchennan@gmail.com>
+Fixes: e022c2f07ae5 ("WAN: new synchronous PPP implementation for generic HDLC.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/pagewalk.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wan/hdlc_ppp.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/mm/pagewalk.c b/mm/pagewalk.c
-index c3084ff2569d2..3c0930d94a295 100644
---- a/mm/pagewalk.c
-+++ b/mm/pagewalk.c
-@@ -15,9 +15,9 @@ static int walk_pte_range(pmd_t *pmd, unsigned long addr, unsigned long end,
- 		err = walk->pte_entry(pte, addr, addr + PAGE_SIZE, walk);
- 		if (err)
- 		       break;
--		addr += PAGE_SIZE;
--		if (addr == end)
-+		if (addr >= end - PAGE_SIZE)
- 			break;
-+		addr += PAGE_SIZE;
- 		pte++;
+--- a/drivers/net/wan/hdlc_ppp.c
++++ b/drivers/net/wan/hdlc_ppp.c
+@@ -386,11 +386,8 @@ static void ppp_cp_parse_cr(struct net_d
  	}
  
--- 
-2.25.1
-
+ 	for (opt = data; len; len -= opt[1], opt += opt[1]) {
+-		if (len < 2 || len < opt[1]) {
+-			dev->stats.rx_errors++;
+-			kfree(out);
+-			return; /* bad packet, drop silently */
+-		}
++		if (len < 2 || opt[1] < 2 || len < opt[1])
++			goto err_out;
+ 
+ 		if (pid == PID_LCP)
+ 			switch (opt[0]) {
+@@ -398,6 +395,8 @@ static void ppp_cp_parse_cr(struct net_d
+ 				continue; /* MRU always OK and > 1500 bytes? */
+ 
+ 			case LCP_OPTION_ACCM: /* async control character map */
++				if (opt[1] < sizeof(valid_accm))
++					goto err_out;
+ 				if (!memcmp(opt, valid_accm,
+ 					    sizeof(valid_accm)))
+ 					continue;
+@@ -409,6 +408,8 @@ static void ppp_cp_parse_cr(struct net_d
+ 				}
+ 				break;
+ 			case LCP_OPTION_MAGIC:
++				if (len < 6)
++					goto err_out;
+ 				if (opt[1] != 6 || (!opt[2] && !opt[3] &&
+ 						    !opt[4] && !opt[5]))
+ 					break; /* reject invalid magic number */
+@@ -427,6 +428,11 @@ static void ppp_cp_parse_cr(struct net_d
+ 		ppp_cp_event(dev, pid, RCR_GOOD, CP_CONF_ACK, id, req_len, data);
+ 
+ 	kfree(out);
++	return;
++
++err_out:
++	dev->stats.rx_errors++;
++	kfree(out);
+ }
+ 
+ static int ppp_rx(struct sk_buff *skb)
 
 
