@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5817927C6DC
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCC8C27C7A8
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730612AbgI2LtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:49:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52552 "EHLO mail.kernel.org"
+        id S1731188AbgI2Lza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:55:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731191AbgI2LtT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:49:19 -0400
+        id S1730928AbgI2Lo5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:44:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5806208B8;
-        Tue, 29 Sep 2020 11:49:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F75D20702;
+        Tue, 29 Sep 2020 11:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380159;
-        bh=uPVt/+A8SPP8nk6yfw0iRBBkK/tfiz8wyJFIYaXNVNk=;
+        s=default; t=1601379894;
+        bh=2+S2Rrh/xNfTYitjDg2B7qgZe+nYDha37cwFWv7R0q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8Oclsp66iXGHqzzDU/x51trlFLKjmqQ25MpfGRf7Dt8N5tbu3zagJiT+SYuujiH0
-         0McC7ZUfAorxawsML7hrucSGXqvzlSVTBJUU2XeY2EDpo6IlnHM022nu6lOKtNQOSc
-         sZqY1dkgPfp4gNqLo38FTkja9Pnaal4/auJzTP7Q=
+        b=fCMOz+//cSHAMYXrLRz6wx+ZNHvtacx6A5haH83C8JNmynAcov6X56/QoTKGehJaj
+         8KIWKl0QbW41mjnIUgHrgOc3+lwvG4IgYzy/srRgXBidSaSDKRQWZT7IPATP64cHN6
+         GJBsBFYYVVtaTGZL51tKN+Az1lOt7ONXMX/F0y+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 53/99] lib80211: fix unmet direct dependendices config warning when !CRYPTO
+Subject: [PATCH 5.4 365/388] KVM: SVM: Add a dedicated INVD intercept routine
 Date:   Tue, 29 Sep 2020 13:01:36 +0200
-Message-Id: <20200929105932.338743420@linuxfoundation.org>
+Message-Id: <20200929110028.139028354@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-[ Upstream commit b959ba9f468b1c581f40e92661ad58b093abaa03 ]
+[ Upstream commit 4bb05f30483fd21ea5413eaf1182768f251cf625 ]
 
-When LIB80211_CRYPT_CCMP is enabled and CRYPTO is disabled, it results in unmet
-direct dependencies config warning. The reason is that LIB80211_CRYPT_CCMP
-selects CRYPTO_AES and CRYPTO_CCM, which are subordinate to CRYPTO. This is
-reproducible with CRYPTO disabled and R8188EU enabled, where R8188EU selects
-LIB80211_CRYPT_CCMP but does not select or depend on CRYPTO.
+The INVD instruction intercept performs emulation. Emulation can't be done
+on an SEV guest because the guest memory is encrypted.
 
-Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+Provide a dedicated intercept routine for the INVD intercept. And since
+the instruction is emulated as a NOP, just skip it instead.
 
-Fixes: a11e2f85481c ("lib80211: use crypto API ccm(aes) transform for CCMP processing")
-Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Link: https://lore.kernel.org/r/20200909095452.3080-1-fazilyildiran@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 1654efcbc431 ("KVM: SVM: Add KVM_SEV_INIT command")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Message-Id: <a0b9a19ffa7fef86a3cc700c7ea01cb2731e04e5.1600972918.git.thomas.lendacky@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/svm.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/net/wireless/Kconfig b/net/wireless/Kconfig
-index faf74850a1b52..27026f587fa61 100644
---- a/net/wireless/Kconfig
-+++ b/net/wireless/Kconfig
-@@ -217,6 +217,7 @@ config LIB80211_CRYPT_WEP
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 802b5f9ab7446..b58495fde2e89 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -3967,6 +3967,12 @@ static int iret_interception(struct vcpu_svm *svm)
+ 	return 1;
+ }
  
- config LIB80211_CRYPT_CCMP
- 	tristate
-+	select CRYPTO
- 	select CRYPTO_AES
- 	select CRYPTO_CCM
- 
++static int invd_interception(struct vcpu_svm *svm)
++{
++	/* Treat an INVD instruction as a NOP and just skip it. */
++	return kvm_skip_emulated_instruction(&svm->vcpu);
++}
++
+ static int invlpg_interception(struct vcpu_svm *svm)
+ {
+ 	if (!static_cpu_has(X86_FEATURE_DECODEASSISTS))
+@@ -4819,7 +4825,7 @@ static int (*const svm_exit_handlers[])(struct vcpu_svm *svm) = {
+ 	[SVM_EXIT_RDPMC]			= rdpmc_interception,
+ 	[SVM_EXIT_CPUID]			= cpuid_interception,
+ 	[SVM_EXIT_IRET]                         = iret_interception,
+-	[SVM_EXIT_INVD]                         = emulate_on_interception,
++	[SVM_EXIT_INVD]                         = invd_interception,
+ 	[SVM_EXIT_PAUSE]			= pause_interception,
+ 	[SVM_EXIT_HLT]				= halt_interception,
+ 	[SVM_EXIT_INVLPG]			= invlpg_interception,
 -- 
 2.25.1
 
