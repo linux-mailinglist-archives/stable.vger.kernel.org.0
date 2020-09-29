@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1960527C704
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB5A927C6EF
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731196AbgI2LtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52014 "EHLO mail.kernel.org"
+        id S1731261AbgI2Ltx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:49:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731191AbgI2LtD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:49:03 -0400
+        id S1730496AbgI2Ltv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:49:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B0AA206E5;
-        Tue, 29 Sep 2020 11:49:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 912D321924;
+        Tue, 29 Sep 2020 11:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380142;
-        bh=Jbp3RR9bLIlnoGfpxgRe6jqWokxTH20vJDaI1c7ZaD8=;
+        s=default; t=1601380191;
+        bh=GPYWoZKXP7MhWfOEOBYPIt3Kdvsm642SUmfRVflRSR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c4W0EV9m9JFULwozJ2rlLH3ECn2L0Z8xuB5slFCiqpBBUt/n1qXPHYVIyr6b4aj3P
-         9N/o3xVJFESLmltphOFe9ZAkdmcL0udEXvl+6nwPko8Sxx6ebxY4kcKfa/OVncI5IX
-         ZZUP5THVGocq7XM4ODHXUABMm18CUmGgsvO5qs/w=
+        b=mGLu7krWYF5S4CfqXeGZ4/nAvAHjqnUHxcxHE6HTEFUMgASAFi+kUKhuZf1OJuteK
+         v3NEGhoBrESlYunvCspI0JY8bZKMOwLmJlNjlLdA4P36p5Yv0GnGNY/k7IJTVCp0YR
+         ebUyrXYPxULCTuLaBSam0UXc/M9jlZDvWc43dpoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.8 85/99] kprobes: tracing/kprobes: Fix to kill kprobes on initmem after boot
-Date:   Tue, 29 Sep 2020 13:02:08 +0200
-Message-Id: <20200929105933.919353511@linuxfoundation.org>
+        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.8 86/99] btrfs: fix put of uninitialized kobject after seed device delete
+Date:   Tue, 29 Sep 2020 13:02:09 +0200
+Message-Id: <20200929105933.967833986@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
 References: <20200929105929.719230296@linuxfoundation.org>
@@ -46,104 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Anand Jain <anand.jain@oracle.com>
 
-commit 82d083ab60c3693201c6f5c7a5f23a6ed422098d upstream.
+commit b5ddcffa37778244d5e786fe32f778edf2bfc93e upstream.
 
-Since kprobe_event= cmdline option allows user to put kprobes on the
-functions in initmem, kprobe has to make such probes gone after boot.
-Currently the probes on the init functions in modules will be handled
-by module callback, but the kernel init text isn't handled.
-Without this, kprobes may access non-exist text area to disable or
-remove it.
+The following test case leads to NULL kobject free error:
 
-Link: https://lkml.kernel.org/r/159972810544.428528.1839307531600646955.stgit@devnote2
+  mount seed /mnt
+  add sprout to /mnt
+  umount /mnt
+  mount sprout to /mnt
+  delete seed
 
-Fixes: 970988e19eb0 ("tracing/kprobe: Add kprobe_event= boot parameter")
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+  kobject: '(null)' (00000000dd2b87e4): is not initialized, yet kobject_put() is being called.
+  WARNING: CPU: 1 PID: 15784 at lib/kobject.c:736 kobject_put+0x80/0x350
+  RIP: 0010:kobject_put+0x80/0x350
+  ::
+  Call Trace:
+  btrfs_sysfs_remove_devices_dir+0x6e/0x160 [btrfs]
+  btrfs_rm_device.cold+0xa8/0x298 [btrfs]
+  btrfs_ioctl+0x206c/0x22a0 [btrfs]
+  ksys_ioctl+0xe2/0x140
+  __x64_sys_ioctl+0x1e/0x29
+  do_syscall_64+0x96/0x150
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7f4047c6288b
+  ::
+
+This is because, at the end of the seed device-delete, we try to remove
+the seed's devid sysfs entry. But for the seed devices under the sprout
+fs, we don't initialize the devid kobject yet. So add a kobject state
+check, which takes care of the bug.
+
+Fixes: 668e48af7a94 ("btrfs: sysfs, add devid/dev_state kobject and device attributes")
+CC: stable@vger.kernel.org # 5.6+
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/kprobes.h |    5 +++++
- init/main.c             |    2 ++
- kernel/kprobes.c        |   22 ++++++++++++++++++++++
- 3 files changed, 29 insertions(+)
+ fs/btrfs/sysfs.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/include/linux/kprobes.h
-+++ b/include/linux/kprobes.h
-@@ -369,6 +369,8 @@ void unregister_kretprobes(struct kretpr
- void kprobe_flush_task(struct task_struct *tk);
- void recycle_rp_inst(struct kretprobe_instance *ri, struct hlist_head *head);
+--- a/fs/btrfs/sysfs.c
++++ b/fs/btrfs/sysfs.c
+@@ -1165,10 +1165,12 @@ int btrfs_sysfs_remove_devices_dir(struc
+ 					  disk_kobj->name);
+ 		}
  
-+void kprobe_free_init_mem(void);
-+
- int disable_kprobe(struct kprobe *kp);
- int enable_kprobe(struct kprobe *kp);
+-		kobject_del(&one_device->devid_kobj);
+-		kobject_put(&one_device->devid_kobj);
++		if (one_device->devid_kobj.state_initialized) {
++			kobject_del(&one_device->devid_kobj);
++			kobject_put(&one_device->devid_kobj);
  
-@@ -426,6 +428,9 @@ static inline void unregister_kretprobes
- static inline void kprobe_flush_task(struct task_struct *tk)
- {
- }
-+static inline void kprobe_free_init_mem(void)
-+{
-+}
- static inline int disable_kprobe(struct kprobe *kp)
- {
- 	return -ENOSYS;
---- a/init/main.c
-+++ b/init/main.c
-@@ -33,6 +33,7 @@
- #include <linux/nmi.h>
- #include <linux/percpu.h>
- #include <linux/kmod.h>
-+#include <linux/kprobes.h>
- #include <linux/vmalloc.h>
- #include <linux/kernel_stat.h>
- #include <linux/start_kernel.h>
-@@ -1401,6 +1402,7 @@ static int __ref kernel_init(void *unuse
- 	kernel_init_freeable();
- 	/* need to finish all async __init code before freeing the memory */
- 	async_synchronize_full();
-+	kprobe_free_init_mem();
- 	ftrace_free_init_mem();
- 	free_initmem();
- 	mark_readonly();
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2406,6 +2406,28 @@ static struct notifier_block kprobe_modu
- extern unsigned long __start_kprobe_blacklist[];
- extern unsigned long __stop_kprobe_blacklist[];
- 
-+void kprobe_free_init_mem(void)
-+{
-+	void *start = (void *)(&__init_begin);
-+	void *end = (void *)(&__init_end);
-+	struct hlist_head *head;
-+	struct kprobe *p;
-+	int i;
-+
-+	mutex_lock(&kprobe_mutex);
-+
-+	/* Kill all kprobes on initmem */
-+	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
-+		head = &kprobe_table[i];
-+		hlist_for_each_entry(p, head, hlist) {
-+			if (start <= (void *)p->addr && (void *)p->addr < end)
-+				kill_kprobe(p);
+-		wait_for_completion(&one_device->kobj_unregister);
++			wait_for_completion(&one_device->kobj_unregister);
 +		}
-+	}
-+
-+	mutex_unlock(&kprobe_mutex);
-+}
-+
- static int __init init_kprobes(void)
- {
- 	int i, err = 0;
+ 
+ 		return 0;
+ 	}
+@@ -1181,10 +1183,12 @@ int btrfs_sysfs_remove_devices_dir(struc
+ 			sysfs_remove_link(fs_devices->devices_kobj,
+ 					  disk_kobj->name);
+ 		}
+-		kobject_del(&one_device->devid_kobj);
+-		kobject_put(&one_device->devid_kobj);
++		if (one_device->devid_kobj.state_initialized) {
++			kobject_del(&one_device->devid_kobj);
++			kobject_put(&one_device->devid_kobj);
+ 
+-		wait_for_completion(&one_device->kobj_unregister);
++			wait_for_completion(&one_device->kobj_unregister);
++		}
+ 	}
+ 
+ 	return 0;
 
 
