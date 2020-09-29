@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 617E527C473
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B198027C511
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:30:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728388AbgI2LOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:14:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55620 "EHLO mail.kernel.org"
+        id S1728305AbgI2LaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:30:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729352AbgI2LNV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:13:21 -0400
+        id S1729321AbgI2L3J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:29:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFB1F2158C;
-        Tue, 29 Sep 2020 11:13:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0121B21D41;
+        Tue, 29 Sep 2020 11:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378000;
-        bh=uRBqL4UMxaM/h/T1q8XpgguM/2SBpklTv/zEIpHhygs=;
+        s=default; t=1601378602;
+        bh=LJr5lMTFye2vxGi0Lfw2VYCci9SKwWK0bBAKI4s7QuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aaLdLT40CdHktdZ4m3QhCT6n6szLAF4vlj+93VmQJqnv2IzqzKNyBTHY5NEfCMn3q
-         q7xVgIgILOiR7NaWxmTNvmX1gj8QY8Pb0z10dNAteSk4tRketjeBo2AR5k/ioaWh0a
-         63wbXUfZUQfEsOEM2/ju4t8IibcOVegLu1PELw3M=
+        b=PROG3aVo+i8DOSP/0Q0RCy/eOUc0ncmo5NDGQLhAgGa43gl7nJB/G3R/FgjQuQinQ
+         SVCEEu19Bsai6KYxFSe258UwOHev/RKIA8lcULkKhbz7env4P3sQ+NFviefEUqfLX/
+         Xvo++Hpd7C8eeBrFT6d+7cGfdhO1ArlmNvDrPmH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 009/166] net: ipv6: fix kconfig dependency warning for IPV6_SEG6_HMAC
-Date:   Tue, 29 Sep 2020 12:58:41 +0200
-Message-Id: <20200929105935.662502376@linuxfoundation.org>
+        stable@vger.kernel.org, Mohan Kumar <mkumard@nvidia.com>,
+        Viswanath L <viswanathl@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 071/245] ALSA: hda: Clear RIRB status before reading WP
+Date:   Tue, 29 Sep 2020 12:58:42 +0200
+Message-Id: <20200929105950.450875799@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+From: Mohan Kumar <mkumard@nvidia.com>
 
-[ Upstream commit db7cd91a4be15e1485d6b58c6afc8761c59c4efb ]
+[ Upstream commit 6d011d5057ff88ee556c000ac6fe0be23bdfcd72 ]
 
-When IPV6_SEG6_HMAC is enabled and CRYPTO is disabled, it results in the
-following Kbuild warning:
+RIRB interrupt status getting cleared after the write pointer is read
+causes a race condition, where last response(s) into RIRB may remain
+unserviced by IRQ, eventually causing azx_rirb_get_response to fall
+back to polling mode. Clearing the RIRB interrupt status ahead of
+write pointer access ensures that this condition is avoided.
 
-WARNING: unmet direct dependencies detected for CRYPTO_HMAC
-  Depends on [n]: CRYPTO [=n]
-  Selected by [y]:
-  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
-
-WARNING: unmet direct dependencies detected for CRYPTO_SHA1
-  Depends on [n]: CRYPTO [=n]
-  Selected by [y]:
-  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
-
-WARNING: unmet direct dependencies detected for CRYPTO_SHA256
-  Depends on [n]: CRYPTO [=n]
-  Selected by [y]:
-  - IPV6_SEG6_HMAC [=y] && NET [=y] && INET [=y] && IPV6 [=y]
-
-The reason is that IPV6_SEG6_HMAC selects CRYPTO_HMAC, CRYPTO_SHA1, and
-CRYPTO_SHA256 without depending on or selecting CRYPTO while those configs
-are subordinate to CRYPTO.
-
-Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
-
-Fixes: bf355b8d2c30 ("ipv6: sr: add core files for SR HMAC support")
-Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
+Signed-off-by: Viswanath L <viswanathl@nvidia.com>
+Link: https://lore.kernel.org/r/1580983853-351-1-git-send-email-viswanathl@nvidia.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/hda_controller.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/Kconfig
-+++ b/net/ipv6/Kconfig
-@@ -321,6 +321,7 @@ config IPV6_SEG6_LWTUNNEL
- config IPV6_SEG6_HMAC
- 	bool "IPv6: Segment Routing HMAC support"
- 	depends on IPV6
-+	select CRYPTO
- 	select CRYPTO_HMAC
- 	select CRYPTO_SHA1
- 	select CRYPTO_SHA256
+diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
+index fa261b27d8588..8198d2e53b7df 100644
+--- a/sound/pci/hda/hda_controller.c
++++ b/sound/pci/hda/hda_controller.c
+@@ -1169,16 +1169,23 @@ irqreturn_t azx_interrupt(int irq, void *dev_id)
+ 		if (snd_hdac_bus_handle_stream_irq(bus, status, stream_update))
+ 			active = true;
+ 
+-		/* clear rirb int */
+ 		status = azx_readb(chip, RIRBSTS);
+ 		if (status & RIRB_INT_MASK) {
++			/*
++			 * Clearing the interrupt status here ensures that no
++			 * interrupt gets masked after the RIRB wp is read in
++			 * snd_hdac_bus_update_rirb. This avoids a possible
++			 * race condition where codec response in RIRB may
++			 * remain unserviced by IRQ, eventually falling back
++			 * to polling mode in azx_rirb_get_response.
++			 */
++			azx_writeb(chip, RIRBSTS, RIRB_INT_MASK);
+ 			active = true;
+ 			if (status & RIRB_INT_RESPONSE) {
+ 				if (chip->driver_caps & AZX_DCAPS_CTX_WORKAROUND)
+ 					udelay(80);
+ 				snd_hdac_bus_update_rirb(bus);
+ 			}
+-			azx_writeb(chip, RIRBSTS, RIRB_INT_MASK);
+ 		}
+ 	} while (active && ++repeat < 10);
+ 
+-- 
+2.25.1
+
 
 
