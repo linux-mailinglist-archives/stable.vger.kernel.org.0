@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2094A27C4A4
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:15:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F04E27C30D
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729292AbgI2LPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:15:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59374 "EHLO mail.kernel.org"
+        id S1728235AbgI2LCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:02:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728600AbgI2LPJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:15:09 -0400
+        id S1725283AbgI2LCm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:02:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D82721D46;
-        Tue, 29 Sep 2020 11:15:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB365216C4;
+        Tue, 29 Sep 2020 11:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378109;
-        bh=XMhfXIBtFA0Yxbw1tJScgBRrVb6G6JX3u8E/SQW3LUI=;
+        s=default; t=1601377361;
+        bh=jsEltaYfXt3b2sv0LidiLBKAJrSkneEXSVUwHp3vmYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I/EOyRH4QxOcTRnNIKeFnEX4NLFl4qsbas/Nmdle6TZgsmwhLEF2m9qxpwqdZiMxF
-         /XDzu5jE1MR6+rzsRv35V9fxMzNSWPd/ntP2h8jebJkDFE8iX+72Wn8qBahF/Fmt/w
-         34k2QxqTIwaL8XO8MbEteeH9SxahdodIuHLDGcE4=
+        b=OGlBzZD2ictBnH3eVfCH0L8Cghb8Swy86b1Oh4dbcc1CugT/5A8iy21Q6aB9aczma
+         6IDlDqALq5s9/62ywMvsoSS/PUT/MXVtYxElEf2bcUmkzz62vKCP1KlhyIOjeFyJty
+         rHZ+LKBvHGu0KDxVW9eh/P07vk6KDFNMHfe05YpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 065/166] perf test: Fix test trace+probe_vfs_getname.sh on s390
+        stable@vger.kernel.org, Wei Wang <weiwan@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 10/85] ip: fix tos reflection in ack and reset packets
 Date:   Tue, 29 Sep 2020 12:59:37 +0200
-Message-Id: <20200929105938.475479888@linuxfoundation.org>
+Message-Id: <20200929105928.734091036@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,82 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Wei Wang <weiwan@google.com>
 
-[ Upstream commit 2bbc83537614517730e9f2811195004b712de207 ]
+[ Upstream commit ba9e04a7ddf4f22a10e05bf9403db6b97743c7bf ]
 
-This test places a kprobe to function getname_flags() in the kernel
-which has the following prototype:
+Currently, in tcp_v4_reqsk_send_ack() and tcp_v4_send_reset(), we
+echo the TOS value of the received packets in the response.
+However, we do not want to echo the lower 2 ECN bits in accordance
+with RFC 3168 6.1.5 robustness principles.
 
-  struct filename *getname_flags(const char __user *filename, int flags, int *empty)
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 
-The 'filename' argument points to a filename located in user space memory.
-
-Looking at commit 88903c464321c ("tracing/probe: Add ustring type for
-user-space string") the kprobe should indicate that user space memory is
-accessed.
-
-Output before:
-
-   [root@m35lp76 perf]# ./perf test 66 67
-   66: Use vfs_getname probe to get syscall args filenames   : FAILED!
-   67: Check open filename arg using perf trace + vfs_getname: FAILED!
-   [root@m35lp76 perf]#
-
-Output after:
-
-   [root@m35lp76 perf]# ./perf test 66 67
-   66: Use vfs_getname probe to get syscall args filenames   : Ok
-   67: Check open filename arg using perf trace + vfs_getname: Ok
-   [root@m35lp76 perf]#
-
-Comments from Masami Hiramatsu:
-
-This bug doesn't happen on x86 or other archs on which user address
-space and kernel address space is the same. On some arches (ppc64 in
-this case?) user address space is partially or completely the same as
-kernel address space.
-
-(Yes, they switch the world when running into the kernel) In this case,
-we need to use different data access functions for each space.
-
-That is why I introduced the "ustring" type for kprobe events.
-
-As far as I can see, Thomas's patch is sane. Thomas, could you show us
-your result on your test environment?
-
-Comments from Thomas Richter:
-
-Test results for s/390 included above.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/20200217102111.61137-1-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Wei Wang <weiwan@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/tests/shell/lib/probe_vfs_getname.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/ip_output.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/tests/shell/lib/probe_vfs_getname.sh b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-index 068d463e5cbfc..4b0922a209701 100644
---- a/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-+++ b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-@@ -14,7 +14,7 @@ add_probe_vfs_getname() {
- 	if [ $had_vfs_getname -eq 1 ] ; then
- 		line=$(perf probe -L getname_flags 2>&1 | egrep 'result.*=.*filename;' | sed -r 's/[[:space:]]+([[:digit:]]+)[[:space:]]+result->uptr.*/\1/')
- 		perf probe -q       "vfs_getname=getname_flags:${line} pathname=result->name:string" || \
--		perf probe $verbose "vfs_getname=getname_flags:${line} pathname=filename:string"
-+		perf probe $verbose "vfs_getname=getname_flags:${line} pathname=filename:ustring"
- 	fi
- }
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -73,6 +73,7 @@
+ #include <net/icmp.h>
+ #include <net/checksum.h>
+ #include <net/inetpeer.h>
++#include <net/inet_ecn.h>
+ #include <linux/igmp.h>
+ #include <linux/netfilter_ipv4.h>
+ #include <linux/netfilter_bridge.h>
+@@ -1597,7 +1598,7 @@ void ip_send_unicast_reply(struct sock *
+ 	if (IS_ERR(rt))
+ 		return;
  
--- 
-2.25.1
-
+-	inet_sk(sk)->tos = arg->tos;
++	inet_sk(sk)->tos = arg->tos & ~INET_ECN_MASK;
+ 
+ 	sk->sk_priority = skb->priority;
+ 	sk->sk_protocol = ip_hdr(skb)->protocol;
 
 
