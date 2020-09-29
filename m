@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D028B27CD5F
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:44:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 622F427CDD2
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732742AbgI2MnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:43:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50308 "EHLO mail.kernel.org"
+        id S1728617AbgI2LEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:04:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729093AbgI2LJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:09:48 -0400
+        id S1728494AbgI2LE0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:04:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10C61221EC;
-        Tue, 29 Sep 2020 11:09:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7177421D7D;
+        Tue, 29 Sep 2020 11:04:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377777;
-        bh=ffVmtk+MMzKg1ZNQEVX/lHavatGWRWr6XMVURgNQYTM=;
+        s=default; t=1601377466;
+        bh=SSaOXops64YH+iEYehZFdcf3MoI3XiQPJjZDXrL47MM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqkmojtcrqzS39t8Stw9CungmVOnaOX8K7aEy+1Ggo2RMcsIdNP4+V+/tKIC4K2qy
-         6dZOMSv5o+jMocGSo01gZoJA/KEOFhRFlmY9cnwdYp4ywDG5PW96QL9vMHtT99Dm9U
-         swGVAqgOUf2fQgfPOXpQ4t4cGGX+R6ej1c0L7ySE=
+        b=d4EEWP4Gzee58d7jP62T1LHobLAUTccTtrEjH1vhW4IdNhyqYuY5NRiWduq5XUnnL
+         4cIlvRPpfiXNqxjibmtNTx9SibrTaa5gxWDxdw6kRpXYN54HGFj8OtmoC2rVavjHUu
+         vmk/f8bgUYw4T4KvOLZLRGmtz7vEbSWktEMcsNj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 069/121] SUNRPC: Fix a potential buffer overflow in svc_print_xprts()
+Subject: [PATCH 4.4 46/85] SUNRPC: Fix a potential buffer overflow in svc_print_xprts()
 Date:   Tue, 29 Sep 2020 13:00:13 +0200
-Message-Id: <20200929105933.588887336@linuxfoundation.org>
+Message-Id: <20200929105930.536704043@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,10 +75,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 14 insertions(+), 5 deletions(-)
 
 diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
-index 42ce3ed216376..56e4ac8e2e994 100644
+index 2b8e80c721db1..a7cd031656801 100644
 --- a/net/sunrpc/svc_xprt.c
 +++ b/net/sunrpc/svc_xprt.c
-@@ -103,8 +103,17 @@ void svc_unreg_xprt_class(struct svc_xprt_class *xcl)
+@@ -97,8 +97,17 @@ void svc_unreg_xprt_class(struct svc_xprt_class *xcl)
  }
  EXPORT_SYMBOL_GPL(svc_unreg_xprt_class);
  
@@ -98,7 +98,7 @@ index 42ce3ed216376..56e4ac8e2e994 100644
   */
  int svc_print_xprts(char *buf, int maxlen)
  {
-@@ -117,9 +126,9 @@ int svc_print_xprts(char *buf, int maxlen)
+@@ -111,9 +120,9 @@ int svc_print_xprts(char *buf, int maxlen)
  	list_for_each_entry(xcl, &svc_xprt_class_list, xcl_list) {
  		int slen;
  
