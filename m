@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5A927C6EF
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 940C827C6FA
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731261AbgI2Ltx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:49:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53638 "EHLO mail.kernel.org"
+        id S1731269AbgI2Lu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:50:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730496AbgI2Ltv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:49:51 -0400
+        id S1731225AbgI2LtW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:49:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 912D321924;
-        Tue, 29 Sep 2020 11:49:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0276E20702;
+        Tue, 29 Sep 2020 11:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380191;
-        bh=GPYWoZKXP7MhWfOEOBYPIt3Kdvsm642SUmfRVflRSR0=;
+        s=default; t=1601380161;
+        bh=LxUkjvxM5hGkN/w+Ro7p7UZgUQp/RRWMYAsO5TXAbuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mGLu7krWYF5S4CfqXeGZ4/nAvAHjqnUHxcxHE6HTEFUMgASAFi+kUKhuZf1OJuteK
-         v3NEGhoBrESlYunvCspI0JY8bZKMOwLmJlNjlLdA4P36p5Yv0GnGNY/k7IJTVCp0YR
-         ebUyrXYPxULCTuLaBSam0UXc/M9jlZDvWc43dpoo=
+        b=JoWJCF9dNspSKjG/c3HeTORLnHb44mTk3zpQ/GkTSi4st4rV4dYc3+QY2dCXae5LV
+         Rl8RKd5L/rHVTK69+G3DINPVx5IgpIwlFuS0KjRbYOYE2Qw/tTrf2akKytg+AhoUoW
+         wBKVONMWJAAwEpm4mawEr96iotcVoFyV87VXCC4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        stable@vger.kernel.org,
+        syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.8 86/99] btrfs: fix put of uninitialized kobject after seed device delete
-Date:   Tue, 29 Sep 2020 13:02:09 +0200
-Message-Id: <20200929105933.967833986@linuxfoundation.org>
+Subject: [PATCH 5.8 87/99] btrfs: fix overflow when copying corrupt csums for a message
+Date:   Tue, 29 Sep 2020 13:02:10 +0200
+Message-Id: <20200929105934.019236407@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
 References: <20200929105929.719230296@linuxfoundation.org>
@@ -42,82 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit b5ddcffa37778244d5e786fe32f778edf2bfc93e upstream.
+commit 35be8851d172c6e3db836c0f28c19087b10c9e00 upstream.
 
-The following test case leads to NULL kobject free error:
+Syzkaller reported a buffer overflow in btree_readpage_end_io_hook()
+when loop mounting a crafted image:
 
-  mount seed /mnt
-  add sprout to /mnt
-  umount /mnt
-  mount sprout to /mnt
-  delete seed
-
-  kobject: '(null)' (00000000dd2b87e4): is not initialized, yet kobject_put() is being called.
-  WARNING: CPU: 1 PID: 15784 at lib/kobject.c:736 kobject_put+0x80/0x350
-  RIP: 0010:kobject_put+0x80/0x350
-  ::
+  detected buffer overflow in memcpy
+  ------------[ cut here ]------------
+  kernel BUG at lib/string.c:1129!
+  invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+  CPU: 1 PID: 26 Comm: kworker/u4:2 Not tainted 5.9.0-rc4-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Workqueue: btrfs-endio-meta btrfs_work_helper
+  RIP: 0010:fortify_panic+0xf/0x20 lib/string.c:1129
+  RSP: 0018:ffffc90000e27980 EFLAGS: 00010286
+  RAX: 0000000000000022 RBX: ffff8880a80dca64 RCX: 0000000000000000
+  RDX: ffff8880a90860c0 RSI: ffffffff815dba07 RDI: fffff520001c4f22
+  RBP: ffff8880a80dca00 R08: 0000000000000022 R09: ffff8880ae7318e7
+  R10: 0000000000000000 R11: 0000000000077578 R12: 00000000ffffff6e
+  R13: 0000000000000008 R14: ffffc90000e27a40 R15: 1ffff920001c4f3c
+  FS:  0000000000000000(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000557335f440d0 CR3: 000000009647d000 CR4: 00000000001506e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
   Call Trace:
-  btrfs_sysfs_remove_devices_dir+0x6e/0x160 [btrfs]
-  btrfs_rm_device.cold+0xa8/0x298 [btrfs]
-  btrfs_ioctl+0x206c/0x22a0 [btrfs]
-  ksys_ioctl+0xe2/0x140
-  __x64_sys_ioctl+0x1e/0x29
-  do_syscall_64+0x96/0x150
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f4047c6288b
-  ::
+   memcpy include/linux/string.h:405 [inline]
+   btree_readpage_end_io_hook.cold+0x206/0x221 fs/btrfs/disk-io.c:642
+   end_bio_extent_readpage+0x4de/0x10c0 fs/btrfs/extent_io.c:2854
+   bio_endio+0x3cf/0x7f0 block/bio.c:1449
+   end_workqueue_fn+0x114/0x170 fs/btrfs/disk-io.c:1695
+   btrfs_work_helper+0x221/0xe20 fs/btrfs/async-thread.c:318
+   process_one_work+0x94c/0x1670 kernel/workqueue.c:2269
+   worker_thread+0x64c/0x1120 kernel/workqueue.c:2415
+   kthread+0x3b5/0x4a0 kernel/kthread.c:292
+   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+  Modules linked in:
+  ---[ end trace b68924293169feef ]---
+  RIP: 0010:fortify_panic+0xf/0x20 lib/string.c:1129
+  RSP: 0018:ffffc90000e27980 EFLAGS: 00010286
+  RAX: 0000000000000022 RBX: ffff8880a80dca64 RCX: 0000000000000000
+  RDX: ffff8880a90860c0 RSI: ffffffff815dba07 RDI: fffff520001c4f22
+  RBP: ffff8880a80dca00 R08: 0000000000000022 R09: ffff8880ae7318e7
+  R10: 0000000000000000 R11: 0000000000077578 R12: 00000000ffffff6e
+  R13: 0000000000000008 R14: ffffc90000e27a40 R15: 1ffff920001c4f3c
+  FS:  0000000000000000(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f95b7c4d008 CR3: 000000009647d000 CR4: 00000000001506e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-This is because, at the end of the seed device-delete, we try to remove
-the seed's devid sysfs entry. But for the seed devices under the sprout
-fs, we don't initialize the devid kobject yet. So add a kobject state
-check, which takes care of the bug.
+The overflow happens, because in btree_readpage_end_io_hook() we assume
+that we have found a 4 byte checksum instead of the real possible 32
+bytes we have for the checksums.
 
-Fixes: 668e48af7a94 ("btrfs: sysfs, add devid/dev_state kobject and device attributes")
-CC: stable@vger.kernel.org # 5.6+
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+With the fix applied:
+
+[   35.726623] BTRFS: device fsid 815caf9a-dc43-4d2a-ac54-764b8333d765 devid 1 transid 5 /dev/loop0 scanned by syz-repro (215)
+[   35.738994] BTRFS info (device loop0): disk space caching is enabled
+[   35.738998] BTRFS info (device loop0): has skinny extents
+[   35.743337] BTRFS warning (device loop0): loop0 checksum verify failed on 1052672 wanted 0xf9c035fc8d239a54 found 0x67a25c14b7eabcf9 level 0
+[   35.743420] BTRFS error (device loop0): failed to read chunk root
+[   35.745899] BTRFS error (device loop0): open_ctree failed
+
+Reported-by: syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com
+Fixes: d5178578bcd4 ("btrfs: directly call into crypto framework for checksumming")
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/sysfs.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ fs/btrfs/disk-io.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/sysfs.c
-+++ b/fs/btrfs/sysfs.c
-@@ -1165,10 +1165,12 @@ int btrfs_sysfs_remove_devices_dir(struc
- 					  disk_kobj->name);
- 		}
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -636,16 +636,15 @@ static int btree_readpage_end_io_hook(st
+ 	csum_tree_block(eb, result);
  
--		kobject_del(&one_device->devid_kobj);
--		kobject_put(&one_device->devid_kobj);
-+		if (one_device->devid_kobj.state_initialized) {
-+			kobject_del(&one_device->devid_kobj);
-+			kobject_put(&one_device->devid_kobj);
+ 	if (memcmp_extent_buffer(eb, result, 0, csum_size)) {
+-		u32 val;
+-		u32 found = 0;
+-
+-		memcpy(&found, result, csum_size);
++		u8 val[BTRFS_CSUM_SIZE] = { 0 };
  
--		wait_for_completion(&one_device->kobj_unregister);
-+			wait_for_completion(&one_device->kobj_unregister);
-+		}
- 
- 		return 0;
+ 		read_extent_buffer(eb, &val, 0, csum_size);
+ 		btrfs_warn_rl(fs_info,
+-		"%s checksum verify failed on %llu wanted %x found %x level %d",
++	"%s checksum verify failed on %llu wanted " CSUM_FMT " found " CSUM_FMT " level %d",
+ 			      fs_info->sb->s_id, eb->start,
+-			      val, found, btrfs_header_level(eb));
++			      CSUM_FMT_VALUE(csum_size, val),
++			      CSUM_FMT_VALUE(csum_size, result),
++			      btrfs_header_level(eb));
+ 		ret = -EUCLEAN;
+ 		goto err;
  	}
-@@ -1181,10 +1183,12 @@ int btrfs_sysfs_remove_devices_dir(struc
- 			sysfs_remove_link(fs_devices->devices_kobj,
- 					  disk_kobj->name);
- 		}
--		kobject_del(&one_device->devid_kobj);
--		kobject_put(&one_device->devid_kobj);
-+		if (one_device->devid_kobj.state_initialized) {
-+			kobject_del(&one_device->devid_kobj);
-+			kobject_put(&one_device->devid_kobj);
- 
--		wait_for_completion(&one_device->kobj_unregister);
-+			wait_for_completion(&one_device->kobj_unregister);
-+		}
- 	}
- 
- 	return 0;
 
 
