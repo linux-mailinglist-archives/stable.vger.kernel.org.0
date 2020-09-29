@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F4F827C79A
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:55:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB3B27C714
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729333AbgI2LpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:45:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44708 "EHLO mail.kernel.org"
+        id S1731187AbgI2LtB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:49:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730929AbgI2LpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:45:04 -0400
+        id S1730987AbgI2Ls4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:48:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A77B4206E5;
-        Tue, 29 Sep 2020 11:45:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB2702074A;
+        Tue, 29 Sep 2020 11:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379904;
-        bh=QWEe9lXeetwnmN3RorUwCPYnWoDrXGcTsLriocZ7dK8=;
+        s=default; t=1601380136;
+        bh=VQ4uWf4bw04QSq1Hr9QWlEphd7mef1m+0p9YY6gJILY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s1Qd50hSYXqbzA7l4KguZUZlPYSn/ABm0mUfMQ6yTJSok1pTpVD+/EnJhSogMYQro
-         A1RqVbZX32e/uOVIGFq9gvKXHZwCn3smG5rzTaiUabUuHt0ad3QSP6/57rw4mtLIoj
-         +2DymHlMoMXvjn32eTQaqXm1pnm24iwXwYIxVANw=
+        b=r692rr1Tv+VryWhnkKuBCkdgtvHNjhnXqS2SM4YAv7fUhvNxmtWrwPmZVN963O/U5
+         0L1zBUM1Zqs8XrqUk5bbd23xWg180ESbmkxomN71fQ3uW0ksC2P7mnTZYIIuULojPQ
+         9MuDHo1+CTiI35Th1/eRubf64OSDdnzsyJrdb/Go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, p_c_chan@hotmail.com, ecm4@mail.com,
-        perdigao1@yahoo.com, matzes@users.sourceforge.net,
-        rvelascog@gmail.com, Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 368/388] x86/ioapic: Unbreak check_timer()
+        stable@vger.kernel.org, John Crispin <john@phrozen.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 56/99] mac80211: fix 80 MHz association to 160/80+80 AP on 6 GHz
 Date:   Tue, 29 Sep 2020 13:01:39 +0200
-Message-Id: <20200929110028.281082680@linuxfoundation.org>
+Message-Id: <20200929105932.484101409@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: John Crispin <john@phrozen.org>
 
-commit 86a82ae0b5095ea24c55898a3f025791e7958b21 upstream.
+[ Upstream commit 75bcbd6913de649601f4e7d3fb6d2b5effc24e9e ]
 
-Several people reported in the kernel bugzilla that between v4.12 and v4.13
-the magic which works around broken hardware and BIOSes to find the proper
-timer interrupt delivery mode stopped working for some older affected
-platforms which need to fall back to ExtINT delivery mode.
+When trying to associate to an AP support 180 or 80+80 MHz on 6 GHz with a
+STA that only has 80 Mhz support the cf2 field inside the chandef will get
+set causing the association to fail when trying to validate the chandef.
+Fix this by checking the support flags prior to setting cf2.
 
-The reason is that the core code changed to keep track of the masked and
-disabled state of an interrupt line more accurately to avoid the expensive
-hardware operations.
-
-That broke an assumption in i8259_make_irq() which invokes
-
-     disable_irq_nosync();
-     irq_set_chip_and_handler();
-     enable_irq();
-
-Up to v4.12 this worked because enable_irq() unconditionally unmasked the
-interrupt line, but after the state tracking improvements this is not
-longer the case because the IO/APIC uses lazy disabling. So the line state
-is unmasked which means that enable_irq() does not call into the new irq
-chip to unmask it.
-
-In principle this is a shortcoming of the core code, but it's more than
-unclear whether the core code should try to reset state. At least this
-cannot be done unconditionally as that would break other existing use cases
-where the chip type is changed, e.g. when changing the trigger type, but
-the callers expect the state to be preserved.
-
-As the way how check_timer() is switching the delivery modes is truly
-unique, the obvious fix is to simply unmask the i8259 manually after
-changing the mode to ExtINT delivery and switching the irq chip to the
-legacy PIC.
-
-Note, that the fixes tag is not really precise, but identifies the commit
-which broke the assumptions in the IO/APIC and i8259 code and that's the
-kernel version to which this needs to be backported.
-
-Fixes: bf22ff45bed6 ("genirq: Avoid unnecessary low level irq function calls")
-Reported-by: p_c_chan@hotmail.com
-Reported-by: ecm4@mail.com
-Reported-by: perdigao1@yahoo.com
-Reported-by: matzes@users.sourceforge.net
-Reported-by: rvelascog@gmail.com
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: p_c_chan@hotmail.com
-Tested-by: matzes@users.sourceforge.net
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=197769
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 57fa5e85d53ce ("mac80211: determine chandef from HE 6 GHz operation")
+Signed-off-by: John Crispin <john@phrozen.org>
+Link: https://lore.kernel.org/r/20200918115304.1135693-1-john@phrozen.org
+[reword commit message a bit]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/io_apic.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/mac80211/util.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/apic/io_apic.c
-+++ b/arch/x86/kernel/apic/io_apic.c
-@@ -2256,6 +2256,7 @@ static inline void __init check_timer(vo
- 	legacy_pic->init(0);
- 	legacy_pic->make_irq(0);
- 	apic_write(APIC_LVT0, APIC_DM_EXTINT);
-+	legacy_pic->unmask(0);
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index dd9f5c7a1ade6..7b1f3645603ca 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -3354,9 +3354,10 @@ bool ieee80211_chandef_he_6ghz_oper(struct ieee80211_sub_if_data *sdata,
+ 		he_chandef.center_freq1 =
+ 			ieee80211_channel_to_frequency(he_6ghz_oper->ccfs0,
+ 						       NL80211_BAND_6GHZ);
+-		he_chandef.center_freq2 =
+-			ieee80211_channel_to_frequency(he_6ghz_oper->ccfs1,
+-						       NL80211_BAND_6GHZ);
++		if (support_80_80 || support_160)
++			he_chandef.center_freq2 =
++				ieee80211_channel_to_frequency(he_6ghz_oper->ccfs1,
++							       NL80211_BAND_6GHZ);
+ 	}
  
- 	unlock_ExtINT_logic();
- 
+ 	if (!cfg80211_chandef_valid(&he_chandef)) {
+-- 
+2.25.1
+
 
 
