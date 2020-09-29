@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 318BC27CB7E
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E3227C847
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:01:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732311AbgI2M2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:28:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49816 "EHLO mail.kernel.org"
+        id S1729891AbgI2Lkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:40:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729534AbgI2LdA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:33:00 -0400
+        id S1730557AbgI2Lkm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:40:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D53823B2A;
-        Tue, 29 Sep 2020 11:25:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE868221E7;
+        Tue, 29 Sep 2020 11:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378750;
-        bh=i2k6psKD+dGUpLw0J0oosq21og7nGX/I57WbGKyndI4=;
+        s=default; t=1601379622;
+        bh=lDDGUL4kvJ5mex8eDO//IqOW71j0i6XZXgohdWZWS0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ulJ8zbnhnpkifbdPrCE0jGi0+PLARS1fjn994MC9K9Tn54mnBH9567Z14RzeoMFDe
-         rcgVtrK4tdzzT5VeDeq2o/e5EZY4HH31uuENltA7juQxrQLt7PXXG0iiOF00bOkNI5
-         lYEmkwP8gwiTQS/JhDJtsfooQFBZMaa/S3d2ldcg=
+        b=rFfwRRCBcrBYWMCdDuE5VJVhEGjjCD2+i8UQ364gsjd/B7WnKGx0NFSPBuT4D2AQ/
+         bNWn8sefBifx5iTVG4AbRSg4V3413uFHTm9SWKDuy8tTpdsdmOQc0NUIm0nTG0KdAo
+         QYqVKtJ0ZGj+xv/ObzmrkKHxsO8lO1kIcAzSOHPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pratik Rajesh Sampat <psampat@linux.ibm.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 125/245] cpufreq: powernv: Fix frame-size-overflow in powernv_cpufreq_work_fn
+Subject: [PATCH 5.4 245/388] dt-bindings: sound: wm8994: Correct required supplies based on actual implementaion
 Date:   Tue, 29 Sep 2020 12:59:36 +0200
-Message-Id: <20200929105953.071665889@linuxfoundation.org>
+Message-Id: <20200929110022.341122381@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pratik Rajesh Sampat <psampat@linux.ibm.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit d95fe371ecd28901f11256c610b988ed44e36ee2 ]
+[ Upstream commit 8c149b7d75e53be47648742f40fc90d9fc6fa63a ]
 
-The patch avoids allocating cpufreq_policy on stack hence fixing frame
-size overflow in 'powernv_cpufreq_work_fn'
+The required supplies in bindings were actually not matching
+implementation making the bindings incorrect and misleading.  The Linux
+kernel driver requires all supplies to be present.  Also for wlf,wm8994
+uses just DBVDD-supply instead of DBVDDn-supply (n: <1,3>).
 
-Fixes: 227942809b52 ("cpufreq: powernv: Restore cpu frequency to policy->cur on unthrottling")
-Signed-off-by: Pratik Rajesh Sampat <psampat@linux.ibm.com>
-Reviewed-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200316135743.57735-1-psampat@linux.ibm.com
+Reported-by: Jonathan Bakker <xc-racer2@live.ca>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20200501133534.6706-1-krzk@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/powernv-cpufreq.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ .../devicetree/bindings/sound/wm8994.txt       | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/cpufreq/powernv-cpufreq.c b/drivers/cpufreq/powernv-cpufreq.c
-index 687c92ef76440..79942f7057576 100644
---- a/drivers/cpufreq/powernv-cpufreq.c
-+++ b/drivers/cpufreq/powernv-cpufreq.c
-@@ -903,6 +903,7 @@ static struct notifier_block powernv_cpufreq_reboot_nb = {
- void powernv_cpufreq_work_fn(struct work_struct *work)
- {
- 	struct chip *chip = container_of(work, struct chip, throttle);
-+	struct cpufreq_policy *policy;
- 	unsigned int cpu;
- 	cpumask_t mask;
+diff --git a/Documentation/devicetree/bindings/sound/wm8994.txt b/Documentation/devicetree/bindings/sound/wm8994.txt
+index 68cccc4653ba3..367b58ce1bb92 100644
+--- a/Documentation/devicetree/bindings/sound/wm8994.txt
++++ b/Documentation/devicetree/bindings/sound/wm8994.txt
+@@ -14,9 +14,15 @@ Required properties:
+   - #gpio-cells : Must be 2. The first cell is the pin number and the
+     second cell is used to specify optional parameters (currently unused).
  
-@@ -917,12 +918,14 @@ void powernv_cpufreq_work_fn(struct work_struct *work)
- 	chip->restore = false;
- 	for_each_cpu(cpu, &mask) {
- 		int index;
--		struct cpufreq_policy policy;
+-  - AVDD2-supply, DBVDD1-supply, DBVDD2-supply, DBVDD3-supply, CPVDD-supply,
+-    SPKVDD1-supply, SPKVDD2-supply : power supplies for the device, as covered
+-    in Documentation/devicetree/bindings/regulator/regulator.txt
++  - power supplies for the device, as covered in
++    Documentation/devicetree/bindings/regulator/regulator.txt, depending
++    on compatible:
++    - for wlf,wm1811 and wlf,wm8958:
++      AVDD1-supply, AVDD2-supply, DBVDD1-supply, DBVDD2-supply, DBVDD3-supply,
++      DCVDD-supply, CPVDD-supply, SPKVDD1-supply, SPKVDD2-supply
++    - for wlf,wm8994:
++      AVDD1-supply, AVDD2-supply, DBVDD-supply, DCVDD-supply, CPVDD-supply,
++      SPKVDD1-supply, SPKVDD2-supply
  
--		cpufreq_get_policy(&policy, cpu);
--		index = cpufreq_table_find_index_c(&policy, policy.cur);
--		powernv_cpufreq_target_index(&policy, index);
--		cpumask_andnot(&mask, &mask, policy.cpus);
-+		policy = cpufreq_cpu_get(cpu);
-+		if (!policy)
-+			continue;
-+		index = cpufreq_table_find_index_c(policy, policy->cur);
-+		powernv_cpufreq_target_index(policy, index);
-+		cpumask_andnot(&mask, &mask, policy->cpus);
-+		cpufreq_cpu_put(policy);
- 	}
- out:
- 	put_online_cpus();
+ Optional properties:
+ 
+@@ -73,11 +79,11 @@ wm8994: codec@1a {
+ 
+ 	lineout1-se;
+ 
++	AVDD1-supply = <&regulator>;
+ 	AVDD2-supply = <&regulator>;
+ 	CPVDD-supply = <&regulator>;
+-	DBVDD1-supply = <&regulator>;
+-	DBVDD2-supply = <&regulator>;
+-	DBVDD3-supply = <&regulator>;
++	DBVDD-supply = <&regulator>;
++	DCVDD-supply = <&regulator>;
+ 	SPKVDD1-supply = <&regulator>;
+ 	SPKVDD2-supply = <&regulator>;
+ };
 -- 
 2.25.1
 
