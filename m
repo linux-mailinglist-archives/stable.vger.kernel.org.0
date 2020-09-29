@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B19027CC31
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:34:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB0427CC45
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733093AbgI2MeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:34:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35520 "EHLO mail.kernel.org"
+        id S1733043AbgI2Me5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:34:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729668AbgI2LW4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:22:56 -0400
+        id S1729067AbgI2LVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:21:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F60323A74;
-        Tue, 29 Sep 2020 11:20:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E841723A58;
+        Tue, 29 Sep 2020 11:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378418;
-        bh=+Ni35/N2CQsVrArEzkm4WFDeYSc8aNOq6pXko1SDO5k=;
+        s=default; t=1601378378;
+        bh=QUAB+EmxI40tLxpeRvXcgM8qeF06F9FvQ6EMzReV2yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSqufSA3wjxiSzNHGEQbldThN/SCC21t/niS2wmI7fzQ0aNg+iaRYxdz9InQZNcn7
-         8n4vl391jiwf75ppnm49xG3PARTHcs14p6UVxf9KBtITJNVe/9cdgUM0qLPlYtCzOy
-         TwZG7xVddIeOhvJO1/QHCP5kmFD0yoeHjnAxx5B4=
+        b=gepsfsul5g1LtItJZ+QFqc4SlQAE630CSl2RBPmiclFtcSwZiXtMRN/MqgjSYqgq6
+         X0KZz17p99NpIausAhV2Rc5kvF8Q5vffVP7RRO0vASB38/+9Vi6zohG2dHnRNnlReU
+         8w1bGUEQbUI3dWYqG71a10Y41RkTH+YLiBwJzzP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 159/166] MIPS: Add the missing CPU_1074K into __get_cpu_type()
-Date:   Tue, 29 Sep 2020 13:01:11 +0200
-Message-Id: <20200929105943.130682910@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 160/166] s390/dasd: Fix zero write for FBA devices
+Date:   Tue, 29 Sep 2020 13:01:12 +0200
+Message-Id: <20200929105943.181284929@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -43,36 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-[ Upstream commit e393fbe6fa27af23f78df6e16a8fd2963578a8c4 ]
+commit 709192d531e5b0a91f20aa14abfe2fc27ddd47af upstream.
 
-Commit 442e14a2c55e ("MIPS: Add 1074K CPU support explicitly.") split
-1074K from the 74K as an unique CPU type, while it missed to add the
-'CPU_1074K' in __get_cpu_type(). So let's add it back.
+A discard request that writes zeros using the global kernel internal
+ZERO_PAGE will fail for machines with more than 2GB of memory due to the
+location of the ZERO_PAGE.
 
-Fixes: 442e14a2c55e ("MIPS: Add 1074K CPU support explicitly.")
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by using a driver owned global zero page allocated with GFP_DMA
+flag set.
+
+Fixes: 28b841b3a7cb ("s390/dasd: Add discard support for FBA devices")
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Cc: <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/mips/include/asm/cpu-type.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/block/dasd_fba.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/cpu-type.h b/arch/mips/include/asm/cpu-type.h
-index a45af3de075d9..d43e4ab20b238 100644
---- a/arch/mips/include/asm/cpu-type.h
-+++ b/arch/mips/include/asm/cpu-type.h
-@@ -47,6 +47,7 @@ static inline int __pure __get_cpu_type(const int cpu_type)
- 	case CPU_34K:
- 	case CPU_1004K:
- 	case CPU_74K:
-+	case CPU_1074K:
- 	case CPU_M14KC:
- 	case CPU_M14KEC:
- 	case CPU_INTERAPTIV:
--- 
-2.25.1
-
+--- a/drivers/s390/block/dasd_fba.c
++++ b/drivers/s390/block/dasd_fba.c
+@@ -39,6 +39,7 @@
+ MODULE_LICENSE("GPL");
+ 
+ static struct dasd_discipline dasd_fba_discipline;
++static void *dasd_fba_zero_page;
+ 
+ struct dasd_fba_private {
+ 	struct dasd_fba_characteristics rdc_data;
+@@ -269,7 +270,7 @@ static void ccw_write_zero(struct ccw1 *
+ 	ccw->cmd_code = DASD_FBA_CCW_WRITE;
+ 	ccw->flags |= CCW_FLAG_SLI;
+ 	ccw->count = count;
+-	ccw->cda = (__u32) (addr_t) page_to_phys(ZERO_PAGE(0));
++	ccw->cda = (__u32) (addr_t) dasd_fba_zero_page;
+ }
+ 
+ /*
+@@ -808,6 +809,11 @@ dasd_fba_init(void)
+ 	int ret;
+ 
+ 	ASCEBC(dasd_fba_discipline.ebcname, 4);
++
++	dasd_fba_zero_page = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
++	if (!dasd_fba_zero_page)
++		return -ENOMEM;
++
+ 	ret = ccw_driver_register(&dasd_fba_driver);
+ 	if (!ret)
+ 		wait_for_device_probe();
+@@ -819,6 +825,7 @@ static void __exit
+ dasd_fba_cleanup(void)
+ {
+ 	ccw_driver_unregister(&dasd_fba_driver);
++	free_page((unsigned long)dasd_fba_zero_page);
+ }
+ 
+ module_init(dasd_fba_init);
 
 
