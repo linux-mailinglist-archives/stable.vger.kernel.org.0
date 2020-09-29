@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F3327C8FE
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 577DF27C8E1
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731731AbgI2MGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:06:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58078 "EHLO mail.kernel.org"
+        id S1730546AbgI2MFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:05:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730258AbgI2Lhh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:37 -0400
+        id S1728842AbgI2Lhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8A3123A6A;
-        Tue, 29 Sep 2020 11:37:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20D0423A69;
+        Tue, 29 Sep 2020 11:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379421;
-        bh=FH1ZAFozw3UmdYRa+SC+Sc5mujLG3AFb2GJovZPNwD8=;
+        s=default; t=1601379423;
+        bh=1b4JsZ4VH04Yz7PW3Dfj7RJdRXwpxJuAyxmg9mrOlys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FVroFgidIzzk2WEulMB9WMXlQjo1+DXqqdHe2oQVcAJMyqInnSxy6VSYafhV5lMHj
-         gvWac1nUZGMiq95hKULjRIPDHxWAqJHfDqavujzVjz+PhEd1tnpivXZN6woqK03Lah
-         GpwnV/4WP16ipB/b3QH9Yjbw3a08q8W3T4fTmYHM=
+        b=ISWRMOchMYi6qQf+xEjoJw+xb/5U0gZZzBJgJLUwO6rzQ++A8qkzVhR7G7pMm0F6f
+         vOnOVLPJMlsSxpk5DEitBJOWIkgAsZKVwWU40k/xsSJrAIUtRXwTXccJ6V4h5vQZBI
+         HhrdlI0TR8HAD4CMSP88e5iy1mBzZE1VRg4J8Yuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 125/388] ALSA: usb-audio: Dont create a mixer element with bogus volume range
-Date:   Tue, 29 Sep 2020 12:57:36 +0200
-Message-Id: <20200929110016.517001947@linuxfoundation.org>
+Subject: [PATCH 5.4 126/388] perf test: Fix test trace+probe_vfs_getname.sh on s390
+Date:   Tue, 29 Sep 2020 12:57:37 +0200
+Message-Id: <20200929110016.564517717@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -42,43 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit e9a0ef0b5ddcbc0d56c65aefc0f18d16e6f71207 ]
+[ Upstream commit 2bbc83537614517730e9f2811195004b712de207 ]
 
-Some USB-audio descriptors provide a bogus volume range (e.g. volume
-min and max are identical), which confuses user-space.
-This patch makes the driver skipping such a control element.
+This test places a kprobe to function getname_flags() in the kernel
+which has the following prototype:
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206221
-Link: https://lore.kernel.org/r/20200214144928.23628-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  struct filename *getname_flags(const char __user *filename, int flags, int *empty)
+
+The 'filename' argument points to a filename located in user space memory.
+
+Looking at commit 88903c464321c ("tracing/probe: Add ustring type for
+user-space string") the kprobe should indicate that user space memory is
+accessed.
+
+Output before:
+
+   [root@m35lp76 perf]# ./perf test 66 67
+   66: Use vfs_getname probe to get syscall args filenames   : FAILED!
+   67: Check open filename arg using perf trace + vfs_getname: FAILED!
+   [root@m35lp76 perf]#
+
+Output after:
+
+   [root@m35lp76 perf]# ./perf test 66 67
+   66: Use vfs_getname probe to get syscall args filenames   : Ok
+   67: Check open filename arg using perf trace + vfs_getname: Ok
+   [root@m35lp76 perf]#
+
+Comments from Masami Hiramatsu:
+
+This bug doesn't happen on x86 or other archs on which user address
+space and kernel address space is the same. On some arches (ppc64 in
+this case?) user address space is partially or completely the same as
+kernel address space.
+
+(Yes, they switch the world when running into the kernel) In this case,
+we need to use different data access functions for each space.
+
+That is why I introduced the "ustring" type for kprobe events.
+
+As far as I can see, Thomas's patch is sane. Thomas, could you show us
+your result on your test environment?
+
+Comments from Thomas Richter:
+
+Test results for s/390 included above.
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/20200217102111.61137-1-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ tools/perf/tests/shell/lib/probe_vfs_getname.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index 9079c380228fc..8aa96ed0b1b56 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1684,6 +1684,16 @@ static void __build_feature_ctl(struct usb_mixer_interface *mixer,
- 	/* get min/max values */
- 	get_min_max_with_quirks(cval, 0, kctl);
+diff --git a/tools/perf/tests/shell/lib/probe_vfs_getname.sh b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
+index 7cb99b433888b..c2cc42daf9242 100644
+--- a/tools/perf/tests/shell/lib/probe_vfs_getname.sh
++++ b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
+@@ -14,7 +14,7 @@ add_probe_vfs_getname() {
+ 	if [ $had_vfs_getname -eq 1 ] ; then
+ 		line=$(perf probe -L getname_flags 2>&1 | egrep 'result.*=.*filename;' | sed -r 's/[[:space:]]+([[:digit:]]+)[[:space:]]+result->uptr.*/\1/')
+ 		perf probe -q       "vfs_getname=getname_flags:${line} pathname=result->name:string" || \
+-		perf probe $verbose "vfs_getname=getname_flags:${line} pathname=filename:string"
++		perf probe $verbose "vfs_getname=getname_flags:${line} pathname=filename:ustring"
+ 	fi
+ }
  
-+	/* skip a bogus volume range */
-+	if (cval->max <= cval->min) {
-+		usb_audio_dbg(mixer->chip,
-+			      "[%d] FU [%s] skipped due to invalid volume\n",
-+			      cval->head.id, kctl->id.name);
-+		snd_ctl_free_one(kctl);
-+		return;
-+	}
-+
-+
- 	if (control == UAC_FU_VOLUME) {
- 		check_mapped_dB(map, cval);
- 		if (cval->dBmin < cval->dBmax || !cval->initialized) {
 -- 
 2.25.1
 
