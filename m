@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F99227CBD2
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB4D27CBCF
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732823AbgI2Mav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:30:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43228 "EHLO mail.kernel.org"
+        id S1728705AbgI2Mat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:30:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729344AbgI2L3g (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729429AbgI2L3g (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:29:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 902B723AAA;
-        Tue, 29 Sep 2020 11:24:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58B8C23AC0;
+        Tue, 29 Sep 2020 11:24:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378653;
-        bh=//ADPIBJVW5dyfiG5iHFZA/xCA2SvA5QdiLIX7CKf+4=;
+        s=default; t=1601378655;
+        bh=/SxPJUpqKhaxSW+fenMFVsuIVtuTWZGsuUoRBdV6OaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uh+WSJNkgRJjzXs9k9z/HbEJaePdgRZ1bMXPmrYZRMvm4ElHDIA8Mjy5ZEsVbCbdu
-         XdfeT1vBpSvNYYpteX0hFdvEPRkymY5smyjHhrcA37kNO6kudUuMIzm8GSzkV2Geij
-         7zXNeXLkAgWClYzYuwPVTtYY8GB0YNT95xvedDgE=
+        b=alOkRogP6gnkBL3ieJgha5o1151wLQI+w6WqUalnQLTpoihWm7LEIHvMuh7Fcd8Ao
+         Zv+IHu67EE2oXLqHVenyl/sg7mfjKw9q3hzmSZmEM9yywacSOhiBZZyQYcAY/lKxiy
+         F9/BTJwk0QEvHpGeLb12WtIGaEqlRSj22iiws5pU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aric Cyr <aric.cyr@amd.com>,
-        Joshua Aberback <Joshua.Aberback@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 091/245] drm/amd/display: dal_ddc_i2c_payloads_create can fail causing panic
-Date:   Tue, 29 Sep 2020 12:59:02 +0200
-Message-Id: <20200929105951.417760720@linuxfoundation.org>
+Subject: [PATCH 4.19 092/245] firmware: arm_sdei: Use cpus_read_lock() to avoid races with cpuhp
+Date:   Tue, 29 Sep 2020 12:59:03 +0200
+Message-Id: <20200929105951.467556850@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -46,127 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aric Cyr <aric.cyr@amd.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit 6a6c4a4d459ecacc9013c45dcbf2bc9747fdbdbd ]
+[ Upstream commit 54f529a6806c9710947a4f2cdc15d6ea54121ccd ]
 
-[Why]
-Since the i2c payload allocation can fail need to check return codes
+SDEI has private events that need registering and enabling on each CPU.
+CPUs can come and go while we are trying to do this. SDEI tries to avoid
+these problems by setting the reregister flag before the register call,
+so any CPUs that come online register the event too. Sticking plaster
+like this doesn't work, as if the register call fails, a CPU that
+subsequently comes online will register the event before reregister
+is cleared.
 
-[How]
-Clean up i2c payload allocations and check for errors
+Take cpus_read_lock() around the register and enable calls. We don't
+want surprise CPUs to do the wrong thing if they race with these calls
+failing.
 
-Signed-off-by: Aric Cyr <aric.cyr@amd.com>
-Reviewed-by: Joshua Aberback <Joshua.Aberback@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Acked-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/core/dc_link_ddc.c | 52 +++++++++----------
- 1 file changed, 25 insertions(+), 27 deletions(-)
+ drivers/firmware/arm_sdei.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
-index 46c9cb47a96e5..145af3bb2dfcb 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_ddc.c
-@@ -127,22 +127,16 @@ struct aux_payloads {
- 	struct vector payloads;
- };
+diff --git a/drivers/firmware/arm_sdei.c b/drivers/firmware/arm_sdei.c
+index 05b528c7ed8fd..e809f4d9a9e93 100644
+--- a/drivers/firmware/arm_sdei.c
++++ b/drivers/firmware/arm_sdei.c
+@@ -410,14 +410,19 @@ int sdei_event_enable(u32 event_num)
+ 		return -ENOENT;
+ 	}
  
--static struct i2c_payloads *dal_ddc_i2c_payloads_create(struct dc_context *ctx, uint32_t count)
-+static bool dal_ddc_i2c_payloads_create(
-+		struct dc_context *ctx,
-+		struct i2c_payloads *payloads,
-+		uint32_t count)
- {
--	struct i2c_payloads *payloads;
--
--	payloads = kzalloc(sizeof(struct i2c_payloads), GFP_KERNEL);
--
--	if (!payloads)
--		return NULL;
--
- 	if (dal_vector_construct(
- 		&payloads->payloads, ctx, count, sizeof(struct i2c_payload)))
--		return payloads;
--
--	kfree(payloads);
--	return NULL;
-+		return true;
+-	spin_lock(&sdei_list_lock);
+-	event->reenable = true;
+-	spin_unlock(&sdei_list_lock);
  
-+	return false;
- }
- 
- static struct i2c_payload *dal_ddc_i2c_payloads_get(struct i2c_payloads *p)
-@@ -155,14 +149,12 @@ static uint32_t dal_ddc_i2c_payloads_get_count(struct i2c_payloads *p)
- 	return p->payloads.count;
- }
- 
--static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads **p)
-+static void dal_ddc_i2c_payloads_destroy(struct i2c_payloads *p)
- {
--	if (!p || !*p)
-+	if (!p)
- 		return;
--	dal_vector_destruct(&(*p)->payloads);
--	kfree(*p);
--	*p = NULL;
- 
-+	dal_vector_destruct(&p->payloads);
- }
- 
- static struct aux_payloads *dal_ddc_aux_payloads_create(struct dc_context *ctx, uint32_t count)
-@@ -580,9 +572,13 @@ bool dal_ddc_service_query_ddc_data(
- 
- 	uint32_t payloads_num = write_payloads + read_payloads;
- 
++	cpus_read_lock();
+ 	if (event->type == SDEI_EVENT_TYPE_SHARED)
+ 		err = sdei_api_event_enable(event->event_num);
+ 	else
+ 		err = sdei_do_cross_call(_local_event_enable, event);
 +
- 	if (write_size > EDID_SEGMENT_SIZE || read_size > EDID_SEGMENT_SIZE)
- 		return false;
++	if (!err) {
++		spin_lock(&sdei_list_lock);
++		event->reenable = true;
++		spin_unlock(&sdei_list_lock);
++	}
++	cpus_read_unlock();
+ 	mutex_unlock(&sdei_events_lock);
  
-+	if (!payloads_num)
-+		return false;
-+
- 	/*TODO: len of payload data for i2c and aux is uint8!!!!,
- 	 *  but we want to read 256 over i2c!!!!*/
- 	if (dal_ddc_service_is_in_aux_transaction_mode(ddc)) {
-@@ -613,23 +609,25 @@ bool dal_ddc_service_query_ddc_data(
- 		dal_ddc_aux_payloads_destroy(&payloads);
+ 	return err;
+@@ -619,21 +624,18 @@ int sdei_event_register(u32 event_num, sdei_event_callback *cb, void *arg)
+ 			break;
+ 		}
  
- 	} else {
--		struct i2c_payloads *payloads =
--			dal_ddc_i2c_payloads_create(ddc->ctx, payloads_num);
-+		struct i2c_command command = {0};
-+		struct i2c_payloads payloads;
+-		spin_lock(&sdei_list_lock);
+-		event->reregister = true;
+-		spin_unlock(&sdei_list_lock);
+-
++		cpus_read_lock();
+ 		err = _sdei_event_register(event);
+ 		if (err) {
+-			spin_lock(&sdei_list_lock);
+-			event->reregister = false;
+-			event->reenable = false;
+-			spin_unlock(&sdei_list_lock);
+-
+ 			sdei_event_destroy(event);
+ 			pr_warn("Failed to register event %u: %d\n", event_num,
+ 				err);
++		} else {
++			spin_lock(&sdei_list_lock);
++			event->reregister = true;
++			spin_unlock(&sdei_list_lock);
+ 		}
++		cpus_read_unlock();
+ 	} while (0);
+ 	mutex_unlock(&sdei_events_lock);
  
--		struct i2c_command command = {
--			.payloads = dal_ddc_i2c_payloads_get(payloads),
--			.number_of_payloads = 0,
--			.engine = DDC_I2C_COMMAND_ENGINE,
--			.speed = ddc->ctx->dc->caps.i2c_speed_in_khz };
-+		if (!dal_ddc_i2c_payloads_create(ddc->ctx, &payloads, payloads_num))
-+			return false;
-+
-+		command.payloads = dal_ddc_i2c_payloads_get(&payloads);
-+		command.number_of_payloads = 0;
-+		command.engine = DDC_I2C_COMMAND_ENGINE;
-+		command.speed = ddc->ctx->dc->caps.i2c_speed_in_khz;
- 
- 		dal_ddc_i2c_payloads_add(
--			payloads, address, write_size, write_buf, true);
-+			&payloads, address, write_size, write_buf, true);
- 
- 		dal_ddc_i2c_payloads_add(
--			payloads, address, read_size, read_buf, false);
-+			&payloads, address, read_size, read_buf, false);
- 
- 		command.number_of_payloads =
--			dal_ddc_i2c_payloads_get_count(payloads);
-+			dal_ddc_i2c_payloads_get_count(&payloads);
- 
- 		ret = dm_helpers_submit_i2c(
- 				ddc->ctx,
 -- 
 2.25.1
 
