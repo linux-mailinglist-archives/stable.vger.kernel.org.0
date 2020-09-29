@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0F5827CC58
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A3E27CC47
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:35:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732835AbgI2Mfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:35:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37658 "EHLO mail.kernel.org"
+        id S1733105AbgI2Me6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:34:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729571AbgI2LVO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:21:14 -0400
+        id S1729254AbgI2LVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:21:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D719E23A33;
-        Tue, 29 Sep 2020 11:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A87EC23A34;
+        Tue, 29 Sep 2020 11:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378358;
-        bh=ANEvw/4pMtBeQ3ZLljniHBGPRo5wvvucV4VHXsHoqgs=;
+        s=default; t=1601378361;
+        bh=w1lb9REZr+ctoHFQ0Y5pTJcvB4ovwCQDN7W8p0KoojI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1OF0Pj941tlUufuMTX8+5XR1SD5yslKtjLH4IeNSvdSyD02lPbmEBDsNJzjVMdVVj
-         9zj22lNjcnoYDaLtw5AJQ5SP3QN0FragZc8CfBgzZV2CVIiXUfT2U6Ikc7qBnYbjtu
-         wYJLkp1MvAX8qKlJFtHFzN2aWxKQmvjkuOXYtxAM=
+        b=xwMl7wZolIb0tFgXC4/toIEmLN9Y4+K/oE3sckeVpv9Vca3SSumuskG0t3qC5pXDh
+         IEwK11eoeQYRCBhR7SgdGQIS9QIueFYDUG/u9DylwNAH0cCLSIfI3/T7PspDj179DF
+         gGrwX/hg+kpSt6WKkZNG35vKmzNgwg00opKuOFdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 123/166] drm/nouveau/debugfs: fix runtime pm imbalance on error
-Date:   Tue, 29 Sep 2020 13:00:35 +0200
-Message-Id: <20200929105941.337026953@linuxfoundation.org>
+        stable@vger.kernel.org, Shreyas Joshi <shreyas.joshi@biamp.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 124/166] printk: handle blank console arguments passed in.
+Date:   Tue, 29 Sep 2020 13:00:36 +0200
+Message-Id: <20200929105941.388170072@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -43,38 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Shreyas Joshi <shreyas.joshi@biamp.com>
 
-[ Upstream commit 00583fbe8031f69bba8b0a9a861efb75fb7131af ]
+[ Upstream commit 48021f98130880dd74286459a1ef48b5e9bc374f ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-the call returns an error code. Thus a pairing decrement is needed
-on the error handling path to keep the counter balanced.
+If uboot passes a blank string to console_setup then it results in
+a trashed memory. Ultimately, the kernel crashes during freeing up
+the memory.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+This fix checks if there is a blank parameter being
+passed to console_setup from uboot. In case it detects that
+the console parameter is blank then it doesn't setup the serial
+device and it gracefully exits.
+
+Link: https://lore.kernel.org/r/20200522065306.83-1-shreyas.joshi@biamp.com
+Signed-off-by: Shreyas Joshi <shreyas.joshi@biamp.com>
+Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+[pmladek@suse.com: Better format the commit message and code, remove unnecessary brackets.]
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_debugfs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/printk/printk.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_debugfs.c b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
-index 9635704a1d864..4561a786fab07 100644
---- a/drivers/gpu/drm/nouveau/nouveau_debugfs.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
-@@ -161,8 +161,11 @@ nouveau_debugfs_pstate_set(struct file *file, const char __user *ubuf,
- 	}
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 4e50beb162c00..f96b22db5fe70 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -2092,6 +2092,9 @@ static int __init console_setup(char *str)
+ 	char *s, *options, *brl_options = NULL;
+ 	int idx;
  
- 	ret = pm_runtime_get_sync(drm->dev);
--	if (ret < 0 && ret != -EACCES)
-+	if (ret < 0 && ret != -EACCES) {
-+		pm_runtime_put_autosuspend(drm->dev);
- 		return ret;
-+	}
++	if (str[0] == 0)
++		return 1;
 +
- 	ret = nvif_mthd(ctrl, NVIF_CONTROL_PSTATE_USER, &args, sizeof(args));
- 	pm_runtime_put_autosuspend(drm->dev);
- 	if (ret < 0)
+ 	if (_braille_console_setup(&str, &brl_options))
+ 		return 1;
+ 
 -- 
 2.25.1
 
