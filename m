@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C61227C803
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C67A627C802
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:58:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730684AbgI2LmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39014 "EHLO mail.kernel.org"
+        id S1730390AbgI2LmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:42:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730671AbgI2Ll5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:41:57 -0400
+        id S1730677AbgI2Ll7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:41:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C72D206A5;
-        Tue, 29 Sep 2020 11:41:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F70220702;
+        Tue, 29 Sep 2020 11:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379716;
-        bh=mQuNhQ2qow8drIVBTh6YiAbV1CoN1qj3OWdYWoENEcI=;
+        s=default; t=1601379718;
+        bh=qsmbx+LWYhW40jxyy4d6lzF0hG3ZSYrZoizFkJdgukA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yzHrawHXFIHxS7I/A+Te3n8WqNpXZKNc40WTr9jI3GaSXRgqLyKXVHWy0b4WHbIAn
-         BN3z6v3/pdlDx90LBNRI5rQQwGzHs+rFmB1SeCKtbDhKVgY0HqlHzbQBzb8sXNxRqE
-         TBiiigjWl5UWxw90RtKtVYkWpu5N36owKsb25aJM=
+        b=mU4S7QHTXQ0BF/dYwbO3YTLrBOyml2MJBh+Ncsm5nuifak59rodfd2b/D0voCczFg
+         GkY+R5NwoctcaxfTOAkq4Civje5E/gdFSy6JV60jm3/Yc7/4D3eiGAEwcCU2tE3W3D
+         ogcdYs2wUrSeFak/XvFUqZNvAIKuQf1i7ed1L6Yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying Xue <ying.xue@windriver.com>,
-        Jon Maloy <jmaloy@redhat.com>,
-        Thang Ngo <thang.h.ngo@dektech.com.au>,
-        Tuong Lien <tuong.t.lien@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 257/388] tipc: fix memory leak in service subscripting
-Date:   Tue, 29 Sep 2020 12:59:48 +0200
-Message-Id: <20200929110022.914885230@linuxfoundation.org>
+Subject: [PATCH 5.4 258/388] tty: serial: samsung: Correct clock selection logic
+Date:   Tue, 29 Sep 2020 12:59:49 +0200
+Message-Id: <20200929110022.963016338@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -46,74 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuong Lien <tuong.t.lien@dektech.com.au>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-[ Upstream commit 0771d7df819284d46cf5cfb57698621b503ec17f ]
+[ Upstream commit 7d31676a8d91dd18e08853efd1cb26961a38c6a6 ]
 
-Upon receipt of a service subscription request from user via a topology
-connection, one 'sub' object will be allocated in kernel, so it will be
-able to send an event of the service if any to the user correspondingly
-then. Also, in case of any failure, the connection will be shutdown and
-all the pertaining 'sub' objects will be freed.
+Some variants of the samsung tty driver can pick which clock
+to use for their baud rate generation.  In the DT conversion,
+a default clock was selected to be used if a specific one wasn't
+assigned and then a comparison of which clock rate worked better
+was done.  Unfortunately, the comparison was implemented in such
+a way that only the default clock was ever actually compared.
+Fix this by iterating through all possible clocks, except when a
+specific clock has already been picked via clk_sel (which is
+only possible via board files).
 
-However, there is a race condition as follows resulting in memory leak:
-
-       receive-work       connection        send-work
-              |                |                |
-        sub-1 |<------//-------|                |
-        sub-2 |<------//-------|                |
-              |                |<---------------| evt for sub-x
-        sub-3 |<------//-------|                |
-              :                :                :
-              :                :                :
-              |       /--------|                |
-              |       |        * peer closed    |
-              |       |        |                |
-              |       |        |<-------X-------| evt for sub-y
-              |       |        |<===============|
-        sub-n |<------/        X    shutdown    |
-    -> orphan |                                 |
-
-That is, the 'receive-work' may get the last subscription request while
-the 'send-work' is shutting down the connection due to peer close.
-
-We had a 'lock' on the connection, so the two actions cannot be carried
-out simultaneously. If the last subscription is allocated e.g. 'sub-n',
-before the 'send-work' closes the connection, there will be no issue at
-all, the 'sub' objects will be freed. In contrast the last subscription
-will become orphan since the connection was closed, and we released all
-references.
-
-This commit fixes the issue by simply adding one test if the connection
-remains in 'connected' state right after we obtain the connection lock,
-then a subscription object can be created as usual, otherwise we ignore
-it.
-
-Acked-by: Ying Xue <ying.xue@windriver.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Reported-by: Thang Ngo <thang.h.ngo@dektech.com.au>
-Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/BN6PR04MB06604E63833EA41837EBF77BA3A30@BN6PR04MB0660.namprd04.prod.outlook.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/topsrv.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/samsung.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/tipc/topsrv.c b/net/tipc/topsrv.c
-index 73dbed0c4b6b8..931c426673c02 100644
---- a/net/tipc/topsrv.c
-+++ b/net/tipc/topsrv.c
-@@ -400,7 +400,9 @@ static int tipc_conn_rcv_from_sock(struct tipc_conn *con)
- 		return -EWOULDBLOCK;
- 	if (ret == sizeof(s)) {
- 		read_lock_bh(&sk->sk_callback_lock);
--		ret = tipc_conn_rcv_sub(srv, con, &s);
-+		/* RACE: the connection can be closed in the meantime */
-+		if (likely(connected(con)))
-+			ret = tipc_conn_rcv_sub(srv, con, &s);
- 		read_unlock_bh(&sk->sk_callback_lock);
- 		if (!ret)
- 			return 0;
+diff --git a/drivers/tty/serial/samsung.c b/drivers/tty/serial/samsung.c
+index 71f99e9217592..c7683beb3412a 100644
+--- a/drivers/tty/serial/samsung.c
++++ b/drivers/tty/serial/samsung.c
+@@ -1187,14 +1187,14 @@ static unsigned int s3c24xx_serial_getclk(struct s3c24xx_uart_port *ourport,
+ 	struct s3c24xx_uart_info *info = ourport->info;
+ 	struct clk *clk;
+ 	unsigned long rate;
+-	unsigned int cnt, baud, quot, clk_sel, best_quot = 0;
++	unsigned int cnt, baud, quot, best_quot = 0;
+ 	char clkname[MAX_CLK_NAME_LENGTH];
+ 	int calc_deviation, deviation = (1 << 30) - 1;
+ 
+-	clk_sel = (ourport->cfg->clk_sel) ? ourport->cfg->clk_sel :
+-			ourport->info->def_clk_sel;
+ 	for (cnt = 0; cnt < info->num_clks; cnt++) {
+-		if (!(clk_sel & (1 << cnt)))
++		/* Keep selected clock if provided */
++		if (ourport->cfg->clk_sel &&
++			!(ourport->cfg->clk_sel & (1 << cnt)))
+ 			continue;
+ 
+ 		sprintf(clkname, "clk_uart_baud%d", cnt);
 -- 
 2.25.1
 
