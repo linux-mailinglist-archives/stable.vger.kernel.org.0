@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1077127C7C1
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C82127C7BF
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730874AbgI2L4O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728570AbgI2L4O (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 29 Sep 2020 07:56:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43080 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730825AbgI2LoO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:44:14 -0400
+        id S1730853AbgI2LoQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:44:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5258A206E5;
-        Tue, 29 Sep 2020 11:44:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83A10206F7;
+        Tue, 29 Sep 2020 11:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379853;
-        bh=QrA7dvsKpXFZen8QuOgGNjZSWVR7QpehUkO9ZZZPs8U=;
+        s=default; t=1601379856;
+        bh=/lT7H3OXzxcu3Vz67CeNXX/b3kJ+nN8VHCCoEPiHmxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dLor9QrGfcOvJ8cXvwTxLxNahEzfHq2vYIk0oHbPkOwykOAYj3syOk65CewcOYvNh
-         KlsbMuHsvSpDtVsuGq+enofatyqxlAy+aRONGLl3kZdznw4Yn7hScbg/bP89g5Wkby
-         /HMz9/MZzEPb2cQOa8dZr0Usf5areUshZSesfptw=
+        b=ZbHo8mREAMUo/+5hMi5PTGtSrOlY1uP1QWtkK/704KAobd8gnMw2Kjwsfd7iK+kzr
+         1dcid+4xPYmlaadQPjUvtrHASKnOFLwBQe3Zq+DR4yVmdVW74RTQHHJeXVY7A/nKxD
+         VP7BTUDXLmGsAMAjTQZp2+UfjGWGscWy+DFgLZXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        linux-wpan@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 345/388] mac802154: tx: fix use-after-free
-Date:   Tue, 29 Sep 2020 13:01:16 +0200
-Message-Id: <20200929110027.160365223@linuxfoundation.org>
+        stable@vger.kernel.org, Bryce Kahle <bryce.kahle@datadoghq.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 346/388] bpf: Fix clobbering of r2 in bpf_gen_ld_abs
+Date:   Tue, 29 Sep 2020 13:01:17 +0200
+Message-Id: <20200929110027.210377484@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -45,168 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 0ff4628f4c6c1ab87eef9f16b25355cadc426d64 ]
+[ Upstream commit e6a18d36118bea3bf497c9df4d9988b6df120689 ]
 
-syzbot reported a bug in ieee802154_tx() [1]
+Bryce reported that he saw the following with:
 
-A similar issue in ieee802154_xmit_worker() is also fixed in this patch.
+  0:  r6 = r1
+  1:  r1 = 12
+  2:  r0 = *(u16 *)skb[r1]
 
-[1]
-BUG: KASAN: use-after-free in ieee802154_tx+0x3d2/0x480 net/mac802154/tx.c:88
-Read of size 4 at addr ffff8880251a8c70 by task syz-executor.3/928
+The xlated sequence was incorrectly clobbering r2 with pointer
+value of r6 ...
 
-CPU: 0 PID: 928 Comm: syz-executor.3 Not tainted 5.9.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x198/0x1fd lib/dump_stack.c:118
- print_address_description.constprop.0.cold+0xae/0x497 mm/kasan/report.c:383
- __kasan_report mm/kasan/report.c:513 [inline]
- kasan_report.cold+0x1f/0x37 mm/kasan/report.c:530
- ieee802154_tx+0x3d2/0x480 net/mac802154/tx.c:88
- ieee802154_subif_start_xmit+0xbe/0xe4 net/mac802154/tx.c:130
- __netdev_start_xmit include/linux/netdevice.h:4634 [inline]
- netdev_start_xmit include/linux/netdevice.h:4648 [inline]
- dev_direct_xmit+0x4e9/0x6e0 net/core/dev.c:4203
- packet_snd net/packet/af_packet.c:2989 [inline]
- packet_sendmsg+0x2413/0x5290 net/packet/af_packet.c:3014
- sock_sendmsg_nosec net/socket.c:651 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:671
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2353
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2407
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2440
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45d5b9
-Code: 5d b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 2b b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fc98e749c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 000000000002ccc0 RCX: 000000000045d5b9
-RDX: 0000000000000000 RSI: 0000000020007780 RDI: 000000000000000b
-RBP: 000000000118d020 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000000000118cfec
-R13: 00007fff690c720f R14: 00007fc98e74a9c0 R15: 000000000118cfec
+  0: (bf) r6 = r1
+  1: (b7) r1 = 12
+  2: (bf) r1 = r6
+  3: (bf) r2 = r1
+  4: (85) call bpf_skb_load_helper_16_no_cache#7692160
 
-Allocated by task 928:
- kasan_save_stack+0x1b/0x40 mm/kasan/common.c:48
- kasan_set_track mm/kasan/common.c:56 [inline]
- __kasan_kmalloc.constprop.0+0xbf/0xd0 mm/kasan/common.c:461
- slab_post_alloc_hook mm/slab.h:518 [inline]
- slab_alloc_node mm/slab.c:3254 [inline]
- kmem_cache_alloc_node+0x136/0x3e0 mm/slab.c:3574
- __alloc_skb+0x71/0x550 net/core/skbuff.c:198
- alloc_skb include/linux/skbuff.h:1094 [inline]
- alloc_skb_with_frags+0x92/0x570 net/core/skbuff.c:5771
- sock_alloc_send_pskb+0x72a/0x880 net/core/sock.c:2348
- packet_alloc_skb net/packet/af_packet.c:2837 [inline]
- packet_snd net/packet/af_packet.c:2932 [inline]
- packet_sendmsg+0x19fb/0x5290 net/packet/af_packet.c:3014
- sock_sendmsg_nosec net/socket.c:651 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:671
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2353
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2407
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2440
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+... and hence call to the load helper never succeeded given the
+offset was too high. Fix it by reordering the load of r6 to r1.
 
-Freed by task 928:
- kasan_save_stack+0x1b/0x40 mm/kasan/common.c:48
- kasan_set_track+0x1c/0x30 mm/kasan/common.c:56
- kasan_set_free_info+0x1b/0x30 mm/kasan/generic.c:355
- __kasan_slab_free+0xd8/0x120 mm/kasan/common.c:422
- __cache_free mm/slab.c:3418 [inline]
- kmem_cache_free.part.0+0x74/0x1e0 mm/slab.c:3693
- kfree_skbmem+0xef/0x1b0 net/core/skbuff.c:622
- __kfree_skb net/core/skbuff.c:679 [inline]
- consume_skb net/core/skbuff.c:838 [inline]
- consume_skb+0xcf/0x160 net/core/skbuff.c:832
- __dev_kfree_skb_any+0x9c/0xc0 net/core/dev.c:3107
- fakelb_hw_xmit+0x20e/0x2a0 drivers/net/ieee802154/fakelb.c:81
- drv_xmit_async net/mac802154/driver-ops.h:16 [inline]
- ieee802154_tx+0x282/0x480 net/mac802154/tx.c:81
- ieee802154_subif_start_xmit+0xbe/0xe4 net/mac802154/tx.c:130
- __netdev_start_xmit include/linux/netdevice.h:4634 [inline]
- netdev_start_xmit include/linux/netdevice.h:4648 [inline]
- dev_direct_xmit+0x4e9/0x6e0 net/core/dev.c:4203
- packet_snd net/packet/af_packet.c:2989 [inline]
- packet_sendmsg+0x2413/0x5290 net/packet/af_packet.c:3014
- sock_sendmsg_nosec net/socket.c:651 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:671
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2353
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2407
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2440
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Other than that the insn has similar calling convention than BPF
+helpers, that is, r0 - r5 are scratch regs, so nothing else
+affected after the insn.
 
-The buggy address belongs to the object at ffff8880251a8c00
- which belongs to the cache skbuff_head_cache of size 224
-The buggy address is located 112 bytes inside of
- 224-byte region [ffff8880251a8c00, ffff8880251a8ce0)
-The buggy address belongs to the page:
-page:0000000062b6a4f1 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x251a8
-flags: 0xfffe0000000200(slab)
-raw: 00fffe0000000200 ffffea0000435c88 ffffea00028b6c08 ffff8880a9055d00
-raw: 0000000000000000 ffff8880251a80c0 000000010000000c 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff8880251a8b00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff8880251a8b80: fb fb fb fb fc fc fc fc fc fc fc fc fc fc fc fc
->ffff8880251a8c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                                             ^
- ffff8880251a8c80: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
- ffff8880251a8d00: fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb fb
-
-Fixes: 409c3b0c5f03 ("mac802154: tx: move stats tx increment")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Alexander Aring <alex.aring@gmail.com>
-Cc: Stefan Schmidt <stefan@datenfreihafen.org>
-Cc: linux-wpan@vger.kernel.org
-Link: https://lore.kernel.org/r/20200908104025.4009085-1-edumazet@google.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Fixes: e0cea7ce988c ("bpf: implement ld_abs/ld_ind in native bpf")
+Reported-by: Bryce Kahle <bryce.kahle@datadoghq.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/cace836e4d07bb63b1a53e49c5dfb238a040c298.1599512096.git.daniel@iogearbox.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac802154/tx.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/core/filter.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac802154/tx.c b/net/mac802154/tx.c
-index ab52811523e99..c829e4a753256 100644
---- a/net/mac802154/tx.c
-+++ b/net/mac802154/tx.c
-@@ -34,11 +34,11 @@ void ieee802154_xmit_worker(struct work_struct *work)
- 	if (res)
- 		goto err_tx;
+diff --git a/net/core/filter.c b/net/core/filter.c
+index cf2a68513bfd5..c441f9961e917 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -6791,8 +6791,6 @@ static int bpf_gen_ld_abs(const struct bpf_insn *orig,
+ 	bool indirect = BPF_MODE(orig->code) == BPF_IND;
+ 	struct bpf_insn *insn = insn_buf;
  
--	ieee802154_xmit_complete(&local->hw, skb, false);
--
- 	dev->stats.tx_packets++;
- 	dev->stats.tx_bytes += skb->len;
- 
-+	ieee802154_xmit_complete(&local->hw, skb, false);
-+
- 	return;
- 
- err_tx:
-@@ -78,6 +78,8 @@ ieee802154_tx(struct ieee802154_local *local, struct sk_buff *skb)
- 
- 	/* async is priority, otherwise sync is fallback */
- 	if (local->ops->xmit_async) {
-+		unsigned int len = skb->len;
-+
- 		ret = drv_xmit_async(local, skb);
- 		if (ret) {
- 			ieee802154_wake_queue(&local->hw);
-@@ -85,7 +87,7 @@ ieee802154_tx(struct ieee802154_local *local, struct sk_buff *skb)
- 		}
- 
- 		dev->stats.tx_packets++;
--		dev->stats.tx_bytes += skb->len;
-+		dev->stats.tx_bytes += len;
+-	/* We're guaranteed here that CTX is in R6. */
+-	*insn++ = BPF_MOV64_REG(BPF_REG_1, BPF_REG_CTX);
+ 	if (!indirect) {
+ 		*insn++ = BPF_MOV64_IMM(BPF_REG_2, orig->imm);
  	} else {
- 		local->tx_skb = skb;
- 		queue_work(local->workqueue, &local->tx_work);
+@@ -6800,6 +6798,8 @@ static int bpf_gen_ld_abs(const struct bpf_insn *orig,
+ 		if (orig->imm)
+ 			*insn++ = BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, orig->imm);
+ 	}
++	/* We're guaranteed here that CTX is in R6. */
++	*insn++ = BPF_MOV64_REG(BPF_REG_1, BPF_REG_CTX);
+ 
+ 	switch (BPF_SIZE(orig->code)) {
+ 	case BPF_B:
 -- 
 2.25.1
 
