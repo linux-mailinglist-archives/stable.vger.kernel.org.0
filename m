@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03B1A27C96A
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8939F27C8AD
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730237AbgI2MKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:10:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58122 "EHLO mail.kernel.org"
+        id S1729054AbgI2MDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:03:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730185AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:34 -0400
+        id S1729588AbgI2Lie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:38:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C83420848;
-        Tue, 29 Sep 2020 11:23:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DED6C221F0;
+        Tue, 29 Sep 2020 11:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378583;
-        bh=goHehEleIuKTp8STem4gnEwPnlD4MLfNm+R8gc0hWIg=;
+        s=default; t=1601379503;
+        bh=qlotgXebtLnYCKBlDgxBtcaePM7N4LilOIyoIeSPEOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oy8dRzTRITvLiWi6PVCv3xyvlqnGwhETDqq1zEb4JXhCEsNM8mkR9o/bgA11lD8nc
-         +T+hFJMJXexcgEM+feHwn2PECcN3FVJnYiAQKll4InJWGbKcu9fN5yOc8i1i40ghvq
-         vri1D4zcnKLugPbe3diSAvGU6B6LxYFFs2lSHDUU=
+        b=qZDE5hHjZ8QtdPdFuXM9Aq2y6PtJB1t0ZUXfz7/8Hs5VqYE0/2btJ7vgtoVGnTtkw
+         r+9Umk3KQcschUaz2+BAHIXHeLmJHw5maV00G5+f9w5JJhIzgwZE3syRqCxElD6SS2
+         X/tiGeGwbBEwg8jEeZT3R59rwWowub/loq5P6ZfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Smythies <dsmythies@telus.net>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 065/245] tools/power/x86/intel_pstate_tracer: changes for python 3 compatibility
+Subject: [PATCH 5.4 185/388] serial: 8250_omap: Fix sleeping function called from invalid context during probe
 Date:   Tue, 29 Sep 2020 12:58:36 +0200
-Message-Id: <20200929105950.163904168@linuxfoundation.org>
+Message-Id: <20200929110019.432592928@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,111 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Smythies <doug.smythies@gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit e749e09db30c38f1a275945814b0109e530a07b0 ]
+[ Upstream commit 4ce35a3617c0ac758c61122b2218b6c8c9ac9398 ]
 
-Some syntax needs to be more rigorous for python 3.
-Backwards compatibility tested with python 2.7
+When booting j721e the following bug is printed:
 
-Signed-off-by: Doug Smythies <dsmythies@telus.net>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+[    1.154821] BUG: sleeping function called from invalid context at kernel/sched/completion.c:99
+[    1.154827] in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 12, name: kworker/0:1
+[    1.154832] 3 locks held by kworker/0:1/12:
+[    1.154836]  #0: ffff000840030728 ((wq_completion)events){+.+.}, at: process_one_work+0x1d4/0x6e8
+[    1.154852]  #1: ffff80001214fdd8 (deferred_probe_work){+.+.}, at: process_one_work+0x1d4/0x6e8
+[    1.154860]  #2: ffff00084060b170 (&dev->mutex){....}, at: __device_attach+0x38/0x138
+[    1.154872] irq event stamp: 63096
+[    1.154881] hardirqs last  enabled at (63095): [<ffff800010b74318>] _raw_spin_unlock_irqrestore+0x70/0x78
+[    1.154887] hardirqs last disabled at (63096): [<ffff800010b740d8>] _raw_spin_lock_irqsave+0x28/0x80
+[    1.154893] softirqs last  enabled at (62254): [<ffff800010080c88>] _stext+0x488/0x564
+[    1.154899] softirqs last disabled at (62247): [<ffff8000100fdb3c>] irq_exit+0x114/0x140
+[    1.154906] CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.6.0-rc6-next-20200318-00094-g45e4089b0bd3 #221
+[    1.154911] Hardware name: Texas Instruments K3 J721E SoC (DT)
+[    1.154917] Workqueue: events deferred_probe_work_func
+[    1.154923] Call trace:
+[    1.154928]  dump_backtrace+0x0/0x190
+[    1.154933]  show_stack+0x14/0x20
+[    1.154940]  dump_stack+0xe0/0x148
+[    1.154946]  ___might_sleep+0x150/0x1f0
+[    1.154952]  __might_sleep+0x4c/0x80
+[    1.154957]  wait_for_completion_timeout+0x40/0x140
+[    1.154964]  ti_sci_set_device_state+0xa0/0x158
+[    1.154969]  ti_sci_cmd_get_device_exclusive+0x14/0x20
+[    1.154977]  ti_sci_dev_start+0x34/0x50
+[    1.154984]  genpd_runtime_resume+0x78/0x1f8
+[    1.154991]  __rpm_callback+0x3c/0x140
+[    1.154996]  rpm_callback+0x20/0x80
+[    1.155001]  rpm_resume+0x568/0x758
+[    1.155007]  __pm_runtime_resume+0x44/0xb0
+[    1.155013]  omap8250_probe+0x2b4/0x508
+[    1.155019]  platform_drv_probe+0x50/0xa0
+[    1.155023]  really_probe+0xd4/0x318
+[    1.155028]  driver_probe_device+0x54/0xe8
+[    1.155033]  __device_attach_driver+0x80/0xb8
+[    1.155039]  bus_for_each_drv+0x74/0xc0
+[    1.155044]  __device_attach+0xdc/0x138
+[    1.155049]  device_initial_probe+0x10/0x18
+[    1.155053]  bus_probe_device+0x98/0xa0
+[    1.155058]  deferred_probe_work_func+0x74/0xb0
+[    1.155063]  process_one_work+0x280/0x6e8
+[    1.155068]  worker_thread+0x48/0x430
+[    1.155073]  kthread+0x108/0x138
+[    1.155079]  ret_from_fork+0x10/0x18
+
+To fix the bug we need to first call pm_runtime_enable() prior to any
+pm_runtime calls.
+
+Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20200320125200.6772-1-peter.ujfalusi@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../intel_pstate_tracer.py                    | 22 +++++++++----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/tty/serial/8250/8250_omap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py b/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py
-index 2fa3c5757bcb5..dbed3d213bf17 100755
---- a/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py
-+++ b/tools/power/x86/intel_pstate_tracer/intel_pstate_tracer.py
-@@ -10,11 +10,11 @@ then this utility enables and collects trace data for a user specified interval
- and generates performance plots.
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index 836e736ae188b..2624b5d083366 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -1234,6 +1234,7 @@ static int omap8250_probe(struct platform_device *pdev)
+ 	spin_lock_init(&priv->rx_dma_lock);
  
- Prerequisites:
--    Python version 2.7.x
-+    Python version 2.7.x or higher
-     gnuplot 5.0 or higher
--    gnuplot-py 1.8
-+    gnuplot-py 1.8 or higher
-     (Most of the distributions have these required packages. They may be called
--     gnuplot-py, phython-gnuplot. )
-+     gnuplot-py, phython-gnuplot or phython3-gnuplot, gnuplot-nox, ... )
+ 	device_init_wakeup(&pdev->dev, true);
++	pm_runtime_enable(&pdev->dev);
+ 	pm_runtime_use_autosuspend(&pdev->dev);
  
-     HWP (Hardware P-States are disabled)
-     Kernel config for Linux trace is enabled
-@@ -180,7 +180,7 @@ def plot_pstate_cpu_with_sample():
-         g_plot('set xlabel "Samples"')
-         g_plot('set ylabel "P-State"')
-         g_plot('set title "{} : cpu pstate vs. sample : {:%F %H:%M}"'.format(testname, datetime.now()))
--        title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+        title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-         plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_SAMPLE, C_TO)
-         g_plot('title_list = "{}"'.format(title_list))
-         g_plot(plot_str)
-@@ -197,7 +197,7 @@ def plot_pstate_cpu():
- #    the following command is really cool, but doesn't work with the CPU masking option because it aborts on the first missing file.
- #    plot_str = 'plot for [i=0:*] file=sprintf("cpu%03d.csv",i) title_s=sprintf("cpu%03d",i) file using 16:7 pt 7 ps 1 title title_s'
- #
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_TO)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -211,7 +211,7 @@ def plot_load_cpu():
-     g_plot('set ylabel "CPU load (percent)"')
-     g_plot('set title "{} : cpu loads : {:%F %H:%M}"'.format(testname, datetime.now()))
+ 	/*
+@@ -1247,7 +1248,6 @@ static int omap8250_probe(struct platform_device *pdev)
+ 		pm_runtime_set_autosuspend_delay(&pdev->dev, -1);
  
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_LOAD)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -225,7 +225,7 @@ def plot_frequency_cpu():
-     g_plot('set ylabel "CPU Frequency (GHz)"')
-     g_plot('set title "{} : cpu frequencies : {:%F %H:%M}"'.format(testname, datetime.now()))
+ 	pm_runtime_irq_safe(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
  
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_FREQ)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -240,7 +240,7 @@ def plot_duration_cpu():
-     g_plot('set ylabel "Timer Duration (MilliSeconds)"')
-     g_plot('set title "{} : cpu durations : {:%F %H:%M}"'.format(testname, datetime.now()))
+ 	pm_runtime_get_sync(&pdev->dev);
  
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_DURATION)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -254,7 +254,7 @@ def plot_scaled_cpu():
-     g_plot('set ylabel "Scaled Busy (Unitless)"')
-     g_plot('set title "{} : cpu scaled busy : {:%F %H:%M}"'.format(testname, datetime.now()))
- 
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_SCALED)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -268,7 +268,7 @@ def plot_boost_cpu():
-     g_plot('set ylabel "CPU IO Boost (percent)"')
-     g_plot('set title "{} : cpu io boost : {:%F %H:%M}"'.format(testname, datetime.now()))
- 
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_BOOST)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
-@@ -282,7 +282,7 @@ def plot_ghz_cpu():
-     g_plot('set ylabel "TSC Frequency (GHz)"')
-     g_plot('set title "{} : cpu TSC Frequencies (Sanity check calculation) : {:%F %H:%M}"'.format(testname, datetime.now()))
- 
--    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).replace('\n', ' ')
-+    title_list = subprocess.check_output('ls cpu???.csv | sed -e \'s/.csv//\'',shell=True).decode('utf-8').replace('\n', ' ')
-     plot_str = "plot for [i in title_list] i.'.csv' using {:d}:{:d} pt 7 ps 1 title i".format(C_ELAPSED, C_GHZ)
-     g_plot('title_list = "{}"'.format(title_list))
-     g_plot(plot_str)
 -- 
 2.25.1
 
