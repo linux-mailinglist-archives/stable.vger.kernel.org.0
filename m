@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD1FC27C91B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:07:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AEE727C911
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:07:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731941AbgI2MH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:07:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58078 "EHLO mail.kernel.org"
+        id S1730680AbgI2MHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:07:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730247AbgI2Lhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730244AbgI2Lhg (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:37:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9622323A9A;
-        Tue, 29 Sep 2020 11:36:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8BEE23A9D;
+        Tue, 29 Sep 2020 11:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379397;
-        bh=6Nq2HNEwR1KMNGLEz8HadXWVEGLF1X2YtNQ2rH4FjP0=;
+        s=default; t=1601379399;
+        bh=4Q7mw5KAqcmnZ9t/lXxKuMpRFZq7oX7lNAzl9x/GlCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pws9vCt2Uns2V+g5S3Ce56miNqAKIEeanRv1m/3UEP3qwqOTMFoCk5Xse05/QkyR2
-         9Ykd6P7rMrFAy1dCCT5bJmS3IZib9VcBZeKW23/TCwicNt3rS+1PKFu6Z8c3WoGyji
-         yvfpqe6eBDAnmztQuuHCxlcJk0zernW6LA3MORfY=
+        b=sfdtx+Sx8y9ZbyfwJcaOXq1Cs93bff4Cm6OUuqsywuyLdTHdydv3lVnBt6IxGPVIX
+         GmCdkWTeU2yfyn45uPMIi9iAw1q+RFcUxr4wHM4O9HKiR1ck8whmxwFLNto5T6sF/I
+         4ONGCksJDMxYbOmwoggFDTZvu07ZDzSnlMV8Lzys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        =?UTF-8?q?Josef=20M=C3=B6llers?= <josef.moellers@suse.com>
-Subject: [PATCH 5.4 144/388] media: go7007: Fix URB type for interrupt handling
-Date:   Tue, 29 Sep 2020 12:57:55 +0200
-Message-Id: <20200929110017.445932268@linuxfoundation.org>
+        stable@vger.kernel.org, Alain Michaud <alainm@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 145/388] Bluetooth: guard against controllers sending zerod events
+Date:   Tue, 29 Sep 2020 12:57:56 +0200
+Message-Id: <20200929110017.493975439@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -45,53 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alain Michaud <alainm@chromium.org>
 
-[ Upstream commit a3ea410cac41b19a5490aad7fe6d9a9a772e646e ]
+[ Upstream commit 08bb4da90150e2a225f35e0f642cdc463958d696 ]
 
-Josef reported that his old-and-good Plextor ConvertX M402U video
-converter spews lots of WARNINGs on the recent kernels, and it turned
-out that the device uses a bulk endpoint for interrupt handling just
-like 2250 board.
+Some controllers have been observed to send zero'd events under some
+conditions.  This change guards against this condition as well as adding
+a trace to facilitate diagnosability of this condition.
 
-For fixing it, generalize the check with the proper verification of
-the endpoint instead of hard-coded board type check.
-
-Fixes: 7e5219d18e93 ("[media] go7007: Fix 2250 urb type")
-Reported-and-tested-by: Josef Möllers <josef.moellers@suse.com>
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1162583
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206427
-
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Alain Michaud <alainm@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/go7007/go7007-usb.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/bluetooth/hci_event.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/usb/go7007/go7007-usb.c b/drivers/media/usb/go7007/go7007-usb.c
-index ff2aa057c1fbc..f889c9d740cd1 100644
---- a/drivers/media/usb/go7007/go7007-usb.c
-+++ b/drivers/media/usb/go7007/go7007-usb.c
-@@ -1044,6 +1044,7 @@ static int go7007_usb_probe(struct usb_interface *intf,
- 	struct go7007_usb *usb;
- 	const struct go7007_usb_board *board;
- 	struct usb_device *usbdev = interface_to_usbdev(intf);
-+	struct usb_host_endpoint *ep;
- 	unsigned num_i2c_devs;
- 	char *name;
- 	int video_pipe, i, v_urb_len;
-@@ -1140,7 +1141,8 @@ static int go7007_usb_probe(struct usb_interface *intf,
- 	if (usb->intr_urb->transfer_buffer == NULL)
- 		goto allocfail;
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 7bf6860fed783..1bbeb14b8b64e 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5853,6 +5853,11 @@ void hci_event_packet(struct hci_dev *hdev, struct sk_buff *skb)
+ 	u8 status = 0, event = hdr->evt, req_evt = 0;
+ 	u16 opcode = HCI_OP_NOP;
  
--	if (go->board_id == GO7007_BOARDID_SENSORAY_2250)
-+	ep = usb->usbdev->ep_in[4];
-+	if (usb_endpoint_type(&ep->desc) == USB_ENDPOINT_XFER_BULK)
- 		usb_fill_bulk_urb(usb->intr_urb, usb->usbdev,
- 			usb_rcvbulkpipe(usb->usbdev, 4),
- 			usb->intr_urb->transfer_buffer, 2*sizeof(u16),
++	if (!event) {
++		bt_dev_warn(hdev, "Received unexpected HCI Event 00000000");
++		goto done;
++	}
++
+ 	if (hdev->sent_cmd && bt_cb(hdev->sent_cmd)->hci.req_event == event) {
+ 		struct hci_command_hdr *cmd_hdr = (void *) hdev->sent_cmd->data;
+ 		opcode = __le16_to_cpu(cmd_hdr->opcode);
+@@ -6064,6 +6069,7 @@ void hci_event_packet(struct hci_dev *hdev, struct sk_buff *skb)
+ 		req_complete_skb(hdev, status, opcode, orig_skb);
+ 	}
+ 
++done:
+ 	kfree_skb(orig_skb);
+ 	kfree_skb(skb);
+ 	hdev->stat.evt_rx++;
 -- 
 2.25.1
 
