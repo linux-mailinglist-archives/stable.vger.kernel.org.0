@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE9F27C998
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D351327C98D
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:12:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730238AbgI2MMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:12:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
+        id S1730743AbgI2MLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:11:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730156AbgI2Lhc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:32 -0400
+        id S1730165AbgI2Lhd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C22F23F2A;
-        Tue, 29 Sep 2020 11:35:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7194123F35;
+        Tue, 29 Sep 2020 11:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379300;
-        bh=C/vWB/HWvbBoRq5OnbqfMnbsQfBPae8evloq2/dctHY=;
+        s=default; t=1601379302;
+        bh=JYuoka6Dcpa7rPPX+K0pgm8y9LHlMras/8gA7lLYGAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n+vdLuhIjjVmbBrpXgjvs6Zpn+DILpJJ9wpBq+u1oaTp2NMav07yZzMaB0RFRh6if
-         c913Ig9RoTIV7yEIndGon2+u0pWSG9jBzoJ5wkjnPBJxsZK8UEBqN+HAj+sWv4JR4V
-         Go2Q79UqhDqN5xf2uwhwoqmwpy0hAGj7kyXRgj1I=
+        b=WC36FcW8B3ZVhhrMeKuA2MOfvBANoc2UK+2+0n/MuAzI1+Z5H4Ni/W5p+/j79OVIX
+         Wuw0TLIYuyoVOHj2uZU5pBGFm8glA300V837Ht2h1oj8OPs7CiO5YtXrKF5JSNpvXk
+         //9EtQDLFvGkbbk7Mlu68f221b6yEykDtjrTVIF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 102/388] ceph: ensure we have a new cap before continuing in fill_inode
-Date:   Tue, 29 Sep 2020 12:57:13 +0200
-Message-Id: <20200929110015.419352695@linuxfoundation.org>
+Subject: [PATCH 5.4 103/388] selftests/ftrace: fix glob selftest
+Date:   Tue, 29 Sep 2020 12:57:14 +0200
+Message-Id: <20200929110015.468105991@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,37 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 9a6bed4fe0c8bf57785cbc4db9f86086cb9b193d ]
+[ Upstream commit af4ddd607dff7aabd466a4a878e01b9f592a75ab ]
 
-If the caller passes in a NULL cap_reservation, and we can't allocate
-one then ensure that we fail gracefully.
+test.d/ftrace/func-filter-glob.tc is failing on s390 because it has
+ARCH_INLINE_SPIN_LOCK and friends set to 'y'. So the usual
+__raw_spin_lock symbol isn't in the ftrace function list. Change
+'*aw*lock' to '*spin*lock' which would hopefully match some of the
+locking functions on all platforms.
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/inode.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ .../testing/selftests/ftrace/test.d/ftrace/func-filter-glob.tc  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index c07407586ce87..660a878e20ef2 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -754,8 +754,11 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
- 	info_caps = le32_to_cpu(info->cap.caps);
+diff --git a/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-glob.tc b/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-glob.tc
+index 27a54a17da65d..f4e92afab14b2 100644
+--- a/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-glob.tc
++++ b/tools/testing/selftests/ftrace/test.d/ftrace/func-filter-glob.tc
+@@ -30,7 +30,7 @@ ftrace_filter_check '*schedule*' '^.*schedule.*$'
+ ftrace_filter_check 'schedule*' '^schedule.*$'
  
- 	/* prealloc new cap struct */
--	if (info_caps && ceph_snap(inode) == CEPH_NOSNAP)
-+	if (info_caps && ceph_snap(inode) == CEPH_NOSNAP) {
- 		new_cap = ceph_get_cap(mdsc, caps_reservation);
-+		if (!new_cap)
-+			return -ENOMEM;
-+	}
+ # filter by *mid*end
+-ftrace_filter_check '*aw*lock' '.*aw.*lock$'
++ftrace_filter_check '*pin*lock' '.*pin.*lock$'
  
- 	/*
- 	 * prealloc xattr data, if it looks like we'll need it.  only
+ # filter by start*mid*
+ ftrace_filter_check 'mutex*try*' '^mutex.*try.*'
 -- 
 2.25.1
 
