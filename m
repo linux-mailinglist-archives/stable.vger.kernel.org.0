@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B7DB27C3E5
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA32527C336
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729038AbgI2LJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:09:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48786 "EHLO mail.kernel.org"
+        id S1728512AbgI2LDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:03:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728705AbgI2LJE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:09:04 -0400
+        id S1728459AbgI2LDg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:03:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 108C521D46;
-        Tue, 29 Sep 2020 11:09:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 148C721924;
+        Tue, 29 Sep 2020 11:03:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377743;
-        bh=Q3qlLeijSOxaR4t888kSr+We1cYAMIVWVmTCZIAu9lo=;
+        s=default; t=1601377415;
+        bh=8nCT9onTS12O7kRGYlMj2GxuwieMrLhg/b0HjITQ+WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3V+vT5bfcWZ4Nyt2daMOwWuRX+DQj7O6aYuBZ6os7qdkh4BOIzLNazEXbOBNEw60
-         jOXFVE8DvSNbLVnn6iXaE4YpxQdMuo6+04GcliqHPiYwp8TOr6gtQIEdpLpTnVEWbP
-         MP+KidN/j+Uea/d31BDu78gd9WMCIXLwHNxjsirM=
+        b=v1WtgMxYdyZkyOWN/iogjyNlOJyMLcAiioKPBWCxg6qG/isKzo6MulgHstwFrIQhw
+         LqEN9ZUtlrdM75MdO8Mz9lV91RH0H0q+lkW1m3GNfA5rOhnItiGlpsTzc9msC9yfLx
+         O2s6prx5x5aPKYjD1+NH/alqq9qQ1NSrR10V3vp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Song Liu <songliubraving@fb.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 026/121] xfs: fix attr leaf header freemap.size underflow
+Subject: [PATCH 4.4 03/85] kprobes: fix kill kprobe which has been marked as gone
 Date:   Tue, 29 Sep 2020 12:59:30 +0200
-Message-Id: <20200929105931.488431418@linuxfoundation.org>
+Message-Id: <20200929105928.378688564@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +51,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 2a2b5932db67586bacc560cc065d62faece5b996 ]
+[ Upstream commit b0399092ccebd9feef68d4ceb8d6219a8c0caa05 ]
 
-The leaf format xattr addition helper xfs_attr3_leaf_add_work()
-adjusts the block freemap in a couple places. The first update drops
-the size of the freemap that the caller had already selected to
-place the xattr name/value data. Before the function returns, it
-also checks whether the entries array has encroached on a freemap
-range by virtue of the new entry addition. This is necessary because
-the entries array grows from the start of the block (but end of the
-block header) towards the end of the block while the name/value data
-grows from the end of the block in the opposite direction. If the
-associated freemap is already empty, however, size is zero and the
-subtraction underflows the field and causes corruption.
+If a kprobe is marked as gone, we should not kill it again.  Otherwise, we
+can disarm the kprobe more than once.  In that case, the statistics of
+kprobe_ftrace_enabled can unbalance which can lead to that kprobe do not
+work.
 
-This is reproduced rarely by generic/070. The observed behavior is
-that a smaller sized freemap is aligned to the end of the entries
-list, several subsequent xattr additions land in larger freemaps and
-the entries list expands into the smaller freemap until it is fully
-consumed and then underflows. Note that it is not otherwise a
-corruption for the entries array to consume an empty freemap because
-the nameval list (i.e. the firstused pointer in the xattr header)
-starts beyond the end of the corrupted freemap.
-
-Update the freemap size modification to account for the fact that
-the freemap entry can be empty and thus stale.
-
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Fixes: e8386a0cb22f ("kprobes: support probing module __exit function")
+Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200822030055.32383-1-songmuchun@bytedance.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/kprobes.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
-index 7b9dd76403bfd..537acde2c497b 100644
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -1332,7 +1332,9 @@ xfs_attr3_leaf_add_work(
- 	for (i = 0; i < XFS_ATTR_LEAF_MAPSIZE; i++) {
- 		if (ichdr->freemap[i].base == tmp) {
- 			ichdr->freemap[i].base += sizeof(xfs_attr_leaf_entry_t);
--			ichdr->freemap[i].size -= sizeof(xfs_attr_leaf_entry_t);
-+			ichdr->freemap[i].size -=
-+				min_t(uint16_t, ichdr->freemap[i].size,
-+						sizeof(xfs_attr_leaf_entry_t));
- 		}
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 9241a29a1f9de..574f650eb818b 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2012,6 +2012,9 @@ static void kill_kprobe(struct kprobe *p)
+ {
+ 	struct kprobe *kp;
+ 
++	if (WARN_ON_ONCE(kprobe_gone(p)))
++		return;
++
+ 	p->flags |= KPROBE_FLAG_GONE;
+ 	if (kprobe_aggrprobe(p)) {
+ 		/*
+@@ -2154,7 +2157,10 @@ static int kprobes_module_callback(struct notifier_block *nb,
+ 	mutex_lock(&kprobe_mutex);
+ 	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
+ 		head = &kprobe_table[i];
+-		hlist_for_each_entry_rcu(p, head, hlist)
++		hlist_for_each_entry_rcu(p, head, hlist) {
++			if (kprobe_gone(p))
++				continue;
++
+ 			if (within_module_init((unsigned long)p->addr, mod) ||
+ 			    (checkcore &&
+ 			     within_module_core((unsigned long)p->addr, mod))) {
+@@ -2165,6 +2171,7 @@ static int kprobes_module_callback(struct notifier_block *nb,
+ 				 */
+ 				kill_kprobe(p);
+ 			}
++		}
  	}
- 	ichdr->usedbytes += xfs_attr_leaf_entsize(leaf, args->index);
+ 	mutex_unlock(&kprobe_mutex);
+ 	return NOTIFY_DONE;
 -- 
 2.25.1
 
