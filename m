@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B62827C6B8
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C1B27C652
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:44:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730783AbgI2Lr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:47:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49550 "EHLO mail.kernel.org"
+        id S1730820AbgI2Lnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730756AbgI2Lrp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:47:45 -0400
+        id S1729961AbgI2Lnv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:43:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F985206F7;
-        Tue, 29 Sep 2020 11:47:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11646206F7;
+        Tue, 29 Sep 2020 11:43:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380064;
-        bh=LNZePWQTIkq1f57VCIo3einG9SeJ6nHBVtFz+fGAZYU=;
+        s=default; t=1601379830;
+        bh=kdHRcq3EG9jPL5PimFZc3zEHwD/Gj7kxr/jNsQtN2ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v93NQsb9hUwPUHykrPm78TGmCmHYaeHWCRp0SDqfo0zyH7UrZY0gF8O0jJ7scAP0d
-         GNUt3EkHbnDhdMSbkfp44BagxhtrHcEIzbaP5DmdJiZ9QhhFDSuJOArVVR8MJQepIM
-         OIyql9qLfXU1ZOQI6+DEKsY+SRBr9xVCMXK2+F1c=
+        b=0LyyHhixUAdVvOo4iYraamJIPe8FgKPsi+uf3IXQQpfFcZeXJisAznBO+GOn1R0Mj
+         Nioj26Ex53DK+4tusTqDy89UnoS9mjUqHAyIHDQDCzf+AyAWCV5Rd/L0Y9XygmFjKU
+         +mbciXwyKjsHYbKoUy5VY+XOmiMzsHDeXrqFdATE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        Kaloyan Nikolov <konik98@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 24/99] mwifiex: Increase AES key storage size to 256 bits
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 336/388] objtool: Fix noreturn detection for ignored functions
 Date:   Tue, 29 Sep 2020 13:01:07 +0200
-Message-Id: <20200929105930.910764318@linuxfoundation.org>
+Message-Id: <20200929110026.728658321@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,78 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 4afc850e2e9e781976fb2c7852ce7bac374af938 ]
+[ Upstream commit db6c6a0df840e3f52c84cc302cc1a08ba11a4416 ]
 
-Following commit e18696786548 ("mwifiex: Prevent memory corruption
-handling keys") the mwifiex driver fails to authenticate with certain
-networks, specifically networks with 256 bit keys, and repeatedly asks
-for the password. The kernel log repeats the following lines (id and
-bssid redacted):
+When a function is annotated with STACK_FRAME_NON_STANDARD, objtool
+doesn't validate its code paths.  It also skips sibling call detection
+within the function.
 
-    mwifiex_pcie 0000:01:00.0: info: trying to associate to '<id>' bssid <bssid>
-    mwifiex_pcie 0000:01:00.0: info: associated to bssid <bssid> successfully
-    mwifiex_pcie 0000:01:00.0: crypto keys added
-    mwifiex_pcie 0000:01:00.0: info: successfully disconnected from <bssid>: reason code 3
+But sibling call detection is actually needed for the case where the
+ignored function doesn't have any return instructions.  Otherwise
+objtool naively marks the function as implicit static noreturn, which
+affects the reachability of its callers, resulting in "unreachable
+instruction" warnings.
 
-Tracking down this problem lead to the overflow check introduced by the
-aforementioned commit into mwifiex_ret_802_11_key_material_v2(). This
-check fails on networks with 256 bit keys due to the current storage
-size for AES keys in struct mwifiex_aes_param being only 128 bit.
+Fix it by just enabling sibling call detection for ignored functions.
+The 'insn->ignore' check in add_jump_destinations() is no longer needed
+after
 
-To fix this issue, increase the storage size for AES keys to 256 bit.
+  e6da9567959e ("objtool: Don't use ignore flag for fake jumps").
 
-Fixes: e18696786548 ("mwifiex: Prevent memory corruption handling keys")
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Reported-by: Kaloyan Nikolov <konik98@gmail.com>
-Tested-by: Kaloyan Nikolov <konik98@gmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Tested-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200825153829.38043-1-luzmaximilian@gmail.com
+Fixes the following warning:
+
+  arch/x86/kvm/vmx/vmx.o: warning: objtool: vmx_handle_exit_irqoff()+0x142: unreachable instruction
+
+which triggers on an allmodconfig with CONFIG_GCOV_KERNEL unset.
+
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lkml.kernel.org/r/5b1e2536cdbaa5246b60d7791b76130a74082c62.1599751464.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/fw.h          | 2 +-
- drivers/net/wireless/marvell/mwifiex/sta_cmdresp.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ tools/objtool/check.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/fw.h b/drivers/net/wireless/marvell/mwifiex/fw.h
-index 8047e307892e3..d9f8bdbc817b2 100644
---- a/drivers/net/wireless/marvell/mwifiex/fw.h
-+++ b/drivers/net/wireless/marvell/mwifiex/fw.h
-@@ -954,7 +954,7 @@ struct mwifiex_tkip_param {
- struct mwifiex_aes_param {
- 	u8 pn[WPA_PN_SIZE];
- 	__le16 key_len;
--	u8 key[WLAN_KEY_LEN_CCMP];
-+	u8 key[WLAN_KEY_LEN_CCMP_256];
- } __packed;
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 48b234d8f251e..1b7e748170e54 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -556,7 +556,7 @@ static int add_jump_destinations(struct objtool_file *file)
+ 		    insn->type != INSN_JUMP_UNCONDITIONAL)
+ 			continue;
  
- struct mwifiex_wapi_param {
-diff --git a/drivers/net/wireless/marvell/mwifiex/sta_cmdresp.c b/drivers/net/wireless/marvell/mwifiex/sta_cmdresp.c
-index 962d8bfe6f101..119ccacd1fcc4 100644
---- a/drivers/net/wireless/marvell/mwifiex/sta_cmdresp.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sta_cmdresp.c
-@@ -619,7 +619,7 @@ static int mwifiex_ret_802_11_key_material_v2(struct mwifiex_private *priv,
- 	key_v2 = &resp->params.key_material_v2;
+-		if (insn->ignore || insn->offset == FAKE_JUMP_OFFSET)
++		if (insn->offset == FAKE_JUMP_OFFSET)
+ 			continue;
  
- 	len = le16_to_cpu(key_v2->key_param_set.key_params.aes.key_len);
--	if (len > WLAN_KEY_LEN_CCMP)
-+	if (len > sizeof(key_v2->key_param_set.key_params.aes.key))
- 		return -EINVAL;
- 
- 	if (le16_to_cpu(key_v2->action) == HostCmd_ACT_GEN_SET) {
-@@ -635,7 +635,7 @@ static int mwifiex_ret_802_11_key_material_v2(struct mwifiex_private *priv,
- 		return 0;
- 
- 	memset(priv->aes_key_v2.key_param_set.key_params.aes.key, 0,
--	       WLAN_KEY_LEN_CCMP);
-+	       sizeof(key_v2->key_param_set.key_params.aes.key));
- 	priv->aes_key_v2.key_param_set.key_params.aes.key_len =
- 				cpu_to_le16(len);
- 	memcpy(priv->aes_key_v2.key_param_set.key_params.aes.key,
+ 		rela = find_rela_by_dest_range(insn->sec, insn->offset,
 -- 
 2.25.1
 
