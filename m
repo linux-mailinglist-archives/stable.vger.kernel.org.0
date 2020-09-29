@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37EC027C641
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E14B27C648
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:43:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730771AbgI2LnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:43:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41432 "EHLO mail.kernel.org"
+        id S1730787AbgI2Lnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:43:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729829AbgI2LnQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:43:16 -0400
+        id S1729962AbgI2LnR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:43:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00BD62076A;
-        Tue, 29 Sep 2020 11:43:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D62C20848;
+        Tue, 29 Sep 2020 11:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379791;
-        bh=sryL45D2Xw7qlPOrIrdtKdTGkdCEVjkzq3LYwn5mTFM=;
+        s=default; t=1601379793;
+        bh=HRxq0ht/+5yrMdIpMbPQqA0bDRkCKb/DJ6jydnj2H9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYfcNs3+oLMzemubbeUIgqfsep1cKwPpTKqLYahMBhY7DbH6f/KuUnijZVos+F2oy
-         73nNlGRLz0/7b2UmpEJ2P0ydijprFB2bJKA8Qll3BTeLD4cXApddf7d5jAyVf0+Q7R
-         bdXlTq/Nhb+lyskPKc/I7iy9yBtrBk7UUM3KLucY=
+        b=lTgT6xTTjE8J5S2S+ZllklvkyvudoDCoW0UXjy4Sw1MKRic+FqMoI2M14LpRukGK2
+         EyaA5ar6JnfWFRnV/01WZaXBXYfou7tDaEhLSy2BUXV1ISoJMcgfV3Cf6uS1o0JP8+
+         b3/yf4Vncnan90YvQpSKnfMuhMw2yZ+mZ2iMXKtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 289/388] PCI: tegra194: Fix runtime PM imbalance on error
-Date:   Tue, 29 Sep 2020 13:00:20 +0200
-Message-Id: <20200929110024.452774500@linuxfoundation.org>
+Subject: [PATCH 5.4 290/388] ASoC: img-i2s-out: Fix runtime PM imbalance on error
+Date:   Tue, 29 Sep 2020 13:00:21 +0200
+Message-Id: <20200929110024.502672444@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -47,46 +45,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 1c1dbb2c02623db18a50c61b175f19aead800b4e ]
+[ Upstream commit 65bd91dd6957390c42a0491b9622cf31a2cdb140 ]
 
 pm_runtime_get_sync() increments the runtime PM usage counter even
-when it returns an error code. Thus a pairing decrement is needed on
-the error handling path to keep the counter balanced.
+the call returns an error code. Thus a pairing decrement is needed
+on the error handling path to keep the counter balanced.
 
-Link: https://lore.kernel.org/r/20200521031355.7022-1-dinghao.liu@zju.edu.cn
 Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Acked-by: Vidya Sagar <vidyas@nvidia.com>
+Link: https://lore.kernel.org/r/20200529012230.5863-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-tegra194.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/soc/img/img-i2s-out.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
-index f89f5acee72d4..c06b05ab9f787 100644
---- a/drivers/pci/controller/dwc/pcie-tegra194.c
-+++ b/drivers/pci/controller/dwc/pcie-tegra194.c
-@@ -1395,7 +1395,7 @@ static int tegra_pcie_config_rp(struct tegra_pcie_dw *pcie)
- 	ret = pinctrl_pm_select_default_state(dev);
- 	if (ret < 0) {
- 		dev_err(dev, "Failed to configure sideband pins: %d\n", ret);
--		goto fail_pinctrl;
-+		goto fail_pm_get_sync;
+diff --git a/sound/soc/img/img-i2s-out.c b/sound/soc/img/img-i2s-out.c
+index 4b18534096336..9c4212f2f7269 100644
+--- a/sound/soc/img/img-i2s-out.c
++++ b/sound/soc/img/img-i2s-out.c
+@@ -347,8 +347,10 @@ static int img_i2s_out_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 	chan_control_mask = IMG_I2S_OUT_CHAN_CTL_CLKT_MASK;
+ 
+ 	ret = pm_runtime_get_sync(i2s->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(i2s->dev);
+ 		return ret;
++	}
+ 
+ 	img_i2s_out_disable(i2s);
+ 
+@@ -488,8 +490,10 @@ static int img_i2s_out_probe(struct platform_device *pdev)
+ 			goto err_pm_disable;
  	}
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(&pdev->dev);
+ 		goto err_suspend;
++	}
  
- 	tegra_pcie_init_controller(pcie);
-@@ -1422,9 +1422,8 @@ static int tegra_pcie_config_rp(struct tegra_pcie_dw *pcie)
- 
- fail_host_init:
- 	tegra_pcie_deinit_controller(pcie);
--fail_pinctrl:
--	pm_runtime_put_sync(dev);
- fail_pm_get_sync:
-+	pm_runtime_put_sync(dev);
- 	pm_runtime_disable(dev);
- 	return ret;
- }
+ 	reg = IMG_I2S_OUT_CTL_FRM_SIZE_MASK;
+ 	img_i2s_out_writel(i2s, reg, IMG_I2S_OUT_CTL);
 -- 
 2.25.1
 
