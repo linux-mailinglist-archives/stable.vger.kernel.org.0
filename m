@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8939F27C8AD
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:04:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14F0427C977
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729054AbgI2MDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:03:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60304 "EHLO mail.kernel.org"
+        id S1731418AbgI2MKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:10:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729588AbgI2Lie (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:38:34 -0400
+        id S1730177AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DED6C221F0;
-        Tue, 29 Sep 2020 11:38:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C9A121941;
+        Tue, 29 Sep 2020 11:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379503;
-        bh=qlotgXebtLnYCKBlDgxBtcaePM7N4LilOIyoIeSPEOo=;
+        s=default; t=1601378585;
+        bh=lkELpZy9Y12ASSKiv2e5CcnLv2YHI5t6jueN9U/7Ocs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZDE5hHjZ8QtdPdFuXM9Aq2y6PtJB1t0ZUXfz7/8Hs5VqYE0/2btJ7vgtoVGnTtkw
-         r+9Umk3KQcschUaz2+BAHIXHeLmJHw5maV00G5+f9w5JJhIzgwZE3syRqCxElD6SS2
-         X/tiGeGwbBEwg8jEeZT3R59rwWowub/loq5P6ZfQ=
+        b=ueND25dYvVXC5lqIyMtusuygfohptcXb3tQL0UYBCZUbhsBbOP4RbcReSzmhsMVa3
+         TMSXM3zHnBHt8LNVwEIOHOPfThsoUWejBAngtQE3p24wg2DK224kY/CnO+ezOLt4Eb
+         qwTB2jITeChcbILgt/q2o3YxOxpVN3Jpfilzg5zM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        stable@vger.kernel.org, Manish Mandlik <mmandlik@google.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 185/388] serial: 8250_omap: Fix sleeping function called from invalid context during probe
-Date:   Tue, 29 Sep 2020 12:58:36 +0200
-Message-Id: <20200929110019.432592928@linuxfoundation.org>
+Subject: [PATCH 4.19 066/245] Bluetooth: Fix refcount use-after-free issue
+Date:   Tue, 29 Sep 2020 12:58:37 +0200
+Message-Id: <20200929105950.217021558@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +43,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Manish Mandlik <mmandlik@google.com>
 
-[ Upstream commit 4ce35a3617c0ac758c61122b2218b6c8c9ac9398 ]
+[ Upstream commit 6c08fc896b60893c5d673764b0668015d76df462 ]
 
-When booting j721e the following bug is printed:
+There is no lock preventing both l2cap_sock_release() and
+chan->ops->close() from running at the same time.
 
-[    1.154821] BUG: sleeping function called from invalid context at kernel/sched/completion.c:99
-[    1.154827] in_atomic(): 0, irqs_disabled(): 128, non_block: 0, pid: 12, name: kworker/0:1
-[    1.154832] 3 locks held by kworker/0:1/12:
-[    1.154836]  #0: ffff000840030728 ((wq_completion)events){+.+.}, at: process_one_work+0x1d4/0x6e8
-[    1.154852]  #1: ffff80001214fdd8 (deferred_probe_work){+.+.}, at: process_one_work+0x1d4/0x6e8
-[    1.154860]  #2: ffff00084060b170 (&dev->mutex){....}, at: __device_attach+0x38/0x138
-[    1.154872] irq event stamp: 63096
-[    1.154881] hardirqs last  enabled at (63095): [<ffff800010b74318>] _raw_spin_unlock_irqrestore+0x70/0x78
-[    1.154887] hardirqs last disabled at (63096): [<ffff800010b740d8>] _raw_spin_lock_irqsave+0x28/0x80
-[    1.154893] softirqs last  enabled at (62254): [<ffff800010080c88>] _stext+0x488/0x564
-[    1.154899] softirqs last disabled at (62247): [<ffff8000100fdb3c>] irq_exit+0x114/0x140
-[    1.154906] CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.6.0-rc6-next-20200318-00094-g45e4089b0bd3 #221
-[    1.154911] Hardware name: Texas Instruments K3 J721E SoC (DT)
-[    1.154917] Workqueue: events deferred_probe_work_func
-[    1.154923] Call trace:
-[    1.154928]  dump_backtrace+0x0/0x190
-[    1.154933]  show_stack+0x14/0x20
-[    1.154940]  dump_stack+0xe0/0x148
-[    1.154946]  ___might_sleep+0x150/0x1f0
-[    1.154952]  __might_sleep+0x4c/0x80
-[    1.154957]  wait_for_completion_timeout+0x40/0x140
-[    1.154964]  ti_sci_set_device_state+0xa0/0x158
-[    1.154969]  ti_sci_cmd_get_device_exclusive+0x14/0x20
-[    1.154977]  ti_sci_dev_start+0x34/0x50
-[    1.154984]  genpd_runtime_resume+0x78/0x1f8
-[    1.154991]  __rpm_callback+0x3c/0x140
-[    1.154996]  rpm_callback+0x20/0x80
-[    1.155001]  rpm_resume+0x568/0x758
-[    1.155007]  __pm_runtime_resume+0x44/0xb0
-[    1.155013]  omap8250_probe+0x2b4/0x508
-[    1.155019]  platform_drv_probe+0x50/0xa0
-[    1.155023]  really_probe+0xd4/0x318
-[    1.155028]  driver_probe_device+0x54/0xe8
-[    1.155033]  __device_attach_driver+0x80/0xb8
-[    1.155039]  bus_for_each_drv+0x74/0xc0
-[    1.155044]  __device_attach+0xdc/0x138
-[    1.155049]  device_initial_probe+0x10/0x18
-[    1.155053]  bus_probe_device+0x98/0xa0
-[    1.155058]  deferred_probe_work_func+0x74/0xb0
-[    1.155063]  process_one_work+0x280/0x6e8
-[    1.155068]  worker_thread+0x48/0x430
-[    1.155073]  kthread+0x108/0x138
-[    1.155079]  ret_from_fork+0x10/0x18
+If we consider Thread A running l2cap_chan_timeout() and Thread B running
+l2cap_sock_release(), expected behavior is:
+  A::l2cap_chan_timeout()->l2cap_chan_close()->l2cap_sock_teardown_cb()
+  A::l2cap_chan_timeout()->l2cap_sock_close_cb()->l2cap_sock_kill()
+  B::l2cap_sock_release()->sock_orphan()
+  B::l2cap_sock_release()->l2cap_sock_kill()
 
-To fix the bug we need to first call pm_runtime_enable() prior to any
-pm_runtime calls.
+where,
+sock_orphan() clears "sk->sk_socket" and l2cap_sock_teardown_cb() marks
+socket as SOCK_ZAPPED.
 
-Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20200320125200.6772-1-peter.ujfalusi@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In l2cap_sock_kill(), there is an "if-statement" that checks if both
+sock_orphan() and sock_teardown() has been run i.e. sk->sk_socket is NULL
+and socket is marked as SOCK_ZAPPED. Socket is killed if the condition is
+satisfied.
+
+In the race condition, following occurs:
+  A::l2cap_chan_timeout()->l2cap_chan_close()->l2cap_sock_teardown_cb()
+  B::l2cap_sock_release()->sock_orphan()
+  B::l2cap_sock_release()->l2cap_sock_kill()
+  A::l2cap_chan_timeout()->l2cap_sock_close_cb()->l2cap_sock_kill()
+
+In this scenario, "if-statement" is true in both B::l2cap_sock_kill() and
+A::l2cap_sock_kill() and we hit "refcount: underflow; use-after-free" bug.
+
+Similar condition occurs at other places where teardown/sock_kill is
+happening:
+  l2cap_disconnect_rsp()->l2cap_chan_del()->l2cap_sock_teardown_cb()
+  l2cap_disconnect_rsp()->l2cap_sock_close_cb()->l2cap_sock_kill()
+
+  l2cap_conn_del()->l2cap_chan_del()->l2cap_sock_teardown_cb()
+  l2cap_conn_del()->l2cap_sock_close_cb()->l2cap_sock_kill()
+
+  l2cap_disconnect_req()->l2cap_chan_del()->l2cap_sock_teardown_cb()
+  l2cap_disconnect_req()->l2cap_sock_close_cb()->l2cap_sock_kill()
+
+  l2cap_sock_cleanup_listen()->l2cap_chan_close()->l2cap_sock_teardown_cb()
+  l2cap_sock_cleanup_listen()->l2cap_sock_kill()
+
+Protect teardown/sock_kill and orphan/sock_kill by adding hold_lock on
+l2cap channel to ensure that the socket is killed only after marked as
+zapped and orphan.
+
+Signed-off-by: Manish Mandlik <mmandlik@google.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c | 26 +++++++++++++++-----------
+ net/bluetooth/l2cap_sock.c | 16 +++++++++++++---
+ 2 files changed, 28 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 836e736ae188b..2624b5d083366 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -1234,6 +1234,7 @@ static int omap8250_probe(struct platform_device *pdev)
- 	spin_lock_init(&priv->rx_dma_lock);
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 0d84d1f820d4c..b1f51cb007ea6 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -414,6 +414,9 @@ static void l2cap_chan_timeout(struct work_struct *work)
+ 	BT_DBG("chan %p state %s", chan, state_to_string(chan->state));
  
- 	device_init_wakeup(&pdev->dev, true);
-+	pm_runtime_enable(&pdev->dev);
- 	pm_runtime_use_autosuspend(&pdev->dev);
+ 	mutex_lock(&conn->chan_lock);
++	/* __set_chan_timer() calls l2cap_chan_hold(chan) while scheduling
++	 * this work. No need to call l2cap_chan_hold(chan) here again.
++	 */
+ 	l2cap_chan_lock(chan);
  
- 	/*
-@@ -1247,7 +1248,6 @@ static int omap8250_probe(struct platform_device *pdev)
- 		pm_runtime_set_autosuspend_delay(&pdev->dev, -1);
+ 	if (chan->state == BT_CONNECTED || chan->state == BT_CONFIG)
+@@ -426,12 +429,12 @@ static void l2cap_chan_timeout(struct work_struct *work)
  
- 	pm_runtime_irq_safe(&pdev->dev);
--	pm_runtime_enable(&pdev->dev);
+ 	l2cap_chan_close(chan, reason);
  
- 	pm_runtime_get_sync(&pdev->dev);
+-	l2cap_chan_unlock(chan);
+-
+ 	chan->ops->close(chan);
+-	mutex_unlock(&conn->chan_lock);
+ 
++	l2cap_chan_unlock(chan);
+ 	l2cap_chan_put(chan);
++
++	mutex_unlock(&conn->chan_lock);
+ }
+ 
+ struct l2cap_chan *l2cap_chan_create(void)
+@@ -1725,9 +1728,9 @@ static void l2cap_conn_del(struct hci_conn *hcon, int err)
+ 
+ 		l2cap_chan_del(chan, err);
+ 
+-		l2cap_chan_unlock(chan);
+-
+ 		chan->ops->close(chan);
++
++		l2cap_chan_unlock(chan);
+ 		l2cap_chan_put(chan);
+ 	}
+ 
+@@ -4337,6 +4340,7 @@ static inline int l2cap_disconnect_req(struct l2cap_conn *conn,
+ 		return 0;
+ 	}
+ 
++	l2cap_chan_hold(chan);
+ 	l2cap_chan_lock(chan);
+ 
+ 	rsp.dcid = cpu_to_le16(chan->scid);
+@@ -4345,12 +4349,11 @@ static inline int l2cap_disconnect_req(struct l2cap_conn *conn,
+ 
+ 	chan->ops->set_shutdown(chan);
+ 
+-	l2cap_chan_hold(chan);
+ 	l2cap_chan_del(chan, ECONNRESET);
+ 
+-	l2cap_chan_unlock(chan);
+-
+ 	chan->ops->close(chan);
++
++	l2cap_chan_unlock(chan);
+ 	l2cap_chan_put(chan);
+ 
+ 	mutex_unlock(&conn->chan_lock);
+@@ -4382,20 +4385,21 @@ static inline int l2cap_disconnect_rsp(struct l2cap_conn *conn,
+ 		return 0;
+ 	}
+ 
++	l2cap_chan_hold(chan);
+ 	l2cap_chan_lock(chan);
+ 
+ 	if (chan->state != BT_DISCONN) {
+ 		l2cap_chan_unlock(chan);
++		l2cap_chan_put(chan);
+ 		mutex_unlock(&conn->chan_lock);
+ 		return 0;
+ 	}
+ 
+-	l2cap_chan_hold(chan);
+ 	l2cap_chan_del(chan, 0);
+ 
+-	l2cap_chan_unlock(chan);
+-
+ 	chan->ops->close(chan);
++
++	l2cap_chan_unlock(chan);
+ 	l2cap_chan_put(chan);
+ 
+ 	mutex_unlock(&conn->chan_lock);
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index a3a2cd55e23a9..d128750e47305 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -1039,7 +1039,7 @@ done:
+ }
+ 
+ /* Kill socket (only if zapped and orphan)
+- * Must be called on unlocked socket.
++ * Must be called on unlocked socket, with l2cap channel lock.
+  */
+ static void l2cap_sock_kill(struct sock *sk)
+ {
+@@ -1200,8 +1200,15 @@ static int l2cap_sock_release(struct socket *sock)
+ 
+ 	err = l2cap_sock_shutdown(sock, 2);
+ 
++	l2cap_chan_hold(l2cap_pi(sk)->chan);
++	l2cap_chan_lock(l2cap_pi(sk)->chan);
++
+ 	sock_orphan(sk);
+ 	l2cap_sock_kill(sk);
++
++	l2cap_chan_unlock(l2cap_pi(sk)->chan);
++	l2cap_chan_put(l2cap_pi(sk)->chan);
++
+ 	return err;
+ }
+ 
+@@ -1219,12 +1226,15 @@ static void l2cap_sock_cleanup_listen(struct sock *parent)
+ 		BT_DBG("child chan %p state %s", chan,
+ 		       state_to_string(chan->state));
+ 
++		l2cap_chan_hold(chan);
+ 		l2cap_chan_lock(chan);
++
+ 		__clear_chan_timer(chan);
+ 		l2cap_chan_close(chan, ECONNRESET);
+-		l2cap_chan_unlock(chan);
+-
+ 		l2cap_sock_kill(sk);
++
++		l2cap_chan_unlock(chan);
++		l2cap_chan_put(chan);
+ 	}
+ }
  
 -- 
 2.25.1
