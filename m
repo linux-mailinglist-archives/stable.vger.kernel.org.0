@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B78C027BA30
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B16C27BA34
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727420AbgI2Baw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727415AbgI2Baw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Sep 2020 21:30:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39776 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727043AbgI2Bao (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 21:30:44 -0400
+        id S1727403AbgI2Baq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 21:30:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D838221EF;
-        Tue, 29 Sep 2020 01:30:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B0722080A;
+        Tue, 29 Sep 2020 01:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343044;
-        bh=tSj8Ri06+wF3ANOcZBQI6Ri2GA0CBE4r2n61sONm++Q=;
+        s=default; t=1601343045;
+        bh=v8mPSQ00nISryPrevDPI2jzk6QquExntIyYdIQwnEm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A2MA/n4BBLTmeq67Z3vT/xua6zY537GpikPTETUV9Yq9HCoHtMeiGGoCM3wNzaQJo
-         cl/RqdInhjZjFT0VNZFLMIvt2Cwfp6J+w/uBm72LzvStJMT9Czxz8vSztGeaDVVn7v
-         tvt6jdeq2mzytU6m0zpdVIzFEqiQk2saxzkI02bA=
+        b=rDepNv6g/2O9bqCqvHkgilqaNs3ILZupCGX/JZm7SA6PdTJm9kTVJyiKs1mLAEZUm
+         OQ8l+bJcj8XqSuMXlzL3zgIHzXIsa5r1pnOOB4BdE4/nSuV6CwdJYxgvugR/P8hxlZ
+         ZNiFUgUSXk9eb4wd9uy5TM43McWA6/jvSVfHuIa4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Milburn <dmilburn@redhat.com>,
-        Eric Sandeen <esandeen@redhat.com>,
-        Eric Sandeen <sandeen@redhat.com>,
+Cc:     Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
         Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.8 12/29] nvme-pci: disable the write zeros command for Intel 600P/P3100
-Date:   Mon, 28 Sep 2020 21:30:09 -0400
-Message-Id: <20200929013027.2406344-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 13/29] nvme-core: get/put ctrl and transport module in nvme_dev_open/release()
+Date:   Mon, 28 Sep 2020 21:30:10 -0400
+Message-Id: <20200929013027.2406344-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013027.2406344-1-sashal@kernel.org>
 References: <20200929013027.2406344-1-sashal@kernel.org>
@@ -44,53 +42,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Milburn <dmilburn@redhat.com>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit ce4cc3133dc72c31bd49ddcf22d0f9eeff47a761 ]
+[ Upstream commit 52a3974feb1a3eec25d8836d37a508b67b0a9cd0 ]
 
-The write zeros command does not work with 4k range.
+Get and put the reference to the ctrl in the nvme_dev_open() and
+nvme_dev_release() before and after module get/put for ctrl in char
+device file operations.
 
-bash-4.4# ./blkdiscard /dev/nvme0n1p2
-bash-4.4# strace -efallocate xfs_io -c "fzero 536895488 2048" /dev/nvme0n1p2
-fallocate(3, FALLOC_FL_ZERO_RANGE, 536895488, 2048) = 0
-+++ exited with 0 +++
-bash-4.4# dd bs=1 if=/dev/nvme0n1p2 skip=536895488 count=512 | hexdump -C
-00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-*
-00000200
+Introduce char_dev relase function, get/put the controller and module
+which allows us to fix the potential Oops which can be easily reproduced
+with a passthru ctrl (although the problem also exists with pure user
+access):
 
-bash-4.4# ./blkdiscard /dev/nvme0n1p2
-bash-4.4# strace -efallocate xfs_io -c "fzero 536895488 4096" /dev/nvme0n1p2
-fallocate(3, FALLOC_FL_ZERO_RANGE, 536895488, 4096) = 0
-+++ exited with 0 +++
-bash-4.4# dd bs=1 if=/dev/nvme0n1p2 skip=536895488 count=512 | hexdump -C
-00000000  5c 61 5c b0 96 21 1b 5e  85 0c 07 32 9c 8c eb 3c  |\a\..!.^...2...<|
-00000010  4a a2 06 ca 67 15 2d 8e  29 8d a8 a0 7e 46 8c 62  |J...g.-.)...~F.b|
-00000020  bb 4c 6c c1 6b f5 ae a5  e4 a9 bc 93 4f 60 ff 7a  |.Ll.k.......O`.z|
+Entering kdb (current=0xffff8887f8290000, pid 3128) on processor 30 Oops: (null)
+due to oops @ 0xffffffffa01019ad
+CPU: 30 PID: 3128 Comm: bash Tainted: G        W  OE     5.8.0-rc4nvme-5.9+ #35
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.4
+RIP: 0010:nvme_free_ctrl+0x234/0x285 [nvme_core]
+Code: 57 10 a0 e8 73 bf 02 e1 ba 3d 11 00 00 48 c7 c6 98 33 10 a0 48 c7 c7 1d 57 10 a0 e8 5b bf 02 e1 8
+RSP: 0018:ffffc90001d63de0 EFLAGS: 00010246
+RAX: ffffffffa05c0440 RBX: ffff8888119e45a0 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff8888177e9550 RDI: ffff8888119e43b0
+RBP: ffff8887d4768000 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: ffffc90001d63c90 R12: ffff8888119e43b0
+R13: ffff8888119e5108 R14: dead000000000100 R15: ffff8888119e5108
+FS:  00007f1ef27b0740(0000) GS:ffff888817600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffa05c0470 CR3: 00000007f6bee000 CR4: 00000000003406e0
+Call Trace:
+ device_release+0x27/0x80
+ kobject_put+0x98/0x170
+ nvmet_passthru_ctrl_disable+0x4a/0x70 [nvmet]
+ nvmet_passthru_enable_store+0x4c/0x90 [nvmet]
+ configfs_write_file+0xe6/0x150
+ vfs_write+0xba/0x1e0
+ ksys_write+0x5f/0xe0
+ do_syscall_64+0x52/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7f1ef1eb2840
+Code: Bad RIP value.
+RSP: 002b:00007fffdbff0eb8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007f1ef1eb2840
+RDX: 0000000000000002 RSI: 00007f1ef27d2000 RDI: 0000000000000001
+RBP: 00007f1ef27d2000 R08: 000000000000000a R09: 00007f1ef27b0740
+R10: 0000000000000001 R11: 0000000000000246 R12: 00007f1ef2186400
+R13: 0000000000000002 R14: 0000000000000001 R15: 0000000000000000
 
-Reported-by: Eric Sandeen <esandeen@redhat.com>
-Signed-off-by: David Milburn <dmilburn@redhat.com>
-Tested-by: Eric Sandeen <sandeen@redhat.com>
+With this patch fix we take the module ref count in nvme_dev_open() and
+release that ref count in newly introduced nvme_dev_release().
+
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 69a19fe241063..90346cba87d1e 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3093,7 +3093,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 	{ PCI_VDEVICE(INTEL, 0xf1a5),	/* Intel 600P/P3100 */
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS |
- 				NVME_QUIRK_MEDIUM_PRIO_SQ |
--				NVME_QUIRK_NO_TEMP_THRESH_CHANGE },
-+				NVME_QUIRK_NO_TEMP_THRESH_CHANGE |
-+				NVME_QUIRK_DISABLE_WRITE_ZEROES, },
- 	{ PCI_VDEVICE(INTEL, 0xf1a6),	/* Intel 760p/Pro 7600p */
- 		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_VDEVICE(INTEL, 0x5845),	/* Qemu emulated controller */
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index f2556f0ea20dc..69165a8f7c1f0 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3060,10 +3060,24 @@ static int nvme_dev_open(struct inode *inode, struct file *file)
+ 		return -EWOULDBLOCK;
+ 	}
+ 
++	nvme_get_ctrl(ctrl);
++	if (!try_module_get(ctrl->ops->module))
++		return -EINVAL;
++
+ 	file->private_data = ctrl;
+ 	return 0;
+ }
+ 
++static int nvme_dev_release(struct inode *inode, struct file *file)
++{
++	struct nvme_ctrl *ctrl =
++		container_of(inode->i_cdev, struct nvme_ctrl, cdev);
++
++	module_put(ctrl->ops->module);
++	nvme_put_ctrl(ctrl);
++	return 0;
++}
++
+ static int nvme_dev_user_cmd(struct nvme_ctrl *ctrl, void __user *argp)
+ {
+ 	struct nvme_ns *ns;
+@@ -3126,6 +3140,7 @@ static long nvme_dev_ioctl(struct file *file, unsigned int cmd,
+ static const struct file_operations nvme_dev_fops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= nvme_dev_open,
++	.release	= nvme_dev_release,
+ 	.unlocked_ioctl	= nvme_dev_ioctl,
+ 	.compat_ioctl	= compat_ptr_ioctl,
+ };
 -- 
 2.25.1
 
