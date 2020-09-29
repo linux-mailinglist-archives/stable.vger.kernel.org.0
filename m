@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3309B27C8CA
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 460E327C8C8
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:05:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730294AbgI2MEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:04:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58458 "EHLO mail.kernel.org"
+        id S1729202AbgI2MEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:04:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730286AbgI2Lhj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:39 -0400
+        id S1730294AbgI2Lhm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8ABCA2083B;
-        Tue, 29 Sep 2020 11:37:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D995820848;
+        Tue, 29 Sep 2020 11:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379459;
-        bh=a8TAtyVBLWhSc13/EqI2FOiHMoVAkw2IHfHbUIO1nmo=;
+        s=default; t=1601379461;
+        bh=edvpvBXgzkA1HGw8xxSPpBS1Btl6werh9kXB01ts0TM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WpQFqBsKcA2Ww/x4jwKzAjGNP0A1ot9I2ujz/9AQPlGJ8yGB9ebXZ2DYoeTNKsOmH
-         /vTxPCxMMI8lghTUP+/fZu6tiXPaR9oUE7RuC81n3KBua6ZK6VR2fJ08BOflIbztG4
-         oJfxVCxbYXT7M7BxS0zDTw5ivabHGhBbpDGK4Y+U=
+        b=uOYB5U8mTNpuu3vyRjH1pjWKvmOntmFiQic47Wm6os2SfCSEom3m6cA7RP8YFoNDa
+         sWJQO0bi3azCwkyGngP4NuzFhxW2h8WOxrPuXvAzVAj9duOWmVrF1RckM3/azVE9ql
+         xFac1vCiR417dt1zwnU2K8qHMsSA7FqgOVxGKrMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 172/388] RDMA/cm: Remove a race freeing timewait_info
-Date:   Tue, 29 Sep 2020 12:58:23 +0200
-Message-Id: <20200929110018.809303411@linuxfoundation.org>
+Subject: [PATCH 5.4 173/388] intel_th: Disallow multi mode on devices where its broken
+Date:   Tue, 29 Sep 2020 12:58:24 +0200
+Message-Id: <20200929110018.858657555@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,144 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit bede86a39d9dc3387ac00dcb8e1ac221676b2f25 ]
+[ Upstream commit 397c7729665a3b07a7b4ce7215173df8e9112809 ]
 
-When creating a cm_id during REQ the id immediately becomes visible to the
-other MAD handlers, and shortly after the state is moved to IB_CM_REQ_RCVD
+Some versions of Intel TH have an issue that prevents the multi mode of
+MSU from working correctly, resulting in no trace data and potentially
+stuck MSU pipeline.
 
-This allows cm_rej_handler() to run concurrently and free the work:
+Disable multi mode on such devices.
 
-        CPU 0                                CPU1
- cm_req_handler()
-  ib_create_cm_id()
-  cm_match_req()
-    id_priv->state = IB_CM_REQ_RCVD
-                                       cm_rej_handler()
-                                         cm_acquire_id()
-                                         spin_lock(&id_priv->lock)
-                                         switch (id_priv->state)
-  					   case IB_CM_REQ_RCVD:
-                                            cm_reset_to_idle()
-                                             kfree(id_priv->timewait_info);
-   goto destroy
-  destroy:
-    kfree(id_priv->timewait_info);
-                                             id_priv->timewait_info = NULL
-
-Causing a double free or worse.
-
-Do not free the timewait_info without also holding the
-id_priv->lock. Simplify this entire flow by making the free unconditional
-during cm_destroy_id() and removing the confusing special case error
-unwind during creation of the timewait_info.
-
-This also fixes a leak of the timewait if cm_destroy_id() is called in
-IB_CM_ESTABLISHED with an XRC TGT QP. The state machine will be left in
-ESTABLISHED while it needed to transition through IB_CM_TIMEWAIT to
-release the timewait pointer.
-
-Also fix a leak of the timewait_info if the caller mis-uses the API and
-does ib_send_cm_reqs().
-
-Fixes: a977049dacde ("[PATCH] IB: Add the kernel CM implementation")
-Link: https://lore.kernel.org/r/20200310092545.251365-4-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20200317062215.15598-2-alexander.shishkin@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cm.c | 25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ drivers/hwtracing/intel_th/intel_th.h |  2 ++
+ drivers/hwtracing/intel_th/msu.c      | 11 +++++++++--
+ drivers/hwtracing/intel_th/pci.c      |  8 ++++++--
+ 3 files changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
-index 09af96ec41dd6..c1d6a068f50fe 100644
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -1092,14 +1092,22 @@ retest:
- 		break;
- 	}
+diff --git a/drivers/hwtracing/intel_th/intel_th.h b/drivers/hwtracing/intel_th/intel_th.h
+index 6f4f5486fe6dc..5fe694708b7a3 100644
+--- a/drivers/hwtracing/intel_th/intel_th.h
++++ b/drivers/hwtracing/intel_th/intel_th.h
+@@ -47,11 +47,13 @@ struct intel_th_output {
+ /**
+  * struct intel_th_drvdata - describes hardware capabilities and quirks
+  * @tscu_enable:	device needs SW to enable time stamping unit
++ * @multi_is_broken:	device has multiblock mode is broken
+  * @has_mintctl:	device has interrupt control (MINTCTL) register
+  * @host_mode_only:	device can only operate in 'host debugger' mode
+  */
+ struct intel_th_drvdata {
+ 	unsigned int	tscu_enable        : 1,
++			multi_is_broken    : 1,
+ 			has_mintctl        : 1,
+ 			host_mode_only     : 1;
+ };
+diff --git a/drivers/hwtracing/intel_th/msu.c b/drivers/hwtracing/intel_th/msu.c
+index 255f8f41c8ff7..3cd2489d398c5 100644
+--- a/drivers/hwtracing/intel_th/msu.c
++++ b/drivers/hwtracing/intel_th/msu.c
+@@ -157,7 +157,8 @@ struct msc {
+ 	/* config */
+ 	unsigned int		enabled : 1,
+ 				wrap	: 1,
+-				do_irq	: 1;
++				do_irq	: 1,
++				multi_is_broken : 1;
+ 	unsigned int		mode;
+ 	unsigned int		burst_len;
+ 	unsigned int		index;
+@@ -1665,7 +1666,7 @@ static int intel_th_msc_init(struct msc *msc)
+ {
+ 	atomic_set(&msc->user_count, -1);
  
--	spin_lock_irq(&cm.lock);
-+	spin_lock_irq(&cm_id_priv->lock);
-+	spin_lock(&cm.lock);
-+	/* Required for cleanup paths related cm_req_handler() */
-+	if (cm_id_priv->timewait_info) {
-+		cm_cleanup_timewait(cm_id_priv->timewait_info);
-+		kfree(cm_id_priv->timewait_info);
-+		cm_id_priv->timewait_info = NULL;
-+	}
- 	if (!list_empty(&cm_id_priv->altr_list) &&
- 	    (!cm_id_priv->altr_send_port_not_ready))
- 		list_del(&cm_id_priv->altr_list);
- 	if (!list_empty(&cm_id_priv->prim_list) &&
- 	    (!cm_id_priv->prim_send_port_not_ready))
- 		list_del(&cm_id_priv->prim_list);
--	spin_unlock_irq(&cm.lock);
-+	spin_unlock(&cm.lock);
-+	spin_unlock_irq(&cm_id_priv->lock);
+-	msc->mode = MSC_MODE_MULTI;
++	msc->mode = msc->multi_is_broken ? MSC_MODE_SINGLE : MSC_MODE_MULTI;
+ 	mutex_init(&msc->buf_mutex);
+ 	INIT_LIST_HEAD(&msc->win_list);
+ 	INIT_LIST_HEAD(&msc->iter_list);
+@@ -1877,6 +1878,9 @@ mode_store(struct device *dev, struct device_attribute *attr, const char *buf,
+ 	return -EINVAL;
  
- 	cm_free_id(cm_id->local_id);
- 	cm_deref_id(cm_id_priv);
-@@ -1416,7 +1424,7 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
- 	/* Verify that we're not in timewait. */
- 	cm_id_priv = container_of(cm_id, struct cm_id_private, id);
- 	spin_lock_irqsave(&cm_id_priv->lock, flags);
--	if (cm_id->state != IB_CM_IDLE) {
-+	if (cm_id->state != IB_CM_IDLE || WARN_ON(cm_id_priv->timewait_info)) {
- 		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
- 		ret = -EINVAL;
- 		goto out;
-@@ -1434,12 +1442,12 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
- 				 param->ppath_sgid_attr, &cm_id_priv->av,
- 				 cm_id_priv);
- 	if (ret)
--		goto error1;
-+		goto out;
- 	if (param->alternate_path) {
- 		ret = cm_init_av_by_path(param->alternate_path, NULL,
- 					 &cm_id_priv->alt_av, cm_id_priv);
- 		if (ret)
--			goto error1;
-+			goto out;
- 	}
- 	cm_id->service_id = param->service_id;
- 	cm_id->service_mask = ~cpu_to_be64(0);
-@@ -1457,7 +1465,7 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
+ found:
++	if (i == MSC_MODE_MULTI && msc->multi_is_broken)
++		return -EOPNOTSUPP;
++
+ 	mutex_lock(&msc->buf_mutex);
+ 	ret = 0;
  
- 	ret = cm_alloc_msg(cm_id_priv, &cm_id_priv->msg);
- 	if (ret)
--		goto error1;
-+		goto out;
+@@ -2083,6 +2087,9 @@ static int intel_th_msc_probe(struct intel_th_device *thdev)
+ 	if (!res)
+ 		msc->do_irq = 1;
  
- 	req_msg = (struct cm_req_msg *) cm_id_priv->msg->mad;
- 	cm_format_req(req_msg, cm_id_priv, param);
-@@ -1480,7 +1488,6 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
- 	return 0;
++	if (INTEL_TH_CAP(to_intel_th(thdev), multi_is_broken))
++		msc->multi_is_broken = 1;
++
+ 	msc->index = thdev->id;
  
- error2:	cm_free_msg(cm_id_priv->msg);
--error1:	kfree(cm_id_priv->timewait_info);
- out:	return ret;
+ 	msc->thdev = thdev;
+diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
+index 0d26484d67955..21fdf0b935166 100644
+--- a/drivers/hwtracing/intel_th/pci.c
++++ b/drivers/hwtracing/intel_th/pci.c
+@@ -120,6 +120,10 @@ static void intel_th_pci_remove(struct pci_dev *pdev)
+ 	pci_free_irq_vectors(pdev);
  }
- EXPORT_SYMBOL(ib_send_cm_req);
-@@ -1965,7 +1972,7 @@ static int cm_req_handler(struct cm_work *work)
- 		pr_debug("%s: local_id %d, no listen_cm_id_priv\n", __func__,
- 			 be32_to_cpu(cm_id->local_id));
- 		ret = -EINVAL;
--		goto free_timeinfo;
-+		goto destroy;
- 	}
  
- 	cm_id_priv->id.cm_handler = listen_cm_id_priv->id.cm_handler;
-@@ -2050,8 +2057,6 @@ static int cm_req_handler(struct cm_work *work)
- rejected:
- 	atomic_dec(&cm_id_priv->refcount);
- 	cm_deref_id(listen_cm_id_priv);
--free_timeinfo:
--	kfree(cm_id_priv->timewait_info);
- destroy:
- 	ib_destroy_cm_id(cm_id);
- 	return ret;
++static const struct intel_th_drvdata intel_th_1x_multi_is_broken = {
++	.multi_is_broken	= 1,
++};
++
+ static const struct intel_th_drvdata intel_th_2x = {
+ 	.tscu_enable	= 1,
+ 	.has_mintctl	= 1,
+@@ -152,7 +156,7 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
+ 	{
+ 		/* Kaby Lake PCH-H */
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa2a6),
+-		.driver_data = (kernel_ulong_t)0,
++		.driver_data = (kernel_ulong_t)&intel_th_1x_multi_is_broken,
+ 	},
+ 	{
+ 		/* Denverton */
+@@ -207,7 +211,7 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
+ 	{
+ 		/* Comet Lake PCH-V */
+ 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa3a6),
+-		.driver_data = (kernel_ulong_t)&intel_th_2x,
++		.driver_data = (kernel_ulong_t)&intel_th_1x_multi_is_broken,
+ 	},
+ 	{
+ 		/* Ice Lake NNPI */
 -- 
 2.25.1
 
