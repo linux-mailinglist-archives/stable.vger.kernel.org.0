@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67F4227CC1C
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE53627CC12
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:34:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733060AbgI2MdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:33:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37658 "EHLO mail.kernel.org"
+        id S1731212AbgI2MdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728541AbgI2LW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728720AbgI2LW5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:22:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91A1D23A5A;
-        Tue, 29 Sep 2020 11:19:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D47823A5B;
+        Tue, 29 Sep 2020 11:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378385;
-        bh=5ySCVgnlDc/QxpYoxYTd38GQ4JgjHnOYATlmx/HZ/Vw=;
+        s=default; t=1601378388;
+        bh=x93slcT6lqF7N3ajgrVNaePxm5mU01HcyMY13yicPS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDYkYcc7+bZISkv2HocvfIO301nkxGK5eVBFJFUJCmsHc6vfMOXJHDUnZXdwtgK8w
-         ZoVNvuhuOg8EErSWJzwdR1jCxe/qmFSN+6YMuDDEa9n8Uve/zqhVso4hjTJ+/fgq8B
-         bniIlXC7vQSYOQ5IXCWTR8zU4DnWPtpPm21q6CVE=
+        b=MzDHgapHchch6PmqloScATHYNO5Wj+j8V3pW3DEhwSFe+n0Aa9K49a2gBnJ8FnYjc
+         Ek3XAf/O5f9gy3xYJsZasQ4msNvpbxcsSpzhsyonztJOCrbSLP8O6S3w7SIj83AJsZ
+         TtwGVVCxlAeAXcfBuHXxBqR3wgTICBDXkKu/GJeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gao Xiang <hsiangkao@redhat.com>,
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Andy Lavr <andy.lavr@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Joe Perches <joe@perches.com>,
+        Kees Cook <keescook@chromium.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Rafael Aquini <aquini@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Carlos Maiolino <cmaiolino@redhat.com>,
-        Eric Sandeen <esandeen@redhat.com>,
-        Dave Chinner <david@fromorbit.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 162/166] mm, THP, swap: fix allocating cluster for swapfile by mistake
-Date:   Tue, 29 Sep 2020 13:01:14 +0200
-Message-Id: <20200929105943.282129611@linuxfoundation.org>
+Subject: [PATCH 4.14 163/166] lib/string.c: implement stpcpy
+Date:   Tue, 29 Sep 2020 13:01:15 +0200
+Message-Id: <20200929105943.333703564@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -50,85 +51,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 41663430588c737dd735bad5a0d1ba325dcabd59 upstream.
+commit 1e1b6d63d6340764e00356873e5794225a2a03ea upstream.
 
-SWP_FS is used to make swap_{read,write}page() go through the
-filesystem, and it's only used for swap files over NFS.  So, !SWP_FS
-means non NFS for now, it could be either file backed or device backed.
-Something similar goes with legacy SWP_FILE.
+LLVM implemented a recent "libcall optimization" that lowers calls to
+`sprintf(dest, "%s", str)` where the return value is used to
+`stpcpy(dest, str) - dest`.
 
-So in order to achieve the goal of the original patch, SWP_BLKDEV should
-be used instead.
+This generally avoids the machinery involved in parsing format strings.
+`stpcpy` is just like `strcpy` except it returns the pointer to the new
+tail of `dest`.  This optimization was introduced into clang-12.
 
-FS corruption can be observed with SSD device + XFS + fragmented
-swapfile due to CONFIG_THP_SWAP=y.
+Implement this so that we don't observe linkage failures due to missing
+symbol definitions for `stpcpy`.
 
-I reproduced the issue with the following details:
+Similar to last year's fire drill with: commit 5f074f3e192f
+("lib/string.c: implement a basic bcmp")
 
-Environment:
+The kernel is somewhere between a "freestanding" environment (no full
+libc) and "hosted" environment (many symbols from libc exist with the
+same type, function signature, and semantics).
 
-  QEMU + upstream kernel + buildroot + NVMe (2 GB)
+As Peter Anvin notes, there's not really a great way to inform the
+compiler that you're targeting a freestanding environment but would like
+to opt-in to some libcall optimizations (see pr/47280 below), rather
+than opt-out.
 
-Kernel config:
+Arvind notes, -fno-builtin-* behaves slightly differently between GCC
+and Clang, and Clang is missing many __builtin_* definitions, which I
+consider a bug in Clang and am working on fixing.
 
-  CONFIG_BLK_DEV_NVME=y
-  CONFIG_THP_SWAP=y
+Masahiro summarizes the subtle distinction between compilers justly:
+  To prevent transformation from foo() into bar(), there are two ways in
+  Clang to do that; -fno-builtin-foo, and -fno-builtin-bar.  There is
+  only one in GCC; -fno-buitin-foo.
 
-Some reproducible steps:
+(Any difference in that behavior in Clang is likely a bug from a missing
+__builtin_* definition.)
 
-  mkfs.xfs -f /dev/nvme0n1
-  mkdir /tmp/mnt
-  mount /dev/nvme0n1 /tmp/mnt
-  bs="32k"
-  sz="1024m"    # doesn't matter too much, I also tried 16m
-  xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-  xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-  xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-  xfs_io -f -c "pwrite -F -S 0 -b $bs 0 $sz" -c "fdatasync" /tmp/mnt/sw
-  xfs_io -f -c "pwrite -R -b $bs 0 $sz" -c "fsync" /tmp/mnt/sw
+Masahiro also notes:
+  We want to disable optimization from foo() to bar(),
+  but we may still benefit from the optimization from
+  foo() into something else. If GCC implements the same transform, we
+  would run into a problem because it is not -fno-builtin-bar, but
+  -fno-builtin-foo that disables that optimization.
 
-  mkswap /tmp/mnt/sw
-  swapon /tmp/mnt/sw
+  In this regard, -fno-builtin-foo would be more future-proof than
+  -fno-built-bar, but -fno-builtin-foo is still potentially overkill. We
+  may want to prevent calls from foo() being optimized into calls to
+  bar(), but we still may want other optimization on calls to foo().
 
-  stress --vm 2 --vm-bytes 600M   # doesn't matter too much as well
+It seems that compilers today don't quite provide the fine grain control
+over which libcall optimizations pseudo-freestanding environments would
+prefer.
 
-Symptoms:
- - FS corruption (e.g. checksum failure)
- - memory corruption at: 0xd2808010
- - segfault
+Finally, Kees notes that this interface is unsafe, so we should not
+encourage its use.  As such, I've removed the declaration from any
+header, but it still needs to be exported to avoid linkage errors in
+modules.
 
-Fixes: f0eea189e8e9 ("mm, THP, swap: Don't allocate huge cluster for file backed swap device")
-Fixes: 38d8b4e6bdc8 ("mm, THP, swap: delay splitting THP during swap out")
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+Reported-by: Sami Tolvanen <samitolvanen@google.com>
+Suggested-by: Andy Lavr <andy.lavr@gmail.com>
+Suggested-by: Arvind Sankar <nivedita@alum.mit.edu>
+Suggested-by: Joe Perches <joe@perches.com>
+Suggested-by: Kees Cook <keescook@chromium.org>
+Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+Suggested-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Acked-by: Rafael Aquini <aquini@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Carlos Maiolino <cmaiolino@redhat.com>
-Cc: Eric Sandeen <esandeen@redhat.com>
-Cc: Dave Chinner <david@fromorbit.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200820045323.7809-1-hsiangkao@redhat.com
+Link: https://lkml.kernel.org/r/20200914161643.938408-1-ndesaulniers@google.com
+Link: https://bugs.llvm.org/show_bug.cgi?id=47162
+Link: https://bugs.llvm.org/show_bug.cgi?id=47280
+Link: https://github.com/ClangBuiltLinux/linux/issues/1126
+Link: https://man7.org/linux/man-pages/man3/stpcpy.3.html
+Link: https://pubs.opengroup.org/onlinepubs/9699919799/functions/stpcpy.html
+Link: https://reviews.llvm.org/D85963
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/swapfile.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/string.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -973,7 +973,7 @@ start_over:
- 			goto nextsi;
- 		}
- 		if (cluster) {
--			if (!(si->flags & SWP_FILE))
-+			if (si->flags & SWP_BLKDEV)
- 				n_ret = swap_alloc_cluster(si, swp_entries);
- 		} else
- 			n_ret = scan_swap_map_slots(si, SWAP_HAS_CACHE,
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -236,6 +236,30 @@ ssize_t strscpy(char *dest, const char *
+ EXPORT_SYMBOL(strscpy);
+ #endif
+ 
++/**
++ * stpcpy - copy a string from src to dest returning a pointer to the new end
++ *          of dest, including src's %NUL-terminator. May overrun dest.
++ * @dest: pointer to end of string being copied into. Must be large enough
++ *        to receive copy.
++ * @src: pointer to the beginning of string being copied from. Must not overlap
++ *       dest.
++ *
++ * stpcpy differs from strcpy in a key way: the return value is a pointer
++ * to the new %NUL-terminating character in @dest. (For strcpy, the return
++ * value is a pointer to the start of @dest). This interface is considered
++ * unsafe as it doesn't perform bounds checking of the inputs. As such it's
++ * not recommended for usage. Instead, its definition is provided in case
++ * the compiler lowers other libcalls to stpcpy.
++ */
++char *stpcpy(char *__restrict__ dest, const char *__restrict__ src);
++char *stpcpy(char *__restrict__ dest, const char *__restrict__ src)
++{
++	while ((*dest++ = *src++) != '\0')
++		/* nothing */;
++	return --dest;
++}
++EXPORT_SYMBOL(stpcpy);
++
+ #ifndef __HAVE_ARCH_STRCAT
+ /**
+  * strcat - Append one %NUL-terminated string to another
 
 
