@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D12CA27CC79
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9352C27CD3E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733034AbgI2Mgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:36:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35550 "EHLO mail.kernel.org"
+        id S1729335AbgI2Mmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:42:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729503AbgI2LU6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:20:58 -0400
+        id S1729234AbgI2LLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:11:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3D1D23444;
-        Tue, 29 Sep 2020 11:18:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83A6421941;
+        Tue, 29 Sep 2020 11:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378307;
-        bh=SI+fWPNrFFRRT2Bdau69PuEhJHWv0Qy0sgSIomMiLeU=;
+        s=default; t=1601377877;
+        bh=hGw+1Ze6k5/Mdm/F3sQRnWvTlvJENxIxqcdnzezofeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IEM71ZweAXfF2J88O2BRnuDaHHiPPrvO39ODXR6cNwTdnmRjikAYBNvda5CPuOWvY
-         jh5vTv3R6vrMjBn15bHr8FAf26Oyn9sN5oC4c85uwkPAwXBqt9GRL1W37kZATfNJId
-         D3TN4W8h5W8nQso+2dhgyN88BxPOysijeB/wh8os=
+        b=dU6JKqYaCPlFSuzvuGivp1EkT86+h5saDUnSsmLT5ADfZibmpgZKnXHQtDA/wrnK0
+         2rrLW6VYl2M2/l5sErZG627QTeW4eVfpeAmvY1ZLIdV2JvF//HteOjTc3O33NcQu23
+         3tpjvsa+i0EGX0ZvxewD3y4BXM12DN/OvmPJ2+k4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Alexandre Chartre <alexandre.chartre@oracle.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 135/166] x86/speculation/mds: Mark mds_user_clear_cpu_buffers() __always_inline
-Date:   Tue, 29 Sep 2020 13:00:47 +0200
-Message-Id: <20200929105941.943720663@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 104/121] i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
+Date:   Tue, 29 Sep 2020 13:00:48 +0200
+Message-Id: <20200929105935.334580610@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit a7ef9ba986b5fae9d80f8a7b31db0423687efe4e ]
+[ Upstream commit 21653a4181ff292480599dad996a2b759ccf050f ]
 
-Prevent the compiler from uninlining and creating traceable/probable
-functions as this is invoked _after_ context tracking switched to
-CONTEXT_USER and rcu idle.
+Some ACPI i2c-devices _STA method (which is used to detect if the device
+is present) use autodetection code which probes which device is present
+over i2c. This requires the I2C ACPI OpRegion handler to be registered
+before we enumerate i2c-clients under the i2c-adapter.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Alexandre Chartre <alexandre.chartre@oracle.com>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200505134340.902709267@linutronix.de
+This fixes the i2c touchpad on the Lenovo ThinkBook 14-IIL and
+ThinkBook 15 IIL not getting an i2c-client instantiated and thus not
+working.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1842039
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/nospec-branch.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
-index 041d2a04be1d8..270448b178a7a 100644
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -330,7 +330,7 @@ DECLARE_STATIC_KEY_FALSE(mds_idle_clear);
-  * combination with microcode which triggers a CPU buffer flush when the
-  * instruction is executed.
-  */
--static inline void mds_clear_cpu_buffers(void)
-+static __always_inline void mds_clear_cpu_buffers(void)
- {
- 	static const u16 ds = __KERNEL_DS;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 80d82c6792d8d..4fd7bfda2f9de 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1858,8 +1858,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
  
-@@ -351,7 +351,7 @@ static inline void mds_clear_cpu_buffers(void)
-  *
-  * Clear CPU buffers if the corresponding static key is enabled
-  */
--static inline void mds_user_clear_cpu_buffers(void)
-+static __always_inline void mds_user_clear_cpu_buffers(void)
- {
- 	if (static_branch_likely(&mds_user_clear))
- 		mds_clear_cpu_buffers();
+ 	/* create pre-declared device nodes */
+ 	of_i2c_register_devices(adap);
+-	i2c_acpi_register_devices(adap);
+ 	i2c_acpi_install_space_handler(adap);
++	i2c_acpi_register_devices(adap);
+ 
+ 	if (adap->nr < __i2c_first_dynamic_bus_num)
+ 		i2c_scan_static_board_info(adap);
 -- 
 2.25.1
 
