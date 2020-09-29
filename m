@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7AD627C3C4
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D6D627C4AD
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:16:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728994AbgI2LIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:08:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47408 "EHLO mail.kernel.org"
+        id S1729540AbgI2LPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:15:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728707AbgI2LIf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:08:35 -0400
+        id S1728958AbgI2LPq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:15:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E18C421D46;
-        Tue, 29 Sep 2020 11:08:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D97332083B;
+        Tue, 29 Sep 2020 11:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377711;
-        bh=nrqA7x/QhzcR5T+Vx2pU2vOG4E2V3PKlA/zZFXhHnuU=;
+        s=default; t=1601378145;
+        bh=t330OXA9dxggzEfcHbh5rTp6xcbmDBUHLw4W8YKKisE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mFgNT0dAeU9AnWAvORZdx93UVD+MKUepE31jllwtmGVr9DALgJuG8/1GfbAfFjmh1
-         bc1qI289C1xhxtNdZwNAlT2hNKgHtWox2OjcXrHtPsP581E97nD4fRoxPIFZSU7TpY
-         CuYN+7jrSGFo9iWDXIkhxLh6ADP0Slc991fyTAOc=
+        b=dHAtspVW0dLIRWizoKayO42J62FgCbQ8SLwKWScXFI0QX9r7cbibvNhwZ50kIGLu+
+         JAkd6nYlHzNor7x/RsEwnh1P+UjhWiFeLi63Nq/G50A4QGSvwwAQG3E6z/6O5TOCbH
+         VPRLOXmEGXFFOC379JQqvs/lrEJPcIyyM7TVISDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Grubb <sgrubb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Hawking Zhang <Hawking.Zhang@amd.com>,
+        John Clements <john.clements@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 045/121] audit: CONFIG_CHANGE dont log internal bookkeeping as an event
+Subject: [PATCH 4.14 077/166] drm/amdgpu: increase atombios cmd timeout
 Date:   Tue, 29 Sep 2020 12:59:49 +0200
-Message-Id: <20200929105932.423980430@linuxfoundation.org>
+Message-Id: <20200929105939.065670629@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Grubb <sgrubb@redhat.com>
+From: John Clements <john.clements@amd.com>
 
-[ Upstream commit 70b3eeed49e8190d97139806f6fbaf8964306cdb ]
+[ Upstream commit 1b3460a8b19688ad3033b75237d40fa580a5a953 ]
 
-Common Criteria calls out for any action that modifies the audit trail to
-be recorded. That usually is interpreted to mean insertion or removal of
-rules. It is not required to log modification of the inode information
-since the watch is still in effect. Additionally, if the rule is a never
-rule and the underlying file is one they do not want events for, they
-get an event for this bookkeeping update against their wishes.
+mitigates race condition on BACO reset between GPU bootcode and driver reload
 
-Since no device/inode info is logged at insertion and no device/inode
-information is logged on update, there is nothing meaningful being
-communicated to the admin by the CONFIG_CHANGE updated_rules event. One
-can assume that the rule was not "modified" because it is still watching
-the intended target. If the device or inode cannot be resolved, then
-audit_panic is called which is sufficient.
-
-The correct resolution is to drop logging config_update events since
-the watch is still in effect but just on another unknown inode.
-
-Signed-off-by: Steve Grubb <sgrubb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: John Clements <john.clements@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit_watch.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/atom.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/audit_watch.c b/kernel/audit_watch.c
-index 712469a3103ac..54b30c9bd8b13 100644
---- a/kernel/audit_watch.c
-+++ b/kernel/audit_watch.c
-@@ -316,8 +316,6 @@ static void audit_update_watch(struct audit_parent *parent,
- 			if (oentry->rule.exe)
- 				audit_remove_mark(oentry->rule.exe);
- 
--			audit_watch_log_rule_change(r, owatch, "updated_rules");
--
- 			call_rcu(&oentry->rcu, audit_free_rule_rcu);
- 		}
- 
+diff --git a/drivers/gpu/drm/amd/amdgpu/atom.c b/drivers/gpu/drm/amd/amdgpu/atom.c
+index d69aa2e179bbe..e4874cc209ef4 100644
+--- a/drivers/gpu/drm/amd/amdgpu/atom.c
++++ b/drivers/gpu/drm/amd/amdgpu/atom.c
+@@ -742,8 +742,8 @@ static void atom_op_jump(atom_exec_context *ctx, int *ptr, int arg)
+ 			cjiffies = jiffies;
+ 			if (time_after(cjiffies, ctx->last_jump_jiffies)) {
+ 				cjiffies -= ctx->last_jump_jiffies;
+-				if ((jiffies_to_msecs(cjiffies) > 5000)) {
+-					DRM_ERROR("atombios stuck in loop for more than 5secs aborting\n");
++				if ((jiffies_to_msecs(cjiffies) > 10000)) {
++					DRM_ERROR("atombios stuck in loop for more than 10secs aborting\n");
+ 					ctx->abort = true;
+ 				}
+ 			} else {
 -- 
 2.25.1
 
