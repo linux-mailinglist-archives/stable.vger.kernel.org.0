@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8286827C45D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:13:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD67F27C461
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:13:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729369AbgI2LN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729126AbgI2LN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 29 Sep 2020 07:13:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54778 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728750AbgI2LMu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:12:50 -0400
+        id S1729359AbgI2LMw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:12:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D61B206A5;
-        Tue, 29 Sep 2020 11:12:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 030822158C;
+        Tue, 29 Sep 2020 11:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377968;
-        bh=ixaE49ZtBn7bEd7/OMOgIHGs0SEht3qS8t+u+yax94o=;
+        s=default; t=1601377971;
+        bh=iKkHY2dspMh7JLTw8WbSLOadNhNVO8XjzTETA9tU5jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdeKriCxqIQevEzFWfRvMW+OBf+sXzER/LpWpPs2+ZwWQmoDzrpvg+LR3FA+IFjtd
-         nDaA3UgqDfJCah85WFmcxtn5U+pxmnAjKAMoPLiWC9lx5RV4N2pCczVTy2tCx2ibkI
-         7zL9Bkho7P8aDV3iTfx20Fop4rF+WxSve9fAyjao=
+        b=PUkFeBH0naVH0vLJZBmXVoT3/1p4goPlQXDnQdqMLWVsxCXaqPIV5nEvqbkcFheTD
+         FMnMt8eR78CfyShIsZRYO0qcp9/PnbGKaDh1os/7T0LvUF2OkN3772Nvz5pQB15P9k
+         190Za+TVi21FUxIi44OY7i2e+ITb+JLu/MiwB1BM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>,
-        Mark Gray <mark.d.gray@redhat.com>,
-        Greg Rose <gvrose8192@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 016/166] geneve: add transport ports in route lookup for geneve
-Date:   Tue, 29 Sep 2020 12:58:48 +0200
-Message-Id: <20200929105935.996049980@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.14 017/166] serial: 8250: Avoid error message on reprobe
+Date:   Tue, 29 Sep 2020 12:58:49 +0200
+Message-Id: <20200929105936.046617281@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -44,184 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Gray <mark.d.gray@redhat.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 34beb21594519ce64a55a498c2fe7d567bc1ca20 ]
+commit e0a851fe6b9b619527bd928aa93caaddd003f70c upstream.
 
-This patch adds transport ports information for route lookup so that
-IPsec can select Geneve tunnel traffic to do encryption. This is
-needed for OVS/OVN IPsec with encrypted Geneve tunnels.
+If the call to uart_add_one_port() in serial8250_register_8250_port()
+fails, a half-initialized entry in the serial_8250ports[] array is left
+behind.
 
-This can be tested by configuring a host-host VPN using an IKE
-daemon and specifying port numbers. For example, for an
-Openswan-type configuration, the following parameters should be
-configured on both hosts and IPsec set up as-per normal:
+A subsequent reprobe of the same serial port causes that entry to be
+reused.  Because uart->port.dev is set, uart_remove_one_port() is called
+for the half-initialized entry and bails out with an error message:
 
-$ cat /etc/ipsec.conf
+bcm2835-aux-uart 3f215040.serial: Removing wrong port: (null) != (ptrval)
 
-conn in
-...
-left=$IP1
-right=$IP2
-...
-leftprotoport=udp/6081
-rightprotoport=udp
-...
-conn out
-...
-left=$IP1
-right=$IP2
-...
-leftprotoport=udp
-rightprotoport=udp/6081
-...
+The same happens on failure of mctrl_gpio_init() since commit
+4a96895f74c9 ("tty/serial/8250: use mctrl_gpio helpers").
 
-The tunnel can then be setup using "ip" on both hosts (but
-changing the relevant IP addresses):
+Fix by zeroing the uart->port.dev pointer in the probe error path.
 
-$ ip link add tun type geneve id 1000 remote $IP2
-$ ip addr add 192.168.0.1/24 dev tun
-$ ip link set tun up
+The bug was introduced in v2.6.10 by historical commit befff6f5bf5f
+("[SERIAL] Add new port registration/unregistration functions."):
+https://git.kernel.org/tglx/history/c/befff6f5bf5f
 
-This can then be tested by pinging from $IP1:
+The commit added an unconditional call to uart_remove_one_port() in
+serial8250_register_port().  In v3.7, commit 835d844d1a28 ("8250_pnp:
+do pnp probe before legacy probe") made that call conditional on
+uart->port.dev which allows me to fix the issue by zeroing that pointer
+in the error path.  Thus, the present commit will fix the problem as far
+back as v3.7 whereas still older versions need to also cherry-pick
+835d844d1a28.
 
-$ ping 192.168.0.2
-
-Without this patch the traffic is unencrypted on the wire.
-
-Fixes: 2d07dc79fe04 ("geneve: add initial netdev driver for GENEVE tunnels")
-Signed-off-by: Qiuyu Xiao <qiuyu.xiao.qyx@gmail.com>
-Signed-off-by: Mark Gray <mark.d.gray@redhat.com>
-Reviewed-by: Greg Rose <gvrose8192@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 835d844d1a28 ("8250_pnp: do pnp probe before legacy probe")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v2.6.10
+Cc: stable@vger.kernel.org # v2.6.10: 835d844d1a28: 8250_pnp: do pnp probe before legacy
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/b4a072013ee1a1d13ee06b4325afb19bda57ca1b.1589285873.git.lukas@wunner.de
+[iwamatsu: Backported to 4.14, 4.19: adjust context]
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c |   37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ drivers/tty/serial/8250/8250_core.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -716,7 +716,8 @@ static struct rtable *geneve_get_v4_rt(s
- 				       struct net_device *dev,
- 				       struct geneve_sock *gs4,
- 				       struct flowi4 *fl4,
--				       const struct ip_tunnel_info *info)
-+				       const struct ip_tunnel_info *info,
-+				       __be16 dport, __be16 sport)
- {
- 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
- 	struct geneve_dev *geneve = netdev_priv(dev);
-@@ -732,6 +733,8 @@ static struct rtable *geneve_get_v4_rt(s
- 	fl4->flowi4_proto = IPPROTO_UDP;
- 	fl4->daddr = info->key.u.ipv4.dst;
- 	fl4->saddr = info->key.u.ipv4.src;
-+	fl4->fl4_dport = dport;
-+	fl4->fl4_sport = sport;
- 
- 	tos = info->key.tos;
- 	if ((tos == 1) && !geneve->collect_md) {
-@@ -766,7 +769,8 @@ static struct dst_entry *geneve_get_v6_d
- 					   struct net_device *dev,
- 					   struct geneve_sock *gs6,
- 					   struct flowi6 *fl6,
--					   const struct ip_tunnel_info *info)
-+					   const struct ip_tunnel_info *info,
-+					   __be16 dport, __be16 sport)
- {
- 	bool use_cache = ip_tunnel_dst_cache_usable(skb, info);
- 	struct geneve_dev *geneve = netdev_priv(dev);
-@@ -782,6 +786,9 @@ static struct dst_entry *geneve_get_v6_d
- 	fl6->flowi6_proto = IPPROTO_UDP;
- 	fl6->daddr = info->key.u.ipv6.dst;
- 	fl6->saddr = info->key.u.ipv6.src;
-+	fl6->fl6_dport = dport;
-+	fl6->fl6_sport = sport;
+--- a/drivers/tty/serial/8250/8250_core.c
++++ b/drivers/tty/serial/8250/8250_core.c
+@@ -1065,8 +1065,10 @@ int serial8250_register_8250_port(struct
+ 			serial8250_apply_quirks(uart);
+ 			ret = uart_add_one_port(&serial8250_reg,
+ 						&uart->port);
+-			if (ret == 0)
+-				ret = uart->port.line;
++			if (ret)
++				goto err;
 +
- 	prio = info->key.tos;
- 	if ((prio == 1) && !geneve->collect_md) {
- 		prio = ip_tunnel_get_dsfield(ip_hdr(skb), skb);
-@@ -828,7 +835,9 @@ static int geneve_xmit_skb(struct sk_buf
- 	__be16 df;
- 	int err;
++			ret = uart->port.line;
+ 		} else {
+ 			dev_info(uart->port.dev,
+ 				"skipping CIR port at 0x%lx / 0x%llx, IRQ %d\n",
+@@ -1091,6 +1093,11 @@ int serial8250_register_8250_port(struct
+ 	mutex_unlock(&serial_mutex);
  
--	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
-+	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
-+	rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
-+			      geneve->info.key.tp_dst, sport);
- 	if (IS_ERR(rt))
- 		return PTR_ERR(rt);
- 
-@@ -839,7 +848,6 @@ static int geneve_xmit_skb(struct sk_buf
- 		skb_dst_update_pmtu(skb, mtu);
- 	}
- 
--	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	if (geneve->collect_md) {
- 		tos = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
- 		ttl = key->ttl;
-@@ -874,7 +882,9 @@ static int geneve6_xmit_skb(struct sk_bu
- 	__be16 sport;
- 	int err;
- 
--	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
-+	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
-+	dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
-+				geneve->info.key.tp_dst, sport);
- 	if (IS_ERR(dst))
- 		return PTR_ERR(dst);
- 
-@@ -885,7 +895,6 @@ static int geneve6_xmit_skb(struct sk_bu
- 		skb_dst_update_pmtu(skb, mtu);
- 	}
- 
--	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
- 	if (geneve->collect_md) {
- 		prio = ip_tunnel_ecn_encap(key->tos, ip_hdr(skb), skb);
- 		ttl = key->ttl;
-@@ -963,13 +972,18 @@ static int geneve_fill_metadata_dst(stru
- {
- 	struct ip_tunnel_info *info = skb_tunnel_info(skb);
- 	struct geneve_dev *geneve = netdev_priv(dev);
-+	__be16 sport;
- 
- 	if (ip_tunnel_info_af(info) == AF_INET) {
- 		struct rtable *rt;
- 		struct flowi4 fl4;
+ 	return ret;
 +
- 		struct geneve_sock *gs4 = rcu_dereference(geneve->sock4);
-+		sport = udp_flow_src_port(geneve->net, skb,
-+					  1, USHRT_MAX, true);
- 
--		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info);
-+		rt = geneve_get_v4_rt(skb, dev, gs4, &fl4, info,
-+				      geneve->info.key.tp_dst, sport);
- 		if (IS_ERR(rt))
- 			return PTR_ERR(rt);
- 
-@@ -979,9 +993,13 @@ static int geneve_fill_metadata_dst(stru
- 	} else if (ip_tunnel_info_af(info) == AF_INET6) {
- 		struct dst_entry *dst;
- 		struct flowi6 fl6;
-+
- 		struct geneve_sock *gs6 = rcu_dereference(geneve->sock6);
-+		sport = udp_flow_src_port(geneve->net, skb,
-+					  1, USHRT_MAX, true);
- 
--		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info);
-+		dst = geneve_get_v6_dst(skb, dev, gs6, &fl6, info,
-+					geneve->info.key.tp_dst, sport);
- 		if (IS_ERR(dst))
- 			return PTR_ERR(dst);
- 
-@@ -992,8 +1010,7 @@ static int geneve_fill_metadata_dst(stru
- 		return -EINVAL;
- 	}
- 
--	info->key.tp_src = udp_flow_src_port(geneve->net, skb,
--					     1, USHRT_MAX, true);
-+	info->key.tp_src = sport;
- 	info->key.tp_dst = geneve->info.key.tp_dst;
- 	return 0;
++err:
++	uart->port.dev = NULL;
++	mutex_unlock(&serial_mutex);
++	return ret;
  }
+ EXPORT_SYMBOL(serial8250_register_8250_port);
+ 
 
 
