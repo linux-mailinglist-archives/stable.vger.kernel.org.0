@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F76427C706
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E65727C792
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730945AbgI2LtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:49:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52162 "EHLO mail.kernel.org"
+        id S1731493AbgI2Ly4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:54:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731172AbgI2LtI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:49:08 -0400
+        id S1730940AbgI2LpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:45:10 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD048206F7;
-        Tue, 29 Sep 2020 11:49:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EA692083B;
+        Tue, 29 Sep 2020 11:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380147;
-        bh=gmUfHcRNOMsi8iXW2jc6KIgwQ4oBWMzx6TbG1531NnQ=;
+        s=default; t=1601379908;
+        bh=ZVNsZN16AryM6/MtQBsbLl+NtE0qR2FJdAhpFGrW2VE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YHxTWsdk5wPHr85nKTEptnPhssmYTlQ8Xk3S2CoPXCYkC+RedfrUlasaR7oSarv8G
-         ns8OZ0AAsIYBIxQ035oEvGrLpmOXLupYieQipnzEX6Bont8OIS+v2dRfdZ3HF8Uoz8
-         A/Pd8/IEogAkl6XM/3ThVDcN3O7ithR5EV+Jw4lA=
+        b=A7Y1/fnUGSORxAxb6zeqS8ASa6rNwGZafcavybUwszsSmwrtkFXuTR/9tgHsB7/WU
+         qoGhJP/v0cvYgtbfsFaBfPa5UUGgsTdeijv1xbSP25ChkDIj8LoVy49jm+3MnVhOMR
+         HsC9hr9xwmBY+0CwM+yICwPorfOMgtPBvSpz6P3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 58/99] io_uring: fix openat/openat2 unified prep handling
+        stable@vger.kernel.org,
+        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 370/388] ALSA: usb-audio: Add delay quirk for H570e USB headsets
 Date:   Tue, 29 Sep 2020 13:01:41 +0200
-Message-Id: <20200929105932.583523181@linuxfoundation.org>
+Message-Id: <20200929110028.377903856@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-[ Upstream commit 4eb8dded6b82e184c09bb963bea0335fa3f30b55 ]
+commit 315c7ad7a701baba28c628c4c5426b3d9617ceed upstream.
 
-A previous commit unified how we handle prep for these two functions,
-but this means that we check the allowed context (SQPOLL, specifically)
-later than we should. Move the ring type checking into the two parent
-functions, instead of doing it after we've done some setup work.
+Needs the same delay as H650e
 
-Fixes: ec65fea5a8d7 ("io_uring: deduplicate io_openat{,2}_prep()")
-Reported-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200910085328.19188-1-joakim.tjernlund@infinera.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/io_uring.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/usb/quirks.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d05023ca74bdc..849e39c3cfcd7 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3056,8 +3056,6 @@ static int __io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
- 	const char __user *fname;
- 	int ret;
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1604,12 +1604,13 @@ void snd_usb_ctl_msg_quirk(struct usb_de
+ 	    && (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ 		msleep(20);
  
--	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
--		return -EINVAL;
- 	if (unlikely(sqe->ioprio || sqe->buf_index))
- 		return -EINVAL;
- 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
-@@ -3084,6 +3082,8 @@ static int io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	u64 flags, mode;
- 
-+	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
-+		return -EINVAL;
- 	if (req->flags & REQ_F_NEED_CLEANUP)
- 		return 0;
- 	mode = READ_ONCE(sqe->len);
-@@ -3098,6 +3098,8 @@ static int io_openat2_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	size_t len;
- 	int ret;
- 
-+	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
-+		return -EINVAL;
- 	if (req->flags & REQ_F_NEED_CLEANUP)
- 		return 0;
- 	how = u64_to_user_ptr(READ_ONCE(sqe->addr2));
--- 
-2.25.1
-
+-	/* Zoom R16/24, Logitech H650e, Jabra 550a, Kingston HyperX needs a tiny
+-	 * delay here, otherwise requests like get/set frequency return as
+-	 * failed despite actually succeeding.
++	/* Zoom R16/24, Logitech H650e/H570e, Jabra 550a, Kingston HyperX
++	 *  needs a tiny delay here, otherwise requests like get/set
++	 *  frequency return as failed despite actually succeeding.
+ 	 */
+ 	if ((chip->usb_id == USB_ID(0x1686, 0x00dd) ||
+ 	     chip->usb_id == USB_ID(0x046d, 0x0a46) ||
++	     chip->usb_id == USB_ID(0x046d, 0x0a56) ||
+ 	     chip->usb_id == USB_ID(0x0b0e, 0x0349) ||
+ 	     chip->usb_id == USB_ID(0x0951, 0x16ad)) &&
+ 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
 
 
