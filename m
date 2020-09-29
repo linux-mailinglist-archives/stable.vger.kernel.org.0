@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC96C27CB8B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9454127C85B
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:02:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729496AbgI2M2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:28:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43464 "EHLO mail.kernel.org"
+        id S1731700AbgI2MBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:01:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729491AbgI2LcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:32:24 -0400
+        id S1730553AbgI2Lkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:40:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADE29208FE;
-        Tue, 29 Sep 2020 11:25:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E93220848;
+        Tue, 29 Sep 2020 11:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378737;
-        bh=gvderARrpRnfGtjOgHdX2IEOm/oM9jcniUBqXQ3gp7o=;
+        s=default; t=1601379615;
+        bh=aPx4k0HOI9N5ZP/ZtZutImgSKhBYeZLXkzXl59Da648=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qRvZvS18RJOk4AejfUdPfmx4QEY/vEjUcFbAp6dGPKTdjp5xG4ECNEtjgStfwmEfT
-         sNtMu4A/kP+RD28iSvruxF2ta1abw7r4bBbcOeBODRBvz4G+sNcPytsKgzD6j4ixk9
-         V+HIjaDWxEfhZmkezjnlztPxf8AppCgTS2iYXaFQ=
+        b=wlcAWBVB4nV4drhixBOYwzBKZHFBidddaHeOag0Dy6+56AERZ7upwogZutQfuEIj8
+         sDB1XwOGK7BrvEHFS1D48eMVEdrsZYoW8UoEEjQNPvcS6zNNuDgRmgg8ZZ5QGxiAhy
+         sctdmK0AcSQRGC5UlKUA+7D687BJzL5Qs7Vi1d+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 121/245] serial: 8250_port: Dont service RX FIFO if throttled
-Date:   Tue, 29 Sep 2020 12:59:32 +0200
-Message-Id: <20200929105952.876697655@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 242/388] arm64: cpufeature: Relax checks for AArch32 support at EL[0-2]
+Date:   Tue, 29 Sep 2020 12:59:33 +0200
+Message-Id: <20200929110022.195322409@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Raghavendra <vigneshr@ti.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit f19c3f6c8109b8bab000afd35580929958e087a9 ]
+[ Upstream commit 98448cdfe7060dd5491bfbd3f7214ffe1395d58e ]
 
-When port's throttle callback is called, it should stop pushing any more
-data into TTY buffer to avoid buffer overflow. This means driver has to
-stop HW from receiving more data and assert the HW flow control. For
-UARTs with auto HW flow control (such as 8250_omap) manual assertion of
-flow control line is not possible and only way is to allow RX FIFO to
-fill up, thus trigger auto HW flow control logic.
+We don't need to be quite as strict about mismatched AArch32 support,
+which is good because the friendly hardware folks have been busy
+mismatching this to their hearts' content.
 
-Therefore make sure that 8250 generic IRQ handler does not drain data
-when port is stopped (i.e UART_LSR_DR is unset in read_status_mask). Not
-servicing, RX FIFO would trigger auto HW flow control when FIFO
-occupancy reaches preset threshold, thus halting RX.
-Since, error conditions in UART_LSR register are cleared just by reading
-the register, data has to be drained in case there are FIFO errors, else
-error information will lost.
+  * We don't care about EL2 or EL3 (there are silly comments concerning
+    the latter, so remove those)
 
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Link: https://lore.kernel.org/r/20200319103230.16867-2-vigneshr@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  * EL1 support is gated by the ARM64_HAS_32BIT_EL1 capability and handled
+    gracefully when a mismatch occurs
+
+  * EL0 support is gated by the ARM64_HAS_32BIT_EL0 capability and handled
+    gracefully when a mismatch occurs
+
+Relax the AArch32 checks to FTR_NONSTRICT.
+
+Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20200421142922.18950-8-will@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/cpufeature.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 09f0dc3b967b1..60ca19eca1f63 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1861,6 +1861,7 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
- 	unsigned char status;
- 	unsigned long flags;
- 	struct uart_8250_port *up = up_to_u8250p(port);
-+	bool skip_rx = false;
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index f400cb29b811a..1df57ffc9314d 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -160,11 +160,10 @@ static const struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_GIC_SHIFT, 4, 0),
+ 	S_ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_ASIMD_SHIFT, 4, ID_AA64PFR0_ASIMD_NI),
+ 	S_ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_FP_SHIFT, 4, ID_AA64PFR0_FP_NI),
+-	/* Linux doesn't care about the EL3 */
+ 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL3_SHIFT, 4, 0),
+-	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL2_SHIFT, 4, 0),
+-	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL1_SHIFT, 4, ID_AA64PFR0_EL1_64BIT_ONLY),
+-	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL0_SHIFT, 4, ID_AA64PFR0_EL0_64BIT_ONLY),
++	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL2_SHIFT, 4, 0),
++	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL1_SHIFT, 4, ID_AA64PFR0_EL1_64BIT_ONLY),
++	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL0_SHIFT, 4, ID_AA64PFR0_EL0_64BIT_ONLY),
+ 	ARM64_FTR_END,
+ };
  
- 	if (iir & UART_IIR_NO_INT)
- 		return 0;
-@@ -1869,7 +1870,20 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
+@@ -719,9 +718,6 @@ void update_cpu_features(int cpu,
+ 	taint |= check_update_ftr_reg(SYS_ID_AA64MMFR2_EL1, cpu,
+ 				      info->reg_id_aa64mmfr2, boot->reg_id_aa64mmfr2);
  
- 	status = serial_port_in(port, UART_LSR);
- 
--	if (status & (UART_LSR_DR | UART_LSR_BI)) {
-+	/*
-+	 * If port is stopped and there are no error conditions in the
-+	 * FIFO, then don't drain the FIFO, as this may lead to TTY buffer
-+	 * overflow. Not servicing, RX FIFO would trigger auto HW flow
-+	 * control when FIFO occupancy reaches preset threshold, thus
-+	 * halting RX. This only works when auto HW flow control is
-+	 * available.
-+	 */
-+	if (!(status & (UART_LSR_FIFOE | UART_LSR_BRK_ERROR_BITS)) &&
-+	    (port->status & (UPSTAT_AUTOCTS | UPSTAT_AUTORTS)) &&
-+	    !(port->read_status_mask & UART_LSR_DR))
-+		skip_rx = true;
-+
-+	if (status & (UART_LSR_DR | UART_LSR_BI) && !skip_rx) {
- 		if (!up->dma || handle_rx_dma(up, iir))
- 			status = serial8250_rx_chars(up, status);
- 	}
+-	/*
+-	 * EL3 is not our concern.
+-	 */
+ 	taint |= check_update_ftr_reg(SYS_ID_AA64PFR0_EL1, cpu,
+ 				      info->reg_id_aa64pfr0, boot->reg_id_aa64pfr0);
+ 	taint |= check_update_ftr_reg(SYS_ID_AA64PFR1_EL1, cpu,
 -- 
 2.25.1
 
