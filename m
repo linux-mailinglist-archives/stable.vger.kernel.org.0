@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27BED27CB90
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8F9127C864
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732825AbgI2M2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:28:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46898 "EHLO mail.kernel.org"
+        id S1731020AbgI2MBv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:01:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729477AbgI2LcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:32:24 -0400
+        id S1729913AbgI2LkH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:40:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93ABA23B1F;
-        Tue, 29 Sep 2020 11:25:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07992208FE;
+        Tue, 29 Sep 2020 11:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378726;
-        bh=hoMDBRCBrzHuduGsdOodBy1gbW/7O6IJYTr325qsCB0=;
+        s=default; t=1601379606;
+        bh=jIhQZwXP3VavhttXfmnocOIZi+wRX7HUe9ayE5xeqI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N3Ju63twjAnZmN9h5951UjJkv1RvveLI4NhnlqNs1ECxKJ7utqSM9xtkNrhb3b1OU
-         dGZIViBnr//kaB/R3EdD71yHUcqd7KtwB+wGlwT1qj43ycM7uFeGZxGcAC6E/bjmjK
-         4ywl7l0q6iy4qD8kbHc5h6mVS2WqyOEup9i8huqk=
+        b=cHdNJA+xS7AYYp/26dQEWu8AaomK0pSU8212dBPNvGjKO1n9Jg/0gXSYv0iE//OQw
+         rmFelVO4L7zfkw/wjESxkxH5QqwKDwXHkskyRv5CxFOWeT5ocABVin6lzj/TaUJK8g
+         a/tMOD6STK6cMquGQd5lslVrG7ypFwHDrVmZwucM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordan Crouse <jcrouse@codeaurora.org>,
-        Eric Anholt <eric@anholt.net>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Pravin B Shelar <pshelar@ovn.org>,
+        Andy Zhou <azhou@ovn.org>,
+        Tonghao Zhang <xiangxia.m.yue@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 117/245] drm/msm/a5xx: Always set an OPP supported hardware value
-Date:   Tue, 29 Sep 2020 12:59:28 +0200
-Message-Id: <20200929105952.680253925@linuxfoundation.org>
+Subject: [PATCH 5.4 238/388] net: openvswitch: use u64 for meter bucket
+Date:   Tue, 29 Sep 2020 12:59:29 +0200
+Message-Id: <20200929110022.001138757@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordan Crouse <jcrouse@codeaurora.org>
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-[ Upstream commit 0478b4fc5f37f4d494245fe7bcce3f531cf380e9 ]
+[ Upstream commit e57358873bb5d6caa882b9684f59140912b37dde ]
 
-If the opp table specifies opp-supported-hw as a property but the driver
-has not set a supported hardware value the OPP subsystem will reject
-all the table entries.
+When setting the meter rate to 4+Gbps, there is an
+overflow, the meters don't work as expected.
 
-Set a "default" value that will match the default table entries but not
-conflict with any possible real bin values. Also fix a small memory leak
-and free the buffer allocated by nvmem_cell_read().
-
-Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
-Reviewed-by: Eric Anholt <eric@anholt.net>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Cc: Pravin B Shelar <pshelar@ovn.org>
+Cc: Andy Zhou <azhou@ovn.org>
+Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Acked-by: Pravin B Shelar <pshelar@ovn.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ net/openvswitch/meter.c | 2 +-
+ net/openvswitch/meter.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-index 1fc9a7fa37b45..d29a58bd2f7a3 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-@@ -1474,18 +1474,31 @@ static const struct adreno_gpu_funcs funcs = {
- static void check_speed_bin(struct device *dev)
- {
- 	struct nvmem_cell *cell;
--	u32 bin, val;
-+	u32 val;
-+
-+	/*
-+	 * If the OPP table specifies a opp-supported-hw property then we have
-+	 * to set something with dev_pm_opp_set_supported_hw() or the table
-+	 * doesn't get populated so pick an arbitrary value that should
-+	 * ensure the default frequencies are selected but not conflict with any
-+	 * actual bins
-+	 */
-+	val = 0x80;
+diff --git a/net/openvswitch/meter.c b/net/openvswitch/meter.c
+index 3323b79ff548d..b10734f18bbd6 100644
+--- a/net/openvswitch/meter.c
++++ b/net/openvswitch/meter.c
+@@ -251,7 +251,7 @@ static struct dp_meter *dp_meter_create(struct nlattr **a)
+ 		 *
+ 		 * Start with a full bucket.
+ 		 */
+-		band->bucket = (band->burst_size + band->rate) * 1000;
++		band->bucket = (band->burst_size + band->rate) * 1000ULL;
+ 		band_max_delta_t = band->bucket / band->rate;
+ 		if (band_max_delta_t > meter->max_delta_t)
+ 			meter->max_delta_t = band_max_delta_t;
+diff --git a/net/openvswitch/meter.h b/net/openvswitch/meter.h
+index f645913870bd2..2e3fd6f1d7ebe 100644
+--- a/net/openvswitch/meter.h
++++ b/net/openvswitch/meter.h
+@@ -23,7 +23,7 @@ struct dp_meter_band {
+ 	u32 type;
+ 	u32 rate;
+ 	u32 burst_size;
+-	u32 bucket; /* 1/1000 packets, or in bits */
++	u64 bucket; /* 1/1000 packets, or in bits */
+ 	struct ovs_flow_stats stats;
+ };
  
- 	cell = nvmem_cell_get(dev, "speed_bin");
- 
--	/* If a nvmem cell isn't defined, nothing to do */
--	if (IS_ERR(cell))
--		return;
-+	if (!IS_ERR(cell)) {
-+		void *buf = nvmem_cell_read(cell, NULL);
-+
-+		if (!IS_ERR(buf)) {
-+			u8 bin = *((u8 *) buf);
- 
--	bin = *((u32 *) nvmem_cell_read(cell, NULL));
--	nvmem_cell_put(cell);
-+			val = (1 << bin);
-+			kfree(buf);
-+		}
- 
--	val = (1 << bin);
-+		nvmem_cell_put(cell);
-+	}
- 
- 	dev_pm_opp_set_supported_hw(dev, &val, 1);
- }
 -- 
 2.25.1
 
