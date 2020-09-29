@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 215C827C352
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:06:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5429A27C4D5
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:17:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728627AbgI2LEn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:04:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40688 "EHLO mail.kernel.org"
+        id S1728931AbgI2LRE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:17:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728586AbgI2LEc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:04:32 -0400
+        id S1729172AbgI2LQx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:16:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA35321734;
-        Tue, 29 Sep 2020 11:04:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 657EA2083B;
+        Tue, 29 Sep 2020 11:16:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377471;
-        bh=nV2hnbKtkB2BlDOC4qeSSeGMkvJWmVGMRnEvR21pAkU=;
+        s=default; t=1601378212;
+        bh=W7CHTWds8Q3aC1I6qib44375xsp0WnJ0bs7AC2P7fmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xwjsv/X2lMlxrPWc6cYbgjJuqbTxiAF5dD45WC56vp9JWpdXnkx5gtJnt1RYnelHI
-         BGPME54sIT3+b2uR1ulmShaZvROocdOsbKMOmkg6RtkppSxjugah1MHFQP1YeWrqiT
-         Q/HljNQJYbKAarYIHdMlvjIT3sHu38RHu+0+oPpk=
+        b=o8iXzcD/Z/emg4OEudjMk8ddGxHXE/PcoI71obN5QOLUIgJnwxXZ/vEMFTPHZuogE
+         vcFBqyRf+GTLPiAwlFEGVOvcsaekSFZgcZ3DBBD09pAJFCZUDeeBUEE6kpnKO1nam1
+         WU4zfkJFTNYBUBU3imM8MbEmL2VeErgccJGwXD78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Song <liu.song11@zte.com.cn>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 47/85] ubifs: Fix out-of-bounds memory access caused by abnormal value of node_len
+Subject: [PATCH 4.14 102/166] scsi: qedi: Fix termination timeouts in session logout
 Date:   Tue, 29 Sep 2020 13:00:14 +0200
-Message-Id: <20200929105930.589534153@linuxfoundation.org>
+Message-Id: <20200929105940.300164565@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Song <liu.song11@zte.com.cn>
+From: Nilesh Javali <njavali@marvell.com>
 
-[ Upstream commit acc5af3efa303d5f36cc8c0f61716161f6ca1384 ]
+[ Upstream commit b9b97e6903032ec56e6dcbe137a9819b74a17fea ]
 
-In “ubifs_check_node”, when the value of "node_len" is abnormal,
-the code will goto label of "out_len" for execution. Then, in the
-following "ubifs_dump_node", if inode type is "UBIFS_DATA_NODE",
-in "print_hex_dump", an out-of-bounds access may occur due to the
-wrong "ch->len".
+The destroy connection ramrod timed out during session logout.  Fix the
+wait delay for graceful vs abortive termination as per the FW requirements.
 
-Therefore, when the value of "node_len" is abnormal, data length
-should to be adjusted to a reasonable safe range. At this time,
-structured data is not credible, so dump the corrupted data directly
-for analysis.
-
-Signed-off-by: Liu Song <liu.song11@zte.com.cn>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Link: https://lore.kernel.org/r/20200408064332.19377-7-mrangankar@marvell.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/io.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/scsi/qedi/qedi_iscsi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/ubifs/io.c b/fs/ubifs/io.c
-index 97be412153328..9213a9e046ae0 100644
---- a/fs/ubifs/io.c
-+++ b/fs/ubifs/io.c
-@@ -237,7 +237,7 @@ int ubifs_is_mapped(const struct ubifs_info *c, int lnum)
- int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
- 		     int offs, int quiet, int must_chk_crc)
- {
--	int err = -EINVAL, type, node_len;
-+	int err = -EINVAL, type, node_len, dump_node = 1;
- 	uint32_t crc, node_crc, magic;
- 	const struct ubifs_ch *ch = buf;
- 
-@@ -290,10 +290,22 @@ int ubifs_check_node(const struct ubifs_info *c, const void *buf, int lnum,
- out_len:
- 	if (!quiet)
- 		ubifs_err(c, "bad node length %d", node_len);
-+	if (type == UBIFS_DATA_NODE && node_len > UBIFS_DATA_NODE_SZ)
-+		dump_node = 0;
- out:
- 	if (!quiet) {
- 		ubifs_err(c, "bad node at LEB %d:%d", lnum, offs);
--		ubifs_dump_node(c, buf);
-+		if (dump_node) {
-+			ubifs_dump_node(c, buf);
-+		} else {
-+			int safe_len = min3(node_len, c->leb_size - offs,
-+				(int)UBIFS_MAX_DATA_NODE_SZ);
-+			pr_err("\tprevent out-of-bounds memory access\n");
-+			pr_err("\ttruncated data node length      %d\n", safe_len);
-+			pr_err("\tcorrupted data node:\n");
-+			print_hex_dump(KERN_ERR, "\t", DUMP_PREFIX_OFFSET, 32, 1,
-+					buf, safe_len, 0);
-+		}
- 		dump_stack();
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index fb6439bc1d9a9..4d7971c3f339b 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -1072,6 +1072,9 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
+ 		break;
  	}
- 	return err;
+ 
++	if (!abrt_conn)
++		wait_delay += qedi->pf_params.iscsi_pf_params.two_msl_timer;
++
+ 	qedi_ep->state = EP_STATE_DISCONN_START;
+ 	ret = qedi_ops->destroy_conn(qedi->cdev, qedi_ep->handle, abrt_conn);
+ 	if (ret) {
 -- 
 2.25.1
 
