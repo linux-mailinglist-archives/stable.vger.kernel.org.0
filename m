@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A6EA27C61F
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C8327C833
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730388AbgI2LmD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:42:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39138 "EHLO mail.kernel.org"
+        id S1730707AbgI2L7y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:59:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730680AbgI2LmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:42:01 -0400
+        id S1730586AbgI2Lky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:40:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76D8C2074A;
-        Tue, 29 Sep 2020 11:42:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10093207F7;
+        Tue, 29 Sep 2020 11:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379721;
-        bh=v1AshLKQV0xOuh+08E+uQcfHlVlSimqpQhxYu6ZqGQI=;
+        s=default; t=1601379649;
+        bh=nRDPaV9puZECvmpAJ1pxKIa9voaWUssG0EnYs8bxZUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sXwP7BR42z7mKYaKZpbPlZ/0SjQ1G9nFyoQtCxSWfIg+TICj/3UJ4JIsjQTpjaD+G
-         2cVaqNujjH6OMQnRQVZUqDGMMCif4nFlu/4gYCwwTzZlcDqT8v9xIN8Kad0miSqtVK
-         f8soP6xpu5o/E+ztp9rUhZ5Tr6c77b7VVgltPEmU=
+        b=xz+LbBIGlBWHuPj5I6vVMT4ANPqV5r0LyWK3JIYlRtkE3jV60N/Xv3+nIidsf+QhN
+         VfCe9QhSj1HEajBN68W+sdGsg58f1/eMs4VJrheDFqHdfbBdkptR6nwz5HT3E9CR1p
+         iPgzkJJKVZIj2N60qh7WY2lZGJqewHVbaJAKv+js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        clang-built-linux@googlegroups.com,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Kees Cook <keescook@chromium.org>,
+        Rafael Aquini <aquini@redhat.com>,
+        Christoph Lameter <cl@linux.com>,
+        Vitaly Nikolenko <vnik@duasynt.com>,
+        Silvio Cesare <silvio.cesare@gmail.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Markus Elfring <Markus.Elfring@web.de>,
+        Changbin Du <changbin.du@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 249/388] perf mem2node: Avoid double free related to realloc
-Date:   Tue, 29 Sep 2020 12:59:40 +0200
-Message-Id: <20200929110022.534635698@linuxfoundation.org>
+Subject: [PATCH 5.4 250/388] mm/slub: fix incorrect interpretation of s->offset
+Date:   Tue, 29 Sep 2020 12:59:41 +0200
+Message-Id: <20200929110022.583512518@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -50,83 +55,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 266150c94c69429cf6d18e130237224a047f5061 ]
+[ Upstream commit cbfc35a48609ceac978791e3ab9dde0c01f8cb20 ]
 
-Realloc of size zero is a free not an error, avoid this causing a double
-free. Caught by clang's address sanitizer:
+In a couple of places in the slub memory allocator, the code uses
+"s->offset" as a check to see if the free pointer is put right after the
+object.  That check is no longer true with commit 3202fa62fb43 ("slub:
+relocate freelist pointer to middle of object").
 
-==2634==ERROR: AddressSanitizer: attempting double-free on 0x6020000015f0 in thread T0:
-    #0 0x5649659297fd in free llvm/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:123:3
-    #1 0x5649659e9251 in __zfree tools/lib/zalloc.c:13:2
-    #2 0x564965c0f92c in mem2node__exit tools/perf/util/mem2node.c:114:2
-    #3 0x564965a08b4c in perf_c2c__report tools/perf/builtin-c2c.c:2867:2
-    #4 0x564965a0616a in cmd_c2c tools/perf/builtin-c2c.c:2989:10
-    #5 0x564965944348 in run_builtin tools/perf/perf.c:312:11
-    #6 0x564965943235 in handle_internal_command tools/perf/perf.c:364:8
-    #7 0x5649659440c4 in run_argv tools/perf/perf.c:408:2
-    #8 0x564965942e41 in main tools/perf/perf.c:538:3
+As a result, echoing "1" into the validate sysfs file, e.g.  of dentry,
+may cause a bunch of "Freepointer corrupt" error reports like the
+following to appear with the system in panic afterwards.
 
-0x6020000015f0 is located 0 bytes inside of 1-byte region [0x6020000015f0,0x6020000015f1)
-freed by thread T0 here:
-    #0 0x564965929da3 in realloc third_party/llvm/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:164:3
-    #1 0x564965c0f55e in mem2node__init tools/perf/util/mem2node.c:97:16
-    #2 0x564965a08956 in perf_c2c__report tools/perf/builtin-c2c.c:2803:8
-    #3 0x564965a0616a in cmd_c2c tools/perf/builtin-c2c.c:2989:10
-    #4 0x564965944348 in run_builtin tools/perf/perf.c:312:11
-    #5 0x564965943235 in handle_internal_command tools/perf/perf.c:364:8
-    #6 0x5649659440c4 in run_argv tools/perf/perf.c:408:2
-    #7 0x564965942e41 in main tools/perf/perf.c:538:3
+  =============================================================================
+  BUG dentry(666:pmcd.service) (Tainted: G    B): Freepointer corrupt
+  -----------------------------------------------------------------------------
 
-previously allocated by thread T0 here:
-    #0 0x564965929c42 in calloc third_party/llvm/llvm-project/compiler-rt/lib/asan/asan_malloc_linux.cpp:154:3
-    #1 0x5649659e9220 in zalloc tools/lib/zalloc.c:8:9
-    #2 0x564965c0f32d in mem2node__init tools/perf/util/mem2node.c:61:12
-    #3 0x564965a08956 in perf_c2c__report tools/perf/builtin-c2c.c:2803:8
-    #4 0x564965a0616a in cmd_c2c tools/perf/builtin-c2c.c:2989:10
-    #5 0x564965944348 in run_builtin tools/perf/perf.c:312:11
-    #6 0x564965943235 in handle_internal_command tools/perf/perf.c:364:8
-    #7 0x5649659440c4 in run_argv tools/perf/perf.c:408:2
-    #8 0x564965942e41 in main tools/perf/perf.c:538:3
+To fix it, use the check "s->offset == s->inuse" in the new helper
+function freeptr_outside_object() instead.  Also add another helper
+function get_info_end() to return the end of info block (inuse + free
+pointer if not overlapping with object).
 
-v2: add a WARN_ON_ONCE when the free condition arises.
-
-Signed-off-by: Ian Rogers <irogers@google.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: clang-built-linux@googlegroups.com
-Link: http://lore.kernel.org/lkml/20200320182347.87675-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 3202fa62fb43 ("slub: relocate freelist pointer to middle of object")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Rafael Aquini <aquini@redhat.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Vitaly Nikolenko <vnik@duasynt.com>
+Cc: Silvio Cesare <silvio.cesare@gmail.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Markus Elfring <Markus.Elfring@web.de>
+Cc: Changbin Du <changbin.du@gmail.com>
+Link: http://lkml.kernel.org/r/20200429135328.26976-1-longman@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/mem2node.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/slub.c | 45 ++++++++++++++++++++++++++++++---------------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
 
-diff --git a/tools/perf/util/mem2node.c b/tools/perf/util/mem2node.c
-index 797d86a1ab095..c84f5841c7abd 100644
---- a/tools/perf/util/mem2node.c
-+++ b/tools/perf/util/mem2node.c
-@@ -1,5 +1,6 @@
- #include <errno.h>
- #include <inttypes.h>
-+#include <asm/bug.h>
- #include <linux/bitmap.h>
- #include <linux/kernel.h>
- #include <linux/zalloc.h>
-@@ -95,7 +96,7 @@ int mem2node__init(struct mem2node *map, struct perf_env *env)
+diff --git a/mm/slub.c b/mm/slub.c
+index 822ba07245291..d69934eac9e94 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -533,15 +533,32 @@ static void print_section(char *level, char *text, u8 *addr,
+ 	metadata_access_disable();
+ }
  
- 	/* Cut unused entries, due to merging. */
- 	tmp_entries = realloc(entries, sizeof(*entries) * j);
--	if (tmp_entries)
-+	if (tmp_entries || WARN_ON_ONCE(j == 0))
- 		entries = tmp_entries;
++/*
++ * See comment in calculate_sizes().
++ */
++static inline bool freeptr_outside_object(struct kmem_cache *s)
++{
++	return s->offset >= s->inuse;
++}
++
++/*
++ * Return offset of the end of info block which is inuse + free pointer if
++ * not overlapping with object.
++ */
++static inline unsigned int get_info_end(struct kmem_cache *s)
++{
++	if (freeptr_outside_object(s))
++		return s->inuse + sizeof(void *);
++	else
++		return s->inuse;
++}
++
+ static struct track *get_track(struct kmem_cache *s, void *object,
+ 	enum track_item alloc)
+ {
+ 	struct track *p;
  
- 	for (i = 0; i < j; i++) {
+-	if (s->offset)
+-		p = object + s->offset + sizeof(void *);
+-	else
+-		p = object + s->inuse;
++	p = object + get_info_end(s);
+ 
+ 	return p + alloc;
+ }
+@@ -682,10 +699,7 @@ static void print_trailer(struct kmem_cache *s, struct page *page, u8 *p)
+ 		print_section(KERN_ERR, "Redzone ", p + s->object_size,
+ 			s->inuse - s->object_size);
+ 
+-	if (s->offset)
+-		off = s->offset + sizeof(void *);
+-	else
+-		off = s->inuse;
++	off = get_info_end(s);
+ 
+ 	if (s->flags & SLAB_STORE_USER)
+ 		off += 2 * sizeof(struct track);
+@@ -776,7 +790,7 @@ static int check_bytes_and_report(struct kmem_cache *s, struct page *page,
+  * object address
+  * 	Bytes of the object to be managed.
+  * 	If the freepointer may overlay the object then the free
+- * 	pointer is the first word of the object.
++ *	pointer is at the middle of the object.
+  *
+  * 	Poisoning uses 0x6b (POISON_FREE) and the last byte is
+  * 	0xa5 (POISON_END)
+@@ -810,11 +824,7 @@ static int check_bytes_and_report(struct kmem_cache *s, struct page *page,
+ 
+ static int check_pad_bytes(struct kmem_cache *s, struct page *page, u8 *p)
+ {
+-	unsigned long off = s->inuse;	/* The end of info */
+-
+-	if (s->offset)
+-		/* Freepointer is placed after the object. */
+-		off += sizeof(void *);
++	unsigned long off = get_info_end(s);	/* The end of info */
+ 
+ 	if (s->flags & SLAB_STORE_USER)
+ 		/* We also have user information there */
+@@ -900,7 +910,7 @@ static int check_object(struct kmem_cache *s, struct page *page,
+ 		check_pad_bytes(s, page, p);
+ 	}
+ 
+-	if (!s->offset && val == SLUB_RED_ACTIVE)
++	if (!freeptr_outside_object(s) && val == SLUB_RED_ACTIVE)
+ 		/*
+ 		 * Object and freepointer overlap. Cannot check
+ 		 * freepointer while object is allocated.
+@@ -3585,6 +3595,11 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
+ 		 *
+ 		 * This is the case if we do RCU, have a constructor or
+ 		 * destructor or are poisoning the objects.
++		 *
++		 * The assumption that s->offset >= s->inuse means free
++		 * pointer is outside of the object is used in the
++		 * freeptr_outside_object() function. If that is no
++		 * longer true, the function needs to be modified.
+ 		 */
+ 		s->offset = size;
+ 		size += sizeof(void *);
 -- 
 2.25.1
 
