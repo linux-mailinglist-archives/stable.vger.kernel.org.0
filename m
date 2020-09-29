@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE19C27C797
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:55:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3DA27C739
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729816AbgI2Lo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:44:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44280 "EHLO mail.kernel.org"
+        id S1730756AbgI2LwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:52:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730921AbgI2Lox (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:44:53 -0400
+        id S1730976AbgI2Lrt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:47:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B31520848;
-        Tue, 29 Sep 2020 11:44:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC235206E5;
+        Tue, 29 Sep 2020 11:47:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379892;
-        bh=QKWN6eEUdnGboyRwpunwS/G7k1RbvwEE0JzI58gN0zg=;
+        s=default; t=1601380069;
+        bh=sEpzjWuZ9hyjjnZIWEtMkLj3DA6JgKVB0ZbEBx9Bd9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u48nIqtnXyIP7kbrkpjOyQPRpZJVTzGj24NRjTaoBWt0U2LAwxdpTr9tqmP09vBIC
-         5mbOpmDEjhwxmiXBmNnyp1CeSnu0Ug8mPAF9zLifm2tX6U6sEKcz2F+kFMSLlcKYgA
-         ARaQruGRwwkN66H25hCKO1UuPCyOBSuRNpiq/sSg=
+        b=TdH1vEG6Vw3GPCOw9VUdsvfXA0/k2L2Td57ioFXt39Dvt356d3bv/Y4sAn8bPbw1V
+         3VcGuTeUPXakHuExPvHLKKdNwoD1TG15CRfcOkoX0zjbOd3HliZnI3a2lJ8DVx0Mwg
+         BKYDb9KdJg6OuOYirWHzxrYQ/fIn8d2I7AfhrBfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Oliver Upton <oupton@google.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Andrii Nakryiko <andriin@fb.com>,
+        Martin KaFai Lau <kafai@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 364/388] KVM: x86: Reset MMU context if guest toggles CR4.SMAP or CR4.PKE
+Subject: [PATCH 5.8 52/99] bpf: Fix a rcu warning for bpffs map pretty-print
 Date:   Tue, 29 Sep 2020 13:01:35 +0200
-Message-Id: <20200929110028.089026312@linuxfoundation.org>
+Message-Id: <20200929105932.288309635@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,49 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 8d214c481611b29458a57913bd786f0ac06f0605 ]
+[ Upstream commit ce880cb825fcc22d4e39046a6c3a3a7f6603883d ]
 
-Reset the MMU context during kvm_set_cr4() if SMAP or PKE is toggled.
-Recent commits to (correctly) not reload PDPTRs when SMAP/PKE are
-toggled inadvertantly skipped the MMU context reset due to the mask
-of bits that triggers PDPTR loads also being used to trigger MMU context
-resets.
+Running selftest
+  ./btf_btf -p
+the kernel had the following warning:
+  [   51.528185] WARNING: CPU: 3 PID: 1756 at kernel/bpf/hashtab.c:717 htab_map_get_next_key+0x2eb/0x300
+  [   51.529217] Modules linked in:
+  [   51.529583] CPU: 3 PID: 1756 Comm: test_btf Not tainted 5.9.0-rc1+ #878
+  [   51.530346] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.9.3-1.el7.centos 04/01/2014
+  [   51.531410] RIP: 0010:htab_map_get_next_key+0x2eb/0x300
+  ...
+  [   51.542826] Call Trace:
+  [   51.543119]  map_seq_next+0x53/0x80
+  [   51.543528]  seq_read+0x263/0x400
+  [   51.543932]  vfs_read+0xad/0x1c0
+  [   51.544311]  ksys_read+0x5f/0xe0
+  [   51.544689]  do_syscall_64+0x33/0x40
+  [   51.545116]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fixes: 427890aff855 ("kvm: x86: Toggling CR4.SMAP does not load PDPTEs in PAE mode")
-Fixes: cb957adb4ea4 ("kvm: x86: Toggling CR4.PKE does not load PDPTEs in PAE mode")
-Cc: Jim Mattson <jmattson@google.com>
-Cc: Peter Shier <pshier@google.com>
-Cc: Oliver Upton <oupton@google.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200923215352.17756-1-sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+The related source code in kernel/bpf/hashtab.c:
+  709 static int htab_map_get_next_key(struct bpf_map *map, void *key, void *next_key)
+  710 {
+  711         struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
+  712         struct hlist_nulls_head *head;
+  713         struct htab_elem *l, *next_l;
+  714         u32 hash, key_size;
+  715         int i = 0;
+  716
+  717         WARN_ON_ONCE(!rcu_read_lock_held());
+
+In kernel/bpf/inode.c, bpffs map pretty print calls map->ops->map_get_next_key()
+without holding a rcu_read_lock(), hence causing the above warning.
+To fix the issue, just surrounding map->ops->map_get_next_key() with rcu read lock.
+
+Fixes: a26ca7c982cb ("bpf: btf: Add pretty print support to the basic arraymap")
+Reported-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20200916004401.146277-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/bpf/inode.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 67ad417a29ca4..12e83297ea020 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -973,6 +973,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
- 	unsigned long old_cr4 = kvm_read_cr4(vcpu);
- 	unsigned long pdptr_bits = X86_CR4_PGE | X86_CR4_PSE | X86_CR4_PAE |
- 				   X86_CR4_SMEP;
-+	unsigned long mmu_role_bits = pdptr_bits | X86_CR4_SMAP | X86_CR4_PKE;
+diff --git a/kernel/bpf/inode.c b/kernel/bpf/inode.c
+index fb878ba3f22f0..18f4969552ac2 100644
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -226,10 +226,12 @@ static void *map_seq_next(struct seq_file *m, void *v, loff_t *pos)
+ 	else
+ 		prev_key = key;
  
- 	if (kvm_valid_cr4(vcpu, cr4))
- 		return 1;
-@@ -1000,7 +1001,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
- 	if (kvm_x86_ops->set_cr4(vcpu, cr4))
- 		return 1;
- 
--	if (((cr4 ^ old_cr4) & pdptr_bits) ||
-+	if (((cr4 ^ old_cr4) & mmu_role_bits) ||
- 	    (!(cr4 & X86_CR4_PCIDE) && (old_cr4 & X86_CR4_PCIDE)))
- 		kvm_mmu_reset_context(vcpu);
++	rcu_read_lock();
+ 	if (map->ops->map_get_next_key(map, prev_key, key)) {
+ 		map_iter(m)->done = true;
+-		return NULL;
++		key = NULL;
+ 	}
++	rcu_read_unlock();
+ 	return key;
+ }
  
 -- 
 2.25.1
