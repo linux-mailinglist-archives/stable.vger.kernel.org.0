@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 978B027C769
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:54:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FB4327C58E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:38:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731216AbgI2Lxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47376 "EHLO mail.kernel.org"
+        id S1728602AbgI2Lgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:36:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731017AbgI2Lqh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:46:37 -0400
+        id S1729907AbgI2Lft (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:35:49 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 684FC208B8;
-        Tue, 29 Sep 2020 11:46:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29CF223D97;
+        Tue, 29 Sep 2020 11:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379984;
-        bh=iCMmlg68NCVnUTDoPJQ2F3o7x/tEUQScwr2ioQlr60U=;
+        s=default; t=1601379052;
+        bh=MdUKsgIK7/XLrFbqnswTNRxhEGOstKAHiiyS57mqC18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iw2NPOyecVUrzDHQHuxOn2jd2J9jzm4fqHgi6eSm1uK9pDdgEvGrA7GYvD6cTHRwU
-         jPtR0exH1lgS3ACvPLSn6Dm5LV0cQjSEBPI++8QOkMSDn8yiLbO7u7N9Yt6R2Awp2Q
-         6jxHLUAEaCpsRsCpI9grZ9ItGa9tAeA6SMV7UO78=
+        b=rL4HUvE+oHC1Qa8Ho9hiUVI4x6ayjGMyYkytoBr9InuNb/VrPWYnnVz0wlNOmZkOz
+         u9zTXEuQf7ve6+rUrK6wwYDKp6w44nXnZVQoRoY9GBUnk9nXcLQR3SrgzBEqHl7eKm
+         CfwimOwAZ+3AIGXOX+1F0TBJZLTfPV3z3Zqwb1Ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 16/99] drm/amd/display: Dont log hdcp module warnings in dmesg
-Date:   Tue, 29 Sep 2020 13:00:59 +0200
-Message-Id: <20200929105930.511055931@linuxfoundation.org>
+        stable@vger.kernel.org, Palmer Dabbelt <palmerdabbelt@google.com>,
+        Guo Ren <guoren@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 209/245] RISC-V: Take text_mutex in ftrace_init_nop()
+Date:   Tue, 29 Sep 2020 13:01:00 +0200
+Message-Id: <20200929105957.146781978@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+From: Palmer Dabbelt <palmerdabbelt@google.com>
 
-[ Upstream commit 875d369d8f75275d30e59421602d9366426abff7 ]
+[ Upstream commit 66d18dbda8469a944dfec6c49d26d5946efba218 ]
 
-[Why]
-DTM topology updates happens by default now. This results in DTM
-warnings when hdcp is not even being enabled. This spams the dmesg
-and doesn't effect normal display functionality so it is better to log it
-using DRM_DEBUG_KMS()
+Without this we get lockdep failures.  They're spurious failures as SMP isn't
+up when ftrace_init_nop() is called.  As far as I can tell the easiest fix is
+to just take the lock, which also seems like the safest fix.
 
-[How]
-Change the DRM_WARN() to DRM_DEBUG_KMS()
-
-Signed-off-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Acked-by: Guo Ren <guoren@kernel.org>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/modules/hdcp/hdcp_log.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/include/asm/ftrace.h |  7 +++++++
+ arch/riscv/kernel/ftrace.c      | 19 +++++++++++++++++++
+ 2 files changed, 26 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/hdcp/hdcp_log.h b/drivers/gpu/drm/amd/display/modules/hdcp/hdcp_log.h
-index d3192b9d0c3d8..47f8ee2832ff0 100644
---- a/drivers/gpu/drm/amd/display/modules/hdcp/hdcp_log.h
-+++ b/drivers/gpu/drm/amd/display/modules/hdcp/hdcp_log.h
-@@ -27,7 +27,7 @@
- #define MOD_HDCP_LOG_H_
+diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
+index c6dcc5291f972..02fbc175142e2 100644
+--- a/arch/riscv/include/asm/ftrace.h
++++ b/arch/riscv/include/asm/ftrace.h
+@@ -63,4 +63,11 @@ do {									\
+  * Let auipc+jalr be the basic *mcount unit*, so we make it 8 bytes here.
+  */
+ #define MCOUNT_INSN_SIZE 8
++
++#ifndef __ASSEMBLY__
++struct dyn_ftrace;
++int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec);
++#define ftrace_init_nop ftrace_init_nop
++#endif
++
+ #endif
+diff --git a/arch/riscv/kernel/ftrace.c b/arch/riscv/kernel/ftrace.c
+index 6d39f64e4dce4..fa8530f05ed4f 100644
+--- a/arch/riscv/kernel/ftrace.c
++++ b/arch/riscv/kernel/ftrace.c
+@@ -88,6 +88,25 @@ int ftrace_make_nop(struct module *mod, struct dyn_ftrace *rec,
+ 	return __ftrace_modify_call(rec->ip, addr, false);
+ }
  
- #ifdef CONFIG_DRM_AMD_DC_HDCP
--#define HDCP_LOG_ERR(hdcp, ...) DRM_WARN(__VA_ARGS__)
-+#define HDCP_LOG_ERR(hdcp, ...) DRM_DEBUG_KMS(__VA_ARGS__)
- #define HDCP_LOG_VER(hdcp, ...) DRM_DEBUG_KMS(__VA_ARGS__)
- #define HDCP_LOG_FSM(hdcp, ...) DRM_DEBUG_KMS(__VA_ARGS__)
- #define HDCP_LOG_TOP(hdcp, ...) pr_debug("[HDCP_TOP]:"__VA_ARGS__)
++
++/*
++ * This is called early on, and isn't wrapped by
++ * ftrace_arch_code_modify_{prepare,post_process}() and therefor doesn't hold
++ * text_mutex, which triggers a lockdep failure.  SMP isn't running so we could
++ * just directly poke the text, but it's simpler to just take the lock
++ * ourselves.
++ */
++int ftrace_init_nop(struct module *mod, struct dyn_ftrace *rec)
++{
++	int out;
++
++	ftrace_arch_code_modify_prepare();
++	out = ftrace_make_nop(mod, rec, MCOUNT_ADDR);
++	ftrace_arch_code_modify_post_process();
++
++	return out;
++}
++
+ int ftrace_update_ftrace_func(ftrace_func_t func)
+ {
+ 	int ret = __ftrace_modify_call((unsigned long)&ftrace_call,
 -- 
 2.25.1
 
