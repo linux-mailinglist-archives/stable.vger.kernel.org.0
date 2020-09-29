@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B55F27C41A
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE3EF27C383
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729204AbgI2LLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:11:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51576 "EHLO mail.kernel.org"
+        id S1728469AbgI2LG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:06:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728403AbgI2LKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:10:39 -0400
+        id S1728734AbgI2LFd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:05:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 758B42158C;
-        Tue, 29 Sep 2020 11:10:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F23320C09;
+        Tue, 29 Sep 2020 11:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377838;
-        bh=I9bS6SkRc7TyTmXyDzVNh/4sq7YSRbmQQLhzA2EijBw=;
+        s=default; t=1601377530;
+        bh=bJmLIFgkps+uvZwlLZlyfVmMQ0zhPoXU7BMyDWH1xm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bGrM2ooBSiivRLW24uVEEXrAUQk+yz6skls4WkLRT/cCF1/3ge/TS9uQu7RCveLxd
-         4849jM91uVcR8JzhHoXd1LcPSTYIfwHODkrEbsW8S6fQ4bZHzpCpm2hfUIh0Revmuj
-         TThdyirKrMMBzoeG8B3whTt5OL/ZQ4RFdJ9DU5z8=
+        b=ARrTQIL/hSlurt5qrlkieyqo1bwtEOs3H7UjiQwHfhRLo5tfIZjBbZ12Cv/Un/CgO
+         zH8WS3hGreFsfHWB9U3/MK8YFCG1TdrKq8H5lPy+zvHBH40X2zjRYJJ5B0K5YK+VWf
+         pGb9j523hg02UMiOlXRgmFVe7IV4NtywhywAcnHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sonny Sasaka <sonnysasaka@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 083/121] Bluetooth: Handle Inquiry Cancel error after Inquiry Complete
-Date:   Tue, 29 Sep 2020 13:00:27 +0200
-Message-Id: <20200929105934.294458239@linuxfoundation.org>
+Subject: [PATCH 4.4 61/85] fuse: dont check refcount after stealing page
+Date:   Tue, 29 Sep 2020 13:00:28 +0200
+Message-Id: <20200929105931.262811710@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sonny Sasaka <sonnysasaka@chromium.org>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit adf1d6926444029396861413aba8a0f2a805742a ]
+[ Upstream commit 32f98877c57bee6bc27f443a96f49678a2cd6a50 ]
 
-After sending Inquiry Cancel command to the controller, it is possible
-that Inquiry Complete event comes before Inquiry Cancel command complete
-event. In this case the Inquiry Cancel command will have status of
-Command Disallowed since there is no Inquiry session to be cancelled.
-This case should not be treated as error, otherwise we can reach an
-inconsistent state.
+page_count() is unstable.  Unless there has been an RCU grace period
+between when the page was removed from the page cache and now, a
+speculative reference may exist from the page cache.
 
-Example of a btmon trace when this happened:
-
-< HCI Command: Inquiry Cancel (0x01|0x0002) plen 0
-> HCI Event: Inquiry Complete (0x01) plen 1
-        Status: Success (0x00)
-> HCI Event: Command Complete (0x0e) plen 4
-      Inquiry Cancel (0x01|0x0002) ncmd 1
-        Status: Command Disallowed (0x0c)
-
-Signed-off-by: Sonny Sasaka <sonnysasaka@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ fs/fuse/dev.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 700a2eb161490..d6da119f5082e 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -41,12 +41,27 @@
- 
- /* Handle HCI Event packets */
- 
--static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb)
-+static void hci_cc_inquiry_cancel(struct hci_dev *hdev, struct sk_buff *skb,
-+				  u8 *new_status)
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index 8142f6bf3d310..fc265f4b839ae 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -850,7 +850,6 @@ static int fuse_check_page(struct page *page)
  {
- 	__u8 status = *((__u8 *) skb->data);
- 
- 	BT_DBG("%s status 0x%2.2x", hdev->name, status);
- 
-+	/* It is possible that we receive Inquiry Complete event right
-+	 * before we receive Inquiry Cancel Command Complete event, in
-+	 * which case the latter event should have status of Command
-+	 * Disallowed (0x0c). This should not be treated as error, since
-+	 * we actually achieve what Inquiry Cancel wants to achieve,
-+	 * which is to end the last Inquiry session.
-+	 */
-+	if (status == 0x0c && !test_bit(HCI_INQUIRY, &hdev->flags)) {
-+		bt_dev_warn(hdev, "Ignoring error of Inquiry Cancel command");
-+		status = 0x00;
-+	}
-+
-+	*new_status = status;
-+
- 	if (status)
- 		return;
- 
-@@ -2772,7 +2787,7 @@ static void hci_cmd_complete_evt(struct hci_dev *hdev, struct sk_buff *skb,
- 
- 	switch (*opcode) {
- 	case HCI_OP_INQUIRY_CANCEL:
--		hci_cc_inquiry_cancel(hdev, skb);
-+		hci_cc_inquiry_cancel(hdev, skb, status);
- 		break;
- 
- 	case HCI_OP_PERIODIC_INQ:
+ 	if (page_mapcount(page) ||
+ 	    page->mapping != NULL ||
+-	    page_count(page) != 1 ||
+ 	    (page->flags & PAGE_FLAGS_CHECK_AT_PREP &
+ 	     ~(1 << PG_locked |
+ 	       1 << PG_referenced |
 -- 
 2.25.1
 
