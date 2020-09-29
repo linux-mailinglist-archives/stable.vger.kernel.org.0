@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AABC27CB73
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6485E27CB6C
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732705AbgI2M1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:27:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
+        id S1732414AbgI2M1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:27:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729044AbgI2LdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:33:13 -0400
+        id S1728989AbgI2LdO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:33:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A2C523B31;
-        Tue, 29 Sep 2020 11:25:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 396F823B32;
+        Tue, 29 Sep 2020 11:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378758;
-        bh=Tt6DnYGiWAjDPqOMfhauHSXDFE4oJt7VPHo/MIsFYJg=;
+        s=default; t=1601378761;
+        bh=1JaYy5yCw2TbJaabWH2Vep8NT5shJjMGXmf8AlzkHL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2aPt9pQTy7Cvh40EhQ4u/4o0DNAlpicI3i/8p/qhvd13lvD9qzh1x5G2z1b2Oqpt+
-         ETfh7uq8toHYZrXWWNXUH9owfMohHtLKqk9Cz3l5voKZAkwPlBh8Mqno4UjldU+MyV
-         oEDpeXe3mWBpTTQZXo3qz0gpovnRSi9YI9B8kqyE=
+        b=0h4HZVmmWbKsOlCvbgfjbFd0wOQ4+uNNJhkyFzrNAitXtMmfGxww2ngxYu88RSGCR
+         UA21/ZTLNNDpOdnLjtIacD/HG96aNamG6rlnaLqXj/OKMVKKcAhvLccPGqEzL8Bzob
+         eifawgoItZt6zpIpGlhgLFq9v4fAP4UbjW92e5+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Israel Rukshin <israelr@mellanox.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
+        stable@vger.kernel.org, Zhu Yanjun <yanjunz@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 128/245] nvme: Fix controller creation races with teardown flow
-Date:   Tue, 29 Sep 2020 12:59:39 +0200
-Message-Id: <20200929105953.216091511@linuxfoundation.org>
+Subject: [PATCH 4.19 129/245] RDMA/rxe: Set sys_image_guid to be aligned with HW IB devices
+Date:   Tue, 29 Sep 2020 12:59:40 +0200
+Message-Id: <20200929105953.264675412@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -45,67 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Israel Rukshin <israelr@mellanox.com>
+From: Zhu Yanjun <yanjunz@mellanox.com>
 
-[ Upstream commit ce1518139e6976cf19c133b555083354fdb629b8 ]
+[ Upstream commit d0ca2c35dd15a3d989955caec02beea02f735ee6 ]
 
-Calling nvme_sysfs_delete() when the controller is in the middle of
-creation may cause several bugs. If the controller is in NEW state we
-remove delete_controller file and don't delete the controller. The user
-will not be able to use nvme disconnect command on that controller again,
-although the controller may be active. Other bugs may happen if the
-controller is in the middle of create_ctrl callback and
-nvme_do_delete_ctrl() starts. For example, freeing I/O tagset at
-nvme_do_delete_ctrl() before it was allocated at create_ctrl callback.
+The RXE driver doesn't set sys_image_guid and user space applications see
+zeros. This causes to pyverbs tests to fail with the following traceback,
+because the IBTA spec requires to have valid sys_image_guid.
 
-To fix all those races don't allow the user to delete the controller
-before it was fully created.
+ Traceback (most recent call last):
+   File "./tests/test_device.py", line 51, in test_query_device
+     self.verify_device_attr(attr)
+   File "./tests/test_device.py", line 74, in verify_device_attr
+     assert attr.sys_image_guid != 0
 
-Signed-off-by: Israel Rukshin <israelr@mellanox.com>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+In order to fix it, set sys_image_guid to be equal to node_guid.
+
+Before:
+ 5: rxe0: ... node_guid 5054:00ff:feaa:5363 sys_image_guid
+ 0000:0000:0000:0000
+
+After:
+ 5: rxe0: ... node_guid 5054:00ff:feaa:5363 sys_image_guid
+ 5054:00ff:feaa:5363
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20200323112800.1444784-1-leon@kernel.org
+Signed-off-by: Zhu Yanjun <yanjunz@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 5 +++++
- drivers/nvme/host/nvme.h | 1 +
- 2 files changed, 6 insertions(+)
+ drivers/infiniband/sw/rxe/rxe.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 4b182ac15687e..faa7feebb6095 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -2856,6 +2856,10 @@ static ssize_t nvme_sysfs_delete(struct device *dev,
- {
- 	struct nvme_ctrl *ctrl = dev_get_drvdata(dev);
+diff --git a/drivers/infiniband/sw/rxe/rxe.c b/drivers/infiniband/sw/rxe/rxe.c
+index 94dedabe648c2..6589ff51eaf5c 100644
+--- a/drivers/infiniband/sw/rxe/rxe.c
++++ b/drivers/infiniband/sw/rxe/rxe.c
+@@ -121,6 +121,8 @@ static void rxe_init_device_param(struct rxe_dev *rxe)
+ 	rxe->attr.max_fast_reg_page_list_len	= RXE_MAX_FMR_PAGE_LIST_LEN;
+ 	rxe->attr.max_pkeys			= RXE_MAX_PKEYS;
+ 	rxe->attr.local_ca_ack_delay		= RXE_LOCAL_CA_ACK_DELAY;
++	addrconf_addr_eui48((unsigned char *)&rxe->attr.sys_image_guid,
++			rxe->ndev->dev_addr);
  
-+	/* Can't delete non-created controllers */
-+	if (!ctrl->created)
-+		return -EBUSY;
-+
- 	if (device_remove_file_self(dev, attr))
- 		nvme_delete_ctrl_sync(ctrl);
- 	return count;
-@@ -3576,6 +3580,7 @@ void nvme_start_ctrl(struct nvme_ctrl *ctrl)
- 		queue_work(nvme_wq, &ctrl->async_event_work);
- 		nvme_start_queues(ctrl);
- 	}
-+	ctrl->created = true;
+ 	rxe->max_ucontext			= RXE_MAX_UCONTEXT;
  }
- EXPORT_SYMBOL_GPL(nvme_start_ctrl);
- 
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 31c1496f938fb..a70b997060e68 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -206,6 +206,7 @@ struct nvme_ctrl {
- 	struct nvme_command ka_cmd;
- 	struct work_struct fw_act_work;
- 	unsigned long events;
-+	bool created;
- 
- #ifdef CONFIG_NVME_MULTIPATH
- 	/* asymmetric namespace access: */
 -- 
 2.25.1
 
