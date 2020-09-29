@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 172AC27C488
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9E127C3B8
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729442AbgI2LOk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:14:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57146 "EHLO mail.kernel.org"
+        id S1728417AbgI2LIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:08:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729410AbgI2LOT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:14:19 -0400
+        id S1728897AbgI2LHI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:07:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A2AF208FE;
-        Tue, 29 Sep 2020 11:14:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C68A21D43;
+        Tue, 29 Sep 2020 11:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378057;
-        bh=HcjsIQJ2wG7xbyWwQkeT9I6skDkr2DsBikFXcv6uPFw=;
+        s=default; t=1601377627;
+        bh=EK4ExL+4XPc6rfQSetuscZT39buHQChcqefi/2nI/KE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfmtnCOPOUc80o5eh8RJyL3SdVW9bJHkc8NXSe0iWZA0BaaxYyHh/3cDij1WZFECV
-         TuiYRv3uyEZQd/6CVf2fBZyrFxZ/PqF3NrPn2Vz+cBRr5P+SsvOKhWVep4+9Bzp+Vd
-         hyl9oY1eTm9EQRAjbRpf6EZygwy2BnZsg28U7axU=
+        b=hpQguUsqjFC4Ben2uvN1qOI/uNfz2cuYylKpMOW1tH+OR2pTHxDa8Fe2+0goXKkea
+         AYjBTAyryb+97Gula7f1pEPwG6+pEiMTKlH6tKISxwKgqBDP75wxnvN7v0X9Iyli0z
+         F4m5UC3QfPzRqU1d17VoZ72z/k22I7lkwWqe640Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikhil Devshatwar <nikhil.nd@ti.com>,
-        Benoit Parrot <bparrot@ti.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Fuqian Huang <huangfq.daxian@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 046/166] media: ti-vpe: cal: Restrict DMA to avoid memory corruption
-Date:   Tue, 29 Sep 2020 12:59:18 +0200
-Message-Id: <20200929105937.503880775@linuxfoundation.org>
+Subject: [PATCH 4.9 015/121] m68k: q40: Fix info-leak in rtc_ioctl
+Date:   Tue, 29 Sep 2020 12:59:19 +0200
+Message-Id: <20200929105930.940769554@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikhil Devshatwar <nikhil.nd@ti.com>
+From: Fuqian Huang <huangfq.daxian@gmail.com>
 
-[ Upstream commit 6e72eab2e7b7a157d554b8f9faed7676047be7c1 ]
+[ Upstream commit 7cf78b6b12fd5550545e4b73b35dca18bd46b44c ]
 
-When setting DMA for video capture from CSI channel, if the DMA size
-is not given, it ends up writing as much data as sent by the camera.
+When the option is RTC_PLL_GET, pll will be copied to userland
+via copy_to_user. pll is initialized using mach_get_rtc_pll indirect
+call and mach_get_rtc_pll is only assigned with function
+q40_get_rtc_pll in arch/m68k/q40/config.c.
+In function q40_get_rtc_pll, the field pll_ctrl is not initialized.
+This will leak uninitialized stack content to userland.
+Fix this by zeroing the uninitialized field.
 
-This may lead to overwriting the buffers causing memory corruption.
-Observed green lines on the default framebuffer.
-
-Restrict the DMA to maximum height as specified in the S_FMT ioctl.
-
-Signed-off-by: Nikhil Devshatwar <nikhil.nd@ti.com>
-Signed-off-by: Benoit Parrot <bparrot@ti.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
+Link: https://lore.kernel.org/r/20190927121544.7650-1-huangfq.daxian@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/cal.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/m68k/q40/config.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
-index b6dcae1ecc1be..ad344e642ddb7 100644
---- a/drivers/media/platform/ti-vpe/cal.c
-+++ b/drivers/media/platform/ti-vpe/cal.c
-@@ -687,12 +687,13 @@ static void pix_proc_config(struct cal_ctx *ctx)
- }
- 
- static void cal_wr_dma_config(struct cal_ctx *ctx,
--			      unsigned int width)
-+			      unsigned int width, unsigned int height)
+diff --git a/arch/m68k/q40/config.c b/arch/m68k/q40/config.c
+index ea89a24f46000..cc0f924bbdd2d 100644
+--- a/arch/m68k/q40/config.c
++++ b/arch/m68k/q40/config.c
+@@ -303,6 +303,7 @@ static int q40_get_rtc_pll(struct rtc_pll_info *pll)
  {
- 	u32 val;
+ 	int tmp = Q40_RTC_CTRL;
  
- 	val = reg_read(ctx->dev, CAL_WR_DMA_CTRL(ctx->csi2_port));
- 	set_field(&val, ctx->csi2_port, CAL_WR_DMA_CTRL_CPORT_MASK);
-+	set_field(&val, height, CAL_WR_DMA_CTRL_YSIZE_MASK);
- 	set_field(&val, CAL_WR_DMA_CTRL_DTAG_PIX_DAT,
- 		  CAL_WR_DMA_CTRL_DTAG_MASK);
- 	set_field(&val, CAL_WR_DMA_CTRL_MODE_CONST,
-@@ -1318,7 +1319,8 @@ static int cal_start_streaming(struct vb2_queue *vq, unsigned int count)
- 	csi2_lane_config(ctx);
- 	csi2_ctx_config(ctx);
- 	pix_proc_config(ctx);
--	cal_wr_dma_config(ctx, ctx->v_fmt.fmt.pix.bytesperline);
-+	cal_wr_dma_config(ctx, ctx->v_fmt.fmt.pix.bytesperline,
-+			  ctx->v_fmt.fmt.pix.height);
- 	cal_wr_dma_addr(ctx, addr);
- 	csi2_ppi_enable(ctx);
- 
++	pll->pll_ctrl = 0;
+ 	pll->pll_value = tmp & Q40_RTC_PLL_MASK;
+ 	if (tmp & Q40_RTC_PLL_SIGN)
+ 		pll->pll_value = -pll->pll_value;
 -- 
 2.25.1
 
