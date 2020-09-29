@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBEBD27C83F
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:00:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2A2227C544
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731115AbgI2MAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:00:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36910 "EHLO mail.kernel.org"
+        id S1729209AbgI2Ldm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730581AbgI2Lky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:40:54 -0400
+        id S1729595AbgI2Ld1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:33:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 333972074A;
-        Tue, 29 Sep 2020 11:40:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F078423B87;
+        Tue, 29 Sep 2020 11:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379642;
-        bh=X1fbTCMHDUEOMtauXEHeNTfiD+8wCfxilNJnslZzrcw=;
+        s=default; t=1601378806;
+        bh=Co2r5RQiN2Ize0jVU3icZTDc0tKWKljnPEkgNplGz4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XPBcPTD9vhi/bXpbj8/pHY8sQ59kap7rppDhG4z6/jKq7VlnthyQZXMdfoeh/sUhA
-         jTMpVoP+an2LjOoaGfXuskJi+YwlHhACIYzjNaR3tl1ZLfLNcCtDN8H5iDhPdWZKyO
-         nLXyo31FWaScK7NhSP8poL/MEKwnddwGbwGNWpPw=
+        b=ubE9RXr5UpvgCNQtDcrLnWmeDqnhhmtpSpEYTtRIWq91PK0uQV91kV0eGvb+d3iJv
+         2sf5B1153T1h1cIZazt+EHUu9h2ioRwYdewwcRbcPVGNPJAdAQudSrC/DR6ZfsKnB3
+         CSkW6iUP7KaOglp/s0a5vJ0RHCG8LlBZbbGmk0dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Israel Rukshin <israelr@mellanox.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 224/388] nvmet-rdma: fix double free of rdma queue
-Date:   Tue, 29 Sep 2020 12:59:15 +0200
-Message-Id: <20200929110021.321900782@linuxfoundation.org>
+        stable@vger.kernel.org, Howard Chung <howardchung@google.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 105/245] Bluetooth: L2CAP: handle l2cap config request during open state
+Date:   Tue, 29 Sep 2020 12:59:16 +0200
+Message-Id: <20200929105952.114243069@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,127 +43,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Israel Rukshin <israelr@mellanox.com>
+From: Howard Chung <howardchung@google.com>
 
-[ Upstream commit 21f9024355e58772ec5d7fc3534aa5e29d72a8b6 ]
+[ Upstream commit 96298f640104e4cd9a913a6e50b0b981829b94ff ]
 
-In case rdma accept fails at nvmet_rdma_queue_connect(), release work is
-scheduled. Later on, a new RDMA CM event may arrive since we didn't
-destroy the cm-id and call nvmet_rdma_queue_connect_fail(), which
-schedule another release work. This will cause calling
-nvmet_rdma_free_queue twice. To fix this we implicitly destroy the cm_id
-with non-zero ret code, which guarantees that new rdma_cm events will
-not arrive afterwards. Also add a qp pointer to nvmet_rdma_queue
-structure, so we can use it when the cm_id pointer is NULL or was
-destroyed.
+According to Core Spec Version 5.2 | Vol 3, Part A 6.1.5,
+the incoming L2CAP_ConfigReq should be handled during
+OPEN state.
 
-Signed-off-by: Israel Rukshin <israelr@mellanox.com>
-Suggested-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+The section below shows the btmon trace when running
+L2CAP/COS/CFD/BV-12-C before and after this change.
+
+=== Before ===
+...
+> ACL Data RX: Handle 256 flags 0x02 dlen 12                #22
+      L2CAP: Connection Request (0x02) ident 2 len 4
+        PSM: 1 (0x0001)
+        Source CID: 65
+< ACL Data TX: Handle 256 flags 0x00 dlen 16                #23
+      L2CAP: Connection Response (0x03) ident 2 len 8
+        Destination CID: 64
+        Source CID: 65
+        Result: Connection successful (0x0000)
+        Status: No further information available (0x0000)
+< ACL Data TX: Handle 256 flags 0x00 dlen 12                #24
+      L2CAP: Configure Request (0x04) ident 2 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5      #25
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5      #26
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 16                #27
+      L2CAP: Configure Request (0x04) ident 3 len 8
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00                                            ..
+< ACL Data TX: Handle 256 flags 0x00 dlen 18                #28
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+> HCI Event: Number of Completed Packets (0x13) plen 5      #29
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 14                #30
+      L2CAP: Configure Response (0x05) ident 2 len 6
+        Source CID: 64
+        Flags: 0x0000
+        Result: Success (0x0000)
+> ACL Data RX: Handle 256 flags 0x02 dlen 20                #31
+      L2CAP: Configure Request (0x04) ident 3 len 12
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00 91 02 11 11                                ......
+< ACL Data TX: Handle 256 flags 0x00 dlen 14                #32
+      L2CAP: Command Reject (0x01) ident 3 len 6
+        Reason: Invalid CID in request (0x0002)
+        Destination CID: 64
+        Source CID: 65
+> HCI Event: Number of Completed Packets (0x13) plen 5      #33
+        Num handles: 1
+        Handle: 256
+        Count: 1
+...
+=== After ===
+...
+> ACL Data RX: Handle 256 flags 0x02 dlen 12               #22
+      L2CAP: Connection Request (0x02) ident 2 len 4
+        PSM: 1 (0x0001)
+        Source CID: 65
+< ACL Data TX: Handle 256 flags 0x00 dlen 16               #23
+      L2CAP: Connection Response (0x03) ident 2 len 8
+        Destination CID: 64
+        Source CID: 65
+        Result: Connection successful (0x0000)
+        Status: No further information available (0x0000)
+< ACL Data TX: Handle 256 flags 0x00 dlen 12               #24
+      L2CAP: Configure Request (0x04) ident 2 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5     #25
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #26
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 16               #27
+      L2CAP: Configure Request (0x04) ident 3 len 8
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00                                            ..
+< ACL Data TX: Handle 256 flags 0x00 dlen 18               #28
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+> HCI Event: Number of Completed Packets (0x13) plen 5     #29
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 14               #30
+      L2CAP: Configure Response (0x05) ident 2 len 6
+        Source CID: 64
+        Flags: 0x0000
+        Result: Success (0x0000)
+> ACL Data RX: Handle 256 flags 0x02 dlen 20               #31
+      L2CAP: Configure Request (0x04) ident 3 len 12
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00 91 02 11 11                                .....
+< ACL Data TX: Handle 256 flags 0x00 dlen 18               #32
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+< ACL Data TX: Handle 256 flags 0x00 dlen 12               #33
+      L2CAP: Configure Request (0x04) ident 3 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5     #34
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #35
+        Num handles: 1
+        Handle: 256
+        Count: 1
+...
+
+Signed-off-by: Howard Chung <howardchung@google.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/rdma.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ net/bluetooth/l2cap_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/rdma.c b/drivers/nvme/target/rdma.c
-index 36d906a7f70d3..b5314164479e9 100644
---- a/drivers/nvme/target/rdma.c
-+++ b/drivers/nvme/target/rdma.c
-@@ -75,6 +75,7 @@ enum nvmet_rdma_queue_state {
- 
- struct nvmet_rdma_queue {
- 	struct rdma_cm_id	*cm_id;
-+	struct ib_qp		*qp;
- 	struct nvmet_port	*port;
- 	struct ib_cq		*cq;
- 	atomic_t		sq_wr_avail;
-@@ -464,7 +465,7 @@ static int nvmet_rdma_post_recv(struct nvmet_rdma_device *ndev,
- 	if (ndev->srq)
- 		ret = ib_post_srq_recv(ndev->srq, &cmd->wr, NULL);
- 	else
--		ret = ib_post_recv(cmd->queue->cm_id->qp, &cmd->wr, NULL);
-+		ret = ib_post_recv(cmd->queue->qp, &cmd->wr, NULL);
- 
- 	if (unlikely(ret))
- 		pr_err("post_recv cmd failed\n");
-@@ -503,7 +504,7 @@ static void nvmet_rdma_release_rsp(struct nvmet_rdma_rsp *rsp)
- 	atomic_add(1 + rsp->n_rdma, &queue->sq_wr_avail);
- 
- 	if (rsp->n_rdma) {
--		rdma_rw_ctx_destroy(&rsp->rw, queue->cm_id->qp,
-+		rdma_rw_ctx_destroy(&rsp->rw, queue->qp,
- 				queue->cm_id->port_num, rsp->req.sg,
- 				rsp->req.sg_cnt, nvmet_data_dir(&rsp->req));
- 	}
-@@ -587,7 +588,7 @@ static void nvmet_rdma_read_data_done(struct ib_cq *cq, struct ib_wc *wc)
- 
- 	WARN_ON(rsp->n_rdma <= 0);
- 	atomic_add(rsp->n_rdma, &queue->sq_wr_avail);
--	rdma_rw_ctx_destroy(&rsp->rw, queue->cm_id->qp,
-+	rdma_rw_ctx_destroy(&rsp->rw, queue->qp,
- 			queue->cm_id->port_num, rsp->req.sg,
- 			rsp->req.sg_cnt, nvmet_data_dir(&rsp->req));
- 	rsp->n_rdma = 0;
-@@ -742,7 +743,7 @@ static bool nvmet_rdma_execute_command(struct nvmet_rdma_rsp *rsp)
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index b1f51cb007ea6..c04107d446016 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4117,7 +4117,8 @@ static inline int l2cap_config_req(struct l2cap_conn *conn,
+ 		return 0;
  	}
  
- 	if (nvmet_rdma_need_data_in(rsp)) {
--		if (rdma_rw_ctx_post(&rsp->rw, queue->cm_id->qp,
-+		if (rdma_rw_ctx_post(&rsp->rw, queue->qp,
- 				queue->cm_id->port_num, &rsp->read_cqe, NULL))
- 			nvmet_req_complete(&rsp->req, NVME_SC_DATA_XFER_ERROR);
- 	} else {
-@@ -1025,6 +1026,7 @@ static int nvmet_rdma_create_queue_ib(struct nvmet_rdma_queue *queue)
- 		pr_err("failed to create_qp ret= %d\n", ret);
- 		goto err_destroy_cq;
- 	}
-+	queue->qp = queue->cm_id->qp;
- 
- 	atomic_set(&queue->sq_wr_avail, qp_attr.cap.max_send_wr);
- 
-@@ -1053,11 +1055,10 @@ err_destroy_cq:
- 
- static void nvmet_rdma_destroy_queue_ib(struct nvmet_rdma_queue *queue)
- {
--	struct ib_qp *qp = queue->cm_id->qp;
--
--	ib_drain_qp(qp);
--	rdma_destroy_id(queue->cm_id);
--	ib_destroy_qp(qp);
-+	ib_drain_qp(queue->qp);
-+	if (queue->cm_id)
-+		rdma_destroy_id(queue->cm_id);
-+	ib_destroy_qp(queue->qp);
- 	ib_free_cq(queue->cq);
- }
- 
-@@ -1291,9 +1292,12 @@ static int nvmet_rdma_queue_connect(struct rdma_cm_id *cm_id,
- 
- 	ret = nvmet_rdma_cm_accept(cm_id, queue, &event->param.conn);
- 	if (ret) {
--		schedule_work(&queue->release_work);
--		/* Destroying rdma_cm id is not needed here */
--		return 0;
-+		/*
-+		 * Don't destroy the cm_id in free path, as we implicitly
-+		 * destroy the cm_id here with non-zero ret code.
-+		 */
-+		queue->cm_id = NULL;
-+		goto free_queue;
- 	}
- 
- 	mutex_lock(&nvmet_rdma_queue_mutex);
-@@ -1302,6 +1306,8 @@ static int nvmet_rdma_queue_connect(struct rdma_cm_id *cm_id,
- 
- 	return 0;
- 
-+free_queue:
-+	nvmet_rdma_free_queue(queue);
- put_device:
- 	kref_put(&ndev->ref, nvmet_rdma_free_dev);
- 
+-	if (chan->state != BT_CONFIG && chan->state != BT_CONNECT2) {
++	if (chan->state != BT_CONFIG && chan->state != BT_CONNECT2 &&
++	    chan->state != BT_CONNECTED) {
+ 		cmd_reject_invalid_cid(conn, cmd->ident, chan->scid,
+ 				       chan->dcid);
+ 		goto unlock;
 -- 
 2.25.1
 
