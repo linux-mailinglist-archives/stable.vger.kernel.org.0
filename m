@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B4827C984
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDAA327C989
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731981AbgI2MLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:11:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58100 "EHLO mail.kernel.org"
+        id S1732059AbgI2ML1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:11:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730170AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:34 -0400
+        id S1730168AbgI2Lhd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E32B823BCC;
-        Tue, 29 Sep 2020 11:35:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B39A23BCD;
+        Tue, 29 Sep 2020 11:35:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379325;
-        bh=g0NxPaLUH25RIJMieX+Tqdsx/JOw+OMOnQXkcYKo0Y0=;
+        s=default; t=1601379327;
+        bh=tWNmLNTC4xNwsIwyQ68ebsA5j2KIZRLstIrhjapgaXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H+a4T9+RbssAY/fiyMv/JTdi6RyoS7iTj6gsXwfClkQ+++tvd6PlEXXiCNnsh0jx2
-         gZSStoM9DkZqT+HmBUj2ZOaX+1/6xGD1nfp/QvZW3rDXsSlNMLVRnpN1PFEPyN2rjP
-         Smm1lIh5jfIuaZBfnCp8Zh9xg1ec/OSYxTI/Mers=
+        b=AssWMtYW3Bv+GjtBCTDWXlgklLMEw0ebenhvomML1c6mxOY6llMKnpbgiUt135SSP
+         Zv+pjnEyLNyRLqYWbaQTIAWU41VDSC30ZDpEe/+3TFt3vTh8BVy/TtvhWxOmqiR+Ww
+         NS0Lky1OwCIcxr8hjDOmRSJJpRtJIjYLCFgwaVHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Tony Cheng <tony.cheng@amd.com>,
+        Yongqiang Sun <yongqiang.sun@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 112/388] nfsd: Fix a perf warning
-Date:   Tue, 29 Sep 2020 12:57:23 +0200
-Message-Id: <20200929110015.899018811@linuxfoundation.org>
+Subject: [PATCH 5.4 113/388] drm/amd/display: fix workaround for incorrect double buffer register for DLG ADL and TTU
+Date:   Tue, 29 Sep 2020 12:57:24 +0200
+Message-Id: <20200929110015.946049878@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -44,67 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Tony Cheng <tony.cheng@amd.com>
 
-[ Upstream commit a9ceb060b3cf37987b6162223575eaf4f4e0fc36 ]
+[ Upstream commit 85e148fb963d27152a14e6d399a47aed9bc99c15 ]
 
-perf does not know how to deal with a __builtin_bswap32() call, and
-complains. All other functions just store the xid etc in host endian
-form, so let's do that in the tracepoint for nfsd_file_acquire too.
+[Why]
+these registers should have been double buffered. SW workaround we will have SW program the more aggressive (lower) values
+whenever we are upating this register, so we will not have underflow at expense of less optimzal request pattern.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+[How]
+there is a driver bug where we don't check for 0, which is uninitialzed HW default.  since 0 is smaller than any value we need to program,
+driver end up with not programming these registers
+
+Signed-off-by: Tony Cheng <tony.cheng@amd.com>
+Reviewed-by: Yongqiang Sun <yongqiang.sun@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/trace.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ .../gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c | 35 +++++++++++++------
+ 1 file changed, 25 insertions(+), 10 deletions(-)
 
-diff --git a/fs/nfsd/trace.h b/fs/nfsd/trace.h
-index ffc78a0e28b24..b073bdc2e6e89 100644
---- a/fs/nfsd/trace.h
-+++ b/fs/nfsd/trace.h
-@@ -228,7 +228,7 @@ TRACE_EVENT(nfsd_file_acquire,
- 	TP_ARGS(rqstp, hash, inode, may_flags, nf, status),
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
+index a00af513aa2b0..c8f77bd0ce8a6 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_hubp.c
+@@ -73,32 +73,47 @@ void apply_DEDCN21_142_wa_for_hostvm_deadline(
+ 		struct _vcs_dpi_display_dlg_regs_st *dlg_attr)
+ {
+ 	struct dcn21_hubp *hubp21 = TO_DCN21_HUBP(hubp);
+-	uint32_t cur_value;
++	uint32_t refcyc_per_vm_group_vblank;
++	uint32_t refcyc_per_vm_req_vblank;
++	uint32_t refcyc_per_vm_group_flip;
++	uint32_t refcyc_per_vm_req_flip;
++	const uint32_t uninitialized_hw_default = 0;
  
- 	TP_STRUCT__entry(
--		__field(__be32, xid)
-+		__field(u32, xid)
- 		__field(unsigned int, hash)
- 		__field(void *, inode)
- 		__field(unsigned int, may_flags)
-@@ -236,11 +236,11 @@ TRACE_EVENT(nfsd_file_acquire,
- 		__field(unsigned long, nf_flags)
- 		__field(unsigned char, nf_may)
- 		__field(struct file *, nf_file)
--		__field(__be32, status)
-+		__field(u32, status)
- 	),
+-	REG_GET(VBLANK_PARAMETERS_5, REFCYC_PER_VM_GROUP_VBLANK, &cur_value);
+-	if (cur_value > dlg_attr->refcyc_per_vm_group_vblank)
++	REG_GET(VBLANK_PARAMETERS_5,
++			REFCYC_PER_VM_GROUP_VBLANK, &refcyc_per_vm_group_vblank);
++
++	if (refcyc_per_vm_group_vblank == uninitialized_hw_default ||
++			refcyc_per_vm_group_vblank > dlg_attr->refcyc_per_vm_group_vblank)
+ 		REG_SET(VBLANK_PARAMETERS_5, 0,
+ 				REFCYC_PER_VM_GROUP_VBLANK, dlg_attr->refcyc_per_vm_group_vblank);
  
- 	TP_fast_assign(
--		__entry->xid = rqstp->rq_xid;
-+		__entry->xid = be32_to_cpu(rqstp->rq_xid);
- 		__entry->hash = hash;
- 		__entry->inode = inode;
- 		__entry->may_flags = may_flags;
-@@ -248,15 +248,15 @@ TRACE_EVENT(nfsd_file_acquire,
- 		__entry->nf_flags = nf ? nf->nf_flags : 0;
- 		__entry->nf_may = nf ? nf->nf_may : 0;
- 		__entry->nf_file = nf ? nf->nf_file : NULL;
--		__entry->status = status;
-+		__entry->status = be32_to_cpu(status);
- 	),
+ 	REG_GET(VBLANK_PARAMETERS_6,
+-			REFCYC_PER_VM_REQ_VBLANK,
+-			&cur_value);
+-	if (cur_value > dlg_attr->refcyc_per_vm_req_vblank)
++			REFCYC_PER_VM_REQ_VBLANK, &refcyc_per_vm_req_vblank);
++
++	if (refcyc_per_vm_req_vblank == uninitialized_hw_default ||
++			refcyc_per_vm_req_vblank > dlg_attr->refcyc_per_vm_req_vblank)
+ 		REG_SET(VBLANK_PARAMETERS_6, 0,
+ 				REFCYC_PER_VM_REQ_VBLANK, dlg_attr->refcyc_per_vm_req_vblank);
  
- 	TP_printk("xid=0x%x hash=0x%x inode=0x%p may_flags=%s ref=%d nf_flags=%s nf_may=%s nf_file=0x%p status=%u",
--			be32_to_cpu(__entry->xid), __entry->hash, __entry->inode,
-+			__entry->xid, __entry->hash, __entry->inode,
- 			show_nf_may(__entry->may_flags), __entry->nf_ref,
- 			show_nf_flags(__entry->nf_flags),
- 			show_nf_may(__entry->nf_may), __entry->nf_file,
--			be32_to_cpu(__entry->status))
-+			__entry->status)
- );
+-	REG_GET(FLIP_PARAMETERS_3, REFCYC_PER_VM_GROUP_FLIP, &cur_value);
+-	if (cur_value > dlg_attr->refcyc_per_vm_group_flip)
++	REG_GET(FLIP_PARAMETERS_3,
++			REFCYC_PER_VM_GROUP_FLIP, &refcyc_per_vm_group_flip);
++
++	if (refcyc_per_vm_group_flip == uninitialized_hw_default ||
++			refcyc_per_vm_group_flip > dlg_attr->refcyc_per_vm_group_flip)
+ 		REG_SET(FLIP_PARAMETERS_3, 0,
+ 				REFCYC_PER_VM_GROUP_FLIP, dlg_attr->refcyc_per_vm_group_flip);
  
- DECLARE_EVENT_CLASS(nfsd_file_search_class,
+-	REG_GET(FLIP_PARAMETERS_4, REFCYC_PER_VM_REQ_FLIP, &cur_value);
+-	if (cur_value > dlg_attr->refcyc_per_vm_req_flip)
++	REG_GET(FLIP_PARAMETERS_4,
++			REFCYC_PER_VM_REQ_FLIP, &refcyc_per_vm_req_flip);
++
++	if (refcyc_per_vm_req_flip == uninitialized_hw_default ||
++			refcyc_per_vm_req_flip > dlg_attr->refcyc_per_vm_req_flip)
+ 		REG_SET(FLIP_PARAMETERS_4, 0,
+ 					REFCYC_PER_VM_REQ_FLIP, dlg_attr->refcyc_per_vm_req_flip);
+ 
+ 	REG_SET(FLIP_PARAMETERS_5, 0,
+ 			REFCYC_PER_PTE_GROUP_FLIP_C, dlg_attr->refcyc_per_pte_group_flip_c);
++
+ 	REG_SET(FLIP_PARAMETERS_6, 0,
+ 			REFCYC_PER_META_CHUNK_FLIP_C, dlg_attr->refcyc_per_meta_chunk_flip_c);
+ }
 -- 
 2.25.1
 
