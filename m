@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FD5E27C954
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38FD127C92F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730273AbgI2MJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:09:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54450 "EHLO mail.kernel.org"
+        id S1730573AbgI2MIT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:08:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730209AbgI2Lhf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:35 -0400
+        id S1730230AbgI2Lhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7117023A8B;
-        Tue, 29 Sep 2020 11:35:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CED8223B51;
+        Tue, 29 Sep 2020 11:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379336;
-        bh=Bj9+ahUI5Nep1spGhW6DPpAZotFigiPtUE7NCh11NrU=;
+        s=default; t=1601379339;
+        bh=T3ieBczVoOGtJ8Z+Ukuh2lyvCRGchjx8Grvfc97QzAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tlF0poTeNVgPRBQB2Cn6sxckhwH/veTzvj9/mdwKHRCFsy4MWxpPHRO8XO96Iu55m
-         /8nRVH8c14a1yGnzEaIeUPCUC4SiK+Taov7dGClTac8d+Brxi4WZ1u/iB/qnSozWm9
-         ShT2of4/xa2sFg1bTtwF5fzBxMqfkfKTZlFrXa4c=
+        b=A1C/weExn8WkVIeK9I9c8Y1JXP1XfxgYzwdKBN4RDWqUxR4IAj/WKf68SbP8rURIa
+         3qtcTU+nAyCgyP5aVnXzUrCC9jhtcuFCQ+E+AZFdiBskV5zVRDiYF+G6si+vBPe9Mi
+         PlEGgdqWCVGuW5F3OmBpGvpBb+sY4zyIy6FezyoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 116/388] scsi: lpfc: Fix RQ buffer leakage when no IOCBs available
-Date:   Tue, 29 Sep 2020 12:57:27 +0200
-Message-Id: <20200929110016.090880765@linuxfoundation.org>
+Subject: [PATCH 5.4 117/388] scsi: lpfc: Fix release of hwq to clear the eq relationship
+Date:   Tue, 29 Sep 2020 12:57:28 +0200
+Message-Id: <20200929110016.139391130@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -46,54 +46,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 39c4f1a965a9244c3ba60695e8ff8da065ec6ac4 ]
+[ Upstream commit 821bc882accaaaf1bbecf5c0ecef659443e3e8cb ]
 
-The driver is occasionally seeing the following SLI Port error, requiring
-reset and reinit:
+When performing reset testing, the eq's list for related hwqs was getting
+corrupted.  In cases where there is not a 1:1 eq to hwq, the eq is
+shared. The eq maintains a list of hwqs utilizing it in case of cpu
+offlining and polling. During the reset, the hwqs are being torn down so
+they can be recreated. The recreation was getting confused by seeing a
+non-null eq assignment on the eq and the eq list became corrupt.
 
- Port Status Event: ... error 1=0x52004a01, error 2=0x218
+Correct by clearing the hdwq eq assignment when the hwq is cleaned up.
 
-The failure means an RQ timeout. That is, the adapter had received
-asynchronous receive frames, ran out of buffer slots to place the frames,
-and the driver did not replenish the buffer slots before a timeout
-occurred. The driver should not be so slow in replenishing buffers that a
-timeout can occur.
-
-When the driver received all the frames of a sequence, it allocates an IOCB
-to put the frames in. In a situation where there was no IOCB available for
-the frame of a sequence, the RQ buffer corresponding to the first frame of
-the sequence was not returned to the FW. Eventually, with enough traffic
-encountering the situation, the timeout occurred.
-
-Fix by releasing the buffer back to firmware whenever there is no IOCB for
-the first frame.
-
-[mkp: typo]
-
-Link: https://lore.kernel.org/r/20200128002312.16346-2-jsmart2021@gmail.com
+Link: https://lore.kernel.org/r/20200128002312.16346-6-jsmart2021@gmail.com
 Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/lpfc/lpfc_init.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index a951e1c8165ed..e2877d2b3cc0d 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -17866,6 +17866,10 @@ lpfc_prep_seq(struct lpfc_vport *vport, struct hbq_dmabuf *seq_dmabuf)
- 			list_add_tail(&iocbq->list, &first_iocbq->list);
- 		}
- 	}
-+	/* Free the sequence's header buffer */
-+	if (!first_iocbq)
-+		lpfc_in_buf_free(vport->phba, &seq_dmabuf->dbuf);
-+
- 	return first_iocbq;
- }
- 
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index 95abffd9ad100..d4c83eca0ad2c 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -9124,6 +9124,7 @@ lpfc_sli4_release_hdwq(struct lpfc_hba *phba)
+ 		/* Free the CQ/WQ corresponding to the Hardware Queue */
+ 		lpfc_sli4_queue_free(hdwq[idx].io_cq);
+ 		lpfc_sli4_queue_free(hdwq[idx].io_wq);
++		hdwq[idx].hba_eq = NULL;
+ 		hdwq[idx].io_cq = NULL;
+ 		hdwq[idx].io_wq = NULL;
+ 		if (phba->cfg_xpsgl && !phba->nvmet_support)
 -- 
 2.25.1
 
