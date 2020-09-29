@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0970827CD15
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A30EE27CD17
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387404AbgI2Mlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:41:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55304 "EHLO mail.kernel.org"
+        id S1730498AbgI2Mlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:41:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729161AbgI2LNJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729166AbgI2LNJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:13:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75CE021D7F;
-        Tue, 29 Sep 2020 11:13:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 037D521D92;
+        Tue, 29 Sep 2020 11:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377983;
-        bh=72Vc/L+AA+cnf3ke3EmhQ81aysMdgGh/oAdrEa8H6hA=;
+        s=default; t=1601377985;
+        bh=cCYOZG3Y7yD+NhT5hUEgC1N5h40aXlMAj81nmFu6FUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+IUvHvyP9hJ1wN2mTzQH/EOJLcDJdN/uv0E5pswtSR3IA3j3PYsKU6/wZduLLo8j
-         mScoDaFNwoc/cVaA9LXRxdgKyb1vn8uZzlFEnPF79Iow8atIEc4DWM3l99rpe62/nu
-         94WSJ5PNamgJrr07Kib+nYYy+DTLva5LUDyxxVSM=
+        b=GfdD8qNbsiexHAXBIKKCwI5Clo27Z2WvzJqoZ0zFnlQSiuiNeN1vOUEuHIdX+zbHp
+         deTPWIyEsag+Arrt0PjPD9iBO0K5+GUsZAx1v9RnbQMvfdvJh0FlqLsL4Wg/58X+8A
+         yBbJNclNv13kk9xaHgyfJJnJIYrUn8uKdUhAtLH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 003/166] KVM: fix memory leak in kvm_io_bus_unregister_dev()
-Date:   Tue, 29 Sep 2020 12:58:35 +0200
-Message-Id: <20200929105935.360211822@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Chengming Zhou <zhouchengming@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Song Liu <songliubraving@fb.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 004/166] kprobes: fix kill kprobe which has been marked as gone
+Date:   Tue, 29 Sep 2020 12:58:36 +0200
+Message-Id: <20200929105935.408804524@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -45,69 +51,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit f65886606c2d3b562716de030706dfe1bea4ed5e ]
+[ Upstream commit b0399092ccebd9feef68d4ceb8d6219a8c0caa05 ]
 
-when kmalloc() fails in kvm_io_bus_unregister_dev(), before removing
-the bus, we should iterate over all other devices linked to it and call
-kvm_iodevice_destructor() for them
+If a kprobe is marked as gone, we should not kill it again.  Otherwise, we
+can disarm the kprobe more than once.  In that case, the statistics of
+kprobe_ftrace_enabled can unbalance which can lead to that kprobe do not
+work.
 
-Fixes: 90db10434b16 ("KVM: kvm_io_bus_unregister_dev() should never fail")
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: syzbot+f196caa45793d6374707@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=f196caa45793d6374707
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20200907185535.233114-1-rkovhaev@gmail.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: e8386a0cb22f ("kprobes: support probing module __exit function")
+Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200822030055.32383-1-songmuchun@bytedance.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ kernel/kprobes.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 71f77ae6c2a66..1e30f8706349e 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3688,7 +3688,7 @@ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
- void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 			       struct kvm_io_device *dev)
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 7b3a5c35904a0..836a2e0226269 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2117,6 +2117,9 @@ static void kill_kprobe(struct kprobe *p)
  {
--	int i;
-+	int i, j;
- 	struct kvm_io_bus *new_bus, *bus;
+ 	struct kprobe *kp;
  
- 	bus = kvm_get_bus(kvm, bus_idx);
-@@ -3705,17 +3705,20 @@ void kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
- 
- 	new_bus = kmalloc(sizeof(*bus) + ((bus->dev_count - 1) *
- 			  sizeof(struct kvm_io_range)), GFP_KERNEL);
--	if (!new_bus)  {
-+	if (new_bus) {
-+		memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
-+		new_bus->dev_count--;
-+		memcpy(new_bus->range + i, bus->range + i + 1,
-+		       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
-+	} else {
- 		pr_err("kvm: failed to shrink bus, removing it completely\n");
--		goto broken;
-+		for (j = 0; j < bus->dev_count; j++) {
-+			if (j == i)
++	if (WARN_ON_ONCE(kprobe_gone(p)))
++		return;
++
+ 	p->flags |= KPROBE_FLAG_GONE;
+ 	if (kprobe_aggrprobe(p)) {
+ 		/*
+@@ -2259,7 +2262,10 @@ static int kprobes_module_callback(struct notifier_block *nb,
+ 	mutex_lock(&kprobe_mutex);
+ 	for (i = 0; i < KPROBE_TABLE_SIZE; i++) {
+ 		head = &kprobe_table[i];
+-		hlist_for_each_entry_rcu(p, head, hlist)
++		hlist_for_each_entry_rcu(p, head, hlist) {
++			if (kprobe_gone(p))
 +				continue;
-+			kvm_iodevice_destructor(bus->range[j].dev);
++
+ 			if (within_module_init((unsigned long)p->addr, mod) ||
+ 			    (checkcore &&
+ 			     within_module_core((unsigned long)p->addr, mod))) {
+@@ -2276,6 +2282,7 @@ static int kprobes_module_callback(struct notifier_block *nb,
+ 				 */
+ 				kill_kprobe(p);
+ 			}
 +		}
  	}
- 
--	memcpy(new_bus, bus, sizeof(*bus) + i * sizeof(struct kvm_io_range));
--	new_bus->dev_count--;
--	memcpy(new_bus->range + i, bus->range + i + 1,
--	       (new_bus->dev_count - i) * sizeof(struct kvm_io_range));
--
--broken:
- 	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
- 	synchronize_srcu_expedited(&kvm->srcu);
- 	kfree(bus);
+ 	mutex_unlock(&kprobe_mutex);
+ 	return NOTIFY_DONE;
 -- 
 2.25.1
 
