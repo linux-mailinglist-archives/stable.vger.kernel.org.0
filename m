@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F0527C68A
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:46:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EFD327C71E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730612AbgI2LqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:46:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46492 "EHLO mail.kernel.org"
+        id S1730949AbgI2Lve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:51:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730705AbgI2LqH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:46:07 -0400
+        id S1731124AbgI2LsV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:48:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A35B1206F7;
-        Tue, 29 Sep 2020 11:46:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA4D52075F;
+        Tue, 29 Sep 2020 11:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379967;
-        bh=LBUb+Ez86vd1KkvfpNSX7cCSCYDxuAlWhO/fvNvmpaU=;
+        s=default; t=1601380100;
+        bh=JWUZ9TvXHYgg36QPlpyBGEFi3X8ZSm9V9UphXQ3IXXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GR9WxQcwabEfehYvGJAe/Lffx2x1pEvhDYjnMLz7thkSP6FJKy4OG3M3UISfMG0q2
-         bkRf8zxI5JBkOOjQCsmaXwBaWGz+3+aznv8B7xKIhMV+QOeEBF/27Lk4KyGnkMqH5x
-         sE4qW1chqSfQHULy2NnMcHAfj6lBiERpp/LX8XM0=
+        b=HWTDVDip9TAULr7bPl8i8Lq/h+KlYUVqgDjKR3pBr/HrGQ8AJheAPa7Hq8XyaCtag
+         w6e2FjEv1mDNpxhVfNcdNm0NuveMW8dMF2weC2sxxFKnGHxHyUTIHxIQHVixmdyvVw
+         g9GJTrYtxZM5yIX1qLV9JGbpVNK4YkECEqx9fcfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.4 379/388] dmabuf: fix NULL pointer dereference in dma_buf_release()
-Date:   Tue, 29 Sep 2020 13:01:50 +0200
-Message-Id: <20200929110028.811862437@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 68/99] KVM: x86: Reset MMU context if guest toggles CR4.SMAP or CR4.PKE
+Date:   Tue, 29 Sep 2020 13:01:51 +0200
+Message-Id: <20200929105933.073320085@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Reddy <charante@codeaurora.org>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 19a508bd1ad8e444de86873bf2f2b2ab8edd6552 upstream.
+[ Upstream commit 8d214c481611b29458a57913bd786f0ac06f0605 ]
 
-NULL pointer dereference is observed while exporting the dmabuf but
-failed to allocate the 'struct file' which results into the dropping of
-the allocated dentry corresponding to this file in the dmabuf fs, which
-is ending up in dma_buf_release() and accessing the uninitialzed
-dentry->d_fsdata.
+Reset the MMU context during kvm_set_cr4() if SMAP or PKE is toggled.
+Recent commits to (correctly) not reload PDPTRs when SMAP/PKE are
+toggled inadvertantly skipped the MMU context reset due to the mask
+of bits that triggers PDPTR loads also being used to trigger MMU context
+resets.
 
-Call stack on 5.4 is below:
- dma_buf_release+0x2c/0x254 drivers/dma-buf/dma-buf.c:88
- __dentry_kill+0x294/0x31c fs/dcache.c:584
- dentry_kill fs/dcache.c:673 [inline]
- dput+0x250/0x380 fs/dcache.c:859
- path_put+0x24/0x40 fs/namei.c:485
- alloc_file_pseudo+0x1a4/0x200 fs/file_table.c:235
- dma_buf_getfile drivers/dma-buf/dma-buf.c:473 [inline]
- dma_buf_export+0x25c/0x3ec drivers/dma-buf/dma-buf.c:585
-
-Fix this by checking for the valid pointer in the dentry->d_fsdata.
-
-Fixes: 4ab59c3c638c ("dma-buf: Move dma_buf_release() from fops to dentry_ops")
-Cc: <stable@vger.kernel.org> [5.7+]
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/391319/
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 427890aff855 ("kvm: x86: Toggling CR4.SMAP does not load PDPTEs in PAE mode")
+Fixes: cb957adb4ea4 ("kvm: x86: Toggling CR4.PKE does not load PDPTEs in PAE mode")
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Peter Shier <pshier@google.com>
+Cc: Oliver Upton <oupton@google.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200923215352.17756-1-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/dma-buf.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kvm/x86.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -59,6 +59,8 @@ static void dma_buf_release(struct dentr
- 	struct dma_buf *dmabuf;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index f5481ae588aff..a04f8abd0ead9 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -968,6 +968,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ 	unsigned long old_cr4 = kvm_read_cr4(vcpu);
+ 	unsigned long pdptr_bits = X86_CR4_PGE | X86_CR4_PSE | X86_CR4_PAE |
+ 				   X86_CR4_SMEP;
++	unsigned long mmu_role_bits = pdptr_bits | X86_CR4_SMAP | X86_CR4_PKE;
  
- 	dmabuf = dentry->d_fsdata;
-+	if (unlikely(!dmabuf))
-+		return;
+ 	if (kvm_valid_cr4(vcpu, cr4))
+ 		return 1;
+@@ -995,7 +996,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ 	if (kvm_x86_ops.set_cr4(vcpu, cr4))
+ 		return 1;
  
- 	BUG_ON(dmabuf->vmapping_counter);
+-	if (((cr4 ^ old_cr4) & pdptr_bits) ||
++	if (((cr4 ^ old_cr4) & mmu_role_bits) ||
+ 	    (!(cr4 & X86_CR4_PCIDE) && (old_cr4 & X86_CR4_PCIDE)))
+ 		kvm_mmu_reset_context(vcpu);
  
+-- 
+2.25.1
+
 
 
