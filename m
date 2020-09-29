@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 767AE27B9E8
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:35:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9872E27B9D9
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:34:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727521AbgI2BeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 21:34:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40912 "EHLO mail.kernel.org"
+        id S1727759AbgI2BcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 21:32:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727684AbgI2Bbm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727678AbgI2Bbm (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Sep 2020 21:31:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 641E522204;
-        Tue, 29 Sep 2020 01:31:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61DD82389F;
+        Tue, 29 Sep 2020 01:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343098;
-        bh=qXb6Y9XUnzi9/zukmXKj2kpt6Tds0wmhLaiPB/O+H/w=;
+        s=default; t=1601343099;
+        bh=b5En8k/O97exEZDQzUfNz3XNs7S2smboU+rFFPz3PpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=StUk9lnMnGPWaT1B8RspDJqMvPsGW4bmUgKwgew9lKcL5/C8yAD2USrsqk12snQJD
-         kGNaIsiOSdgEbdpgbIDzXX/iGIXyC5VEkXsM2Xd7aC5dIJioTrFC7a8yuJs+I0/ey/
-         wrLRWNni6R/rN5GWyRF7uc1eg4lwKrVCDNTE2C3I=
+        b=1o82iLsb8qiSZ6Fx8SP6VSwDOdlDMkZWE1HL3QfzVRw3ECTG8u81EWATBeFFqoWJg
+         /jKh576w6uoKMeEmyQLQybfCJb1c1WX0h1Ft4ImyeCYvnK82DCYp/KYY3KT0KjG38Q
+         o+8UShMNwgJgB4vHVQho9CXSMzriHoYgdR6xuqkY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 06/11] regmap: debugfs: Fix handling of name string for debugfs init delays
-Date:   Mon, 28 Sep 2020 21:31:24 -0400
-Message-Id: <20200929013129.2406832-6-sashal@kernel.org>
+Cc:     Xie He <xie.he.0141@gmail.com>, Martin Schiller <ms@dev.tdt.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 07/11] drivers/net/wan/lapbether: Make skb->protocol consistent with the header
+Date:   Mon, 28 Sep 2020 21:31:25 -0400
+Message-Id: <20200929013129.2406832-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013129.2406832-1-sashal@kernel.org>
 References: <20200929013129.2406832-1-sashal@kernel.org>
@@ -42,219 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 94cc89eb8fa5039fcb6e3e3d50f929ddcccee095 ]
+[ Upstream commit 83f9a9c8c1edc222846dc1bde6e3479703e8e5a3 ]
 
-In regmap_debugfs_init the initialisation of the debugfs is delayed
-if the root node isn't ready yet. Most callers of regmap_debugfs_init
-pass the name from the regmap_config, which is considered temporary
-ie. may be unallocated after the regmap_init call returns. This leads
-to a potential use after free, where config->name has been freed by
-the time it is used in regmap_debugfs_initcall.
+This driver is a virtual driver stacked on top of Ethernet interfaces.
 
-This situation can be seen on Zynq, where the architecture init_irq
-callback registers a syscon device, using a local variable for the
-regmap_config. As init_irq is very early in the platform bring up the
-regmap debugfs root isn't ready yet. Although this doesn't crash it
-does result in the debugfs entry not having the correct name.
+When this driver transmits data on the Ethernet device, the skb->protocol
+setting is inconsistent with the Ethernet header prepended to the skb.
 
-Regmap already sets map->name from config->name on the regmap_init
-path and the fact that a separate field is used to pass the name
-to regmap_debugfs_init appears to be an artifact of the debugfs
-name being added before the map name. As such this patch updates
-regmap_debugfs_init to use map->name, which is already duplicated from
-the config avoiding the issue.
+This causes a user listening on the Ethernet interface with an AF_PACKET
+socket, to see different sll_protocol values for incoming and outgoing
+frames, because incoming frames would have this value set by parsing the
+Ethernet header.
 
-This does however leave two lose ends, both regmap_attach_dev and
-regmap_reinit_cache can be called after a regmap is registered and
-would have had the effect of applying a new name to the debugfs
-entries. In both of these cases it was chosen to update the map
-name. In the case of regmap_attach_dev there are 3 users that
-currently use this function to update the name, thus doing so avoids
-changes for those users and it seems reasonable that attaching
-a device would want to set the name of the map. In the case of
-regmap_reinit_cache the primary use-case appears to be devices that
-need some register access to identify the device (for example devices
-in the same family) and then update the cache to match the exact
-hardware. Whilst no users do currently update the name here, given the
-use-case it seemed reasonable the name might want to be updated once
-the device is better identified.
+This patch changes the skb->protocol value for outgoing Ethernet frames,
+making it consistent with the Ethernet header prepended. This makes a
+user listening on the Ethernet device with an AF_PACKET socket, to see
+the same sll_protocol value for incoming and outgoing frames.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20200917120828.12987-1-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/internal.h       |  4 +--
- drivers/base/regmap/regmap-debugfs.c |  7 ++---
- drivers/base/regmap/regmap.c         | 44 +++++++++++++++++++++-------
- 3 files changed, 38 insertions(+), 17 deletions(-)
+ drivers/net/wan/lapbether.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/regmap/internal.h b/drivers/base/regmap/internal.h
-index a6bf34d6394ed..24e8c4d2fb7b3 100644
---- a/drivers/base/regmap/internal.h
-+++ b/drivers/base/regmap/internal.h
-@@ -217,7 +217,7 @@ struct regmap_field {
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 15177a54b17d7..e5fc1b95cea6a 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -201,8 +201,6 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
+ 	struct net_device *dev;
+ 	int size = skb->len;
  
- #ifdef CONFIG_DEBUG_FS
- extern void regmap_debugfs_initcall(void);
--extern void regmap_debugfs_init(struct regmap *map, const char *name);
-+extern void regmap_debugfs_init(struct regmap *map);
- extern void regmap_debugfs_exit(struct regmap *map);
+-	skb->protocol = htons(ETH_P_X25);
+-
+ 	ptr = skb_push(skb, 2);
  
- static inline void regmap_debugfs_disable(struct regmap *map)
-@@ -227,7 +227,7 @@ static inline void regmap_debugfs_disable(struct regmap *map)
+ 	*ptr++ = size % 256;
+@@ -213,6 +211,8 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
  
- #else
- static inline void regmap_debugfs_initcall(void) { }
--static inline void regmap_debugfs_init(struct regmap *map, const char *name) { }
-+static inline void regmap_debugfs_init(struct regmap *map) { }
- static inline void regmap_debugfs_exit(struct regmap *map) { }
- static inline void regmap_debugfs_disable(struct regmap *map) { }
- #endif
-diff --git a/drivers/base/regmap/regmap-debugfs.c b/drivers/base/regmap/regmap-debugfs.c
-index 182b1908edec2..f2f038a72e858 100644
---- a/drivers/base/regmap/regmap-debugfs.c
-+++ b/drivers/base/regmap/regmap-debugfs.c
-@@ -21,7 +21,6 @@
+ 	skb->dev = dev = lapbeth->ethdev;
  
- struct regmap_debugfs_node {
- 	struct regmap *map;
--	const char *name;
- 	struct list_head link;
- };
- 
-@@ -540,11 +539,12 @@ static const struct file_operations regmap_cache_bypass_fops = {
- 	.write = regmap_cache_bypass_write_file,
- };
- 
--void regmap_debugfs_init(struct regmap *map, const char *name)
-+void regmap_debugfs_init(struct regmap *map)
- {
- 	struct rb_node *next;
- 	struct regmap_range_node *range_node;
- 	const char *devname = "dummy";
-+	const char *name = map->name;
- 
- 	/*
- 	 * Userspace can initiate reads from the hardware over debugfs.
-@@ -565,7 +565,6 @@ void regmap_debugfs_init(struct regmap *map, const char *name)
- 		if (!node)
- 			return;
- 		node->map = map;
--		node->name = name;
- 		mutex_lock(&regmap_debugfs_early_lock);
- 		list_add(&node->link, &regmap_debugfs_early_list);
- 		mutex_unlock(&regmap_debugfs_early_lock);
-@@ -687,7 +686,7 @@ void regmap_debugfs_initcall(void)
- 
- 	mutex_lock(&regmap_debugfs_early_lock);
- 	list_for_each_entry_safe(node, tmp, &regmap_debugfs_early_list, link) {
--		regmap_debugfs_init(node->map, node->name);
-+		regmap_debugfs_init(node->map);
- 		list_del(&node->link);
- 		kfree(node);
- 	}
-diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
-index d26b485ccc7d0..ca385641598b0 100644
---- a/drivers/base/regmap/regmap.c
-+++ b/drivers/base/regmap/regmap.c
-@@ -564,14 +564,34 @@ static void regmap_range_exit(struct regmap *map)
- 	kfree(map->selector_work_buf);
- }
- 
-+static int regmap_set_name(struct regmap *map, const struct regmap_config *config)
-+{
-+	if (config->name) {
-+		const char *name = kstrdup_const(config->name, GFP_KERNEL);
++	skb->protocol = htons(ETH_P_DEC);
 +
-+		if (!name)
-+			return -ENOMEM;
-+
-+		kfree_const(map->name);
-+		map->name = name;
-+	}
-+
-+	return 0;
-+}
-+
- int regmap_attach_dev(struct device *dev, struct regmap *map,
- 		      const struct regmap_config *config)
- {
- 	struct regmap **m;
-+	int ret;
+ 	skb_reset_network_header(skb);
  
- 	map->dev = dev;
- 
--	regmap_debugfs_init(map, config->name);
-+	ret = regmap_set_name(map, config);
-+	if (ret)
-+		return ret;
-+
-+	regmap_debugfs_init(map);
- 
- 	/* Add a devres resource for dev_get_regmap() */
- 	m = devres_alloc(dev_get_regmap_release, sizeof(*m), GFP_KERNEL);
-@@ -662,9 +682,9 @@ struct regmap *__regmap_init(struct device *dev,
- 			     const char *lock_name)
- {
- 	struct regmap *map;
--	int ret = -EINVAL;
- 	enum regmap_endian reg_endian, val_endian;
- 	int i, j;
-+	int ret;
- 
- 	if (!config)
- 		goto err;
-@@ -675,13 +695,9 @@ struct regmap *__regmap_init(struct device *dev,
- 		goto err;
- 	}
- 
--	if (config->name) {
--		map->name = kstrdup_const(config->name, GFP_KERNEL);
--		if (!map->name) {
--			ret = -ENOMEM;
--			goto err_map;
--		}
--	}
-+	ret = regmap_set_name(map, config);
-+	if (ret)
-+		goto err_map;
- 
- 	if (config->disable_locking) {
- 		map->lock = map->unlock = regmap_lock_unlock_none;
-@@ -1122,7 +1138,7 @@ struct regmap *__regmap_init(struct device *dev,
- 		if (ret != 0)
- 			goto err_regcache;
- 	} else {
--		regmap_debugfs_init(map, config->name);
-+		regmap_debugfs_init(map);
- 	}
- 
- 	return map;
-@@ -1282,6 +1298,8 @@ EXPORT_SYMBOL_GPL(regmap_field_free);
-  */
- int regmap_reinit_cache(struct regmap *map, const struct regmap_config *config)
- {
-+	int ret;
-+
- 	regcache_exit(map);
- 	regmap_debugfs_exit(map);
- 
-@@ -1293,7 +1311,11 @@ int regmap_reinit_cache(struct regmap *map, const struct regmap_config *config)
- 	map->readable_noinc_reg = config->readable_noinc_reg;
- 	map->cache_type = config->cache_type;
- 
--	regmap_debugfs_init(map, config->name);
-+	ret = regmap_set_name(map, config);
-+	if (ret)
-+		return ret;
-+
-+	regmap_debugfs_init(map);
- 
- 	map->cache_bypass = false;
- 	map->cache_only = false;
+ 	dev_hard_header(skb, dev, ETH_P_DEC, bcast_addr, NULL, 0);
 -- 
 2.25.1
 
