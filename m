@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40A8927CD7A
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B2B27CCEA
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:40:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387506AbgI2Mob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:44:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47402 "EHLO mail.kernel.org"
+        id S1732888AbgI2MkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:40:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728701AbgI2LIZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:08:25 -0400
+        id S1729514AbgI2LPS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:15:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89DDE22204;
-        Tue, 29 Sep 2020 11:08:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3D9420848;
+        Tue, 29 Sep 2020 11:15:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377684;
-        bh=rzBnvB+cNBmYeoMD+Rr2ep0RoO4PwGY5lqpNy7/AXFY=;
+        s=default; t=1601378117;
+        bh=JFVlvpvlwucfKo0vEKTMKIoHAIksnx2Ytuz0jEC6y6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gFuTmqKqZzs5YzMVwOtgdqqLeHtL2lwcK6IsHI++VS95aj1VtrKoNsTsu7DQ4PPbN
-         DHOXaGearkTf1sxWvRl05l5Cy8Qn5SwwmtLU9geBOvujDWbn0/hhOS330GvCfKjQQZ
-         T908vHVWCY7Ve/df3l2Ip9Mz/pOuyCxPF49DBzNg=
+        b=Ltvxx8I3IKDRijZ/uTQx1dDWadoPfwC8hUdu97S5xM2WVRFWIhSxXG9UyzKtosdWd
+         PZRVymBxKEyLH9IoC4d1bWi3CsD2aMzi3TCB/tfRORXxidZTVzuqXtT+9tcvirXLf0
+         uxqNNSd1k0e5buzKS/7SQAf10SaOuZA8VeAcTMPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Steve Longerbeam <slongerbeam@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 035/121] ACPI: EC: Reference count query handlers under lock
-Date:   Tue, 29 Sep 2020 12:59:39 +0200
-Message-Id: <20200929105931.923844317@linuxfoundation.org>
+Subject: [PATCH 4.14 068/166] media: staging/imx: Missing assignment in imx_media_capture_device_register()
+Date:   Tue, 29 Sep 2020 12:59:40 +0200
+Message-Id: <20200929105938.618065616@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 3df663a147fe077a6ee8444ec626738946e65547 ]
+[ Upstream commit ef0ed05dcef8a74178a8b480cce23a377b1de2b8 ]
 
-There is a race condition in acpi_ec_get_query_handler()
-theoretically allowing query handlers to go away before refernce
-counting them.
+There was supposed to be a "ret = " assignment here, otherwise the
+error handling on the next line won't work.
 
-In order to avoid it, call kref_get() on query handlers under
-ec->mutex.
-
-Also simplify the code a bit while at it.
-
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 64b5a49df486 ("[media] media: imx: Add Capture Device Interface")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Steve Longerbeam <slongerbeam@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ drivers/staging/media/imx/imx-media-capture.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index 307b3e28f34ce..8781b5dc97f1c 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -1049,29 +1049,21 @@ void acpi_ec_unblock_transactions(void)
- /* --------------------------------------------------------------------------
-                                 Event Management
-    -------------------------------------------------------------------------- */
--static struct acpi_ec_query_handler *
--acpi_ec_get_query_handler(struct acpi_ec_query_handler *handler)
--{
--	if (handler)
--		kref_get(&handler->kref);
--	return handler;
--}
--
- static struct acpi_ec_query_handler *
- acpi_ec_get_query_handler_by_value(struct acpi_ec *ec, u8 value)
- {
- 	struct acpi_ec_query_handler *handler;
--	bool found = false;
- 
- 	mutex_lock(&ec->mutex);
- 	list_for_each_entry(handler, &ec->list, node) {
- 		if (value == handler->query_bit) {
--			found = true;
--			break;
-+			kref_get(&handler->kref);
-+			mutex_unlock(&ec->mutex);
-+			return handler;
- 		}
- 	}
- 	mutex_unlock(&ec->mutex);
--	return found ? acpi_ec_get_query_handler(handler) : NULL;
-+	return NULL;
- }
- 
- static void acpi_ec_query_handler_release(struct kref *kref)
+diff --git a/drivers/staging/media/imx/imx-media-capture.c b/drivers/staging/media/imx/imx-media-capture.c
+index ea145bafb880a..8ff8843df5141 100644
+--- a/drivers/staging/media/imx/imx-media-capture.c
++++ b/drivers/staging/media/imx/imx-media-capture.c
+@@ -685,7 +685,7 @@ int imx_media_capture_device_register(struct imx_media_video_dev *vdev)
+ 	/* setup default format */
+ 	fmt_src.pad = priv->src_sd_pad;
+ 	fmt_src.which = V4L2_SUBDEV_FORMAT_ACTIVE;
+-	v4l2_subdev_call(sd, pad, get_fmt, NULL, &fmt_src);
++	ret = v4l2_subdev_call(sd, pad, get_fmt, NULL, &fmt_src);
+ 	if (ret) {
+ 		v4l2_err(sd, "failed to get src_sd format\n");
+ 		goto unreg;
 -- 
 2.25.1
 
