@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C66827CBFD
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:34:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B070627CC04
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732781AbgI2McR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:32:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37026 "EHLO mail.kernel.org"
+        id S1733023AbgI2McT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:32:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729546AbgI2LXB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:23:01 -0400
+        id S1729490AbgI2LXA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:23:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9A4521D7D;
-        Tue, 29 Sep 2020 11:20:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CEE7221E7;
+        Tue, 29 Sep 2020 11:20:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378452;
-        bh=UjL3BskRwLRof0uTzYp0icPKMM6aheG/65eSWsggAEc=;
+        s=default; t=1601378455;
+        bh=0PFevT8Ecj189Ns/LRiQZ0G7i1mRuO/gYaYyhY09J34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vj880f5K9LT5Di0DAcHqnMhqHpNdbDwkZYbLUGJIpK8KLOXLo7XmzPDJ+zM/KsqPW
-         1tGT8UdlZfvQxG0zHg6OJig7Tyt+xACisoKiqxizrV5viBAL/cLzm+N0PpIfYBkF5V
-         1x3QR7UXqudrB3rhMo7Gx9V5Bt+EyK5CspB7wIyA=
+        b=iYHZ/R1l6gCzEHkCmikjLMnF/zfKnP1C4/5GAsa/EOhM/pP+vmEDinFVfAnVMxKfQ
+         ycB4aCaQlrSWzDk9UQxIVTBPXZb9+owuSNkJilbYO++f8ATcdt0tYWlombEX1ygSes
+         iqvwGiStB36QjTer8XfBjQHlEzGVe3xz35sAVydI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>,
-        Peter Geis <pgwipeout@gmail.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Satish Kharat <satishkh@cisco.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 019/245] PM / devfreq: tegra30: Fix integer overflow on CPUs freq max out
-Date:   Tue, 29 Sep 2020 12:57:50 +0200
-Message-Id: <20200929105947.929201703@linuxfoundation.org>
+Subject: [PATCH 4.19 020/245] scsi: fnic: fix use after free
+Date:   Tue, 29 Sep 2020 12:57:51 +0200
+Message-Id: <20200929105947.980239936@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -44,45 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 53b4b2aeee26f42cde5ff2a16dd0d8590c51a55a ]
+[ Upstream commit ec990306f77fd4c58c3b27cc3b3c53032d6e6670 ]
 
-There is another kHz-conversion bug in the code, resulting in integer
-overflow. Although, this time the resulting value is 4294966296 and it's
-close to ULONG_MAX, which is okay in this case.
+The memory chunk io_req is released by mempool_free. Accessing
+io_req->start_time will result in a use after free bug. The variable
+start_time is a backup of the timestamp. So, use start_time here to
+avoid use after free.
 
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-Tested-by: Peter Geis <pgwipeout@gmail.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Link: https://lore.kernel.org/r/1572881182-37664-1-git-send-email-bianpan2016@163.com
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Reviewed-by: Satish Kharat <satishkh@cisco.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/tegra-devfreq.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/fnic/fnic_scsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/devfreq/tegra-devfreq.c b/drivers/devfreq/tegra-devfreq.c
-index 06768074d2d82..479d9575e1245 100644
---- a/drivers/devfreq/tegra-devfreq.c
-+++ b/drivers/devfreq/tegra-devfreq.c
-@@ -80,6 +80,8 @@
+diff --git a/drivers/scsi/fnic/fnic_scsi.c b/drivers/scsi/fnic/fnic_scsi.c
+index 73ffc16ec0225..b521fc7650cb9 100644
+--- a/drivers/scsi/fnic/fnic_scsi.c
++++ b/drivers/scsi/fnic/fnic_scsi.c
+@@ -1034,7 +1034,8 @@ static void fnic_fcpio_icmnd_cmpl_handler(struct fnic *fnic,
+ 		atomic64_inc(&fnic_stats->io_stats.io_completions);
  
- #define KHZ							1000
  
-+#define KHZ_MAX						(ULONG_MAX / KHZ)
-+
- /* Assume that the bus is saturated if the utilization is 25% */
- #define BUS_SATURATION_RATIO					25
+-	io_duration_time = jiffies_to_msecs(jiffies) - jiffies_to_msecs(io_req->start_time);
++	io_duration_time = jiffies_to_msecs(jiffies) -
++						jiffies_to_msecs(start_time);
  
-@@ -180,7 +182,7 @@ struct tegra_actmon_emc_ratio {
- };
- 
- static struct tegra_actmon_emc_ratio actmon_emc_ratios[] = {
--	{ 1400000, ULONG_MAX },
-+	{ 1400000,    KHZ_MAX },
- 	{ 1200000,    750000 },
- 	{ 1100000,    600000 },
- 	{ 1000000,    500000 },
+ 	if(io_duration_time <= 10)
+ 		atomic64_inc(&fnic_stats->io_stats.io_btw_0_to_10_msec);
 -- 
 2.25.1
 
