@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 103D027C95D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:10:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D0AA27C97A
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730288AbgI2MKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:10:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58104 "EHLO mail.kernel.org"
+        id S1730177AbgI2MLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:11:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730199AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730181AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:37:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 355F823A05;
-        Tue, 29 Sep 2020 11:22:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1372D23A34;
+        Tue, 29 Sep 2020 11:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378552;
-        bh=/gBWoETwuYWm1um0PUFQmHE9oEDYYiuetdPEynALY6s=;
+        s=default; t=1601378554;
+        bh=sCoAx39mIBIVh/PE74tXUB9qDhusIuNAtGdVETuLA5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pu6ZFtrssYbR+GY4TExXnsDwIQv/kDyW4AWXdvvSKpfj7SjlvCDwcMV6bqO4p2m5w
-         67CScK7WNuqO00EEKrxQcXDFDXSoOHJSwu+vz4jBaTqHTHmckrkCH3naVfEnoPrnCT
-         gPlAPKkbSaQhZYqabCWSjYAtu00ft1PAnUYacOe0=
+        b=cX3Lsd0K1eFVYUEm5EFjkMn/RQYbOGbDr3+4jwt4MEAtKMdbUiMAG/ictt8Fn6Egh
+         mtcZFpNuVaYeGoaqn050MOgiOo/9uBhDydWdSH0AGuhyQX0OkVjS3erpo4HnhryAfn
+         5pbnQPQMTDO6haS0eSvTpmkYlQYYx8wfB9jWc//A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Can Guo <cang@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 055/245] scsi: ufs: Fix a race condition in the tracing code
-Date:   Tue, 29 Sep 2020 12:58:26 +0200
-Message-Id: <20200929105949.678679321@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Matthias Fend <matthias.fend@wolfvision.net>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 056/245] dmaengine: zynqmp_dma: fix burst length configuration
+Date:   Tue, 29 Sep 2020 12:58:27 +0200
+Message-Id: <20200929105949.730462407@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -49,46 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Matthias Fend <matthias.fend@wolfvision.net>
 
-[ Upstream commit eacf36f5bebde5089dddb3d5bfcbeab530b01f8a ]
+[ Upstream commit cc88525ebffc757e00cc5a5d61da6271646c7f5f ]
 
-Starting execution of a command before tracing a command may cause the
-completion handler to free data while it is being traced. Fix this race by
-tracing a command before it is submitted.
+Since the dma engine expects the burst length register content as
+power of 2 value, the burst length needs to be converted first.
+Additionally add a burst length range check to avoid corrupting unrelated
+register bits.
 
-Cc: Bean Huo <beanhuo@micron.com>
-Cc: Can Guo <cang@codeaurora.org>
-Cc: Avri Altman <avri.altman@wdc.com>
-Cc: Stanley Chu <stanley.chu@mediatek.com>
-Cc: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20191224220248.30138-5-bvanassche@acm.org
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Matthias Fend <matthias.fend@wolfvision.net>
+Link: https://lore.kernel.org/r/20200115102249.24398-1-matthias.fend@wolfvision.net
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/xilinx/zynqmp_dma.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index faf1959981784..b2cbdd01ab10b 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1910,12 +1910,12 @@ void ufshcd_send_command(struct ufs_hba *hba, unsigned int task_tag)
+diff --git a/drivers/dma/xilinx/zynqmp_dma.c b/drivers/dma/xilinx/zynqmp_dma.c
+index 73de6a6179fcd..e002ff8413e2a 100644
+--- a/drivers/dma/xilinx/zynqmp_dma.c
++++ b/drivers/dma/xilinx/zynqmp_dma.c
+@@ -127,10 +127,12 @@
+ /* Max transfer size per descriptor */
+ #define ZYNQMP_DMA_MAX_TRANS_LEN	0x40000000
+ 
++/* Max burst lengths */
++#define ZYNQMP_DMA_MAX_DST_BURST_LEN    32768U
++#define ZYNQMP_DMA_MAX_SRC_BURST_LEN    32768U
++
+ /* Reset values for data attributes */
+ #define ZYNQMP_DMA_AXCACHE_VAL		0xF
+-#define ZYNQMP_DMA_ARLEN_RST_VAL	0xF
+-#define ZYNQMP_DMA_AWLEN_RST_VAL	0xF
+ 
+ #define ZYNQMP_DMA_SRC_ISSUE_RST_VAL	0x1F
+ 
+@@ -536,17 +538,19 @@ static void zynqmp_dma_handle_ovfl_int(struct zynqmp_dma_chan *chan, u32 status)
+ 
+ static void zynqmp_dma_config(struct zynqmp_dma_chan *chan)
  {
- 	hba->lrb[task_tag].issue_time_stamp = ktime_get();
- 	hba->lrb[task_tag].compl_time_stamp = ktime_set(0, 0);
-+	ufshcd_add_command_trace(hba, task_tag, "send");
- 	ufshcd_clk_scaling_start_busy(hba);
- 	__set_bit(task_tag, &hba->outstanding_reqs);
- 	ufshcd_writel(hba, 1 << task_tag, REG_UTP_TRANSFER_REQ_DOOR_BELL);
- 	/* Make sure that doorbell is committed immediately */
- 	wmb();
--	ufshcd_add_command_trace(hba, task_tag, "send");
+-	u32 val;
++	u32 val, burst_val;
+ 
+ 	val = readl(chan->regs + ZYNQMP_DMA_CTRL0);
+ 	val |= ZYNQMP_DMA_POINT_TYPE_SG;
+ 	writel(val, chan->regs + ZYNQMP_DMA_CTRL0);
+ 
+ 	val = readl(chan->regs + ZYNQMP_DMA_DATA_ATTR);
++	burst_val = __ilog2_u32(chan->src_burst_len);
+ 	val = (val & ~ZYNQMP_DMA_ARLEN) |
+-		(chan->src_burst_len << ZYNQMP_DMA_ARLEN_OFST);
++		((burst_val << ZYNQMP_DMA_ARLEN_OFST) & ZYNQMP_DMA_ARLEN);
++	burst_val = __ilog2_u32(chan->dst_burst_len);
+ 	val = (val & ~ZYNQMP_DMA_AWLEN) |
+-		(chan->dst_burst_len << ZYNQMP_DMA_AWLEN_OFST);
++		((burst_val << ZYNQMP_DMA_AWLEN_OFST) & ZYNQMP_DMA_AWLEN);
+ 	writel(val, chan->regs + ZYNQMP_DMA_DATA_ATTR);
  }
  
- /**
+@@ -562,8 +566,10 @@ static int zynqmp_dma_device_config(struct dma_chan *dchan,
+ {
+ 	struct zynqmp_dma_chan *chan = to_chan(dchan);
+ 
+-	chan->src_burst_len = config->src_maxburst;
+-	chan->dst_burst_len = config->dst_maxburst;
++	chan->src_burst_len = clamp(config->src_maxburst, 1U,
++		ZYNQMP_DMA_MAX_SRC_BURST_LEN);
++	chan->dst_burst_len = clamp(config->dst_maxburst, 1U,
++		ZYNQMP_DMA_MAX_DST_BURST_LEN);
+ 
+ 	return 0;
+ }
+@@ -884,8 +890,8 @@ static int zynqmp_dma_chan_probe(struct zynqmp_dma_device *zdev,
+ 		return PTR_ERR(chan->regs);
+ 
+ 	chan->bus_width = ZYNQMP_DMA_BUS_WIDTH_64;
+-	chan->dst_burst_len = ZYNQMP_DMA_AWLEN_RST_VAL;
+-	chan->src_burst_len = ZYNQMP_DMA_ARLEN_RST_VAL;
++	chan->dst_burst_len = ZYNQMP_DMA_MAX_DST_BURST_LEN;
++	chan->src_burst_len = ZYNQMP_DMA_MAX_SRC_BURST_LEN;
+ 	err = of_property_read_u32(node, "xlnx,bus-width", &chan->bus_width);
+ 	if (err < 0) {
+ 		dev_err(&pdev->dev, "missing xlnx,bus-width property\n");
 -- 
 2.25.1
 
