@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DD327C9B6
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F01827C9A0
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730187AbgI2MNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:13:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58078 "EHLO mail.kernel.org"
+        id S1730211AbgI2MMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:12:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730127AbgI2Lha (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:30 -0400
+        id S1730153AbgI2Lhb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F5B223B6E;
-        Tue, 29 Sep 2020 11:34:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4AF023B79;
+        Tue, 29 Sep 2020 11:34:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379264;
-        bh=ENrtdao2x/Yj/T8njHBUIDIXCWXAKSFa91S8OZwOXyQ=;
+        s=default; t=1601379266;
+        bh=JFGEpZLpPHzMDKTeFQbeHcdCovvkCDJKqX0Y+ymn4TI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+bEs1vNIw8oMnf1na8PKaj5OkgzuXWVOjciZxIcL8MIBBUL2kidNaKEnsDYHMKl+
-         9IV/jlAmS0c2J/phRwseNic9M/KZPS39L9cN8BdK6FISxPKTU6qYSobnLkUnVvP4EU
-         s5UGM5NZt9gsOAA2UDfqH30DovRyUhXOEX46oWrI=
+        b=nNOAFs10q6oEats9OUfHzGXo+tRov1cvtsAm5vPMpUQ8dYlYWixXHhYu/mQ2anwCV
+         8O/TfwZfTCejH4y+U2BoJr741Woi0bKVuddze+0QchqIX/glbDQKaKLiTwjjyQAHWz
+         HmnzR9mncWy3FYeSdKqaLF1gpO4u2iuUKjbj2hf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 084/388] opp: Replace list_kref with a local counter
-Date:   Tue, 29 Sep 2020 12:56:55 +0200
-Message-Id: <20200929110014.545612190@linuxfoundation.org>
+Subject: [PATCH 5.4 085/388] scsi: qla2xxx: Fix stuck session in GNL
+Date:   Tue, 29 Sep 2020 12:56:56 +0200
+Message-Id: <20200929110014.597318891@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -42,221 +44,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 03758d60265c773e1d06d436b99ee338f2ac55d6 ]
+[ Upstream commit e1217dc3edce62895595cf484af33b9e0379b7f3 ]
 
-A kref or refcount isn't the right tool to be used here for counting
-number of devices that are sharing the static OPPs created for the OPP
-table. For example, we are reinitializing the kref again, after it
-reaches a value of 0 and frees the resources, if the static OPPs get
-added for the same OPP table structure (as the OPP table structure was
-never freed). That is messy and very unclear.
+Fix race condition between GNL completion processing and GNL request. Late
+submission of GNL request was not seen by the GNL completion thread. This
+patch will re-submit the GNL request for late submission fcport.
 
-This patch makes parsed_static_opps an unsigned integer and uses it to
-count the number of users of the static OPPs. The increment and
-decrement to parsed_static_opps is done under opp_table->lock now to
-make sure no races are possible if the OPP table is getting added and
-removed in parallel (which doesn't happen in practice, but can in
-theory).
-
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20191217220617.28084-13-hmadhani@marvell.com
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/core.c | 48 ++++++++++++++++++----------------------------
- drivers/opp/of.c   | 26 +++++++++++--------------
- drivers/opp/opp.h  |  6 ++----
- 3 files changed, 32 insertions(+), 48 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c   | 15 +++++++++++++--
+ drivers/scsi/qla2xxx/qla_target.c | 21 +++++++++++++++------
+ 2 files changed, 28 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/opp/core.c b/drivers/opp/core.c
-index 7b057c32e11b1..29dfaa591f8b0 100644
---- a/drivers/opp/core.c
-+++ b/drivers/opp/core.c
-@@ -990,7 +990,6 @@ static struct opp_table *_allocate_opp_table(struct device *dev, int index)
- 	BLOCKING_INIT_NOTIFIER_HEAD(&opp_table->head);
- 	INIT_LIST_HEAD(&opp_table->opp_list);
- 	kref_init(&opp_table->kref);
--	kref_init(&opp_table->list_kref);
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index ac4c47fc5f4c1..2f2e059f4575e 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -1002,7 +1002,7 @@ static void qla24xx_async_gnl_sp_done(srb_t *sp, int res)
+ 		set_bit(loop_id, vha->hw->loop_id_map);
+ 		wwn = wwn_to_u64(e->port_name);
  
- 	/* Secure the device table modification */
- 	list_add(&opp_table->node, &opp_tables);
-@@ -1074,33 +1073,6 @@ static void _opp_table_kref_release(struct kref *kref)
- 	mutex_unlock(&opp_table_lock);
- }
+-		ql_dbg(ql_dbg_disc + ql_dbg_verbose, vha, 0x20e8,
++		ql_dbg(ql_dbg_disc, vha, 0x20e8,
+ 		    "%s %8phC %02x:%02x:%02x CLS %x/%x lid %x \n",
+ 		    __func__, (void *)&wwn, e->port_id[2], e->port_id[1],
+ 		    e->port_id[0], e->current_login_state, e->last_login_state,
+@@ -1061,6 +1061,16 @@ static void qla24xx_async_gnl_sp_done(srb_t *sp, int res)
  
--void _opp_remove_all_static(struct opp_table *opp_table)
--{
--	struct dev_pm_opp *opp, *tmp;
--
--	list_for_each_entry_safe(opp, tmp, &opp_table->opp_list, node) {
--		if (!opp->dynamic)
--			dev_pm_opp_put(opp);
--	}
--
--	opp_table->parsed_static_opps = false;
--}
--
--static void _opp_table_list_kref_release(struct kref *kref)
--{
--	struct opp_table *opp_table = container_of(kref, struct opp_table,
--						   list_kref);
--
--	_opp_remove_all_static(opp_table);
--	mutex_unlock(&opp_table_lock);
--}
--
--void _put_opp_list_kref(struct opp_table *opp_table)
--{
--	kref_put_mutex(&opp_table->list_kref, _opp_table_list_kref_release,
--		       &opp_table_lock);
--}
--
- void dev_pm_opp_put_opp_table(struct opp_table *opp_table)
- {
- 	kref_put_mutex(&opp_table->kref, _opp_table_kref_release,
-@@ -1204,6 +1176,24 @@ void dev_pm_opp_remove(struct device *dev, unsigned long freq)
- }
- EXPORT_SYMBOL_GPL(dev_pm_opp_remove);
- 
-+void _opp_remove_all_static(struct opp_table *opp_table)
-+{
-+	struct dev_pm_opp *opp, *tmp;
-+
-+	mutex_lock(&opp_table->lock);
-+
-+	if (!opp_table->parsed_static_opps || --opp_table->parsed_static_opps)
-+		goto unlock;
-+
-+	list_for_each_entry_safe(opp, tmp, &opp_table->opp_list, node) {
-+		if (!opp->dynamic)
-+			dev_pm_opp_put_unlocked(opp);
+ 	spin_lock_irqsave(&vha->hw->tgt.sess_lock, flags);
+ 	vha->gnl.sent = 0;
++	if (!list_empty(&vha->gnl.fcports)) {
++		/* retrigger gnl */
++		list_for_each_entry_safe(fcport, tf, &vha->gnl.fcports,
++		    gnl_entry) {
++			list_del_init(&fcport->gnl_entry);
++			fcport->flags &= ~(FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE);
++			if (qla24xx_post_gnl_work(vha, fcport) == QLA_SUCCESS)
++				break;
++		}
 +	}
+ 	spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
+ 
+ 	sp->free(sp);
+@@ -1995,7 +2005,7 @@ qla24xx_handle_plogi_done_event(struct scsi_qla_host *vha, struct event_arg *ea)
+ 			qla24xx_post_prli_work(vha, ea->fcport);
+ 		} else {
+ 			ql_dbg(ql_dbg_disc, vha, 0x20ea,
+-			    "%s %d %8phC LoopID 0x%x in use with %06x. post gnl\n",
++			    "%s %d %8phC LoopID 0x%x in use with %06x. post gpdb\n",
+ 			    __func__, __LINE__, ea->fcport->port_name,
+ 			    ea->fcport->loop_id, ea->fcport->d_id.b24);
+ 
+@@ -2066,6 +2076,7 @@ qla24xx_handle_plogi_done_event(struct scsi_qla_host *vha, struct event_arg *ea)
+ 			set_bit(lid, vha->hw->loop_id_map);
+ 			ea->fcport->loop_id = lid;
+ 			ea->fcport->keep_nport_handle = 0;
++			ea->fcport->logout_on_delete = 1;
+ 			qlt_schedule_sess_for_deletion(ea->fcport);
+ 		}
+ 		break;
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index b75e6e4d58c06..a7acc266cec06 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -957,7 +957,7 @@ void qlt_free_session_done(struct work_struct *work)
+ 	struct qlt_plogi_ack_t *own =
+ 		sess->plogi_link[QLT_PLOGI_LINK_SAME_WWN];
+ 
+-	ql_dbg(ql_dbg_tgt_mgt, vha, 0xf084,
++	ql_dbg(ql_dbg_disc, vha, 0xf084,
+ 		"%s: se_sess %p / sess %p from port %8phC loop_id %#04x"
+ 		" s_id %02x:%02x:%02x logout %d keep %d els_logo %d\n",
+ 		__func__, sess->se_sess, sess, sess->port_name, sess->loop_id,
+@@ -1024,7 +1024,7 @@ void qlt_free_session_done(struct work_struct *work)
+ 
+ 		while (!READ_ONCE(sess->logout_completed)) {
+ 			if (!traced) {
+-				ql_dbg(ql_dbg_tgt_mgt, vha, 0xf086,
++				ql_dbg(ql_dbg_disc, vha, 0xf086,
+ 					"%s: waiting for sess %p logout\n",
+ 					__func__, sess);
+ 				traced = true;
+@@ -1045,6 +1045,10 @@ void qlt_free_session_done(struct work_struct *work)
+ 			(struct imm_ntfy_from_isp *)sess->iocb, SRB_NACK_LOGO);
+ 	}
+ 
++	spin_lock_irqsave(&vha->work_lock, flags);
++	sess->flags &= ~FCF_ASYNC_SENT;
++	spin_unlock_irqrestore(&vha->work_lock, flags);
 +
-+unlock:
-+	mutex_unlock(&opp_table->lock);
-+}
-+
- /**
-  * dev_pm_opp_remove_all_dynamic() - Remove all dynamically created OPPs
-  * @dev:	device for which we do this operation
-@@ -2209,7 +2199,7 @@ void _dev_pm_opp_find_and_remove_table(struct device *dev)
+ 	spin_lock_irqsave(&ha->tgt.sess_lock, flags);
+ 	if (sess->se_sess) {
+ 		sess->se_sess = NULL;
+@@ -1108,7 +1112,7 @@ void qlt_free_session_done(struct work_struct *work)
+ 	spin_unlock_irqrestore(&ha->tgt.sess_lock, flags);
+ 	sess->free_pending = 0;
+ 
+-	ql_dbg(ql_dbg_tgt_mgt, vha, 0xf001,
++	ql_dbg(ql_dbg_disc, vha, 0xf001,
+ 	    "Unregistration of sess %p %8phC finished fcp_cnt %d\n",
+ 		sess, sess->port_name, vha->fcport_count);
+ 
+@@ -1151,6 +1155,11 @@ void qlt_unreg_sess(struct fc_port *sess)
  		return;
  	}
+ 	sess->free_pending = 1;
++	/*
++	 * Use FCF_ASYNC_SENT flag to block other cmds used in sess
++	 * management from being sent.
++	 */
++	sess->flags |= FCF_ASYNC_SENT;
+ 	spin_unlock_irqrestore(&sess->vha->work_lock, flags);
  
--	_put_opp_list_kref(opp_table);
-+	_opp_remove_all_static(opp_table);
+ 	if (sess->se_sess)
+@@ -4580,7 +4589,7 @@ qlt_find_sess_invalidate_other(scsi_qla_host_t *vha, uint64_t wwn,
+ 		/* find other sess with nport_id collision */
+ 		if (port_id.b24 == other_sess->d_id.b24) {
+ 			if (loop_id != other_sess->loop_id) {
+-				ql_dbg(ql_dbg_tgt_tmr, vha, 0x1000c,
++				ql_dbg(ql_dbg_disc, vha, 0x1000c,
+ 				    "Invalidating sess %p loop_id %d wwn %llx.\n",
+ 				    other_sess, other_sess->loop_id, other_wwn);
  
- 	/* Drop reference taken by _find_opp_table() */
- 	dev_pm_opp_put_opp_table(opp_table);
-diff --git a/drivers/opp/of.c b/drivers/opp/of.c
-index 1e5fcdee043c4..9cd8f0adacae4 100644
---- a/drivers/opp/of.c
-+++ b/drivers/opp/of.c
-@@ -658,17 +658,15 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 	struct dev_pm_opp *opp;
+@@ -4596,7 +4605,7 @@ qlt_find_sess_invalidate_other(scsi_qla_host_t *vha, uint64_t wwn,
+ 				 * Another wwn used to have our s_id/loop_id
+ 				 * kill the session, but don't free the loop_id
+ 				 */
+-				ql_dbg(ql_dbg_tgt_tmr, vha, 0xf01b,
++				ql_dbg(ql_dbg_disc, vha, 0xf01b,
+ 				    "Invalidating sess %p loop_id %d wwn %llx.\n",
+ 				    other_sess, other_sess->loop_id, other_wwn);
  
- 	/* OPP table is already initialized for the device */
-+	mutex_lock(&opp_table->lock);
- 	if (opp_table->parsed_static_opps) {
--		kref_get(&opp_table->list_kref);
-+		opp_table->parsed_static_opps++;
-+		mutex_unlock(&opp_table->lock);
- 		return 0;
- 	}
- 
--	/*
--	 * Re-initialize list_kref every time we add static OPPs to the OPP
--	 * table as the reference count may be 0 after the last tie static OPPs
--	 * were removed.
--	 */
--	kref_init(&opp_table->list_kref);
-+	opp_table->parsed_static_opps = 1;
-+	mutex_unlock(&opp_table->lock);
- 
- 	/* We have opp-table node now, iterate over it and add OPPs */
- 	for_each_available_child_of_node(opp_table->np, np) {
-@@ -678,7 +676,7 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 			dev_err(dev, "%s: Failed to add OPP, %d\n", __func__,
- 				ret);
- 			of_node_put(np);
--			goto put_list_kref;
-+			goto remove_static_opp;
- 		} else if (opp) {
- 			count++;
- 		}
-@@ -687,7 +685,7 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 	/* There should be one of more OPP defined */
- 	if (WARN_ON(!count)) {
- 		ret = -ENOENT;
--		goto put_list_kref;
-+		goto remove_static_opp;
- 	}
- 
- 	list_for_each_entry(opp, &opp_table->opp_list, node)
-@@ -698,18 +696,16 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 		dev_err(dev, "Not all nodes have performance state set (%d: %d)\n",
- 			count, pstate_count);
- 		ret = -ENOENT;
--		goto put_list_kref;
-+		goto remove_static_opp;
- 	}
- 
- 	if (pstate_count)
- 		opp_table->genpd_performance_state = true;
- 
--	opp_table->parsed_static_opps = true;
--
- 	return 0;
- 
--put_list_kref:
--	_put_opp_list_kref(opp_table);
-+remove_static_opp:
-+	_opp_remove_all_static(opp_table);
- 
- 	return ret;
- }
-@@ -746,7 +742,7 @@ static int _of_add_opp_table_v1(struct device *dev, struct opp_table *opp_table)
- 		if (ret) {
- 			dev_err(dev, "%s: Failed to add OPP %ld (%d)\n",
- 				__func__, freq, ret);
--			_put_opp_list_kref(opp_table);
-+			_opp_remove_all_static(opp_table);
- 			return ret;
- 		}
- 		nr -= 2;
-diff --git a/drivers/opp/opp.h b/drivers/opp/opp.h
-index 01a500e2c40a1..d14e27102730c 100644
---- a/drivers/opp/opp.h
-+++ b/drivers/opp/opp.h
-@@ -127,11 +127,10 @@ enum opp_table_access {
-  * @dev_list:	list of devices that share these OPPs
-  * @opp_list:	table of opps
-  * @kref:	for reference count of the table.
-- * @list_kref:	for reference count of the OPP list.
-  * @lock:	mutex protecting the opp_list and dev_list.
-  * @np:		struct device_node pointer for opp's DT node.
-  * @clock_latency_ns_max: Max clock latency in nanoseconds.
-- * @parsed_static_opps: True if OPPs are initialized from DT.
-+ * @parsed_static_opps: Count of devices for which OPPs are initialized from DT.
-  * @shared_opp: OPP is shared between multiple devices.
-  * @suspend_opp: Pointer to OPP to be used during device suspend.
-  * @genpd_virt_dev_lock: Mutex protecting the genpd virtual device pointers.
-@@ -167,7 +166,6 @@ struct opp_table {
- 	struct list_head dev_list;
- 	struct list_head opp_list;
- 	struct kref kref;
--	struct kref list_kref;
- 	struct mutex lock;
- 
- 	struct device_node *np;
-@@ -176,7 +174,7 @@ struct opp_table {
- 	/* For backward compatibility with v1 bindings */
- 	unsigned int voltage_tolerance_v1;
- 
--	bool parsed_static_opps;
-+	unsigned int parsed_static_opps;
- 	enum opp_table_access shared_opp;
- 	struct dev_pm_opp *suspend_opp;
+@@ -4611,7 +4620,7 @@ qlt_find_sess_invalidate_other(scsi_qla_host_t *vha, uint64_t wwn,
+ 		/* find other sess with nport handle collision */
+ 		if ((loop_id == other_sess->loop_id) &&
+ 			(loop_id != FC_NO_LOOP_ID)) {
+-			ql_dbg(ql_dbg_tgt_tmr, vha, 0x1000d,
++			ql_dbg(ql_dbg_disc, vha, 0x1000d,
+ 			       "Invalidating sess %p loop_id %d wwn %llx.\n",
+ 			       other_sess, other_sess->loop_id, other_wwn);
  
 -- 
 2.25.1
