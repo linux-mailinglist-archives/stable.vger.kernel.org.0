@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7325127C72D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:52:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E30E327C7C5
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731023AbgI2LwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:52:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50248 "EHLO mail.kernel.org"
+        id S1731270AbgI2L4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:56:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730862AbgI2LsK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:48:10 -0400
+        id S1730842AbgI2LoF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:44:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 047BD20848;
-        Tue, 29 Sep 2020 11:47:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35EB7206F7;
+        Tue, 29 Sep 2020 11:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380080;
-        bh=Ah5W4EqgTIIoERO0lOnsBHKeQNDEPgu2WGEPUzEfggg=;
+        s=default; t=1601379844;
+        bh=XE4eHs+egJ2xsDJ8p8Inl6VS8i15SJW8hYD9IQgUc90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6Ef1Nmv7zTUDDBQWgiBg+Mg6sJhbeQt34D0eGpxFGem1ii+uvLhXqOdaXDj/fsZM
-         9O4bZ3MCM/QLaVKlvYEHskMvlerh+Iy0I4liy2MMnJVn2wepuSh8hEH+sBaVNRKIWI
-         d9ZWGMl5tURefJeGWfwGk5sQtufvhcUxevY27o84=
+        b=rAHHKufX0OH14uNHkkDw86FPqPYshnSZ8J3uo1wYx4sLw3P9hr0XtLMUAZw+aLYGt
+         DrNpENd09JyozlT8tESGLcZbq80sVMccZAJaGPZeLwHYnBFBDH6z2HLRwVyWZBEbwS
+         c0nhKU6Sk1n9Xq/1asOHCl+05aOVA7L+TPxKVi/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will McVicker <willmcvicker@google.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 29/99] netfilter: ctnetlink: add a range check for l3/l4 protonum
-Date:   Tue, 29 Sep 2020 13:01:12 +0200
-Message-Id: <20200929105931.167148314@linuxfoundation.org>
+Subject: [PATCH 5.4 342/388] atm: eni: fix the missed pci_disable_device() for eni_init_one()
+Date:   Tue, 29 Sep 2020 13:01:13 +0200
+Message-Id: <20200929110027.016578538@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will McVicker <willmcvicker@google.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 1cc5ef91d2ff94d2bf2de3b3585423e8a1051cb6 ]
+[ Upstream commit c2b947879ca320ac5505c6c29a731ff17da5e805 ]
 
-The indexes to the nf_nat_l[34]protos arrays come from userspace. So
-check the tuple's family, e.g. l3num, when creating the conntrack in
-order to prevent an OOB memory access during setup.  Here is an example
-kernel panic on 4.14.180 when userspace passes in an index greater than
-NFPROTO_NUMPROTO.
+eni_init_one() misses to call pci_disable_device() in an error path.
+Jump to err_disable to fix it.
 
-Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-Modules linked in:...
-Process poc (pid: 5614, stack limit = 0x00000000a3933121)
-CPU: 4 PID: 5614 Comm: poc Tainted: G S      W  O    4.14.180-g051355490483
-Hardware name: Qualcomm Technologies, Inc. SM8150 V2 PM8150 Google Inc. MSM
-task: 000000002a3dfffe task.stack: 00000000a3933121
-pc : __cfi_check_fail+0x1c/0x24
-lr : __cfi_check_fail+0x1c/0x24
-...
-Call trace:
-__cfi_check_fail+0x1c/0x24
-name_to_dev_t+0x0/0x468
-nfnetlink_parse_nat_setup+0x234/0x258
-ctnetlink_parse_nat_setup+0x4c/0x228
-ctnetlink_new_conntrack+0x590/0xc40
-nfnetlink_rcv_msg+0x31c/0x4d4
-netlink_rcv_skb+0x100/0x184
-nfnetlink_rcv+0xf4/0x180
-netlink_unicast+0x360/0x770
-netlink_sendmsg+0x5a0/0x6a4
-___sys_sendmsg+0x314/0x46c
-SyS_sendmsg+0xb4/0x108
-el0_svc_naked+0x34/0x38
-
-This crash is not happening since 5.4+, however, ctnetlink still
-allows for creating entries with unsupported layer 3 protocol number.
-
-Fixes: c1d10adb4a521 ("[NETFILTER]: Add ctnetlink port for nf_conntrack")
-Signed-off-by: Will McVicker <willmcvicker@google.com>
-[pablo@netfilter.org: rebased original patch on top of nf.git]
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: ede58ef28e10 ("atm: remove deprecated use of pci api")
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/atm/eni.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 832eabecfbddc..d65846aa80591 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -1404,7 +1404,8 @@ ctnetlink_parse_tuple_filter(const struct nlattr * const cda[],
- 	if (err < 0)
- 		return err;
+diff --git a/drivers/atm/eni.c b/drivers/atm/eni.c
+index 9d0d65efcd94e..bedaebd5a4956 100644
+--- a/drivers/atm/eni.c
++++ b/drivers/atm/eni.c
+@@ -2245,7 +2245,7 @@ static int eni_init_one(struct pci_dev *pci_dev,
  
--
-+	if (l3num != NFPROTO_IPV4 && l3num != NFPROTO_IPV6)
-+		return -EOPNOTSUPP;
- 	tuple->src.l3num = l3num;
+ 	rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(32));
+ 	if (rc < 0)
+-		goto out;
++		goto err_disable;
  
- 	if (flags & CTA_FILTER_FLAG(CTA_IP_DST) ||
+ 	rc = -ENOMEM;
+ 	eni_dev = kmalloc(sizeof(struct eni_dev), GFP_KERNEL);
 -- 
 2.25.1
 
