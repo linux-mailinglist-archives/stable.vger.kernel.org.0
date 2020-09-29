@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 534B627BA43
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:37:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91D5C27BA3D
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727265AbgI2Bae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727300AbgI2Bae (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 28 Sep 2020 21:30:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39310 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726379AbgI2Bab (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Sep 2020 21:30:31 -0400
+        id S1726064AbgI2Bac (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Sep 2020 21:30:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACD3621734;
-        Tue, 29 Sep 2020 01:30:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1749D20678;
+        Tue, 29 Sep 2020 01:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343030;
-        bh=zB0SGeeoNPVMkVnQLXd5mspfS30Xe6OaobqccoNYGuU=;
+        s=default; t=1601343032;
+        bh=41COe5x7JjD1OwT5Ov3l1HjeqLrAse49svUyDHzocaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQpo1itrfHYIa3bfnoMVkPwryZ7WZ/jrEMBr4My59eNxYqJEzVGgsMBFFxzuXYrXR
-         biaoBXMdWEeFagKD5o6sotBwbtzgJzY5J5ty4AtPTPhYYonebFCNPLJFtZjMUNiLmN
-         wkvo1X8d8W1/55P0sRhoHIXjTzgP8mQYurOQbpEM=
+        b=CLhgSvA4xq02Lz8Ei0c/KN2TB6mD3QSsLkPiJJ3ZrL9SCZfGKFb/xstXxaNamrpGH
+         rSJPbmA+504RfW2sSE5sXbzWZ1vJZWJrp8IvE+1yLZ8iV0ax1BaHzCUJBJszvW7ZJF
+         KAxUJw4L3M5WhjBK3LvXSA7pq8COtzOmIZ2TUvmc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 02/29] vboxsf: Fix the check for the old binary mount-arguments struct
-Date:   Mon, 28 Sep 2020 21:29:59 -0400
-Message-Id: <20200929013027.2406344-2-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 03/29] mt76: mt7915: use ieee80211_free_txskb to free tx skbs
+Date:   Mon, 28 Sep 2020 21:30:00 -0400
+Message-Id: <20200929013027.2406344-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013027.2406344-1-sashal@kernel.org>
 References: <20200929013027.2406344-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,42 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 9d682ea6bcc76b8b2691c79add59f7d99c881635 ]
+[ Upstream commit b4be5a53ebf478ffcfb4c98c0ccc4a8d922b9a02 ]
 
-Fix the check for the mainline vboxsf code being used with the old
-mount.vboxsf mount binary from the out-of-tree vboxsf version doing
-a comparison between signed and unsigned data types.
+Using dev_kfree_skb for tx skbs breaks AQL. This worked until now only
+by accident, because a mac80211 issue breaks AQL on drivers with firmware
+rate control that report the rate via ieee80211_tx_status_ext as struct
+rate_info.
 
-This fixes the following smatch warnings:
-
-fs/vboxsf/super.c:390 vboxsf_parse_monolithic() warn: impossible condition '(options[1] == (255)) => ((-128)-127 == 255)'
-fs/vboxsf/super.c:391 vboxsf_parse_monolithic() warn: impossible condition '(options[2] == (254)) => ((-128)-127 == 254)'
-fs/vboxsf/super.c:392 vboxsf_parse_monolithic() warn: impossible condition '(options[3] == (253)) => ((-128)-127 == 253)'
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200812144943.91974-1-nbd@nbd.name
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/vboxsf/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/init.c | 8 ++++++--
+ drivers/net/wireless/mediatek/mt76/mt7915/mac.c  | 2 +-
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/fs/vboxsf/super.c b/fs/vboxsf/super.c
-index 8fe03b4a0d2b0..25aade3441922 100644
---- a/fs/vboxsf/super.c
-+++ b/fs/vboxsf/super.c
-@@ -384,7 +384,7 @@ static int vboxsf_setup(void)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/init.c b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
+index aadf56e80bae8..d7a3b05ab50c3 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
+@@ -691,8 +691,12 @@ void mt7915_unregister_device(struct mt7915_dev *dev)
+ 	spin_lock_bh(&dev->token_lock);
+ 	idr_for_each_entry(&dev->token, txwi, id) {
+ 		mt7915_txp_skb_unmap(&dev->mt76, txwi);
+-		if (txwi->skb)
+-			dev_kfree_skb_any(txwi->skb);
++		if (txwi->skb) {
++			struct ieee80211_hw *hw;
++
++			hw = mt76_tx_status_get_hw(&dev->mt76, txwi->skb);
++			ieee80211_free_txskb(hw, txwi->skb);
++		}
+ 		mt76_put_txwi(&dev->mt76, txwi);
+ 	}
+ 	spin_unlock_bh(&dev->token_lock);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+index a264e304a3dfb..5800b2d1fb233 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+@@ -844,7 +844,7 @@ mt7915_tx_complete_status(struct mt76_dev *mdev, struct sk_buff *skb,
+ 	if (sta || !(info->flags & IEEE80211_TX_CTL_NO_ACK))
+ 		mt7915_tx_status(sta, hw, info, NULL);
  
- static int vboxsf_parse_monolithic(struct fs_context *fc, void *data)
- {
--	char *options = data;
-+	unsigned char *options = data;
+-	dev_kfree_skb(skb);
++	ieee80211_free_txskb(hw, skb);
+ }
  
- 	if (options && options[0] == VBSF_MOUNT_SIGNATURE_BYTE_0 &&
- 		       options[1] == VBSF_MOUNT_SIGNATURE_BYTE_1 &&
+ void mt7915_txp_skb_unmap(struct mt76_dev *dev,
 -- 
 2.25.1
 
