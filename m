@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E9F27CAD1
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:22:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B66B627CB06
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728599AbgI2MWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:22:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49146 "EHLO mail.kernel.org"
+        id S1730234AbgI2MYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729800AbgI2LfL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:35:11 -0400
+        id S1729763AbgI2LfJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:35:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 484D323BEE;
-        Tue, 29 Sep 2020 11:28:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D131B23BEF;
+        Tue, 29 Sep 2020 11:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378887;
-        bh=NvZmPw2C2uvbDgqyuHUaqE7UzXhi8hTw7mWaXV6zhTY=;
+        s=default; t=1601378890;
+        bh=PlbMTgELfMRDsocIUTTiiLZI4p00Hr9pXfwZwKyCaNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UyEPw9us5cg5arKYjKxhgbLwvAauUA6C5u2jmA+4LQvl3CXgJwb5fKO0YPSu7tEoj
-         ID2/yC7d5/f0wCW+gD48PAdQwVUJCXcDJ/f/lNasYaGZqoyahCpjhGYzrOTX0A+YId
-         Ia5qcHGSDLBHcj2/0rc2exTlOXEfsNXzfO3Ej0H0=
+        b=AhmpCqJZXF+2hyNIIAqf9r1x5Hcj2S/KHpaFfvMahaYGLdx8YH/reoyjN4XSQByf+
+         RaVSJ2Gq01UQ+kh7fY+IcprAbJQk78V8y1uTv9Vlzxc9cUdsq46cDASrVRssK6mOYc
+         jPnupdYXxmOti5TqDbqrobWvl62mwY8p2kwG+S6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Rutherford <srutherford@google.com>,
-        Jon Cargille <jcargill@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 145/245] KVM: Remove CREATE_IRQCHIP/SET_PIT2 race
-Date:   Tue, 29 Sep 2020 12:59:56 +0200
-Message-Id: <20200929105954.042602806@linuxfoundation.org>
+Subject: [PATCH 4.19 146/245] perf stat: Force error in fallback on :k events
+Date:   Tue, 29 Sep 2020 12:59:57 +0200
+Message-Id: <20200929105954.090876288@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -45,62 +48,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Rutherford <srutherford@google.com>
+From: Stephane Eranian <eranian@google.com>
 
-[ Upstream commit 7289fdb5dcdbc5155b5531529c44105868a762f2 ]
+[ Upstream commit bec49a9e05db3dbdca696fa07c62c52638fb6371 ]
 
-Fixes a NULL pointer dereference, caused by the PIT firing an interrupt
-before the interrupt table has been initialized.
+When it is not possible for a non-privilege perf command to monitor at
+the kernel level (:k), the fallback code forces a :u. That works if the
+event was previously monitoring both levels.  But if the event was
+already constrained to kernel only, then it does not make sense to
+restrict it to user only.
 
-SET_PIT2 can race with the creation of the IRQchip. In particular,
-if SET_PIT2 is called with a low PIT timer period (after the creation of
-the IOAPIC, but before the instantiation of the irq routes), the PIT can
-fire an interrupt at an uninitialized table.
+Given the code works by exclusion, a kernel only event would have:
 
-Signed-off-by: Steve Rutherford <srutherford@google.com>
-Signed-off-by: Jon Cargille <jcargill@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20200416191152.259434-1-jcargill@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+  attr->exclude_user = 1
+
+The fallback code would add:
+
+  attr->exclude_kernel = 1
+
+In the end the end would not monitor in either the user level or kernel
+level. In other words, it would count nothing.
+
+An event programmed to monitor kernel only cannot be switched to user
+only without seriously warning the user.
+
+This patch forces an error in this case to make it clear the request
+cannot really be satisfied.
+
+Behavior with paranoid 1:
+
+  $ sudo bash -c "echo 1 > /proc/sys/kernel/perf_event_paranoid"
+  $ perf stat -e cycles:k sleep 1
+
+   Performance counter stats for 'sleep 1':
+
+           1,520,413      cycles:k
+
+         1.002361664 seconds time elapsed
+
+         0.002480000 seconds user
+         0.000000000 seconds sys
+
+Old behavior with paranoid 2:
+
+  $ sudo bash -c "echo 2 > /proc/sys/kernel/perf_event_paranoid"
+  $ perf stat -e cycles:k sleep 1
+   Performance counter stats for 'sleep 1':
+
+                   0      cycles:ku
+
+         1.002358127 seconds time elapsed
+
+         0.002384000 seconds user
+         0.000000000 seconds sys
+
+New behavior with paranoid 2:
+
+  $ sudo bash -c "echo 2 > /proc/sys/kernel/perf_event_paranoid"
+  $ perf stat -e cycles:k sleep 1
+  Error:
+  You may not have permission to collect stats.
+
+  Consider tweaking /proc/sys/kernel/perf_event_paranoid,
+  which controls use of the performance events system by
+  unprivileged users (without CAP_PERFMON or CAP_SYS_ADMIN).
+
+  The current value is 2:
+
+    -1: Allow use of (almost) all events by all users
+        Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
+  >= 0: Disallow ftrace function tracepoint by users without CAP_PERFMON or CAP_SYS_ADMIN
+        Disallow raw tracepoint access by users without CAP_SYS_PERFMON or CAP_SYS_ADMIN
+  >= 1: Disallow CPU event access by users without CAP_PERFMON or CAP_SYS_ADMIN
+  >= 2: Disallow kernel profiling by users without CAP_PERFMON or CAP_SYS_ADMIN
+
+  To make this setting permanent, edit /etc/sysctl.conf too, e.g.:
+
+          kernel.perf_event_paranoid = -1
+
+v2 of this patch addresses the review feedback from jolsa@redhat.com.
+
+Signed-off-by: Stephane Eranian <eranian@google.com>
+Reviewed-by: Ian Rogers <irogers@google.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20200414161550.225588-1-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ tools/perf/util/evsel.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 430a4bc66f604..620ed1fa35119 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4668,10 +4668,13 @@ set_identity_unlock:
- 		r = -EFAULT;
- 		if (copy_from_user(&u.ps, argp, sizeof u.ps))
- 			goto out;
-+		mutex_lock(&kvm->lock);
- 		r = -ENXIO;
- 		if (!kvm->arch.vpit)
--			goto out;
-+			goto set_pit_out;
- 		r = kvm_vm_ioctl_set_pit(kvm, &u.ps);
-+set_pit_out:
-+		mutex_unlock(&kvm->lock);
- 		break;
- 	}
- 	case KVM_GET_PIT2: {
-@@ -4691,10 +4694,13 @@ set_identity_unlock:
- 		r = -EFAULT;
- 		if (copy_from_user(&u.ps2, argp, sizeof(u.ps2)))
- 			goto out;
-+		mutex_lock(&kvm->lock);
- 		r = -ENXIO;
- 		if (!kvm->arch.vpit)
--			goto out;
-+			goto set_pit2_out;
- 		r = kvm_vm_ioctl_set_pit2(kvm, &u.ps2);
-+set_pit2_out:
-+		mutex_unlock(&kvm->lock);
- 		break;
- 	}
- 	case KVM_REINJECT_CONTROL: {
+diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+index 68c5ab0e1800b..e8586957562b3 100644
+--- a/tools/perf/util/evsel.c
++++ b/tools/perf/util/evsel.c
+@@ -2796,6 +2796,10 @@ bool perf_evsel__fallback(struct perf_evsel *evsel, int err,
+ 		char *new_name;
+ 		const char *sep = ":";
+ 
++		/* If event has exclude user then don't exclude kernel. */
++		if (evsel->core.attr.exclude_user)
++			return false;
++
+ 		/* Is there already the separator in the name. */
+ 		if (strchr(name, '/') ||
+ 		    strchr(name, ':'))
 -- 
 2.25.1
 
