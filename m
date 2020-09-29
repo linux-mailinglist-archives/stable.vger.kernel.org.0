@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF35927CCE1
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:40:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6053B27CD84
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732646AbgI2MkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:40:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59638 "EHLO mail.kernel.org"
+        id S1729512AbgI2Mo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:44:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728974AbgI2LPU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:15:20 -0400
+        id S1728742AbgI2LIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:08:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB31B21D46;
-        Tue, 29 Sep 2020 11:15:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D53C221EF;
+        Tue, 29 Sep 2020 11:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378120;
-        bh=tzXAOwd1wTK8SX7o1NLibeIXwStPrR4UhFbdLbS559Y=;
+        s=default; t=1601377691;
+        bh=6yKaPe55goq/PHR0ViTp5J+ZZOx/edQ+2jb3KOU+iFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjjjHdvta8tQZJTV8MwRvJEDMFB1fTl9yGZVJunJKLx1ta0HL9h3PY6xcv/KRod/z
-         7M4T14TMrti0OTyVtAxzUFgH1MZ/mLsMOEoUPXL65dv9kQHIXGi5Ow6jM7lKf4Ix/3
-         ry6XWxNzLWO3s3KkxX/D9CnudBxdDOttK+h9Buvs=
+        b=mO1q2uapjpo/EacvORjxP4HbCJZhKv4cFJ4yPyYF3eCaVSQeaRGl9HpGI0NbJLwfs
+         n1MxySEWovSy1XO99dIjeODbCwFKTLkpMEkkRry4OleqPlQt8xm3tRyXmPPIP/cOAv
+         PzcJF8eercm9r0ot5FQXZ5Xw5ZJTZuyU3cpKtStE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Shi <alex.shi@linux.alibaba.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/166] x86/pkeys: Add check for pkey "overflow"
+        stable@vger.kernel.org, Josef Bacik <jbacik@fb.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 037/121] tracing: Set kernel_stacks caller size properly
 Date:   Tue, 29 Sep 2020 12:59:41 +0200
-Message-Id: <20200929105938.667832315@linuxfoundation.org>
+Message-Id: <20200929105932.024647110@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Hansen <dave.hansen@linux.intel.com>
+From: Josef Bacik <jbacik@fb.com>
 
-[ Upstream commit 16171bffc829272d5e6014bad48f680cb50943d9 ]
+[ Upstream commit cbc3b92ce037f5e7536f6db157d185cd8b8f615c ]
 
-Alex Shi reported the pkey macros above arch_set_user_pkey_access()
-to be unused.  They are unused, and even refer to a nonexistent
-CONFIG option.
+I noticed when trying to use the trace-cmd python interface that reading the raw
+buffer wasn't working for kernel_stack events.  This is because it uses a
+stubbed version of __dynamic_array that doesn't do the __data_loc trick and
+encode the length of the array into the field.  Instead it just shows up as a
+size of 0.  So change this to __array and set the len to FTRACE_STACK_ENTRIES
+since this is what we actually do in practice and matches how user_stack_trace
+works.
 
-But, they might have served a good use, which was to ensure that
-the code does not try to set values that would not fit in the
-PKRU register.  As it stands, a too-large 'pkey' value would
-be likely to silently overflow the u32 new_pkru_bits.
+Link: http://lkml.kernel.org/r/1411589652-1318-1-git-send-email-jbacik@fb.com
 
-Add a check to look for overflows.  Also add a comment to remind
-any future developer to closely examine the types used to store
-pkey values if arch_max_pkey() ever changes.
-
-This boots and passes the x86 pkey selftests.
-
-Reported-by: Alex Shi <alex.shi@linux.alibaba.com>
-Signed-off-by: Dave Hansen <dave.hansen@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200122165346.AD4DA150@viggo.jf.intel.com
+Signed-off-by: Josef Bacik <jbacik@fb.com>
+[ Pulled from the archeological digging of my INBOX ]
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/pkeys.h | 5 +++++
- arch/x86/kernel/fpu/xstate.c | 9 +++++++--
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ kernel/trace/trace_entries.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/pkeys.h b/arch/x86/include/asm/pkeys.h
-index 851c04b7a0922..1572a436bc087 100644
---- a/arch/x86/include/asm/pkeys.h
-+++ b/arch/x86/include/asm/pkeys.h
-@@ -4,6 +4,11 @@
+diff --git a/kernel/trace/trace_entries.h b/kernel/trace/trace_entries.h
+index d1cc37e78f997..1430f6bbb1a07 100644
+--- a/kernel/trace/trace_entries.h
++++ b/kernel/trace/trace_entries.h
+@@ -178,7 +178,7 @@ FTRACE_ENTRY(kernel_stack, stack_entry,
  
- #define ARCH_DEFAULT_PKEY	0
+ 	F_STRUCT(
+ 		__field(	int,		size	)
+-		__dynamic_array(unsigned long,	caller	)
++		__array(	unsigned long,	caller,	FTRACE_STACK_ENTRIES	)
+ 	),
  
-+/*
-+ * If more than 16 keys are ever supported, a thorough audit
-+ * will be necessary to ensure that the types that store key
-+ * numbers and masks have sufficient capacity.
-+ */
- #define arch_max_pkey() (boot_cpu_has(X86_FEATURE_OSPKE) ? 16 : 1)
- 
- extern int arch_set_user_pkey_access(struct task_struct *tsk, int pkey,
-diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
-index 4b900035f2202..601a5da1d196a 100644
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -907,8 +907,6 @@ const void *get_xsave_field_ptr(int xsave_state)
- 
- #ifdef CONFIG_ARCH_HAS_PKEYS
- 
--#define NR_VALID_PKRU_BITS (CONFIG_NR_PROTECTION_KEYS * 2)
--#define PKRU_VALID_MASK (NR_VALID_PKRU_BITS - 1)
- /*
-  * This will go out and modify PKRU register to set the access
-  * rights for @pkey to @init_val.
-@@ -927,6 +925,13 @@ int arch_set_user_pkey_access(struct task_struct *tsk, int pkey,
- 	if (!boot_cpu_has(X86_FEATURE_OSPKE))
- 		return -EINVAL;
- 
-+	/*
-+	 * This code should only be called with valid 'pkey'
-+	 * values originating from in-kernel users.  Complain
-+	 * if a bad value is observed.
-+	 */
-+	WARN_ON_ONCE(pkey >= arch_max_pkey());
-+
- 	/* Set the bits we need in PKRU:  */
- 	if (init_val & PKEY_DISABLE_ACCESS)
- 		new_pkru_bits |= PKRU_AD_BIT;
+ 	F_printk("\t=> (" IP_FMT ")\n\t=> (" IP_FMT ")\n\t=> (" IP_FMT ")\n"
 -- 
 2.25.1
 
