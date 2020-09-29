@@ -2,60 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B42E527C6F3
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF14827C6F1
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:50:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730981AbgI2LuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:50:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53284 "EHLO mail.kernel.org"
+        id S1728993AbgI2LuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:50:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730693AbgI2Ltn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:49:43 -0400
+        id S1731246AbgI2Ltp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:49:45 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97267206E5;
-        Tue, 29 Sep 2020 11:49:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B784F2074A;
+        Tue, 29 Sep 2020 11:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380182;
-        bh=BXFziaoNC9vKzAqRBI2dkwH2et7Ahqf3qH3p8PN96cc=;
+        s=default; t=1601380184;
+        bh=i0QG7aoL1XIU3Ur52eFi/co9Xg6Mr1n7g+3XEwCAy4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cmiC8jOTWrX7p6Chl+vfOWgJ8A9H492MSoWuq6wvpEdqekmVxanm1gD/Waz4Lrqmb
-         QNSV7/caTwegoQHIurYz+Yw3OTB8AsTsTNffLeXgIMqrE+5mnd4AmsXJPP7oyR2X0V
-         NvIPF5gY248y18jwK4Lj0Cx+9oiOoN9ghaKFiLcI=
+        b=m0G2sNv+J0RAnc/3JBp5DJNt1f0SGXgT3zjHEz8sE+A965sasbHzQ1a6ia9koGG6Z
+         WsYNe1n11U2PKRbvQPuYD8YMiqOm0eAyDm+AQsqfRH1RJwuY51Njj/Dy2BKP5aJcSB
+         idvhcqzVUp195sBrKF1uIYchESJTAZOrz3EJkaTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH 5.8 92/99] mm/gup: fix gup_fast with dynamic page table folding
-Date:   Tue, 29 Sep 2020 13:02:15 +0200
-Message-Id: <20200929105934.272186896@linuxfoundation.org>
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Scott Cheloha <cheloha@linux.ibm.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.8 93/99] mm: replace memmap_context by meminit_context
+Date:   Tue, 29 Sep 2020 13:02:16 +0200
+Message-Id: <20200929105934.325620504@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
 References: <20200929105929.719230296@linuxfoundation.org>
@@ -67,266 +51,233 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Laurent Dufour <ldufour@linux.ibm.com>
 
-commit d3f7b1bb204099f2f7306318896223e8599bb6a2 upstream.
+commit c1d0da83358a2316d9be7f229f26126dbaa07468 upstream.
 
-Currently to make sure that every page table entry is read just once
-gup_fast walks perform READ_ONCE and pass pXd value down to the next
-gup_pXd_range function by value e.g.:
+Patch series "mm: fix memory to node bad links in sysfs", v3.
 
-  static int gup_pud_range(p4d_t p4d, unsigned long addr, unsigned long end,
-                           unsigned int flags, struct page **pages, int *nr)
-  ...
-          pudp = pud_offset(&p4d, addr);
+Sometimes, firmware may expose interleaved memory layout like this:
 
-This function passes a reference on that local value copy to pXd_offset,
-and might get the very same pointer in return.  This happens when the
-level is folded (on most arches), and that pointer should not be
-iterated.
+ Early memory node ranges
+   node   1: [mem 0x0000000000000000-0x000000011fffffff]
+   node   2: [mem 0x0000000120000000-0x000000014fffffff]
+   node   1: [mem 0x0000000150000000-0x00000001ffffffff]
+   node   0: [mem 0x0000000200000000-0x000000048fffffff]
+   node   2: [mem 0x0000000490000000-0x00000007ffffffff]
 
-On s390 due to the fact that each task might have different 5,4 or
-3-level address translation and hence different levels folded the logic
-is more complex and non-iteratable pointer to a local copy leads to
-severe problems.
+In that case, we can see memory blocks assigned to multiple nodes in
+sysfs:
 
-Here is an example of what happens with gup_fast on s390, for a task
-with 3-level paging, crossing a 2 GB pud boundary:
+  $ ls -l /sys/devices/system/memory/memory21
+  total 0
+  lrwxrwxrwx 1 root root     0 Aug 24 05:27 node1 -> ../../node/node1
+  lrwxrwxrwx 1 root root     0 Aug 24 05:27 node2 -> ../../node/node2
+  -rw-r--r-- 1 root root 65536 Aug 24 05:27 online
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 phys_device
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 phys_index
+  drwxr-xr-x 2 root root     0 Aug 24 05:27 power
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 removable
+  -rw-r--r-- 1 root root 65536 Aug 24 05:27 state
+  lrwxrwxrwx 1 root root     0 Aug 24 05:25 subsystem -> ../../../../bus/memory
+  -rw-r--r-- 1 root root 65536 Aug 24 05:25 uevent
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 valid_zones
 
-  // addr = 0x1007ffff000, end = 0x10080001000
-  static int gup_pud_range(p4d_t p4d, unsigned long addr, unsigned long end,
-                           unsigned int flags, struct page **pages, int *nr)
-  {
-        unsigned long next;
-        pud_t *pudp;
+The same applies in the node's directory with a memory21 link in both
+the node1 and node2's directory.
 
-        // pud_offset returns &p4d itself (a pointer to a value on stack)
-        pudp = pud_offset(&p4d, addr);
-        do {
-                // on second iteratation reading "random" stack value
-                pud_t pud = READ_ONCE(*pudp);
+This is wrong but doesn't prevent the system to run.  However when
+later, one of these memory blocks is hot-unplugged and then hot-plugged,
+the system is detecting an inconsistency in the sysfs layout and a
+BUG_ON() is raised:
 
-                // next = 0x10080000000, due to PUD_SIZE/MASK != PGDIR_SIZE/MASK on s390
-                next = pud_addr_end(addr, end);
-                ...
-        } while (pudp++, addr = next, addr != end); // pudp++ iterating over stack
+  kernel BUG at /Users/laurent/src/linux-ppc/mm/memory_hotplug.c:1084!
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in: rpadlpar_io rpaphp pseries_rng rng_core vmx_crypto gf128mul binfmt_misc ip_tables x_tables xfs libcrc32c crc32c_vpmsum autofs4
+  CPU: 8 PID: 10256 Comm: drmgr Not tainted 5.9.0-rc1+ #25
+  Call Trace:
+    add_memory_resource+0x23c/0x340 (unreliable)
+    __add_memory+0x5c/0xf0
+    dlpar_add_lmb+0x1b4/0x500
+    dlpar_memory+0x1f8/0xb80
+    handle_dlpar_errorlog+0xc0/0x190
+    dlpar_store+0x198/0x4a0
+    kobj_attr_store+0x30/0x50
+    sysfs_kf_write+0x64/0x90
+    kernfs_fop_write+0x1b0/0x290
+    vfs_write+0xe8/0x290
+    ksys_write+0xdc/0x130
+    system_call_exception+0x160/0x270
+    system_call_common+0xf0/0x27c
 
-        return 1;
-  }
+This has been seen on PowerPC LPAR.
 
-This happens since s390 moved to common gup code with commit
-d1874a0c2805 ("s390/mm: make the pxd_offset functions more robust") and
-commit 1a42010cdc26 ("s390/mm: convert to the generic
-get_user_pages_fast code").
+The root cause of this issue is that when node's memory is registered,
+the range used can overlap another node's range, thus the memory block
+is registered to multiple nodes in sysfs.
 
-s390 tried to mimic static level folding by changing pXd_offset
-primitives to always calculate top level page table offset in pgd_offset
-and just return the value passed when pXd_offset has to act as folded.
+There are two issues here:
 
-What is crucial for gup_fast and what has been overlooked is that
-PxD_SIZE/MASK and thus pXd_addr_end should also change correspondingly.
-And the latter is not possible with dynamic folding.
+ (a) The sysfs memory and node's layouts are broken due to these
+     multiple links
 
-To fix the issue in addition to pXd values pass original pXdp pointers
-down to gup_pXd_range functions.  And introduce pXd_offset_lockless
-helpers, which take an additional pXd entry value parameter.  This has
-already been discussed in
+ (b) The link errors in link_mem_sections() should not lead to a system
+     panic.
 
-  https://lkml.kernel.org/r/20190418100218.0a4afd51@mschwideX1
+To address (a) register_mem_sect_under_node should not rely on the
+system state to detect whether the link operation is triggered by a hot
+plug operation or not.  This is addressed by the patches 1 and 2 of this
+series.
 
-Fixes: 1a42010cdc26 ("s390/mm: convert to the generic get_user_pages_fast code")
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Issue (b) will be addressed separately.
+
+This patch (of 2):
+
+The memmap_context enum is used to detect whether a memory operation is
+due to a hot-add operation or happening at boot time.
+
+Make it general to the hotplug operation and rename it as
+meminit_context.
+
+There is no functional change introduced by this patch
+
+Suggested-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: <stable@vger.kernel.org>	[5.2+]
-Link: https://lkml.kernel.org/r/patch.git-943f1e5dcff2.your-ad-here.call-01599856292-ext-8676@work.hours
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J . Wysocki" <rafael@kernel.org>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Scott Cheloha <cheloha@linux.ibm.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200915094143.79181-1-ldufour@linux.ibm.com
+Link: https://lkml.kernel.org/r/20200915132624.9723-1-ldufour@linux.ibm.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/include/asm/pgtable.h |   42 ++++++++++++++++++++++++++++------------
- include/linux/pgtable.h         |   10 +++++++++
- mm/gup.c                        |   18 ++++++++---------
- 3 files changed, 49 insertions(+), 21 deletions(-)
+ arch/ia64/mm/init.c    |    6 +++---
+ include/linux/mm.h     |    2 +-
+ include/linux/mmzone.h |   11 ++++++++---
+ mm/memory_hotplug.c    |    2 +-
+ mm/page_alloc.c        |   10 +++++-----
+ 5 files changed, 18 insertions(+), 13 deletions(-)
 
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1260,26 +1260,44 @@ static inline pgd_t *pgd_offset_raw(pgd_
- 
- #define pgd_offset(mm, address) pgd_offset_raw(READ_ONCE((mm)->pgd), address)
- 
--static inline p4d_t *p4d_offset(pgd_t *pgd, unsigned long address)
-+static inline p4d_t *p4d_offset_lockless(pgd_t *pgdp, pgd_t pgd, unsigned long address)
- {
--	if ((pgd_val(*pgd) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R1)
--		return (p4d_t *) pgd_deref(*pgd) + p4d_index(address);
--	return (p4d_t *) pgd;
-+	if ((pgd_val(pgd) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R1)
-+		return (p4d_t *) pgd_deref(pgd) + p4d_index(address);
-+	return (p4d_t *) pgdp;
+--- a/arch/ia64/mm/init.c
++++ b/arch/ia64/mm/init.c
+@@ -538,7 +538,7 @@ virtual_memmap_init(u64 start, u64 end,
+ 	if (map_start < map_end)
+ 		memmap_init_zone((unsigned long)(map_end - map_start),
+ 				 args->nid, args->zone, page_to_pfn(map_start),
+-				 MEMMAP_EARLY, NULL);
++				 MEMINIT_EARLY, NULL);
+ 	return 0;
  }
-+#define p4d_offset_lockless p4d_offset_lockless
  
--static inline pud_t *pud_offset(p4d_t *p4d, unsigned long address)
-+static inline p4d_t *p4d_offset(pgd_t *pgdp, unsigned long address)
+@@ -547,8 +547,8 @@ memmap_init (unsigned long size, int nid
+ 	     unsigned long start_pfn)
  {
--	if ((p4d_val(*p4d) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R2)
--		return (pud_t *) p4d_deref(*p4d) + pud_index(address);
--	return (pud_t *) p4d;
-+	return p4d_offset_lockless(pgdp, *pgdp, address);
-+}
+ 	if (!vmem_map) {
+-		memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY,
+-				NULL);
++		memmap_init_zone(size, nid, zone, start_pfn,
++				 MEMINIT_EARLY, NULL);
+ 	} else {
+ 		struct page *start;
+ 		struct memmap_init_callback_data args;
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2445,7 +2445,7 @@ extern int __meminit __early_pfn_to_nid(
+ 
+ extern void set_dma_reserve(unsigned long new_dma_reserve);
+ extern void memmap_init_zone(unsigned long, int, unsigned long, unsigned long,
+-		enum memmap_context, struct vmem_altmap *);
++		enum meminit_context, struct vmem_altmap *);
+ extern void setup_per_zone_wmarks(void);
+ extern int __meminit init_per_zone_wmark_min(void);
+ extern void mem_init(void);
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -799,10 +799,15 @@ bool zone_watermark_ok(struct zone *z, u
+ 		unsigned int alloc_flags);
+ bool zone_watermark_ok_safe(struct zone *z, unsigned int order,
+ 		unsigned long mark, int highest_zoneidx);
+-enum memmap_context {
+-	MEMMAP_EARLY,
+-	MEMMAP_HOTPLUG,
++/*
++ * Memory initialization context, use to differentiate memory added by
++ * the platform statically or via memory hotplug interface.
++ */
++enum meminit_context {
++	MEMINIT_EARLY,
++	MEMINIT_HOTPLUG,
+ };
 +
-+static inline pud_t *pud_offset_lockless(p4d_t *p4dp, p4d_t p4d, unsigned long address)
-+{
-+	if ((p4d_val(p4d) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R2)
-+		return (pud_t *) p4d_deref(p4d) + pud_index(address);
-+	return (pud_t *) p4dp;
-+}
-+#define pud_offset_lockless pud_offset_lockless
-+
-+static inline pud_t *pud_offset(p4d_t *p4dp, unsigned long address)
-+{
-+	return pud_offset_lockless(p4dp, *p4dp, address);
- }
- #define pud_offset pud_offset
+ extern void init_currently_empty_zone(struct zone *zone, unsigned long start_pfn,
+ 				     unsigned long size);
  
--static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
-+static inline pmd_t *pmd_offset_lockless(pud_t *pudp, pud_t pud, unsigned long address)
-+{
-+	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R3)
-+		return (pmd_t *) pud_deref(pud) + pmd_index(address);
-+	return (pmd_t *) pudp;
-+}
-+#define pmd_offset_lockless pmd_offset_lockless
-+
-+static inline pmd_t *pmd_offset(pud_t *pudp, unsigned long address)
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -719,7 +719,7 @@ void __ref move_pfn_range_to_zone(struct
+ 	 * are reserved so nobody should be touching them so we should be safe
+ 	 */
+ 	memmap_init_zone(nr_pages, nid, zone_idx(zone), start_pfn,
+-			MEMMAP_HOTPLUG, altmap);
++			 MEMINIT_HOTPLUG, altmap);
+ 
+ 	set_zone_contiguous(zone);
+ }
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5952,7 +5952,7 @@ overlap_memmap_init(unsigned long zone,
+  * done. Non-atomic initialization, single-pass.
+  */
+ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+-		unsigned long start_pfn, enum memmap_context context,
++		unsigned long start_pfn, enum meminit_context context,
+ 		struct vmem_altmap *altmap)
  {
--	if ((pud_val(*pud) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R3)
--		return (pmd_t *) pud_deref(*pud) + pmd_index(address);
--	return (pmd_t *) pud;
-+	return pmd_offset_lockless(pudp, *pudp, address);
- }
- #define pmd_offset pmd_offset
+ 	unsigned long pfn, end_pfn = start_pfn + size;
+@@ -5984,7 +5984,7 @@ void __meminit memmap_init_zone(unsigned
+ 		 * There can be holes in boot-time mem_map[]s handed to this
+ 		 * function.  They do not exist on hotplugged memory.
+ 		 */
+-		if (context == MEMMAP_EARLY) {
++		if (context == MEMINIT_EARLY) {
+ 			if (overlap_memmap_init(zone, &pfn))
+ 				continue;
+ 			if (defer_init(nid, pfn, end_pfn))
+@@ -5993,7 +5993,7 @@ void __meminit memmap_init_zone(unsigned
  
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -1424,6 +1424,16 @@ typedef unsigned int pgtbl_mod_mask;
- #define mm_pmd_folded(mm)	__is_defined(__PAGETABLE_PMD_FOLDED)
- #endif
+ 		page = pfn_to_page(pfn);
+ 		__init_single_page(page, pfn, zone, nid);
+-		if (context == MEMMAP_HOTPLUG)
++		if (context == MEMINIT_HOTPLUG)
+ 			__SetPageReserved(page);
  
-+#ifndef p4d_offset_lockless
-+#define p4d_offset_lockless(pgdp, pgd, address) p4d_offset(&(pgd), address)
-+#endif
-+#ifndef pud_offset_lockless
-+#define pud_offset_lockless(p4dp, p4d, address) pud_offset(&(p4d), address)
-+#endif
-+#ifndef pmd_offset_lockless
-+#define pmd_offset_lockless(pudp, pud, address) pmd_offset(&(pud), address)
-+#endif
-+
- /*
-  * p?d_leaf() - true if this entry is a final mapping to a physical address.
-  * This differs from p?d_huge() by the fact that they are always available (if
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2574,13 +2574,13 @@ static int gup_huge_pgd(pgd_t orig, pgd_
- 	return 1;
- }
- 
--static int gup_pmd_range(pud_t pud, unsigned long addr, unsigned long end,
-+static int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr, unsigned long end,
- 		unsigned int flags, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	pmd_t *pmdp;
- 
--	pmdp = pmd_offset(&pud, addr);
-+	pmdp = pmd_offset_lockless(pudp, pud, addr);
- 	do {
- 		pmd_t pmd = READ_ONCE(*pmdp);
- 
-@@ -2617,13 +2617,13 @@ static int gup_pmd_range(pud_t pud, unsi
- 	return 1;
- }
- 
--static int gup_pud_range(p4d_t p4d, unsigned long addr, unsigned long end,
-+static int gup_pud_range(p4d_t *p4dp, p4d_t p4d, unsigned long addr, unsigned long end,
- 			 unsigned int flags, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	pud_t *pudp;
- 
--	pudp = pud_offset(&p4d, addr);
-+	pudp = pud_offset_lockless(p4dp, p4d, addr);
- 	do {
- 		pud_t pud = READ_ONCE(*pudp);
- 
-@@ -2638,20 +2638,20 @@ static int gup_pud_range(p4d_t p4d, unsi
- 			if (!gup_huge_pd(__hugepd(pud_val(pud)), addr,
- 					 PUD_SHIFT, next, flags, pages, nr))
- 				return 0;
--		} else if (!gup_pmd_range(pud, addr, next, flags, pages, nr))
-+		} else if (!gup_pmd_range(pudp, pud, addr, next, flags, pages, nr))
- 			return 0;
- 	} while (pudp++, addr = next, addr != end);
- 
- 	return 1;
- }
- 
--static int gup_p4d_range(pgd_t pgd, unsigned long addr, unsigned long end,
-+static int gup_p4d_range(pgd_t *pgdp, pgd_t pgd, unsigned long addr, unsigned long end,
- 			 unsigned int flags, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	p4d_t *p4dp;
- 
--	p4dp = p4d_offset(&pgd, addr);
-+	p4dp = p4d_offset_lockless(pgdp, pgd, addr);
- 	do {
- 		p4d_t p4d = READ_ONCE(*p4dp);
- 
-@@ -2663,7 +2663,7 @@ static int gup_p4d_range(pgd_t pgd, unsi
- 			if (!gup_huge_pd(__hugepd(p4d_val(p4d)), addr,
- 					 P4D_SHIFT, next, flags, pages, nr))
- 				return 0;
--		} else if (!gup_pud_range(p4d, addr, next, flags, pages, nr))
-+		} else if (!gup_pud_range(p4dp, p4d, addr, next, flags, pages, nr))
- 			return 0;
- 	} while (p4dp++, addr = next, addr != end);
- 
-@@ -2691,7 +2691,7 @@ static void gup_pgd_range(unsigned long
- 			if (!gup_huge_pd(__hugepd(pgd_val(pgd)), addr,
- 					 PGDIR_SHIFT, next, flags, pages, nr))
- 				return;
--		} else if (!gup_p4d_range(pgd, addr, next, flags, pages, nr))
-+		} else if (!gup_p4d_range(pgdp, pgd, addr, next, flags, pages, nr))
- 			return;
- 	} while (pgdp++, addr = next, addr != end);
+ 		/*
+@@ -6076,7 +6076,7 @@ void __ref memmap_init_zone_device(struc
+ 		 * check here not to call set_pageblock_migratetype() against
+ 		 * pfn out of zone.
+ 		 *
+-		 * Please note that MEMMAP_HOTPLUG path doesn't clear memmap
++		 * Please note that MEMINIT_HOTPLUG path doesn't clear memmap
+ 		 * because this is done early in section_activate()
+ 		 */
+ 		if (!(pfn & (pageblock_nr_pages - 1))) {
+@@ -6114,7 +6114,7 @@ void __meminit __weak memmap_init(unsign
+ 		if (end_pfn > start_pfn) {
+ 			size = end_pfn - start_pfn;
+ 			memmap_init_zone(size, nid, zone, start_pfn,
+-					 MEMMAP_EARLY, NULL);
++					 MEMINIT_EARLY, NULL);
+ 		}
+ 	}
  }
 
 
