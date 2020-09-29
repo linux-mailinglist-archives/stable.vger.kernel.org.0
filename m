@@ -2,46 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 842DD27C575
+	by mail.lfdr.de (Postfix) with ESMTP id CF1AD27C576
 	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728652AbgI2Lfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729854AbgI2Lfx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 29 Sep 2020 07:35:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729872AbgI2Lfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729871AbgI2Lfg (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:35:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6840F23A9F;
-        Tue, 29 Sep 2020 11:21:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFE1A23AA1;
+        Tue, 29 Sep 2020 11:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378517;
-        bh=zivPMAu8jkBPM8BZpt+TkETyOcRAQFI9etCUOvmfXVI=;
+        s=default; t=1601378526;
+        bh=64VOfE9/+OA65A6IGYIhcvmlZseuy8KUgWCKGTp63J8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XOhXb1+dB8Nwtdgrc79IkNknVRoxBa0/TjqiTnLRYpoLFLbr/QCktGnPHJV34znTE
-         g8ztpkRguu/kbcvICDnEeOVKMcy/+GGETOuqBku8QPnpgMzw5wzaQmi+bHbsW0whkJ
-         AiyQdsPH+UELmIn4NaO5I8Vvy86BZYjpSAvNT2A0=
+        b=0ZwjhBxgTJ/s+eGq5yylh1iYzTmUiM6MQ4ZU4VJdrYzkY4qXK3sESZ+U/3RjGhDq8
+         IrKu+v+8LU0YWfC/ZLM6VQZqnF1Jec6V4QSdHnKgl1ef7oMHUrA06kbVxjCbKaxFwU
+         jhSEi7kr5Rn6V9Z1tuKAsGYNGFu6gXPX1UjtQte0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dan Williams <dan.j.wiilliams@intel.com>,
-        Jan Kara <jack@suse.cz>, Jeff Moyer <jmoyer@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Toshi Kani <toshi.kani@hpe.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Matthew Wilcox <mawilcox@microsoft.com>,
-        Ross Zwisler <ross.zwisler@linux.intel.com>,
-        Ingo Molnar <mingo@elte.hu>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 012/245] arch/x86/lib/usercopy_64.c: fix __copy_user_flushcache() cache writeback
-Date:   Tue, 29 Sep 2020 12:57:43 +0200
-Message-Id: <20200929105947.589229658@linuxfoundation.org>
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 015/245] ALSA: hda/realtek - Couldnt detect Mic if booting with headset plugged
+Date:   Tue, 29 Sep 2020 12:57:46 +0200
+Message-Id: <20200929105947.732203702@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -53,49 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit a1cd6c2ae47ee10ff21e62475685d5b399e2ed4a upstream.
+commit 3f74249057827c5f6676c41c18f6be12ce1469ce upstream.
 
-If we copy less than 8 bytes and if the destination crosses a cache
-line, __copy_user_flushcache would invalidate only the first cache line.
+We found a Mic detection issue on many Lenovo laptops, those laptops
+belong to differnt models and they have different audio design like
+internal mic connects to the codec or PCH, they all have this problem,
+the problem is if plugging a headset before powerup/reboot the
+machine, after booting up, the headphone could be detected but Mic
+couldn't. If we plug out and plug in the headset, both headphone and
+Mic could be detected then.
 
-This patch makes it invalidate the second cache line as well.
+Through debugging we found the codec on those laptops are same, it is
+alc257, and if we don't disable the 3k pulldown in alc256_shutup(),
+the issue will be fixed. So far there is no pop noise or power
+consumption regression on those laptops after this change.
 
-Fixes: 0aed55af88345b ("x86, uaccess: introduce copy_from_iter_flushcache for pmem / cache-bypass operations")
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Dan Williams <dan.j.wiilliams@intel.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Jeff Moyer <jmoyer@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Matthew Wilcox <mawilcox@microsoft.com>
-Cc: Ross Zwisler <ross.zwisler@linux.intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Kailang Yang <kailang@realtek.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/alpine.LRH.2.02.2009161451140.21915@file01.intranet.prod.int.rdu2.redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20200914065118.19238-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/lib/usercopy_64.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/x86/lib/usercopy_64.c
-+++ b/arch/x86/lib/usercopy_64.c
-@@ -139,7 +139,7 @@ long __copy_user_flushcache(void *dst, c
- 	 */
- 	if (size < 8) {
- 		if (!IS_ALIGNED(dest, 4) || size != 4)
--			clean_cache_range(dst, 1);
-+			clean_cache_range(dst, size);
- 	} else {
- 		if (!IS_ALIGNED(dest, 8)) {
- 			dest = ALIGN(dest, boot_cpu_data.x86_clflush_size);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -3290,7 +3290,11 @@ static void alc256_shutup(struct hda_cod
+ 
+ 	/* 3k pull low control for Headset jack. */
+ 	/* NOTE: call this before clearing the pin, otherwise codec stalls */
+-	alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
++	/* If disable 3k pulldown control for alc257, the Mic detection will not work correctly
++	 * when booting with headset plugged. So skip setting it for the codec alc257
++	 */
++	if (codec->core.vendor_id != 0x10ec0257)
++		alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
+ 
+ 	if (!spec->no_shutup_pins)
+ 		snd_hda_codec_write(codec, hp_pin, 0,
 
 
