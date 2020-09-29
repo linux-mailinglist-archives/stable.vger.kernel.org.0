@@ -2,39 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7353227CA91
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:22:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0222327C8AE
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:04:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729875AbgI2MUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:20:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48450 "EHLO mail.kernel.org"
+        id S1730749AbgI2MDy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:03:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729884AbgI2Lfg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:35:36 -0400
+        id S1729520AbgI2Lie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:38:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 985102395A;
-        Tue, 29 Sep 2020 11:21:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8EF6221E8;
+        Tue, 29 Sep 2020 11:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378510;
-        bh=RZEDZn5yhqikV8MmM00cB4OMsJcIOe9ajD/0Lno2pkk=;
+        s=default; t=1601379492;
+        bh=BiouPKCrG2nElZXDM6x8aHBIiaJckJhpU6dfa35QRNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y1OC3IfseX12DITNEpbvBf3KR33pHB6++gdO7VT35+19yE5vxvoIcakrGtb+IYh7L
-         3u7wP2llbJCYZFXXBmLyTTLNXY310eqA5rexFAGT3LUA/V7dha6bs1UXZm3bnRdj6D
-         eT0i2AfqcVtJR84zIlCdDmYf6L7r3RBLr9OjT4oo=
+        b=OWiigoTXvMOFIFavMwXwGi6Saup3i/pY3F3HHynwY7GpjgMmge/q5EJ0wE5AcKkxH
+         57k5cAwLqRqvne4iEIvRW3mSyjaezT1B/ACzh2JqvTFVNaxx5I2ckyhx+Vj1CxZzWO
+         8QCaf4cMFUlMVYw99qfmgxtyUAe1Excf7ep95nYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bradley Bolen <bradleybolen@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Mike Leach <mike.leach@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Robert Walker <robert.walker@arm.com>,
+        Suzuki Poulouse <suzuki.poulose@arm.com>,
+        coresight ml <coresight@lists.linaro.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 038/245] mmc: core: Fix size overflow for mmc partitions
+Subject: [PATCH 5.4 158/388] perf cs-etm: Swap packets for instruction samples
 Date:   Tue, 29 Sep 2020 12:58:09 +0200
-Message-Id: <20200929105948.852322801@linuxfoundation.org>
+Message-Id: <20200929110018.124329183@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +54,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bradley Bolen <bradleybolen@gmail.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit f3d7c2292d104519195fdb11192daec13229c219 ]
+[ Upstream commit d01751563caf0dec7be36f81de77cc0197b77e59 ]
 
-With large eMMC cards, it is possible to create general purpose
-partitions that are bigger than 4GB.  The size member of the mmc_part
-struct is only an unsigned int which overflows for gp partitions larger
-than 4GB.  Change this to a u64 to handle the overflow.
+If use option '--itrace=iNNN' with Arm CoreSight trace data, perf tool
+fails inject instruction samples; the root cause is the packets are only
+swapped for branch samples and last branches but not for instruction
+samples, so the new coming packets cannot be properly handled for only
+synthesizing instruction samples.
 
-Signed-off-by: Bradley Bolen <bradleybolen@gmail.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+To fix this issue, this patch refactors the code with a new function
+cs_etm__packet_swap() which is used to swap packets and adds the
+condition for instruction samples.
+
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Reviewed-by: Mike Leach <mike.leach@linaro.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Robert Walker <robert.walker@arm.com>
+Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
+Cc: coresight ml <coresight@lists.linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Link: http://lore.kernel.org/lkml/20200219021811.20067-2-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/mmc.c   | 9 ++++-----
- include/linux/mmc/card.h | 2 +-
- 2 files changed, 5 insertions(+), 6 deletions(-)
+ tools/perf/util/cs-etm.c | 39 +++++++++++++++++++--------------------
+ 1 file changed, 19 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index 5ca53e225382d..4b18034537f53 100644
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -300,7 +300,7 @@ static void mmc_manage_enhanced_area(struct mmc_card *card, u8 *ext_csd)
- 	}
+diff --git a/tools/perf/util/cs-etm.c b/tools/perf/util/cs-etm.c
+index f5f855fff412e..38298cbb07524 100644
+--- a/tools/perf/util/cs-etm.c
++++ b/tools/perf/util/cs-etm.c
+@@ -363,6 +363,23 @@ struct cs_etm_packet_queue
+ 	return NULL;
  }
  
--static void mmc_part_add(struct mmc_card *card, unsigned int size,
-+static void mmc_part_add(struct mmc_card *card, u64 size,
- 			 unsigned int part_cfg, char *name, int idx, bool ro,
- 			 int area_type)
++static void cs_etm__packet_swap(struct cs_etm_auxtrace *etm,
++				struct cs_etm_traceid_queue *tidq)
++{
++	struct cs_etm_packet *tmp;
++
++	if (etm->sample_branches || etm->synth_opts.last_branch ||
++	    etm->sample_instructions) {
++		/*
++		 * Swap PACKET with PREV_PACKET: PACKET becomes PREV_PACKET for
++		 * the next incoming packet.
++		 */
++		tmp = tidq->packet;
++		tidq->packet = tidq->prev_packet;
++		tidq->prev_packet = tmp;
++	}
++}
++
+ static void cs_etm__packet_dump(const char *pkt_string)
  {
-@@ -316,7 +316,7 @@ static void mmc_manage_gp_partitions(struct mmc_card *card, u8 *ext_csd)
+ 	const char *color = PERF_COLOR_BLUE;
+@@ -1340,7 +1357,6 @@ static int cs_etm__sample(struct cs_etm_queue *etmq,
+ 			  struct cs_etm_traceid_queue *tidq)
  {
- 	int idx;
- 	u8 hc_erase_grp_sz, hc_wp_grp_sz;
--	unsigned int part_size;
-+	u64 part_size;
+ 	struct cs_etm_auxtrace *etm = etmq->etm;
+-	struct cs_etm_packet *tmp;
+ 	int ret;
+ 	u8 trace_chan_id = tidq->trace_chan_id;
+ 	u64 instrs_executed = tidq->packet->instr_count;
+@@ -1404,15 +1420,7 @@ static int cs_etm__sample(struct cs_etm_queue *etmq,
+ 		}
+ 	}
  
- 	/*
- 	 * General purpose partition feature support --
-@@ -346,8 +346,7 @@ static void mmc_manage_gp_partitions(struct mmc_card *card, u8 *ext_csd)
- 				(ext_csd[EXT_CSD_GP_SIZE_MULT + idx * 3 + 1]
- 				<< 8) +
- 				ext_csd[EXT_CSD_GP_SIZE_MULT + idx * 3];
--			part_size *= (size_t)(hc_erase_grp_sz *
--				hc_wp_grp_sz);
-+			part_size *= (hc_erase_grp_sz * hc_wp_grp_sz);
- 			mmc_part_add(card, part_size << 19,
- 				EXT_CSD_PART_CONFIG_ACC_GP0 + idx,
- 				"gp%d", idx, false,
-@@ -365,7 +364,7 @@ static void mmc_manage_gp_partitions(struct mmc_card *card, u8 *ext_csd)
- static int mmc_decode_ext_csd(struct mmc_card *card, u8 *ext_csd)
- {
- 	int err = 0, idx;
--	unsigned int part_size;
-+	u64 part_size;
- 	struct device_node *np;
- 	bool broken_hpi = false;
+-	if (etm->sample_branches || etm->synth_opts.last_branch) {
+-		/*
+-		 * Swap PACKET with PREV_PACKET: PACKET becomes PREV_PACKET for
+-		 * the next incoming packet.
+-		 */
+-		tmp = tidq->packet;
+-		tidq->packet = tidq->prev_packet;
+-		tidq->prev_packet = tmp;
+-	}
++	cs_etm__packet_swap(etm, tidq);
  
-diff --git a/include/linux/mmc/card.h b/include/linux/mmc/card.h
-index 8ef330027b134..3f8e84a80b4ad 100644
---- a/include/linux/mmc/card.h
-+++ b/include/linux/mmc/card.h
-@@ -227,7 +227,7 @@ struct mmc_queue_req;
-  * MMC Physical partitions
-  */
- struct mmc_part {
--	unsigned int	size;	/* partition size (in bytes) */
-+	u64		size;	/* partition size (in bytes) */
- 	unsigned int	part_cfg;	/* partition type */
- 	char	name[MAX_MMC_PART_NAME_LEN];
- 	bool	force_ro;	/* to make boot parts RO by default */
+ 	return 0;
+ }
+@@ -1441,7 +1449,6 @@ static int cs_etm__flush(struct cs_etm_queue *etmq,
+ {
+ 	int err = 0;
+ 	struct cs_etm_auxtrace *etm = etmq->etm;
+-	struct cs_etm_packet *tmp;
+ 
+ 	/* Handle start tracing packet */
+ 	if (tidq->prev_packet->sample_type == CS_ETM_EMPTY)
+@@ -1476,15 +1483,7 @@ static int cs_etm__flush(struct cs_etm_queue *etmq,
+ 	}
+ 
+ swap_packet:
+-	if (etm->sample_branches || etm->synth_opts.last_branch) {
+-		/*
+-		 * Swap PACKET with PREV_PACKET: PACKET becomes PREV_PACKET for
+-		 * the next incoming packet.
+-		 */
+-		tmp = tidq->packet;
+-		tidq->packet = tidq->prev_packet;
+-		tidq->prev_packet = tmp;
+-	}
++	cs_etm__packet_swap(etm, tidq);
+ 
+ 	return err;
+ }
 -- 
 2.25.1
 
