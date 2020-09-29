@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 289B527C5E8
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 799C227C835
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730511AbgI2LkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:40:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35220 "EHLO mail.kernel.org"
+        id S1731315AbgI2L74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:59:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729227AbgI2LkA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:40:00 -0400
+        id S1730583AbgI2Lky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:40:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2659021D46;
-        Tue, 29 Sep 2020 11:39:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15B46206F7;
+        Tue, 29 Sep 2020 11:40:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379599;
-        bh=AjbrJZmdKW8Io62ezgRXv08rXauDQyVkXIB2fU8/tOE=;
+        s=default; t=1601379633;
+        bh=hQzgCEQXCPPfm/nUC4Z/h/yFQmbA9POxouv97PfeJ7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ReqJNw6sHM2qsun/Hq3zBrEN3K0df1q4NX+i3+CqhYt20LAuqkRaTDpjLgDsNgVDQ
-         hiEj1cYYXRuTowwcyLTObpkLd3sLq6S/2x/EtuvaQV4qfllB7jRFHscAaOcWtWc1fU
-         L930ZfdYWEI7lgLK2Kn7bb/Il1EG/EHHEchYMk5U=
+        b=sQ7KOuSFdOujg2HFWP40Y1CXtbp+++DJ2EascRdDug808cZLmkBYC9eltjo5gOL2P
+         3pro6m7aZdrr+pe49mWI3yDXFzEvHOE7L5EO3M86k4ZzRZZSQJ1HqmMssqMZArAMpl
+         D/hNnpTBbfGcb3fURXqwjIxFUOGgZ6Bw0+3qd9Bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anju T Sudhakar <anju@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Xianting Tian <xianting_tian@126.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Jan Kara <jack@suse.cz>, yubin@h3c.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 218/388] powerpc/perf: Implement a global lock to avoid races between trace, core and thread imc events.
-Date:   Tue, 29 Sep 2020 12:59:09 +0200
-Message-Id: <20200929110021.027708640@linuxfoundation.org>
+Subject: [PATCH 5.4 220/388] mm/filemap.c: clear page error before actual read
+Date:   Tue, 29 Sep 2020 12:59:11 +0200
+Message-Id: <20200929110021.125697414@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,337 +46,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+From: Xianting Tian <xianting_tian@126.com>
 
-[ Upstream commit a36e8ba60b991d563677227f172db69e030797e6 ]
+[ Upstream commit faffdfa04fa11ccf048cebdde73db41ede0679e0 ]
 
-IMC(In-memory Collection Counters) does performance monitoring in
-two different modes, i.e accumulation mode(core-imc and thread-imc events),
-and trace mode(trace-imc events). A cpu thread can either be in
-accumulation-mode or trace-mode at a time and this is done via the LDBAR
-register in POWER architecture. The current design does not address the
-races between thread-imc and trace-imc events.
+Mount failure issue happens under the scenario: Application forked dozens
+of threads to mount the same number of cramfs images separately in docker,
+but several mounts failed with high probability.  Mount failed due to the
+checking result of the page(read from the superblock of loop dev) is not
+uptodate after wait_on_page_locked(page) returned in function cramfs_read:
 
-Patch implements a global id and lock to avoid the races between
-core, trace and thread imc events. With this global id-lock
-implementation, the system can either run core, thread or trace imc
-events at a time. i.e. to run any core-imc events, thread/trace imc events
-should not be enabled/monitored.
+   wait_on_page_locked(page);
+   if (!PageUptodate(page)) {
+      ...
+   }
 
-Signed-off-by: Anju T Sudhakar <anju@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200313055238.8656-1-anju@linux.vnet.ibm.com
+The reason of the checking result of the page not uptodate: systemd-udevd
+read the loopX dev before mount, because the status of loopX is Lo_unbound
+at this time, so loop_make_request directly trigger the calling of io_end
+handler end_buffer_async_read, which called SetPageError(page).  So It
+caused the page can't be set to uptodate in function
+end_buffer_async_read:
+
+   if(page_uptodate && !PageError(page)) {
+      SetPageUptodate(page);
+   }
+
+Then mount operation is performed, it used the same page which is just
+accessed by systemd-udevd above, Because this page is not uptodate, it
+will launch a actual read via submit_bh, then wait on this page by calling
+wait_on_page_locked(page).  When the I/O of the page done, io_end handler
+end_buffer_async_read is called, because no one cleared the page
+error(during the whole read path of mount), which is caused by
+systemd-udevd reading, so this page is still in "PageError" status, which
+can't be set to uptodate in function end_buffer_async_read, then caused
+mount failure.
+
+But sometimes mount succeed even through systemd-udeved read loopX dev
+just before, The reason is systemd-udevd launched other loopX read just
+between step 3.1 and 3.2, the steps as below:
+
+1, loopX dev default status is Lo_unbound;
+2, systemd-udved read loopX dev (page is set to PageError);
+3, mount operation
+   1) set loopX status to Lo_bound;
+   ==>systemd-udevd read loopX dev<==
+   2) read loopX dev(page has no error)
+   3) mount succeed
+
+As the loopX dev status is set to Lo_bound after step 3.1, so the other
+loopX dev read by systemd-udevd will go through the whole I/O stack, part
+of the call trace as below:
+
+   SYS_read
+      vfs_read
+          do_sync_read
+              blkdev_aio_read
+                 generic_file_aio_read
+                     do_generic_file_read:
+                        ClearPageError(page);
+                        mapping->a_ops->readpage(filp, page);
+
+here, mapping->a_ops->readpage() is blkdev_readpage.  In latest kernel,
+some function name changed, the call trace as below:
+
+   blkdev_read_iter
+      generic_file_read_iter
+         generic_file_buffered_read:
+            /*
+             * A previous I/O error may have been due to temporary
+             * failures, eg. mutipath errors.
+             * Pg_error will be set again if readpage fails.
+             */
+            ClearPageError(page);
+            /* Start the actual read. The read will unlock the page*/
+            error=mapping->a_ops->readpage(flip, page);
+
+We can see ClearPageError(page) is called before the actual read,
+then the read in step 3.2 succeed.
+
+This patch is to add the calling of ClearPageError just before the actual
+read of read path of cramfs mount.  Without the patch, the call trace as
+below when performing cramfs mount:
+
+   do_mount
+      cramfs_read
+         cramfs_blkdev_read
+            read_cache_page
+               do_read_cache_page:
+                  filler(data, page);
+                  or
+                  mapping->a_ops->readpage(data, page);
+
+With the patch, the call trace as below when performing mount:
+
+   do_mount
+      cramfs_read
+         cramfs_blkdev_read
+            read_cache_page:
+               do_read_cache_page:
+                  ClearPageError(page); <== new add
+                  filler(data, page);
+                  or
+                  mapping->a_ops->readpage(data, page);
+
+With the patch, mount operation trigger the calling of
+ClearPageError(page) before the actual read, the page has no error if no
+additional page error happen when I/O done.
+
+Signed-off-by: Xianting Tian <xianting_tian@126.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Jan Kara <jack@suse.cz>
+Cc: <yubin@h3c.com>
+Link: http://lkml.kernel.org/r/1583318844-22971-1-git-send-email-xianting_tian@126.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/imc-pmu.c | 173 +++++++++++++++++++++++++++++++-----
- 1 file changed, 149 insertions(+), 24 deletions(-)
+ mm/filemap.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
-index cb50a9e1fd2d7..eb82dda884e51 100644
---- a/arch/powerpc/perf/imc-pmu.c
-+++ b/arch/powerpc/perf/imc-pmu.c
-@@ -44,6 +44,16 @@ static DEFINE_PER_CPU(u64 *, trace_imc_mem);
- static struct imc_pmu_ref *trace_imc_refc;
- static int trace_imc_mem_size;
- 
-+/*
-+ * Global data structure used to avoid races between thread,
-+ * core and trace-imc
-+ */
-+static struct imc_pmu_ref imc_global_refc = {
-+	.lock = __MUTEX_INITIALIZER(imc_global_refc.lock),
-+	.id = 0,
-+	.refc = 0,
-+};
-+
- static struct imc_pmu *imc_event_to_pmu(struct perf_event *event)
- {
- 	return container_of(event->pmu, struct imc_pmu, pmu);
-@@ -698,6 +708,16 @@ static int ppc_core_imc_cpu_offline(unsigned int cpu)
- 			return -EINVAL;
- 
- 		ref->refc = 0;
-+		/*
-+		 * Reduce the global reference count, if this is the
-+		 * last cpu in this core and core-imc event running
-+		 * in this cpu.
-+		 */
-+		mutex_lock(&imc_global_refc.lock);
-+		if (imc_global_refc.id == IMC_DOMAIN_CORE)
-+			imc_global_refc.refc--;
-+
-+		mutex_unlock(&imc_global_refc.lock);
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 18c1f58300742..51b2cb5aa5030 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2845,6 +2845,14 @@ filler:
+ 		unlock_page(page);
+ 		goto out;
  	}
- 	return 0;
- }
-@@ -710,6 +730,23 @@ static int core_imc_pmu_cpumask_init(void)
- 				 ppc_core_imc_cpu_offline);
- }
- 
-+static void reset_global_refc(struct perf_event *event)
-+{
-+		mutex_lock(&imc_global_refc.lock);
-+		imc_global_refc.refc--;
 +
-+		/*
-+		 * If no other thread is running any
-+		 * event for this domain(thread/core/trace),
-+		 * set the global id to zero.
-+		 */
-+		if (imc_global_refc.refc <= 0) {
-+			imc_global_refc.refc = 0;
-+			imc_global_refc.id = 0;
-+		}
-+		mutex_unlock(&imc_global_refc.lock);
-+}
-+
- static void core_imc_counters_release(struct perf_event *event)
- {
- 	int rc, core_id;
-@@ -759,6 +796,8 @@ static void core_imc_counters_release(struct perf_event *event)
- 		ref->refc = 0;
- 	}
- 	mutex_unlock(&ref->lock);
-+
-+	reset_global_refc(event);
- }
- 
- static int core_imc_event_init(struct perf_event *event)
-@@ -819,6 +858,29 @@ static int core_imc_event_init(struct perf_event *event)
- 	++ref->refc;
- 	mutex_unlock(&ref->lock);
- 
 +	/*
-+	 * Since the system can run either in accumulation or trace-mode
-+	 * of IMC at a time, core-imc events are allowed only if no other
-+	 * trace/thread imc events are enabled/monitored.
-+	 *
-+	 * Take the global lock, and check the refc.id
-+	 * to know whether any other trace/thread imc
-+	 * events are running.
++	 * A previous I/O error may have been due to temporary
++	 * failures.
++	 * Clear page error before actual read, PG_error will be
++	 * set again if read page fails.
 +	 */
-+	mutex_lock(&imc_global_refc.lock);
-+	if (imc_global_refc.id == 0 || imc_global_refc.id == IMC_DOMAIN_CORE) {
-+		/*
-+		 * No other trace/thread imc events are running in
-+		 * the system, so set the refc.id to core-imc.
-+		 */
-+		imc_global_refc.id = IMC_DOMAIN_CORE;
-+		imc_global_refc.refc++;
-+	} else {
-+		mutex_unlock(&imc_global_refc.lock);
-+		return -EBUSY;
-+	}
-+	mutex_unlock(&imc_global_refc.lock);
-+
- 	event->hw.event_base = (u64)pcmi->vbase + (config & IMC_EVENT_OFFSET_MASK);
- 	event->destroy = core_imc_counters_release;
- 	return 0;
-@@ -877,7 +939,23 @@ static int ppc_thread_imc_cpu_online(unsigned int cpu)
++	ClearPageError(page);
+ 	goto filler;
  
- static int ppc_thread_imc_cpu_offline(unsigned int cpu)
- {
--	mtspr(SPRN_LDBAR, 0);
-+	/*
-+	 * Set the bit 0 of LDBAR to zero.
-+	 *
-+	 * If bit 0 of LDBAR is unset, it will stop posting
-+	 * the counter data to memory.
-+	 * For thread-imc, bit 0 of LDBAR will be set to 1 in the
-+	 * event_add function. So reset this bit here, to stop the updates
-+	 * to memory in the cpu_offline path.
-+	 */
-+	mtspr(SPRN_LDBAR, (mfspr(SPRN_LDBAR) & (~(1UL << 63))));
-+
-+	/* Reduce the refc if thread-imc event running on this cpu */
-+	mutex_lock(&imc_global_refc.lock);
-+	if (imc_global_refc.id == IMC_DOMAIN_THREAD)
-+		imc_global_refc.refc--;
-+	mutex_unlock(&imc_global_refc.lock);
-+
- 	return 0;
- }
- 
-@@ -916,7 +994,22 @@ static int thread_imc_event_init(struct perf_event *event)
- 	if (!target)
- 		return -EINVAL;
- 
-+	mutex_lock(&imc_global_refc.lock);
-+	/*
-+	 * Check if any other trace/core imc events are running in the
-+	 * system, if not set the global id to thread-imc.
-+	 */
-+	if (imc_global_refc.id == 0 || imc_global_refc.id == IMC_DOMAIN_THREAD) {
-+		imc_global_refc.id = IMC_DOMAIN_THREAD;
-+		imc_global_refc.refc++;
-+	} else {
-+		mutex_unlock(&imc_global_refc.lock);
-+		return -EBUSY;
-+	}
-+	mutex_unlock(&imc_global_refc.lock);
-+
- 	event->pmu->task_ctx_nr = perf_sw_context;
-+	event->destroy = reset_global_refc;
- 	return 0;
- }
- 
-@@ -1063,10 +1156,12 @@ static void thread_imc_event_del(struct perf_event *event, int flags)
- 	int core_id;
- 	struct imc_pmu_ref *ref;
- 
--	mtspr(SPRN_LDBAR, 0);
--
- 	core_id = smp_processor_id() / threads_per_core;
- 	ref = &core_imc_refc[core_id];
-+	if (!ref) {
-+		pr_debug("imc: Failed to get event reference count\n");
-+		return;
-+	}
- 
- 	mutex_lock(&ref->lock);
- 	ref->refc--;
-@@ -1082,6 +1177,10 @@ static void thread_imc_event_del(struct perf_event *event, int flags)
- 		ref->refc = 0;
- 	}
- 	mutex_unlock(&ref->lock);
-+
-+	/* Set bit 0 of LDBAR to zero, to stop posting updates to memory */
-+	mtspr(SPRN_LDBAR, (mfspr(SPRN_LDBAR) & (~(1UL << 63))));
-+
- 	/*
- 	 * Take a snapshot and calculate the delta and update
- 	 * the event counter values.
-@@ -1133,7 +1232,18 @@ static int ppc_trace_imc_cpu_online(unsigned int cpu)
- 
- static int ppc_trace_imc_cpu_offline(unsigned int cpu)
- {
--	mtspr(SPRN_LDBAR, 0);
-+	/*
-+	 * No need to set bit 0 of LDBAR to zero, as
-+	 * it is set to zero for imc trace-mode
-+	 *
-+	 * Reduce the refc if any trace-imc event running
-+	 * on this cpu.
-+	 */
-+	mutex_lock(&imc_global_refc.lock);
-+	if (imc_global_refc.id == IMC_DOMAIN_TRACE)
-+		imc_global_refc.refc--;
-+	mutex_unlock(&imc_global_refc.lock);
-+
- 	return 0;
- }
- 
-@@ -1226,15 +1336,14 @@ static int trace_imc_event_add(struct perf_event *event, int flags)
- 	local_mem = get_trace_imc_event_base_addr();
- 	ldbar_value = ((u64)local_mem & THREAD_IMC_LDBAR_MASK) | TRACE_IMC_ENABLE;
- 
--	if (core_imc_refc)
--		ref = &core_imc_refc[core_id];
-+	/* trace-imc reference count */
-+	if (trace_imc_refc)
-+		ref = &trace_imc_refc[core_id];
- 	if (!ref) {
--		/* If core-imc is not enabled, use trace-imc reference count */
--		if (trace_imc_refc)
--			ref = &trace_imc_refc[core_id];
--		if (!ref)
--			return -EINVAL;
-+		pr_debug("imc: Failed to get the event reference count\n");
-+		return -EINVAL;
- 	}
-+
- 	mtspr(SPRN_LDBAR, ldbar_value);
- 	mutex_lock(&ref->lock);
- 	if (ref->refc == 0) {
-@@ -1242,13 +1351,11 @@ static int trace_imc_event_add(struct perf_event *event, int flags)
- 				get_hard_smp_processor_id(smp_processor_id()))) {
- 			mutex_unlock(&ref->lock);
- 			pr_err("trace-imc: Unable to start the counters for core %d\n", core_id);
--			mtspr(SPRN_LDBAR, 0);
- 			return -EINVAL;
- 		}
- 	}
- 	++ref->refc;
- 	mutex_unlock(&ref->lock);
--
- 	return 0;
- }
- 
-@@ -1274,16 +1381,13 @@ static void trace_imc_event_del(struct perf_event *event, int flags)
- 	int core_id = smp_processor_id() / threads_per_core;
- 	struct imc_pmu_ref *ref = NULL;
- 
--	if (core_imc_refc)
--		ref = &core_imc_refc[core_id];
-+	if (trace_imc_refc)
-+		ref = &trace_imc_refc[core_id];
- 	if (!ref) {
--		/* If core-imc is not enabled, use trace-imc reference count */
--		if (trace_imc_refc)
--			ref = &trace_imc_refc[core_id];
--		if (!ref)
--			return;
-+		pr_debug("imc: Failed to get event reference count\n");
-+		return;
- 	}
--	mtspr(SPRN_LDBAR, 0);
-+
- 	mutex_lock(&ref->lock);
- 	ref->refc--;
- 	if (ref->refc == 0) {
-@@ -1297,6 +1401,7 @@ static void trace_imc_event_del(struct perf_event *event, int flags)
- 		ref->refc = 0;
- 	}
- 	mutex_unlock(&ref->lock);
-+
- 	trace_imc_event_stop(event, flags);
- }
- 
-@@ -1314,10 +1419,30 @@ static int trace_imc_event_init(struct perf_event *event)
- 	if (event->attr.sample_period == 0)
- 		return -ENOENT;
- 
-+	/*
-+	 * Take the global lock, and make sure
-+	 * no other thread is running any core/thread imc
-+	 * events
-+	 */
-+	mutex_lock(&imc_global_refc.lock);
-+	if (imc_global_refc.id == 0 || imc_global_refc.id == IMC_DOMAIN_TRACE) {
-+		/*
-+		 * No core/thread imc events are running in the
-+		 * system, so set the refc.id to trace-imc.
-+		 */
-+		imc_global_refc.id = IMC_DOMAIN_TRACE;
-+		imc_global_refc.refc++;
-+	} else {
-+		mutex_unlock(&imc_global_refc.lock);
-+		return -EBUSY;
-+	}
-+	mutex_unlock(&imc_global_refc.lock);
-+
- 	event->hw.idx = -1;
- 	target = event->hw.target;
- 
- 	event->pmu->task_ctx_nr = perf_hw_context;
-+	event->destroy = reset_global_refc;
- 	return 0;
- }
- 
-@@ -1429,10 +1554,10 @@ static void cleanup_all_core_imc_memory(void)
- static void thread_imc_ldbar_disable(void *dummy)
- {
- 	/*
--	 * By Zeroing LDBAR, we disable thread-imc
--	 * updates.
-+	 * By setting 0th bit of LDBAR to zero, we disable thread-imc
-+	 * updates to memory.
- 	 */
--	mtspr(SPRN_LDBAR, 0);
-+	mtspr(SPRN_LDBAR, (mfspr(SPRN_LDBAR) & (~(1UL << 63))));
- }
- 
- void thread_imc_disable(void)
+ out:
 -- 
 2.25.1
 
