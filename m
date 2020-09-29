@@ -2,165 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B78427BFEC
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 10:46:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD6327C014
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 10:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725786AbgI2Iqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 04:46:50 -0400
-Received: from mga18.intel.com ([134.134.136.126]:42765 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727468AbgI2Iqr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 04:46:47 -0400
-IronPort-SDR: PXNrzcsq6ULmZaTvMxSEBmhzZTUZS5KhbiVHh9gPsP8Q/tjXH/ixSEbS/K6JemzxvjhdCIk7cy
- EZSI8CwPf0qg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9758"; a="149921672"
-X-IronPort-AV: E=Sophos;i="5.77,317,1596524400"; 
-   d="scan'208";a="149921672"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Sep 2020 01:46:40 -0700
-IronPort-SDR: k9LKnWLHz0Od/PxyCQK6NcHbUT0UL0q81zOM+LstdQHADOJ+xqrH66P0OFcF501ImDUanCtiMk
- zQKxBA4EzokA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,317,1596524400"; 
-   d="scan'208";a="350149852"
-Received: from gaia.fi.intel.com ([10.237.72.192])
-  by FMSMGA003.fm.intel.com with ESMTP; 29 Sep 2020 01:46:38 -0700
-Received: by gaia.fi.intel.com (Postfix, from userid 1000)
-        id 68DBD5C203D; Tue, 29 Sep 2020 11:45:17 +0300 (EEST)
-From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        "Candelaria\, Jared" <jared.candelaria@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        "Bloomfield\, Jon" <jon.bloomfield@intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915: Avoid mixing integer types during batch copies
-In-Reply-To: <20200928215942.31917-1-chris@chris-wilson.co.uk>
-References: <20200928215942.31917-1-chris@chris-wilson.co.uk>
-Date:   Tue, 29 Sep 2020 11:45:17 +0300
-Message-ID: <87wo0dx97m.fsf@gaia.fi.intel.com>
+        id S1727730AbgI2Iw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 04:52:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40582 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725372AbgI2IwZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Sep 2020 04:52:25 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B019C061755
+        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 01:52:25 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id 197so3301245pge.8
+        for <stable@vger.kernel.org>; Tue, 29 Sep 2020 01:52:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=KQTxS5+Ju3sga4dx6qQK/VYvQYApyK7bVlcwyUqJ2vY=;
+        b=P9WYmJCiTUcoJp9k1bWBsBXR4fUZwK+Kan+de1jfLUTj81oAtjSvSu4GSTNDcU/P1t
+         dnkaD3AzICg9gCjDt7t2DAxjsqdXpJqVat7bA/H4LjW0w10yOgnjc41SDwPM31Wxi0Iy
+         Wg8yNN+7jjL7ERVT6TevESi90XpWBSRQtfAI23ioebS6FI/juLbLrVr2Zv/111PQf3MS
+         WSxN61zx3rs2Pbsa76iuY6vFR148kSKQd+H3nle8pKnGWj3N3SIKmFJ6H4YFmsyYvxpr
+         qFpS/GCC5UPgR1SXUh25dlEaKEhmaXj+PN8bPEAHD+XLnDzh2bPGNDMymDmD7DU11sZM
+         A31A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=KQTxS5+Ju3sga4dx6qQK/VYvQYApyK7bVlcwyUqJ2vY=;
+        b=SehhWD7J38GaS9FH12zUbsoCwBzhLfcpz2wXpLMl4srIRHfALzYWosIKK2abd9fOZa
+         8U9JqxhwFv3ObZTkB8ujJQy6ijdcXVtZYY4JefGh383rtjhWbCPqDIMOhdA531A5emdp
+         dT9pvlJ6HyhD1fQkyHvILI2ckZ69b0MdbmjcWYY7nkd99sOqgzKnBwawudzAPWSaxDUi
+         2weUzPvjlnqyBW9qYgRZDqocappovohgTt5j8apYnmHobdFH2IZhb8WKJtjh+wDrGsI4
+         WgHpFFObuynUry+sQUqihDHKC/4UeSpsUH8z+LX5UO1tTAzEJkv9Ri0JKrkWRyP69biJ
+         iOlw==
+X-Gm-Message-State: AOAM530Q4iwl4GEQrMSixpafhb8lrxMJs8fW+qKHzInD1H+/Yrp3cqr8
+        5K27xAMQY5LIXZqn5VlUQC0+4daof2XU/g==
+X-Google-Smtp-Source: ABdhPJzPxjv7Ey/0sN9/iuKg0dP/o/efel95XOVXSM7uZjPxWRRBg83wSB1WWkYtEDDS7iWwGmvzkg==
+X-Received: by 2002:a17:902:b688:b029:d2:43a9:ef1f with SMTP id c8-20020a170902b688b02900d243a9ef1fmr3491658pls.9.1601369544403;
+        Tue, 29 Sep 2020 01:52:24 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x3sm4550833pfo.95.2020.09.29.01.52.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Sep 2020 01:52:23 -0700 (PDT)
+Message-ID: <5f72f5c7.1c69fb81.7ac07.96de@mx.google.com>
+Date:   Tue, 29 Sep 2020 01:52:23 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Kernel: v5.4.68
+Subject: stable/linux-5.4.y baseline: 166 runs, 1 regressions (v5.4.68)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Chris Wilson <chris@chris-wilson.co.uk> writes:
+stable/linux-5.4.y baseline: 166 runs, 1 regressions (v5.4.68)
 
-> Be consistent and use unsigned long throughout the chunk copies to
-> avoid the inherent clumsiness of mixing integer types of different
-> widths and signs. Failing to take acount of a wider unsigned type when
-> using min_t can lead to treating it as a negative, only for it flip back
-> to a large unsigned value after passing a boundary check.
->
-> Fixes: ed13033f0287 ("drm/i915/cmdparser: Only cache the dst vmap")
-> Testcase: igt/gen9_exec_parse/bb-large
-> Reported-by: "Candelaria, Jared" <jared.candelaria@intel.com>
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Cc: "Candelaria, Jared" <jared.candelaria@intel.com>
-> Cc: "Bloomfield, Jon" <jon.bloomfield@intel.com>
-> Cc: <stable@vger.kernel.org> # v4.9+
+Regressions Summary
+-------------------
 
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+platform              | arch | lab          | compiler | defconfig       | =
+results
+----------------------+------+--------------+----------+-----------------+-=
+-------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+0/1    =
 
-> ---
-> The alternative would be to use u32 throughout, but that would also mean
-> keeping the min_t(u32, ...). unsigned long decouples the mechanism from
-> the API limits, so long as we remember to enforce that the mechanism
-> copes with the entire range of the API.
-> ---
->  drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |  7 +++++--
->  drivers/gpu/drm/i915/i915_cmd_parser.c         | 10 +++++-----
->  drivers/gpu/drm/i915/i915_drv.h                |  4 ++--
->  3 files changed, 12 insertions(+), 9 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-> index 5509946f1a1d..4b09bcd70cf4 100644
-> --- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-> +++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-> @@ -2267,8 +2267,8 @@ struct eb_parse_work {
->  	struct i915_vma *batch;
->  	struct i915_vma *shadow;
->  	struct i915_vma *trampoline;
-> -	unsigned int batch_offset;
-> -	unsigned int batch_length;
-> +	unsigned long batch_offset;
-> +	unsigned long batch_length;
->  };
->  
->  static int __eb_parse(struct dma_fence_work *work)
-> @@ -2338,6 +2338,9 @@ static int eb_parse_pipeline(struct i915_execbuffer *eb,
->  	struct eb_parse_work *pw;
->  	int err;
->  
-> +	GEM_BUG_ON(overflows_type(eb->batch_start_offset, pw->batch_offset));
-> +	GEM_BUG_ON(overflows_type(eb->batch_len, pw->batch_length));
-> +
->  	pw = kzalloc(sizeof(*pw), GFP_KERNEL);
->  	if (!pw)
->  		return -ENOMEM;
-> diff --git a/drivers/gpu/drm/i915/i915_cmd_parser.c b/drivers/gpu/drm/i915/i915_cmd_parser.c
-> index 5ac4a999f05a..e88970256e8e 100644
-> --- a/drivers/gpu/drm/i915/i915_cmd_parser.c
-> +++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
-> @@ -1136,7 +1136,7 @@ find_reg(const struct intel_engine_cs *engine, u32 addr)
->  /* Returns a vmap'd pointer to dst_obj, which the caller must unmap */
->  static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
->  		       struct drm_i915_gem_object *src_obj,
-> -		       u32 offset, u32 length)
-> +		       unsigned long offset, unsigned long length)
->  {
->  	bool needs_clflush;
->  	void *dst, *src;
-> @@ -1166,8 +1166,8 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
->  		}
->  	}
->  	if (IS_ERR(src)) {
-> +		unsigned long x, n;
->  		void *ptr;
-> -		int x, n;
->  
->  		/*
->  		 * We can avoid clflushing partial cachelines before the write
-> @@ -1184,7 +1184,7 @@ static u32 *copy_batch(struct drm_i915_gem_object *dst_obj,
->  		ptr = dst;
->  		x = offset_in_page(offset);
->  		for (n = offset >> PAGE_SHIFT; length; n++) {
-> -			int len = min_t(int, length, PAGE_SIZE - x);
-> +			int len = min(length, PAGE_SIZE - x);
->  
->  			src = kmap_atomic(i915_gem_object_get_page(src_obj, n));
->  			if (needs_clflush)
-> @@ -1414,8 +1414,8 @@ static bool shadow_needs_clflush(struct drm_i915_gem_object *obj)
->   */
->  int intel_engine_cmd_parser(struct intel_engine_cs *engine,
->  			    struct i915_vma *batch,
-> -			    u32 batch_offset,
-> -			    u32 batch_length,
-> +			    unsigned long batch_offset,
-> +			    unsigned long batch_length,
->  			    struct i915_vma *shadow,
->  			    bool trampoline)
->  {
-> diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-> index 72a9449b674e..eef9a821c49c 100644
-> --- a/drivers/gpu/drm/i915/i915_drv.h
-> +++ b/drivers/gpu/drm/i915/i915_drv.h
-> @@ -1949,8 +1949,8 @@ void intel_engine_init_cmd_parser(struct intel_engine_cs *engine);
->  void intel_engine_cleanup_cmd_parser(struct intel_engine_cs *engine);
->  int intel_engine_cmd_parser(struct intel_engine_cs *engine,
->  			    struct i915_vma *batch,
-> -			    u32 batch_offset,
-> -			    u32 batch_length,
-> +			    unsigned long batch_offset,
-> +			    unsigned long batch_length,
->  			    struct i915_vma *shadow,
->  			    bool trampoline);
->  #define I915_CMD_PARSER_TRAMPOLINE_SIZE 8
-> -- 
-> 2.20.1
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
+v5.4.68/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.4.y
+  Describe: v5.4.68
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      5d087e3578cf9cbd850a6f0a5c8b8169f22b5272 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch | lab          | compiler | defconfig       | =
+results
+----------------------+------+--------------+----------+-----------------+-=
+-------
+at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
+0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f72bba753f77a880fbf9dcb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.68/arm=
+/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.68/arm=
+/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f72bba753f77a880fbf9=
+dcc
+      failing since 103 days (last pass: v5.4.46, first fail: v5.4.47)  =20
