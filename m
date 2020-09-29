@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C396D27C9A1
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:12:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFE9F27C998
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730862AbgI2MMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:12:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58122 "EHLO mail.kernel.org"
+        id S1730238AbgI2MMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:12:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730151AbgI2Lha (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:30 -0400
+        id S1730156AbgI2Lhc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B1E223BA7;
-        Tue, 29 Sep 2020 11:34:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C22F23F2A;
+        Tue, 29 Sep 2020 11:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379298;
-        bh=HrjJ0jFLb60o1G6BMxIy8NQyRQ1fSNuPiH83ljiFXX8=;
+        s=default; t=1601379300;
+        bh=C/vWB/HWvbBoRq5OnbqfMnbsQfBPae8evloq2/dctHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNbNFqYerakVCBV+fKWcsQTqZ7ggR5Ti8OUHwSMrA9An32jITEixgL9HQI7iiffPC
-         oZ0EMPJM7oz9eOz/w8RkVBVcUiebu+i3OnnfMyCQYpNKGdCqFthVB8ACJx73Fr74ZN
-         8kQe9f+gKGvknx/tmQyCy19h7xCL2iyjGx+autYw=
+        b=n+vdLuhIjjVmbBrpXgjvs6Zpn+DILpJJ9wpBq+u1oaTp2NMav07yZzMaB0RFRh6if
+         c913Ig9RoTIV7yEIndGon2+u0pWSG9jBzoJ5wkjnPBJxsZK8UEBqN+HAj+sWv4JR4V
+         Go2Q79UqhDqN5xf2uwhwoqmwpy0hAGj7kyXRgj1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mert Dirik <mertdirik@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 101/388] ar5523: Add USB ID of SMCWUSBT-G2 wireless adapter
-Date:   Tue, 29 Sep 2020 12:57:12 +0200
-Message-Id: <20200929110015.370572130@linuxfoundation.org>
+Subject: [PATCH 5.4 102/388] ceph: ensure we have a new cap before continuing in fill_inode
+Date:   Tue, 29 Sep 2020 12:57:13 +0200
+Message-Id: <20200929110015.419352695@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,38 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mert Dirik <mertdirik@gmail.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 5b362498a79631f283578b64bf6f4d15ed4cc19a ]
+[ Upstream commit 9a6bed4fe0c8bf57785cbc4db9f86086cb9b193d ]
 
-Add the required USB ID for running SMCWUSBT-G2 wireless adapter (SMC
-"EZ Connect g").
+If the caller passes in a NULL cap_reservation, and we can't allocate
+one then ensure that we fail gracefully.
 
-This device uses ar5523 chipset and requires firmware to be loaded. Even
-though pid of the device is 4507, this patch adds it as 4506 so that
-AR5523_DEVICE_UG macro can set the AR5523_FLAG_PRE_FIRMWARE flag for pid
-4507.
-
-Signed-off-by: Mert Dirik <mertdirik@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ar5523/ar5523.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/ceph/inode.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ar5523/ar5523.c b/drivers/net/wireless/ath/ar5523/ar5523.c
-index da2d179430ca5..4c57e79e5779a 100644
---- a/drivers/net/wireless/ath/ar5523/ar5523.c
-+++ b/drivers/net/wireless/ath/ar5523/ar5523.c
-@@ -1770,6 +1770,8 @@ static const struct usb_device_id ar5523_id_table[] = {
- 	AR5523_DEVICE_UX(0x0846, 0x4300),	/* Netgear / WG111U */
- 	AR5523_DEVICE_UG(0x0846, 0x4250),	/* Netgear / WG111T */
- 	AR5523_DEVICE_UG(0x0846, 0x5f00),	/* Netgear / WPN111 */
-+	AR5523_DEVICE_UG(0x083a, 0x4506),	/* SMC / EZ Connect
-+						   SMCWUSBT-G2 */
- 	AR5523_DEVICE_UG(0x157e, 0x3006),	/* Umedia / AR5523_1 */
- 	AR5523_DEVICE_UX(0x157e, 0x3205),	/* Umedia / AR5523_2 */
- 	AR5523_DEVICE_UG(0x157e, 0x3006),	/* Umedia / TEW444UBEU */
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index c07407586ce87..660a878e20ef2 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -754,8 +754,11 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
+ 	info_caps = le32_to_cpu(info->cap.caps);
+ 
+ 	/* prealloc new cap struct */
+-	if (info_caps && ceph_snap(inode) == CEPH_NOSNAP)
++	if (info_caps && ceph_snap(inode) == CEPH_NOSNAP) {
+ 		new_cap = ceph_get_cap(mdsc, caps_reservation);
++		if (!new_cap)
++			return -ENOMEM;
++	}
+ 
+ 	/*
+ 	 * prealloc xattr data, if it looks like we'll need it.  only
 -- 
 2.25.1
 
