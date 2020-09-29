@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A86B227C485
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9CBF27C3B1
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729436AbgI2LOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:14:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57660 "EHLO mail.kernel.org"
+        id S1728947AbgI2LHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:07:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728561AbgI2LOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:14:32 -0400
+        id S1728944AbgI2LHk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:07:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FC0021D41;
-        Tue, 29 Sep 2020 11:14:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1815621941;
+        Tue, 29 Sep 2020 11:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378071;
-        bh=luAx4X+I/dJfTAXORFZBzGx6TP/aQbWoHfjFpBNUjR8=;
+        s=default; t=1601377659;
+        bh=pFiXARtSwy3hcgVfERpRiaTYPto59kdgyUvIjPk9Duk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8H6T32SbQhX6EWxwe6S2qNo8z5yK5wRtfWa+PedaFMVXcrrWVYL8cVy2/cLQXdDf
-         QapX9YH4zbF5wwcIK6Uot74UEKZfivrrxxArC/Jqw3YED8Yfj7IyrhG+yeC86s1yX8
-         lev03jlJ7Klsl6jJPwOaQpx5K4wlB7ZBSPZboVI0=
+        b=IX2voel1f//WtFWD9EkPNnj9cOJ2zHUmvAzIM83BGJ+hyPNL5RPbPSwPhpvDRV9pU
+         XQvdvom6ykB9NxbPJOty1aR0OahHsVcHh6fDoNA6FhrsgLRHlvrN9VlgBeNa7hHBR1
+         Xm9vf5fZaYiWE7V1k+I1COFCCoth8a539eMPIw2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <jbacik@fb.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 050/166] tracing: Set kernel_stacks caller size properly
+        stable@vger.kernel.org,
+        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 018/121] ALSA: usb-audio: Add delay quirk for H570e USB headsets
 Date:   Tue, 29 Sep 2020 12:59:22 +0200
-Message-Id: <20200929105937.701380697@linuxfoundation.org>
+Message-Id: <20200929105931.087639479@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <jbacik@fb.com>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-[ Upstream commit cbc3b92ce037f5e7536f6db157d185cd8b8f615c ]
+commit 315c7ad7a701baba28c628c4c5426b3d9617ceed upstream.
 
-I noticed when trying to use the trace-cmd python interface that reading the raw
-buffer wasn't working for kernel_stack events.  This is because it uses a
-stubbed version of __dynamic_array that doesn't do the __data_loc trick and
-encode the length of the array into the field.  Instead it just shows up as a
-size of 0.  So change this to __array and set the len to FTRACE_STACK_ENTRIES
-since this is what we actually do in practice and matches how user_stack_trace
-works.
+Needs the same delay as H650e
 
-Link: http://lkml.kernel.org/r/1411589652-1318-1-git-send-email-jbacik@fb.com
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200910085328.19188-1-joakim.tjernlund@infinera.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Josef Bacik <jbacik@fb.com>
-[ Pulled from the archeological digging of my INBOX ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_entries.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/quirks.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/trace/trace_entries.h b/kernel/trace/trace_entries.h
-index e3a658bac10fe..ff91acff72946 100644
---- a/kernel/trace/trace_entries.h
-+++ b/kernel/trace/trace_entries.h
-@@ -179,7 +179,7 @@ FTRACE_ENTRY(kernel_stack, stack_entry,
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1320,12 +1320,13 @@ void snd_usb_ctl_msg_quirk(struct usb_de
+ 	    && (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ 		mdelay(20);
  
- 	F_STRUCT(
- 		__field(	int,		size	)
--		__dynamic_array(unsigned long,	caller	)
-+		__array(	unsigned long,	caller,	FTRACE_STACK_ENTRIES	)
- 	),
- 
- 	F_printk("\t=> (" IP_FMT ")\n\t=> (" IP_FMT ")\n\t=> (" IP_FMT ")\n"
--- 
-2.25.1
-
+-	/* Zoom R16/24, Logitech H650e, Jabra 550a, Kingston HyperX needs a tiny
+-	 * delay here, otherwise requests like get/set frequency return as
+-	 * failed despite actually succeeding.
++	/* Zoom R16/24, Logitech H650e/H570e, Jabra 550a, Kingston HyperX
++	 *  needs a tiny delay here, otherwise requests like get/set
++	 *  frequency return as failed despite actually succeeding.
+ 	 */
+ 	if ((chip->usb_id == USB_ID(0x1686, 0x00dd) ||
+ 	     chip->usb_id == USB_ID(0x046d, 0x0a46) ||
++	     chip->usb_id == USB_ID(0x046d, 0x0a56) ||
+ 	     chip->usb_id == USB_ID(0x0b0e, 0x0349) ||
+ 	     chip->usb_id == USB_ID(0x0951, 0x16ad)) &&
+ 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
 
 
