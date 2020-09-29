@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB4D27CBCF
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E2C027CBBE
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:31:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728705AbgI2Mat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:30:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45278 "EHLO mail.kernel.org"
+        id S1732293AbgI2MaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:30:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729429AbgI2L3g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:29:36 -0400
+        id S1728911AbgI2LaW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:30:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58B8C23AC0;
-        Tue, 29 Sep 2020 11:24:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7B2C23AC4;
+        Tue, 29 Sep 2020 11:24:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378655;
-        bh=/SxPJUpqKhaxSW+fenMFVsuIVtuTWZGsuUoRBdV6OaA=;
+        s=default; t=1601378664;
+        bh=ImTRKb94lE3xeBXXwJj20T94jw7cV/krNVNyYknpLAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alOkRogP6gnkBL3ieJgha5o1151wLQI+w6WqUalnQLTpoihWm7LEIHvMuh7Fcd8Ao
-         Zv+IHu67EE2oXLqHVenyl/sg7mfjKw9q3hzmSZmEM9yywacSOhiBZZyQYcAY/lKxiy
-         F9/BTJwk0QEvHpGeLb12WtIGaEqlRSj22iiws5pU=
+        b=da9dgVPH8AWr7URLSsCuPfuY/tS62+90u1HgsG2JtdCMS5khQOUPQAv8X3cItxYTD
+         PsNEKhFX6PklODsx6Lxq81Mv2EHmvXzVqMCK96HaNkY3URjFwgyhMtLcOin4HvO5FC
+         ItZTxuZwX5MRpSiC10uvuMDDd7KhKxFhSY39MLp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 092/245] firmware: arm_sdei: Use cpus_read_lock() to avoid races with cpuhp
-Date:   Tue, 29 Sep 2020 12:59:03 +0200
-Message-Id: <20200929105951.467556850@linuxfoundation.org>
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Wei Xu <xuwei5@hisilicon.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 094/245] bus: hisi_lpc: Fixup IO ports addresses to avoid use-after-free in host removal
+Date:   Tue, 29 Sep 2020 12:59:05 +0200
+Message-Id: <20200929105951.568329213@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -43,83 +42,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 54f529a6806c9710947a4f2cdc15d6ea54121ccd ]
+[ Upstream commit a6dd255bdd7d00bbdbf78ba00bde9fc64f86c3a7 ]
 
-SDEI has private events that need registering and enabling on each CPU.
-CPUs can come and go while we are trying to do this. SDEI tries to avoid
-these problems by setting the reregister flag before the register call,
-so any CPUs that come online register the event too. Sticking plaster
-like this doesn't work, as if the register call fails, a CPU that
-subsequently comes online will register the event before reregister
-is cleared.
+Some released ACPI FW for Huawei boards describes incorrect the port IO
+address range for child devices, in that it tells us the IO port max range
+is 0x3fff for each child device, which is not correct. The address range
+should be [e4:e8) or similar. With this incorrect upper range, the child
+device IO port resources overlap.
 
-Take cpus_read_lock() around the register and enable calls. We don't
-want surprise CPUs to do the wrong thing if they race with these calls
-failing.
+As such, the kernel thinks that the LPC host serial device is a child of
+the IPMI device:
 
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+root@(none)$ more /proc/ioports
+[...]
+00ffc0e3-00ffffff : hisi-lpc-ipmi.0.auto
+  00ffc0e3-00ffc0e3 : ipmi_si
+  00ffc0e4-00ffc0e4 : ipmi_si
+  00ffc0e5-00ffc0e5 : ipmi_si
+  00ffc2f7-00ffffff : serial8250.1.auto
+    00ffc2f7-00ffc2fe : serial
+root@(none)$
+
+They should both be siblings. Note that these are logical PIO addresses,
+which have a direct mapping from the FW IO port ranges.
+
+This shows up as a real issue when we enable CONFIG_KASAN and
+CONFIG_DEBUG_TEST_DRIVER_REMOVE - we see use-after-free warnings in the
+host removal path:
+
+==================================================================
+BUG: KASAN: use-after-free in release_resource+0x38/0xc8
+Read of size 8 at addr ffff0026accdbc38 by task swapper/0/1
+
+CPU: 2 PID: 1 Comm: swapper/0 Not tainted 5.5.0-rc6-00001-g68e186e77b5c-dirty #1593
+Hardware name: Huawei Taishan 2180 /D03, BIOS Hisilicon D03 IT20 Nemo 2.0 RC0 03/30/2018
+Call trace:
+dump_backtrace+0x0/0x290
+show_stack+0x14/0x20
+dump_stack+0xf0/0x14c
+print_address_description.isra.9+0x6c/0x3b8
+__kasan_report+0x12c/0x23c
+kasan_report+0xc/0x18
+__asan_load8+0x94/0xb8
+release_resource+0x38/0xc8
+platform_device_del.part.10+0x80/0xe0
+platform_device_unregister+0x20/0x38
+hisi_lpc_acpi_remove_subdev+0x10/0x20
+device_for_each_child+0xc8/0x128
+hisi_lpc_acpi_remove+0x4c/0xa8
+hisi_lpc_remove+0xbc/0xc0
+platform_drv_remove+0x3c/0x68
+really_probe+0x174/0x548
+driver_probe_device+0x7c/0x148
+device_driver_attach+0x94/0xa0
+__driver_attach+0xa4/0x110
+bus_for_each_dev+0xe8/0x158
+driver_attach+0x30/0x40
+bus_add_driver+0x234/0x2f0
+driver_register+0xbc/0x1d0
+__platform_driver_register+0x7c/0x88
+hisi_lpc_driver_init+0x18/0x20
+do_one_initcall+0xb4/0x258
+kernel_init_freeable+0x248/0x2c0
+kernel_init+0x10/0x118
+ret_from_fork+0x10/0x1c
+
+...
+
+The issue here is that the kernel created an incorrect parent-child
+resource dependency between two devices, and references the false parent
+node when deleting the second child device, when it had been deleted
+already.
+
+Fix up the child device resources from FW to create proper IO port
+resource relationships for broken FW.
+
+With this, the IO port layout looks more healthy:
+
+root@(none)$ more /proc/ioports
+[...]
+00ffc0e3-00ffc0e7 : hisi-lpc-ipmi.0.auto
+  00ffc0e3-00ffc0e3 : ipmi_si
+  00ffc0e4-00ffc0e4 : ipmi_si
+  00ffc0e5-00ffc0e5 : ipmi_si
+00ffc2f7-00ffc2ff : serial8250.1.auto
+  00ffc2f7-00ffc2fe : serial
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_sdei.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/bus/hisi_lpc.c | 27 +++++++++++++++++++++++++--
+ 1 file changed, 25 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/arm_sdei.c b/drivers/firmware/arm_sdei.c
-index 05b528c7ed8fd..e809f4d9a9e93 100644
---- a/drivers/firmware/arm_sdei.c
-+++ b/drivers/firmware/arm_sdei.c
-@@ -410,14 +410,19 @@ int sdei_event_enable(u32 event_num)
- 		return -ENOENT;
- 	}
+diff --git a/drivers/bus/hisi_lpc.c b/drivers/bus/hisi_lpc.c
+index e31c02dc77709..cbd970fb02f18 100644
+--- a/drivers/bus/hisi_lpc.c
++++ b/drivers/bus/hisi_lpc.c
+@@ -358,6 +358,26 @@ static int hisi_lpc_acpi_xlat_io_res(struct acpi_device *adev,
+ 	return 0;
+ }
  
--	spin_lock(&sdei_list_lock);
--	event->reenable = true;
--	spin_unlock(&sdei_list_lock);
- 
-+	cpus_read_lock();
- 	if (event->type == SDEI_EVENT_TYPE_SHARED)
- 		err = sdei_api_event_enable(event->event_num);
- 	else
- 		err = sdei_do_cross_call(_local_event_enable, event);
++/*
++ * Released firmware describes the IO port max address as 0x3fff, which is
++ * the max host bus address. Fixup to a proper range. This will probably
++ * never be fixed in firmware.
++ */
++static void hisi_lpc_acpi_fixup_child_resource(struct device *hostdev,
++					       struct resource *r)
++{
++	if (r->end != 0x3fff)
++		return;
 +
-+	if (!err) {
-+		spin_lock(&sdei_list_lock);
-+		event->reenable = true;
-+		spin_unlock(&sdei_list_lock);
++	if (r->start == 0xe4)
++		r->end = 0xe4 + 0x04 - 1;
++	else if (r->start == 0x2f8)
++		r->end = 0x2f8 + 0x08 - 1;
++	else
++		dev_warn(hostdev, "unrecognised resource %pR to fixup, ignoring\n",
++			 r);
++}
++
+ /*
+  * hisi_lpc_acpi_set_io_res - set the resources for a child
+  * @child: the device node to be updated the I/O resource
+@@ -419,8 +439,11 @@ static int hisi_lpc_acpi_set_io_res(struct device *child,
+ 		return -ENOMEM;
+ 	}
+ 	count = 0;
+-	list_for_each_entry(rentry, &resource_list, node)
+-		resources[count++] = *rentry->res;
++	list_for_each_entry(rentry, &resource_list, node) {
++		resources[count] = *rentry->res;
++		hisi_lpc_acpi_fixup_child_resource(hostdev, &resources[count]);
++		count++;
 +	}
-+	cpus_read_unlock();
- 	mutex_unlock(&sdei_events_lock);
  
- 	return err;
-@@ -619,21 +624,18 @@ int sdei_event_register(u32 event_num, sdei_event_callback *cb, void *arg)
- 			break;
- 		}
- 
--		spin_lock(&sdei_list_lock);
--		event->reregister = true;
--		spin_unlock(&sdei_list_lock);
--
-+		cpus_read_lock();
- 		err = _sdei_event_register(event);
- 		if (err) {
--			spin_lock(&sdei_list_lock);
--			event->reregister = false;
--			event->reenable = false;
--			spin_unlock(&sdei_list_lock);
--
- 			sdei_event_destroy(event);
- 			pr_warn("Failed to register event %u: %d\n", event_num,
- 				err);
-+		} else {
-+			spin_lock(&sdei_list_lock);
-+			event->reregister = true;
-+			spin_unlock(&sdei_list_lock);
- 		}
-+		cpus_read_unlock();
- 	} while (0);
- 	mutex_unlock(&sdei_events_lock);
+ 	acpi_dev_free_resource_list(&resource_list);
  
 -- 
 2.25.1
