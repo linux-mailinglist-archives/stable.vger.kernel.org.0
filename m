@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9383A27CB1D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:24:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B45127CB4E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:27:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729209AbgI2LfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:35:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46444 "EHLO mail.kernel.org"
+        id S1730396AbgI2M0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:26:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729638AbgI2Ldb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:33:31 -0400
+        id S1729645AbgI2Ldc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:33:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E57B23BA8;
-        Tue, 29 Sep 2020 11:26:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D206923B9B;
+        Tue, 29 Sep 2020 11:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378820;
-        bh=23Jo1Tkt1KPyo/S63TYB6ybU+tXFKhZiLTe118m/j5k=;
+        s=default; t=1601378822;
+        bh=zfh1yQvoSMT8e6XSBmOpS1/gJtYedwcqb2MkD/f3h3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HS03oHEUCGh3QtDAjPjPfLKW2ZjayY5f8Surn2dplFYQKtjERaPOr00vOBuSk4tKK
-         tZnLJ13oGuC6tZhdbNlPsPc1nPHWcuyBWSXNJxIhk+66zz5CnfwIDf0hgxPlSUCsOY
-         AzOwRKTzpT5YsWlZlEhGJ62qow5Vpbmh2Wi7lBrQ=
+        b=xrKhCCSdP6vd3oMLxYSOfv8UuxWLikK4+p/he0JkIOy+efJvzhquRVJy42jJO+3Xy
+         uIW363qUKdie+mmxvnEQ3w3K7L6Pt9YnvoWYnq6SQWKWVfDufYAHFKVtd5JdwthGTA
+         DiqA56ZSACCgjfGZD6QdAagjOORA/0CzMDWH9eN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Ivan Safonov <insafonov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 151/245] scsi: aacraid: Fix error handling paths in aac_probe_one()
-Date:   Tue, 29 Sep 2020 13:00:02 +0200
-Message-Id: <20200929105954.330603919@linuxfoundation.org>
+Subject: [PATCH 4.19 152/245] staging:r8188eu: avoid skb_clone for amsdu to msdu conversion
+Date:   Tue, 29 Sep 2020 13:00:03 +0200
+Message-Id: <20200929105954.380637600@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -44,70 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Ivan Safonov <insafonov@gmail.com>
 
-[ Upstream commit f7854c382240c1686900b2f098b36430c6f5047e ]
+[ Upstream commit 628cbd971a927abe6388d44320e351c337b331e4 ]
 
-If 'scsi_host_alloc()' or 'kcalloc()' fail, 'error' is known to be 0. Set
-it explicitly to -ENOMEM before branching to the error handling path.
+skb clones use same data buffer,
+so tail of one skb is corrupted by beginning of next skb.
 
-While at it, remove 2 useless assignments to 'error'. These values are
-overwridden a few lines later.
-
-Link: https://lore.kernel.org/r/20200412094039.8822-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Ivan Safonov <insafonov@gmail.com>
+Link: https://lore.kernel.org/r/20200423191404.12028-1-insafonov@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aacraid/linit.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/staging/rtl8188eu/core/rtw_recv.c | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/scsi/aacraid/linit.c b/drivers/scsi/aacraid/linit.c
-index 0142547aaadd2..eecffc03084c0 100644
---- a/drivers/scsi/aacraid/linit.c
-+++ b/drivers/scsi/aacraid/linit.c
-@@ -1620,7 +1620,7 @@ static int aac_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	struct Scsi_Host *shost;
- 	struct aac_dev *aac;
- 	struct list_head *insert = &aac_devices;
--	int error = -ENODEV;
-+	int error;
- 	int unique_id = 0;
- 	u64 dmamask;
- 	int mask_bits = 0;
-@@ -1645,7 +1645,6 @@ static int aac_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	error = pci_enable_device(pdev);
- 	if (error)
- 		goto out;
--	error = -ENODEV;
+diff --git a/drivers/staging/rtl8188eu/core/rtw_recv.c b/drivers/staging/rtl8188eu/core/rtw_recv.c
+index 17b4b9257b495..0ddf41b5a734a 100644
+--- a/drivers/staging/rtl8188eu/core/rtw_recv.c
++++ b/drivers/staging/rtl8188eu/core/rtw_recv.c
+@@ -1535,21 +1535,14 @@ static int amsdu_to_msdu(struct adapter *padapter, struct recv_frame *prframe)
  
- 	if (!(aac_drivers[index].quirks & AAC_QUIRK_SRC)) {
- 		error = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
-@@ -1677,8 +1676,10 @@ static int aac_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	pci_set_master(pdev);
+ 		/* Allocate new skb for releasing to upper layer */
+ 		sub_skb = dev_alloc_skb(nSubframe_Length + 12);
+-		if (sub_skb) {
+-			skb_reserve(sub_skb, 12);
+-			skb_put_data(sub_skb, pdata, nSubframe_Length);
+-		} else {
+-			sub_skb = skb_clone(prframe->pkt, GFP_ATOMIC);
+-			if (sub_skb) {
+-				sub_skb->data = pdata;
+-				sub_skb->len = nSubframe_Length;
+-				skb_set_tail_pointer(sub_skb, nSubframe_Length);
+-			} else {
+-				DBG_88E("skb_clone() Fail!!! , nr_subframes=%d\n", nr_subframes);
+-				break;
+-			}
++		if (!sub_skb) {
++			DBG_88E("dev_alloc_skb() Fail!!! , nr_subframes=%d\n", nr_subframes);
++			break;
+ 		}
  
- 	shost = scsi_host_alloc(&aac_driver_template, sizeof(struct aac_dev));
--	if (!shost)
-+	if (!shost) {
-+		error = -ENOMEM;
- 		goto out_disable_pdev;
-+	}
- 
- 	shost->irq = pdev->irq;
- 	shost->unique_id = unique_id;
-@@ -1703,8 +1704,11 @@ static int aac_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	aac->fibs = kcalloc(shost->can_queue + AAC_NUM_MGT_FIB,
- 			    sizeof(struct fib),
- 			    GFP_KERNEL);
--	if (!aac->fibs)
-+	if (!aac->fibs) {
-+		error = -ENOMEM;
- 		goto out_free_host;
-+	}
++		skb_reserve(sub_skb, 12);
++		skb_put_data(sub_skb, pdata, nSubframe_Length);
 +
- 	spin_lock_init(&aac->fib_lock);
+ 		subframes[nr_subframes++] = sub_skb;
  
- 	mutex_init(&aac->ioctl_mutex);
+ 		if (nr_subframes >= MAX_SUBFRAME_COUNT) {
 -- 
 2.25.1
 
