@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F7D527C89D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5E427C8DA
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:06:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729123AbgI2MD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:03:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60308 "EHLO mail.kernel.org"
+        id S1731748AbgI2ME6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:04:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729830AbgI2Lie (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:38:34 -0400
+        id S1730277AbgI2Lhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7847D221EC;
-        Tue, 29 Sep 2020 11:38:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 328C723BDB;
+        Tue, 29 Sep 2020 11:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379498;
-        bh=lkg8m6S1AERhd6OentmklbggICnz3oY6EXh/TQXZc0I=;
+        s=default; t=1601379434;
+        bh=u/HIXLYDCOfZAA+36lrxZDsx82CiwPJQ/fiXHDgICZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wJZFLX+ExrEzGbdlNpdPVXUNYpb5vdYf1l5zYTRrmtduxzMEjhEcVK3v0RRFHuKK4
-         1c+ffMNc/4bo6KOEzhRhKKunOyIS8nMkaPcV6OmppKlVUA1H2m9sR2A8B5S7Vmbr3g
-         8bg768YM4Az9iOkA7xBDmMPPbpEbXhFs/2sIroD4=
+        b=TIefKK+WMu5JrDXpMqUqUxyDEReagi1dsrbCkY5DPH8LIhibwFZbs1s6ou6ppjQVe
+         +VofrvDFHEgPMaAbalvC2yFKgdIDGQXcQPXEtjU8AKkQjuJqgJeiLXdtTX3zVsZoDz
+         8R4tRvBMZRzZ/+Gxhy4reU2rCgXUO5GvwYIN8YrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sagar Biradar <Sagar.Biradar@microchip.com>,
-        Balsundar P <balsundar.p@microsemi.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Howard Chung <howardchung@google.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 161/388] scsi: aacraid: Disabling TM path and only processing IOP reset
-Date:   Tue, 29 Sep 2020 12:58:12 +0200
-Message-Id: <20200929110018.272511040@linuxfoundation.org>
+Subject: [PATCH 5.4 162/388] Bluetooth: L2CAP: handle l2cap config request during open state
+Date:   Tue, 29 Sep 2020 12:58:13 +0200
+Message-Id: <20200929110018.320835720@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -45,124 +43,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagar Biradar <Sagar.Biradar@microchip.com>
+From: Howard Chung <howardchung@google.com>
 
-[ Upstream commit bef18d308a2215eff8c3411a23d7f34604ce56c3 ]
+[ Upstream commit 96298f640104e4cd9a913a6e50b0b981829b94ff ]
 
-Fixes the occasional adapter panic when sg_reset is issued with -d, -t, -b
-and -H flags.  Removal of command type HBA_IU_TYPE_SCSI_TM_REQ in
-aac_hba_send since iu_type, request_id and fib_flags are not populated.
-Device and target reset handlers are made to send TMF commands only when
-reset_state is 0.
+According to Core Spec Version 5.2 | Vol 3, Part A 6.1.5,
+the incoming L2CAP_ConfigReq should be handled during
+OPEN state.
 
-Link: https://lore.kernel.org/r/1581553771-25796-1-git-send-email-Sagar.Biradar@microchip.com
-Reviewed-by: Sagar Biradar <Sagar.Biradar@microchip.com>
-Signed-off-by: Sagar Biradar <Sagar.Biradar@microchip.com>
-Signed-off-by: Balsundar P <balsundar.p@microsemi.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The section below shows the btmon trace when running
+L2CAP/COS/CFD/BV-12-C before and after this change.
+
+=== Before ===
+...
+> ACL Data RX: Handle 256 flags 0x02 dlen 12                #22
+      L2CAP: Connection Request (0x02) ident 2 len 4
+        PSM: 1 (0x0001)
+        Source CID: 65
+< ACL Data TX: Handle 256 flags 0x00 dlen 16                #23
+      L2CAP: Connection Response (0x03) ident 2 len 8
+        Destination CID: 64
+        Source CID: 65
+        Result: Connection successful (0x0000)
+        Status: No further information available (0x0000)
+< ACL Data TX: Handle 256 flags 0x00 dlen 12                #24
+      L2CAP: Configure Request (0x04) ident 2 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5      #25
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5      #26
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 16                #27
+      L2CAP: Configure Request (0x04) ident 3 len 8
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00                                            ..
+< ACL Data TX: Handle 256 flags 0x00 dlen 18                #28
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+> HCI Event: Number of Completed Packets (0x13) plen 5      #29
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 14                #30
+      L2CAP: Configure Response (0x05) ident 2 len 6
+        Source CID: 64
+        Flags: 0x0000
+        Result: Success (0x0000)
+> ACL Data RX: Handle 256 flags 0x02 dlen 20                #31
+      L2CAP: Configure Request (0x04) ident 3 len 12
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00 91 02 11 11                                ......
+< ACL Data TX: Handle 256 flags 0x00 dlen 14                #32
+      L2CAP: Command Reject (0x01) ident 3 len 6
+        Reason: Invalid CID in request (0x0002)
+        Destination CID: 64
+        Source CID: 65
+> HCI Event: Number of Completed Packets (0x13) plen 5      #33
+        Num handles: 1
+        Handle: 256
+        Count: 1
+...
+=== After ===
+...
+> ACL Data RX: Handle 256 flags 0x02 dlen 12               #22
+      L2CAP: Connection Request (0x02) ident 2 len 4
+        PSM: 1 (0x0001)
+        Source CID: 65
+< ACL Data TX: Handle 256 flags 0x00 dlen 16               #23
+      L2CAP: Connection Response (0x03) ident 2 len 8
+        Destination CID: 64
+        Source CID: 65
+        Result: Connection successful (0x0000)
+        Status: No further information available (0x0000)
+< ACL Data TX: Handle 256 flags 0x00 dlen 12               #24
+      L2CAP: Configure Request (0x04) ident 2 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5     #25
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #26
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 16               #27
+      L2CAP: Configure Request (0x04) ident 3 len 8
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00                                            ..
+< ACL Data TX: Handle 256 flags 0x00 dlen 18               #28
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+> HCI Event: Number of Completed Packets (0x13) plen 5     #29
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> ACL Data RX: Handle 256 flags 0x02 dlen 14               #30
+      L2CAP: Configure Response (0x05) ident 2 len 6
+        Source CID: 64
+        Flags: 0x0000
+        Result: Success (0x0000)
+> ACL Data RX: Handle 256 flags 0x02 dlen 20               #31
+      L2CAP: Configure Request (0x04) ident 3 len 12
+        Destination CID: 64
+        Flags: 0x0000
+        Option: Unknown (0x10) [hint]
+        01 00 91 02 11 11                                .....
+< ACL Data TX: Handle 256 flags 0x00 dlen 18               #32
+      L2CAP: Configure Response (0x05) ident 3 len 10
+        Source CID: 65
+        Flags: 0x0000
+        Result: Success (0x0000)
+        Option: Maximum Transmission Unit (0x01) [mandatory]
+          MTU: 672
+< ACL Data TX: Handle 256 flags 0x00 dlen 12               #33
+      L2CAP: Configure Request (0x04) ident 3 len 4
+        Destination CID: 65
+        Flags: 0x0000
+> HCI Event: Number of Completed Packets (0x13) plen 5     #34
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #35
+        Num handles: 1
+        Handle: 256
+        Count: 1
+...
+
+Signed-off-by: Howard Chung <howardchung@google.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aacraid/commsup.c |  2 +-
- drivers/scsi/aacraid/linit.c   | 34 +++++++++++++++++++++++++---------
- 2 files changed, 26 insertions(+), 10 deletions(-)
+ net/bluetooth/l2cap_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/aacraid/commsup.c b/drivers/scsi/aacraid/commsup.c
-index 2142a649e865b..90fb17c5dd69c 100644
---- a/drivers/scsi/aacraid/commsup.c
-+++ b/drivers/scsi/aacraid/commsup.c
-@@ -728,7 +728,7 @@ int aac_hba_send(u8 command, struct fib *fibptr, fib_callback callback,
- 		hbacmd->request_id =
- 			cpu_to_le32((((u32)(fibptr - dev->fibs)) << 2) + 1);
- 		fibptr->flags |= FIB_CONTEXT_FLAG_SCSI_CMD;
--	} else if (command != HBA_IU_TYPE_SCSI_TM_REQ)
-+	} else
- 		return -EINVAL;
- 
- 
-diff --git a/drivers/scsi/aacraid/linit.c b/drivers/scsi/aacraid/linit.c
-index 4a858789e6c5e..514aed38b5afe 100644
---- a/drivers/scsi/aacraid/linit.c
-+++ b/drivers/scsi/aacraid/linit.c
-@@ -723,7 +723,11 @@ static int aac_eh_abort(struct scsi_cmnd* cmd)
- 		status = aac_hba_send(HBA_IU_TYPE_SCSI_TM_REQ, fib,
- 				  (fib_callback) aac_hba_callback,
- 				  (void *) cmd);
--
-+		if (status != -EINPROGRESS) {
-+			aac_fib_complete(fib);
-+			aac_fib_free(fib);
-+			return ret;
-+		}
- 		/* Wait up to 15 secs for completion */
- 		for (count = 0; count < 15; ++count) {
- 			if (cmd->SCp.sent_command) {
-@@ -902,11 +906,11 @@ static int aac_eh_dev_reset(struct scsi_cmnd *cmd)
- 
- 	info = &aac->hba_map[bus][cid];
- 
--	if (info->devtype != AAC_DEVTYPE_NATIVE_RAW &&
--	    info->reset_state > 0)
-+	if (!(info->devtype == AAC_DEVTYPE_NATIVE_RAW &&
-+	 !(info->reset_state > 0)))
- 		return FAILED;
- 
--	pr_err("%s: Host adapter reset request. SCSI hang ?\n",
-+	pr_err("%s: Host device reset request. SCSI hang ?\n",
- 	       AAC_DRIVERNAME);
- 
- 	fib = aac_fib_alloc(aac);
-@@ -921,7 +925,12 @@ static int aac_eh_dev_reset(struct scsi_cmnd *cmd)
- 	status = aac_hba_send(command, fib,
- 			      (fib_callback) aac_tmf_callback,
- 			      (void *) info);
--
-+	if (status != -EINPROGRESS) {
-+		info->reset_state = 0;
-+		aac_fib_complete(fib);
-+		aac_fib_free(fib);
-+		return ret;
-+	}
- 	/* Wait up to 15 seconds for completion */
- 	for (count = 0; count < 15; ++count) {
- 		if (info->reset_state == 0) {
-@@ -960,11 +969,11 @@ static int aac_eh_target_reset(struct scsi_cmnd *cmd)
- 
- 	info = &aac->hba_map[bus][cid];
- 
--	if (info->devtype != AAC_DEVTYPE_NATIVE_RAW &&
--	    info->reset_state > 0)
-+	if (!(info->devtype == AAC_DEVTYPE_NATIVE_RAW &&
-+	 !(info->reset_state > 0)))
- 		return FAILED;
- 
--	pr_err("%s: Host adapter reset request. SCSI hang ?\n",
-+	pr_err("%s: Host target reset request. SCSI hang ?\n",
- 	       AAC_DRIVERNAME);
- 
- 	fib = aac_fib_alloc(aac);
-@@ -981,6 +990,13 @@ static int aac_eh_target_reset(struct scsi_cmnd *cmd)
- 			      (fib_callback) aac_tmf_callback,
- 			      (void *) info);
- 
-+	if (status != -EINPROGRESS) {
-+		info->reset_state = 0;
-+		aac_fib_complete(fib);
-+		aac_fib_free(fib);
-+		return ret;
-+	}
-+
- 	/* Wait up to 15 seconds for completion */
- 	for (count = 0; count < 15; ++count) {
- 		if (info->reset_state <= 0) {
-@@ -1033,7 +1049,7 @@ static int aac_eh_bus_reset(struct scsi_cmnd* cmd)
- 		}
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index eb2804ac50756..12a50e5a9f452 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -4134,7 +4134,8 @@ static inline int l2cap_config_req(struct l2cap_conn *conn,
+ 		return 0;
  	}
  
--	pr_err("%s: Host adapter reset request. SCSI hang ?\n", AAC_DRIVERNAME);
-+	pr_err("%s: Host bus reset request. SCSI hang ?\n", AAC_DRIVERNAME);
- 
- 	/*
- 	 * Check the health of the controller
+-	if (chan->state != BT_CONFIG && chan->state != BT_CONNECT2) {
++	if (chan->state != BT_CONFIG && chan->state != BT_CONNECT2 &&
++	    chan->state != BT_CONNECTED) {
+ 		cmd_reject_invalid_cid(conn, cmd->ident, chan->scid,
+ 				       chan->dcid);
+ 		goto unlock;
 -- 
 2.25.1
 
