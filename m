@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20AF227C695
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:46:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9842827C6C7
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731023AbgI2Lqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:46:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46222 "EHLO mail.kernel.org"
+        id S1731013AbgI2Lsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:48:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730316AbgI2Lp7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:45:59 -0400
+        id S1731155AbgI2Lsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:48:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A7B42074A;
-        Tue, 29 Sep 2020 11:45:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E50920702;
+        Tue, 29 Sep 2020 11:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379957;
-        bh=BGhvg6UdyOrwtnfTOhygtJG5BjXgtVqMscY/Ckw5BOE=;
+        s=default; t=1601380113;
+        bh=xa36xPnLHfX5BA6IyyuvTBAULCDnywIqCGXLa7Flf8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rsuj6gSyoLDx8MPgu57r+cGjPhwU+N9qVn0Y9BW0NUMAOrMRVSESyedh4X3HRGjQW
-         Intoo1SPMd5QZNDLOjNlY5fi+WVLYm987+7GYoWsFLLMtQkwRSPb7CgQEQ1aVQ74H1
-         HAJwVc8GVMa1JvMS8J3JZM6NVYCA64yT7fZPPu1A=
+        b=1Hpz1+PM3PNtHnhgAjDopWTkVxeVa46ashd6koqW4Rxz0l+lbsXVCt/On/jvLJADX
+         BGhxMX4sXPAsqNfD3RDLXYgRK1JoIIco7NKjZjG8KWEgqGmMk/kWuMGyqPCElYblex
+         RJKcCR+4SJzqrUQ+D2ZYSI1aYWpxP02Xepkgr5sQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 385/388] kprobes: Fix compiler warning for !CONFIG_KPROBES_ON_FTRACE
+        stable@vger.kernel.org, p_c_chan@hotmail.com, ecm4@mail.com,
+        perdigao1@yahoo.com, matzes@users.sourceforge.net,
+        rvelascog@gmail.com, Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.8 73/99] x86/ioapic: Unbreak check_timer()
 Date:   Tue, 29 Sep 2020 13:01:56 +0200
-Message-Id: <20200929110029.104251144@linuxfoundation.org>
+Message-Id: <20200929105933.324441260@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 10de795a5addd1962406796a6e13ba6cc0fc6bee upstream.
+commit 86a82ae0b5095ea24c55898a3f025791e7958b21 upstream.
 
-Fix compiler warning(as show below) for !CONFIG_KPROBES_ON_FTRACE.
+Several people reported in the kernel bugzilla that between v4.12 and v4.13
+the magic which works around broken hardware and BIOSes to find the proper
+timer interrupt delivery mode stopped working for some older affected
+platforms which need to fall back to ExtINT delivery mode.
 
-kernel/kprobes.c: In function 'kill_kprobe':
-kernel/kprobes.c:1116:33: warning: statement with no effect
-[-Wunused-value]
- 1116 | #define disarm_kprobe_ftrace(p) (-ENODEV)
-      |                                 ^
-kernel/kprobes.c:2154:3: note: in expansion of macro
-'disarm_kprobe_ftrace'
- 2154 |   disarm_kprobe_ftrace(p);
+The reason is that the core code changed to keep track of the masked and
+disabled state of an interrupt line more accurately to avoid the expensive
+hardware operations.
 
-Link: https://lore.kernel.org/r/20200805142136.0331f7ea@canb.auug.org.au
-Link: https://lkml.kernel.org/r/20200805172046.19066-1-songmuchun@bytedance.com
+That broke an assumption in i8259_make_irq() which invokes
 
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Fixes: 0cb2f1372baa ("kprobes: Fix NULL pointer dereference at kprobe_ftrace_handler")
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+     disable_irq_nosync();
+     irq_set_chip_and_handler();
+     enable_irq();
+
+Up to v4.12 this worked because enable_irq() unconditionally unmasked the
+interrupt line, but after the state tracking improvements this is not
+longer the case because the IO/APIC uses lazy disabling. So the line state
+is unmasked which means that enable_irq() does not call into the new irq
+chip to unmask it.
+
+In principle this is a shortcoming of the core code, but it's more than
+unclear whether the core code should try to reset state. At least this
+cannot be done unconditionally as that would break other existing use cases
+where the chip type is changed, e.g. when changing the trigger type, but
+the callers expect the state to be preserved.
+
+As the way how check_timer() is switching the delivery modes is truly
+unique, the obvious fix is to simply unmask the i8259 manually after
+changing the mode to ExtINT delivery and switching the irq chip to the
+legacy PIC.
+
+Note, that the fixes tag is not really precise, but identifies the commit
+which broke the assumptions in the IO/APIC and i8259 code and that's the
+kernel version to which this needs to be backported.
+
+Fixes: bf22ff45bed6 ("genirq: Avoid unnecessary low level irq function calls")
+Reported-by: p_c_chan@hotmail.com
+Reported-by: ecm4@mail.com
+Reported-by: perdigao1@yahoo.com
+Reported-by: matzes@users.sourceforge.net
+Reported-by: rvelascog@gmail.com
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: p_c_chan@hotmail.com
+Tested-by: matzes@users.sourceforge.net
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=197769
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/kprobes.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ arch/x86/kernel/apic/io_apic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1076,9 +1076,20 @@ static int disarm_kprobe_ftrace(struct k
- 		ipmodify ? &kprobe_ipmodify_enabled : &kprobe_ftrace_enabled);
- }
- #else	/* !CONFIG_KPROBES_ON_FTRACE */
--#define prepare_kprobe(p)	arch_prepare_kprobe(p)
--#define arm_kprobe_ftrace(p)	(-ENODEV)
--#define disarm_kprobe_ftrace(p)	(-ENODEV)
-+static inline int prepare_kprobe(struct kprobe *p)
-+{
-+	return arch_prepare_kprobe(p);
-+}
-+
-+static inline int arm_kprobe_ftrace(struct kprobe *p)
-+{
-+	return -ENODEV;
-+}
-+
-+static inline int disarm_kprobe_ftrace(struct kprobe *p)
-+{
-+	return -ENODEV;
-+}
- #endif
+--- a/arch/x86/kernel/apic/io_apic.c
++++ b/arch/x86/kernel/apic/io_apic.c
+@@ -2243,6 +2243,7 @@ static inline void __init check_timer(vo
+ 	legacy_pic->init(0);
+ 	legacy_pic->make_irq(0);
+ 	apic_write(APIC_LVT0, APIC_DM_EXTINT);
++	legacy_pic->unmask(0);
  
- /* Arm a kprobe with text_mutex */
+ 	unlock_ExtINT_logic();
+ 
 
 
