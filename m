@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFD7327C4CA
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C11EC27C3E4
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729386AbgI2LQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:16:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60738 "EHLO mail.kernel.org"
+        id S1729040AbgI2LJG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:09:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729329AbgI2LQE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:16:04 -0400
+        id S1729036AbgI2LJB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:09:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEB4E206A5;
-        Tue, 29 Sep 2020 11:16:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31F8521D92;
+        Tue, 29 Sep 2020 11:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378163;
-        bh=Ms8lENlLnFZ6YwfFPHM65qrhWiEu1s7AEcXco8pP22w=;
+        s=default; t=1601377740;
+        bh=IMqgfg1I+JZ+Db7k4qTX1k8eQKQ+wMBHtVjAinua6Mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IExEFRrvOES4tuc8MJUATShwobdjF8BOmXTvqZfEwk8PJWkZZP6Yd0jKVTnktZ3Uc
-         HOMTVTtvMptFNb0cruyJee6E1WZAkRuBP1g91XalDuTNYYqaxw+iD+i0TDC5Nzll+K
-         L1c+I+oCGfYcirZeLJ9nZ+gpCNmQmE7FktyxC3vo=
+        b=dm9g5YyvLhFmzs3FfVCOiBhCp8GiJUtCKXGEpVpjeKmIhi9yL9w49Uql8PGBjyNKu
+         cCvpR/OQHCng65enCV8GUe8djr19CVZXsefeHuNZhnnJgormA4bJGWieR5yD6EcM+X
+         R1JaBQsWObLiFFeRy+AkMY1HUcf41y6F/0dZV8Eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c3c5bdea7863886115dc@syzkaller.appspotmail.com,
-        Manish Mandlik <mmandlik@google.com>,
-        Hillf Danton <hdanton@sina.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 056/166] Bluetooth: prefetch channel before killing sock
-Date:   Tue, 29 Sep 2020 12:59:28 +0200
-Message-Id: <20200929105938.015374373@linuxfoundation.org>
+Subject: [PATCH 4.9 025/121] RDMA/i40iw: Fix potential use after free
+Date:   Tue, 29 Sep 2020 12:59:29 +0200
+Message-Id: <20200929105931.436641200@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,58 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hillf Danton <hdanton@sina.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 2a154903cec20fb64ff4d7d617ca53c16f8fd53a ]
+[ Upstream commit da046d5f895fca18d63b15ac8faebd5bf784e23a ]
 
-Prefetch channel before killing sock in order to fix UAF like
+Release variable dst after logging dst->error to avoid possible use after
+free.
 
- BUG: KASAN: use-after-free in l2cap_sock_release+0x24c/0x290 net/bluetooth/l2cap_sock.c:1212
- Read of size 8 at addr ffff8880944904a0 by task syz-fuzzer/9751
-
-Reported-by: syzbot+c3c5bdea7863886115dc@syzkaller.appspotmail.com
-Fixes: 6c08fc896b60 ("Bluetooth: Fix refcount use-after-free issue")
-Cc: Manish Mandlik <mmandlik@google.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Link: https://lore.kernel.org/r/1573022651-37171-1-git-send-email-bianpan2016@163.com
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_sock.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/i40iw/i40iw_cm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index a5e618add17f4..511a1da6ca971 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -1191,6 +1191,7 @@ static int l2cap_sock_release(struct socket *sock)
- {
- 	struct sock *sk = sock->sk;
- 	int err;
-+	struct l2cap_chan *chan;
- 
- 	BT_DBG("sock %p, sk %p", sock, sk);
- 
-@@ -1200,15 +1201,16 @@ static int l2cap_sock_release(struct socket *sock)
- 	bt_sock_unlink(&l2cap_sk_list, sk);
- 
- 	err = l2cap_sock_shutdown(sock, 2);
-+	chan = l2cap_pi(sk)->chan;
- 
--	l2cap_chan_hold(l2cap_pi(sk)->chan);
--	l2cap_chan_lock(l2cap_pi(sk)->chan);
-+	l2cap_chan_hold(chan);
-+	l2cap_chan_lock(chan);
- 
- 	sock_orphan(sk);
- 	l2cap_sock_kill(sk);
- 
--	l2cap_chan_unlock(l2cap_pi(sk)->chan);
--	l2cap_chan_put(l2cap_pi(sk)->chan);
-+	l2cap_chan_unlock(chan);
-+	l2cap_chan_put(chan);
- 
- 	return err;
- }
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_cm.c b/drivers/infiniband/hw/i40iw/i40iw_cm.c
+index 282a726351c81..ce1a4817ab923 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_cm.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_cm.c
+@@ -2036,9 +2036,9 @@ static int i40iw_addr_resolve_neigh_ipv6(struct i40iw_device *iwdev,
+ 	dst = i40iw_get_dst_ipv6(&src_addr, &dst_addr);
+ 	if (!dst || dst->error) {
+ 		if (dst) {
+-			dst_release(dst);
+ 			i40iw_pr_err("ip6_route_output returned dst->error = %d\n",
+ 				     dst->error);
++			dst_release(dst);
+ 		}
+ 		return rc;
+ 	}
 -- 
 2.25.1
 
