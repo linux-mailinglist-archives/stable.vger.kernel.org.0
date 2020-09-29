@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD9B27CC51
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 103EB27CD2F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:42:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732782AbgI2MfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:35:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37338 "EHLO mail.kernel.org"
+        id S1729271AbgI2MmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:42:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729586AbgI2LVO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:21:14 -0400
+        id S1729263AbgI2LLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:11:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5F31239EE;
-        Tue, 29 Sep 2020 11:18:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92C27206A5;
+        Tue, 29 Sep 2020 11:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378338;
-        bh=jhXXHiBwabz0eO6Y6MDYyI2GS5Y/LweyJRvHgKRcuMc=;
+        s=default; t=1601377905;
+        bh=D3OpbZK4+998PZ46qefmAIBurWQeGCWnaWWhcztTlgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5OzaB51TwdtQyqqRArh9+Tkfz30O1pOKPZjbYNQrKdYZ9aHjWHPN4YPlpy373DCc
-         tFaBVW8GbudG0CFI8LH0jNbUwqGnDqW8FNUI+zs2dnlTVtxid2oCLoUWKFYdnHCSeQ
-         O9P/9TIyyAW30XJxDfcnWtwXpKtA9FyBFT4fSCqM=
+        b=2Q6KtvJ6QUQtS/A25wz4j0xV20Fb1xnauahMM8NxEieV3873HZcT8kGmQ4UDUf0Kw
+         yec0oiuSXixfFSZNrvDJMI6s9vfFLkDMDtoonjg8Ycu6pqncq8Rpz8UIKIIP3LTaKY
+         87lMF/R4/Q0oh4t85ygY3vOSaAfuuo9tYlP8qJEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 145/166] objtool: Fix noreturn detection for ignored functions
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 113/121] batman-adv: Add missing include for in_interrupt()
 Date:   Tue, 29 Sep 2020 13:00:57 +0200
-Message-Id: <20200929105942.438280216@linuxfoundation.org>
+Message-Id: <20200929105935.782138095@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit db6c6a0df840e3f52c84cc302cc1a08ba11a4416 ]
+[ Upstream commit 4bba9dab86b6ac15ca560ef1f2b5aa4529cbf784 ]
 
-When a function is annotated with STACK_FRAME_NON_STANDARD, objtool
-doesn't validate its code paths.  It also skips sibling call detection
-within the function.
+The fix for receiving (internally generated) bla packets outside the
+interrupt context introduced the usage of in_interrupt(). But this
+functionality is only defined in linux/preempt.h which was not included
+with the same patch.
 
-But sibling call detection is actually needed for the case where the
-ignored function doesn't have any return instructions.  Otherwise
-objtool naively marks the function as implicit static noreturn, which
-affects the reachability of its callers, resulting in "unreachable
-instruction" warnings.
-
-Fix it by just enabling sibling call detection for ignored functions.
-The 'insn->ignore' check in add_jump_destinations() is no longer needed
-after
-
-  e6da9567959e ("objtool: Don't use ignore flag for fake jumps").
-
-Fixes the following warning:
-
-  arch/x86/kvm/vmx/vmx.o: warning: objtool: vmx_handle_exit_irqoff()+0x142: unreachable instruction
-
-which triggers on an allmodconfig with CONFIG_GCOV_KERNEL unset.
-
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Link: https://lkml.kernel.org/r/5b1e2536cdbaa5246b60d7791b76130a74082c62.1599751464.git.jpoimboe@redhat.com
+Fixes: 279e89b2281a ("batman-adv: bla: use netif_rx_ni when not in interrupt context")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/batman-adv/bridge_loop_avoidance.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 247fbb5f6a389..2c8e2dae17016 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -502,7 +502,7 @@ static int add_jump_destinations(struct objtool_file *file)
- 		    insn->type != INSN_JUMP_UNCONDITIONAL)
- 			continue;
- 
--		if (insn->ignore || insn->offset == FAKE_JUMP_OFFSET)
-+		if (insn->offset == FAKE_JUMP_OFFSET)
- 			continue;
- 
- 		rela = find_rela_by_dest_range(insn->sec, insn->offset,
+diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
+index f8b117acb9443..f24b1cee4993f 100644
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -36,6 +36,7 @@
+ #include <linux/lockdep.h>
+ #include <linux/netdevice.h>
+ #include <linux/netlink.h>
++#include <linux/preempt.h>
+ #include <linux/rculist.h>
+ #include <linux/rcupdate.h>
+ #include <linux/seq_file.h>
 -- 
 2.25.1
 
