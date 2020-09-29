@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E50227CCDE
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56CE427CD86
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733174AbgI2Mjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:39:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32974 "EHLO mail.kernel.org"
+        id S2387514AbgI2Mo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:44:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729583AbgI2LQZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:16:25 -0400
+        id S1728973AbgI2LHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:07:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3337B20848;
-        Tue, 29 Sep 2020 11:16:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4728C21D46;
+        Tue, 29 Sep 2020 11:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378184;
-        bh=gJt5tl5bFwD12yQeDxuwhK+rvQNS3vF57KVmKFCezj4=;
+        s=default; t=1601377672;
+        bh=sSXBrKnfvFxp02IRBIEvBTV7hKCLv23aDEhg+nMWbII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vXEPBm9klggkYDMs5Kod4vLlq95HmqZPb01+J7T25crDC93sPZqDKJQjwrY3+8Spn
-         bo7IF+gAsJKztBS8RgCCN9CgEg60ca423tYNLILi4wsZo8BhP7JdGfGJqQKuMpqaRt
-         O05n4fwOVlMv5cg02sxHj0DsQDi6AocNnk4EEzP0=
+        b=EXniN1n8wDnAhVCG5jFAxjrNL0LIDLz1xOQnsrj9bjwYU1o5dPuxeU4mH/dG1cuDT
+         nnJheGSjIq4gX/BuOnztawmfr1v3P3yIZTQ82ZjNh2FW02lNpsFLhyP4D3x7/5t7h7
+         MVjz+D50Uc0onJP47iNhjKsNhqvywWJNTTUKvNYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        Dan Carpenter <error27@gmail.com>,
+        Julia Lawall <julia.lawall@lip6.fr>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 062/166] scsi: lpfc: Fix RQ buffer leakage when no IOCBs available
+Subject: [PATCH 4.9 030/121] kernel/sys.c: avoid copying possible padding bytes in copy_to_user
 Date:   Tue, 29 Sep 2020 12:59:34 +0200
-Message-Id: <20200929105938.317360876@linuxfoundation.org>
+Message-Id: <20200929105931.671689510@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +48,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Joe Perches <joe@perches.com>
 
-[ Upstream commit 39c4f1a965a9244c3ba60695e8ff8da065ec6ac4 ]
+[ Upstream commit 5e1aada08cd19ea652b2d32a250501d09b02ff2e ]
 
-The driver is occasionally seeing the following SLI Port error, requiring
-reset and reinit:
+Initialization is not guaranteed to zero padding bytes so use an
+explicit memset instead to avoid leaking any kernel content in any
+possible padding bytes.
 
- Port Status Event: ... error 1=0x52004a01, error 2=0x218
-
-The failure means an RQ timeout. That is, the adapter had received
-asynchronous receive frames, ran out of buffer slots to place the frames,
-and the driver did not replenish the buffer slots before a timeout
-occurred. The driver should not be so slow in replenishing buffers that a
-timeout can occur.
-
-When the driver received all the frames of a sequence, it allocates an IOCB
-to put the frames in. In a situation where there was no IOCB available for
-the frame of a sequence, the RQ buffer corresponding to the first frame of
-the sequence was not returned to the FW. Eventually, with enough traffic
-encountering the situation, the timeout occurred.
-
-Fix by releasing the buffer back to firmware whenever there is no IOCB for
-the first frame.
-
-[mkp: typo]
-
-Link: https://lore.kernel.org/r/20200128002312.16346-2-jsmart2021@gmail.com
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: http://lkml.kernel.org/r/dfa331c00881d61c8ee51577a082d8bebd61805c.camel@perches.com
+Signed-off-by: Joe Perches <joe@perches.com>
+Cc: Dan Carpenter <error27@gmail.com>
+Cc: Julia Lawall <julia.lawall@lip6.fr>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Kees Cook <keescook@chromium.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/sys.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 480d2d467f7a6..45445dafc80cf 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -17038,6 +17038,10 @@ lpfc_prep_seq(struct lpfc_vport *vport, struct hbq_dmabuf *seq_dmabuf)
- 			list_add_tail(&iocbq->list, &first_iocbq->list);
- 		}
- 	}
-+	/* Free the sequence's header buffer */
-+	if (!first_iocbq)
-+		lpfc_in_buf_free(vport->phba, &seq_dmabuf->dbuf);
-+
- 	return first_iocbq;
- }
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 157277cbf83aa..546cdc911dad4 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1183,11 +1183,13 @@ SYSCALL_DEFINE1(uname, struct old_utsname __user *, name)
  
+ SYSCALL_DEFINE1(olduname, struct oldold_utsname __user *, name)
+ {
+-	struct oldold_utsname tmp = {};
++	struct oldold_utsname tmp;
+ 
+ 	if (!name)
+ 		return -EFAULT;
+ 
++	memset(&tmp, 0, sizeof(tmp));
++
+ 	down_read(&uts_sem);
+ 	memcpy(&tmp.sysname, &utsname()->sysname, __OLD_UTS_LEN);
+ 	memcpy(&tmp.nodename, &utsname()->nodename, __OLD_UTS_LEN);
 -- 
 2.25.1
 
