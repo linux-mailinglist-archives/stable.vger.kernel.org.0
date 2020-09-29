@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DD4A27C443
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0C8927C455
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728866AbgI2LMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:12:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54340 "EHLO mail.kernel.org"
+        id S1728936AbgI2LNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:13:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729325AbgI2LMb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:12:31 -0400
+        id S1728741AbgI2LMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:12:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AF7F20848;
-        Tue, 29 Sep 2020 11:12:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B70722158C;
+        Tue, 29 Sep 2020 11:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377951;
-        bh=JDZ3+6YB0uGguex7VGORBz61ij0uqFHkQ3vhlh0VuwY=;
+        s=default; t=1601377960;
+        bh=UxunQbslXvAqscfRlbbOD5E44laN1yYyIwyWDa3PMIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UatfUneAoY56H3rdZO5Jc+niozuClR+LM6SZjfCtN9rbqPoSweEimhY0jx0xYj78r
-         LA7cNX9V6RMRm3mDGL3ArQCKZY0PBhxNbbkD6HOPyS3p3uIh+mObATrdkq/sDqDHvG
-         tODNY/TGi064F1hFJNYrnyMncVgIqMVivem6B8zM=
+        b=SUlsh2FWHnFGO3iXFbzZ4oa/YRhbUHSO8U0gVxIh3m8owFKEEKYWnOr8tIw273oie
+         V0W0EjJ/sZxIpHHdRPBAJFTBzd6DodOhNoAjT5niJHkISaU80t/J08dxHC3obIXdwL
+         yGiQVzcwHBzPO6qNiWBNwjT+UCQoRO1Cu7LkVCu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Ying Xue <ying.xue@windriver.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 010/166] tipc: fix shutdown() of connection oriented socket
-Date:   Tue, 29 Sep 2020 12:58:42 +0200
-Message-Id: <20200929105935.710872245@linuxfoundation.org>
+Subject: [PATCH 4.14 013/166] net: phy: Avoid NPD upon phy_detach() when driver is unbound
+Date:   Tue, 29 Sep 2020 12:58:45 +0200
+Message-Id: <20200929105935.850984691@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -44,55 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit a4b5cc9e10803ecba64a7d54c0f47e4564b4a980 ]
+[ Upstream commit c2b727df7caa33876e7066bde090f40001b6d643 ]
 
-I confirmed that the problem fixed by commit 2a63866c8b51a3f7 ("tipc: fix
-shutdown() of connectionless socket") also applies to stream socket.
+If we have unbound the PHY driver prior to calling phy_detach() (often
+via phy_disconnect()) then we can cause a NULL pointer de-reference
+accessing the driver owner member. The steps to reproduce are:
 
-----------
-#include <sys/socket.h>
-#include <unistd.h>
-#include <sys/wait.h>
+echo unimac-mdio-0:01 > /sys/class/net/eth0/phydev/driver/unbind
+ip link set eth0 down
 
-int main(int argc, char *argv[])
-{
-        int fds[2] = { -1, -1 };
-        socketpair(PF_TIPC, SOCK_STREAM /* or SOCK_DGRAM */, 0, fds);
-        if (fork() == 0)
-                _exit(read(fds[0], NULL, 1));
-        shutdown(fds[0], SHUT_RDWR); /* This must make read() return. */
-        wait(NULL); /* To be woken up by _exit(). */
-        return 0;
-}
-----------
-
-Since shutdown(SHUT_RDWR) should affect all processes sharing that socket,
-unconditionally setting sk->sk_shutdown to SHUTDOWN_MASK will be the right
-behavior.
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Ying Xue <ying.xue@windriver.com>
+Fixes: cafe8df8b9bc ("net: phy: Fix lack of reference count on PHY driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/socket.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/phy/phy_device.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -2126,10 +2126,7 @@ static int tipc_shutdown(struct socket *
- 	lock_sock(sk);
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1121,7 +1121,8 @@ void phy_detach(struct phy_device *phyde
  
- 	__tipc_shutdown(sock, TIPC_CONN_SHUTDOWN);
--	if (tipc_sk_type_connectionless(sk))
--		sk->sk_shutdown = SHUTDOWN_MASK;
--	else
--		sk->sk_shutdown = SEND_SHUTDOWN;
-+	sk->sk_shutdown = SHUTDOWN_MASK;
+ 	phy_led_triggers_unregister(phydev);
  
- 	if (sk->sk_state == TIPC_DISCONNECTING) {
- 		/* Discard any unreceived messages */
+-	module_put(phydev->mdio.dev.driver->owner);
++	if (phydev->mdio.dev.driver)
++		module_put(phydev->mdio.dev.driver->owner);
+ 
+ 	/* If the device had no specific driver before (i.e. - it
+ 	 * was using the generic driver), we unbind the device
 
 
