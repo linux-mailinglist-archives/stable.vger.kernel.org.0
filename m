@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E89427C412
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:11:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 051AB27C36E
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728950AbgI2LLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:11:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51682 "EHLO mail.kernel.org"
+        id S1728756AbgI2LFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728899AbgI2LKo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:10:44 -0400
+        id S1728752AbgI2LFe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:05:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6693221E7;
-        Tue, 29 Sep 2020 11:10:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FFEA206DB;
+        Tue, 29 Sep 2020 11:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377843;
-        bh=z9P05llSOK1BE4OuzBrnxM1RTArEo67X2fzkWvR9Lew=;
+        s=default; t=1601377534;
+        bh=UU/31qxYgObmWTVl0a/JRmyowNYFcBBDe/gUgmdIVTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wQME6x8LdfrCBgSZH0TlEME5Jv9/fUcJ75vOYCdWVo9ywCHG+eYyvmdXS4K8Fk2ni
-         kjzjHB5Xifgwg05GqVoCIdsKQGOaQus25RZJ00xDRkSExoxmSHIUsEEetZm/39nGIf
-         wlY+VKDxjvJzxQ5uxK5315j7FKc1782lPLa5AEIU=
+        b=lubbpmyPAXW7pZCaYw3QuY5SgtePJYwfs8HHdokoeIu8aUtgbzPjVo74FDbegVeKM
+         ZNw7vBayfAVo8e0AjQVgWgqsSJbd4BAvOIntQfVCppyzZMQJcSDaPTTzkrnJb4eM4m
+         UhDA2swN2WKDAr4hjDx9Y6YdeDzkLI63XSmEaRiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie XiuQi <xiexiuqi@huawei.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Hongbo Yao <yaohongbo@huawei.com>,
-        Jiri Olsa <jolsa@redhat.com>, Li Bin <huawei.libin@huawei.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Alexandre Chartre <alexandre.chartre@oracle.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 093/121] perf util: Fix memory leak of prefix_if_not_in
+Subject: [PATCH 4.4 70/85] x86/speculation/mds: Mark mds_user_clear_cpu_buffers() __always_inline
 Date:   Tue, 29 Sep 2020 13:00:37 +0200
-Message-Id: <20200929105934.794999178@linuxfoundation.org>
+Message-Id: <20200929105931.714937142@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
+References: <20200929105928.198942536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,40 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie XiuQi <xiexiuqi@huawei.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 07e9a6f538cbeecaf5c55b6f2991416f873cdcbd ]
+[ Upstream commit a7ef9ba986b5fae9d80f8a7b31db0423687efe4e ]
 
-Need to free "str" before return when asprintf() failed to avoid memory
-leak.
+Prevent the compiler from uninlining and creating traceable/probable
+functions as this is invoked _after_ context tracking switched to
+CONTEXT_USER and rcu idle.
 
-Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Hongbo Yao <yaohongbo@huawei.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Li Bin <huawei.libin@huawei.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: http://lore.kernel.org/lkml/20200521133218.30150-4-liwei391@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Alexandre Chartre <alexandre.chartre@oracle.com>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200505134340.902709267@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/sort.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/nospec-branch.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/sort.c b/tools/perf/util/sort.c
-index 031e64ce71564..013e3f5102258 100644
---- a/tools/perf/util/sort.c
-+++ b/tools/perf/util/sort.c
-@@ -2532,7 +2532,7 @@ static char *prefix_if_not_in(const char *pre, char *str)
- 		return str;
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index 664e8505ccd63..2f84887e8934c 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -275,7 +275,7 @@ DECLARE_STATIC_KEY_FALSE(mds_idle_clear);
+  * combination with microcode which triggers a CPU buffer flush when the
+  * instruction is executed.
+  */
+-static inline void mds_clear_cpu_buffers(void)
++static __always_inline void mds_clear_cpu_buffers(void)
+ {
+ 	static const u16 ds = __KERNEL_DS;
  
- 	if (asprintf(&n, "%s,%s", pre, str) < 0)
--		return NULL;
-+		n = NULL;
- 
- 	free(str);
- 	return n;
+@@ -296,7 +296,7 @@ static inline void mds_clear_cpu_buffers(void)
+  *
+  * Clear CPU buffers if the corresponding static key is enabled
+  */
+-static inline void mds_user_clear_cpu_buffers(void)
++static __always_inline void mds_user_clear_cpu_buffers(void)
+ {
+ 	if (static_branch_likely(&mds_user_clear))
+ 		mds_clear_cpu_buffers();
 -- 
 2.25.1
 
