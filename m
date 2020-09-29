@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D7527CD24
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:42:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D4F327CC8F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729279AbgI2LL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:11:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52842 "EHLO mail.kernel.org"
+        id S1733016AbgI2MhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:37:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729242AbgI2LLb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:11:31 -0400
+        id S1729485AbgI2LU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:20:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0C8B21D41;
-        Tue, 29 Sep 2020 11:11:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 415EB2389F;
+        Tue, 29 Sep 2020 11:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377888;
-        bh=Iv6ppvJoKhjhqlIkS5Qv1CYo3cTY/5zWRRP49BKityI=;
+        s=default; t=1601378326;
+        bh=luOWHiJFrd9K3Kp8d/54e8Ay6zUO8Umkm6z9T/H+89U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lh9CqrjBnq83qy0hm2hK0LvRX7bvqnjz8YoNNKPkZKugES9dJTYSrcAFnUESjEpjN
-         ponwgSXJS7CcCJn5YuUYAUeR9s26B5/tieesViagyLoRbLLKHX/ue52XVRFMhVl/eG
-         DC2FiCmmz7CKek7Yy6yvJr8aS4R3Ly1zAI9NGZ+I=
+        b=ZhcDYH2B3N/HfUjlLvx9Uzm4K9CeR9+1NrFTussvZjH89nAU2InyKXhzcxJtqNeY/
+         Oo8h8xjRiFTo5cSj5F3laDBIeSZkqgg+ZzSNl8/WHrV6HGEldT951UibsQKlEcnbVr
+         u+57ryKA17Db2EtAoRbI7Ik766nTrP5McT31kMk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        Kaloyan Nikolov <konik98@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Zeng Tao <prime.zeng@hisilicon.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 108/121] mwifiex: Increase AES key storage size to 256 bits
-Date:   Tue, 29 Sep 2020 13:00:52 +0200
-Message-Id: <20200929105935.535119384@linuxfoundation.org>
+Subject: [PATCH 4.14 141/166] vfio/pci: fix racy on error and request eventfd ctx
+Date:   Tue, 29 Sep 2020 13:00:53 +0200
+Message-Id: <20200929105942.232364674@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,78 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Zeng Tao <prime.zeng@hisilicon.com>
 
-[ Upstream commit 4afc850e2e9e781976fb2c7852ce7bac374af938 ]
+[ Upstream commit b872d0640840018669032b20b6375a478ed1f923 ]
 
-Following commit e18696786548 ("mwifiex: Prevent memory corruption
-handling keys") the mwifiex driver fails to authenticate with certain
-networks, specifically networks with 256 bit keys, and repeatedly asks
-for the password. The kernel log repeats the following lines (id and
-bssid redacted):
+The vfio_pci_release call will free and clear the error and request
+eventfd ctx while these ctx could be in use at the same time in the
+function like vfio_pci_request, and it's expected to protect them under
+the vdev->igate mutex, which is missing in vfio_pci_release.
 
-    mwifiex_pcie 0000:01:00.0: info: trying to associate to '<id>' bssid <bssid>
-    mwifiex_pcie 0000:01:00.0: info: associated to bssid <bssid> successfully
-    mwifiex_pcie 0000:01:00.0: crypto keys added
-    mwifiex_pcie 0000:01:00.0: info: successfully disconnected from <bssid>: reason code 3
+This issue is introduced since commit 1518ac272e78 ("vfio/pci: fix memory
+leaks of eventfd ctx"),and since commit 5c5866c593bb ("vfio/pci: Clear
+error and request eventfd ctx after releasing"), it's very easily to
+trigger the kernel panic like this:
 
-Tracking down this problem lead to the overflow check introduced by the
-aforementioned commit into mwifiex_ret_802_11_key_material_v2(). This
-check fails on networks with 256 bit keys due to the current storage
-size for AES keys in struct mwifiex_aes_param being only 128 bit.
+[ 9513.904346] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
+[ 9513.913091] Mem abort info:
+[ 9513.915871]   ESR = 0x96000006
+[ 9513.918912]   EC = 0x25: DABT (current EL), IL = 32 bits
+[ 9513.924198]   SET = 0, FnV = 0
+[ 9513.927238]   EA = 0, S1PTW = 0
+[ 9513.930364] Data abort info:
+[ 9513.933231]   ISV = 0, ISS = 0x00000006
+[ 9513.937048]   CM = 0, WnR = 0
+[ 9513.940003] user pgtable: 4k pages, 48-bit VAs, pgdp=0000007ec7d12000
+[ 9513.946414] [0000000000000008] pgd=0000007ec7d13003, p4d=0000007ec7d13003, pud=0000007ec728c003, pmd=0000000000000000
+[ 9513.956975] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+[ 9513.962521] Modules linked in: vfio_pci vfio_virqfd vfio_iommu_type1 vfio hclge hns3 hnae3 [last unloaded: vfio_pci]
+[ 9513.972998] CPU: 4 PID: 1327 Comm: bash Tainted: G        W         5.8.0-rc4+ #3
+[ 9513.980443] Hardware name: Huawei TaiShan 2280 V2/BC82AMDC, BIOS 2280-V2 CS V3.B270.01 05/08/2020
+[ 9513.989274] pstate: 80400089 (Nzcv daIf +PAN -UAO BTYPE=--)
+[ 9513.994827] pc : _raw_spin_lock_irqsave+0x48/0x88
+[ 9513.999515] lr : eventfd_signal+0x6c/0x1b0
+[ 9514.003591] sp : ffff800038a0b960
+[ 9514.006889] x29: ffff800038a0b960 x28: ffff007ef7f4da10
+[ 9514.012175] x27: ffff207eefbbfc80 x26: ffffbb7903457000
+[ 9514.017462] x25: ffffbb7912191000 x24: ffff007ef7f4d400
+[ 9514.022747] x23: ffff20be6e0e4c00 x22: 0000000000000008
+[ 9514.028033] x21: 0000000000000000 x20: 0000000000000000
+[ 9514.033321] x19: 0000000000000008 x18: 0000000000000000
+[ 9514.038606] x17: 0000000000000000 x16: ffffbb7910029328
+[ 9514.043893] x15: 0000000000000000 x14: 0000000000000001
+[ 9514.049179] x13: 0000000000000000 x12: 0000000000000002
+[ 9514.054466] x11: 0000000000000000 x10: 0000000000000a00
+[ 9514.059752] x9 : ffff800038a0b840 x8 : ffff007ef7f4de60
+[ 9514.065038] x7 : ffff007fffc96690 x6 : fffffe01faffb748
+[ 9514.070324] x5 : 0000000000000000 x4 : 0000000000000000
+[ 9514.075609] x3 : 0000000000000000 x2 : 0000000000000001
+[ 9514.080895] x1 : ffff007ef7f4d400 x0 : 0000000000000000
+[ 9514.086181] Call trace:
+[ 9514.088618]  _raw_spin_lock_irqsave+0x48/0x88
+[ 9514.092954]  eventfd_signal+0x6c/0x1b0
+[ 9514.096691]  vfio_pci_request+0x84/0xd0 [vfio_pci]
+[ 9514.101464]  vfio_del_group_dev+0x150/0x290 [vfio]
+[ 9514.106234]  vfio_pci_remove+0x30/0x128 [vfio_pci]
+[ 9514.111007]  pci_device_remove+0x48/0x108
+[ 9514.115001]  device_release_driver_internal+0x100/0x1b8
+[ 9514.120200]  device_release_driver+0x28/0x38
+[ 9514.124452]  pci_stop_bus_device+0x68/0xa8
+[ 9514.128528]  pci_stop_and_remove_bus_device+0x20/0x38
+[ 9514.133557]  pci_iov_remove_virtfn+0xb4/0x128
+[ 9514.137893]  sriov_disable+0x3c/0x108
+[ 9514.141538]  pci_disable_sriov+0x28/0x38
+[ 9514.145445]  hns3_pci_sriov_configure+0x48/0xb8 [hns3]
+[ 9514.150558]  sriov_numvfs_store+0x110/0x198
+[ 9514.154724]  dev_attr_store+0x44/0x60
+[ 9514.158373]  sysfs_kf_write+0x5c/0x78
+[ 9514.162018]  kernfs_fop_write+0x104/0x210
+[ 9514.166010]  __vfs_write+0x48/0x90
+[ 9514.169395]  vfs_write+0xbc/0x1c0
+[ 9514.172694]  ksys_write+0x74/0x100
+[ 9514.176079]  __arm64_sys_write+0x24/0x30
+[ 9514.179987]  el0_svc_common.constprop.4+0x110/0x200
+[ 9514.184842]  do_el0_svc+0x34/0x98
+[ 9514.188144]  el0_svc+0x14/0x40
+[ 9514.191185]  el0_sync_handler+0xb0/0x2d0
+[ 9514.195088]  el0_sync+0x140/0x180
+[ 9514.198389] Code: b9001020 d2800000 52800022 f9800271 (885ffe61)
+[ 9514.204455] ---[ end trace 648de00c8406465f ]---
+[ 9514.212308] note: bash[1327] exited with preempt_count 1
 
-To fix this issue, increase the storage size for AES keys to 256 bit.
-
-Fixes: e18696786548 ("mwifiex: Prevent memory corruption handling keys")
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Reported-by: Kaloyan Nikolov <konik98@gmail.com>
-Tested-by: Kaloyan Nikolov <konik98@gmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Tested-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200825153829.38043-1-luzmaximilian@gmail.com
+Cc: Qian Cai <cai@lca.pw>
+Cc: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 1518ac272e78 ("vfio/pci: fix memory leaks of eventfd ctx")
+Signed-off-by: Zeng Tao <prime.zeng@hisilicon.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/fw.h          | 2 +-
- drivers/net/wireless/marvell/mwifiex/sta_cmdresp.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/vfio/pci/vfio_pci.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/fw.h b/drivers/net/wireless/marvell/mwifiex/fw.h
-index 395d6ece2cacb..341f6ed5b3556 100644
---- a/drivers/net/wireless/marvell/mwifiex/fw.h
-+++ b/drivers/net/wireless/marvell/mwifiex/fw.h
-@@ -921,7 +921,7 @@ struct mwifiex_tkip_param {
- struct mwifiex_aes_param {
- 	u8 pn[WPA_PN_SIZE];
- 	__le16 key_len;
--	u8 key[WLAN_KEY_LEN_CCMP];
-+	u8 key[WLAN_KEY_LEN_CCMP_256];
- } __packed;
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 4fbc38b955ad8..ac1c54bcfe8fb 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -399,14 +399,19 @@ static void vfio_pci_release(void *device_data)
+ 	if (!(--vdev->refcnt)) {
+ 		vfio_spapr_pci_eeh_release(vdev->pdev);
+ 		vfio_pci_disable(vdev);
++		mutex_lock(&vdev->igate);
+ 		if (vdev->err_trigger) {
+ 			eventfd_ctx_put(vdev->err_trigger);
+ 			vdev->err_trigger = NULL;
+ 		}
++		mutex_unlock(&vdev->igate);
++
++		mutex_lock(&vdev->igate);
+ 		if (vdev->req_trigger) {
+ 			eventfd_ctx_put(vdev->req_trigger);
+ 			vdev->req_trigger = NULL;
+ 		}
++		mutex_unlock(&vdev->igate);
+ 	}
  
- struct mwifiex_wapi_param {
-diff --git a/drivers/net/wireless/marvell/mwifiex/sta_cmdresp.c b/drivers/net/wireless/marvell/mwifiex/sta_cmdresp.c
-index 1e26936c0d727..aa84fdb709830 100644
---- a/drivers/net/wireless/marvell/mwifiex/sta_cmdresp.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sta_cmdresp.c
-@@ -625,7 +625,7 @@ static int mwifiex_ret_802_11_key_material_v2(struct mwifiex_private *priv,
- 	key_v2 = &resp->params.key_material_v2;
- 
- 	len = le16_to_cpu(key_v2->key_param_set.key_params.aes.key_len);
--	if (len > WLAN_KEY_LEN_CCMP)
-+	if (len > sizeof(key_v2->key_param_set.key_params.aes.key))
- 		return -EINVAL;
- 
- 	if (le16_to_cpu(key_v2->action) == HostCmd_ACT_GEN_SET) {
-@@ -641,7 +641,7 @@ static int mwifiex_ret_802_11_key_material_v2(struct mwifiex_private *priv,
- 		return 0;
- 
- 	memset(priv->aes_key_v2.key_param_set.key_params.aes.key, 0,
--	       WLAN_KEY_LEN_CCMP);
-+	       sizeof(key_v2->key_param_set.key_params.aes.key));
- 	priv->aes_key_v2.key_param_set.key_params.aes.key_len =
- 				cpu_to_le16(len);
- 	memcpy(priv->aes_key_v2.key_param_set.key_params.aes.key,
+ 	mutex_unlock(&driver_lock);
 -- 
 2.25.1
 
