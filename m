@@ -2,111 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58D2727BC8B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 07:50:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB6127BCB6
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 08:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725765AbgI2Ft7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 01:49:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39316 "EHLO mail.kernel.org"
+        id S1725765AbgI2GCC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 02:02:02 -0400
+Received: from mail.intenta.de ([178.249.25.132]:27217 "EHLO mail.intenta.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725468AbgI2Ft7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 01:49:59 -0400
-Received: from devnote2 (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9955420BED;
-        Tue, 29 Sep 2020 05:49:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601358598;
-        bh=LNuCdYX/8j1ql9YsuaAraX7IDziICskf09LYTmVNjm4=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=xk24tV0IpX8v12Lqbl5cwuyW6CBa2/foUA1c2zSMJ4XkbeP/6UdtzdoR6hrEfh5sx
-         TSSmzuwvC+LHwR3m7HDMK85VjVLJWjhTg/Rqrh/chE9WKyKT+kPHF9VJxp+yddzzJt
-         zLULJZ5jPQ6/8r98hDzOm3OegMOdAFF71oUrLenc=
-Date:   Tue, 29 Sep 2020 14:49:54 +0900
-From:   Masami Hiramatsu <mhiramat@kernel.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>
-Subject: Re: [PATCH 4.19 38/92] kprobes: Fix NULL pointer dereference at
- kprobe_ftrace_handler
-Message-Id: <20200929144954.56090c5eeb5a36e1f552b315@kernel.org>
-In-Reply-To: <20200928181535.56d7b2cb@oasis.local.home>
-References: <20200820091537.490965042@linuxfoundation.org>
-        <20200820091539.592290034@linuxfoundation.org>
-        <CA+G9fYvdQv2Ukvs-UKiEgYaDdBthsWsY=35cQ4YpvMhA0hU5Gg@mail.gmail.com>
-        <20200928180942.100aa6c8@oasis.local.home>
-        <20200928181535.56d7b2cb@oasis.local.home>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1725468AbgI2GCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 02:02:02 -0400
+X-Greylist: delayed 319 seconds by postgrey-1.27 at vger.kernel.org; Tue, 29 Sep 2020 02:02:01 EDT
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=intenta.de; s=dkim1;
+        h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:Subject:CC:To:From:Date; bh=2pMj28T6Gnzme5ijvO2L3EUhNGLWzy7xk/Tfgk0DFuA=;
+        b=E4T4vFjfZ4c73i5EgjlFdygr8nqy7rNoDnidcy/VX1njr6BnKcpN1JTowcXDC9mvP+sRlOKZxXKTJx8imNAH7eEeK/g6Nlil7PsurMzKCvLF9G9STXK/sg4Z92K8BK0kDyPLmdQIQn8LunDKMbIE5xOoCTMdSQlSZmpwIundp/KAC6Vn65IRM57VV48k4k83rMBkzlcbPJNqLam/36Ij4F1hj40bYX8eXYq9zSVW2aBolofBQNJpav3SLKihhibOt3SJIgANagPa46bVcPY6b6vbvDLBFMkHzxUfrp1SUsczO8hQA2cSCcGkdBbaP2z93DKLbQ7yQTjbeT5CazCUNA==;
+Date:   Tue, 29 Sep 2020 07:56:30 +0200
+From:   Helmut Grohne <helmut.grohne@intenta.de>
+To:     Sasha Levin <sashal@kernel.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.8 08/29] net: dsa: microchip: look for phy-mode
+ in port nodes
+Message-ID: <20200929055630.GA9320@laureti-dev>
+References: <20200929013027.2406344-1-sashal@kernel.org>
+ <20200929013027.2406344-8-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20200929013027.2406344-8-sashal@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-ClientProxiedBy: ICSMA002.intenta.de (10.10.16.48) To ICSMA002.intenta.de
+ (10.10.16.48)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Hi Sascha,
 
-On Mon, 28 Sep 2020 18:15:35 -0400
-Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> On Mon, 28 Sep 2020 18:09:42 -0400
-> Steven Rostedt <rostedt@goodmis.org> wrote:
+On Tue, Sep 29, 2020 at 03:30:05AM +0200, Sasha Levin wrote:
+> From: Helmut Grohne <helmut.grohne@intenta.de>
 > 
-> > On Tue, 29 Sep 2020 01:32:59 +0530
-> > Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> > 
-> > > stable rc branch 4.19 build warning on arm64.
-> > > 
-> > > ../kernel/kprobes.c: In function ‘kill_kprobe’:
-> > > ../kernel/kprobes.c:1070:33: warning: statement with no effect [-Wunused-value]
-> > >  1070 | #define disarm_kprobe_ftrace(p) (-ENODEV)
-> > >       |                                 ^
-> > > ../kernel/kprobes.c:2090:3: note: in expansion of macro ‘disarm_kprobe_ftrace’
-> > >  2090 |   disarm_kprobe_ftrace(p);
-> > >       |   ^~~~~~~~~~~~~~~~~~~~  
-> > 
-> > Seems to affect upstream as well.
-> > 
+> [ Upstream commit edecfa98f602a597666e3c5cab2677ada38d93c5 ]
 > 
-> Bah, no (tested the wrong kernel).
+> Documentation/devicetree/bindings/net/dsa/dsa.txt says that the phy-mode
+> property should be specified on port nodes. However, the microchip
+> drivers read it from the switch node.
 > 
-> You want this commit too:
+> Let the driver use the per-port property and fall back to the old
+> location with a warning.
 > 
-> 10de795a5addd ("kprobes: Fix compiler warning for !CONFIG_KPROBES_ON_FTRACE")
+> Fix in-tree users.
 
-It seems that this commit's Fixes tag is wrong.
+I don't think this patch is useful for stable users. It corrects a
+device tree layout issue. Any existing users of the functionality will
+have an odd, but working device tree and that will continue working
+(with a warning) after applying this patch. It just has a property on
+the "wrong" node. I don't think I'd like to update my device tree in a
+stable update.
 
-ae6aa16fdc163 (Masami Hiramatsu           2012-06-05 19:28:32 +0900 1079) #define prepare_kprobe(p)     arch_prepare_kprobe(p)
-12310e3437554 (Jessica Yu                 2018-01-10 00:51:23 +0100 1080) #define arm_kprobe_ftrace(p)  (-ENODEV)
-297f9233b53a0 (Jessica Yu                 2018-01-10 00:51:24 +0100 1081) #define disarm_kprobe_ftrace(p)       (-ENODEV)
+If you apply it anyway, please also apply a fixup:
+https://lore.kernel.org/netdev/20200924083746.GA9410@laureti-dev/
 
-Thus, it should have "Fixes: 297f9233b53a ("kprobes: Propagate error from disarm_kprobe_ftrace()")"
-
-$ git tag -l --contains 297f9233b53a | grep "^v[[:digit:].]*$" | cut -f1-2 -d. | uniq
-v4.16
-v4.17
-v4.18
-v4.19
-v4.20
-v5.0
-v5.1
-v5.2
-v5.3
-v5.4
-v5.5
-v5.6
-v5.7
-v5.8
-
-So the commit 10de795a5addd must be backported to 4.19.y and 5.4.y.
-
-Thank you,
-
--- 
-Masami Hiramatsu <mhiramat@kernel.org>
+Helmut
