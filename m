@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E758027C95B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:10:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE85227C8B6
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:05:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731997AbgI2MJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:09:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50296 "EHLO mail.kernel.org"
+        id S1728878AbgI2MED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:04:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730198AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:37:34 -0400
+        id S1729106AbgI2Lia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:38:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDEFA2388B;
-        Tue, 29 Sep 2020 11:21:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D52BD20848;
+        Tue, 29 Sep 2020 11:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378499;
-        bh=nX3DTM5Ewen4XrZjNvycb3qTSp1aZyMl2SNx7DYh0b0=;
+        s=default; t=1601379481;
+        bh=Adt6RvK5imwNgQL791a9n50jRKgHUDzZKp9JlfVyb6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ruiaoBf3nKHMFunVbiKvb6wtm0w9EDDp2jT3ke4R1xHYe1dGGrroTPl6j3nH8u6DF
-         vy7PsQmKR7kVOLae/DH8O0cif9dpw1jGGM0d9yVJHBvYu+YD+ga1vQck+ceW84UBWI
-         7+w9BtHhe8ruD06UlGcmIN8qEuM37nerGKHrqwnY=
+        b=xnAP0TB7DZv7r8816SQduah10LdLIMs54vV3ZPHSTBEhqGPvaKbutBLEp8GPsL1oR
+         aZ7SvLS6mxsm5pmGrq1rcFNgdBXLE4SQtbx6PU4tZLoJCqo6IVXDoBdtjG86hpYvjS
+         nImn+eu1QhCBmQEMk0/PhT7KGD/AVqJY83QOvEi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 035/245] xfs: fix attr leaf header freemap.size underflow
+Subject: [PATCH 5.4 155/388] clk: imx: Fix division by zero warning on pfdv2
 Date:   Tue, 29 Sep 2020 12:58:06 +0200
-Message-Id: <20200929105948.716103355@linuxfoundation.org>
+Message-Id: <20200929110017.977454048@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit 2a2b5932db67586bacc560cc065d62faece5b996 ]
+[ Upstream commit 28b2f82e0383e27476be8a5e13d2aea07ebeb275 ]
 
-The leaf format xattr addition helper xfs_attr3_leaf_add_work()
-adjusts the block freemap in a couple places. The first update drops
-the size of the freemap that the caller had already selected to
-place the xattr name/value data. Before the function returns, it
-also checks whether the entries array has encroached on a freemap
-range by virtue of the new entry addition. This is necessary because
-the entries array grows from the start of the block (but end of the
-block header) towards the end of the block while the name/value data
-grows from the end of the block in the opposite direction. If the
-associated freemap is already empty, however, size is zero and the
-subtraction underflows the field and causes corruption.
+Fix below division by zero warning:
 
-This is reproduced rarely by generic/070. The observed behavior is
-that a smaller sized freemap is aligned to the end of the entries
-list, several subsequent xattr additions land in larger freemaps and
-the entries list expands into the smaller freemap until it is fully
-consumed and then underflows. Note that it is not otherwise a
-corruption for the entries array to consume an empty freemap because
-the nameval list (i.e. the firstused pointer in the xattr header)
-starts beyond the end of the corrupted freemap.
+[    3.176443] Division by zero in kernel.
+[    3.181809] CPU: 0 PID: 88 Comm: kworker/0:2 Not tainted 5.3.0-rc2-next-20190730-63758-ge08da51-dirty #124
+[    3.191817] Hardware name: Freescale i.MX7ULP (Device Tree)
+[    3.197821] Workqueue: events dbs_work_handler
+[    3.202849] [<c01127d8>] (unwind_backtrace) from [<c010cd80>] (show_stack+0x10/0x14)
+[    3.211058] [<c010cd80>] (show_stack) from [<c0c77e68>] (dump_stack+0xd8/0x110)
+[    3.218820] [<c0c77e68>] (dump_stack) from [<c0c753c0>] (Ldiv0_64+0x8/0x18)
+[    3.226263] [<c0c753c0>] (Ldiv0_64) from [<c05984b4>] (clk_pfdv2_set_rate+0x54/0xac)
+[    3.234487] [<c05984b4>] (clk_pfdv2_set_rate) from [<c059192c>] (clk_change_rate+0x1a4/0x698)
+[    3.243468] [<c059192c>] (clk_change_rate) from [<c0591a08>] (clk_change_rate+0x280/0x698)
+[    3.252180] [<c0591a08>] (clk_change_rate) from [<c0591fc0>] (clk_core_set_rate_nolock+0x1a0/0x278)
+[    3.261679] [<c0591fc0>] (clk_core_set_rate_nolock) from [<c05920c8>] (clk_set_rate+0x30/0x64)
+[    3.270743] [<c05920c8>] (clk_set_rate) from [<c089cb88>] (imx7ulp_set_target+0x184/0x2a4)
+[    3.279501] [<c089cb88>] (imx7ulp_set_target) from [<c0896358>] (__cpufreq_driver_target+0x188/0x514)
+[    3.289196] [<c0896358>] (__cpufreq_driver_target) from [<c0899b0c>] (od_dbs_update+0x130/0x15c)
+[    3.298438] [<c0899b0c>] (od_dbs_update) from [<c089a5d0>] (dbs_work_handler+0x2c/0x5c)
+[    3.306914] [<c089a5d0>] (dbs_work_handler) from [<c0156858>] (process_one_work+0x2ac/0x704)
+[    3.315826] [<c0156858>] (process_one_work) from [<c0156cdc>] (worker_thread+0x2c/0x574)
+[    3.324404] [<c0156cdc>] (worker_thread) from [<c015cfe8>] (kthread+0x134/0x148)
+[    3.332278] [<c015cfe8>] (kthread) from [<c01010b4>] (ret_from_fork+0x14/0x20)
+[    3.339858] Exception stack(0xe82d5fb0 to 0xe82d5ff8)
+[    3.345314] 5fa0:                                     00000000 00000000 00000000 00000000
+[    3.353926] 5fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[    3.362519] 5fe0: 00000000 00000000 00000000 00000000 00000013 00000000
 
-Update the freemap size modification to account for the fact that
-the freemap entry can be empty and thus stale.
-
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/clk/imx/clk-pfdv2.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
-index bd37f4a292c3b..efb586ea508bf 100644
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -1438,7 +1438,9 @@ xfs_attr3_leaf_add_work(
- 	for (i = 0; i < XFS_ATTR_LEAF_MAPSIZE; i++) {
- 		if (ichdr->freemap[i].base == tmp) {
- 			ichdr->freemap[i].base += sizeof(xfs_attr_leaf_entry_t);
--			ichdr->freemap[i].size -= sizeof(xfs_attr_leaf_entry_t);
-+			ichdr->freemap[i].size -=
-+				min_t(uint16_t, ichdr->freemap[i].size,
-+						sizeof(xfs_attr_leaf_entry_t));
- 		}
- 	}
- 	ichdr->usedbytes += xfs_attr_leaf_entsize(leaf, args->index);
+diff --git a/drivers/clk/imx/clk-pfdv2.c b/drivers/clk/imx/clk-pfdv2.c
+index a03bbed662c6b..2a46b9b61b466 100644
+--- a/drivers/clk/imx/clk-pfdv2.c
++++ b/drivers/clk/imx/clk-pfdv2.c
+@@ -139,6 +139,12 @@ static int clk_pfdv2_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	u32 val;
+ 	u8 frac;
+ 
++	if (!rate)
++		return -EINVAL;
++
++	/* PFD can NOT change rate without gating */
++	WARN_ON(clk_pfdv2_is_enabled(hw));
++
+ 	tmp = tmp * 18 + rate / 2;
+ 	do_div(tmp, rate);
+ 	frac = tmp;
 -- 
 2.25.1
 
