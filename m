@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F6EC27CA9B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E758027C95B
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:10:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729866AbgI2MUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:20:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49136 "EHLO mail.kernel.org"
+        id S1731997AbgI2MJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:09:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729876AbgI2Lfg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:35:36 -0400
+        id S1730198AbgI2Lhe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:37:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04B472376E;
-        Tue, 29 Sep 2020 11:21:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDEFA2388B;
+        Tue, 29 Sep 2020 11:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378496;
-        bh=UmE6HDmKHh1tjp+4Mo2RuBKkzu03dbR/zl8DtI3X64A=;
+        s=default; t=1601378499;
+        bh=nX3DTM5Ewen4XrZjNvycb3qTSp1aZyMl2SNx7DYh0b0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MwPtmxh0P2V1aUiyLIt8yc2s2hiqCfFo2FQuFDgD5jRjpp/dRlIokZxPMFtiDBICb
-         vCnqcqnPzoxd73mlQRtr5X7xGam2KOrrgXWWEwa3BIcVss0IFnb2Kqfu7fL19OUvAY
-         5ifVOC64Xb/3/RUN0lhmJlkufFA4VNCuANrTQqmY=
+        b=ruiaoBf3nKHMFunVbiKvb6wtm0w9EDDp2jT3ke4R1xHYe1dGGrroTPl6j3nH8u6DF
+         vy7PsQmKR7kVOLae/DH8O0cif9dpw1jGGM0d9yVJHBvYu+YD+ga1vQck+ceW84UBWI
+         7+w9BtHhe8ruD06UlGcmIN8qEuM37nerGKHrqwnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 034/245] fix dget_parent() fastpath race
-Date:   Tue, 29 Sep 2020 12:58:05 +0200
-Message-Id: <20200929105948.667514643@linuxfoundation.org>
+Subject: [PATCH 4.19 035/245] xfs: fix attr leaf header freemap.size underflow
+Date:   Tue, 29 Sep 2020 12:58:06 +0200
+Message-Id: <20200929105948.716103355@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -42,73 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit e84009336711d2bba885fc9cea66348ddfce3758 ]
+[ Upstream commit 2a2b5932db67586bacc560cc065d62faece5b996 ]
 
-We are overoptimistic about taking the fast path there; seeing
-the same value in ->d_parent after having grabbed a reference
-to that parent does *not* mean that it has remained our parent
-all along.
+The leaf format xattr addition helper xfs_attr3_leaf_add_work()
+adjusts the block freemap in a couple places. The first update drops
+the size of the freemap that the caller had already selected to
+place the xattr name/value data. Before the function returns, it
+also checks whether the entries array has encroached on a freemap
+range by virtue of the new entry addition. This is necessary because
+the entries array grows from the start of the block (but end of the
+block header) towards the end of the block while the name/value data
+grows from the end of the block in the opposite direction. If the
+associated freemap is already empty, however, size is zero and the
+subtraction underflows the field and causes corruption.
 
-That wouldn't be a big deal (in the end it is our parent and
-we have grabbed the reference we are about to return), but...
-the situation with barriers is messed up.
+This is reproduced rarely by generic/070. The observed behavior is
+that a smaller sized freemap is aligned to the end of the entries
+list, several subsequent xattr additions land in larger freemaps and
+the entries list expands into the smaller freemap until it is fully
+consumed and then underflows. Note that it is not otherwise a
+corruption for the entries array to consume an empty freemap because
+the nameval list (i.e. the firstused pointer in the xattr header)
+starts beyond the end of the corrupted freemap.
 
-We might have hit the following sequence:
+Update the freemap size modification to account for the fact that
+the freemap entry can be empty and thus stale.
 
-d is a dentry of /tmp/a/b
-CPU1:					CPU2:
-parent = d->d_parent (i.e. dentry of /tmp/a)
-					rename /tmp/a/b to /tmp/b
-					rmdir /tmp/a, making its dentry negative
-grab reference to parent,
-end up with cached parent->d_inode (NULL)
-					mkdir /tmp/a, rename /tmp/b to /tmp/a/b
-recheck d->d_parent, which is back to original
-decide that everything's fine and return the reference we'd got.
-
-The trouble is, caller (on CPU1) will observe dget_parent()
-returning an apparently negative dentry.  It actually is positive,
-but CPU1 has stale ->d_inode cached.
-
-Use d->d_seq to see if it has been moved instead of rechecking ->d_parent.
-NOTE: we are *NOT* going to retry on any kind of ->d_seq mismatch;
-we just go into the slow path in such case.  We don't wait for ->d_seq
-to become even either - again, if we are racing with renames, we
-can bloody well go to slow path anyway.
-
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dcache.c | 4 +++-
+ fs/xfs/libxfs/xfs_attr_leaf.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/dcache.c b/fs/dcache.c
-index 6e0022326afe3..20370a0997bf9 100644
---- a/fs/dcache.c
-+++ b/fs/dcache.c
-@@ -864,17 +864,19 @@ struct dentry *dget_parent(struct dentry *dentry)
- {
- 	int gotref;
- 	struct dentry *ret;
-+	unsigned seq;
- 
- 	/*
- 	 * Do optimistic parent lookup without any
- 	 * locking.
- 	 */
- 	rcu_read_lock();
-+	seq = raw_seqcount_begin(&dentry->d_seq);
- 	ret = READ_ONCE(dentry->d_parent);
- 	gotref = lockref_get_not_zero(&ret->d_lockref);
- 	rcu_read_unlock();
- 	if (likely(gotref)) {
--		if (likely(ret == READ_ONCE(dentry->d_parent)))
-+		if (!read_seqcount_retry(&dentry->d_seq, seq))
- 			return ret;
- 		dput(ret);
+diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
+index bd37f4a292c3b..efb586ea508bf 100644
+--- a/fs/xfs/libxfs/xfs_attr_leaf.c
++++ b/fs/xfs/libxfs/xfs_attr_leaf.c
+@@ -1438,7 +1438,9 @@ xfs_attr3_leaf_add_work(
+ 	for (i = 0; i < XFS_ATTR_LEAF_MAPSIZE; i++) {
+ 		if (ichdr->freemap[i].base == tmp) {
+ 			ichdr->freemap[i].base += sizeof(xfs_attr_leaf_entry_t);
+-			ichdr->freemap[i].size -= sizeof(xfs_attr_leaf_entry_t);
++			ichdr->freemap[i].size -=
++				min_t(uint16_t, ichdr->freemap[i].size,
++						sizeof(xfs_attr_leaf_entry_t));
+ 		}
  	}
+ 	ichdr->usedbytes += xfs_attr_leaf_entsize(leaf, args->index);
 -- 
 2.25.1
 
