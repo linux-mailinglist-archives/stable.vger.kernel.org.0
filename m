@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D222527CDD3
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F7227CCAB
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728679AbgI2LFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:05:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41156 "EHLO mail.kernel.org"
+        id S1733234AbgI2MiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:38:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728198AbgI2LEy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:04:54 -0400
+        id S1729454AbgI2LRY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:17:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AABEB21734;
-        Tue, 29 Sep 2020 11:04:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47CB42083B;
+        Tue, 29 Sep 2020 11:17:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377494;
-        bh=nYibujcRQpsv8CCI/+pEmS6ylsTI/XAJNTHgYKHpAu8=;
+        s=default; t=1601378243;
+        bh=84NPpZImadgJhsgUCuoEHWvp2V2JCREoseBsjwS1PfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c5ZPzm7Wh205nuNkgZZB+3UzmF6zH1CyWivdNys5jlO0kGhKS58r13d2QeYSCesIq
-         g4NmLe5Gvy7gJUj9tL0y2OwOy3a3+T8trtUPl+Vshgf1l63mPPXmM0HP5AIypbhr3J
-         xh4fpW64eakp0IXxsjvavAkeIrwWb/ZEXwZN1Wd8=
+        b=ZLNzCf94pOgbuc6Ulab5ZbwvgU2BrzZc5ro8rhh+Q0S17QMRlIbzkJQgpfpuvziOD
+         9AE+NQdLzqLN2miETKsTmrgqPLMJQRgEr6Nmw+FQ+3IzeaGSLqMfHv2r84r4hmQAJx
+         KN6RRDcUnrMQUo7DoXqS+qubefK8FdBYlMcqdsAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Cong Wang <xiyou.wangcong@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 55/85] atm: fix a memory leak of vcc->user_back
-Date:   Tue, 29 Sep 2020 13:00:22 +0200
-Message-Id: <20200929105930.966110038@linuxfoundation.org>
+Subject: [PATCH 4.14 111/166] atm: fix a memory leak of vcc->user_back
+Date:   Tue, 29 Sep 2020 13:00:23 +0200
+Message-Id: <20200929105940.740337084@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -79,10 +79,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+)
 
 diff --git a/net/atm/lec.c b/net/atm/lec.c
-index e4afac94ff158..a38680e194436 100644
+index 85ce89c8a35c9..0b0794b6a8149 100644
 --- a/net/atm/lec.c
 +++ b/net/atm/lec.c
-@@ -1290,6 +1290,12 @@ static void lec_arp_clear_vccs(struct lec_arp_table *entry)
+@@ -1282,6 +1282,12 @@ static void lec_arp_clear_vccs(struct lec_arp_table *entry)
  		entry->vcc = NULL;
  	}
  	if (entry->recv_vcc) {
