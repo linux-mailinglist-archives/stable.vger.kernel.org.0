@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A74427C722
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8061F27C67F
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731232AbgI2Lvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:51:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50412 "EHLO mail.kernel.org"
+        id S1730704AbgI2Lpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:45:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731119AbgI2LsQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:48:16 -0400
+        id S1728615AbgI2Lp3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:45:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EB85206F7;
-        Tue, 29 Sep 2020 11:48:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 326BB20848;
+        Tue, 29 Sep 2020 11:45:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601380095;
-        bh=dHLNmb2pX13O08CVrF8T285nOhi98ZB73yvaJnTPrSE=;
+        s=default; t=1601379928;
+        bh=VwKYcLdKdyLywwkV/IU6tgV8uptS/9x4Zk9BQYEnp6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzxNCPmhd8/QG3ka7zG55J4kQ3xbf5WAsc2E+VRHxjj9+gJDIVMkTwA+Mim+7fbOt
-         YNv1007PLrnZHuUwQoCi6xWpCfG7gKdECv6QYowFZ5qA54Ru9V5j0ECmhVG2hbNCNq
-         +mKP9ZPXFQNe/ssNPseTGIJa8Bp+w6mox8o2LAEM=
+        b=IdbcwDLDxOYwb20VOSJUoeJCaZIJnWoYJQC2/o0zi1rqa7n6aqJQOR0dDP/Yw7C8G
+         gjfTH9ZE1ePuT4A00VrSpdBFMCG3y88spjMA5KNg1JCrqTos5NAdRIcdzQKW3iD16C
+         GzOfqZfposOet6UcCBD4mlMdn140+94MYut+wdGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 66/99] regulator: axp20x: fix LDO2/4 description
+        stable@vger.kernel.org,
+        syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 378/388] btrfs: fix overflow when copying corrupt csums for a message
 Date:   Tue, 29 Sep 2020 13:01:49 +0200
-Message-Id: <20200929105932.980715248@linuxfoundation.org>
+Message-Id: <20200929110028.760543733@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Icenowy Zheng <icenowy@aosc.io>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-[ Upstream commit fbb5a79d2fe7b01c6424fbbc04368373b1672d61 ]
+commit 35be8851d172c6e3db836c0f28c19087b10c9e00 upstream.
 
-Currently we wrongly set the mask of value of LDO2/4 both to the mask of
-LDO2, and the LDO4 voltage configuration is left untouched. This leads
-to conflict when LDO2/4 are both in use.
+Syzkaller reported a buffer overflow in btree_readpage_end_io_hook()
+when loop mounting a crafted image:
 
-Fix this issue by setting different vsel_mask to both regulators.
+  detected buffer overflow in memcpy
+  ------------[ cut here ]------------
+  kernel BUG at lib/string.c:1129!
+  invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+  CPU: 1 PID: 26 Comm: kworker/u4:2 Not tainted 5.9.0-rc4-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Workqueue: btrfs-endio-meta btrfs_work_helper
+  RIP: 0010:fortify_panic+0xf/0x20 lib/string.c:1129
+  RSP: 0018:ffffc90000e27980 EFLAGS: 00010286
+  RAX: 0000000000000022 RBX: ffff8880a80dca64 RCX: 0000000000000000
+  RDX: ffff8880a90860c0 RSI: ffffffff815dba07 RDI: fffff520001c4f22
+  RBP: ffff8880a80dca00 R08: 0000000000000022 R09: ffff8880ae7318e7
+  R10: 0000000000000000 R11: 0000000000077578 R12: 00000000ffffff6e
+  R13: 0000000000000008 R14: ffffc90000e27a40 R15: 1ffff920001c4f3c
+  FS:  0000000000000000(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000557335f440d0 CR3: 000000009647d000 CR4: 00000000001506e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   memcpy include/linux/string.h:405 [inline]
+   btree_readpage_end_io_hook.cold+0x206/0x221 fs/btrfs/disk-io.c:642
+   end_bio_extent_readpage+0x4de/0x10c0 fs/btrfs/extent_io.c:2854
+   bio_endio+0x3cf/0x7f0 block/bio.c:1449
+   end_workqueue_fn+0x114/0x170 fs/btrfs/disk-io.c:1695
+   btrfs_work_helper+0x221/0xe20 fs/btrfs/async-thread.c:318
+   process_one_work+0x94c/0x1670 kernel/workqueue.c:2269
+   worker_thread+0x64c/0x1120 kernel/workqueue.c:2415
+   kthread+0x3b5/0x4a0 kernel/kthread.c:292
+   ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+  Modules linked in:
+  ---[ end trace b68924293169feef ]---
+  RIP: 0010:fortify_panic+0xf/0x20 lib/string.c:1129
+  RSP: 0018:ffffc90000e27980 EFLAGS: 00010286
+  RAX: 0000000000000022 RBX: ffff8880a80dca64 RCX: 0000000000000000
+  RDX: ffff8880a90860c0 RSI: ffffffff815dba07 RDI: fffff520001c4f22
+  RBP: ffff8880a80dca00 R08: 0000000000000022 R09: ffff8880ae7318e7
+  R10: 0000000000000000 R11: 0000000000077578 R12: 00000000ffffff6e
+  R13: 0000000000000008 R14: ffffc90000e27a40 R15: 1ffff920001c4f3c
+  FS:  0000000000000000(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f95b7c4d008 CR3: 000000009647d000 CR4: 00000000001506e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-Fixes: db4a555f7c4c ("regulator: axp20x: use defines for masks")
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-Link: https://lore.kernel.org/r/20200923005142.147135-1-icenowy@aosc.io
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The overflow happens, because in btree_readpage_end_io_hook() we assume
+that we have found a 4 byte checksum instead of the real possible 32
+bytes we have for the checksums.
+
+With the fix applied:
+
+[   35.726623] BTRFS: device fsid 815caf9a-dc43-4d2a-ac54-764b8333d765 devid 1 transid 5 /dev/loop0 scanned by syz-repro (215)
+[   35.738994] BTRFS info (device loop0): disk space caching is enabled
+[   35.738998] BTRFS info (device loop0): has skinny extents
+[   35.743337] BTRFS warning (device loop0): loop0 checksum verify failed on 1052672 wanted 0xf9c035fc8d239a54 found 0x67a25c14b7eabcf9 level 0
+[   35.743420] BTRFS error (device loop0): failed to read chunk root
+[   35.745899] BTRFS error (device loop0): open_ctree failed
+
+Reported-by: syzbot+e864a35d361e1d4e29a5@syzkaller.appspotmail.com
+Fixes: d5178578bcd4 ("btrfs: directly call into crypto framework for checksumming")
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/regulator/axp20x-regulator.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/btrfs/disk-io.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
-index fbc95cadaf539..126649c172e11 100644
---- a/drivers/regulator/axp20x-regulator.c
-+++ b/drivers/regulator/axp20x-regulator.c
-@@ -42,8 +42,9 @@
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -649,16 +649,15 @@ static int btree_readpage_end_io_hook(st
+ 		goto err;
  
- #define AXP20X_DCDC2_V_OUT_MASK		GENMASK(5, 0)
- #define AXP20X_DCDC3_V_OUT_MASK		GENMASK(7, 0)
--#define AXP20X_LDO24_V_OUT_MASK		GENMASK(7, 4)
-+#define AXP20X_LDO2_V_OUT_MASK		GENMASK(7, 4)
- #define AXP20X_LDO3_V_OUT_MASK		GENMASK(6, 0)
-+#define AXP20X_LDO4_V_OUT_MASK		GENMASK(3, 0)
- #define AXP20X_LDO5_V_OUT_MASK		GENMASK(7, 4)
+ 	if (memcmp_extent_buffer(eb, result, 0, csum_size)) {
+-		u32 val;
+-		u32 found = 0;
+-
+-		memcpy(&found, result, csum_size);
++		u8 val[BTRFS_CSUM_SIZE] = { 0 };
  
- #define AXP20X_PWR_OUT_EXTEN_MASK	BIT_MASK(0)
-@@ -542,14 +543,14 @@ static const struct regulator_desc axp20x_regulators[] = {
- 		 AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_DCDC3_MASK),
- 	AXP_DESC_FIXED(AXP20X, LDO1, "ldo1", "acin", 1300),
- 	AXP_DESC(AXP20X, LDO2, "ldo2", "ldo24in", 1800, 3300, 100,
--		 AXP20X_LDO24_V_OUT, AXP20X_LDO24_V_OUT_MASK,
-+		 AXP20X_LDO24_V_OUT, AXP20X_LDO2_V_OUT_MASK,
- 		 AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_LDO2_MASK),
- 	AXP_DESC(AXP20X, LDO3, "ldo3", "ldo3in", 700, 3500, 25,
- 		 AXP20X_LDO3_V_OUT, AXP20X_LDO3_V_OUT_MASK,
- 		 AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_LDO3_MASK),
- 	AXP_DESC_RANGES(AXP20X, LDO4, "ldo4", "ldo24in",
- 			axp20x_ldo4_ranges, AXP20X_LDO4_V_OUT_NUM_VOLTAGES,
--			AXP20X_LDO24_V_OUT, AXP20X_LDO24_V_OUT_MASK,
-+			AXP20X_LDO24_V_OUT, AXP20X_LDO4_V_OUT_MASK,
- 			AXP20X_PWR_OUT_CTRL, AXP20X_PWR_OUT_LDO4_MASK),
- 	AXP_DESC_IO(AXP20X, LDO5, "ldo5", "ldo5in", 1800, 3300, 100,
- 		    AXP20X_LDO5_V_OUT, AXP20X_LDO5_V_OUT_MASK,
--- 
-2.25.1
-
+ 		read_extent_buffer(eb, &val, 0, csum_size);
+ 		btrfs_warn_rl(fs_info,
+-		"%s checksum verify failed on %llu wanted %x found %x level %d",
++	"%s checksum verify failed on %llu wanted " CSUM_FMT " found " CSUM_FMT " level %d",
+ 			      fs_info->sb->s_id, eb->start,
+-			      val, found, btrfs_header_level(eb));
++			      CSUM_FMT_VALUE(csum_size, val),
++			      CSUM_FMT_VALUE(csum_size, result),
++			      btrfs_header_level(eb));
+ 		ret = -EUCLEAN;
+ 		goto err;
+ 	}
 
 
