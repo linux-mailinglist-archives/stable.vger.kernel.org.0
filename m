@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0733527C60B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:42:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE5A27C560
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:35:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729995AbgI2LlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:41:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37570 "EHLO mail.kernel.org"
+        id S1729023AbgI2LfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:35:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729938AbgI2LlN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:41:13 -0400
+        id S1729637AbgI2Ldb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:33:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51987206A5;
-        Tue, 29 Sep 2020 11:41:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74FE723B98;
+        Tue, 29 Sep 2020 11:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379672;
-        bh=tLj9bbCmKARSDrqm3XIwE29GbyTs9y0er/D6N+vkrMM=;
+        s=default; t=1601378815;
+        bh=WMh+hFHx8/PpyJtt7K6aRDlS51HQqOpRAn+4f0iPX2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QyaPUtvjAKLcfQPJCz2oNTta6rdSQ90G/9Zgm/1uaXZadqzOD5wkO7hS6uSlc/uoD
-         TcTTZF9T4sBvYlnTIzyzDNhR1gJUEwd6Z4t3V4ptAFaDys4nhYp3uzv8jfwwtNd9BC
-         cIJESq802560AzGyY7xnUAaByYcMxNURZE0GklZQ=
+        b=LstR0r1FGgj9xA92BYNfqPzHOaiS761Hm583GaS5WNEngYjQAMbkOu+5cW3rcz2ML
+         +Lc+/a08ItEPfot2z0HmnqFSo/Ub1iub+zENKAzCnIP/Nm0vtabSgm36zHi0MmXZ4l
+         mnzqxWz/ieWxUoNlOiTTlgp/EBwErney9SCbFBQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Tyler Baicar <baicar@os.amperecomputing.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 268/388] arm64: acpi: Make apei_claim_sea() synchronise with APEIs irq work
-Date:   Tue, 29 Sep 2020 12:59:59 +0200
-Message-Id: <20200929110023.433767763@linuxfoundation.org>
+        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 149/245] KVM: arm64: vgic-its: Fix memory leak on the error path of vgic_add_lpi()
+Date:   Tue, 29 Sep 2020 13:00:00 +0200
+Message-Id: <20200929105954.238621801@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,114 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-[ Upstream commit 8fcc4ae6faf8b455eeef00bc9ae70744e3b0f462 ]
+[ Upstream commit 57bdb436ce869a45881d8aa4bc5dac8e072dd2b6 ]
 
-APEI is unable to do all of its error handling work in nmi-context, so
-it defers non-fatal work onto the irq_work queue. arch_irq_work_raise()
-sends an IPI to the calling cpu, but this is not guaranteed to be taken
-before returning to user-space.
+If we're going to fail out the vgic_add_lpi(), let's make sure the
+allocated vgic_irq memory is also freed. Though it seems that both
+cases are unlikely to fail.
 
-Unless the exception interrupted a context with irqs-masked,
-irq_work_run() can run immediately. Otherwise return -EINPROGRESS to
-indicate ghes_notify_sea() found some work to do, but it hasn't
-finished yet.
-
-With this apei_claim_sea() returning '0' means this external-abort was
-also notification of a firmware-first RAS error, and that APEI has
-processed the CPER records.
-
-Signed-off-by: James Morse <james.morse@arm.com>
-Tested-by: Tyler Baicar <baicar@os.amperecomputing.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200414030349.625-3-yuzenghui@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/acpi.c | 25 +++++++++++++++++++++++++
- arch/arm64/mm/fault.c    | 12 +++++++-----
- 2 files changed, 32 insertions(+), 5 deletions(-)
+ virt/kvm/arm/vgic/vgic-its.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/kernel/acpi.c b/arch/arm64/kernel/acpi.c
-index a100483b47c42..46ec402e97edc 100644
---- a/arch/arm64/kernel/acpi.c
-+++ b/arch/arm64/kernel/acpi.c
-@@ -19,6 +19,7 @@
- #include <linux/init.h>
- #include <linux/irq.h>
- #include <linux/irqdomain.h>
-+#include <linux/irq_work.h>
- #include <linux/memblock.h>
- #include <linux/of_fdt.h>
- #include <linux/smp.h>
-@@ -269,6 +270,7 @@ pgprot_t __acpi_get_mem_attribute(phys_addr_t addr)
- int apei_claim_sea(struct pt_regs *regs)
- {
- 	int err = -ENOENT;
-+	bool return_to_irqs_enabled;
- 	unsigned long current_flags;
- 
- 	if (!IS_ENABLED(CONFIG_ACPI_APEI_GHES))
-@@ -276,6 +278,12 @@ int apei_claim_sea(struct pt_regs *regs)
- 
- 	current_flags = local_daif_save_flags();
- 
-+	/* current_flags isn't useful here as daif doesn't tell us about pNMI */
-+	return_to_irqs_enabled = !irqs_disabled_flags(arch_local_save_flags());
-+
-+	if (regs)
-+		return_to_irqs_enabled = interrupts_enabled(regs);
-+
- 	/*
- 	 * SEA can interrupt SError, mask it and describe this as an NMI so
- 	 * that APEI defers the handling.
-@@ -284,6 +292,23 @@ int apei_claim_sea(struct pt_regs *regs)
- 	nmi_enter();
- 	err = ghes_notify_sea();
- 	nmi_exit();
-+
-+	/*
-+	 * APEI NMI-like notifications are deferred to irq_work. Unless
-+	 * we interrupted irqs-masked code, we can do that now.
-+	 */
-+	if (!err) {
-+		if (return_to_irqs_enabled) {
-+			local_daif_restore(DAIF_PROCCTX_NOIRQ);
-+			__irq_enter();
-+			irq_work_run();
-+			__irq_exit();
-+		} else {
-+			pr_warn_ratelimited("APEI work queued but not completed");
-+			err = -EINPROGRESS;
-+		}
-+	}
-+
- 	local_daif_restore(current_flags);
- 
- 	return err;
-diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index d26e6cd289539..2a7339aeb1ad4 100644
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -654,11 +654,13 @@ static int do_sea(unsigned long addr, unsigned int esr, struct pt_regs *regs)
- 
- 	inf = esr_to_fault_info(esr);
- 
--	/*
--	 * Return value ignored as we rely on signal merging.
--	 * Future patches will make this more robust.
--	 */
--	apei_claim_sea(regs);
-+	if (user_mode(regs) && apei_claim_sea(regs) == 0) {
-+		/*
-+		 * APEI claimed this as a firmware-first notification.
-+		 * Some processing deferred to task_work before ret_to_user().
-+		 */
-+		return 0;
+diff --git a/virt/kvm/arm/vgic/vgic-its.c b/virt/kvm/arm/vgic/vgic-its.c
+index 9295addea7ecf..f139b1c62ca38 100644
+--- a/virt/kvm/arm/vgic/vgic-its.c
++++ b/virt/kvm/arm/vgic/vgic-its.c
+@@ -107,14 +107,21 @@ out_unlock:
+ 	 * We "cache" the configuration table entries in our struct vgic_irq's.
+ 	 * However we only have those structs for mapped IRQs, so we read in
+ 	 * the respective config data from memory here upon mapping the LPI.
++	 *
++	 * Should any of these fail, behave as if we couldn't create the LPI
++	 * by dropping the refcount and returning the error.
+ 	 */
+ 	ret = update_lpi_config(kvm, irq, NULL, false);
+-	if (ret)
++	if (ret) {
++		vgic_put_irq(kvm, irq);
+ 		return ERR_PTR(ret);
 +	}
  
- 	if (esr & ESR_ELx_FnV)
- 		siaddr = NULL;
+ 	ret = vgic_v3_lpi_sync_pending_status(kvm, irq);
+-	if (ret)
++	if (ret) {
++		vgic_put_irq(kvm, irq);
+ 		return ERR_PTR(ret);
++	}
+ 
+ 	return irq;
+ }
 -- 
 2.25.1
 
