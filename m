@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE94E27B9F6
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A88727BA0D
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 03:35:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727084AbgI2Bep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Sep 2020 21:34:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40908 "EHLO mail.kernel.org"
+        id S1728070AbgI2Be6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Sep 2020 21:34:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727630AbgI2Bba (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727632AbgI2Bba (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 28 Sep 2020 21:31:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5821222262;
-        Tue, 29 Sep 2020 01:31:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64961221E8;
+        Tue, 29 Sep 2020 01:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601343075;
-        bh=V59KDQSvcA7LQIFVm0n9lhcpGL1Y8afk786ZgoFp8iw=;
+        s=default; t=1601343077;
+        bh=KnfAmQCDLWxrgUP4TjvPtfODWHnIpaoEfhe3KY3zoWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AdsExQgOx6TWqskBkYxf/xydLZjwkcXk+ysBQm2wxq2hsnup+dCan9sQi4uQ8pBZY
-         /61rR2AV3Z5e99YGvyPoh140CtyErm0Y+sZhnq1IKZUjrrzZhpisqaJXSHmA2R3n/8
-         UbWUtk6MH106cjzFHUt9W/yqjcwSti7+3rXBEnio=
+        b=nAKEuzhWPC0e0Ch3BKtTD9T5wvTTbFHVxiMlQqxYK1GPlffd0UHG10ZO9L8qJxv/S
+         ON2q1jDtqBL/PyQ4Pl/GBxv8WVUXYNzhW0mRUCVB4/YN5oknqsN6kzrtDfYVRTzhj+
+         Z7kHt79mQgtot+42PyrOd3T0ZQ7gc1I7PIPOqq7g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 08/18] regmap: debugfs: Fix handling of name string for debugfs init delays
-Date:   Mon, 28 Sep 2020 21:30:54 -0400
-Message-Id: <20200929013105.2406634-8-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Qian Cai <cai@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 09/18] fuse: fix the ->direct_IO() treatment of iov_iter
+Date:   Mon, 28 Sep 2020 21:30:55 -0400
+Message-Id: <20200929013105.2406634-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200929013105.2406634-1-sashal@kernel.org>
 References: <20200929013105.2406634-1-sashal@kernel.org>
@@ -42,219 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 94cc89eb8fa5039fcb6e3e3d50f929ddcccee095 ]
+[ Upstream commit 933a3752babcf6513117d5773d2b70782d6ad149 ]
 
-In regmap_debugfs_init the initialisation of the debugfs is delayed
-if the root node isn't ready yet. Most callers of regmap_debugfs_init
-pass the name from the regmap_config, which is considered temporary
-ie. may be unallocated after the regmap_init call returns. This leads
-to a potential use after free, where config->name has been freed by
-the time it is used in regmap_debugfs_initcall.
+the callers rely upon having any iov_iter_truncate() done inside
+->direct_IO() countered by iov_iter_reexpand().
 
-This situation can be seen on Zynq, where the architecture init_irq
-callback registers a syscon device, using a local variable for the
-regmap_config. As init_irq is very early in the platform bring up the
-regmap debugfs root isn't ready yet. Although this doesn't crash it
-does result in the debugfs entry not having the correct name.
-
-Regmap already sets map->name from config->name on the regmap_init
-path and the fact that a separate field is used to pass the name
-to regmap_debugfs_init appears to be an artifact of the debugfs
-name being added before the map name. As such this patch updates
-regmap_debugfs_init to use map->name, which is already duplicated from
-the config avoiding the issue.
-
-This does however leave two lose ends, both regmap_attach_dev and
-regmap_reinit_cache can be called after a regmap is registered and
-would have had the effect of applying a new name to the debugfs
-entries. In both of these cases it was chosen to update the map
-name. In the case of regmap_attach_dev there are 3 users that
-currently use this function to update the name, thus doing so avoids
-changes for those users and it seems reasonable that attaching
-a device would want to set the name of the map. In the case of
-regmap_reinit_cache the primary use-case appears to be devices that
-need some register access to identify the device (for example devices
-in the same family) and then update the cache to match the exact
-hardware. Whilst no users do currently update the name here, given the
-use-case it seemed reasonable the name might want to be updated once
-the device is better identified.
-
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20200917120828.12987-1-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Qian Cai <cai@redhat.com>
+Tested-by: Qian Cai <cai@redhat.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/internal.h       |  4 +--
- drivers/base/regmap/regmap-debugfs.c |  7 ++---
- drivers/base/regmap/regmap.c         | 44 +++++++++++++++++++++-------
- 3 files changed, 38 insertions(+), 17 deletions(-)
+ fs/fuse/file.c | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/base/regmap/internal.h b/drivers/base/regmap/internal.h
-index 3d80c4b43f720..e0ff8e90ebdcf 100644
---- a/drivers/base/regmap/internal.h
-+++ b/drivers/base/regmap/internal.h
-@@ -217,7 +217,7 @@ struct regmap_field {
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index f8d8a8e34b808..ab4fc1255aca8 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -3074,11 +3074,10 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 	ssize_t ret = 0;
+ 	struct file *file = iocb->ki_filp;
+ 	struct fuse_file *ff = file->private_data;
+-	bool async_dio = ff->fc->async_dio;
+ 	loff_t pos = 0;
+ 	struct inode *inode;
+ 	loff_t i_size;
+-	size_t count = iov_iter_count(iter);
++	size_t count = iov_iter_count(iter), shortened = 0;
+ 	loff_t offset = iocb->ki_pos;
+ 	struct fuse_io_priv *io;
  
- #ifdef CONFIG_DEBUG_FS
- extern void regmap_debugfs_initcall(void);
--extern void regmap_debugfs_init(struct regmap *map, const char *name);
-+extern void regmap_debugfs_init(struct regmap *map);
- extern void regmap_debugfs_exit(struct regmap *map);
+@@ -3086,17 +3085,9 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 	inode = file->f_mapping->host;
+ 	i_size = i_size_read(inode);
  
- static inline void regmap_debugfs_disable(struct regmap *map)
-@@ -227,7 +227,7 @@ static inline void regmap_debugfs_disable(struct regmap *map)
+-	if ((iov_iter_rw(iter) == READ) && (offset > i_size))
++	if ((iov_iter_rw(iter) == READ) && (offset >= i_size))
+ 		return 0;
  
- #else
- static inline void regmap_debugfs_initcall(void) { }
--static inline void regmap_debugfs_init(struct regmap *map, const char *name) { }
-+static inline void regmap_debugfs_init(struct regmap *map) { }
- static inline void regmap_debugfs_exit(struct regmap *map) { }
- static inline void regmap_debugfs_disable(struct regmap *map) { }
- #endif
-diff --git a/drivers/base/regmap/regmap-debugfs.c b/drivers/base/regmap/regmap-debugfs.c
-index f58baff2be0af..b6d63ef16b442 100644
---- a/drivers/base/regmap/regmap-debugfs.c
-+++ b/drivers/base/regmap/regmap-debugfs.c
-@@ -17,7 +17,6 @@
+-	/* optimization for short read */
+-	if (async_dio && iov_iter_rw(iter) != WRITE && offset + count > i_size) {
+-		if (offset >= i_size)
+-			return 0;
+-		iov_iter_truncate(iter, fuse_round_up(ff->fc, i_size - offset));
+-		count = iov_iter_count(iter);
+-	}
+-
+ 	io = kmalloc(sizeof(struct fuse_io_priv), GFP_KERNEL);
+ 	if (!io)
+ 		return -ENOMEM;
+@@ -3112,15 +3103,22 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 	 * By default, we want to optimize all I/Os with async request
+ 	 * submission to the client filesystem if supported.
+ 	 */
+-	io->async = async_dio;
++	io->async = ff->fc->async_dio;
+ 	io->iocb = iocb;
+ 	io->blocking = is_sync_kiocb(iocb);
  
- struct regmap_debugfs_node {
- 	struct regmap *map;
--	const char *name;
- 	struct list_head link;
- };
- 
-@@ -544,11 +543,12 @@ static const struct file_operations regmap_cache_bypass_fops = {
- 	.write = regmap_cache_bypass_write_file,
- };
- 
--void regmap_debugfs_init(struct regmap *map, const char *name)
-+void regmap_debugfs_init(struct regmap *map)
- {
- 	struct rb_node *next;
- 	struct regmap_range_node *range_node;
- 	const char *devname = "dummy";
-+	const char *name = map->name;
- 
- 	/*
- 	 * Userspace can initiate reads from the hardware over debugfs.
-@@ -569,7 +569,6 @@ void regmap_debugfs_init(struct regmap *map, const char *name)
- 		if (!node)
- 			return;
- 		node->map = map;
--		node->name = name;
- 		mutex_lock(&regmap_debugfs_early_lock);
- 		list_add(&node->link, &regmap_debugfs_early_list);
- 		mutex_unlock(&regmap_debugfs_early_lock);
-@@ -679,7 +678,7 @@ void regmap_debugfs_initcall(void)
- 
- 	mutex_lock(&regmap_debugfs_early_lock);
- 	list_for_each_entry_safe(node, tmp, &regmap_debugfs_early_list, link) {
--		regmap_debugfs_init(node->map, node->name);
-+		regmap_debugfs_init(node->map);
- 		list_del(&node->link);
- 		kfree(node);
- 	}
-diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
-index 927ebde1607be..d9a28f08b5501 100644
---- a/drivers/base/regmap/regmap.c
-+++ b/drivers/base/regmap/regmap.c
-@@ -581,14 +581,34 @@ static void regmap_range_exit(struct regmap *map)
- 	kfree(map->selector_work_buf);
- }
- 
-+static int regmap_set_name(struct regmap *map, const struct regmap_config *config)
-+{
-+	if (config->name) {
-+		const char *name = kstrdup_const(config->name, GFP_KERNEL);
-+
-+		if (!name)
-+			return -ENOMEM;
-+
-+		kfree_const(map->name);
-+		map->name = name;
++	/* optimization for short read */
++	if (io->async && !io->write && offset + count > i_size) {
++		iov_iter_truncate(iter, fuse_round_up(ff->fc, i_size - offset));
++		shortened = count - iov_iter_count(iter);
++		count -= shortened;
 +	}
 +
-+	return 0;
-+}
-+
- int regmap_attach_dev(struct device *dev, struct regmap *map,
- 		      const struct regmap_config *config)
- {
- 	struct regmap **m;
-+	int ret;
+ 	/*
+ 	 * We cannot asynchronously extend the size of a file.
+ 	 * In such case the aio will behave exactly like sync io.
+ 	 */
+-	if ((offset + count > i_size) && iov_iter_rw(iter) == WRITE)
++	if ((offset + count > i_size) && io->write)
+ 		io->blocking = true;
  
- 	map->dev = dev;
- 
--	regmap_debugfs_init(map, config->name);
-+	ret = regmap_set_name(map, config);
-+	if (ret)
-+		return ret;
-+
-+	regmap_debugfs_init(map);
- 
- 	/* Add a devres resource for dev_get_regmap() */
- 	m = devres_alloc(dev_get_regmap_release, sizeof(*m), GFP_KERNEL);
-@@ -679,9 +699,9 @@ struct regmap *__regmap_init(struct device *dev,
- 			     const char *lock_name)
- {
- 	struct regmap *map;
--	int ret = -EINVAL;
- 	enum regmap_endian reg_endian, val_endian;
- 	int i, j;
-+	int ret;
- 
- 	if (!config)
- 		goto err;
-@@ -692,13 +712,9 @@ struct regmap *__regmap_init(struct device *dev,
- 		goto err;
- 	}
- 
--	if (config->name) {
--		map->name = kstrdup_const(config->name, GFP_KERNEL);
--		if (!map->name) {
--			ret = -ENOMEM;
--			goto err_map;
--		}
--	}
-+	ret = regmap_set_name(map, config);
-+	if (ret)
-+		goto err_map;
- 
- 	if (config->disable_locking) {
- 		map->lock = map->unlock = regmap_lock_unlock_none;
-@@ -1141,7 +1157,7 @@ struct regmap *__regmap_init(struct device *dev,
- 		if (ret != 0)
- 			goto err_regcache;
+ 	if (io->async && io->blocking) {
+@@ -3138,6 +3136,7 @@ fuse_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
  	} else {
--		regmap_debugfs_init(map, config->name);
-+		regmap_debugfs_init(map);
+ 		ret = __fuse_direct_read(io, iter, &pos);
  	}
++	iov_iter_reexpand(iter, iov_iter_count(iter) + shortened);
  
- 	return map;
-@@ -1301,6 +1317,8 @@ EXPORT_SYMBOL_GPL(regmap_field_free);
-  */
- int regmap_reinit_cache(struct regmap *map, const struct regmap_config *config)
- {
-+	int ret;
-+
- 	regcache_exit(map);
- 	regmap_debugfs_exit(map);
- 
-@@ -1313,7 +1331,11 @@ int regmap_reinit_cache(struct regmap *map, const struct regmap_config *config)
- 	map->readable_noinc_reg = config->readable_noinc_reg;
- 	map->cache_type = config->cache_type;
- 
--	regmap_debugfs_init(map, config->name);
-+	ret = regmap_set_name(map, config);
-+	if (ret)
-+		return ret;
-+
-+	regmap_debugfs_init(map);
- 
- 	map->cache_bypass = false;
- 	map->cache_only = false;
+ 	if (io->async) {
+ 		bool blocking = io->blocking;
 -- 
 2.25.1
 
