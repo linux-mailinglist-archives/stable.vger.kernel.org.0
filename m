@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1A1927CA87
+	by mail.lfdr.de (Postfix) with ESMTP id 6844E27CA86
 	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732226AbgI2MTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732215AbgI2MTq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 29 Sep 2020 08:19:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53444 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729899AbgI2Lfs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729903AbgI2Lfs (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:35:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AA2023ABA;
-        Tue, 29 Sep 2020 11:30:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86B7F23A9A;
+        Tue, 29 Sep 2020 11:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379043;
-        bh=+Ni35/N2CQsVrArEzkm4WFDeYSc8aNOq6pXko1SDO5k=;
+        s=default; t=1601379046;
+        bh=+WEjsZAfxXc7dZ+kCapToSzhy5JDph/1fcjsmdCCZBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gn73l40WeDxQKeTtVm7ZIPmhB9mnrb3IsO5oa7AI4wHEYrF4PC+vkpwS7cNjsvUxv
-         zYcspy0QCj5ewgWx3quX1CeIHR74qmniUe8ClBRMD3jrtG4JU8+H+0gDl3zsZnp0Gz
-         jaSlzFORwelyKru5HT0zjt3sh3H3OGnluFpykGoY=
+        b=bOUY3n/pR5Llczw1uD+3J6Q3fv+dYvxjoMBPKKinD2p7xpVqdDpijQDzlN6q03RIv
+         I/JKS2nZVLOl3nAnqedMH3+JQWX4lZGX88k6QR1BYNXwO7LxRB6T/4pdMT3tDUR41O
+         WmQsXHpOfg74hso9xquCfLdJyytAefVTG/2Ty5Us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Peter Shier <pshier@google.com>,
+        Oliver Upton <oupton@google.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 233/245] MIPS: Add the missing CPU_1074K into __get_cpu_type()
-Date:   Tue, 29 Sep 2020 13:01:24 +0200
-Message-Id: <20200929105958.329127799@linuxfoundation.org>
+Subject: [PATCH 4.19 234/245] KVM: x86: Reset MMU context if guest toggles CR4.SMAP or CR4.PKE
+Date:   Tue, 29 Sep 2020 13:01:25 +0200
+Message-Id: <20200929105958.378273091@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
 References: <20200929105946.978650816@linuxfoundation.org>
@@ -43,34 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit e393fbe6fa27af23f78df6e16a8fd2963578a8c4 ]
+[ Upstream commit 8d214c481611b29458a57913bd786f0ac06f0605 ]
 
-Commit 442e14a2c55e ("MIPS: Add 1074K CPU support explicitly.") split
-1074K from the 74K as an unique CPU type, while it missed to add the
-'CPU_1074K' in __get_cpu_type(). So let's add it back.
+Reset the MMU context during kvm_set_cr4() if SMAP or PKE is toggled.
+Recent commits to (correctly) not reload PDPTRs when SMAP/PKE are
+toggled inadvertantly skipped the MMU context reset due to the mask
+of bits that triggers PDPTR loads also being used to trigger MMU context
+resets.
 
-Fixes: 442e14a2c55e ("MIPS: Add 1074K CPU support explicitly.")
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 427890aff855 ("kvm: x86: Toggling CR4.SMAP does not load PDPTEs in PAE mode")
+Fixes: cb957adb4ea4 ("kvm: x86: Toggling CR4.PKE does not load PDPTEs in PAE mode")
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Peter Shier <pshier@google.com>
+Cc: Oliver Upton <oupton@google.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200923215352.17756-1-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/cpu-type.h | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/x86.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/cpu-type.h b/arch/mips/include/asm/cpu-type.h
-index a45af3de075d9..d43e4ab20b238 100644
---- a/arch/mips/include/asm/cpu-type.h
-+++ b/arch/mips/include/asm/cpu-type.h
-@@ -47,6 +47,7 @@ static inline int __pure __get_cpu_type(const int cpu_type)
- 	case CPU_34K:
- 	case CPU_1004K:
- 	case CPU_74K:
-+	case CPU_1074K:
- 	case CPU_M14KC:
- 	case CPU_M14KEC:
- 	case CPU_INTERAPTIV:
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 620ed1fa35119..dd182228be714 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -858,6 +858,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ 	unsigned long old_cr4 = kvm_read_cr4(vcpu);
+ 	unsigned long pdptr_bits = X86_CR4_PGE | X86_CR4_PSE | X86_CR4_PAE |
+ 				   X86_CR4_SMEP;
++	unsigned long mmu_role_bits = pdptr_bits | X86_CR4_SMAP | X86_CR4_PKE;
+ 
+ 	if (kvm_valid_cr4(vcpu, cr4))
+ 		return 1;
+@@ -885,7 +886,7 @@ int kvm_set_cr4(struct kvm_vcpu *vcpu, unsigned long cr4)
+ 	if (kvm_x86_ops->set_cr4(vcpu, cr4))
+ 		return 1;
+ 
+-	if (((cr4 ^ old_cr4) & pdptr_bits) ||
++	if (((cr4 ^ old_cr4) & mmu_role_bits) ||
+ 	    (!(cr4 & X86_CR4_PCIDE) && (old_cr4 & X86_CR4_PCIDE)))
+ 		kvm_mmu_reset_context(vcpu);
+ 
 -- 
 2.25.1
 
