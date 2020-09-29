@@ -2,39 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 119DA27CD41
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA9F827CC67
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728969AbgI2Mm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52298 "EHLO mail.kernel.org"
+        id S1729391AbgI2MgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:36:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729218AbgI2LLH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:11:07 -0400
+        id S1729311AbgI2LU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:20:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25BF520848;
-        Tue, 29 Sep 2020 11:11:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5851F2311C;
+        Tue, 29 Sep 2020 11:18:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601377866;
-        bh=R+FcVsk4idUsCIqnF7xfPVNJV0Y4c5vyctAqVvnmUIM=;
+        s=default; t=1601378302;
+        bh=Y0Y285XeeAWShdejcScb29RREm2zjDV4lO9on/U7ulg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmTelINwMmyW1j0kTO3pLVCVFlyx6aBlIkIsyJqdiqtHX9rGnFyIHr0d8Wgyr2oou
-         3uWSFrrES6LhQMwkMTShTe49gVsyIi3JNjnXNWtq+fIfwAGbCqZhS+t3Zcya5c4j4G
-         TgwrCJYucD9ObaSww7az8HcPjHJshYKKNQ4Hgt5w=
+        b=Pf5DvXJgRMZtdntqxtdaB36QiO8acRcGoodmjJfwth/ak0lwIdxpwXGu3yWkHargf
+         XEaZtf5uFzcErZ1QDARw4GvAfO/5ynuyIQs5F7kklTzpVehxfO/n3o8Gbh+ayv/2WD
+         KF9oEZKESmDATwV3heOWne2tJ8Hv7yiTMV+ZGe8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        stable@vger.kernel.org,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Mike Marshall <hubcap@omnibond.com>,
         Thomas Gleixner <tglx@linutronix.de>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Allison Randal <allison@lohutok.net>,
+        Pavel Andrianov <andrianov@ispras.ru>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 101/121] selftests/x86/syscall_nt: Clear weird flags after each test
+Subject: [PATCH 4.14 133/166] rapidio: avoid data race between file operation callbacks and mport_cdev_add().
 Date:   Tue, 29 Sep 2020 13:00:45 +0200
-Message-Id: <20200929105935.187135565@linuxfoundation.org>
+Message-Id: <20200929105941.843994421@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
-References: <20200929105930.172747117@linuxfoundation.org>
+In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
+References: <20200929105935.184737111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit a61fa2799ef9bf6c4f54cf7295036577cececc72 ]
+[ Upstream commit e1c3cdb26ab881b77486dc50370356a349077c74 ]
 
-Clear the weird flags before logging to improve strace output --
-logging results while, say, TF is set does no one any favors.
+Fields of md(mport_dev) are set after cdev_device_add().  However, the
+file operation callbacks can be called after cdev_device_add() and
+therefore accesses to fields of md in the callbacks can race with the rest
+of the mport_cdev_add() function.
 
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/907bfa5a42d4475b8245e18b67a04b13ca51ffdb.1593191971.git.luto@kernel.org
+One such example is INIT_LIST_HEAD(&md->portwrites) in mport_cdev_add(),
+the list is initialised after cdev_device_add().  This can race with
+list_add_tail(&pw_filter->md_node,&md->portwrites) in
+rio_mport_add_pw_filter() which is called by unlocked_ioctl.
+
+To avoid such data races use cdev_device_add() after initializing md.
+
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Mike Marshall <hubcap@omnibond.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Allison Randal <allison@lohutok.net>
+Cc: Pavel Andrianov <andrianov@ispras.ru>
+Link: http://lkml.kernel.org/r/20200426112950.1803-1-madhuparnabhowmik10@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/x86/syscall_nt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rapidio/devices/rio_mport_cdev.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/tools/testing/selftests/x86/syscall_nt.c b/tools/testing/selftests/x86/syscall_nt.c
-index 43fcab367fb0a..74e6b3fc2d09e 100644
---- a/tools/testing/selftests/x86/syscall_nt.c
-+++ b/tools/testing/selftests/x86/syscall_nt.c
-@@ -67,6 +67,7 @@ static void do_it(unsigned long extraflags)
- 	set_eflags(get_eflags() | extraflags);
- 	syscall(SYS_getpid);
- 	flags = get_eflags();
-+	set_eflags(X86_EFLAGS_IF | X86_EFLAGS_FIXED);
- 	if ((flags & extraflags) == extraflags) {
- 		printf("[OK]\tThe syscall worked and flags are still set\n");
- 	} else {
+diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/devices/rio_mport_cdev.c
+index f15f6d1e1070a..f207f8725993c 100644
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -2464,13 +2464,6 @@ static struct mport_dev *mport_cdev_add(struct rio_mport *mport)
+ 	cdev_init(&md->cdev, &mport_fops);
+ 	md->cdev.owner = THIS_MODULE;
+ 
+-	ret = cdev_device_add(&md->cdev, &md->dev);
+-	if (ret) {
+-		rmcd_error("Failed to register mport %d (err=%d)",
+-		       mport->id, ret);
+-		goto err_cdev;
+-	}
+-
+ 	INIT_LIST_HEAD(&md->doorbells);
+ 	spin_lock_init(&md->db_lock);
+ 	INIT_LIST_HEAD(&md->portwrites);
+@@ -2490,6 +2483,13 @@ static struct mport_dev *mport_cdev_add(struct rio_mport *mport)
+ #else
+ 	md->properties.transfer_mode |= RIO_TRANSFER_MODE_TRANSFER;
+ #endif
++
++	ret = cdev_device_add(&md->cdev, &md->dev);
++	if (ret) {
++		rmcd_error("Failed to register mport %d (err=%d)",
++		       mport->id, ret);
++		goto err_cdev;
++	}
+ 	ret = rio_query_mport(mport, &attr);
+ 	if (!ret) {
+ 		md->properties.flags = attr.flags;
 -- 
 2.25.1
 
