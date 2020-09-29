@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F7227CCAB
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEFEF27CCAA
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:38:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733234AbgI2MiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:38:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34246 "EHLO mail.kernel.org"
+        id S1733231AbgI2MiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:38:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729454AbgI2LRY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:17:24 -0400
+        id S1728783AbgI2LR1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:17:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47CB42083B;
-        Tue, 29 Sep 2020 11:17:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BEE8206A5;
+        Tue, 29 Sep 2020 11:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378243;
-        bh=84NPpZImadgJhsgUCuoEHWvp2V2JCREoseBsjwS1PfY=;
+        s=default; t=1601378246;
+        bh=yj/lYPazjcLxTYPDL2xayjRqc9FZe9CiFPn3FykP1nQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZLNzCf94pOgbuc6Ulab5ZbwvgU2BrzZc5ro8rhh+Q0S17QMRlIbzkJQgpfpuvziOD
-         9AE+NQdLzqLN2miETKsTmrgqPLMJQRgEr6Nmw+FQ+3IzeaGSLqMfHv2r84r4hmQAJx
-         KN6RRDcUnrMQUo7DoXqS+qubefK8FdBYlMcqdsAg=
+        b=2HulgX1x78HrRo/58cvcCT07BfD9xNCGJUUgbFNXt4hMuxNiJf1UbTKdP7MRLjsPN
+         O2yUz9tPx1552ip1KZdW06+cFKpUbgF9MMHK4eafWbm0jbPVCodiXv0li2B5XHqjp/
+         ncbfeDip24M8y/nLqQMLGsCcJCu/lnfnhVp6Gxog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gengming Liu <l.dmxcsnsbh@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 111/166] atm: fix a memory leak of vcc->user_back
-Date:   Tue, 29 Sep 2020 13:00:23 +0200
-Message-Id: <20200929105940.740337084@linuxfoundation.org>
+Subject: [PATCH 4.14 112/166] power: supply: max17040: Correct voltage reading
+Date:   Tue, 29 Sep 2020 13:00:24 +0200
+Message-Id: <20200929105940.791432575@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
 References: <20200929105935.184737111@linuxfoundation.org>
@@ -44,57 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-[ Upstream commit 8d9f73c0ad2f20e9fed5380de0a3097825859d03 ]
+[ Upstream commit 0383024f811aa469df258039807810fc3793a105 ]
 
-In lec_arp_clear_vccs() only entry->vcc is freed, but vcc
-could be installed on entry->recv_vcc too in lec_vcc_added().
+According to the datasheet available at (1), the bottom four
+bits are always zero and the actual voltage is 1.25x this value
+in mV.  Since the kernel API specifies that voltages should be in
+uV, it should report 1250x the shifted value.
 
-This fixes the following memory leak:
+1) https://datasheets.maximintegrated.com/en/ds/MAX17040-MAX17041.pdf
 
-unreferenced object 0xffff8880d9266b90 (size 16):
-  comm "atm2", pid 425, jiffies 4294907980 (age 23.488s)
-  hex dump (first 16 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 6b 6b 6b a5  ............kkk.
-  backtrace:
-    [<(____ptrval____)>] kmem_cache_alloc_trace+0x10e/0x151
-    [<(____ptrval____)>] lane_ioctl+0x4b3/0x569
-    [<(____ptrval____)>] do_vcc_ioctl+0x1ea/0x236
-    [<(____ptrval____)>] svc_ioctl+0x17d/0x198
-    [<(____ptrval____)>] sock_do_ioctl+0x47/0x12f
-    [<(____ptrval____)>] sock_ioctl+0x2f9/0x322
-    [<(____ptrval____)>] vfs_ioctl+0x1e/0x2b
-    [<(____ptrval____)>] ksys_ioctl+0x61/0x80
-    [<(____ptrval____)>] __x64_sys_ioctl+0x16/0x19
-    [<(____ptrval____)>] do_syscall_64+0x57/0x65
-    [<(____ptrval____)>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-Cc: Gengming Liu <l.dmxcsnsbh@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/atm/lec.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/power/supply/max17040_battery.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/atm/lec.c b/net/atm/lec.c
-index 85ce89c8a35c9..0b0794b6a8149 100644
---- a/net/atm/lec.c
-+++ b/net/atm/lec.c
-@@ -1282,6 +1282,12 @@ static void lec_arp_clear_vccs(struct lec_arp_table *entry)
- 		entry->vcc = NULL;
- 	}
- 	if (entry->recv_vcc) {
-+		struct atm_vcc *vcc = entry->recv_vcc;
-+		struct lec_vcc_priv *vpriv = LEC_VCC_PRIV(vcc);
-+
-+		kfree(vpriv);
-+		vcc->user_back = NULL;
-+
- 		entry->recv_vcc->push = entry->old_recv_push;
- 		vcc_release_async(entry->recv_vcc, -EPIPE);
- 		entry->recv_vcc = NULL;
+diff --git a/drivers/power/supply/max17040_battery.c b/drivers/power/supply/max17040_battery.c
+index 33c40f79d23d5..2c35c13ad546f 100644
+--- a/drivers/power/supply/max17040_battery.c
++++ b/drivers/power/supply/max17040_battery.c
+@@ -109,7 +109,7 @@ static void max17040_get_vcell(struct i2c_client *client)
+ 
+ 	vcell = max17040_read_reg(client, MAX17040_VCELL);
+ 
+-	chip->vcell = vcell;
++	chip->vcell = (vcell >> 4) * 1250;
+ }
+ 
+ static void max17040_get_soc(struct i2c_client *client)
 -- 
 2.25.1
 
