@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 022E427C699
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FD8327C7E7
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:57:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730724AbgI2Lqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:46:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46716 "EHLO mail.kernel.org"
+        id S1731282AbgI2L5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:57:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728788AbgI2LqO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:46:14 -0400
+        id S1730465AbgI2LnV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:43:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D58D2083B;
-        Tue, 29 Sep 2020 11:46:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6919C206F7;
+        Tue, 29 Sep 2020 11:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379973;
-        bh=lf35bmvkVf58PLzv2uXzL4aMrtSeqejjPYhEr5ev3Wc=;
+        s=default; t=1601379800;
+        bh=xKwK4VVr8AV5yC/oLAUA5xeJzkBb0gxAD1j2udeCWws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6a1M+ugNZpZd36Y/8CXMOPaJpE8w+vsra2Vc5dI0Fk5WeD0QWjns8W+x43L283bo
-         mNV0ReBhua7PqZ1JVwYRXbUV0JQBdmHR0WUlJ+ldeNJhmbusvlnhoREM2IQybcgxoI
-         5GToTWQMuFOBOar5LtjKbHLWH/ndARhxXU4hpVJ0=
+        b=bDmowsGJ2yyIyf2brnFAFT8QtNLW/sXq22qJsQbkBPGqNQ+6mSG4F2MWKOspcmDNH
+         kbJRjsUSdiLijtu+RXbv/vJt7RUgNqk3av/55PkF/m/xZ+NBFVFev0upJ4hyeND4sL
+         N96GCSSLOWV9V3YhZn9q0L+pxpPD9PvEVe4zuVfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 11/99] EDAC/ghes: Check whether the driver is on the safe list correctly
-Date:   Tue, 29 Sep 2020 13:00:54 +0200
-Message-Id: <20200929105930.279023084@linuxfoundation.org>
+Subject: [PATCH 5.4 324/388] ASoC: wm8994: Skip setting of the WM8994_MICBIAS register for WM1811
+Date:   Tue, 29 Sep 2020 13:00:55 +0200
+Message-Id: <20200929110026.154697070@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
-References: <20200929105929.719230296@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,95 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-[ Upstream commit 251c54ea26fa6029b01a76161a37a12fde5124e4 ]
+[ Upstream commit 811c5494436789e7149487c06e0602b507ce274b ]
 
-With CONFIG_DEBUG_TEST_DRIVER_REMOVE=y, a system would try to probe,
-unregister and probe again a driver.
+The WM8994_MICBIAS register is not available in the WM1811 CODEC so skip
+initialization of that register for that device.
+This suppresses an error during boot:
+"wm8994-codec: ASoC: error at snd_soc_component_update_bits on wm8994-codec"
 
-When ghes_edac is attempted to be loaded on a system which is not on
-the safe platforms list, ghes_edac_register() would return early. The
-unregister counterpart ghes_edac_unregister() would still attempt to
-unregister and exit early at the refcount test, leading to the refcount
-underflow below.
-
-In order to not do *anything* on the unregister path too, reuse the
-force_load parameter and check it on that path too, before fumbling with
-the refcount.
-
-  ghes_edac: ghes_edac_register: entry
-  ghes_edac: ghes_edac_register: return -ENODEV
-  ------------[ cut here ]------------
-  refcount_t: underflow; use-after-free.
-  WARNING: CPU: 10 PID: 1 at lib/refcount.c:28 refcount_warn_saturate+0xb9/0x100
-  Modules linked in:
-  CPU: 10 PID: 1 Comm: swapper/0 Not tainted 5.9.0-rc4+ #12
-  Hardware name: GIGABYTE MZ01-CE1-00/MZ01-CE1-00, BIOS F02 08/29/2018
-  RIP: 0010:refcount_warn_saturate+0xb9/0x100
-  Code: 82 e8 fb 8f 4d 00 90 0f 0b 90 90 c3 80 3d 55 4c f5 00 00 75 88 c6 05 4c 4c f5 00 01 90 48 c7 c7 d0 8a 10 82 e8 d8 8f 4d 00 90 <0f> 0b 90 90 c3 80 3d 30 4c f5 00 00 0f 85 61 ff ff ff c6 05 23 4c
-  RSP: 0018:ffffc90000037d58 EFLAGS: 00010292
-  RAX: 0000000000000026 RBX: ffff88840b8da000 RCX: 0000000000000000
-  RDX: 0000000000000001 RSI: ffffffff8216b24f RDI: 00000000ffffffff
-  RBP: ffff88840c662e00 R08: 0000000000000001 R09: 0000000000000001
-  R10: 0000000000000001 R11: 0000000000000046 R12: 0000000000000000
-  R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000000
-  FS:  0000000000000000(0000) GS:ffff88840ee80000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000000 CR3: 0000800002211000 CR4: 00000000003506e0
-  Call Trace:
-   ghes_edac_unregister
-   ghes_remove
-   platform_drv_remove
-   really_probe
-   driver_probe_device
-   device_driver_attach
-   __driver_attach
-   ? device_driver_attach
-   ? device_driver_attach
-   bus_for_each_dev
-   bus_add_driver
-   driver_register
-   ? bert_init
-   ghes_init
-   do_one_initcall
-   ? rcu_read_lock_sched_held
-   kernel_init_freeable
-   ? rest_init
-   kernel_init
-   ret_from_fork
-   ...
-  ghes_edac: ghes_edac_unregister: FALSE, refcount: -1073741824
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200911164950.GB19320@zn.tnic
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200827173357.31891-1-s.nawrocki@samsung.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/ghes_edac.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/codecs/wm8994.c  | 2 ++
+ sound/soc/codecs/wm_hubs.c | 3 +++
+ sound/soc/codecs/wm_hubs.h | 1 +
+ 3 files changed, 6 insertions(+)
 
-diff --git a/drivers/edac/ghes_edac.c b/drivers/edac/ghes_edac.c
-index cb3dab56a875d..efad23575b16b 100644
---- a/drivers/edac/ghes_edac.c
-+++ b/drivers/edac/ghes_edac.c
-@@ -469,6 +469,7 @@ int ghes_edac_register(struct ghes *ghes, struct device *dev)
- 		if (!force_load && idx < 0)
- 			return -ENODEV;
- 	} else {
-+		force_load = true;
- 		idx = 0;
- 	}
+diff --git a/sound/soc/codecs/wm8994.c b/sound/soc/codecs/wm8994.c
+index d5fb7f5dd551c..64635f9cdae65 100644
+--- a/sound/soc/codecs/wm8994.c
++++ b/sound/soc/codecs/wm8994.c
+@@ -4047,11 +4047,13 @@ static int wm8994_component_probe(struct snd_soc_component *component)
+ 			wm8994->hubs.dcs_readback_mode = 2;
+ 			break;
+ 		}
++		wm8994->hubs.micd_scthr = true;
+ 		break;
  
-@@ -566,6 +567,9 @@ void ghes_edac_unregister(struct ghes *ghes)
- 	struct mem_ctl_info *mci;
- 	unsigned long flags;
+ 	case WM8958:
+ 		wm8994->hubs.dcs_readback_mode = 1;
+ 		wm8994->hubs.hp_startup_mode = 1;
++		wm8994->hubs.micd_scthr = true;
  
-+	if (!force_load)
-+		return;
+ 		switch (control->revision) {
+ 		case 0:
+diff --git a/sound/soc/codecs/wm_hubs.c b/sound/soc/codecs/wm_hubs.c
+index e93af7edd8f75..dd421e2fe7b21 100644
+--- a/sound/soc/codecs/wm_hubs.c
++++ b/sound/soc/codecs/wm_hubs.c
+@@ -1223,6 +1223,9 @@ int wm_hubs_handle_analogue_pdata(struct snd_soc_component *component,
+ 		snd_soc_component_update_bits(component, WM8993_ADDITIONAL_CONTROL,
+ 				    WM8993_LINEOUT2_FB, WM8993_LINEOUT2_FB);
+ 
++	if (!hubs->micd_scthr)
++		return 0;
 +
- 	mutex_lock(&ghes_reg_mutex);
+ 	snd_soc_component_update_bits(component, WM8993_MICBIAS,
+ 			    WM8993_JD_SCTHR_MASK | WM8993_JD_THR_MASK |
+ 			    WM8993_MICB1_LVL | WM8993_MICB2_LVL,
+diff --git a/sound/soc/codecs/wm_hubs.h b/sound/soc/codecs/wm_hubs.h
+index 4b8e5f0d6e32d..988b29e630607 100644
+--- a/sound/soc/codecs/wm_hubs.h
++++ b/sound/soc/codecs/wm_hubs.h
+@@ -27,6 +27,7 @@ struct wm_hubs_data {
+ 	int hp_startup_mode;
+ 	int series_startup;
+ 	int no_series_update;
++	bool micd_scthr;
  
- 	if (!refcount_dec_and_test(&ghes_refcount))
+ 	bool no_cache_dac_hp_direct;
+ 	struct list_head dcs_cache;
 -- 
 2.25.1
 
