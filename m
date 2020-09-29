@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD4327C86E
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:02:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D208B27CB98
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729233AbgI2MCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:02:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34650 "EHLO mail.kernel.org"
+        id S1729106AbgI2M3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:29:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730055AbgI2Ljm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:39:42 -0400
+        id S1728831AbgI2LcW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:32:22 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A79C2074A;
-        Tue, 29 Sep 2020 11:39:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC96023B1B;
+        Tue, 29 Sep 2020 11:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379581;
-        bh=2E/fzv6igfkZQhk8Z4qMBBoZEjYsm1ZaCGwYGc+qtS4=;
+        s=default; t=1601378720;
+        bh=KMLqImPNOE1ihO099INA/bTChzzfWJhKz9mooxlg828=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XxuBoqzF5cFrmRGGyDupKC+e2jUqEDqaDy/C3Qf2+pSPmOu+Ao3jne1sjrORXMnQM
-         WczOsjY1OvkJ5dMM3hybYwq73I9E4Y8ctV8BDxfAuEynZ5Pqgr1JZiMeKftxgPqBI6
-         k+8brkwBg/6pvWD0tm1kY40tXECbigBh/+VV7XXg=
+        b=CGn8Ld/Wb+47s/IFOC3N5jBA21/a9wwkhmXMNY7OUxbv5x7nkYw0pfC2Bh9qdssUc
+         EzIjDoBJpb8enpdmWLMXnVDaS9syuB1aU7IcNeAd5nH/afd5Y9vDmj2PLFMDSWtrDu
+         8z8Qn61+T4oxkX7koTLpHoR1QLnAJSXGPE2Q1h4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Gustavo Romero <gromero@linux.ibm.com>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Michael Neuling <mikey@neuling.org>,
+        Leonardo Bras <leonardo@linux.ibm.com>,
+        Paul Mackerras <paulus@ozlabs.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 228/388] ALSA: hda: Skip controller resume if not needed
-Date:   Tue, 29 Sep 2020 12:59:19 +0200
-Message-Id: <20200929110021.515374179@linuxfoundation.org>
+Subject: [PATCH 4.19 115/245] KVM: PPC: Book3S HV: Treat TM-related invalid form instructions on P9 like the valid ones
+Date:   Tue, 29 Sep 2020 12:59:26 +0200
+Message-Id: <20200929105952.581248717@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,169 +46,211 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Gustavo Romero <gromero@linux.ibm.com>
 
-[ Upstream commit c4c8dd6ef807663e42a5f04ea77cd62029eb99fa ]
+[ Upstream commit 1dff3064c764b5a51c367b949b341d2e38972bec ]
 
-The HD-audio controller does system-suspend and resume operations by
-directly calling its helpers __azx_runtime_suspend() and
-__azx_runtime_resume().  However, in general, we don't have to resume
-always the device fully at the system resume; typically, if a device
-has been runtime-suspended, we can leave it to runtime resume.
+On P9 DD2.2 due to a CPU defect some TM instructions need to be emulated by
+KVM. This is handled at first by the hardware raising a softpatch interrupt
+when certain TM instructions that need KVM assistance are executed in the
+guest. Althought some TM instructions per Power ISA are invalid forms they
+can raise a softpatch interrupt too. For instance, 'tresume.' instruction
+as defined in the ISA must have bit 31 set (1), but an instruction that
+matches 'tresume.' PO and XO opcode fields but has bit 31 not set (0), like
+0x7cfe9ddc, also raises a softpatch interrupt. Similarly for 'treclaim.'
+and 'trechkpt.' instructions with bit 31 = 0, i.e. 0x7c00075c and
+0x7c0007dc, respectively. Hence, if a code like the following is executed
+in the guest it will raise a softpatch interrupt just like a 'tresume.'
+when the TM facility is enabled ('tabort. 0' in the example is used only
+to enable the TM facility):
 
-Usually for achieving this, the driver would call
-pm_runtime_force_suspend() and pm_runtime_force_resume() pairs in the
-system suspend and resume ops.  Unfortunately, this doesn't work for
-the resume path in our case.  For handling the jack detection at the
-system resume, a child codec device may need the (literally) forcibly
-resume even if it's been runtime-suspended, and for that, the
-controller device must be also resumed even if it's been suspended.
+int main() { asm("tabort. 0; .long 0x7cfe9ddc;"); }
 
-This patch is an attempt to improve the situation.  It replaces the
-direct __azx_runtime_suspend()/_resume() calls with with
-pm_runtime_force_suspend() and pm_runtime_force_resume() with a slight
-trick as we've done for the codec side.  More exactly:
+Currently in such a case KVM throws a complete trace like:
 
-- azx_has_pm_runtime() check is dropped from azx_runtime_suspend() and
-  azx_runtime_resume(), so that it can be properly executed from the
-  system-suspend/resume path
+[345523.705984] WARNING: CPU: 24 PID: 64413 at arch/powerpc/kvm/book3s_hv_tm.c:211 kvmhv_p9_tm_emulation+0x68/0x620 [kvm_hv]
+[345523.705985] Modules linked in: kvm_hv(E) xt_conntrack ipt_REJECT nf_reject_ipv4 xt_tcpudp ip6table_mangle ip6table_nat
+iptable_mangle iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ebtable_filter ebtables ip6table_filter
+ip6_tables iptable_filter bridge stp llc sch_fq_codel ipmi_powernv at24 vmx_crypto ipmi_devintf ipmi_msghandler
+ibmpowernv uio_pdrv_genirq kvm opal_prd uio leds_powernv ib_iser rdma_cm iw_cm ib_cm ib_core iscsi_tcp libiscsi_tcp
+libiscsi scsi_transport_iscsi ip_tables x_tables autofs4 btrfs blake2b_generic zstd_compress raid10 raid456
+async_raid6_recov async_memcpy async_pq async_xor async_tx libcrc32c xor raid6_pq raid1 raid0 multipath linear tg3
+crct10dif_vpmsum crc32c_vpmsum ipr [last unloaded: kvm_hv]
+[345523.706030] CPU: 24 PID: 64413 Comm: CPU 0/KVM Tainted: G        W   E     5.5.0+ #1
+[345523.706031] NIP:  c0080000072cb9c0 LR: c0080000072b5e80 CTR: c0080000085c7850
+[345523.706034] REGS: c000000399467680 TRAP: 0700   Tainted: G        W   E      (5.5.0+)
+[345523.706034] MSR:  900000010282b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>  CR: 24022428  XER: 00000000
+[345523.706042] CFAR: c0080000072b5e7c IRQMASK: 0
+                GPR00: c0080000072b5e80 c000000399467910 c0080000072db500 c000000375ccc720
+                GPR04: c000000375ccc720 00000003fbec0000 0000a10395dda5a6 0000000000000000
+                GPR08: 000000007cfe9ddc 7cfe9ddc000005dc 7cfe9ddc7c0005dc c0080000072cd530
+                GPR12: c0080000085c7850 c0000003fffeb800 0000000000000001 00007dfb737f0000
+                GPR16: c0002001edcca558 0000000000000000 0000000000000000 0000000000000001
+                GPR20: c000000001b21258 c0002001edcca558 0000000000000018 0000000000000000
+                GPR24: 0000000001000000 ffffffffffffffff 0000000000000001 0000000000001500
+                GPR28: c0002001edcc4278 c00000037dd80000 800000050280f033 c000000375ccc720
+[345523.706062] NIP [c0080000072cb9c0] kvmhv_p9_tm_emulation+0x68/0x620 [kvm_hv]
+[345523.706065] LR [c0080000072b5e80] kvmppc_handle_exit_hv.isra.53+0x3e8/0x798 [kvm_hv]
+[345523.706066] Call Trace:
+[345523.706069] [c000000399467910] [c000000399467940] 0xc000000399467940 (unreliable)
+[345523.706071] [c000000399467950] [c000000399467980] 0xc000000399467980
+[345523.706075] [c0000003994679f0] [c0080000072bd1c4] kvmhv_run_single_vcpu+0xa1c/0xb80 [kvm_hv]
+[345523.706079] [c000000399467ac0] [c0080000072bd8e0] kvmppc_vcpu_run_hv+0x5b8/0xb00 [kvm_hv]
+[345523.706087] [c000000399467b90] [c0080000085c93cc] kvmppc_vcpu_run+0x34/0x48 [kvm]
+[345523.706095] [c000000399467bb0] [c0080000085c582c] kvm_arch_vcpu_ioctl_run+0x244/0x420 [kvm]
+[345523.706101] [c000000399467c40] [c0080000085b7498] kvm_vcpu_ioctl+0x3d0/0x7b0 [kvm]
+[345523.706105] [c000000399467db0] [c0000000004adf9c] ksys_ioctl+0x13c/0x170
+[345523.706107] [c000000399467e00] [c0000000004adff8] sys_ioctl+0x28/0x80
+[345523.706111] [c000000399467e20] [c00000000000b278] system_call+0x5c/0x68
+[345523.706112] Instruction dump:
+[345523.706114] 419e0390 7f8a4840 409d0048 6d497c00 2f89075d 419e021c 6d497c00 2f8907dd
+[345523.706119] 419e01c0 6d497c00 2f8905dd 419e00a4 <0fe00000> 38210040 38600000 ebc1fff0
 
-- The WAKEEN handling depends on the card's power state now; it's set
-  and cleared only for the runtime-suspend
+and then treats the executed instruction as a 'nop'.
 
-- azx_resume() checks whether any codec may need the forcible resume
-  beforehand.  If the forcible resume is required, it does temporary
-  PM refcount up/down for actually triggering the runtime resume.
+However the POWER9 User's Manual, in section "4.6.10 Book II Invalid
+Forms", informs that for TM instructions bit 31 is in fact ignored, thus
+for the TM-related invalid forms ignoring bit 31 and handling them like the
+valid forms is an acceptable way to handle them. POWER8 behaves the same
+way too.
 
-- A new helper function, hda_codec_need_resume(), is introduced for
-  checking whether the codec needs a forcible runtime-resume, and the
-  existing code is rewritten with that.
+This commit changes the handling of the cases here described by treating
+the TM-related invalid forms that can generate a softpatch interrupt
+just like their valid forms (w/ bit 31 = 1) instead of as a 'nop' and by
+gently reporting any other unrecognized case to the host and treating it as
+illegal instruction instead of throwing a trace and treating it as a 'nop'.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207043
-Link: https://lore.kernel.org/r/20200413082034.25166-6-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Gustavo Romero <gromero@linux.ibm.com>
+Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
+Acked-By: Michael Neuling <mikey@neuling.org>
+Reviewed-by: Leonardo Bras <leonardo@linux.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/hda_codec.h |  5 +++++
- sound/pci/hda/hda_codec.c |  2 +-
- sound/pci/hda/hda_intel.c | 38 +++++++++++++++++++++++++++-----------
- 3 files changed, 33 insertions(+), 12 deletions(-)
+ arch/powerpc/include/asm/kvm_asm.h      |  3 +++
+ arch/powerpc/kvm/book3s_hv_tm.c         | 28 ++++++++++++++++++++-----
+ arch/powerpc/kvm/book3s_hv_tm_builtin.c | 16 ++++++++++++--
+ 3 files changed, 40 insertions(+), 7 deletions(-)
 
-diff --git a/include/sound/hda_codec.h b/include/sound/hda_codec.h
-index 9a0393cf024c2..65c056ce91128 100644
---- a/include/sound/hda_codec.h
-+++ b/include/sound/hda_codec.h
-@@ -494,6 +494,11 @@ void snd_hda_update_power_acct(struct hda_codec *codec);
- static inline void snd_hda_set_power_save(struct hda_bus *bus, int delay) {}
- #endif
+diff --git a/arch/powerpc/include/asm/kvm_asm.h b/arch/powerpc/include/asm/kvm_asm.h
+index a790d5cf6ea37..684e8ae00d160 100644
+--- a/arch/powerpc/include/asm/kvm_asm.h
++++ b/arch/powerpc/include/asm/kvm_asm.h
+@@ -163,4 +163,7 @@
  
-+static inline bool hda_codec_need_resume(struct hda_codec *codec)
-+{
-+	return !codec->relaxed_resume && codec->jacktbl.used;
-+}
+ #define KVM_INST_FETCH_FAILED	-1
+ 
++/* Extract PO and XOP opcode fields */
++#define PO_XOP_OPCODE_MASK 0xfc0007fe
 +
- #ifdef CONFIG_SND_HDA_PATCH_LOADER
- /*
-  * patch firmware
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 103011e7285a3..12da263fb02ba 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -2958,7 +2958,7 @@ static int hda_codec_runtime_resume(struct device *dev)
- static int hda_codec_force_resume(struct device *dev)
- {
- 	struct hda_codec *codec = dev_to_hda_codec(dev);
--	bool forced_resume = !codec->relaxed_resume && codec->jacktbl.used;
-+	bool forced_resume = hda_codec_need_resume(codec);
- 	int ret;
+ #endif /* __POWERPC_KVM_ASM_H__ */
+diff --git a/arch/powerpc/kvm/book3s_hv_tm.c b/arch/powerpc/kvm/book3s_hv_tm.c
+index 31cd0f327c8a2..e7fd60cf97804 100644
+--- a/arch/powerpc/kvm/book3s_hv_tm.c
++++ b/arch/powerpc/kvm/book3s_hv_tm.c
+@@ -6,6 +6,8 @@
+  * published by the Free Software Foundation.
+  */
  
- 	/* The get/put pair below enforces the runtime resume even if the
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 7353d2ec359ae..a6e8aaa091c7d 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1025,7 +1025,7 @@ static int azx_suspend(struct device *dev)
- 	chip = card->private_data;
- 	bus = azx_bus(chip);
- 	snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
--	__azx_runtime_suspend(chip);
-+	pm_runtime_force_suspend(dev);
- 	if (bus->irq >= 0) {
- 		free_irq(bus->irq, chip);
- 		bus->irq = -1;
-@@ -1041,7 +1041,9 @@ static int azx_suspend(struct device *dev)
- static int azx_resume(struct device *dev)
- {
- 	struct snd_card *card = dev_get_drvdata(dev);
-+	struct hda_codec *codec;
- 	struct azx *chip;
-+	bool forced_resume = false;
- 
- 	if (!azx_is_pm_ready(card))
- 		return 0;
-@@ -1052,7 +1054,20 @@ static int azx_resume(struct device *dev)
- 			chip->msi = 0;
- 	if (azx_acquire_irq(chip, 1) < 0)
- 		return -EIO;
--	__azx_runtime_resume(chip, false);
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
 +
-+	/* check for the forced resume */
-+	list_for_each_codec(codec, &chip->bus) {
-+		if (hda_codec_need_resume(codec)) {
-+			forced_resume = true;
-+			break;
-+		}
-+	}
+ #include <linux/kvm_host.h>
+ 
+ #include <asm/kvm_ppc.h>
+@@ -47,7 +49,18 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 	u64 newmsr, bescr;
+ 	int ra, rs;
+ 
+-	switch (instr & 0xfc0007ff) {
++	/*
++	 * rfid, rfebb, and mtmsrd encode bit 31 = 0 since it's a reserved bit
++	 * in these instructions, so masking bit 31 out doesn't change these
++	 * instructions. For treclaim., tsr., and trechkpt. instructions if bit
++	 * 31 = 0 then they are per ISA invalid forms, however P9 UM, in section
++	 * 4.6.10 Book II Invalid Forms, informs specifically that ignoring bit
++	 * 31 is an acceptable way to handle these invalid forms that have
++	 * bit 31 = 0. Moreover, for emulation purposes both forms (w/ and wo/
++	 * bit 31 set) can generate a softpatch interrupt. Hence both forms
++	 * are handled below for these instructions so they behave the same way.
++	 */
++	switch (instr & PO_XOP_OPCODE_MASK) {
+ 	case PPC_INST_RFID:
+ 		/* XXX do we need to check for PR=0 here? */
+ 		newmsr = vcpu->arch.shregs.srr1;
+@@ -108,7 +121,8 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.shregs.msr = newmsr;
+ 		return RESUME_GUEST;
+ 
+-	case PPC_INST_TSR:
++	/* ignore bit 31, see comment above */
++	case (PPC_INST_TSR & PO_XOP_OPCODE_MASK):
+ 		/* check for PR=1 and arch 2.06 bit set in PCR */
+ 		if ((msr & MSR_PR) && (vcpu->arch.vcore->pcr & PCR_ARCH_206)) {
+ 			/* generate an illegal instruction interrupt */
+@@ -143,7 +157,8 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.shregs.msr = msr;
+ 		return RESUME_GUEST;
+ 
+-	case PPC_INST_TRECLAIM:
++	/* ignore bit 31, see comment above */
++	case (PPC_INST_TRECLAIM & PO_XOP_OPCODE_MASK):
+ 		/* check for TM disabled in the HFSCR or MSR */
+ 		if (!(vcpu->arch.hfscr & HFSCR_TM)) {
+ 			/* generate an illegal instruction interrupt */
+@@ -179,7 +194,8 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.shregs.msr &= ~MSR_TS_MASK;
+ 		return RESUME_GUEST;
+ 
+-	case PPC_INST_TRECHKPT:
++	/* ignore bit 31, see comment above */
++	case (PPC_INST_TRECHKPT & PO_XOP_OPCODE_MASK):
+ 		/* XXX do we need to check for PR=0 here? */
+ 		/* check for TM disabled in the HFSCR or MSR */
+ 		if (!(vcpu->arch.hfscr & HFSCR_TM)) {
+@@ -211,6 +227,8 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 	}
+ 
+ 	/* What should we do here? We didn't recognize the instruction */
+-	WARN_ON_ONCE(1);
++	kvmppc_core_queue_program(vcpu, SRR1_PROGILL);
++	pr_warn_ratelimited("Unrecognized TM-related instruction %#x for emulation", instr);
 +
-+	if (forced_resume)
-+		pm_runtime_get_noresume(dev);
-+	pm_runtime_force_resume(dev);
-+	if (forced_resume)
-+		pm_runtime_put(dev);
- 	snd_power_change_state(card, SNDRV_CTL_POWER_D0);
+ 	return RESUME_GUEST;
+ }
+diff --git a/arch/powerpc/kvm/book3s_hv_tm_builtin.c b/arch/powerpc/kvm/book3s_hv_tm_builtin.c
+index 3cf5863bc06e8..3c7ca2fa19597 100644
+--- a/arch/powerpc/kvm/book3s_hv_tm_builtin.c
++++ b/arch/powerpc/kvm/book3s_hv_tm_builtin.c
+@@ -26,7 +26,18 @@ int kvmhv_p9_tm_emulation_early(struct kvm_vcpu *vcpu)
+ 	u64 newmsr, msr, bescr;
+ 	int rs;
  
- 	trace_azx_resume(chip);
-@@ -1099,12 +1114,12 @@ static int azx_runtime_suspend(struct device *dev)
- 	if (!azx_is_pm_ready(card))
- 		return 0;
- 	chip = card->private_data;
--	if (!azx_has_pm_runtime(chip))
--		return 0;
+-	switch (instr & 0xfc0007ff) {
++	/*
++	 * rfid, rfebb, and mtmsrd encode bit 31 = 0 since it's a reserved bit
++	 * in these instructions, so masking bit 31 out doesn't change these
++	 * instructions. For the tsr. instruction if bit 31 = 0 then it is per
++	 * ISA an invalid form, however P9 UM, in section 4.6.10 Book II Invalid
++	 * Forms, informs specifically that ignoring bit 31 is an acceptable way
++	 * to handle TM-related invalid forms that have bit 31 = 0. Moreover,
++	 * for emulation purposes both forms (w/ and wo/ bit 31 set) can
++	 * generate a softpatch interrupt. Hence both forms are handled below
++	 * for tsr. to make them behave the same way.
++	 */
++	switch (instr & PO_XOP_OPCODE_MASK) {
+ 	case PPC_INST_RFID:
+ 		/* XXX do we need to check for PR=0 here? */
+ 		newmsr = vcpu->arch.shregs.srr1;
+@@ -76,7 +87,8 @@ int kvmhv_p9_tm_emulation_early(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.shregs.msr = newmsr;
+ 		return 1;
  
- 	/* enable controller wake up event */
--	azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) |
--		  STATESTS_INT_MASK);
-+	if (snd_power_get_state(card) == SNDRV_CTL_POWER_D0) {
-+		azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) |
-+			   STATESTS_INT_MASK);
-+	}
- 
- 	__azx_runtime_suspend(chip);
- 	trace_azx_runtime_suspend(chip);
-@@ -1115,17 +1130,18 @@ static int azx_runtime_resume(struct device *dev)
- {
- 	struct snd_card *card = dev_get_drvdata(dev);
- 	struct azx *chip;
-+	bool from_rt = snd_power_get_state(card) == SNDRV_CTL_POWER_D0;
- 
- 	if (!azx_is_pm_ready(card))
- 		return 0;
- 	chip = card->private_data;
--	if (!azx_has_pm_runtime(chip))
--		return 0;
--	__azx_runtime_resume(chip, true);
-+	__azx_runtime_resume(chip, from_rt);
- 
- 	/* disable controller Wake Up event*/
--	azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) &
--			~STATESTS_INT_MASK);
-+	if (from_rt) {
-+		azx_writew(chip, WAKEEN, azx_readw(chip, WAKEEN) &
-+			   ~STATESTS_INT_MASK);
-+	}
- 
- 	trace_azx_runtime_resume(chip);
- 	return 0;
+-	case PPC_INST_TSR:
++	/* ignore bit 31, see comment above */
++	case (PPC_INST_TSR & PO_XOP_OPCODE_MASK):
+ 		/* we know the MSR has the TS field = S (0b01) here */
+ 		msr = vcpu->arch.shregs.msr;
+ 		/* check for PR=1 and arch 2.06 bit set in PCR */
 -- 
 2.25.1
 
