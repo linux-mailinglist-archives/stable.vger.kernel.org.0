@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE61C27CC40
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:35:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A46027CD30
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:42:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732565AbgI2Meo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:34:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36424 "EHLO mail.kernel.org"
+        id S1728921AbgI2LL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:11:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729558AbgI2LVZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:21:25 -0400
+        id S1729194AbgI2LKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:10:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 573D223A52;
-        Tue, 29 Sep 2020 11:19:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9628720848;
+        Tue, 29 Sep 2020 11:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378369;
-        bh=GkGlGLAibR47Bq9v7Y+rMMrr3gg5FDqfGgv1JKf7BCE=;
+        s=default; t=1601377852;
+        bh=sTH9H5cLkDDkeT7+8BSnxFuTL3G71zT6DoZ7bdCP3GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pemq6nyMMLcLg7VSMmhm3ojCsgR9IxoUHQJ/A85IPejf151j/35kJMfb+fE6SX4Oz
-         fc63xyErMrqxV9kksqpOx78O2BHfxSoce8o1Ch0TVlZbm8j/g8ma+bsiXxF6bPlGVL
-         UssQIMz8MvZL/GqrmSe276T71LsqIxtWlwkzQZug=
+        b=G2l5qnXiRXoc4dmM7a02nJ4Ar8W+17SuF6gouRZ+uIu4QhrvUci4B11CmDp/xx3Yd
+         D32k3gMZ3RzKw9KIx8A0Q2zGTwmQmcIb8wrTcQHVxEZMKycCFafU1qi11aFoHaahim
+         8/A/P0TBVOznPkOCV2Dze9D6As21YJeDMFRbcjhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 127/166] vfio/pci: fix memory leaks of eventfd ctx
-Date:   Tue, 29 Sep 2020 13:00:39 +0200
-Message-Id: <20200929105941.540627406@linuxfoundation.org>
+Subject: [PATCH 4.9 096/121] ceph: fix potential race in ceph_check_caps
+Date:   Tue, 29 Sep 2020 13:00:40 +0200
+Message-Id: <20200929105934.940310959@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105935.184737111@linuxfoundation.org>
-References: <20200929105935.184737111@linuxfoundation.org>
+In-Reply-To: <20200929105930.172747117@linuxfoundation.org>
+References: <20200929105930.172747117@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 1518ac272e789cae8c555d69951b032a275b7602 ]
+[ Upstream commit dc3da0461cc4b76f2d0c5b12247fcb3b520edbbf ]
 
-Finished a qemu-kvm (-device vfio-pci,host=0001:01:00.0) triggers a few
-memory leaks after a while because vfio_pci_set_ctx_trigger_single()
-calls eventfd_ctx_fdget() without the matching eventfd_ctx_put() later.
-Fix it by calling eventfd_ctx_put() for those memory in
-vfio_pci_release() before vfio_device_release().
+Nothing ensures that session will still be valid by the time we
+dereference the pointer. Take and put a reference.
 
-unreferenced object 0xebff008981cc2b00 (size 128):
-  comm "qemu-kvm", pid 4043, jiffies 4294994816 (age 9796.310s)
-  hex dump (first 32 bytes):
-    01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
-    ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
-  backtrace:
-    [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
-    [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
-    [<000000005fcec025>] do_eventfd+0x54/0x1ac
-    [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
-    [<00000000b819758c>] do_el0_svc+0x128/0x1dc
-    [<00000000b244e810>] el0_sync_handler+0xd0/0x268
-    [<00000000d495ef94>] el0_sync+0x164/0x180
-unreferenced object 0x29ff008981cc4180 (size 128):
-  comm "qemu-kvm", pid 4043, jiffies 4294994818 (age 9796.290s)
-  hex dump (first 32 bytes):
-    01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
-    ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
-  backtrace:
-    [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
-    [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
-    [<000000005fcec025>] do_eventfd+0x54/0x1ac
-    [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
-    [<00000000b819758c>] do_el0_svc+0x128/0x1dc
-    [<00000000b244e810>] el0_sync_handler+0xd0/0x268
-    [<00000000d495ef94>] el0_sync+0x164/0x180
+In principle, we should always be able to get a reference here, but
+throw a warning if that's ever not the case.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/ceph/caps.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 794dc90aa5c95..902854a013521 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -399,6 +399,10 @@ static void vfio_pci_release(void *device_data)
- 	if (!(--vdev->refcnt)) {
- 		vfio_spapr_pci_eeh_release(vdev->pdev);
- 		vfio_pci_disable(vdev);
-+		if (vdev->err_trigger)
-+			eventfd_ctx_put(vdev->err_trigger);
-+		if (vdev->req_trigger)
-+			eventfd_ctx_put(vdev->req_trigger);
- 	}
- 
- 	mutex_unlock(&driver_lock);
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index e11aacb35d6b5..cbd92dd89de16 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -1807,12 +1807,24 @@ ack:
+ 			if (mutex_trylock(&session->s_mutex) == 0) {
+ 				dout("inverting session/ino locks on %p\n",
+ 				     session);
++				session = ceph_get_mds_session(session);
+ 				spin_unlock(&ci->i_ceph_lock);
+ 				if (took_snap_rwsem) {
+ 					up_read(&mdsc->snap_rwsem);
+ 					took_snap_rwsem = 0;
+ 				}
+-				mutex_lock(&session->s_mutex);
++				if (session) {
++					mutex_lock(&session->s_mutex);
++					ceph_put_mds_session(session);
++				} else {
++					/*
++					 * Because we take the reference while
++					 * holding the i_ceph_lock, it should
++					 * never be NULL. Throw a warning if it
++					 * ever is.
++					 */
++					WARN_ON_ONCE(true);
++				}
+ 				goto retry;
+ 			}
+ 		}
 -- 
 2.25.1
 
