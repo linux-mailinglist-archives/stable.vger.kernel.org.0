@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8603E27C7D1
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FBE227C76C
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:54:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731542AbgI2L4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:56:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42158 "EHLO mail.kernel.org"
+        id S1731330AbgI2Lxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:53:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730798AbgI2Lnl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:43:41 -0400
+        id S1731020AbgI2Lqg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:46:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37BAB2074A;
-        Tue, 29 Sep 2020 11:43:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1002721D46;
+        Tue, 29 Sep 2020 11:46:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379816;
-        bh=c+BtdsoEL/TbNxvyh/KaWEjduuXtxTnCLoMjV2rtJOY=;
+        s=default; t=1601379991;
+        bh=2Ao+3uo09TXn/cGlZQBAejAX5HWSvH6VuBeV2hc5SQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=isHVZyokJ4BhcKUn2Hxx62S+ru3ohdp8WzpTGNpgk6qOFhC8SePvjYSqGDWLYLujj
-         2pMRw6ELrt+WEiBqSGG3Zej4z7X82LEW2p/R5GohfPMM581rwdv7O3aYua/7mNDSa1
-         97TIjbsN7HkfJ3APfNG4hoU7vRVGjO9tFz1s0YuQ=
+        b=NuBbCOjmMUuXTQ8d6IEUZ1kDvi9oZN6hEFZVHBHU1YnWhH6+p48u43kmyEAVv/BCX
+         GwnyXBH9bnnQ7Yv3bHAEnGooHlUhrSirBaeYCzIPA8JDYphzNXa0/ZGFhZ/YRVgpZ8
+         6KYzL3ZI52n1g7gwK5jp+hIqGaCCwlGZ9wsdNikk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 331/388] EDAC/ghes: Check whether the driver is on the safe list correctly
+        stable@vger.kernel.org, Qii Wang <qii.wang@mediatek.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 19/99] i2c: mediatek: Send i2c master code at more than 1MHz
 Date:   Tue, 29 Sep 2020 13:01:02 +0200
-Message-Id: <20200929110026.482558647@linuxfoundation.org>
+Message-Id: <20200929105930.665868752@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,95 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Qii Wang <qii.wang@mediatek.com>
 
-[ Upstream commit 251c54ea26fa6029b01a76161a37a12fde5124e4 ]
+[ Upstream commit b44658e755b5a733e9df04449facbc738df09170 ]
 
-With CONFIG_DEBUG_TEST_DRIVER_REMOVE=y, a system would try to probe,
-unregister and probe again a driver.
+The master code needs to being sent when the speed is more than
+I2C_MAX_FAST_MODE_PLUS_FREQ, not I2C_MAX_FAST_MODE_FREQ in the
+latest I2C-bus specification and user manual.
 
-When ghes_edac is attempted to be loaded on a system which is not on
-the safe platforms list, ghes_edac_register() would return early. The
-unregister counterpart ghes_edac_unregister() would still attempt to
-unregister and exit early at the refcount test, leading to the refcount
-underflow below.
-
-In order to not do *anything* on the unregister path too, reuse the
-force_load parameter and check it on that path too, before fumbling with
-the refcount.
-
-  ghes_edac: ghes_edac_register: entry
-  ghes_edac: ghes_edac_register: return -ENODEV
-  ------------[ cut here ]------------
-  refcount_t: underflow; use-after-free.
-  WARNING: CPU: 10 PID: 1 at lib/refcount.c:28 refcount_warn_saturate+0xb9/0x100
-  Modules linked in:
-  CPU: 10 PID: 1 Comm: swapper/0 Not tainted 5.9.0-rc4+ #12
-  Hardware name: GIGABYTE MZ01-CE1-00/MZ01-CE1-00, BIOS F02 08/29/2018
-  RIP: 0010:refcount_warn_saturate+0xb9/0x100
-  Code: 82 e8 fb 8f 4d 00 90 0f 0b 90 90 c3 80 3d 55 4c f5 00 00 75 88 c6 05 4c 4c f5 00 01 90 48 c7 c7 d0 8a 10 82 e8 d8 8f 4d 00 90 <0f> 0b 90 90 c3 80 3d 30 4c f5 00 00 0f 85 61 ff ff ff c6 05 23 4c
-  RSP: 0018:ffffc90000037d58 EFLAGS: 00010292
-  RAX: 0000000000000026 RBX: ffff88840b8da000 RCX: 0000000000000000
-  RDX: 0000000000000001 RSI: ffffffff8216b24f RDI: 00000000ffffffff
-  RBP: ffff88840c662e00 R08: 0000000000000001 R09: 0000000000000001
-  R10: 0000000000000001 R11: 0000000000000046 R12: 0000000000000000
-  R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000000
-  FS:  0000000000000000(0000) GS:ffff88840ee80000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000000 CR3: 0000800002211000 CR4: 00000000003506e0
-  Call Trace:
-   ghes_edac_unregister
-   ghes_remove
-   platform_drv_remove
-   really_probe
-   driver_probe_device
-   device_driver_attach
-   __driver_attach
-   ? device_driver_attach
-   ? device_driver_attach
-   bus_for_each_dev
-   bus_add_driver
-   driver_register
-   ? bert_init
-   ghes_init
-   do_one_initcall
-   ? rcu_read_lock_sched_held
-   kernel_init_freeable
-   ? rest_init
-   kernel_init
-   ret_from_fork
-   ...
-  ghes_edac: ghes_edac_unregister: FALSE, refcount: -1073741824
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200911164950.GB19320@zn.tnic
+Signed-off-by: Qii Wang <qii.wang@mediatek.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/ghes_edac.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/i2c-mt65xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/edac/ghes_edac.c b/drivers/edac/ghes_edac.c
-index 523dd56a798c9..0031819402d0c 100644
---- a/drivers/edac/ghes_edac.c
-+++ b/drivers/edac/ghes_edac.c
-@@ -488,6 +488,7 @@ int ghes_edac_register(struct ghes *ghes, struct device *dev)
- 		if (!force_load && idx < 0)
- 			return -ENODEV;
- 	} else {
-+		force_load = true;
- 		idx = 0;
- 	}
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index b099139cbb91e..f9e62c958cf69 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -736,7 +736,7 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
+ 	for (clk_div = 1; clk_div <= max_clk_div; clk_div++) {
+ 		clk_src = parent_clk / clk_div;
  
-@@ -586,6 +587,9 @@ void ghes_edac_unregister(struct ghes *ghes)
- 	struct mem_ctl_info *mci;
- 	unsigned long flags;
- 
-+	if (!force_load)
-+		return;
-+
- 	mutex_lock(&ghes_reg_mutex);
- 
- 	if (!refcount_dec_and_test(&ghes_refcount))
+-		if (target_speed > I2C_MAX_FAST_MODE_FREQ) {
++		if (target_speed > I2C_MAX_FAST_MODE_PLUS_FREQ) {
+ 			/* Set master code speed register */
+ 			ret = mtk_i2c_calculate_speed(i2c, clk_src,
+ 						      I2C_MAX_FAST_MODE_FREQ,
 -- 
 2.25.1
 
