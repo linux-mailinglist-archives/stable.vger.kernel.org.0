@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49FBD27C541
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC33E27C5F0
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729603AbgI2Ldi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:33:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47764 "EHLO mail.kernel.org"
+        id S1729405AbgI2LkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:40:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729601AbgI2Ld1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:33:27 -0400
+        id S1729997AbgI2Lj5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:39:57 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26ACF23B86;
-        Tue, 29 Sep 2020 11:26:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D487121941;
+        Tue, 29 Sep 2020 11:39:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378803;
-        bh=V8EJJJpgxZ0IT/dWPRc7TaxDiicSTsDaMI/WFOHjKgw=;
+        s=default; t=1601379597;
+        bh=Ep7b5mM1MrRuSLGuARiHo7eHefUyapE1mHyhqARkDMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JfQ8zWictpeQE1pFjOHxA9Vx27YKds9U1MfKY94V6UpdgUfQb7VNaXKeudSxsmESi
-         KLvsqWhdnaOjvuwyEzbgZ98AkjfVX//pUo/35DCZFf6ebCLm0jbnV05aotQJK/wWTt
-         OLEXwDg0xAkM+0hg4ynhjkXAvUMH6P5bqcqB2gnE=
+        b=RYuojWt2VIbZiXYNCvMEh8Ie+HSH1L5RSJ6CbIQ+dLjZUfNQUwrKs8JkOHbjUAP2h
+         kNbsz/SfJmcdkH/XRs04fbj3beZ3Ht8bxSjbPCefznAQZIoVuUH1MHXRLe0j7uTiYV
+         p2OceUY3OHyua/94M0/XDa45RpPGV3IjSNMzEYaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 114/245] RDMA/cm: Remove a race freeing timewait_info
-Date:   Tue, 29 Sep 2020 12:59:25 +0200
-Message-Id: <20200929105952.532208812@linuxfoundation.org>
+Subject: [PATCH 5.4 235/388] drivers: char: tlclk.c: Avoid data race between init and interrupt handler
+Date:   Tue, 29 Sep 2020 12:59:26 +0200
+Message-Id: <20200929110021.856101276@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,144 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit bede86a39d9dc3387ac00dcb8e1ac221676b2f25 ]
+[ Upstream commit 44b8fb6eaa7c3fb770bf1e37619cdb3902cca1fc ]
 
-When creating a cm_id during REQ the id immediately becomes visible to the
-other MAD handlers, and shortly after the state is moved to IB_CM_REQ_RCVD
+After registering character device the file operation callbacks can be
+called. The open callback registers interrupt handler.
+Therefore interrupt handler can execute in parallel with rest of the init
+function. To avoid such data race initialize telclk_interrupt variable
+and struct alarm_events before registering character device.
 
-This allows cm_rej_handler() to run concurrently and free the work:
+Found by Linux Driver Verification project (linuxtesting.org).
 
-        CPU 0                                CPU1
- cm_req_handler()
-  ib_create_cm_id()
-  cm_match_req()
-    id_priv->state = IB_CM_REQ_RCVD
-                                       cm_rej_handler()
-                                         cm_acquire_id()
-                                         spin_lock(&id_priv->lock)
-                                         switch (id_priv->state)
-  					   case IB_CM_REQ_RCVD:
-                                            cm_reset_to_idle()
-                                             kfree(id_priv->timewait_info);
-   goto destroy
-  destroy:
-    kfree(id_priv->timewait_info);
-                                             id_priv->timewait_info = NULL
-
-Causing a double free or worse.
-
-Do not free the timewait_info without also holding the
-id_priv->lock. Simplify this entire flow by making the free unconditional
-during cm_destroy_id() and removing the confusing special case error
-unwind during creation of the timewait_info.
-
-This also fixes a leak of the timewait if cm_destroy_id() is called in
-IB_CM_ESTABLISHED with an XRC TGT QP. The state machine will be left in
-ESTABLISHED while it needed to transition through IB_CM_TIMEWAIT to
-release the timewait pointer.
-
-Also fix a leak of the timewait_info if the caller mis-uses the API and
-does ib_send_cm_reqs().
-
-Fixes: a977049dacde ("[PATCH] IB: Add the kernel CM implementation")
-Link: https://lore.kernel.org/r/20200310092545.251365-4-leon@kernel.org
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Link: https://lore.kernel.org/r/20200417153451.1551-1-madhuparnabhowmik10@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cm.c | 25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ drivers/char/tlclk.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
-index 64f206e11d497..4ebf63360a697 100644
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -1100,14 +1100,22 @@ retest:
- 		break;
- 	}
+diff --git a/drivers/char/tlclk.c b/drivers/char/tlclk.c
+index 6d81bb3bb503f..896a3550fba9f 100644
+--- a/drivers/char/tlclk.c
++++ b/drivers/char/tlclk.c
+@@ -777,17 +777,21 @@ static int __init tlclk_init(void)
+ {
+ 	int ret;
  
--	spin_lock_irq(&cm.lock);
-+	spin_lock_irq(&cm_id_priv->lock);
-+	spin_lock(&cm.lock);
-+	/* Required for cleanup paths related cm_req_handler() */
-+	if (cm_id_priv->timewait_info) {
-+		cm_cleanup_timewait(cm_id_priv->timewait_info);
-+		kfree(cm_id_priv->timewait_info);
-+		cm_id_priv->timewait_info = NULL;
++	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
++
++	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
++	if (!alarm_events) {
++		ret = -ENOMEM;
++		goto out1;
 +	}
- 	if (!list_empty(&cm_id_priv->altr_list) &&
- 	    (!cm_id_priv->altr_send_port_not_ready))
- 		list_del(&cm_id_priv->altr_list);
- 	if (!list_empty(&cm_id_priv->prim_list) &&
- 	    (!cm_id_priv->prim_send_port_not_ready))
- 		list_del(&cm_id_priv->prim_list);
--	spin_unlock_irq(&cm.lock);
-+	spin_unlock(&cm.lock);
-+	spin_unlock_irq(&cm_id_priv->lock);
- 
- 	cm_free_id(cm_id->local_id);
- 	cm_deref_id(cm_id_priv);
-@@ -1424,7 +1432,7 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
- 	/* Verify that we're not in timewait. */
- 	cm_id_priv = container_of(cm_id, struct cm_id_private, id);
- 	spin_lock_irqsave(&cm_id_priv->lock, flags);
--	if (cm_id->state != IB_CM_IDLE) {
-+	if (cm_id->state != IB_CM_IDLE || WARN_ON(cm_id_priv->timewait_info)) {
- 		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
- 		ret = -EINVAL;
- 		goto out;
-@@ -1442,12 +1450,12 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
- 				 param->ppath_sgid_attr, &cm_id_priv->av,
- 				 cm_id_priv);
- 	if (ret)
--		goto error1;
-+		goto out;
- 	if (param->alternate_path) {
- 		ret = cm_init_av_by_path(param->alternate_path, NULL,
- 					 &cm_id_priv->alt_av, cm_id_priv);
- 		if (ret)
--			goto error1;
-+			goto out;
++
+ 	ret = register_chrdev(tlclk_major, "telco_clock", &tlclk_fops);
+ 	if (ret < 0) {
+ 		printk(KERN_ERR "tlclk: can't get major %d.\n", tlclk_major);
++		kfree(alarm_events);
+ 		return ret;
  	}
- 	cm_id->service_id = param->service_id;
- 	cm_id->service_mask = ~cpu_to_be64(0);
-@@ -1465,7 +1473,7 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
+ 	tlclk_major = ret;
+-	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
+-	if (!alarm_events) {
+-		ret = -ENOMEM;
+-		goto out1;
+-	}
  
- 	ret = cm_alloc_msg(cm_id_priv, &cm_id_priv->msg);
- 	if (ret)
--		goto error1;
-+		goto out;
- 
- 	req_msg = (struct cm_req_msg *) cm_id_priv->msg->mad;
- 	cm_format_req(req_msg, cm_id_priv, param);
-@@ -1488,7 +1496,6 @@ int ib_send_cm_req(struct ib_cm_id *cm_id,
- 	return 0;
- 
- error2:	cm_free_msg(cm_id_priv->msg);
--error1:	kfree(cm_id_priv->timewait_info);
- out:	return ret;
- }
- EXPORT_SYMBOL(ib_send_cm_req);
-@@ -1973,7 +1980,7 @@ static int cm_req_handler(struct cm_work *work)
- 		pr_debug("%s: local_id %d, no listen_cm_id_priv\n", __func__,
- 			 be32_to_cpu(cm_id->local_id));
- 		ret = -EINVAL;
--		goto free_timeinfo;
-+		goto destroy;
+ 	/* Read telecom clock IRQ number (Set by BIOS) */
+ 	if (!request_region(TLCLK_BASE, 8, "telco_clock")) {
+@@ -796,7 +800,6 @@ static int __init tlclk_init(void)
+ 		ret = -EBUSY;
+ 		goto out2;
  	}
+-	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
  
- 	cm_id_priv->id.cm_handler = listen_cm_id_priv->id.cm_handler;
-@@ -2057,8 +2064,6 @@ static int cm_req_handler(struct cm_work *work)
- rejected:
- 	atomic_dec(&cm_id_priv->refcount);
- 	cm_deref_id(listen_cm_id_priv);
--free_timeinfo:
--	kfree(cm_id_priv->timewait_info);
- destroy:
- 	ib_destroy_cm_id(cm_id);
+ 	if (0x0F == telclk_interrupt ) { /* not MCPBL0010 ? */
+ 		printk(KERN_ERR "telclk_interrupt = 0x%x non-mcpbl0010 hw.\n",
+@@ -837,8 +840,8 @@ out3:
+ 	release_region(TLCLK_BASE, 8);
+ out2:
+ 	kfree(alarm_events);
+-out1:
+ 	unregister_chrdev(tlclk_major, "telco_clock");
++out1:
  	return ret;
+ }
+ 
 -- 
 2.25.1
 
