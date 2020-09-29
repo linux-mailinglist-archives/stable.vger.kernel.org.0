@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D93E27C9C3
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB18E27C9CF
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 14:14:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732086AbgI2MNr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 08:13:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49816 "EHLO mail.kernel.org"
+        id S1732039AbgI2MOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 08:14:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730113AbgI2Lh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730117AbgI2Lh3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 29 Sep 2020 07:37:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0860123B28;
-        Tue, 29 Sep 2020 11:33:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45FF223B32;
+        Tue, 29 Sep 2020 11:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379239;
-        bh=kvljy/+dKd5hVOBCgeK3ADPEBHeF/kDaMYGcYzXQcjA=;
+        s=default; t=1601379241;
+        bh=6RUKgCHvA2eA0aAlNvnq6xNbribKN+2EF/kr+A51ois=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYhhH5E+mnb4pL1c7nyr4/SfdJ6JkleqRC+k6EH0xc9XpxtywUzy1n3N+cKZnRHDq
-         LL4ZDG/blqbzgo8Qy/d3e0y2v2+rR9caqgAnHRYyOs9V01OVVqEa4ND12W7Fo3bJ9q
-         Rn4NYqga82fSgLkpS+qe4q9hEEYWS3i8oHs4cCNQ=
+        b=bhwj9KFitTyHu+kUhAJzt8OzRvuFLSxqmYPJIBNXsB85ypnFovjdIXUJD8/nzUsoV
+         82XilqsGIsHC7sbrPytftx8FuSt2d49yIoTGFnoqu0khjpu0Sr2KvxUKh7TLS2qHvC
+         Qnp639u/tkdwU+v7t2pCNMRX5qjeg59U4AwD8VxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        stable@vger.kernel.org, Ying Xue <ying.xue@windriver.com>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        Tuong Lien <tuong.t.lien@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 074/388] ALSA: hda: enable regmap internal locking
-Date:   Tue, 29 Sep 2020 12:56:45 +0200
-Message-Id: <20200929110014.076891142@linuxfoundation.org>
+Subject: [PATCH 5.4 075/388] tipc: fix link overflow issue at socket shutdown
+Date:   Tue, 29 Sep 2020 12:56:46 +0200
+Message-Id: <20200929110014.125708026@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
 References: <20200929110010.467764689@linuxfoundation.org>
@@ -43,45 +45,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Tuong Lien <tuong.t.lien@dektech.com.au>
 
-[ Upstream commit 8e85def5723eccea30ebf22645673692ab8cb3e2 ]
+[ Upstream commit 49afb806cb650dd1f06f191994f3aa657d264009 ]
 
-This reverts commit 42ec336f1f9d ("ALSA: hda: Disable regmap
-internal locking").
+When a socket is suddenly shutdown or released, it will reject all the
+unreceived messages in its receive queue. This applies to a connected
+socket too, whereas there is only one 'FIN' message required to be sent
+back to its peer in this case.
 
-Without regmap locking, there is a race between snd_hda_codec_amp_init()
-and PM callbacks issuing regcache_sync(). This was caught by
-following kernel warning trace:
+In case there are many messages in the queue and/or some connections
+with such messages are shutdown at the same time, the link layer will
+easily get overflowed at the 'TIPC_SYSTEM_IMPORTANCE' backlog level
+because of the message rejections. As a result, the link will be taken
+down. Moreover, immediately when the link is re-established, the socket
+layer can continue to reject the messages and the same issue happens...
 
-<4> [358.080081] WARNING: CPU: 2 PID: 4157 at drivers/base/regmap/regcache.c:498 regcache_cache_only+0xf5/0x130
-[...]
-<4> [358.080148] Call Trace:
-<4> [358.080158]  snd_hda_codec_amp_init+0x4e/0x100 [snd_hda_codec]
-<4> [358.080169]  snd_hda_codec_amp_init_stereo+0x40/0x80 [snd_hda_codec]
+The commit refactors the '__tipc_shutdown()' function to only send one
+'FIN' in the situation mentioned above. For the connectionless case, it
+is unavoidable but usually there is no rejections for such socket
+messages because they are 'dest-droppable' by default.
 
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-BugLink: https://gitlab.freedesktop.org/drm/intel/issues/592
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20200108180856.5194-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+In addition, the new code makes the other socket states clear
+(e.g.'TIPC_LISTEN') and treats as a separate case to avoid misbehaving.
+
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Acked-by: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/hdac_regmap.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/tipc/socket.c | 53 ++++++++++++++++++++++++++++-------------------
+ 1 file changed, 32 insertions(+), 21 deletions(-)
 
-diff --git a/sound/hda/hdac_regmap.c b/sound/hda/hdac_regmap.c
-index 2596a881186fa..49780399c2849 100644
---- a/sound/hda/hdac_regmap.c
-+++ b/sound/hda/hdac_regmap.c
-@@ -363,7 +363,6 @@ static const struct regmap_config hda_regmap_cfg = {
- 	.reg_write = hda_reg_write,
- 	.use_single_read = true,
- 	.use_single_write = true,
--	.disable_locking = true,
- };
+diff --git a/net/tipc/socket.c b/net/tipc/socket.c
+index 959155c3a1608..66e8f89bce534 100644
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -260,12 +260,12 @@ static void tipc_sk_respond(struct sock *sk, struct sk_buff *skb, int err)
+  *
+  * Caller must hold socket lock
+  */
+-static void tsk_rej_rx_queue(struct sock *sk)
++static void tsk_rej_rx_queue(struct sock *sk, int error)
+ {
+ 	struct sk_buff *skb;
  
- /**
+ 	while ((skb = __skb_dequeue(&sk->sk_receive_queue)))
+-		tipc_sk_respond(sk, skb, TIPC_ERR_NO_PORT);
++		tipc_sk_respond(sk, skb, error);
+ }
+ 
+ static bool tipc_sk_connected(struct sock *sk)
+@@ -515,34 +515,45 @@ static void __tipc_shutdown(struct socket *sock, int error)
+ 	/* Remove any pending SYN message */
+ 	__skb_queue_purge(&sk->sk_write_queue);
+ 
+-	/* Reject all unreceived messages, except on an active connection
+-	 * (which disconnects locally & sends a 'FIN+' to peer).
+-	 */
+-	while ((skb = __skb_dequeue(&sk->sk_receive_queue)) != NULL) {
+-		if (TIPC_SKB_CB(skb)->bytes_read) {
+-			kfree_skb(skb);
+-			continue;
+-		}
+-		if (!tipc_sk_type_connectionless(sk) &&
+-		    sk->sk_state != TIPC_DISCONNECTING) {
+-			tipc_set_sk_state(sk, TIPC_DISCONNECTING);
+-			tipc_node_remove_conn(net, dnode, tsk->portid);
+-		}
+-		tipc_sk_respond(sk, skb, error);
++	/* Remove partially received buffer if any */
++	skb = skb_peek(&sk->sk_receive_queue);
++	if (skb && TIPC_SKB_CB(skb)->bytes_read) {
++		__skb_unlink(skb, &sk->sk_receive_queue);
++		kfree_skb(skb);
+ 	}
+ 
+-	if (tipc_sk_type_connectionless(sk))
++	/* Reject all unreceived messages if connectionless */
++	if (tipc_sk_type_connectionless(sk)) {
++		tsk_rej_rx_queue(sk, error);
+ 		return;
++	}
+ 
+-	if (sk->sk_state != TIPC_DISCONNECTING) {
++	switch (sk->sk_state) {
++	case TIPC_CONNECTING:
++	case TIPC_ESTABLISHED:
++		tipc_set_sk_state(sk, TIPC_DISCONNECTING);
++		tipc_node_remove_conn(net, dnode, tsk->portid);
++		/* Send a FIN+/- to its peer */
++		skb = __skb_dequeue(&sk->sk_receive_queue);
++		if (skb) {
++			__skb_queue_purge(&sk->sk_receive_queue);
++			tipc_sk_respond(sk, skb, error);
++			break;
++		}
+ 		skb = tipc_msg_create(TIPC_CRITICAL_IMPORTANCE,
+ 				      TIPC_CONN_MSG, SHORT_H_SIZE, 0, dnode,
+ 				      tsk_own_node(tsk), tsk_peer_port(tsk),
+ 				      tsk->portid, error);
+ 		if (skb)
+ 			tipc_node_xmit_skb(net, skb, dnode, tsk->portid);
+-		tipc_node_remove_conn(net, dnode, tsk->portid);
+-		tipc_set_sk_state(sk, TIPC_DISCONNECTING);
++		break;
++	case TIPC_LISTEN:
++		/* Reject all SYN messages */
++		tsk_rej_rx_queue(sk, error);
++		break;
++	default:
++		__skb_queue_purge(&sk->sk_receive_queue);
++		break;
+ 	}
+ }
+ 
+@@ -2564,7 +2575,7 @@ static int tipc_accept(struct socket *sock, struct socket *new_sock, int flags,
+ 	 * Reject any stray messages received by new socket
+ 	 * before the socket lock was taken (very, very unlikely)
+ 	 */
+-	tsk_rej_rx_queue(new_sk);
++	tsk_rej_rx_queue(new_sk, TIPC_ERR_NO_PORT);
+ 
+ 	/* Connect new socket to it's peer */
+ 	tipc_sk_finish_conn(new_tsock, msg_origport(msg), msg_orignode(msg));
 -- 
 2.25.1
 
