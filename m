@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1C7227C60D
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:42:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46A527C540
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730310AbgI2LlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:41:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37516 "EHLO mail.kernel.org"
+        id S1729073AbgI2Ldg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:33:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730631AbgI2LlL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:41:11 -0400
+        id S1729604AbgI2Ld1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:33:27 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 043A32065C;
-        Tue, 29 Sep 2020 11:41:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4B3223B99;
+        Tue, 29 Sep 2020 11:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601379670;
-        bh=vORfWEwGIWUJYpllPBRP0IubscreZM5sP/sgXyGtGSY=;
+        s=default; t=1601378812;
+        bh=2UQ9DFaxS2qeBIdJST9eYG/tl8Ou/LtUg3wFI3kjC04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3J7XhPdkqGd5o/+vEruSjTqo0FVLxChUDQQ5N5LwKzBkO1v370sJKrwDiMpFF5AH
-         yK9iJmVrS6rjCoczUIGwWpjzCeyqv/y6teG7xh1Osj7s0HpkWfxuBHMfIiC9omfK+4
-         hjpc229QvCM10pyqB3sIOEML6tgcQSUWBQWkKaLc=
+        b=p4KGSPV4V0briqR1i9iF0gZjkvc45jHtiB7/iPdL7sGIjxi+R1JdvzLgR7jq++vH4
+         ooR25f/ykC1XtIZ5N3wjSN8diOYp5sGD7d1nVWFHI1nbDOLsV5FLyM4eFrtA6Wegy1
+         +hq/KAt67TnIktHa+fhdL2jhB7m5d9n4wRSnZgys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 267/388] coresight: etm4x: Fix use-after-free of per-cpu etm drvdata
-Date:   Tue, 29 Sep 2020 12:59:58 +0200
-Message-Id: <20200929110023.384494556@linuxfoundation.org>
+Subject: [PATCH 4.19 148/245] drivers: char: tlclk.c: Avoid data race between init and interrupt handler
+Date:   Tue, 29 Sep 2020 12:59:59 +0200
+Message-Id: <20200929105954.189934904@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
-References: <20200929110010.467764689@linuxfoundation.org>
+In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
+References: <20200929105946.978650816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,135 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-[ Upstream commit 3f4943d422c5febbb3c764670011a00eb2a86238 ]
+[ Upstream commit 44b8fb6eaa7c3fb770bf1e37619cdb3902cca1fc ]
 
-etm probe could be deferred due to the dependency in the trace
-path chain and may be retried. We need to clear the per-cpu
-etmdrvdata entry for the etm in case of a failure to avoid
-use-after-free cases as reported below:
+After registering character device the file operation callbacks can be
+called. The open callback registers interrupt handler.
+Therefore interrupt handler can execute in parallel with rest of the init
+function. To avoid such data race initialize telclk_interrupt variable
+and struct alarm_events before registering character device.
 
-KASAN use-after-free bug in etm4_cpu_pm_notify():
+Found by Linux Driver Verification project (linuxtesting.org).
 
-[    8.574566] coresight etm0: CPU0: ETM v4.2 initialized
-[    8.581920] BUG: KASAN: use-after-free in etm4_cpu_pm_notify+0x580/0x2024
-[    8.581925] Read of size 8 at addr ffffff813304f8c8 by task swapper/3/0
-[    8.581927]
-[    8.581934] CPU: 3 PID: 0 Comm: swapper/3 Tainted: G S      W         5.4.28 #314
-[    8.587775] coresight etm1: CPU1: ETM v4.2 initialized
-[    8.594195] Call trace:
-[    8.594205]  dump_backtrace+0x0/0x188
-[    8.594209]  show_stack+0x20/0x2c
-[    8.594216]  dump_stack+0xdc/0x144
-[    8.594227]  print_address_description+0x3c/0x494
-[    8.594232]  __kasan_report+0x144/0x168
-[    8.601598] coresight etm2: CPU2: ETM v4.2 initialized
-[    8.602563]  kasan_report+0x10/0x18
-[    8.602568]  check_memory_region+0x1a4/0x1b4
-[    8.602572]  __kasan_check_read+0x18/0x24
-[    8.602577]  etm4_cpu_pm_notify+0x580/0x2024
-[    8.665945]  notifier_call_chain+0x5c/0x90
-[    8.670166]  __atomic_notifier_call_chain+0x90/0xf8
-[    8.675182]  cpu_pm_notify+0x40/0x6c
-[    8.678858]  cpu_pm_enter+0x38/0x80
-[    8.682451]  psci_enter_idle_state+0x34/0x70
-[    8.686844]  cpuidle_enter_state+0xb8/0x20c
-[    8.691143]  cpuidle_enter+0x38/0x4c
-[    8.694820]  call_cpuidle+0x3c/0x68
-[    8.698408]  do_idle+0x1a0/0x280
-[    8.701729]  cpu_startup_entry+0x24/0x28
-[    8.705768]  secondary_start_kernel+0x15c/0x170
-[    8.710423]
-[    8.711972] Allocated by task 242:
-[    8.715473]  __kasan_kmalloc+0xf0/0x1ac
-[    8.719426]  kasan_slab_alloc+0x14/0x1c
-[    8.723375]  __kmalloc_track_caller+0x23c/0x388
-[    8.728040]  devm_kmalloc+0x38/0x94
-[    8.731632]  etm4_probe+0x48/0x3c8
-[    8.735140]  amba_probe+0xbc/0x158
-[    8.738645]  really_probe+0x144/0x408
-[    8.742412]  driver_probe_device+0x70/0x140
-[    8.746716]  __device_attach_driver+0x9c/0x110
-[    8.751287]  bus_for_each_drv+0x90/0xd8
-[    8.755236]  __device_attach+0xb4/0x164
-[    8.759188]  device_initial_probe+0x20/0x2c
-[    8.763490]  bus_probe_device+0x34/0x94
-[    8.767436]  device_add+0x34c/0x3e0
-[    8.771029]  amba_device_try_add+0x68/0x440
-[    8.775332]  amba_deferred_retry_func+0x48/0xc8
-[    8.779997]  process_one_work+0x344/0x648
-[    8.784127]  worker_thread+0x2ac/0x47c
-[    8.787987]  kthread+0x128/0x138
-[    8.791313]  ret_from_fork+0x10/0x18
-[    8.794993]
-[    8.796532] Freed by task 242:
-[    8.799684]  __kasan_slab_free+0x15c/0x22c
-[    8.803897]  kasan_slab_free+0x10/0x1c
-[    8.807761]  kfree+0x25c/0x4bc
-[    8.810913]  release_nodes+0x240/0x2b0
-[    8.814767]  devres_release_all+0x3c/0x54
-[    8.818887]  really_probe+0x178/0x408
-[    8.822661]  driver_probe_device+0x70/0x140
-[    8.826963]  __device_attach_driver+0x9c/0x110
-[    8.831539]  bus_for_each_drv+0x90/0xd8
-[    8.835487]  __device_attach+0xb4/0x164
-[    8.839431]  device_initial_probe+0x20/0x2c
-[    8.843732]  bus_probe_device+0x34/0x94
-[    8.847678]  device_add+0x34c/0x3e0
-[    8.851274]  amba_device_try_add+0x68/0x440
-[    8.855576]  amba_deferred_retry_func+0x48/0xc8
-[    8.860240]  process_one_work+0x344/0x648
-[    8.864366]  worker_thread+0x2ac/0x47c
-[    8.868228]  kthread+0x128/0x138
-[    8.871557]  ret_from_fork+0x10/0x18
-[    8.875231]
-[    8.876782] The buggy address belongs to the object at ffffff813304f800
-[    8.876782]  which belongs to the cache kmalloc-1k of size 1024
-[    8.889632] The buggy address is located 200 bytes inside of
-[    8.889632]  1024-byte region [ffffff813304f800, ffffff813304fc00)
-[    8.901761] The buggy address belongs to the page:
-[    8.906695] page:ffffffff04ac1200 refcount:1 mapcount:0 mapping:ffffff8146c03800 index:0x0 compound_mapcount: 0
-[    8.917047] flags: 0x4000000000010200(slab|head)
-[    8.921799] raw: 4000000000010200 dead000000000100 dead000000000122 ffffff8146c03800
-[    8.929753] raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
-[    8.937703] page dumped because: kasan: bad access detected
-[    8.943433]
-[    8.944974] Memory state around the buggy address:
-[    8.949903]  ffffff813304f780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-[    8.957320]  ffffff813304f800: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[    8.964742] >ffffff813304f880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[    8.972157]                                               ^
-[    8.977886]  ffffff813304f900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[    8.985298]  ffffff813304f980: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[    8.992713] ==================================================================
-
-Fixes: f188b5e76aae ("coresight: etm4x: Save/restore state across CPU low power states")
-Reported-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20200518180242.7916-22-mathieu.poirier@linaro.org
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Link: https://lore.kernel.org/r/20200417153451.1551-1-madhuparnabhowmik10@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/tlclk.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
-index a128b5063f46c..83dccdeef9069 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-@@ -1184,6 +1184,7 @@ static int etm4_probe(struct amba_device *adev, const struct amba_id *id)
- 	return 0;
+diff --git a/drivers/char/tlclk.c b/drivers/char/tlclk.c
+index 8eeb4190207d1..dce22b7fc5449 100644
+--- a/drivers/char/tlclk.c
++++ b/drivers/char/tlclk.c
+@@ -776,17 +776,21 @@ static int __init tlclk_init(void)
+ {
+ 	int ret;
  
- err_arch_supported:
-+	etmdrvdata[drvdata->cpu] = NULL;
- 	if (--etm4_count == 0) {
- 		cpuhp_remove_state_nocalls(CPUHP_AP_ARM_CORESIGHT_STARTING);
- 		if (hp_online)
++	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
++
++	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
++	if (!alarm_events) {
++		ret = -ENOMEM;
++		goto out1;
++	}
++
+ 	ret = register_chrdev(tlclk_major, "telco_clock", &tlclk_fops);
+ 	if (ret < 0) {
+ 		printk(KERN_ERR "tlclk: can't get major %d.\n", tlclk_major);
++		kfree(alarm_events);
+ 		return ret;
+ 	}
+ 	tlclk_major = ret;
+-	alarm_events = kzalloc( sizeof(struct tlclk_alarms), GFP_KERNEL);
+-	if (!alarm_events) {
+-		ret = -ENOMEM;
+-		goto out1;
+-	}
+ 
+ 	/* Read telecom clock IRQ number (Set by BIOS) */
+ 	if (!request_region(TLCLK_BASE, 8, "telco_clock")) {
+@@ -795,7 +799,6 @@ static int __init tlclk_init(void)
+ 		ret = -EBUSY;
+ 		goto out2;
+ 	}
+-	telclk_interrupt = (inb(TLCLK_REG7) & 0x0f);
+ 
+ 	if (0x0F == telclk_interrupt ) { /* not MCPBL0010 ? */
+ 		printk(KERN_ERR "telclk_interrupt = 0x%x non-mcpbl0010 hw.\n",
+@@ -836,8 +839,8 @@ out3:
+ 	release_region(TLCLK_BASE, 8);
+ out2:
+ 	kfree(alarm_events);
+-out1:
+ 	unregister_chrdev(tlclk_major, "telco_clock");
++out1:
+ 	return ret;
+ }
+ 
 -- 
 2.25.1
 
