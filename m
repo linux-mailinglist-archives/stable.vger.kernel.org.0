@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 831C127C53B
-	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:33:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EFF27C5C9
+	for <lists+stable@lfdr.de>; Tue, 29 Sep 2020 13:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729051AbgI2LdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Sep 2020 07:33:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45276 "EHLO mail.kernel.org"
+        id S1728850AbgI2Liy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Sep 2020 07:38:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729278AbgI2Lbh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Sep 2020 07:31:37 -0400
+        id S1729136AbgI2Liq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Sep 2020 07:38:46 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE01E23B19;
-        Tue, 29 Sep 2020 11:25:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34835208FE;
+        Tue, 29 Sep 2020 11:38:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601378712;
-        bh=1b4JsZ4VH04Yz7PW3Dfj7RJdRXwpxJuAyxmg9mrOlys=;
+        s=default; t=1601379525;
+        bh=eTuzjZLcFvYsTQMGwxCoA2SSC4OdI8g8w3E8lmz2xjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kP5NPOrcmtWHt4aCW00qMbAC0K9f5yUV8Apo3cH4hznzwieEB4Rk9fAvyyUpebvOf
-         yA9uxh4hAtakKWf1IjynvljXNmNFUWoBvCQXzOBkd3Fe/h+yap3GMyWWPN3DlcV5YM
-         sy/aN2WsBBrrny64bpxwP3vgls0vZ87QrDrk11Kc=
+        b=HlersRKZtqJ6YDsfvS3R3QJlH6w/CbJiDBeJHhWxbUAvvefLLDdKQny+Bmjdu9IWy
+         /VoM20D9cZJzcY8cLloGO0xxeYnAwssqD2nknFqS/VbUvZwWIG6OU0xGVuMQcazdzu
+         k1TL44sHdebnH6V+UgcYKbSL6xmrXzRKG7bgakBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Richter <tmricht@linux.ibm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Dave Chinner <dchinner@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 082/245] perf test: Fix test trace+probe_vfs_getname.sh on s390
-Date:   Tue, 29 Sep 2020 12:58:53 +0200
-Message-Id: <20200929105950.984356570@linuxfoundation.org>
+Subject: [PATCH 5.4 203/388] xfs: prohibit fs freezing when using empty transactions
+Date:   Tue, 29 Sep 2020 12:58:54 +0200
+Message-Id: <20200929110020.311892084@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200929105946.978650816@linuxfoundation.org>
-References: <20200929105946.978650816@linuxfoundation.org>
+In-Reply-To: <20200929110010.467764689@linuxfoundation.org>
+References: <20200929110010.467764689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +44,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 2bbc83537614517730e9f2811195004b712de207 ]
+[ Upstream commit 27fb5a72f50aa770dd38b0478c07acacef97e3e7 ]
 
-This test places a kprobe to function getname_flags() in the kernel
-which has the following prototype:
+I noticed that fsfreeze can take a very long time to freeze an XFS if
+there happens to be a GETFSMAP caller running in the background.  I also
+happened to notice the following in dmesg:
 
-  struct filename *getname_flags(const char __user *filename, int flags, int *empty)
+------------[ cut here ]------------
+WARNING: CPU: 2 PID: 43492 at fs/xfs/xfs_super.c:853 xfs_quiesce_attr+0x83/0x90 [xfs]
+Modules linked in: xfs libcrc32c ip6t_REJECT nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 ip_set_hash_ip ip_set_hash_net xt_tcpudp xt_set ip_set_hash_mac ip_set nfnetlink ip6table_filter ip6_tables bfq iptable_filter sch_fq_codel ip_tables x_tables nfsv4 af_packet [last unloaded: xfs]
+CPU: 2 PID: 43492 Comm: xfs_io Not tainted 5.6.0-rc4-djw #rc4
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.10.2-1ubuntu1 04/01/2014
+RIP: 0010:xfs_quiesce_attr+0x83/0x90 [xfs]
+Code: 7c 07 00 00 85 c0 75 22 48 89 df 5b e9 96 c1 00 00 48 c7 c6 b0 2d 38 a0 48 89 df e8 57 64 ff ff 8b 83 7c 07 00 00 85 c0 74 de <0f> 0b 48 89 df 5b e9 72 c1 00 00 66 90 0f 1f 44 00 00 41 55 41 54
+RSP: 0018:ffffc900030f3e28 EFLAGS: 00010202
+RAX: 0000000000000001 RBX: ffff88802ac54000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffffffff81e4a6f0 RDI: 00000000ffffffff
+RBP: ffff88807859f070 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000010 R12: 0000000000000000
+R13: ffff88807859f388 R14: ffff88807859f4b8 R15: ffff88807859f5e8
+FS:  00007fad1c6c0fc0(0000) GS:ffff88807e000000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f0c7d237000 CR3: 0000000077f01003 CR4: 00000000001606a0
+Call Trace:
+ xfs_fs_freeze+0x25/0x40 [xfs]
+ freeze_super+0xc8/0x180
+ do_vfs_ioctl+0x70b/0x750
+ ? __fget_files+0x135/0x210
+ ksys_ioctl+0x3a/0xb0
+ __x64_sys_ioctl+0x16/0x20
+ do_syscall_64+0x50/0x1a0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-The 'filename' argument points to a filename located in user space memory.
+These two things appear to be related.  The assertion trips when another
+thread initiates a fsmap request (which uses an empty transaction) after
+the freezer waited for m_active_trans to hit zero but before the the
+freezer executes the WARN_ON just prior to calling xfs_log_quiesce.
 
-Looking at commit 88903c464321c ("tracing/probe: Add ustring type for
-user-space string") the kprobe should indicate that user space memory is
-accessed.
+The lengthy delays in freezing happen because the freezer calls
+xfs_wait_buftarg to clean out the buffer lru list.  Meanwhile, the
+GETFSMAP caller is continuing to grab and release buffers, which means
+that it can take a very long time for the buffer lru list to empty out.
 
-Output before:
+We fix both of these races by calling sb_start_write to obtain freeze
+protection while using empty transactions for GETFSMAP and for metadata
+scrubbing.  The other two users occur during mount, during which time we
+cannot fs freeze.
 
-   [root@m35lp76 perf]# ./perf test 66 67
-   66: Use vfs_getname probe to get syscall args filenames   : FAILED!
-   67: Check open filename arg using perf trace + vfs_getname: FAILED!
-   [root@m35lp76 perf]#
-
-Output after:
-
-   [root@m35lp76 perf]# ./perf test 66 67
-   66: Use vfs_getname probe to get syscall args filenames   : Ok
-   67: Check open filename arg using perf trace + vfs_getname: Ok
-   [root@m35lp76 perf]#
-
-Comments from Masami Hiramatsu:
-
-This bug doesn't happen on x86 or other archs on which user address
-space and kernel address space is the same. On some arches (ppc64 in
-this case?) user address space is partially or completely the same as
-kernel address space.
-
-(Yes, they switch the world when running into the kernel) In this case,
-we need to use different data access functions for each space.
-
-That is why I introduced the "ustring" type for kprobe events.
-
-As far as I can see, Thomas's patch is sane. Thomas, could you show us
-your result on your test environment?
-
-Comments from Thomas Richter:
-
-Test results for s/390 included above.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: http://lore.kernel.org/lkml/20200217102111.61137-1-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/shell/lib/probe_vfs_getname.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/scrub/scrub.c | 9 +++++++++
+ fs/xfs/xfs_fsmap.c   | 9 +++++++++
+ fs/xfs/xfs_trans.c   | 5 +++++
+ 3 files changed, 23 insertions(+)
 
-diff --git a/tools/perf/tests/shell/lib/probe_vfs_getname.sh b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-index 7cb99b433888b..c2cc42daf9242 100644
---- a/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-+++ b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-@@ -14,7 +14,7 @@ add_probe_vfs_getname() {
- 	if [ $had_vfs_getname -eq 1 ] ; then
- 		line=$(perf probe -L getname_flags 2>&1 | egrep 'result.*=.*filename;' | sed -r 's/[[:space:]]+([[:digit:]]+)[[:space:]]+result->uptr.*/\1/')
- 		perf probe -q       "vfs_getname=getname_flags:${line} pathname=result->name:string" || \
--		perf probe $verbose "vfs_getname=getname_flags:${line} pathname=filename:string"
-+		perf probe $verbose "vfs_getname=getname_flags:${line} pathname=filename:ustring"
- 	fi
- }
+diff --git a/fs/xfs/scrub/scrub.c b/fs/xfs/scrub/scrub.c
+index 15c8c5f3f688d..720bef5779989 100644
+--- a/fs/xfs/scrub/scrub.c
++++ b/fs/xfs/scrub/scrub.c
+@@ -167,6 +167,7 @@ xchk_teardown(
+ 			xfs_irele(sc->ip);
+ 		sc->ip = NULL;
+ 	}
++	sb_end_write(sc->mp->m_super);
+ 	if (sc->flags & XCHK_REAPING_DISABLED)
+ 		xchk_start_reaping(sc);
+ 	if (sc->flags & XCHK_HAS_QUOTAOFFLOCK) {
+@@ -489,6 +490,14 @@ xfs_scrub_metadata(
+ 	sc.ops = &meta_scrub_ops[sm->sm_type];
+ 	sc.sick_mask = xchk_health_mask_for_scrub_type(sm->sm_type);
+ retry_op:
++	/*
++	 * If freeze runs concurrently with a scrub, the freeze can be delayed
++	 * indefinitely as we walk the filesystem and iterate over metadata
++	 * buffers.  Freeze quiesces the log (which waits for the buffer LRU to
++	 * be emptied) and that won't happen while checking is running.
++	 */
++	sb_start_write(mp->m_super);
++
+ 	/* Set up for the operation. */
+ 	error = sc.ops->setup(&sc, ip);
+ 	if (error)
+diff --git a/fs/xfs/xfs_fsmap.c b/fs/xfs/xfs_fsmap.c
+index d082143feb5ab..c13754e119be1 100644
+--- a/fs/xfs/xfs_fsmap.c
++++ b/fs/xfs/xfs_fsmap.c
+@@ -895,6 +895,14 @@ xfs_getfsmap(
+ 	info.format_arg = arg;
+ 	info.head = head;
  
++	/*
++	 * If fsmap runs concurrently with a scrub, the freeze can be delayed
++	 * indefinitely as we walk the rmapbt and iterate over metadata
++	 * buffers.  Freeze quiesces the log (which waits for the buffer LRU to
++	 * be emptied) and that won't happen while we're reading buffers.
++	 */
++	sb_start_write(mp->m_super);
++
+ 	/* For each device we support... */
+ 	for (i = 0; i < XFS_GETFSMAP_DEVS; i++) {
+ 		/* Is this device within the range the user asked for? */
+@@ -934,6 +942,7 @@ xfs_getfsmap(
+ 
+ 	if (tp)
+ 		xfs_trans_cancel(tp);
++	sb_end_write(mp->m_super);
+ 	head->fmh_oflags = FMH_OF_DEV_T;
+ 	return error;
+ }
+diff --git a/fs/xfs/xfs_trans.c b/fs/xfs/xfs_trans.c
+index f4795fdb7389c..b32a66452d441 100644
+--- a/fs/xfs/xfs_trans.c
++++ b/fs/xfs/xfs_trans.c
+@@ -306,6 +306,11 @@ xfs_trans_alloc(
+  *
+  * Note the zero-length reservation; this transaction MUST be cancelled
+  * without any dirty data.
++ *
++ * Callers should obtain freeze protection to avoid two conflicts with fs
++ * freezing: (1) having active transactions trip the m_active_trans ASSERTs;
++ * and (2) grabbing buffers at the same time that freeze is trying to drain
++ * the buffer LRU list.
+  */
+ int
+ xfs_trans_alloc_empty(
 -- 
 2.25.1
 
