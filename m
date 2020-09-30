@@ -2,172 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA82127ED83
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 17:41:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A978027EDCE
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 17:50:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728837AbgI3Pkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 11:40:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44054 "EHLO
+        id S1730503AbgI3Ptz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 11:49:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725893AbgI3Pkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 11:40:47 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3957AC061755
-        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 08:40:47 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id j2so2331969wrx.7
-        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 08:40:47 -0700 (PDT)
+        with ESMTP id S1725355AbgI3Pty (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 11:49:54 -0400
+Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE42C061755
+        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 08:49:54 -0700 (PDT)
+Received: by mail-qv1-xf41.google.com with SMTP id q10so1132502qvs.1
+        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 08:49:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=/Kl2Qd9DygVOpqWB4QvrjPtrBb/z+P5PDh0hUEj2+t8=;
-        b=KZrVCEC5/Wv+orMHsjVSmKr+y0GLZepxtFRVopYUKjsPsHSJZcZpbjRIy49UptMWRd
-         FB45fGhhZPN/QyFOG3ugTk/cslCBzTtUEA9ca+dvifnguUB3DRBk6lGDJOe/ephxgHAZ
-         zXPMsPerE9BfJZAQtQa914ki48jd/di3vfpEg=
+        bh=r8/IDDg3h30xL2yKxOXfAZ6SYDQxULsHhio1WiSzVoE=;
+        b=b3/eSZrxq9ZmquVDBHUWHZcW8jE3GZMuVJn04cLVnXRpAKQlax71RkHw+TItyAcXOf
+         D1/wbcVY1Tp22JA5trNf+ZAjp240f5Hp/IFo/bGRg5t96yAw73K+jPG6eeK7GgW9RdEC
+         ny3mkwjN6Jbxx0cHBrAXUvhnEjA9uZ2q77xjQDVhYp6ayW0dfk4vY+vvylLCH4n3iIou
+         EBVZoV1Mq2driC9DQmvoOR/tuiJl+S81PanPTc7I0Y30DOZRuJSte5ZddOgYWDDA+3Ku
+         d6XBGCk1g17KTfCR9ZIbDx02vyCkW9AKXbdcDIwXXfv6XZ3jt79qZ0dt4xkzIRLPTPkL
+         OZRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=/Kl2Qd9DygVOpqWB4QvrjPtrBb/z+P5PDh0hUEj2+t8=;
-        b=bJCryCTZaWFdGCz25/w9CLzhvDfHUtxTKpDA7hw9UYadGPwqVCSIfYTSpJtJSCeJQD
-         hNCCQhvcZ9QQbi/H1SN4MDKrAmAIDZc7gAYi/cNp3fg3KpmreD78pyDnYgWbQg/XVxgG
-         wq8JA2mvWVEfqFlXaYHnAFUV8RvjQXk4i8niOarV0tK1gFTkujYYdGxPI0fm804hLJMY
-         hzdnFtdA73+TiMgr0E4FsnwU8gRVXJovwhyz80qVPjpEjjIdFw8ZUJE/cojTn9dAoFSZ
-         YDlZo8dKWZamWJInALiMyAUb7G1dM7tesIMY1i53R1ECoJfKbay9e7NM/afzV2bWJZC7
-         OmPg==
-X-Gm-Message-State: AOAM533qV4tkhb/88pPeTyUASM0SrvN4zt57c66KGW1NUxd90r8Fgn1t
-        piGWbICPRENMs+G34WqLsQ1oMtF3KkNzOdUq7hrewQ==
-X-Google-Smtp-Source: ABdhPJyovthY6wL6WkzoBh46/ttwHT8LSDLHRz39NUSk95y8G78RCIWbtSvH4XGpkqyG0BfoG8t1cXgZCGMmIy/KDFo=
-X-Received: by 2002:adf:e9c1:: with SMTP id l1mr3876277wrn.68.1601480445753;
- Wed, 30 Sep 2020 08:40:45 -0700 (PDT)
+        bh=r8/IDDg3h30xL2yKxOXfAZ6SYDQxULsHhio1WiSzVoE=;
+        b=Jr0A6W1IezJyl5KLnjD2H7a0DubDEtwYL4EZi6dN/ewl4TooeDRH5tSTeBMFYOvaf7
+         kfs4zR3F8XyK8RfIlLO8kzwlxBypuY3mJjojHQhvfmsRbqDV6AfBbHQyvLpx65G1D6wu
+         7aj5n2uH35bGFtdeH7BRKASl08DSz8Hx19qfJRmPHFNBakc1w7/a8hSDk/CF6ZYqq+jb
+         Lwowvz/4V1M7Ik+Ju4UBLucsgKVIlr2i0JLztIXCz1oqHlAG9MwGTP0T0bOSkfiEuOo4
+         CYcWFupP5v9vuAYP5e28hJVGu2TZCQMXI4dRxSdEOaQ657JVS1K9PP+50yFpKHuQ5rFa
+         lnlA==
+X-Gm-Message-State: AOAM530Y08YZ/JZmQUpSuthG9LKGCccdHlT26IMm3CJzeeSaM+n9A057
+        YncKa0FHaJTKd6kELKGyp6MBsqNCPW7EUBL2n3e2yJ6c7f8=
+X-Google-Smtp-Source: ABdhPJz35tnMcZ3NgGf2cA0sbRzUPpGd/75eBd+InpyMs61ib5CN5zyPrAngEN4AeGJwKtjR6R96dAebjOvm9ebx2O0=
+X-Received: by 2002:ad4:4d52:: with SMTP id m18mr2946409qvm.55.1601480993835;
+ Wed, 30 Sep 2020 08:49:53 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200929105929.719230296@linuxfoundation.org> <20200929105931.461063397@linuxfoundation.org>
- <CAFxkdAoyenpdGV9XoFqtjEW02UVfa_i56NMKdmDFW89GSrZ5cg@mail.gmail.com> <CAPGftE9uCh9Wn2or+zBqu3212sfT+4R-FZA_GVxbYks8uJrsSQ@mail.gmail.com>
-In-Reply-To: <CAPGftE9uCh9Wn2or+zBqu3212sfT+4R-FZA_GVxbYks8uJrsSQ@mail.gmail.com>
-From:   Justin Forbes <jmforbes@linuxtx.org>
-Date:   Wed, 30 Sep 2020 10:40:33 -0500
-Message-ID: <CAFxkdAqNwLB6xs1c+0PveuWtj64BQVfsqkunufo0Kf8MNANMYQ@mail.gmail.com>
-Subject: Re: [PATCH 5.8 35/99] tools/libbpf: Avoid counting local symbols in
- ABI check
-To:     Tony Ambardar <tony.ambardar@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
+References: <160087928642.3520.17063139768910633998.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <CAPcyv4iPuRWSv_do_h8stU0-SiWxtKkQWvzBEU+78fDE6VffmA@mail.gmail.com> <20200930050455.GA6810@zn.tnic>
+In-Reply-To: <20200930050455.GA6810@zn.tnic>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Wed, 30 Sep 2020 08:49:42 -0700
+Message-ID: <CAPcyv4j=eyVMbcnrGDGaPe4AVXy5pJwa6EapH3ePh+JdF6zxnQ@mail.gmail.com>
+Subject: Re: [PATCH v9 0/2] Renovate memcpy_mcsafe with copy_mc_to_{user, kernel}
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Ingo Molnar <mingo@redhat.com>, Tony Luck <tony.luck@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        stable <stable@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Erwin Tsaur <erwin.tsaur@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        0day robot <lkp@intel.com>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jan Kara <jack@suse.cz>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 30, 2020 at 12:02 AM Tony Ambardar <tony.ambardar@gmail.com> wrote:
+On Tue, Sep 29, 2020 at 10:05 PM Borislav Petkov <bp@alien8.de> wrote:
 >
-> [adding Michael Ellerman, linux-ppc maintainer]
+> On Tue, Sep 29, 2020 at 03:32:07PM -0700, Dan Williams wrote:
+> > Given that Linus was the primary source of review feedback on these
+> > patches and a version of them have been soaking in -next with only a
+> > minor conflict report with vfs.git for the entirety of the v5.9-rc
+> > cycle (left there inadvertently while I was on leave), any concerns
+> > with me sending this to Linus directly during the merge window?
 >
-> Hello Justin,
->
-> On Tue, 29 Sep 2020 at 14:54, Justin Forbes <jmforbes@linuxtx.org> wrote:
-> >
-> > On Tue, Sep 29, 2020 at 6:53 AM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > From: Tony Ambardar <tony.ambardar@gmail.com>
-> > >
-> > > [ Upstream commit 746f534a4809e07f427f7d13d10f3a6a9641e5c3 ]
-> > >
-> > > Encountered the following failure building libbpf from kernel 5.8.5 sources
-> > > with GCC 8.4.0 and binutils 2.34: (long paths shortened)
-> > >
-> > >   Warning: Num of global symbols in sharedobjs/libbpf-in.o (234) does NOT
-> > >   match with num of versioned symbols in libbpf.so (236). Please make sure
-> > >   all LIBBPF_API symbols are versioned in libbpf.map.
-> > > #  --- libbpf_global_syms.tmp    2020-09-02 07:30:58.920084380 +0000
-> > > #  +++ libbpf_versioned_syms.tmp 2020-09-02 07:30:58.924084388 +0000
-> > >   @@ -1,3 +1,5 @@
-> > >   +_fini
-> > >   +_init
-> > >    bpf_btf_get_fd_by_id
-> > >    bpf_btf_get_next_id
-> > >    bpf_create_map
-> > >   make[4]: *** [Makefile:210: check_abi] Error 1
-> > >
-> > > Investigation shows _fini and _init are actually local symbols counted
-> > > amongst global ones:
-> > >
-> > >   $ readelf --dyn-syms --wide libbpf.so|head -10
-> > >
-> > >   Symbol table '.dynsym' contains 343 entries:
-> > >      Num:    Value  Size Type    Bind   Vis      Ndx Name
-> > >        0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND
-> > >        1: 00004098     0 SECTION LOCAL  DEFAULT   11
-> > >        2: 00004098     8 FUNC    LOCAL  DEFAULT   11 _init@@LIBBPF_0.0.1
-> > >        3: 00023040     8 FUNC    LOCAL  DEFAULT   14 _fini@@LIBBPF_0.0.1
-> > >        4: 00000000     0 OBJECT  GLOBAL DEFAULT  ABS LIBBPF_0.0.4
-> > >        5: 00000000     0 OBJECT  GLOBAL DEFAULT  ABS LIBBPF_0.0.1
-> > >        6: 0000ffa4     8 FUNC    GLOBAL DEFAULT   12 bpf_object__find_map_by_offset@@LIBBPF_0.0.1
-> > >
-> > > A previous commit filtered global symbols in sharedobjs/libbpf-in.o. Do the
-> > > same with the libbpf.so DSO for consistent comparison.
-> > >
-> > > Fixes: 306b267cb3c4 ("libbpf: Verify versioned symbols")
-> > > Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
-> > > Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-> > > Acked-by: Andrii Nakryiko <andriin@fb.com>
-> > > Link: https://lore.kernel.org/bpf/20200905214831.1565465-1-Tony.Ambardar@gmail.com
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> >
-> > This seems to work everywhere else, but breaks PPC64LE.
-> >
->
-> I also ran into a PPC build error while working on some bpf problems,
-> but it seemed
-> like a pre-existing PPC issue. I did submit an upstream fix, which is
-> marked for stable
-> and being reviewed by Michael. See here for discussion and the patch:
-> https://lkml.org/lkml/2020/9/17/668.
->
-> Is that the same problem you encountered? Does that patch address your issue?
+> What's wrong with them going through tip?
 
-It is not, the issue I see is:
-Warning: Num of global symbols in sharedobjs/libbpf-in.o (259) does
-NOT match with num of versioned symbols in libbpf.so (50). Please make
-sure all LIBBPF_API symbols are versioned in libbpf.map.
+There's been a paucity of response on these after converging on the
+feedback from Linus. They missed v5.9, and I started casting about for
+what could be done to make sure they did not also miss v5.10 if the
+quiet continued. The preference is still "through tip".
 
-I only see it on ppc64le with this patch, all other arch that Fedora
-builds are fine (x86_64, i686, aarch64, armv7, s390).  If I revert
-this patch, all builds succeed.  We are using gcc 10.2.1 though.
-
-Justin
-
+> But before that pls have a look at this question I have here:
 >
-> Thanks,
-> Tony
+> https://lkml.kernel.org/r/20200929102512.GB21110@zn.tnic
 >
-> > Justin
-> >
-> > > ---
-> > >  tools/lib/bpf/Makefile |    2 ++
-> > >  1 file changed, 2 insertions(+)
-> > >
-> > > --- a/tools/lib/bpf/Makefile
-> > > +++ b/tools/lib/bpf/Makefile
-> > > @@ -152,6 +152,7 @@ GLOBAL_SYM_COUNT = $(shell readelf -s --
-> > >                            awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
-> > >                            sort -u | wc -l)
-> > >  VERSIONED_SYM_COUNT = $(shell readelf --dyn-syms --wide $(OUTPUT)libbpf.so | \
-> > > +                             awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
-> > >                               grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 | sort -u | wc -l)
-> > >
-> > >  CMD_TARGETS = $(LIB_TARGET) $(PC_FILE)
-> > > @@ -219,6 +220,7 @@ check_abi: $(OUTPUT)libbpf.so
-> > >                     awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
-> > >                     sort -u > $(OUTPUT)libbpf_global_syms.tmp;           \
-> > >                 readelf --dyn-syms --wide $(OUTPUT)libbpf.so |           \
-> > > +                   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
-> > >                     grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 |             \
-> > >                     sort -u > $(OUTPUT)libbpf_versioned_syms.tmp;        \
-> > >                 diff -u $(OUTPUT)libbpf_global_syms.tmp                  \
-> > >
-> > >
+> Thx.
+
+Thanks, Boris, will do.
