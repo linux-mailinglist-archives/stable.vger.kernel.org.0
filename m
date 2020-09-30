@@ -2,148 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD0627E897
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 14:31:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DE8027E957
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 15:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727997AbgI3MbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 08:31:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+        id S1730155AbgI3NTP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 09:19:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725776AbgI3MbL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Sep 2020 08:31:11 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        id S1730140AbgI3NTO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Sep 2020 09:19:14 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 306E82071E;
-        Wed, 30 Sep 2020 12:31:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601469070;
-        bh=DMX6Eiq3+8prbkol3ZbnKFzWr8q25EI+qujQH8rzUtk=;
-        h=Subject:To:From:Date:From;
-        b=abCsAB0+uVx2q5Qe5PwQWnG96yK5BGZoBFOMlBWACBtfYG6Gmq4mGrlvmLu9C46RD
-         fS1IUa8sNR7oqNXyopizaPGy6SpT5z+MHu4Ef/Haoo99mIzzWiW7aK9N+Li5uxmHuf
-         dZDksHlSnDPMCDPxDuvGwhmcxmCjORMI0lAf4Q+o=
-Subject: patch "serial: pl011: Fix lockdep splat when handling magic-sysrq interrupt" added to tty-testing
-To:     peterz@infradead.org, gregkh@linuxfoundation.org,
-        jirislaby@kernel.org, linux@armlinux.org.uk,
-        stable@vger.kernel.org, will@kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Sep 2020 14:31:14 +0200
-Message-ID: <1601469074133214@kroah.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CA0720754;
+        Wed, 30 Sep 2020 13:19:14 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.94)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1kNc0n-002M7g-9p; Wed, 30 Sep 2020 09:19:13 -0400
+Message-ID: <20200930131913.182910382@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Wed, 30 Sep 2020 09:18:46 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>
+Subject: [for-linus][PATCH 1/2] tracing: Fix trace_find_next_entry() accounting of temp buffer size
+References: <20200930131845.346190751@goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-15
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-This is a note to let you know that I've just added the patch titled
+The temp buffer size variable for trace_find_next_entry() was incorrectly
+being updated when the size did not change. The temp buffer size should only
+be updated when it is reallocated.
 
-    serial: pl011: Fix lockdep splat when handling magic-sysrq interrupt
+This is mostly an issue when used with ftrace_dump(). That's because
+ftrace_dump() can not allocate a new buffer, and instead uses a temporary
+buffer with a fix size. But the variable that keeps track of that size is
+incorrectly updated with each call, and it could fall into the path that
+would try to reallocate the buffer and produce a warning.
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-testing branch.
+ ------------[ cut here ]------------
+ WARNING: CPU: 1 PID: 1601 at kernel/trace/trace.c:3548
+trace_find_next_entry+0xd0/0xe0
+ Modules linked in [..]
+ CPU: 1 PID: 1601 Comm: bash Not tainted 5.9.0-rc5-test+ #521
+ Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01 v03.03
+07/14/2016
+ RIP: 0010:trace_find_next_entry+0xd0/0xe0
+ Code: 40 21 00 00 4c 89 e1 31 d2 4c 89 ee 48 89 df e8 c6 9e ff ff 89 ab 54
+21 00 00 5b 5d 41 5c 41 5d c3 48 63 d5 eb bf 31 c0 eb f0 <0f> 0b 48 63 d5 eb
+b4 66 0f 1f 84 00 00 00 00 00 53 48 8d 8f 60 21
+ RSP: 0018:ffff95a4f2e8bd70 EFLAGS: 00010046
+ RAX: ffffffff96679fc0 RBX: ffffffff97910de0 RCX: ffffffff96679fc0
+ RDX: ffff95a4f2e8bd98 RSI: ffff95a4ee321098 RDI: ffffffff97913000
+ RBP: 0000000000000018 R08: 0000000000000000 R09: 0000000000000000
+ R10: 0000000000000001 R11: 0000000000000046 R12: ffff95a4f2e8bd98
+ R13: 0000000000000000 R14: ffff95a4ee321098 R15: 00000000009aa301
+ FS:  00007f8565484740(0000) GS:ffff95a55aa40000(0000)
+knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 000055876bd43d90 CR3: 00000000b76e6003 CR4: 00000000001706e0
+ Call Trace:
+  trace_print_lat_context+0x58/0x2d0
+  ? cpumask_next+0x16/0x20
+  print_trace_line+0x1a4/0x4f0
+  ftrace_dump.cold+0xad/0x12c
+  __handle_sysrq.cold+0x51/0x126
+  write_sysrq_trigger+0x3f/0x4a
+  proc_reg_write+0x53/0x80
+  vfs_write+0xca/0x210
+  ksys_write+0x70/0xf0
+  do_syscall_64+0x33/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ RIP: 0033:0x7f8565579487
+ Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e fa
+64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff
+77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
+ RSP: 002b:00007ffd40707948 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+ RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007f8565579487
+ RDX: 0000000000000002 RSI: 000055876bd74de0 RDI: 0000000000000001
+ RBP: 000055876bd74de0 R08: 000000000000000a R09: 0000000000000001
+ R10: 000055876bdec280 R11: 0000000000000246 R12: 0000000000000002
+ R13: 00007f856564a500 R14: 0000000000000002 R15: 00007f856564a700
+ irq event stamp: 109958
+ ---[ end trace 7aab5b7e51484b00 ]---
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Not only fix the updating of the temp buffer, but also do not free the temp
+buffer before a new buffer is allocated (there's no reason to not continue
+to use the current temp buffer if an allocation fails).
 
-The patch will be merged to the tty-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 534cf755d9df99e214ddbe26b91cd4d81d2603e2 Mon Sep 17 00:00:00 2001
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Wed, 30 Sep 2020 13:04:32 +0100
-Subject: serial: pl011: Fix lockdep splat when handling magic-sysrq interrupt
-
-Issuing a magic-sysrq via the PL011 causes the following lockdep splat,
-which is easily reproducible under QEMU:
-
-  | sysrq: Changing Loglevel
-  | sysrq: Loglevel set to 9
-  |
-  | ======================================================
-  | WARNING: possible circular locking dependency detected
-  | 5.9.0-rc7 #1 Not tainted
-  | ------------------------------------------------------
-  | systemd-journal/138 is trying to acquire lock:
-  | ffffab133ad950c0 (console_owner){-.-.}-{0:0}, at: console_lock_spinning_enable+0x34/0x70
-  |
-  | but task is already holding lock:
-  | ffff0001fd47b098 (&port_lock_key){-.-.}-{2:2}, at: pl011_int+0x40/0x488
-  |
-  | which lock already depends on the new lock.
-
-  [...]
-
-  |  Possible unsafe locking scenario:
-  |
-  |        CPU0                    CPU1
-  |        ----                    ----
-  |   lock(&port_lock_key);
-  |                                lock(console_owner);
-  |                                lock(&port_lock_key);
-  |   lock(console_owner);
-  |
-  |  *** DEADLOCK ***
-
-The issue being that CPU0 takes 'port_lock' on the irq path in pl011_int()
-before taking 'console_owner' on the printk() path, whereas CPU1 takes
-the two locks in the opposite order on the printk() path due to setting
-the "console_owner" prior to calling into into the actual console driver.
-
-Fix this in the same way as the msm-serial driver by dropping 'port_lock'
-before handling the sysrq.
-
-Cc: <stable@vger.kernel.org> # 4.19+
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20200811101313.GA6970@willie-the-truck
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Tested-by: Will Deacon <will@kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20200930120432.16551-1-will@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Fixes: 8e99cf91b99bb ("tracing: Do not allocate buffer in trace_find_next_entry() in atomic")
+Reported-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
- drivers/tty/serial/amba-pl011.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ kernel/trace/trace.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
-index 67498594d7d7..87dc3fc15694 100644
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -308,8 +308,9 @@ static void pl011_write(unsigned int val, const struct uart_amba_port *uap,
-  */
- static int pl011_fifo_to_tty(struct uart_amba_port *uap)
- {
--	u16 status;
- 	unsigned int ch, flag, fifotaken;
-+	int sysrq;
-+	u16 status;
- 
- 	for (fifotaken = 0; fifotaken != 256; fifotaken++) {
- 		status = pl011_read(uap, REG_FR);
-@@ -344,10 +345,12 @@ static int pl011_fifo_to_tty(struct uart_amba_port *uap)
- 				flag = TTY_FRAME;
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 2a7c26345e83..d3e5de717df2 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -3546,13 +3546,15 @@ struct trace_entry *trace_find_next_entry(struct trace_iterator *iter,
+ 	if (iter->ent && iter->ent != iter->temp) {
+ 		if ((!iter->temp || iter->temp_size < iter->ent_size) &&
+ 		    !WARN_ON_ONCE(iter->temp == static_temp_buf)) {
+-			kfree(iter->temp);
+-			iter->temp = kmalloc(iter->ent_size, GFP_KERNEL);
+-			if (!iter->temp)
++			void *temp;
++			temp = kmalloc(iter->ent_size, GFP_KERNEL);
++			if (!temp)
+ 				return NULL;
++			kfree(iter->temp);
++			iter->temp = temp;
++			iter->temp_size = iter->ent_size;
  		}
- 
--		if (uart_handle_sysrq_char(&uap->port, ch & 255))
--			continue;
-+		spin_unlock(&uap->port.lock);
-+		sysrq = uart_handle_sysrq_char(&uap->port, ch & 255);
-+		spin_lock(&uap->port.lock);
- 
--		uart_insert_char(&uap->port, ch, UART011_DR_OE, ch, flag);
-+		if (!sysrq)
-+			uart_insert_char(&uap->port, ch, UART011_DR_OE, ch, flag);
+ 		memcpy(iter->temp, iter->ent, iter->ent_size);
+-		iter->temp_size = iter->ent_size;
+ 		iter->ent = iter->temp;
  	}
- 
- 	return fifotaken;
+ 	entry = __find_next_entry(iter, ent_cpu, NULL, ent_ts);
 -- 
 2.28.0
 
