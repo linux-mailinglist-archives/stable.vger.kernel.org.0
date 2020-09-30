@@ -2,89 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0310327F089
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 19:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97C2D27F177
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 20:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725892AbgI3Ral (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 13:30:41 -0400
-Received: from mx2.suse.de ([195.135.220.15]:46708 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725355AbgI3Ral (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Sep 2020 13:30:41 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1601487039;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=biOcQgRacEB1O2dTYCm0GDqdrroYsSjpfb2OedWVUTw=;
-        b=EK/w/axD8ZfcFy/PaKA/wDQx24iLPwNNpF0zHN4mW3zXlFIqy2W8S0UMyip1Tlwv00szGp
-        ZMX+ZUjbZ/lvGzUGNPuYI6nAjxq1XrGPGI5LyyfVB1xjuKA2w/0jwfSdnEh1ClhHHyNhub
-        qOqAjBFEM8KtTb7KEpY6xEfbDX/GnaQ=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id D4D39ABE3;
-        Wed, 30 Sep 2020 17:30:38 +0000 (UTC)
-Date:   Wed, 30 Sep 2020 19:30:38 +0200
-From:   Michal Hocko <mhocko@suse.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, cheloha@linux.ibm.com,
-        David Hildenbrand <david@redhat.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        ldufour@linux.ibm.com, Linux-MM <linux-mm@kvack.org>,
-        mm-commits@vger.kernel.org, nathanl@linux.ibm.com,
-        Oscar Salvador <osalvador@suse.de>,
-        Rafael Wysocki <rafael@kernel.org>,
-        stable <stable@vger.kernel.org>, Tony Luck <tony.luck@intel.com>
-Subject: Re: [patch 8/9] mm: replace memmap_context by meminit_context
-Message-ID: <20200930173038.GZ2277@dhcp22.suse.cz>
-References: <20200925211725.0fea54be9e9715486efea21f@linux-foundation.org>
- <20200926041928.9xJHGgkah%akpm@linux-foundation.org>
- <CAHk-=wjcg4ni8_zhGDS9vTQQYM-3ZBg4hGF7Ot9MzW5F2o7mpA@mail.gmail.com>
- <20200929133737.99427221b858425e5ddff706@linux-foundation.org>
- <CAHk-=wgGN3drZeV-RZpVn20yZ6tB0PDCgXa=DaD47sRvM16sGw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wgGN3drZeV-RZpVn20yZ6tB0PDCgXa=DaD47sRvM16sGw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1726992AbgI3SkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 14:40:13 -0400
+Received: from ma1-aaemail-dr-lapp03.apple.com ([17.171.2.72]:58828 "EHLO
+        ma1-aaemail-dr-lapp03.apple.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726603AbgI3SkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 14:40:13 -0400
+X-Greylist: delayed 2667 seconds by postgrey-1.27 at vger.kernel.org; Wed, 30 Sep 2020 14:40:13 EDT
+Received: from pps.filterd (ma1-aaemail-dr-lapp03.apple.com [127.0.0.1])
+        by ma1-aaemail-dr-lapp03.apple.com (8.16.0.42/8.16.0.42) with SMTP id 08UHrskY065140;
+        Wed, 30 Sep 2020 10:55:43 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=apple.com; h=to : cc : from :
+ subject : message-id : date : mime-version : content-type :
+ content-transfer-encoding; s=20180706;
+ bh=ppjgJqYX7luzeTBm+drLJ9vuFgo85lRZNGVMyr8ao4o=;
+ b=CCoOY8y/CNRkJFfr8BH7K4sZ7rXYF3/x1Aaj4EFNn9KOAt4ZPaMHF+e0pjDZBxW2uoOa
+ YKsFasbLmgPD7Qx8x82QoOcKrgRDkI0+KurqdDvujFKSCP5Z0jnvuF4+FWGbx5D9B+5l
+ KDtOJ//+0WRqp4tz5JDnbQMhWwEzb6WYrjdjZDQDwkWrfluk5kTqaW/l/SC8KakpkJjV
+ tvkdO+OMn0WMMgk9tOq7HgZH3PgwTo/327+dO9Ae0QoQXSy8Fb8OIMQXsYzLZXMJowPz
+ tr7aL3UKGcd7GepYRD/Hlm3B3uxLv3TCfsdjGKm9Iec648h4XivodxZ+GP2gpbn4HmQF iQ== 
+Received: from rn-mailsvcp-mta-lapp01.rno.apple.com (rn-mailsvcp-mta-lapp01.rno.apple.com [10.225.203.149])
+        by ma1-aaemail-dr-lapp03.apple.com with ESMTP id 33t4mv9u7b-4
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO);
+        Wed, 30 Sep 2020 10:55:43 -0700
+Received: from rn-mailsvcp-mmp-lapp01.rno.apple.com
+ (rn-mailsvcp-mmp-lapp01.rno.apple.com [17.179.253.14])
+ by rn-mailsvcp-mta-lapp01.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.6.20200729 64bit (built Jul 29
+ 2020)) with ESMTPS id <0QHH00N3GGGUWV50@rn-mailsvcp-mta-lapp01.rno.apple.com>;
+ Wed, 30 Sep 2020 10:55:42 -0700 (PDT)
+Received: from process_milters-daemon.rn-mailsvcp-mmp-lapp01.rno.apple.com by
+ rn-mailsvcp-mmp-lapp01.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.6.20200729 64bit (built Jul 29
+ 2020)) id <0QHH00V00GFB8O00@rn-mailsvcp-mmp-lapp01.rno.apple.com>; Wed,
+ 30 Sep 2020 10:55:42 -0700 (PDT)
+X-Va-CD: 0
+X-Va-ID: 597b9d12-f48c-4b99-95d8-2781260221f2
+X-V-A:  
+X-V-T-CD: a7df34be26ac7dd9260bc16392ad79bf
+X-V-E-CD: 2a4a1dd8f75d88b6e628a9a0f9d97b7a
+X-V-R-CD: 386069bd7ecc60f5449d4e168f573c48
+X-V-CD: 0
+X-V-ID: d3cd4b07-1f59-434e-9196-f74cd65788be
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-30_09:2020-09-30,2020-09-30 signatures=0
+Received: from [17.149.214.207] (unknown [17.149.214.207])
+ by rn-mailsvcp-mmp-lapp01.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.6.20200729 64bit (built Jul 29
+ 2020))
+ with ESMTPSA id <0QHH00UL6GGQPM00@rn-mailsvcp-mmp-lapp01.rno.apple.com>; Wed,
+ 30 Sep 2020 10:55:38 -0700 (PDT)
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        Sebastien Boeuf <sebastien.boeuf@intel.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Andrew Forgue <andrewf@apple.com>
+From:   Vishnu Rangayyan <vishnu.rangayyan@apple.com>
+Subject: vsock fix backport to 5.4 stable
+Message-id: <0c41f301-bedf-50be-d233-25d0d98b64ca@apple.com>
+Date:   Wed, 30 Sep 2020 10:55:37 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
+ Gecko/20100101 Thunderbird/68.12.0
+MIME-version: 1.0
+Content-type: text/plain; charset=utf-8; format=flowed
+Content-language: en-US
+Content-transfer-encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-09-30_09:2020-09-30,2020-09-30 signatures=0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 30-09-20 09:00:26, Linus Torvalds wrote:
-> On Tue, Sep 29, 2020 at 1:37 PM Andrew Morton <akpm@linux-foundation.org> wrote:
-> >
-> > 1/3 and 2/3 were cc:stable and 3/3 was not.  As far as I can tell, 3/3
-> > is rather theoretical once 2/3 has done its work, so I held it off for
-> > the next merge window.
-> 
-> That's not the problem, holding off is fine.
-> 
-> The problem is that the commit messages are garbage as a result. They
-> were written as a series of three, but the patches weren't _sent_ as a
-> series of three.
+Hi,
 
-This part of the commit message is coming from a cover letter and it is
-something that would usually go to a merge commit (from a pull request).
-With Andrew's worklflow he preserves the information in the first patch
-of the series. It is great to have that information around because there
-is usually more background and a high level description. 
- 
-> So if you split up a series like that, you should look at the commit
-> mesages and edit them appropriately.
+Can we have this backport applied to 5.4 stable, its a useful fix.
 
-Yeah, in cases like that it is better to just drop that cover letter
-part.
+commit df12eb6d6cd920ab2f0e0a43cd6e1c23a05cea91 upstream
 
-I would still argue that all three could have gone in together. The last
-patch has not been marked for stable but it is a useful patch on its own
-as it drops a really distasteful BUG() on a failure mode. IMHO it
-wouldn't be a big deal to postpone sending these during the merge window
-as these patches are not addressing a regression for this part merge
-window.
+The call has a minor api change in 5.4 vs higher, only the pkt arg is 
+required.
 
-Just my 2c
+diff --git a/net/vmw_vsock/virtio_transport_common.c 
+b/net/vmw_vsock/virtio_transport_common.c
+index d9f0c9c5425a..2f696124bab6 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1153,6 +1153,7 @@ void virtio_transport_recv_pkt(struct 
+virtio_transport *t,
+          virtio_transport_free_pkt(pkt);
+          break;
+      default:
++        (void)virtio_transport_reset_no_sock(pkt);
+          virtio_transport_free_pkt(pkt);
+          break;
+      }
 -- 
-Michal Hocko
-SUSE Labs
