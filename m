@@ -2,59 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD2C27EADB
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 16:25:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A1A227EAE1
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 16:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730198AbgI3OZN convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 30 Sep 2020 10:25:13 -0400
-Received: from 45.173.252.243.turbolinenet.com.br ([45.173.252.243]:50819 "EHLO
-        srv01.turbolinenet.com.br" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726680AbgI3OZN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 10:25:13 -0400
-X-Greylist: delayed 65938 seconds by postgrey-1.27 at vger.kernel.org; Wed, 30 Sep 2020 10:25:12 EDT
-Received: from [80.82.64.244]
-        by srv01.turbolinenet.com.br with esmtpsa (TLSv1:DHE-RSA-AES256-SHA:256)
-        (Exim 4.92.2)
-        (envelope-from <eventos@turbolinenet.com.br>)
-        id 1kNd1s-00028K-Qw; Wed, 30 Sep 2020 11:24:25 -0300
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1730417AbgI3O0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 10:26:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60728 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730195AbgI3O0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 10:26:23 -0400
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D0BDC061755
+        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 07:26:23 -0700 (PDT)
+Received: by mail-il1-x143.google.com with SMTP id b17so1828962ilr.12
+        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 07:26:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=cXCGZW/GuM/5IOGO9paoSAgp1GRJ9/f9ioRwrrondRk=;
+        b=hVT5IYuQbm4+R/MaWscloTgYa6KLFIYIP+yvBJFftu9/VNQXLqsmsTkhLIxeffa9Gm
+         hoIx1BmGvYx0O9XzM0rS3j43Q0gjQM+n6NgIfLYD0lW9VhuBhFrZRTw0cUNauzSyXHa4
+         aYSpbhfzACd+dXcI96PmOt3EmmFwzYmFkutOc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=cXCGZW/GuM/5IOGO9paoSAgp1GRJ9/f9ioRwrrondRk=;
+        b=tbZKUpnpozkHCd9HVpR+TwidLpvjNSE9GzWhmHnHwc1mhu3wyXOAr6anERalknSPtZ
+         ij6UqMqNF9kYhlBKI/qG7ZlasJax5nObnKf5zhLpFLHqTOA6XpBtGE/TxbGkDazwgAbk
+         m4eol41GUsCkqb3fKYOps9elUjI6NkwHS+7G+MYcGVpOpBLUbJ6bB3fn96oKDRpBr2Bt
+         O/Xw2tlz+3syJGBzZcofP2itxSmIJAI38ib6xP4CNXXN3cd8ck2R7n5OMnW5JBWWzUj/
+         K1FRwlBfsRZNM9NgCedOTOe4GdD76BWHE8VfLBNUH9wjR4Sp/nAxRNB8HgNMVIm5cvGy
+         DDPQ==
+X-Gm-Message-State: AOAM532YR0Inx6VZgyKvX0HKUHiOsJt0vpyBhO/0doeFE+j0JBhWUmqi
+        O4vaTYKoceBglSf8f36PbZZPXQ==
+X-Google-Smtp-Source: ABdhPJwJq99LCiW4dbxu7/1wfjBE8vbMmdzUT70U+UHn12UbveeC1lTwiANg/xU/9r7IJZite6cnpA==
+X-Received: by 2002:a92:9f56:: with SMTP id u83mr2237059ili.30.1601475982321;
+        Wed, 30 Sep 2020 07:26:22 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id o5sm1058008ils.88.2020.09.30.07.26.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 30 Sep 2020 07:26:21 -0700 (PDT)
+Subject: Re: [PATCH 5.8 00/99] 5.8.13-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20200929105929.719230296@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <6e54e620-dbeb-0a39-b641-3fce97267b16@linuxfoundation.org>
+Date:   Wed, 30 Sep 2020 08:26:20 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Telegraphic Wire Transfer!! 
-To:     Recipients <eventos@turbolinenet.com.br>
-From:   "Mr. William R Mette" <eventos@turbolinenet.com.br>
-Date:   Wed, 30 Sep 2020 07:23:59 -0700
-Reply-To: rhutson246@yandex.com
-Message-Id: <E1kNd1s-00028K-Qw@srv01.turbolinenet.com.br>
+In-Reply-To: <20200929105929.719230296@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-TrustCo Bank
-P.O. Box 1082
-Schenectady NY 12301-1082 USA.
+On 9/29/20 5:00 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.8.13 release.
+> There are 99 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 01 Oct 2020 10:59:03 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.13-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.8.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
+Compiled and booted on my test system. No dmesg regressions.
 
-Attention Please,
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-INSTRUCTION TO CREDIT YOUR BANK ACCOUNT WITHIN 24HRS:
-
-The TrustCo Bank of America,hereby write to confirm to you that we have received Information to release your approved fund US$226,000,000.00 to your designated bank account within 24hrs. And this is the second time we are notifying you about your over-due funds.Sometime ago, In the Memorandum of Understanding (MOU) It was revealed in your file as your name was penciled as the bonafide beneficiary to receive your over-due funds which was brought to our bank from the Financial Services Authority (FSA) In collaboration with The Treasury Department.
-
-We wish to inform you that the World Bank and Financial Services Authority (FSA) finally resolved the issue in London after one week meeting and decided to pay all out-standing funds payment of US$226,000,000.00(Two Hundred and Twenty Six Million United States Dollars Only) via Swift Telegraphic Wire Transfer (KTT) or swift Online Banking Smooth Wire Transfer for onwards payment into your account, which the government is incurring deficit and we are indebted to pay all OVER-DUE funds without any further impediment.
-
-It may interest you to know that reports have reached our bank by so many correspondences on the uneasy way which people like you are treated by Various Banks across Europe to Africa, and London. We have decided to put a stop to that and that is why I was appointed to handle your transaction herein The TrustCo Bank of America. We have verified The Funds Authenticity, and we have been able to confirm that the FUND is 100% LEGAL. And the money must be Successfully Confirmed In Your Bank Account. Your legally sum of US$226,000.00.00 (Two Hundred and Twenty Six Million United States Dollars).
-
-You really have to stop dealing with those people that are contacting you and telling you that your fund is with them, it is not in anyway with them, they are only taking advantage of you and they will dry you up until you have nothing. We also authenticate the fact that your entitled amount of (US$226,000,000.00) is Safe for Immediate remittance to your own designated bank account, All necessary official modalities is being finalized in your favor and the Remittance Director of this Bank,shall communicate with you with Great Success within the Next few hours once you comply fastly with this instruction given in this letter. You are hereby advised NOT to remit further payment to any institutions with respect to your transaction as your fund will be transferred to you directly from our source. I hope this is clear.
-
-THE INFORMATION HAS BEEN PROGRAMMED IN OUR WIRE SYSTEM SCHEDULE "TTC"FOR FINAL REMITTANCE OF YOUR FUND. TO NOTARIZE YOUR FILE AND CERTIFY YOUR FUND FOR REMITTANCE, YOU ARE REQUIRED TO SEND YOUR FULL DETAILS,YOUR FULL NAMES AND TELEPHONE NUMBERS TO THIS OFFICE OF THE TRUSTCO BANK AMERICA IMMEDIATELY. AT THE RECEIPT OF YOUR DETAILS, WE WILL NOTARIZE YOUR FILE, CERTIFY YOUR FUND FOR IMMEDIATE REMITTANCE AND CREDIT YOUR NOMINATED ACCOUNT WITHIN 24 HOURS.
-
-IF YOU HAVE ANY QUESTION, PLEASE ASK.AND CONTACT MISS ROBIN HUTSON AT EMAIL ADDRESS : rhutson246@yandex.com
-
-THANK YOU.
-
-Mr. William R Mette
-Associate Banking Center Manager
-NMLS # 687170
-West Banking Center
+thanks,
+-- Shuah
