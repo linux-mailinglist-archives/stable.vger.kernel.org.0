@@ -2,102 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5B027EF01
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 18:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E20827EF0A
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 18:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728076AbgI3QW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 12:22:57 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:51078 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725800AbgI3QW5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 12:22:57 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 0EE5A1C0B81; Wed, 30 Sep 2020 18:22:55 +0200 (CEST)
-Date:   Wed, 30 Sep 2020 18:22:54 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Anton Eidelman <anton@lightbitslabs.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 196/245] nvme: fix possible deadlock when I/O is
- blocked
-Message-ID: <20200930162254.GB23434@duo.ucw.cz>
-References: <20200929105946.978650816@linuxfoundation.org>
- <20200929105956.511527430@linuxfoundation.org>
+        id S1725372AbgI3QYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 12:24:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50864 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725355AbgI3QYH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 12:24:07 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29E2DC061755;
+        Wed, 30 Sep 2020 09:24:07 -0700 (PDT)
+Received: from zn.tnic (p200300ec2f092a00869c7b979af15d7f.dip0.t-ipconnect.de [IPv6:2003:ec:2f09:2a00:869c:7b97:9af1:5d7f])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id A7F721EC0434;
+        Wed, 30 Sep 2020 18:24:05 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1601483045;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=Gbs7UxauJjEkYrfMVnJyv7CastcVv+QAaiIafDQjXU8=;
+        b=ZdEIW2U5/fuvtf/jx+1eahZcaViyZL5P2HJQoM/Rp1BamHLMcJ6lB/e/e+WwvDYEwIRfSw
+        dNPNBV6pQyLtjwiEHsLZmm3Ba4oiinZ7VGz5qJqCdRwt+eizYSDD3LhOWi0SYxoVymYrwG
+        +NWUCKz3ci1s4ayIt/9vT5+8MSOkq2s=
+Date:   Wed, 30 Sep 2020 18:24:03 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     Ingo Molnar <mingo@redhat.com>, Tony Luck <tony.luck@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        stable <stable@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Erwin Tsaur <erwin.tsaur@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        0day robot <lkp@intel.com>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH v9 0/2] Renovate memcpy_mcsafe with copy_mc_to_{user,
+ kernel}
+Message-ID: <20200930162403.GI6810@zn.tnic>
+References: <160087928642.3520.17063139768910633998.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <CAPcyv4iPuRWSv_do_h8stU0-SiWxtKkQWvzBEU+78fDE6VffmA@mail.gmail.com>
+ <20200930050455.GA6810@zn.tnic>
+ <CAPcyv4j=eyVMbcnrGDGaPe4AVXy5pJwa6EapH3ePh+JdF6zxnQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200929105956.511527430@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <CAPcyv4j=eyVMbcnrGDGaPe4AVXy5pJwa6EapH3ePh+JdF6zxnQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 30, 2020 at 08:49:42AM -0700, Dan Williams wrote:
+> There's been a paucity of response on these after converging on the
+> feedback from Linus. They missed v5.9, and I started casting about for
+> what could be done to make sure they did not also miss v5.10 if the
+> quiet continued. The preference is still "through tip".
 
---9zSXsLTf0vkW971A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok, I'll try to queue them but pls respin soonish. That is, if Linus
+cuts -rc8 we have plenty of time but he didn't sound 100% on the -rc8
+thing.
 
-Hi!
+Thx.
 
-> [ Upstream commit 3b4b19721ec652ad2c4fe51dfbe5124212b5f581 ]
->=20
-> Revert fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
-> in nvme_validate_ns")
->=20
-> When adding a new namespace to the head disk (via nvme_mpath_set_live)
-> we will see partition scan which triggers I/O on the mpath device node.
-> This process will usually be triggered from the scan_work which holds
-> the scan_lock. If I/O blocks (if we got ana change currently have only
-> available paths but none are accessible) this can deadlock on the head
-> disk bd_mutex as both partition scan I/O takes it, and head disk revalida=
-tion
-> takes it to check for resize (also triggered from scan_work on a different
-> path). See trace [1].
->=20
-> The mpath disk revalidation was originally added to detect online disk
-> size change, but this is no longer needed since commit cb224c3af4df
-> ("nvme: Convert to use set_capacity_revalidate_and_notify") which already
-> updates resize info without unnecessarily revalidating the disk (the
-> mpath disk doesn't even implement .revalidate_disk fop).
+-- 
+Regards/Gruss,
+    Boris.
 
-Commit cb224c3af4df ("nvme: Convert to use
-set_capacity_revalidate_and_notify") is not in 4.19-stable.
-
-Does that mean we'll no longer detect disk size changes after this?
-
-Best regards,
-									Pavel
-
-> index faa7feebb6095..84fcfcdb8ba5f 100644
-> --- a/drivers/nvme/host/core.c
-> +++ b/drivers/nvme/host/core.c
-> @@ -1599,7 +1599,6 @@ static void __nvme_revalidate_disk(struct gendisk *=
-disk, struct nvme_id_ns *id)
->  	if (ns->head->disk) {
->  		nvme_update_disk_info(ns->head->disk, ns, id);
->  		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
-> -		revalidate_disk(ns->head->disk);
->  	}
->  #endif
->=20
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---9zSXsLTf0vkW971A
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX3Sw3gAKCRAw5/Bqldv6
-8t4DAJ4rcxxp+UnUWIjiAXQB7wbfwWEb5QCePmHmhzP4Yk6dyrSZjnESc5/eNhk=
-=aSgn
------END PGP SIGNATURE-----
-
---9zSXsLTf0vkW971A--
+https://people.kernel.org/tglx/notes-about-netiquette
