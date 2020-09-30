@@ -2,99 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A978027EDCE
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 17:50:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAEF627EE06
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 17:57:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730503AbgI3Ptz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 11:49:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45484 "EHLO
+        id S1725893AbgI3P5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 11:57:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725355AbgI3Pty (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 11:49:54 -0400
-Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE42C061755
-        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 08:49:54 -0700 (PDT)
-Received: by mail-qv1-xf41.google.com with SMTP id q10so1132502qvs.1
-        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 08:49:54 -0700 (PDT)
+        with ESMTP id S1725872AbgI3P5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 11:57:01 -0400
+Received: from mail-oo1-xc42.google.com (mail-oo1-xc42.google.com [IPv6:2607:f8b0:4864:20::c42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EE96C061755
+        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 08:57:01 -0700 (PDT)
+Received: by mail-oo1-xc42.google.com with SMTP id h8so612365ooc.12
+        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 08:57:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=r8/IDDg3h30xL2yKxOXfAZ6SYDQxULsHhio1WiSzVoE=;
-        b=b3/eSZrxq9ZmquVDBHUWHZcW8jE3GZMuVJn04cLVnXRpAKQlax71RkHw+TItyAcXOf
-         D1/wbcVY1Tp22JA5trNf+ZAjp240f5Hp/IFo/bGRg5t96yAw73K+jPG6eeK7GgW9RdEC
-         ny3mkwjN6Jbxx0cHBrAXUvhnEjA9uZ2q77xjQDVhYp6ayW0dfk4vY+vvylLCH4n3iIou
-         EBVZoV1Mq2driC9DQmvoOR/tuiJl+S81PanPTc7I0Y30DOZRuJSte5ZddOgYWDDA+3Ku
-         d6XBGCk1g17KTfCR9ZIbDx02vyCkW9AKXbdcDIwXXfv6XZ3jt79qZ0dt4xkzIRLPTPkL
-         OZRQ==
+         :cc:content-transfer-encoding;
+        bh=ci9ZCjxVBxd29K7YcHD/doaBSJTqujx95brcxvxl6t8=;
+        b=Hj1XSQwQKzS7Hc+toawQfniOOnc6Ogr1LAE/g2szmnNsFmrOdnfgmzpQCrdAezAtTO
+         SQ2VAx7+As4+qtuR6gAIiqISJrjVUNycta60eE3BHsj8rpT3StjheGM5sSBD23/QvdOh
+         3jPC+h7CaEqvwqxypfurjDoWCehSrD+RGFRufetP0qquBWxdoExadkwrLUiUQ4XFHBpr
+         RvIR0/IlNYp28eKrC0U1knfno9nOj40DkfJWu0Zj3jJkeqb4hfE20ejHU3V5mR2FOBHP
+         5hi7ZtxL9sHaD6/KOt4IuilQjUkg0A9xTqSm+PKDsjgFBLhhq+JkyQVTpDwAU5RPLTxO
+         7DYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=r8/IDDg3h30xL2yKxOXfAZ6SYDQxULsHhio1WiSzVoE=;
-        b=Jr0A6W1IezJyl5KLnjD2H7a0DubDEtwYL4EZi6dN/ewl4TooeDRH5tSTeBMFYOvaf7
-         kfs4zR3F8XyK8RfIlLO8kzwlxBypuY3mJjojHQhvfmsRbqDV6AfBbHQyvLpx65G1D6wu
-         7aj5n2uH35bGFtdeH7BRKASl08DSz8Hx19qfJRmPHFNBakc1w7/a8hSDk/CF6ZYqq+jb
-         Lwowvz/4V1M7Ik+Ju4UBLucsgKVIlr2i0JLztIXCz1oqHlAG9MwGTP0T0bOSkfiEuOo4
-         CYcWFupP5v9vuAYP5e28hJVGu2TZCQMXI4dRxSdEOaQ657JVS1K9PP+50yFpKHuQ5rFa
-         lnlA==
-X-Gm-Message-State: AOAM530Y08YZ/JZmQUpSuthG9LKGCccdHlT26IMm3CJzeeSaM+n9A057
-        YncKa0FHaJTKd6kELKGyp6MBsqNCPW7EUBL2n3e2yJ6c7f8=
-X-Google-Smtp-Source: ABdhPJz35tnMcZ3NgGf2cA0sbRzUPpGd/75eBd+InpyMs61ib5CN5zyPrAngEN4AeGJwKtjR6R96dAebjOvm9ebx2O0=
-X-Received: by 2002:ad4:4d52:: with SMTP id m18mr2946409qvm.55.1601480993835;
- Wed, 30 Sep 2020 08:49:53 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ci9ZCjxVBxd29K7YcHD/doaBSJTqujx95brcxvxl6t8=;
+        b=tE1G286wChMl4vkkHscugtsslqL/Qoht5og5n3+u15HR8X9bkOpcgX6ip2C5vxVef6
+         Ho30ujaX+As2vr1AoSBQLajbH2e/k9hEsTp7v/LhRi6+K8N1F2DstO1mWUHC/BHsMtLJ
+         gfTqneY83X4n2LrcyrNqMTr3URb02lfKE3lIm+VNqZEU1XJZcHsKVZvgGxFN7MfwDo0E
+         JDXgfPKt7YGM6xTeLOE1dzA/Ec8PGX15wIHjyNd8M4wPpNvEeBqxm29xXzwYWa/USaLf
+         jqG5suijd1UjTmayBkPq2udK87PVClATkS7jhZbY1KFGeb5JGdrowqjB7DpVdwVLwhhB
+         vpsA==
+X-Gm-Message-State: AOAM530fQzvnrXOjSRpX+lojZdrLYztRQ3SMLURastqJ9+8p9NUFy7Uv
+        s6jFmuPlaYAa5ENiqRGDy67/jO0Bfntt3GK246xFNQ==
+X-Google-Smtp-Source: ABdhPJzp/IB64gFwxF8qSk9RJC7rf4HZmkiChirppE2FNBVA45dgsh8vr+RflAPRdKUNkuWnSpIQtuXb0qU3ChKNaqA=
+X-Received: by 2002:a4a:95f1:: with SMTP id p46mr2288291ooi.93.1601481420233;
+ Wed, 30 Sep 2020 08:57:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <160087928642.3520.17063139768910633998.stgit@dwillia2-desk3.amr.corp.intel.com>
- <CAPcyv4iPuRWSv_do_h8stU0-SiWxtKkQWvzBEU+78fDE6VffmA@mail.gmail.com> <20200930050455.GA6810@zn.tnic>
-In-Reply-To: <20200930050455.GA6810@zn.tnic>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Wed, 30 Sep 2020 08:49:42 -0700
-Message-ID: <CAPcyv4j=eyVMbcnrGDGaPe4AVXy5pJwa6EapH3ePh+JdF6zxnQ@mail.gmail.com>
-Subject: Re: [PATCH v9 0/2] Renovate memcpy_mcsafe with copy_mc_to_{user, kernel}
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     Ingo Molnar <mingo@redhat.com>, Tony Luck <tony.luck@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
+References: <20200929142826.951084251@linuxfoundation.org>
+In-Reply-To: <20200929142826.951084251@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 30 Sep 2020 21:26:48 +0530
+Message-ID: <CA+G9fYup1i8WnQpcg28hkq9jgQTTkuiiEfOVSnm_3wS-1sijiA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/244] 4.19.149-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        stable <stable@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        0day robot <lkp@intel.com>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jan Kara <jack@suse.cz>
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org, pavel@denx.de,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 29, 2020 at 10:05 PM Borislav Petkov <bp@alien8.de> wrote:
+On Tue, 29 Sep 2020 at 19:59, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On Tue, Sep 29, 2020 at 03:32:07PM -0700, Dan Williams wrote:
-> > Given that Linus was the primary source of review feedback on these
-> > patches and a version of them have been soaking in -next with only a
-> > minor conflict report with vfs.git for the entirety of the v5.9-rc
-> > cycle (left there inadvertently while I was on leave), any concerns
-> > with me sending this to Linus directly during the merge window?
+> This is the start of the stable review cycle for the 4.19.149 release.
+> There are 244 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> What's wrong with them going through tip?
+> Responses should be made by Thu, 01 Oct 2020 14:27:43 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.149-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-There's been a paucity of response on these after converging on the
-feedback from Linus. They missed v5.9, and I started casting about for
-what could be done to make sure they did not also miss v5.10 if the
-quiet continued. The preference is still "through tip".
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> But before that pls have a look at this question I have here:
->
-> https://lkml.kernel.org/r/20200929102512.GB21110@zn.tnic
->
-> Thx.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Thanks, Boris, will do.
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.19.149-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 78ef55ba27c378ac3e6106230e18472fc48e6851
+git describe: v4.19.148-245-g78ef55ba27c3
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.148-245-g78ef55ba27c3
+
+
+No regressions (compared to build v4.19.148)
+
+No Fixes (compared to build v4.19.148)
+
+
+Ran 24678 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kvm-unit-tests
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-mm-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* libhugetlbfs
+* ltp-commands-tests
+* ltp-fs-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-tracing-tests
+* network-basic-tests
+* ltp-containers-tests
+* ltp-open-posix-tests
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
