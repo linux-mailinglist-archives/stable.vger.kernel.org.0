@@ -2,97 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F1727F2BC
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 21:50:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 685D527F2F9
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 22:07:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729724AbgI3Tub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 15:50:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54524 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725355AbgI3Tua (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 15:50:30 -0400
-Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 427BFC0613D0
-        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 12:50:29 -0700 (PDT)
-Received: by mail-oi1-x242.google.com with SMTP id v20so3050784oiv.3
-        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 12:50:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=x+S27V5N56hYy2EioGmGgncmnl6DyluScoxqYOs+KpM=;
-        b=Z3OMIYtL+6cVrlxLkpzjkW4Nxc1IPA50PQoYbCWpkiQmc+RuOYjoF9Wy8X25IfukfM
-         LE4UroWLjuERpHkAjM/Q8JI+2USVETBA3/fTdFDRDjJu5L+tN0+zIvcWPIUKKO7P35NM
-         gYGAnYa/nNFT2P9xYR+Yc7h2nO34sXAgW9Dms=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=x+S27V5N56hYy2EioGmGgncmnl6DyluScoxqYOs+KpM=;
-        b=ZI6Vz8VGw1ESc6mIat9gwth0IGavTOWLgqnnDh75dqWKMFdDG8O186wrTMxrsmSmne
-         dAYTvRRP0q+0P+GZML3ljDkAqfNazmI3xxBCyJQCS3G8+spTwnWlJBShqih78qB7l9+Q
-         K6/PZZoWTMA3TCMLkvIckel9ZR0VUiCbdiVIol/Na0c5xgikykJGtwrkioyhMs06U3Ju
-         WucUI5gqvGq9FQM0BNBydn6Zz3axodXJhcJbtM5hMFEXUncnztS3TphTC2sOFv/iKq5s
-         GsYC2PkiUqhs9cwe3A2jBDtkC7ufSEj7M7Am8JLFva+kCvlDJ5twtUnMgGc2vZ1tAULI
-         hNzg==
-X-Gm-Message-State: AOAM533aVOBxobnA4e27O273RUwm0X4BmaUIM3vvc2vSOetMgvYrjvuV
-        6MXAXcovfLwjXQ6pcjv57Ug6lcPxteM4jA==
-X-Google-Smtp-Source: ABdhPJyyjRGnvhc9CgKqsUHbranDgjFk1fhnmt9o1gAIfxkiKp2vkqeu/ttz2CThRHAKrlGIAeMNbw==
-X-Received: by 2002:aca:1108:: with SMTP id 8mr2236914oir.74.1601495428037;
-        Wed, 30 Sep 2020 12:50:28 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id g26sm603689otn.77.2020.09.30.12.50.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 30 Sep 2020 12:50:27 -0700 (PDT)
-Subject: Re: [PATCH 4.4 00/85] 4.4.238-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        pavel@denx.de, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20200929105928.198942536@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <5adb0947-cc1b-88da-95b1-4e8fea0cd324@linuxfoundation.org>
-Date:   Wed, 30 Sep 2020 13:50:25 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1729551AbgI3UHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 16:07:15 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:53346 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725355AbgI3UHP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 16:07:15 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id B16491C0B76; Wed, 30 Sep 2020 22:07:12 +0200 (CEST)
+Date:   Wed, 30 Sep 2020 22:07:12 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
+        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 144/245] serial: uartps: Wait for tx_empty in
+ console setup
+Message-ID: <20200930200711.GA22586@amd>
+References: <20200929105946.978650816@linuxfoundation.org>
+ <20200929105953.992070373@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20200929105928.198942536@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Disposition: inline
+In-Reply-To: <20200929105953.992070373@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/29/20 4:59 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.238 release.
-> There are 85 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 01 Oct 2020 10:59:03 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.238-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
 
-Compiled and booted on my test system. No dmesg regressions.
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+Hi!
 
-thanks,
--- Shuah
+> From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+>=20
+> [ Upstream commit 42e11948ddf68b9f799cad8c0ddeab0a39da33e8 ]
+>=20
+> On some platforms, the log is corrupted while console is being
+> registered. It is observed that when set_termios is called, there
+> are still some bytes in the FIFO to be transmitted.
+>=20
+> So, wait for tx_empty inside cdns_uart_console_setup before calling
+> set_termios.
 
+> @@ -1246,6 +1247,13 @@ static int cdns_uart_console_setup(struct console =
+*co, char *options)
+>  	if (options)
+>  		uart_parse_options(options, &baud, &parity, &bits, &flow);
+> =20
+> +	/* Wait for tx_empty before setting up the console */
+> +	time_out =3D jiffies + usecs_to_jiffies(TX_TIMEOUT);
+> +
+> +	while (time_before(jiffies, time_out) &&
+> +	       cdns_uart_tx_empty(port) !=3D TIOCSER_TEMT)
+> +		cpu_relax();
+> +
 
+So this is spinning for half a second. Could we use msleep(1) instead
+of cpu_relax or something like that?
+
+Best regards,
+									Pavel
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl905W8ACgkQMOfwapXb+vJMjACfaQ9IHsQLdFpvHN5i3t0ouijb
+BvkAn31MljYKsxKX4BzMdJ5KJgS7L7/s
+=YCZ9
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--
