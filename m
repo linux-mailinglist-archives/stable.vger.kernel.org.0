@@ -2,75 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1815A27E102
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 08:26:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8865027E113
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 08:28:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725777AbgI3G0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 02:26:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51432 "EHLO mail.kernel.org"
+        id S1727657AbgI3G2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 02:28:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725320AbgI3G0P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Sep 2020 02:26:15 -0400
+        id S1725884AbgI3G2r (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Wed, 30 Sep 2020 02:28:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FD462071E;
-        Wed, 30 Sep 2020 06:26:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E17F2071E;
+        Wed, 30 Sep 2020 06:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601447175;
-        bh=LMD7ZZ5QRigPjlsqESKBR3K6snhZb4kCxr4TukKJr0M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qjNVyuHlmYeEDZQZJaR7IP46BLtPZy81Dqrw5nUVugeAaPyZAwrk9pJg/Zd4X+HhO
-         koPJXDnXMXvzAW0rWje5MdXeExkddYZRKcT+/OY26uPuX8st2wjW+9P7Wdix897tte
-         HN4RmZiQtWwe7EU3H+6ETLsAs7wNEe/0s9y2AFRM=
-Date:   Wed, 30 Sep 2020 08:26:17 +0200
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     Vishnu Rangayyan <vrangayyan@apple.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Andrew Forgue <andrewf@apple.com>
-Subject: Re: vsock fix for 5.4 stable
-Message-ID: <20200930062617.GA1472926@kroah.com>
-References: <4871038a-6ab7-4c44-875c-2d04012de34a@apple.com>
+        s=default; t=1601447326;
+        bh=ELtCPCJRtIaTGA4uUkOeDB5WABZ6OyIyOLCDVFZd2JA=;
+        h=Subject:To:From:Date:From;
+        b=11GVvOwdo2LyMky94Rrbea4DHUL6RLJxf7u/ukoyKb9bJVr6IEoSS5s9IVCfavssS
+         +A7U58OwIvnyqbCpqGHRIvgvI+ob4uH+Em8/ItZdIQ25CTTlocGpzH0sNXFio5Kn5o
+         /hTm5T47WecNZetugqL87QqAWBsT9u0GqD8Ihqq0=
+Subject: patch "iio: adc: at91-sama5d2_adc: fix DMA conversion crash" added to staging-next
+To:     eugen.hristev@microchip.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 30 Sep 2020 08:28:06 +0200
+Message-ID: <160144728621784@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4871038a-6ab7-4c44-875c-2d04012de34a@apple.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 29, 2020 at 01:53:58PM -0700, Vishnu Rangayyan wrote:
-> Hi,
-> 
-> Can we have this backport applied to 5.4 stable, its more of a required fix
-> than an enhancement.
-> 
-> commit df12eb6d6cd920ab2f0e0a43cd6e1c23a05cea91 upstream
-> 
-> The call has a minor api change in 5.4 vs higher, only the pkt arg is
-> required.
-> 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c
-> b/net/vmw_vsock/virtio_transport_common.c
-> index d9f0c9c5425a..2f696124bab6 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -1153,6 +1153,7 @@ void virtio_transport_recv_pkt(struct virtio_transport
-> *t,
->  		virtio_transport_free_pkt(pkt);
->  		break;
->  	default:
-> +		(void)virtio_transport_reset_no_sock(pkt);
->  		virtio_transport_free_pkt(pkt);
->  		break;
->  	}
-> -- 
 
-Please cc: netdev and the developers who wrote/reviewed a patch when
-asking for it to be submitted to stable, so that they can comment on it.
+This is a note to let you know that I've just added the patch titled
 
-Can you resend it and do that?
+    iio: adc: at91-sama5d2_adc: fix DMA conversion crash
 
-thanks,
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
 
-greg k-h
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 1a198794451449113fa86994ed491d6986802c23 Mon Sep 17 00:00:00 2001
+From: Eugen Hristev <eugen.hristev@microchip.com>
+Date: Wed, 23 Sep 2020 15:17:48 +0300
+Subject: iio: adc: at91-sama5d2_adc: fix DMA conversion crash
+
+After the move of the postenable code to preenable, the DMA start was
+done before the DMA init, which is not correct.
+The DMA is initialized in set_watermark. Because of this, we need to call
+the DMA start functions in set_watermark, after the DMA init, instead of
+preenable hook, when the DMA is not properly setup yet.
+
+Fixes: f3c034f61775 ("iio: at91-sama5d2_adc: adjust iio_triggered_buffer_{predisable,postenable} positions")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Link: https://lore.kernel.org/r/20200923121748.49384-1-eugen.hristev@microchip.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/iio/adc/at91-sama5d2_adc.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
+index ad7d9819f83c..b917a4714a9c 100644
+--- a/drivers/iio/adc/at91-sama5d2_adc.c
++++ b/drivers/iio/adc/at91-sama5d2_adc.c
+@@ -884,7 +884,7 @@ static bool at91_adc_current_chan_is_touch(struct iio_dev *indio_dev)
+ 			       AT91_SAMA5D2_MAX_CHAN_IDX + 1);
+ }
+ 
+-static int at91_adc_buffer_preenable(struct iio_dev *indio_dev)
++static int at91_adc_buffer_prepare(struct iio_dev *indio_dev)
+ {
+ 	int ret;
+ 	u8 bit;
+@@ -901,7 +901,7 @@ static int at91_adc_buffer_preenable(struct iio_dev *indio_dev)
+ 	/* we continue with the triggered buffer */
+ 	ret = at91_adc_dma_start(indio_dev);
+ 	if (ret) {
+-		dev_err(&indio_dev->dev, "buffer postenable failed\n");
++		dev_err(&indio_dev->dev, "buffer prepare failed\n");
+ 		return ret;
+ 	}
+ 
+@@ -989,7 +989,6 @@ static int at91_adc_buffer_postdisable(struct iio_dev *indio_dev)
+ }
+ 
+ static const struct iio_buffer_setup_ops at91_buffer_setup_ops = {
+-	.preenable = &at91_adc_buffer_preenable,
+ 	.postdisable = &at91_adc_buffer_postdisable,
+ };
+ 
+@@ -1563,6 +1562,7 @@ static void at91_adc_dma_disable(struct platform_device *pdev)
+ static int at91_adc_set_watermark(struct iio_dev *indio_dev, unsigned int val)
+ {
+ 	struct at91_adc_state *st = iio_priv(indio_dev);
++	int ret;
+ 
+ 	if (val > AT91_HWFIFO_MAX_SIZE)
+ 		return -EINVAL;
+@@ -1586,7 +1586,15 @@ static int at91_adc_set_watermark(struct iio_dev *indio_dev, unsigned int val)
+ 	else if (val > 1)
+ 		at91_adc_dma_init(to_platform_device(&indio_dev->dev));
+ 
+-	return 0;
++	/*
++	 * We can start the DMA only after setting the watermark and
++	 * having the DMA initialization completed
++	 */
++	ret = at91_adc_buffer_prepare(indio_dev);
++	if (ret)
++		at91_adc_dma_disable(to_platform_device(&indio_dev->dev));
++
++	return ret;
+ }
+ 
+ static int at91_adc_update_scan_mode(struct iio_dev *indio_dev,
+-- 
+2.28.0
+
+
