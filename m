@@ -2,92 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 685D527F2F9
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 22:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83C1C27F535
+	for <lists+stable@lfdr.de>; Thu,  1 Oct 2020 00:36:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729551AbgI3UHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 16:07:15 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:53346 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725355AbgI3UHP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 16:07:15 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id B16491C0B76; Wed, 30 Sep 2020 22:07:12 +0200 (CEST)
-Date:   Wed, 30 Sep 2020 22:07:12 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Raviteja Narayanam <raviteja.narayanam@xilinx.com>,
-        Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 144/245] serial: uartps: Wait for tx_empty in
- console setup
-Message-ID: <20200930200711.GA22586@amd>
-References: <20200929105946.978650816@linuxfoundation.org>
- <20200929105953.992070373@linuxfoundation.org>
+        id S1730862AbgI3Wgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 18:36:49 -0400
+Received: from mga01.intel.com ([192.55.52.88]:34919 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730703AbgI3Wgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Sep 2020 18:36:49 -0400
+IronPort-SDR: ICxDLxehVP+2eOk6Ccg0JHKjvck/04Z3UozRNRv6D+y0uCI+kOwdfxIoz0Qm6CkIDmqjQr2Tmp
+ +2v2a5049gOw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9760"; a="180721167"
+X-IronPort-AV: E=Sophos;i="5.77,322,1596524400"; 
+   d="scan'208";a="180721167"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Sep 2020 15:36:45 -0700
+IronPort-SDR: O9ga1uLoeGm5G/hO+TKRJ73W1UcfzHv3xYOyGu1jV6Zcx32IfLp9cOJtH41BTR1X2YKlKi+OxV
+ FKzAksqYhcKA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.77,322,1596524400"; 
+   d="scan'208";a="312757391"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by orsmga006.jf.intel.com with SMTP; 30 Sep 2020 15:36:43 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Thu, 01 Oct 2020 01:36:42 +0300
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org,
+        Vandita Kulkarni <vandita.kulkarni@intel.com>,
+        Uma Shankar <uma.shankar@intel.com>
+Subject: [PATCH] drm/i915: Fix TGL DKL PHY DP vswing handling
+Date:   Thu,  1 Oct 2020 01:36:42 +0300
+Message-Id: <20200930223642.28565-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
-Content-Disposition: inline
-In-Reply-To: <20200929105953.992070373@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The HDMI vs. not-HDMI check got inverted whem the bogus encoder->type
+checks were eliminated. So now we're using 0 as the link rate on DP
+and potentially non-zero on HDMI, which is exactly the opposite of
+what we want. The original bogus check actually worked more correctly
+by accident since if would always evaluate to true. Due to this we
+now always use the RBR/HBR1 vswing table and never ever the HBR2+
+vswing table. That is probably not a good way to get a high quality
+signal at HBR2+ rates. Fix the check so we pick the right table.
 
-Hi!
+Cc: stable@vger.kernel.org
+Cc: Vandita Kulkarni <vandita.kulkarni@intel.com>
+Cc: Uma Shankar <uma.shankar@intel.com>
+Fixes: 94641eb6c696 ("drm/i915/display: Fix the encoder type check")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+---
+ drivers/gpu/drm/i915/display/intel_ddi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
->=20
-> [ Upstream commit 42e11948ddf68b9f799cad8c0ddeab0a39da33e8 ]
->=20
-> On some platforms, the log is corrupted while console is being
-> registered. It is observed that when set_termios is called, there
-> are still some bytes in the FIFO to be transmitted.
->=20
-> So, wait for tx_empty inside cdns_uart_console_setup before calling
-> set_termios.
+diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
+index 4d06178cd76c..cdcb7b1034ae 100644
+--- a/drivers/gpu/drm/i915/display/intel_ddi.c
++++ b/drivers/gpu/drm/i915/display/intel_ddi.c
+@@ -2742,7 +2742,7 @@ tgl_dkl_phy_ddi_vswing_sequence(struct intel_encoder *encoder, int link_clock,
+ 	u32 n_entries, val, ln, dpcnt_mask, dpcnt_val;
+ 	int rate = 0;
+ 
+-	if (type == INTEL_OUTPUT_HDMI) {
++	if (type != INTEL_OUTPUT_HDMI) {
+ 		struct intel_dp *intel_dp = enc_to_intel_dp(encoder);
+ 
+ 		rate = intel_dp->link_rate;
+-- 
+2.26.2
 
-> @@ -1246,6 +1247,13 @@ static int cdns_uart_console_setup(struct console =
-*co, char *options)
->  	if (options)
->  		uart_parse_options(options, &baud, &parity, &bits, &flow);
-> =20
-> +	/* Wait for tx_empty before setting up the console */
-> +	time_out =3D jiffies + usecs_to_jiffies(TX_TIMEOUT);
-> +
-> +	while (time_before(jiffies, time_out) &&
-> +	       cdns_uart_tx_empty(port) !=3D TIOCSER_TEMT)
-> +		cpu_relax();
-> +
-
-So this is spinning for half a second. Could we use msleep(1) instead
-of cpu_relax or something like that?
-
-Best regards,
-									Pavel
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---T4sUOijqQbZv57TR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl905W8ACgkQMOfwapXb+vJMjACfaQ9IHsQLdFpvHN5i3t0ouijb
-BvkAn31MljYKsxKX4BzMdJ5KJgS7L7/s
-=YCZ9
------END PGP SIGNATURE-----
-
---T4sUOijqQbZv57TR--
