@@ -2,301 +2,250 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC28627E0E5
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 08:13:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93E4F27E0E6
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 08:15:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725440AbgI3GNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 02:13:32 -0400
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:13905 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725320AbgI3GNc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 02:13:32 -0400
+        id S1725771AbgI3GPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 02:15:07 -0400
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:1635 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725535AbgI3GPG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 02:15:06 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1601446411; x=1632982411;
+  t=1601446506; x=1632982506;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=dGTH656forNBQVNgr1Cm5REGFp3EREOXaacgD60ohj0=;
-  b=OwJ6WhaWFyti0im3KxQG1DYRe5H7Tp9siE+YQBiK0TFzQFvjKxu7km0s
-   wTwYwWDIJNtlSYEPl1ZlPyErviwE5hzopblJcb0TvaPw6qMdoGKRkYnpa
-   nfs2fbOY9vRmOKDMgHgnPwmnJwHaHYyYieNvb3dvY6MnbEyv/PLLNfYgF
-   T8pK6KR/RQ6Lunt7VPnz2e+Pc+ivCVq5cLgPEPCMJa6xIuj2Kxpsr9/Kx
-   69CRl4kfjGub2M4uATVnV5/zmrBq9F/1mODmQkSsAPWDga1PGb1gMotmV
-   t3YWjcZtSs3A6KPSnZFBYaQ4rcUvqqFfRqDxfOtreiYpmXCAwpiNnOIPf
-   A==;
-IronPort-SDR: 4PVnmtB7evjxewt2f6y7JnIJ8m5a01QwdVWzsXhdYXBI6HaBy9lC8QcMEZBYplogyMFxLyCJe6
- U/kw+ursGxE1HeEhbb5IXh2wXfCDSurA8WgEX+wYFEkD2TLIn7qONm3kksEx5RuCJiVmlMsPll
- P6zRowmTjm79/Rbqvh4HR232FV83imdrZJZtnEoI0Mzb1KQryOd2+813s2HUq0tUMicL7Rn/D0
- 0RKVPyfs5gF2XCVEOnAURxLFJ95HCgJlHT8PkHtIoowgnxn/U5Xy441dIsM+FlBh2LTxXUSndw
- Eec=
+  bh=buTiEkHOqSyRutgW2DZqlLpDhbWPxoKZ+lrvxtwqT6I=;
+  b=g5qrRFd7TfM+vexdCnqPlrzHeCeNpocWW+v3bBW6De24OZ4B0dGHpF+B
+   11BwqTR9C/ZkAK2tYxyaBAsNlT8jr9eFatB+ILD/DIG5zi2krjUgueADM
+   VIu7KN5jdOU8Fraty+os8eXoN4Do7E6bsnRfFLl3QYz89sFlAnaRA4b4v
+   yWToGdSf1wwSLSnicUZE6se2HJukJw1M7siAcfk5CbUC/abvzyXQlffpc
+   w1ywh5fx4NQgDGJcNfeAE6y1RZO4DTrBJOYiXa5NB1zxDldC2aeffCloO
+   WtpHSL+s3UJ7uRShdg45nYJtKosptWNm+PSWdknbhpkYyN2dhVvwGLEiD
+   g==;
+IronPort-SDR: yUdw1k9RMfz9Gq9L1do291g8ha8yntQgYgi83c9omlhmLMWMkjVYG8YJPIkUpAhg6u2bgAVc26
+ Zbjj24WT6zb4YQC1mmW3DTn+YEN4G/sw9nsSjlyY4iG01Qz4YqLBquj9nnSHNpBA0Jn4NbTQd1
+ W8vV4RV84vkpzYYf2TTsI9EluNs/S7cq/DH7s/2Aiw3Z1+xM/FtK3F5JHbPaDOYPsacZw85fJ0
+ y3hlOqFNWvJ7uMIwscHAjsdFRubhQU/Va6Ex+dVWY2tk8Pg1RiV91xpd2v0fOH71WuZay8i9UA
+ F3M=
 X-IronPort-AV: E=Sophos;i="5.77,321,1596470400"; 
-   d="scan'208";a="258369098"
-Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 30 Sep 2020 14:13:31 +0800
-IronPort-SDR: dgjkGSJYoAzQubNgGLz4dYfkhB6KOm2mIAgQky1LhLUsp1LKcsYonsX+1MWpUkiLt8KFeq/e3G
- hVj3bcOFyp4A==
+   d="scan'208";a="148545976"
+Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 30 Sep 2020 14:15:06 +0800
+IronPort-SDR: yYhwMsRVY1GcMvUYwluYp8cdueKYGwqACYnWnHQh3uSQ2nvA2XX3LlxiFh6T9etj1RzQzwxeG7
+ ExARuEbUtVDw==
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Sep 2020 22:59:30 -0700
-IronPort-SDR: ox5ZyNVPXKBCJwi78KHtBTbYkAFl309b9AAygPvyr+st+/oG/rydP2IiOM9JKjrmgvWh/ajyDV
- hg7HuyD/2ONg==
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Sep 2020 23:01:04 -0700
+IronPort-SDR: KqVjV2gSjTqzM4mADR+3NJFJsHhxqMbCPa2vca98rbAKezyYMxKTMWgIJKeIHeap2r8OvOXKO+
+ RS+rEnYiufJw==
 WDCIronportException: Internal
 Received: from washi.fujisawa.hgst.com ([10.149.53.254])
-  by uls-op-cesaip02.wdc.com with ESMTP; 29 Sep 2020 23:13:31 -0700
+  by uls-op-cesaip02.wdc.com with ESMTP; 29 Sep 2020 23:15:06 -0700
 From:   Damien Le Moal <damien.lemoal@wdc.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, bp@alien8.de,
         "Martin K . Petersen" <martin.petersen@oracle.com>
 Cc:     Christoph Hellwig <hch@lst.de>,
         Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Subject: [PATCH 1/2] scsi: sd: sd_zbc: Fix handling of host-aware ZBC disks
-Date:   Wed, 30 Sep 2020 15:13:29 +0900
-Message-Id: <20200930061329.562168-1-damien.lemoal@wdc.com>
+Subject: [PATCH 2/2] scsi: sd: sd_zbc: Fix ZBC disk initialization
+Date:   Wed, 30 Sep 2020 15:15:04 +0900
+Message-Id: <20200930061504.562239-1-damien.lemoal@wdc.com>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <1601302609229102@kroah.com>
-References: <1601302609229102@kroah.com>
+In-Reply-To: <16013026203615@kroah.com>
+References: <16013026203615@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Upstream commit 27ba3e8ff3ab86449e63d38a8d623053591e65fa
+Upstream commit 6c5dee18756b4721ac8518c69b22ee8ac0c9c442
 
-When CONFIG_BLK_DEV_ZONED is disabled, allow using host-aware ZBC disks as
-regular disks. In this case, ensure that command completion is correctly
-executed by changing sd_zbc_complete() to return good_bytes instead of 0
-and causing a hang during device probe (endless retries).
+Make sure to call sd_zbc_init_disk() when the sdkp->zoned field is known,
+that is, once sd_read_block_characteristics() is executed in
+sd_revalidate_disk(), so that host-aware disks also get initialized.  To do
+so, move sd_zbc_init_disk() call in sd_zbc_revalidate_zones() and make sure
+to execute it for all zoned disks, including for host-aware disks used as
+regular disks as these disk zoned model may be changed back to BLK_ZONED_HA
+when partitions are deleted.
 
-When CONFIG_BLK_DEV_ZONED is enabled and a host-aware disk is detected to
-have partitions, it will be used as a regular disk. In this case, make sure
-to not do anything in sd_zbc_revalidate_zones() as that triggers warnings.
-
-Since all these different cases result in subtle settings of the disk queue
-zoned model, introduce the block layer helper function
-blk_queue_set_zoned() to generically implement setting up the effective
-zoned model according to the disk type, the presence of partitions on the
-disk and CONFIG_BLK_DEV_ZONED configuration.
-
-Link: https://lore.kernel.org/r/20200915073347.832424-2-damien.lemoal@wdc.com
-Fixes: b72053072c0b ("block: allow partitions on host aware zone devices")
-Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200915073347.832424-3-damien.lemoal@wdc.com
+Fixes: 5795eb443060 ("scsi: sd_zbc: emulate ZONE_APPEND commands")
+Cc: <stable@vger.kernel.org> # v5.8+
 Reported-by: Borislav Petkov <bp@alien8.de>
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Tested-by: Borislav Petkov <bp@suse.de>
 Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 ---
- block/blk-settings.c   | 46 ++++++++++++++++++++++++++++++++++++++++++
- drivers/scsi/sd.c      | 30 ++++++++++++++++-----------
- drivers/scsi/sd.h      |  2 +-
- drivers/scsi/sd_zbc.c  | 37 +++++++++++++++++++--------------
- include/linux/blkdev.h |  2 ++
- 5 files changed, 89 insertions(+), 28 deletions(-)
+ drivers/scsi/sd.c     |  4 --
+ drivers/scsi/sd.h     | 12 ------
+ drivers/scsi/sd_zbc.c | 94 ++++++++++++++++++++++++-------------------
+ 3 files changed, 52 insertions(+), 58 deletions(-)
 
-diff --git a/block/blk-settings.c b/block/blk-settings.c
-index 9a2c23cd9700..525bdb699deb 100644
---- a/block/blk-settings.c
-+++ b/block/blk-settings.c
-@@ -832,6 +832,52 @@ bool blk_queue_can_use_dma_map_merging(struct request_queue *q,
- }
- EXPORT_SYMBOL_GPL(blk_queue_can_use_dma_map_merging);
- 
-+/**
-+ * blk_queue_set_zoned - configure a disk queue zoned model.
-+ * @disk:	the gendisk of the queue to configure
-+ * @model:	the zoned model to set
-+ *
-+ * Set the zoned model of the request queue of @disk according to @model.
-+ * When @model is BLK_ZONED_HM (host managed), this should be called only
-+ * if zoned block device support is enabled (CONFIG_BLK_DEV_ZONED option).
-+ * If @model specifies BLK_ZONED_HA (host aware), the effective model used
-+ * depends on CONFIG_BLK_DEV_ZONED settings and on the existence of partitions
-+ * on the disk.
-+ */
-+void blk_queue_set_zoned(struct gendisk *disk, enum blk_zoned_model model)
-+{
-+	switch (model) {
-+	case BLK_ZONED_HM:
-+		/*
-+		 * Host managed devices are supported only if
-+		 * CONFIG_BLK_DEV_ZONED is enabled.
-+		 */
-+		WARN_ON_ONCE(!IS_ENABLED(CONFIG_BLK_DEV_ZONED));
-+		break;
-+	case BLK_ZONED_HA:
-+		/*
-+		 * Host aware devices can be treated either as regular block
-+		 * devices (similar to drive managed devices) or as zoned block
-+		 * devices to take advantage of the zone command set, similarly
-+		 * to host managed devices. We try the latter if there are no
-+		 * partitions and zoned block device support is enabled, else
-+		 * we do nothing special as far as the block layer is concerned.
-+		 */
-+		if (!IS_ENABLED(CONFIG_BLK_DEV_ZONED) ||
-+		    disk_has_partitions(disk))
-+			model = BLK_ZONED_NONE;
-+		break;
-+	case BLK_ZONED_NONE:
-+	default:
-+		if (WARN_ON_ONCE(model != BLK_ZONED_NONE))
-+			model = BLK_ZONED_NONE;
-+		break;
-+	}
-+
-+	disk->queue->limits.zoned = model;
-+}
-+EXPORT_SYMBOL_GPL(blk_queue_set_zoned);
-+
- static int __init blk_settings_init(void)
- {
- 	blk_max_low_pfn = max_low_pfn - 1;
 diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index d90fefffe31b..0e1bd2e0475a 100644
+index 0e1bd2e0475a..4b2117cb8483 100644
 --- a/drivers/scsi/sd.c
 +++ b/drivers/scsi/sd.c
-@@ -2966,26 +2966,32 @@ static void sd_read_block_characteristics(struct scsi_disk *sdkp)
+@@ -3404,10 +3404,6 @@ static int sd_probe(struct device *dev)
+ 	sdkp->first_scan = 1;
+ 	sdkp->max_medium_access_timeouts = SD_MAX_MEDIUM_TIMEOUTS;
  
- 	if (sdkp->device->type == TYPE_ZBC) {
- 		/* Host-managed */
--		q->limits.zoned = BLK_ZONED_HM;
-+		blk_queue_set_zoned(sdkp->disk, BLK_ZONED_HM);
- 	} else {
- 		sdkp->zoned = (buffer[8] >> 4) & 3;
--		if (sdkp->zoned == 1 && !disk_has_partitions(sdkp->disk)) {
-+		if (sdkp->zoned == 1) {
- 			/* Host-aware */
--			q->limits.zoned = BLK_ZONED_HA;
-+			blk_queue_set_zoned(sdkp->disk, BLK_ZONED_HA);
- 		} else {
--			/*
--			 * Treat drive-managed devices and host-aware devices
--			 * with partitions as regular block devices.
--			 */
--			q->limits.zoned = BLK_ZONED_NONE;
--			if (sdkp->zoned == 2 && sdkp->first_scan)
--				sd_printk(KERN_NOTICE, sdkp,
--					  "Drive-managed SMR disk\n");
-+			/* Regular disk or drive managed disk */
-+			blk_queue_set_zoned(sdkp->disk, BLK_ZONED_NONE);
- 		}
- 	}
--	if (blk_queue_is_zoned(q) && sdkp->first_scan)
-+
-+	if (!sdkp->first_scan)
-+		goto out;
-+
-+	if (blk_queue_is_zoned(q)) {
- 		sd_printk(KERN_NOTICE, sdkp, "Host-%s zoned block device\n",
- 		      q->limits.zoned == BLK_ZONED_HM ? "managed" : "aware");
-+	} else {
-+		if (sdkp->zoned == 1)
-+			sd_printk(KERN_NOTICE, sdkp,
-+				  "Host-aware SMR disk used as regular disk\n");
-+		else if (sdkp->zoned == 2)
-+			sd_printk(KERN_NOTICE, sdkp,
-+				  "Drive-managed SMR disk\n");
-+	}
+-	error = sd_zbc_init_disk(sdkp);
+-	if (error)
+-		goto out_free_index;
+-
+ 	sd_revalidate_disk(gd);
  
-  out:
- 	kfree(buffer);
+ 	gd->flags = GENHD_FL_EXT_DEVT;
 diff --git a/drivers/scsi/sd.h b/drivers/scsi/sd.h
-index 3a74f4b45134..e23d8e4ff654 100644
+index e23d8e4ff654..9c24de305c6b 100644
 --- a/drivers/scsi/sd.h
 +++ b/drivers/scsi/sd.h
-@@ -260,7 +260,7 @@ static inline blk_status_t sd_zbc_setup_zone_mgmt_cmnd(struct scsi_cmnd *cmd,
- static inline unsigned int sd_zbc_complete(struct scsi_cmnd *cmd,
- 			unsigned int good_bytes, struct scsi_sense_hdr *sshdr)
- {
--	return 0;
-+	return good_bytes;
- }
+@@ -213,7 +213,6 @@ static inline int sd_is_zoned(struct scsi_disk *sdkp)
  
- static inline blk_status_t sd_zbc_prepare_zone_append(struct scsi_cmnd *cmd,
+ #ifdef CONFIG_BLK_DEV_ZONED
+ 
+-int sd_zbc_init_disk(struct scsi_disk *sdkp);
+ void sd_zbc_release_disk(struct scsi_disk *sdkp);
+ extern int sd_zbc_read_zones(struct scsi_disk *sdkp, unsigned char *buffer);
+ extern void sd_zbc_print_zones(struct scsi_disk *sdkp);
+@@ -229,17 +228,6 @@ blk_status_t sd_zbc_prepare_zone_append(struct scsi_cmnd *cmd, sector_t *lba,
+ 
+ #else /* CONFIG_BLK_DEV_ZONED */
+ 
+-static inline int sd_zbc_init(void)
+-{
+-	return 0;
+-}
+-
+-static inline int sd_zbc_init_disk(struct scsi_disk *sdkp)
+-{
+-	return 0;
+-}
+-
+-static inline void sd_zbc_exit(void) {}
+ static inline void sd_zbc_release_disk(struct scsi_disk *sdkp) {}
+ 
+ static inline int sd_zbc_read_zones(struct scsi_disk *sdkp,
 diff --git a/drivers/scsi/sd_zbc.c b/drivers/scsi/sd_zbc.c
-index 6f7eba66687e..9618eea2a638 100644
+index 9618eea2a638..8384b5dcfa02 100644
 --- a/drivers/scsi/sd_zbc.c
 +++ b/drivers/scsi/sd_zbc.c
-@@ -645,8 +645,17 @@ static int sd_zbc_revalidate_zones(struct scsi_disk *sdkp,
- 				   unsigned int nr_zones)
+@@ -633,6 +633,45 @@ static int sd_zbc_check_capacity(struct scsi_disk *sdkp, unsigned char *buf,
+ 	return 0;
+ }
+ 
++void sd_zbc_print_zones(struct scsi_disk *sdkp)
++{
++	if (!sd_is_zoned(sdkp) || !sdkp->capacity)
++		return;
++
++	if (sdkp->capacity & (sdkp->zone_blocks - 1))
++		sd_printk(KERN_NOTICE, sdkp,
++			  "%u zones of %u logical blocks + 1 runt zone\n",
++			  sdkp->nr_zones - 1,
++			  sdkp->zone_blocks);
++	else
++		sd_printk(KERN_NOTICE, sdkp,
++			  "%u zones of %u logical blocks\n",
++			  sdkp->nr_zones,
++			  sdkp->zone_blocks);
++}
++
++static int sd_zbc_init_disk(struct scsi_disk *sdkp)
++{
++	sdkp->zones_wp_offset = NULL;
++	spin_lock_init(&sdkp->zones_wp_offset_lock);
++	sdkp->rev_wp_offset = NULL;
++	mutex_init(&sdkp->rev_mutex);
++	INIT_WORK(&sdkp->zone_wp_offset_work, sd_zbc_update_wp_offset_workfn);
++	sdkp->zone_wp_update_buf = kzalloc(SD_BUF_SIZE, GFP_KERNEL);
++	if (!sdkp->zone_wp_update_buf)
++		return -ENOMEM;
++
++	return 0;
++}
++
++void sd_zbc_release_disk(struct scsi_disk *sdkp)
++{
++	kvfree(sdkp->zones_wp_offset);
++	sdkp->zones_wp_offset = NULL;
++	kfree(sdkp->zone_wp_update_buf);
++	sdkp->zone_wp_update_buf = NULL;
++}
++
+ static void sd_zbc_revalidate_zones_cb(struct gendisk *disk)
  {
- 	struct gendisk *disk = sdkp->disk;
-+	struct request_queue *q = disk->queue;
-+	u32 max_append;
+ 	struct scsi_disk *sdkp = scsi_disk(disk);
+@@ -649,6 +688,19 @@ static int sd_zbc_revalidate_zones(struct scsi_disk *sdkp,
+ 	u32 max_append;
  	int ret = 0;
  
 +	/*
-+	 * There is nothing to do for regular disks, including host-aware disks
-+	 * that have partitions.
++	 * For all zoned disks, initialize zone append emulation data if not
++	 * already done. This is necessary also for host-aware disks used as
++	 * regular disks due to the presence of partitions as these partitions
++	 * may be deleted and the disk zoned model changed back from
++	 * BLK_ZONED_NONE to BLK_ZONED_HA.
 +	 */
-+	if (!blk_queue_is_zoned(q))
-+		return 0;
-+
- 	/*
- 	 * Make sure revalidate zones are serialized to ensure exclusive
- 	 * updates of the scsi disk data.
-@@ -681,6 +690,19 @@ static int sd_zbc_revalidate_zones(struct scsi_disk *sdkp,
- 	kvfree(sdkp->rev_wp_offset);
- 	sdkp->rev_wp_offset = NULL;
- 
-+	if (ret) {
-+		sdkp->zone_blocks = 0;
-+		sdkp->nr_zones = 0;
-+		sdkp->capacity = 0;
-+		goto unlock;
++	if (sd_is_zoned(sdkp) && !sdkp->zone_wp_update_buf) {
++		ret = sd_zbc_init_disk(sdkp);
++		if (ret)
++			return ret;
 +	}
 +
-+	max_append = min_t(u32, logical_to_sectors(sdkp->device, zone_blocks),
-+			   q->limits.max_segments << (PAGE_SHIFT - 9));
-+	max_append = min_t(u32, max_append, queue_max_hw_sectors(q));
-+
-+	blk_queue_max_zone_append_sectors(q, max_append);
-+
- unlock:
- 	mutex_unlock(&sdkp->rev_mutex);
+ 	/*
+ 	 * There is nothing to do for regular disks, including host-aware disks
+ 	 * that have partitions.
+@@ -754,45 +806,3 @@ int sd_zbc_read_zones(struct scsi_disk *sdkp, unsigned char *buf)
  
-@@ -693,7 +715,6 @@ int sd_zbc_read_zones(struct scsi_disk *sdkp, unsigned char *buf)
- 	struct request_queue *q = disk->queue;
- 	unsigned int nr_zones;
- 	u32 zone_blocks = 0;
--	u32 max_append;
- 	int ret;
- 
- 	if (!sd_is_zoned(sdkp))
-@@ -726,20 +747,6 @@ int sd_zbc_read_zones(struct scsi_disk *sdkp, unsigned char *buf)
- 	if (ret)
- 		goto err;
- 
--	/*
--	 * On the first scan 'chunk_sectors' isn't setup yet, so calling
--	 * blk_queue_max_zone_append_sectors() will result in a WARN(). Defer
--	 * this setting to the second scan.
--	 */
--	if (sdkp->first_scan)
+ 	return ret;
+ }
+-
+-void sd_zbc_print_zones(struct scsi_disk *sdkp)
+-{
+-	if (!sd_is_zoned(sdkp) || !sdkp->capacity)
+-		return;
+-
+-	if (sdkp->capacity & (sdkp->zone_blocks - 1))
+-		sd_printk(KERN_NOTICE, sdkp,
+-			  "%u zones of %u logical blocks + 1 runt zone\n",
+-			  sdkp->nr_zones - 1,
+-			  sdkp->zone_blocks);
+-	else
+-		sd_printk(KERN_NOTICE, sdkp,
+-			  "%u zones of %u logical blocks\n",
+-			  sdkp->nr_zones,
+-			  sdkp->zone_blocks);
+-}
+-
+-int sd_zbc_init_disk(struct scsi_disk *sdkp)
+-{
+-	if (!sd_is_zoned(sdkp))
 -		return 0;
 -
--	max_append = min_t(u32, logical_to_sectors(sdkp->device, zone_blocks),
--			   q->limits.max_segments << (PAGE_SHIFT - 9));
--	max_append = min_t(u32, max_append, queue_max_hw_sectors(q));
+-	sdkp->zones_wp_offset = NULL;
+-	spin_lock_init(&sdkp->zones_wp_offset_lock);
+-	sdkp->rev_wp_offset = NULL;
+-	mutex_init(&sdkp->rev_mutex);
+-	INIT_WORK(&sdkp->zone_wp_offset_work, sd_zbc_update_wp_offset_workfn);
+-	sdkp->zone_wp_update_buf = kzalloc(SD_BUF_SIZE, GFP_KERNEL);
+-	if (!sdkp->zone_wp_update_buf)
+-		return -ENOMEM;
 -
--	blk_queue_max_zone_append_sectors(q, max_append);
+-	return 0;
+-}
 -
- 	return 0;
- 
- err:
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 57241417ff2f..1af8c9ac50a4 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -354,6 +354,8 @@ struct queue_limits {
- typedef int (*report_zones_cb)(struct blk_zone *zone, unsigned int idx,
- 			       void *data);
- 
-+void blk_queue_set_zoned(struct gendisk *disk, enum blk_zoned_model model);
-+
- #ifdef CONFIG_BLK_DEV_ZONED
- 
- #define BLK_ALL_ZONES  ((unsigned int)-1)
+-void sd_zbc_release_disk(struct scsi_disk *sdkp)
+-{
+-	kvfree(sdkp->zones_wp_offset);
+-	sdkp->zones_wp_offset = NULL;
+-	kfree(sdkp->zone_wp_update_buf);
+-	sdkp->zone_wp_update_buf = NULL;
+-}
 -- 
 2.26.2
 
