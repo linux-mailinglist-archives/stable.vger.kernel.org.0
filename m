@@ -2,166 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C59CD27F197
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 20:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79FCB27F219
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 21:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726603AbgI3Stn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 14:49:43 -0400
-Received: from static-71-183-126-102.nycmny.fios.verizon.net ([71.183.126.102]:37750
-        "EHLO chicken.badula.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725771AbgI3Stn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 14:49:43 -0400
-Received: from moisil.badula.org (pool-71-187-225-100.nwrknj.fios.verizon.net [71.187.225.100])
-        (authenticated bits=0)
-        by chicken.badula.org (8.14.4/8.14.4) with ESMTP id 08UInfuK019696
-        (version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=NO);
-        Wed, 30 Sep 2020 14:49:41 -0400
-Subject: Network packet reordering with the 5.4 stable tree
-References: <d3066d86-b63a-4a96-0537-e3e40c3826aa@badula.org>
-To:     stable@vger.kernel.org, netdev@vger.kernel.org
-From:   Ion Badulescu <ionut@badula.org>
-X-Forwarded-Message-Id: <d3066d86-b63a-4a96-0537-e3e40c3826aa@badula.org>
-Message-ID: <b11a3198-2d78-c90a-9586-f4752ae4fe6a@badula.org>
-Date:   Wed, 30 Sep 2020 14:49:41 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1731034AbgI3S64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 14:58:56 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:58812 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729504AbgI3S6z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 14:58:55 -0400
+Date:   Wed, 30 Sep 2020 18:58:52 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1601492333;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=8cQjdg9LoevS6MsxuHOmDWXWoeYfzp2UlKUc706qxmw=;
+        b=RL1EoZPgPzzqqDEyFZsUX7TM0TwbyR78dwGBqCiFA+5HPmfyNnrgvUXVC6AKQgebvrg4e1
+        jPbO1pq2J7TW81MlgDl5Uin5V/sjhowqXa9eekJGfE6aL45x5Ewht3O017Ejijsosw9iO0
+        Jn9LLeYVanFsRFht+vVGfBtS9Xa3NxuYL/lmRH8rH/WSn3R9+ptVajwZ4gG1Fxs30DhryC
+        yM53An2keE8bRmmw2aKXQmI8dja/wSSZOVnSKbPu7OV0ece/IVWWqt+HWsNFtUijOLuHGj
+        Zbno55a26mRaLnAqz2JiL73vgApn+B1NXS89o/ltbhIbeF1WQwXg1F0KN4HyIQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1601492333;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=8cQjdg9LoevS6MsxuHOmDWXWoeYfzp2UlKUc706qxmw=;
+        b=AOQfhhHVSd9OX8+ZvdsbCP78TD8bQs4fpeyFUfS+h2bXiktYoL6xJ6TtsfakuTkCHJknOr
+        m8touhLvIyTR0hDg==
+From:   "tip-bot2 for Kan Liang" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: perf/core] perf/x86/intel: Fix Ice Lake event constraint table
+Cc:     "Yi, Ammy" <ammy.yi@intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200928134726.13090-1-kan.liang@linux.intel.com>
+References: <20200928134726.13090-1-kan.liang@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <d3066d86-b63a-4a96-0537-e3e40c3826aa@badula.org>
-Content-Type: multipart/mixed;
- boundary="------------CC0861635165DEE286A4CA0C"
-Content-Language: en-US
-X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on chicken.badula.org
-X-Spam-Level: 
-X-Spam-Language: en
-X-Spam-Status: No, score=0.078 required=5 tests=AWL=0.595,BAYES_00=-1.9,KHOP_HELO_FCRDNS=0.399,RDNS_DYNAMIC=0.982,SPF_FAIL=0.001,URIBL_BLOCKED=0.001
-X-Scanned-By: MIMEDefang 2.84
+Message-ID: <160149233215.7002.2577872332043936536.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------CC0861635165DEE286A4CA0C
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+The following commit has been merged into the perf/core branch of tip:
 
-[As suggested by Greg K-H, I'm reposting this to both stable and netdev. 
-I'm also including a backported patch for the 5.4-stable tree, which is 
-now confirmed to be working and fixing the packet reordering issue I was 
-seeing.]
+Commit-ID:     010cb00265f150bf82b23c02ad1fb87ce5c781e1
+Gitweb:        https://git.kernel.org/tip/010cb00265f150bf82b23c02ad1fb87ce5c781e1
+Author:        Kan Liang <kan.liang@linux.intel.com>
+AuthorDate:    Mon, 28 Sep 2020 06:47:26 -07:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Tue, 29 Sep 2020 09:57:02 +02:00
 
-Hello,
+perf/x86/intel: Fix Ice Lake event constraint table
 
-I ran into some packet reordering using a plain vanilla 5.4.49 kernel 
-and the Amazon AWS ena driver. The external symptom was that every now 
-and again, one or more larger packets would be delivered to the UDP 
-socket after some smaller packets, even though the smaller packets were 
-sent after the larger packets. They were also delivered late to a packet 
-socket sniffer, which initially made me suspect an RSS bug in the ena 
-hardware. Eventually, I modified the ena driver to stamp each packet (by 
-overwriting its ethernet source mac field) with the id of the RSS queue 
-that delivered it, and with the value of a per-RSS-queue counter that 
-incremented for each packet received in that queue. That hack showed RSS 
-functioning properly, and also showed packets received earlier (with a 
-smaller counter value) being delivered after packets with a larger 
-counter value. It established that the reordering was in fact happening 
-inside the kernel network core.
+An error occues when sampling non-PEBS INST_RETIRED.PREC_DIST(0x01c0)
+event.
 
-The breakthrough came from realizing that the ena driver defaults its 
-rx_copybreak to 256, which matched perfectly the boundary between the 
-delayed large packets and the smaller packets being delivered first. 
-After changing ena's rx_copybreak to zero, the reordering issue disappeared.
+  perf record -e cpu/event=0xc0,umask=0x01/ -- sleep 1
+  Error:
+  The sys_perf_event_open() syscall returned with 22 (Invalid argument)
+  for event (cpu/event=0xc0,umask=0x01/).
+  /bin/dmesg | grep -i perf may provide additional information.
 
-After a lot of hair pulling, I think I figured out what the issue is -- 
-and it's confined to the 5.4 stable tree. Commit 323ebb61e32b4 (present 
-in 5.4) introduced queueing for GRO_NORMAL packets received via 
-napi_gro_frags() -> napi_frags_finish(). Commit 6570bc79c0df (NOT 
-present in 5.4) extended the same GRO_NORMAL queueing to packets 
-received via napi_gro_receive() -> napi_skb_finish(). Without 
-6570bc79c0df, packets received via napi_gro_receive() can get delivered 
-ahead of the earlier, queued up packets received via napi_gro_frags(). 
-And this is precisely what happens in the ena driver with packets 
-smaller than rx_copybreak vs packets larger than rx_copybreak.
+The idxmsk64 of the event is set to 0. The event never be successfully
+scheduled.
 
-Interestingly, the 5.4 stable tree does contain a backport of the 
-upstream c80794323e commit, which to fixes packet reordering issues 
-introduced by 323ebb61e32b4 and 6570bc79c0df. But 6570bc79c0df itself is 
-missing, which creates another avenue for packet reordering.
+The event should be limit to the fixed counter 0.
 
-The patch I'm attaching is a backport of 6570bc79c0df to the 5.4 stable 
-tree. It is confirmed to completely eliminate the packet reordering 
-previously seen with the ena driver and rx_copybreak=256.
+Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
+Reported-by: Yi, Ammy <ammy.yi@intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200928134726.13090-1-kan.liang@linux.intel.com
+---
+ arch/x86/events/intel/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
--Ion
-
---------------CC0861635165DEE286A4CA0C
-Content-Type: text/x-patch;
- name="pkt-reord-fix-5.4.x.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="pkt-reord-fix-5.4.x.diff"
-
-commit f54898541d50bb3b47085a6decbffcd06b0f72a6
-Author: Alexander Lobakin <alobakin@dlink.ru>
-Date:   Mon Oct 14 11:00:33 2019 +0300
-
-    net: core: use listified Rx for GRO_NORMAL in napi_gro_receive()
-    
-    [ Upstream commit 6570bc79c0dfff0f228b7afd2de720fb4e84d61d ]
-    
-    Commit 323ebb61e32b4 ("net: use listified RX for handling GRO_NORMAL
-    skbs") made use of listified skb processing for the users of
-    napi_gro_frags().
-    The same technique can be used in a way more common napi_gro_receive()
-    to speed up non-merged (GRO_NORMAL) skbs for a wide range of drivers
-    including gro_cells and mac80211 users.
-    This slightly changes the return value in cases where skb is being
-    dropped by the core stack, but it seems to have no impact on related
-    drivers' functionality.
-    gro_normal_batch is left untouched as it's very individual for every
-    single system configuration and might be tuned in manual order to
-    achieve an optimal performance.
-    
-    5.4-stable note: This patch is required to avoid packet reordering when
-    both napi_gro_receive() and napi_gro_frags() are used. The specific case
-    used to debug this involved the ena driver and its use of rx_copybreak
-    to select between napi_gro_receive()/napi_gro_frags().
-    
-    Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
-    Acked-by: Edward Cree <ecree@solarflare.com>
-    Signed-off-by: David S. Miller <davem@davemloft.net>
-    [Ion: backported to v5.4]
-    Signed-off-by: Ion Badulescu <ionut@badula.org>
-
-diff --git a/net/core/dev.c b/net/core/dev.c
-index ee5ef71..02973a4 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5602,12 +5602,13 @@ static void napi_skb_free_stolen_head(struct sk_buff *skb)
- 	kmem_cache_free(skbuff_head_cache, skb);
- }
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 75dea67..bdf28d2 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -243,7 +243,7 @@ static struct extra_reg intel_skl_extra_regs[] __read_mostly = {
  
--static gro_result_t napi_skb_finish(gro_result_t ret, struct sk_buff *skb)
-+static gro_result_t napi_skb_finish(struct napi_struct *napi,
-+				    struct sk_buff *skb,
-+				    gro_result_t ret)
- {
- 	switch (ret) {
- 	case GRO_NORMAL:
--		if (netif_receive_skb_internal(skb))
--			ret = GRO_DROP;
-+		gro_normal_one(napi, skb);
- 		break;
- 
- 	case GRO_DROP:
-@@ -5639,7 +5640,7 @@ gro_result_t napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb)
- 
- 	skb_gro_reset_offset(skb);
- 
--	ret = napi_skb_finish(dev_gro_receive(napi, skb), skb);
-+	ret = napi_skb_finish(napi, skb, dev_gro_receive(napi, skb));
- 	trace_napi_gro_receive_exit(ret);
- 
- 	return ret;
-
---------------CC0861635165DEE286A4CA0C--
+ static struct event_constraint intel_icl_event_constraints[] = {
+ 	FIXED_EVENT_CONSTRAINT(0x00c0, 0),	/* INST_RETIRED.ANY */
+-	INTEL_UEVENT_CONSTRAINT(0x1c0, 0),	/* INST_RETIRED.PREC_DIST */
++	FIXED_EVENT_CONSTRAINT(0x01c0, 0),	/* INST_RETIRED.PREC_DIST */
+ 	FIXED_EVENT_CONSTRAINT(0x003c, 1),	/* CPU_CLK_UNHALTED.CORE */
+ 	FIXED_EVENT_CONSTRAINT(0x0300, 2),	/* CPU_CLK_UNHALTED.REF */
+ 	FIXED_EVENT_CONSTRAINT(0x0400, 3),	/* SLOTS */
