@@ -2,105 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62ABE27EF6A
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 18:38:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0310327F089
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 19:30:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731286AbgI3Qis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 12:38:48 -0400
-Received: from mail.skyhub.de ([5.9.137.197]:41926 "EHLO mail.skyhub.de"
+        id S1725892AbgI3Ral (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 13:30:41 -0400
+Received: from mx2.suse.de ([195.135.220.15]:46708 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731236AbgI3Qin (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Sep 2020 12:38:43 -0400
-Received: from zn.tnic (p200300ec2f092a00869c7b979af15d7f.dip0.t-ipconnect.de [IPv6:2003:ec:2f09:2a00:869c:7b97:9af1:5d7f])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id CEF5B1EC046E;
-        Wed, 30 Sep 2020 18:38:41 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1601483922;
+        id S1725355AbgI3Ral (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Sep 2020 13:30:41 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1601487039;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=qAutDQ7C4SpF2Xd7IzT0f8niJ7rna8nfCt9PiwTl0gI=;
-        b=Ilk2SJpEVtOdFldPJj0cEec9cU137AP1ZEKp6NPU9ORTQBLGkeCwnovf7BktfO+U/6MfCY
-        +RwSEwUATCpRhutk9lvhzkJX69+TFV5nLV3a2ShkFmDyy0GfNKSLY9TK9Ad6RZu3AB4mQk
-        Do/rR6fBumhX2rgXEIjHLDdXr4EqHvY=
-Date:   Wed, 30 Sep 2020 18:38:39 +0200
-From:   Borislav Petkov <bp@alien8.de>
+         in-reply-to:in-reply-to:references:references;
+        bh=biOcQgRacEB1O2dTYCm0GDqdrroYsSjpfb2OedWVUTw=;
+        b=EK/w/axD8ZfcFy/PaKA/wDQx24iLPwNNpF0zHN4mW3zXlFIqy2W8S0UMyip1Tlwv00szGp
+        ZMX+ZUjbZ/lvGzUGNPuYI6nAjxq1XrGPGI5LyyfVB1xjuKA2w/0jwfSdnEh1ClhHHyNhub
+        qOqAjBFEM8KtTb7KEpY6xEfbDX/GnaQ=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id D4D39ABE3;
+        Wed, 30 Sep 2020 17:30:38 +0000 (UTC)
+Date:   Wed, 30 Sep 2020 19:30:38 +0200
+From:   Michal Hocko <mhocko@suse.com>
 To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        stable <stable@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        0day robot <lkp@intel.com>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jan Kara <jack@suse.cz>
-Subject: Re: [PATCH v9 0/2] Renovate memcpy_mcsafe with copy_mc_to_{user,
- kernel}
-Message-ID: <20200930163839.GK6810@zn.tnic>
-References: <160087928642.3520.17063139768910633998.stgit@dwillia2-desk3.amr.corp.intel.com>
- <CAPcyv4iPuRWSv_do_h8stU0-SiWxtKkQWvzBEU+78fDE6VffmA@mail.gmail.com>
- <20200930050455.GA6810@zn.tnic>
- <CAPcyv4j=eyVMbcnrGDGaPe4AVXy5pJwa6EapH3ePh+JdF6zxnQ@mail.gmail.com>
- <20200930162403.GI6810@zn.tnic>
- <CAHk-=wjmtMDW2oUfGrXTKcESqEHx1vWCqO65o051UNL-cX9AAg@mail.gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, cheloha@linux.ibm.com,
+        David Hildenbrand <david@redhat.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        ldufour@linux.ibm.com, Linux-MM <linux-mm@kvack.org>,
+        mm-commits@vger.kernel.org, nathanl@linux.ibm.com,
+        Oscar Salvador <osalvador@suse.de>,
+        Rafael Wysocki <rafael@kernel.org>,
+        stable <stable@vger.kernel.org>, Tony Luck <tony.luck@intel.com>
+Subject: Re: [patch 8/9] mm: replace memmap_context by meminit_context
+Message-ID: <20200930173038.GZ2277@dhcp22.suse.cz>
+References: <20200925211725.0fea54be9e9715486efea21f@linux-foundation.org>
+ <20200926041928.9xJHGgkah%akpm@linux-foundation.org>
+ <CAHk-=wjcg4ni8_zhGDS9vTQQYM-3ZBg4hGF7Ot9MzW5F2o7mpA@mail.gmail.com>
+ <20200929133737.99427221b858425e5ddff706@linux-foundation.org>
+ <CAHk-=wgGN3drZeV-RZpVn20yZ6tB0PDCgXa=DaD47sRvM16sGw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHk-=wjmtMDW2oUfGrXTKcESqEHx1vWCqO65o051UNL-cX9AAg@mail.gmail.com>
+In-Reply-To: <CAHk-=wgGN3drZeV-RZpVn20yZ6tB0PDCgXa=DaD47sRvM16sGw@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 30, 2020 at 09:28:33AM -0700, Linus Torvalds wrote:
-> Oh, it's pretty much 100%.
+On Wed 30-09-20 09:00:26, Linus Torvalds wrote:
+> On Tue, Sep 29, 2020 at 1:37 PM Andrew Morton <akpm@linux-foundation.org> wrote:
+> >
+> > 1/3 and 2/3 were cc:stable and 3/3 was not.  As far as I can tell, 3/3
+> > is rather theoretical once 2/3 has done its work, so I held it off for
+> > the next merge window.
+> 
+> That's not the problem, holding off is fine.
+> 
+> The problem is that the commit messages are garbage as a result. They
+> were written as a series of three, but the patches weren't _sent_ as a
+> series of three.
 
-Oh good.
-
-> I can't imagine what would make me skip an rc8 at this point.
-> Everything looks good right now (but not rc7, we had a stupid bug),
-> but I'd rather wait a week than fins another silly bug the day after
-> release (like happened in rc7)..
-
-Yeah, -rc8 is clearly the best idea, why *wouldn't* one do it?!
-
-:-)))
-
-> We're talking literal "biblical burning bushes telling me to do a
-> release" kind of events to skip rc8 by now.
-
-If you do, it probably'll look like this:
-
-diff --git a/Makefile b/Makefile
-index 992d24467ca0..5e8819b99110 100644
---- a/Makefile
-+++ b/Makefile
-@@ -2,8 +2,8 @@
- VERSION = 5
- PATCHLEVEL = 9
- SUBLEVEL = 0
--EXTRAVERSION = -rc7
--NAME = Kleptomaniac Octopus
-+EXTRAVERSION =
-+NAME = Biblical Burning Bushes
+This part of the commit message is coming from a cover letter and it is
+something that would usually go to a merge commit (from a pull request).
+With Andrew's worklflow he preserves the information in the first patch
+of the series. It is great to have that information around because there
+is usually more background and a high level description. 
  
- # *DOCUMENTATION*
- # To see a list of typical targets execute "make help"
+> So if you split up a series like that, you should look at the commit
+> mesages and edit them appropriately.
 
+Yeah, in cases like that it is better to just drop that cover letter
+part.
+
+I would still argue that all three could have gone in together. The last
+patch has not been marked for stable but it is a useful patch on its own
+as it drops a really distasteful BUG() on a failure mode. IMHO it
+wouldn't be a big deal to postpone sending these during the merge window
+as these patches are not addressing a regression for this part merge
+window.
+
+Just my 2c
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Michal Hocko
+SUSE Labs
