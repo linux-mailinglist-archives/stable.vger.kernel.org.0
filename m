@@ -2,89 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC7B27E959
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 15:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB83F27EA53
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 15:52:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730140AbgI3NTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 09:19:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52714 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730143AbgI3NTP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Sep 2020 09:19:15 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E3AB2075F;
-        Wed, 30 Sep 2020 13:19:14 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.94)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1kNc0n-002M8A-EO; Wed, 30 Sep 2020 09:19:13 -0400
-Message-ID: <20200930131913.325857552@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Wed, 30 Sep 2020 09:18:47 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Paul McKenney <paulmck@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [for-linus][PATCH 2/2] ftrace: Move RCU is watching check after recursion check
-References: <20200930131845.346190751@goodmis.org>
+        id S1730375AbgI3NwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 09:52:11 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:35182 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728232AbgI3NwK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 09:52:10 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 08UDnbT9006766;
+        Wed, 30 Sep 2020 13:52:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=DYvNZ24WcHe1KWr7V2ILrRL6telSJk6Mrq2Xp0T+C5Y=;
+ b=saqa9v8TSfkZ7qeliqIy18/pBpeDpVTpF7hKL77aNLWruIdNUWz7/1moLn2oitcpk7TG
+ RarCmEuzXPKWCM4Oyj4tLaO1Xfe5uBTPUYWLEI24AwZDA0+2mAOMPpkryltaj9sAygow
+ 28zs+bRmVT/KYsFZ1XaosxdzEOe3ITB/52vuiufwEzr30CWQ0YRGS4VkEgPobGrqas/A
+ SxSX6olqEElHve+elu36LOMa9CEg+3/yl3/5fTcRLqScj4ZCcHhM4ZtJAmyzpxLZNZ+K
+ HuLtvsS3KAvePi/xZr2mk5dK4w6gjFEVoc/gRcIRDM6KbCfI9Wj2wNJnLvzBGYWRjKoQ XA== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2120.oracle.com with ESMTP id 33swkm0mc6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 30 Sep 2020 13:52:03 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 08UDotT4030264;
+        Wed, 30 Sep 2020 13:52:02 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by aserp3030.oracle.com with ESMTP id 33uv2fd8am-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 30 Sep 2020 13:52:02 +0000
+Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 08UDq1Iq003108;
+        Wed, 30 Sep 2020 13:52:02 GMT
+Received: from [10.74.86.12] (/10.74.86.12)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Wed, 30 Sep 2020 06:52:01 -0700
+Subject: Re: [PATCH] xen/events: don't use chip_data for legacy IRQs
+To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
+        linux-kernel@vger.kernel.org
+Cc:     Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org
+References: <20200930091614.13660-1-jgross@suse.com>
+From:   boris.ostrovsky@oracle.com
+Organization: Oracle Corporation
+Message-ID: <c2faf646-ac77-1f36-fe01-cf39a56d5dc7@oracle.com>
+Date:   Wed, 30 Sep 2020 09:51:54 -0400
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.3.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+In-Reply-To: <20200930091614.13660-1-jgross@suse.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9759 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 spamscore=0 adultscore=0
+ suspectscore=0 malwarescore=0 bulkscore=0 mlxlogscore=999 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
+ definitions=main-2009300109
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9759 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0 phishscore=0
+ suspectscore=0 mlxlogscore=999 clxscore=1015 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 bulkscore=0 spamscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
+ definitions=main-2009300109
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-The first thing that the ftrace function callback helper functions should do
-is to check for recursion. Peter Zijlstra found that when
-"rcu_is_watching()" had its notrace removed, it caused perf function tracing
-to crash. This is because the call of rcu_is_watching() is tested before
-function recursion is checked and and if it is traced, it will cause an
-infinite recursion loop.
+On 9/30/20 5:16 AM, Juergen Gross wrote:
+> Since commit c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
+> Xen is using the chip_data pointer for storing IRQ specific data. When
+> running as a HVM domain this can result in problems for legacy IRQs, as
+> those might use chip_data for their own purposes.
+>
+> Use a local array for this purpose in case of legacy IRQs, avoiding the
+> double use.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
+> Signed-off-by: Juergen Gross <jgross@suse.com>
 
-rcu_is_watching() should still stay notrace, but to prevent this should
-never had crashed in the first place. The recursion prevention must be the
-first thing done in callback functions.
 
-Link: https://lore.kernel.org/r/20200929112541.GM2628@hirez.programming.kicks-ass.net
-
-Cc: stable@vger.kernel.org
-Cc: Paul McKenney <paulmck@kernel.org>
-Fixes: c68c0fa293417 ("ftrace: Have ftrace_ops_get_func() handle RCU and PER_CPU flags too")
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reported-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- kernel/trace/ftrace.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 603255f5f085..541453927c82 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -6993,16 +6993,14 @@ static void ftrace_ops_assist_func(unsigned long ip, unsigned long parent_ip,
- {
- 	int bit;
- 
--	if ((op->flags & FTRACE_OPS_FL_RCU) && !rcu_is_watching())
--		return;
--
- 	bit = trace_test_and_set_recursion(TRACE_LIST_START, TRACE_LIST_MAX);
- 	if (bit < 0)
- 		return;
- 
- 	preempt_disable_notrace();
- 
--	op->func(ip, parent_ip, op, regs);
-+	if (!(op->flags & FTRACE_OPS_FL_RCU) || rcu_is_watching())
-+		op->func(ip, parent_ip, op, regs);
- 
- 	preempt_enable_notrace();
- 	trace_clear_recursion(bit);
--- 
-2.28.0
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 
 
