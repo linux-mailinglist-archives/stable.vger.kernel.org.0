@@ -2,387 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2EA627DF34
-	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 06:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC4E27DFD0
+	for <lists+stable@lfdr.de>; Wed, 30 Sep 2020 07:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725320AbgI3ENH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Sep 2020 00:13:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:34636 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725306AbgI3ENH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 00:13:07 -0400
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1601439184;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=AJgT2O8lI/BQhNkiexYGZz7NjUAz6rrT31Lyo4qgg2o=;
-        b=Wwbk6ivWeIEcYshA6fsSRfVigDFhvvCPulZHhGX7fJ0g8zLFBvNoq5QnbsB9SXVy7ko3m9
-        gte+Axv6fGWh4uOJLV+++QU3w1vbBqOp8XVm/FvyEb2cghL5r/+0thsoVRXIlEOgfQLItf
-        WHj+Ontby7pertm4ZsFyWoPKnFpHtGM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-494-3Gnwc-MJNn6dnv_DzKAj4Q-1; Wed, 30 Sep 2020 00:13:00 -0400
-X-MC-Unique: 3Gnwc-MJNn6dnv_DzKAj4Q-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 95EA4185A0C3
-        for <stable@vger.kernel.org>; Wed, 30 Sep 2020 04:12:59 +0000 (UTC)
-Received: from [10.131.5.84] (unknown [10.0.117.154])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3513F1002C01;
-        Wed, 30 Sep 2020 04:12:56 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1725554AbgI3FCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Sep 2020 01:02:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58656 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725320AbgI3FCo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Sep 2020 01:02:44 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88702C061755;
+        Tue, 29 Sep 2020 22:02:44 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id m17so494134ioo.1;
+        Tue, 29 Sep 2020 22:02:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=2L4BOn8S8ZEQiaz0ZaNci4yPFlfsiiI1rMiH6j8O80k=;
+        b=ccJlmumEMdmdL+AUwMDLoC0Zy9h6HuZmFhnlbTxGx6rf6moISZDdzANWeZTYV+Ld+r
+         aryRRJnRTBtkMjdMxMAOFd5loC+1y68iLOFjv/vFOFr5tMgUEP5rPa/b5QQLEIf7BEFb
+         PBmRG0Qhr5aGxZWZtBBm/r3anZr35FCgpqREl0b6n9ZMvINQZIBCHuNSwaxZQUfPzBtp
+         u+JCrkd13OW+ZffAKTyHksLkK2qVt3bdFEcLMsyS6vAD2gZJvoxGPeeJcTArZWLeuq+7
+         okuEgRyL0BivGP9zXHbXhsYLf8HRHfnLpKqKl4NfvH4h09p+eRfuhgBzvZrTzwESBvDH
+         i/qA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=2L4BOn8S8ZEQiaz0ZaNci4yPFlfsiiI1rMiH6j8O80k=;
+        b=WxNDvGRRtik1DjOr8bSc/vTeCvIubTc1jhj4LFgT/KEvBsVv5Wy108larX0yqVGEqD
+         qfBj0gk0TuPS9yssQN2+Rs1HlfHfxuC9n9S6cFNoDgsFTbmK7xRs7GJ6bdoS8rqJ6MRJ
+         /KQfBXckxVp3uGxWCDrgGKPqh4z5JYairr9/ltpF8RsP8j9MVSk3KFJMfKqBqswitD+8
+         pJYcCcgRu6LtzUDbALGWhDSvd1J2mmTRSliX/la7oQsGWXOcFVj0uh2jOc1P1VrHgqm+
+         ndLUZOym06IpwJKjwjJoSC/oKuklG4l3QVi1gi8z2dVJmZ/41VG9+koikRt2YywMSppp
+         u9Jg==
+X-Gm-Message-State: AOAM533GqN0bf20JXzZzc8YDh0IgLIeFwwS7HcUsUdjveMiiUfUpNNuE
+        5SMc20+I/I+r8PUtgx2z4LjyoWz1mXIwZ8WFJ/DHTKoKyTDTdQ==
+X-Google-Smtp-Source: ABdhPJx874JdJWi/PjFEU7pyg5PW4eJmki3ci47iJNa8bNx9wAmCd7QnHdVOq+S1Gveo0sskds+UHz8aP585ZMmV8tc=
+X-Received: by 2002:a02:c914:: with SMTP id t20mr580463jao.117.1601442163872;
+ Tue, 29 Sep 2020 22:02:43 -0700 (PDT)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.8.12 (stable-queue)
-Date:   Wed, 30 Sep 2020 04:12:55 -0000
-CC:     David Arcari <darcari@redhat.com>
-Message-ID: <cki.13B198B548.S7UQKFJVRO@redhat.com>
-X-Gitlab-Pipeline-ID: 614528
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/614528
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+References: <20200929105929.719230296@linuxfoundation.org> <20200929105931.461063397@linuxfoundation.org>
+ <CAFxkdAoyenpdGV9XoFqtjEW02UVfa_i56NMKdmDFW89GSrZ5cg@mail.gmail.com>
+In-Reply-To: <CAFxkdAoyenpdGV9XoFqtjEW02UVfa_i56NMKdmDFW89GSrZ5cg@mail.gmail.com>
+From:   Tony Ambardar <tony.ambardar@gmail.com>
+Date:   Tue, 29 Sep 2020 22:02:36 -0700
+Message-ID: <CAPGftE9uCh9Wn2or+zBqu3212sfT+4R-FZA_GVxbYks8uJrsSQ@mail.gmail.com>
+Subject: Re: [PATCH 5.8 35/99] tools/libbpf: Avoid counting local symbols in
+ ABI check
+To:     Justin Forbes <jmforbes@linuxtx.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+[adding Michael Ellerman, linux-ppc maintainer]
 
-Hello,
+Hello Justin,
 
-We ran automated tests on a recent commit from this kernel tree:
+On Tue, 29 Sep 2020 at 14:54, Justin Forbes <jmforbes@linuxtx.org> wrote:
+>
+> On Tue, Sep 29, 2020 at 6:53 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > From: Tony Ambardar <tony.ambardar@gmail.com>
+> >
+> > [ Upstream commit 746f534a4809e07f427f7d13d10f3a6a9641e5c3 ]
+> >
+> > Encountered the following failure building libbpf from kernel 5.8.5 sources
+> > with GCC 8.4.0 and binutils 2.34: (long paths shortened)
+> >
+> >   Warning: Num of global symbols in sharedobjs/libbpf-in.o (234) does NOT
+> >   match with num of versioned symbols in libbpf.so (236). Please make sure
+> >   all LIBBPF_API symbols are versioned in libbpf.map.
+> > #  --- libbpf_global_syms.tmp    2020-09-02 07:30:58.920084380 +0000
+> > #  +++ libbpf_versioned_syms.tmp 2020-09-02 07:30:58.924084388 +0000
+> >   @@ -1,3 +1,5 @@
+> >   +_fini
+> >   +_init
+> >    bpf_btf_get_fd_by_id
+> >    bpf_btf_get_next_id
+> >    bpf_create_map
+> >   make[4]: *** [Makefile:210: check_abi] Error 1
+> >
+> > Investigation shows _fini and _init are actually local symbols counted
+> > amongst global ones:
+> >
+> >   $ readelf --dyn-syms --wide libbpf.so|head -10
+> >
+> >   Symbol table '.dynsym' contains 343 entries:
+> >      Num:    Value  Size Type    Bind   Vis      Ndx Name
+> >        0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND
+> >        1: 00004098     0 SECTION LOCAL  DEFAULT   11
+> >        2: 00004098     8 FUNC    LOCAL  DEFAULT   11 _init@@LIBBPF_0.0.1
+> >        3: 00023040     8 FUNC    LOCAL  DEFAULT   14 _fini@@LIBBPF_0.0.1
+> >        4: 00000000     0 OBJECT  GLOBAL DEFAULT  ABS LIBBPF_0.0.4
+> >        5: 00000000     0 OBJECT  GLOBAL DEFAULT  ABS LIBBPF_0.0.1
+> >        6: 0000ffa4     8 FUNC    GLOBAL DEFAULT   12 bpf_object__find_map_by_offset@@LIBBPF_0.0.1
+> >
+> > A previous commit filtered global symbols in sharedobjs/libbpf-in.o. Do the
+> > same with the libbpf.so DSO for consistent comparison.
+> >
+> > Fixes: 306b267cb3c4 ("libbpf: Verify versioned symbols")
+> > Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
+> > Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+> > Acked-by: Andrii Nakryiko <andriin@fb.com>
+> > Link: https://lore.kernel.org/bpf/20200905214831.1565465-1-Tony.Ambardar@gmail.com
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+>
+> This seems to work everywhere else, but breaks PPC64LE.
+>
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: caa13284791a - clocksource/drivers/timer-ti-dm: Do reset =
-before enable
+I also ran into a PPC build error while working on some bpf problems,
+but it seemed
+like a pre-existing PPC issue. I did submit an upstream fix, which is
+marked for stable
+and being reviewed by Michael. See here for discussion and the patch:
+https://lkml.org/lkml/2020/9/17/668.
 
-The results of these automated tests are provided below.
+Is that the same problem you encountered? Does that patch address your issue?
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+Thanks,
+Tony
 
-All kernel binaries, config files, and logs are available for download here:
-
-  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
-x=3Ddatawarehouse/2020/09/29/614528
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 ACPI enabled test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking firewall: basic ne=
-tfilter test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-
-    Host 4:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-       =F0=9F=9A=A7 =E2=9C=85 kdump - file-load
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 power-management: cpupower/sa=
-nity test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 ACPI table test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory: fork_mem
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-  Test sources: https://gitlab.com/cki-project/kernel-tests
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
-
+> Justin
+>
+> > ---
+> >  tools/lib/bpf/Makefile |    2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > --- a/tools/lib/bpf/Makefile
+> > +++ b/tools/lib/bpf/Makefile
+> > @@ -152,6 +152,7 @@ GLOBAL_SYM_COUNT = $(shell readelf -s --
+> >                            awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
+> >                            sort -u | wc -l)
+> >  VERSIONED_SYM_COUNT = $(shell readelf --dyn-syms --wide $(OUTPUT)libbpf.so | \
+> > +                             awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
+> >                               grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 | sort -u | wc -l)
+> >
+> >  CMD_TARGETS = $(LIB_TARGET) $(PC_FILE)
+> > @@ -219,6 +220,7 @@ check_abi: $(OUTPUT)libbpf.so
+> >                     awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
+> >                     sort -u > $(OUTPUT)libbpf_global_syms.tmp;           \
+> >                 readelf --dyn-syms --wide $(OUTPUT)libbpf.so |           \
+> > +                   awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
+> >                     grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 |             \
+> >                     sort -u > $(OUTPUT)libbpf_versioned_syms.tmp;        \
+> >                 diff -u $(OUTPUT)libbpf_global_syms.tmp                  \
+> >
+> >
