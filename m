@@ -2,164 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F6A2801B8
-	for <lists+stable@lfdr.de>; Thu,  1 Oct 2020 16:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00B25280235
+	for <lists+stable@lfdr.de>; Thu,  1 Oct 2020 17:11:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732360AbgJAO4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Oct 2020 10:56:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33888 "EHLO
+        id S1732391AbgJAPLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Oct 2020 11:11:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732299AbgJAO4e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Oct 2020 10:56:34 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5135BC0613D0
-        for <stable@vger.kernel.org>; Thu,  1 Oct 2020 07:56:34 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id q123so4758147pfb.0
-        for <stable@vger.kernel.org>; Thu, 01 Oct 2020 07:56:34 -0700 (PDT)
+        with ESMTP id S1732104AbgJAPLn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 1 Oct 2020 11:11:43 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ABBFC0613D0;
+        Thu,  1 Oct 2020 08:11:43 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id u126so5886471oif.13;
+        Thu, 01 Oct 2020 08:11:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Qyekbht+kRTGOUCU9cBIyYreSDo/SweFbGqo47co5mU=;
-        b=mZToOojVrAtuicOMUf+RX11gy9Wd9qN0yQ6Ph7dBaJ9myle/RZD1SBEqfTdPmdOIDR
-         hSZlBTQb1dDtGtAEpXtqmnljvVmhLG4fq5UAbHt/QWCGgAu3zPhpYlXnAL5L6IKYmvEI
-         IzIJsCWfzygIl6/AFytZzXKlATesVxss+8CcLGdAW5sA0eFDGbHmd7zwgp7om1ohgPzn
-         3YCEO3EEuE29o2I4XJ5xGREnwbLzxkg44540mH8uGP9+ISTsUam5YyADBftrccwzwP+c
-         AnqFYfj4nRdwHcVBuHyBJVXrGmKoxL0M6nHvg+eZ4SGiWW3i7mVV8XhQZm+0covQBOvt
-         qEgQ==
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=MBxlVxFqoyXiOhmICxBHE/pyGit/aqf2U8NISaH/8pM=;
+        b=ZlxKhec+548O4/soWdhiTWi9ptadvg3adPyCaH5ppzFLD7AuFB0eyXnBjb0FYFed1x
+         fblkeoFon6pbPl21KcgbR3LtqYKDnYrVehaeN5pIh2tT4jTkGQNp5Dzw8xuLfqLXsxFS
+         gAMkX7Vwg2Umc4AJWVv8g20pMoIfXUDX0XmlwafmqSfbS81NKaU9S35VVXxkahsudzm+
+         QcnycxNIWNfSHb/zdz3JlLVveD15rG6onSW8Y2UBjKfs136NEWZa94P5P2Rye30IfC+i
+         2yM4QgvoGzl8LFh0HF0bfLVa1BxgXRQIqkJS4yBH/ZkvvGpKlMyIM1ra2svay9yam0J0
+         VkHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Qyekbht+kRTGOUCU9cBIyYreSDo/SweFbGqo47co5mU=;
-        b=sL2Km2/3SQikLUzLzJrgeoYFVROGa/L1hQqb66ekCfIvP9Vq394aPqzCki4jcDVolc
-         35Yr2Z6/0Y8Uy8BHeKlqiLu+HdYtZBCfVXZBXx8wABwMAYdUM1H+WcWaUoa7G7fWuCWw
-         lyJ44G47NDBKWaVVR58YE7zpB4YvlNrvUxI6iiWCt3Wqbez78si+XGwtmF3mAMHfHp4Z
-         EQY2NjhN0/5ikxE8Kcv8KWFH8GkZpkEieK43nuli/1sJaYwtYmECCbedEd7s2OYq3LZH
-         GYMRMdEKiUmU5azRtzR9b7lu/oDQknH9GIdxKXteeaT8xGezWPinLkp8NQYgvqRRkN30
-         zHbQ==
-X-Gm-Message-State: AOAM533SrrABYN38JFi1jKfpbSG1HTBix2PKR7CUNStwOo7SDzRrOStP
-        Ck9xOiCtmgkOhHlBbVlCnAyxXjNQOytC3g==
-X-Google-Smtp-Source: ABdhPJzQ0whsgKT/BvuWTGVZMO7WfQ/K/uo2qpuX3m/x8dy3jRE0B96bJ9tfqsfU1qgHVKO/FVWAfw==
-X-Received: by 2002:aa7:8e54:0:b029:142:2501:34d2 with SMTP id d20-20020aa78e540000b0290142250134d2mr7225015pfr.43.1601564193370;
-        Thu, 01 Oct 2020 07:56:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o11sm6142074pgq.36.2020.10.01.07.56.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Oct 2020 07:56:32 -0700 (PDT)
-Message-ID: <5f75ee20.1c69fb81.8e0f4.ca41@mx.google.com>
-Date:   Thu, 01 Oct 2020 07:56:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=MBxlVxFqoyXiOhmICxBHE/pyGit/aqf2U8NISaH/8pM=;
+        b=mRe5P5tenig7GGqyWSz5zjpNTQCjuaErBv99cPi5aDqW0l8kqZBl1G5pk+wDd3GBek
+         5tS/nSNCNpDIh6ELGnz2H2EGMOGjmmA/x6pOp3Jk4y+Dt4a6SwDOU7vs0TGFE8rkp+4X
+         W6mSWlFsjX8O3j+kXiQSZe1zwwcHLtal+IKd4xDz64EwC/6G8Iw/FgnPkZu9UA7QgB1V
+         hUM4KppQhSOb5kdv4Fid8Ha7FXOCOOipDoHCeTtycjTjZr1OtYiqSu/tPbBocggCP8E+
+         y9jzVvWaIgqoPqD/l7a8ZQowsW9JtrfM4IMweEBDwsiL+E0ew8rQ4sTq78BHNMAOotsM
+         L8TQ==
+X-Gm-Message-State: AOAM531zyfCgUfppcw5cGA4nwncWqRCHqZHdWXVunCubBBuOIOwLfM0t
+        DHndBZyg5IOLFKvX1XXq+mY=
+X-Google-Smtp-Source: ABdhPJyyS51NFFIqhOQxS+Yj27wlPiSbhbhzppqGdn/rRdkxbjwzH5+RhvMs6O35IsHPkVTsNVezOg==
+X-Received: by 2002:a05:6808:1da:: with SMTP id x26mr257915oic.161.1601565102877;
+        Thu, 01 Oct 2020 08:11:42 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id j21sm379416otq.18.2020.10.01.08.11.42
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 01 Oct 2020 08:11:42 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Thu, 1 Oct 2020 08:11:41 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 4.9 000/119] 4.9.238-rc2 review
+Message-ID: <20201001151141.GB64648@roeck-us.net>
+References: <20201001091034.685078175@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.68-388-g42cb2591ce05
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.4 baseline: 164 runs,
- 4 regressions (v5.4.68-388-g42cb2591ce05)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201001091034.685078175@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 164 runs, 4 regressions (v5.4.68-388-g42cb259=
-1ce05)
+On Thu, Oct 01, 2020 at 11:11:05AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.238 release.
+> There are 119 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 03 Oct 2020 09:10:09 +0000.
+> Anything received after that time might be too late.
+> 
 
-Regressions Summary
--------------------
+Build results:
+	total: 168 pass: 168 fail: 0
+Qemu test results:
+	total: 386 pass: 386 fail: 0
 
-platform         | arch  | lab           | compiler | defconfig | results
------------------+-------+---------------+----------+-----------+--------
-bcm2837-rpi-3-b  | arm64 | lab-baylibre  | gcc-8    | defconfig | 3/4    =
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.68-388-g42cb2591ce05/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.68-388-g42cb2591ce05
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      42cb2591ce0507d90a7bcea1f9f8df30f3b6f19d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig | results
------------------+-------+---------------+----------+-----------+--------
-bcm2837-rpi-3-b  | arm64 | lab-baylibre  | gcc-8    | defconfig | 3/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f75b7a3bc6ef9510c877169
-
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.68-38=
-8-g42cb2591ce05/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.68-38=
-8-g42cb2591ce05/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-2-g61393d279614/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f75b7a3bc6ef951=
-0c87716d
-      new failure (last pass: v5.4.68-388-gcf92ab7a7853)
-      1 lines  =
-
-
-
-platform         | arch  | lab           | compiler | defconfig | results
------------------+-------+---------------+----------+-----------+--------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f75b77d6fef9646de877172
-
-  Results:     85 PASS, 5 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.68-38=
-8-g42cb2591ce05/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kev=
-in.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.68-38=
-8-g42cb2591ce05/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kev=
-in.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-2-g61393d279614/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.bootrr.cros-ec-sensors-accel0-probed: https://kernelci.org/tes=
-t/case/id/5f75b77d6fef9646de877186
-      failing since 1 day (last pass: v5.4.68-384-g856fa448539c, first fail=
-: v5.4.68-388-gcf92ab7a7853)
-
-    2020-10-01 11:03:16.281000  /lava-2675225/1/../bin/lava-test-case
-    2020-10-01 11:03:16.290000  <8>[   20.718339] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-sensors-accel0-probed RESULT=3Dfail>
-     * baseline.bootrr.cros-ec-sensors-accel1-probed: https://kernelci.org/=
-test/case/id/5f75b77d6fef9646de877187
-      failing since 1 day (last pass: v5.4.68-384-g856fa448539c, first fail=
-: v5.4.68-388-gcf92ab7a7853) * baseline.bootrr.cros-ec-sensors-gyro0-probed=
-: https://kernelci.org/test/case/id/5f75b77d6fef9646de877188
-      failing since 1 day (last pass: v5.4.68-384-g856fa448539c, first fail=
-: v5.4.68-388-gcf92ab7a7853)
-
-    2020-10-01 11:03:18.324000  /lava-2675225/1/../bin/lava-test-case
-    2020-10-01 11:03:18.333000  <8>[   22.761399] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-sensors-gyro0-probed RESULT=3Dfail>
-      =20
+Guenter
