@@ -2,86 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B25280235
-	for <lists+stable@lfdr.de>; Thu,  1 Oct 2020 17:11:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E91528023F
+	for <lists+stable@lfdr.de>; Thu,  1 Oct 2020 17:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732391AbgJAPLn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Oct 2020 11:11:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36210 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732104AbgJAPLn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Oct 2020 11:11:43 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ABBFC0613D0;
-        Thu,  1 Oct 2020 08:11:43 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id u126so5886471oif.13;
-        Thu, 01 Oct 2020 08:11:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=MBxlVxFqoyXiOhmICxBHE/pyGit/aqf2U8NISaH/8pM=;
-        b=ZlxKhec+548O4/soWdhiTWi9ptadvg3adPyCaH5ppzFLD7AuFB0eyXnBjb0FYFed1x
-         fblkeoFon6pbPl21KcgbR3LtqYKDnYrVehaeN5pIh2tT4jTkGQNp5Dzw8xuLfqLXsxFS
-         gAMkX7Vwg2Umc4AJWVv8g20pMoIfXUDX0XmlwafmqSfbS81NKaU9S35VVXxkahsudzm+
-         QcnycxNIWNfSHb/zdz3JlLVveD15rG6onSW8Y2UBjKfs136NEWZa94P5P2Rye30IfC+i
-         2yM4QgvoGzl8LFh0HF0bfLVa1BxgXRQIqkJS4yBH/ZkvvGpKlMyIM1ra2svay9yam0J0
-         VkHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=MBxlVxFqoyXiOhmICxBHE/pyGit/aqf2U8NISaH/8pM=;
-        b=mRe5P5tenig7GGqyWSz5zjpNTQCjuaErBv99cPi5aDqW0l8kqZBl1G5pk+wDd3GBek
-         5tS/nSNCNpDIh6ELGnz2H2EGMOGjmmA/x6pOp3Jk4y+Dt4a6SwDOU7vs0TGFE8rkp+4X
-         W6mSWlFsjX8O3j+kXiQSZe1zwwcHLtal+IKd4xDz64EwC/6G8Iw/FgnPkZu9UA7QgB1V
-         hUM4KppQhSOb5kdv4Fid8Ha7FXOCOOipDoHCeTtycjTjZr1OtYiqSu/tPbBocggCP8E+
-         y9jzVvWaIgqoPqD/l7a8ZQowsW9JtrfM4IMweEBDwsiL+E0ew8rQ4sTq78BHNMAOotsM
-         L8TQ==
-X-Gm-Message-State: AOAM531zyfCgUfppcw5cGA4nwncWqRCHqZHdWXVunCubBBuOIOwLfM0t
-        DHndBZyg5IOLFKvX1XXq+mY=
-X-Google-Smtp-Source: ABdhPJyyS51NFFIqhOQxS+Yj27wlPiSbhbhzppqGdn/rRdkxbjwzH5+RhvMs6O35IsHPkVTsNVezOg==
-X-Received: by 2002:a05:6808:1da:: with SMTP id x26mr257915oic.161.1601565102877;
-        Thu, 01 Oct 2020 08:11:42 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j21sm379416otq.18.2020.10.01.08.11.42
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 01 Oct 2020 08:11:42 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Thu, 1 Oct 2020 08:11:41 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 000/119] 4.9.238-rc2 review
-Message-ID: <20201001151141.GB64648@roeck-us.net>
-References: <20201001091034.685078175@linuxfoundation.org>
+        id S1732414AbgJAPMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Oct 2020 11:12:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53026 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732384AbgJAPMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 1 Oct 2020 11:12:49 -0400
+Received: from quaco.ghostprotocols.net (unknown [179.97.37.151])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26001208B6;
+        Thu,  1 Oct 2020 15:12:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601565169;
+        bh=0tp/yT04bI9YEzGZ7JU9CrvtzZ2lCVTf/YhR8YSvl1w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Ri2zKa4L3913Z+XrUkCW1KGdtyI7MxP7tlck2HW9hwIv0UX352si7rIbuiOS6hnLI
+         fL4PO8r4qCePIcfTb3hcCvb86OHYbQ9AJGQu7kFCilpMLbmC9NCq9FN/JKtkaiDjsA
+         o76d0ekIB4Wm4Bbq1dMQo5EMvZ+7+Kwup+k/tJiw=
+Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
+        id 467E8403AC; Thu,  1 Oct 2020 12:12:47 -0300 (-03)
+Date:   Thu, 1 Oct 2020 12:12:47 -0300
+From:   Arnaldo Carvalho de Melo <acme@kernel.org>
+To:     Jiri Olsa <jolsa@kernel.org>
+Cc:     stable@vger.kernel.org, Hagen Paul Pfeifer <hagen@jauu.net>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Ingo Molnar <mingo@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Michael Petlan <mpetlan@redhat.com>
+Subject: Re: [PATCH] perf tools: Fix printable strings in python3 scripts
+Message-ID: <20201001151247.GC18693@kernel.org>
+References: <20200928201135.3633850-1-jolsa@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201001091034.685078175@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200928201135.3633850-1-jolsa@kernel.org>
+X-Url:  http://acmel.wordpress.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 01, 2020 at 11:11:05AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.238 release.
-> There are 119 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+Em Mon, Sep 28, 2020 at 10:11:35PM +0200, Jiri Olsa escreveu:
+> Hagen reported broken strings in python3 tracepoint scripts:
 > 
-> Responses should be made by Sat, 03 Oct 2020 09:10:09 +0000.
-> Anything received after that time might be too late.
+>   make PYTHON=python3
+>   ./perf record -e sched:sched_switch -a -- sleep 5
+>   ./perf script --gen-script py
+>   ./perf script -s ./perf-script.py
+> 
+>   [..]
+>   sched__sched_switch      7 563231.759525792        0 swapper   \
+>   prev_comm=bytearray(b'swapper/7\x00\x00\x00\x00\x00\x00\x00'), \
+>   prev_pid=0, prev_prio=120, prev_state=, next_comm=bytearray(b'mutex-thread-co\x00'),
+> 
+> The problem is in is_printable_array function that does not take
+> zero byte into account and claim such string as not printable,
+> so the code will create byte array instead of string.
+
+Thanks, tested and applied.
+
+- Arnaldo
+ 
+> Cc: stable@vger.kernel.org
+> Fixes: 249de6e07458 ("perf script python: Fix string vs byte array resolving")
+> Tested-by: Hagen Paul Pfeifer <hagen@jauu.net>
+> Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+> ---
+>  tools/perf/util/print_binary.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/tools/perf/util/print_binary.c b/tools/perf/util/print_binary.c
+> index 599a1543871d..13fdc51c61d9 100644
+> --- a/tools/perf/util/print_binary.c
+> +++ b/tools/perf/util/print_binary.c
+> @@ -50,7 +50,7 @@ int is_printable_array(char *p, unsigned int len)
+>  
+>  	len--;
+>  
+> -	for (i = 0; i < len; i++) {
+> +	for (i = 0; i < len && p[i]; i++) {
+>  		if (!isprint(p[i]) && !isspace(p[i]))
+>  			return 0;
+>  	}
+> -- 
+> 2.26.2
 > 
 
-Build results:
-	total: 168 pass: 168 fail: 0
-Qemu test results:
-	total: 386 pass: 386 fail: 0
+-- 
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-
-Guenter
+- Arnaldo
