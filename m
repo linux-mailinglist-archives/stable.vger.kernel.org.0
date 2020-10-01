@@ -2,137 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3712328014A
-	for <lists+stable@lfdr.de>; Thu,  1 Oct 2020 16:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 942CB2801A3
+	for <lists+stable@lfdr.de>; Thu,  1 Oct 2020 16:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732213AbgJAOcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 1 Oct 2020 10:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58472 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732020AbgJAOct (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 1 Oct 2020 10:32:49 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4E17C0613D0
-        for <stable@vger.kernel.org>; Thu,  1 Oct 2020 07:32:49 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id f18so4645976pfa.10
-        for <stable@vger.kernel.org>; Thu, 01 Oct 2020 07:32:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=OSkLfOJE+QyqBl6FGE7p6cFCk1q4bcv5dJ5ZPEn6Rhw=;
-        b=SO/dimED3GPzNkd6lkHe9xQljbHWGJWOppZ5WktaYvwmIyStqPJu24lOK++pNUJMhw
-         7Xo8OyUwAwktXFVUTbKnCEo14zsalwB0F4iSu+4VbhXmXBIVG6vxEtxURpXKscXdlvh1
-         1TsFkmcUczR7ley6lT+yyUZvskXiNEnEJEM+nV5D015vPNpHHIyFnyAzmf1iP05M49Ap
-         0qY2N6wIO5xazIYe/nAy3PirKIsqo/X+Wkcbtf/bRBhjPoLUbowCChtHCCO5IyUAvIKH
-         mNBmVeIBwGH7gS35+FFbXJ1jNE3SfA5mDLdB6jSEixjxKIW/yS+CtuBew0O+RRbG3nMI
-         Lmxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=OSkLfOJE+QyqBl6FGE7p6cFCk1q4bcv5dJ5ZPEn6Rhw=;
-        b=JY32BiN+EZDjvwP3Yv6CG/yXLlj7a9qXKeleR4oM+/2oogxf2fLUtj/lhNA2PDsyqi
-         gKv2u6I8Bpu9bMotRXFsuZYJmU4jiPnJ4pShnwEdeebJ/Q7jR2GUlN1HQQmMMQ7k4c4X
-         Y7/E/9VQ2Sgfq9p/R+LZxctwXlgK91xS+R3D2TtDXXUAUK7bl+Ojg4AL4Zi2a5cwzK1X
-         wVq+jqE4Th+9BS3omBsUDJj/nNLS3UxBAzRI2T1R2UCUGPWHRc7c0bj5NeSPs2iSix7C
-         DtJHCegu0yWvt8Rh8lbioUH5z/6MMIsZ1Vp/zqHjDzcp2OhsU/jNsv/d0gEw6spBBI+L
-         bLzA==
-X-Gm-Message-State: AOAM533wXMO6jJAJtQgwL90Xuox4jUM4cNzWYnYFSy5PZPoSNlSQt+v1
-        RW57sURmom5oZRe/AZHdx8f8nJhvMEU8Ew==
-X-Google-Smtp-Source: ABdhPJwvXMi6J3jKFj2Y6tJbEbRPUdtjwMC4VtGEOhHoWK+FWvpYJmoVAwou8ITzn7LisEMEafMb8w==
-X-Received: by 2002:a17:902:ff10:b029:d1:f8be:ac75 with SMTP id f16-20020a170902ff10b02900d1f8beac75mr7313414plj.81.1601562768512;
-        Thu, 01 Oct 2020 07:32:48 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id kk17sm115816pjb.31.2020.10.01.07.32.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Oct 2020 07:32:47 -0700 (PDT)
-Message-ID: <5f75e88f.1c69fb81.19654.03b1@mx.google.com>
-Date:   Thu, 01 Oct 2020 07:32:47 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1732361AbgJAOtn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 1 Oct 2020 10:49:43 -0400
+Received: from foss.arm.com ([217.140.110.172]:36532 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732020AbgJAOtn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 1 Oct 2020 10:49:43 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 473DAD6E;
+        Thu,  1 Oct 2020 07:49:42 -0700 (PDT)
+Received: from [192.168.1.179] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 39F233F70D;
+        Thu,  1 Oct 2020 07:49:41 -0700 (PDT)
+Subject: Re: [PATCH] panfrost: Fix job timeout handling
+To:     Boris Brezillon <boris.brezillon@collabora.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+References: <20201001140143.1058669-1-boris.brezillon@collabora.com>
+From:   Steven Price <steven.price@arm.com>
+Message-ID: <b51d154f-978d-3439-fbb3-e960378b53c0@arm.com>
+Date:   Thu, 1 Oct 2020 15:49:39 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.8.12-99-g024c7b72aca1
-X-Kernelci-Branch: queue/5.8
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.8 baseline: 164 runs,
- 1 regressions (v5.8.12-99-g024c7b72aca1)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20201001140143.1058669-1-boris.brezillon@collabora.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.8 baseline: 164 runs, 1 regressions (v5.8.12-99-g024c7b72=
-aca1)
+On 01/10/2020 15:01, Boris Brezillon wrote:
+> If more than two or more jobs end up timeout-ing concurrently, only one
+> of them (the one attached to the scheduler acquiring the lock) is fully
+> handled. The other one remains in a dangling state where it's no longer
+> part of the scheduling queue, but still blocks something in scheduler
+> thus leading to repetitive timeouts when new jobs are queued.
+> 
+> Let's make sure all bad jobs are properly handled by the thread acquiring
+> the lock.
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+> Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
+> Cc: <stable@vger.kernel.org>
+> ---
+>   drivers/gpu/drm/panfrost/panfrost_job.c | 18 ++++++++++++++----
+>   1 file changed, 14 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
+> index 30e7b7196dab..e87edca51d84 100644
+> --- a/drivers/gpu/drm/panfrost/panfrost_job.c
+> +++ b/drivers/gpu/drm/panfrost/panfrost_job.c
+> @@ -25,7 +25,7 @@
+>   
+>   struct panfrost_queue_state {
+>   	struct drm_gpu_scheduler sched;
+> -
+> +	struct drm_sched_job *bad;
+>   	u64 fence_context;
+>   	u64 emit_seqno;
+>   };
+> @@ -392,19 +392,29 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
+>   		job_read(pfdev, JS_TAIL_LO(js)),
+>   		sched_job);
+>   
+> +	/*
+> +	 * Collect the bad job here so it can be processed by the thread
+> +	 * acquiring the reset lock.
+> +	 */
+> +	pfdev->js->queue[js].bad = sched_job;
+> +
+>   	if (!mutex_trylock(&pfdev->reset_lock))
+>   		return;
+>   
+>   	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+>   		struct drm_gpu_scheduler *sched = &pfdev->js->queue[i].sched;
+>   
+> -		drm_sched_stop(sched, sched_job);
+>   		if (js != i)
+>   			/* Ensure any timeouts on other slots have finished */
+>   			cancel_delayed_work_sync(&sched->work_tdr);
+> -	}
+>   
+> -	drm_sched_increase_karma(sched_job);
+> +		drm_sched_stop(sched, pfdev->js->queue[i].bad);
 
-Regressions Summary
--------------------
+So I can see that the call to drm_sched_stop() needs to move below the 
+cancel_delayed_work_sync() to ensure that the update to queue->bad is 
+synchronised. What I'm not so sure about is whether it's possible for 
+the scheduler to make progress between the 'cancel' and the 'stop' - 
+there is a reason I wrote it the other way round...
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
+The hole for things to go round is clearly much smaller with this 
+change, but I'm not sure it's completely plugged. Am I missing something?
 
+> +
+> +		if (pfdev->js->queue[i].bad)
+> +			drm_sched_increase_karma(pfdev->js->queue[i].bad);
+> +
+> +		pfdev->js->queue[i].bad = NULL;
+> +	}
+>   
+>   	spin_lock_irqsave(&pfdev->js->job_lock, flags);
+>   	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+> 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
-el/v5.8.12-99-g024c7b72aca1/plan/baseline/
+While we're on potential holes... some more context:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.8
-  Describe: v5.8.12-99-g024c7b72aca1
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      024c7b72aca155b72ea99dc63302f7dee8f0061c =
+> 		if (pfdev->jobs[i]) {
+> 			pm_runtime_put_noidle(pfdev->dev);
+> 			panfrost_devfreq_record_idle(pfdev);
+> 			pfdev->jobs[i] = NULL;
+> 		}
+> 	}
+> 	spin_unlock_irqrestore(&pfdev->js->job_lock, flags);
+> 
+> 	panfrost_device_reset(pfdev);
+> 
+> 	for (i = 0; i < NUM_JOB_SLOTS; i++)
+> 		drm_sched_resubmit_jobs(&pfdev->js->queue[i].sched);
+> 
+> 	/* restart scheduler after GPU is usable again */
+> 	for (i = 0; i < NUM_JOB_SLOTS; i++)
+> 		drm_sched_start(&pfdev->js->queue[i].sched, true);
+> 
+> 	mutex_unlock(&pfdev->reset_lock);
 
+I'm wondering whether the mutex_unlock() should actually happen before 
+the drm_sched_start() - in the (admittedly very unlikely) case where a 
+timeout occurs before all the drm_sched_start() calls have completed 
+it's possible for the timeout to be completely missed because the mutex 
+is still held.
 
+Thanks,
 
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f75b47f97ec780ded877172
-
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.12-99=
--g024c7b72aca1/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.12-99=
--g024c7b72aca1/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-2-g61393d279614/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f75b47f97ec780d=
-ed877176
-      new failure (last pass: v5.8.12-99-gcaa13284791a)
-      1 lines
-
-    2020-10-01 10:48:33.315000  Connected to bcm2837-rpi-3-b console [chann=
-el connected] (~$quit to exit)
-    2020-10-01 10:48:33.316000  (user:khilman) is already connected
-    2020-10-01 10:48:49.649000  =00
-    2020-10-01 10:48:49.649000  =
-
-    2020-10-01 10:48:49.650000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
-0)
-    2020-10-01 10:48:49.650000  =
-
-    2020-10-01 10:48:49.651000  DRAM:  948 MiB
-    2020-10-01 10:48:49.665000  RPI 3 Model B (0xa02082)
-    2020-10-01 10:48:49.752000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
-    2020-10-01 10:48:49.785000  Loading Environment from FAT... *** Warning=
- - bad CRC, using default environment
-    ... (381 line(s) more)
-      =20
+Steve
