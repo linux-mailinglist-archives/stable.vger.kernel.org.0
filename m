@@ -2,85 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7ADB2813E9
-	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 15:19:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1023B28147D
+	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 15:52:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387836AbgJBNTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Oct 2020 09:19:45 -0400
-Received: from sandeen.net ([63.231.237.45]:33862 "EHLO sandeen.net"
+        id S1726176AbgJBNwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Oct 2020 09:52:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726176AbgJBNTp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Oct 2020 09:19:45 -0400
-Received: from liberator.sandeen.net (liberator.sandeen.net [10.0.0.146])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1726090AbgJBNwc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Oct 2020 09:52:32 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sandeen.net (Postfix) with ESMTPSA id 37D7B325D;
-        Fri,  2 Oct 2020 08:18:54 -0500 (CDT)
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     xfs <linux-xfs@vger.kernel.org>, stable@vger.kernel.org,
-        gregkh@linuxfoundation.org
-References: <5d2f4fc1-e498-c45e-3d57-9c2d7ac275e6@sandeen.net>
- <20201002130740.GF2415204@sasha-vm>
-From:   Eric Sandeen <sandeen@sandeen.net>
-Subject: Re: [PATCH STABLE V2] xfs: trim IO to found COW extent limit
-Message-ID: <300427ae-6135-29cd-6cbe-8fa2c4efb8d5@sandeen.net>
-Date:   Fri, 2 Oct 2020 08:19:43 -0500
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.3.1
+        by mail.kernel.org (Postfix) with ESMTPSA id B68C9206C3;
+        Fri,  2 Oct 2020 13:52:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601646751;
+        bh=PCjpHi/18otilveSOktmhS+1FK4CTzK3Lj9i9+S/fhc=;
+        h=Subject:To:From:Date:From;
+        b=oDTE+h1vmXy5QdgEgCkRAfkHecXwkl6/JK4IdnuvdJvtO2whHSLd4o+Y+/n0qg04V
+         f0A3v5Xn3FL5n8lBd4jafS9G4E5iTrpRb5XfwiNzh4hiD/J/yGplEVhSp0ioNX3QIz
+         KY4/caRVheglpDuFjPK4S/mKytJgAHDIMGgsRm34=
+Subject: patch "w1: mxc_w1: Fix timeout resolution problem leading to bus error" added to char-misc-testing
+To:     martin.fuzzey@flowbird.group, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 02 Oct 2020 15:52:22 +0200
+Message-ID: <1601646742137189@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20201002130740.GF2415204@sasha-vm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/2/20 8:07 AM, Sasha Levin wrote:
-> On Thu, Oct 01, 2020 at 08:34:48AM -0500, Eric Sandeen wrote:
->> A bug existed in the XFS reflink code between v5.1 and v5.5 in which
->> the mapping for a COW IO was not trimmed to the mapping of the COW
->> extent that was found.  This resulted in a too-short copy, and
->> corruption of other files which shared the original extent.
->>
->> (This happened only when extent size hints were set, which bypasses
->> delalloc and led to this code path.)
->>
->> This was (inadvertently) fixed upstream with
->>
->> 36adcbace24e "xfs: fill out the srcmap in iomap_begin"
->>
->> and related patches which moved lots of this functionality to
->> the iomap subsystem.
->>
->> Hence, this is a -stable only patch, targeted to fix this
->> corruption vector without other major code changes.
->>
->> Fixes: 78f0cc9d55cb ("xfs: don't use delalloc extents for COW on files with extsize hints")
->> Cc: <stable@vger.kernel.org> # 5.4.x
->> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
->> Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
->> Reviewed-by: Christoph Hellwig <hch@lst.de>
->> ---
->>
->> V2: Fix typo in subject, add reviewers
->>
->> I've tested this with a targeted reproducer (in next email) as well as
->> with xfstests.
->>
->> There is also now a testcase for xfstests submitted upstream
->>
->> Stable folk, not sure how to send a "stable only" patch, or if that's even
->> valid.  Assuming you're willing to accept it, I would still like to have
->> some formal Reviewed-by's from the xfs developer community before it gets
->> merged.
-> 
-> This is perfect stable-process-wise :) Will wait for reviews/acks before
-> merging.
 
-Thansk Sasha - the reviews/acks were given for V1 (hch & darrick), V2 adds them to the
-commit log (see above) and fixes a typo in the subject.
+This is a note to let you know that I've just added the patch titled
 
-Thanks,
--Eric
+    w1: mxc_w1: Fix timeout resolution problem leading to bus error
+
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From e1a26e13baf690444a254c4c4f088e1d059a942a Mon Sep 17 00:00:00 2001
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Date: Wed, 30 Sep 2020 10:36:46 +0200
+Subject: w1: mxc_w1: Fix timeout resolution problem leading to bus error
+
+On my platform (i.MX53) bus access sometimes fails with
+	w1_search: max_slave_count 64 reached, will continue next search.
+
+The reason is the use of jiffies to implement a 200us timeout in
+mxc_w1_ds2_touch_bit().
+On some platforms the jiffies timer resolution is insufficient for this.
+
+Fix by replacing jiffies by ktime_get().
+
+For consistency apply the same change to the other use of jiffies in
+mxc_w1_ds2_reset_bus().
+
+Fixes: f80b2581a706 ("w1: mxc_w1: Optimize mxc_w1_ds2_touch_bit()")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Link: https://lore.kernel.org/r/1601455030-6607-1-git-send-email-martin.fuzzey@flowbird.group
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/w1/masters/mxc_w1.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/w1/masters/mxc_w1.c b/drivers/w1/masters/mxc_w1.c
+index 1ca880e01476..090cbbf9e1e2 100644
+--- a/drivers/w1/masters/mxc_w1.c
++++ b/drivers/w1/masters/mxc_w1.c
+@@ -7,7 +7,7 @@
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/io.h>
+-#include <linux/jiffies.h>
++#include <linux/ktime.h>
+ #include <linux/module.h>
+ #include <linux/mod_devicetable.h>
+ #include <linux/platform_device.h>
+@@ -40,12 +40,12 @@ struct mxc_w1_device {
+ static u8 mxc_w1_ds2_reset_bus(void *data)
+ {
+ 	struct mxc_w1_device *dev = data;
+-	unsigned long timeout;
++	ktime_t timeout;
+ 
+ 	writeb(MXC_W1_CONTROL_RPP, dev->regs + MXC_W1_CONTROL);
+ 
+ 	/* Wait for reset sequence 511+512us, use 1500us for sure */
+-	timeout = jiffies + usecs_to_jiffies(1500);
++	timeout = ktime_add_us(ktime_get(), 1500);
+ 
+ 	udelay(511 + 512);
+ 
+@@ -55,7 +55,7 @@ static u8 mxc_w1_ds2_reset_bus(void *data)
+ 		/* PST bit is valid after the RPP bit is self-cleared */
+ 		if (!(ctrl & MXC_W1_CONTROL_RPP))
+ 			return !(ctrl & MXC_W1_CONTROL_PST);
+-	} while (time_is_after_jiffies(timeout));
++	} while (ktime_before(ktime_get(), timeout));
+ 
+ 	return 1;
+ }
+@@ -68,12 +68,12 @@ static u8 mxc_w1_ds2_reset_bus(void *data)
+ static u8 mxc_w1_ds2_touch_bit(void *data, u8 bit)
+ {
+ 	struct mxc_w1_device *dev = data;
+-	unsigned long timeout;
++	ktime_t timeout;
+ 
+ 	writeb(MXC_W1_CONTROL_WR(bit), dev->regs + MXC_W1_CONTROL);
+ 
+ 	/* Wait for read/write bit (60us, Max 120us), use 200us for sure */
+-	timeout = jiffies + usecs_to_jiffies(200);
++	timeout = ktime_add_us(ktime_get(), 200);
+ 
+ 	udelay(60);
+ 
+@@ -83,7 +83,7 @@ static u8 mxc_w1_ds2_touch_bit(void *data, u8 bit)
+ 		/* RDST bit is valid after the WR1/RD bit is self-cleared */
+ 		if (!(ctrl & MXC_W1_CONTROL_WR(bit)))
+ 			return !!(ctrl & MXC_W1_CONTROL_RDST);
+-	} while (time_is_after_jiffies(timeout));
++	} while (ktime_before(ktime_get(), timeout));
+ 
+ 	return 0;
+ }
+-- 
+2.28.0
+
 
