@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1023B28147D
-	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 15:52:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11A4B281480
+	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 15:53:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726176AbgJBNwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Oct 2020 09:52:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45816 "EHLO mail.kernel.org"
+        id S1726090AbgJBNxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Oct 2020 09:53:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726090AbgJBNwc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Oct 2020 09:52:32 -0400
+        id S1726017AbgJBNxe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Oct 2020 09:53:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B68C9206C3;
-        Fri,  2 Oct 2020 13:52:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98672206DB;
+        Fri,  2 Oct 2020 13:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601646751;
-        bh=PCjpHi/18otilveSOktmhS+1FK4CTzK3Lj9i9+S/fhc=;
+        s=default; t=1601646814;
+        bh=/GwTFUddDMVv8zdykqK9hG6NFC6Eum4wVidUQqSCNeQ=;
         h=Subject:To:From:Date:From;
-        b=oDTE+h1vmXy5QdgEgCkRAfkHecXwkl6/JK4IdnuvdJvtO2whHSLd4o+Y+/n0qg04V
-         f0A3v5Xn3FL5n8lBd4jafS9G4E5iTrpRb5XfwiNzh4hiD/J/yGplEVhSp0ioNX3QIz
-         KY4/caRVheglpDuFjPK4S/mKytJgAHDIMGgsRm34=
+        b=GM9OZ9/kwu90UoeBu5Cw7n3J0OP9YRDap47bd0xoYv4CH0KC8avCjNBctZXTlrYdJ
+         nK9FAmY4trYhIXfFVmtMtNwGAfQl2nbd/mPnvU3jIfaPzh5cHZFKciKlQtaFH8j+9n
+         NlpqPsRT9O3O51K1TJW/VFowuA2DJwLfyk6Zghuk=
 Subject: patch "w1: mxc_w1: Fix timeout resolution problem leading to bus error" added to char-misc-testing
 To:     martin.fuzzey@flowbird.group, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 02 Oct 2020 15:52:22 +0200
-Message-ID: <1601646742137189@kroah.com>
+Date:   Fri, 02 Oct 2020 15:53:33 +0200
+Message-ID: <1601646813226209@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,7 +54,7 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From e1a26e13baf690444a254c4c4f088e1d059a942a Mon Sep 17 00:00:00 2001
+From c9723750a699c3bd465493ac2be8992b72ccb105 Mon Sep 17 00:00:00 2001
 From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 Date: Wed, 30 Sep 2020 10:36:46 +0200
 Subject: w1: mxc_w1: Fix timeout resolution problem leading to bus error
