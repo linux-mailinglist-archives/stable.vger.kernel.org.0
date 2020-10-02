@@ -2,64 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF55281BF7
-	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 21:27:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CAC6281EA1
+	for <lists+stable@lfdr.de>; Sat,  3 Oct 2020 00:51:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388419AbgJBT1J convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 2 Oct 2020 15:27:09 -0400
-Received: from mx.metalurgs.lv ([81.198.125.103]:61259 "EHLO mx.metalurgs.lv"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388440AbgJBT1I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Oct 2020 15:27:08 -0400
-X-Greylist: delayed 551 seconds by postgrey-1.27 at vger.kernel.org; Fri, 02 Oct 2020 15:27:08 EDT
-Received: from mx.metalurgs.lv (localhost [127.0.0.1])
-        by mx.metalurgs.lv (Postfix) with ESMTP id DA5F260017
-        for <stable@vger.kernel.org>; Fri,  2 Oct 2020 22:17:21 +0300 (EEST)
-Received: from kas30pipe.localhost (localhost [127.0.0.1])
-        by mx.metalurgs.lv (Postfix) with ESMTP id BA6C15F9A8
-        for <stable@vger.kernel.org>; Fri,  2 Oct 2020 22:17:21 +0300 (EEST)
-Received: by mx.metalurgs.lv (Postfix, from userid 1005)
-        id 901675C9EE; Fri,  2 Oct 2020 22:17:19 +0300 (EEST)
-Received: from [100.64.1.74] (unknown [190.15.125.50])
-        (Authenticated sender: admin)
-        by mx.metalurgs.lv (Postfix) with ESMTPA id 9CED361A1D;
-        Fri,  2 Oct 2020 22:17:12 +0300 (EEST)
+        id S1725379AbgJBWvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Oct 2020 18:51:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725283AbgJBWvr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Oct 2020 18:51:47 -0400
+Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B86AC0613D0
+        for <stable@vger.kernel.org>; Fri,  2 Oct 2020 15:51:47 -0700 (PDT)
+Received: by mail-qv1-xf44.google.com with SMTP id j10so2263924qvk.11
+        for <stable@vger.kernel.org>; Fri, 02 Oct 2020 15:51:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=nquYakQPAz0Bg9OJ/DOzK9u/Up5GlAnsqORBVZ1eSLQ=;
+        b=AOD/m/5R6ndbXy37c0WqzbJdReYKhNAEFWIrTIuUnRq71N+8cIubmh8g5C1/I6uokI
+         HjhBXBstqcbv4GmuPkXvhMiSzHa3q8n7mFHzlaXQtvBr3hT0ztiRa+sK/dexiRxLx3q1
+         P3Ckd4nriQiM4s5G9mKwAO6nGvQA439/0wnAumMXzvwBD5C5aY3RjSs0G5m5UotL7bwQ
+         uza91czYZUnMm8Nqkt8Rj1x83yTAiwWGM/xHGG/7iOBtYlnSLyx5WPQeMRP2jIH8rTfG
+         CqI5gUK4ofsONg5nCEzd8peVXVd69kE0Ec0bHpQGCFR9IWt0f6VtAf9ofozpYGq2QCC1
+         rzBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=nquYakQPAz0Bg9OJ/DOzK9u/Up5GlAnsqORBVZ1eSLQ=;
+        b=YeUIr0f4rlgEOmXw+2BOqTKjm0diKlRreFhFyFh7w5lF9F8Rz0l5zgZ2G1Mxqc/Rtb
+         JGGwZM1Aafiy/B1BC1JpcUc59jWkYTG9Y2D53s6rcuTiqM/z90ZO6ByEreUMgfgBWg7K
+         qbzwJu9Hk9TDaJQFm+fQPaipwCjf4kY6FKv4umFTDzWuMsK5fD+OjAQzz/bVCvbxOEDr
+         NkM9j0eq6qMukCvJtGTLFflav+BAA0C2sj06+FpkWeuFM9hSykBdluzOyM24s8cbLZwf
+         LZ5NInOsQ77CyBPxqFAbaTb2TJXhnQSmVaqVpQ9rzWtMIPYrmA09Fz6Ig+91bZjq/QNt
+         yqZQ==
+X-Gm-Message-State: AOAM532iFJwGYlnfgYSGZzzGAh72AiY0D/icO3XeNzs7buYQGzNkodur
+        LuttgBQkxZnkEz8DBqXT7ksWIRflS5G74QMK0RQ=
+X-Google-Smtp-Source: ABdhPJyidrQTtQnEQOGrQ1OX1S7T233Zb5zkGZqxPOfFDtSaR31Cywfl5itzZ98Tp/o+nCX3yNs1nGf5j7s3/qmJJh0=
+X-Received: by 2002:a0c:bf4e:: with SMTP id b14mr4345842qvj.39.1601679106305;
+ Fri, 02 Oct 2020 15:51:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Description: Mail message body
-To:     Recipients <financialcapability6@gmail.com>
-From:   "Mr. Hashim Bin" <financialcapability6@gmail.com>
-Date:   Fri, 02 Oct 2020 16:17:05 -0300
-Reply-To: binmurrah@gmail.com
-X-SpamTest-Envelope-From: financialcapability6@gmail.com
-X-SpamTest-Group-ID: 00000000
-X-SpamTest-Info: Profiles 71303 [Jan 01 2015]
-X-SpamTest-Info: {TO: forged address, i.e. recipient, investors, public, etc.}
-X-SpamTest-Info: {DATE: unreal year}
-X-SpamTest-Method: none
-X-SpamTest-Rate: 55
-X-SpamTest-Status: Not detected
-X-SpamTest-Status-Extended: not_detected
-X-SpamTest-Version: SMTP-Filter Version 3.0.0 [0284], KAS30/Release
-Message-ID: <20201002191719.901675C9EE@mx.metalurgs.lv>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Low Rate Loan.
-X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.39/RELEASE,
-         bases: 20140401 #7726142, check: 20201002 notchecked
+Received: by 2002:aed:3eb9:0:0:0:0:0 with HTTP; Fri, 2 Oct 2020 15:51:45 -0700 (PDT)
+Reply-To: mrsergesaahissou@indamail.hu
+From:   "Mr.Serges Ahissou" <offficemu@gmail.com>
+Date:   Fri, 2 Oct 2020 23:51:45 +0100
+Message-ID: <CAEvSfBtx2CNN_95S_Q8JX3=LzknpfNraxNqo36E7=1ScHzKzmw@mail.gmail.com>
+Subject: Dear friend
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear,
+Dear friend,
 
-We are Investment Company offering Corporate and Personal
-Loan at 3% Interest Rate for a duration of 10Years.
+Have you received your fund? You have suffered for nothing without
+receiving your fund due to over greediness. You would have received
+your fund since last year, but your problem is over greediness, which
+have cost you a lot of money and yet, you have never received $1 into
+your account.
 
-We also pay 1% commission to brokers, who introduce project
-owners for finance or other opportunities.
+Your total partial payment of (US$5,700 000.00 Million) has been
+lodged with the Bank, this is a secret information and I=E2=80=99m expectin=
+g
+your urgent response before I can give you more details with the
+contact information of the bank, where your fund was deposited. You
+may see this message as joke, because of what you passed through from
+the bad officials previously.
 
-Please get back to me if you are interested for more
-details.
+Listen very carefully,  if you have received your part payment from
+your fund, let me know but if you did not receive it till today. reply
+this message urgently to my private email:
+mrsergesaahissou@indamail.hu
 
-Yours faithfully,
-Hashim Bin 
+NOTE: I created a different email to contact you because this piece of
+information I revealed to you is a secret about your UNPAID FUND.
+Wherefore, you should keep it a secret.
+
+I await your urgent reply.
+
+Thanks!
+
+Mr.Serges Ahissou
+Senior Supervisor
+IMF Regional office, Cotonou Benin
