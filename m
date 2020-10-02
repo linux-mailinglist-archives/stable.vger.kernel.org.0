@@ -2,196 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 364232810F5
-	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 13:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04D1F28112A
+	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 13:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387737AbgJBLIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Oct 2020 07:08:48 -0400
-Received: from foss.arm.com ([217.140.110.172]:60778 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725920AbgJBLIc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Oct 2020 07:08:32 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DA5171063;
-        Fri,  2 Oct 2020 04:08:31 -0700 (PDT)
-Received: from [192.168.1.179] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E1F3F3F73B;
-        Fri,  2 Oct 2020 04:08:30 -0700 (PDT)
-Subject: Re: [PATCH v2] drm/panfrost: Fix job timeout handling
-To:     Boris Brezillon <boris.brezillon@collabora.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Robin Murphy <robin.murphy@arm.com>
-Cc:     dri-devel@lists.freedesktop.org, stable@vger.kernel.org
-References: <20201002071032.1225267-1-boris.brezillon@collabora.com>
-From:   Steven Price <steven.price@arm.com>
-Message-ID: <3cd377c1-4456-eb60-8da5-d44e398697b7@arm.com>
-Date:   Fri, 2 Oct 2020 12:08:21 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1725953AbgJBLZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Oct 2020 07:25:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54382 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387762AbgJBLZL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Oct 2020 07:25:11 -0400
+Received: from mail-vs1-xe44.google.com (mail-vs1-xe44.google.com [IPv6:2607:f8b0:4864:20::e44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60FA0C0613D0
+        for <stable@vger.kernel.org>; Fri,  2 Oct 2020 04:25:11 -0700 (PDT)
+Received: by mail-vs1-xe44.google.com with SMTP id y194so470637vsc.4
+        for <stable@vger.kernel.org>; Fri, 02 Oct 2020 04:25:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=rRjmJekzjKc3btxXuiToGnd/SN56eSyUxlYhyqaToks=;
+        b=NbrOCkCAFNGJenf9W0kQyccY4hErVm0NyMidPOVdiLylFEx5jKCihBU2ptwHZDXUH6
+         mWDw5Olrgytqi3dYopUf2hLMqxPYQPjmtd96p6kIYPyj8R+1RZY7UkzEn+B5AFr5mWUZ
+         XXucVRi1WG1j0a91dd8QHKSslHBKWQ5Ap5kCaMQKv49Isb9yss96vePEjrEEqGbSkn6q
+         t2o9cXCugTesrP11JV2CjaLTtFk9aGEr+4qXnZsRXohwr6lBh4ebxyR4AMLcYlzlqiqg
+         8H5evlZl9rtKO5z9awWX4DOpHow2Sj2Dnt5ztmQ7fJ0tLjINZI2xvDPY985GLENoKmeB
+         eQ9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=rRjmJekzjKc3btxXuiToGnd/SN56eSyUxlYhyqaToks=;
+        b=h7VeWMbL26YV0NwRlQqEuSxkcmrN1SK7yUzX1Ejb8uBRFVEnYdq+pBWq3FGopmuu/k
+         T4Nnfcn101pN0EraOetfhm8t3xku7vU0qrNvstRkXqi4GlUJxeEcFOe1Nx4cjazEcnN5
+         E5RtXQyXjbqmNQ5F82fdFtopIkJ94QZR5/rKhep6Tj8a9FhjEWzu0YcVUiG7PoVjXrdI
+         Hk1eZFvvHTIlaMUs5+AOjMYdXU6Z2UFxBts26o62muotK/Eice3I9rhSBXRYwV3Nbo6c
+         ng9BV2h67Zp0r5xc4w868bl2MZLUROlz8oNjCHhMSypFnqgatsBZdZ4XK/PRLTk1KeF+
+         EiLQ==
+X-Gm-Message-State: AOAM531fmoa886jAZlDUNy8+guOh+Oa7IsRZieomD//Ww18xq7q8ZU/W
+        1AKlwq5yas/jM/RUaRz1y0QdOeZosET7hwIOGhg=
+X-Google-Smtp-Source: ABdhPJwb03zJhl5LQwPL5SDvOGiGLTZF3khoSb4/ufPTqpRaQug7VcVGqYhM4CfDjDkdob+UqtF1mC/zHUtHF5irSTQ=
+X-Received: by 2002:a67:c787:: with SMTP id t7mr739960vsk.22.1601637910529;
+ Fri, 02 Oct 2020 04:25:10 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20201002071032.1225267-1-boris.brezillon@collabora.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Reply-To: mrahmedmuzashah@gmail.com
+Sender: tfdkumar@gmail.com
+Received: by 2002:ab0:59c7:0:0:0:0:0 with HTTP; Fri, 2 Oct 2020 04:25:09 -0700 (PDT)
+From:   "Mr.Ahmed Muzashah" <ahmedmuzashah@gmail.com>
+Date:   Fri, 2 Oct 2020 12:25:09 +0100
+X-Google-Sender-Auth: LYJegWRj7PKBIgdRLRziu2vNtaA
+Message-ID: <CAB4wgfwgNOKjAvO7j2Xsw2YP9AF7AgDdQ270GwF3xHB40R3tVw@mail.gmail.com>
+Subject: =?UTF-8?B?U2Now7ZuZW4gVGFn?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 02/10/2020 08:10, Boris Brezillon wrote:
-> If more than two jobs end up timeout-ing concurrently, only one of them
-> (the one attached to the scheduler acquiring the lock) is fully handled.
-> The other one remains in a dangling state where it's no longer part of
-> the scheduling queue, but still blocks something in scheduler, leading
-> to repetitive timeouts when new jobs are queued.
-> 
-> Let's make sure all bad jobs are properly handled by the thread
-> acquiring the lock.
-> 
-> v2:
-> - Fix the subject prefix
-> - Stop the scheduler before returning from panfrost_job_timedout()
-> - Call cancel_delayed_work_sync() after drm_sched_stop() to make sure
->    no timeout handlers are in flight when we reset the GPU (Steven Price)
-> - Make sure we release the reset lock before restarting the
->    schedulers (Steven Price)
-> 
-> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
-> Cc: <stable@vger.kernel.org>
+Sch=C3=B6nen Tag,
 
-LGTM!
+Ich bin Mr.Ahmed Muzashah, Account Manager einer Investmentbank hier
+in Burkina Faso. In meinem Unternehmen wird seit langem ein
+Kontoprojekt von einem Kunden unserer Bank er=C3=B6ffnet. Ich habe die
+M=C3=B6glichkeit, den verbleibenden Fonds (15,8 Millionen US-Dollar) zu
+=C3=BCbertragen. F=C3=BCnfzehn Millionen Achthunderttausend US-Dollar.
 
-Reviewed-by: Steven Price <steven.price@arm.com>
+Ich m=C3=B6chte diese Mittel investieren und diese Vereinbarung bei unserer
+Bank einreichen. Diese wird im Rahmen einer legitimen Vereinbarung
+ausgef=C3=BChrt, die uns vor Gesetzesverst=C3=B6=C3=9Fen sch=C3=BCtzt. Wir =
+teilen den
+Fonds zu 40% f=C3=BCr Sie, zu 50% f=C3=BCr mich und zu 10%, um eine Basis f=
+=C3=BCr
+arme Kinder in Ihrem Land zu schaffen. Wenn Sie wirklich an meinem
+Vorschlag interessiert sind, erhalten Sie weitere Informationen zur
+=C3=9Cberweisung.
 
-> ---
->   drivers/gpu/drm/panfrost/panfrost_job.c | 64 +++++++++++++++++++++----
->   1 file changed, 55 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
-> index 30e7b7196dab..6e4bfb938fab 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_job.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-> @@ -25,7 +25,8 @@
->   
->   struct panfrost_queue_state {
->   	struct drm_gpu_scheduler sched;
-> -
-> +	bool stopped;
-> +	struct mutex lock;
->   	u64 fence_context;
->   	u64 emit_seqno;
->   };
-> @@ -369,6 +370,24 @@ void panfrost_job_enable_interrupts(struct panfrost_device *pfdev)
->   	job_write(pfdev, JOB_INT_MASK, irq_mask);
->   }
->   
-> +static bool panfrost_scheduler_stop(struct panfrost_queue_state *queue,
-> +				    struct drm_sched_job *bad)
-> +{
-> +	bool stopped = false;
-> +
-> +	mutex_lock(&queue->lock);
-> +	if (!queue->stopped) {
-> +		drm_sched_stop(&queue->sched, bad);
-> +		if (bad)
-> +			drm_sched_increase_karma(bad);
-> +		queue->stopped = true;
-> +		stopped = true;
-> +	}
-> +	mutex_unlock(&queue->lock);
-> +
-> +	return stopped;
-> +}
-> +
->   static void panfrost_job_timedout(struct drm_sched_job *sched_job)
->   {
->   	struct panfrost_job *job = to_panfrost_job(sched_job);
-> @@ -392,19 +411,41 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
->   		job_read(pfdev, JS_TAIL_LO(js)),
->   		sched_job);
->   
-> +	/* Scheduler is already stopped, nothing to do. */
-> +	if (!panfrost_scheduler_stop(&pfdev->js->queue[js], sched_job))
-> +		return;
-> +
->   	if (!mutex_trylock(&pfdev->reset_lock))
->   		return;
->   
-> +	mutex_lock(&pfdev->sched_lock);
->   	for (i = 0; i < NUM_JOB_SLOTS; i++) {
->   		struct drm_gpu_scheduler *sched = &pfdev->js->queue[i].sched;
->   
-> -		drm_sched_stop(sched, sched_job);
-> -		if (js != i)
-> -			/* Ensure any timeouts on other slots have finished */
-> +		/*
-> +		 * If the queue is still active, make sure we wait for any
-> +		 * pending timeouts.
-> +		 */
-> +		if (!pfdev->js->queue[i].stopped)
->   			cancel_delayed_work_sync(&sched->work_tdr);
-> -	}
->   
-> -	drm_sched_increase_karma(sched_job);
-> +		/*
-> +		 * If the scheduler was not already stopped, there's a tiny
-> +		 * chance a timeout has expired just before we stopped it, and
-> +		 * drm_sched_stop() does not flush pending works. Let's flush
-> +		 * them now so the timeout handler doesn't get called in the
-> +		 * middle of a reset.
-> +		 */
-> +		if (panfrost_scheduler_stop(&pfdev->js->queue[i], NULL))
-> +			cancel_delayed_work_sync(&sched->work_tdr);
-> +
-> +		/*
-> +		 * Now that we cancelled the pending timeouts, we can safely
-> +		 * reset the stopped state.
-> +		 */
-> +		pfdev->js->queue[i].stopped = false;
-> +	}
-> +	mutex_unlock(&pfdev->sched_lock);
->   
->   	spin_lock_irqsave(&pfdev->js->job_lock, flags);
->   	for (i = 0; i < NUM_JOB_SLOTS; i++) {
-> @@ -421,11 +462,11 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
->   	for (i = 0; i < NUM_JOB_SLOTS; i++)
->   		drm_sched_resubmit_jobs(&pfdev->js->queue[i].sched);
->   
-> +	mutex_unlock(&pfdev->reset_lock);
-> +
->   	/* restart scheduler after GPU is usable again */
->   	for (i = 0; i < NUM_JOB_SLOTS; i++)
->   		drm_sched_start(&pfdev->js->queue[i].sched, true);
-> -
-> -	mutex_unlock(&pfdev->reset_lock);
->   }
->   
->   static const struct drm_sched_backend_ops panfrost_sched_ops = {
-> @@ -558,6 +599,7 @@ int panfrost_job_open(struct panfrost_file_priv *panfrost_priv)
->   	int ret, i;
->   
->   	for (i = 0; i < NUM_JOB_SLOTS; i++) {
-> +		mutex_init(&js->queue[i].lock);
->   		sched = &js->queue[i].sched;
->   		ret = drm_sched_entity_init(&panfrost_priv->sched_entity[i],
->   					    DRM_SCHED_PRIORITY_NORMAL, &sched,
-> @@ -570,10 +612,14 @@ int panfrost_job_open(struct panfrost_file_priv *panfrost_priv)
->   
->   void panfrost_job_close(struct panfrost_file_priv *panfrost_priv)
->   {
-> +	struct panfrost_device *pfdev = panfrost_priv->pfdev;
-> +	struct panfrost_job_slot *js = pfdev->js;
->   	int i;
->   
-> -	for (i = 0; i < NUM_JOB_SLOTS; i++)
-> +	for (i = 0; i < NUM_JOB_SLOTS; i++) {
->   		drm_sched_entity_destroy(&panfrost_priv->sched_entity[i]);
-> +		mutex_destroy(&js->queue[i].lock);
-> +	}
->   }
->   
->   int panfrost_job_is_idle(struct panfrost_device *pfdev)
-> 
-
+Dein,
+Mr.Ahmed Muzashah.
