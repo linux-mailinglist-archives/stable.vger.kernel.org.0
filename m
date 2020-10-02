@@ -2,167 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1B1280E6A
-	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 10:02:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C26280E88
+	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 10:09:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725995AbgJBICU convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 2 Oct 2020 04:02:20 -0400
-Received: from mailout04.rmx.de ([94.199.90.94]:35400 "EHLO mailout04.rmx.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725961AbgJBICT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Oct 2020 04:02:19 -0400
-Received: from kdin02.retarus.com (kdin02.dmz1.retloc [172.19.17.49])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mailout04.rmx.de (Postfix) with ESMTPS id 4C2jBv40lMz3qvQv;
-        Fri,  2 Oct 2020 10:02:15 +0200 (CEST)
-Received: from mta.arri.de (unknown [217.111.95.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by kdin02.retarus.com (Postfix) with ESMTPS id 4C2jBV62Vyz2TRjV;
-        Fri,  2 Oct 2020 10:01:54 +0200 (CEST)
-Received: from n95hx1g2.localnet (192.168.54.43) by mta.arri.de
- (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Fri, 2 Oct
- 2020 10:01:31 +0200
-From:   Christian Eggers <ceggers@arri.de>
-To:     Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-CC:     Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Oleksij Rempel <linux@rempel-privat.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        "Pengutronix Kernel Team" <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>
-Subject: Re: [PATCH 1/3] i2c: imx: Fix reset of I2SR_IAL flag
-Date:   Fri, 2 Oct 2020 10:01:30 +0200
-Message-ID: <3615207.ozermb6hxN@n95hx1g2>
-Organization: Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
-In-Reply-To: <20200925081101.dthsj4hokqz2vsgp@pengutronix.de>
-References: <20200917122029.11121-1-ceggers@arri.de> <16013235.tl8pWZfNaG@n95hx1g2> <20200925081101.dthsj4hokqz2vsgp@pengutronix.de>
+        id S1726010AbgJBIJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Oct 2020 04:09:18 -0400
+Received: from sonic304-20.consmr.mail.ne1.yahoo.com ([66.163.191.146]:35007
+        "EHLO sonic304-20.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725961AbgJBIJS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Oct 2020 04:09:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1601626156; bh=HGZhRqMIBjbwmQqkBYEb2FImjwNvVLS6Y2TkrSSL6Ho=; h=Date:From:Reply-To:Subject:References:From:Subject; b=c1VaL+v5K6xyEdWMPjf5wRHYMKS3YG2kVPZ1OPSYvdqsgWEcys2et7JV9J9jkN276CD6wnIVpo/1qfRAv08lRs5X6n2cxARn3eL6jYsrRv+zeXOe7MxAtrAVRySWLqP05I89Zga4SxuhBSW4ypv59iO4AiiNtd1x8HDq6D4Rs0DmzFgdrC9UVBsPfFVV4TmNSG7jrBoz3oJhUXcOOqqm2CkEJBy9jKwTJC5zQj71fMpR6SgsDCh1WdJuoz9/C3r2dRxs3ZdIAua5u/PhRUt0mrQDjYxtkjoA6ZNLoFyN4ArSMJl64KFU8LURu3afszxiJW7PlSQJv0uU+leURZw/mw==
+X-YMail-OSG: aQvXHYQVM1m13CjNEHfl1Hi207dMKDKYSHdQsBDsCUmxNbAL7YQ6CV0N7uD9SDF
+ bR_C6.F9D9ewzHWqd7yFta692D0PTW_ESvkjZmEUGKXfQyZJm3vkSNLW2UBiOoFaDOCYRwvxiRcX
+ yLt06siM1XzX3KOr.Ww2JMEXWqflZKq6bWgHojTq6Fcp6dk6kUFo_9LzrWFxbXpglA_sYJvEFv9E
+ BOJkZnQUQP3nPT_en7dcYL8jFJSuANoXq_Gn3Yqs9akIgs3Tzey8HdHxCShVeZZErEl2HLt_CN63
+ gWN__YOCUvPNx0fgw4Q2Rl2PY_RwXnAWQpX8WwnTLubYBuTwUxha5z0DF5j15yGbBYkWjJGuqGO.
+ vlPg8OWVEVNrA4vMg3UYnd9bHLU7mMqpahkHSmSAbVgIIrLMejCebd6dsuK3OlpwfjEMhrpcpcRG
+ A0CUGSj5rr8bWqLI9wPZl.LqLjRP9nhI3gDlNzITVMWqgjqm24phzXLEuD47.FP9c_1TIdQixOJm
+ IfTuWWC8lhOtuvMk1E6Qo3CqMwZeU9SENTp_TqJsaxzwieXhmvvhQdP8SxwMRZEzbEbLorg686KK
+ JDlmPJ.iARnBarouvQfkuTMRR.ZyGx7T1I4YWJPOthKP1Z8bGBt5qXeR9r2k5Q_xFDJcFvx4Oe88
+ afLMbKDTTUqzCnR2svAVKfi_.9PEVY5ue12DiOUH7UrhXPgVW7TN3teTDBeBuXOR6t9609AfRB.y
+ hRatDMZUtEvnvWgKjH1fvwOEc1w7LTNYONkA.ddO09U_PVzOwhLyuD6VVMIt8RHScLxYWdSj6F4_
+ 7mXpWoKTe3L6ypryCp0t28vt.f_vy5nQnNl5B9Oj4ulI6JKu285EeEbjvG6yB7qbW1bkd1pd_qbc
+ FzFCYcZGQKPYygBZX_6Dof1z5ThOXk6VEd847sOSCUCkkg3L1O6E8MGsG4j09bQ_Bdv1Zu4JEHfz
+ 12e_NKRba_8_4S_OYUl9QGZYIQbtpK2qpC0aR.fvQj7hYHrMw8G.o0SdFdy2_vW6roVqyZqvROuf
+ ThL9an6sfb7RrkLErPHv_DHHPe2cS4Q0SHURV1maW2bv.Zpz1umWK5huk_RvkTcBKXNIsiOBviqG
+ Ef9RZ7AXwejUzZ0T187swwg3FSjTtSIxohVrDGPqUY7FYHIGWTthEK9bjcgWaPBFnpGgm4yTCUJK
+ 8fYJWItcPiM4TVNhQOCP6nKzWdvCLjT0v4q2aU3FhQqHDYgCqPtOZVL.IWxRQcBw5gstjwxdJauV
+ 4htfzf83vN.55_5QUgV69wvf06JN5CX9_2J5W_nI2NiGUzMfLdCrojMRzpzJJhLW9OiSqEbMaaUQ
+ Ld7oeLmJvd_UboVjy3DBgDESM1svMHZLL5fg7d6aLQU.DB4unPz1YZCKoY51rWluJfieg7J.uWfY
+ jHqaoapMcfZOlKWYN.2Ys2XXSvAiYoVFApXv0LWuuLkE-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.ne1.yahoo.com with HTTP; Fri, 2 Oct 2020 08:09:16 +0000
+Date:   Fri, 2 Oct 2020 08:09:13 +0000 (UTC)
+From:   "From Miss. Juliette Kouauo" <jjuliettekouauo@gmail.com>
+Reply-To: juliiettekouauo@gmail.com
+Message-ID: <71678524.1107018.1601626153808@mail.yahoo.com>
+Subject: ASSISTANCE TO INVEST IN YOUR COUNTRY
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="iso-8859-1"
-X-Originating-IP: [192.168.54.43]
-X-RMX-ID: 20201002-100156-4C2jBV62Vyz2TRjV-0@kdin02
-X-RMX-SOURCE: 217.111.95.66
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <71678524.1107018.1601626153808.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16718 YMailNodin Mozilla/5.0 (Windows NT 5.1; rv:42.0) Gecko/20100101 Firefox/42.0
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Uwe,
-
-On Friday, 25 September 2020, 10:11:01 CEST, Uwe Kleine-König wrote:
-> On Thu, Sep 17, 2020 at 04:13:50PM +0200, Christian Eggers wrote:
-> > On Thursday, 17 September 2020, 16:02:35 CEST, Uwe Kleine-König wrote:
-> > > On Thu, Sep 17, 2020 at 02:20:27PM +0200, Christian Eggers wrote:
-> > > ...
-> > > 
-> > > >             /* check for arbitration lost */
-> > > >             if (temp & I2SR_IAL) {
-> > > >             
-> > > >                     temp &= ~I2SR_IAL;
-> > > > 
-> > > > +                   temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IAL);
-> > > > 
-> > > >                     imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
-> > > >                     return -EAGAIN;
-> > > 
-> > > ...
-> > > 
-> > > This looks strange. First the flag is cleared and then it is (in some
-> > > cases) set again.
-> > 
-> > i.MX controllers require writing a 0 to clear these bits. Vybrid
-> > controllers need writing a 1 for the same.
-> 
-> Yes, I understood that.
-> 
-> > > If I2SR_IIF is set in temp you ack this irq without handling it. (Which
-> > > might happen if atomic is set and irqs are off?!)
-> > 
-> > This patch is only about using the correct processor specific value for
-> > acknowledging an IRQ... But I think that returning EAGAIN (which aborts
-> > the
-> > transfer) should be handling enough. At the next transfer, the controller
-> > will be set back to master mode.
-> 
-> Either you didn't understand what I meant, or I don't understand why you
-> consider your patch right anyhow. 
-Probably both.
-
-> So I try to explain in other and more words.
-> 
-> IMHO the intention here (and also what happens on i.MX) is that exactly
-> the AL interrupt pending bit should be cleared and the IF irq is
-> supposed to be untouched.
-Yes.
-
-> Given there are only two irq flags in the I2SR register (which is called
-> IBSR on Vybrid) ...
-
-Vybrid:
-=======
-+-------+-----+------+-----+------+-----+-----+------+------+
-| BIT   |  7  |  6   |  5  |  4   |  3  |  2  |  1   |  0   |
-+-------+-----+------+-----+------+-----+-----+------+------+
-| READ  | TCF | IAAS | IBB | IBAL |  0  | SRW | IBIF | RXAK |
-+-------+-----+------+-----+------+-----+-----+------+------+
-| WRITE |  -  |  -   |  -  | W1C  |  -  |  -  | W1C  |  -   |
-+-------+-----+------+-----+-^^^--+-----+-----+-^^^--+------+
-
-i.MX:
-=======
-+-------+-----+------+-----+------+-----+-----+------+------+
-| BIT   |  7  |  6   |  5  |  4   |  3  |  2  |  1   |  0   |
-+-------+-----+------+-----+------+-----+-----+------+------+
-| READ  | ICF | IAAS | IBB | IAL  |  0  | SRW | IIF  | RXAK |
-+-------+-----+------+-----+------+-----+-----+------+------+
-| WRITE |  -  |  -   |  -  | W0C  |  -  |  -  | W0C  |  -   |
-+-------+-----+------+-----+-^^^--+-----+-----+-^^^--+------+
 
 
-> ... the status quo (i.e. without your patch) is:
-> 
->   On i.MX IAL is cleared
-Yes
+From Miss. Juliette Kouauo
+PLOT 124 RUE 19 COCODY 01.
+ABIDJAN COTE D'IVOIRE.
+Greetings,
 
->   On Vybrid IIF (which is called IBIF there) is cleared.
-If IBIF is set, then it's cleared (probably by accident).
-But in the "if (temp & I2SR_IAL)" condition, I focus on 
-the IBAL flag, not IBIF.
+ASSISTANCE TO INVEST IN YOUR COUNTRY
 
-> With your patch we get:
-> 
->   On i.MX IAL is cleared
-Yes
+For sure this mail would definitely come to you as a surprise, but do take your good time to go through it, My name is Juliette Kouauo. I lost my father a year and couple of months ago. My father was a serving director of the Agro-exporting board until his death.
 
->   On Vybrid both IIF (aka IBIF) and IAL (aka IBAL) are cleared.
-Agree. IBAL is cleared by intention, IBIF by accident (if set).
-Do you see any problem if IBIF is also cleared?
+He was assassinated by the rebels during the political uprising in my Country. Before his death, he made a deposit of US$25.5 Million Dollars here in Cote d'ivoire which was for the purchase of cocoa processing machine and development of another factory before his untimely death.
 
+Being that this part of the world experiences political crises time without number, there is no guarantee of lives and properties. I cannot invest this money here any long, despite the fact that it had been my late fathers industrial plans.
 
-> To get it right for both SoC types you have to do (e.g.):
-> 
-> 	temp = ~i2c_imx->hwdata->i2sr_clr_opcode ^ I2SR_IAL;
-Sorry, even if this is correct, it looks hard to understand for me.
+I want you to do me a favor to receive this funds into your country or any safer place as the beneficiary, I have plans to invest this money in continuation with the investment vision of my late father, but not in this place again rather in your country. I have the vision of going into real estate and industrial production or any profitable business venture.
 
-> (and in i2c_imx_isr() the same using I2SR_IIF instead of I2SR_IAL
-> because there currently IAL might be cleared by mistake on Vybrid).
-> 
-> I considered creating a patch, but as I don't have a Vybrid on my desk
-> and on i.MX there is no change, I let you do this.
-I also don't own a Vybrid system. I consider my patch correct in terms of
-clearing the IBAL flag (which was wrong before). Additional work may be
-useful for NOT clearing the other status flag. I also would like to keep
-this task for somebody who owns a Vybrid system. But the other patches
-in this series fixes some more important problems, so maybe you could
-give your acknowledge anyhow.
+I am compensating you with 15% of the total Amount, now all my hope is banked on you and I really wants to invest this money in your country, where there is stability of Government, political and economic welfare.
 
-Best regards
-Christian
+I will be waiting for your urgent response as to give you more details.
 
+Thanks and remain blessed
 
-
-
+Miss. Juliette Kouauo
