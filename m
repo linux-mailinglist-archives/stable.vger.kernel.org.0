@@ -2,90 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CAC6281EA1
-	for <lists+stable@lfdr.de>; Sat,  3 Oct 2020 00:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10DA8281EF9
+	for <lists+stable@lfdr.de>; Sat,  3 Oct 2020 01:17:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725379AbgJBWvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Oct 2020 18:51:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725283AbgJBWvr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Oct 2020 18:51:47 -0400
-Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B86AC0613D0
-        for <stable@vger.kernel.org>; Fri,  2 Oct 2020 15:51:47 -0700 (PDT)
-Received: by mail-qv1-xf44.google.com with SMTP id j10so2263924qvk.11
-        for <stable@vger.kernel.org>; Fri, 02 Oct 2020 15:51:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=nquYakQPAz0Bg9OJ/DOzK9u/Up5GlAnsqORBVZ1eSLQ=;
-        b=AOD/m/5R6ndbXy37c0WqzbJdReYKhNAEFWIrTIuUnRq71N+8cIubmh8g5C1/I6uokI
-         HjhBXBstqcbv4GmuPkXvhMiSzHa3q8n7mFHzlaXQtvBr3hT0ztiRa+sK/dexiRxLx3q1
-         P3Ckd4nriQiM4s5G9mKwAO6nGvQA439/0wnAumMXzvwBD5C5aY3RjSs0G5m5UotL7bwQ
-         uza91czYZUnMm8Nqkt8Rj1x83yTAiwWGM/xHGG/7iOBtYlnSLyx5WPQeMRP2jIH8rTfG
-         CqI5gUK4ofsONg5nCEzd8peVXVd69kE0Ec0bHpQGCFR9IWt0f6VtAf9ofozpYGq2QCC1
-         rzBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=nquYakQPAz0Bg9OJ/DOzK9u/Up5GlAnsqORBVZ1eSLQ=;
-        b=YeUIr0f4rlgEOmXw+2BOqTKjm0diKlRreFhFyFh7w5lF9F8Rz0l5zgZ2G1Mxqc/Rtb
-         JGGwZM1Aafiy/B1BC1JpcUc59jWkYTG9Y2D53s6rcuTiqM/z90ZO6ByEreUMgfgBWg7K
-         qbzwJu9Hk9TDaJQFm+fQPaipwCjf4kY6FKv4umFTDzWuMsK5fD+OjAQzz/bVCvbxOEDr
-         NkM9j0eq6qMukCvJtGTLFflav+BAA0C2sj06+FpkWeuFM9hSykBdluzOyM24s8cbLZwf
-         LZ5NInOsQ77CyBPxqFAbaTb2TJXhnQSmVaqVpQ9rzWtMIPYrmA09Fz6Ig+91bZjq/QNt
-         yqZQ==
-X-Gm-Message-State: AOAM532iFJwGYlnfgYSGZzzGAh72AiY0D/icO3XeNzs7buYQGzNkodur
-        LuttgBQkxZnkEz8DBqXT7ksWIRflS5G74QMK0RQ=
-X-Google-Smtp-Source: ABdhPJyidrQTtQnEQOGrQ1OX1S7T233Zb5zkGZqxPOfFDtSaR31Cywfl5itzZ98Tp/o+nCX3yNs1nGf5j7s3/qmJJh0=
-X-Received: by 2002:a0c:bf4e:: with SMTP id b14mr4345842qvj.39.1601679106305;
- Fri, 02 Oct 2020 15:51:46 -0700 (PDT)
+        id S1725536AbgJBXRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Oct 2020 19:17:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58646 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725379AbgJBXRU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Oct 2020 19:17:20 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79314206FA;
+        Fri,  2 Oct 2020 23:17:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601680639;
+        bh=e2EUihFcD8lfBqiDBnxeKrMwnbUKgBWFYDZLug6WDsg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2fSPOtKxiG+B/8ulFUodUjN7kvSSIhJGKKRH0XKScqoZxEjRoSokMhBDL2aK0iP77
+         tHn4p+M/R1676cimtCUnJa9CD4EPkVNvIrDk0BhF39pfBYBw8cNrZb8i+ppuTDE97S
+         wAUVPwhulQ0nTBa8/0X5/PaFQYZSneJWz82E+4Co=
+Date:   Fri, 2 Oct 2020 19:17:18 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Eric Sandeen <sandeen@sandeen.net>
+Cc:     xfs <linux-xfs@vger.kernel.org>, stable@vger.kernel.org,
+        gregkh@linuxfoundation.org
+Subject: Re: [PATCH STABLE V2] xfs: trim IO to found COW extent limit
+Message-ID: <20201002231718.GH2415204@sasha-vm>
+References: <5d2f4fc1-e498-c45e-3d57-9c2d7ac275e6@sandeen.net>
+ <20201002130740.GF2415204@sasha-vm>
+ <300427ae-6135-29cd-6cbe-8fa2c4efb8d5@sandeen.net>
 MIME-Version: 1.0
-Received: by 2002:aed:3eb9:0:0:0:0:0 with HTTP; Fri, 2 Oct 2020 15:51:45 -0700 (PDT)
-Reply-To: mrsergesaahissou@indamail.hu
-From:   "Mr.Serges Ahissou" <offficemu@gmail.com>
-Date:   Fri, 2 Oct 2020 23:51:45 +0100
-Message-ID: <CAEvSfBtx2CNN_95S_Q8JX3=LzknpfNraxNqo36E7=1ScHzKzmw@mail.gmail.com>
-Subject: Dear friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <300427ae-6135-29cd-6cbe-8fa2c4efb8d5@sandeen.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear friend,
+On Fri, Oct 02, 2020 at 08:19:43AM -0500, Eric Sandeen wrote:
+>On 10/2/20 8:07 AM, Sasha Levin wrote:
+>> On Thu, Oct 01, 2020 at 08:34:48AM -0500, Eric Sandeen wrote:
+>>> A bug existed in the XFS reflink code between v5.1 and v5.5 in which
+>>> the mapping for a COW IO was not trimmed to the mapping of the COW
+>>> extent that was found.  This resulted in a too-short copy, and
+>>> corruption of other files which shared the original extent.
+>>>
+>>> (This happened only when extent size hints were set, which bypasses
+>>> delalloc and led to this code path.)
+>>>
+>>> This was (inadvertently) fixed upstream with
+>>>
+>>> 36adcbace24e "xfs: fill out the srcmap in iomap_begin"
+>>>
+>>> and related patches which moved lots of this functionality to
+>>> the iomap subsystem.
+>>>
+>>> Hence, this is a -stable only patch, targeted to fix this
+>>> corruption vector without other major code changes.
+>>>
+>>> Fixes: 78f0cc9d55cb ("xfs: don't use delalloc extents for COW on files with extsize hints")
+>>> Cc: <stable@vger.kernel.org> # 5.4.x
+>>> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+>>> Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+>>> Reviewed-by: Christoph Hellwig <hch@lst.de>
+>>> ---
+>>>
+>>> V2: Fix typo in subject, add reviewers
+>>>
+>>> I've tested this with a targeted reproducer (in next email) as well as
+>>> with xfstests.
+>>>
+>>> There is also now a testcase for xfstests submitted upstream
+>>>
+>>> Stable folk, not sure how to send a "stable only" patch, or if that's even
+>>> valid.  Assuming you're willing to accept it, I would still like to have
+>>> some formal Reviewed-by's from the xfs developer community before it gets
+>>> merged.
+>>
+>> This is perfect stable-process-wise :) Will wait for reviews/acks before
+>> merging.
+>
+>Thansk Sasha - the reviews/acks were given for V1 (hch & darrick), V2 adds them to the
+>commit log (see above) and fixes a typo in the subject.
 
-Have you received your fund? You have suffered for nothing without
-receiving your fund due to over greediness. You would have received
-your fund since last year, but your problem is over greediness, which
-have cost you a lot of money and yet, you have never received $1 into
-your account.
+Ah, I see. Queued up!
 
-Your total partial payment of (US$5,700 000.00 Million) has been
-lodged with the Bank, this is a secret information and I=E2=80=99m expectin=
-g
-your urgent response before I can give you more details with the
-contact information of the bank, where your fund was deposited. You
-may see this message as joke, because of what you passed through from
-the bad officials previously.
-
-Listen very carefully,  if you have received your part payment from
-your fund, let me know but if you did not receive it till today. reply
-this message urgently to my private email:
-mrsergesaahissou@indamail.hu
-
-NOTE: I created a different email to contact you because this piece of
-information I revealed to you is a secret about your UNPAID FUND.
-Wherefore, you should keep it a secret.
-
-I await your urgent reply.
-
-Thanks!
-
-Mr.Serges Ahissou
-Senior Supervisor
-IMF Regional office, Cotonou Benin
+-- 
+Thanks,
+Sasha
