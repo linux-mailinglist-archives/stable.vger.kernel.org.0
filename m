@@ -2,75 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CA0F280EE0
-	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 10:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65FA1280F05
+	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 10:34:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387718AbgJBI2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Oct 2020 04:28:30 -0400
-Received: from mx2.suse.de ([195.135.220.15]:50082 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387699AbgJBI2W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 2 Oct 2020 04:28:22 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id B9D48AF1A;
-        Fri,  2 Oct 2020 08:28:20 +0000 (UTC)
-From:   Coly Li <colyli@suse.de>
-To:     davem@davemloft.net, linux-block@vger.kernel.org,
-        linux-nvme@lists.infradead.org, netdev@vger.kernel.org,
-        open-iscsi@googlegroups.com, linux-scsi@vger.kernel.org,
-        ceph-devel@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Vasily Averin <vvs@virtuozzo.com>, stable@vger.kernel.org
-Subject: [PATCH v10 4/7] tcp: use sendpage_ok() to detect misused .sendpage
-Date:   Fri,  2 Oct 2020 16:27:31 +0800
-Message-Id: <20201002082734.13925-5-colyli@suse.de>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201002082734.13925-1-colyli@suse.de>
-References: <20201002082734.13925-1-colyli@suse.de>
+        id S2387595AbgJBIea (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Oct 2020 04:34:30 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:56149 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725961AbgJBIea (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 2 Oct 2020 04:34:30 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22599388-1500050 
+        for multiple; Fri, 02 Oct 2020 09:34:27 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Bruce Chang <yu.bruce.chang@intel.com>,
+        Ramalingam C <ramalingam.c@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gt: Undo forced context restores after trivial preemptions
+Date:   Fri,  2 Oct 2020 09:34:25 +0100
+Message-Id: <20201002083425.4605-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit a10674bf2406 ("tcp: detecting the misuse of .sendpage for Slab
-objects") adds the checks for Slab pages, but the pages don't have
-page_count are still missing from the check.
+We may try to preempt the currently executing request, only to find that
+after unravelling all the dependencies that the original executing
+context is still the earliest in the topological sort and re-submitted
+back to HW (if we do detect some change in the ELSP that requires
+re-submission). However, due to the way we check for wrap-around during
+the unravelling, we mark any context that has been submitted just once
+(i.e. with the rq->wa_tail set, but the ring->tail earlier) as
+potentially wrapping and requiring a forced restore on resubmission.
+This was expected to be not a problem, as it was anticipated that most
+unwinding for preemption would result in a context switch and the few
+that did not would be lost in the noise. It did not take long for
+someone to find one particular workload where the cost of those extra
+context restores was measurable.
 
-Network layer's sendpage method is not designed to send page_count 0
-pages neither, therefore both PageSlab() and page_count() should be
-both checked for the sending page. This is exactly what sendpage_ok()
-does.
+However, since we know the wa_tail is of fixed size, and we know that a
+request must be larger than the wa_tail itself, we can safely maintain
+the check for request wrapping and check against a slightly future point
+in the ring that includes an expected wa_tail. (That is if the
+ring->tail is already set to rq->wa_tail, including another 8 bytes in
+the check does not invalidate the incremental wrap detection.)
 
-This patch uses sendpage_ok() in do_tcp_sendpages() to detect misused
-.sendpage, to make the code more robust.
-
-Fixes: a10674bf2406 ("tcp: detecting the misuse of .sendpage for Slab objects")
-Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: Vasily Averin <vvs@virtuozzo.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: stable@vger.kernel.org
+Fixes: 8ab3a3812aa9 ("drm/i915/gt: Incrementally check for rewinding")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Bruce Chang <yu.bruce.chang@intel.com>
+Cc: Ramalingam C <ramalingam.c@intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
 ---
- net/ipv4/tcp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gt/intel_lrc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index 31f3b858db81..2135ee7c806d 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -970,7 +970,8 @@ ssize_t do_tcp_sendpages(struct sock *sk, struct page *page, int offset,
- 	long timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 287537089c77..3aa05588834b 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1140,9 +1140,8 @@ __unwind_incomplete_requests(struct intel_engine_cs *engine)
  
- 	if (IS_ENABLED(CONFIG_DEBUG_VM) &&
--	    WARN_ONCE(PageSlab(page), "page must not be a Slab one"))
-+	    WARN_ONCE(!sendpage_ok(page),
-+		      "page must not be a Slab one and have page_count > 0"))
- 		return -EINVAL;
+ 			/* Check in case we rollback so far we wrap [size/2] */
+ 			if (intel_ring_direction(rq->ring,
+-						 intel_ring_wrap(rq->ring,
+-								 rq->tail),
+-						 rq->ring->tail) > 0)
++						 rq->tail,
++						 rq->ring->tail + 8) > 0)
+ 				rq->context->lrc.desc |= CTX_DESC_FORCE_RESTORE;
  
- 	/* Wait for a connection to finish. One exception is TCP Fast Open
+ 			active = rq;
 -- 
-2.26.2
+2.20.1
 
