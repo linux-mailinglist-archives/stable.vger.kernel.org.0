@@ -2,174 +2,196 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 609D928107F
-	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 12:21:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 364232810F5
+	for <lists+stable@lfdr.de>; Fri,  2 Oct 2020 13:08:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387717AbgJBKVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 2 Oct 2020 06:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44604 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725993AbgJBKV2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 2 Oct 2020 06:21:28 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A282C0613D0
-        for <stable@vger.kernel.org>; Fri,  2 Oct 2020 03:21:27 -0700 (PDT)
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kOIBV-0005MC-71; Fri, 02 Oct 2020 12:21:05 +0200
-Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kOIBT-0000ks-6f; Fri, 02 Oct 2020 12:21:03 +0200
-Date:   Fri, 2 Oct 2020 12:21:03 +0200
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Christian Eggers <ceggers@arri.de>
-Cc:     Fabio Estevam <festevam@gmail.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Oleksij Rempel <linux@rempel-privat.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 1/3] i2c: imx: Fix reset of I2SR_IAL flag
-Message-ID: <20201002102103.36uqajmvl5w2dqdv@pengutronix.de>
-References: <20200917122029.11121-1-ceggers@arri.de>
- <16013235.tl8pWZfNaG@n95hx1g2>
- <20200925081101.dthsj4hokqz2vsgp@pengutronix.de>
- <3615207.ozermb6hxN@n95hx1g2>
+        id S2387737AbgJBLIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 2 Oct 2020 07:08:48 -0400
+Received: from foss.arm.com ([217.140.110.172]:60778 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725920AbgJBLIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 2 Oct 2020 07:08:32 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DA5171063;
+        Fri,  2 Oct 2020 04:08:31 -0700 (PDT)
+Received: from [192.168.1.179] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E1F3F3F73B;
+        Fri,  2 Oct 2020 04:08:30 -0700 (PDT)
+Subject: Re: [PATCH v2] drm/panfrost: Fix job timeout handling
+To:     Boris Brezillon <boris.brezillon@collabora.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Tomeu Vizoso <tomeu@tomeuvizoso.net>,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Robin Murphy <robin.murphy@arm.com>
+Cc:     dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+References: <20201002071032.1225267-1-boris.brezillon@collabora.com>
+From:   Steven Price <steven.price@arm.com>
+Message-ID: <3cd377c1-4456-eb60-8da5-d44e398697b7@arm.com>
+Date:   Fri, 2 Oct 2020 12:08:21 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="uqr4haxxluzemvr6"
-Content-Disposition: inline
-In-Reply-To: <3615207.ozermb6hxN@n95hx1g2>
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+In-Reply-To: <20201002071032.1225267-1-boris.brezillon@collabora.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 02/10/2020 08:10, Boris Brezillon wrote:
+> If more than two jobs end up timeout-ing concurrently, only one of them
+> (the one attached to the scheduler acquiring the lock) is fully handled.
+> The other one remains in a dangling state where it's no longer part of
+> the scheduling queue, but still blocks something in scheduler, leading
+> to repetitive timeouts when new jobs are queued.
+> 
+> Let's make sure all bad jobs are properly handled by the thread
+> acquiring the lock.
+> 
+> v2:
+> - Fix the subject prefix
+> - Stop the scheduler before returning from panfrost_job_timedout()
+> - Call cancel_delayed_work_sync() after drm_sched_stop() to make sure
+>    no timeout handlers are in flight when we reset the GPU (Steven Price)
+> - Make sure we release the reset lock before restarting the
+>    schedulers (Steven Price)
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+> Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
+> Cc: <stable@vger.kernel.org>
 
---uqr4haxxluzemvr6
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+LGTM!
 
-Hello Christian,
+Reviewed-by: Steven Price <steven.price@arm.com>
 
-On Fri, Oct 02, 2020 at 10:01:30AM +0200, Christian Eggers wrote:
-> On Friday, 25 September 2020, 10:11:01 CEST, Uwe Kleine-K=F6nig wrote:
-> > On Thu, Sep 17, 2020 at 04:13:50PM +0200, Christian Eggers wrote:
-> > IMHO the intention here (and also what happens on i.MX) is that exactly
-> > the AL interrupt pending bit should be cleared and the IF irq is
-> > supposed to be untouched.
->=20
-> Yes.
->=20
-> > Given there are only two irq flags in the I2SR register (which is called
-> > IBSR on Vybrid) ...
->=20
-> Vybrid:
-> =3D=3D=3D=3D=3D=3D=3D
-> +-------+-----+------+-----+------+-----+-----+------+------+
-> | BIT   |  7  |  6   |  5  |  4   |  3  |  2  |  1   |  0   |
-> +-------+-----+------+-----+------+-----+-----+------+------+
-> | READ  | TCF | IAAS | IBB | IBAL |  0  | SRW | IBIF | RXAK |
-> +-------+-----+------+-----+------+-----+-----+------+------+
-> | WRITE |  -  |  -   |  -  | W1C  |  -  |  -  | W1C  |  -   |
-> +-------+-----+------+-----+-^^^--+-----+-----+-^^^--+------+
->=20
-> i.MX:
-> =3D=3D=3D=3D=3D=3D=3D
-> +-------+-----+------+-----+------+-----+-----+------+------+
-> | BIT   |  7  |  6   |  5  |  4   |  3  |  2  |  1   |  0   |
-> +-------+-----+------+-----+------+-----+-----+------+------+
-> | READ  | ICF | IAAS | IBB | IAL  |  0  | SRW | IIF  | RXAK |
-> +-------+-----+------+-----+------+-----+-----+------+------+
-> | WRITE |  -  |  -   |  -  | W0C  |  -  |  -  | W0C  |  -   |
-> +-------+-----+------+-----+-^^^--+-----+-----+-^^^--+------+
->=20
->=20
-> > ... the status quo (i.e. without your patch) is:
-> >
-> >   On i.MX IAL is cleared
->=20
-> Yes
->=20
-> >   On Vybrid IIF (which is called IBIF there) is cleared.
-> If IBIF is set, then it's cleared (probably by accident).
-> But in the "if (temp & I2SR_IAL)" condition, I focus on
-> the IBAL flag, not IBIF.
->=20
-> > With your patch we get:
-> >
-> >   On i.MX IAL is cleared
->=20
-> Yes
->=20
-> >   On Vybrid both IIF (aka IBIF) and IAL (aka IBAL) are cleared.
-> Agree. IBAL is cleared by intention, IBIF by accident (if set).
-> Do you see any problem if IBIF is also cleared?
+> ---
+>   drivers/gpu/drm/panfrost/panfrost_job.c | 64 +++++++++++++++++++++----
+>   1 file changed, 55 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/panfrost/panfrost_job.c b/drivers/gpu/drm/panfrost/panfrost_job.c
+> index 30e7b7196dab..6e4bfb938fab 100644
+> --- a/drivers/gpu/drm/panfrost/panfrost_job.c
+> +++ b/drivers/gpu/drm/panfrost/panfrost_job.c
+> @@ -25,7 +25,8 @@
+>   
+>   struct panfrost_queue_state {
+>   	struct drm_gpu_scheduler sched;
+> -
+> +	bool stopped;
+> +	struct mutex lock;
+>   	u64 fence_context;
+>   	u64 emit_seqno;
+>   };
+> @@ -369,6 +370,24 @@ void panfrost_job_enable_interrupts(struct panfrost_device *pfdev)
+>   	job_write(pfdev, JOB_INT_MASK, irq_mask);
+>   }
+>   
+> +static bool panfrost_scheduler_stop(struct panfrost_queue_state *queue,
+> +				    struct drm_sched_job *bad)
+> +{
+> +	bool stopped = false;
+> +
+> +	mutex_lock(&queue->lock);
+> +	if (!queue->stopped) {
+> +		drm_sched_stop(&queue->sched, bad);
+> +		if (bad)
+> +			drm_sched_increase_karma(bad);
+> +		queue->stopped = true;
+> +		stopped = true;
+> +	}
+> +	mutex_unlock(&queue->lock);
+> +
+> +	return stopped;
+> +}
+> +
+>   static void panfrost_job_timedout(struct drm_sched_job *sched_job)
+>   {
+>   	struct panfrost_job *job = to_panfrost_job(sched_job);
+> @@ -392,19 +411,41 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
+>   		job_read(pfdev, JS_TAIL_LO(js)),
+>   		sched_job);
+>   
+> +	/* Scheduler is already stopped, nothing to do. */
+> +	if (!panfrost_scheduler_stop(&pfdev->js->queue[js], sched_job))
+> +		return;
+> +
+>   	if (!mutex_trylock(&pfdev->reset_lock))
+>   		return;
+>   
+> +	mutex_lock(&pfdev->sched_lock);
+>   	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+>   		struct drm_gpu_scheduler *sched = &pfdev->js->queue[i].sched;
+>   
+> -		drm_sched_stop(sched, sched_job);
+> -		if (js != i)
+> -			/* Ensure any timeouts on other slots have finished */
+> +		/*
+> +		 * If the queue is still active, make sure we wait for any
+> +		 * pending timeouts.
+> +		 */
+> +		if (!pfdev->js->queue[i].stopped)
+>   			cancel_delayed_work_sync(&sched->work_tdr);
+> -	}
+>   
+> -	drm_sched_increase_karma(sched_job);
+> +		/*
+> +		 * If the scheduler was not already stopped, there's a tiny
+> +		 * chance a timeout has expired just before we stopped it, and
+> +		 * drm_sched_stop() does not flush pending works. Let's flush
+> +		 * them now so the timeout handler doesn't get called in the
+> +		 * middle of a reset.
+> +		 */
+> +		if (panfrost_scheduler_stop(&pfdev->js->queue[i], NULL))
+> +			cancel_delayed_work_sync(&sched->work_tdr);
+> +
+> +		/*
+> +		 * Now that we cancelled the pending timeouts, we can safely
+> +		 * reset the stopped state.
+> +		 */
+> +		pfdev->js->queue[i].stopped = false;
+> +	}
+> +	mutex_unlock(&pfdev->sched_lock);
+>   
+>   	spin_lock_irqsave(&pfdev->js->job_lock, flags);
+>   	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+> @@ -421,11 +462,11 @@ static void panfrost_job_timedout(struct drm_sched_job *sched_job)
+>   	for (i = 0; i < NUM_JOB_SLOTS; i++)
+>   		drm_sched_resubmit_jobs(&pfdev->js->queue[i].sched);
+>   
+> +	mutex_unlock(&pfdev->reset_lock);
+> +
+>   	/* restart scheduler after GPU is usable again */
+>   	for (i = 0; i < NUM_JOB_SLOTS; i++)
+>   		drm_sched_start(&pfdev->js->queue[i].sched, true);
+> -
+> -	mutex_unlock(&pfdev->reset_lock);
+>   }
+>   
+>   static const struct drm_sched_backend_ops panfrost_sched_ops = {
+> @@ -558,6 +599,7 @@ int panfrost_job_open(struct panfrost_file_priv *panfrost_priv)
+>   	int ret, i;
+>   
+>   	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+> +		mutex_init(&js->queue[i].lock);
+>   		sched = &js->queue[i].sched;
+>   		ret = drm_sched_entity_init(&panfrost_priv->sched_entity[i],
+>   					    DRM_SCHED_PRIORITY_NORMAL, &sched,
+> @@ -570,10 +612,14 @@ int panfrost_job_open(struct panfrost_file_priv *panfrost_priv)
+>   
+>   void panfrost_job_close(struct panfrost_file_priv *panfrost_priv)
+>   {
+> +	struct panfrost_device *pfdev = panfrost_priv->pfdev;
+> +	struct panfrost_job_slot *js = pfdev->js;
+>   	int i;
+>   
+> -	for (i = 0; i < NUM_JOB_SLOTS; i++)
+> +	for (i = 0; i < NUM_JOB_SLOTS; i++) {
+>   		drm_sched_entity_destroy(&panfrost_priv->sched_entity[i]);
+> +		mutex_destroy(&js->queue[i].lock);
+> +	}
+>   }
+>   
+>   int panfrost_job_is_idle(struct panfrost_device *pfdev)
+> 
 
-Yes. If there is a real problem I'm not sure, but it's enough of an
-issue that there are possible side effects on Vybrid. I refuse to think
-about real problems given that it is so easy to make it right.
-
-> > To get it right for both SoC types you have to do (e.g.):
-> >
-> >       temp =3D ~i2c_imx->hwdata->i2sr_clr_opcode ^ I2SR_IAL;
-> Sorry, even if this is correct, it looks hard to understand for me.
-
-Maybe a comment would be appropriate, something like:
-
-	/*
-	 * i2sr_clr_opcode is the value to clear all interrupts. Here we
-	 * want to clear no irq but I2SR_IAL, so we write
-	 * ~i2sr_clr_opcode with just the I2SR_IAL bit toggled.
-	 */
-
-Maybe put this comment together with the code in a new function to have
-it only once.
-
-> > (and in i2c_imx_isr() the same using I2SR_IIF instead of I2SR_IAL
-> > because there currently IAL might be cleared by mistake on Vybrid).
-> >
-> > I considered creating a patch, but as I don't have a Vybrid on my desk
-> > and on i.MX there is no change, I let you do this.
-> I also don't own a Vybrid system. I consider my patch correct in terms of
-> clearing the IBAL flag (which was wrong before). Additional work may be
-> useful for NOT clearing the other status flag. I also would like to keep
-> this task for somebody who owns a Vybrid system. But the other patches
-> in this series fixes some more important problems, so maybe you could
-> give your acknowledge anyhow.
-
-No, please don't replace one bug found by another (now) known bug. Still
-more given that the newly introduced bug is much harder to trigger and
-debug.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---uqr4haxxluzemvr6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAl92/wwACgkQwfwUeK3K
-7Ak+DQf+MaEPQEwnlM7sKbV4xz4LkhYuGPFg3gJMv+4MPztBTEFbTmc7y5bhSFph
-EkZi5lD5o/jQ9xpF+LAADxyqq7eAXf40F5evbDbSyWVEuX0DPq1xzfqrTtvokMD9
-/bPOob4mFC6PHMgDhu3zHE+lhyfqEMa6/2711JPxoR0XkjZeqlCSv7E8+cY4i/2t
-t1R8iWsTq3TqaKaTOuyI0KlAztBhaG/3r5Dbl3UQYNxBYPrlMlRobJz0Fb7ns8zO
-J0Uwc/iGltNEylkpcP2X/PNhtT4CVmuwnSr4SdABszrKanW1vHRgv9z9sr2Btp+V
-jGP50C5G5EWpQmzKQ9a4Qh7XAhFcAQ==
-=SLBO
------END PGP SIGNATURE-----
-
---uqr4haxxluzemvr6--
