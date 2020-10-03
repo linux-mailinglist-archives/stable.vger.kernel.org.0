@@ -2,88 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D600F28246D
-	for <lists+stable@lfdr.de>; Sat,  3 Oct 2020 16:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05FB728247E
+	for <lists+stable@lfdr.de>; Sat,  3 Oct 2020 16:16:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725790AbgJCODP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Oct 2020 10:03:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58684 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725782AbgJCODP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 3 Oct 2020 10:03:15 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA743206A5;
-        Sat,  3 Oct 2020 14:03:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601733793;
-        bh=Aj3puJXg//L/x0hyGhARWUwA7AcKLro9niqPXSVsyyU=;
-        h=Subject:To:From:Date:From;
-        b=P4H43SiGZp4ZHkgVKpKMFm+OYSC6KrV4fjgoxXc80rnn2hvaTM4k8OpoDoDVpd3//
-         AX6TrtF/OFHnd3eq39roTyOvOUCe1gAqt7UbSykbNNctbrmj8X3OwrMN0yOgablVYt
-         pVB7NhW23Dgcd4rUEzbeIo3mhfoKlhU9jjlqlsyU=
-Subject: patch "usb: gadget: bcm63xx_udc: fix up the error of undeclared" added to usb-testing
-To:     chunfeng.yun@mediatek.com, balbi@kernel.org, lkp@intel.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 03 Oct 2020 16:01:30 +0200
-Message-ID: <1601733690234135@kroah.com>
+        id S1725801AbgJCOQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Oct 2020 10:16:06 -0400
+Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.50]:17477 "EHLO
+        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725782AbgJCOQF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Oct 2020 10:16:05 -0400
+X-Greylist: delayed 345 seconds by postgrey-1.27 at vger.kernel.org; Sat, 03 Oct 2020 10:16:04 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1601734563;
+        s=strato-dkim-0002; d=goldelico.com;
+        h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=McyS+Bgb2m8s8GrMk1FFTfyKbA2jen/QdtExTM2Ir3Y=;
+        b=ny9Od2Q3z3oub5FGrMunr/Pg++Oij1+pu5kPHZ8mrfRL+PmSWbczBiSbRJe8H/oDCS
+        TdpFYf0ZeqbJ8pUDjGKuCb+Ch3NGakS7826LiouiTGl8eaEhH5BkgVkHNujBgk+B51NJ
+        fEoUyBAEBm2CLlhNJcIz0GBgxXZkzXs923GUzSY8sYLWm44gbkodvBfgFkG0Jv05dbdK
+        jXW/180rHMCr89EbfrFHwi6yi1md6XPGwrarzLDhFNw/uzunRjv+4Dq6Chr45OD6ePeJ
+        xOUO7nQ+FNp6ELllpKJu4twNkvi4LaiIxAz38pq/T1Ygk/DTuKaFSsyfb2CEIT1c+tFN
+        bxew==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9o12DNOsPj0pDzZw9i90="
+X-RZG-CLASS-ID: mo00
+Received: from iMac.fritz.box
+        by smtp.strato.de (RZmta 47.2.1 DYNA|AUTH)
+        with ESMTPSA id 3005f6w93EA23C3
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Sat, 3 Oct 2020 16:10:02 +0200 (CEST)
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+To:     =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org,
+        kernel@pyra-handheld.com,
+        "H. Nikolaus Schaller" <hns@goldelico.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] ARM: dts: pandaboard: fix pinmux for gpio user button of Pandaboard ES
+Date:   Sat,  3 Oct 2020 16:10:00 +0200
+Message-Id: <b4ce58e4350e460d544ee25938428b363c157496.1601734200.git.hns@goldelico.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <cover.1601734200.git.hns@goldelico.com>
+References: <cover.1601734200.git.hns@goldelico.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The pinmux control register offset passed to OMAP4_IOPAD is odd.
 
-This is a note to let you know that I've just added the patch titled
-
-    usb: gadget: bcm63xx_udc: fix up the error of undeclared
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 5b35dd1a5a666329192a9616ec21098591259058 Mon Sep 17 00:00:00 2001
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Date: Mon, 14 Sep 2020 14:17:30 +0800
-Subject: usb: gadget: bcm63xx_udc: fix up the error of undeclared
- usb_debug_root
-
-Fix up the build error caused by undeclared usb_debug_root
-
-Cc: stable <stable@vger.kernel.org>
-Fixes: a66ada4f241c ("usb: gadget: bcm63xx_udc: create debugfs directory under usb root")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: ab9a13665e7c ("ARM: dts: pandaboard: add gpio user button")
+Cc: stable@vger.kernel.org
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 ---
- drivers/usb/gadget/udc/bcm63xx_udc.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/omap4-panda-es.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/bcm63xx_udc.c b/drivers/usb/gadget/udc/bcm63xx_udc.c
-index feaec00a3c16..9cd4a70ccdd6 100644
---- a/drivers/usb/gadget/udc/bcm63xx_udc.c
-+++ b/drivers/usb/gadget/udc/bcm63xx_udc.c
-@@ -26,6 +26,7 @@
- #include <linux/seq_file.h>
- #include <linux/slab.h>
- #include <linux/timer.h>
-+#include <linux/usb.h>
- #include <linux/usb/ch9.h>
- #include <linux/usb/gadget.h>
- #include <linux/workqueue.h>
+diff --git a/arch/arm/boot/dts/omap4-panda-es.dts b/arch/arm/boot/dts/omap4-panda-es.dts
+index cfa85aa3da085e..6afa8fd7c412de 100644
+--- a/arch/arm/boot/dts/omap4-panda-es.dts
++++ b/arch/arm/boot/dts/omap4-panda-es.dts
+@@ -46,7 +46,7 @@ OMAP4_IOPAD(0x0f6, PIN_OUTPUT | MUX_MODE3)	/* gpio_110 */
+ 
+ 	button_pins: pinmux_button_pins {
+ 		pinctrl-single,pins = <
+-			OMAP4_IOPAD(0x11b, PIN_INPUT_PULLUP | MUX_MODE3) /* gpio_113 */
++			OMAP4_IOPAD(0x0fc, PIN_INPUT_PULLUP | MUX_MODE3) /* gpio_113 */
+ 		>;
+ 	};
+ };
 -- 
-2.28.0
-
+2.26.2
 
