@@ -2,96 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A46042821FC
-	for <lists+stable@lfdr.de>; Sat,  3 Oct 2020 09:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D69DC28225C
+	for <lists+stable@lfdr.de>; Sat,  3 Oct 2020 10:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725648AbgJCH1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Oct 2020 03:27:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41922 "EHLO
+        id S1725648AbgJCIER (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Oct 2020 04:04:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725446AbgJCH1M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 3 Oct 2020 03:27:12 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA1BC0613D0
-        for <stable@vger.kernel.org>; Sat,  3 Oct 2020 00:27:12 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id l24so4147446edj.8
-        for <stable@vger.kernel.org>; Sat, 03 Oct 2020 00:27:12 -0700 (PDT)
+        with ESMTP id S1725601AbgJCIER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 3 Oct 2020 04:04:17 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDBBC0613D0
+        for <stable@vger.kernel.org>; Sat,  3 Oct 2020 01:04:16 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id x14so4189099wrl.12
+        for <stable@vger.kernel.org>; Sat, 03 Oct 2020 01:04:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=l8o/PxZLRUsXqbfQdaHQ/PhODuJFQTqIyS1z/DNGmXE=;
-        b=D/k/Qk2YXeoj+7YlSblfu42qQ96jeCegjYe+M82BOcQGbXSGL7w0QqvmEUFZp/Ljvv
-         VHWkvoAATN4J94vyN9g32m/iyEFHQRJDiFtpKIMhInFKzLFap3o271I6zYv+vhkFY5Z2
-         4abRaixLsmNqcecu589vhCo/HB1g3dInE+TRA7I5XnifxjzhUFg3rvu0iNk6k0ZRYmbC
-         vkUDv5AqFlVhml3A/5Pf1ftUN4ybJJiLoyHuLUvjFw1WFG2Iu47xa52XIeD/efkuGY2k
-         Bq0PLGXmwDJ6tTyj6NY+GXEFUaWYHrWWUPK6fiKCbrXRYStQ6fsuDTvOgxFEqAxJTzey
-         1yug==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=GZO9bx8U7uWxjhtvr3OaoqvJXPdgv7Clt6fMk6eQgZY=;
+        b=L8k9MCV5jezG4FGBbdcexnl9WjCe9vst31P56jLJleU3AcW2Xp18imjOBSpZ1BIt6I
+         kBCxj4D0rBDvKCfTbsZnt4arE372Jyx0449Ai1uheoEJliqAaiA6h/aaxNsHqJFul+k5
+         FN0R7OK7q/DteM+ytDxwPBnH6j3Qh85dbfYPDL7LaHdnbCAXzBbZJivdAir5q9otW1P1
+         TOANWs5SKvcrAZ6KILZ4G+i4VLfU1yyl9wRl+lC9cyNjd1NYTm+W5qI2wrU67Vghfx+U
+         3pS2D8zOSEvmEzyQ4VXAd8MCpACW7pVEFn2PW8ljoA59I3cjb8u7GQzvxWubA6fbdu38
+         1+uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=l8o/PxZLRUsXqbfQdaHQ/PhODuJFQTqIyS1z/DNGmXE=;
-        b=oU7vlHC7b9HUsR8/L3zXErdTPPO5j7LISRzgXA6B7M82fBl80mgsIbBuMtI8WJe40o
-         hAuqKOLIX7IL3wq0DciYBSei21j/5mJxhQIrgaVvw5rAcceWgatnPu10qHzotT010flN
-         WmMvB3q0oBT9xKhLbqg6NZ+c4+qltqhRlrzplYJc61i9bwqv0QDcrXN2NsTs7P42I0qm
-         uNGlGc4A9oC5Bzh59bIm53lEOOWXB9qu/z9aqwCDIx40xOfB5reZ6Q2z5ZQWU1xwE+rJ
-         fHIkXmkXQktr5qXUeg8ISKzRe0F4yjq14BBoote+1sLgNUXKsySVaWpBKbiOX0UrewEp
-         NWkA==
-X-Gm-Message-State: AOAM530xc3yeGoWQlRvYL3FeCEPIV+SzsNDmJ2rScy6pZEInk7ZNURY4
-        k4eNeGdi3OuHtznwcD5ImXcx+w8vWGERuZ1xqQ==
-X-Google-Smtp-Source: ABdhPJwUi5E34hoBLkPBxEArxDaDvrGSFZV8vuVjFCMaOQt1EDieXquOYU7/RT2g8FdI47Bz+f8g9KO285orF1jt1ss=
-X-Received: by 2002:a05:6402:1012:: with SMTP id c18mr6823602edu.77.1601710031220;
- Sat, 03 Oct 2020 00:27:11 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=GZO9bx8U7uWxjhtvr3OaoqvJXPdgv7Clt6fMk6eQgZY=;
+        b=J6rSLH1FoG+0cDxrVtGCTIz8kj+iShHX+bNgicwqBmFnELYIPyQAIAWKYT3O8bGi9g
+         PkOMc0Hw8O/rHevJcznIbvYY+nrJollYTGvURaDA0sO006XkF1grJutvdXok3BB9AyT0
+         qaSQL10QxJVZOOe9t42WVBZ1Yf4l+kzhntke4WL+PXj14kq6JQ13qDXIus7Ix9slF4zz
+         g/UVZnRbNNyuE99UH6JsE3bSaN1+wA+dVu71bwRUkR5KjpBxqi6NFcVQBx3by8MozfM5
+         T1dN+vJu67ephlTlCLT6FDlLWo23AmEpv7exLYUYlbdWBEAv96D8UxchJDWjwkJglCN7
+         9a6w==
+X-Gm-Message-State: AOAM530fODTn4YByKNh+QKmREpMOOxBDZfhMFbyps86IEAbgTMMHS50A
+        chKf6Wa8njZO5xqHGzwXFMiuSWoTLs44LELNQ+0=
+X-Google-Smtp-Source: ABdhPJx1bzBJRd65sHsso2J/Nwz5YexWL0cb56yFwuGhbwypvC83byyYKI4wJkKSFczLcWh7zqLD5y4S3tyR5e6H8XY=
+X-Received: by 2002:adf:f44d:: with SMTP id f13mr6968067wrp.224.1601712255551;
+ Sat, 03 Oct 2020 01:04:15 -0700 (PDT)
 MIME-Version: 1.0
-Sender: chantalstark91@gmail.com
-Received: by 2002:ab4:a884:0:0:0:0:0 with HTTP; Sat, 3 Oct 2020 00:27:10 -0700 (PDT)
-From:   Donna Louise <donnamcinneslouise@gmail.com>
-Date:   Fri, 2 Oct 2020 19:27:10 -1200
-X-Google-Sender-Auth: wj4nj5oQgYronwKFbP2aV7cg7-w
-Message-ID: <CAOzO0HSsHER5qhO0Mb=hkfaDbszu1wumzo-LUGOtq9oAN7OKsg@mail.gmail.com>
-Subject: Hello,
+Received: by 2002:a7b:c042:0:0:0:0:0 with HTTP; Sat, 3 Oct 2020 01:04:15 -0700 (PDT)
+Reply-To: aishaelgaddafi@hotmail.com
+From:   aisha elgaddfi <aishaeelgaddafi@gmail.com>
+Date:   Sat, 3 Oct 2020 09:04:15 +0100
+Message-ID: <CABS4X6N_Qk+4ZtPBsk=H583pdRQubgLNzzd=BTYZRaxzuettpg@mail.gmail.com>
+Subject: Can I invest in your country from Mrs. Aisha El Gaddafi?
 To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
- Dear Friend,
+Dear Friend,
 
-  I am glad to know you, but God knows you better and he knows why he
-has directed me to you at this point in time so do not be surprised at
-all. My name is Mrs. Donna Louise McInnes, a widow, i have been
-suffering from ovarian cancer disease. At this moment i am about to
-end the race like this because the illness has gotten to a very bad
-stage, without any family members and no child. I hope that you will
-not expose or betray this trust and confidence that I am about to
-entrust to you for the mutual benefit of the orphans and the less
-privileged ones. I have some funds I inherited from my late husband,
-the sum of ($11.000.000 Eleven million dollars.) deposited in the
-Bank.  Having known my present health status, I decided to entrust
-this fund to you believing that you will utilize it the way i am going
-to instruct herein.
+Please I want you to exercise some patience going through this mail so
+that it will enable you have good understanding. Meanwhile I will
+appreciate you to ignore and delete this mail from your mail box if
+you are not interested been my partner for the investment project in
+your country.
 
-Therefore I need you to assist me and reclaim this money and use it
-for Charity works, for orphanages and giving justice and help to the
-poor, needy and to promote the words of God and the effort that the
-house of God will be maintained says The Lord." Jeremiah 22:15-16.=E2=80=9C
+I came across your e-mail contact prior a private search while in need
+of your assistance. My name is Mrs Aisha El Gaddafi a single Mother
+and a Widow with three Children. I am the only biological Daughter of
+late Libyan President (Late Colonel Muammar Gaddafi).
 
-It will be my great pleasure to compensate you with 35 % percent of
-the total money for your personal use, 5 % percent for any expenses
-that may occur during the international transfer process while 60% of
-the money will go to the charity project.
+I have investment funds worth Thirty  Million Five Hundred Thousand
+United State Dollar ($30,500,000.00 ) and i need a trusted investment
+Manager/Partner because of my current refugee status, however, I am
+interested in you for investment project assistance in your country,
+may be from there, we can build business relationship in the nearest
+future.
 
-All I require from you is sincerity and the ability to complete God's
-task without any failure. It will be my pleasure to see that the bank
-has finally released and transferred the fund into your bank account
-therein your country even before I die here in the hospital, because
-of my present health status everything needs to be processed rapidly
-as soon as possible. I am waiting for your immediate reply, if only
-you are interested for further details of the transaction and
-execution of this charitable project.
+About me and the reason why I am now in Burkina Faso as you can read
+more in the linked below Please inter the link to read and know more
+about me and the reason why I contacted you.
 
-Best Regards your friend Mrs.
-Donna Louise McInnes.
+http://www.telegraph.co.uk/news/worldnews/africaandindianocean/libya/9967203/Gaddafis-daughter-thrown-out-of-Algeria-after-she-set-fire-to-presidential-residence.html
+
+I am willing to negotiate investment/business profit sharing ratio
+with you base on the future investment earning profits. If you are
+willing to handle this project on my behalf kindly reply urgent to
+enable me provide you more information about the investment funds.
+
+For your information, My late father also deposited 37kg of (GOLD) in
+Accra Ghana a neighboring country from where i am presently now.  My
+plan is after claiming this fund, we will have enough fund to move for
+the claim of the GOLD.
+
+Your Urgent Reply Will Be Appreciated. contact me at this email  address
+( aishaelgaddafi@hotmail.com ) for further discussion.
+
+Best Regards
+Mrs Aisha El Gaddafi
