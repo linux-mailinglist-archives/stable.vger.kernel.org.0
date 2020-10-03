@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44D6D2823BA
-	for <lists+stable@lfdr.de>; Sat,  3 Oct 2020 12:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94CE3282464
+	for <lists+stable@lfdr.de>; Sat,  3 Oct 2020 15:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725791AbgJCK6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 3 Oct 2020 06:58:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45164 "EHLO mail.kernel.org"
+        id S1725782AbgJCN7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 3 Oct 2020 09:59:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725765AbgJCK6a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 3 Oct 2020 06:58:30 -0400
+        id S1725781AbgJCN7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 3 Oct 2020 09:59:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 611C3206CD;
-        Sat,  3 Oct 2020 10:58:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34AE0206CD;
+        Sat,  3 Oct 2020 13:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601722709;
-        bh=GsMi+G1zfr/9ZYn1Tut3acAxr2mlg6DZ9Jku04ieYOs=;
+        s=default; t=1601733592;
+        bh=CMVM+i4EaN5ERIDcBBUDDkZUIPHjnduMTPaS/yqBIkg=;
         h=Subject:To:From:Date:From;
-        b=P7WbMrh7hP450gGIGGbkq/sPtsoY4IyrleP/1zI+S3pzFnJOPL/YAWzBOZ0LzZQxQ
-         7x68O2elflkEpEMnCVSnT50bmq0C+RQTFTCwMsjMDct9aPgcfWt+0ZXn6bWCSEqgpC
-         c2hOd+eWndbPqe79eX6lbI8nPsWcsJ7TjGFeCqBI=
-Subject: patch "USB: cdc-wdm: Make wdm_flush() interruptible and add wdm_fsync()." added to usb-next
-To:     oneukum@suse.com, gregkh@linuxfoundation.org,
-        penguin-kernel@I-love.SAKURA.ne.jp, stable@vger.kernel.org,
-        stern@rowland.harvard.edu,
-        syzbot+854768b99f19e89d7f81@syzkaller.appspotmail.com
+        b=qc7LIxLQluOJm+/z6dxTGMWGRi9sxMpGG5WV0nLqTqJWheAuRwnyvtu1FTKbBj7N/
+         ui5zFNWWLZq1cqqZfm3xwkokxDcwE+tnX4JUOMuF7wC43Qo+EvKH0rwbmx80WPnOO/
+         cpS0PxzzBvPoxetmodFS/ombK069yLzg5+YTOKBo=
+Subject: patch "usb: cdns3: gadget: free interrupt after gadget has deleted" added to usb-testing
+To:     peter.chen@nxp.com, balbi@kernel.org, rogerq@ti.com,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 03 Oct 2020 12:55:49 +0200
-Message-ID: <1601722549169225@kroah.com>
+Date:   Sat, 03 Oct 2020 16:00:34 +0200
+Message-ID: <160173363418990@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,203 +39,105 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: cdc-wdm: Make wdm_flush() interruptible and add wdm_fsync().
+    usb: cdns3: gadget: free interrupt after gadget has deleted
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+in the usb-testing branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
 If you have any questions about this process, please let me know.
 
 
-From 37d2a36394d954413a495da61da1b2a51ecd28ab Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Mon, 28 Sep 2020 23:17:55 +0900
-Subject: USB: cdc-wdm: Make wdm_flush() interruptible and add wdm_fsync().
+From 98df91f8840cf750a0bc7c4c5d6b6085bac945b3 Mon Sep 17 00:00:00 2001
+From: Peter Chen <peter.chen@nxp.com>
+Date: Tue, 1 Sep 2020 10:35:49 +0800
+Subject: usb: cdns3: gadget: free interrupt after gadget has deleted
 
-syzbot is reporting hung task at wdm_flush() [1], for there is a circular
-dependency that wdm_flush() from flip_close() for /dev/cdc-wdm0 forever
-waits for /dev/raw-gadget to be closed while close() for /dev/raw-gadget
-cannot be called unless close() for /dev/cdc-wdm0 completes.
+The interrupt may occur during the gadget deletion, it fixes the
+below oops.
 
-Tetsuo Handa considered that such circular dependency is an usage error [2]
-which corresponds to an unresponding broken hardware [3]. But Alan Stern
-responded that we should be prepared for such hardware [4]. Therefore,
-this patch changes wdm_flush() to use wait_event_interruptible_timeout()
-which gives up after 30 seconds, for hardware that remains silent must be
-ignored. The 30 seconds are coming out of thin air.
+[ 2394.974604] configfs-gadget gadget: suspend
+[ 2395.042578] configfs-gadget 5b130000.usb: unregistering UDC driver [g1]
+[ 2395.382562] irq 229: nobody cared (try booting with the "irqpoll" option)
+[ 2395.389362] CPU: 0 PID: 301 Comm: kworker/u12:6 Not tainted 5.8.0-rc3-next-20200703-00060-g2f13b83cbf30-dirty #456
+[ 2395.399712] Hardware name: Freescale i.MX8QM MEK (DT)
+[ 2395.404782] Workqueue: 2-0051 tcpm_state_machine_work
+[ 2395.409832] Call trace:
+[ 2395.412289]  dump_backtrace+0x0/0x1d0
+[ 2395.415950]  show_stack+0x1c/0x28
+[ 2395.419271]  dump_stack+0xbc/0x118
+[ 2395.422678]  __report_bad_irq+0x50/0xe0
+[ 2395.426513]  note_interrupt+0x2cc/0x38c
+[ 2395.430355]  handle_irq_event_percpu+0x88/0x90
+[ 2395.434800]  handle_irq_event+0x4c/0xe8
+[ 2395.438640]  handle_fasteoi_irq+0xbc/0x168
+[ 2395.442740]  generic_handle_irq+0x34/0x48
+[ 2395.446752]  __handle_domain_irq+0x68/0xc0
+[ 2395.450846]  gic_handle_irq+0x64/0x150
+[ 2395.454596]  el1_irq+0xb8/0x180
+[ 2395.457733]  __do_softirq+0xac/0x3b8
+[ 2395.461310]  irq_exit+0xc0/0xe0
+[ 2395.464448]  __handle_domain_irq+0x6c/0xc0
+[ 2395.468540]  gic_handle_irq+0x64/0x150
+[ 2395.472295]  el1_irq+0xb8/0x180
+[ 2395.475436]  _raw_spin_unlock_irqrestore+0x14/0x48
+[ 2395.480232]  usb_gadget_disconnect+0x120/0x140
+[ 2395.484678]  usb_gadget_remove_driver+0xb4/0xd0
+[ 2395.489208]  usb_del_gadget+0x6c/0xc8
+[ 2395.492872]  cdns3_gadget_exit+0x5c/0x120
+[ 2395.496882]  cdns3_role_stop+0x60/0x90
+[ 2395.500634]  cdns3_role_set+0x64/0xd8
+[ 2395.504301]  usb_role_switch_set_role.part.0+0x3c/0x90
+[ 2395.509444]  usb_role_switch_set_role+0x20/0x30
+[ 2395.513978]  tcpm_mux_set+0x60/0xf8
+[ 2395.517470]  tcpm_reset_port+0xa4/0xf0
+[ 2395.521222]  tcpm_detach.part.0+0x44/0x50
+[ 2395.525227]  tcpm_state_machine_work+0x8b0/0x2360
+[ 2395.529932]  process_one_work+0x1c8/0x470
+[ 2395.533939]  worker_thread+0x50/0x420
+[ 2395.537603]  kthread+0x148/0x168
+[ 2395.540830]  ret_from_fork+0x10/0x18
+[ 2395.544399] handlers:
+[ 2395.546671] [<000000008dea28da>] cdns3_wakeup_irq
+[ 2395.551375] [<000000009fee5c61>] cdns3_drd_irq threaded [<000000005148eaec>] cdns3_drd_thread_irq
+[ 2395.560255] Disabling IRQ #229
+[ 2395.563454] configfs-gadget gadget: unbind function 'Mass Storage Function'/000000000132f835
+[ 2395.563657] configfs-gadget gadget: unbind
+[ 2395.563917] udc 5b130000.usb: releasing '5b130000.usb'
 
-Changing wait_event() to wait_event_interruptible_timeout() makes error
-reporting from close() syscall less reliable. To compensate it, this patch
-also implements wdm_fsync() which does not use timeout. Those who want to
-be very sure that data has gone out to the device are now advised to call
-fsync(), with a caveat that fsync() can return -EINVAL when running on
-older kernels which do not implement wdm_fsync().
-
-This patch also fixes three more problems (listed below) found during
-exhaustive discussion and testing.
-
-  Since multiple threads can concurrently call wdm_write()/wdm_flush(),
-  we need to use wake_up_all() whenever clearing WDM_IN_USE in order to
-  make sure that all waiters are woken up. Also, error reporting needs
-  to use fetch-and-clear approach in order not to report same error for
-  multiple times.
-
-  Since wdm_flush() checks WDM_DISCONNECTING, wdm_write() should as well
-  check WDM_DISCONNECTING.
-
-  In wdm_flush(), since locks are not held, it is not safe to dereference
-  desc->intf after checking that WDM_DISCONNECTING is not set [5]. Thus,
-  remove dev_err() from wdm_flush().
-
-[1] https://syzkaller.appspot.com/bug?id=e7b761593b23eb50855b9ea31e3be5472b711186
-[2] https://lkml.kernel.org/r/27b7545e-8f41-10b8-7c02-e35a08eb1611@i-love.sakura.ne.jp
-[3] https://lkml.kernel.org/r/79ba410f-e0ef-2465-b94f-6b9a4a82adf5@i-love.sakura.ne.jp
-[4] https://lkml.kernel.org/r/20200530011040.GB12419@rowland.harvard.edu
-[5] https://lkml.kernel.org/r/c85331fc-874c-6e46-a77f-0ef1dc075308@i-love.sakura.ne.jp
-
-Reported-by: syzbot <syzbot+854768b99f19e89d7f81@syzkaller.appspotmail.com>
-Cc: stable <stable@vger.kernel.org>
-Co-developed-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200928141755.3476-1-penguin-kernel@I-love.SAKURA.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Cc: <stable@vger.kernel.org>
+Acked-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 ---
- drivers/usb/class/cdc-wdm.c | 72 ++++++++++++++++++++++++++++---------
- 1 file changed, 55 insertions(+), 17 deletions(-)
+ drivers/usb/cdns3/gadget.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
-index 7f5de956a2fc..02d0cfd23bb2 100644
---- a/drivers/usb/class/cdc-wdm.c
-+++ b/drivers/usb/class/cdc-wdm.c
-@@ -58,6 +58,9 @@ MODULE_DEVICE_TABLE (usb, wdm_ids);
+diff --git a/drivers/usb/cdns3/gadget.c b/drivers/usb/cdns3/gadget.c
+index dea649ee173b..02a69e20014b 100644
+--- a/drivers/usb/cdns3/gadget.c
++++ b/drivers/usb/cdns3/gadget.c
+@@ -2990,12 +2990,12 @@ void cdns3_gadget_exit(struct cdns3 *cdns)
  
- #define WDM_MAX			16
+ 	priv_dev = cdns->gadget_dev;
  
-+/* we cannot wait forever at flush() */
-+#define WDM_FLUSH_TIMEOUT	(30 * HZ)
-+
- /* CDC-WMC r1.1 requires wMaxCommand to be "at least 256 decimal (0x100)" */
- #define WDM_DEFAULT_BUFSIZE	256
+-	devm_free_irq(cdns->dev, cdns->dev_irq, priv_dev);
  
-@@ -151,7 +154,7 @@ static void wdm_out_callback(struct urb *urb)
- 	kfree(desc->outbuf);
- 	desc->outbuf = NULL;
- 	clear_bit(WDM_IN_USE, &desc->flags);
--	wake_up(&desc->wait);
-+	wake_up_all(&desc->wait);
- }
+ 	pm_runtime_mark_last_busy(cdns->dev);
+ 	pm_runtime_put_autosuspend(cdns->dev);
  
- static void wdm_in_callback(struct urb *urb)
-@@ -393,6 +396,9 @@ static ssize_t wdm_write
- 	if (test_bit(WDM_RESETTING, &desc->flags))
- 		r = -EIO;
+ 	usb_del_gadget_udc(&priv_dev->gadget);
++	devm_free_irq(cdns->dev, cdns->dev_irq, priv_dev);
  
-+	if (test_bit(WDM_DISCONNECTING, &desc->flags))
-+		r = -ENODEV;
-+
- 	if (r < 0) {
- 		rv = r;
- 		goto out_free_mem_pm;
-@@ -424,6 +430,7 @@ static ssize_t wdm_write
- 	if (rv < 0) {
- 		desc->outbuf = NULL;
- 		clear_bit(WDM_IN_USE, &desc->flags);
-+		wake_up_all(&desc->wait); /* for wdm_wait_for_response() */
- 		dev_err(&desc->intf->dev, "Tx URB error: %d\n", rv);
- 		rv = usb_translate_errors(rv);
- 		goto out_free_mem_pm;
-@@ -583,28 +590,58 @@ static ssize_t wdm_read
- 	return rv;
- }
+ 	cdns3_free_all_eps(priv_dev);
  
--static int wdm_flush(struct file *file, fl_owner_t id)
-+static int wdm_wait_for_response(struct file *file, long timeout)
- {
- 	struct wdm_device *desc = file->private_data;
-+	long rv; /* Use long here because (int) MAX_SCHEDULE_TIMEOUT < 0. */
-+
-+	/*
-+	 * Needs both flags. We cannot do with one because resetting it would
-+	 * cause a race with write() yet we need to signal a disconnect.
-+	 */
-+	rv = wait_event_interruptible_timeout(desc->wait,
-+			      !test_bit(WDM_IN_USE, &desc->flags) ||
-+			      test_bit(WDM_DISCONNECTING, &desc->flags),
-+			      timeout);
- 
--	wait_event(desc->wait,
--			/*
--			 * needs both flags. We cannot do with one
--			 * because resetting it would cause a race
--			 * with write() yet we need to signal
--			 * a disconnect
--			 */
--			!test_bit(WDM_IN_USE, &desc->flags) ||
--			test_bit(WDM_DISCONNECTING, &desc->flags));
--
--	/* cannot dereference desc->intf if WDM_DISCONNECTING */
-+	/*
-+	 * To report the correct error. This is best effort.
-+	 * We are inevitably racing with the hardware.
-+	 */
- 	if (test_bit(WDM_DISCONNECTING, &desc->flags))
- 		return -ENODEV;
--	if (desc->werr < 0)
--		dev_err(&desc->intf->dev, "Error in flush path: %d\n",
--			desc->werr);
-+	if (!rv)
-+		return -EIO;
-+	if (rv < 0)
-+		return -EINTR;
-+
-+	spin_lock_irq(&desc->iuspin);
-+	rv = desc->werr;
-+	desc->werr = 0;
-+	spin_unlock_irq(&desc->iuspin);
-+
-+	return usb_translate_errors(rv);
-+
-+}
-+
-+/*
-+ * You need to send a signal when you react to malicious or defective hardware.
-+ * Also, don't abort when fsync() returned -EINVAL, for older kernels which do
-+ * not implement wdm_flush() will return -EINVAL.
-+ */
-+static int wdm_fsync(struct file *file, loff_t start, loff_t end, int datasync)
-+{
-+	return wdm_wait_for_response(file, MAX_SCHEDULE_TIMEOUT);
-+}
- 
--	return usb_translate_errors(desc->werr);
-+/*
-+ * Same with wdm_fsync(), except it uses finite timeout in order to react to
-+ * malicious or defective hardware which ceased communication after close() was
-+ * implicitly called due to process termination.
-+ */
-+static int wdm_flush(struct file *file, fl_owner_t id)
-+{
-+	return wdm_wait_for_response(file, WDM_FLUSH_TIMEOUT);
- }
- 
- static __poll_t wdm_poll(struct file *file, struct poll_table_struct *wait)
-@@ -729,6 +766,7 @@ static const struct file_operations wdm_fops = {
- 	.owner =	THIS_MODULE,
- 	.read =		wdm_read,
- 	.write =	wdm_write,
-+	.fsync =	wdm_fsync,
- 	.open =		wdm_open,
- 	.flush =	wdm_flush,
- 	.release =	wdm_release,
 -- 
 2.28.0
 
