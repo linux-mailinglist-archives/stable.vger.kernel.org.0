@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C10E1282936
-	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 08:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13DD0282937
+	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 08:41:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725825AbgJDGlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Oct 2020 02:41:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40122 "EHLO mail.kernel.org"
+        id S1725827AbgJDGlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Oct 2020 02:41:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725822AbgJDGlG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Oct 2020 02:41:06 -0400
+        id S1725822AbgJDGlI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Oct 2020 02:41:08 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31737206C1;
-        Sun,  4 Oct 2020 06:41:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB1A5206A1;
+        Sun,  4 Oct 2020 06:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601793665;
-        bh=UvYA6Fh8NFTvKurTycgYN8joObUXamBLCffeAS0r9q8=;
+        s=default; t=1601793668;
+        bh=jE/6zRmP2c+3pnXG71d4Lk412M5PlYy/QmuyiNhSZL4=;
         h=Subject:To:From:Date:From;
-        b=ujirKiY7tVlTd+TBUeQsMu90zsa29R72Xp6vY8Ew9Rw/fcpzjOY33zXwgqFz8/LZB
-         1OWPYvHVvTuRpc+7gkW7Wb4NdSzijqZdyQQpOmEaFjjulO16MnRu+ZdtSmmbzhMUX8
-         CSvAr24VofGYniQvjvHJyMHxLCxKd5QDfYl4naOk=
-Subject: patch "usb: dwc3: core: don't trigger runtime pm when remove driver" added to usb-next
+        b=X4eTKJxllZ80CdcDUgWRPWJ9noMYuOc2I9rOvuKH4hQzilAJ8A+iaiTEKDGtpY0J7
+         5f6o/NpWYukSE6nKNwBwSzgGfLJ7NhTcgSTl0kJEsKk0GS9aEvf+9JV0MoIKg83mie
+         /furlIAqzTVjMTiRCe+EXJ0BGWICaOAlsNnpJjIg=
+Subject: patch "usb: dwc3: core: add phy cleanup for probe error handling" added to usb-next
 To:     jun.li@nxp.com, balbi@kernel.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 04 Oct 2020 08:39:23 +0200
-Message-ID: <160179356354113@kroah.com>
+Date:   Sun, 04 Oct 2020 08:39:24 +0200
+Message-ID: <16017935645177@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -38,7 +38,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc3: core: don't trigger runtime pm when remove driver
+    usb: dwc3: core: add phy cleanup for probe error handling
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -53,108 +53,44 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 266d0493900ac5d6a21cdbe6b1624ed2da94d47a Mon Sep 17 00:00:00 2001
+From 03c1fd622f72c7624c81b64fdba4a567ae5ee9cb Mon Sep 17 00:00:00 2001
 From: Li Jun <jun.li@nxp.com>
-Date: Tue, 28 Jul 2020 20:42:40 +0800
-Subject: usb: dwc3: core: don't trigger runtime pm when remove driver
+Date: Tue, 28 Jul 2020 20:42:41 +0800
+Subject: usb: dwc3: core: add phy cleanup for probe error handling
 
-No need to trigger runtime pm in driver removal, otherwise if user
-disable auto suspend via sys file, runtime suspend may be entered,
-which will call dwc3_core_exit() again and there will be clock disable
-not balance warning:
+Add the phy cleanup if dwc3 mode init fail, which is the missing part of
+de-init for dwc3 core init.
 
-[ 2026.820154] xhci-hcd xhci-hcd.0.auto: remove, state 4
-[ 2026.825268] usb usb2: USB disconnect, device number 1
-[ 2026.831017] xhci-hcd xhci-hcd.0.auto: USB bus 2 deregistered
-[ 2026.836806] xhci-hcd xhci-hcd.0.auto: remove, state 4
-[ 2026.842029] usb usb1: USB disconnect, device number 1
-[ 2026.848029] xhci-hcd xhci-hcd.0.auto: USB bus 1 deregistered
-[ 2026.865889] ------------[ cut here ]------------
-[ 2026.870506] usb2_ctrl_root_clk already disabled
-[ 2026.875082] WARNING: CPU: 0 PID: 731 at drivers/clk/clk.c:958
-clk_core_disable+0xa0/0xa8
-[ 2026.883170] Modules linked in: dwc3(-) phy_fsl_imx8mq_usb [last
-unloaded: dwc3]
-[ 2026.890488] CPU: 0 PID: 731 Comm: rmmod Not tainted
-5.8.0-rc7-00280-g9d08cca-dirty #245
-[ 2026.898489] Hardware name: NXP i.MX8MQ EVK (DT)
-[ 2026.903020] pstate: 20000085 (nzCv daIf -PAN -UAO BTYPE=--)
-[ 2026.908594] pc : clk_core_disable+0xa0/0xa8
-[ 2026.912777] lr : clk_core_disable+0xa0/0xa8
-[ 2026.916958] sp : ffff8000121b39a0
-[ 2026.920271] x29: ffff8000121b39a0 x28: ffff0000b11f3700
-[ 2026.925583] x27: 0000000000000000 x26: ffff0000b539c700
-[ 2026.930895] x25: 000001d7e44e1232 x24: ffff0000b76fa800
-[ 2026.936208] x23: ffff0000b76fa6f8 x22: ffff800008d01040
-[ 2026.941520] x21: ffff0000b539ce00 x20: ffff0000b7105000
-[ 2026.946832] x19: ffff0000b7105000 x18: 0000000000000010
-[ 2026.952144] x17: 0000000000000001 x16: 0000000000000000
-[ 2026.957456] x15: ffff0000b11f3b70 x14: ffffffffffffffff
-[ 2026.962768] x13: ffff8000921b36f7 x12: ffff8000121b36ff
-[ 2026.968080] x11: ffff8000119e1000 x10: ffff800011bf26d0
-[ 2026.973392] x9 : 0000000000000000 x8 : ffff800011bf3000
-[ 2026.978704] x7 : ffff800010695d68 x6 : 0000000000000252
-[ 2026.984016] x5 : ffff0000bb9881f0 x4 : 0000000000000000
-[ 2026.989327] x3 : 0000000000000027 x2 : 0000000000000023
-[ 2026.994639] x1 : ac2fa471aa7cab00 x0 : 0000000000000000
-[ 2026.999951] Call trace:
-[ 2027.002401]  clk_core_disable+0xa0/0xa8
-[ 2027.006238]  clk_core_disable_lock+0x20/0x38
-[ 2027.010508]  clk_disable+0x1c/0x28
-[ 2027.013911]  clk_bulk_disable+0x34/0x50
-[ 2027.017758]  dwc3_core_exit+0xec/0x110 [dwc3]
-[ 2027.022122]  dwc3_suspend_common+0x84/0x188 [dwc3]
-[ 2027.026919]  dwc3_runtime_suspend+0x74/0x9c [dwc3]
-[ 2027.031712]  pm_generic_runtime_suspend+0x28/0x40
-[ 2027.036419]  genpd_runtime_suspend+0xa0/0x258
-[ 2027.040777]  __rpm_callback+0x88/0x140
-[ 2027.044526]  rpm_callback+0x20/0x80
-[ 2027.048015]  rpm_suspend+0xd0/0x418
-[ 2027.051503]  __pm_runtime_suspend+0x58/0xa0
-[ 2027.055693]  dwc3_runtime_idle+0x7c/0x90 [dwc3]
-[ 2027.060224]  __rpm_callback+0x88/0x140
-[ 2027.063973]  rpm_idle+0x78/0x150
-[ 2027.067201]  __pm_runtime_idle+0x58/0xa0
-[ 2027.071130]  dwc3_remove+0x64/0xc0 [dwc3]
-[ 2027.075140]  platform_drv_remove+0x28/0x48
-[ 2027.079239]  device_release_driver_internal+0xf4/0x1c0
-[ 2027.084377]  driver_detach+0x4c/0xd8
-[ 2027.087954]  bus_remove_driver+0x54/0xa8
-[ 2027.091877]  driver_unregister+0x2c/0x58
-[ 2027.095799]  platform_driver_unregister+0x10/0x18
-[ 2027.100509]  dwc3_driver_exit+0x14/0x1408 [dwc3]
-[ 2027.105129]  __arm64_sys_delete_module+0x178/0x218
-[ 2027.109922]  el0_svc_common.constprop.0+0x68/0x160
-[ 2027.114714]  do_el0_svc+0x20/0x80
-[ 2027.118031]  el0_sync_handler+0x88/0x190
-[ 2027.121953]  el0_sync+0x140/0x180
-[ 2027.125267] ---[ end trace 027f4f8189958f1f ]---
-[ 2027.129976] ------------[ cut here ]------------
-
-Fixes: fc8bb91bc83e ("usb: dwc3: implement runtime PM")
+Fixes: c499ff71ff2a ("usb: dwc3: core: re-factor init and exit paths")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Li Jun <jun.li@nxp.com>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 ---
- drivers/usb/dwc3/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 9b49a6ce0132..24fba4ca3d12 100644
+index 24fba4ca3d12..385262f6747d 100644
 --- a/drivers/usb/dwc3/core.c
 +++ b/drivers/usb/dwc3/core.c
-@@ -1599,9 +1599,9 @@ static int dwc3_remove(struct platform_device *pdev)
- 	dwc3_core_exit(dwc);
+@@ -1564,6 +1564,17 @@ static int dwc3_probe(struct platform_device *pdev)
+ 
+ err5:
+ 	dwc3_event_buffers_cleanup(dwc);
++
++	usb_phy_shutdown(dwc->usb2_phy);
++	usb_phy_shutdown(dwc->usb3_phy);
++	phy_exit(dwc->usb2_generic_phy);
++	phy_exit(dwc->usb3_generic_phy);
++
++	usb_phy_set_suspend(dwc->usb2_phy, 1);
++	usb_phy_set_suspend(dwc->usb3_phy, 1);
++	phy_power_off(dwc->usb2_generic_phy);
++	phy_power_off(dwc->usb3_generic_phy);
++
  	dwc3_ulpi_exit(dwc);
  
--	pm_runtime_put_sync(&pdev->dev);
--	pm_runtime_allow(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_put_noidle(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
- 
- 	dwc3_free_event_buffers(dwc);
- 	dwc3_free_scratch_buffers(dwc);
+ err4:
 -- 
 2.28.0
 
