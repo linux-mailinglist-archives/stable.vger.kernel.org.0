@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB357282A84
-	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 13:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB27282A83
+	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 13:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726017AbgJDL6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Oct 2020 07:58:35 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:55097 "EHLO
+        id S1725907AbgJDL61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Oct 2020 07:58:27 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:35627 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725840AbgJDL6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Oct 2020 07:58:35 -0400
+        by vger.kernel.org with ESMTP id S1725840AbgJDL61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Oct 2020 07:58:27 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A3C831940E6D;
-        Sun,  4 Oct 2020 07:58:34 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 04 Oct 2020 07:58:34 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 3A0311940E31;
+        Sun,  4 Oct 2020 07:58:26 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 04 Oct 2020 07:58:26 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=qMiBLj
-        rcRprgqgJdo33b9+nTL6+4/Ep1ekoopcxetPA=; b=Dbk7vtggIANVVpDF660X3Z
-        +P014lS2BYWHtcDfidO81O1RFAVTWBcaRj18y1hagwWXQMyT/eiFCliJrwfQKtDM
-        P3u2gLj4LcL7Rh3UsyAIuTgN1CKlXdUGOdECjclf3s+xJd0EKjEUff3Yq3nqeTs/
-        3fBqRQTtnKu24/CVCcxxYqbEBpn+vc20SGK1SyqpsF7Hd6IrIYHu/5xDHrhJsEY4
-        dkm9hBSLujqGJyAoAGSu1tVoDt4+PkGccJVkEt+LseZvtHotvoK/fzR+/r7qHNta
-        dEcDGrAyrqJYN5yrRJYQzw0a3DS0l9R4UjqFKjJbhXSVotvbKH5WDrt+BefL+6Vw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=5upEM1
+        hztfJ9m9e/Qhvd6ksfVYorYxKmTC2VVA0VTv8=; b=EGUH8eoDGNjf0GJCLsuzLg
+        8FECgCbyWxTDPHVMoOoNNgQwfiEck0/A3sCnQFiVboUCHX/KlNdHyAaAt6U1lJj1
+        VgKhyQAqJQEZE9tcJWirpXTdUt5qCSUYxWol2qyi7lVTZUCGmGkW+IkpMY4gJyVw
+        xlmGXMrQ0loia/ln+mgLKq8Hdl0R8XuPpais0eBm+7s9PFZKKxL4wjMZefm0X3CU
+        QCyFtngSoexmA37hKOdIvFP8mK/v7OIQ0VBQdcasEZXWOkyvTPTkSzPQdU6KnN4D
+        pPWspnx4yrVHLre4s2ghdZ0Vqgb8ly0VmepdqZ5GrVG9j8wRKH7eIjHyvYCi8vWg
         ==
-X-ME-Sender: <xms:6rh5X1gMKo2znGkzd8jLvqQQ1_uoxzjby0kKsrXEWp-9Q2CQn2-stQ>
-    <xme:6rh5X6BtFNuvuLy80zH6w6YStDGKdDxsUz4Domuq8GAg6zqQTMJcZgIrZzMPrEHNd
-    q8FATTK_b--ZA>
+X-ME-Sender: <xms:4bh5Xx6-gPrfeNHig7iJDZzW_mSNQrI041fpXyBgY6PHup_usSNOng>
+    <xme:4bh5X-4CPuP-sO13DhYMumPBku8YVrYETz7J3Zv71l_W6V1febOp14j4p-AmM6L9I
+    VG47wCNuNpEeg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrgedtgdegkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     ejnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeehgefguedvheejffeiheehuedvjeefhfegvefggedvue
     dufeevgeffuedvteelueenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:6rh5X1HFEGkTUh704CsD1Cts05BiqzebMslWSb_ZwWd2UM98ZLChCg>
-    <xmx:6rh5X6Q1-jZkO1-yQi9CjkrExpmg-9KnOltvwYwPvWQTBsUwB6YsFQ>
-    <xmx:6rh5XyzzLRzIoPEQoqDfbf4dTpaFmJSjR9XEniAPoyv-COgM0Ne_dw>
-    <xmx:6rh5X3rRnDXc7J-w73ZUyAN0sW3SFfaVriNFNKK0fpgDU7LCMEWRZg>
+X-ME-Proxy: <xmx:4bh5X4dr0Yb5UWbFnjamjAXrMVLWMqdZswCPOIEr4K5CWDLMdWEpfg>
+    <xmx:4bh5X6J-HQVmMpjAR6zAgnDjjAliZSaDFnOtNoeokNWusifWAOK8KQ>
+    <xmx:4bh5X1I78CJc7gsAWfo5ztdbbRdGQGZdflq7p09U0-bZHIGeRdmVxQ>
+    <xmx:4rh5Xzj8NAHg0-ugs0HBYgIv1IJV7sR-PWdmt6r4WBj2am_wDvcnxw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3F3713064610;
-        Sun,  4 Oct 2020 07:58:34 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] i2c: i801: Exclude device from suspend direct complete" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9B966328005A;
+        Sun,  4 Oct 2020 07:58:25 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] i2c: i801: Exclude device from suspend direct complete" failed to apply to 4.19-stable tree
 To:     jdelvare@suse.de, volker.ruemelin@googlemail.com, wsa@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 04 Oct 2020 13:59:13 +0200
-Message-ID: <1601812753201172@kroah.com>
+Message-ID: <160181275362155@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
