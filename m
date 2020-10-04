@@ -2,77 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1BE282AAD
-	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 14:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3511282ABA
+	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 14:54:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725977AbgJDMqK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Oct 2020 08:46:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54458 "EHLO mail.kernel.org"
+        id S1725977AbgJDMyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Oct 2020 08:54:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725840AbgJDMqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Oct 2020 08:46:09 -0400
+        id S1725856AbgJDMyc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 4 Oct 2020 08:54:32 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D3D5206C1;
-        Sun,  4 Oct 2020 12:46:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78822206C1;
+        Sun,  4 Oct 2020 12:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601815569;
-        bh=KmlOPDI70o6oZU+d45F/jzuxfUWYoVayUg2hJ7fdtXk=;
+        s=default; t=1601816071;
+        bh=j3fXHj/yGgiocWlpffObQ87hxGbFY8VMgsdEnHS+RgM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=m5zXzEeVvnzVMH3HoN78Ppoz9GCrFs1Ea5iwlpRkhjj4Z8EntXyUUzszRNs0F6CGt
-         wbUCUCsqOuijVE61LGLlJNdh/cuBaJaMYcBkOstJS/n5tVCx9wauqY6ZoWr5AXqfFN
-         qtQEwDVD5415kNqCC3hxEARHAFTkhJ9DC7g3UFpM=
-Date:   Sun, 4 Oct 2020 08:46:08 -0400
+        b=xGyKJbqy1ZzzgZQ+FZKigyr1eTqDna+upxevSXMqM0R0oEozpTa5dcH6ULDSC78Kn
+         xQ31FhC8YOzLtY/hAMLsQ+yujsixctAQn8g04r6mL2HWZBpPZB7C3MAq0oCKLrU2nq
+         +cB+I1q8Fv21TUqB5eCAy8amOoOSEVBFm9NSlcco=
+Date:   Sun, 4 Oct 2020 08:54:29 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Helmut Grohne <helmut.grohne@intenta.de>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Subject: Re: [PATCH AUTOSEL 5.8 08/29] net: dsa: microchip: look for phy-mode
- in port nodes
-Message-ID: <20201004124608.GJ2415204@sasha-vm>
+To:     Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.8 14/29] regmap: debugfs: Fix handling of name
+ string for debugfs init delays
+Message-ID: <20201004125429.GK2415204@sasha-vm>
 References: <20200929013027.2406344-1-sashal@kernel.org>
- <20200929013027.2406344-8-sashal@kernel.org>
- <20200929055630.GA9320@laureti-dev>
+ <20200929013027.2406344-14-sashal@kernel.org>
+ <20200929083334.GX10899@ediswmail.ad.cirrus.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200929055630.GA9320@laureti-dev>
+In-Reply-To: <20200929083334.GX10899@ediswmail.ad.cirrus.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 29, 2020 at 07:56:30AM +0200, Helmut Grohne wrote:
->Hi Sascha,
+On Tue, Sep 29, 2020 at 08:33:34AM +0000, Charles Keepax wrote:
+>On Mon, Sep 28, 2020 at 09:30:11PM -0400, Sasha Levin wrote:
+>> From: Charles Keepax <ckeepax@opensource.cirrus.com>
+>>
+>> [ Upstream commit 94cc89eb8fa5039fcb6e3e3d50f929ddcccee095 ]
+>>
+>> In regmap_debugfs_init the initialisation of the debugfs is delayed
+>> if the root node isn't ready yet. Most callers of regmap_debugfs_init
+>> pass the name from the regmap_config, which is considered temporary
+>> ie. may be unallocated after the regmap_init call returns. This leads
+>> to a potential use after free, where config->name has been freed by
+>> the time it is used in regmap_debugfs_initcall.
+>>
 >
->On Tue, Sep 29, 2020 at 03:30:05AM +0200, Sasha Levin wrote:
->> From: Helmut Grohne <helmut.grohne@intenta.de>
->>
->> [ Upstream commit edecfa98f602a597666e3c5cab2677ada38d93c5 ]
->>
->> Documentation/devicetree/bindings/net/dsa/dsa.txt says that the phy-mode
->> property should be specified on port nodes. However, the microchip
->> drivers read it from the switch node.
->>
->> Let the driver use the per-port property and fall back to the old
->> location with a warning.
->>
->> Fix in-tree users.
+>Afraid this patch had some issues if you are back porting it you
+>definitely need to take these two patches as well:
 >
->I don't think this patch is useful for stable users. It corrects a
->device tree layout issue. Any existing users of the functionality will
->have an odd, but working device tree and that will continue working
->(with a warning) after applying this patch. It just has a property on
->the "wrong" node. I don't think I'd like to update my device tree in a
->stable update.
+>commit 1d512ee861b80da63cbc501b973c53131aa22f29
+>regmap: debugfs: Fix more error path regressions
 
-I've dropped it, thanks!
+Looks like 1d512ee861b is queued for the merge window even though it's a
+bugfix for this release?
+
+I'm going to drop this patch.
 
 -- 
 Thanks,
