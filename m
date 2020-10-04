@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 839D1282A3A
-	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 12:36:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E8E1282A45
+	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 12:54:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725856AbgJDKgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Oct 2020 06:36:53 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:38233 "EHLO
+        id S1725947AbgJDKyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Oct 2020 06:54:39 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:40839 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725825AbgJDKgx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Oct 2020 06:36:53 -0400
+        by vger.kernel.org with ESMTP id S1725825AbgJDKyj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Oct 2020 06:54:39 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 556ED194161B;
-        Sun,  4 Oct 2020 06:36:52 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id DFAE31941751;
+        Sun,  4 Oct 2020 06:54:37 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 04 Oct 2020 06:36:52 -0400
+  by compute4.internal (MEProxy); Sun, 04 Oct 2020 06:54:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=96lrcA
-        XH36YcWs4F2ciHuaicSXMnlhhQkZFULuVRkwE=; b=MYrRdcNSiVB+7x1XdTkWez
-        3BkiA0tmuDIjoBQLhYXmKNBXnoLqpIInmKwk6HRMCMzOcU0NG9k0wLunf1qnn2qr
-        l/6c+k+3YMCk+jLoNLRg53oAoKVw8qhXZuKpTzon3GFmLxkZf6QunmdhJFqZhkgU
-        RZ3TdGK7YhVkSn5bWUeBy6phPmmUmSKhn0W94COF33OzOKN7DGt9EkHnompPR4gf
-        dBB5cNmI9+A6WoM6pzmEvAxC0l3yRnJUGlchZd5OaEKlcP6u6xGv5jliNMJr6D+e
-        HLGYreZZNIyLB7qu9hyD9IuIgEKfiwdHlt9VV91yHvT/HfEHoB+zcI6BDQYBXnxA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=nLQu2e
+        5M22T4BvoU7ZSqh1lktuLbA39pbMGcoyXleTI=; b=nIRtZYVxloDORjWPuwXHWv
+        aFA8dOFlxcwZSu5I6thdbvOvE1RESWzSGZA4Y0+v8LGwOaiKwUqpcb+HjRbvu4Ba
+        fbD9aiQZigrCCc0xsKlam0uRZAp5yt1WYFVmIsl2U5i4WLbLF+BUUdacDMT9gNTl
+        HWMN33aVE32pWNRg4aqUaQSQVoFK6nPZ+Qq15L332JZ6cu746EUbM1TdxSriP8so
+        BvFB+sUlddI5Xewy39UFlSvtfT/duSXaUoRJnb+yHXoiywGnboHNSWrq0QwQmNZu
+        rGU1yMAzBaZ4Dl0dT2XYtIo6pM3/Opygjr+vhIgETv7fMjKGni+gvBb/CJFaSHjw
         ==
-X-ME-Sender: <xms:xKV5X0OBVjdjJsEdkEyX4fNXYzXZfcxpPJBdtk1rcOPfTGeYC5G0gA>
-    <xme:xKV5X69XsdP6aOIYXUjN3Hf63gvIxCqbRYAVZf4cL77lWP7gCQQ1xeeiSHAeZWowa
-    9CKBrYkjJbJfw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrgedtgdefvdcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:7al5X650LmzfpEQW-6YjEjX0PpsF4ydPnBvAJ5RWXsCf6B64qL7dOQ>
+    <xme:7al5Xz4e-ogj2GuKJyciLB4NSW1ZxxO2G93wO_49Yif0_h1sg0lEexSPzC2qoAqER
+    daoLcicCJ_stw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrgedtgdefhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:xKV5X7Tn_QVWY27a_T1tEe0LFcNm3-NUQ1fmcnsWfO0_DxuJmp8OwA>
-    <xmx:xKV5X8vLGqKiuZePgTg4ceO41-bGKxSw_Srej5_eRbulioj0VRl6fw>
-    <xmx:xKV5X8fr6D3TNdSzqMVe7e75hrbl1zOGGouTgvGJCH3h8MZFNAIDvQ>
-    <xmx:xKV5X0nH9OlDX4xcxWKqyw8m-QPKXyBMv1aGpeDFi6Trhka0wnCfDg>
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:7al5X5fsMqZgS14r1eyu_rEJzAoqajbx9nETqo7Qj6-U98iw6XXmSQ>
+    <xmx:7al5X3LSVdYagMKlvDM4G5R-kE_-hU5o0nLcGjJ7gTcSNEET3K428g>
+    <xmx:7al5X-LK-HanMQf6W6RBQbfc5XFIUxZdkGaMKiqmxwWDjhb3KDu1ig>
+    <xmx:7al5Xwj6lUJSb7cJGsBD-uuyyCVLnyKcYCWs3bNMC1-WBJnpDmdxpA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D38CD3280065;
-        Sun,  4 Oct 2020 06:36:51 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] gpio: amd-fch: correct logic of GPIO_LINE_DIRECTION" failed to apply to 5.4-stable tree
-To:     lists@wildgooses.com, bgolaszewski@baylibre.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7D9473280059;
+        Sun,  4 Oct 2020 06:54:37 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ftrace: Move RCU is watching check after recursion check" failed to apply to 4.9-stable tree
+To:     rostedt@goodmis.org, paulmck@kernel.org, peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 04 Oct 2020 12:37:36 +0200
-Message-ID: <160180785641213@kroah.com>
+Date:   Sun, 04 Oct 2020 12:55:16 +0200
+Message-ID: <160180891616297@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,31 +70,52 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d25e8fdebdad84219b498873300b7f11dd915b88 Mon Sep 17 00:00:00 2001
-From: Ed Wildgoose <lists@wildgooses.com>
-Date: Mon, 28 Sep 2020 10:44:52 +0100
-Subject: [PATCH] gpio: amd-fch: correct logic of GPIO_LINE_DIRECTION
+From b40341fad6cc2daa195f8090fd3348f18fff640a Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Date: Tue, 29 Sep 2020 12:40:31 -0400
+Subject: [PATCH] ftrace: Move RCU is watching check after recursion check
 
-The original commit appears to have the logic reversed in
-amd_fch_gpio_get_direction. Also confirmed by observing the value of
-"direction" in the sys tree.
+The first thing that the ftrace function callback helper functions should do
+is to check for recursion. Peter Zijlstra found that when
+"rcu_is_watching()" had its notrace removed, it caused perf function tracing
+to crash. This is because the call of rcu_is_watching() is tested before
+function recursion is checked and and if it is traced, it will cause an
+infinite recursion loop.
 
-Signed-off-by: Ed Wildgoose <lists@wildgooses.com>
-Fixes: e09d168f13f0 ("gpio: AMD G-Series PCH gpio driver")
+rcu_is_watching() should still stay notrace, but to prevent this should
+never had crashed in the first place. The recursion prevention must be the
+first thing done in callback functions.
+
+Link: https://lore.kernel.org/r/20200929112541.GM2628@hirez.programming.kicks-ass.net
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: Paul McKenney <paulmck@kernel.org>
+Fixes: c68c0fa293417 ("ftrace: Have ftrace_ops_get_func() handle RCU and PER_CPU flags too")
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reported-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-diff --git a/drivers/gpio/gpio-amd-fch.c b/drivers/gpio/gpio-amd-fch.c
-index 4e44ba4d7423..2a21354ed6a0 100644
---- a/drivers/gpio/gpio-amd-fch.c
-+++ b/drivers/gpio/gpio-amd-fch.c
-@@ -92,7 +92,7 @@ static int amd_fch_gpio_get_direction(struct gpio_chip *gc, unsigned int gpio)
- 	ret = (readl_relaxed(ptr) & AMD_FCH_GPIO_FLAG_DIRECTION);
- 	spin_unlock_irqrestore(&priv->lock, flags);
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 603255f5f085..541453927c82 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -6993,16 +6993,14 @@ static void ftrace_ops_assist_func(unsigned long ip, unsigned long parent_ip,
+ {
+ 	int bit;
  
--	return ret ? GPIO_LINE_DIRECTION_IN : GPIO_LINE_DIRECTION_OUT;
-+	return ret ? GPIO_LINE_DIRECTION_OUT : GPIO_LINE_DIRECTION_IN;
- }
+-	if ((op->flags & FTRACE_OPS_FL_RCU) && !rcu_is_watching())
+-		return;
+-
+ 	bit = trace_test_and_set_recursion(TRACE_LIST_START, TRACE_LIST_MAX);
+ 	if (bit < 0)
+ 		return;
  
- static void amd_fch_gpio_set(struct gpio_chip *gc,
+ 	preempt_disable_notrace();
+ 
+-	op->func(ip, parent_ip, op, regs);
++	if (!(op->flags & FTRACE_OPS_FL_RCU) || rcu_is_watching())
++		op->func(ip, parent_ip, op, regs);
+ 
+ 	preempt_enable_notrace();
+ 	trace_clear_recursion(bit);
 
