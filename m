@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52CDA282A44
-	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 12:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2DBA282A46
+	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 12:55:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725949AbgJDKyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Oct 2020 06:54:31 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:35849 "EHLO
+        id S1725925AbgJDKzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Oct 2020 06:55:55 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:55377 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725825AbgJDKyb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Oct 2020 06:54:31 -0400
+        by vger.kernel.org with ESMTP id S1725825AbgJDKzy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Oct 2020 06:55:54 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 10706194179D;
-        Sun,  4 Oct 2020 06:54:30 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 04 Oct 2020 06:54:30 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 980BE1940219;
+        Sun,  4 Oct 2020 06:55:53 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 04 Oct 2020 06:55:53 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=BlZuoC
-        23lVDx8FpTJiSPMFiubho9hT6dhVYLx8BWHo0=; b=fcrYtE5kg344ZTyAeaDjeh
-        IGQq+SEn7yNMbLTkBfMEnfipF3mhEwy7ED8zkxsHcjzDcUkFqgDXOYJOkM95rJHq
-        +C1/I2D8CphptFEqKyVN7qDn1RmXx63M4X6mG/zq+qMBp/8H1JWPBpWi1MF2UFle
-        xxfp5RQ2e6bXrGkgFufFczGV9wF/h7HrPoKHuRUoTEPHsx8GCJCfR38uC3iGRpSH
-        uHPudjh5H6FLZ4EFOcds8i6QdshDueebvHwhEdBAOxMiARyHfF5jnonbPg3oiCYv
-        gbPqwEx7Ff+UBlCxvawu8pBRbgBgxKxGz9b4ZFJxm7vtkKGKlkjPykMEkPdX/ieg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=BtnMqi
+        bvdKOf2o5fPTDbvCEGog8Qv35PHy9ojKTLIxQ=; b=mtdPh15K2lZtW3lvKZoJ1B
+        lHZ+v/43gkm2Vn/kqS8yTOmUf3XWTEqvSW9PoUz2+Ica1vbRSJtnKtzLY2kAXMGC
+        2pNkod6AIJuuPIcuWt04dc9nquJP1ql6Ou2NCgOjI5wJp8Dv/gw46uTZ5sm2uXzx
+        sbdXKmdrfnRXajZOKMGixaKJNRFKgVQDCnZJNvyaIMPE5zL4VTsvLv/E9zRRRGiW
+        gBFhoOHFhwbtQUOTrTb/b1aPb20Y1BZOeXKlN5h/8O6GosKieSVL5bVq13Q+jM9K
+        wPQoWi0DoGoIoe8qd2FdxuiempYHbHs2D24WwH0F6Pge3SPhEgrjfipifMr4CNWg
         ==
-X-ME-Sender: <xms:5al5X1eTWkFH0uE6gtHRGjGAzpYJxFF-EeD_xLbsT922TDo8vc2FGA>
-    <xme:5al5XzMCG8Lg6SEaybUXppN8j6OnZ5_7nb25Lu8onR5TkR09pw1T684MXDGvCzql3
-    ecg21V3ImycwQ>
+X-ME-Sender: <xms:Oap5XwMRnK2ZH4FDpvKIsKj6QXnt14kNdJbUTDHW-R14u8HySUCesw>
+    <xme:Oap5X28MdrOcBQAhtRfdwXvGSA2gzfoUMogUqpQsRx_pLbpes7EFcbvGxaqcO0_zW
+    g6xRoRMLWk-GQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrgedtgdefhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:5al5X-gZ3iELybGiqtCxVhJhdaRzbQdlGrp-aS7mufCN5RVw9Z8zIQ>
-    <xmx:5al5X-_jmk2pMVX5Ce4nuzq7qwhTfhfML9soo1J88gerEB2pYf19nw>
-    <xmx:5al5XxuLU9KgbAOsCiH0XkPzfj8U-oRUixzIQYtvicKNkf18bZcogg>
-    <xmx:5ql5XyXearIHXV4WgM1jCnMIsRJWM6oT7CpxU9E57HJCltxlQQsg8A>
+X-ME-Proxy: <xmx:Oap5X3RdIyiSGsMCLUiKM_SCxJp9CT300W0vfMTUkKAtA3c0vgm7Zg>
+    <xmx:Oap5X4tu2OBmXveXxkKgARto4QyRqrQiMoHbJF5sFbrNzAm2mpfOSg>
+    <xmx:Oap5X4e3393qmJRNenqaNItWOGhFkzuss0vK3ydQZp7wTSjn0lrXJA>
+    <xmx:Oap5X0Gg_NIjV-m9ywd0DixyEktJCVwUIGCMg3OZq_k2AGx_YdbT9Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 04BAF328005A;
-        Sun,  4 Oct 2020 06:54:28 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ftrace: Move RCU is watching check after recursion check" failed to apply to 4.14-stable tree
-To:     rostedt@goodmis.org, paulmck@kernel.org, peterz@infradead.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id F0391306467D;
+        Sun,  4 Oct 2020 06:55:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] xen/events: don't use chip_data for legacy IRQs" failed to apply to 4.4-stable tree
+To:     jgross@suse.com, boris.ostrovsky@oracle.com,
+        stefan.bader@canonical.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 04 Oct 2020 12:55:16 +0200
-Message-ID: <1601808916133245@kroah.com>
+Date:   Sun, 04 Oct 2020 12:56:40 +0200
+Message-ID: <160180900041170@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,52 +71,120 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b40341fad6cc2daa195f8090fd3348f18fff640a Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date: Tue, 29 Sep 2020 12:40:31 -0400
-Subject: [PATCH] ftrace: Move RCU is watching check after recursion check
+From 0891fb39ba67bd7ae023ea0d367297ffff010781 Mon Sep 17 00:00:00 2001
+From: Juergen Gross <jgross@suse.com>
+Date: Wed, 30 Sep 2020 11:16:14 +0200
+Subject: [PATCH] xen/events: don't use chip_data for legacy IRQs
 
-The first thing that the ftrace function callback helper functions should do
-is to check for recursion. Peter Zijlstra found that when
-"rcu_is_watching()" had its notrace removed, it caused perf function tracing
-to crash. This is because the call of rcu_is_watching() is tested before
-function recursion is checked and and if it is traced, it will cause an
-infinite recursion loop.
+Since commit c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
+Xen is using the chip_data pointer for storing IRQ specific data. When
+running as a HVM domain this can result in problems for legacy IRQs, as
+those might use chip_data for their own purposes.
 
-rcu_is_watching() should still stay notrace, but to prevent this should
-never had crashed in the first place. The recursion prevention must be the
-first thing done in callback functions.
-
-Link: https://lore.kernel.org/r/20200929112541.GM2628@hirez.programming.kicks-ass.net
+Use a local array for this purpose in case of legacy IRQs, avoiding the
+double use.
 
 Cc: stable@vger.kernel.org
-Cc: Paul McKenney <paulmck@kernel.org>
-Fixes: c68c0fa293417 ("ftrace: Have ftrace_ops_get_func() handle RCU and PER_CPU flags too")
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reported-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Tested-by: Stefan Bader <stefan.bader@canonical.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20200930091614.13660-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index 603255f5f085..541453927c82 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -6993,16 +6993,14 @@ static void ftrace_ops_assist_func(unsigned long ip, unsigned long parent_ip,
- {
- 	int bit;
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index 90b8f56fbadb..6f02c18fa65c 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -92,6 +92,8 @@ static bool (*pirq_needs_eoi)(unsigned irq);
+ /* Xen will never allocate port zero for any purpose. */
+ #define VALID_EVTCHN(chn)	((chn) != 0)
  
--	if ((op->flags & FTRACE_OPS_FL_RCU) && !rcu_is_watching())
--		return;
--
- 	bit = trace_test_and_set_recursion(TRACE_LIST_START, TRACE_LIST_MAX);
- 	if (bit < 0)
++static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
++
+ static struct irq_chip xen_dynamic_chip;
+ static struct irq_chip xen_percpu_chip;
+ static struct irq_chip xen_pirq_chip;
+@@ -156,7 +158,18 @@ int get_evtchn_to_irq(evtchn_port_t evtchn)
+ /* Get info for IRQ */
+ struct irq_info *info_for_irq(unsigned irq)
+ {
+-	return irq_get_chip_data(irq);
++	if (irq < nr_legacy_irqs())
++		return legacy_info_ptrs[irq];
++	else
++		return irq_get_chip_data(irq);
++}
++
++static void set_info_for_irq(unsigned int irq, struct irq_info *info)
++{
++	if (irq < nr_legacy_irqs())
++		legacy_info_ptrs[irq] = info;
++	else
++		irq_set_chip_data(irq, info);
+ }
+ 
+ /* Constructors for packed IRQ information. */
+@@ -377,7 +390,7 @@ static void xen_irq_init(unsigned irq)
+ 	info->type = IRQT_UNBOUND;
+ 	info->refcnt = -1;
+ 
+-	irq_set_chip_data(irq, info);
++	set_info_for_irq(irq, info);
+ 
+ 	list_add_tail(&info->list, &xen_irq_list_head);
+ }
+@@ -426,14 +439,14 @@ static int __must_check xen_allocate_irq_gsi(unsigned gsi)
+ 
+ static void xen_free_irq(unsigned irq)
+ {
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (WARN_ON(!info))
  		return;
  
- 	preempt_disable_notrace();
+ 	list_del(&info->list);
  
--	op->func(ip, parent_ip, op, regs);
-+	if (!(op->flags & FTRACE_OPS_FL_RCU) || rcu_is_watching())
-+		op->func(ip, parent_ip, op, regs);
+-	irq_set_chip_data(irq, NULL);
++	set_info_for_irq(irq, NULL);
  
- 	preempt_enable_notrace();
- 	trace_clear_recursion(bit);
+ 	WARN_ON(info->refcnt > 0);
+ 
+@@ -603,7 +616,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
+ static void __unbind_from_irq(unsigned int irq)
+ {
+ 	evtchn_port_t evtchn = evtchn_from_irq(irq);
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (info->refcnt > 0) {
+ 		info->refcnt--;
+@@ -1108,7 +1121,7 @@ int bind_ipi_to_irqhandler(enum ipi_vector ipi,
+ 
+ void unbind_from_irqhandler(unsigned int irq, void *dev_id)
+ {
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (WARN_ON(!info))
+ 		return;
+@@ -1142,7 +1155,7 @@ int evtchn_make_refcounted(evtchn_port_t evtchn)
+ 	if (irq == -1)
+ 		return -ENOENT;
+ 
+-	info = irq_get_chip_data(irq);
++	info = info_for_irq(irq);
+ 
+ 	if (!info)
+ 		return -ENOENT;
+@@ -1170,7 +1183,7 @@ int evtchn_get(evtchn_port_t evtchn)
+ 	if (irq == -1)
+ 		goto done;
+ 
+-	info = irq_get_chip_data(irq);
++	info = info_for_irq(irq);
+ 
+ 	if (!info)
+ 		goto done;
 
