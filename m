@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D54282A39
-	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 12:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 839D1282A3A
+	for <lists+stable@lfdr.de>; Sun,  4 Oct 2020 12:36:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725854AbgJDKg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Oct 2020 06:36:29 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:34609 "EHLO
+        id S1725856AbgJDKgx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 4 Oct 2020 06:36:53 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:38233 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725825AbgJDKg2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 4 Oct 2020 06:36:28 -0400
+        by vger.kernel.org with ESMTP id S1725825AbgJDKgx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 4 Oct 2020 06:36:53 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 842121940232;
-        Sun,  4 Oct 2020 06:36:27 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 04 Oct 2020 06:36:27 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 556ED194161B;
+        Sun,  4 Oct 2020 06:36:52 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 04 Oct 2020 06:36:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=SQamb0
-        IZfIbHd3dVqNpYsZUwsWy7OwiGWYZLRsWlMo8=; b=jCbec2cHR7nnBvLKrl47Y3
-        mTC3olHd4r8xqDPvVAdzGBwccdpqyKG1UFo0/8PPkYtTDU4K087QizjOo8SRhw2x
-        CYMqgdKFIirTebT0PJ8dlpfdkFuBJRpelJgI4t8Fz3T1mE/+AIBz/vVtoR9UZ5XC
-        sEOa0oGLpKdKUJPoaCna7VEhbzoh5lSg8fBVj+x6fKMTAAVpLQ+CCTOeqJuFwVWt
-        GheJ2OSvPtD6SRYYpQLHB8UM8PknEog1dJPTK/QB6a4fR91UmErCuwUPq+Jx6MsS
-        XGFs8qTOQpo3QyuYh4dYdSQE4rqI1y4nlISs2jafpITWjfF+HLtAsD+OOq4Y1CMg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=96lrcA
+        XH36YcWs4F2ciHuaicSXMnlhhQkZFULuVRkwE=; b=MYrRdcNSiVB+7x1XdTkWez
+        3BkiA0tmuDIjoBQLhYXmKNBXnoLqpIInmKwk6HRMCMzOcU0NG9k0wLunf1qnn2qr
+        l/6c+k+3YMCk+jLoNLRg53oAoKVw8qhXZuKpTzon3GFmLxkZf6QunmdhJFqZhkgU
+        RZ3TdGK7YhVkSn5bWUeBy6phPmmUmSKhn0W94COF33OzOKN7DGt9EkHnompPR4gf
+        dBB5cNmI9+A6WoM6pzmEvAxC0l3yRnJUGlchZd5OaEKlcP6u6xGv5jliNMJr6D+e
+        HLGYreZZNIyLB7qu9hyD9IuIgEKfiwdHlt9VV91yHvT/HfEHoB+zcI6BDQYBXnxA
         ==
-X-ME-Sender: <xms:q6V5X0Cb1ixvPTUPExd2S79L9SIlxzEnPhAMRAdUtwRN5M_LIYhHmQ>
-    <xme:q6V5X2i20c3v22BPkieWfhmzZvL_EM6yu2RCbnioBkMt-UawBpLCc1ZqrTR6KnX05
-    RIb5FzChOv9aA>
+X-ME-Sender: <xms:xKV5X0OBVjdjJsEdkEyX4fNXYzXZfcxpPJBdtk1rcOPfTGeYC5G0gA>
+    <xme:xKV5X69XsdP6aOIYXUjN3Hf63gvIxCqbRYAVZf4cL77lWP7gCQQ1xeeiSHAeZWowa
+    9CKBrYkjJbJfw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrgedtgdefvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:q6V5X3lybFvMLMNTV-5WZP4rwLcrtwaDgfaFnJ7zIEVRCQ_TkmVHFg>
-    <xmx:q6V5X6zfdBZPRcn9VQsbn4o4-Nh0KOxSs_M7S16ww6a6r0gNCOWP1A>
-    <xmx:q6V5X5SIiyd6kF3Pd_aBigYvLOjQnCI6C_TL_6TEEG0Gk3HvpLPldw>
-    <xmx:q6V5X64F3v4G2vfM4zqJdnn-4LjvGmrrXZa2l6ISJ-bU4vDCpUDmRw>
+X-ME-Proxy: <xmx:xKV5X7Tn_QVWY27a_T1tEe0LFcNm3-NUQ1fmcnsWfO0_DxuJmp8OwA>
+    <xmx:xKV5X8vLGqKiuZePgTg4ceO41-bGKxSw_Srej5_eRbulioj0VRl6fw>
+    <xmx:xKV5X8fr6D3TNdSzqMVe7e75hrbl1zOGGouTgvGJCH3h8MZFNAIDvQ>
+    <xmx:xKV5X0nH9OlDX4xcxWKqyw8m-QPKXyBMv1aGpeDFi6Trhka0wnCfDg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BA258306467D;
-        Sun,  4 Oct 2020 06:36:26 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] gpio: mockup: fix resource leak in error path" failed to apply to 4.14-stable tree
-To:     bgolaszewski@baylibre.com, andriy.shevchenko@linux.intel.com,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id D38CD3280065;
+        Sun,  4 Oct 2020 06:36:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] gpio: amd-fch: correct logic of GPIO_LINE_DIRECTION" failed to apply to 5.4-stable tree
+To:     lists@wildgooses.com, bgolaszewski@baylibre.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 04 Oct 2020 12:37:11 +0200
-Message-ID: <160180783111955@kroah.com>
+Date:   Sun, 04 Oct 2020 12:37:36 +0200
+Message-ID: <160180785641213@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,38 +70,31 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1b02d9e770cd7087f34c743f85ccf5ea8372b047 Mon Sep 17 00:00:00 2001
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date: Tue, 8 Sep 2020 15:07:49 +0200
-Subject: [PATCH] gpio: mockup: fix resource leak in error path
+From d25e8fdebdad84219b498873300b7f11dd915b88 Mon Sep 17 00:00:00 2001
+From: Ed Wildgoose <lists@wildgooses.com>
+Date: Mon, 28 Sep 2020 10:44:52 +0100
+Subject: [PATCH] gpio: amd-fch: correct logic of GPIO_LINE_DIRECTION
 
-If the module init function fails after creating the debugs directory,
-it's never removed. Add proper cleanup calls to avoid this resource
-leak.
+The original commit appears to have the logic reversed in
+amd_fch_gpio_get_direction. Also confirmed by observing the value of
+"direction" in the sys tree.
 
-Fixes: 9202ba2397d1 ("gpio: mockup: implement event injecting over debugfs")
-Cc: <stable@vger.kernel.org>
+Signed-off-by: Ed Wildgoose <lists@wildgooses.com>
+Fixes: e09d168f13f0 ("gpio: AMD G-Series PCH gpio driver")
+Cc: stable@vger.kernel.org
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-diff --git a/drivers/gpio/gpio-mockup.c b/drivers/gpio/gpio-mockup.c
-index bc345185db26..1652897fdf90 100644
---- a/drivers/gpio/gpio-mockup.c
-+++ b/drivers/gpio/gpio-mockup.c
-@@ -552,6 +552,7 @@ static int __init gpio_mockup_init(void)
- 	err = platform_driver_register(&gpio_mockup_driver);
- 	if (err) {
- 		gpio_mockup_err("error registering platform driver\n");
-+		debugfs_remove_recursive(gpio_mockup_dbg_dir);
- 		return err;
- 	}
+diff --git a/drivers/gpio/gpio-amd-fch.c b/drivers/gpio/gpio-amd-fch.c
+index 4e44ba4d7423..2a21354ed6a0 100644
+--- a/drivers/gpio/gpio-amd-fch.c
++++ b/drivers/gpio/gpio-amd-fch.c
+@@ -92,7 +92,7 @@ static int amd_fch_gpio_get_direction(struct gpio_chip *gc, unsigned int gpio)
+ 	ret = (readl_relaxed(ptr) & AMD_FCH_GPIO_FLAG_DIRECTION);
+ 	spin_unlock_irqrestore(&priv->lock, flags);
  
-@@ -582,6 +583,7 @@ static int __init gpio_mockup_init(void)
- 			gpio_mockup_err("error registering device");
- 			platform_driver_unregister(&gpio_mockup_driver);
- 			gpio_mockup_unregister_pdevs();
-+			debugfs_remove_recursive(gpio_mockup_dbg_dir);
- 			return PTR_ERR(pdev);
- 		}
+-	return ret ? GPIO_LINE_DIRECTION_IN : GPIO_LINE_DIRECTION_OUT;
++	return ret ? GPIO_LINE_DIRECTION_OUT : GPIO_LINE_DIRECTION_IN;
+ }
  
+ static void amd_fch_gpio_set(struct gpio_chip *gc,
 
