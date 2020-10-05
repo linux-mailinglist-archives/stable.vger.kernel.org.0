@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF422839BC
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB899283B66
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:41:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727390AbgJEP2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:28:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53224 "EHLO mail.kernel.org"
+        id S1728754AbgJEPlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:41:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727386AbgJEP2W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:28:22 -0400
+        id S1727373AbgJEP2Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:28:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A74120637;
-        Mon,  5 Oct 2020 15:28:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4DAE2074F;
+        Mon,  5 Oct 2020 15:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911701;
-        bh=4Re7HBhYvPVuXWMeiyzrdcU+qK8tChuuzXlPrYKtkn8=;
+        s=default; t=1601911704;
+        bh=PEntYgy3zPKWLs6qDtTuYLVAggIkX2FQwDO5O3lLVWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7/Lgwg0XrjzaOTEL50k/dmEHBtKVTQOmUzTX18RZwoH/ULh5h/UEXJz17s1fFF3L
-         13LJrv1PIrxjpsgrjtn3E7gl8l3X2FbUjsHyxFRqmj22k17oD29bA18v9Ex0T5rgjD
-         a9UjykHTmxPnbIlkhTDPSuiWvmV5N8Zmp+vjSr/w=
+        b=MrQa8dG0kZHxTnqM6ZDwAlzLRaMKc5OPLyjSwinsJW/1yzktA8W8O/jYorE+PhyeD
+         JU+ozW6nIqNK0FJziO8rA8Xq/hdgS/xSbEtE9PENZBB6fEDBGUX4ZMZfOUhjnoRcAA
+         NQ+KWDjAJDuB/FPGBrZvzqJx5FBxZuKYcpSUTAUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Cerveny <m.cerveny@computer.org>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Lucy Yan <lucyyan@google.com>,
+        Moritz Fischer <mdf@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/38] drm/sun4i: mixer: Extend regmap max_register
-Date:   Mon,  5 Oct 2020 17:26:31 +0200
-Message-Id: <20201005142109.356401927@linuxfoundation.org>
+Subject: [PATCH 4.19 15/38] net: dec: de2104x: Increase receive ring size for Tulip
+Date:   Mon,  5 Oct 2020 17:26:32 +0200
+Message-Id: <20201005142109.403385087@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
 References: <20201005142108.650363140@linuxfoundation.org>
@@ -44,34 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Cerveny <m.cerveny@computer.org>
+From: Lucy Yan <lucyyan@google.com>
 
-[ Upstream commit 74ea06164cda81dc80e97790164ca533fd7e3087 ]
+[ Upstream commit ee460417d254d941dfea5fb7cff841f589643992 ]
 
-Better guess. Secondary CSC registers are from 0xF0000.
+Increase Rx ring size to address issue where hardware is reaching
+the receive work limit.
 
-Signed-off-by: Martin Cerveny <m.cerveny@computer.org>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200906162140.5584-3-m.cerveny@computer.org
+Before:
+
+[  102.223342] de2104x 0000:17:00.0 eth0: rx work limit reached
+[  102.245695] de2104x 0000:17:00.0 eth0: rx work limit reached
+[  102.251387] de2104x 0000:17:00.0 eth0: rx work limit reached
+[  102.267444] de2104x 0000:17:00.0 eth0: rx work limit reached
+
+Signed-off-by: Lucy Yan <lucyyan@google.com>
+Reviewed-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun8i_mixer.c | 2 +-
+ drivers/net/ethernet/dec/tulip/de2104x.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun8i_mixer.c b/drivers/gpu/drm/sun4i/sun8i_mixer.c
-index 71a798e5d5591..649b57e5e4b78 100644
---- a/drivers/gpu/drm/sun4i/sun8i_mixer.c
-+++ b/drivers/gpu/drm/sun4i/sun8i_mixer.c
-@@ -364,7 +364,7 @@ static struct regmap_config sun8i_mixer_regmap_config = {
- 	.reg_bits	= 32,
- 	.val_bits	= 32,
- 	.reg_stride	= 4,
--	.max_register	= 0xbfffc, /* guessed */
-+	.max_register	= 0xffffc, /* guessed */
- };
+diff --git a/drivers/net/ethernet/dec/tulip/de2104x.c b/drivers/net/ethernet/dec/tulip/de2104x.c
+index 13430f75496cc..b312cd9bce169 100644
+--- a/drivers/net/ethernet/dec/tulip/de2104x.c
++++ b/drivers/net/ethernet/dec/tulip/de2104x.c
+@@ -91,7 +91,7 @@ MODULE_PARM_DESC (rx_copybreak, "de2104x Breakpoint at which Rx packets are copi
+ #define DSL			CONFIG_DE2104X_DSL
+ #endif
  
- static int sun8i_mixer_of_get_id(struct device_node *node)
+-#define DE_RX_RING_SIZE		64
++#define DE_RX_RING_SIZE		128
+ #define DE_TX_RING_SIZE		64
+ #define DE_RING_BYTES		\
+ 		((sizeof(struct de_desc) * DE_RX_RING_SIZE) +	\
 -- 
 2.25.1
 
