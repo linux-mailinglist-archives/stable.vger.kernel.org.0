@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33DFF2839E3
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:30:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A8A1283A8F
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727486AbgJEP3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:29:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54960 "EHLO mail.kernel.org"
+        id S1727782AbgJEPd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:33:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727560AbgJEP3P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:29:15 -0400
+        id S1728192AbgJEPds (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:33:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90C5F217BA;
-        Mon,  5 Oct 2020 15:29:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51AA620B80;
+        Mon,  5 Oct 2020 15:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911755;
-        bh=E1UUb+UT5H5jKz1MdfScJ8hMsgsDOOU4qDs/5khlm5Y=;
+        s=default; t=1601912027;
+        bh=Ztzrl0avbblWlwhorgBTnlg2D2PPMnM5Y/dAUXeG29I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gc9Yk7mr97zyvcBVUFIDxzSlzGCxVHOLJfEDhbGAgD8VlLqeZRHdaz7ra9xdG0Xe3
-         pChGKqrYEXAe4av31tF8EeWdDNk83SJI+0kkEUc2IRlvbdlsclmnzJXRqObrvouFrj
-         qpN4QKPCkym9vShZt/3OYed8Ey1udI0FwGtcYGck=
+        b=puGxeI6xss2G0axNgXf/G4KhCtOkf8WtNmxJCyLO0b+7/f5dRCz9qcZHdBHijPqXa
+         WhpeWkHUkloTFJ7kH6Nbvo1rW8WOy6hIRiCpVU072o4DjCbR+KTh8e+U/305uZ6WCZ
+         bt+gTXLCz4TIVIWMQWzbenZzOfa2pZUKbe5TEQ1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aloka Dixit <alokad@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 26/57] mac80211: Fix radiotap header channel flag for 6GHz band
+        stable@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 42/85] tools/io_uring: fix compile breakage
 Date:   Mon,  5 Oct 2020 17:26:38 +0200
-Message-Id: <20201005142111.061768136@linuxfoundation.org>
+Message-Id: <20201005142116.759062131@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aloka Dixit <alokad@codeaurora.org>
+From: Douglas Gilbert <dgilbert@interlog.com>
 
-[ Upstream commit 412a84b5714af56f3eb648bba155107b5edddfdf ]
+[ Upstream commit 72f04da48a9828ba3ae8ac77bea648bda8b7d0ff ]
 
-Radiotap header field 'Channel flags' has '2 GHz spectrum' set to
-'true' for 6GHz packet.
-Change it to 5GHz as there isn't a separate option available for 6GHz.
+It would seem none of the kernel continuous integration does this:
+    $ cd tools/io_uring
+    $ make
 
-Signed-off-by: Aloka Dixit <alokad@codeaurora.org>
-Link: https://lore.kernel.org/r/010101747ab7b703-1d7c9851-1594-43bf-81f7-f79ce7a67cc6-000000@us-west-2.amazonses.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Otherwise it may have noticed:
+   cc -Wall -Wextra -g -D_GNU_SOURCE   -c -o io_uring-bench.o
+	 io_uring-bench.c
+io_uring-bench.c:133:12: error: static declaration of ‘gettid’
+	 follows non-static declaration
+  133 | static int gettid(void)
+      |            ^~~~~~
+In file included from /usr/include/unistd.h:1170,
+                 from io_uring-bench.c:27:
+/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:34:16: note:
+	 previous declaration of ‘gettid’ was here
+   34 | extern __pid_t gettid (void) __THROW;
+      |                ^~~~~~
+make: *** [<builtin>: io_uring-bench.o] Error 1
+
+The problem on Ubuntu 20.04 (with lk 5.9.0-rc5) is that unistd.h
+already defines gettid(). So prefix the local definition with
+"lk_".
+
+Signed-off-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/io_uring/io_uring-bench.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index e5fb9002d3147..3ab85e1e38d82 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -419,7 +419,8 @@ ieee80211_add_rx_radiotap_header(struct ieee80211_local *local,
- 	else if (status->bw == RATE_INFO_BW_5)
- 		channel_flags |= IEEE80211_CHAN_QUARTER;
+diff --git a/tools/io_uring/io_uring-bench.c b/tools/io_uring/io_uring-bench.c
+index 0f257139b003e..7703f01183854 100644
+--- a/tools/io_uring/io_uring-bench.c
++++ b/tools/io_uring/io_uring-bench.c
+@@ -130,7 +130,7 @@ static int io_uring_register_files(struct submitter *s)
+ 					s->nr_files);
+ }
  
--	if (status->band == NL80211_BAND_5GHZ)
-+	if (status->band == NL80211_BAND_5GHZ ||
-+	    status->band == NL80211_BAND_6GHZ)
- 		channel_flags |= IEEE80211_CHAN_OFDM | IEEE80211_CHAN_5GHZ;
- 	else if (status->encoding != RX_ENC_LEGACY)
- 		channel_flags |= IEEE80211_CHAN_DYN | IEEE80211_CHAN_2GHZ;
+-static int gettid(void)
++static int lk_gettid(void)
+ {
+ 	return syscall(__NR_gettid);
+ }
+@@ -281,7 +281,7 @@ static void *submitter_fn(void *data)
+ 	struct io_sq_ring *ring = &s->sq_ring;
+ 	int ret, prepped;
+ 
+-	printf("submitter=%d\n", gettid());
++	printf("submitter=%d\n", lk_gettid());
+ 
+ 	srand48_r(pthread_self(), &s->rand);
+ 
 -- 
 2.25.1
 
