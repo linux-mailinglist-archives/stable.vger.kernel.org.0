@@ -2,193 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9BE0284000
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 22:00:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 653B0284009
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 22:02:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729547AbgJET7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 15:59:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34242 "EHLO
+        id S1729570AbgJEUCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 16:02:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729536AbgJET7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 15:59:43 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E84FC0613CE;
-        Mon,  5 Oct 2020 12:59:43 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id c6so54336plr.9;
-        Mon, 05 Oct 2020 12:59:43 -0700 (PDT)
+        with ESMTP id S1729424AbgJEUCU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 16:02:20 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB18C0613CE
+        for <stable@vger.kernel.org>; Mon,  5 Oct 2020 13:02:20 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id l126so7661912pfd.5
+        for <stable@vger.kernel.org>; Mon, 05 Oct 2020 13:02:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:cc:references:from:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=v5MvUxw3ZB12lg7pYNQ9g8Q6+t1ltW3gSsaG6iUl7NA=;
-        b=pBSnV8GHp99nHecDrhbFq2Q5/I3f9S/LZlX1Vus5qfyg1xT3yt6VO05moym/CfogKl
-         8C76S1L9KdcZBWegnBP0XNzb4jEDVyxwCMHX4fiaN72HPWuzLF1pM6QYpT/cJC8mvS2A
-         BtZSpQoVEWo+ivbmprv3wp3pbWWxd93OR5O9/GIojsUupswDGE0LcGwu1A4UpNtCTpd/
-         BHoodD36Eer+wymMKfG8qCbO93ZeUizIIHoSEmH9iH46fgwCsdsf5vOTralNymeawi16
-         akNRkAnXh3anwCpXdMhyoGhH5KmOSTYoXJ6eVKx+/yrOUVuyVQlZn9huOQwishNu5+R8
-         dlyA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=84yoICzcKtYlb1n7Sthu46J+vmUBYjZ14NTEIrYOUAA=;
+        b=U0SSKsnxoxuGLfqz8HFjL0IbzVAliH4v4v1reAqeOYajTJxE3408XIZu+not1730cu
+         wrJtVnah4SIsaSs4RndEH9gItd1pKg4m0Zhpqxdb3BYaiI0U3OuB8WIRoin0n5Jjxpng
+         rnCREuu1u2oE2dUk8Kkcvmf8uTDJh2wnQOc+yvGiMPFWB1DRz7Br4ccBdRhHY0vD6wLL
+         ztXEhxkxsgzUnOoG1/rItBtZtMYM3BCT3GMBzF4vpVrDd7x4bmR7+fUODVzRzDHhvLfU
+         cQ44sfVa9VccHWEFuds7WCHvmkharQQBEqUdVv/2j/WNGrhLAdXPlpxRN3Wg8AZsklHA
+         5MDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=v5MvUxw3ZB12lg7pYNQ9g8Q6+t1ltW3gSsaG6iUl7NA=;
-        b=E6bMlJFgydfsUDUQ4NuLu++YS93QjcGI/pYm1dkMYQ/Aj2vaB5YbCAeUGi5pNfK9q9
-         +hx77DFjn8mPpGBKiH00h2jJ8GYNRvaRRea27yZOoKkOmQh11Ui24hGnn3T3uo9uYxyG
-         SJH2wwr9AJzhXgwzSLKzoDRPEgyw8WR7JLMzsjfi/9X1pWigpplD8gu3R6ag2ZREQHW8
-         lkuQMqwMrrG9rwScAxXSfH98PjMalEQH8SuSggfWrtpYPT7zFqW/JtJ0OUEs5ST0kb3o
-         ZDPfRjEW9/h3h10GCALuYT8sANUJV02l7TDWJlJ+LFltbzKrFJMmE/c5c1prhLJrqwGL
-         Yr4g==
-X-Gm-Message-State: AOAM533ask3tk8CSiPSY1xAObN6DOBvzKxKw0y1C2yAA/nXTNTIrT9/q
-        Osj5MfjJvuMg6wveTt1W3MaqDBADp597aA==
-X-Google-Smtp-Source: ABdhPJx9AWJfslURrqrpa2/s6kozXsl9A1u3rf3SFBpZ4BNZ8nUInlemdxkAR16VWwVxadlJPv8VRQ==
-X-Received: by 2002:a17:90a:5d94:: with SMTP id t20mr1092379pji.20.1601927982179;
-        Mon, 05 Oct 2020 12:59:42 -0700 (PDT)
-Received: from [10.230.29.112] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id ne16sm401296pjb.11.2020.10.05.12.59.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 05 Oct 2020 12:59:41 -0700 (PDT)
-To:     Christian Eggers <ceggers@arri.de>,
-        Woojung Huh <woojung.huh@microchip.com>,
-        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
-Cc:     Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20201005160829.5607-1-ceggers@arri.de>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH] net: dsa: microchip: fix race condition
-Message-ID: <66fce8e0-f6ae-488d-25c8-648606703778@gmail.com>
-Date:   Mon, 5 Oct 2020 12:59:39 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.3.1
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=84yoICzcKtYlb1n7Sthu46J+vmUBYjZ14NTEIrYOUAA=;
+        b=NgQ+L8IACsMUr4lhB9KTLhBH5sJYGsGfPBYegBpOFNi2qx9M6aOIacu2bf55tIAiCu
+         Dzr0EwbfJ3AR8PQQbs7ByHRqSvnZAfjMKkc5DixG2ew/YgDL1IWmi7mt4YSnlugS9y5A
+         erqP4dco880BnOEb0KHj4gYrcuT0d2/tb8m6G7zcCkk6N2SLhq5CUNS8LFlkZvmHxBez
+         f5UOYmsr1blMKji8TrNUTeV2F8ZrtSMfI8Vfha4CxTdv3Rr8Cx69TEl0og6Of+6G3bNf
+         YFqFavPHPW5XYk1KGNFaKMr5MQRG9vw1HVakWx4t0qu3NyDFlo+gscDnH+x2vX61nLqy
+         X6sg==
+X-Gm-Message-State: AOAM533/e2Cx/zND06WQ4RUHKbDcZff3o7NsGhl+vP4VqlXCQS49/f93
+        l9ktjiaWrDgIGw71Ad2yUn81FiKGl+VbiA==
+X-Google-Smtp-Source: ABdhPJyUeWpv3ITVubhNyS1njT+1RJL869jrwYL6zGddTyxzrRm23SjwkflF9s5nbzUvPl0C4/Zo/Q==
+X-Received: by 2002:a63:104d:: with SMTP id 13mr1046390pgq.445.1601928139151;
+        Mon, 05 Oct 2020 13:02:19 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c201sm755123pfb.216.2020.10.05.13.02.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Oct 2020 13:02:17 -0700 (PDT)
+Message-ID: <5f7b7bc9.1c69fb81.a4b85.1dc6@mx.google.com>
+Date:   Mon, 05 Oct 2020 13:02:17 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20201005160829.5607-1-ceggers@arri.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.238-16-g98ec56901158
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.4 baseline: 83 runs,
+ 1 regressions (v4.4.238-16-g98ec56901158)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.4 baseline: 83 runs, 1 regressions (v4.4.238-16-g98ec5690=
+1158)
+
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
 
 
-On 10/5/2020 9:08 AM, Christian Eggers wrote:
-> Between queuing the delayed work and finishing the setup of the dsa
-> ports, the process may sleep in request_module() and the queued work may
-> be executed prior the initialization of the DSA ports is finished. In
-> ksz_mib_read_work(), a NULL dereference will happen within
-> netof_carrier_ok(dp->slave).
-> 
-> Not queuing the delayed work in ksz_init_mib_timer() make things even
-> worse because the work will now be queued for immediate execution
-> (instead of 2000 ms) in ksz_mac_link_down() via
-> dsa_port_link_register_of().
-> 
-> Solution:
-> 1. Do not queue (only initialize) delayed work in ksz_init_mib_timer().
-> 2. Only queue delayed work in ksz_mac_link_down() if init is completed.
-> 3. Queue work once in ksz_switch_register(), after dsa_register_switch()
-> has completed.
-> 
-> Signed-off-by: Christian Eggers <ceggers@arri.de>
-> Cc: stable@vger.kernel.org
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.238-16-g98ec56901158/plan/baseline/
 
-This looks fine to me and the analysis appears to be correct, don't you 
-need to pair the test for dev->mib_read_internal being non zero with 
-setting it to zero in ksz_switch_unregister()?
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.238-16-g98ec56901158
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      98ec5690115898ecb3f8d45802239aa06a3f46e4 =
 
-You would also most likely want to add a Fixes: tag such that this can 
-be back ported to stable trees?
 
-> ---
-> Call tree:
-> ksz9477_i2c_probe()
-> \--ksz9477_switch_register()
->     \--ksz_switch_register()
->        +--dsa_register_switch()
->        |  \--dsa_switch_probe()
->        |     \--dsa_tree_setup()
->        |        \--dsa_tree_setup_switches()
->        |           +--dsa_switch_setup()
->        |           |  +--ksz9477_setup()
->        |           |  |  \--ksz_init_mib_timer()
->        |           |  |     |--/* Start the timer 2 seconds later. */
->        |           |  |     \--schedule_delayed_work(&dev->mib_read, msecs_to_jiffies(2000));
->        |           |  \--__mdiobus_register()
->        |           |     \--mdiobus_scan()
->        |           |        \--get_phy_device()
->        |           |           +--get_phy_id()
->        |           |           \--phy_device_create()
->        |           |              |--/* sleeping, ksz_mib_read_work() can be called meanwhile */
->        |           |              \--request_module()
->        |           |
->        |           \--dsa_port_setup()
->        |              +--/* Called for non-CPU ports */
->        |              +--dsa_slave_create()
->        |              |  +--/* Too late, ksz_mib_read_work() may be called beforehand */
->        |              |  \--port->slave = ...
->        |             ...
->        |              +--Called for CPU port */
->        |              \--dsa_port_link_register_of()
->        |                 \--ksz_mac_link_down()
->        |                    +--/* mib_read must be initialized here */
->        |                    +--/* work is already scheduled, so it will be executed after 2000 ms */
->        |                    \--schedule_delayed_work(&dev->mib_read, 0);
->        \-- /* here port->slave is setup properly, scheduling the delayed work should be safe */
-> 
-> static void ksz_mib_read_work()
-> \--netif_carrier_ok(dp->slave);  dp->slave has not been initialized yet
-> 
-> 
->   drivers/net/dsa/microchip/ksz_common.c | 16 +++++++++-------
->   1 file changed, 9 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/net/dsa/microchip/ksz_common.c b/drivers/net/dsa/microchip/ksz_common.c
-> index 8e755b50c9c1..a94d2278b95c 100644
-> --- a/drivers/net/dsa/microchip/ksz_common.c
-> +++ b/drivers/net/dsa/microchip/ksz_common.c
-> @@ -103,14 +103,8 @@ void ksz_init_mib_timer(struct ksz_device *dev)
->   
->   	INIT_DELAYED_WORK(&dev->mib_read, ksz_mib_read_work);
->   
-> -	/* Read MIB counters every 30 seconds to avoid overflow. */
-> -	dev->mib_read_interval = msecs_to_jiffies(30000);
-> -
->   	for (i = 0; i < dev->mib_port_cnt; i++)
->   		dev->dev_ops->port_init_cnt(dev, i);
-> -
-> -	/* Start the timer 2 seconds later. */
-> -	schedule_delayed_work(&dev->mib_read, msecs_to_jiffies(2000));
->   }
->   EXPORT_SYMBOL_GPL(ksz_init_mib_timer);
->   
-> @@ -143,7 +137,9 @@ void ksz_mac_link_down(struct dsa_switch *ds, int port, unsigned int mode,
->   
->   	/* Read all MIB counters when the link is going down. */
->   	p->read = true;
-> -	schedule_delayed_work(&dev->mib_read, 0);
-> +	/* timer started */
-> +	if (dev->mib_read_interval)
-> +		schedule_delayed_work(&dev->mib_read, 0);
->   }
->   EXPORT_SYMBOL_GPL(ksz_mac_link_down);
->   
-> @@ -446,6 +442,12 @@ int ksz_switch_register(struct ksz_device *dev,
->   		return ret;
->   	}
->   
-> +	/* Read MIB counters every 30 seconds to avoid overflow. */
-> +	dev->mib_read_interval = msecs_to_jiffies(30000);
-> +
-> +	/* Start the MIB timer. */
-> +	schedule_delayed_work(&dev->mib_read, 0);
-> +
->   	return 0;
->   }
->   EXPORT_SYMBOL(ksz_switch_register);
-> 
 
--- 
-Florian
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f7b42e45e29efac8c4ff3f6
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.238-1=
+6-g98ec56901158/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.238-1=
+6-g98ec56901158/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f7b42e45e29efa=
+c8c4ff3fd
+      failing since 1 day (last pass: v4.4.237-85-gcd7b2e899081, first fail=
+: v4.4.238-3-g44c1a5097bba)
+      2 lines  =20
