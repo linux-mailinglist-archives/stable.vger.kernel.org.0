@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A356283A3E
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235D1283992
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:27:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728049AbgJEPcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:32:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60346 "EHLO mail.kernel.org"
+        id S1727213AbgJEP1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:27:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728046AbgJEPck (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:32:40 -0400
+        id S1727206AbgJEP1Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:27:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B57E020B80;
-        Mon,  5 Oct 2020 15:32:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2D3720637;
+        Mon,  5 Oct 2020 15:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911960;
-        bh=Teh2OF51j5GQpR2E2cre2gfVUdcI0zZAKAiH2EDcWUQ=;
+        s=default; t=1601911634;
+        bh=anyxQxcrQLQQxS6ixibolxBz33XPbYUvG7IdvOH4pr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qX2E3dWrDdSs8Xd+pU6yo2MrTrWrX//pF2srReexCjwubkbhx6YB7XUa+Jjam9DoX
-         M+Gtvk04r5dHJKRnL1xqVkNCrREU6lOGQ2cZKaruBoz5Icy0BxmtMjzOXR1dubv/JV
-         bOmew232973vr4gGUsW8mtOuaXnMR/3t2u5yL98E=
+        b=I4ms07IicMJIEcWyszLddjA9pbe1JZZsVG9bprgBU/DSYCL02UrNhp8EsWyRH54HX
+         xMDV3gMJoCwD4n2n7OPlCzzEsTbdXJ4Zs7OFi6apJZVocEMYVc2ZBK9UEWnMjMveZU
+         cik7eEBoWS57MsViHbh7WBfelpuRnirJEuq5s+W8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aloka Dixit <alokad@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
+        Xie He <xie.he.0141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 39/85] mac80211: Fix radiotap header channel flag for 6GHz band
-Date:   Mon,  5 Oct 2020 17:26:35 +0200
-Message-Id: <20201005142116.611543754@linuxfoundation.org>
+Subject: [PATCH 4.19 19/38] drivers/net/wan/hdlc: Set skb->protocol before transmitting
+Date:   Mon,  5 Oct 2020 17:26:36 +0200
+Message-Id: <20201005142109.601642891@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
-References: <20201005142114.732094228@linuxfoundation.org>
+In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
+References: <20201005142108.650363140@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aloka Dixit <alokad@codeaurora.org>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 412a84b5714af56f3eb648bba155107b5edddfdf ]
+[ Upstream commit 9fb030a70431a2a2a1b292dbf0b2f399cc072c16 ]
 
-Radiotap header field 'Channel flags' has '2 GHz spectrum' set to
-'true' for 6GHz packet.
-Change it to 5GHz as there isn't a separate option available for 6GHz.
+This patch sets skb->protocol before transmitting frames on the HDLC
+device, so that a user listening on the HDLC device with an AF_PACKET
+socket will see outgoing frames' sll_protocol field correctly set and
+consistent with that of incoming frames.
 
-Signed-off-by: Aloka Dixit <alokad@codeaurora.org>
-Link: https://lore.kernel.org/r/010101747ab7b703-1d7c9851-1594-43bf-81f7-f79ce7a67cc6-000000@us-west-2.amazonses.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+1. Control frames in hdlc_cisco and hdlc_ppp
+
+When these drivers send control frames, skb->protocol is not set.
+
+This value should be set to htons(ETH_P_HDLC), because when receiving
+control frames, their skb->protocol is set to htons(ETH_P_HDLC).
+
+When receiving, hdlc_type_trans in hdlc.h is called, which then calls
+cisco_type_trans or ppp_type_trans. The skb->protocol of control frames
+is set to htons(ETH_P_HDLC) so that the control frames can be received
+by hdlc_rcv in hdlc.c, which calls cisco_rx or ppp_rx to process the
+control frames.
+
+2. hdlc_fr
+
+When this driver sends control frames, skb->protocol is set to internal
+values used in this driver.
+
+When this driver sends data frames (from upper stacked PVC devices),
+skb->protocol is the same as that of the user data packet being sent on
+the upper PVC device (for normal PVC devices), or is htons(ETH_P_802_3)
+(for Ethernet-emulating PVC devices).
+
+However, skb->protocol for both control frames and data frames should be
+set to htons(ETH_P_HDLC), because when receiving, all frames received on
+the HDLC device will have their skb->protocol set to htons(ETH_P_HDLC).
+
+When receiving, hdlc_type_trans in hdlc.h is called, and because this
+driver doesn't provide a type_trans function in struct hdlc_proto,
+all frames will have their skb->protocol set to htons(ETH_P_HDLC).
+The frames are then received by hdlc_rcv in hdlc.c, which calls fr_rx
+to process the frames (control frames are consumed and data frames
+are re-received on upper PVC devices).
+
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wan/hdlc_cisco.c | 1 +
+ drivers/net/wan/hdlc_fr.c    | 3 +++
+ drivers/net/wan/hdlc_ppp.c   | 1 +
+ 3 files changed, 5 insertions(+)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 5c5af4b5fc080..f2c3ac648fc08 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -451,7 +451,8 @@ ieee80211_add_rx_radiotap_header(struct ieee80211_local *local,
- 	else if (status->bw == RATE_INFO_BW_5)
- 		channel_flags |= IEEE80211_CHAN_QUARTER;
+diff --git a/drivers/net/wan/hdlc_cisco.c b/drivers/net/wan/hdlc_cisco.c
+index c169a26e5359a..2c6e3fa6947a0 100644
+--- a/drivers/net/wan/hdlc_cisco.c
++++ b/drivers/net/wan/hdlc_cisco.c
+@@ -121,6 +121,7 @@ static void cisco_keepalive_send(struct net_device *dev, u32 type,
+ 	skb_put(skb, sizeof(struct cisco_packet));
+ 	skb->priority = TC_PRIO_CONTROL;
+ 	skb->dev = dev;
++	skb->protocol = htons(ETH_P_HDLC);
+ 	skb_reset_network_header(skb);
  
--	if (status->band == NL80211_BAND_5GHZ)
-+	if (status->band == NL80211_BAND_5GHZ ||
-+	    status->band == NL80211_BAND_6GHZ)
- 		channel_flags |= IEEE80211_CHAN_OFDM | IEEE80211_CHAN_5GHZ;
- 	else if (status->encoding != RX_ENC_LEGACY)
- 		channel_flags |= IEEE80211_CHAN_DYN | IEEE80211_CHAN_2GHZ;
+ 	dev_queue_xmit(skb);
+diff --git a/drivers/net/wan/hdlc_fr.c b/drivers/net/wan/hdlc_fr.c
+index 67f89917277ce..03b5f5cce6f47 100644
+--- a/drivers/net/wan/hdlc_fr.c
++++ b/drivers/net/wan/hdlc_fr.c
+@@ -436,6 +436,8 @@ static netdev_tx_t pvc_xmit(struct sk_buff *skb, struct net_device *dev)
+ 			if (pvc->state.fecn) /* TX Congestion counter */
+ 				dev->stats.tx_compressed++;
+ 			skb->dev = pvc->frad;
++			skb->protocol = htons(ETH_P_HDLC);
++			skb_reset_network_header(skb);
+ 			dev_queue_xmit(skb);
+ 			return NETDEV_TX_OK;
+ 		}
+@@ -558,6 +560,7 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
+ 	skb_put(skb, i);
+ 	skb->priority = TC_PRIO_CONTROL;
+ 	skb->dev = dev;
++	skb->protocol = htons(ETH_P_HDLC);
+ 	skb_reset_network_header(skb);
+ 
+ 	dev_queue_xmit(skb);
+diff --git a/drivers/net/wan/hdlc_ppp.c b/drivers/net/wan/hdlc_ppp.c
+index 85844f26547dd..20d9b6585fba3 100644
+--- a/drivers/net/wan/hdlc_ppp.c
++++ b/drivers/net/wan/hdlc_ppp.c
+@@ -254,6 +254,7 @@ static void ppp_tx_cp(struct net_device *dev, u16 pid, u8 code,
+ 
+ 	skb->priority = TC_PRIO_CONTROL;
+ 	skb->dev = dev;
++	skb->protocol = htons(ETH_P_HDLC);
+ 	skb_reset_network_header(skb);
+ 	skb_queue_tail(&tx_queue, skb);
+ }
 -- 
 2.25.1
 
