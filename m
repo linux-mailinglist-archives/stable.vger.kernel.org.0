@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF218283A10
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3FED283A5C
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727729AbgJEPa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:30:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57434 "EHLO mail.kernel.org"
+        id S1728148AbgJEPd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:33:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727304AbgJEPat (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:30:49 -0400
+        id S1728142AbgJEPdV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:33:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C0B4208B6;
-        Mon,  5 Oct 2020 15:30:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCEA32085B;
+        Mon,  5 Oct 2020 15:33:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911841;
-        bh=ynGW4OLLWRhXjrHJZOEtU1AP03GcyQL99GO0zpSkZeY=;
+        s=default; t=1601912001;
+        bh=2SZ4vk7oql5z2JTtf35v3BNzZoNWaj5yxxKXDNLXKng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqNnWXuNfX8qEFmM7VTZV6bLxTNTKaLRE2VVntIPUr8/Twnop1Xt00B5Sc1RocgvG
-         vLJgigSkVz04mkcxF0H0M3j11avmugcsBk9LXJ+8dhT2fiUmBRx/evoTDSrNMdigcZ
-         JC2IhSxaL6oRpWAFDwaD+35EbmcLqrVbCy/mHKEk=
+        b=Myc2H59C5Cxhf5ZHEJ8C6d68dy+rPG7fvIaYozwfKw5jatwsSYWH6McbWFAXD5kv5
+         kqPg62eUtIyc7Pfi8tHYqGGrd8Zbzc/UehcIivKGRZeEGHSOSovjWz2C32DZHHp1OO
+         OThKW8vlopFG8rptKx4xB9AbGascr4V0TL0h3qek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willy Tarreau <w@1wt.eu>,
-        Emese Revfy <re.emese@gmail.com>,
-        Thibaut Sautereau <thibaut.sautereau@ssi.gouv.fr>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Ye Li <ye.li@nxp.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/57] random32: Restore __latent_entropy attribute on net_rand_state
+Subject: [PATCH 5.8 62/85] gpio: pca953x: Fix uninitialized pending variable
 Date:   Mon,  5 Oct 2020 17:26:58 +0200
-Message-Id: <20201005142112.022243760@linuxfoundation.org>
+Message-Id: <20201005142117.711433312@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thibaut Sautereau <thibaut.sautereau@ssi.gouv.fr>
+From: Ye Li <ye.li@nxp.com>
 
-[ Upstream commit 09a6b0bc3be793ca8cba580b7992d73e9f68f15d ]
+[ Upstream commit e43c26e12dd49a41cf5a4cd5c5b59a1eb98ed11e ]
 
-Commit f227e3ec3b5c ("random32: update the net random state on interrupt
-and activity") broke compilation and was temporarily fixed by Linus in
-83bdc7275e62 ("random32: remove net_rand_state from the latent entropy
-gcc plugin") by entirely moving net_rand_state out of the things handled
-by the latent_entropy GCC plugin.
+When pca953x_irq_pending returns false, the pending parameter won't
+be set. But pca953x_irq_handler continues using this uninitialized
+variable as pending irqs and will cause problem.
+Fix the issue by initializing pending to 0.
 
->From what I understand when reading the plugin code, using the
-__latent_entropy attribute on a declaration was the wrong part and
-simply keeping the __latent_entropy attribute on the variable definition
-was the correct fix.
-
-Fixes: 83bdc7275e62 ("random32: remove net_rand_state from the latent entropy gcc plugin")
-Acked-by: Willy Tarreau <w@1wt.eu>
-Cc: Emese Revfy <re.emese@gmail.com>
-Signed-off-by: Thibaut Sautereau <thibaut.sautereau@ssi.gouv.fr>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 064c73afe738 ("gpio: pca953x: Synchronize interrupt handler properly")
+Signed-off-by: Ye Li <ye.li@nxp.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/random32.c | 2 +-
+ drivers/gpio/gpio-pca953x.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/random32.c b/lib/random32.c
-index 3d749abb9e80d..1786f78bf4c53 100644
---- a/lib/random32.c
-+++ b/lib/random32.c
-@@ -48,7 +48,7 @@ static inline void prandom_state_selftest(void)
- }
- #endif
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index a3b9bdedbe443..cc95f1630feb0 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -813,7 +813,7 @@ static irqreturn_t pca953x_irq_handler(int irq, void *devid)
+ {
+ 	struct pca953x_chip *chip = devid;
+ 	struct gpio_chip *gc = &chip->gpio_chip;
+-	DECLARE_BITMAP(pending, MAX_LINE);
++	DECLARE_BITMAP(pending, MAX_LINE) = {};
+ 	int level;
+ 	bool ret;
  
--DEFINE_PER_CPU(struct rnd_state, net_rand_state);
-+DEFINE_PER_CPU(struct rnd_state, net_rand_state)  __latent_entropy;
- 
- /**
-  *	prandom_u32_state - seeded pseudo-random number generator.
 -- 
 2.25.1
 
