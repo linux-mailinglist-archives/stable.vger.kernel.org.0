@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB9E8283A74
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9429283AFB
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:39:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727800AbgJEPeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:34:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34546 "EHLO mail.kernel.org"
+        id S1727801AbgJEPi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:38:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727639AbgJEPeF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:34:05 -0400
+        id S1727792AbgJEPah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:30:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73FCC2085B;
-        Mon,  5 Oct 2020 15:34:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D22820637;
+        Mon,  5 Oct 2020 15:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601912044;
-        bh=NknP4t5sd7DmrS3DMtAAE6hNeQsxSux/H9TrUaLthnU=;
+        s=default; t=1601911836;
+        bh=Qh6Luh8pL05WhSEXBGdJQV+273ROVrAnhb5YAdEVCIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EgAHX7fBpWEgCGcI06Kmmbdc1l5y+gNpua3HNw1EgJK7TGxeC2fC8ORYcnuHxqaxR
-         XgouI652mPQmoi0XCDaAC2TSAaTh2g0J03hFwNEuHHdna6FH03NvolnlV4MyscgR+s
-         4UmF0MV+zyrFFrEJeLmiKmIU6rZTBPi4gJjtAEIQ=
+        b=HA6h9UEsfcuv7HIYnBbAHv4hxgab2/rK/CvbvbhMGElViYTZyM8EbQVpk8BoiMB/B
+         D8HAjXkJYKza9k2Q0oTGFvmtCu9ykeQxqyhWABM5iNRjstiz/MRiBzQUg0mF7J3Wue
+         Cm7ivKKvdkZrc+5WWyjjMbS32d+PsIJDWpZQgyM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 72/85] pinctrl: qcom: sm8250: correct sdc2_clk
-Date:   Mon,  5 Oct 2020 17:27:08 +0200
-Message-Id: <20201005142118.195299391@linuxfoundation.org>
+        stable@vger.kernel.org, Will McVicker <willmcvicker@google.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.4 57/57] netfilter: ctnetlink: add a range check for l3/l4 protonum
+Date:   Mon,  5 Oct 2020 17:27:09 +0200
+Message-Id: <20201005142112.543294525@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
-References: <20201005142114.732094228@linuxfoundation.org>
+In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
+References: <20201005142109.796046410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Will McVicker <willmcvicker@google.com>
 
-[ Upstream commit 5d8ff95a52c36740bf4e61202d08549e7a9caf20 ]
+commit 1cc5ef91d2ff94d2bf2de3b3585423e8a1051cb6 upstream.
 
-Correct sdc2_clk pin definition (register offset is wrong, verified by
-the msm-4.19 driver).
+The indexes to the nf_nat_l[34]protos arrays come from userspace. So
+check the tuple's family, e.g. l3num, when creating the conntrack in
+order to prevent an OOB memory access during setup.  Here is an example
+kernel panic on 4.14.180 when userspace passes in an index greater than
+NFPROTO_NUMPROTO.
 
-Fixes: 4e3ec9e407ad ("pinctrl: qcom: Add sm8250 pinctrl driver.")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20200914091846.55204-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+Modules linked in:...
+Process poc (pid: 5614, stack limit = 0x00000000a3933121)
+CPU: 4 PID: 5614 Comm: poc Tainted: G S      W  O    4.14.180-g051355490483
+Hardware name: Qualcomm Technologies, Inc. SM8150 V2 PM8150 Google Inc. MSM
+task: 000000002a3dfffe task.stack: 00000000a3933121
+pc : __cfi_check_fail+0x1c/0x24
+lr : __cfi_check_fail+0x1c/0x24
+...
+Call trace:
+__cfi_check_fail+0x1c/0x24
+name_to_dev_t+0x0/0x468
+nfnetlink_parse_nat_setup+0x234/0x258
+ctnetlink_parse_nat_setup+0x4c/0x228
+ctnetlink_new_conntrack+0x590/0xc40
+nfnetlink_rcv_msg+0x31c/0x4d4
+netlink_rcv_skb+0x100/0x184
+nfnetlink_rcv+0xf4/0x180
+netlink_unicast+0x360/0x770
+netlink_sendmsg+0x5a0/0x6a4
+___sys_sendmsg+0x314/0x46c
+SyS_sendmsg+0xb4/0x108
+el0_svc_naked+0x34/0x38
+
+This crash is not happening since 5.4+, however, ctnetlink still
+allows for creating entries with unsupported layer 3 protocol number.
+
+Fixes: c1d10adb4a521 ("[NETFILTER]: Add ctnetlink port for nf_conntrack")
+Signed-off-by: Will McVicker <willmcvicker@google.com>
+[pablo@netfilter.org: rebased original patch on top of nf.git]
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pinctrl/qcom/pinctrl-sm8250.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_netlink.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/qcom/pinctrl-sm8250.c b/drivers/pinctrl/qcom/pinctrl-sm8250.c
-index a660f1274b667..826df0d637eaa 100644
---- a/drivers/pinctrl/qcom/pinctrl-sm8250.c
-+++ b/drivers/pinctrl/qcom/pinctrl-sm8250.c
-@@ -1308,7 +1308,7 @@ static const struct msm_pingroup sm8250_groups[] = {
- 	[178] = PINGROUP(178, WEST, _, _, _, _, _, _, _, _, _),
- 	[179] = PINGROUP(179, WEST, _, _, _, _, _, _, _, _, _),
- 	[180] = UFS_RESET(ufs_reset, 0xb8000),
--	[181] = SDC_PINGROUP(sdc2_clk, 0x7000, 14, 6),
-+	[181] = SDC_PINGROUP(sdc2_clk, 0xb7000, 14, 6),
- 	[182] = SDC_PINGROUP(sdc2_cmd, 0xb7000, 11, 3),
- 	[183] = SDC_PINGROUP(sdc2_data, 0xb7000, 9, 0),
- };
--- 
-2.25.1
-
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -1141,6 +1141,8 @@ ctnetlink_parse_tuple(const struct nlatt
+ 	if (!tb[CTA_TUPLE_IP])
+ 		return -EINVAL;
+ 
++	if (l3num != NFPROTO_IPV4 && l3num != NFPROTO_IPV6)
++		return -EOPNOTSUPP;
+ 	tuple->src.l3num = l3num;
+ 
+ 	err = ctnetlink_parse_tuple_ip(tb[CTA_TUPLE_IP], tuple);
 
 
