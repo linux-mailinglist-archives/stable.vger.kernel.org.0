@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB06F2839F1
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:30:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB02283AAD
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727687AbgJEP3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:29:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55886 "EHLO mail.kernel.org"
+        id S1727899AbgJEPgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:36:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727560AbgJEP3r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:29:47 -0400
+        id S1727651AbgJEPc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:32:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E669E2074F;
-        Mon,  5 Oct 2020 15:29:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8808208C7;
+        Mon,  5 Oct 2020 15:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911786;
-        bh=AjPMVTF9I1erYN6vO/I5kFxYaLBLn5v87XHD0W5aIdk=;
+        s=default; t=1601911976;
+        bh=19iZiCMWDwLAiTokSTe7XezfI3/9xUIy7BD+GIkaOLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oTKtQWm+PRlqKJfHdLptTJFN5RMKaIdo3HCubncNT4w+AsK0zBE3ZaN+9Qi8WXDN+
-         7fzkhZBXqJ0ocW705IDetephdTghLp2rpa3Robks0BYiUWyjuEierVNNBWxqxyPEIz
-         IJi5c99nQZokP1/u0eJ3Pj1da0MTialiGG5v4CBU=
+        b=J4IpuUoeYMx8hKESmA+Fyltn2sNC1p6lwLg0CG7JFbJCGO+rByepttXHretszK3gO
+         W6AnAXN9K6aqcHEemC9So7PebBvcQfslHFnHHL6OZRL8mP6jAWtOvxeTPAjOO8viY0
+         PPDM6HyJfnRyYUtTEF3VoAymrPhUwO+vyHZ3cRuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, LABBE Corentin <clabbe@baylibre.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org,
+        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/57] clk: tegra: Always program PLL_E when enabled
+Subject: [PATCH 5.8 53/85] nfs: Fix security label length not being reset
 Date:   Mon,  5 Oct 2020 17:26:49 +0200
-Message-Id: <20201005142111.597852299@linuxfoundation.org>
+Message-Id: <20201005142117.278409667@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
 
-[ Upstream commit 5105660ee80862b85f7769626d0f936c18ce1885 ]
+[ Upstream commit d33030e2ee3508d65db5644551435310df86010e ]
 
-Commit bff1cef5f23a ("clk: tegra: Don't enable already enabled PLLs")
-added checks to avoid enabling PLLs that have already been enabled by
-the bootloader. However, the PLL_E configuration inherited from the
-bootloader isn't necessarily the one that is needed for the kernel.
+nfs_readdir_page_filler() iterates over entries in a directory, reusing
+the same security label buffer, but does not reset the buffer's length.
+This causes decode_attr_security_label() to return -ERANGE if an entry's
+security label is longer than the previous one's. This error, in
+nfs4_decode_dirent(), only gets passed up as -EAGAIN, which causes another
+failed attempt to copy into the buffer. The second error is ignored and
+the remaining entries do not show up in ls, specifically the getdents64()
+syscall.
 
-This can cause SATA to fail like this:
+Reproduce by creating multiple files in NFS and giving one of the later
+files a longer security label. ls will not see that file nor any that are
+added afterwards, though they will exist on the backend.
 
-    [    5.310270] phy phy-sata.6: phy poweron failed --> -110
-    [    5.315604] tegra-ahci 70027000.sata: failed to power on AHCI controller: -110
-    [    5.323022] tegra-ahci: probe of 70027000.sata failed with error -110
+In nfs_readdir_page_filler(), reset security label buffer length before
+every reuse
 
-Fix this by always programming the PLL_E. This ensures that any mis-
-configuration by the bootloader will be overwritten by the kernel.
-
-Fixes: bff1cef5f23a ("clk: tegra: Don't enable already enabled PLLs")
-Reported-by: LABBE Corentin <clabbe@baylibre.com>
-Tested-by: Corentin Labbe <clabbe@baylibre.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+Fixes: b4487b935452 ("nfs: Fix getxattr kernel panic and memory overflow")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-pll.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/nfs/dir.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/clk/tegra/clk-pll.c b/drivers/clk/tegra/clk-pll.c
-index 1583f5fc992f3..80f640d9ea71c 100644
---- a/drivers/clk/tegra/clk-pll.c
-+++ b/drivers/clk/tegra/clk-pll.c
-@@ -1569,9 +1569,6 @@ static int clk_plle_tegra114_enable(struct clk_hw *hw)
- 	unsigned long flags = 0;
- 	unsigned long input_rate;
+diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+index 5a331da5f55ad..785f46217f11a 100644
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -579,6 +579,9 @@ int nfs_readdir_page_filler(nfs_readdir_descriptor_t *desc, struct nfs_entry *en
+ 	xdr_set_scratch_buffer(&stream, page_address(scratch), PAGE_SIZE);
  
--	if (clk_pll_is_enabled(hw))
--		return 0;
--
- 	input_rate = clk_hw_get_rate(clk_hw_get_parent(hw));
- 
- 	if (_get_table_rate(hw, &sel, pll->params->fixed_rate, input_rate))
+ 	do {
++		if (entry->label)
++			entry->label->len = NFS4_MAXLABELLEN;
++
+ 		status = xdr_decode(desc, entry, &stream);
+ 		if (status != 0) {
+ 			if (status == -EAGAIN)
 -- 
 2.25.1
 
