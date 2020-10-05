@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C029B2839B3
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF8A283B22
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:40:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727360AbgJEP2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:28:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52438 "EHLO mail.kernel.org"
+        id S1727972AbgJEPjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:39:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727295AbgJEP1p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:27:45 -0400
+        id S1727634AbgJEP3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:29:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1606720637;
-        Mon,  5 Oct 2020 15:27:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3731207BC;
+        Mon,  5 Oct 2020 15:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911664;
-        bh=wdSL9Ci2BXi8AAOSb+xjbL9GL4LfqK+9bfXkgj2I75Y=;
+        s=default; t=1601911781;
+        bh=Ru7/vpo8GarfJRXJYCkNWopOS6nnw3qYPy3r2b2lhbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZBclt0RYLNwM66O3DRgf7HY4BUFB0mnkFiDdo7/jLuITEh7IiPD6hIW9Jmjk+rLV
-         XfjNMD0I+Ms3W3M3cukeyeP5Z/EK9P/j9afvFB7dWFEt0zGkFXpMFNTsqj/R7T5A8b
-         FYwgi0dRY+Y3h23KKK7+DBRoE9L2taNLXuQe92nQ=
+        b=yw4+Tz0nCsKSKkPvxVgWYIDEX2gG5h8SJ2j11R3If/cqN6jRCYS5Aijaqos6Hi836
+         tLMaOMynAFf42MWIIk394DWjki0P9T8qPXcoKoY8bZ0+56xLeHCCH9P81OwkCjEHsP
+         F/9pVX7CaO6FLyKohDb3QIV8Zwi5qX4hHTqFDses=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Huang <vincent.huang@tw.synaptics.com>,
-        Harry Cutts <hcutts@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 29/38] Input: trackpoint - enable Synaptics trackpoints
-Date:   Mon,  5 Oct 2020 17:26:46 +0200
-Message-Id: <20201005142110.077809961@linuxfoundation.org>
+Subject: [PATCH 5.4 35/57] pinctrl: mvebu: Fix i2c sda definition for 98DX3236
+Date:   Mon,  5 Oct 2020 17:26:47 +0200
+Message-Id: <20201005142111.499044512@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
-References: <20201005142108.650363140@linuxfoundation.org>
+In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
+References: <20201005142109.796046410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Huang <vincent.huang@tw.synaptics.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit 996d585b079ad494a30cac10e08585bcd5345125 ]
+[ Upstream commit 63c3212e7a37d68c89a13bdaebce869f4e064e67 ]
 
-Add Synaptics IDs in trackpoint_start_protocol() to mark them as valid.
+Per the datasheet the i2c functions use MPP_Sel=0x1. They are documented
+as using MPP_Sel=0x4 as well but mixing 0x1 and 0x4 is clearly wrong. On
+the board tested 0x4 resulted in a non-functioning i2c bus so stick with
+0x1 which works.
 
-Signed-off-by: Vincent Huang <vincent.huang@tw.synaptics.com>
-Fixes: 6c77545af100 ("Input: trackpoint - add new trackpoint variant IDs")
-Reviewed-by: Harry Cutts <hcutts@chromium.org>
-Tested-by: Harry Cutts <hcutts@chromium.org>
-Link: https://lore.kernel.org/r/20200924053013.1056953-1-vincent.huang@tw.synaptics.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: d7ae8f8dee7f ("pinctrl: mvebu: pinctrl driver for 98DX3236 SoC")
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20200907211712.9697-2-chris.packham@alliedtelesis.co.nz
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/trackpoint.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/mvebu/pinctrl-armada-xp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-index 31c16b68aa311..e468657854094 100644
---- a/drivers/input/mouse/trackpoint.c
-+++ b/drivers/input/mouse/trackpoint.c
-@@ -285,6 +285,8 @@ static int trackpoint_start_protocol(struct psmouse *psmouse,
- 	case TP_VARIANT_ALPS:
- 	case TP_VARIANT_ELAN:
- 	case TP_VARIANT_NXP:
-+	case TP_VARIANT_JYT_SYNAPTICS:
-+	case TP_VARIANT_SYNAPTICS:
- 		if (variant_id)
- 			*variant_id = param[0];
- 		if (firmware_id)
+diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-xp.c b/drivers/pinctrl/mvebu/pinctrl-armada-xp.c
+index a767a05fa3a0d..48e2a6c56a83b 100644
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-xp.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-xp.c
+@@ -414,7 +414,7 @@ static struct mvebu_mpp_mode mv98dx3236_mpp_modes[] = {
+ 		 MPP_VAR_FUNCTION(0x1, "i2c0", "sck",        V_98DX3236_PLUS)),
+ 	MPP_MODE(15,
+ 		 MPP_VAR_FUNCTION(0x0, "gpio", NULL,         V_98DX3236_PLUS),
+-		 MPP_VAR_FUNCTION(0x4, "i2c0", "sda",        V_98DX3236_PLUS)),
++		 MPP_VAR_FUNCTION(0x1, "i2c0", "sda",        V_98DX3236_PLUS)),
+ 	MPP_MODE(16,
+ 		 MPP_VAR_FUNCTION(0x0, "gpo", NULL,          V_98DX3236_PLUS),
+ 		 MPP_VAR_FUNCTION(0x4, "dev", "oe",          V_98DX3236_PLUS)),
 -- 
 2.25.1
 
