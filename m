@@ -2,142 +2,238 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 026A4283A21
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47BE2283988
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727892AbgJEPbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:31:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58550 "EHLO mail.kernel.org"
+        id S1727156AbgJEP1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:27:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727887AbgJEPbd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:31:33 -0400
+        id S1727146AbgJEP1G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:27:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73F6B20637;
-        Mon,  5 Oct 2020 15:31:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45E1D2074F;
+        Mon,  5 Oct 2020 15:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911892;
-        bh=CGslOvpBA9a+lNg2SAYKOsXS7dZ+ob2Q5Cb2+4Lf+M0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zmLcEfgqB8SFzHDN4xU51UhpAGjNUpIeYqphdOXwYeh4B6Bzjyz6NwzFK0Pt79tuc
-         b2x7AdKPPOCg08NMnXLiMz3CjbwR7bhDUHTPboBXrgdggUK4KbekfIBUnhDsfKWaRl
-         g8VKSGwYXRKhuo9lL9RatV/qgmrtpVK3cBYxLRYc=
+        s=default; t=1601911623;
+        bh=p93z4WQtOI3uhajTZQMA3bFIP2Vl9K50ERX2Y/m25hQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=xMzMpcabKV/oDEUcrtsOj52sFraqHOHb5i1LgXlelhQ+ufyg9izNBwGX2TWfdspfL
+         dI6IGrnz/kvQVafiN7brkKLYtGkf60OcIBlNrtqT8tW74cjuycwj1I/NKDEaUeysiz
+         6v5lGo47yzGtFKFhcFod6IuD72wmOyudxbxqvdEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anna-Maria Behnsen <anna-maria@linutronix.de>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.8 20/85] tracing: Fix trace_find_next_entry() accounting of temp buffer size
-Date:   Mon,  5 Oct 2020 17:26:16 +0200
-Message-Id: <20201005142115.703829565@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 4.19 00/38] 4.19.150-rc1 review
+Date:   Mon,  5 Oct 2020 17:26:17 +0200
+Message-Id: <20201005142108.650363140@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
-References: <20201005142114.732094228@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.150-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.150-rc1
+X-KernelTest-Deadline: 2020-10-07T14:21+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+This is the start of the stable review cycle for the 4.19.150 release.
+There are 38 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 851e6f61cd076954f9d521e0d79b173ad3a2453b upstream.
+Responses should be made by Wed, 07 Oct 2020 14:20:55 +0000.
+Anything received after that time might be too late.
 
-The temp buffer size variable for trace_find_next_entry() was incorrectly
-being updated when the size did not change. The temp buffer size should only
-be updated when it is reallocated.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.150-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-This is mostly an issue when used with ftrace_dump(). That's because
-ftrace_dump() can not allocate a new buffer, and instead uses a temporary
-buffer with a fix size. But the variable that keeps track of that size is
-incorrectly updated with each call, and it could fall into the path that
-would try to reallocate the buffer and produce a warning.
+thanks,
 
- ------------[ cut here ]------------
- WARNING: CPU: 1 PID: 1601 at kernel/trace/trace.c:3548
-trace_find_next_entry+0xd0/0xe0
- Modules linked in [..]
- CPU: 1 PID: 1601 Comm: bash Not tainted 5.9.0-rc5-test+ #521
- Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01 v03.03
-07/14/2016
- RIP: 0010:trace_find_next_entry+0xd0/0xe0
- Code: 40 21 00 00 4c 89 e1 31 d2 4c 89 ee 48 89 df e8 c6 9e ff ff 89 ab 54
-21 00 00 5b 5d 41 5c 41 5d c3 48 63 d5 eb bf 31 c0 eb f0 <0f> 0b 48 63 d5 eb
-b4 66 0f 1f 84 00 00 00 00 00 53 48 8d 8f 60 21
- RSP: 0018:ffff95a4f2e8bd70 EFLAGS: 00010046
- RAX: ffffffff96679fc0 RBX: ffffffff97910de0 RCX: ffffffff96679fc0
- RDX: ffff95a4f2e8bd98 RSI: ffff95a4ee321098 RDI: ffffffff97913000
- RBP: 0000000000000018 R08: 0000000000000000 R09: 0000000000000000
- R10: 0000000000000001 R11: 0000000000000046 R12: ffff95a4f2e8bd98
- R13: 0000000000000000 R14: ffff95a4ee321098 R15: 00000000009aa301
- FS:  00007f8565484740(0000) GS:ffff95a55aa40000(0000)
-knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 000055876bd43d90 CR3: 00000000b76e6003 CR4: 00000000001706e0
- Call Trace:
-  trace_print_lat_context+0x58/0x2d0
-  ? cpumask_next+0x16/0x20
-  print_trace_line+0x1a4/0x4f0
-  ftrace_dump.cold+0xad/0x12c
-  __handle_sysrq.cold+0x51/0x126
-  write_sysrq_trigger+0x3f/0x4a
-  proc_reg_write+0x53/0x80
-  vfs_write+0xca/0x210
-  ksys_write+0x70/0xf0
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
- RIP: 0033:0x7f8565579487
- Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e fa
-64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff
-77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
- RSP: 002b:00007ffd40707948 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
- RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007f8565579487
- RDX: 0000000000000002 RSI: 000055876bd74de0 RDI: 0000000000000001
- RBP: 000055876bd74de0 R08: 000000000000000a R09: 0000000000000001
- R10: 000055876bdec280 R11: 0000000000000246 R12: 0000000000000002
- R13: 00007f856564a500 R14: 0000000000000002 R15: 00007f856564a700
- irq event stamp: 109958
- ---[ end trace 7aab5b7e51484b00 ]---
+greg k-h
 
-Not only fix the updating of the temp buffer, but also do not free the temp
-buffer before a new buffer is allocated (there's no reason to not continue
-to use the current temp buffer if an allocation fails).
+-------------
+Pseudo-Shortlog of commits:
 
-Cc: stable@vger.kernel.org
-Fixes: 8e99cf91b99bb ("tracing: Do not allocate buffer in trace_find_next_entry() in atomic")
-Reported-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.150-rc1
 
----
- kernel/trace/trace.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+Will McVicker <willmcvicker@google.com>
+    netfilter: ctnetlink: add a range check for l3/l4 protonum
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -3507,13 +3507,15 @@ struct trace_entry *trace_find_next_entr
- 	if (iter->ent && iter->ent != iter->temp) {
- 		if ((!iter->temp || iter->temp_size < iter->ent_size) &&
- 		    !WARN_ON_ONCE(iter->temp == static_temp_buf)) {
--			kfree(iter->temp);
--			iter->temp = kmalloc(iter->ent_size, GFP_KERNEL);
--			if (!iter->temp)
-+			void *temp;
-+			temp = kmalloc(iter->ent_size, GFP_KERNEL);
-+			if (!temp)
- 				return NULL;
-+			kfree(iter->temp);
-+			iter->temp = temp;
-+			iter->temp_size = iter->ent_size;
- 		}
- 		memcpy(iter->temp, iter->ent, iter->ent_size);
--		iter->temp_size = iter->ent_size;
- 		iter->ent = iter->temp;
- 	}
- 	entry = __find_next_entry(iter, ent_cpu, NULL, ent_ts);
+Al Viro <viro@zeniv.linux.org.uk>
+    ep_create_wakeup_source(): dentry name can change under you...
+
+Al Viro <viro@zeniv.linux.org.uk>
+    epoll: EPOLL_CTL_ADD: close the race in decision to take fast path
+
+Al Viro <viro@zeniv.linux.org.uk>
+    epoll: replace ->visited/visited_list with generation count
+
+Al Viro <viro@zeniv.linux.org.uk>
+    epoll: do not insert into poll queues until all sanity checks are done
+
+Or Cohen <orcohen@paloaltonetworks.com>
+    net/packet: fix overflow in tpacket_rcv
+
+Laurent Dufour <ldufour@linux.ibm.com>
+    mm: don't rely on system state to detect hot-plug operations
+
+Laurent Dufour <ldufour@linux.ibm.com>
+    mm: replace memmap_context by meminit_context
+
+Thibaut Sautereau <thibaut.sautereau@ssi.gouv.fr>
+    random32: Restore __latent_entropy attribute on net_rand_state
+
+Vincent Huang <vincent.huang@tw.synaptics.com>
+    Input: trackpoint - enable Synaptics trackpoints
+
+Nicolas VINCENT <nicolas.vincent@vossloh.com>
+    i2c: cpm: Fix i2c_ram structure
+
+Yu Kuai <yukuai3@huawei.com>
+    iommu/exynos: add missing put_device() call in exynos_iommu_of_xlate()
+
+Marek Szyprowski <m.szyprowski@samsung.com>
+    clk: samsung: exynos4: mark 'chipid' clock as CLK_IGNORE_UNUSED
+
+Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+    nfs: Fix security label length not being reset
+
+Chris Packham <chris.packham@alliedtelesis.co.nz>
+    pinctrl: mvebu: Fix i2c sda definition for 98DX3236
+
+Taiping Lai <taiping.lai@unisoc.com>
+    gpio: sprd: Clear interrupt when setting the type as edge
+
+James Smart <james.smart@broadcom.com>
+    nvme-fc: fail new connections to a deleted host or remote port
+
+Chris Packham <chris.packham@alliedtelesis.co.nz>
+    spi: fsl-espi: Only process interrupts for expected events
+
+Felix Fietkau <nbd@nbd.name>
+    mac80211: do not allow bigger VHT MPDUs than the hardware supports
+
+Xie He <xie.he.0141@gmail.com>
+    drivers/net/wan/hdlc: Set skb->protocol before transmitting
+
+Xie He <xie.he.0141@gmail.com>
+    drivers/net/wan/lapbether: Make skb->protocol consistent with the header
+
+Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+    nvme-core: get/put ctrl and transport module in nvme_dev_open/release()
+
+Olympia Giannou <ogiannou@gmail.com>
+    rndis_host: increase sleep time in the query-response loop
+
+Lucy Yan <lucyyan@google.com>
+    net: dec: de2104x: Increase receive ring size for Tulip
+
+Martin Cerveny <m.cerveny@computer.org>
+    drm/sun4i: mixer: Extend regmap max_register
+
+Xie He <xie.he.0141@gmail.com>
+    drivers/net/wan/hdlc_fr: Add needed_headroom for PVC devices
+
+Jean Delvare <jdelvare@suse.de>
+    drm/amdgpu: restore proper ref count in amdgpu_display_crtc_set_config
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    ftrace: Move RCU is watching check after recursion check
+
+Jiri Kosina <jkosina@suse.cz>
+    Input: i8042 - add nopnp quirk for Acer Aspire 5 A515
+
+Sebastien Boeuf <sebastien.boeuf@intel.com>
+    net: virtio_vsock: Enhance connection semantics
+
+Stefano Garzarella <sgarzare@redhat.com>
+    vsock/virtio: add transport parameter to the virtio_transport_reset_no_sock()
+
+Stefano Garzarella <sgarzare@redhat.com>
+    vsock/virtio: stop workers during the .remove()
+
+Stefano Garzarella <sgarzare@redhat.com>
+    vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock
+
+Dinh Nguyen <dinguyen@kernel.org>
+    clk: socfpga: stratix10: fix the divider for the emac_ptp_free_clk
+
+dillon min <dillon.minfei@gmail.com>
+    gpio: tc35894: fix up tc35894 interrupt configuration
+
+Bartosz Golaszewski <bgolaszewski@baylibre.com>
+    gpio: mockup: fix resource leak in error path
+
+Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+    USB: gadget: f_ncm: Fix NDP16 datagram validation
+
+Hans de Goede <hdegoede@redhat.com>
+    mmc: sdhci: Workaround broken command queuing on Intel GLK based IRBIS models
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                    |   4 +-
+ arch/ia64/mm/init.c                         |   6 +-
+ drivers/base/node.c                         |  84 +++++----
+ drivers/clk/samsung/clk-exynos4.c           |   4 +-
+ drivers/clk/socfpga/clk-s10.c               |   2 +-
+ drivers/gpio/gpio-mockup.c                  |   2 +
+ drivers/gpio/gpio-sprd.c                    |   3 +
+ drivers/gpio/gpio-tc3589x.c                 |   2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.c |   2 +-
+ drivers/gpu/drm/sun4i/sun8i_mixer.c         |   2 +-
+ drivers/i2c/busses/i2c-cpm.c                |   3 +
+ drivers/input/mouse/trackpoint.c            |   2 +
+ drivers/input/serio/i8042-x86ia64io.h       |   7 +
+ drivers/iommu/exynos-iommu.c                |   8 +-
+ drivers/mmc/host/sdhci-pci-core.c           |   3 +-
+ drivers/net/ethernet/dec/tulip/de2104x.c    |   2 +-
+ drivers/net/usb/rndis_host.c                |   2 +-
+ drivers/net/wan/hdlc_cisco.c                |   1 +
+ drivers/net/wan/hdlc_fr.c                   |   6 +-
+ drivers/net/wan/hdlc_ppp.c                  |   1 +
+ drivers/net/wan/lapbether.c                 |   4 +-
+ drivers/nvme/host/core.c                    |  15 ++
+ drivers/nvme/host/fc.c                      |   6 +-
+ drivers/pinctrl/mvebu/pinctrl-armada-xp.c   |   2 +-
+ drivers/spi/spi-fsl-espi.c                  |   5 +-
+ drivers/usb/gadget/function/f_ncm.c         |  30 +---
+ drivers/vhost/vsock.c                       |  94 +++++-----
+ fs/eventpoll.c                              |  71 ++++----
+ fs/nfs/dir.c                                |   3 +
+ include/linux/mm.h                          |   2 +-
+ include/linux/mmzone.h                      |  11 +-
+ include/linux/node.h                        |  11 +-
+ include/linux/virtio_vsock.h                |   3 +-
+ kernel/trace/ftrace.c                       |   6 +-
+ lib/random32.c                              |   2 +-
+ mm/memory_hotplug.c                         |   5 +-
+ mm/page_alloc.c                             |  11 +-
+ net/mac80211/vht.c                          |   8 +-
+ net/netfilter/nf_conntrack_netlink.c        |   2 +
+ net/packet/af_packet.c                      |   9 +-
+ net/vmw_vsock/virtio_transport.c            | 265 ++++++++++++++++++----------
+ net/vmw_vsock/virtio_transport_common.c     |  13 +-
+ 42 files changed, 425 insertions(+), 299 deletions(-)
 
 
