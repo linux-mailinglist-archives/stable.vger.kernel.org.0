@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FF67283A01
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E1792839B0
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:28:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727750AbgJEPaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:30:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56798 "EHLO mail.kernel.org"
+        id S1727379AbgJEP2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:28:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727159AbgJEPaV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:30:21 -0400
+        id S1727373AbgJEP2U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:28:20 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0220B20B80;
-        Mon,  5 Oct 2020 15:30:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD849208B6;
+        Mon,  5 Oct 2020 15:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911815;
-        bh=4cOnDL084QNcZBUqFADt3BSsfxvJdhmNTQZseo5pD9s=;
+        s=default; t=1601911699;
+        bh=s34KDftLwNqohmNXhpW+r5cjhudfdyFekn3KqLfndg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vWfCiO6iJepNy8Py5Wv5bBc9ZiEuLBAuVz4WfbNNiA5Knuix+ryW3AxcRoVZvSwqA
-         bxJuif8KBi08j+WZyB2DuXroDnebLHjcVo6Ya6EsqwUQKEs7622KnRTC5G+GAZqE6v
-         y5dWMdcBytf6QSTjbt5vKqAk6khYgNKHIp67sgds=
+        b=KQJ9auJ1aVUAxXwICaHRJ+WR+D0P2TZ5LPOOhwbl8VJ8fKDQBTTNbk0302tyk6nXK
+         mofNGRG13jsKaeYYy1tO0J6zaJroxhfXAs17Lnv61MLF9McODViQjwRj+1Q9J2gHyA
+         usGE17I+Edip6+dY2fwyQ/AixZgfOJ8k9nstGvdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Xie He <xie.he.0141@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/57] drivers/net/wan/hdlc_fr: Add needed_headroom for PVC devices
+Subject: [PATCH 4.19 13/38] drivers/net/wan/hdlc_fr: Add needed_headroom for PVC devices
 Date:   Mon,  5 Oct 2020 17:26:30 +0200
-Message-Id: <20201005142110.677172239@linuxfoundation.org>
+Message-Id: <20201005142109.304847129@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
+References: <20201005142108.650363140@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,10 +76,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/wan/hdlc_fr.c b/drivers/net/wan/hdlc_fr.c
-index 9acad651ea1f6..12b35404cd8e7 100644
+index 038236a9c60ee..67f89917277ce 100644
 --- a/drivers/net/wan/hdlc_fr.c
 +++ b/drivers/net/wan/hdlc_fr.c
-@@ -1041,7 +1041,7 @@ static void pvc_setup(struct net_device *dev)
+@@ -1044,7 +1044,7 @@ static void pvc_setup(struct net_device *dev)
  {
  	dev->type = ARPHRD_DLCI;
  	dev->flags = IFF_POINTOPOINT;
@@ -88,7 +88,7 @@ index 9acad651ea1f6..12b35404cd8e7 100644
  	dev->addr_len = 2;
  	netif_keep_dst(dev);
  }
-@@ -1093,6 +1093,7 @@ static int fr_add_pvc(struct net_device *frad, unsigned int dlci, int type)
+@@ -1096,6 +1096,7 @@ static int fr_add_pvc(struct net_device *frad, unsigned int dlci, int type)
  	dev->mtu = HDLC_MAX_MTU;
  	dev->min_mtu = 68;
  	dev->max_mtu = HDLC_MAX_MTU;
