@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EE05283B52
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA2F6283A90
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728777AbgJEPkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:40:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54568 "EHLO mail.kernel.org"
+        id S1727803AbgJEPfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:35:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727512AbgJEP3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:29:06 -0400
+        id S1728236AbgJEPeD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:34:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB7342168B;
-        Mon,  5 Oct 2020 15:29:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10DAB20637;
+        Mon,  5 Oct 2020 15:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911744;
-        bh=He6jmorjlksuV0opD+csHqpMD4RGtP+UWVL7C74oT3k=;
+        s=default; t=1601912042;
+        bh=cUj5SgROSblXrtlG0+s1tblQ9AzoAgt44FoEKAJYqKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yzB+qk+29u+aLZvOyZuzZqr7hc9zQedLDGt3tAsubXEVyAyAidj2eW32EcYAtW+cX
-         gYh/Qs5lM0bVgzQPxlocEFbZcw9HnmYf7n2FWS0Kz5FZ+SiqoWxTEKVVBr3viEIKPV
-         zALtsW8ixdS2FCBVpb08xjc2QQR/qrxSv8RmzGLc=
+        b=RTUwjJHRBJeF6WJJzdOEmn9BUQCnC7+zV4bdVLW3cdGXlfTOxdTi+NhqI5vFVJboh
+         u2IUH3Bcinxbsss1XCb+FKAbKkECbU1syW3SX37IMGHDc/sJxCJLqHe1Q1c2+8+V99
+         XgE2+p8BTH3BTp26cD1oZUHmWFEPD5tOl8LIHYzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/57] nvme-core: get/put ctrl and transport module in nvme_dev_open/release()
+        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
+        Xie He <xie.he.0141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 38/85] drivers/net/wan/hdlc: Set skb->protocol before transmitting
 Date:   Mon,  5 Oct 2020 17:26:34 +0200
-Message-Id: <20201005142110.860326385@linuxfoundation.org>
+Message-Id: <20201005142116.569681144@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,100 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 52a3974feb1a3eec25d8836d37a508b67b0a9cd0 ]
+[ Upstream commit 9fb030a70431a2a2a1b292dbf0b2f399cc072c16 ]
 
-Get and put the reference to the ctrl in the nvme_dev_open() and
-nvme_dev_release() before and after module get/put for ctrl in char
-device file operations.
+This patch sets skb->protocol before transmitting frames on the HDLC
+device, so that a user listening on the HDLC device with an AF_PACKET
+socket will see outgoing frames' sll_protocol field correctly set and
+consistent with that of incoming frames.
 
-Introduce char_dev relase function, get/put the controller and module
-which allows us to fix the potential Oops which can be easily reproduced
-with a passthru ctrl (although the problem also exists with pure user
-access):
+1. Control frames in hdlc_cisco and hdlc_ppp
 
-Entering kdb (current=0xffff8887f8290000, pid 3128) on processor 30 Oops: (null)
-due to oops @ 0xffffffffa01019ad
-CPU: 30 PID: 3128 Comm: bash Tainted: G        W  OE     5.8.0-rc4nvme-5.9+ #35
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.4
-RIP: 0010:nvme_free_ctrl+0x234/0x285 [nvme_core]
-Code: 57 10 a0 e8 73 bf 02 e1 ba 3d 11 00 00 48 c7 c6 98 33 10 a0 48 c7 c7 1d 57 10 a0 e8 5b bf 02 e1 8
-RSP: 0018:ffffc90001d63de0 EFLAGS: 00010246
-RAX: ffffffffa05c0440 RBX: ffff8888119e45a0 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffff8888177e9550 RDI: ffff8888119e43b0
-RBP: ffff8887d4768000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: ffffc90001d63c90 R12: ffff8888119e43b0
-R13: ffff8888119e5108 R14: dead000000000100 R15: ffff8888119e5108
-FS:  00007f1ef27b0740(0000) GS:ffff888817600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffa05c0470 CR3: 00000007f6bee000 CR4: 00000000003406e0
-Call Trace:
- device_release+0x27/0x80
- kobject_put+0x98/0x170
- nvmet_passthru_ctrl_disable+0x4a/0x70 [nvmet]
- nvmet_passthru_enable_store+0x4c/0x90 [nvmet]
- configfs_write_file+0xe6/0x150
- vfs_write+0xba/0x1e0
- ksys_write+0x5f/0xe0
- do_syscall_64+0x52/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7f1ef1eb2840
-Code: Bad RIP value.
-RSP: 002b:00007fffdbff0eb8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007f1ef1eb2840
-RDX: 0000000000000002 RSI: 00007f1ef27d2000 RDI: 0000000000000001
-RBP: 00007f1ef27d2000 R08: 000000000000000a R09: 00007f1ef27b0740
-R10: 0000000000000001 R11: 0000000000000246 R12: 00007f1ef2186400
-R13: 0000000000000002 R14: 0000000000000001 R15: 0000000000000000
+When these drivers send control frames, skb->protocol is not set.
 
-With this patch fix we take the module ref count in nvme_dev_open() and
-release that ref count in newly introduced nvme_dev_release().
+This value should be set to htons(ETH_P_HDLC), because when receiving
+control frames, their skb->protocol is set to htons(ETH_P_HDLC).
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+When receiving, hdlc_type_trans in hdlc.h is called, which then calls
+cisco_type_trans or ppp_type_trans. The skb->protocol of control frames
+is set to htons(ETH_P_HDLC) so that the control frames can be received
+by hdlc_rcv in hdlc.c, which calls cisco_rx or ppp_rx to process the
+control frames.
+
+2. hdlc_fr
+
+When this driver sends control frames, skb->protocol is set to internal
+values used in this driver.
+
+When this driver sends data frames (from upper stacked PVC devices),
+skb->protocol is the same as that of the user data packet being sent on
+the upper PVC device (for normal PVC devices), or is htons(ETH_P_802_3)
+(for Ethernet-emulating PVC devices).
+
+However, skb->protocol for both control frames and data frames should be
+set to htons(ETH_P_HDLC), because when receiving, all frames received on
+the HDLC device will have their skb->protocol set to htons(ETH_P_HDLC).
+
+When receiving, hdlc_type_trans in hdlc.h is called, and because this
+driver doesn't provide a type_trans function in struct hdlc_proto,
+all frames will have their skb->protocol set to htons(ETH_P_HDLC).
+The frames are then received by hdlc_rcv in hdlc.c, which calls fr_rx
+to process the frames (control frames are consumed and data frames
+are re-received on upper PVC devices).
+
+Cc: Krzysztof Halasa <khc@pm.waw.pl>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/net/wan/hdlc_cisco.c | 1 +
+ drivers/net/wan/hdlc_fr.c    | 3 +++
+ drivers/net/wan/hdlc_ppp.c   | 1 +
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 2cd32901d95c7..24c6d5a446b79 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -2933,10 +2933,24 @@ static int nvme_dev_open(struct inode *inode, struct file *file)
- 		return -EWOULDBLOCK;
- 	}
+diff --git a/drivers/net/wan/hdlc_cisco.c b/drivers/net/wan/hdlc_cisco.c
+index 444130655d8ea..cb5898f7d68c9 100644
+--- a/drivers/net/wan/hdlc_cisco.c
++++ b/drivers/net/wan/hdlc_cisco.c
+@@ -118,6 +118,7 @@ static void cisco_keepalive_send(struct net_device *dev, u32 type,
+ 	skb_put(skb, sizeof(struct cisco_packet));
+ 	skb->priority = TC_PRIO_CONTROL;
+ 	skb->dev = dev;
++	skb->protocol = htons(ETH_P_HDLC);
+ 	skb_reset_network_header(skb);
  
-+	nvme_get_ctrl(ctrl);
-+	if (!try_module_get(ctrl->ops->module))
-+		return -EINVAL;
-+
- 	file->private_data = ctrl;
- 	return 0;
+ 	dev_queue_xmit(skb);
+diff --git a/drivers/net/wan/hdlc_fr.c b/drivers/net/wan/hdlc_fr.c
+index 12b35404cd8e7..d6cfd51613ed8 100644
+--- a/drivers/net/wan/hdlc_fr.c
++++ b/drivers/net/wan/hdlc_fr.c
+@@ -433,6 +433,8 @@ static netdev_tx_t pvc_xmit(struct sk_buff *skb, struct net_device *dev)
+ 			if (pvc->state.fecn) /* TX Congestion counter */
+ 				dev->stats.tx_compressed++;
+ 			skb->dev = pvc->frad;
++			skb->protocol = htons(ETH_P_HDLC);
++			skb_reset_network_header(skb);
+ 			dev_queue_xmit(skb);
+ 			return NETDEV_TX_OK;
+ 		}
+@@ -555,6 +557,7 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
+ 	skb_put(skb, i);
+ 	skb->priority = TC_PRIO_CONTROL;
+ 	skb->dev = dev;
++	skb->protocol = htons(ETH_P_HDLC);
+ 	skb_reset_network_header(skb);
+ 
+ 	dev_queue_xmit(skb);
+diff --git a/drivers/net/wan/hdlc_ppp.c b/drivers/net/wan/hdlc_ppp.c
+index 16f33d1ffbfb9..64f8556513369 100644
+--- a/drivers/net/wan/hdlc_ppp.c
++++ b/drivers/net/wan/hdlc_ppp.c
+@@ -251,6 +251,7 @@ static void ppp_tx_cp(struct net_device *dev, u16 pid, u8 code,
+ 
+ 	skb->priority = TC_PRIO_CONTROL;
+ 	skb->dev = dev;
++	skb->protocol = htons(ETH_P_HDLC);
+ 	skb_reset_network_header(skb);
+ 	skb_queue_tail(&tx_queue, skb);
  }
- 
-+static int nvme_dev_release(struct inode *inode, struct file *file)
-+{
-+	struct nvme_ctrl *ctrl =
-+		container_of(inode->i_cdev, struct nvme_ctrl, cdev);
-+
-+	module_put(ctrl->ops->module);
-+	nvme_put_ctrl(ctrl);
-+	return 0;
-+}
-+
- static int nvme_dev_user_cmd(struct nvme_ctrl *ctrl, void __user *argp)
- {
- 	struct nvme_ns *ns;
-@@ -2999,6 +3013,7 @@ static long nvme_dev_ioctl(struct file *file, unsigned int cmd,
- static const struct file_operations nvme_dev_fops = {
- 	.owner		= THIS_MODULE,
- 	.open		= nvme_dev_open,
-+	.release	= nvme_dev_release,
- 	.unlocked_ioctl	= nvme_dev_ioctl,
- 	.compat_ioctl	= nvme_dev_ioctl,
- };
 -- 
 2.25.1
 
