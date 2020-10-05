@@ -2,81 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D055283322
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 11:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60A5E2833C6
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 12:03:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725895AbgJEJ0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 05:26:06 -0400
-Received: from mailout12.rmx.de ([94.199.88.78]:56290 "EHLO mailout12.rmx.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725891AbgJEJ0G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 05:26:06 -0400
-Received: from kdin02.retarus.com (kdin02.dmz1.retloc [172.19.17.49])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mailout12.rmx.de (Postfix) with ESMTPS id 4C4Zw961JPzRp7N;
-        Mon,  5 Oct 2020 11:26:01 +0200 (CEST)
-Received: from mta.arri.de (unknown [217.111.95.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by kdin02.retarus.com (Postfix) with ESMTPS id 4C4Zvn14HCz2TTL1;
-        Mon,  5 Oct 2020 11:25:41 +0200 (CEST)
-Received: from n95hx1g2.localnet (192.168.54.143) by mta.arri.de
- (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Mon, 5 Oct
- 2020 11:25:13 +0200
-From:   Christian Eggers <ceggers@arri.de>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-CC:     Oleksij Rempel <linux@rempel-privat.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        <linux-i2c@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 2/3] i2c: imx: Check for I2SR_IAL after every byte
-Date:   Mon, 5 Oct 2020 11:25:13 +0200
-Message-ID: <3765943.G7FBkpUTMe@n95hx1g2>
-Organization: Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
-In-Reply-To: <20201005080725.GB7135@kozik-lap>
-References: <20201002152305.4963-1-ceggers@arri.de> <20201002152305.4963-3-ceggers@arri.de> <20201005080725.GB7135@kozik-lap>
+        id S1725901AbgJEKDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 06:03:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54700 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725887AbgJEKDp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 06:03:45 -0400
+Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A77DC0613CE
+        for <stable@vger.kernel.org>; Mon,  5 Oct 2020 03:03:45 -0700 (PDT)
+Received: by mail-il1-x144.google.com with SMTP id c5so6634484ilr.9
+        for <stable@vger.kernel.org>; Mon, 05 Oct 2020 03:03:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
+        b=hvtcGI1O3XyvZzNZqaRnTCrG0ilZOGAOAXjouUST2w4wZVUQOy28xKW24E2tLCDFSR
+         dFR6+IuGnGEjikfIpjuQJ09qOUaSX+O4T6jduyKR1/BTXuq1pymWEBDyVln9UEP7V8Js
+         MMeourB5Wokg6UBErnHDcSd8abVnnhJ9QpDOvMd/g33WhrPCVuRXLGMaZRV7T9Uqxood
+         xskLxA2EOu/+70jiPXcJCDulO+l9Y56F+qgSwZ1QQkyaILcMoCnXrIwgtFlVUpfolo8p
+         BReCkfR34kkbfuNXsdqNdmEOrC5NvcBoxQFpgGALzmKxyWXnn1S6wcI+cQ0GK9gL5QPn
+         3qmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=C8GBCgQbcL72bHfuvAY+Zdl7rDxtS++c+cKqr1GrZYs=;
+        b=ITJocYwVLd6FiwSw5tngpPEQOl0TcTIu6erxZ/flZBlxcwfhwkmDDuaYqYuQo8suG3
+         QExrB2o1eTSMQd145kqiIx3hOmLPs6yxY2yrGWZ3UkI6lqZOfBmw+jM+p3p17UcKqSW1
+         r2/s+pGyWsXmkAMrg6SOf7NTL7O5nYr8va1trs1i/c9KSXGorOQOJFDRNJezDBUhGs9L
+         tM6k0h8qmodc0erukrpC3ZBipWVAiWhNADLcRcoWpch/rzV8yWNVpJKi5UCMS4BQHnQx
+         7Kj9sWmzbnPDO/zcjT7d73rKCcEE5zT/hSRuX6k6yWHdncrpBpgdP9n44/WarchhaAfo
+         Gflg==
+X-Gm-Message-State: AOAM533qx/WPhtTumGOg2XC0eqIzAQhxLg+1rvyNRtf3TnRwz5pWFJIU
+        jSAAOErC41gRxiozon9lpm1CS9uWlcBDXHGC3hk=
+X-Google-Smtp-Source: ABdhPJzc6oG8kVSJNEwUtLwiwcvYDJWdKNyIlvbcGlSA+x3Kvqu4nxm3BMKRComsmYInfqRXeJS3wXWs7uOVGB7cC5E=
+X-Received: by 2002:a92:5e87:: with SMTP id f7mr10567175ilg.282.1601892224176;
+ Mon, 05 Oct 2020 03:03:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
-X-Originating-IP: [192.168.54.143]
-X-RMX-ID: 20201005-112545-4C4Zvn14HCz2TTL1-0@kdin02
-X-RMX-SOURCE: 217.111.95.66
+Received: by 2002:a92:c891:0:0:0:0:0 with HTTP; Mon, 5 Oct 2020 03:03:43 -0700 (PDT)
+Reply-To: mfdp@tlen.pl
+From:   Mr Bill T Winters <missfavourkip@gmail.com>
+Date:   Mon, 5 Oct 2020 03:03:43 -0700
+Message-ID: <CAJc0UUnjJo1PeYysu2yVs9L33SzN2_h2rodJrfrzZY6gGTxDyA@mail.gmail.com>
+Subject: Good Morning!
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Monday, 5 October 2020, 10:07:25 CEST, Krzysztof Kozlowski wrote:
-> The I2C on Vybrid VF500 still works fine. I did not test this actual
-> condition (arbitration) but only a regular I2C driver (BQ27xxx fuel
-> gauge). Obviously this only proves that regular operation is not
-> broken...
-thank you very much for testing on Vybrid.
+-- 
+Greetings,
+I Mr Bill T, did you Receive the (FUND), that was paid to you?
+Let me know with your full name:...  immediately,
 
-> Alternatively if you have a specific testing procedure (reproduction of
-> a problem), please share.
+Sincerely Yours, Respectfully,
 
-The IAL errors happen due to noise on our I2C bus. We have our power supply 
-connected via I2C. The hardware designers wanted to make sure that no
-high currents flow through the ground pins of the I2C interface. So they added 
-a series resistor (30 Ohm) in the GND line between the power supply and the 
-i.MX board.
-
-If you have an I2C device on an external PCB, adding some small series 
-resistance in the GND line may cause IAL errors. On the other hand, if 
-everything else works fine, also handling if IAL should work on Vybrid.
-
-> Best regards,
-> Krzysztof
-Best regards
-Christian
-
-
-
+Mr Bill T Winters,
+Group Chief Executive Officer & Executive Director,
