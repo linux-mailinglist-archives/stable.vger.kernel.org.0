@@ -2,93 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02AE5282F27
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 05:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 263A8282F9C
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 06:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725898AbgJEDuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 4 Oct 2020 23:50:22 -0400
-Received: from mga07.intel.com ([134.134.136.100]:58110 "EHLO mga07.intel.com"
+        id S1725846AbgJEE1x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 00:27:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725845AbgJEDuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 4 Oct 2020 23:50:20 -0400
-IronPort-SDR: uptD8U17immlurGd9ENjXZK0RLD0Vob5upo6+ncnSA74Py9+rbuTzUrhLtX75zKUE20hulglvf
- oAhAMxh7nYbg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9764"; a="227459661"
-X-IronPort-AV: E=Sophos;i="5.77,337,1596524400"; 
-   d="scan'208";a="227459661"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Oct 2020 20:50:15 -0700
-IronPort-SDR: +78de7BTlqIULS/Zxm5ve24hn9db3Xmtj/8xNCINYlnMzS6tR/HizVcMsHNpUKmwAymjxlVgtR
- BiOgwX62BQsg==
-X-IronPort-AV: E=Sophos;i="5.77,337,1596524400"; 
-   d="scan'208";a="295962488"
-Received: from sidorovd-mobl1.ccr.corp.intel.com (HELO localhost) ([10.252.48.68])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Oct 2020 20:50:11 -0700
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        stable@vger.kernel.org,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        David Howells <dhowells@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        David Safford <safford@watson.ibm.com>,
-        keyrings@vger.kernel.org (open list:KEYS-TRUSTED),
-        linux-security-module@vger.kernel.org (open list:SECURITY SUBSYSTEM),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v2 3/3] KEYS: trusted: Fix migratable=1 failing
-Date:   Mon,  5 Oct 2020 06:49:48 +0300
-Message-Id: <20201005034948.174228-4-jarkko.sakkinen@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201005034948.174228-1-jarkko.sakkinen@linux.intel.com>
-References: <20201005034948.174228-1-jarkko.sakkinen@linux.intel.com>
+        id S1725267AbgJEE1x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 00:27:53 -0400
+Received: from localhost (unknown [171.61.67.142])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C78A72080C;
+        Mon,  5 Oct 2020 04:27:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601872072;
+        bh=81ofi23+2Bd24RjsNBYMAaXLsVa+v1UhZoVfpnrdcyM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BNx3Ocj5WDaaZsMjKvtb6KlkmixkUJ14/GXWbyKKCH/4pTnbzFJ5dPDN4f3g3ObMy
+         2VaV8Hy/UMfsS2oBfOwNMuR32OTAV0qcLrukURh/fTctwNXUt7LcKcyizhVCd5UE/Q
+         xq7mCIF+m8/a+jPtywoOIIeZx2SIJYSiS7OpdLwE=
+Date:   Mon, 5 Oct 2020 09:57:47 +0530
+From:   Vinod Koul <vkoul@kernel.org>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     od@zcrc.me, dmaengine@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Artur Rojek <contact@artur-rojek.eu>
+Subject: Re: [PATCH] dma: dma-jz4780: Fix race in jz4780_dma_tx_status
+Message-ID: <20201005042747.GC2968@vkoul-mobl>
+References: <20201004140307.885556-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201004140307.885556-1-paul@crapouillou.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Consider the following transcript:
+On 04-10-20, 16:03, Paul Cercueil wrote:
+> The jz4780_dma_tx_status() function would check if a channel's cookie
+> state was set to 'completed', and if not, it would enter the critical
+> section. However, in that time frame, the jz4780_dma_chan_irq() function
+> was able to set the cookie to 'completed', and clear the jzchan->vchan
+> pointer, which was deferenced in the critical section of the first
+> function.
+> 
+> Fix this race by checking the channel's cookie state after entering the
+> critical function and not before.
 
-$ keyctl add trusted kmk "new 32 blobauth=helloworld keyhandle=80000000 migratable=1" @u
-add_key: Invalid argument
+Applied, thanks
 
-The documentation has the following description:
-
-  migratable=   0|1 indicating permission to reseal to new PCR values,
-                default 1 (resealing allowed)
-
-The consequence is that "migratable=1" should succeed. Fix this by
-allowing this condition to pass instead of return -EINVAL.
-
-[*] Documentation/security/keys/trusted-encrypted.rst
-
-Cc: stable@vger.kernel.org
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: Mimi Zohar <zohar@linux.ibm.com>
-Cc: David Howells <dhowells@redhat.com>
-Fixes: d00a1c72f7f4 ("keys: add new trusted key-type")
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
----
- security/keys/trusted-keys/trusted_tpm1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/security/keys/trusted-keys/trusted_tpm1.c b/security/keys/trusted-keys/trusted_tpm1.c
-index c1dfc32c780b..20ca18e17437 100644
---- a/security/keys/trusted-keys/trusted_tpm1.c
-+++ b/security/keys/trusted-keys/trusted_tpm1.c
-@@ -801,7 +801,7 @@ static int getoptions(char *c, struct trusted_key_payload *pay,
- 		case Opt_migratable:
- 			if (*args[0].from == '0')
- 				pay->migratable = 0;
--			else
-+			else if (*args[0].from != '1')
- 				return -EINVAL;
- 			break;
- 		case Opt_pcrlock:
 -- 
-2.25.1
-
+~Vinod
