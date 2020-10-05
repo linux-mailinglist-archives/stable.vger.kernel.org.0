@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CBE1283AE9
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:38:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF7DE283AE8
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:38:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728592AbgJEPi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728119AbgJEPi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 5 Oct 2020 11:38:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57774 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727796AbgJEPbE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:31:04 -0400
+        id S1726991AbgJEPbG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:31:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B193C20637;
-        Mon,  5 Oct 2020 15:31:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D35D20B80;
+        Mon,  5 Oct 2020 15:31:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911863;
-        bh=ImEhQ30IKXrbOT93ut3lbUL+NDPrKMxvv3NMQ6ig72Y=;
+        s=default; t=1601911865;
+        bh=jH4jClLwJrkIjfPQMOvt7j/zMDnmHSmCWpBQ6MI6EQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=flTqJn6a8Y1RNcCuWE6RyKmppUzI5dzyI+LJc4xhryPHNXZW1db5ndGQMYJPZU47c
-         2rm7H3uDZ6QpIKfDN7dJCuYbcAfUS89NI/4j+xfQpqcbnZEnJERohAgvHVKjinELJH
-         ubGz5DAF1PgaqAsH829IerdfBsxYXZyFJd8wqfBE=
+        b=cbOSWJelunvskhblVbzNfanjRAhesUrWcCvBholm3K73uIG4dRj1U0dMj4ZDIkK+q
+         5cmhGn9qzODty4tYC5BYBWaZozZ+MEMAeP0scQDCWflZSaQADe+GaF0HHcu2NB07TM
+         ziUycGw2y7xfqC1j9hz3MnI2tZnm5XotwtIw4+AQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+81b3883093f772addf6d@syzkaller.appspotmail.com,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.8 01/85] io_uring: always delete double poll wait entry on match
-Date:   Mon,  5 Oct 2020 17:25:57 +0200
-Message-Id: <20201005142114.805252222@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.8 02/85] btrfs: fix filesystem corruption after a device replace
+Date:   Mon,  5 Oct 2020 17:25:58 +0200
+Message-Id: <20201005142114.858736343@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
 References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,72 +44,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 8706e04ed7d6c95004d42b22a4db97d5b2eb73b2 upstream.
+commit 4c8f353272dd1262013873990c0fafd0e3c8f274 upstream.
 
-syzbot reports a crash with tty polling, which is using the double poll
-handling:
+We use a device's allocation state tree to track ranges in a device used
+for allocated chunks, and we set ranges in this tree when allocating a new
+chunk. However after a device replace operation, we were not setting the
+allocated ranges in the new device's allocation state tree, so that tree
+is empty after a device replace.
 
-general protection fault, probably for non-canonical address 0xdffffc0000000009: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000048-0x000000000000004f]
-CPU: 0 PID: 6874 Comm: syz-executor749 Not tainted 5.9.0-rc6-next-20200924-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:io_poll_get_single fs/io_uring.c:4778 [inline]
-RIP: 0010:io_poll_double_wake+0x51/0x510 fs/io_uring.c:4845
-Code: fc ff df 48 c1 ea 03 80 3c 02 00 0f 85 9e 03 00 00 48 b8 00 00 00 00 00 fc ff df 49 8b 5d 08 48 8d 7b 48 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 06 0f 8e 63 03 00 00 0f b6 6b 48 bf 06 00 00
-RSP: 0018:ffffc90001c1fb70 EFLAGS: 00010006
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000004
-RDX: 0000000000000009 RSI: ffffffff81d9b3ad RDI: 0000000000000048
-RBP: dffffc0000000000 R08: ffff8880a3cac798 R09: ffffc90001c1fc60
-R10: fffff52000383f73 R11: 0000000000000000 R12: 0000000000000004
-R13: ffff8880a3cac798 R14: ffff8880a3cac7a0 R15: 0000000000000004
-FS:  0000000001f98880(0000) GS:ffff8880ae400000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f18886916c0 CR3: 0000000094c5a000 CR4: 00000000001506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- __wake_up_common+0x147/0x650 kernel/sched/wait.c:93
- __wake_up_common_lock+0xd0/0x130 kernel/sched/wait.c:123
- tty_ldisc_hangup+0x1cf/0x680 drivers/tty/tty_ldisc.c:735
- __tty_hangup.part.0+0x403/0x870 drivers/tty/tty_io.c:625
- __tty_hangup drivers/tty/tty_io.c:575 [inline]
- tty_vhangup+0x1d/0x30 drivers/tty/tty_io.c:698
- pty_close+0x3f5/0x550 drivers/tty/pty.c:79
- tty_release+0x455/0xf60 drivers/tty/tty_io.c:1679
- __fput+0x285/0x920 fs/file_table.c:281
- task_work_run+0xdd/0x190 kernel/task_work.c:141
- tracehook_notify_resume include/linux/tracehook.h:188 [inline]
- exit_to_user_mode_loop kernel/entry/common.c:165 [inline]
- exit_to_user_mode_prepare+0x1e2/0x1f0 kernel/entry/common.c:192
- syscall_exit_to_user_mode+0x7a/0x2c0 kernel/entry/common.c:267
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x401210
+This means that a fitrim operation after a device replace will trim the
+device ranges that have allocated chunks and extents, as we trim every
+range for which there is not a range marked in the device's allocation
+state tree. It is also important during chunk allocation, since the
+device's allocation state is used to determine if a range is already
+allocated when allocating a new chunk.
 
-which is due to a failure in removing the double poll wait entry if we
-hit a wakeup match. This can cause multiple invocations of the wakeup,
-which isn't safe.
+This is trivial to reproduce and the following script triggers the bug:
 
-Cc: stable@vger.kernel.org # v5.8
-Reported-by: syzbot+81b3883093f772addf6d@syzkaller.appspotmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  $ cat reproducer.sh
+  #!/bin/bash
+
+  DEV1="/dev/sdg"
+  DEV2="/dev/sdh"
+  DEV3="/dev/sdi"
+
+  wipefs -a $DEV1 $DEV2 $DEV3 &> /dev/null
+
+  # Create a raid1 test fs on 2 devices.
+  mkfs.btrfs -f -m raid1 -d raid1 $DEV1 $DEV2 > /dev/null
+  mount $DEV1 /mnt/btrfs
+
+  xfs_io -f -c "pwrite -S 0xab 0 10M" /mnt/btrfs/foo
+
+  echo "Starting to replace $DEV1 with $DEV3"
+  btrfs replace start -B $DEV1 $DEV3 /mnt/btrfs
+  echo
+
+  echo "Running fstrim"
+  fstrim /mnt/btrfs
+  echo
+
+  echo "Unmounting filesystem"
+  umount /mnt/btrfs
+
+  echo "Mounting filesystem in degraded mode using $DEV3 only"
+  wipefs -a $DEV1 $DEV2 &> /dev/null
+  mount -o degraded $DEV3 /mnt/btrfs
+  if [ $? -ne 0 ]; then
+          dmesg | tail
+          echo
+          echo "Failed to mount in degraded mode"
+          exit 1
+  fi
+
+  echo
+  echo "File foo data (expected all bytes = 0xab):"
+  od -A d -t x1 /mnt/btrfs/foo
+
+  umount /mnt/btrfs
+
+When running the reproducer:
+
+  $ ./replace-test.sh
+  wrote 10485760/10485760 bytes at offset 0
+  10 MiB, 2560 ops; 0.0901 sec (110.877 MiB/sec and 28384.5216 ops/sec)
+  Starting to replace /dev/sdg with /dev/sdi
+
+  Running fstrim
+
+  Unmounting filesystem
+  Mounting filesystem in degraded mode using /dev/sdi only
+  mount: /mnt/btrfs: wrong fs type, bad option, bad superblock on /dev/sdi, missing codepage or helper program, or other error.
+  [19581.748641] BTRFS info (device sdg): dev_replace from /dev/sdg (devid 1) to /dev/sdi started
+  [19581.803842] BTRFS info (device sdg): dev_replace from /dev/sdg (devid 1) to /dev/sdi finished
+  [19582.208293] BTRFS info (device sdi): allowing degraded mounts
+  [19582.208298] BTRFS info (device sdi): disk space caching is enabled
+  [19582.208301] BTRFS info (device sdi): has skinny extents
+  [19582.212853] BTRFS warning (device sdi): devid 2 uuid 1f731f47-e1bb-4f00-bfbb-9e5a0cb4ba9f is missing
+  [19582.213904] btree_readpage_end_io_hook: 25839 callbacks suppressed
+  [19582.213907] BTRFS error (device sdi): bad tree block start, want 30490624 have 0
+  [19582.214780] BTRFS warning (device sdi): failed to read root (objectid=7): -5
+  [19582.231576] BTRFS error (device sdi): open_ctree failed
+
+  Failed to mount in degraded mode
+
+So fix by setting all allocated ranges in the replace target device when
+the replace operation is finishing, when we are holding the chunk mutex
+and we can not race with new chunk allocations.
+
+A test case for fstests follows soon.
+
+Fixes: 1c11b63eff2a67 ("btrfs: replace pending/pinned chunks lists with io tree")
+CC: stable@vger.kernel.org # 5.2+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/dev-replace.c |   40 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 39 insertions(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4310,6 +4310,8 @@ static int io_poll_double_wake(struct wa
- 	if (mask && !(mask & poll->events))
- 		return 0;
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -599,6 +599,37 @@ static void btrfs_rm_dev_replace_unblock
+ 	wake_up(&fs_info->dev_replace.replace_wait);
+ }
  
-+	list_del_init(&wait->entry);
++/*
++ * When finishing the device replace, before swapping the source device with the
++ * target device we must update the chunk allocation state in the target device,
++ * as it is empty because replace works by directly copying the chunks and not
++ * through the normal chunk allocation path.
++ */
++static int btrfs_set_target_alloc_state(struct btrfs_device *srcdev,
++					struct btrfs_device *tgtdev)
++{
++	struct extent_state *cached_state = NULL;
++	u64 start = 0;
++	u64 found_start;
++	u64 found_end;
++	int ret = 0;
 +
- 	if (poll && poll->head) {
- 		bool done;
++	lockdep_assert_held(&srcdev->fs_info->chunk_mutex);
++
++	while (!find_first_extent_bit(&srcdev->alloc_state, start,
++				      &found_start, &found_end,
++				      CHUNK_ALLOCATED, &cached_state)) {
++		ret = set_extent_bits(&tgtdev->alloc_state, found_start,
++				      found_end, CHUNK_ALLOCATED);
++		if (ret)
++			break;
++		start = found_end + 1;
++	}
++
++	free_extent_state(cached_state);
++	return ret;
++}
++
+ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
+ 				       int scrub_ret)
+ {
+@@ -673,8 +704,14 @@ static int btrfs_dev_replace_finishing(s
+ 	dev_replace->time_stopped = ktime_get_real_seconds();
+ 	dev_replace->item_needs_writeback = 1;
  
+-	/* replace old device with new one in mapping tree */
++	/*
++	 * Update allocation state in the new device and replace the old device
++	 * with the new one in the mapping tree.
++	 */
+ 	if (!scrub_ret) {
++		scrub_ret = btrfs_set_target_alloc_state(src_device, tgt_device);
++		if (scrub_ret)
++			goto error;
+ 		btrfs_dev_replace_update_device_in_mapping_tree(fs_info,
+ 								src_device,
+ 								tgt_device);
+@@ -685,6 +722,7 @@ static int btrfs_dev_replace_finishing(s
+ 				 btrfs_dev_name(src_device),
+ 				 src_device->devid,
+ 				 rcu_str_deref(tgt_device->name), scrub_ret);
++error:
+ 		up_write(&dev_replace->rwsem);
+ 		mutex_unlock(&fs_info->chunk_mutex);
+ 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
 
 
