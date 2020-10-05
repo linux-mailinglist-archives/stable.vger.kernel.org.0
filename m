@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47043283848
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 16:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9483283879
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 16:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726681AbgJEOp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 10:45:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51934 "EHLO mail.kernel.org"
+        id S1726667AbgJEOp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 10:45:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726590AbgJEOpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 10:45:09 -0400
+        id S1726604AbgJEOpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 10:45:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F9FE208C7;
-        Mon,  5 Oct 2020 14:45:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A0A220E65;
+        Mon,  5 Oct 2020 14:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601909108;
-        bh=8NIQKJHMWAIowBIsAYsg9ItWVmXVGCyQSOObiLVuX3I=;
+        s=default; t=1601909110;
+        bh=f4N4EKrt9xHR04GJyg5J9X0kQBs5sQGI8StR/bJxlRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3yqktsTKhlT6Qo9LbLzliQJhTDHlN8QZEACj9IABgHkGr61cPrNTAzo6CCBewZpU
-         D/V4TdLBtki8HGA3DrhnNSZxIpyqjiboX0rVuomy8NC49lrMSqlyGI5BEbMi4KQmZR
-         xxHsuyf1BI0cI6+7IDdJvoyGRR3vZIX8XeIxf8hQ=
+        b=OZgMShqwxM0TtFiwSQjKOxbxcfHd4kxHvHgk/Vg/NYdvnsSYb21sqHUllJbbOJLPg
+         HEO86C1/JCEXmTKchlWouhACRCRucunH3Gjz3NMqa27qINl1fZe05BO4Ma+FQtLRVr
+         2o7gdcs/T6uHby13dVnd1X+ENcDpE8DePME3m5e8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 06/12] btrfs: move btrfs_scratch_superblocks into btrfs_dev_replace_finishing
-Date:   Mon,  5 Oct 2020 10:44:54 -0400
-Message-Id: <20201005144501.2527477-6-sashal@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        syzbot+2f8fa4e860edc3066aba@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org,
+        io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 07/12] io_uring: fix potential ABBA deadlock in ->show_fdinfo()
+Date:   Mon,  5 Oct 2020 10:44:55 -0400
+Message-Id: <20201005144501.2527477-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201005144501.2527477-1-sashal@kernel.org>
 References: <20201005144501.2527477-1-sashal@kernel.org>
@@ -43,85 +43,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 313b085851c13ca08320372a05a7047ea25d3dd4 ]
+[ Upstream commit fad8e0de4426a776c9bcb060555e7c09e2d08db6 ]
 
-We need to move the closing of the src_device out of all the device
-replace locking, but we definitely want to zero out the superblock
-before we commit the last time to make sure the device is properly
-removed.  Handle this by pushing btrfs_scratch_superblocks into
-btrfs_dev_replace_finishing, and then later on we'll move the src_device
-closing and freeing stuff where we need it to be.
+syzbot reports a potential lock deadlock between the normal IO path and
+->show_fdinfo():
 
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+======================================================
+WARNING: possible circular locking dependency detected
+5.9.0-rc6-syzkaller #0 Not tainted
+------------------------------------------------------
+syz-executor.2/19710 is trying to acquire lock:
+ffff888098ddc450 (sb_writers#4){.+.+}-{0:0}, at: io_write+0x6b5/0xb30 fs/io_uring.c:3296
+
+but task is already holding lock:
+ffff8880a11b8428 (&ctx->uring_lock){+.+.}-{3:3}, at: __do_sys_io_uring_enter+0xe9a/0x1bd0 fs/io_uring.c:8348
+
+which lock already depends on the new lock.
+
+the existing dependency chain (in reverse order) is:
+
+-> #2 (&ctx->uring_lock){+.+.}-{3:3}:
+       __mutex_lock_common kernel/locking/mutex.c:956 [inline]
+       __mutex_lock+0x134/0x10e0 kernel/locking/mutex.c:1103
+       __io_uring_show_fdinfo fs/io_uring.c:8417 [inline]
+       io_uring_show_fdinfo+0x194/0xc70 fs/io_uring.c:8460
+       seq_show+0x4a8/0x700 fs/proc/fd.c:65
+       seq_read+0x432/0x1070 fs/seq_file.c:208
+       do_loop_readv_writev fs/read_write.c:734 [inline]
+       do_loop_readv_writev fs/read_write.c:721 [inline]
+       do_iter_read+0x48e/0x6e0 fs/read_write.c:955
+       vfs_readv+0xe5/0x150 fs/read_write.c:1073
+       kernel_readv fs/splice.c:355 [inline]
+       default_file_splice_read.constprop.0+0x4e6/0x9e0 fs/splice.c:412
+       do_splice_to+0x137/0x170 fs/splice.c:871
+       splice_direct_to_actor+0x307/0x980 fs/splice.c:950
+       do_splice_direct+0x1b3/0x280 fs/splice.c:1059
+       do_sendfile+0x55f/0xd40 fs/read_write.c:1540
+       __do_sys_sendfile64 fs/read_write.c:1601 [inline]
+       __se_sys_sendfile64 fs/read_write.c:1587 [inline]
+       __x64_sys_sendfile64+0x1cc/0x210 fs/read_write.c:1587
+       do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+-> #1 (&p->lock){+.+.}-{3:3}:
+       __mutex_lock_common kernel/locking/mutex.c:956 [inline]
+       __mutex_lock+0x134/0x10e0 kernel/locking/mutex.c:1103
+       seq_read+0x61/0x1070 fs/seq_file.c:155
+       pde_read fs/proc/inode.c:306 [inline]
+       proc_reg_read+0x221/0x300 fs/proc/inode.c:318
+       do_loop_readv_writev fs/read_write.c:734 [inline]
+       do_loop_readv_writev fs/read_write.c:721 [inline]
+       do_iter_read+0x48e/0x6e0 fs/read_write.c:955
+       vfs_readv+0xe5/0x150 fs/read_write.c:1073
+       kernel_readv fs/splice.c:355 [inline]
+       default_file_splice_read.constprop.0+0x4e6/0x9e0 fs/splice.c:412
+       do_splice_to+0x137/0x170 fs/splice.c:871
+       splice_direct_to_actor+0x307/0x980 fs/splice.c:950
+       do_splice_direct+0x1b3/0x280 fs/splice.c:1059
+       do_sendfile+0x55f/0xd40 fs/read_write.c:1540
+       __do_sys_sendfile64 fs/read_write.c:1601 [inline]
+       __se_sys_sendfile64 fs/read_write.c:1587 [inline]
+       __x64_sys_sendfile64+0x1cc/0x210 fs/read_write.c:1587
+       do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+-> #0 (sb_writers#4){.+.+}-{0:0}:
+       check_prev_add kernel/locking/lockdep.c:2496 [inline]
+       check_prevs_add kernel/locking/lockdep.c:2601 [inline]
+       validate_chain kernel/locking/lockdep.c:3218 [inline]
+       __lock_acquire+0x2a96/0x5780 kernel/locking/lockdep.c:4441
+       lock_acquire+0x1f3/0xaf0 kernel/locking/lockdep.c:5029
+       percpu_down_read include/linux/percpu-rwsem.h:51 [inline]
+       __sb_start_write+0x228/0x450 fs/super.c:1672
+       io_write+0x6b5/0xb30 fs/io_uring.c:3296
+       io_issue_sqe+0x18f/0x5c50 fs/io_uring.c:5719
+       __io_queue_sqe+0x280/0x1160 fs/io_uring.c:6175
+       io_queue_sqe+0x692/0xfa0 fs/io_uring.c:6254
+       io_submit_sqe fs/io_uring.c:6324 [inline]
+       io_submit_sqes+0x1761/0x2400 fs/io_uring.c:6521
+       __do_sys_io_uring_enter+0xeac/0x1bd0 fs/io_uring.c:8349
+       do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+       entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+other info that might help us debug this:
+
+Chain exists of:
+  sb_writers#4 --> &p->lock --> &ctx->uring_lock
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&ctx->uring_lock);
+                               lock(&p->lock);
+                               lock(&ctx->uring_lock);
+  lock(sb_writers#4);
+
+ *** DEADLOCK ***
+
+1 lock held by syz-executor.2/19710:
+ #0: ffff8880a11b8428 (&ctx->uring_lock){+.+.}-{3:3}, at: __do_sys_io_uring_enter+0xe9a/0x1bd0 fs/io_uring.c:8348
+
+stack backtrace:
+CPU: 0 PID: 19710 Comm: syz-executor.2 Not tainted 5.9.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x198/0x1fd lib/dump_stack.c:118
+ check_noncircular+0x324/0x3e0 kernel/locking/lockdep.c:1827
+ check_prev_add kernel/locking/lockdep.c:2496 [inline]
+ check_prevs_add kernel/locking/lockdep.c:2601 [inline]
+ validate_chain kernel/locking/lockdep.c:3218 [inline]
+ __lock_acquire+0x2a96/0x5780 kernel/locking/lockdep.c:4441
+ lock_acquire+0x1f3/0xaf0 kernel/locking/lockdep.c:5029
+ percpu_down_read include/linux/percpu-rwsem.h:51 [inline]
+ __sb_start_write+0x228/0x450 fs/super.c:1672
+ io_write+0x6b5/0xb30 fs/io_uring.c:3296
+ io_issue_sqe+0x18f/0x5c50 fs/io_uring.c:5719
+ __io_queue_sqe+0x280/0x1160 fs/io_uring.c:6175
+ io_queue_sqe+0x692/0xfa0 fs/io_uring.c:6254
+ io_submit_sqe fs/io_uring.c:6324 [inline]
+ io_submit_sqes+0x1761/0x2400 fs/io_uring.c:6521
+ __do_sys_io_uring_enter+0xeac/0x1bd0 fs/io_uring.c:8349
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45e179
+Code: 3d b2 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 0b b2 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f1194e74c78 EFLAGS: 00000246 ORIG_RAX: 00000000000001aa
+RAX: ffffffffffffffda RBX: 00000000000082c0 RCX: 000000000045e179
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000004
+RBP: 000000000118cf98 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000118cf4c
+R13: 00007ffd1aa5756f R14: 00007f1194e759c0 R15: 000000000118cf4c
+
+Fix this by just not diving into details if we fail to trylock the
+io_uring mutex. We know the ctx isn't going away during this operation,
+but we cannot safely iterate buffers/files/personalities if we don't
+hold the io_uring mutex.
+
+Reported-by: syzbot+2f8fa4e860edc3066aba@syzkaller.appspotmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/dev-replace.c |  3 +++
- fs/btrfs/volumes.c     | 12 +++---------
- fs/btrfs/volumes.h     |  3 +++
- 3 files changed, 9 insertions(+), 9 deletions(-)
+ fs/io_uring.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
-index db93909b25e08..7cf48aeb6f14e 100644
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -745,6 +745,9 @@ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
- 	/* replace the sysfs entry */
- 	btrfs_sysfs_remove_devices_dir(fs_info->fs_devices, src_device);
- 	btrfs_sysfs_update_devid(tgt_device);
-+	if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &src_device->dev_state))
-+		btrfs_scratch_superblocks(fs_info, src_device->bdev,
-+					  src_device->name->str);
- 	btrfs_rm_dev_replace_free_srcdev(src_device);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 1d5640cc2a488..25017418348ca 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7994,11 +7994,19 @@ static int io_uring_show_cred(int id, void *p, void *data)
  
- 	/* write back the superblocks */
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 956eb0d6bc584..8b5f666a3ea66 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1999,9 +1999,9 @@ static u64 btrfs_num_devices(struct btrfs_fs_info *fs_info)
- 	return num_devices;
+ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
+ {
++	bool has_lock;
+ 	int i;
+ 
+-	mutex_lock(&ctx->uring_lock);
++	/*
++	 * Avoid ABBA deadlock between the seq lock and the io_uring mutex,
++	 * since fdinfo case grabs it in the opposite direction of normal use
++	 * cases. If we fail to get the lock, we just don't iterate any
++	 * structures that could be going away outside the io_uring mutex.
++	 */
++	has_lock = mutex_trylock(&ctx->uring_lock);
++
+ 	seq_printf(m, "UserFiles:\t%u\n", ctx->nr_user_files);
+-	for (i = 0; i < ctx->nr_user_files; i++) {
++	for (i = 0; has_lock && i < ctx->nr_user_files; i++) {
+ 		struct fixed_file_table *table;
+ 		struct file *f;
+ 
+@@ -8010,13 +8018,13 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
+ 			seq_printf(m, "%5u: <none>\n", i);
+ 	}
+ 	seq_printf(m, "UserBufs:\t%u\n", ctx->nr_user_bufs);
+-	for (i = 0; i < ctx->nr_user_bufs; i++) {
++	for (i = 0; has_lock && i < ctx->nr_user_bufs; i++) {
+ 		struct io_mapped_ubuf *buf = &ctx->user_bufs[i];
+ 
+ 		seq_printf(m, "%5u: 0x%llx/%u\n", i, buf->ubuf,
+ 						(unsigned int) buf->len);
+ 	}
+-	if (!idr_is_empty(&ctx->personality_idr)) {
++	if (has_lock && !idr_is_empty(&ctx->personality_idr)) {
+ 		seq_printf(m, "Personalities:\n");
+ 		idr_for_each(&ctx->personality_idr, io_uring_show_cred, m);
+ 	}
+@@ -8031,7 +8039,8 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
+ 					req->task->task_works != NULL);
+ 	}
+ 	spin_unlock_irq(&ctx->completion_lock);
+-	mutex_unlock(&ctx->uring_lock);
++	if (has_lock)
++		mutex_unlock(&ctx->uring_lock);
  }
  
--static void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
--				      struct block_device *bdev,
--				      const char *device_path)
-+void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
-+			       struct block_device *bdev,
-+			       const char *device_path)
- {
- 	struct btrfs_super_block *disk_super;
- 	int copy_num;
-@@ -2224,12 +2224,6 @@ void btrfs_rm_dev_replace_free_srcdev(struct btrfs_device *srcdev)
- 	struct btrfs_fs_info *fs_info = srcdev->fs_info;
- 	struct btrfs_fs_devices *fs_devices = srcdev->fs_devices;
- 
--	if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &srcdev->dev_state)) {
--		/* zero out the old super if it is writable */
--		btrfs_scratch_superblocks(fs_info, srcdev->bdev,
--					  srcdev->name->str);
--	}
--
- 	btrfs_close_bdev(srcdev);
- 	synchronize_rcu();
- 	btrfs_free_device(srcdev);
-diff --git a/fs/btrfs/volumes.h b/fs/btrfs/volumes.h
-index 75af2334b2e37..83862e27f5663 100644
---- a/fs/btrfs/volumes.h
-+++ b/fs/btrfs/volumes.h
-@@ -573,6 +573,9 @@ void btrfs_set_fs_info_ptr(struct btrfs_fs_info *fs_info);
- void btrfs_reset_fs_info_ptr(struct btrfs_fs_info *fs_info);
- bool btrfs_check_rw_degradable(struct btrfs_fs_info *fs_info,
- 					struct btrfs_device *failing_dev);
-+void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
-+			       struct block_device *bdev,
-+			       const char *device_path);
- 
- int btrfs_bg_type_to_factor(u64 flags);
- const char *btrfs_bg_type_to_raid_name(u64 flags);
+ static void io_uring_show_fdinfo(struct seq_file *m, struct file *f)
 -- 
 2.25.1
 
