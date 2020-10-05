@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01FC82839F8
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:30:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1DA1283B7B
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:42:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727720AbgJEPaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:30:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56220 "EHLO mail.kernel.org"
+        id S1728504AbgJEPmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:42:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727716AbgJEP37 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:29:59 -0400
+        id S1727331AbgJEP2E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:28:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E6B220637;
-        Mon,  5 Oct 2020 15:29:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A556E2074F;
+        Mon,  5 Oct 2020 15:28:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911799;
-        bh=P1MWB1b/pucqTbLhKRtoXsiP2So2yqBgqPWth5T/6Ac=;
+        s=default; t=1601911683;
+        bh=zXvlVSrf6VohK+ykQFuPF18aQpHLBBLC/HSdGT2mgiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d79vDw2w/0VsTC/LqGpy24xPbhM1OWOEaMLpmhhS6vr8Vgvu9vpHx8/QsGDa2TQKP
-         L5bKCIou2VVaV1HjBbNRJ8uSfUgiu70yi6+77oXP8lPWBtFOe0Jp2X6q/01P7YIGgJ
-         +5i2605mnzzrOT+hV/8cUTRnNJw47TCgThUHFI+U=
+        b=b12aRwfz96r41vfFIyew0VnIuG0YRHM4tsT1hLGXKPqgqKTzyKDmt1/lqPaIerJWI
+         w9g8nOK6WyYD2lh+l0NiZuz6pA2bW3BNR7nxPNupDuNmiq1pAujf/Xr8k2GpRMMVj8
+         PbiHIR8SlcMLO2xDhHgAoTpnBrfKEwOzt+EGu7tE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Kerr <jk@codeconstruct.com.au>,
-        Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 41/57] gpio/aspeed-sgpio: dont enable all interrupts by default
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 4.19 36/38] epoll: EPOLL_CTL_ADD: close the race in decision to take fast path
 Date:   Mon,  5 Oct 2020 17:26:53 +0200
-Message-Id: <20201005142111.783652053@linuxfoundation.org>
+Message-Id: <20201005142110.413835796@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
+References: <20201005142108.650363140@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Kerr <jk@codeconstruct.com.au>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit bf0d394e885015941ed2d5724c0a6ed8d42dd95e ]
+commit fe0a916c1eae8e17e86c3753d13919177d63ed7e upstream.
 
-Currently, the IRQ setup for the SGPIO driver enables all interrupts in
-dual-edge trigger mode. Since the default handler is handle_bad_irq, any
-state change on input GPIOs will trigger bad IRQ warnings.
+Checking for the lack of epitems refering to the epoll we want to insert into
+is not enough; we might have an insertion of that epoll into another one that
+has already collected the set of files to recheck for excessive reverse paths,
+but hasn't gotten to creating/inserting the epitem for it.
 
-This change applies sensible IRQ defaults: single-edge trigger, and all
-IRQs disabled.
+However, any such insertion in progress can be detected - it will update the
+generation count in our epoll when it's done looking through it for files
+to check.  That gets done under ->mtx of our epoll and that allows us to
+detect that safely.
 
-Signed-off-by: Jeremy Kerr <jk@codeconstruct.com.au>
-Fixes: 7db47faae79b ("gpio: aspeed: Add SGPIO driver")
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Acked-by: Andrew Jeffery <andrew@aj.id.au>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We are *not* holding epmutex here, so the generation count is not stable.
+However, since both the update of ep->gen by loop check and (later)
+insertion into ->f_ep_link are done with ep->mtx held, we are fine -
+the sequence is
+	grab epmutex
+	bump loop_check_gen
+	...
+	grab tep->mtx		// 1
+	tep->gen = loop_check_gen
+	...
+	drop tep->mtx		// 2
+	...
+	grab tep->mtx		// 3
+	...
+	insert into ->f_ep_link
+	...
+	drop tep->mtx		// 4
+	bump loop_check_gen
+	drop epmutex
+and if the fastpath check in another thread happens for that
+eventpoll, it can come
+	* before (1) - in that case fastpath is just fine
+	* after (4) - we'll see non-empty ->f_ep_link, slow path
+taken
+	* between (2) and (3) - loop_check_gen is stable,
+with ->mtx providing barriers and we end up taking slow path.
+
+Note that ->f_ep_link emptiness check is slightly racy - we are protected
+against insertions into that list, but removals can happen right under us.
+Not a problem - in the worst case we'll end up taking a slow path for
+no good reason.
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpio/sgpio-aspeed.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ fs/eventpoll.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpio/sgpio-aspeed.c b/drivers/gpio/sgpio-aspeed.c
-index 7cd86d5e8dc90..3a5dfb8ded1fb 100644
---- a/drivers/gpio/sgpio-aspeed.c
-+++ b/drivers/gpio/sgpio-aspeed.c
-@@ -452,17 +452,15 @@ static int aspeed_sgpio_setup_irqs(struct aspeed_sgpio *gpio,
- 	irq->parents = &gpio->irq;
- 	irq->num_parents = 1;
- 
--	/* set IRQ settings and Enable Interrupt */
-+	/* Apply default IRQ settings */
- 	for (i = 0; i < ARRAY_SIZE(aspeed_sgpio_banks); i++) {
- 		bank = &aspeed_sgpio_banks[i];
- 		/* set falling or level-low irq */
- 		iowrite32(0x00000000, bank_reg(gpio, bank, reg_irq_type0));
- 		/* trigger type is edge */
- 		iowrite32(0x00000000, bank_reg(gpio, bank, reg_irq_type1));
--		/* dual edge trigger mode. */
--		iowrite32(0xffffffff, bank_reg(gpio, bank, reg_irq_type2));
--		/* enable irq */
--		iowrite32(0xffffffff, bank_reg(gpio, bank, reg_irq_enable));
-+		/* single edge trigger */
-+		iowrite32(0x00000000, bank_reg(gpio, bank, reg_irq_type2));
- 	}
- 
- 	return 0;
--- 
-2.25.1
-
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -2074,6 +2074,7 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, in
+ 	mutex_lock_nested(&ep->mtx, 0);
+ 	if (op == EPOLL_CTL_ADD) {
+ 		if (!list_empty(&f.file->f_ep_links) ||
++				ep->gen == loop_check_gen ||
+ 						is_file_epoll(tf.file)) {
+ 			full_check = 1;
+ 			mutex_unlock(&ep->mtx);
 
 
