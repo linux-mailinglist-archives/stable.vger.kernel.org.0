@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 313EB283B7D
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E786283B0B
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:40:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727253AbgJEP1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:27:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52240 "EHLO mail.kernel.org"
+        id S1728649AbgJEPjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:39:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727227AbgJEP1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:27:37 -0400
+        id S1727716AbgJEPaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:30:05 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF79A208B6;
-        Mon,  5 Oct 2020 15:27:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B53120637;
+        Mon,  5 Oct 2020 15:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911656;
-        bh=YIm/NKgFwN/Rmeq25z4SHAJ4G351QeXq9DAzZZWMcCE=;
+        s=default; t=1601911804;
+        bh=iLb0oMOz7yrGnKhpWZnHRUkZBIkrQEmtt98S69IRbMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M2gD/cvdPyXJqyiGWGDXU4j3rsVYu8NfR/DEKIFaRCEM3Ft1vtNW2m9V7VmBqMPVb
-         sslSnsCqy0QOuEpTYMlCMKu7FsRPgB0tHR74XPjziJYJ04xlhieJ2bDajBUfKqsPYv
-         WwLlZfmogIje1yOg/iEEBh+2chOugDT5LY6u0I7c=
+        b=UbfGCh/YwRo/GGDPNbULMSbjTABxp2AwdfP1tvTUF/Ncwwq6VJlXUYMAz/r12Pm3c
+         JH+iJd7VIzMjFFWBU9jGKnzVajbA4hhFrZ7Vq8SSdsEftw90ej5Gv6OCt3Q3qsCR9+
+         7GZKo+GM9FGMVbHsIpDqyn8J5dm4PsaC5SHle4Us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sebastien Boeuf <sebastien.boeuf@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/38] net: virtio_vsock: Enhance connection semantics
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 14/57] memstick: Skip allocating card when removing host
 Date:   Mon,  5 Oct 2020 17:26:26 +0200
-Message-Id: <20201005142109.111620438@linuxfoundation.org>
+Message-Id: <20201005142110.483459315@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
-References: <20201005142108.650363140@linuxfoundation.org>
+In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
+References: <20201005142109.796046410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastien Boeuf <sebastien.boeuf@intel.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit df12eb6d6cd920ab2f0e0a43cd6e1c23a05cea91 ]
+commit 62c59a8786e6bb75569cee91dab66e9da3ff4b68 upstream.
 
-Whenever the vsock backend on the host sends a packet through the RX
-queue, it expects an answer on the TX queue. Unfortunately, there is one
-case where the host side will hang waiting for the answer and might
-effectively never recover if no timeout mechanism was implemented.
+After commit 6827ca573c03 ("memstick: rtsx_usb_ms: Support runtime power
+management"), removing module rtsx_usb_ms will be stuck.
 
-This issue happens when the guest side starts binding to the socket,
-which insert a new bound socket into the list of already bound sockets.
-At this time, we expect the guest to also start listening, which will
-trigger the sk_state to move from TCP_CLOSE to TCP_LISTEN. The problem
-occurs if the host side queued a RX packet and triggered an interrupt
-right between the end of the binding process and the beginning of the
-listening process. In this specific case, the function processing the
-packet virtio_transport_recv_pkt() will find a bound socket, which means
-it will hit the switch statement checking for the sk_state, but the
-state won't be changed into TCP_LISTEN yet, which leads the code to pick
-the default statement. This default statement will only free the buffer,
-while it should also respond to the host side, by sending a packet on
-its TX queue.
+The deadlock is caused by powering on and powering off at the same time,
+the former one is when memstick_check() is flushed, and the later is called
+by memstick_remove_host().
 
-In order to simply fix this unfortunate chain of events, it is important
-that in case the default statement is entered, and because at this stage
-we know the host side is waiting for an answer, we must send back a
-packet containing the operation VIRTIO_VSOCK_OP_RST.
+Soe let's skip allocating card to prevent this issue.
 
-One could say that a proper timeout mechanism on the host side will be
-enough to avoid the backend to hang. But the point of this patch is to
-ensure the normal use case will be provided with proper responsiveness
-when it comes to establishing the connection.
+Fixes: 6827ca573c03 ("memstick: rtsx_usb_ms: Support runtime power management")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200925084952.13220-1-kai.heng.feng@canonical.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/virtio_transport_common.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/memstick/core/memstick.c |    4 ++++
+ include/linux/memstick.h         |    1 +
+ 2 files changed, 5 insertions(+)
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index fae2bded5d519..5f8a72d34d313 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1060,6 +1060,7 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 		virtio_transport_free_pkt(pkt);
- 		break;
- 	default:
-+		(void)virtio_transport_reset_no_sock(t, pkt);
- 		virtio_transport_free_pkt(pkt);
- 		break;
- 	}
--- 
-2.25.1
-
+--- a/drivers/memstick/core/memstick.c
++++ b/drivers/memstick/core/memstick.c
+@@ -441,6 +441,9 @@ static void memstick_check(struct work_s
+ 	} else if (host->card->stop)
+ 		host->card->stop(host->card);
+ 
++	if (host->removing)
++		goto out_power_off;
++
+ 	card = memstick_alloc_card(host);
+ 
+ 	if (!card) {
+@@ -545,6 +548,7 @@ EXPORT_SYMBOL(memstick_add_host);
+  */
+ void memstick_remove_host(struct memstick_host *host)
+ {
++	host->removing = 1;
+ 	flush_workqueue(workqueue);
+ 	mutex_lock(&host->lock);
+ 	if (host->card)
+--- a/include/linux/memstick.h
++++ b/include/linux/memstick.h
+@@ -281,6 +281,7 @@ struct memstick_host {
+ 
+ 	struct memstick_dev *card;
+ 	unsigned int        retries;
++	bool removing;
+ 
+ 	/* Notify the host that some requests are pending. */
+ 	void                (*request)(struct memstick_host *host);
 
 
