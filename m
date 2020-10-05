@@ -2,87 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFAE1283DCB
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 19:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4F5283DC1
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 19:53:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728385AbgJERyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 13:54:04 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:1188 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727033AbgJERyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 13:54:01 -0400
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5f7b5d4e0002>; Mon, 05 Oct 2020 10:52:14 -0700
-Received: from HQMAIL109.nvidia.com (172.20.187.15) by HQMAIL109.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 5 Oct
- 2020 17:50:43 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.13.39) by mail.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Mon, 5 Oct 2020 17:50:43 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <pavel@denx.de>, <stable@vger.kernel.org>,
-        <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.8 00/85] 5.8.14-rc1 review
-In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
-References: <20201005142114.732094228@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S1727442AbgJERxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 13:53:11 -0400
+Received: from mx2.suse.de ([195.135.220.15]:47786 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727033AbgJERxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 13:53:11 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 1EAA9ADDF;
+        Mon,  5 Oct 2020 17:53:09 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 4D3281E12F3; Mon,  5 Oct 2020 19:53:08 +0200 (CEST)
+Date:   Mon, 5 Oct 2020 19:53:08 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Jason Gunthorpe <jgg@nvidia.com>
+Cc:     andrew Morton <akpm@linux-foundation.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>, linux-mm@kvack.org,
+        Hans Verkuil <hans.verkuil@cisco.com>, Jan Kara <jack@suse.cz>,
+        Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+        Mel Gorman <mgorman@suse.de>, stable@vger.kernel.org,
+        Vlastimil Babka <vbabka@suse.cz>,
+        John Hubbard <jhubbard@nvidia.com>,
+        DRI Development <dri-devel@lists.freedesktop.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
+        linux-media@vger.kernel.org
+Subject: Re: [PATCH 2/2] mm/frame-vec: use FOLL_LONGTERM
+Message-ID: <20201005175308.GI4225@quack2.suse.cz>
+References: <0-v1-447bb60c11dd+174-frame_vec_fix_jgg@nvidia.com>
 MIME-Version: 1.0
-Message-ID: <6d5c5d01ce7c4108b8610141d8c8648d@HQMAIL109.nvidia.com>
-Date:   Mon, 5 Oct 2020 17:50:43 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1601920334; bh=Ovf5MnDnwIK/EmznYAtXVU1RC1xpPEPAPLtYKNMLua8=;
-        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
-         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
-         Date;
-        b=H9EMtRSUt6LaD4NP72UEaudMHDD5/Rdjqr3cTavhaEd+YpggnF8rLyTbXFQoyVeRW
-         bjk3eqb4b4NZ9J0YQSrpgh+nuDs//j3quDlgElk7UsCTMItsU0QWD4loHgTFIPjo/k
-         V4rdJc7x2Zj/XXOEU27pr8MMGAqeKpx8NyC0M87TYlBgxTs8xQJZW1q7Umd7y3peXq
-         KcPlgzL1JzFY4IKyJJk1FJPXg5TxpEvPbBRicfbK+vQqptGILTYlDbdqXcv7Vj8uSO
-         dhpx3QuU90L7TOB2KOz5cw340GCnvdf6rXbFsyQOORM4l0SN4X0u+sGCFMzWLuBTK1
-         DU4oJPxculV2A==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0-v1-447bb60c11dd+174-frame_vec_fix_jgg@nvidia.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 05 Oct 2020 17:25:56 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.8.14 release.
-> There are 85 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon 05-10-20 14:38:54, Jason Gunthorpe wrote:
+> When get_vaddr_frames() does its hacky follow_pfn() loop it should never
+> be allowed to extract a struct page from a normal VMA. This could allow a
+> serious use-after-free problem on any kernel memory.
 > 
-> Responses should be made by Wed, 07 Oct 2020 14:20:55 +0000.
-> Anything received after that time might be too late.
+> Restrict this to only work on VMA's with one of VM_IO | VM_PFNMAP
+> set. This limits the use-after-free problem to only IO memory, which while
+> still serious, is an improvement.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.14-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.8.y
-> and the diffstat can be found below.
+> Cc: stable@vger.kernel.org
+> Fixes: 8025e5ddf9c1 ("[media] mm: Provide new get_vaddr_frames() helper")
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  mm/frame_vector.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
-> thanks,
+> diff --git a/mm/frame_vector.c b/mm/frame_vector.c
+> index 10f82d5643b6de..26cb20544b6c37 100644
+> --- a/mm/frame_vector.c
+> +++ b/mm/frame_vector.c
+> @@ -99,6 +99,10 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
+>  		if (ret >= nr_frames || start < vma->vm_end)
+>  			break;
+>  		vma = find_vma_intersection(mm, start, start + 1);
+> +		if (!(vma->vm_flags & (VM_IO | VM_PFNMAP))) {
+> +			ret = -EINVAL;
+> +			goto out;
+> +		}
+>  	} while (vma && vma->vm_flags & (VM_IO | VM_PFNMAP));
+
+Hum, I fail to see how this helps. If vma has no VM_IO or VM_PFNMAP flag,
+we'd exit the loop (to out: label) anyway due to the loop termination
+condition and why not return the frames we already have? Furthermore
+find_vma_intersection() can return NULL which would oops in your check
+then. What am I missing?
+
+								Honza
+
+>  out:
+>  	if (locked)
+> -- 
+> 2.28.0
 > 
-> greg k-h
-
-All tests passing for Tegra ...
-
-Test results for stable-v5.8:
-    15 builds:	15 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    60 tests:	60 pass, 0 fail
-
-Linux version:	5.8.14-rc1-g8bb413de12d0
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
