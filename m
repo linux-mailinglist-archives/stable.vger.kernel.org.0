@@ -2,88 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C6E12831B7
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 10:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4B872831DB
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 10:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725896AbgJEIQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 04:16:45 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:55265 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725880AbgJEIQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 04:16:45 -0400
-Received: by mail-wm1-f65.google.com with SMTP id p15so3132612wmi.4;
-        Mon, 05 Oct 2020 01:16:43 -0700 (PDT)
+        id S1725914AbgJEIZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 04:25:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725885AbgJEIY7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 04:24:59 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0E35C0613CE
+        for <stable@vger.kernel.org>; Mon,  5 Oct 2020 01:24:59 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id x16so5544223pgj.3
+        for <stable@vger.kernel.org>; Mon, 05 Oct 2020 01:24:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=AA+VB7ktCHzqojZB+Xb+bmRImzr8BNYeBibVV8hh+uU=;
+        b=WOAk9HE7c5x5fnzkHGuzstfl90a0zXdcBEQNpPwrGeiEoOfXKZaHHn5/0kpeHVcv5K
+         qf+7bloijK/lXIAdtYch/22R+Aj34ywY2e4pkthqASs0TbdHoRQOsE7Hrl67kEB1h4bW
+         V1Z5daR6KlrNyZ5GdGSGtUPLnp7PK7jQmAVqev3SbJ5UbeUBEQmrVCdPussvA7C6iAqa
+         Rlq6kMtaeKF5DFE2pCI+AsL1jCOsX9t/p46bPp4rXVvpq/dQJ7iQaYOhZ7nppJwHJt8x
+         9hBMbuNqn//s7y6r+ZAdzV3h83gT+ZrCZg0WpJRB5FSvaR3iukrCWWSxD4YwGuXmMtnF
+         N/eA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=so3Q2iStLANQzUsWPJtNOkoc+zx5z4LsFtN/g7RdwuA=;
-        b=Yb1QZxxkooLudEnk8XN6HPSfmEsrM9EL59bf2/392ELo2GDinoakbX9PgcBJjbI5st
-         xxr3lcdNiWhjHtghgEAjwQmyfe3aCWtaJM+mMO4K3BX3d6Z5eaU5jx0W8ZR8/jvSffEd
-         XnjVHyd0XkQ6BUR6kMQvm394XVa1oQbQCWldRigxltOR4n5chjMbPaFzW3poN+YQpiaJ
-         qU4j9kmCxMjyaz0O4K/i0PK9lNDkjHuVRackFUekA/AQ2oiGGdHe1dAI+vWkIFpy0FZR
-         /Z97mF9MMchmOqxVu0nsqhsnao2HzD+O/X+RlxAnuBman4qgU7I0qp0nadjm2MSRR6r6
-         J8+A==
-X-Gm-Message-State: AOAM533YN76uQDYP+/GNqwOsIgQGnJlbpTONyxXdszuZTbsU6iH3/uBT
-        /ajAyb3efunjvk5Se8ndjTw=
-X-Google-Smtp-Source: ABdhPJy1FDIel9WhtFJmJd9CyAQEOlK6fIY5XuLZ0pflqjU2ZvCyXQDazBGV4roSAtjoCmXu+DoPFw==
-X-Received: by 2002:a1c:4b0f:: with SMTP id y15mr16442283wma.165.1601885803104;
-        Mon, 05 Oct 2020 01:16:43 -0700 (PDT)
-Received: from kozik-lap ([194.230.155.194])
-        by smtp.googlemail.com with ESMTPSA id c130sm873401wma.17.2020.10.05.01.16.41
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 05 Oct 2020 01:16:41 -0700 (PDT)
-Date:   Mon, 5 Oct 2020 10:16:39 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Christian Eggers <ceggers@arri.de>
-Cc:     Oleksij Rempel <linux@rempel-privat.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] i2c: imx: Don't generate STOP condition if
- arbitration has been lost
-Message-ID: <20201005081639.GA7431@kozik-lap>
-References: <20201002152305.4963-1-ceggers@arri.de>
- <20201002152305.4963-4-ceggers@arri.de>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=AA+VB7ktCHzqojZB+Xb+bmRImzr8BNYeBibVV8hh+uU=;
+        b=oUpLIxB5OfqQpyD9d0VFZ7RadJ+EmGbTbg1jKZmwzsq0SN70Y6gCPoUFk2Z+QynHrP
+         aQ1eLJBkiC51nfy01n6+llGRCtfD+8Eu87hHJDjqNdy1ctUpxBDqsTkkNQ355/NOu818
+         iRr4C3/ANwLpA2Y7pvtN8LEwc+FrAjhTCbjNe86CWfYG2f3awNt9oZbiPHHWUV++rYWU
+         kxhk5K7fG/QV3QXB6uhzsFG9SKgOHaXu2DS9S0Q5iF1c3s/OVdfr7/+W0GfBdVYRNPB0
+         z3u1I6Ig7SYzeFoXgLxTfW4zawPlOAS6oaY+YQvzxSYfmglOIrhk4eGSPgiOR2XmeX8f
+         3r8A==
+X-Gm-Message-State: AOAM530Gp/KYA/C+h80qk4qzj4IjCzCcszct0q/iGOQEhAd9uOnxFn2C
+        GI1avleC3jwhj6vHFEGopJ/4YRPvBaDO0A==
+X-Google-Smtp-Source: ABdhPJxOwVPzJPLaA6QKw8vC7YrBvQrvugUGaaCG2CKT5iLFWNXfIjza1t24CITEmCLzVB65/7Ldng==
+X-Received: by 2002:a63:3193:: with SMTP id x141mr13484714pgx.254.1601886298693;
+        Mon, 05 Oct 2020 01:24:58 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 11sm9857820pja.8.2020.10.05.01.24.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Oct 2020 01:24:57 -0700 (PDT)
+Message-ID: <5f7ad859.1c69fb81.576cb.3102@mx.google.com>
+Date:   Mon, 05 Oct 2020 01:24:57 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20201002152305.4963-4-ceggers@arri.de>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.238-11-gdc40d64e7e4d
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.4 baseline: 80 runs,
+ 1 regressions (v4.4.238-11-gdc40d64e7e4d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 02, 2020 at 05:23:05PM +0200, Christian Eggers wrote:
-> If arbitration is lost, the master automatically changes to slave mode.
-> I2SR_IBB may or may not be reset by hardware. Raising a STOP condition
-> by resetting I2CR_MSTA has no effect and will not clear I2SR_IBB.
-> 
-> So calling i2c_imx_bus_busy() is not required and would busy-wait until
-> timeout.
-> 
-> Signed-off-by: Christian Eggers <ceggers@arri.de>
-> Cc: stable@vger.kernel.org # Requires trivial backporting, simple remove
->                            # the 3rd argument from the calls to
->                            # i2c_imx_bus_busy().
-> ---
->  drivers/i2c/busses/i2c-imx.c | 12 ++++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
-> 
+stable-rc/queue/4.4 baseline: 80 runs, 1 regressions (v4.4.238-11-gdc40d64e=
+7e4d)
 
-Tested (not extensively) on Vybrid VF500 (Toradex VF50):
-Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
+Regressions Summary
+-------------------
 
-The I2C on Vybrid VF500 still works fine (also bigger transfers). I did
-not test this actual condition (arbitration) but only a regular I2C
-driver (BQ27xxx fuel gauge). Obviously this only proves that regular
-operation is not broken...
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
 
-Best regards,
-Krzysztof
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.238-11-gdc40d64e7e4d/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.238-11-gdc40d64e7e4d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      dc40d64e7e4d7e516cb301173fc600dedc62ff7c =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f7a9fe6267e499e614ff3ff
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.238-1=
+1-gdc40d64e7e4d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.238-1=
+1-gdc40d64e7e4d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f7a9fe6267e499=
+e614ff406
+      failing since 0 day (last pass: v4.4.237-85-gcd7b2e899081, first fail=
+: v4.4.238-3-g44c1a5097bba)
+      2 lines  =20
