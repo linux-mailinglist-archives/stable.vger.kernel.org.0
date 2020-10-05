@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07AC7283A84
+	by mail.lfdr.de (Postfix) with ESMTP id F2B43283A86
 	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:35:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728344AbgJEPfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:35:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34852 "EHLO mail.kernel.org"
+        id S1728346AbgJEPfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:35:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727760AbgJEPeR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727803AbgJEPeR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Oct 2020 11:34:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57DFD208C7;
-        Mon,  5 Oct 2020 15:34:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABA9E2100A;
+        Mon,  5 Oct 2020 15:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601912052;
-        bh=GTRTd7OxCL11fCDx8RGhOBw0HQqsBd+X2oaEfGSVnus=;
+        s=default; t=1601912055;
+        bh=XfRasMJy/wiBgcUMl7Zcy+h7dQwrZNbVAnDlOFBHQj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBMyvkVs/jrN4VIIZ8qUyKLL8BDN1bRHPfgFxotxwDJb2q5z/LzqNoE22IBOe818N
-         ccXwJX417MaVJ5c5PO1ubxc9YCyNLurK5qpIhcgX0g2f/DBriwFWEBmmWu9UTBYnp2
-         W7/iZ/RzbY35XNrzEHpuBbNflwD93t8ARd6+hPcg=
+        b=Tmk/TpewkCkY1Okt/LQxXzO6ORYVi7J4ktfF4W1UL0tNpGLBOzaC4t9KpMBRCQS4b
+         qu8cvvuUlXqGNQxvvfhCANJVrVXDsAq3A118zEuTdVSflAWZoyieMKQngCS1fa9Ekk
+         iexD7Bl5qb/tI0qh4yEMbM3FEJZswvV59Gz9cO1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.8 83/85] epoll: replace ->visited/visited_list with generation count
-Date:   Mon,  5 Oct 2020 17:27:19 +0200
-Message-Id: <20201005142118.726966971@linuxfoundation.org>
+Subject: [PATCH 5.8 84/85] epoll: EPOLL_CTL_ADD: close the race in decision to take fast path
+Date:   Mon,  5 Oct 2020 17:27:20 +0200
+Message-Id: <20201005142118.774867907@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
 References: <20201005142114.732094228@linuxfoundation.org>
@@ -43,99 +43,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 18306c404abe18a0972587a6266830583c60c928 upstream.
+commit fe0a916c1eae8e17e86c3753d13919177d63ed7e upstream.
 
-removes the need to clear it, along with the races.
+Checking for the lack of epitems refering to the epoll we want to insert into
+is not enough; we might have an insertion of that epoll into another one that
+has already collected the set of files to recheck for excessive reverse paths,
+but hasn't gotten to creating/inserting the epitem for it.
+
+However, any such insertion in progress can be detected - it will update the
+generation count in our epoll when it's done looking through it for files
+to check.  That gets done under ->mtx of our epoll and that allows us to
+detect that safely.
+
+We are *not* holding epmutex here, so the generation count is not stable.
+However, since both the update of ep->gen by loop check and (later)
+insertion into ->f_ep_link are done with ep->mtx held, we are fine -
+the sequence is
+	grab epmutex
+	bump loop_check_gen
+	...
+	grab tep->mtx		// 1
+	tep->gen = loop_check_gen
+	...
+	drop tep->mtx		// 2
+	...
+	grab tep->mtx		// 3
+	...
+	insert into ->f_ep_link
+	...
+	drop tep->mtx		// 4
+	bump loop_check_gen
+	drop epmutex
+and if the fastpath check in another thread happens for that
+eventpoll, it can come
+	* before (1) - in that case fastpath is just fine
+	* after (4) - we'll see non-empty ->f_ep_link, slow path
+taken
+	* between (2) and (3) - loop_check_gen is stable,
+with ->mtx providing barriers and we end up taking slow path.
+
+Note that ->f_ep_link emptiness check is slightly racy - we are protected
+against insertions into that list, but removals can happen right under us.
+Not a problem - in the worst case we'll end up taking a slow path for
+no good reason.
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/eventpoll.c |   27 ++++++++-------------------
- 1 file changed, 8 insertions(+), 19 deletions(-)
+ fs/eventpoll.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/fs/eventpoll.c
 +++ b/fs/eventpoll.c
-@@ -218,8 +218,7 @@ struct eventpoll {
- 	struct file *file;
- 
- 	/* used to optimize loop detection check */
--	struct list_head visited_list_link;
--	int visited;
-+	u64 gen;
- 
- #ifdef CONFIG_NET_RX_BUSY_POLL
- 	/* used to track busy poll napi_id */
-@@ -274,6 +273,8 @@ static long max_user_watches __read_most
-  */
- static DEFINE_MUTEX(epmutex);
- 
-+static u64 loop_check_gen = 0;
-+
- /* Used to check for epoll file descriptor inclusion loops */
- static struct nested_calls poll_loop_ncalls;
- 
-@@ -283,9 +284,6 @@ static struct kmem_cache *epi_cache __re
- /* Slab cache used to allocate "struct eppoll_entry" */
- static struct kmem_cache *pwq_cache __read_mostly;
- 
--/* Visited nodes during ep_loop_check(), so we can unset them when we finish */
--static LIST_HEAD(visited_list);
--
- /*
-  * List of files with newly added links, where we may need to limit the number
-  * of emanating paths. Protected by the epmutex.
-@@ -1971,13 +1969,12 @@ static int ep_loop_check_proc(void *priv
- 	struct epitem *epi;
- 
- 	mutex_lock_nested(&ep->mtx, call_nests + 1);
--	ep->visited = 1;
--	list_add(&ep->visited_list_link, &visited_list);
-+	ep->gen = loop_check_gen;
- 	for (rbp = rb_first_cached(&ep->rbr); rbp; rbp = rb_next(rbp)) {
- 		epi = rb_entry(rbp, struct epitem, rbn);
- 		if (unlikely(is_file_epoll(epi->ffd.file))) {
- 			ep_tovisit = epi->ffd.file->private_data;
--			if (ep_tovisit->visited)
-+			if (ep_tovisit->gen == loop_check_gen)
- 				continue;
- 			error = ep_call_nested(&poll_loop_ncalls,
- 					ep_loop_check_proc, epi->ffd.file,
-@@ -2018,18 +2015,8 @@ static int ep_loop_check_proc(void *priv
-  */
- static int ep_loop_check(struct eventpoll *ep, struct file *file)
- {
--	int ret;
--	struct eventpoll *ep_cur, *ep_next;
--
--	ret = ep_call_nested(&poll_loop_ncalls,
-+	return ep_call_nested(&poll_loop_ncalls,
- 			      ep_loop_check_proc, file, ep, current);
--	/* clear visited list */
--	list_for_each_entry_safe(ep_cur, ep_next, &visited_list,
--							visited_list_link) {
--		ep_cur->visited = 0;
--		list_del(&ep_cur->visited_list_link);
--	}
--	return ret;
- }
- 
- static void clear_tfile_check_list(void)
-@@ -2199,6 +2186,7 @@ int do_epoll_ctl(int epfd, int op, int f
+@@ -2181,6 +2181,7 @@ int do_epoll_ctl(int epfd, int op, int f
+ 		goto error_tgt_fput;
+ 	if (op == EPOLL_CTL_ADD) {
+ 		if (!list_empty(&f.file->f_ep_links) ||
++				ep->gen == loop_check_gen ||
+ 						is_file_epoll(tf.file)) {
+ 			mutex_unlock(&ep->mtx);
  			error = epoll_mutex_lock(&epmutex, 0, nonblock);
- 			if (error)
- 				goto error_tgt_fput;
-+			loop_check_gen++;
- 			full_check = 1;
- 			if (is_file_epoll(tf.file)) {
- 				error = -ELOOP;
-@@ -2262,6 +2250,7 @@ int do_epoll_ctl(int epfd, int op, int f
- error_tgt_fput:
- 	if (full_check) {
- 		clear_tfile_check_list();
-+		loop_check_gen++;
- 		mutex_unlock(&epmutex);
- 	}
- 
 
 
