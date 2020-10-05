@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 539A3283AE7
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C149C283A18
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727669AbgJEPi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:38:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57926 "EHLO mail.kernel.org"
+        id S1727362AbgJEPbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:31:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726980AbgJEPbI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:31:08 -0400
+        id S1727843AbgJEPbL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:31:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0EE8208B6;
-        Mon,  5 Oct 2020 15:31:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 562B321707;
+        Mon,  5 Oct 2020 15:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911868;
-        bh=oRbXiLYESpGgFqJOg2/oRQBvoQwE3amP77/HrN/g8m4=;
+        s=default; t=1601911870;
+        bh=Xr0BYkgvG5YLQWByAuoJf2UjFD+QCNkcpJEYO9N8oqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0JwrNzBzzKVtL2L3LgeS0Exj1McUN0Y2vVw7KaGFRwiCoRWfHLqvjGBeTGKoJ1ZV
-         3U9VM9ZWZKgRIBRdOlrufQlHySszUYd14+ADTgXm8myAuA8jMe77aJmfq6pWlvQPbn
-         FjK6DrcSchTLpFa6pWlLkw9q3cEMAi5ROuW7dlpg=
+        b=kBysOR3Z78VEQsg4rW4o3mVK5f74tgCyd8Zup4MfaZAbcrZojRCIPD3aVLQ9i5V8v
+         PE6Owp6b1QdeB+pqQzF1Z7wxFbBLCO+3Hat6HIJgPsDNM6NOzhAVc812HNQs6Xhg9r
+         8Olbuev1NOozeksizNgszv5iPIW2BR3iYU9Cry3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        RussianNeuroMancer <russianneuromancer@ya.ru>
-Subject: [PATCH 5.8 03/85] mmc: sdhci: Workaround broken command queuing on Intel GLK based IRBIS models
-Date:   Mon,  5 Oct 2020 17:25:59 +0200
-Message-Id: <20201005142114.908690747@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Brooke Basile <brookebasile@gmail.com>,
+        stable <stable@kernel.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>
+Subject: [PATCH 5.8 04/85] USB: gadget: f_ncm: Fix NDP16 datagram validation
+Date:   Mon,  5 Oct 2020 17:26:00 +0200
+Message-Id: <20201005142114.960807335@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
 References: <20201005142114.732094228@linuxfoundation.org>
@@ -44,43 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit afd7f30886b0b445a4240a99020458a9772f2b89 upstream.
+commit 2b405533c2560d7878199c57d95a39151351df72 upstream.
 
-Commit bedf9fc01ff1 ("mmc: sdhci: Workaround broken command queuing on
-Intel GLK"), disabled command-queuing on Intel GLK based LENOVO models
-because of it being broken due to what is believed to be a bug in
-the BIOS.
+commit 2b74b0a04d3e ("USB: gadget: f_ncm: add bounds checks to ncm_unwrap_ntb()")
+adds important bounds checking however it unfortunately also introduces  a
+bug with respect to section 3.3.1 of the NCM specification.
 
-It seems that the BIOS of some IRBIS models, including the IRBIS NB111
-model has the same issue, so disable command queuing there too.
+wDatagramIndex[1] : "Byte index, in little endian, of the second datagram
+described by this NDP16. If zero, then this marks the end of the sequence
+of datagrams in this NDP16."
 
-Fixes: bedf9fc01ff1 ("mmc: sdhci: Workaround broken command queuing on Intel GLK")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=209397
-Reported-and-tested-by: RussianNeuroMancer <russianneuromancer@ya.ru>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20200927104821.5676-1-hdegoede@redhat.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+wDatagramLength[1]: "Byte length, in little endian, of the second datagram
+described by this NDP16. If zero, then this marks the end of the sequence
+of datagrams in this NDP16."
+
+wDatagramIndex[1] and wDatagramLength[1] respectively then may be zero but
+that does not mean we should throw away the data referenced by
+wDatagramIndex[0] and wDatagramLength[0] as is currently the case.
+
+Breaking the loop on (index2 == 0 || dg_len2 == 0) should come at the end
+as was previously the case and checks for index2 and dg_len2 should be
+removed since zero is valid.
+
+I'm not sure how much testing the above patch received but for me right now
+after enumeration ping doesn't work. Reverting the commit restores ping,
+scp, etc.
+
+The extra validation associated with wDatagramIndex[0] and
+wDatagramLength[0] appears to be valid so, this change removes the incorrect
+restriction on wDatagramIndex[1] and wDatagramLength[1] restoring data
+processing between host and device.
+
+Fixes: 2b74b0a04d3e ("USB: gadget: f_ncm: add bounds checks to ncm_unwrap_ntb()")
+Cc: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Cc: Brooke Basile <brookebasile@gmail.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Link: https://lore.kernel.org/r/20200920170158.1217068-1-bryan.odonoghue@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-pci-core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_ncm.c |   30 ++----------------------------
+ 1 file changed, 2 insertions(+), 28 deletions(-)
 
---- a/drivers/mmc/host/sdhci-pci-core.c
-+++ b/drivers/mmc/host/sdhci-pci-core.c
-@@ -794,7 +794,8 @@ static int byt_emmc_probe_slot(struct sd
- static bool glk_broken_cqhci(struct sdhci_pci_slot *slot)
- {
- 	return slot->chip->pdev->device == PCI_DEVICE_ID_INTEL_GLK_EMMC &&
--	       dmi_match(DMI_BIOS_VENDOR, "LENOVO");
-+	       (dmi_match(DMI_BIOS_VENDOR, "LENOVO") ||
-+		dmi_match(DMI_SYS_VENDOR, "IRBIS"));
- }
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -1189,7 +1189,6 @@ static int ncm_unwrap_ntb(struct gether
+ 	const struct ndp_parser_opts *opts = ncm->parser_opts;
+ 	unsigned	crc_len = ncm->is_crc ? sizeof(uint32_t) : 0;
+ 	int		dgram_counter;
+-	bool		ndp_after_header;
  
- static int glk_emmc_probe_slot(struct sdhci_pci_slot *slot)
+ 	/* dwSignature */
+ 	if (get_unaligned_le32(tmp) != opts->nth_sign) {
+@@ -1216,7 +1215,6 @@ static int ncm_unwrap_ntb(struct gether
+ 	}
+ 
+ 	ndp_index = get_ncm(&tmp, opts->ndp_index);
+-	ndp_after_header = false;
+ 
+ 	/* Run through all the NDP's in the NTB */
+ 	do {
+@@ -1232,8 +1230,6 @@ static int ncm_unwrap_ntb(struct gether
+ 			     ndp_index);
+ 			goto err;
+ 		}
+-		if (ndp_index == opts->nth_size)
+-			ndp_after_header = true;
+ 
+ 		/*
+ 		 * walk through NDP
+@@ -1312,37 +1308,13 @@ static int ncm_unwrap_ntb(struct gether
+ 			index2 = get_ncm(&tmp, opts->dgram_item_len);
+ 			dg_len2 = get_ncm(&tmp, opts->dgram_item_len);
+ 
+-			if (index2 == 0 || dg_len2 == 0)
+-				break;
+-
+ 			/* wDatagramIndex[1] */
+-			if (ndp_after_header) {
+-				if (index2 < opts->nth_size + opts->ndp_size) {
+-					INFO(port->func.config->cdev,
+-					     "Bad index: %#X\n", index2);
+-					goto err;
+-				}
+-			} else {
+-				if (index2 < opts->nth_size + opts->dpe_size) {
+-					INFO(port->func.config->cdev,
+-					     "Bad index: %#X\n", index2);
+-					goto err;
+-				}
+-			}
+ 			if (index2 > block_len - opts->dpe_size) {
+ 				INFO(port->func.config->cdev,
+ 				     "Bad index: %#X\n", index2);
+ 				goto err;
+ 			}
+ 
+-			/* wDatagramLength[1] */
+-			if ((dg_len2 < 14 + crc_len) ||
+-					(dg_len2 > frame_max)) {
+-				INFO(port->func.config->cdev,
+-				     "Bad dgram length: %#X\n", dg_len);
+-				goto err;
+-			}
+-
+ 			/*
+ 			 * Copy the data into a new skb.
+ 			 * This ensures the truesize is correct
+@@ -1359,6 +1331,8 @@ static int ncm_unwrap_ntb(struct gether
+ 			ndp_len -= 2 * (opts->dgram_item_len * 2);
+ 
+ 			dgram_counter++;
++			if (index2 == 0 || dg_len2 == 0)
++				break;
+ 		} while (ndp_len > 2 * (opts->dgram_item_len * 2));
+ 	} while (ndp_index);
+ 
 
 
