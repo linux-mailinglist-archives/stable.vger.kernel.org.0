@@ -2,137 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 273222833DC
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 12:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D1628340C
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 12:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725901AbgJEKMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 06:12:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56134 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725887AbgJEKMw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 06:12:52 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78B42C0613CE
-        for <stable@vger.kernel.org>; Mon,  5 Oct 2020 03:12:51 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id 7so5687822pgm.11
-        for <stable@vger.kernel.org>; Mon, 05 Oct 2020 03:12:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=slcmBax7hy2UDH3m6kY/MwgvkdcIMJxJhsvgHSQbrr0=;
-        b=ZaLl7gCnJnihoeMVcI5zIhrq0iJLxhslc068um/8HURmgBGExkdtwE0iqhxGdm/3iF
-         V/MyWzv9FtGjexxgJSl9/G7wBfXVMHrmKDFeC075yaOQMvnbu17Cn1AsuXHjcNaRtPRm
-         87LQNJ7+jf+3X6P8dAtXCHQdooZMv3zcEkYWsDO+iCg+ReZoJ4dKEQ1Z1GgFQyTzetSx
-         opG9ZUZ8DqB6swmpv71v4H7eOhmLC1g+0rpuX9OLp9LsNpzkCU8wv9749M0dgNhihmG/
-         yorc+nj26Pd/047iihPUoy20s3uG5dLSBWD3Mt5jCO+DA7478QSbECTgg9r/GINFEDD2
-         ktyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=slcmBax7hy2UDH3m6kY/MwgvkdcIMJxJhsvgHSQbrr0=;
-        b=BNQimh1Bpi2iETYzzk5W9GcTJsNUmIqdHzGFf6y5emKPtfFYgn1/QX+pGhi+A2T3vn
-         qb/FzjZK6XVE2rgUCRQDJ8duHJBJITW0Wh63CimPhqMuLIg1eoUbz/inslfJY3EtZ3oy
-         OHW54pSzl+MfKH1Vc6G3QEcIvkf/WN6Fv3FBR9GdE2cfpiWRqeM2JktMGj6cifR2QhNZ
-         6ME3ab9g1WfIoEYUVU155f+OVlTdcg02tiuXeooktwyaS2EnrFl4aFdKGoy5Qd6eYVjM
-         0FHOPBMPgz+kMTj2lqQGcE88DC63Mnz4LP319qk2pVH1YPzDqtFz4Kcx1n/RT18Ulei4
-         Nrzw==
-X-Gm-Message-State: AOAM533SpnE/eNc/kdUvHaFz3zbeVmIpwYiRlggLNAXueIwIsH/D/+PB
-        QIEPEJe/JlF2UEowftS59/rEM/kO/JIUhg==
-X-Google-Smtp-Source: ABdhPJyDU6ewFwcaAT1rLr8oeE3LWr4FeQcR1/RNmmGsRSCmBJK51gyDQjFBmf2yvNAyJKAuHUHq1A==
-X-Received: by 2002:a63:4f45:: with SMTP id p5mr13583767pgl.341.1601892770652;
-        Mon, 05 Oct 2020 03:12:50 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n19sm2591972pfu.24.2020.10.05.03.12.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Oct 2020 03:12:49 -0700 (PDT)
-Message-ID: <5f7af1a1.1c69fb81.270d8.5908@mx.google.com>
-Date:   Mon, 05 Oct 2020 03:12:49 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1725978AbgJEKhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 06:37:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33872 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725932AbgJEKhH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 06:37:07 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADC302078D;
+        Mon,  5 Oct 2020 10:37:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601894227;
+        bh=K5j35gHwfZTqoh6N6V43Al4AERWlzj9auiUPa0UDa2M=;
+        h=Subject:To:From:Date:From;
+        b=hdZg2l0a2c7YM7ggr29udnaKEqSCJebF8t73WPL/7Q41Nx1+WkoGN9125NL7OwaG8
+         mZJbUrRXr3wt2qH00k28c1tDKSELvvfPCHTPebd23tfOEnJptITC9ykEmVUh4BmytL
+         KkC564RwpD/qn0gurooN4CXgcG5RalbINp+5RNU0=
+Subject: patch "extcon: ptn5150: Fix usage of atomic GPIO with sleeping GPIO chips" added to char-misc-testing
+To:     krzk@kernel.org, cw00.choi@samsung.com, stable@vger.kernel.org,
+        vijaikumar.kanagarajan@gmail.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 05 Oct 2020 12:37:48 +0200
+Message-ID: <16018942683451@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.69-46-gcda98bef2fcc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.4 baseline: 65 runs,
- 3 regressions (v5.4.69-46-gcda98bef2fcc)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 65 runs, 3 regressions (v5.4.69-46-gcda98bef2=
-fcc)
 
-Regressions Summary
--------------------
+This is a note to let you know that I've just added the patch titled
 
-platform         | arch  | lab           | compiler | defconfig | results
------------------+-------+---------------+----------+-----------+--------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
+    extcon: ptn5150: Fix usage of atomic GPIO with sleeping GPIO chips
 
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.69-46-gcda98bef2fcc/plan/baseline/
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.69-46-gcda98bef2fcc
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      cda98bef2fcc68a2ffc1ddc187a241d476489a08 =
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
 
 
+From 6aaad58c872db062f7ea2761421ca748bd0931cc Mon Sep 17 00:00:00 2001
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Date: Mon, 17 Aug 2020 09:00:00 +0200
+Subject: extcon: ptn5150: Fix usage of atomic GPIO with sleeping GPIO chips
 
-Test Regressions
----------------- =
+The driver uses atomic version of gpiod_set_value() without any real
+reason.  It is called in a workqueue under mutex so it could sleep
+there.  Changing it to "can_sleep" flavor allows to use the driver with
+all GPIO chips.
+
+Fixes: 4ed754de2d66 ("extcon: Add support for ptn5150 extcon driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Vijai Kumar K <vijaikumar.kanagarajan@gmail.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+---
+ drivers/extcon/extcon-ptn5150.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/extcon/extcon-ptn5150.c b/drivers/extcon/extcon-ptn5150.c
+index d1c997599390..5f5252752644 100644
+--- a/drivers/extcon/extcon-ptn5150.c
++++ b/drivers/extcon/extcon-ptn5150.c
+@@ -127,7 +127,7 @@ static void ptn5150_irq_work(struct work_struct *work)
+ 			case PTN5150_DFP_ATTACHED:
+ 				extcon_set_state_sync(info->edev,
+ 						EXTCON_USB_HOST, false);
+-				gpiod_set_value(info->vbus_gpiod, 0);
++				gpiod_set_value_cansleep(info->vbus_gpiod, 0);
+ 				extcon_set_state_sync(info->edev, EXTCON_USB,
+ 						true);
+ 				break;
+@@ -138,9 +138,9 @@ static void ptn5150_irq_work(struct work_struct *work)
+ 					PTN5150_REG_CC_VBUS_DETECTION_MASK) >>
+ 					PTN5150_REG_CC_VBUS_DETECTION_SHIFT);
+ 				if (vbus)
+-					gpiod_set_value(info->vbus_gpiod, 0);
++					gpiod_set_value_cansleep(info->vbus_gpiod, 0);
+ 				else
+-					gpiod_set_value(info->vbus_gpiod, 1);
++					gpiod_set_value_cansleep(info->vbus_gpiod, 1);
+ 
+ 				extcon_set_state_sync(info->edev,
+ 						EXTCON_USB_HOST, true);
+@@ -156,7 +156,7 @@ static void ptn5150_irq_work(struct work_struct *work)
+ 					EXTCON_USB_HOST, false);
+ 			extcon_set_state_sync(info->edev,
+ 					EXTCON_USB, false);
+-			gpiod_set_value(info->vbus_gpiod, 0);
++			gpiod_set_value_cansleep(info->vbus_gpiod, 0);
+ 		}
+ 	}
+ 
+-- 
+2.28.0
 
 
-
-platform         | arch  | lab           | compiler | defconfig | results
------------------+-------+---------------+----------+-----------+--------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f7ab8ca3081251dcb4ff3f0
-
-  Results:     85 PASS, 5 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.69-46=
--gcda98bef2fcc/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevi=
-n.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.69-46=
--gcda98bef2fcc/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevi=
-n.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.bootrr.cros-ec-sensors-accel0-probed: https://kernelci.org/tes=
-t/case/id/5f7ab8ca3081251dcb4ff404
-      failing since 5 days (last pass: v5.4.68-384-g856fa448539c, first fai=
-l: v5.4.68-388-gcf92ab7a7853)
-
-    2020-10-05 06:10:09.940000  /lava-2690345/1/../bin/lava-test-case
-     * baseline.bootrr.cros-ec-sensors-accel1-probed: https://kernelci.org/=
-test/case/id/5f7ab8ca3081251dcb4ff405
-      failing since 5 days (last pass: v5.4.68-384-g856fa448539c, first fai=
-l: v5.4.68-388-gcf92ab7a7853)
-
-    2020-10-05 06:10:10.961000  /lava-2690345/1/../bin/lava-test-case
-    2020-10-05 06:10:10.971000  <8>[   24.321862] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-sensors-accel1-probed RESULT=3Dfail>
-     * baseline.bootrr.cros-ec-sensors-gyro0-probed: https://kernelci.org/t=
-est/case/id/5f7ab8ca3081251dcb4ff406
-      failing since 5 days (last pass: v5.4.68-384-g856fa448539c, first fai=
-l: v5.4.68-388-gcf92ab7a7853)
-
-    2020-10-05 06:10:11.993000  <8>[   25.343717] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-sensors-gyro0-probed RESULT=3Dfail>
-      =20
