@@ -2,164 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14C04283271
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 10:48:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8A6128330F
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 11:20:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725915AbgJEIsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 04:48:11 -0400
-Received: from mail-vi1eur05on2111.outbound.protection.outlook.com ([40.107.21.111]:4352
-        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725880AbgJEIsL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 04:48:11 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=e6FjCNYup6bP/WvkbSoV8HEI0ZPxZECpROFUV1fKYIw+IQLDasJ08UeITFvGtdvwjGUL3RAdE9ErJn6T3s4aFMASyl/VqeXVBxv+uG0RC0kVHumc1QA6cEm+rtKbC8LMTgc/V4STfqVjGJmBmnvvzea9xSI7iOVWqP1LGY93rTxg21RyMOMk23RWROJWAnEWxWwtfFPTSCR3CO3o7wLasKfjyKXqzDJY6Uo67YrEo7GtJ/8C8xmRXXQbTh4/GMng43IUqF+E2lvu1tOM/I8XXpGcqBnLji0bVrGB8jpGig6A95fBC0JiIEL5Iimry84p62ldtxueajHhQe8lUr8K4Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CL34VxT1N4wjz/MGEmKojL1eFi3c95IK2kEnwLiDIgY=;
- b=SYyT7o45ALwJG1iY4cLrp/UhCFENDci3OE8qUotMaWlBrdnYCU4YFlAl5/hm1k/95jHNlCNIqfZm72pRdg48Iak8vXFvDNdAuiiBpCOytxYIIFM+2d9OHFwFy97+/RQGrzuZx4kSI8wILJvaJEbrnOxaLhg9smGOYRJ/RvxFT3trKQbYqwMUq4hkrJXph77Rk/m2LL514SFIbWSfXblRVjPM3PWgyRcOgKX8gvC9Zn0yK1WC4Gt/SOK4QDmY/cdsM6MXp6QSsJ4WsdQ6lB1OaJZXsDiZ/kuQHp5Fw1cjRKoRenhdOOPx4Sqy+IqQ05gairPjXG8wK5iyH5Af4nj6RA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 131.228.2.8) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nokia.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=nokia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
- s=selector1-nokia-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CL34VxT1N4wjz/MGEmKojL1eFi3c95IK2kEnwLiDIgY=;
- b=A3+qUa6cWlYxXqq3JcnBHUbnR/eGcSGJ4+OVOilm2j9GaZJ97T5LUvLzb8gNSKC3OuEUHNmN2T4bOpa3jNITr6+vbMlST8MgD+CMn4QMOK812yXyyGe7v3fAWpS7JS5JY0iSLEqVcA6hrMuZEcV2/+9YLw7IJY3/S3jou17jurc=
-Received: from AM6P193CA0126.EURP193.PROD.OUTLOOK.COM (2603:10a6:209:85::31)
- by VI1PR0701MB2847.eurprd07.prod.outlook.com (2603:10a6:800:83::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3455.13; Mon, 5 Oct
- 2020 08:48:08 +0000
-Received: from AM5EUR03FT062.eop-EUR03.prod.protection.outlook.com
- (2603:10a6:209:85:cafe::e) by AM6P193CA0126.outlook.office365.com
- (2603:10a6:209:85::31) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3433.34 via Frontend
- Transport; Mon, 5 Oct 2020 08:48:08 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 131.228.2.8)
- smtp.mailfrom=nokia.com; vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=pass action=none header.from=nokia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nokia.com designates
- 131.228.2.8 as permitted sender) receiver=protection.outlook.com;
- client-ip=131.228.2.8; helo=fihe3nok0734.emea.nsn-net.net;
-Received: from fihe3nok0734.emea.nsn-net.net (131.228.2.8) by
- AM5EUR03FT062.mail.protection.outlook.com (10.152.17.120) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3433.34 via Frontend Transport; Mon, 5 Oct 2020 08:48:08 +0000
-Received: from ulegcparamis.emea.nsn-net.net (ulegcparamis.emea.nsn-net.net [10.151.74.146])
-        by fihe3nok0734.emea.nsn-net.net (GMO) with ESMTP id 0958m5tE029518;
-        Mon, 5 Oct 2020 08:48:05 GMT
-From:   Alexander A Sverdlin <alexander.sverdlin@nokia.com>
-To:     Tudor Ambarus <tudor.ambarus@microchip.com>,
-        linux-mtd@lists.infradead.org
-Cc:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Matija Glavinic Pecotic <matija.glavinic-pecotic.ext@nokia.com>
-Subject: [PATCH] mtd: spi-nor: Don't copy self-pointing struct around
-Date:   Mon,  5 Oct 2020 10:48:03 +0200
-Message-Id: <20201005084803.23460-1-alexander.sverdlin@nokia.com>
-X-Mailer: git-send-email 2.10.2
-X-EOPAttributedMessage: 0
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-PublicTrafficType: Email
+        id S1725910AbgJEJU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 05:20:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48018 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725901AbgJEJU3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 05:20:29 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905D3C0613CE
+        for <stable@vger.kernel.org>; Mon,  5 Oct 2020 02:20:29 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id gm14so5675804pjb.2
+        for <stable@vger.kernel.org>; Mon, 05 Oct 2020 02:20:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qQDAzojOgj0HkLm3BL/VHKH0he6EjwP6gKsnwARJTPw=;
+        b=QtrXCF2Bgoh/A8iRP1Hrc5RtNg0RaWAtQQwcr/ZV2Saro6P4uOSmMPFbv/XlQOBUyW
+         4Uzv+lTDrJ3K6R3/cXRegrDMPXnW8Sc4BDpHsyzD4ayN60JOhTu3DkbP4amqgNdkpmFZ
+         9v+jbD1IVvG5o+XAWwOx1D/SBZDvSbkR0pLf5Qtuzcyj8TkwaphoU7iddBCBQbW5vrLF
+         8eM1TnJDEzaMK99BMbokD3HkfmKI/MNWn4Rh06MSr8sMcCR5MSCpyYtHSycXz32BoeJj
+         f2s6KYkQ+QsA/8bCywhh7Imm1Ryep4nHFCT0zh/kYVMGt7ZBoSxxjCPf+FStlVgCHUWM
+         n6UQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qQDAzojOgj0HkLm3BL/VHKH0he6EjwP6gKsnwARJTPw=;
+        b=Q9oW5L4/TY30hjS1/aVLM1VB40rerE/HqVHmQpYFCwxC8MR5Bd/ALVoO7e5PrFXeZY
+         cGb8qoECRFZaHFxKd/lY5YmqG9LrF30ier+D4yP3lYbUkqG1hkIWVYeUz/7AIm39RkXt
+         qOrtHlpr2KN8vd/QOgCdOF7NUiYv9mL6d1SD6wER0jfCQWNuluA4l44OUcOlk6Pmfxbj
+         YDhpSLKLL8WHfUXCGoLb8ixmGxZChSgjhYR3sUm2AdPqvYC3JifyhdgLHPSPtpWlRkqB
+         adsE+mtZzyRyYx/pxRn6YnW3uslObDQn/td3wKyECFf0C+4U5hn0rqIK6MV4Qg5RL8lp
+         Wmiw==
+X-Gm-Message-State: AOAM5311p0zqpksHZpBzh/ikDCRsCVd51Au9CdCiB5cw1U/BgaqsgBTA
+        L7S0AmJizEdmZ9vBeF4ZPXkZbOEnGClbvA==
+X-Google-Smtp-Source: ABdhPJxkS88rHkY1UJ0oQseXNo+S3/uenc0piocYuHBc/iuBRFv2BEfRDxiFZJUdWCzgCiFLvyuvng==
+X-Received: by 2002:a17:90b:348b:: with SMTP id kd11mr16376231pjb.66.1601889628637;
+        Mon, 05 Oct 2020 02:20:28 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z73sm7841425pfc.75.2020.10.05.02.20.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Oct 2020 02:20:27 -0700 (PDT)
+Message-ID: <5f7ae55b.1c69fb81.d691e.f2ad@mx.google.com>
+Date:   Mon, 05 Oct 2020 02:20:27 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MS-Office365-Filtering-Correlation-Id: 998e2e48-7fb2-46e9-0a9f-08d8690b61e8
-X-MS-TrafficTypeDiagnostic: VI1PR0701MB2847:
-X-Microsoft-Antispam-PRVS: <VI1PR0701MB284799650678BB8084729C52880C0@VI1PR0701MB2847.eurprd07.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5516;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: nqsUy1WybPbw2bcmIWtq3XOkwrUGbUs4iTvInDR9H0tFugDzQdB/KuMXTGS+UtFELG6tBJi3QO9ambRZq4rhwRE3GhYxIManBNEPGrxnC6Rj355IUNuiLfA6vrZmdhuEeef7pAXuRyMNeWCHtSi80Hrpr4rSrtJJLYrljoiecGqY8qi52nH+GIdZPzHRuzDddd09hJ+s3I+8CdYz+A4mqhW/m4IaoRP6Y5+YBC2NAXfsRGUjdH+apYUQ4PGhWyJmcog2rEHZtm365j+ZAPoQ3MGtv/SRnhh6XY4SmgMMlpShK2a99EDP9ING6KGIwSlCGo697nbO35iWZs0/GVpI7cspKGuiwXFcxvOiFf+YRdh7Hjn4IQW+EGb/vsqMbVxpSL9Ptpfi0Qh/wWgMK4Cf0w==
-X-Forefront-Antispam-Report: CIP:131.228.2.8;CTRY:FI;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:fihe3nok0734.emea.nsn-net.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(46966005)(336012)(83380400001)(8676002)(4326008)(8936002)(86362001)(2906002)(186003)(54906003)(2616005)(498600001)(26005)(70206006)(36756003)(70586007)(5660300002)(82310400003)(1076003)(81166007)(47076004)(356005)(107886003);DIR:OUT;SFP:1102;
-X-OriginatorOrg: nokia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Oct 2020 08:48:08.0479
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 998e2e48-7fb2-46e9-0a9f-08d8690b61e8
-X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=5d471751-9675-428d-917b-70f44f9630b0;Ip=[131.228.2.8];Helo=[fihe3nok0734.emea.nsn-net.net]
-X-MS-Exchange-CrossTenant-AuthSource: AM5EUR03FT062.eop-EUR03.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR0701MB2847
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.149-30-ga5904fa46fda
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.19 baseline: 91 runs,
+ 2 regressions (v4.19.149-30-ga5904fa46fda)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+stable-rc/queue/4.19 baseline: 91 runs, 2 regressions (v4.19.149-30-ga5904f=
+a46fda)
 
-spi_nor_parse_sfdp() modifies the passed structure so that it points to
-itself (params.erase_map.regions to params.erase_map.uniform_region). This
-makes it impossible to copy the local struct anywhere else.
+Regressions Summary
+-------------------
 
-Therefore only use memcpy() in backup-restore scenario. The bug may show up
-like below:
+platform        | arch  | lab           | compiler | defconfig           | =
+results
+----------------+-------+---------------+----------+---------------------+-=
+-------
+bcm2837-rpi-3-b | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
+3/4    =
 
-BUG: unable to handle page fault for address: ffffc90000b377f8
-Oops: 0000 [#1] PREEMPT SMP NOPTI
-CPU: 4 PID: 3500 Comm: flashcp Tainted: G           O      5.4.53-... #1
-...
-RIP: 0010:spi_nor_erase+0x8e/0x5c0
-Code: 64 24 18 89 db 4d 8b b5 d0 04 00 00 4c 89 64 24 18 4c 89 64 24 20 eb 12 a8 10 0f 85 59 02 00 00 49 83 c6 10 0f 84 4f 02 00 00 <49> 8b 06 48 89 c2 48 83 e2 c0 48 89 d1 49 03 4e 08 48 39 cb 73 d8
-RSP: 0018:ffffc9000217fc48 EFLAGS: 00010206
-RAX: 0000000000740000 RBX: 0000000000000000 RCX: 0000000000740000
-RDX: ffff8884550c9980 RSI: ffff88844f9c0bc0 RDI: ffff88844ede7bb8
-RBP: 0000000000740000 R08: ffffffff815bfbe0 R09: ffff88844f9c0bc0
-R10: 0000000000000000 R11: 0000000000000000 R12: ffffc9000217fc60
-R13: ffff88844ede7818 R14: ffffc90000b377f8 R15: 0000000000000000
-FS:  00007f4699780500(0000) GS:ffff88846ff00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffc90000b377f8 CR3: 00000004538ee000 CR4: 0000000000340fe0
-Call Trace:
- part_erase+0x27/0x50
- mtdchar_ioctl+0x831/0xba0
- ? filemap_map_pages+0x186/0x3d0
- ? do_filp_open+0xad/0x110
- ? _copy_to_user+0x22/0x30
- ? cp_new_stat+0x150/0x180
- mtdchar_unlocked_ioctl+0x2a/0x40
- do_vfs_ioctl+0xa0/0x630
- ? __do_sys_newfstat+0x3c/0x60
- ksys_ioctl+0x70/0x80
- __x64_sys_ioctl+0x16/0x20
- do_syscall_64+0x6a/0x200
- ? prepare_exit_to_usermode+0x50/0xd0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x7f46996b6817
+panda           | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | =
+4/5    =
 
-Fixes: 1c1d8d98e1c7 ("mtd: spi-nor: Split spi_nor_init_params()")
-Cc: stable@vger.kernel.org
-Tested-by: Baurzhan Ismagulov <ibr@radix50.net>
-Co-developed-by: Matija Glavinic Pecotic <matija.glavinic-pecotic.ext@nokia.com>
-Signed-off-by: Matija Glavinic Pecotic <matija.glavinic-pecotic.ext@nokia.com>
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
----
- drivers/mtd/spi-nor/core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
-index 2add4a0..cce0670 100644
---- a/drivers/mtd/spi-nor/core.c
-+++ b/drivers/mtd/spi-nor/core.c
-@@ -2701,11 +2701,10 @@ static void spi_nor_sfdp_init_params(struct spi_nor *nor)
- 
- 	memcpy(&sfdp_params, nor->params, sizeof(sfdp_params));
- 
--	if (spi_nor_parse_sfdp(nor, &sfdp_params)) {
-+	if (spi_nor_parse_sfdp(nor, nor->params)) {
-+		memcpy(nor->params, &sfdp_params, sizeof(*nor->params));
- 		nor->addr_width = 0;
- 		nor->flags &= ~SNOR_F_4B_OPCODES;
--	} else {
--		memcpy(nor->params, &sfdp_params, sizeof(*nor->params));
- 	}
- }
- 
--- 
-2.10.2
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.149-30-ga5904fa46fda/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.149-30-ga5904fa46fda
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a5904fa46fda676eff493362a7364baed5fc02ae =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab           | compiler | defconfig           | =
+results
+----------------+-------+---------------+----------+---------------------+-=
+-------
+bcm2837-rpi-3-b | arm64 | lab-baylibre  | gcc-8    | defconfig           | =
+3/4    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f7aa99f523763205f4ff479
+
+  Results:     3 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.149=
+-30-ga5904fa46fda/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.149=
+-30-ga5904fa46fda/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f7aa99f52376320=
+5f4ff47d
+      failing since 1 day (last pass: v4.19.149-4-gb110045ffdd5, first fail=
+: v4.19.149-4-g55b73b3448d7)
+      1 lines
+
+    2020-10-05 05:03:44.869000  Connected to bcm2837-rpi-3-b console [chann=
+el connected] (~$quit to exit)
+    2020-10-05 05:03:44.869000  (user:khilman) is already connected
+    2020-10-05 05:04:01.442000  =00
+    2020-10-05 05:04:01.442000  =
+
+    2020-10-05 05:04:01.442000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
+0)
+    2020-10-05 05:04:01.442000  =
+
+    2020-10-05 05:04:01.442000  DRAM:  948 MiB
+    2020-10-05 05:04:01.457000  RPI 3 Model B (0xa02082)
+    2020-10-05 05:04:01.544000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
+    2020-10-05 05:04:01.577000  Loading Environment from FAT... *** Warning=
+ - bad CRC, using default environment
+    ... (362 line(s) more)
+      =
+
+
+
+platform        | arch  | lab           | compiler | defconfig           | =
+results
+----------------+-------+---------------+----------+---------------------+-=
+-------
+panda           | arm   | lab-collabora | gcc-8    | omap2plus_defconfig | =
+4/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f7aad1ead6525f0464ff3e9
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.149=
+-30-ga5904fa46fda/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.149=
+-30-ga5904fa46fda/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f7aad1ead6525f=
+0464ff3f0
+      failing since 1 day (last pass: v4.19.149-4-g55b73b3448d7, first fail=
+: v4.19.149-5-gc7c6637a3e67)
+      2 lines  =20
