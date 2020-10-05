@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A4CF283860
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 16:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 148BD283864
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 16:46:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726805AbgJEOqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 10:46:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52604 "EHLO mail.kernel.org"
+        id S1726904AbgJEOqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 10:46:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726654AbgJEOp1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726657AbgJEOp1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Oct 2020 10:45:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10E622100A;
-        Mon,  5 Oct 2020 14:45:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1A3121481;
+        Mon,  5 Oct 2020 14:45:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601909122;
-        bh=9jf8/2pMdLGUD/SuF7vDmhqV2XjIPuHv9JsZXVZ+gzo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyNjSHjNJxnl/0RLVq0jbpA0xwDK8OrleTUPValTLDndmB4OABnbw/H6YCyzB0wEg
-         bfVFX0okbOwGJzlepmw/+Ka5jGlG6O772uTILww4xiqf5/StTQy4ViNTzVQOdge+z9
-         tplzLPmyPsL8dRLUZ2gVt6eP0sTByVC4Lcvrvpgo=
+        s=default; t=1601909125;
+        bh=4NO0J/BJcytxI4agbgpurZSYnskHQLT0CQNH+GnXuc0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=z9PLbH3/Uy0NvX6AAoCI9ZIKwSahCe/ywmMWCRV0iivKi+N4wZZLJT014UBHPSmGG
+         taSDzhWbSsWQW0YE5WvFd2TvwX6BB52PKb0l/an7/B2edyPJBHwxJGYN0HyP9SsXSj
+         Q4Hu4JbfcQ+dfhf7JkYm+99GEmoPE40gzgjsczsU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.4 4/4] iommu/vt-d: Fix lockdep splat in iommu_flush_dev_iotlb()
-Date:   Mon,  5 Oct 2020 10:45:17 -0400
-Message-Id: <20201005144517.2527627-4-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 1/2] epoll: do not insert into poll queues until all sanity checks are done
+Date:   Mon,  5 Oct 2020 10:45:22 -0400
+Message-Id: <20201005144523.2527710-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201005144517.2527627-1-sashal@kernel.org>
-References: <20201005144517.2527627-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,70 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 1a3f2fd7fc4e8f24510830e265de2ffb8e3300d2 ]
+[ Upstream commit f8d4f44df056c5b504b0d49683fb7279218fd207 ]
 
-Lock(&iommu->lock) without disabling irq causes lockdep warnings.
-
-[   12.703950] ========================================================
-[   12.703962] WARNING: possible irq lock inversion dependency detected
-[   12.703975] 5.9.0-rc6+ #659 Not tainted
-[   12.703983] --------------------------------------------------------
-[   12.703995] systemd-udevd/284 just changed the state of lock:
-[   12.704007] ffffffffbd6ff4d8 (device_domain_lock){..-.}-{2:2}, at:
-               iommu_flush_dev_iotlb.part.57+0x2e/0x90
-[   12.704031] but this lock took another, SOFTIRQ-unsafe lock in the past:
-[   12.704043]  (&iommu->lock){+.+.}-{2:2}
-[   12.704045]
-
-               and interrupts could create inverse lock ordering between
-               them.
-
-[   12.704073]
-               other info that might help us debug this:
-[   12.704085]  Possible interrupt unsafe locking scenario:
-
-[   12.704097]        CPU0                    CPU1
-[   12.704106]        ----                    ----
-[   12.704115]   lock(&iommu->lock);
-[   12.704123]                                local_irq_disable();
-[   12.704134]                                lock(device_domain_lock);
-[   12.704146]                                lock(&iommu->lock);
-[   12.704158]   <Interrupt>
-[   12.704164]     lock(device_domain_lock);
-[   12.704174]
-                *** DEADLOCK ***
-
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20200927062428.13713-1-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/eventpoll.c | 37 ++++++++++++++++++-------------------
+ 1 file changed, 18 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 2ffec65df3889..1147626f0d253 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -2560,14 +2560,14 @@ static struct dmar_domain *dmar_insert_one_dev_info(struct intel_iommu *iommu,
- 		}
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index 61a52bb26d127..ed6c06dbb5369 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -1450,6 +1450,22 @@ static int ep_insert(struct eventpoll *ep, const struct epoll_event *event,
+ 		RCU_INIT_POINTER(epi->ws, NULL);
+ 	}
  
- 		/* Setup the PASID entry for requests without PASID: */
--		spin_lock(&iommu->lock);
-+		spin_lock_irqsave(&iommu->lock, flags);
- 		if (hw_pass_through && domain_type_is_si(domain))
- 			ret = intel_pasid_setup_pass_through(iommu, domain,
- 					dev, PASID_RID2PASID);
- 		else
- 			ret = intel_pasid_setup_second_level(iommu, domain,
- 					dev, PASID_RID2PASID);
--		spin_unlock(&iommu->lock);
-+		spin_unlock_irqrestore(&iommu->lock, flags);
- 		if (ret) {
- 			dev_err(dev, "Setup RID2PASID failed\n");
- 			dmar_remove_one_dev_info(dev);
++	/* Add the current item to the list of active epoll hook for this file */
++	spin_lock(&tfile->f_lock);
++	list_add_tail_rcu(&epi->fllink, &tfile->f_ep_links);
++	spin_unlock(&tfile->f_lock);
++
++	/*
++	 * Add the current item to the RB tree. All RB tree operations are
++	 * protected by "mtx", and ep_insert() is called with "mtx" held.
++	 */
++	ep_rbtree_insert(ep, epi);
++
++	/* now check if we've created too many backpaths */
++	error = -EINVAL;
++	if (full_check && reverse_path_check())
++		goto error_remove_epi;
++
+ 	/* Initialize the poll table using the queue callback */
+ 	epq.epi = epi;
+ 	init_poll_funcptr(&epq.pt, ep_ptable_queue_proc);
+@@ -1472,22 +1488,6 @@ static int ep_insert(struct eventpoll *ep, const struct epoll_event *event,
+ 	if (epi->nwait < 0)
+ 		goto error_unregister;
+ 
+-	/* Add the current item to the list of active epoll hook for this file */
+-	spin_lock(&tfile->f_lock);
+-	list_add_tail_rcu(&epi->fllink, &tfile->f_ep_links);
+-	spin_unlock(&tfile->f_lock);
+-
+-	/*
+-	 * Add the current item to the RB tree. All RB tree operations are
+-	 * protected by "mtx", and ep_insert() is called with "mtx" held.
+-	 */
+-	ep_rbtree_insert(ep, epi);
+-
+-	/* now check if we've created too many backpaths */
+-	error = -EINVAL;
+-	if (full_check && reverse_path_check())
+-		goto error_remove_epi;
+-
+ 	/* We have to drop the new item inside our item list to keep track of it */
+ 	spin_lock_irq(&ep->wq.lock);
+ 
+@@ -1516,6 +1516,8 @@ static int ep_insert(struct eventpoll *ep, const struct epoll_event *event,
+ 
+ 	return 0;
+ 
++error_unregister:
++	ep_unregister_pollwait(ep, epi);
+ error_remove_epi:
+ 	spin_lock(&tfile->f_lock);
+ 	list_del_rcu(&epi->fllink);
+@@ -1523,9 +1525,6 @@ static int ep_insert(struct eventpoll *ep, const struct epoll_event *event,
+ 
+ 	rb_erase_cached(&epi->rbn, &ep->rbr);
+ 
+-error_unregister:
+-	ep_unregister_pollwait(ep, epi);
+-
+ 	/*
+ 	 * We need to do this because an event could have been arrived on some
+ 	 * allocated wait queue. Note that we don't care about the ep->ovflist
 -- 
 2.25.1
 
