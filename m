@@ -2,81 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6850A283616
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 15:02:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 426A4283636
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 15:06:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725973AbgJENCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 09:02:42 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:39837 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725967AbgJENCl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 09:02:41 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id F135C5C0151;
-        Mon,  5 Oct 2020 09:02:39 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 05 Oct 2020 09:02:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=drnwMBqW8F4pHQ5dZtk7RBA8EAQ
-        k/d/qQEFjnc4Uhas=; b=T8PuIvzNiNzXQZe3vFZp6ULGNO4TS06zT+uwtOsBKJ6
-        XkECP3keY5RX0CfRRpYNKYIa0BHIdGvG0gHRT2VMUHFMnQdsRY3DecHcQ/BsBxLb
-        jWEJ5zdgxWrTkX1I17UJi6QOFQ5Vm4pB/HnlMBe0d495Sjc+6EAkMWyDvWkm8W/T
-        jEYlPCbtZ2wlDa+Gsq53IJEJIYdArgloZWLwcB+S8KfyUwF2yJL7iKHnYfQj87Gi
-        eGo2xQKZcwLJx6P25JROt4tlJTCCuFP+mUflcq4/zeOqpj19hBH/+H2t0VfYbJhM
-        x+VFMImByAfyPwO0xSVzpY2qYAdpR96cxUOqk2vcWcQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=drnwMB
-        qW8F4pHQ5dZtk7RBA8EAQk/d/qQEFjnc4Uhas=; b=b5fWkbPLwWGXBladSVCRyi
-        vamy+XR3JZj/6oSlxuysS/S31P5ulWU/VUVxMpdDs/MFn18Cpht9MYTH1wChii5E
-        Cqafbb8YdbaVv32plgYC9GvYvdOWN6q6c+AVk4fOzdSKXQgZIyUqcBLBSNELxc+T
-        5tOaarPR2efujBfv0Ac2s0NtnQdfSdRPMlJG06Mz3AEsjoDTxVu5nsVMKejjcgfb
-        nivQNKkklrVR6/ZP9CL207vrWjx8JX3M+lUMdc5DbfOhy9mqUyEecoaO0xfEKGp1
-        br7RRcOISU4cBHVnBsYqOeC7BfI0YI3WV8bzRbUPtvHlI1mjTKf3B1rS31/ueCDA
-        ==
-X-ME-Sender: <xms:bhl7X19ow1Ls2YeXEI2gPD9KdhI7pl7Aq3atd68JGx6I0pHDLywiHA>
-    <xme:bhl7X5vmgq6ZpE9sLFHg8pzws_ERlKIcTiaKDAIQ2M1yoimpPk7u8Jv9V5ZLscVpo
-    F2qaAQIw5TOuQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrgedvgdeiudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeekfedr
-    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
-    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:bhl7XzDKL-FvSFUdMyKXd5cYLzi28eML2ITNLxlPCK92ZgTegTL0bw>
-    <xmx:bhl7X5eiIxpr1PHrVG9LLIMVwbR6CWpzf4gpM7CjUrDceUoNFSP4ew>
-    <xmx:bhl7X6Ootzbl1vfHH5ho95DnXG6SaY4UKjBWKXN6uuy8_3Lcc_zLFw>
-    <xmx:bxl7X0X9-ebYJCAsEjXNqsLFePQKAnthvKjnHXTlsDaOSpbxHDaw0w>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8474E3280064;
-        Mon,  5 Oct 2020 09:02:38 -0400 (EDT)
-Date:   Mon, 5 Oct 2020 15:03:24 +0200
-From:   Greg KH <greg@kroah.com>
-To:     "Banerjee, Debabrata" <dbanerje@akamai.com>
-Cc:     "'stable@vger.kernel.org'" <stable@vger.kernel.org>,
-        'Konstantin Khlebnikov' <khlebnikov@yandex-team.ru>
-Subject: Re: block/diskstats: more accurate approximation of io_ticks for
- slow disks
-Message-ID: <20201005130324.GB827657@kroah.com>
-References: <5556dc903145475bbe9fc5fa7d116a05@ustx2ex-dag1mb6.msg.corp.akamai.com>
+        id S1726160AbgJENGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 09:06:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54754 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725891AbgJENGC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 09:06:02 -0400
+Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26FF2C0613A7
+        for <stable@vger.kernel.org>; Mon,  5 Oct 2020 06:06:01 -0700 (PDT)
+Received: by mail-qk1-x743.google.com with SMTP id v123so11711803qkd.9
+        for <stable@vger.kernel.org>; Mon, 05 Oct 2020 06:06:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=toxicpanda-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ejlxU7t45j+JrlQcmMGNw6GylppzdX/HeiDq8x94pdQ=;
+        b=bhFOEatZtzgjAeRA6+soXZ/47cU+94hXbCFrrVMCkKuTXsGfc1GQNnydRfvgkBd6ax
+         q2RCoQJmhtmKVo5MyiDA5hUglu9WAznzGunderUv8SrZfhX/OAIuW9a7WWSNK2fOOu/Y
+         /IXyp+XTTvcDliguBKqDmc2IF5vedX13q+/CAUcJ1xWKHREgtCuj9VoTnzfXyNQ84GHE
+         6BJbH5TE7VWhljzuMOFMw7BPJkL2Jdhf66YeYK33UP+RZlx4RcC985KXsDPNsFxprdY7
+         dXcX5wTc4qOk1woAmDTyaaj4ZPxxF8xV/mT/yUZ2LjTs/Vz+t6effMuzoMrACTvG63TP
+         Eppw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ejlxU7t45j+JrlQcmMGNw6GylppzdX/HeiDq8x94pdQ=;
+        b=bxBhLSpZp5zY1Zxd3NjeAJYFS+fAmv3kcK3M8nVuoJHSMXgBRA1YRDkXdRj3qCO58v
+         WNWFg0A4XNIHPWTo2DaYLwMFo82D2PXzbI/SGvISccEnBECd/F9266zU8g4HqUo4ntzT
+         1WpMyK7sNW4EOU63LMCZUCHUnnNmkxXP6o1uqY/1H48sAHytgRe0LkO1kdG5CbSG9qNA
+         gJQGwHnZFOb0hGuaQllpsGosnC/dMZ3Fe4tZj+/gdakIQGMjAbsPouHRvFW51pSksUmD
+         CN5bSVYRmk23b3wnFFXT3ZIkYp7QT5fWiFV35IQdBdjnYMeAiUEc8N3r8UebbQ787RnH
+         FK7Q==
+X-Gm-Message-State: AOAM533mJ+a66escb/Uuwf9U4MsqSJVdzbj/FlWeGj+g1P/lK7A5jwLf
+        l91ZK/HU0WGGFsccoOrUKoOOWcbb4rtXCyQO
+X-Google-Smtp-Source: ABdhPJyZTQ3rJbyw0EgDdjTpTes4VlT1Xl7CoRIIoxAYwi0CLqhLCSKbWXOuDFQ14tRw8nkzZI/lKA==
+X-Received: by 2002:a37:8e82:: with SMTP id q124mr14384082qkd.297.1601903159878;
+        Mon, 05 Oct 2020 06:05:59 -0700 (PDT)
+Received: from [192.168.1.45] (cpe-174-109-172-136.nc.res.rr.com. [174.109.172.136])
+        by smtp.gmail.com with ESMTPSA id y77sm1570992qkb.57.2020.10.05.06.05.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Oct 2020 06:05:59 -0700 (PDT)
+Subject: Re: [PATCH] btrfs: workaround the over-confident over-commit
+ available space calculation
+To:     Qu Wenruo <wqu@suse.com>, linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20200930120151.121203-1-wqu@suse.com>
+From:   Josef Bacik <josef@toxicpanda.com>
+Message-ID: <54c0fa16-ed85-50bb-2267-0aff6276b4e2@toxicpanda.com>
+Date:   Mon, 5 Oct 2020 09:05:57 -0400
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.3.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5556dc903145475bbe9fc5fa7d116a05@ustx2ex-dag1mb6.msg.corp.akamai.com>
+In-Reply-To: <20200930120151.121203-1-wqu@suse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 29, 2020 at 09:06:09PM +0000, Banerjee, Debabrata wrote:
-> commit: 2b8bd423614c595540eaadcfbc702afe8e155e50
+On 9/30/20 8:01 AM, Qu Wenruo wrote:
+> [BUG]
+> There are quite some bug reports of btrfs falling into a ENOSPC trap,
+> where btrfs can't even start a transaction to add new devices.
 > 
-> Please apply to linux-5.4.y. Without this fix, disk utilization reporting is
-> unusable, especially on spinning disks.
+> [CAUSE]
+> Most of the reports are utilize multi-device profiles, like
+> RAID1/RAID10/RAID5/RAID6, and the involved disks have very unbalanced
+> sizes.
+> 
+> It turns out that, the overcommit calculation in btrfs_can_overcommit()
+> is just a factor based calculation, which can't check if devices can
+> really fulfill the requirement for the desired profile.
+> 
+> This makes btrfs_can_overcommit() to be always over-confident about
+> usable space, and when we can't allocate any new metadata chunk but
+> still allow new metadata operations, we fall into the ENOSPC trap and
+> have no way to exit it.
+> 
+> [WORKAROUND]
+> The root fix needs a device layout aware, chunk allocator like available
+> space calculation.
+> 
+> There used to be such patchset submitted to the mail list, but the extra
+> failure mode is tricky to handle for chunk allocation, thus that
+> patchset needs more time to mature.
+> 
+> Meanwhile to prevent such problems reaching more users, workaround the
+> problem by:
+> - Half the over-commit available space reported
+>    So that we won't always be that over-confident.
+>    But this won't really help if we have extremely unbalanced disk size.
+> 
+> - Don't over-commit if the space info is already full
+>    This may already be too late, but still better than doing nothing and
+>    believe the over-commit values.
+> 
 
-Ok, now queued up, thanks.
+I just had a thought, what if we simply cap the free_chunk_space to the min of 
+the free space of all the devices.  Simply walk through all the devices on 
+mount, and we do the initial set of whatever the smallest one is.  The rest of 
+the math would work out fine, and the rest of the modifications would work fine. 
+  The only "tricky" part would be when we do a shrink or grow, we'd have to 
+re-calculate the sizes for everybody, but that's not a big deal.  Thanks,
 
-greg k-h
+Josef
+
