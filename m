@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90258283A5F
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A13FE2839E4
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:30:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728204AbgJEPdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:33:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34128 "EHLO mail.kernel.org"
+        id S1727584AbgJEP3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:29:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728116AbgJEPdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:33:51 -0400
+        id S1727571AbgJEP3V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:29:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E680B206DD;
-        Mon,  5 Oct 2020 15:33:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB11D21D46;
+        Mon,  5 Oct 2020 15:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601912030;
-        bh=uA21n8kTXWeX3eBanMnYhXu9Yi/6iQkvG/dYxZd7Krs=;
+        s=default; t=1601911760;
+        bh=2sC+O/zR2Yuz1QazdXddY0+0ajFKIwPQHPe3WriP0DE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHaCVdSLJaFtnzK8Wff7DfJxt/RWoptStb/DA3sxMIV+O/0hNxE4ZaJ3DnKD/QKPa
-         umPIN8kwlea4RW/ET7Rd38grRVVg583m7htbh5NqQ/ae2vOm3+GEcQz2f7ge6eCzWZ
-         esuR/9M2l7MbNuCYWKqt4xnrkj704pJmGOHLz9tQ=
+        b=kP/vwb/2HHqReL0JpQKq98yB+3im51Sf63fskjvbGmGXb8nvNUe/iLZJzaJgTUeON
+         Ctb3zFsuxa8oVAL2Sx8+TwTTRmLzC0m/VqzjwoyfCwsRBZdfuAqlpiY4RpjMiZ0sc0
+         Fxe1jex2TIAkyYpsoTY/bK+5DZ2H1GqgSJtBGjaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 43/85] io_uring: mark statx/files_update/epoll_ctl as non-SQPOLL
-Date:   Mon,  5 Oct 2020 17:26:39 +0200
-Message-Id: <20201005142116.802782495@linuxfoundation.org>
+Subject: [PATCH 5.4 28/57] tracing: Make the space reserved for the pid wider
+Date:   Mon,  5 Oct 2020 17:26:40 +0200
+Message-Id: <20201005142111.154602865@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
-References: <20201005142114.732094228@linuxfoundation.org>
+In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
+References: <20201005142109.796046410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +44,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 6ca56f845955e325033758f90a2cffe150f31bc8 ]
+[ Upstream commit 795d6379a47bcbb88bd95a69920e4acc52849f88 ]
 
-These will naturally fail when attempted through SQPOLL, but either
-with -EFAULT or -EBADF. Make it explicit that these are not workable
-through SQPOLL and return -EINVAL, just like other ops that need to
-use ->files.
+For 64bit CONFIG_BASE_SMALL=0 systems PID_MAX_LIMIT is set by default to
+4194304. During boot the kernel sets a new value based on number of CPUs
+but no lower than 32768. It is 1024 per CPU so with 128 CPUs the default
+becomes 131072 which needs six digits.
+This value can be increased during run time but must not exceed the
+initial upper limit.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Systemd sometime after v241 sets it to the upper limit during boot. The
+result is that when the pid exceeds five digits, the trace output is a
+little hard to read because it is no longer properly padded (same like
+on big iron with 98+ CPUs).
+
+Increase the pid padding to seven digits.
+
+Link: https://lkml.kernel.org/r/20200904082331.dcdkrr3bkn3e4qlg@linutronix.de
+
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/trace/trace.c        | 38 ++++++++++++++++++-------------------
+ kernel/trace/trace_output.c | 12 ++++++------
+ 2 files changed, 25 insertions(+), 25 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 4d79c1763e733..ebc3586b18795 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3318,7 +3318,7 @@ static int io_epoll_ctl_prep(struct io_kiocb *req,
- #if defined(CONFIG_EPOLL)
- 	if (sqe->ioprio || sqe->buf_index)
- 		return -EINVAL;
--	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
-+	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL)))
- 		return -EINVAL;
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index db8162b34ef64..5b2a664812b10 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -3584,14 +3584,14 @@ unsigned long trace_total_entries(struct trace_array *tr)
  
- 	req->epoll.epfd = READ_ONCE(sqe->fd);
-@@ -3435,7 +3435,7 @@ static int io_fadvise(struct io_kiocb *req, bool force_nonblock)
+ static void print_lat_help_header(struct seq_file *m)
+ {
+-	seq_puts(m, "#                  _------=> CPU#            \n"
+-		    "#                 / _-----=> irqs-off        \n"
+-		    "#                | / _----=> need-resched    \n"
+-		    "#                || / _---=> hardirq/softirq \n"
+-		    "#                ||| / _--=> preempt-depth   \n"
+-		    "#                |||| /     delay            \n"
+-		    "#  cmd     pid   ||||| time  |   caller      \n"
+-		    "#     \\   /      |||||  \\    |   /         \n");
++	seq_puts(m, "#                    _------=> CPU#            \n"
++		    "#                   / _-----=> irqs-off        \n"
++		    "#                  | / _----=> need-resched    \n"
++		    "#                  || / _---=> hardirq/softirq \n"
++		    "#                  ||| / _--=> preempt-depth   \n"
++		    "#                  |||| /     delay            \n"
++		    "#  cmd     pid     ||||| time  |   caller      \n"
++		    "#     \\   /        |||||  \\    |   /         \n");
+ }
  
- static int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ static void print_event_info(struct trace_buffer *buf, struct seq_file *m)
+@@ -3612,26 +3612,26 @@ static void print_func_help_header(struct trace_buffer *buf, struct seq_file *m,
+ 
+ 	print_event_info(buf, m);
+ 
+-	seq_printf(m, "#           TASK-PID   %s  CPU#   TIMESTAMP  FUNCTION\n", tgid ? "TGID     " : "");
+-	seq_printf(m, "#              | |     %s    |       |         |\n",	 tgid ? "  |      " : "");
++	seq_printf(m, "#           TASK-PID    %s CPU#     TIMESTAMP  FUNCTION\n", tgid ? "   TGID   " : "");
++	seq_printf(m, "#              | |      %s   |         |         |\n",      tgid ? "     |    " : "");
+ }
+ 
+ static void print_func_help_header_irq(struct trace_buffer *buf, struct seq_file *m,
+ 				       unsigned int flags)
  {
--	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
-+	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL)))
- 		return -EINVAL;
- 	if (sqe->ioprio || sqe->buf_index)
- 		return -EINVAL;
-@@ -5042,6 +5042,8 @@ static int io_async_cancel(struct io_kiocb *req)
- static int io_files_update_prep(struct io_kiocb *req,
- 				const struct io_uring_sqe *sqe)
- {
-+	if (unlikely(req->ctx->flags & IORING_SETUP_SQPOLL))
-+		return -EINVAL;
- 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
- 		return -EINVAL;
- 	if (sqe->ioprio || sqe->rw_flags)
+ 	bool tgid = flags & TRACE_ITER_RECORD_TGID;
+-	const char *space = "          ";
+-	int prec = tgid ? 10 : 2;
++	const char *space = "            ";
++	int prec = tgid ? 12 : 2;
+ 
+ 	print_event_info(buf, m);
+ 
+-	seq_printf(m, "#                          %.*s  _-----=> irqs-off\n", prec, space);
+-	seq_printf(m, "#                          %.*s / _----=> need-resched\n", prec, space);
+-	seq_printf(m, "#                          %.*s| / _---=> hardirq/softirq\n", prec, space);
+-	seq_printf(m, "#                          %.*s|| / _--=> preempt-depth\n", prec, space);
+-	seq_printf(m, "#                          %.*s||| /     delay\n", prec, space);
+-	seq_printf(m, "#           TASK-PID %.*sCPU#  ||||    TIMESTAMP  FUNCTION\n", prec, "   TGID   ");
+-	seq_printf(m, "#              | |   %.*s  |   ||||       |         |\n", prec, "     |    ");
++	seq_printf(m, "#                            %.*s  _-----=> irqs-off\n", prec, space);
++	seq_printf(m, "#                            %.*s / _----=> need-resched\n", prec, space);
++	seq_printf(m, "#                            %.*s| / _---=> hardirq/softirq\n", prec, space);
++	seq_printf(m, "#                            %.*s|| / _--=> preempt-depth\n", prec, space);
++	seq_printf(m, "#                            %.*s||| /     delay\n", prec, space);
++	seq_printf(m, "#           TASK-PID  %.*s CPU#  ||||   TIMESTAMP  FUNCTION\n", prec, "     TGID   ");
++	seq_printf(m, "#              | |    %.*s   |   ||||      |         |\n", prec, "       |    ");
+ }
+ 
+ void
+diff --git a/kernel/trace/trace_output.c b/kernel/trace/trace_output.c
+index d54ce252b05a8..a0a45901dc027 100644
+--- a/kernel/trace/trace_output.c
++++ b/kernel/trace/trace_output.c
+@@ -482,7 +482,7 @@ lat_print_generic(struct trace_seq *s, struct trace_entry *entry, int cpu)
+ 
+ 	trace_find_cmdline(entry->pid, comm);
+ 
+-	trace_seq_printf(s, "%8.8s-%-5d %3d",
++	trace_seq_printf(s, "%8.8s-%-7d %3d",
+ 			 comm, entry->pid, cpu);
+ 
+ 	return trace_print_lat_fmt(s, entry);
+@@ -573,15 +573,15 @@ int trace_print_context(struct trace_iterator *iter)
+ 
+ 	trace_find_cmdline(entry->pid, comm);
+ 
+-	trace_seq_printf(s, "%16s-%-5d ", comm, entry->pid);
++	trace_seq_printf(s, "%16s-%-7d ", comm, entry->pid);
+ 
+ 	if (tr->trace_flags & TRACE_ITER_RECORD_TGID) {
+ 		unsigned int tgid = trace_find_tgid(entry->pid);
+ 
+ 		if (!tgid)
+-			trace_seq_printf(s, "(-----) ");
++			trace_seq_printf(s, "(-------) ");
+ 		else
+-			trace_seq_printf(s, "(%5d) ", tgid);
++			trace_seq_printf(s, "(%7d) ", tgid);
+ 	}
+ 
+ 	trace_seq_printf(s, "[%03d] ", iter->cpu);
+@@ -624,7 +624,7 @@ int trace_print_lat_context(struct trace_iterator *iter)
+ 		trace_find_cmdline(entry->pid, comm);
+ 
+ 		trace_seq_printf(
+-			s, "%16s %5d %3d %d %08x %08lx ",
++			s, "%16s %7d %3d %d %08x %08lx ",
+ 			comm, entry->pid, iter->cpu, entry->flags,
+ 			entry->preempt_count, iter->idx);
+ 	} else {
+@@ -905,7 +905,7 @@ static enum print_line_t trace_ctxwake_print(struct trace_iterator *iter,
+ 	S = task_index_to_char(field->prev_state);
+ 	trace_find_cmdline(field->next_pid, comm);
+ 	trace_seq_printf(&iter->seq,
+-			 " %5d:%3d:%c %s [%03d] %5d:%3d:%c %s\n",
++			 " %7d:%3d:%c %s [%03d] %7d:%3d:%c %s\n",
+ 			 field->prev_pid,
+ 			 field->prev_prio,
+ 			 S, delim,
 -- 
 2.25.1
 
