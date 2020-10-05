@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3FC7283A25
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:32:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9ACB283982
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:26:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727914AbgJEPbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:31:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58714 "EHLO mail.kernel.org"
+        id S1727080AbgJEP0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:26:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727913AbgJEPbk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:31:40 -0400
+        id S1725960AbgJEP0v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:26:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E9442074F;
-        Mon,  5 Oct 2020 15:31:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3B1F20774;
+        Mon,  5 Oct 2020 15:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911899;
-        bh=peG2QEx5P7yZNWDl7KfdFR8ojVOdalVTyXXzdbI0m14=;
+        s=default; t=1601911610;
+        bh=xBiTZET1LZJ5RMPwOKvlVkJen6iPOk4eHfa4i09/E4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h8qRJODtdqRjfh3X3o09J4Y6cXFIm+VybyOol1xku0beNVBFXVV+tR7RRclKy0Hze
-         bi5PhSmt+XJsIEslX6sc0bJ00uavfP5qtWBhHkRk2O0IxlO0WXLl3EHw10MlhiPqZt
-         8Pejp7eTkGmpZYiHXpAh+u/lr1/Yl1ze1HEOzm1M=
+        b=PE/OcGM4vUBEvniMycO7Z/jRmFV4ro3aWH/knsFYxNYwXcO+yG934Q3dE6vUuvn6K
+         7Ypm4k8d71KB86box7V1j7bAlw51SlHos3dmfe7GTeesjwy6U179yeS14iHMmoTm3E
+         7tGs5yTD51TsZX5mSlzzq3T+pgqrDL+Z4gKmjdGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Stefan Bader <stefan.bader@canonical.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.8 23/85] xen/events: dont use chip_data for legacy IRQs
+        stable@vger.kernel.org,
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Brooke Basile <brookebasile@gmail.com>,
+        stable <stable@kernel.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>
+Subject: [PATCH 4.19 02/38] USB: gadget: f_ncm: Fix NDP16 datagram validation
 Date:   Mon,  5 Oct 2020 17:26:19 +0200
-Message-Id: <20201005142115.833890428@linuxfoundation.org>
+Message-Id: <20201005142108.771915994@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
-References: <20201005142114.732094228@linuxfoundation.org>
+In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
+References: <20201005142108.650363140@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,123 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-commit 0891fb39ba67bd7ae023ea0d367297ffff010781 upstream.
+commit 2b405533c2560d7878199c57d95a39151351df72 upstream.
 
-Since commit c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
-Xen is using the chip_data pointer for storing IRQ specific data. When
-running as a HVM domain this can result in problems for legacy IRQs, as
-those might use chip_data for their own purposes.
+commit 2b74b0a04d3e ("USB: gadget: f_ncm: add bounds checks to ncm_unwrap_ntb()")
+adds important bounds checking however it unfortunately also introduces  a
+bug with respect to section 3.3.1 of the NCM specification.
 
-Use a local array for this purpose in case of legacy IRQs, avoiding the
-double use.
+wDatagramIndex[1] : "Byte index, in little endian, of the second datagram
+described by this NDP16. If zero, then this marks the end of the sequence
+of datagrams in this NDP16."
 
-Cc: stable@vger.kernel.org
-Fixes: c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Tested-by: Stefan Bader <stefan.bader@canonical.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20200930091614.13660-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+wDatagramLength[1]: "Byte length, in little endian, of the second datagram
+described by this NDP16. If zero, then this marks the end of the sequence
+of datagrams in this NDP16."
+
+wDatagramIndex[1] and wDatagramLength[1] respectively then may be zero but
+that does not mean we should throw away the data referenced by
+wDatagramIndex[0] and wDatagramLength[0] as is currently the case.
+
+Breaking the loop on (index2 == 0 || dg_len2 == 0) should come at the end
+as was previously the case and checks for index2 and dg_len2 should be
+removed since zero is valid.
+
+I'm not sure how much testing the above patch received but for me right now
+after enumeration ping doesn't work. Reverting the commit restores ping,
+scp, etc.
+
+The extra validation associated with wDatagramIndex[0] and
+wDatagramLength[0] appears to be valid so, this change removes the incorrect
+restriction on wDatagramIndex[1] and wDatagramLength[1] restoring data
+processing between host and device.
+
+Fixes: 2b74b0a04d3e ("USB: gadget: f_ncm: add bounds checks to ncm_unwrap_ntb()")
+Cc: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Cc: Brooke Basile <brookebasile@gmail.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Link: https://lore.kernel.org/r/20200920170158.1217068-1-bryan.odonoghue@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/events/events_base.c |   29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ drivers/usb/gadget/function/f_ncm.c |   30 ++----------------------------
+ 1 file changed, 2 insertions(+), 28 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -92,6 +92,8 @@ static bool (*pirq_needs_eoi)(unsigned i
- /* Xen will never allocate port zero for any purpose. */
- #define VALID_EVTCHN(chn)	((chn) != 0)
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -1192,7 +1192,6 @@ static int ncm_unwrap_ntb(struct gether
+ 	const struct ndp_parser_opts *opts = ncm->parser_opts;
+ 	unsigned	crc_len = ncm->is_crc ? sizeof(uint32_t) : 0;
+ 	int		dgram_counter;
+-	bool		ndp_after_header;
  
-+static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
-+
- static struct irq_chip xen_dynamic_chip;
- static struct irq_chip xen_percpu_chip;
- static struct irq_chip xen_pirq_chip;
-@@ -156,7 +158,18 @@ int get_evtchn_to_irq(evtchn_port_t evtc
- /* Get info for IRQ */
- struct irq_info *info_for_irq(unsigned irq)
- {
--	return irq_get_chip_data(irq);
-+	if (irq < nr_legacy_irqs())
-+		return legacy_info_ptrs[irq];
-+	else
-+		return irq_get_chip_data(irq);
-+}
-+
-+static void set_info_for_irq(unsigned int irq, struct irq_info *info)
-+{
-+	if (irq < nr_legacy_irqs())
-+		legacy_info_ptrs[irq] = info;
-+	else
-+		irq_set_chip_data(irq, info);
- }
+ 	/* dwSignature */
+ 	if (get_unaligned_le32(tmp) != opts->nth_sign) {
+@@ -1219,7 +1218,6 @@ static int ncm_unwrap_ntb(struct gether
+ 	}
  
- /* Constructors for packed IRQ information. */
-@@ -377,7 +390,7 @@ static void xen_irq_init(unsigned irq)
- 	info->type = IRQT_UNBOUND;
- 	info->refcnt = -1;
+ 	ndp_index = get_ncm(&tmp, opts->ndp_index);
+-	ndp_after_header = false;
  
--	irq_set_chip_data(irq, info);
-+	set_info_for_irq(irq, info);
+ 	/* Run through all the NDP's in the NTB */
+ 	do {
+@@ -1235,8 +1233,6 @@ static int ncm_unwrap_ntb(struct gether
+ 			     ndp_index);
+ 			goto err;
+ 		}
+-		if (ndp_index == opts->nth_size)
+-			ndp_after_header = true;
  
- 	list_add_tail(&info->list, &xen_irq_list_head);
- }
-@@ -426,14 +439,14 @@ static int __must_check xen_allocate_irq
+ 		/*
+ 		 * walk through NDP
+@@ -1315,37 +1311,13 @@ static int ncm_unwrap_ntb(struct gether
+ 			index2 = get_ncm(&tmp, opts->dgram_item_len);
+ 			dg_len2 = get_ncm(&tmp, opts->dgram_item_len);
  
- static void xen_free_irq(unsigned irq)
- {
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
+-			if (index2 == 0 || dg_len2 == 0)
+-				break;
+-
+ 			/* wDatagramIndex[1] */
+-			if (ndp_after_header) {
+-				if (index2 < opts->nth_size + opts->ndp_size) {
+-					INFO(port->func.config->cdev,
+-					     "Bad index: %#X\n", index2);
+-					goto err;
+-				}
+-			} else {
+-				if (index2 < opts->nth_size + opts->dpe_size) {
+-					INFO(port->func.config->cdev,
+-					     "Bad index: %#X\n", index2);
+-					goto err;
+-				}
+-			}
+ 			if (index2 > block_len - opts->dpe_size) {
+ 				INFO(port->func.config->cdev,
+ 				     "Bad index: %#X\n", index2);
+ 				goto err;
+ 			}
  
- 	if (WARN_ON(!info))
- 		return;
+-			/* wDatagramLength[1] */
+-			if ((dg_len2 < 14 + crc_len) ||
+-					(dg_len2 > frame_max)) {
+-				INFO(port->func.config->cdev,
+-				     "Bad dgram length: %#X\n", dg_len);
+-				goto err;
+-			}
+-
+ 			/*
+ 			 * Copy the data into a new skb.
+ 			 * This ensures the truesize is correct
+@@ -1362,6 +1334,8 @@ static int ncm_unwrap_ntb(struct gether
+ 			ndp_len -= 2 * (opts->dgram_item_len * 2);
  
- 	list_del(&info->list);
+ 			dgram_counter++;
++			if (index2 == 0 || dg_len2 == 0)
++				break;
+ 		} while (ndp_len > 2 * (opts->dgram_item_len * 2));
+ 	} while (ndp_index);
  
--	irq_set_chip_data(irq, NULL);
-+	set_info_for_irq(irq, NULL);
- 
- 	WARN_ON(info->refcnt > 0);
- 
-@@ -603,7 +616,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
- static void __unbind_from_irq(unsigned int irq)
- {
- 	evtchn_port_t evtchn = evtchn_from_irq(irq);
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
- 
- 	if (info->refcnt > 0) {
- 		info->refcnt--;
-@@ -1108,7 +1121,7 @@ int bind_ipi_to_irqhandler(enum ipi_vect
- 
- void unbind_from_irqhandler(unsigned int irq, void *dev_id)
- {
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
- 
- 	if (WARN_ON(!info))
- 		return;
-@@ -1142,7 +1155,7 @@ int evtchn_make_refcounted(evtchn_port_t
- 	if (irq == -1)
- 		return -ENOENT;
- 
--	info = irq_get_chip_data(irq);
-+	info = info_for_irq(irq);
- 
- 	if (!info)
- 		return -ENOENT;
-@@ -1170,7 +1183,7 @@ int evtchn_get(evtchn_port_t evtchn)
- 	if (irq == -1)
- 		goto done;
- 
--	info = irq_get_chip_data(irq);
-+	info = info_for_irq(irq);
- 
- 	if (!info)
- 		goto done;
 
 
