@@ -2,103 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0701228351C
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 13:40:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B83792835FF
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 15:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725940AbgJELkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 07:40:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41472 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725891AbgJELkb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 07:40:31 -0400
-Received: from mail-ua1-x942.google.com (mail-ua1-x942.google.com [IPv6:2607:f8b0:4864:20::942])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF61C0613CE
-        for <stable@vger.kernel.org>; Mon,  5 Oct 2020 04:40:31 -0700 (PDT)
-Received: by mail-ua1-x942.google.com with SMTP id z46so2384287uac.13
-        for <stable@vger.kernel.org>; Mon, 05 Oct 2020 04:40:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=Q86fSryUHVI7IdrM2IzoCHI7iUb3slBE12+YCyVmT1w=;
-        b=ld1VBrNfJhyRb5KWnmTRvcQ3qOR/rRysh6TFO6ZHnbeqTJ+VFNJgzZV36rO0Ubx/DW
-         4YTV4bLscwlpPsT30ShmoVtwjP7U3igRwsC0ZeyCmhsx9hOAE0xe8jGE07n2k4VsCXOS
-         zgfWXR8LwFwsa/LVh57iOhISDiwUaKdM3ma90Hyzzdgx0dJ6G0kB1xZ1ivPHyv9zJUTO
-         0yrENFwPu9tyl7dI4qHcqr+NnLfftBrOUCMDbjBGv7DPaLQuWL4hTFWpNj9Yw8rUPJ6X
-         Vo4uq5Q4HwtLZtdZOjC2Y9Moe7euLIfbciyaZYzlTXesCnUJDSa3ktfqyi3REX9CvwTs
-         8f4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=Q86fSryUHVI7IdrM2IzoCHI7iUb3slBE12+YCyVmT1w=;
-        b=i7MBblS7LGxq1rkYWax90SVFpgt3aybhDLdRf14XnjCd9JDRmfEeV6Si8mq8uDlg64
-         lg61JGmt6hy6JGlEkpXcA3VIminkVBhKTPMxuFxKjPfntIpnGvFbS0chNuP/iRR36jFj
-         LhEpjldr0Q13c/RVWVxdhBKApNJHYxFmhPugB7Dm8iD2wV8gyAHgvxY1cAiBGwwokLro
-         GleHqGD+nDcDzRXR/X3/cm0/ejUfiJ7T+ThmiO17EOyaAWSh9flrU6AS45jisHROQey1
-         mg/PwDOCoKE+IMnQSSLJm3IuuQ9U1Y+yw4mUY6U3Q4RHsVkRIzY8Xo/PjWhulQnQC0za
-         6r+w==
-X-Gm-Message-State: AOAM532Bl22prdav/ymHyeR9WPoyHz2FqOxKeG/hdTUOX9NdtJVTQx/G
-        HokPzSk6w65bZYCWo9g7oj8qCDYBGENd2lsTii4=
-X-Google-Smtp-Source: ABdhPJxVHkzSpjHLQZrJw1YCH40sLeZtF95BL75u+KOl42IWMJAZ0RaheX2/6OzSZBCCbqq1uVfzIr0X2+ftRQvs7N0=
-X-Received: by 2002:ab0:720d:: with SMTP id u13mr6812460uao.47.1601898030777;
- Mon, 05 Oct 2020 04:40:30 -0700 (PDT)
+        id S1725914AbgJENAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 09:00:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53718 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725891AbgJENAz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 09:00:55 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B891520848;
+        Mon,  5 Oct 2020 13:00:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601902854;
+        bh=QA+dqNJKtvHSXYc5cKERRIgzM2tZYFO9kcE4JRLyyt4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=xkJUQxohwCBYy49uoqiCcV7UbCZVz0jxa0YhajJsarcFHGUuXj8DHsjMCb/ywiu/C
+         PrQLZ3KeiZPqXPwxDoQtg1TeI/7p7FNPXOyNcNT5hTeJ39Tf/BhY9ujfMbxjoGcHtU
+         dkXgkj6S9JH/FT9nvTW4S/svXd0btvGG/CKsvyPY=
+Date:   Mon, 5 Oct 2020 15:01:39 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Damien Le Moal <damien.lemoal@wdc.com>
+Cc:     stable@vger.kernel.org, bp@alien8.de,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Subject: Re: [PATCH 1/2] scsi: sd: sd_zbc: Fix handling of host-aware ZBC
+ disks
+Message-ID: <20201005130139.GA827657@kroah.com>
+References: <1601302609229102@kroah.com>
+ <20200930061329.562168-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-Received: by 2002:a67:de15:0:0:0:0:0 with HTTP; Mon, 5 Oct 2020 04:40:30 -0700 (PDT)
-Reply-To: federalreservebankxx@yahoo.com
-From:   FEDERAL RESERVE BANK OF NEW YORK <atmcard0012@gmail.com>
-Date:   Mon, 5 Oct 2020 12:40:30 +0100
-Message-ID: <CAKfTVcTZZm4dPJwUG1+Ma_n+qqQwzCGoR-EOQ7436qaPV-+ovw@mail.gmail.com>
-Subject: YOUR RESPONSE IS NEEDED IMMEDIATELY
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200930061329.562168-1-damien.lemoal@wdc.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-FEDERAL RESERVE BANK OF NEW YORK
-ADDRESS: 33 LIBERTY STREET,
-NEW YORK, N.Y 10038.
+On Wed, Sep 30, 2020 at 03:13:29PM +0900, Damien Le Moal wrote:
+> Upstream commit 27ba3e8ff3ab86449e63d38a8d623053591e65fa
+> 
+> When CONFIG_BLK_DEV_ZONED is disabled, allow using host-aware ZBC disks as
+> regular disks. In this case, ensure that command completion is correctly
+> executed by changing sd_zbc_complete() to return good_bytes instead of 0
+> and causing a hang during device probe (endless retries).
+> 
+> When CONFIG_BLK_DEV_ZONED is enabled and a host-aware disk is detected to
+> have partitions, it will be used as a regular disk. In this case, make sure
+> to not do anything in sd_zbc_revalidate_zones() as that triggers warnings.
+> 
+> Since all these different cases result in subtle settings of the disk queue
+> zoned model, introduce the block layer helper function
+> blk_queue_set_zoned() to generically implement setting up the effective
+> zoned model according to the disk type, the presence of partitions on the
+> disk and CONFIG_BLK_DEV_ZONED configuration.
+> 
+> Link: https://lore.kernel.org/r/20200915073347.832424-2-damien.lemoal@wdc.com
+> Fixes: b72053072c0b ("block: allow partitions on host aware zone devices")
+> Cc: <stable@vger.kernel.org>
+> Reported-by: Borislav Petkov <bp@alien8.de>
+> Suggested-by: Christoph Hellwig <hch@infradead.org>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+> Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+> ---
+>  block/blk-settings.c   | 46 ++++++++++++++++++++++++++++++++++++++++++
+>  drivers/scsi/sd.c      | 30 ++++++++++++++++-----------
+>  drivers/scsi/sd.h      |  2 +-
+>  drivers/scsi/sd_zbc.c  | 37 +++++++++++++++++++--------------
+>  include/linux/blkdev.h |  2 ++
+>  5 files changed, 89 insertions(+), 28 deletions(-)
 
-ATTN: FUND BENEFICIARY,
+THanks for both of these, now queued up.
 
-                  Re: ATM Card payment notification.
-
-This is to officially inform you that the bank Federal Reserve Board
-New York Branch  has concluded in the meeting today over your long
-overdue contract payment and agreed that your payment worth
-US$10.500,000.00 will be released to you through ATM Master Card which
-will be delivered to you directly to your home address.
-
-However, you are further advised to know that all arrangement has been
-completed long ago for the immediate dispatch to your residency, you
-have to reply back to us as soon as possible with the below DATA=E2=80=99 t=
-o
-enable the Ups shipping department proceed with the immediate dispatch
-tomorrow been Tuesday dated 5th of October 2020 on your behalf.
-
-Finally, this is very urgent and important the bank are waiting to
-hear from you right away today, Bear in mind that the tracking number
-of your parcel will be given to you immediately the Processing charge
-and Stamp fee which will not cost you much is received to avoid any
-immediate STOP ORDER from the United Nation office.
-
-Note That Because Of Impostors, We Hereby Issued You Our Code Of
-Conduct, Which Is (ATM-2020) So You Have To Indicate This Code When
-replying back to us By Using It As Your Subject. Get back to us with
-this information needed,
-
-Full Names:
-Your Address:
-Country:
-Direct Number:
-Your Age And Occupation:
-A scan copy of your ID card or passport:
-
-Reply back to us accordingly; The bank Wait For Your Expedite Response.
-
-Yours in Service,
-Mr. Jerome H. Powell
-Chairman Federal Reserve Board New York
-Email: federalreservebankxx@yahoo.com
+greg k-h
