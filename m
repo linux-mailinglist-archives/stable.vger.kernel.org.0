@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54AF8283A9B
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:36:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADB50283AF4
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727737AbgJEPdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:33:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33402 "EHLO mail.kernel.org"
+        id S1728609AbgJEPiq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:38:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728138AbgJEPd0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:33:26 -0400
+        id S1727764AbgJEPav (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:30:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9A07207BC;
-        Mon,  5 Oct 2020 15:33:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E31C20E65;
+        Mon,  5 Oct 2020 15:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601912006;
-        bh=0Px8NQer0ngrVdtrclYYH29ovTfUsazEC0loOtARlrI=;
+        s=default; t=1601911847;
+        bh=grYm7HIkqqEchdMOP7OicFqXkV0HwjsMC/OPkLwauM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YtBzhfz9Y+zJSq4MWVKeXYH6FP4g8h645Tll60mFlMFS3zcki4pp8fdalA+44Is34
-         pOKHrpuFo3ZquEyLW8G25XFQIX1VeIT+eEgVQtAPem7CNFgbQw3MtMQBhOoDGfBa5H
-         DIipmLY8GYH6PHAuB/uMcM00/RWvQsHEzOFEHvLo=
+        b=pNknPB3ddjCIIMy25gUiWc64ssw5JBHbCMNoQ2syZ5PgQDz3hY3w0ItRqtWD//jLN
+         q9gZ7Q7qrUX1sQvitOABjGU8IRD9CvdwLd8BOn8H7FvvveHlW3R0mXAFffcEbgywoh
+         uL0rB3wIxSgU1viBsSjiScYCjuSNhdkFyXPfzcvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Kerr <jk@codeconstruct.com.au>,
-        Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 64/85] gpio/aspeed-sgpio: dont enable all interrupts by default
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        "Rafael J . Wysocki" <rafael@kernel.org>,
+        Nathan Lynch <nathanl@linux.ibm.com>,
+        Scott Cheloha <cheloha@linux.ibm.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 48/57] mm: replace memmap_context by meminit_context
 Date:   Mon,  5 Oct 2020 17:27:00 +0200
-Message-Id: <20201005142117.807831256@linuxfoundation.org>
+Message-Id: <20201005142112.109859844@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
-References: <20201005142114.732094228@linuxfoundation.org>
+In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
+References: <20201005142109.796046410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +51,232 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Kerr <jk@codeconstruct.com.au>
+From: Laurent Dufour <ldufour@linux.ibm.com>
 
-[ Upstream commit bf0d394e885015941ed2d5724c0a6ed8d42dd95e ]
+commit c1d0da83358a2316d9be7f229f26126dbaa07468 upstream.
 
-Currently, the IRQ setup for the SGPIO driver enables all interrupts in
-dual-edge trigger mode. Since the default handler is handle_bad_irq, any
-state change on input GPIOs will trigger bad IRQ warnings.
+Patch series "mm: fix memory to node bad links in sysfs", v3.
 
-This change applies sensible IRQ defaults: single-edge trigger, and all
-IRQs disabled.
+Sometimes, firmware may expose interleaved memory layout like this:
 
-Signed-off-by: Jeremy Kerr <jk@codeconstruct.com.au>
-Fixes: 7db47faae79b ("gpio: aspeed: Add SGPIO driver")
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Acked-by: Andrew Jeffery <andrew@aj.id.au>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ Early memory node ranges
+   node   1: [mem 0x0000000000000000-0x000000011fffffff]
+   node   2: [mem 0x0000000120000000-0x000000014fffffff]
+   node   1: [mem 0x0000000150000000-0x00000001ffffffff]
+   node   0: [mem 0x0000000200000000-0x000000048fffffff]
+   node   2: [mem 0x0000000490000000-0x00000007ffffffff]
+
+In that case, we can see memory blocks assigned to multiple nodes in
+sysfs:
+
+  $ ls -l /sys/devices/system/memory/memory21
+  total 0
+  lrwxrwxrwx 1 root root     0 Aug 24 05:27 node1 -> ../../node/node1
+  lrwxrwxrwx 1 root root     0 Aug 24 05:27 node2 -> ../../node/node2
+  -rw-r--r-- 1 root root 65536 Aug 24 05:27 online
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 phys_device
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 phys_index
+  drwxr-xr-x 2 root root     0 Aug 24 05:27 power
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 removable
+  -rw-r--r-- 1 root root 65536 Aug 24 05:27 state
+  lrwxrwxrwx 1 root root     0 Aug 24 05:25 subsystem -> ../../../../bus/memory
+  -rw-r--r-- 1 root root 65536 Aug 24 05:25 uevent
+  -r--r--r-- 1 root root 65536 Aug 24 05:27 valid_zones
+
+The same applies in the node's directory with a memory21 link in both
+the node1 and node2's directory.
+
+This is wrong but doesn't prevent the system to run.  However when
+later, one of these memory blocks is hot-unplugged and then hot-plugged,
+the system is detecting an inconsistency in the sysfs layout and a
+BUG_ON() is raised:
+
+  kernel BUG at /Users/laurent/src/linux-ppc/mm/memory_hotplug.c:1084!
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in: rpadlpar_io rpaphp pseries_rng rng_core vmx_crypto gf128mul binfmt_misc ip_tables x_tables xfs libcrc32c crc32c_vpmsum autofs4
+  CPU: 8 PID: 10256 Comm: drmgr Not tainted 5.9.0-rc1+ #25
+  Call Trace:
+    add_memory_resource+0x23c/0x340 (unreliable)
+    __add_memory+0x5c/0xf0
+    dlpar_add_lmb+0x1b4/0x500
+    dlpar_memory+0x1f8/0xb80
+    handle_dlpar_errorlog+0xc0/0x190
+    dlpar_store+0x198/0x4a0
+    kobj_attr_store+0x30/0x50
+    sysfs_kf_write+0x64/0x90
+    kernfs_fop_write+0x1b0/0x290
+    vfs_write+0xe8/0x290
+    ksys_write+0xdc/0x130
+    system_call_exception+0x160/0x270
+    system_call_common+0xf0/0x27c
+
+This has been seen on PowerPC LPAR.
+
+The root cause of this issue is that when node's memory is registered,
+the range used can overlap another node's range, thus the memory block
+is registered to multiple nodes in sysfs.
+
+There are two issues here:
+
+ (a) The sysfs memory and node's layouts are broken due to these
+     multiple links
+
+ (b) The link errors in link_mem_sections() should not lead to a system
+     panic.
+
+To address (a) register_mem_sect_under_node should not rely on the
+system state to detect whether the link operation is triggered by a hot
+plug operation or not.  This is addressed by the patches 1 and 2 of this
+series.
+
+Issue (b) will be addressed separately.
+
+This patch (of 2):
+
+The memmap_context enum is used to detect whether a memory operation is
+due to a hot-add operation or happening at boot time.
+
+Make it general to the hotplug operation and rename it as
+meminit_context.
+
+There is no functional change introduced by this patch
+
+Suggested-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J . Wysocki" <rafael@kernel.org>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Scott Cheloha <cheloha@linux.ibm.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200915094143.79181-1-ldufour@linux.ibm.com
+Link: https://lkml.kernel.org/r/20200915132624.9723-1-ldufour@linux.ibm.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-aspeed-sgpio.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/ia64/mm/init.c    |    6 +++---
+ include/linux/mm.h     |    2 +-
+ include/linux/mmzone.h |   11 ++++++++---
+ mm/memory_hotplug.c    |    2 +-
+ mm/page_alloc.c        |   10 +++++-----
+ 5 files changed, 18 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpio/gpio-aspeed-sgpio.c b/drivers/gpio/gpio-aspeed-sgpio.c
-index 5d678dbf1a621..a0eb00c024f62 100644
---- a/drivers/gpio/gpio-aspeed-sgpio.c
-+++ b/drivers/gpio/gpio-aspeed-sgpio.c
-@@ -452,17 +452,15 @@ static int aspeed_sgpio_setup_irqs(struct aspeed_sgpio *gpio,
- 	irq->parents = &gpio->irq;
- 	irq->num_parents = 1;
- 
--	/* set IRQ settings and Enable Interrupt */
-+	/* Apply default IRQ settings */
- 	for (i = 0; i < ARRAY_SIZE(aspeed_sgpio_banks); i++) {
- 		bank = &aspeed_sgpio_banks[i];
- 		/* set falling or level-low irq */
- 		iowrite32(0x00000000, bank_reg(gpio, bank, reg_irq_type0));
- 		/* trigger type is edge */
- 		iowrite32(0x00000000, bank_reg(gpio, bank, reg_irq_type1));
--		/* dual edge trigger mode. */
--		iowrite32(0xffffffff, bank_reg(gpio, bank, reg_irq_type2));
--		/* enable irq */
--		iowrite32(0xffffffff, bank_reg(gpio, bank, reg_irq_enable));
-+		/* single edge trigger */
-+		iowrite32(0x00000000, bank_reg(gpio, bank, reg_irq_type2));
- 	}
- 
+--- a/arch/ia64/mm/init.c
++++ b/arch/ia64/mm/init.c
+@@ -518,7 +518,7 @@ virtual_memmap_init(u64 start, u64 end,
+ 	if (map_start < map_end)
+ 		memmap_init_zone((unsigned long)(map_end - map_start),
+ 				 args->nid, args->zone, page_to_pfn(map_start),
+-				 MEMMAP_EARLY, NULL);
++				 MEMINIT_EARLY, NULL);
  	return 0;
--- 
-2.25.1
-
+ }
+ 
+@@ -527,8 +527,8 @@ memmap_init (unsigned long size, int nid
+ 	     unsigned long start_pfn)
+ {
+ 	if (!vmem_map) {
+-		memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY,
+-				NULL);
++		memmap_init_zone(size, nid, zone, start_pfn,
++				 MEMINIT_EARLY, NULL);
+ 	} else {
+ 		struct page *start;
+ 		struct memmap_init_callback_data args;
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2208,7 +2208,7 @@ static inline void zero_resv_unavail(voi
+ 
+ extern void set_dma_reserve(unsigned long new_dma_reserve);
+ extern void memmap_init_zone(unsigned long, int, unsigned long, unsigned long,
+-		enum memmap_context, struct vmem_altmap *);
++		enum meminit_context, struct vmem_altmap *);
+ extern void setup_per_zone_wmarks(void);
+ extern int __meminit init_per_zone_wmark_min(void);
+ extern void mem_init(void);
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -822,10 +822,15 @@ bool zone_watermark_ok(struct zone *z, u
+ 		unsigned int alloc_flags);
+ bool zone_watermark_ok_safe(struct zone *z, unsigned int order,
+ 		unsigned long mark, int classzone_idx);
+-enum memmap_context {
+-	MEMMAP_EARLY,
+-	MEMMAP_HOTPLUG,
++/*
++ * Memory initialization context, use to differentiate memory added by
++ * the platform statically or via memory hotplug interface.
++ */
++enum meminit_context {
++	MEMINIT_EARLY,
++	MEMINIT_HOTPLUG,
+ };
++
+ extern void init_currently_empty_zone(struct zone *zone, unsigned long start_pfn,
+ 				     unsigned long size);
+ 
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -725,7 +725,7 @@ void __ref move_pfn_range_to_zone(struct
+ 	 * are reserved so nobody should be touching them so we should be safe
+ 	 */
+ 	memmap_init_zone(nr_pages, nid, zone_idx(zone), start_pfn,
+-			MEMMAP_HOTPLUG, altmap);
++			 MEMINIT_HOTPLUG, altmap);
+ 
+ 	set_zone_contiguous(zone);
+ }
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5875,7 +5875,7 @@ overlap_memmap_init(unsigned long zone,
+  * done. Non-atomic initialization, single-pass.
+  */
+ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
+-		unsigned long start_pfn, enum memmap_context context,
++		unsigned long start_pfn, enum meminit_context context,
+ 		struct vmem_altmap *altmap)
+ {
+ 	unsigned long pfn, end_pfn = start_pfn + size;
+@@ -5907,7 +5907,7 @@ void __meminit memmap_init_zone(unsigned
+ 		 * There can be holes in boot-time mem_map[]s handed to this
+ 		 * function.  They do not exist on hotplugged memory.
+ 		 */
+-		if (context == MEMMAP_EARLY) {
++		if (context == MEMINIT_EARLY) {
+ 			if (!early_pfn_valid(pfn))
+ 				continue;
+ 			if (!early_pfn_in_nid(pfn, nid))
+@@ -5920,7 +5920,7 @@ void __meminit memmap_init_zone(unsigned
+ 
+ 		page = pfn_to_page(pfn);
+ 		__init_single_page(page, pfn, zone, nid);
+-		if (context == MEMMAP_HOTPLUG)
++		if (context == MEMINIT_HOTPLUG)
+ 			__SetPageReserved(page);
+ 
+ 		/*
+@@ -6002,7 +6002,7 @@ void __ref memmap_init_zone_device(struc
+ 		 * check here not to call set_pageblock_migratetype() against
+ 		 * pfn out of zone.
+ 		 *
+-		 * Please note that MEMMAP_HOTPLUG path doesn't clear memmap
++		 * Please note that MEMINIT_HOTPLUG path doesn't clear memmap
+ 		 * because this is done early in section_activate()
+ 		 */
+ 		if (!(pfn & (pageblock_nr_pages - 1))) {
+@@ -6028,7 +6028,7 @@ static void __meminit zone_init_free_lis
+ void __meminit __weak memmap_init(unsigned long size, int nid,
+ 				  unsigned long zone, unsigned long start_pfn)
+ {
+-	memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY, NULL);
++	memmap_init_zone(size, nid, zone, start_pfn, MEMINIT_EARLY, NULL);
+ }
+ 
+ static int zone_batchsize(struct zone *zone)
 
 
