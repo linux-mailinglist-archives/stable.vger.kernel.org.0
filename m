@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C61982839B8
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:28:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A192839BB
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:28:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727386AbgJEP2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:28:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53506 "EHLO mail.kernel.org"
+        id S1727420AbgJEP2h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:28:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727397AbgJEP2c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:28:32 -0400
+        id S1727407AbgJEP2f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:28:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 411BC212CC;
-        Mon,  5 Oct 2020 15:28:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C493120637;
+        Mon,  5 Oct 2020 15:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911711;
-        bh=ttW4kEDg3p6VEseOGq247AZn+Aqab+gVH9fn5a7yFq4=;
+        s=default; t=1601911714;
+        bh=/nu0O0rQcHPIq/kFl2Kqenl8EkZ+ZORv9Gwjr8rotoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q00A+vNOT29RPuUeRDtrt4zjlYYqOaZoM0CJnRyHfqMkqj0g/ZrMjfWhzEN4+/Jfl
-         qaoVO+AByC08QtKiEPiQt4you75jCSQ+0ueHrJRHCfePITRoyEZrpMFINcKl2L2mS4
-         E3AZtObOR6KYLE9xL39TGiHIA+2Wza0wGOnKP6rc=
+        b=yxvW2PlrlgMC3UT710an4kBrgzbCrmAoaG5wUBSSegxV4NNmZGHaprSXFUGzs5yv0
+         f+bnmXvPgamwctJbuo7WRxC/JznLuSdWJSGhAzObYaj/LuV6+OhcB8S+hagkWA4j0T
+         ermdNPaKGmaHH+Rks5MlzsAFJVha2m3s+iPuinSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 01/57] btrfs: fix filesystem corruption after a device replace
-Date:   Mon,  5 Oct 2020 17:26:13 +0200
-Message-Id: <20201005142109.863987507@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        RussianNeuroMancer <russianneuromancer@ya.ru>
+Subject: [PATCH 5.4 02/57] mmc: sdhci: Workaround broken command queuing on Intel GLK based IRBIS models
+Date:   Mon,  5 Oct 2020 17:26:14 +0200
+Message-Id: <20201005142109.917990839@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
 References: <20201005142109.796046410@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,173 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 4c8f353272dd1262013873990c0fafd0e3c8f274 upstream.
+commit afd7f30886b0b445a4240a99020458a9772f2b89 upstream.
 
-We use a device's allocation state tree to track ranges in a device used
-for allocated chunks, and we set ranges in this tree when allocating a new
-chunk. However after a device replace operation, we were not setting the
-allocated ranges in the new device's allocation state tree, so that tree
-is empty after a device replace.
+Commit bedf9fc01ff1 ("mmc: sdhci: Workaround broken command queuing on
+Intel GLK"), disabled command-queuing on Intel GLK based LENOVO models
+because of it being broken due to what is believed to be a bug in
+the BIOS.
 
-This means that a fitrim operation after a device replace will trim the
-device ranges that have allocated chunks and extents, as we trim every
-range for which there is not a range marked in the device's allocation
-state tree. It is also important during chunk allocation, since the
-device's allocation state is used to determine if a range is already
-allocated when allocating a new chunk.
+It seems that the BIOS of some IRBIS models, including the IRBIS NB111
+model has the same issue, so disable command queuing there too.
 
-This is trivial to reproduce and the following script triggers the bug:
-
-  $ cat reproducer.sh
-  #!/bin/bash
-
-  DEV1="/dev/sdg"
-  DEV2="/dev/sdh"
-  DEV3="/dev/sdi"
-
-  wipefs -a $DEV1 $DEV2 $DEV3 &> /dev/null
-
-  # Create a raid1 test fs on 2 devices.
-  mkfs.btrfs -f -m raid1 -d raid1 $DEV1 $DEV2 > /dev/null
-  mount $DEV1 /mnt/btrfs
-
-  xfs_io -f -c "pwrite -S 0xab 0 10M" /mnt/btrfs/foo
-
-  echo "Starting to replace $DEV1 with $DEV3"
-  btrfs replace start -B $DEV1 $DEV3 /mnt/btrfs
-  echo
-
-  echo "Running fstrim"
-  fstrim /mnt/btrfs
-  echo
-
-  echo "Unmounting filesystem"
-  umount /mnt/btrfs
-
-  echo "Mounting filesystem in degraded mode using $DEV3 only"
-  wipefs -a $DEV1 $DEV2 &> /dev/null
-  mount -o degraded $DEV3 /mnt/btrfs
-  if [ $? -ne 0 ]; then
-          dmesg | tail
-          echo
-          echo "Failed to mount in degraded mode"
-          exit 1
-  fi
-
-  echo
-  echo "File foo data (expected all bytes = 0xab):"
-  od -A d -t x1 /mnt/btrfs/foo
-
-  umount /mnt/btrfs
-
-When running the reproducer:
-
-  $ ./replace-test.sh
-  wrote 10485760/10485760 bytes at offset 0
-  10 MiB, 2560 ops; 0.0901 sec (110.877 MiB/sec and 28384.5216 ops/sec)
-  Starting to replace /dev/sdg with /dev/sdi
-
-  Running fstrim
-
-  Unmounting filesystem
-  Mounting filesystem in degraded mode using /dev/sdi only
-  mount: /mnt/btrfs: wrong fs type, bad option, bad superblock on /dev/sdi, missing codepage or helper program, or other error.
-  [19581.748641] BTRFS info (device sdg): dev_replace from /dev/sdg (devid 1) to /dev/sdi started
-  [19581.803842] BTRFS info (device sdg): dev_replace from /dev/sdg (devid 1) to /dev/sdi finished
-  [19582.208293] BTRFS info (device sdi): allowing degraded mounts
-  [19582.208298] BTRFS info (device sdi): disk space caching is enabled
-  [19582.208301] BTRFS info (device sdi): has skinny extents
-  [19582.212853] BTRFS warning (device sdi): devid 2 uuid 1f731f47-e1bb-4f00-bfbb-9e5a0cb4ba9f is missing
-  [19582.213904] btree_readpage_end_io_hook: 25839 callbacks suppressed
-  [19582.213907] BTRFS error (device sdi): bad tree block start, want 30490624 have 0
-  [19582.214780] BTRFS warning (device sdi): failed to read root (objectid=7): -5
-  [19582.231576] BTRFS error (device sdi): open_ctree failed
-
-  Failed to mount in degraded mode
-
-So fix by setting all allocated ranges in the replace target device when
-the replace operation is finishing, when we are holding the chunk mutex
-and we can not race with new chunk allocations.
-
-A test case for fstests follows soon.
-
-Fixes: 1c11b63eff2a67 ("btrfs: replace pending/pinned chunks lists with io tree")
-CC: stable@vger.kernel.org # 5.2+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: bedf9fc01ff1 ("mmc: sdhci: Workaround broken command queuing on Intel GLK")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=209397
+Reported-and-tested-by: RussianNeuroMancer <russianneuromancer@ya.ru>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20200927104821.5676-1-hdegoede@redhat.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/dev-replace.c |   40 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 39 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-pci-core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -562,6 +562,37 @@ static void btrfs_rm_dev_replace_unblock
- 	wake_up(&fs_info->dev_replace.replace_wait);
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -798,7 +798,8 @@ static int byt_emmc_probe_slot(struct sd
+ static bool glk_broken_cqhci(struct sdhci_pci_slot *slot)
+ {
+ 	return slot->chip->pdev->device == PCI_DEVICE_ID_INTEL_GLK_EMMC &&
+-	       dmi_match(DMI_BIOS_VENDOR, "LENOVO");
++	       (dmi_match(DMI_BIOS_VENDOR, "LENOVO") ||
++		dmi_match(DMI_SYS_VENDOR, "IRBIS"));
  }
  
-+/*
-+ * When finishing the device replace, before swapping the source device with the
-+ * target device we must update the chunk allocation state in the target device,
-+ * as it is empty because replace works by directly copying the chunks and not
-+ * through the normal chunk allocation path.
-+ */
-+static int btrfs_set_target_alloc_state(struct btrfs_device *srcdev,
-+					struct btrfs_device *tgtdev)
-+{
-+	struct extent_state *cached_state = NULL;
-+	u64 start = 0;
-+	u64 found_start;
-+	u64 found_end;
-+	int ret = 0;
-+
-+	lockdep_assert_held(&srcdev->fs_info->chunk_mutex);
-+
-+	while (!find_first_extent_bit(&srcdev->alloc_state, start,
-+				      &found_start, &found_end,
-+				      CHUNK_ALLOCATED, &cached_state)) {
-+		ret = set_extent_bits(&tgtdev->alloc_state, found_start,
-+				      found_end, CHUNK_ALLOCATED);
-+		if (ret)
-+			break;
-+		start = found_end + 1;
-+	}
-+
-+	free_extent_state(cached_state);
-+	return ret;
-+}
-+
- static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
- 				       int scrub_ret)
- {
-@@ -636,8 +667,14 @@ static int btrfs_dev_replace_finishing(s
- 	dev_replace->time_stopped = ktime_get_real_seconds();
- 	dev_replace->item_needs_writeback = 1;
- 
--	/* replace old device with new one in mapping tree */
-+	/*
-+	 * Update allocation state in the new device and replace the old device
-+	 * with the new one in the mapping tree.
-+	 */
- 	if (!scrub_ret) {
-+		scrub_ret = btrfs_set_target_alloc_state(src_device, tgt_device);
-+		if (scrub_ret)
-+			goto error;
- 		btrfs_dev_replace_update_device_in_mapping_tree(fs_info,
- 								src_device,
- 								tgt_device);
-@@ -648,6 +685,7 @@ static int btrfs_dev_replace_finishing(s
- 				 btrfs_dev_name(src_device),
- 				 src_device->devid,
- 				 rcu_str_deref(tgt_device->name), scrub_ret);
-+error:
- 		up_write(&dev_replace->rwsem);
- 		mutex_unlock(&fs_info->chunk_mutex);
- 		mutex_unlock(&fs_info->fs_devices->device_list_mutex);
+ static int glk_emmc_probe_slot(struct sdhci_pci_slot *slot)
 
 
