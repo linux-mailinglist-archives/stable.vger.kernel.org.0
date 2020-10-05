@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00428283ADD
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAFA6283996
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:27:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728298AbgJEPiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:38:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58930 "EHLO mail.kernel.org"
+        id S1727139AbgJEP1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:27:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727923AbgJEPbr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:31:47 -0400
+        id S1727129AbgJEP1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:27:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB9D32074F;
-        Mon,  5 Oct 2020 15:31:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D0CA2085B;
+        Mon,  5 Oct 2020 15:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911907;
-        bh=Jo77Gc6P5QwVraqk5OtJ6s4hd5C50P0jH7a00pjxyPY=;
+        s=default; t=1601911618;
+        bh=h/m2qR11Y6NkmkgN17ToEQjKeDpDBU0R/tT/O777toI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/Q7Mswzwgb+akJp+zPl7WzKckponvSlYQRfZaG3a6Yy7DB5qixuCcZ3TFl5sfVnt
-         c6C4IU2biVMwkXx0sr2tvqdcWiF0G9znMlDXo2y5DnkQLvU1dY/+nx+ImJ5wY3YjI7
-         o9kehkhJX8FsAvfg7pIyOUf1YYrljkdy5C/SeeuI=
+        b=i7ohJAlqWz3dUYSqjUQ2DGVOpKKH7INJaYhIfue5Sev3Z8qeKa1SPgLKf8ZepktZn
+         5RFDK09TtyjJLzlW9Fkpiktmu0MWTjYPyj74S+gy5XZUeXi5A0J031lVVUH36pnhmt
+         Yc3P25XqYW/s849LpJYVsTDzyQQOpKSSQHWX6A8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 25/85] vboxsf: Fix the check for the old binary mount-arguments struct
-Date:   Mon,  5 Oct 2020 17:26:21 +0200
-Message-Id: <20201005142115.942894017@linuxfoundation.org>
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.19 05/38] clk: socfpga: stratix10: fix the divider for the emac_ptp_free_clk
+Date:   Mon,  5 Oct 2020 17:26:22 +0200
+Message-Id: <20201005142108.919299925@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
-References: <20201005142114.732094228@linuxfoundation.org>
+In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
+References: <20201005142108.650363140@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-[ Upstream commit 9d682ea6bcc76b8b2691c79add59f7d99c881635 ]
+commit b02cf0c4736c65c6667f396efaae6b5521e82abf upstream.
 
-Fix the check for the mainline vboxsf code being used with the old
-mount.vboxsf mount binary from the out-of-tree vboxsf version doing
-a comparison between signed and unsigned data types.
+The fixed divider the emac_ptp_free_clk should be 2, not 4.
 
-This fixes the following smatch warnings:
+Fixes: 07afb8db7340 ("clk: socfpga: stratix10: add clock driver for
+Stratix10 platform")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Link: https://lore.kernel.org/r/20200831202657.8224-1-dinguyen@kernel.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-fs/vboxsf/super.c:390 vboxsf_parse_monolithic() warn: impossible condition '(options[1] == (255)) => ((-128)-127 == 255)'
-fs/vboxsf/super.c:391 vboxsf_parse_monolithic() warn: impossible condition '(options[2] == (254)) => ((-128)-127 == 254)'
-fs/vboxsf/super.c:392 vboxsf_parse_monolithic() warn: impossible condition '(options[3] == (253)) => ((-128)-127 == 253)'
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/vboxsf/super.c | 2 +-
+ drivers/clk/socfpga/clk-s10.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/vboxsf/super.c b/fs/vboxsf/super.c
-index 8fe03b4a0d2b0..25aade3441922 100644
---- a/fs/vboxsf/super.c
-+++ b/fs/vboxsf/super.c
-@@ -384,7 +384,7 @@ fail_nomem:
- 
- static int vboxsf_parse_monolithic(struct fs_context *fc, void *data)
- {
--	char *options = data;
-+	unsigned char *options = data;
- 
- 	if (options && options[0] == VBSF_MOUNT_SIGNATURE_BYTE_0 &&
- 		       options[1] == VBSF_MOUNT_SIGNATURE_BYTE_1 &&
--- 
-2.25.1
-
+--- a/drivers/clk/socfpga/clk-s10.c
++++ b/drivers/clk/socfpga/clk-s10.c
+@@ -107,7 +107,7 @@ static const struct stratix10_perip_cnt_
+ 	{ STRATIX10_EMAC_B_FREE_CLK, "emacb_free_clk", NULL, emacb_free_mux, ARRAY_SIZE(emacb_free_mux),
+ 	  0, 0, 2, 0xB0, 1},
+ 	{ STRATIX10_EMAC_PTP_FREE_CLK, "emac_ptp_free_clk", NULL, emac_ptp_free_mux,
+-	  ARRAY_SIZE(emac_ptp_free_mux), 0, 0, 4, 0xB0, 2},
++	  ARRAY_SIZE(emac_ptp_free_mux), 0, 0, 2, 0xB0, 2},
+ 	{ STRATIX10_GPIO_DB_FREE_CLK, "gpio_db_free_clk", NULL, gpio_db_free_mux,
+ 	  ARRAY_SIZE(gpio_db_free_mux), 0, 0, 0, 0xB0, 3},
+ 	{ STRATIX10_SDMMC_FREE_CLK, "sdmmc_free_clk", NULL, sdmmc_free_mux,
 
 
