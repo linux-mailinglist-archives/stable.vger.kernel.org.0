@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23519283AA6
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:36:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DFA1283B01
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:39:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728401AbgJEPfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:35:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33912 "EHLO mail.kernel.org"
+        id S1727048AbgJEPjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:39:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728153AbgJEPdn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:33:43 -0400
+        id S1727773AbgJEPa3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:30:29 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2391E2074F;
-        Mon,  5 Oct 2020 15:33:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CD6D2074F;
+        Mon,  5 Oct 2020 15:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601912022;
-        bh=NwGYEABwnhd7tpti8vq+8T6uIXyrxquu/uGiVGjFkM0=;
+        s=default; t=1601911828;
+        bh=BN2OTzf2EGXGTgrjUv63kpm/kOiQQhzijT2JzAGMjkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L4FY7YwQgu2pO3uYAIb5gNPOvAFcy0H0sLSlzd0TJiCKNdYPd5lA36IUou+5lWlNb
-         vOOuI+dQOeiyJp6PkngZueRgHxUNoHs8Si0nJiiohaYYcODPrtP1vIkJOfnD1WemZm
-         j2Wlc9O1PG+rM1DDdAbatl0r+m4f8cX0kZJCulzY=
+        b=Mz4A4imIKclrbunkvB7ODJXP8+IsP2ZJXhuxiwn0fKtf5PrgBHt/ewqMFEgRBvBUC
+         gXQWU+8xXoYqVsOhNBtxsi1+e4dMw3umkqfE+YM2lRFZK43MeZRRAxVGrIIe9Mkbwx
+         7GcPw1NYDYi8UvzBykVLH+TvbEuAYpJEoyPso+Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
-        yangerkun <yangerkun@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 69/85] blk-mq: call commit_rqs while list empty but error happen
-Date:   Mon,  5 Oct 2020 17:27:05 +0200
-Message-Id: <20201005142118.050721161@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.4 54/57] epoll: replace ->visited/visited_list with generation count
+Date:   Mon,  5 Oct 2020 17:27:06 +0200
+Message-Id: <20201005142112.398368208@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
-References: <20201005142114.732094228@linuxfoundation.org>
+In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
+References: <20201005142109.796046410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,91 +41,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 632bfb6323799c087fcb4108dfe59518609667a7 ]
+commit 18306c404abe18a0972587a6266830583c60c928 upstream.
 
-Blk-mq should call commit_rqs once 'bd.last != true' and no more
-request will come(so virtscsi can kick the virtqueue, e.g.). We already
-do that in 'blk_mq_dispatch_rq_list/blk_mq_try_issue_list_directly' while
-list not empty and 'queued > 0'. However, we can seen the same scene
-once the last request in list call queue_rq and return error like
-BLK_STS_IOERR which will not requeue the request, and lead that list
-empty but need call commit_rqs too(Or the request for virtscsi will stay
-timeout until other request kick virtqueue).
+removes the need to clear it, along with the races.
 
-We found this problem by do fsstress test with offline/online virtscsi
-device repeat quickly.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: d666ba98f849 ("blk-mq: add mq_ops->commit_rqs()")
-Reported-by: zhangyi (F) <yi.zhang@huawei.com>
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ fs/eventpoll.c |   26 +++++++-------------------
+ 1 file changed, 7 insertions(+), 19 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index a366726094a89..8e623e0282757 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1304,6 +1304,11 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -218,8 +218,7 @@ struct eventpoll {
+ 	struct file *file;
  
- 	hctx->dispatched[queued_to_index(queued)]++;
+ 	/* used to optimize loop detection check */
+-	int visited;
+-	struct list_head visited_list_link;
++	u64 gen;
  
-+	/* If we didn't flush the entire list, we could have told the driver
-+	 * there was more coming, but that turned out to be a lie.
-+	 */
-+	if ((!list_empty(list) || errors) && q->mq_ops->commit_rqs && queued)
-+		q->mq_ops->commit_rqs(hctx);
- 	/*
- 	 * Any items that need requeuing? Stuff them into hctx->dispatch,
- 	 * that is where we will continue on next queue run.
-@@ -1311,14 +1316,6 @@ bool blk_mq_dispatch_rq_list(struct request_queue *q, struct list_head *list,
- 	if (!list_empty(list)) {
- 		bool needs_restart;
+ #ifdef CONFIG_NET_RX_BUSY_POLL
+ 	/* used to track busy poll napi_id */
+@@ -269,6 +268,8 @@ static long max_user_watches __read_most
+  */
+ static DEFINE_MUTEX(epmutex);
  
--		/*
--		 * If we didn't flush the entire list, we could have told
--		 * the driver there was more coming, but that turned out to
--		 * be a lie.
--		 */
--		if (q->mq_ops->commit_rqs && queued)
--			q->mq_ops->commit_rqs(hctx);
++static u64 loop_check_gen = 0;
++
+ /* Used to check for epoll file descriptor inclusion loops */
+ static struct nested_calls poll_loop_ncalls;
+ 
+@@ -278,9 +279,6 @@ static struct kmem_cache *epi_cache __re
+ /* Slab cache used to allocate "struct eppoll_entry" */
+ static struct kmem_cache *pwq_cache __read_mostly;
+ 
+-/* Visited nodes during ep_loop_check(), so we can unset them when we finish */
+-static LIST_HEAD(visited_list);
 -
- 		spin_lock(&hctx->lock);
- 		list_splice_tail_init(list, &hctx->dispatch);
- 		spin_unlock(&hctx->lock);
-@@ -1971,6 +1968,7 @@ void blk_mq_try_issue_list_directly(struct blk_mq_hw_ctx *hctx,
- 		struct list_head *list)
- {
- 	int queued = 0;
-+	int errors = 0;
+ /*
+  * List of files with newly added links, where we may need to limit the number
+  * of emanating paths. Protected by the epmutex.
+@@ -1968,13 +1966,12 @@ static int ep_loop_check_proc(void *priv
+ 	struct epitem *epi;
  
- 	while (!list_empty(list)) {
- 		blk_status_t ret;
-@@ -1987,6 +1985,7 @@ void blk_mq_try_issue_list_directly(struct blk_mq_hw_ctx *hctx,
- 				break;
- 			}
- 			blk_mq_end_request(rq, ret);
-+			errors++;
- 		} else
- 			queued++;
- 	}
-@@ -1996,7 +1995,8 @@ void blk_mq_try_issue_list_directly(struct blk_mq_hw_ctx *hctx,
- 	 * the driver there was more coming, but that turned out to
- 	 * be a lie.
- 	 */
--	if (!list_empty(list) && hctx->queue->mq_ops->commit_rqs && queued)
-+	if ((!list_empty(list) || errors) &&
-+	     hctx->queue->mq_ops->commit_rqs && queued)
- 		hctx->queue->mq_ops->commit_rqs(hctx);
+ 	mutex_lock_nested(&ep->mtx, call_nests + 1);
+-	ep->visited = 1;
+-	list_add(&ep->visited_list_link, &visited_list);
++	ep->gen = loop_check_gen;
+ 	for (rbp = rb_first_cached(&ep->rbr); rbp; rbp = rb_next(rbp)) {
+ 		epi = rb_entry(rbp, struct epitem, rbn);
+ 		if (unlikely(is_file_epoll(epi->ffd.file))) {
+ 			ep_tovisit = epi->ffd.file->private_data;
+-			if (ep_tovisit->visited)
++			if (ep_tovisit->gen == loop_check_gen)
+ 				continue;
+ 			error = ep_call_nested(&poll_loop_ncalls,
+ 					ep_loop_check_proc, epi->ffd.file,
+@@ -2015,18 +2012,8 @@ static int ep_loop_check_proc(void *priv
+  */
+ static int ep_loop_check(struct eventpoll *ep, struct file *file)
+ {
+-	int ret;
+-	struct eventpoll *ep_cur, *ep_next;
+-
+-	ret = ep_call_nested(&poll_loop_ncalls,
++	return ep_call_nested(&poll_loop_ncalls,
+ 			      ep_loop_check_proc, file, ep, current);
+-	/* clear visited list */
+-	list_for_each_entry_safe(ep_cur, ep_next, &visited_list,
+-							visited_list_link) {
+-		ep_cur->visited = 0;
+-		list_del(&ep_cur->visited_list_link);
+-	}
+-	return ret;
  }
  
--- 
-2.25.1
-
+ static void clear_tfile_check_list(void)
+@@ -2248,6 +2235,7 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, in
+ error_tgt_fput:
+ 	if (full_check) {
+ 		clear_tfile_check_list();
++		loop_check_gen++;
+ 		mutex_unlock(&epmutex);
+ 	}
+ 
 
 
