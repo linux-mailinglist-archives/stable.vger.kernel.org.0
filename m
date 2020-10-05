@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BCBB2839D9
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:30:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00428283ADD
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:38:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727475AbgJEP3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:29:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53922 "EHLO mail.kernel.org"
+        id S1728298AbgJEPiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:38:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727476AbgJEP2w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:28:52 -0400
+        id S1727923AbgJEPbr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:31:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42A71207BC;
-        Mon,  5 Oct 2020 15:28:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB9D32074F;
+        Mon,  5 Oct 2020 15:31:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911731;
-        bh=cDRAHB+D7GHBCtXoKIFf++muchShCNXU5Qepjm5VBy4=;
+        s=default; t=1601911907;
+        bh=Jo77Gc6P5QwVraqk5OtJ6s4hd5C50P0jH7a00pjxyPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m9wM7P4QpXhkRYMkankJNtU5f21mXM19jS8asnSAn6YGeRogpU2q9ykMqHbdYxjbZ
-         prMpOnxi9dLczr40NJ81sgHxKxaX7iH6rmv/abmsx+7wg3FfL3s59IKeaaRNbjWNXZ
-         M2Vc28uc+4byU77VOXb/EjCibaPBOt2+rN7iqZCk=
+        b=j/Q7Mswzwgb+akJp+zPl7WzKckponvSlYQRfZaG3a6Yy7DB5qixuCcZ3TFl5sfVnt
+         c6C4IU2biVMwkXx0sr2tvqdcWiF0G9znMlDXo2y5DnkQLvU1dY/+nx+ImJ5wY3YjI7
+         o9kehkhJX8FsAvfg7pIyOUf1YYrljkdy5C/SeeuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastien Boeuf <sebastien.boeuf@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/57] net: virtio_vsock: Enhance connection semantics
+Subject: [PATCH 5.8 25/85] vboxsf: Fix the check for the old binary mount-arguments struct
 Date:   Mon,  5 Oct 2020 17:26:21 +0200
-Message-Id: <20201005142110.252526087@linuxfoundation.org>
+Message-Id: <20201005142115.942894017@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,58 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastien Boeuf <sebastien.boeuf@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit df12eb6d6cd920ab2f0e0a43cd6e1c23a05cea91 ]
+[ Upstream commit 9d682ea6bcc76b8b2691c79add59f7d99c881635 ]
 
-Whenever the vsock backend on the host sends a packet through the RX
-queue, it expects an answer on the TX queue. Unfortunately, there is one
-case where the host side will hang waiting for the answer and might
-effectively never recover if no timeout mechanism was implemented.
+Fix the check for the mainline vboxsf code being used with the old
+mount.vboxsf mount binary from the out-of-tree vboxsf version doing
+a comparison between signed and unsigned data types.
 
-This issue happens when the guest side starts binding to the socket,
-which insert a new bound socket into the list of already bound sockets.
-At this time, we expect the guest to also start listening, which will
-trigger the sk_state to move from TCP_CLOSE to TCP_LISTEN. The problem
-occurs if the host side queued a RX packet and triggered an interrupt
-right between the end of the binding process and the beginning of the
-listening process. In this specific case, the function processing the
-packet virtio_transport_recv_pkt() will find a bound socket, which means
-it will hit the switch statement checking for the sk_state, but the
-state won't be changed into TCP_LISTEN yet, which leads the code to pick
-the default statement. This default statement will only free the buffer,
-while it should also respond to the host side, by sending a packet on
-its TX queue.
+This fixes the following smatch warnings:
 
-In order to simply fix this unfortunate chain of events, it is important
-that in case the default statement is entered, and because at this stage
-we know the host side is waiting for an answer, we must send back a
-packet containing the operation VIRTIO_VSOCK_OP_RST.
+fs/vboxsf/super.c:390 vboxsf_parse_monolithic() warn: impossible condition '(options[1] == (255)) => ((-128)-127 == 255)'
+fs/vboxsf/super.c:391 vboxsf_parse_monolithic() warn: impossible condition '(options[2] == (254)) => ((-128)-127 == 254)'
+fs/vboxsf/super.c:392 vboxsf_parse_monolithic() warn: impossible condition '(options[3] == (253)) => ((-128)-127 == 253)'
 
-One could say that a proper timeout mechanism on the host side will be
-enough to avoid the backend to hang. But the point of this patch is to
-ensure the normal use case will be provided with proper responsiveness
-when it comes to establishing the connection.
-
-Signed-off-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/virtio_transport_common.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/vboxsf/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index f0b8ad2656f5e..efbb521bff135 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1127,6 +1127,7 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 		virtio_transport_free_pkt(pkt);
- 		break;
- 	default:
-+		(void)virtio_transport_reset_no_sock(t, pkt);
- 		virtio_transport_free_pkt(pkt);
- 		break;
- 	}
+diff --git a/fs/vboxsf/super.c b/fs/vboxsf/super.c
+index 8fe03b4a0d2b0..25aade3441922 100644
+--- a/fs/vboxsf/super.c
++++ b/fs/vboxsf/super.c
+@@ -384,7 +384,7 @@ fail_nomem:
+ 
+ static int vboxsf_parse_monolithic(struct fs_context *fc, void *data)
+ {
+-	char *options = data;
++	unsigned char *options = data;
+ 
+ 	if (options && options[0] == VBSF_MOUNT_SIGNATURE_BYTE_0 &&
+ 		       options[1] == VBSF_MOUNT_SIGNATURE_BYTE_1 &&
 -- 
 2.25.1
 
