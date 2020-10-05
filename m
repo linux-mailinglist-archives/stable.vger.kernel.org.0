@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6287C283840
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 16:45:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A53F8283845
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 16:45:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726535AbgJEOpp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 10:45:45 -0400
+        id S1726769AbgJEOpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 10:45:52 -0400
 Received: from mail.kernel.org ([198.145.29.99]:52664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726692AbgJEOp3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 10:45:29 -0400
+        id S1726699AbgJEOpb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 10:45:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9559D2085B;
-        Mon,  5 Oct 2020 14:45:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 994EC20FC3;
+        Mon,  5 Oct 2020 14:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601909129;
-        bh=0tQkDMUo0WwTNvnmJIszwt/KCV34U2dSxtHnYJEU1jg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=q73dW9wimiKaNlJxvdFYws1Xl+qfy4DF/EltbueIXVLOQ6MFBHcb1kkZ/gmTFcoat
-         FLuqVGCdx44vwOKOm7tpGl7WoqiWdTaOwnDr2HfpmEjg+j5eG46+FWjb3K1qmARQAr
-         Qey8qVYRPWG2wbfttV9vTmYezsaibMgGQ1l8PGpY=
+        s=default; t=1601909130;
+        bh=r8DWUr5vtaIWRZFDmh+jkP2C0tU7Kp5rr1T8j+PXNYU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=14wD1rn/ouHXqBO/jGldpwcSINDKDwtPgKoXeRAB1Pdk/ChKDbZjqZPn1dxxOrE11
+         2xSM4xiyvteO5mUmYPzVlmllo8gVv1sFGATT6eZq3YMVXjRK4HUkyeAiaZVkyw2DEy
+         JMmwDLWc7g1tDwEm//4dyZiT8YRnXcJMxrX0VEYU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 1/2] epoll: do not insert into poll queues until all sanity checks are done
-Date:   Mon,  5 Oct 2020 10:45:26 -0400
-Message-Id: <20201005144527.2527777-1-sashal@kernel.org>
+Cc:     Philip Yang <Philip.Yang@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 2/2] drm/amdgpu: prevent double kfree ttm->sg
+Date:   Mon,  5 Oct 2020 10:45:27 -0400
+Message-Id: <20201005144527.2527777-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20201005144527.2527777-1-sashal@kernel.org>
+References: <20201005144527.2527777-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -39,85 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Philip Yang <Philip.Yang@amd.com>
 
-[ Upstream commit f8d4f44df056c5b504b0d49683fb7279218fd207 ]
+[ Upstream commit 1d0e16ac1a9e800598dcfa5b6bc53b704a103390 ]
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Set ttm->sg to NULL after kfree, to avoid memory corruption backtrace:
+
+[  420.932812] kernel BUG at
+/build/linux-do9eLF/linux-4.15.0/mm/slub.c:295!
+[  420.934182] invalid opcode: 0000 [#1] SMP NOPTI
+[  420.935445] Modules linked in: xt_conntrack ipt_MASQUERADE
+[  420.951332] Hardware name: Dell Inc. PowerEdge R7525/0PYVT1, BIOS
+1.5.4 07/09/2020
+[  420.952887] RIP: 0010:__slab_free+0x180/0x2d0
+[  420.954419] RSP: 0018:ffffbe426291fa60 EFLAGS: 00010246
+[  420.955963] RAX: ffff9e29263e9c30 RBX: ffff9e29263e9c30 RCX:
+000000018100004b
+[  420.957512] RDX: ffff9e29263e9c30 RSI: fffff3d33e98fa40 RDI:
+ffff9e297e407a80
+[  420.959055] RBP: ffffbe426291fb00 R08: 0000000000000001 R09:
+ffffffffc0d39ade
+[  420.960587] R10: ffffbe426291fb20 R11: ffff9e49ffdd4000 R12:
+ffff9e297e407a80
+[  420.962105] R13: fffff3d33e98fa40 R14: ffff9e29263e9c30 R15:
+ffff9e2954464fd8
+[  420.963611] FS:  00007fa2ea097780(0000) GS:ffff9e297e840000(0000)
+knlGS:0000000000000000
+[  420.965144] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  420.966663] CR2: 00007f16bfffefb8 CR3: 0000001ff0c62000 CR4:
+0000000000340ee0
+[  420.968193] Call Trace:
+[  420.969703]  ? __page_cache_release+0x3c/0x220
+[  420.971294]  ? amdgpu_ttm_tt_unpopulate+0x5e/0x80 [amdgpu]
+[  420.972789]  kfree+0x168/0x180
+[  420.974353]  ? amdgpu_ttm_tt_set_user_pages+0x64/0xc0 [amdgpu]
+[  420.975850]  ? kfree+0x168/0x180
+[  420.977403]  amdgpu_ttm_tt_unpopulate+0x5e/0x80 [amdgpu]
+[  420.978888]  ttm_tt_unpopulate.part.10+0x53/0x60 [amdttm]
+[  420.980357]  ttm_tt_destroy.part.11+0x4f/0x60 [amdttm]
+[  420.981814]  ttm_tt_destroy+0x13/0x20 [amdttm]
+[  420.983273]  ttm_bo_cleanup_memtype_use+0x36/0x80 [amdttm]
+[  420.984725]  ttm_bo_release+0x1c9/0x360 [amdttm]
+[  420.986167]  amdttm_bo_put+0x24/0x30 [amdttm]
+[  420.987663]  amdgpu_bo_unref+0x1e/0x30 [amdgpu]
+[  420.989165]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x9ca/0xb10
+[amdgpu]
+[  420.990666]  kfd_ioctl_alloc_memory_of_gpu+0xef/0x2c0 [amdgpu]
+
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/eventpoll.c | 37 ++++++++++++++++++-------------------
- 1 file changed, 18 insertions(+), 19 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index af9dfa494b1fa..a32df9cad519f 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1461,6 +1461,22 @@ static int ep_insert(struct eventpoll *ep, struct epoll_event *event,
- 		RCU_INIT_POINTER(epi->ws, NULL);
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index bc746131987ff..ae700e445fbc8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -727,6 +727,7 @@ static int amdgpu_ttm_tt_pin_userptr(struct ttm_tt *ttm)
  
-+	/* Add the current item to the list of active epoll hook for this file */
-+	spin_lock(&tfile->f_lock);
-+	list_add_tail_rcu(&epi->fllink, &tfile->f_ep_links);
-+	spin_unlock(&tfile->f_lock);
-+
-+	/*
-+	 * Add the current item to the RB tree. All RB tree operations are
-+	 * protected by "mtx", and ep_insert() is called with "mtx" held.
-+	 */
-+	ep_rbtree_insert(ep, epi);
-+
-+	/* now check if we've created too many backpaths */
-+	error = -EINVAL;
-+	if (full_check && reverse_path_check())
-+		goto error_remove_epi;
-+
- 	/* Initialize the poll table using the queue callback */
- 	epq.epi = epi;
- 	init_poll_funcptr(&epq.pt, ep_ptable_queue_proc);
-@@ -1483,22 +1499,6 @@ static int ep_insert(struct eventpoll *ep, struct epoll_event *event,
- 	if (epi->nwait < 0)
- 		goto error_unregister;
+ release_sg:
+ 	kfree(ttm->sg);
++	ttm->sg = NULL;
+ 	return r;
+ }
  
--	/* Add the current item to the list of active epoll hook for this file */
--	spin_lock(&tfile->f_lock);
--	list_add_tail_rcu(&epi->fllink, &tfile->f_ep_links);
--	spin_unlock(&tfile->f_lock);
--
--	/*
--	 * Add the current item to the RB tree. All RB tree operations are
--	 * protected by "mtx", and ep_insert() is called with "mtx" held.
--	 */
--	ep_rbtree_insert(ep, epi);
--
--	/* now check if we've created too many backpaths */
--	error = -EINVAL;
--	if (full_check && reverse_path_check())
--		goto error_remove_epi;
--
- 	/* We have to drop the new item inside our item list to keep track of it */
- 	spin_lock_irqsave(&ep->lock, flags);
- 
-@@ -1527,6 +1527,8 @@ static int ep_insert(struct eventpoll *ep, struct epoll_event *event,
- 
- 	return 0;
- 
-+error_unregister:
-+	ep_unregister_pollwait(ep, epi);
- error_remove_epi:
- 	spin_lock(&tfile->f_lock);
- 	list_del_rcu(&epi->fllink);
-@@ -1534,9 +1536,6 @@ static int ep_insert(struct eventpoll *ep, struct epoll_event *event,
- 
- 	rb_erase_cached(&epi->rbn, &ep->rbr);
- 
--error_unregister:
--	ep_unregister_pollwait(ep, epi);
--
- 	/*
- 	 * We need to do this because an event could have been arrived on some
- 	 * allocated wait queue. Note that we don't care about the ep->ovflist
 -- 
 2.25.1
 
