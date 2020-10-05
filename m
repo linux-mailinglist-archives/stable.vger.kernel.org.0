@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58996283AE5
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:38:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EBC8283A20
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727423AbgJEPiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:38:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58250 "EHLO mail.kernel.org"
+        id S1727886AbgJEPbc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:31:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727261AbgJEPbV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:31:21 -0400
+        id S1726638AbgJEPbY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:31:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87FF720637;
-        Mon,  5 Oct 2020 15:31:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37F4E20663;
+        Mon,  5 Oct 2020 15:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911881;
-        bh=BD4MZS7nuhnm8XDkRgNX7LTmbuukdbtVkewzdaDOuYY=;
+        s=default; t=1601911883;
+        bh=Fs+Lnk6+k8Me4JBcQtiaRFUGznEJPUpoXfKzT/K0XGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RAY4NknQARruMkmwNIJTmTLm8AzvW6RHMLR3rC/bf/jvLfNoSCEexVkmN1ZSkG8qo
-         7SKhnUcAWzVtUp+a+6ZsKSYu/14xvmzXA3AifziUjRgS7ZySTf0ejO8/W7njyQxhdd
-         SuzAqGfmdNGZGjeMJ9YE2AW28vAeqnOxWtQSDQpM=
+        b=NoiKbOq0cE7V/IkleFzt+CzXHa4KE9B6S14s6xfjni93kETcydEqiVbG1j68ivSUZ
+         5dU29/J6otZ9FBI7y86qsgVkh8bSpRogpDUBKk8RvN3/0OpoO4Vfgn/KiO6Gz6wTFl
+         cgYZnGQdfsPivLQcu9SQ2DTQo42Tam/1g5cKtM5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Volker=20R=C3=BCmelin?= <volker.ruemelin@googlemail.com>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.8 16/85] i2c: i801: Exclude device from suspend direct complete optimization
-Date:   Mon,  5 Oct 2020 17:26:12 +0200
-Message-Id: <20201005142115.516561364@linuxfoundation.org>
+        =?UTF-8?q?Andr=C3=A9s=20Barrantes=20Silman?= 
+        <andresbs2000@protonmail.com>, Jiri Kosina <jkosina@suse.cz>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.8 17/85] Input: i8042 - add nopnp quirk for Acer Aspire 5 A515
+Date:   Mon,  5 Oct 2020 17:26:13 +0200
+Message-Id: <20201005142115.563949449@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
 References: <20201005142114.732094228@linuxfoundation.org>
@@ -43,36 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean Delvare <jdelvare@suse.de>
+From: Jiri Kosina <jkosina@suse.cz>
 
-commit 845b89127bc5458d0152a4d63f165c62a22fcb70 upstream.
+commit 5fc27b098dafb8e30794a9db0705074c7d766179 upstream.
 
-By default, PCI drivers with runtime PM enabled will skip the calls
-to suspend and resume on system PM. For this driver, we don't want
-that, as we need to perform additional steps for system PM to work
-properly on all systems. So instruct the PM core to not skip these
-calls.
+Touchpad on this laptop is not detected properly during boot, as PNP
+enumerates (wrongly) AUX port as disabled on this machine.
 
-Fixes: a9c8088c7988 ("i2c: i801: Don't restore config registers on runtime PM")
-Reported-by: Volker Rümelin <volker.ruemelin@googlemail.com>
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Fix that by adding this board (with admittedly quite funny DMI
+identifiers) to nopnp quirk list.
+
+Reported-by: Andrés Barrantes Silman <andresbs2000@protonmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2009252337340.3336@cbobk.fhfr.pm
 Cc: stable@vger.kernel.org
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-i801.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1913,6 +1913,7 @@ static int i801_probe(struct pci_dev *de
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -721,6 +721,13 @@ static const struct dmi_system_id __init
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
+ 		},
+ 	},
++	{
++		/* Acer Aspire 5 A515 */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "Grumpy_PK"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "PK"),
++		},
++	},
+ 	{ }
+ };
  
- 	pci_set_drvdata(dev, priv);
- 
-+	dev_pm_set_driver_flags(&dev->dev, DPM_FLAG_NO_DIRECT_COMPLETE);
- 	pm_runtime_set_autosuspend_delay(&dev->dev, 1000);
- 	pm_runtime_use_autosuspend(&dev->dev);
- 	pm_runtime_put_autosuspend(&dev->dev);
 
 
