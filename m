@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43B2B283B07
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:40:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A1E02839BF
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:28:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727664AbgJEP3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:29:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55346 "EHLO mail.kernel.org"
+        id S1726680AbgJEP2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:28:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727560AbgJEP30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:29:26 -0400
+        id S1726659AbgJEP2a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:28:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D31D217BA;
-        Mon,  5 Oct 2020 15:29:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3E832085B;
+        Mon,  5 Oct 2020 15:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911765;
-        bh=h4iwoF6I9NHDWdfPJsF7sb1+EXGnMBkiCWIDCZEaBSg=;
+        s=default; t=1601911709;
+        bh=5gIp2ADyAyFMb59jSVGzJtWs1+8nMdYs+8Bal17LoZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OiHWlg1L1QzzUH4vX73W95d2e59k2JQ5Cm7c6fbCHAl6xJNeDB/MHAZOuCruy4k57
-         q8H6XCIF7wLkmAlrwR1K4P1FkDpppNfW5NEM8lvXINtN+wfqQMixaO8kIxXp6JL5QE
-         xiihsTGZ/i58vZubKdGXEhgjEkmQYG3h2G5mh2hw=
+        b=DKvZ6/VNWfBtCG7jFtGYjfNTxOguRhU5l4+5MNqUBa1gLdOZQxb/F8YXc3wpM+Fgh
+         XuL25m87Ar1nPCwjW+DytmqpGJjgiZMn/oCv49amHbRakyjXQWCj56EReBrRGK20sl
+         2oePCwDFfA92AD7eJ0JQlUfaMGWYFTwILwusBQP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 12/57] iio: adc: qcom-spmi-adc5: fix driver name
+        stable@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 07/38] vsock/virtio: stop workers during the .remove()
 Date:   Mon,  5 Oct 2020 17:26:24 +0200
-Message-Id: <20201005142110.396180129@linuxfoundation.org>
+Message-Id: <20201005142109.015282314@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
+References: <20201005142108.650363140@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +45,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit fdb29f4de1374483291232ae7515e5e7bb464762 upstream.
+[ Upstream commit 17dd1367389cfe7f150790c83247b68e0c19d106 ]
 
-Remove superfluous '.c' from qcom-spmi-adc5 device driver name.
-Fixes: e13d757279bb ("iio: adc: Add QCOM SPMI PMIC5 ADC driver")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200910140000.324091-2-dmitry.baryshkov@linaro.org
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Before to call vdev->config->reset(vdev) we need to be sure that
+no one is accessing the device, for this reason, we add new variables
+in the struct virtio_vsock to stop the workers during the .remove().
 
+This patch also add few comments before vdev->config->reset(vdev)
+and vdev->config->del_vqs(vdev).
+
+Suggested-by: Stefan Hajnoczi <stefanha@redhat.com>
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/qcom-spmi-adc5.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/vmw_vsock/virtio_transport.c | 51 +++++++++++++++++++++++++++++++-
+ 1 file changed, 50 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/qcom-spmi-adc5.c
-+++ b/drivers/iio/adc/qcom-spmi-adc5.c
-@@ -786,7 +786,7 @@ static int adc5_probe(struct platform_de
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 68186419c445f..4bc217ef56945 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -39,6 +39,7 @@ struct virtio_vsock {
+ 	 * must be accessed with tx_lock held.
+ 	 */
+ 	struct mutex tx_lock;
++	bool tx_run;
  
- static struct platform_driver adc5_driver = {
- 	.driver = {
--		.name = "qcom-spmi-adc5.c",
-+		.name = "qcom-spmi-adc5",
- 		.of_match_table = adc5_match_table,
- 	},
- 	.probe = adc5_probe,
+ 	struct work_struct send_pkt_work;
+ 	spinlock_t send_pkt_list_lock;
+@@ -54,6 +55,7 @@ struct virtio_vsock {
+ 	 * must be accessed with rx_lock held.
+ 	 */
+ 	struct mutex rx_lock;
++	bool rx_run;
+ 	int rx_buf_nr;
+ 	int rx_buf_max_nr;
+ 
+@@ -61,6 +63,7 @@ struct virtio_vsock {
+ 	 * vqs[VSOCK_VQ_EVENT] must be accessed with event_lock held.
+ 	 */
+ 	struct mutex event_lock;
++	bool event_run;
+ 	struct virtio_vsock_event event_list[8];
+ 
+ 	u32 guest_cid;
+@@ -95,6 +98,10 @@ static void virtio_transport_loopback_work(struct work_struct *work)
+ 	spin_unlock_bh(&vsock->loopback_list_lock);
+ 
+ 	mutex_lock(&vsock->rx_lock);
++
++	if (!vsock->rx_run)
++		goto out;
++
+ 	while (!list_empty(&pkts)) {
+ 		struct virtio_vsock_pkt *pkt;
+ 
+@@ -103,6 +110,7 @@ static void virtio_transport_loopback_work(struct work_struct *work)
+ 
+ 		virtio_transport_recv_pkt(pkt);
+ 	}
++out:
+ 	mutex_unlock(&vsock->rx_lock);
+ }
+ 
+@@ -131,6 +139,9 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+ 
+ 	mutex_lock(&vsock->tx_lock);
+ 
++	if (!vsock->tx_run)
++		goto out;
++
+ 	vq = vsock->vqs[VSOCK_VQ_TX];
+ 
+ 	for (;;) {
+@@ -189,6 +200,7 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+ 	if (added)
+ 		virtqueue_kick(vq);
+ 
++out:
+ 	mutex_unlock(&vsock->tx_lock);
+ 
+ 	if (restart_rx)
+@@ -324,6 +336,10 @@ static void virtio_transport_tx_work(struct work_struct *work)
+ 
+ 	vq = vsock->vqs[VSOCK_VQ_TX];
+ 	mutex_lock(&vsock->tx_lock);
++
++	if (!vsock->tx_run)
++		goto out;
++
+ 	do {
+ 		struct virtio_vsock_pkt *pkt;
+ 		unsigned int len;
+@@ -334,6 +350,8 @@ static void virtio_transport_tx_work(struct work_struct *work)
+ 			added = true;
+ 		}
+ 	} while (!virtqueue_enable_cb(vq));
++
++out:
+ 	mutex_unlock(&vsock->tx_lock);
+ 
+ 	if (added)
+@@ -362,6 +380,9 @@ static void virtio_transport_rx_work(struct work_struct *work)
+ 
+ 	mutex_lock(&vsock->rx_lock);
+ 
++	if (!vsock->rx_run)
++		goto out;
++
+ 	do {
+ 		virtqueue_disable_cb(vq);
+ 		for (;;) {
+@@ -471,6 +492,9 @@ static void virtio_transport_event_work(struct work_struct *work)
+ 
+ 	mutex_lock(&vsock->event_lock);
+ 
++	if (!vsock->event_run)
++		goto out;
++
+ 	do {
+ 		struct virtio_vsock_event *event;
+ 		unsigned int len;
+@@ -485,7 +509,7 @@ static void virtio_transport_event_work(struct work_struct *work)
+ 	} while (!virtqueue_enable_cb(vq));
+ 
+ 	virtqueue_kick(vsock->vqs[VSOCK_VQ_EVENT]);
+-
++out:
+ 	mutex_unlock(&vsock->event_lock);
+ }
+ 
+@@ -621,12 +645,18 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	INIT_WORK(&vsock->send_pkt_work, virtio_transport_send_pkt_work);
+ 	INIT_WORK(&vsock->loopback_work, virtio_transport_loopback_work);
+ 
++	mutex_lock(&vsock->tx_lock);
++	vsock->tx_run = true;
++	mutex_unlock(&vsock->tx_lock);
++
+ 	mutex_lock(&vsock->rx_lock);
+ 	virtio_vsock_rx_fill(vsock);
++	vsock->rx_run = true;
+ 	mutex_unlock(&vsock->rx_lock);
+ 
+ 	mutex_lock(&vsock->event_lock);
+ 	virtio_vsock_event_fill(vsock);
++	vsock->event_run = true;
+ 	mutex_unlock(&vsock->event_lock);
+ 
+ 	vdev->priv = vsock;
+@@ -661,6 +691,24 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	/* Reset all connected sockets when the device disappear */
+ 	vsock_for_each_connected_socket(virtio_vsock_reset_sock);
+ 
++	/* Stop all work handlers to make sure no one is accessing the device,
++	 * so we can safely call vdev->config->reset().
++	 */
++	mutex_lock(&vsock->rx_lock);
++	vsock->rx_run = false;
++	mutex_unlock(&vsock->rx_lock);
++
++	mutex_lock(&vsock->tx_lock);
++	vsock->tx_run = false;
++	mutex_unlock(&vsock->tx_lock);
++
++	mutex_lock(&vsock->event_lock);
++	vsock->event_run = false;
++	mutex_unlock(&vsock->event_lock);
++
++	/* Flush all device writes and interrupts, device will not use any
++	 * more buffers.
++	 */
+ 	vdev->config->reset(vdev);
+ 
+ 	mutex_lock(&vsock->rx_lock);
+@@ -691,6 +739,7 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	}
+ 	spin_unlock_bh(&vsock->loopback_list_lock);
+ 
++	/* Delete virtqueues and flush outstanding callbacks if any */
+ 	vdev->config->del_vqs(vdev);
+ 
+ 	mutex_unlock(&the_virtio_vsock_mutex);
+-- 
+2.25.1
+
 
 
