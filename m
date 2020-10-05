@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69FFB28399B
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90258283A5F
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727250AbgJEP1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:27:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51908 "EHLO mail.kernel.org"
+        id S1728204AbgJEPdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:33:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727223AbgJEP1Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:27:24 -0400
+        id S1728116AbgJEPdv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:33:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2585A20637;
-        Mon,  5 Oct 2020 15:27:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E680B206DD;
+        Mon,  5 Oct 2020 15:33:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911642;
-        bh=vSfS7lFrUIQZJy5iyVkaDClvgMkXrRHgJr5Fcs3JHmw=;
+        s=default; t=1601912030;
+        bh=uA21n8kTXWeX3eBanMnYhXu9Yi/6iQkvG/dYxZd7Krs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAI+MxivG+TN16v4Uv8fQ4G8AnSoyhSTqO871hXcBrdXSYe6RsMPcJ98UF5hMqF38
-         wIdtDeAmgs/k7BjMhe08Cs+9lyY7IHJH4HBpM4PvXjaHjkJlr3pI43cyO+VFbFh+L7
-         A1rcaZ/Mw8pikD5WPMpTIlC4yXSKvvht5B13Yl8o=
+        b=IHaCVdSLJaFtnzK8Wff7DfJxt/RWoptStb/DA3sxMIV+O/0hNxE4ZaJ3DnKD/QKPa
+         umPIN8kwlea4RW/ET7Rd38grRVVg583m7htbh5NqQ/ae2vOm3+GEcQz2f7ge6eCzWZ
+         esuR/9M2l7MbNuCYWKqt4xnrkj704pJmGOHLz9tQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <james.smart@broadcom.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/38] nvme-fc: fail new connections to a deleted host or remote port
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 43/85] io_uring: mark statx/files_update/epoll_ctl as non-SQPOLL
 Date:   Mon,  5 Oct 2020 17:26:39 +0200
-Message-Id: <20201005142109.736127117@linuxfoundation.org>
+Message-Id: <20201005142116.802782495@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
-References: <20201005142108.650363140@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <james.smart@broadcom.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 9e0e8dac985d4bd07d9e62922b9d189d3ca2fccf ]
+[ Upstream commit 6ca56f845955e325033758f90a2cffe150f31bc8 ]
 
-The lldd may have made calls to delete a remote port or local port and
-the delete is in progress when the cli then attempts to create a new
-controller. Currently, this proceeds without error although it can't be
-very successful.
+These will naturally fail when attempted through SQPOLL, but either
+with -EFAULT or -EBADF. Make it explicit that these are not workable
+through SQPOLL and return -EINVAL, just like other ops that need to
+use ->files.
 
-Fix this by validating that both the host port and remote port are
-present when a new controller is to be created.
-
-Signed-off-by: James Smart <james.smart@broadcom.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/fc.c | 6 ++++--
+ fs/io_uring.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 73db32f97abf3..ed88d50217724 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -3294,12 +3294,14 @@ nvme_fc_create_ctrl(struct device *dev, struct nvmf_ctrl_options *opts)
- 	spin_lock_irqsave(&nvme_fc_lock, flags);
- 	list_for_each_entry(lport, &nvme_fc_lport_list, port_list) {
- 		if (lport->localport.node_name != laddr.nn ||
--		    lport->localport.port_name != laddr.pn)
-+		    lport->localport.port_name != laddr.pn ||
-+		    lport->localport.port_state != FC_OBJSTATE_ONLINE)
- 			continue;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 4d79c1763e733..ebc3586b18795 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3318,7 +3318,7 @@ static int io_epoll_ctl_prep(struct io_kiocb *req,
+ #if defined(CONFIG_EPOLL)
+ 	if (sqe->ioprio || sqe->buf_index)
+ 		return -EINVAL;
+-	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL)))
+ 		return -EINVAL;
  
- 		list_for_each_entry(rport, &lport->endp_list, endp_list) {
- 			if (rport->remoteport.node_name != raddr.nn ||
--			    rport->remoteport.port_name != raddr.pn)
-+			    rport->remoteport.port_name != raddr.pn ||
-+			    rport->remoteport.port_state != FC_OBJSTATE_ONLINE)
- 				continue;
+ 	req->epoll.epfd = READ_ONCE(sqe->fd);
+@@ -3435,7 +3435,7 @@ static int io_fadvise(struct io_kiocb *req, bool force_nonblock)
  
- 			/* if fail to get reference fall through. Will error */
+ static int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+-	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL)))
+ 		return -EINVAL;
+ 	if (sqe->ioprio || sqe->buf_index)
+ 		return -EINVAL;
+@@ -5042,6 +5042,8 @@ static int io_async_cancel(struct io_kiocb *req)
+ static int io_files_update_prep(struct io_kiocb *req,
+ 				const struct io_uring_sqe *sqe)
+ {
++	if (unlikely(req->ctx->flags & IORING_SETUP_SQPOLL))
++		return -EINVAL;
+ 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
+ 		return -EINVAL;
+ 	if (sqe->ioprio || sqe->rw_flags)
 -- 
 2.25.1
 
