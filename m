@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32622283AED
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:38:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 952F1283AA7
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727453AbgJEPim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:38:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57632 "EHLO mail.kernel.org"
+        id S1727695AbgJEPfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:35:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727188AbgJEPa4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:30:56 -0400
+        id S1728177AbgJEPdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:33:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 137692085B;
-        Mon,  5 Oct 2020 15:30:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B178206DD;
+        Mon,  5 Oct 2020 15:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911855;
-        bh=XOUTYVG2a3yotQL5srfT1iatkSW7dYJre/pBT2dojM0=;
+        s=default; t=1601912020;
+        bh=loSTzaIyy/eWX7bIjRiRN78CodfkLCAmYrOJDPV4Vro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irRkET+V7ERBBs5XtqbN757KmjJS+Q53drdyPy3rcG3LvfGtRnQYeIe886gwpfnGQ
-         EK3ON5FxYP9px4S/IJB9d9JCH+lBf1gRLMilTIaV3nPc8GMS5YZSZqRubNgbSBmAup
-         GGaOVNjqPxErz6I4rY/fasfBkPjvlpV+VrG3Y7n8=
+        b=b9MbDHyHcg1laRcz+5aqbLDfFv9M2qNapyWePlQj80VMKjNM6sLgD9d26fJF8riGT
+         Ir1UEhaKHBg2r6NaFAe2u0omVJM6gI1OwCAB2+MgpPbt6eqbvhEFHsefKIZst4deuQ
+         OrL1OBLHDPNGDCakICJqsR9En40G8DayuvFbsZuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Revanth Rajashekar <revanth.rajashekar@intel.com>
-Subject: [PATCH 5.4 51/57] nvme: Introduce nvme_lba_to_sect()
-Date:   Mon,  5 Oct 2020 17:27:03 +0200
-Message-Id: <20201005142112.254052588@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Huang <vincent.huang@tw.synaptics.com>,
+        Harry Cutts <hcutts@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 68/85] Input: trackpoint - enable Synaptics trackpoints
+Date:   Mon,  5 Oct 2020 17:27:04 +0200
+Message-Id: <20201005142118.003428623@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Vincent Huang <vincent.huang@tw.synaptics.com>
 
-commit e08f2ae850929d40e66268ee47e443e7ea56eeb7 upstream.
+[ Upstream commit 996d585b079ad494a30cac10e08585bcd5345125 ]
 
-Introduce the new helper function nvme_lba_to_sect() to convert a device
-logical block number to a 512B sector number. Use this new helper in
-obvious places, cleaning up the code.
+Add Synaptics IDs in trackpoint_start_protocol() to mark them as valid.
 
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Revanth Rajashekar <revanth.rajashekar@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Vincent Huang <vincent.huang@tw.synaptics.com>
+Fixes: 6c77545af100 ("Input: trackpoint - add new trackpoint variant IDs")
+Reviewed-by: Harry Cutts <hcutts@chromium.org>
+Tested-by: Harry Cutts <hcutts@chromium.org>
+Link: https://lore.kernel.org/r/20200924053013.1056953-1-vincent.huang@tw.synaptics.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c |   14 +++++++-------
- drivers/nvme/host/nvme.h |    8 ++++++++
- 2 files changed, 15 insertions(+), 7 deletions(-)
+ drivers/input/mouse/trackpoint.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1682,7 +1682,7 @@ static void nvme_init_integrity(struct g
- 
- static void nvme_set_chunk_size(struct nvme_ns *ns)
- {
--	u32 chunk_size = (((u32)ns->noiob) << (ns->lba_shift - 9));
-+	u32 chunk_size = nvme_lba_to_sect(ns, ns->noiob);
- 	blk_queue_chunk_sectors(ns->queue, rounddown_pow_of_two(chunk_size));
- }
- 
-@@ -1719,8 +1719,7 @@ static void nvme_config_discard(struct g
- 
- static void nvme_config_write_zeroes(struct gendisk *disk, struct nvme_ns *ns)
- {
--	u32 max_sectors;
--	unsigned short bs = 1 << ns->lba_shift;
-+	u64 max_blocks;
- 
- 	if (!(ns->ctrl->oncs & NVME_CTRL_ONCS_WRITE_ZEROES) ||
- 	    (ns->ctrl->quirks & NVME_QUIRK_DISABLE_WRITE_ZEROES))
-@@ -1736,11 +1735,12 @@ static void nvme_config_write_zeroes(str
- 	 * nvme_init_identify() if available.
- 	 */
- 	if (ns->ctrl->max_hw_sectors == UINT_MAX)
--		max_sectors = ((u32)(USHRT_MAX + 1) * bs) >> 9;
-+		max_blocks = (u64)USHRT_MAX + 1;
- 	else
--		max_sectors = ((u32)(ns->ctrl->max_hw_sectors + 1) * bs) >> 9;
-+		max_blocks = ns->ctrl->max_hw_sectors + 1;
- 
--	blk_queue_max_write_zeroes_sectors(disk->queue, max_sectors);
-+	blk_queue_max_write_zeroes_sectors(disk->queue,
-+					   nvme_lba_to_sect(ns, max_blocks));
- }
- 
- static int nvme_report_ns_ids(struct nvme_ctrl *ctrl, unsigned int nsid,
-@@ -1774,7 +1774,7 @@ static bool nvme_ns_ids_equal(struct nvm
- static void nvme_update_disk_info(struct gendisk *disk,
- 		struct nvme_ns *ns, struct nvme_id_ns *id)
- {
--	sector_t capacity = le64_to_cpu(id->nsze) << (ns->lba_shift - 9);
-+	sector_t capacity = nvme_lba_to_sect(ns, le64_to_cpu(id->nsze));
- 	unsigned short bs = 1 << ns->lba_shift;
- 	u32 atomic_bs, phys_bs, io_opt;
- 
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -437,6 +437,14 @@ static inline u64 nvme_sect_to_lba(struc
- 	return sector >> (ns->lba_shift - SECTOR_SHIFT);
- }
- 
-+/*
-+ * Convert a device logical block number to a 512B sector number.
-+ */
-+static inline sector_t nvme_lba_to_sect(struct nvme_ns *ns, u64 lba)
-+{
-+	return lba << (ns->lba_shift - SECTOR_SHIFT);
-+}
-+
- static inline void nvme_end_request(struct request *req, __le16 status,
- 		union nvme_result result)
- {
+diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+index 854d5e7587241..ef2fa0905208d 100644
+--- a/drivers/input/mouse/trackpoint.c
++++ b/drivers/input/mouse/trackpoint.c
+@@ -282,6 +282,8 @@ static int trackpoint_start_protocol(struct psmouse *psmouse,
+ 	case TP_VARIANT_ALPS:
+ 	case TP_VARIANT_ELAN:
+ 	case TP_VARIANT_NXP:
++	case TP_VARIANT_JYT_SYNAPTICS:
++	case TP_VARIANT_SYNAPTICS:
+ 		if (variant_id)
+ 			*variant_id = param[0];
+ 		if (firmware_id)
+-- 
+2.25.1
+
 
 
