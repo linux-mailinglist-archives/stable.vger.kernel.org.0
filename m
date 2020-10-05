@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 627FA2839D3
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:30:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3FC7283A25
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:32:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727046AbgJEP2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:28:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53860 "EHLO mail.kernel.org"
+        id S1727914AbgJEPbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:31:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727445AbgJEP2r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:28:47 -0400
+        id S1727913AbgJEPbk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:31:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2136120637;
-        Mon,  5 Oct 2020 15:28:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E9442074F;
+        Mon,  5 Oct 2020 15:31:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911726;
-        bh=h/m2qR11Y6NkmkgN17ToEQjKeDpDBU0R/tT/O777toI=;
+        s=default; t=1601911899;
+        bh=peG2QEx5P7yZNWDl7KfdFR8ojVOdalVTyXXzdbI0m14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fTtS23FtCK7wfdiDlMDL4155xwdCWTINIXGL5X3p6+bpXRhKiUzOaY3AHYgfYL0OF
-         eJybMATYBZhJK52PAfLzQLxh7O0aDCQTtjOP3T77ZB/jiK+cAiCPLeI/mzxrwMZYPM
-         pl+BPMkEK1VA/Wgw3gcTvHP62bt5F/PW/YKFW/xI=
+        b=h8qRJODtdqRjfh3X3o09J4Y6cXFIm+VybyOol1xku0beNVBFXVV+tR7RRclKy0Hze
+         bi5PhSmt+XJsIEslX6sc0bJ00uavfP5qtWBhHkRk2O0IxlO0WXLl3EHw10MlhiPqZt
+         8Pejp7eTkGmpZYiHXpAh+u/lr1/Yl1ze1HEOzm1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 07/57] clk: socfpga: stratix10: fix the divider for the emac_ptp_free_clk
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Stefan Bader <stefan.bader@canonical.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 5.8 23/85] xen/events: dont use chip_data for legacy IRQs
 Date:   Mon,  5 Oct 2020 17:26:19 +0200
-Message-Id: <20201005142110.164317264@linuxfoundation.org>
+Message-Id: <20201005142115.833890428@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +43,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit b02cf0c4736c65c6667f396efaae6b5521e82abf upstream.
+commit 0891fb39ba67bd7ae023ea0d367297ffff010781 upstream.
 
-The fixed divider the emac_ptp_free_clk should be 2, not 4.
+Since commit c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
+Xen is using the chip_data pointer for storing IRQ specific data. When
+running as a HVM domain this can result in problems for legacy IRQs, as
+those might use chip_data for their own purposes.
 
-Fixes: 07afb8db7340 ("clk: socfpga: stratix10: add clock driver for
-Stratix10 platform")
+Use a local array for this purpose in case of legacy IRQs, avoiding the
+double use.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20200831202657.8224-1-dinguyen@kernel.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Tested-by: Stefan Bader <stefan.bader@canonical.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20200930091614.13660-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/socfpga/clk-s10.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/events/events_base.c |   29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
---- a/drivers/clk/socfpga/clk-s10.c
-+++ b/drivers/clk/socfpga/clk-s10.c
-@@ -107,7 +107,7 @@ static const struct stratix10_perip_cnt_
- 	{ STRATIX10_EMAC_B_FREE_CLK, "emacb_free_clk", NULL, emacb_free_mux, ARRAY_SIZE(emacb_free_mux),
- 	  0, 0, 2, 0xB0, 1},
- 	{ STRATIX10_EMAC_PTP_FREE_CLK, "emac_ptp_free_clk", NULL, emac_ptp_free_mux,
--	  ARRAY_SIZE(emac_ptp_free_mux), 0, 0, 4, 0xB0, 2},
-+	  ARRAY_SIZE(emac_ptp_free_mux), 0, 0, 2, 0xB0, 2},
- 	{ STRATIX10_GPIO_DB_FREE_CLK, "gpio_db_free_clk", NULL, gpio_db_free_mux,
- 	  ARRAY_SIZE(gpio_db_free_mux), 0, 0, 0, 0xB0, 3},
- 	{ STRATIX10_SDMMC_FREE_CLK, "sdmmc_free_clk", NULL, sdmmc_free_mux,
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -92,6 +92,8 @@ static bool (*pirq_needs_eoi)(unsigned i
+ /* Xen will never allocate port zero for any purpose. */
+ #define VALID_EVTCHN(chn)	((chn) != 0)
+ 
++static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
++
+ static struct irq_chip xen_dynamic_chip;
+ static struct irq_chip xen_percpu_chip;
+ static struct irq_chip xen_pirq_chip;
+@@ -156,7 +158,18 @@ int get_evtchn_to_irq(evtchn_port_t evtc
+ /* Get info for IRQ */
+ struct irq_info *info_for_irq(unsigned irq)
+ {
+-	return irq_get_chip_data(irq);
++	if (irq < nr_legacy_irqs())
++		return legacy_info_ptrs[irq];
++	else
++		return irq_get_chip_data(irq);
++}
++
++static void set_info_for_irq(unsigned int irq, struct irq_info *info)
++{
++	if (irq < nr_legacy_irqs())
++		legacy_info_ptrs[irq] = info;
++	else
++		irq_set_chip_data(irq, info);
+ }
+ 
+ /* Constructors for packed IRQ information. */
+@@ -377,7 +390,7 @@ static void xen_irq_init(unsigned irq)
+ 	info->type = IRQT_UNBOUND;
+ 	info->refcnt = -1;
+ 
+-	irq_set_chip_data(irq, info);
++	set_info_for_irq(irq, info);
+ 
+ 	list_add_tail(&info->list, &xen_irq_list_head);
+ }
+@@ -426,14 +439,14 @@ static int __must_check xen_allocate_irq
+ 
+ static void xen_free_irq(unsigned irq)
+ {
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (WARN_ON(!info))
+ 		return;
+ 
+ 	list_del(&info->list);
+ 
+-	irq_set_chip_data(irq, NULL);
++	set_info_for_irq(irq, NULL);
+ 
+ 	WARN_ON(info->refcnt > 0);
+ 
+@@ -603,7 +616,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
+ static void __unbind_from_irq(unsigned int irq)
+ {
+ 	evtchn_port_t evtchn = evtchn_from_irq(irq);
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (info->refcnt > 0) {
+ 		info->refcnt--;
+@@ -1108,7 +1121,7 @@ int bind_ipi_to_irqhandler(enum ipi_vect
+ 
+ void unbind_from_irqhandler(unsigned int irq, void *dev_id)
+ {
+-	struct irq_info *info = irq_get_chip_data(irq);
++	struct irq_info *info = info_for_irq(irq);
+ 
+ 	if (WARN_ON(!info))
+ 		return;
+@@ -1142,7 +1155,7 @@ int evtchn_make_refcounted(evtchn_port_t
+ 	if (irq == -1)
+ 		return -ENOENT;
+ 
+-	info = irq_get_chip_data(irq);
++	info = info_for_irq(irq);
+ 
+ 	if (!info)
+ 		return -ENOENT;
+@@ -1170,7 +1183,7 @@ int evtchn_get(evtchn_port_t evtchn)
+ 	if (irq == -1)
+ 		goto done;
+ 
+-	info = irq_get_chip_data(irq);
++	info = info_for_irq(irq);
+ 
+ 	if (!info)
+ 		goto done;
 
 
