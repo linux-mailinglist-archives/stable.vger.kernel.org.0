@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40578283B09
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25902283A80
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:35:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727684AbgJEPjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:39:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57042 "EHLO mail.kernel.org"
+        id S1728328AbgJEPez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:34:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727781AbgJEPac (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:30:32 -0400
+        id S1727724AbgJEPek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:34:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 143C0207BC;
-        Mon,  5 Oct 2020 15:30:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D99DA2074F;
+        Mon,  5 Oct 2020 15:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911831;
-        bh=5Zv0eEqCTsWf4HyHGz4f8hq9Ic7EAX0q2S41KC/sy5Q=;
+        s=default; t=1601912079;
+        bh=6Ik8m9Fwk55yU+5dO5ocp1Vp8J3IiDZkfJYrwgmjAhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQqxmQxDrNGQKjjKxq2NR5KKP3spqaT0zE/k8tZVcA76ZbuehKIrk0bvqLs+IRak+
-         9fPU8JKObJud2HQpqToI8XXcT6suIhMtyoZA2S0gaJaaVvBBbCd8wF5Kmk5zB9jwHA
-         S1I4PQlR4xr7KUSwUgcCg1Wm217G5u/x+BxHLoQY=
+        b=NZcSOuhILzhzJxxPLJncvAM/Jc+peX1E+ZMyaVJzVdw4HJad6WC8xYRk8WJGVnApj
+         SMB4rQYoWuQNDy7YnSspCo9naRyP5Ujm7bx5iL3qF0HLvavRfIGLqtibAedV5H89OM
+         mAmaBVIHdyEj5YLqsliMD+BnIkxjL9ETKkEip6qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.4 55/57] epoll: EPOLL_CTL_ADD: close the race in decision to take fast path
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Acked-by: Ian Kent" <raven@themaw.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 71/85] autofs: use __kernel_write() for the autofs pipe writing
 Date:   Mon,  5 Oct 2020 17:27:07 +0200
-Message-Id: <20201005142112.446240976@linuxfoundation.org>
+Message-Id: <20201005142118.147243790@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit fe0a916c1eae8e17e86c3753d13919177d63ed7e upstream.
+[ Upstream commit 90fb702791bf99b959006972e8ee7bb4609f441b ]
 
-Checking for the lack of epitems refering to the epoll we want to insert into
-is not enough; we might have an insertion of that epoll into another one that
-has already collected the set of files to recheck for excessive reverse paths,
-but hasn't gotten to creating/inserting the epitem for it.
+autofs got broken in some configurations by commit 13c164b1a186
+("autofs: switch to kernel_write") because there is now an extra LSM
+permission check done by security_file_permission() in rw_verify_area().
 
-However, any such insertion in progress can be detected - it will update the
-generation count in our epoll when it's done looking through it for files
-to check.  That gets done under ->mtx of our epoll and that allows us to
-detect that safely.
+autofs is one if the few places that really does want the much more
+limited __kernel_write(), because the write is an internal kernel one
+that shouldn't do any user permission checks (it also doesn't need the
+file_start_write/file_end_write logic, since it's just a pipe).
 
-We are *not* holding epmutex here, so the generation count is not stable.
-However, since both the update of ep->gen by loop check and (later)
-insertion into ->f_ep_link are done with ep->mtx held, we are fine -
-the sequence is
-	grab epmutex
-	bump loop_check_gen
-	...
-	grab tep->mtx		// 1
-	tep->gen = loop_check_gen
-	...
-	drop tep->mtx		// 2
-	...
-	grab tep->mtx		// 3
-	...
-	insert into ->f_ep_link
-	...
-	drop tep->mtx		// 4
-	bump loop_check_gen
-	drop epmutex
-and if the fastpath check in another thread happens for that
-eventpoll, it can come
-	* before (1) - in that case fastpath is just fine
-	* after (4) - we'll see non-empty ->f_ep_link, slow path
-taken
-	* between (2) and (3) - loop_check_gen is stable,
-with ->mtx providing barriers and we end up taking slow path.
+There are a couple of other cases like that - accounting, core dumping,
+and splice - but autofs stands out because it can be built as a module.
 
-Note that ->f_ep_link emptiness check is slightly racy - we are protected
-against insertions into that list, but removals can happen right under us.
-Not a problem - in the worst case we'll end up taking a slow path for
-no good reason.
+As a result, we need to export this internal __kernel_write() function
+again.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We really don't want any other module to use this, but we don't have a
+"EXPORT_SYMBOL_FOR_AUTOFS_ONLY()".  But we can mark it GPL-only to at
+least approximate that "internal use only" for licensing.
 
+While in this area, make autofs pass in NULL for the file position
+pointer, since it's always a pipe, and we now use a NULL file pointer
+for streaming file descriptors (see file_ppos() and commit 438ab720c675:
+"vfs: pass ppos=NULL to .read()/.write() of FMODE_STREAM files")
+
+This effectively reverts commits 9db977522449 ("fs: unexport
+__kernel_write") and 13c164b1a186 ("autofs: switch to kernel_write").
+
+Fixes: 13c164b1a186 ("autofs: switch to kernel_write")
+Reported-by: Ondrej Mosnacek <omosnace@redhat.com>
+Acked-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Acked-by: Ian Kent <raven@themaw.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/eventpoll.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/autofs/waitq.c | 2 +-
+ fs/read_write.c   | 8 ++++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -2175,6 +2175,7 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, in
- 	mutex_lock_nested(&ep->mtx, 0);
- 	if (op == EPOLL_CTL_ADD) {
- 		if (!list_empty(&f.file->f_ep_links) ||
-+				ep->gen == loop_check_gen ||
- 						is_file_epoll(tf.file)) {
- 			full_check = 1;
- 			mutex_unlock(&ep->mtx);
+diff --git a/fs/autofs/waitq.c b/fs/autofs/waitq.c
+index 74c886f7c51cb..5ced859dac539 100644
+--- a/fs/autofs/waitq.c
++++ b/fs/autofs/waitq.c
+@@ -53,7 +53,7 @@ static int autofs_write(struct autofs_sb_info *sbi,
+ 
+ 	mutex_lock(&sbi->pipe_mutex);
+ 	while (bytes) {
+-		wr = kernel_write(file, data, bytes, &file->f_pos);
++		wr = __kernel_write(file, data, bytes, NULL);
+ 		if (wr <= 0)
+ 			break;
+ 		data += wr;
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 4fb797822567a..9a5cb9c2f0d46 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -538,6 +538,14 @@ ssize_t __kernel_write(struct file *file, const void *buf, size_t count, loff_t
+ 	inc_syscw(current);
+ 	return ret;
+ }
++/*
++ * This "EXPORT_SYMBOL_GPL()" is more of a "EXPORT_SYMBOL_DONTUSE()",
++ * but autofs is one of the few internal kernel users that actually
++ * wants this _and_ can be built as a module. So we need to export
++ * this symbol for autofs, even though it really isn't appropriate
++ * for any other kernel modules.
++ */
++EXPORT_SYMBOL_GPL(__kernel_write);
+ 
+ ssize_t kernel_write(struct file *file, const void *buf, size_t count,
+ 			    loff_t *pos)
+-- 
+2.25.1
+
 
 
