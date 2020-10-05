@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85DA2283ADC
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E84283ACA
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:37:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728275AbgJEPiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:38:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58840 "EHLO mail.kernel.org"
+        id S1728498AbgJEPhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:37:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727913AbgJEPbq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:31:46 -0400
+        id S1727975AbgJEPcN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:32:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26896207BC;
-        Mon,  5 Oct 2020 15:31:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DF9C2085B;
+        Mon,  5 Oct 2020 15:32:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911904;
-        bh=qUHYvowFTc6VgKgdgfvmPG3eH3Tb8DqV7oXBKGYS0Rs=;
+        s=default; t=1601911932;
+        bh=gCKQc0RuxXgtsmMmxBMiFoGPVaXIUmX3aLYTtzXxrzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C49z7JDZWCmo0zfeWKzrrtfaqZb45ThHe8dSwnGdQWJfVUEnfKCT9UwTP8ZXzf2pA
-         m7c0YfPABxFPATnZ3WOgj5eG9GRigYcM6PZ8Ar6YYmjVYROwG/3Q75L2XjwKYH++Fr
-         /lM5g9yHRXjh4oiCLoF9HW6g9Ze91ROUpEVsrK10=
+        b=flaVJOHOK1n9eQ2n86NOSnw5K8EL38Uu+mvTUBHXU0c+eUsdZqRo7wnRqPZ/k/KeO
+         mk4tgMY9cKNNPHJ0FjzxOu9gS47Zpkabg+EmKr4qkzRDZZqCHuU05nBoTrkSBH30yI
+         k5Y/3cTrFCwhZ3TFjLMmmY/FPUxnFLOyC3JBYoEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Bastien Nocera <hadess@hadess.net>,
-        Shuah Khan <shuah@kernel.org>,
+        stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
         Valentina Manea <valentina.manea.m@gmail.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
         syzkaller@googlegroups.com,
         Andrey Konovalov <andreyknvl@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         "M. Vefa Bicakci" <m.v.b@runbox.com>
-Subject: [PATCH 5.8 07/85] usbcore/driver: Fix incorrect downcast
-Date:   Mon,  5 Oct 2020 17:26:03 +0200
-Message-Id: <20201005142115.093187347@linuxfoundation.org>
+Subject: [PATCH 5.8 08/85] usbcore/driver: Accommodate usbip
+Date:   Mon,  5 Oct 2020 17:26:04 +0200
+Message-Id: <20201005142115.136344472@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
 References: <20201005142114.732094228@linuxfoundation.org>
@@ -49,70 +50,119 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: M. Vefa Bicakci <m.v.b@runbox.com>
 
-commit 4df30e7603432704380b12fe40a604ee7f66746d upstream.
+commit 3fce39601a1a34d940cf62858ee01ed9dac5d459 upstream.
 
-This commit resolves a minor bug in the selection/discovery of more
-specific USB device drivers for devices that are currently bound to
-generic USB device drivers.
+Commit 88b7381a939d ("USB: Select better matching USB drivers when
+available") inadvertently broke usbip functionality. The commit in
+question allows USB device drivers to be explicitly matched with
+USB devices via the use of driver-provided identifier tables and
+match functions, which is useful for a specialised device driver
+to be chosen for a device that can also be handled by another,
+more generic, device driver.
 
-The bug is related to the way a candidate USB device driver is
-compared against the generic USB device driver. The code in
-is_dev_usb_generic_driver() assumes that the device driver in question
-is a USB device driver by calling to_usb_device_driver(dev->driver)
-to downcast; however I have observed that this assumption is not always
-true, through code instrumentation.
+Prior, the USB device section of usb_device_match() had an
+unconditional "return 1" statement, which allowed user-space to bind
+USB devices to the usbip_host device driver, if desired. However,
+the aforementioned commit changed the default/fallback return
+value to zero. This breaks device drivers such as usbip_host, so
+this commit restores the legacy behaviour, but only if a device
+driver does not have an id_table and a match() function.
 
-This commit avoids the incorrect downcast altogether by comparing
-the USB device's driver (i.e., dev->driver) to the generic USB
-device driver directly. This method was suggested by Alan Stern.
+In addition, if usb_device_match is called for a device driver
+and device pair where the device does not match the id_table of the
+device driver in question, then the device driver will be disqualified
+for the device. This allows avoiding the default case of "return 1",
+which prevents undesirable probe() calls to a driver even though
+its id_table did not match the device.
 
-This bug was found while investigating Andrey Konovalov's report
-indicating usbip device driver misbehaviour with the recently merged
-generic USB device driver selection feature. The report is linked
-below.
+Finally, this commit changes the specialised-driver-to-generic-driver
+transition code so that when a device driver returns -ENODEV, a more
+generic device driver is only considered if the current device driver
+does not have an id_table and a match() function. This ensures that
+"generic" drivers such as usbip_host will not be considered specialised
+device drivers and will not cause the device to be locked in to the
+generic device driver, when a more specialised device driver could be
+tried.
 
-Fixes: d5643d2249b2 ("USB: Fix device driver race")
+All of these changes restore usbip functionality without regressions,
+ensure that the specialised/generic device driver selection logic works
+as expected with the usb and apple-mfi-fastcharge drivers, and do not
+negatively affect the use of devices provided by dummy_hcd.
+
+Fixes: 88b7381a939d ("USB: Select better matching USB drivers when available")
 Cc: <stable@vger.kernel.org> # 5.8
+Cc: Bastien Nocera <hadess@hadess.net>
+Cc: Valentina Manea <valentina.manea.m@gmail.com>
+Cc: Shuah Khan <shuah@kernel.org>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Bastien Nocera <hadess@hadess.net>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: Valentina Manea <valentina.manea.m@gmail.com>
 Cc: <syzkaller@googlegroups.com>
 Tested-by: Andrey Konovalov <andreyknvl@google.com>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
-Link: https://lore.kernel.org/r/20200922110703.720960-4-m.v.b@runbox.com
+Link: https://lore.kernel.org/r/20200922110703.720960-5-m.v.b@runbox.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/driver.c |   11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/usb/core/driver.c |   37 +++++++++++++++++++++++++++++++------
+ 1 file changed, 31 insertions(+), 6 deletions(-)
 
 --- a/drivers/usb/core/driver.c
 +++ b/drivers/usb/core/driver.c
-@@ -905,21 +905,14 @@ static int usb_uevent(struct device *dev
- 	return 0;
- }
+@@ -269,8 +269,30 @@ static int usb_probe_device(struct devic
+ 	if (error)
+ 		return error;
  
--static bool is_dev_usb_generic_driver(struct device *dev)
--{
--	struct usb_device_driver *udd = dev->driver ?
--		to_usb_device_driver(dev->driver) : NULL;
--
--	return udd == &usb_generic_driver;
--}
--
- static int __usb_bus_reprobe_drivers(struct device *dev, void *data)
- {
- 	struct usb_device_driver *new_udriver = data;
- 	struct usb_device *udev;
- 	int ret;
++	/* Probe the USB device with the driver in hand, but only
++	 * defer to a generic driver in case the current USB
++	 * device driver has an id_table or a match function; i.e.,
++	 * when the device driver was explicitly matched against
++	 * a device.
++	 *
++	 * If the device driver does not have either of these,
++	 * then we assume that it can bind to any device and is
++	 * not truly a more specialized/non-generic driver, so a
++	 * return value of -ENODEV should not force the device
++	 * to be handled by the generic USB driver, as there
++	 * can still be another, more specialized, device driver.
++	 *
++	 * This accommodates the usbip driver.
++	 *
++	 * TODO: What if, in the future, there are multiple
++	 * specialized USB device drivers for a particular device?
++	 * In such cases, there is a need to try all matching
++	 * specialised device drivers prior to setting the
++	 * use_generic_driver bit.
++	 */
+ 	error = udriver->probe(udev);
+-	if (error == -ENODEV && udriver != &usb_generic_driver) {
++	if (error == -ENODEV && udriver != &usb_generic_driver &&
++	    (udriver->id_table || udriver->match)) {
+ 		udev->use_generic_driver = 1;
+ 		return -EPROBE_DEFER;
+ 	}
+@@ -831,14 +853,17 @@ static int usb_device_match(struct devic
+ 		udev = to_usb_device(dev);
+ 		udrv = to_usb_device_driver(drv);
  
--	if (!is_dev_usb_generic_driver(dev))
-+	/* Don't reprobe if current driver isn't usb_generic_driver */
-+	if (dev->driver != &usb_generic_driver.drvwrap.driver)
- 		return 0;
+-		if (udrv->id_table &&
+-		    usb_device_match_id(udev, udrv->id_table) != NULL) {
+-			return 1;
+-		}
++		if (udrv->id_table)
++			return usb_device_match_id(udev, udrv->id_table) != NULL;
  
- 	udev = to_usb_device(dev);
+ 		if (udrv->match)
+ 			return udrv->match(udev);
+-		return 0;
++
++		/* If the device driver under consideration does not have a
++		 * id_table or a match function, then let the driver's probe
++		 * function decide.
++		 */
++		return 1;
+ 
+ 	} else if (is_usb_interface(dev)) {
+ 		struct usb_interface *intf;
 
 
