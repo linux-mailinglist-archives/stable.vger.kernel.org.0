@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AE8B283B70
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:42:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80E1283AA5
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:36:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728765AbgJEPmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52990 "EHLO mail.kernel.org"
+        id S1728112AbgJEPdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:33:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727337AbgJEP2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:28:09 -0400
+        id S1728099AbgJEPdM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:33:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CC7C2085B;
-        Mon,  5 Oct 2020 15:28:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BF2A207BC;
+        Mon,  5 Oct 2020 15:33:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911688;
-        bh=ZE1AnRfLZvo/JQCmS3inXlx6Q0++FcQ+fTvdGTc6QlM=;
+        s=default; t=1601911991;
+        bh=dvIL3u54ca5MTHLtjXk3r3JOtkBC1MToCW4yEaWMa/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eRmTWxD6GLygZO5b+agMrPNgWdGCya/HG5p0ahG1OxHCyZuB5QTDjFY583pK9b74a
-         cfMNsdPpztonE/NByOWLgbBrAFr5qSdyCRRN6JEaO+VBteyfu/Kyudn7KDSY5PIS4i
-         beu1Su5g7CpqNcKtxuO7xPipqo4v7ryS5Vrkp4ao=
+        b=MOvWdsatIeqERJdo/v3ZzbliqbUb48OP+B6mdeE1uo6irefgAp3MB6vBDN6nRx+RF
+         QotJMWCArEX0j7YAdnrX//RMVi8R0+VaoL+2X59GCxczmiOgmiZz6577g/XCmDhd3t
+         3uI4W9Caq5he+zgPfH5WfQAtjs1Eavv2RkJVfC54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.19 37/38] ep_create_wakeup_source(): dentry name can change under you...
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vladimir Murzin <vladimir.murzin@arm.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 58/85] dmaengine: dmatest: Prevent to run on misconfigured channel
 Date:   Mon,  5 Oct 2020 17:26:54 +0200
-Message-Id: <20201005142110.462068790@linuxfoundation.org>
+Message-Id: <20201005142117.514377567@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
-References: <20201005142108.650363140@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +45,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Vladimir Murzin <vladimir.murzin@arm.com>
 
-commit 3701cb59d892b88d569427586f01491552f377b1 upstream.
+[ Upstream commit ce65d55f92a67e247f4d799e581cf9fed677871c ]
 
-or get freed, for that matter, if it's a long (separately stored)
-name.
+Andy reported that commit 6b41030fdc79 ("dmaengine: dmatest:
+Restore default for channel") broke his scripts for the case
+where "busy" channel is used for configuration with expectation
+that run command would do nothing. Instead, behavior was
+(unintentionally) changed to treat such case as under-configuration
+and progress with defaults, i.e. run command would start a test
+with default setting for channel (which would use all channels).
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Restore original behavior with tracking status of channel setter
+so we can distinguish between misconfigured and under-configured
+cases in run command and act accordingly.
 
+Fixes: 6b41030fdc79 ("dmaengine: dmatest: Restore default for channel")
+Reported-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Tested-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20200922115847.30100-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/eventpoll.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/dma/dmatest.c | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1376,7 +1376,7 @@ static int reverse_path_check(void)
+diff --git a/drivers/dma/dmatest.c b/drivers/dma/dmatest.c
+index 604f803579312..323822372b4ce 100644
+--- a/drivers/dma/dmatest.c
++++ b/drivers/dma/dmatest.c
+@@ -129,6 +129,7 @@ struct dmatest_params {
+  * @nr_channels:	number of channels under test
+  * @lock:		access protection to the fields of this structure
+  * @did_init:		module has been initialized completely
++ * @last_error:		test has faced configuration issues
+  */
+ static struct dmatest_info {
+ 	/* Test parameters */
+@@ -137,6 +138,7 @@ static struct dmatest_info {
+ 	/* Internal state */
+ 	struct list_head	channels;
+ 	unsigned int		nr_channels;
++	int			last_error;
+ 	struct mutex		lock;
+ 	bool			did_init;
+ } test_info = {
+@@ -1175,10 +1177,22 @@ static int dmatest_run_set(const char *val, const struct kernel_param *kp)
+ 		return ret;
+ 	} else if (dmatest_run) {
+ 		if (!is_threaded_test_pending(info)) {
+-			pr_info("No channels configured, continue with any\n");
+-			if (!is_threaded_test_run(info))
+-				stop_threaded_test(info);
+-			add_threaded_test(info);
++			/*
++			 * We have nothing to run. This can be due to:
++			 */
++			ret = info->last_error;
++			if (ret) {
++				/* 1) Misconfiguration */
++				pr_err("Channel misconfigured, can't continue\n");
++				mutex_unlock(&info->lock);
++				return ret;
++			} else {
++				/* 2) We rely on defaults */
++				pr_info("No channels configured, continue with any\n");
++				if (!is_threaded_test_run(info))
++					stop_threaded_test(info);
++				add_threaded_test(info);
++			}
+ 		}
+ 		start_threaded_tests(info);
+ 	} else {
+@@ -1195,7 +1209,7 @@ static int dmatest_chan_set(const char *val, const struct kernel_param *kp)
+ 	struct dmatest_info *info = &test_info;
+ 	struct dmatest_chan *dtc;
+ 	char chan_reset_val[20];
+-	int ret = 0;
++	int ret;
  
- static int ep_create_wakeup_source(struct epitem *epi)
- {
--	const char *name;
-+	struct name_snapshot n;
- 	struct wakeup_source *ws;
- 
- 	if (!epi->ep->ws) {
-@@ -1385,8 +1385,9 @@ static int ep_create_wakeup_source(struc
- 			return -ENOMEM;
+ 	mutex_lock(&info->lock);
+ 	ret = param_set_copystring(val, kp);
+@@ -1250,12 +1264,14 @@ static int dmatest_chan_set(const char *val, const struct kernel_param *kp)
+ 		goto add_chan_err;
  	}
  
--	name = epi->ffd.file->f_path.dentry->d_name.name;
--	ws = wakeup_source_register(name);
-+	take_dentry_name_snapshot(&n, epi->ffd.file->f_path.dentry);
-+	ws = wakeup_source_register(n.name);
-+	release_dentry_name_snapshot(&n);
++	info->last_error = ret;
+ 	mutex_unlock(&info->lock);
  
- 	if (!ws)
- 		return -ENOMEM;
+ 	return ret;
+ 
+ add_chan_err:
+ 	param_set_copystring(chan_reset_val, kp);
++	info->last_error = ret;
+ 	mutex_unlock(&info->lock);
+ 
+ 	return ret;
+-- 
+2.25.1
+
 
 
