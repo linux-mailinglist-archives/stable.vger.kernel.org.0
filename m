@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC255283B08
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:40:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D3D283A93
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:35:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727590AbgJEP3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:29:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55410 "EHLO mail.kernel.org"
+        id S1727473AbgJEPfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:35:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727611AbgJEP32 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:29:28 -0400
+        id S1728215AbgJEPd6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:33:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0178620637;
-        Mon,  5 Oct 2020 15:29:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56ECD208C7;
+        Mon,  5 Oct 2020 15:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911768;
-        bh=+xqO1hIRMT1BzyNoJJJ5hXgnkxkNhskRD9Xuy98+iq4=;
+        s=default; t=1601912037;
+        bh=4H/fR5q1JoOOjC4z3zPdkX31ixnSBx8yrYjHOz3qP/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdR/pyEeb7qDugbuno3GTeihQ63M7eh9o0dUPiqdAiW3BhgCHY1ZieKWf8Y0LuiaD
-         nyGc8Ow38na8L+VSPJmRQQZ/SQPQe+ROF1rwSV0cPZDZnWGC/X5KWEWCj5pxagS3Qv
-         moaKHq8NunMG+OElhCNsSAWYjdzy/3zar2t1HHaM=
+        b=P3km1637zFgs7QBmZwWSQ5XQYdi+RLckNVmZ5CMmaWw0FK7zxAFp3bjRm2rUmivjV
+         BpVbZ8SyE2X0Hx4GFohKmEPiISGm7dDHV0pdQJxyAC1z/NXD1IJHwrzg93lDuKD+WT
+         y3C6by6KKPhqdwVVkTc+GgNTGjYhaiELukoexaKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Xiaoliang Yang <xiaoliang.yang_1@nxp.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 30/57] spi: fsl-espi: Only process interrupts for expected events
+Subject: [PATCH 5.8 46/85] net: dsa: felix: fix some key offsets for IP4_TCP_UDP VCAP IS2 entries
 Date:   Mon,  5 Oct 2020 17:26:42 +0200
-Message-Id: <20201005142111.253261848@linuxfoundation.org>
+Message-Id: <20201005142116.942841246@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
 
-[ Upstream commit b867eef4cf548cd9541225aadcdcee644669b9e1 ]
+[ Upstream commit 8b9e03cd08250c60409099c791e858157838d9eb ]
 
-The SPIE register contains counts for the TX FIFO so any time the irq
-handler was invoked we would attempt to process the RX/TX fifos. Use the
-SPIM value to mask the events so that we only process interrupts that
-were expected.
+Some of the IS2 IP4_TCP_UDP keys are not correct, like L4_DPORT,
+L4_SPORT and other L4 keys. This prevents offloaded tc-flower rules from
+matching on src_port and dst_port for TCP and UDP packets.
 
-This was a latent issue exposed by commit 3282a3da25bd ("powerpc/64:
-Implement soft interrupt replay in C").
-
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Link: https://lore.kernel.org/r/20200904002812.7300-1-chris.packham@alliedtelesis.co.nz
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-espi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/dsa/ocelot/felix_vsc9959.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/spi/spi-fsl-espi.c b/drivers/spi/spi-fsl-espi.c
-index f20326714b9d5..215bf6624e7c3 100644
---- a/drivers/spi/spi-fsl-espi.c
-+++ b/drivers/spi/spi-fsl-espi.c
-@@ -555,13 +555,14 @@ static void fsl_espi_cpu_irq(struct fsl_espi *espi, u32 events)
- static irqreturn_t fsl_espi_irq(s32 irq, void *context_data)
- {
- 	struct fsl_espi *espi = context_data;
--	u32 events;
-+	u32 events, mask;
- 
- 	spin_lock(&espi->lock);
- 
- 	/* Get interrupt events(tx/rx) */
- 	events = fsl_espi_read_reg(espi, ESPI_SPIE);
--	if (!events) {
-+	mask = fsl_espi_read_reg(espi, ESPI_SPIM);
-+	if (!(events & mask)) {
- 		spin_unlock(&espi->lock);
- 		return IRQ_NONE;
- 	}
+diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
+index 1dd9e348152d7..7c167a394b762 100644
+--- a/drivers/net/dsa/ocelot/felix_vsc9959.c
++++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
+@@ -607,17 +607,17 @@ struct vcap_field vsc9959_vcap_is2_keys[] = {
+ 	[VCAP_IS2_HK_DIP_EQ_SIP]		= {118,   1},
+ 	/* IP4_TCP_UDP (TYPE=100) */
+ 	[VCAP_IS2_HK_TCP]			= {119,   1},
+-	[VCAP_IS2_HK_L4_SPORT]			= {120,  16},
+-	[VCAP_IS2_HK_L4_DPORT]			= {136,  16},
++	[VCAP_IS2_HK_L4_DPORT]			= {120,  16},
++	[VCAP_IS2_HK_L4_SPORT]			= {136,  16},
+ 	[VCAP_IS2_HK_L4_RNG]			= {152,   8},
+ 	[VCAP_IS2_HK_L4_SPORT_EQ_DPORT]		= {160,   1},
+ 	[VCAP_IS2_HK_L4_SEQUENCE_EQ0]		= {161,   1},
+-	[VCAP_IS2_HK_L4_URG]			= {162,   1},
+-	[VCAP_IS2_HK_L4_ACK]			= {163,   1},
+-	[VCAP_IS2_HK_L4_PSH]			= {164,   1},
+-	[VCAP_IS2_HK_L4_RST]			= {165,   1},
+-	[VCAP_IS2_HK_L4_SYN]			= {166,   1},
+-	[VCAP_IS2_HK_L4_FIN]			= {167,   1},
++	[VCAP_IS2_HK_L4_FIN]			= {162,   1},
++	[VCAP_IS2_HK_L4_SYN]			= {163,   1},
++	[VCAP_IS2_HK_L4_RST]			= {164,   1},
++	[VCAP_IS2_HK_L4_PSH]			= {165,   1},
++	[VCAP_IS2_HK_L4_ACK]			= {166,   1},
++	[VCAP_IS2_HK_L4_URG]			= {167,   1},
+ 	[VCAP_IS2_HK_L4_1588_DOM]		= {168,   8},
+ 	[VCAP_IS2_HK_L4_1588_VER]		= {176,   4},
+ 	/* IP4_OTHER (TYPE=101) */
 -- 
 2.25.1
 
