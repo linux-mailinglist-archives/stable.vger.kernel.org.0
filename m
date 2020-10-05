@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A13FE2839E4
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:30:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7B2128399A
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:27:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727584AbgJEP3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:29:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55198 "EHLO mail.kernel.org"
+        id S1727244AbgJEP1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:27:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727571AbgJEP3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:29:21 -0400
+        id S1727206AbgJEP10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:27:26 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB11D21D46;
-        Mon,  5 Oct 2020 15:29:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 003592074F;
+        Mon,  5 Oct 2020 15:27:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911760;
-        bh=2sC+O/zR2Yuz1QazdXddY0+0ajFKIwPQHPe3WriP0DE=;
+        s=default; t=1601911645;
+        bh=k6Hm6Lzc5HTMIx8sdOb8L7kYqltZcdlVWn+hzd2uRoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kP/vwb/2HHqReL0JpQKq98yB+3im51Sf63fskjvbGmGXb8nvNUe/iLZJzaJgTUeON
-         Ctb3zFsuxa8oVAL2Sx8+TwTTRmLzC0m/VqzjwoyfCwsRBZdfuAqlpiY4RpjMiZ0sc0
-         Fxe1jex2TIAkyYpsoTY/bK+5DZ2H1GqgSJtBGjaU=
+        b=d6yY5CoEzYwoUr+Z6Hm+xUj2sbdgrsh21ppIA77iTWTadKevH6HdZMFxVtZR4D5e2
+         CKPNjUJaFd8DOCOPdPBFLfePItRvKc5Mo1MsTTmiMoYt43iaCeLRF+IR5JSlzyIRBp
+         qvZ+gy6aOAwS0N7jHSQjyyMqpaSScL95bfAbbtds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Taiping Lai <taiping.lai@unisoc.com>,
+        Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/57] tracing: Make the space reserved for the pid wider
+Subject: [PATCH 4.19 23/38] gpio: sprd: Clear interrupt when setting the type as edge
 Date:   Mon,  5 Oct 2020 17:26:40 +0200
-Message-Id: <20201005142111.154602865@linuxfoundation.org>
+Message-Id: <20201005142109.783289020@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
+References: <20201005142108.650363140@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,149 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Taiping Lai <taiping.lai@unisoc.com>
 
-[ Upstream commit 795d6379a47bcbb88bd95a69920e4acc52849f88 ]
+[ Upstream commit 5fcface659aab7eac4bd65dd116d98b8f7bb88d5 ]
 
-For 64bit CONFIG_BASE_SMALL=0 systems PID_MAX_LIMIT is set by default to
-4194304. During boot the kernel sets a new value based on number of CPUs
-but no lower than 32768. It is 1024 per CPU so with 128 CPUs the default
-becomes 131072 which needs six digits.
-This value can be increased during run time but must not exceed the
-initial upper limit.
+The raw interrupt status of GPIO maybe set before the interrupt is enabled,
+which would trigger the interrupt event once enabled it from user side.
+This is the case for edge interrupts only. Adding a clear operation when
+setting interrupt type can avoid that.
 
-Systemd sometime after v241 sets it to the upper limit during boot. The
-result is that when the pid exceeds five digits, the trace output is a
-little hard to read because it is no longer properly padded (same like
-on big iron with 98+ CPUs).
+There're a few considerations for the solution:
+1) This issue is for edge interrupt only; The interrupts requested by users
+   are IRQ_TYPE_LEVEL_HIGH as default, so clearing interrupt when request
+   is useless.
+2) The interrupt type can be set to edge when request and following up
+   with clearing it though, but the problem is still there once users set
+   the interrupt type to level trggier.
+3) We can add a clear operation after each time of setting interrupt
+   enable bit, but it is redundant for level trigger interrupt.
 
-Increase the pid padding to seven digits.
+Therefore, the solution is this patch seems the best for now.
 
-Link: https://lkml.kernel.org/r/20200904082331.dcdkrr3bkn3e4qlg@linutronix.de
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 9a3821c2bb47 ("gpio: Add GPIO driver for Spreadtrum SC9860 platform")
+Signed-off-by: Taiping Lai <taiping.lai@unisoc.com>
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c        | 38 ++++++++++++++++++-------------------
- kernel/trace/trace_output.c | 12 ++++++------
- 2 files changed, 25 insertions(+), 25 deletions(-)
+ drivers/gpio/gpio-sprd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index db8162b34ef64..5b2a664812b10 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -3584,14 +3584,14 @@ unsigned long trace_total_entries(struct trace_array *tr)
- 
- static void print_lat_help_header(struct seq_file *m)
- {
--	seq_puts(m, "#                  _------=> CPU#            \n"
--		    "#                 / _-----=> irqs-off        \n"
--		    "#                | / _----=> need-resched    \n"
--		    "#                || / _---=> hardirq/softirq \n"
--		    "#                ||| / _--=> preempt-depth   \n"
--		    "#                |||| /     delay            \n"
--		    "#  cmd     pid   ||||| time  |   caller      \n"
--		    "#     \\   /      |||||  \\    |   /         \n");
-+	seq_puts(m, "#                    _------=> CPU#            \n"
-+		    "#                   / _-----=> irqs-off        \n"
-+		    "#                  | / _----=> need-resched    \n"
-+		    "#                  || / _---=> hardirq/softirq \n"
-+		    "#                  ||| / _--=> preempt-depth   \n"
-+		    "#                  |||| /     delay            \n"
-+		    "#  cmd     pid     ||||| time  |   caller      \n"
-+		    "#     \\   /        |||||  \\    |   /         \n");
- }
- 
- static void print_event_info(struct trace_buffer *buf, struct seq_file *m)
-@@ -3612,26 +3612,26 @@ static void print_func_help_header(struct trace_buffer *buf, struct seq_file *m,
- 
- 	print_event_info(buf, m);
- 
--	seq_printf(m, "#           TASK-PID   %s  CPU#   TIMESTAMP  FUNCTION\n", tgid ? "TGID     " : "");
--	seq_printf(m, "#              | |     %s    |       |         |\n",	 tgid ? "  |      " : "");
-+	seq_printf(m, "#           TASK-PID    %s CPU#     TIMESTAMP  FUNCTION\n", tgid ? "   TGID   " : "");
-+	seq_printf(m, "#              | |      %s   |         |         |\n",      tgid ? "     |    " : "");
- }
- 
- static void print_func_help_header_irq(struct trace_buffer *buf, struct seq_file *m,
- 				       unsigned int flags)
- {
- 	bool tgid = flags & TRACE_ITER_RECORD_TGID;
--	const char *space = "          ";
--	int prec = tgid ? 10 : 2;
-+	const char *space = "            ";
-+	int prec = tgid ? 12 : 2;
- 
- 	print_event_info(buf, m);
- 
--	seq_printf(m, "#                          %.*s  _-----=> irqs-off\n", prec, space);
--	seq_printf(m, "#                          %.*s / _----=> need-resched\n", prec, space);
--	seq_printf(m, "#                          %.*s| / _---=> hardirq/softirq\n", prec, space);
--	seq_printf(m, "#                          %.*s|| / _--=> preempt-depth\n", prec, space);
--	seq_printf(m, "#                          %.*s||| /     delay\n", prec, space);
--	seq_printf(m, "#           TASK-PID %.*sCPU#  ||||    TIMESTAMP  FUNCTION\n", prec, "   TGID   ");
--	seq_printf(m, "#              | |   %.*s  |   ||||       |         |\n", prec, "     |    ");
-+	seq_printf(m, "#                            %.*s  _-----=> irqs-off\n", prec, space);
-+	seq_printf(m, "#                            %.*s / _----=> need-resched\n", prec, space);
-+	seq_printf(m, "#                            %.*s| / _---=> hardirq/softirq\n", prec, space);
-+	seq_printf(m, "#                            %.*s|| / _--=> preempt-depth\n", prec, space);
-+	seq_printf(m, "#                            %.*s||| /     delay\n", prec, space);
-+	seq_printf(m, "#           TASK-PID  %.*s CPU#  ||||   TIMESTAMP  FUNCTION\n", prec, "     TGID   ");
-+	seq_printf(m, "#              | |    %.*s   |   ||||      |         |\n", prec, "       |    ");
- }
- 
- void
-diff --git a/kernel/trace/trace_output.c b/kernel/trace/trace_output.c
-index d54ce252b05a8..a0a45901dc027 100644
---- a/kernel/trace/trace_output.c
-+++ b/kernel/trace/trace_output.c
-@@ -482,7 +482,7 @@ lat_print_generic(struct trace_seq *s, struct trace_entry *entry, int cpu)
- 
- 	trace_find_cmdline(entry->pid, comm);
- 
--	trace_seq_printf(s, "%8.8s-%-5d %3d",
-+	trace_seq_printf(s, "%8.8s-%-7d %3d",
- 			 comm, entry->pid, cpu);
- 
- 	return trace_print_lat_fmt(s, entry);
-@@ -573,15 +573,15 @@ int trace_print_context(struct trace_iterator *iter)
- 
- 	trace_find_cmdline(entry->pid, comm);
- 
--	trace_seq_printf(s, "%16s-%-5d ", comm, entry->pid);
-+	trace_seq_printf(s, "%16s-%-7d ", comm, entry->pid);
- 
- 	if (tr->trace_flags & TRACE_ITER_RECORD_TGID) {
- 		unsigned int tgid = trace_find_tgid(entry->pid);
- 
- 		if (!tgid)
--			trace_seq_printf(s, "(-----) ");
-+			trace_seq_printf(s, "(-------) ");
- 		else
--			trace_seq_printf(s, "(%5d) ", tgid);
-+			trace_seq_printf(s, "(%7d) ", tgid);
- 	}
- 
- 	trace_seq_printf(s, "[%03d] ", iter->cpu);
-@@ -624,7 +624,7 @@ int trace_print_lat_context(struct trace_iterator *iter)
- 		trace_find_cmdline(entry->pid, comm);
- 
- 		trace_seq_printf(
--			s, "%16s %5d %3d %d %08x %08lx ",
-+			s, "%16s %7d %3d %d %08x %08lx ",
- 			comm, entry->pid, iter->cpu, entry->flags,
- 			entry->preempt_count, iter->idx);
- 	} else {
-@@ -905,7 +905,7 @@ static enum print_line_t trace_ctxwake_print(struct trace_iterator *iter,
- 	S = task_index_to_char(field->prev_state);
- 	trace_find_cmdline(field->next_pid, comm);
- 	trace_seq_printf(&iter->seq,
--			 " %5d:%3d:%c %s [%03d] %5d:%3d:%c %s\n",
-+			 " %7d:%3d:%c %s [%03d] %7d:%3d:%c %s\n",
- 			 field->prev_pid,
- 			 field->prev_prio,
- 			 S, delim,
+diff --git a/drivers/gpio/gpio-sprd.c b/drivers/gpio/gpio-sprd.c
+index 55072d2b367fa..4d53347adcafa 100644
+--- a/drivers/gpio/gpio-sprd.c
++++ b/drivers/gpio/gpio-sprd.c
+@@ -149,17 +149,20 @@ static int sprd_gpio_irq_set_type(struct irq_data *data,
+ 		sprd_gpio_update(chip, offset, SPRD_GPIO_IS, 0);
+ 		sprd_gpio_update(chip, offset, SPRD_GPIO_IBE, 0);
+ 		sprd_gpio_update(chip, offset, SPRD_GPIO_IEV, 1);
++		sprd_gpio_update(chip, offset, SPRD_GPIO_IC, 1);
+ 		irq_set_handler_locked(data, handle_edge_irq);
+ 		break;
+ 	case IRQ_TYPE_EDGE_FALLING:
+ 		sprd_gpio_update(chip, offset, SPRD_GPIO_IS, 0);
+ 		sprd_gpio_update(chip, offset, SPRD_GPIO_IBE, 0);
+ 		sprd_gpio_update(chip, offset, SPRD_GPIO_IEV, 0);
++		sprd_gpio_update(chip, offset, SPRD_GPIO_IC, 1);
+ 		irq_set_handler_locked(data, handle_edge_irq);
+ 		break;
+ 	case IRQ_TYPE_EDGE_BOTH:
+ 		sprd_gpio_update(chip, offset, SPRD_GPIO_IS, 0);
+ 		sprd_gpio_update(chip, offset, SPRD_GPIO_IBE, 1);
++		sprd_gpio_update(chip, offset, SPRD_GPIO_IC, 1);
+ 		irq_set_handler_locked(data, handle_edge_irq);
+ 		break;
+ 	case IRQ_TYPE_LEVEL_HIGH:
 -- 
 2.25.1
 
