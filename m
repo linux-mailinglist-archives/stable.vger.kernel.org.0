@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01449283998
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:27:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC255283B08
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727237AbgJEP1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:27:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52050 "EHLO mail.kernel.org"
+        id S1727590AbgJEP3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:29:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726617AbgJEP1a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:27:30 -0400
+        id S1727611AbgJEP32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:29:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E2B32085B;
-        Mon,  5 Oct 2020 15:27:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0178620637;
+        Mon,  5 Oct 2020 15:29:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911648;
-        bh=jfLBYbdY1SLNUipv4DnCbxxC/l5eo78v1tHEIe+RQ/8=;
+        s=default; t=1601911768;
+        bh=+xqO1hIRMT1BzyNoJJJ5hXgnkxkNhskRD9Xuy98+iq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kYwqJcjhuBheSN2tTrzLAfY82QIoos5xkX+CBztnuJ0ArtgAoU2HpUbpNa7YbH5P9
-         zoUpzsf7PAIs+Sau71XkudJHjuJV+enGrEWMCiM//e3gClYHU5DkDLbJ+SeUF2TPQV
-         EBzwlvzYcK7QwMhSbvOqJ9R8pVJEY+PxIzkhGmNs=
+        b=tdR/pyEeb7qDugbuno3GTeihQ63M7eh9o0dUPiqdAiW3BhgCHY1ZieKWf8Y0LuiaD
+         nyGc8Ow38na8L+VSPJmRQQZ/SQPQe+ROF1rwSV0cPZDZnWGC/X5KWEWCj5pxagS3Qv
+         moaKHq8NunMG+OElhCNsSAWYjdzy/3zar2t1HHaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/38] pinctrl: mvebu: Fix i2c sda definition for 98DX3236
-Date:   Mon,  5 Oct 2020 17:26:41 +0200
-Message-Id: <20201005142109.832685224@linuxfoundation.org>
+Subject: [PATCH 5.4 30/57] spi: fsl-espi: Only process interrupts for expected events
+Date:   Mon,  5 Oct 2020 17:26:42 +0200
+Message-Id: <20201005142111.253261848@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
-References: <20201005142108.650363140@linuxfoundation.org>
+In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
+References: <20201005142109.796046410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,36 +46,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit 63c3212e7a37d68c89a13bdaebce869f4e064e67 ]
+[ Upstream commit b867eef4cf548cd9541225aadcdcee644669b9e1 ]
 
-Per the datasheet the i2c functions use MPP_Sel=0x1. They are documented
-as using MPP_Sel=0x4 as well but mixing 0x1 and 0x4 is clearly wrong. On
-the board tested 0x4 resulted in a non-functioning i2c bus so stick with
-0x1 which works.
+The SPIE register contains counts for the TX FIFO so any time the irq
+handler was invoked we would attempt to process the RX/TX fifos. Use the
+SPIM value to mask the events so that we only process interrupts that
+were expected.
 
-Fixes: d7ae8f8dee7f ("pinctrl: mvebu: pinctrl driver for 98DX3236 SoC")
+This was a latent issue exposed by commit 3282a3da25bd ("powerpc/64:
+Implement soft interrupt replay in C").
+
 Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20200907211712.9697-2-chris.packham@alliedtelesis.co.nz
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20200904002812.7300-1-chris.packham@alliedtelesis.co.nz
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mvebu/pinctrl-armada-xp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-fsl-espi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-xp.c b/drivers/pinctrl/mvebu/pinctrl-armada-xp.c
-index 43231fd065a18..1a9450ef932b5 100644
---- a/drivers/pinctrl/mvebu/pinctrl-armada-xp.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-xp.c
-@@ -418,7 +418,7 @@ static struct mvebu_mpp_mode mv98dx3236_mpp_modes[] = {
- 		 MPP_VAR_FUNCTION(0x1, "i2c0", "sck",        V_98DX3236_PLUS)),
- 	MPP_MODE(15,
- 		 MPP_VAR_FUNCTION(0x0, "gpio", NULL,         V_98DX3236_PLUS),
--		 MPP_VAR_FUNCTION(0x4, "i2c0", "sda",        V_98DX3236_PLUS)),
-+		 MPP_VAR_FUNCTION(0x1, "i2c0", "sda",        V_98DX3236_PLUS)),
- 	MPP_MODE(16,
- 		 MPP_VAR_FUNCTION(0x0, "gpo", NULL,          V_98DX3236_PLUS),
- 		 MPP_VAR_FUNCTION(0x4, "dev", "oe",          V_98DX3236_PLUS)),
+diff --git a/drivers/spi/spi-fsl-espi.c b/drivers/spi/spi-fsl-espi.c
+index f20326714b9d5..215bf6624e7c3 100644
+--- a/drivers/spi/spi-fsl-espi.c
++++ b/drivers/spi/spi-fsl-espi.c
+@@ -555,13 +555,14 @@ static void fsl_espi_cpu_irq(struct fsl_espi *espi, u32 events)
+ static irqreturn_t fsl_espi_irq(s32 irq, void *context_data)
+ {
+ 	struct fsl_espi *espi = context_data;
+-	u32 events;
++	u32 events, mask;
+ 
+ 	spin_lock(&espi->lock);
+ 
+ 	/* Get interrupt events(tx/rx) */
+ 	events = fsl_espi_read_reg(espi, ESPI_SPIE);
+-	if (!events) {
++	mask = fsl_espi_read_reg(espi, ESPI_SPIM);
++	if (!(events & mask)) {
+ 		spin_unlock(&espi->lock);
+ 		return IRQ_NONE;
+ 	}
 -- 
 2.25.1
 
