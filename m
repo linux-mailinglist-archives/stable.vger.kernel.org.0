@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11FA42839AB
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:28:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAFBD283B0A
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:40:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727340AbgJEP2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:28:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52742 "EHLO mail.kernel.org"
+        id S1728653AbgJEPjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:39:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726567AbgJEP16 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:27:58 -0400
+        id S1727173AbgJEP3w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:29:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56AFA208B6;
-        Mon,  5 Oct 2020 15:27:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43EEB207BC;
+        Mon,  5 Oct 2020 15:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911677;
-        bh=Jjp1I3Ea/Svb85qKj3NhUAL/+7B7LLIit3yKbWsdiMo=;
+        s=default; t=1601911791;
+        bh=HAB3dK+OxcDD+n9S9n5H0BXgQQKbtd3f1J+WywRwN2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wL+4XGk2yES2iRcFmfhk9mmmFMKrXc+3av5Nw22KOblNzujqk3+cS0Er87rSE8DPp
-         EKUTWZE4Nz50kAOE1dvQBeWznJnoqWr3h6iI1ApJgwTyqcCZD3sAQsK0ID39BnWjHh
-         IAkXtYpWLHlpPiXlanF2cS18opXNo898z3+0+bXo=
+        b=hhPvqnUTuv3dOaMPIo+BJscBXvShj0HOQCY6m4cEE4Ga2nuxm/w/EIGS1kJ6SXTtf
+         HyhQOokrB1Wi5qk5+dARg/RbeFt2LwSJi94996PoESzX4McWQhLBhAb7FZqRrnh1Dj
+         9NpLBQCyz/2+ZbkTPM9FpWCnAJ3JJocpvDBikPyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.19 34/38] epoll: do not insert into poll queues until all sanity checks are done
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 39/57] iommu/exynos: add missing put_device() call in exynos_iommu_of_xlate()
 Date:   Mon,  5 Oct 2020 17:26:51 +0200
-Message-Id: <20201005142110.322501594@linuxfoundation.org>
+Message-Id: <20201005142111.688665149@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
-References: <20201005142108.650363140@linuxfoundation.org>
+In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
+References: <20201005142109.796046410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,83 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit f8d4f44df056c5b504b0d49683fb7279218fd207 upstream.
+[ Upstream commit 1a26044954a6d1f4d375d5e62392446af663be7a ]
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+if of_find_device_by_node() succeed, exynos_iommu_of_xlate() doesn't have
+a corresponding put_device(). Thus add put_device() to fix the exception
+handling for this function implementation.
 
+Fixes: aa759fd376fb ("iommu/exynos: Add callback for initializing devices from device tree")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20200918011335.909141-1-yukuai3@huawei.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/eventpoll.c |   37 ++++++++++++++++++-------------------
- 1 file changed, 18 insertions(+), 19 deletions(-)
+ drivers/iommu/exynos-iommu.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -1450,6 +1450,22 @@ static int ep_insert(struct eventpoll *e
- 		RCU_INIT_POINTER(epi->ws, NULL);
- 	}
+diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+index 9c94e16fb1277..55ed857f804f7 100644
+--- a/drivers/iommu/exynos-iommu.c
++++ b/drivers/iommu/exynos-iommu.c
+@@ -1299,13 +1299,17 @@ static int exynos_iommu_of_xlate(struct device *dev,
+ 		return -ENODEV;
  
-+	/* Add the current item to the list of active epoll hook for this file */
-+	spin_lock(&tfile->f_lock);
-+	list_add_tail_rcu(&epi->fllink, &tfile->f_ep_links);
-+	spin_unlock(&tfile->f_lock);
-+
-+	/*
-+	 * Add the current item to the RB tree. All RB tree operations are
-+	 * protected by "mtx", and ep_insert() is called with "mtx" held.
-+	 */
-+	ep_rbtree_insert(ep, epi);
-+
-+	/* now check if we've created too many backpaths */
-+	error = -EINVAL;
-+	if (full_check && reverse_path_check())
-+		goto error_remove_epi;
-+
- 	/* Initialize the poll table using the queue callback */
- 	epq.epi = epi;
- 	init_poll_funcptr(&epq.pt, ep_ptable_queue_proc);
-@@ -1472,22 +1488,6 @@ static int ep_insert(struct eventpoll *e
- 	if (epi->nwait < 0)
- 		goto error_unregister;
+ 	data = platform_get_drvdata(sysmmu);
+-	if (!data)
++	if (!data) {
++		put_device(&sysmmu->dev);
+ 		return -ENODEV;
++	}
  
--	/* Add the current item to the list of active epoll hook for this file */
--	spin_lock(&tfile->f_lock);
--	list_add_tail_rcu(&epi->fllink, &tfile->f_ep_links);
--	spin_unlock(&tfile->f_lock);
--
--	/*
--	 * Add the current item to the RB tree. All RB tree operations are
--	 * protected by "mtx", and ep_insert() is called with "mtx" held.
--	 */
--	ep_rbtree_insert(ep, epi);
--
--	/* now check if we've created too many backpaths */
--	error = -EINVAL;
--	if (full_check && reverse_path_check())
--		goto error_remove_epi;
--
- 	/* We have to drop the new item inside our item list to keep track of it */
- 	spin_lock_irq(&ep->wq.lock);
+ 	if (!owner) {
+ 		owner = kzalloc(sizeof(*owner), GFP_KERNEL);
+-		if (!owner)
++		if (!owner) {
++			put_device(&sysmmu->dev);
+ 			return -ENOMEM;
++		}
  
-@@ -1516,6 +1516,8 @@ static int ep_insert(struct eventpoll *e
- 
- 	return 0;
- 
-+error_unregister:
-+	ep_unregister_pollwait(ep, epi);
- error_remove_epi:
- 	spin_lock(&tfile->f_lock);
- 	list_del_rcu(&epi->fllink);
-@@ -1523,9 +1525,6 @@ error_remove_epi:
- 
- 	rb_erase_cached(&epi->rbn, &ep->rbr);
- 
--error_unregister:
--	ep_unregister_pollwait(ep, epi);
--
- 	/*
- 	 * We need to do this because an event could have been arrived on some
- 	 * allocated wait queue. Note that we don't care about the ep->ovflist
+ 		INIT_LIST_HEAD(&owner->controllers);
+ 		mutex_init(&owner->rpm_lock);
+-- 
+2.25.1
+
 
 
