@@ -2,116 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECE41283670
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 15:23:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF881283737
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 16:02:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725946AbgJENXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 09:23:00 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:50123 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725932AbgJENXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 09:23:00 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 48CCA5C014E;
-        Mon,  5 Oct 2020 09:22:59 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 05 Oct 2020 09:22:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=Ypdawpj8XKnmlUnVD55o9HLE4JA
-        XYVm93miPDZ+nBjw=; b=G8DXbfg+p79uHUAsm1v+Tu96DRCpvZUV16/0yP67yeO
-        90mt9r+q4VX9qWPU6tNuZRXci9Mk6Dsd8XCNViainQmMoxqYzvPW4rorckzZu42U
-        nmx4dh9QXRidBSQRt6VENUaej8f01Qqqu29SNzCv+s7HMEyE6itozqbZaznBBquQ
-        DZwalQY/eLf2dj+0ioJAic7TN7JUMFcL27nqnXxVExZrjNTLfGz1aeE0sxYDYr3x
-        0LKV0gickyLe1DTgxW5cxjr+QdetKFEo+subJN5Qo+eWk5RVvY1C1Kwo56a6V+as
-        tvwlCgSQ38wClWYPG7OpsbgPIcd3vGvXlNUQ7G1znpA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Ypdawp
-        j8XKnmlUnVD55o9HLE4JAXYVm93miPDZ+nBjw=; b=QoUyM4Y23BUDv2QS7baJ2T
-        VIUydbJYhdwaz1J5NXVq/GuaZl5L5vzBA8Plum9D8JOgsDnvtBxPWWgDQLZr9inH
-        qGDtoJpvl7uwWUtpk9jMeG7uOmjfd5ThN8jRGoNruAYdIZVznFamg13CVLzNXMJN
-        4x1AS05qOAioegWWR6fK+1hblUxiwEcl47j4x6UZvoCLCXEEDhuC/3ByenFDVhJl
-        DLkYOK9Fg+ROs7bgDiJvm1jw9l+z4624RQequHfo7ZnpPIETgVGlt8kQgzgnJF+t
-        HYWjgQxVitRm7mEXNeVfvi9VNUED/aAmMYUHzNIoKdMnaNKQySchh9NDmJEimO0g
-        ==
-X-ME-Sender: <xms:Mh57XzXdLmYa0Sl7gnxBJPOP7vwUawCPZInXw_gmSq4xK46tmB7UzA>
-    <xme:Mh57X7npg8d3JVEwKuNBdUHIF2aJv4AlVlNxYoFI-LeGYz0_ai9hoNHypHxU2zwyI
-    xArueAYfsiT1w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrgedvgdeihecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
-    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvg
-    hrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdr
-    tghomh
-X-ME-Proxy: <xmx:Mh57X_YRE1PWL0knZ9CHl39TS63KBPgpNRxzmGRX7-zJI1UTnz4EYA>
-    <xmx:Mh57X-UV7aiVoLkXr65pNfPVKtEC0w5eTn9wq4_rr3obol3xe6Jhqg>
-    <xmx:Mh57X9nU_e-6eXlPAZgnM0c6miG_8BpndbXhpfSTnF3kewt1q-JO4w>
-    <xmx:Mx57XyxEE97RuOIUnZmY8YOqXfml-WQaQbpVFxLvTI9hJ1wFR8BeTw>
+        id S1726460AbgJEOCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 10:02:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53720 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726442AbgJEOCM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 10:02:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C4603328006C;
-        Mon,  5 Oct 2020 09:22:57 -0400 (EDT)
-Date:   Mon, 5 Oct 2020 15:23:44 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Revanth Rajashekar <revanth.rajashekar@intel.com>
-Cc:     stable@vger.kernel.org, hch@lst.de, kbusch@kernel.org,
-        damien.lemoal@wdc.com
-Subject: Re: [PATCH 0/3] [backport] nvme: Consolidate chunk_sectors settings
-Message-ID: <20201005132344.GB1506031@kroah.com>
-References: <20200923025808.14698-1-revanth.rajashekar@intel.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEA832078A;
+        Mon,  5 Oct 2020 14:02:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601906530;
+        bh=AM25riSnMqgF+lZR32u1pWyqgPFCPFU4xdB0Cfbce1o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XNVecaIcejIPLG8lqB4D+cJDXWgR0UuLjf63QynZlVENvrX75VnWoYPcssugTY9Sw
+         fuA080XkQx7No2hWF+dTtcQJifonv2h7Gew6wWmzAsqAur1O7HaI4EyNrkmpbSstSS
+         2WZd0L9KMnapbYMSuPWPIWOKJnJxKHGX72EDVCrA=
+Date:   Mon, 5 Oct 2020 16:02:54 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Doug Berger <opendmb@gmail.com>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Pavel Tatashin <pasha.tatashin@oracle.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Michal Hocko <mhocko@kernel.org>,
+        Olof Johansson <olof@lixom.net>,
+        Zhaoyang Huang <zhaoyang.huang@unisoc.com>,
+        zhaoyang <huangzhaoyang@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        David Hildenbrand <david@redhat.com>,
+        Baoquan He <bhe@redhat.com>
+Subject: Re: RFC: backport of commit a32c1c61212d
+Message-ID: <20201005140254.GC1506031@kroah.com>
+References: <bd960a80-c953-ad11-cdfd-1e48ffdce443@gmail.com>
+ <20200901140018.GD397411@kroah.com>
+ <4eb51ae0-427d-5359-2439-b38dc0d3b2e5@gmail.com>
+ <98f2309c-e674-c3fc-0c13-0bf85f123f8c@gmail.com>
+ <62fef535-199b-9b62-c206-c92d2d929be3@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200923025808.14698-1-revanth.rajashekar@intel.com>
+In-Reply-To: <62fef535-199b-9b62-c206-c92d2d929be3@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 22, 2020 at 08:58:05PM -0600, Revanth Rajashekar wrote:
-> Backport commit 38adf94e166e3cb4eb89683458ca578051e8218d and it's
-> dependencies to linux-stable 5.4.y.
+On Tue, Sep 01, 2020 at 10:09:37AM -0700, Doug Berger wrote:
+> On 9/1/2020 9:36 AM, Florian Fainelli wrote:
+> > 
+> > 
+> > On 9/1/2020 9:06 AM, Doug Berger wrote:
+> >> On 9/1/2020 7:00 AM, Greg Kroah-Hartman wrote:
+> > 
+> > [snip]
+> > 
+> >> [snip]
+> >>
+> >> My best guess at this point is to submit patches to the affected stable
+> >> branches like the one in my RFC and reference a32c1c61212d as the
+> >> upstream commit. This would be confusing to anyone that tried to compare
+> >> the submitted patch with the upstream patch since they
+> >> wouldn't look at all alike, but the fixes and upstream tags would define
+> >> the affected range in Linus' tree.
+> >>
+> >> I would appreciate any guidance on how best to handle this kind of
+> >> situation.
+> > 
+> > You could submit various patches with [PATCH stable x.y] in the subject
+> > to indicate they are targeting a specific stable branch, copy
+> > stable@vger.kernel.org as well as all recipients in this email and see
+> > if that works.
+> > 
+> > Not sure if there is a more documented process than that.
+> Yes, that is what I had in mind based on the "Option 3" for patch
+> submission. The sticking point is this requirement:
+> "You must note the upstream commit ID in the changelog of your submission"
 > 
-> Dependent commits:
-> 314d48dd224897e35ddcaf5a1d7d133b5adddeb7
-> e08f2ae850929d40e66268ee47e443e7ea56eeb7
-> 
-> When running test cases to stress NVMe device, a race condition / deadlocks is
-> seen every couple of days or so where multiple threads are trying to acquire
-> ctrl->subsystem->lock or ctrl->scan_lock.
-> 
-> The test cases send a lot nvme-cli requests to do Sanitize, Format, FW Download,
-> FW Activate, Flush, Get Log, Identify, and reset requests to two controllers
-> that share a namespace. Some of those commands target a namespace, some target
-> a controller.  The commands are sent in random order and random mix to the two
-> controllers.
-> 
-> The test cases does not wait for nvme-cli requests to finish before sending more.
-> So for example, there could be multiple reset requests, multiple format requests,
-> outstanding at the same time as a sanitize, on both paths at the same time, etc.
-> Many of these test cases include combos that don't really make sense in the
-> context of NVMe, however it is used to create as much stress as possible.
-> 
-> This patchset fixes this issue.
-> 
-> Similar issue with a detailed call trace/log was discussed in the LKML
-> Link: https://lore.kernel.org/linux-nvme/04580CD6-7652-459D-ABDD-732947B4A6DF@javigon.com/
-> 
-> Revanth Rajashekar (3):
->   nvme: Cleanup and rename nvme_block_nr()
->   nvme: Introduce nvme_lba_to_sect()
->   nvme: consolidate chunk_sectors settings
-> 
->  drivers/nvme/host/core.c | 40 +++++++++++++++++++---------------------
->  drivers/nvme/host/nvme.h | 16 +++++++++++++---
->  2 files changed, 32 insertions(+), 24 deletions(-)
+> My best guess is to use a32c1c61212d, but that could easily cause
+> confusion in this case. My hope is that now I can reference this
+> discussion to provide additional clarity.
 
-For some reason you forgot to credit, and cc: all of the people on the
-original patches, which isn't very nice, don't you think?
+I'm still totally confused, is there any specific commits that you wish
+to see backported to any specific stable kernel trees?  If so, what are
+they?
 
-Next time please be more careful.
+thanks,
 
 greg k-h
