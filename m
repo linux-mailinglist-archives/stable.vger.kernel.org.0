@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 406E6283AF3
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:38:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D35283A9F
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727188AbgJEPiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:38:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57542 "EHLO mail.kernel.org"
+        id S1728406AbgJEPfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:35:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727816AbgJEPax (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:30:53 -0400
+        id S1727714AbgJEPdf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:33:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64F532074F;
-        Mon,  5 Oct 2020 15:30:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F249207BC;
+        Mon,  5 Oct 2020 15:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911852;
-        bh=hFZ2Cj1jPM+ORT1KbOJS5DWU4Mhjq3+d26+Fw7EeSEs=;
+        s=default; t=1601912014;
+        bh=wAXBs46pNEVfAFjXDP6XQOUMy8YMBqnthPuIgUThzOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wsu2sFRxVpZN2RfFPmSa4NgpcWT4YLHYBbGtWxebEdNz15Cwr3Qfl7MDzpDZge3Pt
-         FNFa+wjwrAepxh+/pnWWj5sKKMBs/I8Uuulaa2DMDGpIuhMRhNUZS4w9l9FLb1b0DG
-         AFLzkb5TjDlAkQYNRqHSy91tOIISLypeMYp0UEhI=
+        b=x2eOL4rxH0DOd23EL3BU+q+7anXrMCV0AAM2i0ht8FnQmV4sDTQspSwZYHz+pyGCR
+         8KofxrTAu2WH8ei7fjYwhc6hkOtuUJu2TDtxZQzT0T9De0Cvl2JFnvUMRqZNGocrKp
+         c5koVWASVIA9N408pX+EhzjBRrW4LSlpXxw1FAfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Revanth Rajashekar <revanth.rajashekar@intel.com>
-Subject: [PATCH 5.4 50/57] nvme: Cleanup and rename nvme_block_nr()
-Date:   Mon,  5 Oct 2020 17:27:02 +0200
-Message-Id: <20201005142112.202881686@linuxfoundation.org>
+        stable@vger.kernel.org, Tali Perry <tali.perry1@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 67/85] i2c: npcm7xx: Clear LAST bit after a failed transaction.
+Date:   Mon,  5 Oct 2020 17:27:03 +0200
+Message-Id: <20201005142117.954212662@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
-References: <20201005142109.796046410@linuxfoundation.org>
+In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
+References: <20201005142114.732094228@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Tali Perry <tali.perry1@gmail.com>
 
-commit 314d48dd224897e35ddcaf5a1d7d133b5adddeb7 upstream.
+[ Upstream commit 8947efc077168c53b84d039881a7c967086a248a ]
 
-Rename nvme_block_nr() to nvme_sect_to_lba() and use SECTOR_SHIFT
-instead of its hard coded value 9. Also add a comment to decribe this
-helper.
+Due to a HW issue, in some scenarios the LAST bit might remain set.
+This will cause an unexpected NACK after reading 16 bytes on the next
+read.
 
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Revanth Rajashekar <revanth.rajashekar@intel.com>1
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Example: if user tries to read from a missing device, get a NACK,
+then if the next command is a long read ( > 16 bytes),
+the master will stop reading after 16 bytes.
+To solve this, if a command fails, check if LAST bit is still
+set. If it does, reset the module.
 
+Fixes: 56a1485b102e (i2c: npcm7xx: Add Nuvoton NPCM I2C controller driver)
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c |    6 +++---
- drivers/nvme/host/nvme.h |    7 +++++--
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-npcm7xx.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -630,7 +630,7 @@ static blk_status_t nvme_setup_discard(s
- 	}
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index dfcf04e1967f1..2ad166355ec9b 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -2163,6 +2163,15 @@ static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	if (bus->cmd_err == -EAGAIN)
+ 		ret = i2c_recover_bus(adap);
  
- 	__rq_for_each_bio(bio, req) {
--		u64 slba = nvme_block_nr(ns, bio->bi_iter.bi_sector);
-+		u64 slba = nvme_sect_to_lba(ns, bio->bi_iter.bi_sector);
- 		u32 nlb = bio->bi_iter.bi_size >> ns->lba_shift;
- 
- 		if (n < segments) {
-@@ -671,7 +671,7 @@ static inline blk_status_t nvme_setup_wr
- 	cmnd->write_zeroes.opcode = nvme_cmd_write_zeroes;
- 	cmnd->write_zeroes.nsid = cpu_to_le32(ns->head->ns_id);
- 	cmnd->write_zeroes.slba =
--		cpu_to_le64(nvme_block_nr(ns, blk_rq_pos(req)));
-+		cpu_to_le64(nvme_sect_to_lba(ns, blk_rq_pos(req)));
- 	cmnd->write_zeroes.length =
- 		cpu_to_le16((blk_rq_bytes(req) >> ns->lba_shift) - 1);
- 	cmnd->write_zeroes.control = 0;
-@@ -695,7 +695,7 @@ static inline blk_status_t nvme_setup_rw
- 
- 	cmnd->rw.opcode = (rq_data_dir(req) ? nvme_cmd_write : nvme_cmd_read);
- 	cmnd->rw.nsid = cpu_to_le32(ns->head->ns_id);
--	cmnd->rw.slba = cpu_to_le64(nvme_block_nr(ns, blk_rq_pos(req)));
-+	cmnd->rw.slba = cpu_to_le64(nvme_sect_to_lba(ns, blk_rq_pos(req)));
- 	cmnd->rw.length = cpu_to_le16((blk_rq_bytes(req) >> ns->lba_shift) - 1);
- 
- 	if (req_op(req) == REQ_OP_WRITE && ctrl->nr_streams)
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -429,9 +429,12 @@ static inline int nvme_reset_subsystem(s
- 	return ctrl->ops->reg_write32(ctrl, NVME_REG_NSSR, 0x4E564D65);
- }
- 
--static inline u64 nvme_block_nr(struct nvme_ns *ns, sector_t sector)
-+/*
-+ * Convert a 512B sector number to a device logical block number.
-+ */
-+static inline u64 nvme_sect_to_lba(struct nvme_ns *ns, sector_t sector)
- {
--	return (sector >> (ns->lba_shift - 9));
-+	return sector >> (ns->lba_shift - SECTOR_SHIFT);
- }
- 
- static inline void nvme_end_request(struct request *req, __le16 status,
++	/*
++	 * After any type of error, check if LAST bit is still set,
++	 * due to a HW issue.
++	 * It cannot be cleared without resetting the module.
++	 */
++	if (bus->cmd_err &&
++	    (NPCM_I2CRXF_CTL_LAST_PEC & ioread8(bus->reg + NPCM_I2CRXF_CTL)))
++		npcm_i2c_reset(bus);
++
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
+ 	/* reenable slave if it was enabled */
+ 	if (bus->slave)
+-- 
+2.25.1
+
 
 
