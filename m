@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F39F28382A
+	by mail.lfdr.de (Postfix) with ESMTP id BB1DE28382C
 	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 16:45:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726588AbgJEOpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726574AbgJEOpI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 5 Oct 2020 10:45:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51876 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726562AbgJEOpH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1725960AbgJEOpH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 5 Oct 2020 10:45:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82B18208A9;
-        Mon,  5 Oct 2020 14:45:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0F92208B6;
+        Mon,  5 Oct 2020 14:45:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601909106;
-        bh=bSyBxzwAqqnWvwHF+Fn0Kuo6xxDaf9D9Sscz5X00zAw=;
+        s=default; t=1601909107;
+        bh=mFnyq0uxT6aNGNU2RGIso9hOeLqRjgPZIYTTWfIpyl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/6qLHmX4XIs1Fdz6Dq5vtuVW9AKhas26Li7codZryROfKQqTK3/PlTy5Sjq2VPXL
-         s071onzVMZCDQ4oAhPb7ZfYsTBJo5ZXpmr8A1ag7rnOxAlVQ0iQsSvXc3vPyJxhKs0
-         VhpuDcjbhgpvWQYIAnu6DuV7JJedPNuWARZKWq8s=
+        b=TCQj1ulWus65ethmGaTPquIdfQz9M7cscM4ixcYxIdZVwXFmujrwlCp8tLgcoDCEq
+         9gqhLhY57su/ZBnCLd0GK/YJWk8r6wAiDujCQLhscHXhk5ng7RGn8zbWehdbtyCft8
+         CJ+wiqSuZuoNyN/7ReLwwJiAWRHaIeicLVX5SmsQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.8 04/12] drm/amdgpu: prevent double kfree ttm->sg
-Date:   Mon,  5 Oct 2020 10:44:52 -0400
-Message-Id: <20201005144501.2527477-4-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 05/12] ep_create_wakeup_source(): dentry name can change under you...
+Date:   Mon,  5 Oct 2020 10:44:53 -0400
+Message-Id: <20201005144501.2527477-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201005144501.2527477-1-sashal@kernel.org>
 References: <20201005144501.2527477-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,74 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 1d0e16ac1a9e800598dcfa5b6bc53b704a103390 ]
+[ Upstream commit 3701cb59d892b88d569427586f01491552f377b1 ]
 
-Set ttm->sg to NULL after kfree, to avoid memory corruption backtrace:
+or get freed, for that matter, if it's a long (separately stored)
+name.
 
-[  420.932812] kernel BUG at
-/build/linux-do9eLF/linux-4.15.0/mm/slub.c:295!
-[  420.934182] invalid opcode: 0000 [#1] SMP NOPTI
-[  420.935445] Modules linked in: xt_conntrack ipt_MASQUERADE
-[  420.951332] Hardware name: Dell Inc. PowerEdge R7525/0PYVT1, BIOS
-1.5.4 07/09/2020
-[  420.952887] RIP: 0010:__slab_free+0x180/0x2d0
-[  420.954419] RSP: 0018:ffffbe426291fa60 EFLAGS: 00010246
-[  420.955963] RAX: ffff9e29263e9c30 RBX: ffff9e29263e9c30 RCX:
-000000018100004b
-[  420.957512] RDX: ffff9e29263e9c30 RSI: fffff3d33e98fa40 RDI:
-ffff9e297e407a80
-[  420.959055] RBP: ffffbe426291fb00 R08: 0000000000000001 R09:
-ffffffffc0d39ade
-[  420.960587] R10: ffffbe426291fb20 R11: ffff9e49ffdd4000 R12:
-ffff9e297e407a80
-[  420.962105] R13: fffff3d33e98fa40 R14: ffff9e29263e9c30 R15:
-ffff9e2954464fd8
-[  420.963611] FS:  00007fa2ea097780(0000) GS:ffff9e297e840000(0000)
-knlGS:0000000000000000
-[  420.965144] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  420.966663] CR2: 00007f16bfffefb8 CR3: 0000001ff0c62000 CR4:
-0000000000340ee0
-[  420.968193] Call Trace:
-[  420.969703]  ? __page_cache_release+0x3c/0x220
-[  420.971294]  ? amdgpu_ttm_tt_unpopulate+0x5e/0x80 [amdgpu]
-[  420.972789]  kfree+0x168/0x180
-[  420.974353]  ? amdgpu_ttm_tt_set_user_pages+0x64/0xc0 [amdgpu]
-[  420.975850]  ? kfree+0x168/0x180
-[  420.977403]  amdgpu_ttm_tt_unpopulate+0x5e/0x80 [amdgpu]
-[  420.978888]  ttm_tt_unpopulate.part.10+0x53/0x60 [amdttm]
-[  420.980357]  ttm_tt_destroy.part.11+0x4f/0x60 [amdttm]
-[  420.981814]  ttm_tt_destroy+0x13/0x20 [amdttm]
-[  420.983273]  ttm_bo_cleanup_memtype_use+0x36/0x80 [amdttm]
-[  420.984725]  ttm_bo_release+0x1c9/0x360 [amdttm]
-[  420.986167]  amdttm_bo_put+0x24/0x30 [amdttm]
-[  420.987663]  amdgpu_bo_unref+0x1e/0x30 [amdgpu]
-[  420.989165]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x9ca/0xb10
-[amdgpu]
-[  420.990666]  kfd_ioctl_alloc_memory_of_gpu+0xef/0x2c0 [amdgpu]
-
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/eventpoll.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index e59c01a83dace..9a3267f06376f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -1052,6 +1052,7 @@ static int amdgpu_ttm_tt_pin_userptr(struct ttm_tt *ttm)
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index 16313180e4c16..4df61129566d4 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -1448,7 +1448,7 @@ static int reverse_path_check(void)
  
- release_sg:
- 	kfree(ttm->sg);
-+	ttm->sg = NULL;
- 	return r;
- }
+ static int ep_create_wakeup_source(struct epitem *epi)
+ {
+-	const char *name;
++	struct name_snapshot n;
+ 	struct wakeup_source *ws;
  
+ 	if (!epi->ep->ws) {
+@@ -1457,8 +1457,9 @@ static int ep_create_wakeup_source(struct epitem *epi)
+ 			return -ENOMEM;
+ 	}
+ 
+-	name = epi->ffd.file->f_path.dentry->d_name.name;
+-	ws = wakeup_source_register(NULL, name);
++	take_dentry_name_snapshot(&n, epi->ffd.file->f_path.dentry);
++	ws = wakeup_source_register(NULL, n.name.name);
++	release_dentry_name_snapshot(&n);
+ 
+ 	if (!ws)
+ 		return -ENOMEM;
 -- 
 2.25.1
 
