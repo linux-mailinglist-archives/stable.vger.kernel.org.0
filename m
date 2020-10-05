@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EA9B283A43
-	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 207362839F4
+	for <lists+stable@lfdr.de>; Mon,  5 Oct 2020 17:30:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728075AbgJEPc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 11:32:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60688 "EHLO mail.kernel.org"
+        id S1727694AbgJEP3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 11:29:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728072AbgJEPcx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 11:32:53 -0400
+        id S1727673AbgJEP3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 5 Oct 2020 11:29:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 427412085B;
-        Mon,  5 Oct 2020 15:32:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 970C72085B;
+        Mon,  5 Oct 2020 15:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601911972;
-        bh=Ru7/vpo8GarfJRXJYCkNWopOS6nnw3qYPy3r2b2lhbY=;
+        s=default; t=1601911784;
+        bh=/HIT2pYcYQRAHQSD5im2Na0sjNOPVqLpnTAZUe/MxjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+6yhQRbHOqwSGOggB+kp2T8u3Dm3RuzQ2sXFZQhhca5Ff9BszlJ9dXlfa5pZLQrS
-         znR+MkECDh+3LdZtNk05cK8tayEnRZ+Tdnv1H/CNTJOIiQZVP3RYWeHMVuM/v5R3GC
-         YOl/z7OFLzlb/k2OJPMJzsCB11fXxLZDZw4weqT8=
+        b=TjPOOjq7259nksppbz9F5aKifd9jie2T/EBxOD8Q5lrMkBXx/L8rnKCCh2eMlLkkd
+         6M4QmVDLYEgF+HbXZnnxgwF9fE4Ol1S279q4ECNAjukhfSXMIJc0c44uUhf9/BasCm
+         Lz6B41zWgj0qKkdnk1surYhSd5n/OOWkH+zdOl2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 52/85] pinctrl: mvebu: Fix i2c sda definition for 98DX3236
+Subject: [PATCH 5.4 36/57] nfs: Fix security label length not being reset
 Date:   Mon,  5 Oct 2020 17:26:48 +0200
-Message-Id: <20201005142117.238215517@linuxfoundation.org>
+Message-Id: <20201005142111.549983071@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201005142114.732094228@linuxfoundation.org>
-References: <20201005142114.732094228@linuxfoundation.org>
+In-Reply-To: <20201005142109.796046410@linuxfoundation.org>
+References: <20201005142109.796046410@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
 
-[ Upstream commit 63c3212e7a37d68c89a13bdaebce869f4e064e67 ]
+[ Upstream commit d33030e2ee3508d65db5644551435310df86010e ]
 
-Per the datasheet the i2c functions use MPP_Sel=0x1. They are documented
-as using MPP_Sel=0x4 as well but mixing 0x1 and 0x4 is clearly wrong. On
-the board tested 0x4 resulted in a non-functioning i2c bus so stick with
-0x1 which works.
+nfs_readdir_page_filler() iterates over entries in a directory, reusing
+the same security label buffer, but does not reset the buffer's length.
+This causes decode_attr_security_label() to return -ERANGE if an entry's
+security label is longer than the previous one's. This error, in
+nfs4_decode_dirent(), only gets passed up as -EAGAIN, which causes another
+failed attempt to copy into the buffer. The second error is ignored and
+the remaining entries do not show up in ls, specifically the getdents64()
+syscall.
 
-Fixes: d7ae8f8dee7f ("pinctrl: mvebu: pinctrl driver for 98DX3236 SoC")
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20200907211712.9697-2-chris.packham@alliedtelesis.co.nz
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reproduce by creating multiple files in NFS and giving one of the later
+files a longer security label. ls will not see that file nor any that are
+added afterwards, though they will exist on the backend.
+
+In nfs_readdir_page_filler(), reset security label buffer length before
+every reuse
+
+Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+Fixes: b4487b935452 ("nfs: Fix getxattr kernel panic and memory overflow")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mvebu/pinctrl-armada-xp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/dir.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-xp.c b/drivers/pinctrl/mvebu/pinctrl-armada-xp.c
-index a767a05fa3a0d..48e2a6c56a83b 100644
---- a/drivers/pinctrl/mvebu/pinctrl-armada-xp.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-xp.c
-@@ -414,7 +414,7 @@ static struct mvebu_mpp_mode mv98dx3236_mpp_modes[] = {
- 		 MPP_VAR_FUNCTION(0x1, "i2c0", "sck",        V_98DX3236_PLUS)),
- 	MPP_MODE(15,
- 		 MPP_VAR_FUNCTION(0x0, "gpio", NULL,         V_98DX3236_PLUS),
--		 MPP_VAR_FUNCTION(0x4, "i2c0", "sda",        V_98DX3236_PLUS)),
-+		 MPP_VAR_FUNCTION(0x1, "i2c0", "sda",        V_98DX3236_PLUS)),
- 	MPP_MODE(16,
- 		 MPP_VAR_FUNCTION(0x0, "gpo", NULL,          V_98DX3236_PLUS),
- 		 MPP_VAR_FUNCTION(0x4, "dev", "oe",          V_98DX3236_PLUS)),
+diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+index 05ed7be8a6345..188b17a3b19eb 100644
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -553,6 +553,9 @@ int nfs_readdir_page_filler(nfs_readdir_descriptor_t *desc, struct nfs_entry *en
+ 	xdr_set_scratch_buffer(&stream, page_address(scratch), PAGE_SIZE);
+ 
+ 	do {
++		if (entry->label)
++			entry->label->len = NFS4_MAXLABELLEN;
++
+ 		status = xdr_decode(desc, entry, &stream);
+ 		if (status != 0) {
+ 			if (status == -EAGAIN)
 -- 
 2.25.1
 
