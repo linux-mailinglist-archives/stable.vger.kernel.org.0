@@ -2,104 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69BF9284E47
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 16:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F6A8284EA5
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 17:12:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725995AbgJFOtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Oct 2020 10:49:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38708 "EHLO
+        id S1725906AbgJFPMI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 11:12:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725970AbgJFOtc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 10:49:32 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672FCC061755
-        for <stable@vger.kernel.org>; Tue,  6 Oct 2020 07:49:32 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id cq12so10099148edb.2
-        for <stable@vger.kernel.org>; Tue, 06 Oct 2020 07:49:32 -0700 (PDT)
+        with ESMTP id S1725902AbgJFPMI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 11:12:08 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EBE0C061755
+        for <stable@vger.kernel.org>; Tue,  6 Oct 2020 08:12:08 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id p21so1698136pju.0
+        for <stable@vger.kernel.org>; Tue, 06 Oct 2020 08:12:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=q1RHN9ujCG8awUOjBclDvnwS/M6f2g4N0rig4T3iDAs=;
-        b=U48vYwwF/1/0KLRb42Utl3jzuOJeKM6DGb2SJM+7ccQlbmUeexk7hehesZxBnmw91r
-         eABIrZnonSbzPTR3dFbu1spWyPrHA2oVS6KOwwAAB/GcLLHjEdUqb0LzpoaMDZQFgT7D
-         eXIDhECvi+n7x47uexjow35wP6X9Fi3tN59I5A7ox2iiFw41pYxjD6BE/9rCsQaj5k9X
-         Bua7ll/baLrIonkPVKfyWlRrYUWBPKuv6b4kg4W+WjkrLrX4zw5j8otD4C7wDFt6riR7
-         XQF6SkfJ1U7WnDuSZ+cYeHJy75CxIXFQbUmpCWCg9iT7XMpLJAXhzuBdylmwOKbt2Hbc
-         K9Mg==
+        h=from:to:cc:subject:date:message-id;
+        bh=O3wutOykn+qjv13+aIbbS9aviAcrhkTNsBYW/8APKCI=;
+        b=DMTe1YUj2xSHewmkHh/K0Pojad6nQsuM1GKWuonkC3wg9L7YYrogBbWWYs36jLyjHq
+         U5NuIudZf6zQAvhVoxejHZ56kZybnxAPL7ms4nWQdsz4loEFvJjL7DTCY4vK1mmuFbz9
+         KzVsrSl23psLcxVF5RR1e2A3LZpEG/RcxKnJylv0Wufk1JLqvxaIXt5SL/4vqSWEhOuA
+         CVzKFJ5qHlpU/txwzrUQGUQwdcx3y1+9aQ5nYZ2v6nWIqYzpu7hwxneYdn7FD2E7XO/1
+         BSoMXzFhb2Ws7m1yMw8KCjBckrMIrOl1Xra+lpV3BzwYvpRzz28nBIqeJeeL2fJhSN2B
+         hSWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=q1RHN9ujCG8awUOjBclDvnwS/M6f2g4N0rig4T3iDAs=;
-        b=oKOrbm4nCm6e7P8eNojG9qIMOL7gkzQXg81t98W277royxHwXcTmsKo3ZZsAohpMM9
-         oRPwO8WYdoSQ7nBq4Jtj93GuZnRpg37OBV7+7be1bZSes2iYZrKalG2O1KxpCK0a74Q9
-         r9GVbKNfr+MxtM7EVXi97g76vlcoOgzpQNkhlHIsvAXcN8xKum2WKkOibiqLCWvGORGn
-         1oQeIDNAoOnn7e+RmWC4ZRH2+pfF1Dm98aHC3Ekinz5ZLhX8nH5urwBfEWkAL/WGGtI8
-         IdykNQJHHsFVuqZqJYCVVMRYYmfDFbnYIwGCmYIb6h1H5CEakz309cQpq3+f97Rl1QkQ
-         ekpQ==
-X-Gm-Message-State: AOAM531xJNcoAImBGfUOX5RO5BtwkP31/HuaafYjEv91I6QJjoKeVIFW
-        ttbnfoUNeJbB6QSHnmpUp6kFNs+iYiHfII3Ij7E=
-X-Google-Smtp-Source: ABdhPJxuUok8vCid47gq5k69ar47Lf9jt/8MA5nIHtgJRkum6vBSFeVQ/h25SiUJn/H+XLrhPP4LXGGHaeBdU2OHrhs=
-X-Received: by 2002:a50:b745:: with SMTP id g63mr5910768ede.181.1601995770930;
- Tue, 06 Oct 2020 07:49:30 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a54:3e92:0:0:0:0:0 with HTTP; Tue, 6 Oct 2020 07:49:30 -0700 (PDT)
-Reply-To: dianackerstaff@yahoo.com
-From:   Diana Ackerstaff <angelusbernard@gmail.com>
-Date:   Tue, 6 Oct 2020 14:49:30 +0000
-Message-ID: <CAKBMnLaPhFG-eCGfxZPr=q+MJKKe-g24+cjtovAkO_S_bS+HqA@mail.gmail.com>
-Subject: My Dear
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=O3wutOykn+qjv13+aIbbS9aviAcrhkTNsBYW/8APKCI=;
+        b=AUS0h1/9nh95y40fF0mYRmiMV3xYiM4/5+X1rAE/4alRoHcb941ak8KPsS+6IdduU1
+         Qfm46VS7rSL2DGELYTwElwZaPXw80kPllafUzzSf9FGmd640an3l+uEX9AEkwGM1WrJQ
+         mMKM2jD4d5q66M19z/7FDauFZ0qTeS5hzZ+8JD5ebosuBeFnd1NAgyxtE9vmg2bHvlu3
+         e+M73KzP2WTy3j0m83jNWLKix2G0kATeDiezfcqIzIpUQ2PYWwBsogWLJBJTqg0y+eXU
+         X9LWK8zrGHcwx37MKQ6Y9xcSgnvapsCJHuZpPjwetciEqrcjTDW/AZYpioXZ3vyDdsFl
+         ZBnA==
+X-Gm-Message-State: AOAM5319axegromxqsOHXsm4c1TFef4XeP/vm1/U+OTdqit5U0BjvK56
+        0BxI7tYmKyB+Q7L95fLkcUzf4Fmjkn8baw==
+X-Google-Smtp-Source: ABdhPJweTl1FnZF1PBsXDaqklz5AVNjIyD9EbmkGyH2bU4C7bR1//u/cDLFXJmVtmemBs7PET9q5cQ==
+X-Received: by 2002:a17:90a:17c9:: with SMTP id q67mr4779043pja.128.1601997127702;
+        Tue, 06 Oct 2020 08:12:07 -0700 (PDT)
+Received: from ashish-sangwan.user.nutanix.com (mcp02.nutanix.com. [192.146.155.5])
+        by smtp.googlemail.com with ESMTPSA id e6sm3444070pgg.83.2020.10.06.08.12.06
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 06 Oct 2020 08:12:06 -0700 (PDT)
+From:   Ashish Sangwan <ashishsangwan2@gmail.com>
+To:     ashishsangwan2@gmail.com
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] NFS: Fix mode bits and nlink count for v4 referral dirs
+Date:   Tue,  6 Oct 2020 08:11:58 -0700
+Message-Id: <20201006151158.20820-1-ashishsangwan2@gmail.com>
+X-Mailer: git-send-email 2.16.3
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My Dear,
+Request for mode bits and nlink count in the nfs4_get_referral call
+and if server returns them use them instead of hard coded values.
 
-With warm heart I offer my friendship, and my greetings to you in the
-name of our lord, and I hope this letter meets you in good time, I
-Propose with my free mind and as a person of integrity from God, I
-know that this message will appear as a surprise to you that we barely
-Know but the grace of God directed me to you and I wish you read this
-message and be blessed in name of the Lord.
+CC: stable@vger.kernel.org
+Signed-off-by: Ashish Sangwan <ashishsangwan2@gmail.com>
+---
+ fs/nfs/nfs4proc.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
-I have a brain tumor; I suffer terribly at the moment. My doctor just
-informed me that my days are numbered because of my health therefore
-condemned to certain death. Currently, I have exhausted all my savings
-for my medical care.
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 6e95c85fe395..efec05c5f535 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -266,7 +266,9 @@ const u32 nfs4_fs_locations_bitmap[3] = {
+ 	| FATTR4_WORD0_FSID
+ 	| FATTR4_WORD0_FILEID
+ 	| FATTR4_WORD0_FS_LOCATIONS,
+-	FATTR4_WORD1_OWNER
++	FATTR4_WORD1_MODE
++	| FATTR4_WORD1_NUMLINKS
++	| FATTR4_WORD1_OWNER
+ 	| FATTR4_WORD1_OWNER_GROUP
+ 	| FATTR4_WORD1_RAWDEV
+ 	| FATTR4_WORD1_SPACE_USED
+@@ -7594,16 +7596,28 @@ nfs4_listxattr_nfs4_user(struct inode *inode, char *list, size_t list_len)
+  */
+ static void nfs_fixup_referral_attributes(struct nfs_fattr *fattr)
+ {
++	bool fix_mode = true, fix_nlink = true;
++
+ 	if (!(((fattr->valid & NFS_ATTR_FATTR_MOUNTED_ON_FILEID) ||
+ 	       (fattr->valid & NFS_ATTR_FATTR_FILEID)) &&
+ 	      (fattr->valid & NFS_ATTR_FATTR_FSID) &&
+ 	      (fattr->valid & NFS_ATTR_FATTR_V4_LOCATIONS)))
+ 		return;
+ 
++	if (fattr->valid & NFS_ATTR_FATTR_MODE)
++		fix_mode = false;
++	if (fattr->valid & NFS_ATTR_FATTR_NLINK)
++		fix_nlink = false;
+ 	fattr->valid |= NFS_ATTR_FATTR_TYPE | NFS_ATTR_FATTR_MODE |
+ 		NFS_ATTR_FATTR_NLINK | NFS_ATTR_FATTR_V4_REFERRAL;
+-	fattr->mode = S_IFDIR | S_IRUGO | S_IXUGO;
+-	fattr->nlink = 2;
++
++	if (fix_mode)
++		fattr->mode = S_IFDIR | S_IRUGO | S_IXUGO;
++	else
++		fattr->mode |= S_IFDIR;
++
++	if (fix_nlink)
++		fattr->nlink = 2;
+ }
+ 
+ static int _nfs4_proc_fs_locations(struct rpc_clnt *client, struct inode *dir,
+-- 
+2.22.0
 
-But I do have some funds for my charity project; these funds are
-deposited with one of the security Company here In Cote D'Ivoire West
-Africa. Purposed for charitable foundation, my marital status is such
-that I'm single because I lost my Husband over 9 years now and
-unfortunately we have not had a child together, which I am no one to
-leave my legacy for. Therefore, to release my funds I would like to
-make a donation so that there is no stiff tax on my money.
-
-To this I would be so graceful and in order to help the poor to give
-what amounts to said legacy worth four Million Euros (=E2=82=AC4,000,000.00
-Million Euros) to enable you establish a charitable foundation in my
-memory so that the grace of God be with me until my last home so I can
-receive an honorable place with the Lord our father.
-
-I have no fear because before contacted you, I have several nights
-prayed for the Lord to give me the contact of a trusted person of whom
-I can entrust this matter and I believe my contacts to you is divine.
-
-Know that you can keep 30% of the money for yourself and the rest will
-be used to create a charitable foundation in my memory and a
-federation in the fight against cancer and also build orphanages.
-
-I count on your goodwill and especially on the proper use of these
-funds have something I do not doubt because I have great confidence in
-you that God may guide me toward you.  My email
-dianackerstaff@yahoo.com
-
-
-Awaiting your prompt reply, receive my cordial and fraternal greetings.
-
-Yours Sincerely,
-Mrs.Diana Ackerstaff
