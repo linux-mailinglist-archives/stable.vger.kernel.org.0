@@ -2,97 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 871F9284350
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 02:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ECEE284353
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 02:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725865AbgJFAYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 20:24:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46678 "EHLO
+        id S1726002AbgJFAZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 5 Oct 2020 20:25:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725861AbgJFAYB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 20:24:01 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54AA7C0613A7
-        for <stable@vger.kernel.org>; Mon,  5 Oct 2020 17:24:01 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id o8so10580700otl.4
-        for <stable@vger.kernel.org>; Mon, 05 Oct 2020 17:24:01 -0700 (PDT)
+        with ESMTP id S1725846AbgJFAZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 5 Oct 2020 20:25:16 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB75C0613CE
+        for <stable@vger.kernel.org>; Mon,  5 Oct 2020 17:25:14 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id o8so344042pll.4
+        for <stable@vger.kernel.org>; Mon, 05 Oct 2020 17:25:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=EV2rkt5B0yfq/E+WINti7RyCLI+0e5yMrP1wAryhb24=;
-        b=fXjzMG8ncFmqYnnWUewyNv2yD193AfJ3+o4dydHQNmZ4EWrVbbEvkaUghJ9DcP8mgU
-         8uPet+VeJsQ4fU/FlFgVAk/t5hAm1cTW9KkixH1K3qiJSkYmmf8dsF6W3T8eDPGbvuIV
-         tO1F2WfxmsyXSnA9/yX/akdVVwzFF0V3+/vMo=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rQ3DJj115AT1N+abGT8omPXEdv1SQn8eErIhRiAFmSA=;
+        b=AGcN54u6IGGdQONJlcf5lSdJfucgDW5hv/CwoJrk3Ny5AGlIFJTUOBERD0vZNX7Rgm
+         sYeTLDZaDHmw/XzWBtTKSqf3tzuoePuOQXYybymUmPUxMavy+njvCGG3fMU8y3geaJ8z
+         mVwL7Ol9rRAuH5Osi/Xqpt6K3oL7c+Y3n6SOWtQrJLY1ic2ujtvUSKm6I8Al+/sPBKiG
+         ZTUKz8MIxuNHbs4OC36DQ6cUoOamUTflJo/40fP6Wu4pvZ0e7OTOV1sQN3/Hr/KGHfb8
+         HAuxFjQcQBCWjV55PBEag2xRRTmXsIyv4/Bsu26eE2UfCy6WsTbAWlLEUw5jkTfJw8Tl
+         OcSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=EV2rkt5B0yfq/E+WINti7RyCLI+0e5yMrP1wAryhb24=;
-        b=NAxmwD+Rpg/2xQoA0D9MhtB8oX//bCXD3LFIHeBgWhr9qbPmJOdN1B6sRZk0ArKPLe
-         Qd1FHjAJJyOofD/BF0AIDW2FoEAbeKc/VtaOvTH+HqAzyDzOweijESlrAkBF3xMaNqTg
-         3PrQsGpE88B/7KMCIRNArQo/ELgKGqHBnol2quJP2SKszQoWnx7FXcCzOEdVS/06QzGX
-         Ib+u9MM+0KZKI8DhDEhXxx+Jm9FRtGyBLnWucsd33kPHgOfJMPqbpI6DpSOqoBzlYgKN
-         +O8r5p0hO3knT2GoDrr0YHNr3Cymf+Wf0Ha5JbBzPMHDX5pUB4D/Q/FYqMoM3cmZDhB4
-         YZag==
-X-Gm-Message-State: AOAM531qh3h2sBLZT+iLR3A6AVhWXyO5RP7I/n24+hSZtQ6gIW96tIt2
-        GhfLG7nwsJ51A285sgNz7j2P3WPgiuDm5A==
-X-Google-Smtp-Source: ABdhPJzN3K35hpZKEa6+3PPEeN1zwhaXcYDeDKWaooLzctJWvAk4MNyO2eV35AuxREMM3BuSOPxyFg==
-X-Received: by 2002:a05:6830:1f2b:: with SMTP id e11mr1321976oth.296.1601943840759;
-        Mon, 05 Oct 2020 17:24:00 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id o16sm438513oic.27.2020.10.05.17.23.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 05 Oct 2020 17:24:00 -0700 (PDT)
-Subject: Re: [PATCH 4.19 00/38] 4.19.150-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        pavel@denx.de, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20201005142108.650363140@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <a1380ce6-bdbf-18f3-37ac-25bb9414d8bd@linuxfoundation.org>
-Date:   Mon, 5 Oct 2020 18:23:59 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rQ3DJj115AT1N+abGT8omPXEdv1SQn8eErIhRiAFmSA=;
+        b=rrV0P7TiUU2/222SHBu1ZcA03G+3AT+gFvTdCbD2QDRhW/sBC/Z8HVYLfqS2eYL9Ii
+         lr8x8PYe8mj4VK83uE7hUY0PCHgGNnIiEcv54g2A+sYjSugAAHs5VF+7wu0SejpTRrc9
+         ODokOYAWUVkTvfvCOO8lxT8WiHiqcI7kPQBIA/ODbgIRHvTky4kwppDggtj1a42LCBNu
+         xyreoW4Q1dpvA7QH2SwX5gn0V08xA3UxnADRLBgg6gmnFK7sKo5Q5hq8PgWhN7d3znRg
+         jFi/yPMD0oBLCRyLqB57hPZSoIQSfkD4KGSLuFjrv1EX6AsD+CTmoiy2mCvss4Ujr4Y7
+         JY2w==
+X-Gm-Message-State: AOAM533GlujXwHotywkb1WtTivuqul7Xaqe6mHJedZ8PyAwsusOIjDbu
+        h1uedkTQUY0SujL+TxBtXdoQn/Vzbubuww==
+X-Google-Smtp-Source: ABdhPJykTbTdwit8w+cS+h3892+yQQVbpBkOfCTxokIFb9gOI0X37kNqtd416wzR5AxaA7yyNz5sfw==
+X-Received: by 2002:a17:90a:e2cd:: with SMTP id fr13mr1822008pjb.156.1601943913966;
+        Mon, 05 Oct 2020 17:25:13 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x10sm1088168pfc.88.2020.10.05.17.25.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Oct 2020 17:25:13 -0700 (PDT)
+Message-ID: <5f7bb969.1c69fb81.a8311.2ded@mx.google.com>
+Date:   Mon, 05 Oct 2020 17:25:13 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.69-58-g7b199c4db17f
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.4.y baseline: 124 runs,
+ 4 regressions (v5.4.69-58-g7b199c4db17f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/5/20 9:26 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.150 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 07 Oct 2020 14:20:55 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.150-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
->
+stable-rc/linux-5.4.y baseline: 124 runs, 4 regressions (v5.4.69-58-g7b199c=
+4db17f)
 
-Compiled and booted on my test system. No dmesg regressions.
+Regressions Summary
+-------------------
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+platform              | arch  | lab           | compiler | defconfig       =
+| results
+----------------------+-------+---------------+----------+-----------------=
++--------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+| 0/1    =
 
-thanks,
--- Shuah
+rk3399-gru-kevin      | arm64 | lab-collabora | gcc-8    | defconfig       =
+| 85/90  =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.69-58-g7b199c4db17f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.69-58-g7b199c4db17f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7b199c4db17f19594dcf4d24cc26c8ddff8443da =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+| results
+----------------------+-------+---------------+----------+-----------------=
++--------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+| 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f7b7ed93124673cd94ff3f0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.69-=
+58-g7b199c4db17f/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
+d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.69-=
+58-g7b199c4db17f/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
+d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f7b7ed93124673cd94ff=
+3f1
+      failing since 177 days (last pass: v5.4.30-54-g6f04e8ca5355, first fa=
+il: v5.4.30-81-gf163418797b9)  =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+| results
+----------------------+-------+---------------+----------+-----------------=
++--------
+rk3399-gru-kevin      | arm64 | lab-collabora | gcc-8    | defconfig       =
+| 85/90  =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f7b7cfc5683be81a24ff403
+
+  Results:     85 PASS, 5 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.69-=
+58-g7b199c4db17f/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-ke=
+vin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.69-=
+58-g7b199c4db17f/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-ke=
+vin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.bootrr.cros-ec-sensors-accel0-probed: https://kernelci.org/tes=
+t/case/id/5f7b7cfc5683be81a24ff417
+      failing since 6 days (last pass: v5.4.68-388-g8a579883a490, first fai=
+l: v5.4.68-389-g256bdd45e196) * baseline.bootrr.cros-ec-sensors-accel1-prob=
+ed: https://kernelci.org/test/case/id/5f7b7cfc5683be81a24ff418
+      failing since 6 days (last pass: v5.4.68-388-g8a579883a490, first fai=
+l: v5.4.68-389-g256bdd45e196)
+
+    2020-10-05 20:07:16.911000  /lava-2692395/1/../bin/lava-test-case
+    2020-10-05 20:07:16.920000  <8>[   21.735046] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dcros-ec-sensors-accel1-probed RESULT=3Dfail>
+     * baseline.bootrr.cros-ec-sensors-gyro0-probed: https://kernelci.org/t=
+est/case/id/5f7b7cfc5683be81a24ff419
+      failing since 6 days (last pass: v5.4.68-388-g8a579883a490, first fai=
+l: v5.4.68-389-g256bdd45e196)
+
+    2020-10-05 20:07:17.942000  <8>[   22.756618] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dcros-ec-sensors-gyro0-probed RESULT=3Dfail>
+      =20
