@@ -2,73 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2B112846F1
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 09:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 549EA284754
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 09:32:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726822AbgJFHQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Oct 2020 03:16:32 -0400
-Received: from sonic312-25.consmr.mail.ne1.yahoo.com ([66.163.191.206]:40305
-        "EHLO sonic312-25.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725912AbgJFHQc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 03:16:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1601968591; bh=NajTNMrfMLb6UXcjRhYpYerQX8PtVBLz0oFgaMINSWY=; h=Date:From:Reply-To:Subject:References:From:Subject; b=RcWdhIrmDDCTISr2kcrbsjS+wdBGdsiMOd+Vz7RyXK0yOC/dKyhaZ7oDaKTprxsiAHzf0QkZsoHoV+RhEe+h9p+oex1lQNb/0NLo2l25b5z9iVYXee1K4LM2fiJivZXTdANRvou1E7DZgsfrHXzTzv28kSvEdT08RCUn9L71l83hlInQ21vGD8d7ATfms5DfqrTpa/Q6plhAj+qVEMMaLh+tuiuZJlzawz/tVj0iSOS77wCabIx2pbx7DVHXHvbjOdccBmf8hYDwSF4Mzq/c5i9Tk0vnTRG3Voaxkn7J2dQq4f62UyuJJMLhj+5MzkiMTxe3OuI6iIdO52i3X9FlUw==
-X-YMail-OSG: gY7Np10VM1kroi2QMh0WcrxKmEv0ERBsMS3XKfrnzMsgbCIjXmcpPzYRI107EZS
- ecIBwD067WR4hzJAEvoj9gy5efqbTakIP_sLGMPulym1S5alRwKviB2aLslCd_lF.LW5Sb0Y2qy5
- 8mWVQBpoNVo1G4nDPU96S.Q0lzliIR0trnOSgN.k2rXajI3XMZPaYbMxXIUY3yNz45kWYevdf3Qq
- 9TcOud0wxY9fv_s2u78cOiE2C2n2DypMZh2o9_12G.fN30eLwOh7jSR1EJ25GZls.wHcLQ0fTGii
- SMKQgwFzBmzH_3uJR9GfqTv2k34ao7lN8qGWt4j6B.6B9Iq5sfFA15wUqhaFgRDVTnotz6PL8TyS
- .EMqBI8eA4ivEQHajmMmoY27n_GUoUd.CXkI6T_OOcWkc2D3zATRPiUH5c1FUvGjICYvjY9gz13X
- at.iLozHnlNU6.3eg7WJOfI7ZxdNzRLqdBk53Rf.6yRrF3ZAXDEFs5qGDCsLlvaFGLet7ucENyha
- GeRcTxYy0ZW.qoXotVl0FnhSDk119bfUQbS_.9dI5iLEiJw7RTw7pTREuZbtFMrEpyeVpw7.oTHk
- f9sp6su6ocoUkI.cUHHLFYyYtipHvahiyq.wo8pGASKKWpMji5S.yxOo_B.lTWyULOknCmgDzIGw
- cxTWJg1tnT2pEahMrbJVV01O7_pJSx11wHZ3gxe9NtiIf7juvsq.XHrU35ki0kTC.QgV1t9JA3Ub
- Ypf0kidVljG8uWX6ylofLbFAJykRi6ZA29j_P2uMeZ2lv5FYPdGO9EE7mAExbNhgW29k5rDL3m6m
- IjJ9n4xqgoCZFHZHW2A14baJ1vK8hcjvGLLVthQbJEA_Jjpz916wyhdR6Cnc59Usy3vjL1raKzw8
- 2X8T3Jx.RBKEQZAvlBE4.qPmrhiEXm2MT0G2hyC0Y_d3dtd0k.rJKnQN5jt8qVmICNfUnyKlajUX
- Zfrx1vZ38jLTh1Uy5go5Hzdw8daBeE2JMzQzKWx0RbvHJwLVSKkObaRPxw_iJtVaC6kLI4y_P6Ag
- ddXbBh9WjzzOtiFvDK.gtqEAxr09TsaucpzZJn5tMeyScsZkBGL.g5dTTtqSghvDu8PAFSEuR57s
- BM4VGPcn8iBFWE1_xtvSrHu.w1mlKktsIsfniaDCNbogAFcPs02m2yZy7gHRFh4_VlQQL6ohfSzv
- bL3fBRV0mFK8ZzWWflEmG3sAl2fq_QdPE3tA6wVT3SMSKM0VzwaFo2wnEJDEi5Lz8UGY..qPr7KI
- WvlXAiqa1I4use_Vc6QCropmgEBTqR8lxoGMgVJ1gHwPMp49ndshLRaTqCylHmsIMIvitQVjbJDt
- M4qhraygMlQZ8EMfS9dNum0Yi057fEMcT_mASd0DVlXsE9Yvqe1YEa3K9xd9QbCeH1rcs6wa9G2p
- KtNU2bxSl15LsVzsJynmZF3NHJNfdO5fCJW0zUm6L4C35Og--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Tue, 6 Oct 2020 07:16:31 +0000
-Date:   Tue, 6 Oct 2020 07:16:27 +0000 (UTC)
-From:   Ms Lisa Hugh <lisa.hugh0000@gmail.com>
-Reply-To: ms.lisahugh000@gmail.com
-Message-ID: <1632008888.2403828.1601968587078@mail.yahoo.com>
-Subject: BUSINESS CO-OPERATION BENEFIT(Ms Lisa Hugh).
+        id S1726869AbgJFHcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 03:32:32 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25030 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726769AbgJFHcc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 03:32:32 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0967WB3n050861;
+        Tue, 6 Oct 2020 03:32:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : from : to : cc
+ : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=pp1;
+ bh=keydfn+CLng89rgDidgQ5HSG2EULMAQwM2jx9AGPH3c=;
+ b=ruz3vbVgBa7eh64lUrV8kyMiCO4+VBN6gRI/Zix9uIJFxtFcKmSz69N03Pq6h7BSxbRv
+ CYBcJf5Lj9qzsD9H5rn/5K87OtwoUor3Wq0T51fO1cUC8I/GUbnI4rW6PB4Brw4nloKq
+ rwE4NtLsRBHGvv1AwXz61gjxda6pM0xcNEFo+4wIygKdWUAkWSOYgIsrFDI3RZGC64lq
+ ZZnsEcE674bq02lJR0ocA5EfSYS9JYu4V3mxUe5kEWsA+w7RyalL/ZAzBp0Ej6mD6QRO
+ 9JWeVgUyjqeOynSMTyFQurXZEPoZVUctpbbZ0Opa92l3mYOnMUxZWFBRp16vbs8OFDrZ kQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 340m07gggs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Oct 2020 03:32:27 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0967WR1Y052068;
+        Tue, 6 Oct 2020 03:32:27 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 340m07ggfq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Oct 2020 03:32:26 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0967QT2o011239;
+        Tue, 6 Oct 2020 07:32:23 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma05fra.de.ibm.com with ESMTP id 33xgx81hjm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 06 Oct 2020 07:32:23 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0967WKpm31064526
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 6 Oct 2020 07:32:20 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 57137A405B;
+        Tue,  6 Oct 2020 07:32:20 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 80EC9A4065;
+        Tue,  6 Oct 2020 07:32:19 +0000 (GMT)
+Received: from [192.168.0.63] (unknown [9.85.71.114])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue,  6 Oct 2020 07:32:19 +0000 (GMT)
+Subject: [PATCH v4] powernv/elog: Fix the race while processing OPAL error log
+ event.
+From:   Mahesh Salgaonkar <mahesh@linux.ibm.com>
+To:     linuxppc-dev <linuxppc-dev@ozlabs.org>
+Cc:     "Oliver O'Halloran" <oohall@gmail.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Vasant Hegde <hegdevasant@linux.ibm.com>,
+        stable@vger.kernel.org
+Date:   Tue, 06 Oct 2020 13:02:18 +0530
+Message-ID: <160196953869.1829388.18213325952751883964.stgit@jupiter>
+User-Agent: StGit/0.21
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-References: <1632008888.2403828.1601968587078.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16718 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0
-To:     unlisted-recipients:; (no To-header on input)
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-10-06_02:2020-10-06,2020-10-06 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ mlxlogscore=999 phishscore=0 lowpriorityscore=0 spamscore=0 mlxscore=0
+ bulkscore=0 suspectscore=2 malwarescore=0 clxscore=1011 adultscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2010060040
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Every error log reported by OPAL is exported to userspace through a sysfs
+interface and notified using kobject_uevent(). The userspace daemon
+(opal_errd) then reads the error log and acknowledges it error log is saved
+safely to disk. Once acknowledged the kernel removes the respective sysfs
+file entry causing respective resources getting released including kobject.
+
+However there are chances where user daemon may already be scanning elog
+entries while new sysfs elog entry is being created by kernel. User daemon
+may read this new entry and ack it even before kernel can notify userspace
+about it through kobject_uevent() call. If that happens then we have a
+potential race between elog_ack_store->kobject_put() and kobject_uevent
+which can lead to use-after-free issue of a kernfs object resulting into a
+kernel crash. This patch fixes this race by protecting a sysfs file
+creation/notification by holding a reference count on kobject until we
+safely send kobject_uevent().
+
+The function create_elog_obj() returns the elog object which if used by
+caller function will end up in use-after-free problem again. However, the
+return value of create_elog_obj() function isn't being used today and there
+is need as well. Hence change it to return void to make this fix complete.
+
+Fixes: 774fea1a38c6 ("powerpc/powernv: Read OPAL error log and export it through sysfs")
+Cc: <stable@vger.kernel.org> # v3.15+
+Reported-by: Oliver O'Halloran <oohall@gmail.com>
+Signed-off-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
+Reviewed-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+---
+Chnage in v4:
+- Re-worded comments. No code change.
+Change in v3:
+- Change create_elog_obj function signature to return void.
+Change in v2:
+- Instead of mutex and use extra reference count on kobject to avoid the
+  race.
+---
+ arch/powerpc/platforms/powernv/opal-elog.c |   34 ++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 5 deletions(-)
+
+diff --git a/arch/powerpc/platforms/powernv/opal-elog.c b/arch/powerpc/platforms/powernv/opal-elog.c
+index 62ef7ad995da..adf4ff8d0bea 100644
+--- a/arch/powerpc/platforms/powernv/opal-elog.c
++++ b/arch/powerpc/platforms/powernv/opal-elog.c
+@@ -179,14 +179,14 @@ static ssize_t raw_attr_read(struct file *filep, struct kobject *kobj,
+ 	return count;
+ }
+ 
+-static struct elog_obj *create_elog_obj(uint64_t id, size_t size, uint64_t type)
++static void create_elog_obj(uint64_t id, size_t size, uint64_t type)
+ {
+ 	struct elog_obj *elog;
+ 	int rc;
+ 
+ 	elog = kzalloc(sizeof(*elog), GFP_KERNEL);
+ 	if (!elog)
+-		return NULL;
++		return;
+ 
+ 	elog->kobj.kset = elog_kset;
+ 
+@@ -219,18 +219,42 @@ static struct elog_obj *create_elog_obj(uint64_t id, size_t size, uint64_t type)
+ 	rc = kobject_add(&elog->kobj, NULL, "0x%llx", id);
+ 	if (rc) {
+ 		kobject_put(&elog->kobj);
+-		return NULL;
++		return;
+ 	}
+ 
++	/*
++	 * As soon as sysfs file for this elog is created/activated there is
++	 * chance opal_errd daemon might read and acknowledge this elog before
++	 * kobject_uevent() is called. If that happens then we have a potential
++	 * race between elog_ack_store->kobject_put() and kobject_uevent which
++	 * leads to use-after-free issue of a kernfs object resulting into
++	 * kernel crash.
++	 *
++	 * We already have one reference count on kobject and is been used for
++	 * sysfs_create_bin_file() function. This initial one reference count
++	 * is valid until it is dropped by elog_ack_store() function.
++	 *
++	 * However if userspace acknowledges the elog before this code reaches
++	 * to kobject_uevent(), the reference count on kobject drops to zero
++	 * and no longer stay valid for kobject_uevent() invocation. To avoid
++	 * this race take reference count on kobject for bin file creation and
++	 * drop it after kobject_uevent() is sent.
++	 */
++
++	kobject_get(&elog->kobj);  /* take a reference for the bin file. */
+ 	rc = sysfs_create_bin_file(&elog->kobj, &elog->raw_attr);
+ 	if (rc) {
+ 		kobject_put(&elog->kobj);
+-		return NULL;
++		/* Drop reference count taken for bin file.  */
++		kobject_put(&elog->kobj);
++		return;
+ 	}
+ 
+ 	kobject_uevent(&elog->kobj, KOBJ_ADD);
++	/* Drop reference count taken for bin file.  */
++	kobject_put(&elog->kobj);
+ 
+-	return elog;
++	return;
+ }
+ 
+ static irqreturn_t elog_event(int irq, void *data)
 
 
-Dear Friend,
-
-I am Ms Lisa hugh, work with the department of Audit and accounting manager here in the Bank(B.O.A).
-
-Please i need your assistance for the transferring of thIs fund to your bank account for both of us benefit for life time investment, amount (US$4.5M DOLLARS).
-
-I have every inquiry details to make the bank believe you and release the fund in within 5 banking working days with your full co-operation with me for success.
-
-Note/ 50% for you why 50% for me after success of the transfer to your bank account.
-
-Below information is what i need from you so will can be reaching each other
-
-1)Full name ...
-2)Private telephone number...
-3)Age...
-4)Nationality...
-5)Occupation ...
-
-
-Thanks.
-
-Ms Lisa hugh.
