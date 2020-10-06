@@ -2,71 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E709D284CB1
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 15:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4406A284CB6
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 15:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725946AbgJFNrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Oct 2020 09:47:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57446 "EHLO
+        id S1725939AbgJFNwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 09:52:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725942AbgJFNrj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 09:47:39 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE105C061755
-        for <stable@vger.kernel.org>; Tue,  6 Oct 2020 06:47:38 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id u6so13040270iow.9
-        for <stable@vger.kernel.org>; Tue, 06 Oct 2020 06:47:38 -0700 (PDT)
+        with ESMTP id S1725906AbgJFNwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 09:52:39 -0400
+Received: from mail-qv1-xf4a.google.com (mail-qv1-xf4a.google.com [IPv6:2607:f8b0:4864:20::f4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D00C061755
+        for <stable@vger.kernel.org>; Tue,  6 Oct 2020 06:52:39 -0700 (PDT)
+Received: by mail-qv1-xf4a.google.com with SMTP id u17so1153069qvt.23
+        for <stable@vger.kernel.org>; Tue, 06 Oct 2020 06:52:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=C7ABT4S9Bj86/MxrFTgOJ7EFe7ZoaqJFidPKMvGmSLI=;
-        b=hjzBNc3yJwJ4UXnqQYEASjy08rJx7qOD3nK/kWdAqB9nKC6Fp55K/4FbVN0zo9CD8L
-         G8F6p9X+KGwxngOZY84F+O7EPtkOX9k5zkSz/639TxrKKJ2riMT/8Pbh4PCiI3HWnFfw
-         qXDZBKRevrD+kOKuvaZdZYVMPmebRnbGahrkBOKnnFgoOHXXDvpwVgUPwPcnK6DEN8HJ
-         dU9VYTzAOC2qsKC3EcFYggdTYzOB1udz4OZVna3rEI5J+adqBWAgLzRA63fLYnkf7aMZ
-         0/fPZ0Gc6Hx2IZ3A37ZDs61JxxNQ+r1bBFThCCU1flLwa6PFvH2H3FFrkWnzYcYrmqWj
-         Q4pQ==
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=X/hCa8gN/NHhf9tV08GOABd9YPO8syQlEVjmbLlNZxg=;
+        b=isiQx5iQXTXCtiesj3Zh91Pc5yqPxxZh9d5pjCs3hE5sIEpugR2UZ/WhBP01RwNLdU
+         2JWjgjuCb549YeevgADXNW2wo/Hj2ZlYhqMEZSn0JObpEufY5M5rAwfO1SX9UpjHPBQ8
+         bvguFlxlDeenGJ5ojkbiHoi2F8vXj1/KETP4Lhil1by4PMz/aFjODR3DuolXl54AESJf
+         cQ2gsR6ht8g30wbhCgViBOL8VNAugTc7pYC1hKuph7cmqab+MDio4G37EK00PBGgIPIy
+         hLjtO2pmWJdC1S5JONwDDk1/9Qxwfei0QIoofW1vPYUqxW1MrOD28TKXyOFQDuRImiPl
+         VrBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=C7ABT4S9Bj86/MxrFTgOJ7EFe7ZoaqJFidPKMvGmSLI=;
-        b=I1GKkTHm0bvRgx87+18OcZNHXpPTFPlikjZwK0A7pWbrXb4FFV1mSARaGMeh23LJdg
-         hyrjQY/0tUtp9WP2+r/oi5akiTL6Q7TSXb+fPkc8z7GHbquys2WtCDh2IMT1E3LU8vVd
-         es5+z0XAAryfRoq5LEhIGcbN6eQu0XA7YBWidga4Fg39lLsAvaUr/QiFyVmUxlMy54WV
-         JaOyx4SMaICcYrlyww1pSC6G2MN2QTDxSwcUgSkUfcQF5GuiL1BFlSokRRuPyiYPy0GT
-         +dmKzsr0ArXvloCKSAOVt7CW88hyi7hmHGCySbHJq+0S5bKULtYlhYOCIBVi3J4ce+lf
-         n73g==
-X-Gm-Message-State: AOAM533TRig22F1R1kRZupE3GVrH9gSB7GDo0rZCI43LzZVA/DFyOYcF
-        5FNCMOTO2k7YI1PDQlPBjOamgHebAaLoZxx89Zw=
-X-Google-Smtp-Source: ABdhPJxpyaBq5xrsHjYVaPeoyqvSfrxcZiKjPi2DwyXDqOw16PwfVo8wdBXUbnz5tICcIjswT1LDYm2SLFlqfgpbv4U=
-X-Received: by 2002:a02:9508:: with SMTP id y8mr1290669jah.15.1601992058291;
- Tue, 06 Oct 2020 06:47:38 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a4f:ce93:0:0:0:0:0 with HTTP; Tue, 6 Oct 2020 06:47:37 -0700 (PDT)
-Reply-To: idrisibrahim@post.com
-From:   Idris <ibrahimbuba00111@gmail.com>
-Date:   Tue, 6 Oct 2020 13:47:37 +0000
-Message-ID: <CAHf6eUwoU_XYeEhCpSRAGkR1oBmBEN9Z_H8Q4fUPHPQs3tEkvg@mail.gmail.com>
-Subject: My dear how are you
-To:     undisclosed-recipients:;
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=X/hCa8gN/NHhf9tV08GOABd9YPO8syQlEVjmbLlNZxg=;
+        b=OcgI9Y4ZljOyVDvbz9oESFaRR2DiXFcRA4BRzJlD2hMtDY6WS2g6zy0iLOP6ZLm61X
+         Fxnct+xhhHKNMRfzPbIp0GVp/P0OTWLdFWn/c6mNzaWGU2x5acCe/fw/3HVqZrz8Q8Wz
+         X8ce7ntK7DViN8G46+UaqmCAZoR5KIZxIG0yC6amvFWMSBTRSHFJmllIjq6yed3sYN0e
+         ckCVKrfmAox6alOZ5YfAwzLN9OI5wtIwSzrcB2UZXQIjvjLbVkrq+u6I6OP8Nu9Au3tM
+         48qcnNPuio5HO+D+vw+i8YPYoF1wsX0XqJpkhwr3bwe8BG3NbT6+lpq09QRd++xnDzaN
+         /sqw==
+X-Gm-Message-State: AOAM5325Y1YlDz2vTMJabpHvw6DQspc2pB4tweHqUCS66rGmuMacIkSV
+        eSiJIx8yt/UNbTLGGv9Y1fiJuUO7c1QR2g==
+X-Google-Smtp-Source: ABdhPJxHHgOhWC2FE/9GTB1/xI/detlBR/PJ1tmBkOe+EqApgRNVOlD0+zUQOmnNqWUAifZQiH2S/sbr4Sw12g==
+Sender: "gprocida via sendgmr" <gprocida@tef.lon.corp.google.com>
+X-Received: from tef.lon.corp.google.com ([2a00:79e0:d:110:a6ae:11ff:fe11:4f04])
+ (user=gprocida job=sendgmr) by 2002:ad4:4b61:: with SMTP id
+ m1mr4929747qvx.11.1601992358569; Tue, 06 Oct 2020 06:52:38 -0700 (PDT)
+Date:   Tue,  6 Oct 2020 14:52:27 +0100
+Message-Id: <20201006135228.113259-1-gprocida@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.28.0.806.g8561365e88-goog
+Subject: [PATCH 0/1] Fix drm_syncobj_handle_to_fd refcount leak
+From:   Giuliano Procida <gprocida@google.com>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     Giuliano Procida <gprocida@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PLEASE AFTER READING MY MESSAGE IF YOU ARE INTERESTED GETBACK TO ME
-IMMEDIATELY. BUT IF YOU ARE NOT INTERESTED PLEASE DELETE MY MESSAGE AND
-INFORM ME THAT YOU ARE NOT INTERESTED SO THAT I CAN LOOK FOR ANOTHER
-PERSON.
+This is for 4.14.
 
-I contacted you to seek your interest over a business transaction. The
-amount involved is ($35.000.000.00). The money will be transfer from
-our bank here in Burkina Faso to your bank account in your country.
+Earlier LTS kernels don't have this functionality at all and later
+ones have the original commit.
 
-I will explain the reason i want to move out this fund out from our
-bank when i hear from you. Declare your interest by sending your full
-names, phone numbers, occupation and your age.
+The code is untested as I don't have the right hardware handy.
 
-Thanks,
-Mr.Idris Ibrahim
+Giuliano Procida (1):
+  drm/syncobj: Fix drm_syncobj_handle_to_fd refcount leak
+
+ drivers/gpu/drm/drm_syncobj.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+-- 
+2.28.0.806.g8561365e88-goog
+
