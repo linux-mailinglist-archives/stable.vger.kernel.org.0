@@ -2,190 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 549EA284754
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 09:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 062D728488F
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 10:25:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726869AbgJFHcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Oct 2020 03:32:32 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25030 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726769AbgJFHcc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 03:32:32 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0967WB3n050861;
-        Tue, 6 Oct 2020 03:32:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : from : to : cc
- : date : message-id : mime-version : content-type :
- content-transfer-encoding; s=pp1;
- bh=keydfn+CLng89rgDidgQ5HSG2EULMAQwM2jx9AGPH3c=;
- b=ruz3vbVgBa7eh64lUrV8kyMiCO4+VBN6gRI/Zix9uIJFxtFcKmSz69N03Pq6h7BSxbRv
- CYBcJf5Lj9qzsD9H5rn/5K87OtwoUor3Wq0T51fO1cUC8I/GUbnI4rW6PB4Brw4nloKq
- rwE4NtLsRBHGvv1AwXz61gjxda6pM0xcNEFo+4wIygKdWUAkWSOYgIsrFDI3RZGC64lq
- ZZnsEcE674bq02lJR0ocA5EfSYS9JYu4V3mxUe5kEWsA+w7RyalL/ZAzBp0Ej6mD6QRO
- 9JWeVgUyjqeOynSMTyFQurXZEPoZVUctpbbZ0Opa92l3mYOnMUxZWFBRp16vbs8OFDrZ kQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 340m07gggs-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Oct 2020 03:32:27 -0400
-Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0967WR1Y052068;
-        Tue, 6 Oct 2020 03:32:27 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 340m07ggfq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Oct 2020 03:32:26 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
-        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0967QT2o011239;
-        Tue, 6 Oct 2020 07:32:23 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma05fra.de.ibm.com with ESMTP id 33xgx81hjm-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 06 Oct 2020 07:32:23 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0967WKpm31064526
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 6 Oct 2020 07:32:20 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 57137A405B;
-        Tue,  6 Oct 2020 07:32:20 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 80EC9A4065;
-        Tue,  6 Oct 2020 07:32:19 +0000 (GMT)
-Received: from [192.168.0.63] (unknown [9.85.71.114])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  6 Oct 2020 07:32:19 +0000 (GMT)
-Subject: [PATCH v4] powernv/elog: Fix the race while processing OPAL error log
- event.
-From:   Mahesh Salgaonkar <mahesh@linux.ibm.com>
-To:     linuxppc-dev <linuxppc-dev@ozlabs.org>
-Cc:     "Oliver O'Halloran" <oohall@gmail.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Vasant Hegde <hegdevasant@linux.ibm.com>,
-        stable@vger.kernel.org
-Date:   Tue, 06 Oct 2020 13:02:18 +0530
-Message-ID: <160196953869.1829388.18213325952751883964.stgit@jupiter>
-User-Agent: StGit/0.21
+        id S1725973AbgJFIZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 04:25:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36096 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725947AbgJFIZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 04:25:43 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 465B9C061755
+        for <stable@vger.kernel.org>; Tue,  6 Oct 2020 01:25:43 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id d20so7178369iop.10
+        for <stable@vger.kernel.org>; Tue, 06 Oct 2020 01:25:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=YRj9P/9Lvsmxkr1sJc/9VWaorXzUF7X2yNhikWl2Zyw=;
+        b=KqRBxzTuIgJZ68p3ZslROEmoubYrk5WVvyHndOzgCgejx6vcpnodycSKPoyRUgPLpC
+         DzvVVdNGcA+IsJiXbiSfwg125KxadQq+eFcurKPiKuRd1Px6ZA48FwXFW3bscJwmd3gy
+         Mr+L/cchQ8lkrUa1Dvgvk+YsqaxyArjSWJtYy9Y6sBWTxNv/B8eBUOCg3ULC49F4+PsG
+         oImyyLYLEfp91+QkTwf9QpsgwNh6ooDozyh2UZzhNO5xprsTq8iHPP4/tdMfhEBfc/35
+         bwNlOacIIZV8PxT8K6cKGsMc/5wyHNPSO5DmPGjHLfHGsi17SJ6GZ+KxLWwFZ/yfrwba
+         XCMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=YRj9P/9Lvsmxkr1sJc/9VWaorXzUF7X2yNhikWl2Zyw=;
+        b=iJxm8/o0lGOnqPfbsw7LHSawH6b/yGSDx5UVj4BHO9RCPWcNkprq5+LB+fQdfz+3mC
+         6T4u1PHXoBhT8kq4bpwz0G3DZJS2Y4ZZhI7qixGTRt8z86IIbqzCfvgN426L6z8fVoG4
+         LPiKhl9C9GkCp/lXrz7S8Toi2NMWWfVSt2kq9rJyai6ZStl0Ao+dEOt7urOTL1DcsZKK
+         WY4m7dnNuWopGnr8D7Pph7hUgjYEJRLphAq8PIO7VFWqHEsviz4T24R+OYqMia6ZxeKk
+         K7+/A0ViibYKVrbnS80g1nNhgp8arcdKE5XCWkzZtOa5ur1YPpQzwYhGkvlidkNjGG+U
+         5K6g==
+X-Gm-Message-State: AOAM5301qtKvpjA1XuSAhlkmfdDDO356yHoAfnyVXyAQBnYDxRESiWcj
+        QbSZqKCZ3UOBaAr10KP8hGSQNW1hsnyBeMzST80jrw==
+X-Google-Smtp-Source: ABdhPJwJCHEhkfRixrBxYgOGpD7RdsD3ZKvjUm5DFxPapq4Yvpmp/pbEgQOedan6gckCg3m09xuOjp3Q54/Pu62awLo=
+X-Received: by 2002:a02:a0c2:: with SMTP id i2mr221750jah.92.1601972742395;
+ Tue, 06 Oct 2020 01:25:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-10-06_02:2020-10-06,2020-10-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- mlxlogscore=999 phishscore=0 lowpriorityscore=0 spamscore=0 mlxscore=0
- bulkscore=0 suspectscore=2 malwarescore=0 clxscore=1011 adultscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2010060040
+References: <20201005142109.796046410@linuxfoundation.org> <CA+G9fYvHOu8kJhRKV5GPJmnaE_x2mrnN6myb4G4YHHW-oiKD7A@mail.gmail.com>
+In-Reply-To: <CA+G9fYvHOu8kJhRKV5GPJmnaE_x2mrnN6myb4G4YHHW-oiKD7A@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 6 Oct 2020 13:55:30 +0530
+Message-ID: <CA+G9fYu5zw8=Dbm79TW6qhbu-BPYbnxTh976Kv1riUQCkv7ZNg@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/57] 5.4.70-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Every error log reported by OPAL is exported to userspace through a sysfs
-interface and notified using kobject_uevent(). The userspace daemon
-(opal_errd) then reads the error log and acknowledges it error log is saved
-safely to disk. Once acknowledged the kernel removes the respective sysfs
-file entry causing respective resources getting released including kobject.
-
-However there are chances where user daemon may already be scanning elog
-entries while new sysfs elog entry is being created by kernel. User daemon
-may read this new entry and ack it even before kernel can notify userspace
-about it through kobject_uevent() call. If that happens then we have a
-potential race between elog_ack_store->kobject_put() and kobject_uevent
-which can lead to use-after-free issue of a kernfs object resulting into a
-kernel crash. This patch fixes this race by protecting a sysfs file
-creation/notification by holding a reference count on kobject until we
-safely send kobject_uevent().
-
-The function create_elog_obj() returns the elog object which if used by
-caller function will end up in use-after-free problem again. However, the
-return value of create_elog_obj() function isn't being used today and there
-is need as well. Hence change it to return void to make this fix complete.
-
-Fixes: 774fea1a38c6 ("powerpc/powernv: Read OPAL error log and export it through sysfs")
-Cc: <stable@vger.kernel.org> # v3.15+
-Reported-by: Oliver O'Halloran <oohall@gmail.com>
-Signed-off-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reviewed-by: Oliver O'Halloran <oohall@gmail.com>
-Reviewed-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
----
-Chnage in v4:
-- Re-worded comments. No code change.
-Change in v3:
-- Change create_elog_obj function signature to return void.
-Change in v2:
-- Instead of mutex and use extra reference count on kobject to avoid the
-  race.
----
- arch/powerpc/platforms/powernv/opal-elog.c |   34 ++++++++++++++++++++++++----
- 1 file changed, 29 insertions(+), 5 deletions(-)
-
-diff --git a/arch/powerpc/platforms/powernv/opal-elog.c b/arch/powerpc/platforms/powernv/opal-elog.c
-index 62ef7ad995da..adf4ff8d0bea 100644
---- a/arch/powerpc/platforms/powernv/opal-elog.c
-+++ b/arch/powerpc/platforms/powernv/opal-elog.c
-@@ -179,14 +179,14 @@ static ssize_t raw_attr_read(struct file *filep, struct kobject *kobj,
- 	return count;
- }
- 
--static struct elog_obj *create_elog_obj(uint64_t id, size_t size, uint64_t type)
-+static void create_elog_obj(uint64_t id, size_t size, uint64_t type)
- {
- 	struct elog_obj *elog;
- 	int rc;
- 
- 	elog = kzalloc(sizeof(*elog), GFP_KERNEL);
- 	if (!elog)
--		return NULL;
-+		return;
- 
- 	elog->kobj.kset = elog_kset;
- 
-@@ -219,18 +219,42 @@ static struct elog_obj *create_elog_obj(uint64_t id, size_t size, uint64_t type)
- 	rc = kobject_add(&elog->kobj, NULL, "0x%llx", id);
- 	if (rc) {
- 		kobject_put(&elog->kobj);
--		return NULL;
-+		return;
- 	}
- 
-+	/*
-+	 * As soon as sysfs file for this elog is created/activated there is
-+	 * chance opal_errd daemon might read and acknowledge this elog before
-+	 * kobject_uevent() is called. If that happens then we have a potential
-+	 * race between elog_ack_store->kobject_put() and kobject_uevent which
-+	 * leads to use-after-free issue of a kernfs object resulting into
-+	 * kernel crash.
-+	 *
-+	 * We already have one reference count on kobject and is been used for
-+	 * sysfs_create_bin_file() function. This initial one reference count
-+	 * is valid until it is dropped by elog_ack_store() function.
-+	 *
-+	 * However if userspace acknowledges the elog before this code reaches
-+	 * to kobject_uevent(), the reference count on kobject drops to zero
-+	 * and no longer stay valid for kobject_uevent() invocation. To avoid
-+	 * this race take reference count on kobject for bin file creation and
-+	 * drop it after kobject_uevent() is sent.
-+	 */
-+
-+	kobject_get(&elog->kobj);  /* take a reference for the bin file. */
- 	rc = sysfs_create_bin_file(&elog->kobj, &elog->raw_attr);
- 	if (rc) {
- 		kobject_put(&elog->kobj);
--		return NULL;
-+		/* Drop reference count taken for bin file.  */
-+		kobject_put(&elog->kobj);
-+		return;
- 	}
- 
- 	kobject_uevent(&elog->kobj, KOBJ_ADD);
-+	/* Drop reference count taken for bin file.  */
-+	kobject_put(&elog->kobj);
- 
--	return elog;
-+	return;
- }
- 
- static irqreturn_t elog_event(int irq, void *data)
+On Tue, 6 Oct 2020 at 11:24, Naresh Kamboju <naresh.kamboju@linaro.org> wro=
+te:
+>
+> On Mon, 5 Oct 2020 at 20:59, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.4.70 release.
+> > There are 57 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Wed, 07 Oct 2020 14:20:55 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patc=
+h-5.4.70-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git linux-5.4.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> >
+>
+> Results from Linaro=E2=80=99s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
+>
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 
+NOTE:
+While running LTP containers test suite,
+I noticed this kernel panic on arm64 Juno-r2 devices.
+Not easily reproducible and not seen on any other arm64 devices.
+
+steps to reproduce:
+---------------------------
+# boot stable rc 5.4.70 kernel on juno-r2 machine
+# cd /opt/ltp
+# ./runltp -f containers
+
+Crash log,
+---------------
+pidns13     0  TINFO  :  cinit2: writing some data in pipe
+pidns13     0  TINFO  :  cinit1: setup handler for async I/O on pipe
+pidns13     1  TPASS  :  cinit1: si_fd is 6, si_code is 1
+[  122.275627] Internal error: synchronous external abort: 96000210
+[#1] PREEMPT SMP
+[  122.283139] Modules linked in: tda998x drm_kms_helper drm crct10dif_ce f=
+use
+[  122.290130] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.70-rc1 #1
+[  122.296406] Hardware name: ARM Juno development board (r2) (DT)
+[  122.302337] pstate: 80000085 (Nzcv daIf -PAN -UAO)
+[  122.307144] pc : sil24_interrupt+0x28/0x5f0
+[  122.311337] lr : __handle_irq_event_percpu+0x78/0x2c0
+[  122.316395] sp : ffff800010003db0
+[  122.319712] x29: ffff800010003db0 x28: ffff800011f73d80
+[  122.325034] x27: ffff800011962018 x26: ffff000954a82000
+[  122.330357] x25: ffff800011962018 x24: ffff800011f6a158
+[  122.335679] x23: ffff800010003ef4 x22: ffff000975740000
+[  122.341001] x21: 0000000000000033 x20: ffff80001233d044
+[  122.346324] x19: ffff000975742500 x18: 0000000000000000
+[  122.351646] x17: 0000000000000000 x16: 0000000000000000
+[  122.356967] x15: 0000000000000000 x14: 003d090000000000
+[  122.362290] x13: 00003d0900000000 x12: 0000000000000000
+[  122.367612] x11: 00003d0900000000 x10: 0000000000000040
+[  122.372934] x9 : ffff800011f89b68 x8 : ffff800011f89b60
+[  122.378256] x7 : ffff000975800408 x6 : 0000000000000000
+[  122.383578] x5 : ffff000975800248 x4 : ffff80096d5ba000
+[  122.388900] x3 : ffff800010003f30 x2 : ffff80001093a078
+[  122.394222] x1 : ffff000975740000 x0 : ffff00097574df80
+[  122.399545] Call trace:
+[  122.401995]  sil24_interrupt+0x28/0x5f0
+[  122.405838]  __handle_irq_event_percpu+0x78/0x2c0
+[  122.410550]  handle_irq_event_percpu+0x3c/0x98
+[  122.415002]  handle_irq_event+0x4c/0xe8
+[  122.418844]  handle_fasteoi_irq+0xbc/0x168
+[  122.422947]  generic_handle_irq+0x34/0x50
+[  122.426963]  __handle_domain_irq+0x6c/0xc0
+[  122.431066]  gic_handle_irq+0x58/0xb0
+[  122.434733]  el1_irq+0xbc/0x180
+[  122.437880]  cpuidle_enter_state+0xb8/0x528
+[  122.442070]  cpuidle_enter+0x3c/0x50
+[  122.445652]  call_cpuidle+0x40/0x78
+[  122.449146]  do_idle+0x1f0/0x2a0
+[  122.452379]  cpu_startup_entry+0x2c/0x88
+[  122.456311]  rest_init+0xdc/0xe8
+[  122.459545]  arch_call_rest_init+0x14/0x1c
+[  122.463647]  start_kernel+0x484/0x4b8
+[  122.467321] Code: d503201f f9400ac0 f9400014 91011294 (b9400294)
+[  122.473437] ---[ end trace 68b3da9e48a77548 ]---
+[  122.478062] Kernel panic - not syncing: Fatal exception in interrupt
+[  122.484429] SMP: stopping secondary CPUs
+[  122.488569] Kernel Offset: disabled
+[  122.492062] CPU features: 0x0002,24006004
+[  122.496074] Memory Limit: none
+[  122.499141] ---[ end Kernel panic - not syncing: Fatal exception in
+interrupt ]---
+
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+
+
+Full test log,
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.6=
+9-58-g7b199c4db17f/testrun/3273934/suite/linux-log-parser/test/check-kernel=
+-panic-1818664/log
+
+- Naresh
