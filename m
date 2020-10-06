@@ -2,117 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FF97284EAE
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 17:15:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D148C284EB4
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 17:18:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726165AbgJFPPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Oct 2020 11:15:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42668 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725946AbgJFPPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 11:15:25 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E779EC061755;
-        Tue,  6 Oct 2020 08:15:24 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id m15so1365407pls.8;
-        Tue, 06 Oct 2020 08:15:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=O3wutOykn+qjv13+aIbbS9aviAcrhkTNsBYW/8APKCI=;
-        b=Ge7sc9DFWYNmWKj/NId96QnjqS7divhkH2kHeTLILE/UPpyrCZ4IXU+0R3PRtbRyVH
-         RVWsno4V7HbX1f1vratyfq6JlxSIHTI7s6CvK/KRkNviLAqBuNZBUxJZca8RdsURKy/t
-         a6TubcGai1NF8WOXxKDBm8vNQsp8tbAJuPBzIpq5gazkyPhWnZj4Y3TWJ4ywE90xTQ0S
-         wmhWCPeMv2RRIqEzNiSluNno3KwyBrVQZ4ZIkgGdZNeoEHL7m5LBhFDWvTa0fMCE7vSy
-         ucoDTbq1s9IHd22dW7ECLT9QUIic0BEMjgQmzs9dDUkM9bVgdaLTvDzbOG83mGH2d1JV
-         9asQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=O3wutOykn+qjv13+aIbbS9aviAcrhkTNsBYW/8APKCI=;
-        b=eCMN35Du900jj4OtMw5L8jCCimW/BUrODZc0Swqkr5VC6RDEuD7k/A8F5xUH1vbx4D
-         mtGOxE0XgGYyc+CavrzIsOxCC3XHR/WFxugxMK0LheXaKlZKgkG9PvJTOpkDkg+osEKe
-         p0dJ70efqbi+ZNkY2Q1iYSkF3MJj5A3YuVDxBasiWAngzdAyA9C9X7d/HMJB1axPaQ4r
-         2kdLFyWabDC/oiwS//z2Xx0T9igQ5yTGmKjrI+9s4sXXrYb6d1wBdZTDI88UF9juG2JU
-         xNRZhL+MxjP5gbdB2XGN0TqFixqmL2emTA3fY/le5s3A5u9EqmCQmk9GoD0oOsSii+87
-         LL8Q==
-X-Gm-Message-State: AOAM5311GvGhky69XwpnQUKL/6PwhG6WxklbKFSlPb2lDDx7cwT6Yue2
-        cVD3vrG+U2lhL9WuUrdl93A=
-X-Google-Smtp-Source: ABdhPJxJ93yZXWx4BKa4VxxHx7oDzy9xslGONHzwIA0G3joVJKEsY34G7bWYFkiQtBWe4B7/3lfdEg==
-X-Received: by 2002:a17:902:b7ca:b029:d3:eca2:d221 with SMTP id v10-20020a170902b7cab02900d3eca2d221mr1808827plz.74.1601997324473;
-        Tue, 06 Oct 2020 08:15:24 -0700 (PDT)
-Received: from ashish-sangwan.user.nutanix.com (mcp02.nutanix.com. [192.146.155.5])
-        by smtp.googlemail.com with ESMTPSA id x7sm2924159pgl.77.2020.10.06.08.15.23
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 06 Oct 2020 08:15:23 -0700 (PDT)
-From:   Ashish Sangwan <ashishsangwan2@gmail.com>
-To:     Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc:     ashishsangwan2@gmail.com, stable@vger.kernel.org,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        linux-nfs@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] NFS: Fix mode bits and nlink count for v4 referral dirs
-Date:   Tue,  6 Oct 2020 08:14:56 -0700
-Message-Id: <20201006151456.20875-1-ashishsangwan2@gmail.com>
-X-Mailer: git-send-email 2.16.3
+        id S1725981AbgJFPSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 11:18:22 -0400
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:39066 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725906AbgJFPSW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 11:18:22 -0400
+Received: from fllv0034.itg.ti.com ([10.64.40.246])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 096FI90q075440;
+        Tue, 6 Oct 2020 10:18:09 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1601997489;
+        bh=cEvQkTPb5D58O6vqHt0d3zXE2tCjsask8K4wj8gkurE=;
+        h=Date:From:To:CC:Subject:References:In-Reply-To;
+        b=RtTlsAu1TxRWSNrU3qD3A0ybovtKnGgzsRpKzxClmi4V/3v24A5c69ZfofbDDRemx
+         5cgWZBGzjtk7bzNhJ+XiX7jpBhmwe1LqErkMhL0l+rRQ7idzQQ4OokpsbjugK2ieuJ
+         ASnYHpUJMsfiHiDvuyCjcW/7VasZ+i6wiHdQdFVQ=
+Received: from DFLE111.ent.ti.com (dfle111.ent.ti.com [10.64.6.32])
+        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 096FI9An078136
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Tue, 6 Oct 2020 10:18:09 -0500
+Received: from DFLE112.ent.ti.com (10.64.6.33) by DFLE111.ent.ti.com
+ (10.64.6.32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Tue, 6 Oct
+ 2020 10:18:09 -0500
+Received: from fllv0040.itg.ti.com (10.64.41.20) by DFLE112.ent.ti.com
+ (10.64.6.33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Tue, 6 Oct 2020 10:18:09 -0500
+Received: from localhost (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0040.itg.ti.com (8.15.2/8.15.2) with ESMTP id 096FI8wx005857;
+        Tue, 6 Oct 2020 10:18:08 -0500
+Date:   Tue, 6 Oct 2020 20:48:07 +0530
+From:   Pratyush Yadav <p.yadav@ti.com>
+To:     Bert Vermeulen <bert@biot.com>
+CC:     <tudor.ambarus@microchip.com>, <miquel.raynal@bootlin.com>,
+        <richard@nod.at>, <vigneshr@ti.com>,
+        <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+Subject: Re: [RESEND PATCH v2] mtd: spi-nor: Fix address width on flash chips
+ > 16MB
+Message-ID: <20201006151807.2pckm7ncply7uomc@ti.com>
+References: <20201006132346.12652-1-bert@biot.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20201006132346.12652-1-bert@biot.com>
+User-Agent: NeoMutt/20171215
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Request for mode bits and nlink count in the nfs4_get_referral call
-and if server returns them use them instead of hard coded values.
+On 06/10/20 03:23PM, Bert Vermeulen wrote:
+> If a flash chip has more than 16MB capacity but its BFPT reports
+> BFPT_DWORD1_ADDRESS_BYTES_3_OR_4, the spi-nor framework defaults to 3.
+> 
+> The check in spi_nor_set_addr_width() doesn't catch it because addr_width
+> did get set. This fixes that check.
+> 
+> Fixes: f9acd7fa80be ("mtd: spi-nor: sfdp: default to addr_width of 3 for configurable widths")
+> Signed-off-by: Bert Vermeulen <bert@biot.com>
+> Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+> ---
+>  drivers/mtd/spi-nor/core.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+> index 0369d98b2d12..a2c35ad9645c 100644
+> --- a/drivers/mtd/spi-nor/core.c
+> +++ b/drivers/mtd/spi-nor/core.c
+> @@ -3009,13 +3009,15 @@ static int spi_nor_set_addr_width(struct spi_nor *nor)
+>  		/* already configured from SFDP */
+>  	} else if (nor->info->addr_width) {
+>  		nor->addr_width = nor->info->addr_width;
+> -	} else if (nor->mtd.size > 0x1000000) {
+> -		/* enable 4-byte addressing if the device exceeds 16MiB */
+> -		nor->addr_width = 4;
+>  	} else {
+>  		nor->addr_width = 3;
+>  	}
+>  
+> +	if (nor->addr_width == 3 && nor->mtd.size > 0x1000000) {
+Nitpick:    ^^^^^^^^^^^^^^^^^^^^^^^^ you can drop this part. But its 
+fine either way.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Ashish Sangwan <ashishsangwan2@gmail.com>
----
- fs/nfs/nfs4proc.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 6e95c85fe395..efec05c5f535 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -266,7 +266,9 @@ const u32 nfs4_fs_locations_bitmap[3] = {
- 	| FATTR4_WORD0_FSID
- 	| FATTR4_WORD0_FILEID
- 	| FATTR4_WORD0_FS_LOCATIONS,
--	FATTR4_WORD1_OWNER
-+	FATTR4_WORD1_MODE
-+	| FATTR4_WORD1_NUMLINKS
-+	| FATTR4_WORD1_OWNER
- 	| FATTR4_WORD1_OWNER_GROUP
- 	| FATTR4_WORD1_RAWDEV
- 	| FATTR4_WORD1_SPACE_USED
-@@ -7594,16 +7596,28 @@ nfs4_listxattr_nfs4_user(struct inode *inode, char *list, size_t list_len)
-  */
- static void nfs_fixup_referral_attributes(struct nfs_fattr *fattr)
- {
-+	bool fix_mode = true, fix_nlink = true;
-+
- 	if (!(((fattr->valid & NFS_ATTR_FATTR_MOUNTED_ON_FILEID) ||
- 	       (fattr->valid & NFS_ATTR_FATTR_FILEID)) &&
- 	      (fattr->valid & NFS_ATTR_FATTR_FSID) &&
- 	      (fattr->valid & NFS_ATTR_FATTR_V4_LOCATIONS)))
- 		return;
- 
-+	if (fattr->valid & NFS_ATTR_FATTR_MODE)
-+		fix_mode = false;
-+	if (fattr->valid & NFS_ATTR_FATTR_NLINK)
-+		fix_nlink = false;
- 	fattr->valid |= NFS_ATTR_FATTR_TYPE | NFS_ATTR_FATTR_MODE |
- 		NFS_ATTR_FATTR_NLINK | NFS_ATTR_FATTR_V4_REFERRAL;
--	fattr->mode = S_IFDIR | S_IRUGO | S_IXUGO;
--	fattr->nlink = 2;
-+
-+	if (fix_mode)
-+		fattr->mode = S_IFDIR | S_IRUGO | S_IXUGO;
-+	else
-+		fattr->mode |= S_IFDIR;
-+
-+	if (fix_nlink)
-+		fattr->nlink = 2;
- }
- 
- static int _nfs4_proc_fs_locations(struct rpc_clnt *client, struct inode *dir,
+> +		/* enable 4-byte addressing if the device exceeds 16MiB */
+> +		nor->addr_width = 4;
+> +	}
+> +
+>  	if (nor->addr_width > SPI_NOR_MAX_ADDR_WIDTH) {
+>  		dev_dbg(nor->dev, "address width is too large: %u\n",
+>  			nor->addr_width);
+
 -- 
-2.22.0
-
+Regards,
+Pratyush Yadav
+Texas Instruments India
