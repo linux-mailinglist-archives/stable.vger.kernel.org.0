@@ -2,123 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D84512845C9
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 08:05:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2B112846F1
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 09:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726761AbgJFGFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Oct 2020 02:05:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42572 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726588AbgJFGFj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 02:05:39 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71E75C0613A8
-        for <stable@vger.kernel.org>; Mon,  5 Oct 2020 23:05:39 -0700 (PDT)
-Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
-        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kPg6L-0000oO-Ed; Tue, 06 Oct 2020 08:05:29 +0200
-Received: from ukl by pty.hi.pengutronix.de with local (Exim 4.89)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1kPg6K-0008VL-6x; Tue, 06 Oct 2020 08:05:28 +0200
-Date:   Tue, 6 Oct 2020 08:05:28 +0200
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Christian Eggers <ceggers@arri.de>
-Cc:     Oleksij Rempel <linux@rempel-privat.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] i2c: imx: Fix reset of I2SR_IAL flag
-Message-ID: <20201006060528.drh2yoo2dklyntez@pengutronix.de>
-References: <20201002152305.4963-1-ceggers@arri.de>
- <20201002152305.4963-2-ceggers@arri.de>
+        id S1726822AbgJFHQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 03:16:32 -0400
+Received: from sonic312-25.consmr.mail.ne1.yahoo.com ([66.163.191.206]:40305
+        "EHLO sonic312-25.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725912AbgJFHQc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 03:16:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1601968591; bh=NajTNMrfMLb6UXcjRhYpYerQX8PtVBLz0oFgaMINSWY=; h=Date:From:Reply-To:Subject:References:From:Subject; b=RcWdhIrmDDCTISr2kcrbsjS+wdBGdsiMOd+Vz7RyXK0yOC/dKyhaZ7oDaKTprxsiAHzf0QkZsoHoV+RhEe+h9p+oex1lQNb/0NLo2l25b5z9iVYXee1K4LM2fiJivZXTdANRvou1E7DZgsfrHXzTzv28kSvEdT08RCUn9L71l83hlInQ21vGD8d7ATfms5DfqrTpa/Q6plhAj+qVEMMaLh+tuiuZJlzawz/tVj0iSOS77wCabIx2pbx7DVHXHvbjOdccBmf8hYDwSF4Mzq/c5i9Tk0vnTRG3Voaxkn7J2dQq4f62UyuJJMLhj+5MzkiMTxe3OuI6iIdO52i3X9FlUw==
+X-YMail-OSG: gY7Np10VM1kroi2QMh0WcrxKmEv0ERBsMS3XKfrnzMsgbCIjXmcpPzYRI107EZS
+ ecIBwD067WR4hzJAEvoj9gy5efqbTakIP_sLGMPulym1S5alRwKviB2aLslCd_lF.LW5Sb0Y2qy5
+ 8mWVQBpoNVo1G4nDPU96S.Q0lzliIR0trnOSgN.k2rXajI3XMZPaYbMxXIUY3yNz45kWYevdf3Qq
+ 9TcOud0wxY9fv_s2u78cOiE2C2n2DypMZh2o9_12G.fN30eLwOh7jSR1EJ25GZls.wHcLQ0fTGii
+ SMKQgwFzBmzH_3uJR9GfqTv2k34ao7lN8qGWt4j6B.6B9Iq5sfFA15wUqhaFgRDVTnotz6PL8TyS
+ .EMqBI8eA4ivEQHajmMmoY27n_GUoUd.CXkI6T_OOcWkc2D3zATRPiUH5c1FUvGjICYvjY9gz13X
+ at.iLozHnlNU6.3eg7WJOfI7ZxdNzRLqdBk53Rf.6yRrF3ZAXDEFs5qGDCsLlvaFGLet7ucENyha
+ GeRcTxYy0ZW.qoXotVl0FnhSDk119bfUQbS_.9dI5iLEiJw7RTw7pTREuZbtFMrEpyeVpw7.oTHk
+ f9sp6su6ocoUkI.cUHHLFYyYtipHvahiyq.wo8pGASKKWpMji5S.yxOo_B.lTWyULOknCmgDzIGw
+ cxTWJg1tnT2pEahMrbJVV01O7_pJSx11wHZ3gxe9NtiIf7juvsq.XHrU35ki0kTC.QgV1t9JA3Ub
+ Ypf0kidVljG8uWX6ylofLbFAJykRi6ZA29j_P2uMeZ2lv5FYPdGO9EE7mAExbNhgW29k5rDL3m6m
+ IjJ9n4xqgoCZFHZHW2A14baJ1vK8hcjvGLLVthQbJEA_Jjpz916wyhdR6Cnc59Usy3vjL1raKzw8
+ 2X8T3Jx.RBKEQZAvlBE4.qPmrhiEXm2MT0G2hyC0Y_d3dtd0k.rJKnQN5jt8qVmICNfUnyKlajUX
+ Zfrx1vZ38jLTh1Uy5go5Hzdw8daBeE2JMzQzKWx0RbvHJwLVSKkObaRPxw_iJtVaC6kLI4y_P6Ag
+ ddXbBh9WjzzOtiFvDK.gtqEAxr09TsaucpzZJn5tMeyScsZkBGL.g5dTTtqSghvDu8PAFSEuR57s
+ BM4VGPcn8iBFWE1_xtvSrHu.w1mlKktsIsfniaDCNbogAFcPs02m2yZy7gHRFh4_VlQQL6ohfSzv
+ bL3fBRV0mFK8ZzWWflEmG3sAl2fq_QdPE3tA6wVT3SMSKM0VzwaFo2wnEJDEi5Lz8UGY..qPr7KI
+ WvlXAiqa1I4use_Vc6QCropmgEBTqR8lxoGMgVJ1gHwPMp49ndshLRaTqCylHmsIMIvitQVjbJDt
+ M4qhraygMlQZ8EMfS9dNum0Yi057fEMcT_mASd0DVlXsE9Yvqe1YEa3K9xd9QbCeH1rcs6wa9G2p
+ KtNU2bxSl15LsVzsJynmZF3NHJNfdO5fCJW0zUm6L4C35Og--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Tue, 6 Oct 2020 07:16:31 +0000
+Date:   Tue, 6 Oct 2020 07:16:27 +0000 (UTC)
+From:   Ms Lisa Hugh <lisa.hugh0000@gmail.com>
+Reply-To: ms.lisahugh000@gmail.com
+Message-ID: <1632008888.2403828.1601968587078@mail.yahoo.com>
+Subject: BUSINESS CO-OPERATION BENEFIT(Ms Lisa Hugh).
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="beidewvdqrs5sqid"
-Content-Disposition: inline
-In-Reply-To: <20201002152305.4963-2-ceggers@arri.de>
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <1632008888.2403828.1601968587078.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16718 YMailNodin Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:81.0) Gecko/20100101 Firefox/81.0
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---beidewvdqrs5sqid
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 02, 2020 at 05:23:03PM +0200, Christian Eggers wrote:
-> According to the "VFxxx Controller Reference Manual" (and the comment
-> block starting at line 97), Vybrid requires writing a one for clearing
-> an interrupt flag. Syncing the method for clearing I2SR_IIF in
-> i2c_imx_isr().
->=20
-> Signed-off-by: Christian Eggers <ceggers@arri.de>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/i2c/busses/i2c-imx.c | 15 ++++++++++++---
->  1 file changed, 12 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 0ab5381aa012..34648df7f1a6 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -424,7 +424,12 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i=
-2c_imx, int for_busy, bool a
-> =20
->  		/* check for arbitration lost */
->  		if (temp & I2SR_IAL) {
-> -			temp &=3D ~I2SR_IAL;
-> +			/*
-> +			 * i2sr_clr_opcode is the value to clear all interrupts.
-> +			 * Here we want to clear only I2SR_IAL, so we write
-> +			 * ~i2sr_clr_opcode with just the I2SR_IAL bit toggled.
-> +			 */
-> +			temp =3D ~i2c_imx->hwdata->i2sr_clr_opcode ^ I2SR_IAL;
->  			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
->  			return -EAGAIN;
+Dear Friend,
 
-Could we please move clearing an irq to a dedicated function? Such that
-it looks like:
+I am Ms Lisa hugh, work with the department of Audit and accounting manager here in the Bank(B.O.A).
 
-	/* check for arbitration lost */
-	if (temp & I2SR_IAL) {
-		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
-		return -EAGAIN;
-	}
+Please i need your assistance for the transferring of thIs fund to your bank account for both of us benefit for life time investment, amount (US$4.5M DOLLARS).
 
-Then you also don't need to duplicate the describing comment but just
-add it to the implementation of i2c_imx_clear_irq().
+I have every inquiry details to make the bank believe you and release the fund in within 5 banking working days with your full co-operation with me for success.
 
-Best regards
-Uwe
+Note/ 50% for you why 50% for me after success of the transfer to your bank account.
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+Below information is what i need from you so will can be reaching each other
 
---beidewvdqrs5sqid
-Content-Type: application/pgp-signature; name="signature.asc"
+1)Full name ...
+2)Private telephone number...
+3)Age...
+4)Nationality...
+5)Occupation ...
 
------BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAl98CSUACgkQwfwUeK3K
-7Am04Af+OTHNZcf5HD/6YfTPax3ijKMVsrDbdquTlavc18g1lO3D/xaDPAY5mi36
-bh/qE6BmZhlIkmUMK01v48HMbItfQsI7B+r5qVoVdH6RXzsNC9nHsoHwcyULBba4
-apXyv5v1gmySyFiyA+udRI38vv4+4NPX48YAiKIFuMl7TYzI8wFNYQmaywWVvAya
-tGy06ddMFv5Sz5gIlm0wxNZ54L1UPSdvxFtzdkWPD98liHG7hxNK0EsmAwNfherR
-0lhL9CpNcP49RSEgI6wYOEAWCc4iRWoZ1C/hGQWkL58mttTv8TaCGuzgGvjR6yC/
-+Lb/zwLwG5jqdfSEiLjMUvUTMF4JLw==
-=RlAA
------END PGP SIGNATURE-----
+Thanks.
 
---beidewvdqrs5sqid--
+Ms Lisa hugh.
