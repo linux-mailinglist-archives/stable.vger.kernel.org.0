@@ -2,232 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2DD28515F
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 20:10:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C31F285170
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 20:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726623AbgJFSKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Oct 2020 14:10:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41546 "EHLO
+        id S1726795AbgJFSQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 14:16:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725925AbgJFSKp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 14:10:45 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59EAAC061755
-        for <stable@vger.kernel.org>; Tue,  6 Oct 2020 11:10:44 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id c6so1603440plr.9
-        for <stable@vger.kernel.org>; Tue, 06 Oct 2020 11:10:44 -0700 (PDT)
+        with ESMTP id S1725906AbgJFSQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 14:16:37 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB13C061755;
+        Tue,  6 Oct 2020 11:16:36 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id l85so13568459oih.10;
+        Tue, 06 Oct 2020 11:16:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :user-agent:mime-version;
-        bh=LW6eADktBhT0zG7NUjkahqpsAFEQu+5dOoVUbndCYL0=;
-        b=B84wE1p5Db7uoe+qtNxGSLmWPYJLmsoN4snvy40DdU8tDWhpEpgV1LMGUKnihz5UEX
-         ictV1wFIux5Zs82+sEGwE4ACeRwX1ibNkBHmE6cQJanj1wSM3dDUF9oUNlyFjfsLXjMS
-         7g/UG2pa3MjUijDCf8bN5vYN0YbidY71AS19fC3UmQqBcSD6lMGokL36Az/WV+d5pq4J
-         BCtv7OsvciupAhh1IZEif9cfnJY102XzX4c2pJfUZHgBK2d9fjlGM03lbgDK1Rpz8e8J
-         Klaplgei+kGel1EUAwX4Pf2AJNlxWn4Khv+k85sEvXFzWte0r0Ns1hjaJzx7+m7N3mje
-         /g4A==
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=cYr7/7A+M79Aytw3MDx8Pu6qACxDYq85IaPK5V1eyvw=;
+        b=dgNJ1uVeCHU/bZdeA2uHWHmZC85dT1PTe7YGpfwqb5XQTa36z3IiAjVK3OmFhnqzB4
+         GpSJmMwf/YcyhORvdMjDYwihM3c5uZP7ljqvpoeocMMfp5Df0CfoCSVIIbTdioKpFX0B
+         ea3TdO2yR9AsciWCp4X183xEOALiq1KVcERXOypjvHP4kELkAfEe7suCl7Rh08mbfONE
+         8wCSkq8CGMPfrJ1vLpY2ShVtlFt31D4KHS3J4vqcnrhVKRQ5snNQ2xXWoQdvyPeGI9EL
+         bMkSTsPDJsZhes3VG4C1vdeCGMa1YrKoooRAHxHPV1hJhhbsQZGqsNHMJ05Z7nDiQdm4
+         H+hw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:user-agent:mime-version;
-        bh=LW6eADktBhT0zG7NUjkahqpsAFEQu+5dOoVUbndCYL0=;
-        b=ExYlbONZfsbfA7/AoimorYdZahWZ2xLavIxguV7oQ3EQ64HCNJOTnOVR1KECtep0Tj
-         6HPR0KhZHTCSqqD32hXS1rwSnYe/g+//oNI7AS9WDiXd+9UxX1Kh+1SMc6f5VZf8BTB0
-         xIx9UMQdAdTjpotHCltPelUiMOQcNKtFFnFFin5jJlw/DKYbpbIqcnhdFxc52dlUAkAL
-         5q7/n33qekgcVJFDWMKBhbSOsdN5FJikhrM/mKHdURy/SY46/EmNwN3pnuEwjbMd0h7k
-         eg/xCql3P2TXSiwtsA11K0Jczk/wno3iq36YnxIsUxy3BPwFZZ59Kud3JH0oedD8Qk96
-         dbQg==
-X-Gm-Message-State: AOAM533pHQ72y6PNeqr4zuvzGHvTjklDTMI1m6YghVD45SfEL4viSpFx
-        LgOorrNl7B1eLb6WN4XVj11R1Q==
-X-Google-Smtp-Source: ABdhPJyr438vfz78H5278jmBm6vwWyvs9YL63/6zAhOj4zru9Z1KVp0ubItEizLC//MAzzMy0NNwuw==
-X-Received: by 2002:a17:90b:1649:: with SMTP id il9mr5256255pjb.94.1602007843570;
-        Tue, 06 Oct 2020 11:10:43 -0700 (PDT)
-Received: from [2620:15c:17:3:4a0f:cfff:fe51:6667] ([2620:15c:17:3:4a0f:cfff:fe51:6667])
-        by smtp.gmail.com with ESMTPSA id q4sm3862919pjl.28.2020.10.06.11.10.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Oct 2020 11:10:42 -0700 (PDT)
-Date:   Tue, 6 Oct 2020 11:10:41 -0700 (PDT)
-From:   David Rientjes <rientjes@google.com>
-X-X-Sender: rientjes@chino.kir.corp.google.com
-To:     Peter Gonda <pgonda@google.com>
-cc:     Greg KH <greg@kroah.com>, stable@vger.kernel.org,
-        "Lendacky, Thomas" <Thomas.Lendacky@amd.com>,
-        "Singh, Brijesh" <brijesh.singh@amd.com>,
-        Christoph Hellwig <hch@lst.de>, nsaenzjulienne@suse.de,
-        geert@linux-m68k.org, sjhuang@iluvatar.ai
-Subject: Re: [PATCH 00/30 for 5.4] Backport unencrypted non-blocking DMA
- allocations
-In-Reply-To: <CAMkAt6qgbO4CqQVxLKU_Tf6bN3numdJHdkc-rck26V68+Y1j9Q@mail.gmail.com>
-Message-ID: <alpine.DEB.2.23.453.2010061100120.51232@chino.kir.corp.google.com>
-References: <20200925161916.204667-1-pgonda@google.com> <20201005130729.GD827657@kroah.com> <CAMkAt6qgbO4CqQVxLKU_Tf6bN3numdJHdkc-rck26V68+Y1j9Q@mail.gmail.com>
-User-Agent: Alpine 2.23 (DEB 453 2020-06-18)
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=cYr7/7A+M79Aytw3MDx8Pu6qACxDYq85IaPK5V1eyvw=;
+        b=bWmwnfZUWxZMDt44ZDa4aOsuSxEu+ojUqQtgbXCxbSMkcrCc2BlIF+tsZp75RFSVot
+         3HUwgZXBRfG1QlMkxZRPN7zjypxlXesrbccjmixRYcvyDbP3qFPuSuFkn1DR8xeiO/qG
+         pBAO+f/P/TKpL/PmW3xI+PGqnmxMB6QZTifmwAz8QdAVWJAtpWikjFhasPQCyiymhDLn
+         t0JYXWaGQAHQUS3Mbv3UwK/o7mOV0hWvpXyqaxl7p/ncEr12vMWFT/9hcPfdbNPnO+OW
+         X2UEDVCBIcQsDkSAzNDv2ggfR5aOUuE1PuFibvQA4LjdsQzipqgVrc6i6pPlOsZKJeo1
+         rMQw==
+X-Gm-Message-State: AOAM530KwFjPnwXntUPLUOIJhjgWji3pzbrtpEca+YhcqUXg/HpDpQ9n
+        0tWMa9DAR+d5mgMH6aecn2gp5GpLxWg=
+X-Google-Smtp-Source: ABdhPJwdYN5sSZ0cjGGpESMGAiO/LGsfln5eBygnfoi8CWdiAUv/X9mn1uCvLJXL1PDpieZfnGuHzg==
+X-Received: by 2002:a54:4501:: with SMTP id l1mr3384552oil.165.1602008196224;
+        Tue, 06 Oct 2020 11:16:36 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id p8sm1344248oot.29.2020.10.06.11.16.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 06 Oct 2020 11:16:35 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH 4.19 00/38] 4.19.150-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org
+References: <20201005142108.650363140@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <2c9dd4ec-2f5e-8df5-993a-95c99704dad5@roeck-us.net>
+Date:   Tue, 6 Oct 2020 11:16:33 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20201005142108.650363140@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks Peter.
-
-The series of commits certainly expanded from my initial set that I asked 
-about in a thread with the subject "DMA API stable backports for AMD SEV" 
-on May 19.  Turns out that switching how DMA memory is allocated based on 
-various characteristics of the allocation and device is trickier than 
-originally thought :)  There were a number of fixes that were needed for 
-subtleties and cornercases that folks ran into, but were addressed and 
-have been merged by Linus.  I believe it's stable in upstream and that 
-we've been thorough in compiling a full set of changes that are required 
-for 5.4.
-
-Note that without this series, all SEV-enabled guests will run into the 
-"sleeping function called from invalid context" issue in the vmalloc layer 
-that Peter cites when using certain drivers.  For such configurations, 
-there is no way to avoid the "BUG" messages in the guest kernel when using 
-AMD SEV unless this series is merged into an LTS kernel that the distros 
-will then pick up.
-
-For my 13 patches in the 30 patch series, I fully stand by Peter's 
-backports and rationale for merge into 5.4 LTS.
-
-
-On Tue, 6 Oct 2020, Peter Gonda wrote:
-
-> We realize this is a large set of changes but it's the only way for us
-> to remove that customer facing BUG for SEV guests. When David asked
-> back in May a full series was preferred, is there another way forward?
-> I've CCd the authors of the changes.
+On 10/5/20 8:26 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.150 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> On Mon, Oct 5, 2020 at 7:06 AM Greg KH <greg@kroah.com> wrote:
-> >
-> > On Fri, Sep 25, 2020 at 09:18:46AM -0700, Peter Gonda wrote:
-> > > Currently SEV enabled guests hit might_sleep() warnings when a driver (nvme in
-> > > this case) allocates through the DMA API in a non-blockable context. Making
-> > > these unencrypted non-blocking DMA allocations come from the coherent pools
-> > > prevents this BUG.
-> > >
-> > > BUG: sleeping function called from invalid context at mm/vmalloc.c:1710
-> > > in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 3383, name: fio
-> > > 2 locks held by fio/3383:
-> > >  #0: ffff93b6a8568348 (&sb->s_type->i_mutex_key#16){+.+.}, at: ext4_file_write_iter+0xa2/0x5d0
-> > >  #1: ffffffffa52a61a0 (rcu_read_lock){....}, at: hctx_lock+0x1a/0xe0
-> > > CPU: 0 PID: 3383 Comm: fio Tainted: G        W         5.5.10 #14
-> > > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> > > Call Trace:
-> > >  dump_stack+0x98/0xd5
-> > >  ___might_sleep+0x175/0x260
-> > >  __might_sleep+0x4a/0x80
-> > >  _vm_unmap_aliases+0x45/0x250
-> > >  vm_unmap_aliases+0x19/0x20
-> > >  __set_memory_enc_dec+0xa4/0x130
-> > >  set_memory_decrypted+0x10/0x20
-> > >  dma_direct_alloc_pages+0x148/0x150
-> > >  dma_direct_alloc+0xe/0x10
-> > >  dma_alloc_attrs+0x86/0xc0
-> > >  dma_pool_alloc+0x16f/0x2b0
-> > >  nvme_queue_rq+0x878/0xc30 [nvme]
-> > >  __blk_mq_try_issue_directly+0x135/0x200
-> > >  blk_mq_request_issue_directly+0x4f/0x80
-> > >  blk_mq_try_issue_list_directly+0x46/0xb0
-> > >  blk_mq_sched_insert_requests+0x19b/0x2b0
-> > >  blk_mq_flush_plug_list+0x22f/0x3b0
-> > >  blk_flush_plug_list+0xd1/0x100
-> > >  blk_finish_plug+0x2c/0x40
-> > >  iomap_dio_rw+0x427/0x490
-> > >  ext4_file_write_iter+0x181/0x5d0
-> > >  aio_write+0x109/0x1b0
-> > >  io_submit_one+0x7d0/0xfa0
-> > >  __x64_sys_io_submit+0xa2/0x280
-> > >  do_syscall_64+0x5f/0x250
-> > >  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> > >
-> > > Christoph Hellwig (9):
-> > >   dma-direct: remove __dma_direct_free_pages
-> > >   dma-direct: remove the dma_handle argument to __dma_direct_alloc_pages
-> > >   dma-direct: provide mmap and get_sgtable method overrides
-> > >   dma-mapping: merge the generic remapping helpers into dma-direct
-> > >   dma-direct: consolidate the error handling in dma_direct_alloc_pages
-> > >   xtensa: use the generic uncached segment support
-> > >   dma-direct: make uncached_kernel_address more general
-> > >   dma-mapping: DMA_COHERENT_POOL should select GENERIC_ALLOCATOR
-> > >   dma-pool: fix coherent pool allocations for IOMMU mappings
-> > >
-> > > David Rientjes (13):
-> > >   dma-remap: separate DMA atomic pools from direct remap code
-> > >   dma-pool: add additional coherent pools to map to gfp mask
-> > >   dma-pool: dynamically expanding atomic pools
-> > >   dma-direct: atomic allocations must come from atomic coherent pools
-> > >   dma-pool: add pool sizes to debugfs
-> > >   x86/mm: unencrypted non-blocking DMA allocations use coherent pools
-> > >   dma-pool: scale the default DMA coherent pool size with memory
-> > >     capacity
-> > >   dma-pool: decouple DMA_REMAP from DMA_COHERENT_POOL
-> > >   dma-direct: always align allocation size in dma_direct_alloc_pages()
-> > >   dma-direct: re-encrypt memory if dma_direct_alloc_pages() fails
-> > >   dma-direct: check return value when encrypting or decrypting memory
-> > >   dma-direct: add missing set_memory_decrypted() for coherent mapping
-> > >   dma-mapping: warn when coherent pool is depleted
-> > >
-> > > Geert Uytterhoeven (1):
-> > >   dma-pool: fix too large DMA pools on medium memory size systems
-> > >
-> > > Huang Shijie (1):
-> > >   lib/genalloc.c: rename addr_in_gen_pool to gen_pool_has_addr
-> > >
-> > > Nicolas Saenz Julienne (6):
-> > >   dma-direct: provide function to check physical memory area validity
-> > >   dma-pool: get rid of dma_in_atomic_pool()
-> > >   dma-pool: introduce dma_guess_pool()
-> > >   dma-pool: make sure atomic pool suits device
-> > >   dma-pool: do not allocate pool memory from CMA
-> > >   dma/direct: turn ARCH_ZONE_DMA_BITS into a variable
-> > >
-> > >  Documentation/core-api/genalloc.rst    |   2 +-
-> > >  arch/Kconfig                           |   8 +-
-> > >  arch/arc/Kconfig                       |   1 -
-> > >  arch/arm/Kconfig                       |   1 -
-> > >  arch/arm/mm/dma-mapping.c              |   8 +-
-> > >  arch/arm64/Kconfig                     |   1 -
-> > >  arch/arm64/mm/init.c                   |   9 +-
-> > >  arch/ia64/Kconfig                      |   2 +-
-> > >  arch/ia64/kernel/dma-mapping.c         |   6 -
-> > >  arch/microblaze/Kconfig                |   3 +-
-> > >  arch/microblaze/mm/consistent.c        |   2 +-
-> > >  arch/mips/Kconfig                      |   7 +-
-> > >  arch/mips/mm/dma-noncoherent.c         |   8 +-
-> > >  arch/nios2/Kconfig                     |   3 +-
-> > >  arch/nios2/mm/dma-mapping.c            |   2 +-
-> > >  arch/powerpc/include/asm/page.h        |   9 -
-> > >  arch/powerpc/mm/mem.c                  |  20 +-
-> > >  arch/powerpc/platforms/Kconfig.cputype |   1 -
-> > >  arch/s390/include/asm/page.h           |   2 -
-> > >  arch/s390/mm/init.c                    |   1 +
-> > >  arch/x86/Kconfig                       |   1 +
-> > >  arch/xtensa/Kconfig                    |   6 +-
-> > >  arch/xtensa/include/asm/platform.h     |  27 ---
-> > >  arch/xtensa/kernel/Makefile            |   3 +-
-> > >  arch/xtensa/kernel/pci-dma.c           | 121 ++---------
-> > >  drivers/iommu/dma-iommu.c              |   5 +-
-> > >  drivers/misc/sram-exec.c               |   2 +-
-> > >  include/linux/dma-direct.h             |  12 +-
-> > >  include/linux/dma-mapping.h            |   7 +-
-> > >  include/linux/dma-noncoherent.h        |   4 +-
-> > >  include/linux/genalloc.h               |   2 +-
-> > >  kernel/dma/Kconfig                     |  20 +-
-> > >  kernel/dma/Makefile                    |   1 +
-> > >  kernel/dma/direct.c                    | 224 ++++++++++++++++----
-> > >  kernel/dma/mapping.c                   |  45 +----
-> > >  kernel/dma/pool.c                      | 270 +++++++++++++++++++++++++
-> > >  kernel/dma/remap.c                     | 176 +---------------
-> > >  lib/genalloc.c                         |   5 +-
-> > >  38 files changed, 564 insertions(+), 463 deletions(-)
-> > >  create mode 100644 kernel/dma/pool.c
-> >
-> > This is a pretty big set of changes for a stable tree.  Can I get some
-> > acks/reviews/whatever by the developers involved here that this really
-> > is a good idea to take into the 5.4.y tree?
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
+> Responses should be made by Wed, 07 Oct 2020 14:20:55 +0000.
+> Anything received after that time might be too late.
+
+Build results:
+	total: 155 pass: 153 fail: 2
+Failed builds:
+	i386:tools/perf
+	x86_64:tools/perf
+Qemu test results:
+	total: 421 pass: 421 fail: 0
+
+Same problem with tools/perf as with the last release.
+
+util/evsel.c: In function ‘perf_evsel__exit’:
+util/util.h:25:28: error: passing argument 1 of ‘free’ discards ‘const’ qualifier from pointer target type
+
+Again, this is with gcc 6.5.0.
+
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
