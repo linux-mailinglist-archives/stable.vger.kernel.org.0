@@ -2,219 +2,397 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B04F284475
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 05:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39776284528
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 07:03:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727038AbgJFD7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 5 Oct 2020 23:59:05 -0400
-Received: from mga02.intel.com ([134.134.136.20]:36760 "EHLO mga02.intel.com"
+        id S1725922AbgJFFDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 01:03:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726073AbgJFD7A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 5 Oct 2020 23:59:00 -0400
-IronPort-SDR: 2vZXNhutZWrAfxCPbMLx6sCIoGF8ZuQX+6yPPElBtbUDUSvYSRkvEopN7AiQdijbVNot9wYKiT
- RZxxkQWWIB0Q==
-X-IronPort-AV: E=McAfee;i="6000,8403,9765"; a="151270021"
-X-IronPort-AV: E=Sophos;i="5.77,341,1596524400"; 
-   d="scan'208";a="151270021"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2020 20:58:58 -0700
-IronPort-SDR: bujbWSfLueXkxKq2cztZb+793JlesbU9H3RPddQ/N06nD8PoX1oyo1SR7q+Em8PaVVsHmedtcv
- BckjvUByW8eg==
-X-IronPort-AV: E=Sophos;i="5.77,341,1596524400"; 
-   d="scan'208";a="348128442"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.25])
-  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Oct 2020 20:58:57 -0700
-Subject: [PATCH v10 2/2] x86/copy_mc: Introduce
- copy_mc_enhanced_fast_string()
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     bp@alien8.de
-Cc:     x86@kernel.org, stable@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        0day robot <lkp@intel.com>, linux-kernel@vger.kernel.org,
-        linux-nvdimm@lists.01.org, x86@kernel.org
-Date:   Mon, 05 Oct 2020 20:40:25 -0700
-Message-ID: <160195562556.2163339.18063423034951948973.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <160195561059.2163339.8787400120285484198.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <160195561059.2163339.8787400120285484198.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-3-g996c
+        id S1725912AbgJFFDN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Oct 2020 01:03:13 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C0E420870;
+        Tue,  6 Oct 2020 05:03:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1601960591;
+        bh=TtAUC1MBtgnrZNX58qGR226un9APgUU7O8poizUHMDQ=;
+        h=Subject:To:From:Date:From;
+        b=Qz016shPvnuqTnz/y4ptnzQCzKyoET1+BEQ7YLTGvrGqHbsTjpV3SczYeVU2NyvpV
+         /v8d0C89eKtg0luwO+mFiqQpxSKSyy/rzKN11z7G32si+e6V88Hj3QVFarJV7rLKjO
+         FrDM8IC9vEuWH/SuAmLuGrIVE6Cv+io+TV785qHY=
+Subject: patch "usb: cdc-acm: add quirk to blacklist ETAS ES58X devices" added to usb-next
+To:     mailhol.vincent@wanadoo.fr, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 06 Oct 2020 07:03:07 +0200
+Message-ID: <1601960587227190@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The original copy_mc_fragile() implementation had negative performance
-implications since it did not use the fast-string instruction sequence
-to perform copies. For this reason copy_mc_to_kernel() fell back to
-plain memcpy() to preserve performance on platform that did not indicate
-the capability to recover from machine check exceptions. However, that
-capability detection was not architectural and now that some platforms
-can recover from fast-string consumption of memory errors the memcpy()
-fallback now causes these more capable platforms to fail.
 
-Introduce copy_mc_enhanced_fast_string() as the fast default
-implementation of copy_mc_to_kernel() and finalize the transition of
-copy_mc_fragile() to be a platform quirk to indicate 'copy-carefully'.
-With this in place copy_mc_to_kernel() is fast and recovery-ready by
-default regardless of hardware capability.
+This is a note to let you know that I've just added the patch titled
 
-Thanks to Vivek for identifying that copy_user_generic() is not suitable
-as the copy_mc_to_user() backend since the #MC handler explicitly checks
-ex_has_fault_handler(). Thanks to the 0day robot for catching a
-performance bug in the x86/copy_mc_to_user implementation.
+    usb: cdc-acm: add quirk to blacklist ETAS ES58X devices
 
-Cc: x86@kernel.org
-Cc: <stable@vger.kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Vivek Goyal <vgoyal@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reported-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Tested-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Reported-by: 0day robot <lkp@intel.com>
-Fixes: 92b0729c34ca ("x86/mm, x86/mce: Add memcpy_mcsafe()")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From a4f88430af896bf34ec25a7a5f0e053fb3d928e0 Mon Sep 17 00:00:00 2001
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Date: Sat, 3 Oct 2020 00:41:51 +0900
+Subject: usb: cdc-acm: add quirk to blacklist ETAS ES58X devices
+
+The ES58X devices has a CDC ACM interface (used for debug
+purpose). During probing, the device is thus recognized as USB Modem
+(CDC ACM), preventing the etas-es58x module to load:
+  usbcore: registered new interface driver etas_es58x
+  usb 1-1.1: new full-speed USB device number 14 using xhci_hcd
+  usb 1-1.1: New USB device found, idVendor=108c, idProduct=0159, bcdDevice= 1.00
+  usb 1-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+  usb 1-1.1: Product: ES581.4
+  usb 1-1.1: Manufacturer: ETAS GmbH
+  usb 1-1.1: SerialNumber: 2204355
+  cdc_acm 1-1.1:1.0: No union descriptor, testing for castrated device
+  cdc_acm 1-1.1:1.0: ttyACM0: USB ACM device
+
+Thus, these have been added to the ignore list in
+drivers/usb/class/cdc-acm.c
+
+N.B. Future firmware release of the ES58X will remove the CDC-ACM
+interface.
+
+`lsusb -v` of the three devices variant (ES581.4, ES582.1 and
+ES584.1):
+
+  Bus 001 Device 011: ID 108c:0159 Robert Bosch GmbH ES581.4
+  Device Descriptor:
+    bLength                18
+    bDescriptorType         1
+    bcdUSB               1.10
+    bDeviceClass            2 Communications
+    bDeviceSubClass         0
+    bDeviceProtocol         0
+    bMaxPacketSize0        64
+    idVendor           0x108c Robert Bosch GmbH
+    idProduct          0x0159
+    bcdDevice            1.00
+    iManufacturer           1 ETAS GmbH
+    iProduct                2 ES581.4
+    iSerial                 3 2204355
+    bNumConfigurations      1
+    Configuration Descriptor:
+      bLength                 9
+      bDescriptorType         2
+      wTotalLength       0x0035
+      bNumInterfaces          1
+      bConfigurationValue     1
+      iConfiguration          5 Bus Powered Configuration
+      bmAttributes         0x80
+        (Bus Powered)
+      MaxPower              100mA
+      Interface Descriptor:
+        bLength                 9
+        bDescriptorType         4
+        bInterfaceNumber        0
+        bAlternateSetting       0
+        bNumEndpoints           3
+        bInterfaceClass         2 Communications
+        bInterfaceSubClass      2 Abstract (modem)
+        bInterfaceProtocol      0
+        iInterface              4 ACM Control Interface
+        CDC Header:
+          bcdCDC               1.10
+        CDC Call Management:
+          bmCapabilities       0x01
+            call management
+          bDataInterface          0
+        CDC ACM:
+          bmCapabilities       0x06
+            sends break
+            line coding and serial state
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x81  EP 1 IN
+          bmAttributes            3
+            Transfer Type            Interrupt
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0010  1x 16 bytes
+          bInterval              10
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x82  EP 2 IN
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0040  1x 64 bytes
+          bInterval               0
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x03  EP 3 OUT
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0040  1x 64 bytes
+          bInterval               0
+  Device Status:     0x0000
+    (Bus Powered)
+
+  Bus 001 Device 012: ID 108c:0168 Robert Bosch GmbH ES582
+  Device Descriptor:
+    bLength                18
+    bDescriptorType         1
+    bcdUSB               2.00
+    bDeviceClass            2 Communications
+    bDeviceSubClass         0
+    bDeviceProtocol         0
+    bMaxPacketSize0        64
+    idVendor           0x108c Robert Bosch GmbH
+    idProduct          0x0168
+    bcdDevice            1.00
+    iManufacturer           1 ETAS GmbH
+    iProduct                2 ES582
+    iSerial                 3 0108933
+    bNumConfigurations      1
+    Configuration Descriptor:
+      bLength                 9
+      bDescriptorType         2
+      wTotalLength       0x0043
+      bNumInterfaces          2
+      bConfigurationValue     1
+      iConfiguration          0
+      bmAttributes         0x80
+        (Bus Powered)
+      MaxPower              500mA
+      Interface Descriptor:
+        bLength                 9
+        bDescriptorType         4
+        bInterfaceNumber        0
+        bAlternateSetting       0
+        bNumEndpoints           1
+        bInterfaceClass         2 Communications
+        bInterfaceSubClass      2 Abstract (modem)
+        bInterfaceProtocol      1 AT-commands (v.25ter)
+        iInterface              0
+        CDC Header:
+          bcdCDC               1.10
+        CDC ACM:
+          bmCapabilities       0x02
+            line coding and serial state
+        CDC Union:
+          bMasterInterface        0
+          bSlaveInterface         1
+        CDC Call Management:
+          bmCapabilities       0x03
+            call management
+            use DataInterface
+          bDataInterface          1
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x83  EP 3 IN
+          bmAttributes            3
+            Transfer Type            Interrupt
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0040  1x 64 bytes
+          bInterval              16
+      Interface Descriptor:
+        bLength                 9
+        bDescriptorType         4
+        bInterfaceNumber        1
+        bAlternateSetting       0
+        bNumEndpoints           2
+        bInterfaceClass        10 CDC Data
+        bInterfaceSubClass      0
+        bInterfaceProtocol      0
+        iInterface              0
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x81  EP 1 IN
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0200  1x 512 bytes
+          bInterval               0
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x02  EP 2 OUT
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0200  1x 512 bytes
+          bInterval               0
+  Device Qualifier (for other device speed):
+    bLength                10
+    bDescriptorType         6
+    bcdUSB               2.00
+    bDeviceClass            2 Communications
+    bDeviceSubClass         0
+    bDeviceProtocol         0
+    bMaxPacketSize0        64
+    bNumConfigurations      1
+  Device Status:     0x0000
+    (Bus Powered)
+
+  Bus 001 Device 013: ID 108c:0169 Robert Bosch GmbH ES584.1
+  Device Descriptor:
+    bLength                18
+    bDescriptorType         1
+    bcdUSB               2.00
+    bDeviceClass            2 Communications
+    bDeviceSubClass         0
+    bDeviceProtocol         0
+    bMaxPacketSize0        64
+    idVendor           0x108c Robert Bosch GmbH
+    idProduct          0x0169
+    bcdDevice            1.00
+    iManufacturer           1 ETAS GmbH
+    iProduct                2 ES584.1
+    iSerial                 3 0100320
+    bNumConfigurations      1
+    Configuration Descriptor:
+      bLength                 9
+      bDescriptorType         2
+      wTotalLength       0x0043
+      bNumInterfaces          2
+      bConfigurationValue     1
+      iConfiguration          0
+      bmAttributes         0x80
+        (Bus Powered)
+      MaxPower              500mA
+      Interface Descriptor:
+        bLength                 9
+        bDescriptorType         4
+        bInterfaceNumber        0
+        bAlternateSetting       0
+        bNumEndpoints           1
+        bInterfaceClass         2 Communications
+        bInterfaceSubClass      2 Abstract (modem)
+        bInterfaceProtocol      1 AT-commands (v.25ter)
+        iInterface              0
+        CDC Header:
+          bcdCDC               1.10
+        CDC ACM:
+          bmCapabilities       0x02
+            line coding and serial state
+        CDC Union:
+          bMasterInterface        0
+          bSlaveInterface         1
+        CDC Call Management:
+          bmCapabilities       0x03
+            call management
+            use DataInterface
+          bDataInterface          1
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x83  EP 3 IN
+          bmAttributes            3
+            Transfer Type            Interrupt
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0040  1x 64 bytes
+          bInterval              16
+      Interface Descriptor:
+        bLength                 9
+        bDescriptorType         4
+        bInterfaceNumber        1
+        bAlternateSetting       0
+        bNumEndpoints           2
+        bInterfaceClass        10 CDC Data
+        bInterfaceSubClass      0
+        bInterfaceProtocol      0
+        iInterface              0
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x81  EP 1 IN
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0200  1x 512 bytes
+          bInterval               0
+        Endpoint Descriptor:
+          bLength                 7
+          bDescriptorType         5
+          bEndpointAddress     0x02  EP 2 OUT
+          bmAttributes            2
+            Transfer Type            Bulk
+            Synch Type               None
+            Usage Type               Data
+          wMaxPacketSize     0x0200  1x 512 bytes
+          bInterval               0
+  Device Qualifier (for other device speed):
+    bLength                10
+    bDescriptorType         6
+    bcdUSB               2.00
+    bDeviceClass            2 Communications
+    bDeviceSubClass         0
+    bDeviceProtocol         0
+    bMaxPacketSize0        64
+    bNumConfigurations      1
+  Device Status:     0x0000
+    (Bus Powered)
+
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201002154219.4887-8-mailhol.vincent@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/lib/copy_mc.c    |   32 +++++++++++++++++++++++---------
- arch/x86/lib/copy_mc_64.S |   36 ++++++++++++++++++++++++++++++++++++
- tools/objtool/check.c     |    1 +
- 3 files changed, 60 insertions(+), 9 deletions(-)
+ drivers/usb/class/cdc-acm.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/x86/lib/copy_mc.c b/arch/x86/lib/copy_mc.c
-index 2633635530b7..c13e8c9ee926 100644
---- a/arch/x86/lib/copy_mc.c
-+++ b/arch/x86/lib/copy_mc.c
-@@ -45,6 +45,8 @@ void enable_copy_mc_fragile(void)
- #define copy_mc_fragile_enabled (0)
- #endif
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 1d301b92de2d..30ef946a8e1a 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1900,6 +1900,17 @@ static const struct usb_device_id acm_ids[] = {
+ 	.driver_info = IGNORE_DEVICE,
+ 	},
  
-+unsigned long copy_mc_enhanced_fast_string(void *dst, const void *src, unsigned len);
++	/* Exclude ETAS ES58x */
++	{ USB_DEVICE(0x108c, 0x0159), /* ES581.4 */
++	.driver_info = IGNORE_DEVICE,
++	},
++	{ USB_DEVICE(0x108c, 0x0168), /* ES582.1 */
++	.driver_info = IGNORE_DEVICE,
++	},
++	{ USB_DEVICE(0x108c, 0x0169), /* ES584.1 */
++	.driver_info = IGNORE_DEVICE,
++	},
 +
- /**
-  * copy_mc_to_kernel - memory copy that handles source exceptions
-  *
-@@ -52,9 +54,11 @@ void enable_copy_mc_fragile(void)
-  * @src:	source address
-  * @len:	number of bytes to copy
-  *
-- * Call into the 'fragile' version on systems that have trouble
-- * actually do machine check recovery. Everyone else can just
-- * use memcpy().
-+ * Call into the 'fragile' version on systems that benefit from avoiding
-+ * corner case poison consumption scenarios, For example, accessing
-+ * poison across 2 cachelines with a single instruction. Almost all
-+ * other uses case can use copy_mc_enhanced_fast_string() for a fast
-+ * recoverable copy, or fallback to plain memcpy.
-  *
-  * Return 0 for success, or number of bytes not copied if there was an
-  * exception.
-@@ -63,6 +67,8 @@ unsigned long __must_check copy_mc_to_kernel(void *dst, const void *src, unsigne
- {
- 	if (copy_mc_fragile_enabled)
- 		return copy_mc_fragile(dst, src, len);
-+	if (static_cpu_has(X86_FEATURE_ERMS))
-+		return copy_mc_enhanced_fast_string(dst, src, len);
- 	memcpy(dst, src, len);
- 	return 0;
- }
-@@ -72,11 +78,19 @@ unsigned long __must_check copy_mc_to_user(void *dst, const void *src, unsigned
- {
- 	unsigned long ret;
- 
--	if (!copy_mc_fragile_enabled)
--		return copy_user_generic(dst, src, len);
-+	if (copy_mc_fragile_enabled) {
-+		__uaccess_begin();
-+		ret = copy_mc_fragile(dst, src, len);
-+		__uaccess_end();
-+		return ret;
-+	}
-+
-+	if (static_cpu_has(X86_FEATURE_ERMS)) {
-+		__uaccess_begin();
-+		ret = copy_mc_enhanced_fast_string(dst, src, len);
-+		__uaccess_end();
-+		return ret;
-+	}
- 
--	__uaccess_begin();
--	ret = copy_mc_fragile(dst, src, len);
--	__uaccess_end();
--	return ret;
-+	return copy_user_generic(dst, src, len);
- }
-diff --git a/arch/x86/lib/copy_mc_64.S b/arch/x86/lib/copy_mc_64.S
-index c3b613c4544a..892d8915f609 100644
---- a/arch/x86/lib/copy_mc_64.S
-+++ b/arch/x86/lib/copy_mc_64.S
-@@ -124,4 +124,40 @@ EXPORT_SYMBOL_GPL(copy_mc_fragile)
- 	_ASM_EXTABLE(.L_write_words, .E_write_words)
- 	_ASM_EXTABLE(.L_write_trailing_bytes, .E_trailing_bytes)
- #endif /* CONFIG_X86_MCE */
-+
-+/*
-+ * copy_mc_enhanced_fast_string - memory copy with exception handling
-+ *
-+ * Fast string copy + fault / exception handling. If the CPU does
-+ * support machine check exception recovery, but does not support
-+ * recovering from fast-string exceptions then this CPU needs to be
-+ * added to the copy_mc_fragile_key set of quirks. Otherwise, absent any
-+ * machine check recovery support this version should be no slower than
-+ * standard memcpy.
-+ */
-+SYM_FUNC_START(copy_mc_enhanced_fast_string)
-+	movq %rdi, %rax
-+	movq %rdx, %rcx
-+.L_copy:
-+	rep movsb
-+	/* Copy successful. Return zero */
-+	xorl %eax, %eax
-+	ret
-+SYM_FUNC_END(copy_mc_enhanced_fast_string)
-+
-+	.section .fixup, "ax"
-+.E_copy:
-+	/*
-+	 * On fault %rcx is updated such that the copy instruction could
-+	 * optionally be restarted at the fault position, i.e. it
-+	 * contains 'bytes remaining'. A non-zero return indicates error
-+	 * to copy_mc_generic() users, or indicate short transfers to
-+	 * user-copy routines.
-+	 */
-+	movq %rcx, %rax
-+	ret
-+
-+	.previous
-+
-+	_ASM_EXTABLE_FAULT(.L_copy, .E_copy)
- #endif /* !CONFIG_UML */
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index cf2d076f6ba5..42ac19e0299c 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -550,6 +550,7 @@ static const char *uaccess_safe_builtin[] = {
- 	"csum_partial_copy_generic",
- 	"copy_mc_fragile",
- 	"copy_mc_fragile_handle_tail",
-+	"copy_mc_enhanced_fast_string",
- 	"ftrace_likely_update", /* CONFIG_TRACE_BRANCH_PROFILING */
- 	NULL
- };
+ 	{ USB_DEVICE(0x1bc7, 0x0021), /* Telit 3G ACM only composition */
+ 	.driver_info = SEND_ZERO_PACKET,
+ 	},
+-- 
+2.28.0
+
 
