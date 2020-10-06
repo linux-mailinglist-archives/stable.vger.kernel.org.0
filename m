@@ -2,64 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 864DB284F08
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 17:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C9C4284F84
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 18:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725925AbgJFPcR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Oct 2020 11:32:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57282 "EHLO mail.kernel.org"
+        id S1726182AbgJFQKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 12:10:03 -0400
+Received: from mailout11.rmx.de ([94.199.88.76]:49194 "EHLO mailout11.rmx.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725769AbgJFPcR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Oct 2020 11:32:17 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725946AbgJFQKC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 6 Oct 2020 12:10:02 -0400
+Received: from kdin01.retarus.com (kdin01.dmz1.retloc [172.19.17.48])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02EE3206D4;
-        Tue,  6 Oct 2020 15:32:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1601998335;
-        bh=OD1ShKWKDH57lAR1RIhr8UFUdjhFDgj040obC8b1vbg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Pfw4pAbZMMatXod0HLkTpwx5cm9AK9iAcdCbDVaUg/4Mx1J9OZfLXjdMhyDuTGjkN
-         q0Q+JvGLvtE0saNTSE8Uey6xBof+lrGgjsG3oZ4YUje/u49Osstgc/6CH5o92Xz/JV
-         z/L7ReAEff1KYUiPY8o+/IuSl5/Cqoqm5gOYeO7g=
-Date:   Tue, 6 Oct 2020 17:33:01 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Bert Vermeulen <bert@biot.com>
-Cc:     tudor.ambarus@microchip.com, miquel.raynal@bootlin.com,
-        richard@nod.at, vigneshr@ti.com, linux-mtd@lists.infradead.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [RESEND PATCH v2] mtd: spi-nor: Fix address width on flash chips
- > 16MB
-Message-ID: <20201006153301.GC23711@kroah.com>
-References: <20201006132346.12652-1-bert@biot.com>
+        by mailout11.rmx.de (Postfix) with ESMTPS id 4C5Mqn71bxz40dw;
+        Tue,  6 Oct 2020 18:09:57 +0200 (CEST)
+Received: from mta.arri.de (unknown [217.111.95.66])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by kdin01.retarus.com (Postfix) with ESMTPS id 4C5Mpv1Grzz2xNp;
+        Tue,  6 Oct 2020 18:09:11 +0200 (CEST)
+Received: from N95HX1G2.wgnetz.xx (192.168.54.45) by mta.arri.de
+ (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Tue, 6 Oct
+ 2020 18:08:58 +0200
+From:   Christian Eggers <ceggers@arri.de>
+To:     Oleksij Rempel <linux@rempel-privat.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        "David Laight" <David.Laight@ACULAB.COM>
+CC:     Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        <linux-i2c@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, Christian Eggers <ceggers@arri.de>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v4 1/3] i2c: imx: Fix reset of I2SR_IAL flag
+Date:   Tue, 6 Oct 2020 18:08:12 +0200
+Message-ID: <20201006160814.22047-2-ceggers@arri.de>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201006160814.22047-1-ceggers@arri.de>
+References: <20201006160814.22047-1-ceggers@arri.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201006132346.12652-1-bert@biot.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [192.168.54.45]
+X-RMX-ID: 20201006-180911-4C5Mpv1Grzz2xNp-0@kdin01
+X-RMX-SOURCE: 217.111.95.66
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 06, 2020 at 03:23:46PM +0200, Bert Vermeulen wrote:
-> If a flash chip has more than 16MB capacity but its BFPT reports
-> BFPT_DWORD1_ADDRESS_BYTES_3_OR_4, the spi-nor framework defaults to 3.
-> 
-> The check in spi_nor_set_addr_width() doesn't catch it because addr_width
-> did get set. This fixes that check.
-> 
-> Fixes: f9acd7fa80be ("mtd: spi-nor: sfdp: default to addr_width of 3 for configurable widths")
-> Signed-off-by: Bert Vermeulen <bert@biot.com>
-> Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-> ---
->  drivers/mtd/spi-nor/core.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+According to the "VFxxx Controller Reference Manual" (and the comment
+block starting at line 97), Vybrid requires writing a one for clearing
+an interrupt flag. Syncing the method for clearing I2SR_IIF in
+i2c_imx_isr().
 
-<formletter>
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Cc: stable@vger.kernel.org
+---
+ drivers/i2c/busses/i2c-imx.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 0ab5381aa012..cbdcab73a055 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -412,6 +412,19 @@ static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
+ 	dma->chan_using = NULL;
+ }
+ 
++static void i2c_imx_clear_irq(struct imx_i2c_struct *i2c_imx, unsigned int bits)
++{
++	unsigned int temp;
++
++	/*
++	 * i2sr_clr_opcode is the value to clear all interrupts. Here we want to
++	 * clear only <bits>, so we write ~i2sr_clr_opcode with just <bits>
++	 * toggled. This is required because i.MX needs W1C and Vybrid uses W0C.
++	 */
++	temp = ~i2c_imx->hwdata->i2sr_clr_opcode ^ bits;
++	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++}
++
+ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+ {
+ 	unsigned long orig_jiffies = jiffies;
+@@ -424,8 +437,7 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool a
+ 
+ 		/* check for arbitration lost */
+ 		if (temp & I2SR_IAL) {
+-			temp &= ~I2SR_IAL;
+-			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+ 			return -EAGAIN;
+ 		}
+ 
+@@ -623,9 +635,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+ 	if (temp & I2SR_IIF) {
+ 		/* save status register */
+ 		i2c_imx->i2csr = temp;
+-		temp &= ~I2SR_IIF;
+-		temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+-		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++		i2c_imx_clear_irq(i2c_imx, I2SR_IIF);
+ 		wake_up(&i2c_imx->queue);
+ 		return IRQ_HANDLED;
+ 	}
+-- 
+Christian Eggers
+Embedded software developer
 
-</formletter>
+Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
+Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRA 57918
+Persoenlich haftender Gesellschafter: Arnold & Richter Cine Technik GmbH
+Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRB 54477
+Geschaeftsfuehrer: Dr. Michael Neuhaeuser; Stephan Schenk; Walter Trauninger; Markus Zeiler
+
