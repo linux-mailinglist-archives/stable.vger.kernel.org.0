@@ -2,139 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63ADE285372
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 22:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 064E728544B
+	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 00:05:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727293AbgJFUvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Oct 2020 16:51:13 -0400
-Received: from mga18.intel.com ([134.134.136.126]:19137 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727300AbgJFUvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Oct 2020 16:51:12 -0400
-IronPort-SDR: a6QM8dw4z4V548MFSkh3NQL+Of0/m/hlDtuT+4JxOg5Zy7/lSM9k6SpixUNVDieFcB7tAxX7+X
- oGsLttuV5MjQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9766"; a="152454188"
-X-IronPort-AV: E=Sophos;i="5.77,343,1596524400"; 
-   d="scan'208";a="152454188"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Oct 2020 13:51:11 -0700
-IronPort-SDR: ThRDdl6ikpNqol+iBAMJr2C3/ya8aMME4bycWZ8aQD0E7KThJqin9g/T9Jzm9zzRM7Y6OeAOsT
- EnV0ez9kGbqA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,343,1596524400"; 
-   d="scan'208";a="342499677"
-Received: from viggo.jf.intel.com (HELO localhost.localdomain) ([10.54.77.144])
-  by fmsmga004.fm.intel.com with ESMTP; 06 Oct 2020 13:51:10 -0700
-Subject: [RFC][PATCH 01/12] mm/vmscan: restore zone_reclaim_mode ABI
+        id S1727591AbgJFWFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 18:05:41 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:48859 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727582AbgJFWFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 18:05:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1602021933;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=D0yKHCyJxum/tEvo7iuV0O9loM8q594QajFgJPXI2c4=;
+        b=jV3iCbGRZ8MY8m1QOibtOh0sBplgSbigZsLVuXhGPZiwfnpv1rwRU5jwfJcNZA7MBnQzXm
+        sSZLHcj26tM236MRNFq4NzxXGA/fidk5Plj8tOfBcaigzqtJkDenOGKB8oNfEllYGH7l5J
+        cA5SRenuhB9mHfZ1CW2xlVG+xWR22Mk=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-3-tbwAcPtgMU6wUd7v8ecvGw-1; Tue, 06 Oct 2020 18:05:31 -0400
+X-MC-Unique: tbwAcPtgMU6wUd7v8ecvGw-1
+Received: by mail-wm1-f72.google.com with SMTP id u82so16499wmu.4
+        for <stable@vger.kernel.org>; Tue, 06 Oct 2020 15:05:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=D0yKHCyJxum/tEvo7iuV0O9loM8q594QajFgJPXI2c4=;
+        b=nGbh+hstOHeOE+IIB3K8CURi5voIu3JKkFsuw/KshpgdFnIcyo9gu1t4P0WZ2bhRfC
+         i53PxFa1uUcC1Ov3oUA1Ci/dnP9JHlMWkeqf9Yr/UlEklPFnJUj6LH+HBHOCKMyqD230
+         uq12OwLJIWITygszhCJt2wIz2yIWJLXgnoxs6QuS7MHr4lNDVpzDBsHz1SlDQ5DoP4L0
+         GJ7p/s3jWFY96h/SxML3I3vRyPH4h5nH1NTNtRld4Yp5v4dB10jvH7jlc2Md3Sl1df4o
+         WLrUBE1SKfd5w3N/KvEvfP/D7XPmzUsvJNYD4oKIcwSiT+Lp+OAMPJ9gRrwx1g+ca16V
+         lvLg==
+X-Gm-Message-State: AOAM533QPmLmrmK4rELdJ7l+SyPuOj4fgNPKOGNSS1VswPqShAqp1UIe
+        le5PWqrJFAH5HC/xTw3GO5JqqMyS8VuVq9c770zMxN/uhFf4BaObZPZF2c5sKzVdLr/8HJtwX65
+        y1ojgOCf4bNJPgcsH
+X-Received: by 2002:adf:fd49:: with SMTP id h9mr33862wrs.115.1602021930624;
+        Tue, 06 Oct 2020 15:05:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxbg7nuJicaHR4v9MJENcMoSYOrRrx86lmMYFazGdMK/ndKQQAW9w7ksDntXUfpn4zS04aZEA==
+X-Received: by 2002:adf:fd49:: with SMTP id h9mr33854wrs.115.1602021930461;
+        Tue, 06 Oct 2020 15:05:30 -0700 (PDT)
+Received: from kherbst.pingu.com ([2a02:8308:b088:c000:2bdf:b7aa:eede:d65f])
+        by smtp.gmail.com with ESMTPSA id j17sm157785wrw.68.2020.10.06.15.05.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 06 Oct 2020 15:05:29 -0700 (PDT)
+From:   Karol Herbst <kherbst@redhat.com>
 To:     linux-kernel@vger.kernel.org
-Cc:     Dave Hansen <dave.hansen@linux.intel.com>, ben.widawsky@intel.com,
-        rientjes@google.com, alex.shi@linux.alibaba.com, dwagner@suse.de,
-        tobin@kernel.org, cl@linux.com, akpm@linux-foundation.org,
-        ying.huang@intel.com, dan.j.williams@intel.com, cai@lca.pw,
-        stable@vger.kernel.org
-From:   Dave Hansen <dave.hansen@linux.intel.com>
-Date:   Tue, 06 Oct 2020 13:51:06 -0700
-References: <20201006205103.268F74A9@viggo.jf.intel.com>
-In-Reply-To: <20201006205103.268F74A9@viggo.jf.intel.com>
-Message-Id: <20201006205106.52F4D02E@viggo.jf.intel.com>
+Cc:     Karol Herbst <kherbst@redhat.com>,
+        dann frazier <dann.frazier@canonical.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Dave Airlie <airlied@redhat.com>, stable@vger.kernel.org,
+        Jeremy Cline <jcline@redhat.com>
+Subject: [PATCH 1/2] drm/nouveau/device: return error for unknown chipsets
+Date:   Wed,  7 Oct 2020 00:05:27 +0200
+Message-Id: <20201006220528.13925-1-kherbst@redhat.com>
+X-Mailer: git-send-email 2.26.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Previously the code relied on device->pri to be NULL and to fail probing
+later. We really should just return an error inside nvkm_device_ctor for
+unsupported GPUs.
 
-From: Dave Hansen <dave.hansen@linux.intel.com>
+Fixes: 24d5ff40a732 ("drm/nouveau/device: rework mmio mapping code to get rid of second map")
 
-I went to go add a new RECLAIM_* mode for the zone_reclaim_mode
-sysctl.  Like a good kernel developer, I also went to go update the
-documentation.  I noticed that the bits in the documentation didn't
-match the bits in the #defines.
-
-The VM never explicitly checks the RECLAIM_ZONE bit.  The bit is,
-however implicitly checked when checking 'node_reclaim_mode==0'.
-The RECLAIM_ZONE #define was removed in a cleanup.  That, by itself
-is fine.
-
-But, when the bit was removed (bit 0) the _other_ bit locations also
-got changed.  That's not OK because the bit values are documented to
-mean one specific thing and users surely rely on them meaning that one
-thing and not changing from kernel to kernel.  The end result is that
-if someone had a script that did:
-
-	sysctl vm.zone_reclaim_mode=1
-
-This script would have gone from enalbing node reclaim for clean
-unmapped pages to writing out pages during node reclaim after the
-commit in question.  That's not great.
-
-Put the bits back the way they were and add a comment so something
-like this is a bit harder to do again.  Update the documentation to
-make it clear that the first bit is ignored.
-
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Fixes: 648b5cf368e0 ("mm/vmscan: remove unused RECLAIM_OFF/RECLAIM_ZONE")
-Reviewed-by: Ben Widawsky <ben.widawsky@intel.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Daniel Wagner <dwagner@suse.de>
-Cc: "Tobin C. Harding" <tobin@kernel.org>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Cc: dann frazier <dann.frazier@canonical.com>
+Cc: dri-devel <dri-devel@lists.freedesktop.org>
+Cc: Dave Airlie <airlied@redhat.com>
 Cc: stable@vger.kernel.org
-
---
-
-Changes from v2:
- * Update description to indicate that bit0 was used for clean
-   unmapped page node reclaim.
+Reviewed-by: Jeremy Cline <jcline@redhat.com>
 ---
+ drivers/gpu/drm/nouveau/nvkm/engine/device/base.c | 1 +
+ 1 file changed, 1 insertion(+)
 
- b/Documentation/admin-guide/sysctl/vm.rst |   10 +++++-----
- b/mm/vmscan.c                             |    9 +++++++--
- 2 files changed, 12 insertions(+), 7 deletions(-)
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+index 9f4ac2672cf2e..dcb70677d0acc 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+@@ -3149,6 +3149,7 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
+ 		case 0x168: device->chip = &nv168_chipset; break;
+ 		default:
+ 			nvdev_error(device, "unknown chipset (%08x)\n", boot0);
++			ret = -ENODEV;
+ 			goto done;
+ 		}
+ 
+-- 
+2.26.2
 
-diff -puN Documentation/admin-guide/sysctl/vm.rst~mm-vmscan-restore-old-zone_reclaim_mode-abi Documentation/admin-guide/sysctl/vm.rst
---- a/Documentation/admin-guide/sysctl/vm.rst~mm-vmscan-restore-old-zone_reclaim_mode-abi	2020-10-06 13:39:20.595818443 -0700
-+++ b/Documentation/admin-guide/sysctl/vm.rst	2020-10-06 13:39:20.601818443 -0700
-@@ -976,11 +976,11 @@ that benefit from having their data cach
- left disabled as the caching effect is likely to be more important than
- data locality.
- 
--zone_reclaim may be enabled if it's known that the workload is partitioned
--such that each partition fits within a NUMA node and that accessing remote
--memory would cause a measurable performance reduction.  The page allocator
--will then reclaim easily reusable pages (those page cache pages that are
--currently not used) before allocating off node pages.
-+Consider enabling one or more zone_reclaim mode bits if it's known that the
-+workload is partitioned such that each partition fits within a NUMA node
-+and that accessing remote memory would cause a measurable performance
-+reduction.  The page allocator will take additional actions before
-+allocating off node pages.
- 
- Allowing zone reclaim to write out pages stops processes that are
- writing large amounts of data from dirtying pages on other nodes. Zone
-diff -puN mm/vmscan.c~mm-vmscan-restore-old-zone_reclaim_mode-abi mm/vmscan.c
---- a/mm/vmscan.c~mm-vmscan-restore-old-zone_reclaim_mode-abi	2020-10-06 13:39:20.597818443 -0700
-+++ b/mm/vmscan.c	2020-10-06 13:39:20.602818443 -0700
-@@ -4083,8 +4083,13 @@ module_init(kswapd_init)
-  */
- int node_reclaim_mode __read_mostly;
- 
--#define RECLAIM_WRITE (1<<0)	/* Writeout pages during reclaim */
--#define RECLAIM_UNMAP (1<<1)	/* Unmap pages during reclaim */
-+/*
-+ * These bit locations are exposed in the vm.zone_reclaim_mode sysctl
-+ * ABI.  New bits are OK, but existing bits can never change.
-+ */
-+#define RECLAIM_ZONE  (1<<0)   /* Run shrink_inactive_list on the zone */
-+#define RECLAIM_WRITE (1<<1)   /* Writeout pages during reclaim */
-+#define RECLAIM_UNMAP (1<<2)   /* Unmap pages during reclaim */
- 
- /*
-  * Priority for NODE_RECLAIM. This determines the fraction of pages
-_
