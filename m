@@ -2,121 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0165284F93
-	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 18:11:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0AB284FB7
+	for <lists+stable@lfdr.de>; Tue,  6 Oct 2020 18:20:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725925AbgJFQLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 6 Oct 2020 12:11:53 -0400
-Received: from mailout12.rmx.de ([94.199.88.78]:38157 "EHLO mailout12.rmx.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725769AbgJFQLw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 6 Oct 2020 12:11:52 -0400
-Received: from kdin01.retarus.com (kdin01.dmz1.retloc [172.19.17.48])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mailout12.rmx.de (Postfix) with ESMTPS id 4C5Msv4MsxzRq0K;
-        Tue,  6 Oct 2020 18:11:47 +0200 (CEST)
-Received: from mta.arri.de (unknown [217.111.95.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by kdin01.retarus.com (Postfix) with ESMTPS id 4C5Mrw5nVzz2xqM;
-        Tue,  6 Oct 2020 18:10:56 +0200 (CEST)
-Received: from N95HX1G2.wgnetz.xx (192.168.54.45) by mta.arri.de
- (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.408.0; Tue, 6 Oct
- 2020 18:10:03 +0200
-From:   Christian Eggers <ceggers@arri.de>
-To:     Oleksij Rempel <linux@rempel-privat.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        "David Laight" <David.Laight@ACULAB.COM>
-CC:     Pengutronix Kernel Team <kernel@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        <linux-i2c@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, Christian Eggers <ceggers@arri.de>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v4 3/3] i2c: imx: Don't generate STOP condition if arbitration has been lost
-Date:   Tue, 6 Oct 2020 18:08:14 +0200
-Message-ID: <20201006160814.22047-4-ceggers@arri.de>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201006160814.22047-1-ceggers@arri.de>
-References: <20201006160814.22047-1-ceggers@arri.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [192.168.54.45]
-X-RMX-ID: 20201006-181104-4C5Mrw5nVzz2xqM-0@kdin01
-X-RMX-SOURCE: 217.111.95.66
+        id S1726002AbgJFQUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 6 Oct 2020 12:20:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52706 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725902AbgJFQUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 6 Oct 2020 12:20:13 -0400
+Received: from mail-qv1-xf49.google.com (mail-qv1-xf49.google.com [IPv6:2607:f8b0:4864:20::f49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CD46C061755
+        for <stable@vger.kernel.org>; Tue,  6 Oct 2020 09:20:13 -0700 (PDT)
+Received: by mail-qv1-xf49.google.com with SMTP id s8so5671066qvv.18
+        for <stable@vger.kernel.org>; Tue, 06 Oct 2020 09:20:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=sender:date:in-reply-to:message-id:mime-version:references:subject
+         :from:to:cc;
+        bh=Kkcvd5AeUHu/7QI5btDqB8/5zh+GBy9XCmSrw8Y+2UA=;
+        b=fPCODs0xooE+a5d2V0S0jOFztMOJ/Kyf9mqCErprr6eVSYKaMnesZJtkO6qDhtd/X/
+         3SvhcjWFIdA56kJRtLTdIO0tS4qLDNZaRz3rbX0gzqtbTThxI8FY4i9cUzgCbgUaw3g8
+         PTKj09wq0wQ74c95B6nkkNf3UX4sdkPVI4LSV1X9ZvUJgE/J+P/4uc3ld76JSjhJbCK+
+         HGerYqG91YrsvTDnk0iOzDmxMRY0/yMGmFceQdtrQJ3sCzEtvNNo7WjlHOf2FxyWPa8q
+         5pWF8iREOgBHhFSIraaJGvuwGvh/nysxkizP1YECfZmslOnIcSUHlX0BXzPdSAa2Sd7+
+         CRsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=Kkcvd5AeUHu/7QI5btDqB8/5zh+GBy9XCmSrw8Y+2UA=;
+        b=YsptvYUYNim0q3v2r2+jHefYOuzLxS6XqwJiBJ7Ba0w6ybijQnN+QpWrXVFe09A2Yu
+         NWqwy6ZYlqgZPd35r1Sw1UZGPLRX3/BWW28n0cvzsZtk56ijXORZLoOJ5a+lNkkxdRSI
+         nUguJs7ExCVrCbM963WP+X7y/1m6bCxsPiEG8M10jIsBDtuHCAM0lmil0DofYvjy+G4S
+         GPDpaZQrICEgpGF3iZBnDKqzQ40/jTCqz8K8qRPlT1mwgCYEa+45bDNIsCBwkuj1ZYj9
+         8ZLmKy1xyf8A/9Vp51sSRJKvhsmUwoVJqhRI1g7zk9u5MO6cB4osfO9JWp1oYyEGPqX2
+         0CEg==
+X-Gm-Message-State: AOAM533EYI3tXFbDnyax+3RWT/tnsVylFWev7Fp52CN1dhQWmSQIhtFE
+        6LGfqU/0Vv1Jois3aO4G8SeAKYzl+5/S0Q==
+X-Google-Smtp-Source: ABdhPJxd/xgVJqr1AhI2WELy4n26SGJ0aX9Ur3GsQZdbPUU7dKeKgt51JRIvdI0Qy7eQ33vcg2GQDKKcN+hb/w==
+Sender: "gprocida via sendgmr" <gprocida@tef.lon.corp.google.com>
+X-Received: from tef.lon.corp.google.com ([2a00:79e0:d:110:a6ae:11ff:fe11:4f04])
+ (user=gprocida job=sendgmr) by 2002:a05:6214:1752:: with SMTP id
+ dc18mr5690393qvb.10.1602001212340; Tue, 06 Oct 2020 09:20:12 -0700 (PDT)
+Date:   Tue,  6 Oct 2020 17:20:00 +0100
+In-Reply-To: <20201006135228.113259-2-gprocida@google.com>
+Message-Id: <20201006162000.1146391-1-gprocida@google.com>
+Mime-Version: 1.0
+References: <20201006135228.113259-2-gprocida@google.com>
+X-Mailer: git-send-email 2.28.0.806.g8561365e88-goog
+Subject: [PATCH v2 1/1] drm/syncobj: Fix drm_syncobj_handle_to_fd refcount leak
+From:   Giuliano Procida <gprocida@google.com>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     Giuliano Procida <gprocida@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If arbitration is lost, the master automatically changes to slave mode.
-I2SR_IBB may or may not be reset by hardware. Raising a STOP condition
-by resetting I2CR_MSTA has no effect and will not clear I2SR_IBB.
+Commit 5fb252cad61f20ae5d5a8b199f6cc4faf6f418e1, a cherry-pick of
+upstream commit e7cdf5c82f1773c3386b93bbcf13b9bfff29fa31, introduced a
+refcount imbalance and thus a struct drm_syncobj object leak which can
+be triggered with DRM_IOCTL_SYNCOBJ_HANDLE_TO_FD.
 
-So calling i2c_imx_bus_busy() is not required and would busy-wait until
-timeout.
+The function drm_syncobj_handle_to_fd first calls drm_syncobj_find
+which increments the refcount of the object on success. In all of the
+drm_syncobj_handle_to_fd error paths, the refcount is decremented, but
+in the success path the refcount should remain at +1 as the struct
+drm_syncobj now belongs to the newly opened file. Instead, the
+refcount was incremented again to +2.
 
-Signed-off-by: Christian Eggers <ceggers@arri.de>
-Cc: stable@vger.kernel.org # Requires trivial backporting, simple remove
-                           # the 3rd argument from the calls to
-                           # i2c_imx_bus_busy().
+Fixes: 5fb252cad61f ("drm/syncobj: Stop reusing the same struct file for all syncobj -> fd")
+Signed-off-by: Giuliano Procida <gprocida@google.com>
 ---
- drivers/i2c/busses/i2c-imx.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_syncobj.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 63575af41c09..5d8a79319b2b 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -615,6 +615,8 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx, bool atomic)
- 		/* Stop I2C transaction */
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		if (!(temp & I2CR_MSTA))
-+			i2c_imx->stopped = 1;
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
- 		if (i2c_imx->dma)
- 			temp &= ~I2CR_DMAEN;
-@@ -778,9 +780,12 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
- 		 */
- 		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		if (!(temp & I2CR_MSTA))
-+			i2c_imx->stopped = 1;
- 		temp &= ~(I2CR_MSTA | I2CR_MTX);
- 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--		i2c_imx_bus_busy(i2c_imx, 0, false);
-+		if (!i2c_imx->stopped)
-+			i2c_imx_bus_busy(i2c_imx, 0, false);
- 	} else {
- 		/*
- 		 * For i2c master receiver repeat restart operation like:
-@@ -905,9 +910,12 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
- 				dev_dbg(&i2c_imx->adapter.dev,
- 					"<%s> clear MSTA\n", __func__);
- 				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+				if (!(temp & I2CR_MSTA))
-+					i2c_imx->stopped =  1;
- 				temp &= ~(I2CR_MSTA | I2CR_MTX);
- 				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--				i2c_imx_bus_busy(i2c_imx, 0, atomic);
-+				if (!i2c_imx->stopped)
-+					i2c_imx_bus_busy(i2c_imx, 0, atomic);
- 			} else {
- 				/*
- 				 * For i2c master receiver repeat restart operation like:
+diff --git a/drivers/gpu/drm/drm_syncobj.c b/drivers/gpu/drm/drm_syncobj.c
+index 889c95d4feec..3f71bc3d93fe 100644
+--- a/drivers/gpu/drm/drm_syncobj.c
++++ b/drivers/gpu/drm/drm_syncobj.c
+@@ -355,7 +355,6 @@ static int drm_syncobj_handle_to_fd(struct drm_file *file_private,
+ 		return PTR_ERR(file);
+ 	}
+ 
+-	drm_syncobj_get(syncobj);
+ 	fd_install(fd, file);
+ 
+ 	*p_fd = fd;
 -- 
-Christian Eggers
-Embedded software developer
-
-Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
-Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRA 57918
-Persoenlich haftender Gesellschafter: Arnold & Richter Cine Technik GmbH
-Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRB 54477
-Geschaeftsfuehrer: Dr. Michael Neuhaeuser; Stephan Schenk; Walter Trauninger; Markus Zeiler
+2.28.0.806.g8561365e88-goog
 
