@@ -2,87 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4562D285EA9
-	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 14:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E21E9285EEE
+	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 14:18:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728022AbgJGMDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Oct 2020 08:03:33 -0400
-Received: from mga01.intel.com ([192.55.52.88]:53865 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727861AbgJGMDd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 7 Oct 2020 08:03:33 -0400
-IronPort-SDR: blD4xUSA/X/IFcI7XC9aLb9dy7Peb69hXqg8YxtpMLoikmyW0eXs4a8LVaKf5Xwxu/uQKExgDy
- F5o6FIae0vkA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9766"; a="182383889"
-X-IronPort-AV: E=Sophos;i="5.77,346,1596524400"; 
-   d="scan'208";a="182383889"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2020 05:03:32 -0700
-IronPort-SDR: 5IciWRUol0eucRyf79KKEpVjTJKH9fC/6OvYgm/2E5v4T8DnTEfAjWTMYp1lbG9LMGmIxo2SaT
- 43n1mmQzZoyQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,346,1596524400"; 
-   d="scan'208";a="316183592"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by orsmga006.jf.intel.com with SMTP; 07 Oct 2020 05:03:30 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 07 Oct 2020 15:03:29 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>
-Subject: [PATCH 1/3] drm/i915: Mark ininitial fb obj as WT on eLLC machines to avoid rcu lockup during fbdev init
-Date:   Wed,  7 Oct 2020 15:03:27 +0300
-Message-Id: <20201007120329.17076-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.26.2
+        id S1728039AbgJGMSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Oct 2020 08:18:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39512 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728037AbgJGMST (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Oct 2020 08:18:19 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E5B0C061755
+        for <stable@vger.kernel.org>; Wed,  7 Oct 2020 05:18:19 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id l126so1237211pfd.5
+        for <stable@vger.kernel.org>; Wed, 07 Oct 2020 05:18:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Ej20ZFqBLuVD1CdXNzqTn76jA42Z2XTSitHHDKuwzxk=;
+        b=Uj7wUZV64+/szavHFhplRrWDp6kRg6FjhKfmnUNMyfAYyBC8GzyXeLdumgsq7TJ5QC
+         qu1oSJj33TnsUOhGnl9zKXZo8+e5Y9dm2JewqbBvuPRz8bT4ToF6PXbpUkC0ht8NyINA
+         m7Mj2xpYfHoIwvaabQYfmVQj73/VN5L7CiTvv031izOFEYMjR9Kc4v/wEEKlT0ip1Z1q
+         PfsKFPOM+4xOoeLnvuwLD2DWcwiGBugfroF6OWoQvMxtVoauhQnQx6nGuT2NdsNxM42V
+         bbMhowf9h6mFNonJWlV423Zj7CbMR88HUPgI2gkIGxK9sjZyOyVsS3dy1542PjbFJJV9
+         mihw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Ej20ZFqBLuVD1CdXNzqTn76jA42Z2XTSitHHDKuwzxk=;
+        b=O178R+lZfgmrahRjOgRvcY0jDOY8dvqdLkUIVHgCPHYx9X9oh4E/XtIHfmMfnduTR1
+         X6HivJsRrG/OoXQtFHJ8cvMx9EjassJZ+MaBVOZkPfvIIBdakvfujzkTx968IxZPvJnK
+         SjHx/iwRxJGByuBWlonyYPxU12fwUnHTtb6RcvMvDHpd4k9Tf4w4toVa6DMjpK7S/ewU
+         B13lsVfx5TLTE0yTVVgOSEVRRM2U7gd4FliMmdxTOLvWNDdMzYczYFwHWG6VR91KGSVz
+         77pJLPkFB4ky0fJPMb90es6WMa/dROuwpW3UZEDqEiuQ9ePvrzTe4DQV4K0qHJa9sPBZ
+         R0Gw==
+X-Gm-Message-State: AOAM533sRpJY5KUFgd5CqkmgNzBwJU0vkJSNBbO3DBXV0IC0eLNnu5pX
+        Cc2ysznmMRyj2InOyjPTfs68tHxZuR1Zzw==
+X-Google-Smtp-Source: ABdhPJxDgkncImWfkwRG2WXqwmnjo5Fqf0MWJW50XsC0+DeXe7GDiRBgNOJqfwDuIBtydlzQT7DOcA==
+X-Received: by 2002:a63:f741:: with SMTP id f1mr2659338pgk.38.1602073098830;
+        Wed, 07 Oct 2020 05:18:18 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n7sm3093578pfq.114.2020.10.07.05.18.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Oct 2020 05:18:18 -0700 (PDT)
+Message-ID: <5f7db20a.1c69fb81.11404.59ab@mx.google.com>
+Date:   Wed, 07 Oct 2020 05:18:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.69-57-gf9fba2b4f8ec
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.4 baseline: 132 runs,
+ 4 regressions (v5.4.69-57-gf9fba2b4f8ec)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+stable-rc/queue/5.4 baseline: 132 runs, 4 regressions (v5.4.69-57-gf9fba2b4=
+f8ec)
 
-Currently we leave the cache_level of the initial fb obj
-set to NONE. This means on eLLC machines the first pin_to_display()
-will try to switch it to WT which requires a vma unbind+bind.
-If that happens during the fbdev initialization rcu does not
-seem operational which causes the unbind to get stuck. To
-most appearances this looks like a dead machine on boot.
+Regressions Summary
+-------------------
 
-Avoid the unbind by already marking the object cache_level
-as WT when creating it. We still do an excplicit ggtt pin
-which will rewrite the PTEs anyway, so they will match whatever
-cache level we set.
+platform         | arch  | lab           | compiler | defconfig | results
+-----------------+-------+---------------+----------+-----------+--------
+bcm2837-rpi-3-b  | arm64 | lab-baylibre  | gcc-8    | defconfig | 3/4    =
 
-Cc: <stable@vger.kernel.org> # v5.7+
-Suggested-by: Chris Wilson <chris@chris-wilson.co.uk>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2381
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/gpu/drm/i915/display/intel_display.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
 
-diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-index 907e1d155443..00c08600c60a 100644
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -3445,6 +3445,14 @@ initial_plane_vma(struct drm_i915_private *i915,
- 	if (IS_ERR(obj))
- 		return NULL;
- 
-+	/*
-+	 * Mark it WT ahead of time to avoid changing the
-+	 * cache_level during fbdev initialization. The
-+	 * unbind there would get stuck waiting for rcu.
-+	 */
-+	i915_gem_object_set_cache_coherency(obj, HAS_WT(i915) ?
-+					    I915_CACHE_WT : I915_CACHE_NONE);
-+
- 	switch (plane_config->tiling) {
- 	case I915_TILING_NONE:
- 		break;
--- 
-2.26.2
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.69-57-gf9fba2b4f8ec/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.69-57-gf9fba2b4f8ec
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f9fba2b4f8ec9ce04a3c80ee4e970e901141d5d7 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig | results
+-----------------+-------+---------------+----------+-----------+--------
+bcm2837-rpi-3-b  | arm64 | lab-baylibre  | gcc-8    | defconfig | 3/4    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f7d73c75b371cd7544ff409
+
+  Results:     3 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.69-57=
+-gf9fba2b4f8ec/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.69-57=
+-gf9fba2b4f8ec/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f7d73c75b371cd7=
+544ff40d
+      new failure (last pass: v5.4.69-57-g6e2946aac4c3)
+      3 lines
+
+    2020-10-07 07:50:01.598000  Connected to bcm2837-rpi-3-b console [chann=
+el connected] (~$quit to exit)
+    2020-10-07 07:50:01.598000  (user:khilman) is already connected
+    2020-10-07 07:50:16.836000  =00
+    2020-10-07 07:50:16.836000  =
+
+    2020-10-07 07:50:16.836000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
+0)
+    2020-10-07 07:50:16.836000  =
+
+    2020-10-07 07:50:16.837000  DRAM:  948 MiB
+    2020-10-07 07:50:16.851000  RPI 3 Model B (0xa02082)
+    2020-10-07 07:50:16.940000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
+    2020-10-07 07:50:16.972000  Loading Environment from FAT... *** Warning=
+ - bad CRC, using default environment
+    ... (386 line(s) more)
+      =
+
+
+
+platform         | arch  | lab           | compiler | defconfig | results
+-----------------+-------+---------------+----------+-----------+--------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f7d73706355a3db644ff401
+
+  Results:     85 PASS, 5 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.69-57=
+-gf9fba2b4f8ec/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevi=
+n.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.69-57=
+-gf9fba2b4f8ec/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevi=
+n.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.bootrr.cros-ec-sensors-accel0-probed: https://kernelci.org/tes=
+t/case/id/5f7d73706355a3db644ff415
+      failing since 7 days (last pass: v5.4.68-384-g856fa448539c, first fai=
+l: v5.4.68-388-gcf92ab7a7853)
+
+    2020-10-07 07:51:04.243000  /lava-2698796/1/../bin/lava-test-case
+     * baseline.bootrr.cros-ec-sensors-accel1-probed: https://kernelci.org/=
+test/case/id/5f7d73706355a3db644ff416
+      failing since 7 days (last pass: v5.4.68-384-g856fa448539c, first fai=
+l: v5.4.68-388-gcf92ab7a7853)
+
+    2020-10-07 07:51:05.264000  /lava-2698796/1/../bin/lava-test-case
+     * baseline.bootrr.cros-ec-sensors-gyro0-probed: https://kernelci.org/t=
+est/case/id/5f7d73706355a3db644ff417
+      failing since 7 days (last pass: v5.4.68-384-g856fa448539c, first fai=
+l: v5.4.68-388-gcf92ab7a7853)
+
+    2020-10-07 07:51:06.286000  /lava-2698796/1/../bin/lava-test-case
+      =20
