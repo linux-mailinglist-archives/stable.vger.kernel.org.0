@@ -2,67 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F13C4285D90
-	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 12:52:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0A3F285DF6
+	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 13:15:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728284AbgJGKwe convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 7 Oct 2020 06:52:34 -0400
-Received: from mx.metalurgs.lv ([81.198.125.103]:61402 "EHLO mx.metalurgs.lv"
+        id S1726597AbgJGLO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Oct 2020 07:14:57 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:48126 "EHLO mail.skyhub.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728179AbgJGKwc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 7 Oct 2020 06:52:32 -0400
-Received: from mx.metalurgs.lv (localhost [127.0.0.1])
-        by mx.metalurgs.lv (Postfix) with ESMTP id 0F09F66C2C
-        for <stable@vger.kernel.org>; Wed,  7 Oct 2020 13:52:18 +0300 (EEST)
-Received: from kas30pipe.localhost (localhost [127.0.0.1])
-        by mx.metalurgs.lv (Postfix) with ESMTP id E2F5466C27
-        for <stable@vger.kernel.org>; Wed,  7 Oct 2020 13:52:17 +0300 (EEST)
-Received: by mx.metalurgs.lv (Postfix, from userid 1005)
-        id 583F066B65; Wed,  7 Oct 2020 13:52:14 +0300 (EEST)
-Received: from [100.64.1.74] (unknown [190.15.125.55])
-        (Authenticated sender: admin)
-        by mx.metalurgs.lv (Postfix) with ESMTPA id DCF2963AC4;
-        Wed,  7 Oct 2020 13:52:06 +0300 (EEST)
+        id S1726129AbgJGLO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Oct 2020 07:14:57 -0400
+Received: from zn.tnic (p200300ec2f0910001a6e2c50840325bb.dip0.t-ipconnect.de [IPv6:2003:ec:2f09:1000:1a6e:2c50:8403:25bb])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 7BB7C1EC02FE;
+        Wed,  7 Oct 2020 13:14:55 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1602069295;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=/xdW026KNaPmQBeTtUGM1jrwnoKelUBoR6snamoe8Mk=;
+        b=WWR0azw394/bqAfeM1QrKKywuY6FL8sncnKP1c6Jsy5/nV4FI64e9Ce6bTymObhhMZSTJQ
+        tY2/cXohj+igNLltUej9VZdet2ls3fKldavRyghQGERuOC+jrL87pXVPuy/GFK8mfRbawv
+        1xVyypk7BuK0y9yahzf8ZmdDV9MEfpk=
+Date:   Wed, 7 Oct 2020 13:14:47 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     linux-tip-commits@vger.kernel.org,
+        Dan Williams <dan.j.williams@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [tip: ras/core] x86, powerpc: Rename memcpy_mcsafe() to
+ copy_mc_to_{user, kernel}()
+Message-ID: <20201007111447.GA23257@zn.tnic>
+References: <CAHk-=wjSqtXAqfUJxFtWNwmguFASTgB0dz1dT3V-78Quiezqbg@mail.gmail.com>
+ <160197822988.7002.13716982099938468868.tip-bot2@tip-bot2>
 MIME-Version: 1.0
-Content-Description: Mail message body
-To:     Recipients <financialcapability6@gmail.com>
-From:   "Mr. Hashim Bin" <financialcapability6@gmail.com>
-Date:   Wed, 07 Oct 2020 07:51:59 -0300
-Reply-To: hmurrah39@gmail.com
-X-SpamTest-Envelope-From: financialcapability6@gmail.com
-X-SpamTest-Group-ID: 00000000
-X-SpamTest-Info: Profiles 71303 [Jan 01 2015]
-X-SpamTest-Info: {TO: forged address, i.e. recipient, investors, public, etc.}
-X-SpamTest-Info: {DATE: unreal year}
-X-SpamTest-Method: none
-X-SpamTest-Rate: 55
-X-SpamTest-Status: Not detected
-X-SpamTest-Status-Extended: not_detected
-X-SpamTest-Version: SMTP-Filter Version 3.0.0 [0284], KAS30/Release
-Message-ID: <20201007105214.583F066B65@mx.metalurgs.lv>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Low Rate Loan./mmm,
-X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.39/RELEASE,
-         bases: 20140401 #7726142, check: 20201007 notchecked
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <160197822988.7002.13716982099938468868.tip-bot2@tip-bot2>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear,
+On Tue, Oct 06, 2020 at 09:57:09AM -0000, tip-bot2 for Dan Williams wrote:
+> +	/* Copy successful. Return zero */
+> +.L_done_memcpy_trap:
+> +	xorl %eax, %eax
+> +.L_done:
+> +	ret
+> +SYM_FUNC_END(copy_mc_fragile)
+> +EXPORT_SYMBOL_GPL(copy_mc_fragile)
 
+That export together with CONFIG_MODVERSIONS causes
 
-We are Base Investment Company offering Corporate and Personal Loan at 3% Interest Rate for a duration of 10Years.
+WARNING: modpost: EXPORT symbol "copy_mc_fragile" [vmlinux] version generation failed, symbol will not be versioned.
 
+here.
 
-We also pay 1% commission to brokers, who introduce project owners for finance or other opportunities.
+I don't see why tho...
 
+-- 
+Regards/Gruss,
+    Boris.
 
-Please get back to me if you are interested for more
-
-details.
-
-
-Yours faithfully,
-
-Hashim Murrah
+https://people.kernel.org/tglx/notes-about-netiquette
