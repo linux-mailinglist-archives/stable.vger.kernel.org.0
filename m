@@ -2,118 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07BB6286792
-	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 20:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3CF2867B1
+	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 20:47:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727803AbgJGSll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Oct 2020 14:41:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42820 "EHLO
+        id S1728193AbgJGSre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Oct 2020 14:47:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726197AbgJGSlj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Oct 2020 14:41:39 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89612C061755
-        for <stable@vger.kernel.org>; Wed,  7 Oct 2020 11:41:39 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id d6so1432656plo.13
-        for <stable@vger.kernel.org>; Wed, 07 Oct 2020 11:41:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=dNkJXrM4P7IG+ISeW2+3A6GoFmUGgSyz00FyM9TZ1ew=;
-        b=1QvjOtajUCPoAQrF6o7u7ovXOtrJxMOUxel/A4iiSGq3U6PkQxLngwsvwBVGdf1VBQ
-         Ujrz2sja0tJvQef4+rGxoh4eG7ONnIWcQBK7K1IOdrRx6e3A3ms4B3G0v7IBZbbqLyih
-         1Bx7ODzZeEUHlLlzQaa3MG4GKRSfzz2QHl4ZsW1y/fwybTU+o2EzPcgK2n//G3kvnZhg
-         vbai5rtwltQdnAmBsdGrBUPeE6fw9gc4Th3C4EDU5zGAtagh+apHbbIBmvc4CcZM6cew
-         y2KWPgN0wkzVsjLz0MECukwTb2NJLUb+olv10DDf8K8L0nTZtL9nnPsEFQJ0BvToVay4
-         aOTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=dNkJXrM4P7IG+ISeW2+3A6GoFmUGgSyz00FyM9TZ1ew=;
-        b=RCOKW+pKkL0AJtqTlUrSz+ts8Tu5OkTgkzm5WOQscGtm0boTJ19jW8z9AZhjo0RznD
-         AxuTzWOxAapl1sew9ZM0IQpem1DaPaQgsXtns4e0ZMpGV+VIPR3Z5WaGGrwWkIklUvNZ
-         NmvKiW7RrqL3bFyInkTNO8tQdLFB+BINXwrOPSn0TqdQDEyWHYd3cNHeGH5PoZdalvCt
-         o7hIioexbHlJvSmD4WD6Y585WzRr1Zx5vrIwIJIRNMC9vtKCtfIWeOlxNSH+i8Ybcc6J
-         ccsLRlDE9FxL/jg3+H+MdLsZBu9mSNV5S9c9ADGTTPhNoNdsTnUbWTUj+AJZrjm2J05S
-         G6zQ==
-X-Gm-Message-State: AOAM531UyYh3ATbvhWw93UoCV7gd0t4WwntlyzeMNHnYhQdJ4ZfVwjOB
-        WPwz56G4hD4pG6qE61xE0qGlSQ+/jXrwTA==
-X-Google-Smtp-Source: ABdhPJwU0uaqTaNTomL0pNQbsfPlyB13+JnPFv5dSBWek8o/73PsfVFjd5GoYAsw1Yv0YRSvpQikkQ==
-X-Received: by 2002:a17:902:a40e:b029:d3:c6fa:2650 with SMTP id p14-20020a170902a40eb02900d3c6fa2650mr4052160plq.29.1602096098710;
-        Wed, 07 Oct 2020 11:41:38 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b185sm4273021pgc.68.2020.10.07.11.41.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Oct 2020 11:41:37 -0700 (PDT)
-Message-ID: <5f7e0be1.1c69fb81.b6495.7701@mx.google.com>
-Date:   Wed, 07 Oct 2020 11:41:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1728119AbgJGSre (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Oct 2020 14:47:34 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86D2CC061755;
+        Wed,  7 Oct 2020 11:47:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=Fd9c7NnGlZlQsPoX32Y7E0H7T+E2rrcfUhUeaY9NVV4=; b=ZTQCinhxmjer2B4rWKjYH5Zt45
+        jkp9CrbpI7giGfDFPrQO8yS1DANnlbqytLhjgJ6zCKxt4PPjzryYAjRdzaIjwIqteaaegdVmBd3rh
+        7l2GniIcTZNK7ZOgUdn8kgeSejFLP89v0sDQhBWa0B+LyRp8CYVQzwzreuLIG8oa5X+HzvwVn+qaD
+        NwkEw5W7uMFUQTWmuuNHkHtJjIyJWCRIET5Rf5PfhTb4wBbqN/64JntPZtIkBQ7TPsh4vfIUgqVsx
+        7qdChRAM994JJ0YjxFO5EKOdi3LaeniRItdUqu9KH5Q0BRuHkEErw5JKLkv9RZ67yFfYET6J96ebw
+        oesKFOSQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1kQETK-0004O9-Q8; Wed, 07 Oct 2020 18:47:30 +0000
+Date:   Wed, 7 Oct 2020 19:47:30 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     linux-fsdevel@vger.kernel.org, ericvh@gmail.com, lucho@ionkov.net,
+        viro@zeniv.linux.org.uk, jlayton@kernel.org, idryomov@gmail.com,
+        mark@fasheh.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        v9fs-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        ceph-devel@vger.kernel.org, ocfs2-devel@oss.oracle.com,
+        linux-btrfs@vger.kernel.org, clm@fb.com, josef@toxicpanda.com,
+        dsterba@suse.com, stable@vger.kernel.org
+Subject: Re: [PATCH 1/7] 9P: Cast to loff_t before multiplying
+Message-ID: <20201007184730.GW20115@casper.infradead.org>
+References: <20201004180428.14494-1-willy@infradead.org>
+ <20201004180428.14494-2-willy@infradead.org>
+ <20201007054849.GA16556@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.238-26-g1959353b3c5c
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.9 baseline: 96 runs,
- 1 regressions (v4.9.238-26-g1959353b3c5c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201007054849.GA16556@infradead.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 96 runs, 1 regressions (v4.9.238-26-g1959353b=
-3c5c)
+On Wed, Oct 07, 2020 at 06:48:49AM +0100, Christoph Hellwig wrote:
+> > -		.range_start = vma->vm_pgoff * PAGE_SIZE,
+> > +		.range_start = (loff_t)vma->vm_pgoff * PAGE_SIZE,
+> 
+> Given the may places where this issue shows up I think we really need
+> a vma_offset or similar helper for it.  Much better than chasing missing
+> casts everywhere.
 
-Regressions Summary
--------------------
+Good point.  I think these patches need to go in to fix the bugs in
+the various stable releases, but we should definitely have a helper
+for the future.  Also, several of these patches are for non-VMA
+pgoff_t.
 
-platform       | arch | lab           | compiler | defconfig      | results
----------------+------+---------------+----------+----------------+--------
-qemu_i386-uefi | i386 | lab-collabora | gcc-8    | i386_defconfig | 0/1    =
+vma_offset() is a bit weird for me -- vmas have all kinds of offsets.
+vma_file_offset() would work or vma_fpos().  I tend to prefer the shorter
+function name ;-)
 
+A quick grep shows we probably want a vmf_fpos() too:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.238-26-g1959353b3c5c/plan/baseline/
+arch/powerpc/platforms/cell/spufs/file.c:       unsigned long area, offset = vmf->pgoff << PAGE_SHIFT;
+arch/x86/entry/vdso/vma.c:      sym_offset = (long)(vmf->pgoff << PAGE_SHIFT) +
+drivers/gpu/drm/gma500/framebuffer.c:   address = vmf->address - (vmf->pgoff << PAGE_SHIFT);
+drivers/scsi/cxlflash/ocxl_hw.c:        offset = vmf->pgoff << PAGE_SHIFT;
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.238-26-g1959353b3c5c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1959353b3c5c434342156f836e0a889c5e22fd39 =
+I'm sure a lot of this will never run on a 32-bit kernel or with a 4GB
+file, but it's not good to have bad code around for people to copy from.
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform       | arch | lab           | compiler | defconfig      | results
----------------+------+---------------+----------+----------------+--------
-qemu_i386-uefi | i386 | lab-collabora | gcc-8    | i386_defconfig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f7dd56b8b761ca0474ff3e0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.238-2=
-6-g1959353b3c5c/i386/i386_defconfig/gcc-8/lab-collabora/baseline-qemu_i386-=
-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.238-2=
-6-g1959353b3c5c/i386/i386_defconfig/gcc-8/lab-collabora/baseline-qemu_i386-=
-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/x86/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f7dd56b8b761ca0474ff=
-3e1
-      new failure (last pass: v4.9.238-23-g7c3201da309e)  =20
