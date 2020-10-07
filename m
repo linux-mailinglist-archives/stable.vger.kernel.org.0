@@ -2,203 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 564DF285F4B
-	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 14:37:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 220B9285F58
+	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 14:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728195AbgJGMhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Oct 2020 08:37:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42550 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728081AbgJGMhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Oct 2020 08:37:48 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3979AC061755
-        for <stable@vger.kernel.org>; Wed,  7 Oct 2020 05:37:48 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id o8so937975pll.4
-        for <stable@vger.kernel.org>; Wed, 07 Oct 2020 05:37:48 -0700 (PDT)
+        id S1728194AbgJGMmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Oct 2020 08:42:31 -0400
+Received: from mail-mw2nam10on2077.outbound.protection.outlook.com ([40.107.94.77]:41056
+        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727927AbgJGMmb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Oct 2020 08:42:31 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Kiw2eeMBVo9IYfNhFwCqyCdD6euX6B8XHXQR9FBCAU8tp4khLHg5+R04vjA+vqEgLgMVVIuvvmRZPwikjEH7eKR7sGAKLRNnd8d9/oQ8Xl7Gle5MTZQDvwQgad70djUxz5VQmEBg6palwDR7333JUesMnkuksmUXHET8HrEe3iiQcsE4UpTiSGgX9ZWKv4t+ILzjuWKgdsH6WbkdA2fIvRjFWEy+dD/XpVlKtphrCnIv7BCL8nOygezxuuZ9WCoAOY0b8AU7D+q4r/wqIiYKFM/z3yPtWJMUz6uaHqsmYcnNNr59xi4sFGtiRQ0J1Y2Lj8ft0PmllPsaIFKNyaZhOg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BSM6hx9hNf5H6eZJYU8X6g9aYCLCAXq3IAmJ8LVHOeg=;
+ b=J31znANzJKANyVgW/INt+vn7kTQwWAVL1pJlXnlA/aTbfEIeM9+WySPHb3L/IpJ5xzhU9JC6rxniPkTlpoywrJtHcrJqeVkdf/duLC7BtvxRsQP7B9GHu+iVXxtsPhWCvltg1PU+WV/QnIvsxXTroW1D05f2SKYHNuG2NH5tE0ru3PpiXOd04qB5WUZ6/pHRFbf5NQ2egDVmEoi7feBPfMJeQxaoZ5lLButDHl91BC+krMVCjmUPjePEM0aQGXsMkgueWEarK45aSjUbdZel1jJgnF7bgrSi8IhJ7oGsFPf2q/wdQ2bkqoVhztjnFOu5RVgy1ogk/MTgfJFfcb/HLQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
+ dmarc=none action=none header.from=amd.com; dkim=none (message not signed);
+ arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=wXBxya3uDQOFbsmk0q65tNDyx7Jxs9xx/9qlB6emdZQ=;
-        b=N3g8RZnvBvD1aMXmpmX8/zHGAsn2sBkMhH5a3tkD+VAnPyVvG/5XcnI/2Fh/Y6m9Lh
-         xhKMSv89HEUvSc35z+vmOO6hNXCFe2PXVp16DtXdYnu+gWKFCwDfGVpQ0npxQQI2HZos
-         zWq1+TOu/I3YJ0KGlOa4KH0ZPHiHtK6oSbbtIhVqrRxSiqk2NV7wukXzLc62tU4HKfDP
-         Dw7h1y7jir0JHtVf2YGUVab6amkK32K3g07FIqkHt53RhXL+wQUnEAcOj0SqElcEdXCn
-         6E3WV8N6gIfqDmCL7xGW7Ckm696xdEPH+YFZ3eaGvDfEH6nm66exdB8L9yxjrk/rOI/V
-         HBYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=wXBxya3uDQOFbsmk0q65tNDyx7Jxs9xx/9qlB6emdZQ=;
-        b=VsmU28zdRrc/S04G+WSreFtxhdA610rnPEsbZha5ohaVCkXWCOBawm3Gyr9QYESNum
-         Qjfmg35AByC+YaiDbpcUyJILbHU5R8AdZwdmFhflHx4Z5FuoHI43e6gLlqtGG95JvFsu
-         xE6ZB1gsom+IFVVftzCyJ69+Vb4yFqnInhaUJckqFGVM0YjiJUmfugOc6BHGRw5/73LB
-         IHOM4huNzjhrWoA6BHO1dhG20QlmBntexzTYS0v1uKfNVYPaGwcpV6M4AqeCZSWOmcH0
-         8PANfx5lSPfSCrUkt4dTVNFUdVc6HUCJCvTEUTsteLv6WYw8Jpkv/ndKB9hSWr25oA5Y
-         GxCQ==
-X-Gm-Message-State: AOAM53252kU16m81jdCzRg5W6cN20TqXfruTjmqPZALMw1w21F284+AC
-        ifePMgAmKIa7czft6ifo6Oo7RxuuBeJRTQ==
-X-Google-Smtp-Source: ABdhPJzhbWr7rfkw0d2YpZeY/rnqpjKe2i23MTxP8Sj1R7L7Ba/pHkEL3Yl9PDZChgsXFnA8rFnDgg==
-X-Received: by 2002:a17:902:6a8b:b029:d3:b4d2:11f0 with SMTP id n11-20020a1709026a8bb02900d3b4d211f0mr2685936plk.2.1602074267064;
-        Wed, 07 Oct 2020 05:37:47 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x4sm3001891pfm.86.2020.10.07.05.37.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Oct 2020 05:37:46 -0700 (PDT)
-Message-ID: <5f7db69a.1c69fb81.1bb41.58b0@mx.google.com>
-Date:   Wed, 07 Oct 2020 05:37:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BSM6hx9hNf5H6eZJYU8X6g9aYCLCAXq3IAmJ8LVHOeg=;
+ b=BSlEST+N4bdm5kIQVO2aBxM3UAp0owQRllkF58mazNM2+hNUcVQNDimYcCWSCi8alAJ2/8cGg4t2hi5zLKtkAU5pQHB3rEHjat6JMs81qF7HJq4ylFblMFBzkTpSt4zeZuXaq3JW/BSblLci18CqvRqZboSDZi2fYth/4Dadq7Q=
+Received: from DM5PR06CA0051.namprd06.prod.outlook.com (2603:10b6:3:37::13) by
+ DM6PR12MB2858.namprd12.prod.outlook.com (2603:10b6:5:182::21) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3433.40; Wed, 7 Oct 2020 12:42:26 +0000
+Received: from DM6NAM11FT034.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:3:37:cafe::ed) by DM5PR06CA0051.outlook.office365.com
+ (2603:10b6:3:37::13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3455.22 via Frontend
+ Transport; Wed, 7 Oct 2020 12:42:26 +0000
+X-MS-Exchange-Authentication-Results: spf=none (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
+ header.d=none;lists.freedesktop.org; dmarc=none action=none
+ header.from=amd.com;
+Received-SPF: None (protection.outlook.com: amd.com does not designate
+ permitted sender hosts)
+Received: from SATLEXMB01.amd.com (165.204.84.17) by
+ DM6NAM11FT034.mail.protection.outlook.com (10.13.173.47) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.3455.23 via Frontend Transport; Wed, 7 Oct 2020 12:42:26 +0000
+Received: from SATLEXMB02.amd.com (10.181.40.143) by SATLEXMB01.amd.com
+ (10.181.40.142) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1979.3; Wed, 7 Oct 2020
+ 07:42:26 -0500
+Received: from aj-EliteDesk.amd.com (10.180.168.240) by SATLEXMB02.amd.com
+ (10.181.40.143) with Microsoft SMTP Server id 15.1.1979.3 via Frontend
+ Transport; Wed, 7 Oct 2020 07:42:25 -0500
+From:   Aurabindo Pillai <aurabindo.pillai@amd.com>
+To:     <amd-gfx@lists.freedesktop.org>
+CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
+        <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
+        <Aurabindo.Pillai@amd.com>, <Qingqing.Zhuo@amd.com>,
+        <Eryk.Brol@amd.com>, Stylon Wang <stylon.wang@amd.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH 01/12] drm/amd/display: Fix black screen after DP/HDMI hot-plug
+Date:   Wed, 7 Oct 2020 08:42:13 -0400
+Message-ID: <20201007124224.18789-2-aurabindo.pillai@amd.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20201007124224.18789-1-aurabindo.pillai@amd.com>
+References: <20201007124224.18789-1-aurabindo.pillai@amd.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.8.14
-X-Kernelci-Branch: linux-5.8.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-5.8.y baseline: 133 runs, 7 regressions (v5.8.14)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: f974a045-27a4-4bac-200a-08d86abe7256
+X-MS-TrafficTypeDiagnostic: DM6PR12MB2858:
+X-Microsoft-Antispam-PRVS: <DM6PR12MB2858D5284F5DF37A7F730EDF8B0A0@DM6PR12MB2858.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3968;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: cWigTnDQqd46pG0IQczzjpYTLVeYPK8NK5i2GsLMow2AbLcled/JtiG7EGRnOBCaHJTgpTYZLDedfa/k/AQhSha36xDSRcthfW/3iOXzYd5X6QRiX85RWSQt1rGBJhgflpAyrVUvJ8vLsB+sqx+5phBfGDgfG4msGBdB0ZPg+pJYyxKh6USe+efrDWkx8YhyK6jzXmVFN31yXcSVdHW2YsIXLPoEmfna6xlSqHoBKvr1MZhBbf9IMQGpuKTE5PEOSXeK8vpTzi7Hrn/QRnFoa16O/+lsyvh3pBaMnl0TfJNQGL8bFwzi8HkGs0LeKaufoPaTrHSI9NAzr6QCa9ByJFhFBOq/tXsB73B6kbNByS3qKqe3oA2ziKAdMNDT2bUeHo28J7L30TVAch4vbhdjYQ==
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SATLEXMB01.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(136003)(346002)(39860400002)(376002)(396003)(46966005)(83380400001)(356005)(47076004)(82740400003)(316002)(81166007)(44832011)(86362001)(6666004)(82310400003)(5660300002)(4326008)(70586007)(478600001)(54906003)(70206006)(1076003)(2906002)(8676002)(8936002)(426003)(2616005)(6916009)(336012)(36756003)(7696005)(186003)(26005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Oct 2020 12:42:26.6503
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: f974a045-27a4-4bac-200a-08d86abe7256
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB01.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT034.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB2858
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.8.y baseline: 133 runs, 7 regressions (v5.8.14)
+From: Stylon Wang <stylon.wang@amd.com>
 
-Regressions Summary
--------------------
+[Why]
+When restoring connector state we relies on drm_connector->status
+to check if the connector with matching crtc is connected.
+But that status is only updated later when user space calls
+DRM_IOCTL_MODE_GETCONNECTOR and then calls fillsmodes().
+This causes connectors being incorrectly reported as not connected
+when we hot-plug the cable.
 
-platform          | arch  | lab           | compiler | defconfig          |=
- results
-------------------+-------+---------------+----------+--------------------+=
---------
-bcm2837-rpi-3-b   | arm64 | lab-baylibre  | gcc-8    | defconfig          |=
- 3/4    =
+[How]
+Instead of checking drm_connector->status directly, use helper
+amdgpu_dm_connector_detect() to check for connectivity.
 
-rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
- 63/69  =
+Signed-off-by: Stylon Wang <stylon.wang@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Cc: <stable@vger.kernel.org>
+---
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 45 ++++++++++---------
+ 1 file changed, 25 insertions(+), 20 deletions(-)
 
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 3cf4e08931bb..dfcea66ee23c 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1735,25 +1735,6 @@ static int dm_suspend(void *handle)
+ 	return 0;
+ }
+ 
+-static struct amdgpu_dm_connector *
+-amdgpu_dm_find_first_crtc_matching_connector(struct drm_atomic_state *state,
+-					     struct drm_crtc *crtc)
+-{
+-	uint32_t i;
+-	struct drm_connector_state *new_con_state;
+-	struct drm_connector *connector;
+-	struct drm_crtc *crtc_from_state;
+-
+-	for_each_new_connector_in_state(state, connector, new_con_state, i) {
+-		crtc_from_state = new_con_state->crtc;
+-
+-		if (crtc_from_state == crtc)
+-			return to_amdgpu_dm_connector(connector);
+-	}
+-
+-	return NULL;
+-}
+-
+ static void emulated_link_detect(struct dc_link *link)
+ {
+ 	struct dc_sink_init_data sink_init_data = { 0 };
+@@ -5003,7 +4984,8 @@ amdgpu_dm_connector_detect(struct drm_connector *connector, bool force)
+ 	    !aconnector->fake_enable)
+ 		connected = (aconnector->dc_sink != NULL);
+ 	else
+-		connected = (aconnector->base.force == DRM_FORCE_ON);
++		connected = (aconnector->base.force == DRM_FORCE_ON ||
++				aconnector->base.force == DRM_FORCE_ON_DIGITAL);
+ 
+ 	return (connected ? connector_status_connected :
+ 			connector_status_disconnected);
+@@ -8090,6 +8072,29 @@ static void reset_freesync_config_for_crtc(
+ 	       sizeof(new_crtc_state->vrr_infopacket));
+ }
+ 
++static struct amdgpu_dm_connector *
++amdgpu_dm_find_first_crtc_matching_connector(struct drm_atomic_state *state,
++					     struct drm_crtc *crtc)
++{
++	uint32_t i;
++	struct drm_connector_state *new_con_state;
++	struct drm_connector *connector;
++	struct drm_crtc *crtc_from_state;
++
++	for_each_new_connector_in_state(state, connector, new_con_state, i) {
++		struct amdgpu_dm_connector *aconnector =
++			to_amdgpu_dm_connector(connector);
++		crtc_from_state = new_con_state->crtc;
++
++		if (crtc_from_state == crtc
++			&& connector != NULL
++			&& amdgpu_dm_connector_detect(connector, false) == connector_status_connected)
++			return aconnector;
++	}
++
++	return NULL;
++}
++
+ static int dm_update_crtc_state(struct amdgpu_display_manager *dm,
+ 				struct drm_atomic_state *state,
+ 				struct drm_crtc *crtc,
+-- 
+2.25.1
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.8.y/kernel/=
-v5.8.14/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.8.y
-  Describe: v5.8.14
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      70b225d0a8ca1242e8a75ded86b806070ec71b2f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig          |=
- results
-------------------+-------+---------------+----------+--------------------+=
---------
-bcm2837-rpi-3-b   | arm64 | lab-baylibre  | gcc-8    | defconfig          |=
- 3/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f7d77a76af53559e54ff3f1
-
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.8.y/v5.8.14/arm=
-64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.8.y/v5.8.14/arm=
-64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f7d77a76af53559=
-e54ff3f5
-      new failure (last pass: v5.8.12)
-      1 lines
-
-    2020-10-07 08:07:10.450000  Connected to bcm2837-rpi-3-b console [chann=
-el connected] (~$quit to exit)
-    2020-10-07 08:07:10.450000  (user:khilman) is already connected
-    2020-10-07 08:07:26.042000  =00
-    2020-10-07 08:07:26.042000  =
-
-    2020-10-07 08:07:26.042000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
-0)
-    2020-10-07 08:07:26.042000  =
-
-    2020-10-07 08:07:26.042000  DRAM:  948 MiB
-    2020-10-07 08:07:26.057000  RPI 3 Model B (0xa02082)
-    2020-10-07 08:07:26.145000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
-    2020-10-07 08:07:26.177000  Loading Environment from FAT... *** Warning=
- - bad CRC, using default environment
-    ... (381 line(s) more)
-      =
-
-
-
-platform          | arch  | lab           | compiler | defconfig          |=
- results
-------------------+-------+---------------+----------+--------------------+=
---------
-rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
- 63/69  =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f7d8283fbfc2226dd4ff3f2
-
-  Results:     63 PASS, 6 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.8.y/v5.8.14/arm=
-/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.8.y/v5.8.14/arm=
-/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.bootrr.cros-ec-dev-driver-present: https://kernelci.org/test/c=
-ase/id/5f7d8283fbfc2226dd4ff3f6
-      new failure (last pass: v5.8.13)
-
-    2020-10-07 08:55:21.778000  <8>[   13.050763] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-dev-driver-present RESULT=3Dfail>
-     * baseline.bootrr.cros-ec-dev-probed: https://kernelci.org/test/case/i=
-d/5f7d8283fbfc2226dd4ff3f7
-      new failure (last pass: v5.8.13)
-
-    2020-10-07 08:55:22.809000  <8>[   14.083150] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-dev-probed RESULT=3Dfail>
-     * baseline.bootrr.cros-ec-i2c-tunnel-driver-present: https://kernelci.=
-org/test/case/id/5f7d8283fbfc2226dd4ff3f8
-      new failure (last pass: v5.8.13)
-
-    2020-10-07 08:55:23.853000  <8>[   15.125291] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-i2c-tunnel-driver-present RESULT=3Dfail>
-     * baseline.bootrr.cros-ec-i2c-tunnel-probed: https://kernelci.org/test=
-/case/id/5f7d8283fbfc2226dd4ff3f9
-      new failure (last pass: v5.8.13)
-
-    2020-10-07 08:55:24.895000  <8>[   16.167848] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-i2c-tunnel-probed RESULT=3Dfail>
-     * baseline.bootrr.cros-ec-keyb-driver-present: https://kernelci.org/te=
-st/case/id/5f7d8283fbfc2226dd4ff3fa
-      new failure (last pass: v5.8.13)
-
-    2020-10-07 08:55:25.936000  <8>[   17.209050] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-keyb-driver-present RESULT=3Dfail>
-     * baseline.bootrr.cros-ec-keyb-probed: https://kernelci.org/test/case/=
-id/5f7d8283fbfc2226dd4ff3fb
-      new failure (last pass: v5.8.13)
-
-    2020-10-07 08:55:26.977000  <8>[   18.250668] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-keyb-probed RESULT=3Dfail>
-      =20
