@@ -2,76 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EEFF285C06
-	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 11:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B22E285D00
+	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 12:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727068AbgJGJrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Oct 2020 05:47:40 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:49870 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726411AbgJGJrk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Oct 2020 05:47:40 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 851081C0B7A; Wed,  7 Oct 2020 11:47:37 +0200 (CEST)
-Date:   Wed, 7 Oct 2020 11:47:37 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Yu Kuai <yukuai3@huawei.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 27/38] iommu/exynos: add missing put_device() call
- in exynos_iommu_of_xlate()
-Message-ID: <20201007094737.GA12593@duo.ucw.cz>
-References: <20201005142108.650363140@linuxfoundation.org>
- <20201005142109.977461657@linuxfoundation.org>
+        id S1728008AbgJGKgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Oct 2020 06:36:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52118 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727773AbgJGKgn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Oct 2020 06:36:43 -0400
+Received: from mout-p-103.mailbox.org (mout-p-103.mailbox.org [IPv6:2001:67c:2050::465:103])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1315AC061755;
+        Wed,  7 Oct 2020 03:36:43 -0700 (PDT)
+Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:105:465:1:1:0])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-p-103.mailbox.org (Postfix) with ESMTPS id 4C5rNk6tpzzKmh1;
+        Wed,  7 Oct 2020 12:36:38 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp1.mailbox.org ([80.241.60.240])
+        by spamfilter04.heinlein-hosting.de (spamfilter04.heinlein-hosting.de [80.241.56.122]) (amavisd-new, port 10030)
+        with ESMTP id GCodGCpHNCIN; Wed,  7 Oct 2020 12:36:32 +0200 (CEST)
+From:   Aleksa Sarai <cyphar@cyphar.com>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Shuah Khan <shuah@kernel.org>
+Cc:     Aleksa Sarai <cyphar@cyphar.com>, stable@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        containers@lists.linux-foundation.org,
+        linux-fsdevel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] openat2: reject RESOLVE_BENEATH|RESOLVE_IN_ROOT
+Date:   Wed,  7 Oct 2020 21:36:08 +1100
+Message-Id: <20201007103608.17349-1-cyphar@cyphar.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-In-Reply-To: <20201005142109.977461657@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-MBO-SPAM-Probability: 
+X-Rspamd-Score: -7.86 / 15.00 / 15.00
+X-Rspamd-Queue-Id: 94FA014AF
+X-Rspamd-UID: 962eff
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This was an oversight in the original implementation, as it makes no
+sense to specify both scoping flags to the same openat2(2) invocation
+(before this patch, the result of such an invocation was equivalent to
+RESOLVE_IN_ROOT being ignored).
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a userspace-visible ABI change, but the only user of openat2(2)
+at the moment is LXC which doesn't specify both flags and so no
+userspace programs will break as a result.
 
-Hi!
+Cc: <stable@vger.kernel.org> # v5.6+
+Fixes: fddb5d430ad9 ("open: introduce openat2(2) syscall")
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
+---
+ fs/open.c                                      | 4 ++++
+ tools/testing/selftests/openat2/openat2_test.c | 8 +++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-> From: Yu Kuai <yukuai3@huawei.com>
->=20
-> [ Upstream commit 1a26044954a6d1f4d375d5e62392446af663be7a ]
->=20
-> if of_find_device_by_node() succeed, exynos_iommu_of_xlate() doesn't have
-> a corresponding put_device(). Thus add put_device() to fix the exception
-> handling for this function implementation.
+diff --git a/fs/open.c b/fs/open.c
+index 9af548fb841b..4d7537ae59df 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -1010,6 +1010,10 @@ inline int build_open_flags(const struct open_how *how, struct open_flags *op)
+ 	if (how->resolve & ~VALID_RESOLVE_FLAGS)
+ 		return -EINVAL;
+ 
++	/* Scoping flags are mutually exclusive. */
++	if ((how->resolve & RESOLVE_BENEATH) && (how->resolve & RESOLVE_IN_ROOT))
++		return -EINVAL;
++
+ 	/* Deal with the mode. */
+ 	if (WILL_CREATE(flags)) {
+ 		if (how->mode & ~S_IALLUGO)
+diff --git a/tools/testing/selftests/openat2/openat2_test.c b/tools/testing/selftests/openat2/openat2_test.c
+index b386367c606b..381d874cce99 100644
+--- a/tools/testing/selftests/openat2/openat2_test.c
++++ b/tools/testing/selftests/openat2/openat2_test.c
+@@ -155,7 +155,7 @@ struct flag_test {
+ 	int err;
+ };
+ 
+-#define NUM_OPENAT2_FLAG_TESTS 23
++#define NUM_OPENAT2_FLAG_TESTS 24
+ 
+ void test_openat2_flags(void)
+ {
+@@ -210,6 +210,12 @@ void test_openat2_flags(void)
+ 		  .how.flags = O_TMPFILE | O_RDWR,
+ 		  .how.mode = 0x0000A00000000000ULL, .err = -EINVAL },
+ 
++		/* ->resolve flags must not conflict. */
++		{ .name = "incompatible resolve flags (BENEATH | IN_ROOT)",
++		  .how.flags = O_RDONLY,
++		  .how.resolve = RESOLVE_BENEATH | RESOLVE_IN_ROOT,
++		  .err = -EINVAL },
++
+ 		/* ->resolve must only contain RESOLVE_* flags. */
+ 		{ .name = "invalid how.resolve and O_RDONLY",
+ 		  .how.flags = O_RDONLY,
+-- 
+2.28.0
 
-Okay, this looks reasonable, but...
-
-Do we miss put_device() in normal path, too? I'd expect another
-put_device at end of exynos_iommu_of_xlate() or perhaps in release
-path somewhere...
-
-Best regards,
-								Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---qMm9M+Fa2AknHoGS
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX32OuQAKCRAw5/Bqldv6
-8sU0AJ9rrfMHwe6nVHIddM9aZpeNhn33bwCfcs/uzk9WpIzSw2sPucOCtrOEaQc=
-=udAK
------END PGP SIGNATURE-----
-
---qMm9M+Fa2AknHoGS--
