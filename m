@@ -2,108 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B22E285D00
-	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 12:36:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F13C4285D90
+	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 12:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728008AbgJGKgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Oct 2020 06:36:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52118 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727773AbgJGKgn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Oct 2020 06:36:43 -0400
-Received: from mout-p-103.mailbox.org (mout-p-103.mailbox.org [IPv6:2001:67c:2050::465:103])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1315AC061755;
-        Wed,  7 Oct 2020 03:36:43 -0700 (PDT)
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:105:465:1:1:0])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mout-p-103.mailbox.org (Postfix) with ESMTPS id 4C5rNk6tpzzKmh1;
-        Wed,  7 Oct 2020 12:36:38 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at heinlein-support.de
-Received: from smtp1.mailbox.org ([80.241.60.240])
-        by spamfilter04.heinlein-hosting.de (spamfilter04.heinlein-hosting.de [80.241.56.122]) (amavisd-new, port 10030)
-        with ESMTP id GCodGCpHNCIN; Wed,  7 Oct 2020 12:36:32 +0200 (CEST)
-From:   Aleksa Sarai <cyphar@cyphar.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Shuah Khan <shuah@kernel.org>
-Cc:     Aleksa Sarai <cyphar@cyphar.com>, stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        containers@lists.linux-foundation.org,
-        linux-fsdevel@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] openat2: reject RESOLVE_BENEATH|RESOLVE_IN_ROOT
-Date:   Wed,  7 Oct 2020 21:36:08 +1100
-Message-Id: <20201007103608.17349-1-cyphar@cyphar.com>
+        id S1728284AbgJGKwe convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 7 Oct 2020 06:52:34 -0400
+Received: from mx.metalurgs.lv ([81.198.125.103]:61402 "EHLO mx.metalurgs.lv"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728179AbgJGKwc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 7 Oct 2020 06:52:32 -0400
+Received: from mx.metalurgs.lv (localhost [127.0.0.1])
+        by mx.metalurgs.lv (Postfix) with ESMTP id 0F09F66C2C
+        for <stable@vger.kernel.org>; Wed,  7 Oct 2020 13:52:18 +0300 (EEST)
+Received: from kas30pipe.localhost (localhost [127.0.0.1])
+        by mx.metalurgs.lv (Postfix) with ESMTP id E2F5466C27
+        for <stable@vger.kernel.org>; Wed,  7 Oct 2020 13:52:17 +0300 (EEST)
+Received: by mx.metalurgs.lv (Postfix, from userid 1005)
+        id 583F066B65; Wed,  7 Oct 2020 13:52:14 +0300 (EEST)
+Received: from [100.64.1.74] (unknown [190.15.125.55])
+        (Authenticated sender: admin)
+        by mx.metalurgs.lv (Postfix) with ESMTPA id DCF2963AC4;
+        Wed,  7 Oct 2020 13:52:06 +0300 (EEST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-MBO-SPAM-Probability: 
-X-Rspamd-Score: -7.86 / 15.00 / 15.00
-X-Rspamd-Queue-Id: 94FA014AF
-X-Rspamd-UID: 962eff
+Content-Description: Mail message body
+To:     Recipients <financialcapability6@gmail.com>
+From:   "Mr. Hashim Bin" <financialcapability6@gmail.com>
+Date:   Wed, 07 Oct 2020 07:51:59 -0300
+Reply-To: hmurrah39@gmail.com
+X-SpamTest-Envelope-From: financialcapability6@gmail.com
+X-SpamTest-Group-ID: 00000000
+X-SpamTest-Info: Profiles 71303 [Jan 01 2015]
+X-SpamTest-Info: {TO: forged address, i.e. recipient, investors, public, etc.}
+X-SpamTest-Info: {DATE: unreal year}
+X-SpamTest-Method: none
+X-SpamTest-Rate: 55
+X-SpamTest-Status: Not detected
+X-SpamTest-Status-Extended: not_detected
+X-SpamTest-Version: SMTP-Filter Version 3.0.0 [0284], KAS30/Release
+Message-ID: <20201007105214.583F066B65@mx.metalurgs.lv>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: Low Rate Loan./mmm,
+X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.39/RELEASE,
+         bases: 20140401 #7726142, check: 20201007 notchecked
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This was an oversight in the original implementation, as it makes no
-sense to specify both scoping flags to the same openat2(2) invocation
-(before this patch, the result of such an invocation was equivalent to
-RESOLVE_IN_ROOT being ignored).
+Hello Dear,
 
-This is a userspace-visible ABI change, but the only user of openat2(2)
-at the moment is LXC which doesn't specify both flags and so no
-userspace programs will break as a result.
 
-Cc: <stable@vger.kernel.org> # v5.6+
-Fixes: fddb5d430ad9 ("open: introduce openat2(2) syscall")
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
----
- fs/open.c                                      | 4 ++++
- tools/testing/selftests/openat2/openat2_test.c | 8 +++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+We are Base Investment Company offering Corporate and Personal Loan at 3% Interest Rate for a duration of 10Years.
 
-diff --git a/fs/open.c b/fs/open.c
-index 9af548fb841b..4d7537ae59df 100644
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -1010,6 +1010,10 @@ inline int build_open_flags(const struct open_how *how, struct open_flags *op)
- 	if (how->resolve & ~VALID_RESOLVE_FLAGS)
- 		return -EINVAL;
- 
-+	/* Scoping flags are mutually exclusive. */
-+	if ((how->resolve & RESOLVE_BENEATH) && (how->resolve & RESOLVE_IN_ROOT))
-+		return -EINVAL;
-+
- 	/* Deal with the mode. */
- 	if (WILL_CREATE(flags)) {
- 		if (how->mode & ~S_IALLUGO)
-diff --git a/tools/testing/selftests/openat2/openat2_test.c b/tools/testing/selftests/openat2/openat2_test.c
-index b386367c606b..381d874cce99 100644
---- a/tools/testing/selftests/openat2/openat2_test.c
-+++ b/tools/testing/selftests/openat2/openat2_test.c
-@@ -155,7 +155,7 @@ struct flag_test {
- 	int err;
- };
- 
--#define NUM_OPENAT2_FLAG_TESTS 23
-+#define NUM_OPENAT2_FLAG_TESTS 24
- 
- void test_openat2_flags(void)
- {
-@@ -210,6 +210,12 @@ void test_openat2_flags(void)
- 		  .how.flags = O_TMPFILE | O_RDWR,
- 		  .how.mode = 0x0000A00000000000ULL, .err = -EINVAL },
- 
-+		/* ->resolve flags must not conflict. */
-+		{ .name = "incompatible resolve flags (BENEATH | IN_ROOT)",
-+		  .how.flags = O_RDONLY,
-+		  .how.resolve = RESOLVE_BENEATH | RESOLVE_IN_ROOT,
-+		  .err = -EINVAL },
-+
- 		/* ->resolve must only contain RESOLVE_* flags. */
- 		{ .name = "invalid how.resolve and O_RDONLY",
- 		  .how.flags = O_RDONLY,
--- 
-2.28.0
 
+We also pay 1% commission to brokers, who introduce project owners for finance or other opportunities.
+
+
+Please get back to me if you are interested for more
+
+details.
+
+
+Yours faithfully,
+
+Hashim Murrah
