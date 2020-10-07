@@ -2,138 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41CB9285E41
-	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 13:35:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7F75285E72
+	for <lists+stable@lfdr.de>; Wed,  7 Oct 2020 13:49:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726219AbgJGLfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 7 Oct 2020 07:35:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32914 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726129AbgJGLfa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 7 Oct 2020 07:35:30 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B5F4C061755
-        for <stable@vger.kernel.org>; Wed,  7 Oct 2020 04:35:30 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id s19so859714plp.3
-        for <stable@vger.kernel.org>; Wed, 07 Oct 2020 04:35:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=xiSWh6o0JVFbRT4dr1e74gtH+t9pXG0Y62mRnuMJ8uQ=;
-        b=yoDbu+yNKx9Hb/gwrEfQMrS16Sc28clpJpCbyo6iAoM2YZeTOQAf/QyDou36/ALBgA
-         6KKQXRLRGSawWTVQUUY6n20lIclvzKo5sUxcpiv7GCPr5l/ZDyCEJZODxQjPNq65zXuL
-         koWdRgsUSYvfaiCroUnStE7O07N0WTUAeHhGRffDZbG4a4PuFk+Y/8fU7/l5SAHDwKaX
-         lOEuZkJXqjOWiAnpkFy0CCOTFekbymQMgzeJDxMv39Y4MU5Aoc8U7TnQlMSCz6QA23J+
-         6kHHlMZRZ8qMuHr7bO6EhkNvXUzIWuIkLGLTBXINtSayOUUrVdB6He/4aMXTNlz/R+SZ
-         PHdw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=xiSWh6o0JVFbRT4dr1e74gtH+t9pXG0Y62mRnuMJ8uQ=;
-        b=gw38WrUu5Pr14jpGZS7tMBie5Wh2KcIBXwjdRAe4ROe0n3laXYgec6/pF2C7GYIURQ
-         Q/pgjdvSQxbGAeP2OpfKpcG2HsxfTuBB0eUsdy1vxqb5MUKK43b0R2X6iCGetb6J04jw
-         eJNqel0CSeFxsC3ZyzaAtaNTUrzAeCCDXJ/ytnxiTXcSEQLhi3mYB8Pn5r3RoaHq5H3T
-         UUJ17UqugrXk2jb0uc9HEHhdMELhT9c53C2nJbyrdnRcAmuDYeSybtVnV47F9z7tPWzJ
-         43BHNQuQqOJISVMyV06YaKDmYMm/rLVCXQuRdlsxheRvGZ0gs0aFQ0PCzmbCaH1Q6sun
-         UqlA==
-X-Gm-Message-State: AOAM5333VSXymdn1JbhtyhqbgseWU0f7vY5F6SwDhR8CHox2Xgra3NiP
-        f7AZc8e2zsnHOYXON8SC2FDGQzBqkvoY0g==
-X-Google-Smtp-Source: ABdhPJz77AolN+fokbeWUoG7CI0tWCYnnlmM5LWLLPFn5SO0jdsxF21Y5CXsvvo7QFpq4MsP5XUOEQ==
-X-Received: by 2002:a17:902:aa44:b029:d3:8b4f:5083 with SMTP id c4-20020a170902aa44b02900d38b4f5083mr2388829plr.78.1602070529325;
-        Wed, 07 Oct 2020 04:35:29 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j19sm2745487pfi.51.2020.10.07.04.35.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Oct 2020 04:35:28 -0700 (PDT)
-Message-ID: <5f7da800.1c69fb81.f1f1c.52aa@mx.google.com>
-Date:   Wed, 07 Oct 2020 04:35:28 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727958AbgJGLtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 7 Oct 2020 07:49:03 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17806 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727927AbgJGLtD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 7 Oct 2020 07:49:03 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 097BWwqn017297;
+        Wed, 7 Oct 2020 07:48:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=qAzYh3+7wGDNAdWrcz6PRSd3dT0ghHjZyINNp9FyqMU=;
+ b=PnQAmRiUFSHhgZvYqr9kQlEPbUsE2DkEsK9DBaCsarmerw2fwY2GvwoqQHKWszH97k7G
+ UdtSVvleC7RgcLAwXyzddv+pQlw3T3ngyxx6mL44MvS/6p7bnedQ+RL0cb6S3Qw4Bca8
+ BUaAa75tlt7CK5toiw7/w6yuAcuxMkuKXZjH6g1jSA3vxp3X285tRDadpEkk0fl+9SJd
+ wulvzhad0cJrkP9mfms+ISvYHpVNR5xIQFUYb39hCHr+m5ewlm+iV3Mf1TDGluaAl/gj
+ quklAh4qvygFFyknbxDb2Dd6MeiJujI+uZPfeLj2KtPkBCW49QMT7Q4EScK61azTjoIP BQ== 
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 341bw1tht7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 07 Oct 2020 07:48:54 -0400
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 097BkjXn002623;
+        Wed, 7 Oct 2020 11:48:53 GMT
+Received: from b01cxnp23033.gho.pok.ibm.com (b01cxnp23033.gho.pok.ibm.com [9.57.198.28])
+        by ppma04wdc.us.ibm.com with ESMTP id 33xgx9epfd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 07 Oct 2020 11:48:53 +0000
+Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
+        by b01cxnp23033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 097Bmr4V53018908
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 7 Oct 2020 11:48:53 GMT
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1D1A8AC059;
+        Wed,  7 Oct 2020 11:48:53 +0000 (GMT)
+Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1EFBEAC05B;
+        Wed,  7 Oct 2020 11:48:51 +0000 (GMT)
+Received: from skywalker.ibmuc.com (unknown [9.77.206.190])
+        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
+        Wed,  7 Oct 2020 11:48:50 +0000 (GMT)
+From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+To:     linuxppc-dev@lists.ozlabs.org, mpe@ellerman.id.au
+Cc:     nathanl@linux.ibm.com,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v3 1/4] powerpc/drmem: Make lmb_size 64 bit
+Date:   Wed,  7 Oct 2020 17:18:33 +0530
+Message-Id: <20201007114836.282468-2-aneesh.kumar@linux.ibm.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201007114836.282468-1-aneesh.kumar@linux.ibm.com>
+References: <20201007114836.282468-1-aneesh.kumar@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.8.13-85-g17678e549cde
-X-Kernelci-Branch: queue/5.8
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.8 baseline: 132 runs,
- 1 regressions (v5.8.13-85-g17678e549cde)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-10-07_08:2020-10-06,2020-10-07 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 mlxlogscore=999
+ impostorscore=0 lowpriorityscore=0 phishscore=0 spamscore=0
+ priorityscore=1501 clxscore=1011 suspectscore=0 malwarescore=0 bulkscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2010070075
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.8 baseline: 132 runs, 1 regressions (v5.8.13-85-g17678e54=
-9cde)
+Similar to commit 89c140bbaeee ("pseries: Fix 64 bit logical memory block panic")
+make sure different variables tracking lmb_size are updated to be 64 bit.
 
-Regressions Summary
--------------------
+This was found by code audit.
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
+Cc: stable@vger.kernel.org
+Acked-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+---
+ arch/powerpc/include/asm/drmem.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/arch/powerpc/include/asm/drmem.h b/arch/powerpc/include/asm/drmem.h
+index 030a19d92213..bf2402fed3e0 100644
+--- a/arch/powerpc/include/asm/drmem.h
++++ b/arch/powerpc/include/asm/drmem.h
+@@ -20,7 +20,7 @@ struct drmem_lmb {
+ struct drmem_lmb_info {
+ 	struct drmem_lmb        *lmbs;
+ 	int                     n_lmbs;
+-	u32                     lmb_size;
++	u64                     lmb_size;
+ };
+ 
+ extern struct drmem_lmb_info *drmem_info;
+@@ -80,7 +80,7 @@ struct of_drconf_cell_v2 {
+ #define DRCONF_MEM_RESERVED	0x00000080
+ #define DRCONF_MEM_HOTREMOVABLE	0x00000100
+ 
+-static inline u32 drmem_lmb_size(void)
++static inline u64 drmem_lmb_size(void)
+ {
+ 	return drmem_info->lmb_size;
+ }
+-- 
+2.26.2
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.8/kern=
-el/v5.8.13-85-g17678e549cde/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.8
-  Describe: v5.8.13-85-g17678e549cde
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      17678e549cded7f3794050c656dd4edc8b91bbc2 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f7d6695c90da9639f4ff411
-
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.13-85=
--g17678e549cde/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.8/v5.8.13-85=
--g17678e549cde/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f7d6695c90da963=
-9f4ff415
-      failing since 3 days (last pass: v5.8.12-99-g7910fecf197e, first fail=
-: v5.8.13-3-g58c57ca2b2dd)
-      2 lines
-
-    2020-10-07 06:54:06.707000  Connected to bcm2837-rpi-3-b console [chann=
-el connected] (~$quit to exit)
-    2020-10-07 06:54:06.707000  (user:khilman) is already connected
-    2020-10-07 06:54:21.918000  =00
-    2020-10-07 06:54:21.918000  =
-
-    2020-10-07 06:54:21.918000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
-0)
-    2020-10-07 06:54:21.918000  =
-
-    2020-10-07 06:54:21.918000  DRAM:  948 MiB
-    2020-10-07 06:54:21.934000  RPI 3 Model B (0xa02082)
-    2020-10-07 06:54:22.021000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
-    2020-10-07 06:54:22.053000  Loading Environment from FAT... *** Warning=
- - bad CRC, using default environment
-    ... (385 line(s) more)
-      =20
