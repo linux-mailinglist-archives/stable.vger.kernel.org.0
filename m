@@ -2,20 +2,20 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E084B287ADF
-	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 19:21:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC641287AE1
+	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 19:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731959AbgJHRV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Oct 2020 13:21:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55354 "EHLO
+        id S1731929AbgJHRWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Oct 2020 13:22:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729476AbgJHRVz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 13:21:55 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4EDC061755
-        for <stable@vger.kernel.org>; Thu,  8 Oct 2020 10:21:54 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id p15so9225579ejm.7
-        for <stable@vger.kernel.org>; Thu, 08 Oct 2020 10:21:54 -0700 (PDT)
+        with ESMTP id S1729476AbgJHRWI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 13:22:08 -0400
+Received: from mail-yb1-xb44.google.com (mail-yb1-xb44.google.com [IPv6:2607:f8b0:4864:20::b44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF8FC061755
+        for <stable@vger.kernel.org>; Thu,  8 Oct 2020 10:22:07 -0700 (PDT)
+Received: by mail-yb1-xb44.google.com with SMTP id 67so5088751ybt.6
+        for <stable@vger.kernel.org>; Thu, 08 Oct 2020 10:22:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:reply-to:sender:from:date:message-id:subject:to
@@ -32,17 +32,17 @@ X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         h=x-gm-message-state:mime-version:reply-to:sender:from:date
          :message-id:subject:to:content-transfer-encoding;
         bh=sKv4iEopWZkUAl4EIP9+iSq7N5l/VrkdtPrU9lHnK2s=;
-        b=Ekc6LrxsAyAmvXizycVidDrkRhPvIYiHROoQT83aO3f1uqdAM4qxvjTWjr/65Ylxnl
-         nc1+TU0wJSM8RgJxezVDOU69TUiZYtSsgDTv2cDgs6+x4mnx30NkFdZgIb4QkfqM3bow
-         5/DeLS2oIusy0sKR/J+HO7kkFOOEzw1WgtMkBwnky98k7gy7Jpduo71mPFGj6+bkiYEl
-         e4J54+GXpIQJQOPC0vUz0vm2D6VfS8Qanc4Kb2nTQW3J6JrGaihpgBp0fFtUkSYNxDf9
-         PhaL6GD/yfo/DDJ6NeszYdzxt3++Na6MZdYtn6LLf+89f3KDW8ohwoPu8XpENphquxsM
-         4NWg==
-X-Gm-Message-State: AOAM531MQS9ahwCOxg0XJB9Y06Mr03GIAKx4cR+OAwWW7ucgOIA7Aa1c
-        W3QwwJNEVNMxM9cCrOwEt7hYgW2iJ/4gFiSmCM8=
-X-Google-Smtp-Source: ABdhPJz08HMmCxmi48f0UKcPh+XKvnVYAx+09F0bBAIYVGesQfBFL6syZ3SYko6AqTlS133AQIZfC5ARYcgdjlGcPMc=
-X-Received: by 2002:a17:906:590d:: with SMTP id h13mr9608723ejq.226.1602177712344;
- Thu, 08 Oct 2020 10:21:52 -0700 (PDT)
+        b=NDY5qlYRnR6CTjhhhJaaRM8/P+nisn399y0sio3cC6am8E3s8H+7b9bGlzze0kJG23
+         wYn3c0ku1/C/uChILrLFlRz96c7zOeChfjTPPEZg5/kEeN7JR7v9m3UGY9wjUXxw0re1
+         Ej0D5sJkZnav4WCcBInYmNBEV2F9QrbmP+NDdWsmhM40s2J6eKFtkJqV+ZxP952qHO1T
+         8zMdWgPj/8+PZZfYUmWx4aAIH4c9vIeebP8WXsU61K8QwUuWAoZtWo5GjsiVzgxztI7+
+         5rqWRBuEjiv81/S454E/u7bK3UREbSBfR43PLvBQC2jSsy11VhBXJPIuw9xmoGNANpGz
+         opgw==
+X-Gm-Message-State: AOAM531E2/3I8oyXSRTKJkSU5ihjx3yZ0aUsL5Ub84+xNKf4/5/5Ogc6
+        9Kvkbc6K74a82nCD/9Yhdj4UgwrqaKruMa27ybg=
+X-Google-Smtp-Source: ABdhPJyTdTdWabsu/wACQjIormohWYCw6qPkNyhA+r7QQdvPi/Z1rnkeLpkBci0i9G77JwXAImpRN2BUul6hDrzaEKQ=
+X-Received: by 2002:a25:c5d3:: with SMTP id v202mr12615250ybe.338.1602177726264;
+ Thu, 08 Oct 2020 10:22:06 -0700 (PDT)
 MIME-Version: 1.0
 Reply-To: kipkalyamissharrita@gmail.com
 Sender: dr.daouda.augustin74@gmail.com
