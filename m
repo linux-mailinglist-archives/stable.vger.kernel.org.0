@@ -2,239 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 465D4287207
-	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 11:54:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2A9287210
+	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 11:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725887AbgJHJyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Oct 2020 05:54:41 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:56622 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725849AbgJHJyl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 05:54:41 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22655006-1500050 
-        for multiple; Thu, 08 Oct 2020 10:54:37 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
-Subject: [PATCH v2] drm/i915: Exclude low pages (128KiB) of stolen from use
-Date:   Thu,  8 Oct 2020 10:54:36 +0100
-Message-Id: <20201008095436.27743-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S1729268AbgJHJ4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Oct 2020 05:56:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44302 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725849AbgJHJ4g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Oct 2020 05:56:36 -0400
+Received: from localhost (p54b33b8c.dip0.t-ipconnect.de [84.179.59.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BCB72083B;
+        Thu,  8 Oct 2020 09:56:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1602150995;
+        bh=67+NuNT2UHBer+NKq+5rAQ1KcQNMPcWUDBXJvCqObSw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=z4xXoMz4bDkX00PWLz7d3A6owo1/38o5WaAOygwOVwfAOdG4z/gWSJHB2YiOzhMgD
+         PLqU3tpAPn2VStKKEGU/sh8UKDzDqLSw2Kd7Y5lpKhLdbm3GK22Wl+4vuEoFmPhR7x
+         tw5aTTOy98aghKJQVLu1+uo+De1yV0z5a/PrgS3c=
+Date:   Thu, 8 Oct 2020 11:56:31 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Christian Eggers <ceggers@arri.de>
+Cc:     Oleksij Rempel <linux@rempel-privat.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        David Laight <David.Laight@aculab.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org,
+        Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH v5 1/3] i2c: imx: Fix reset of I2SR_IAL flag
+Message-ID: <20201008095631.GB76290@ninjato>
+References: <20201007084524.10835-1-ceggers@arri.de>
+ <20201007084524.10835-2-ceggers@arri.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ZfOjI3PrQbgiZnxM"
+Content-Disposition: inline
+In-Reply-To: <20201007084524.10835-2-ceggers@arri.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The GPU is trashing the low pages of its reserved memory upon reset. If
-we are using this memory for ringbuffers, then we will dutiful resubmit
-the trashed rings after the reset causing further resets, and worse. We
-must exclude this range from our own use. The value of 128KiB was found
-by empirical measurement on gen9.
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: stable@vger.kernel.org
----
-v2 comes with a selftest to see how widespread the issue is
----
- drivers/gpu/drm/i915/Kconfig.debug         |   1 +
- drivers/gpu/drm/i915/gem/i915_gem_stolen.c |   5 +-
- drivers/gpu/drm/i915/gt/selftest_reset.c   | 141 +++++++++++++++++++++
- 3 files changed, 145 insertions(+), 2 deletions(-)
+--ZfOjI3PrQbgiZnxM
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/gpu/drm/i915/Kconfig.debug b/drivers/gpu/drm/i915/Kconfig.debug
-index 206882e154bc..0fb7fd0ef717 100644
---- a/drivers/gpu/drm/i915/Kconfig.debug
-+++ b/drivers/gpu/drm/i915/Kconfig.debug
-@@ -162,6 +162,7 @@ config DRM_I915_SELFTEST
- 	select DRM_EXPORT_FOR_TESTS if m
- 	select FAULT_INJECTION
- 	select PRIME_NUMBERS
-+	select CRC32
- 	help
- 	  Choose this option to allow the driver to perform selftests upon
- 	  loading; also requires the i915.selftest=1 module parameter. To
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_stolen.c b/drivers/gpu/drm/i915/gem/i915_gem_stolen.c
-index 0be5e8683337..c0cc2a972a11 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_stolen.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_stolen.c
-@@ -53,8 +53,9 @@ int i915_gem_stolen_insert_node(struct drm_i915_private *i915,
- 				struct drm_mm_node *node, u64 size,
- 				unsigned alignment)
- {
--	return i915_gem_stolen_insert_node_in_range(i915, node, size,
--						    alignment, 0, U64_MAX);
-+	return i915_gem_stolen_insert_node_in_range(i915, node,
-+						    size, alignment,
-+						    SZ_128K, U64_MAX);
- }
- 
- void i915_gem_stolen_remove_node(struct drm_i915_private *i915,
-diff --git a/drivers/gpu/drm/i915/gt/selftest_reset.c b/drivers/gpu/drm/i915/gt/selftest_reset.c
-index 35406ecdf0b2..f73f132e57c4 100644
---- a/drivers/gpu/drm/i915/gt/selftest_reset.c
-+++ b/drivers/gpu/drm/i915/gt/selftest_reset.c
-@@ -3,9 +3,149 @@
-  * Copyright © 2018 Intel Corporation
-  */
- 
-+#include <linux/crc32.h>
-+
-+#include "i915_memcpy.h"
- #include "i915_selftest.h"
- #include "selftests/igt_reset.h"
- #include "selftests/igt_atomic.h"
-+#include "selftests/igt_spinner.h"
-+
-+static int igt_reset_stolen(void *arg)
-+{
-+	struct intel_gt *gt = arg;
-+	struct i915_ggtt *ggtt = &gt->i915->ggtt;
-+	struct resource *dsm = &gt->i915->dsm;
-+	resource_size_t num_pages, page, max, count;
-+	struct intel_engine_cs *engine;
-+	intel_wakeref_t wakeref;
-+	enum intel_engine_id id;
-+	struct igt_spinner spin;
-+	u32 seed, *crc;
-+	void *tmp;
-+	int err;
-+
-+	if (!drm_mm_node_allocated(&ggtt->error_capture))
-+		return 0;
-+
-+	num_pages = resource_size(dsm) >> PAGE_SHIFT;
-+	if (!num_pages)
-+		return 0;
-+
-+	crc = kmalloc_array(num_pages, sizeof(u32), GFP_KERNEL);
-+	if (!crc)
-+		return -ENOMEM;
-+
-+	tmp = kmalloc(PAGE_SIZE, GFP_KERNEL);
-+	if (!tmp) {
-+		err = -ENOMEM;
-+		goto err_crc;
-+	}
-+
-+	igt_global_reset_lock(gt);
-+	wakeref = intel_runtime_pm_get(gt->uncore->rpm);
-+
-+	err = igt_spinner_init(&spin, gt);
-+	if (err)
-+		goto err_lock;
-+
-+	for_each_engine(engine, gt, id) {
-+		struct i915_request *rq;
-+
-+		intel_engine_pm_get(engine);
-+
-+		rq = igt_spinner_create_request(&spin,
-+						engine->kernel_context,
-+						MI_ARB_CHECK);
-+		i915_request_add(rq);
-+
-+		intel_engine_pm_put(engine);
-+	}
-+
-+	seed = 0;
-+	for (page = 0; page < num_pages; page++) {
-+		dma_addr_t dma;
-+		void __iomem *s;
-+		void *in;
-+
-+		dma = (dma_addr_t)dsm->start + (page << PAGE_SHIFT);
-+
-+		ggtt->vm.insert_page(&ggtt->vm, dma,
-+				     ggtt->error_capture.start,
-+				     I915_CACHE_NONE, 0);
-+		mb();
-+
-+		s = io_mapping_map_wc(&ggtt->iomap,
-+				      ggtt->error_capture.start,
-+				      PAGE_SIZE);
-+
-+		in = s;
-+		if (i915_memcpy_from_wc(tmp, s, PAGE_SIZE))
-+			in = tmp;
-+		seed = crc32_le(seed, in, PAGE_SIZE);
-+
-+		io_mapping_unmap(s);
-+
-+		crc[page] = seed;
-+	}
-+	mb();
-+	ggtt->vm.clear_range(&ggtt->vm, ggtt->error_capture.start, PAGE_SIZE);
-+
-+	intel_gt_reset(gt, ALL_ENGINES, NULL);
-+
-+	max = 0;
-+	seed = 0;
-+	count = 0;
-+	for (page = 0; page < num_pages; page++) {
-+		dma_addr_t dma;
-+		void __iomem *s;
-+		void *in;
-+
-+		dma = (dma_addr_t)dsm->start + (page << PAGE_SHIFT);
-+
-+		ggtt->vm.insert_page(&ggtt->vm, dma,
-+				     ggtt->error_capture.start,
-+				     I915_CACHE_NONE, 0);
-+		mb();
-+
-+		s = io_mapping_map_wc(&ggtt->iomap,
-+				      ggtt->error_capture.start,
-+				      PAGE_SIZE);
-+
-+		in = s;
-+		if (i915_memcpy_from_wc(tmp, s, PAGE_SIZE))
-+			in = tmp;
-+		seed = crc32_le(seed, in, PAGE_SIZE);
-+
-+		io_mapping_unmap(s);
-+
-+		if (seed != crc[page]) {
-+			pr_info("stolen page %pa modified by GPU reset\n",
-+				&page);
-+			seed = crc[page];
-+			max = page;
-+			count++;
-+		}
-+	}
-+	mb();
-+	ggtt->vm.clear_range(&ggtt->vm, ggtt->error_capture.start, PAGE_SIZE);
-+
-+	if (count > 0) {
-+		pr_err("Reset clobbered %pa pages of stolen, last clobber at page %pa\n", &count, &max);
-+		err = -EINVAL;
-+	}
-+
-+	igt_spinner_fini(&spin);
-+
-+err_lock:
-+	intel_runtime_pm_put(gt->uncore->rpm, wakeref);
-+	igt_global_reset_unlock(gt);
-+
-+	kfree(tmp);
-+err_crc:
-+	kfree(crc);
-+	return err;
-+}
- 
- static int igt_global_reset(void *arg)
- {
-@@ -164,6 +304,7 @@ int intel_reset_live_selftests(struct drm_i915_private *i915)
- {
- 	static const struct i915_subtest tests[] = {
- 		SUBTEST(igt_global_reset), /* attempt to recover GPU first */
-+		SUBTEST(igt_reset_stolen),
- 		SUBTEST(igt_wedged_reset),
- 		SUBTEST(igt_atomic_reset),
- 		SUBTEST(igt_atomic_engine_reset),
--- 
-2.20.1
+On Wed, Oct 07, 2020 at 10:45:22AM +0200, Christian Eggers wrote:
+> According to the "VFxxx Controller Reference Manual" (and the comment
+> block starting at line 97), Vybrid requires writing a one for clearing
+> an interrupt flag. Syncing the method for clearing I2SR_IIF in
+> i2c_imx_isr().
+>=20
+> Signed-off-by: Christian Eggers <ceggers@arri.de>
+> Fixes: 4b775022f6fd ("i2c: imx: add struct to hold more configurable quir=
+ks")
+> Reviewed-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+> Cc: stable@vger.kernel.org
 
+Applied to for-current, thanks!
+
+Waiting for review tags for patches 2 & 3.
+
+
+--ZfOjI3PrQbgiZnxM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl9+4k8ACgkQFA3kzBSg
+KbZ9qhAAgKhI6M7LDGtr4rgN5aM9C/PH7BSIAhhywx9YkeKU1XiIWnXA559eKSs+
+2xFwbwZGtDXxKaxB6KFGrJvrFbeOt8M7FGZ4UyufRJStG8FYQeJRjvAOThfcUxpu
+YgMkzrG962/bXPcO0LPD6n1aq4LTcr7g9OMai7CQHnyI7RrhQYZeqjPpbbfIms5U
+mLLxbjvtRVJaHNbkwsAMe8AHHYRxB4gn/zIzlIEUHgkFMpnlrsPCOnZg9yH2TtpO
+9J7aZeT1+0XiLpdNjdDKkzTB4fNLTikTTSORnl+WYt3D1RYjkPDOjv1bMHGa/ZxZ
+dOARk4XVWqqoIZ7civGgdFCQtpY++fqtcxt6qGIwvFWRwFSleNNu7fWZI91GtPeD
+hNW9meo8zoBQTsNuoYLT4cxunUVNbTx0tiVZSbRt9S3DI5UZZQL5/pDP7KLq339d
+Hifhk+iPG65mR75zInjj3JBdb4bYVcSkTeL9Nsqp6RB3AQGPTy/3s/f/v/nBW690
+it/YmzrH+s2LGzoH6gEXSEHxab0PP//FBAtg66zwuszN51Yrk5Je9hMOCEM6esG6
+7kXWoGy7rDZ7BiOXk5pMlYOfD02U6losxRS9XUnhBGwvqNL18+MG3kq5+PcubQpv
+YJFwQrFe9gR4MlZMe1CtOI21mxz91xvh8G5+u8yiXgzFZEH2WyM=
+=F4QS
+-----END PGP SIGNATURE-----
+
+--ZfOjI3PrQbgiZnxM--
