@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EDCC287140
-	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 11:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15BA2287165
+	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 11:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728701AbgJHJKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Oct 2020 05:10:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35718 "EHLO
+        id S1726041AbgJHJZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Oct 2020 05:25:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725882AbgJHJKh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 05:10:37 -0400
-Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E088C061755
-        for <stable@vger.kernel.org>; Thu,  8 Oct 2020 02:10:36 -0700 (PDT)
-Received: by mail-il1-x143.google.com with SMTP id o18so5034049ill.2
-        for <stable@vger.kernel.org>; Thu, 08 Oct 2020 02:10:36 -0700 (PDT)
+        with ESMTP id S1725852AbgJHJZ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 05:25:28 -0400
+Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE195C061755
+        for <stable@vger.kernel.org>; Thu,  8 Oct 2020 02:25:27 -0700 (PDT)
+Received: by mail-io1-xd43.google.com with SMTP id l8so5430852ioh.11
+        for <stable@vger.kernel.org>; Thu, 08 Oct 2020 02:25:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:from:date:message-id:subject:to:cc
          :content-transfer-encoding;
-        bh=1eS0SNuGbY+Bm880lS3+F6SikAs+MjpCG/24nYbBmrc=;
-        b=DPvBJ42wNRIYGS6hhWpghjLVXDv47/74g2LkgIiEzEkXsvBqypLIhjc+riIyAF9m2U
-         jGwyu9bUS1h5WdkGPpd+1kLLM0PTO4fhWvznichxqtr2bWEDz7EP8R8pM4FuUyAhagAz
-         dBMIKxCzdjCv2t4hg6+5NC55EslZt5Pt2ZC2gxzDrBMIhuYNBjOMCVrkKnYruQwnNA/+
-         LSNnfq8pyANn+NWZhryMuURkcDmAxXkokVDKQwd61LQj/9qQIqA+NKK8wAAKzQYMXvca
-         wHhtavGECwCH+BpdxQUDiZmXSFuP08SK2r5mi2wEmPS3A2eR/waJ6Z7L7bp2kfWWgRxL
-         4nVQ==
+        bh=8+sMhC3ZQCNGKSTFfgFM2/9gBJtOpKrD/OLfQ4E+nrM=;
+        b=GtMqFM9ACBsKWmeRT1aaAAsIoavhR7XVWceMjj0R8V7NA3g3++XcHSUH11abMMt9es
+         0xBXupcNdM8iMmydkpAHFj5eLjWO4J9O9oB7a8JkTht7aaizao5WmCWhGGzCASiWDlSh
+         gFDx4pJHIohABUvn4FINNQUNz+5pfcOweIYeeVztydNygvEpb4RZQU2VHISru5nIyBPu
+         rU7KaRQvqeRcODZO9WNOrKSdoIpUJrZrNYmtaRu6edf4/zBBlpgbsU61xOCU3kgq1rQD
+         ALK09NGtx1ydflWfDB5tliQ88APZhzIZPGHx4Isf1Xjp2GYSwHeQOC9xUtjbYjzCxOc+
+         1nuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
          :content-transfer-encoding;
-        bh=1eS0SNuGbY+Bm880lS3+F6SikAs+MjpCG/24nYbBmrc=;
-        b=d0gWgCfPhY/rXrpOFNOJR2n/pM+NllxQfBYpf4CnXHbqDWrs7Z+cPoyPmzOFWXVbCk
-         is7m231iNfil93WLI4YonS5ZV/Lzw1pt18aoF4nIRyh8j+b6iciAlKD9wPXo5rNnK8nQ
-         b/63gPfLFb4eI41xrgLDkkJ0yK9LSzBfyeWRccLV7QuTKzZVbLzBdjn6J+z+ZwDukPvK
-         zcxHx/2yNcwMkPxkdELiHl20597P6Ty/1F0+CIxMYEYcofX1yVia/B5xb36xVcKf8YCM
-         PSwEWBRXqy4MAovV4rBmHKA8Oay38EuGniHZLVzI4Unj09+OOskn/MJ1+0wvP1JfTJGG
-         HWcg==
-X-Gm-Message-State: AOAM531zSIvGo5BKHcqC230lpKWO/E9XS2nXsVgzSMmH4piq8Dmf+yUK
-        KlETK6g+gB/iIIdkGp4Q7bFdZkJcOH3GvpHUNHGYABmpi4cd0VGG
-X-Google-Smtp-Source: ABdhPJxk6rfhsn7rscbUDaS39Sezqrwv/bfrTVJc/5DMji9HoXxGx4e7hzmimTf+9do72+4wkGeyhDfCe0hwGXOk7hI=
-X-Received: by 2002:a92:c949:: with SMTP id i9mr5736121ilq.252.1602148234681;
- Thu, 08 Oct 2020 02:10:34 -0700 (PDT)
+        bh=8+sMhC3ZQCNGKSTFfgFM2/9gBJtOpKrD/OLfQ4E+nrM=;
+        b=A6QxpGmrkbnKE4GvxEA/IuW7ph0iLl6M8fjpdiXOJHwMf0dwcrPYCjg7nCNE3ZT039
+         s7gXx2uzH0thCBkL5Jde+rr+Ixzk7k5CbkCH8lVlOyon+HF7e2VjdOhIBafFZvoOw5MT
+         iZ+azWlswmuo8YXZEUMMtr7xVpul/5lXVFZBBfERmNWBLcVA2ce4+NSe81E1Q/v9x4nD
+         MG2S+JAMJw/GfG4bcm/NLB3HLj7NjpOhklCuHzcCqee9K81McszIrAflg0uOj+a20DM9
+         P4NQrvSHivXLHgndBpcmQDRBH+WV+zdNVzvNraJWg7NVoJcUW5ogSvB+jYv1A73ikUp0
+         onIQ==
+X-Gm-Message-State: AOAM531Qcngm2ufJcNf2JmX8SpwJXj9VlTxhu11U7RdSjX/gHIwkDOQt
+        NxUL4MSQNdmvsBprxL6S8WYb1NhxiPWIN/nGC3XW4w1l+ShnIgEB
+X-Google-Smtp-Source: ABdhPJxNgAKQUjZgb3b6ZTHNNEvgMMfOE8oY1IPdVfOXYD5UVSWhViIBxzXodqKFoq4sKkU7KnVjV+LggspSUwAp0dY=
+X-Received: by 2002:a6b:b208:: with SMTP id b8mr5393531iof.36.1602149126186;
+ Thu, 08 Oct 2020 02:25:26 -0700 (PDT)
 MIME-Version: 1.0
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 8 Oct 2020 14:40:23 +0530
-Message-ID: <CA+G9fYtUoGRgjsMVdfgYN8+EA=COH39PBDwh8CZuLP8=mV_3DA@mail.gmail.com>
-Subject: stable-rc 5.8.15-rc1/0b030df1725b: no regressions found in project
- linux-stable-rc linux-5.8.y
+Date:   Thu, 8 Oct 2020 14:55:14 +0530
+Message-ID: <CA+G9fYv8RcQTBWLOhYxx0Y=epzZ49umoEFCwzQ17J3wZs8dO_A@mail.gmail.com>
+Subject: stable-rc 5.4.71-rc1/08ae63af42e6: no regressions found in project
+ linux-stable-rc linux-5.4.y
 To:     linux- stable <stable@vger.kernel.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org
@@ -66,20 +66,20 @@ Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.8.15-rc1
+kernel: 5.4.71-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-5.8.y
-git commit: 0b030df1725b77cd5aaba81f25208a79f4aaf5f4
-git describe: v5.8.14-5-g0b030df1725b
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.8.=
-y/build/v5.8.14-5-g0b030df1725b
+git branch: linux-5.4.y
+git commit: 08ae63af42e6024dd9c216d0588895ff37b4afbf
+git describe: v5.4.70-9-g08ae63af42e6
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
+y/build/v5.4.70-9-g08ae63af42e6
 
-No regressions (compared to build v5.8.13-86-g8bb413de12d0)
+No regressions (compared to build v5.4.69-58-g7b199c4db17f)
 
-No fixes (compared to build v5.8.13-86-g8bb413de12d0)
+No fixes (compared to build v5.4.69-58-g7b199c4db17f)
 
-Ran 37941 total tests in the following environments and test suites.
+Ran 36323 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -105,35 +105,35 @@ Test Suites
 * kselftest
 * libhugetlbfs
 * linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
+* ltp-commands-tests
 * ltp-dio-tests
+* ltp-fs-tests
+* ltp-io-tests
+* ltp-math-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* ltp-controllers-tests
+* ltp-cve-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
 * ltp-hugetlb-tests
-* ltp-io-tests
+* ltp-ipc-tests
+* ltp-mm-tests
 * ltp-nptl-tests
 * ltp-pty-tests
-* ltp-sched-tests
 * ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-* ltp-commands-tests
-* ltp-controllers-tests
-* ltp-fs-tests
-* ltp-ipc-tests
-* ltp-math-tests
 * network-basic-tests
-* ltp-mm-tests
+* ltp-cap_bounds-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
 * ltp-open-posix-tests
-* ltp-tracing-tests
 * kselftest-vsyscall-mode-native
 * kselftest-vsyscall-mode-none
 * ssuite
