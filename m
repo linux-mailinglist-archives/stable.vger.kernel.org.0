@@ -2,94 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 704782879C1
-	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 18:13:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77BB7287A6F
+	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 18:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730491AbgJHQN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Oct 2020 12:13:26 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:56095 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730461AbgJHQN0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 12:13:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602173604;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=M5rKlvyqoDFzwipoeIl60H9emhyCrrxKsQPGoqtwZ9M=;
-        b=faGQqAfLdLptiGPjQZVUVqrXwZe72f2c2SoysRWD8AgDApRhyx5T9JeQZjS8p5nESVjnf9
-        Dki479dSDSg5NtYNXPAgpDmhqQkyqd7/gXV+4FsJuoo5wwXKImQWMncLjyj16mZy2fkbez
-        TEHDcZoCfkWIcGpOz0GL4VX4NeXLO08=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-9-j20hkdD8N7KaClBXpnB_5A-1; Thu, 08 Oct 2020 12:13:22 -0400
-X-MC-Unique: j20hkdD8N7KaClBXpnB_5A-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 33A1387952A;
-        Thu,  8 Oct 2020 16:13:20 +0000 (UTC)
-Received: from steredhat.redhat.com (ovpn-112-116.ams2.redhat.com [10.36.112.116])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2B8855C1BD;
-        Thu,  8 Oct 2020 16:13:11 +0000 (UTC)
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     mst@redhat.com
-Cc:     netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        Rusty Russell <rusty@rustcorp.com.au>, stable@vger.kernel.org,
-        Jason Wang <jasowang@redhat.com>
-Subject: [PATCH] vringh: fix __vringh_iov() when riov and wiov are different
-Date:   Thu,  8 Oct 2020 18:13:11 +0200
-Message-Id: <20201008161311.114398-1-sgarzare@redhat.com>
+        id S1729402AbgJHQ7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Oct 2020 12:59:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51904 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729585AbgJHQ7i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 12:59:38 -0400
+Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0643C0613D2
+        for <stable@vger.kernel.org>; Thu,  8 Oct 2020 09:59:37 -0700 (PDT)
+Received: by mail-qv1-xf41.google.com with SMTP id 13so3395409qvc.9
+        for <stable@vger.kernel.org>; Thu, 08 Oct 2020 09:59:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=NDfxYtvvuUlHPjp/UryiR3z82AL5IMXxGc4N8yJFAH8=;
+        b=dYafy2qhKL78nC90MkoOQZOk+KZv8xX0vL3ui37u6gtvf/zKI9wulZSzgWi5ji1GmY
+         a7nobnXmZfuwHwETk+vS6on4VEdCUGVIznSBIZaHzxEg1TMkIwWGLzSgXG/zNk20pzfg
+         KZ6lrabGTTvEEj9X7Im975xG+yrv1otXkZUksk86V5haQO4VonW0O6Jzn+0jI5eeInsc
+         /k+I2eAUAV8nlm8RqMIN/E3WAn+v7VeeQ39IqSqxgZSVZqANarF2Cff4HywSepe7kdSb
+         FlxjAHkdXTB/8cDp7azuueiu++naSRfNeqozHMwVfRxkBcPXTr4CT/LfPVtHTamMwnhM
+         K+dw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=NDfxYtvvuUlHPjp/UryiR3z82AL5IMXxGc4N8yJFAH8=;
+        b=lbbmSrexVTwwHd7ZcYprWGB4TW03nEqkmPp8TI4Gq39ntl2q++z+uEqKzjAEoQ07Ur
+         eq4G43xEc0wmB/hWtNzX//ZCuJMRL7ttTcNJ2hbLgvxlViQg48P0jcI6ZBcTP10xsjFr
+         famrIzKVH3ucxy2r+bz7DrTBNs0DK9a5/SdQGi6BbNtnjxw6KEqUkZIb5EdtVvUkdpd+
+         cHXSJ8lnwo648Vhxz/kl3mSCORxGK1eu/PQeChrINgCT2xn5DH6lsUrNPFF4WXVAhPkY
+         KmpJFgUk1PoUXXwmSLzFvxey/3u5+R9V7PUAJmLoyHYC56B3FhY1JpYVA5SaGrN0aCaa
+         E/+Q==
+X-Gm-Message-State: AOAM5313saTLVZP5ioKlfS0PyhuSXGwQkVycNdL5AHyYqlUj4iBqnmhf
+        kB/w4M17gXUcPWyqoNOZ+Yw9VRab8hmfsARzinWydQ==
+X-Google-Smtp-Source: ABdhPJxVvJE8adLq7/QRWgtibNwolccI0QK0yhgp6S5zvzns9wUWgUouwgUdqK3UIR09BIuRSUwe7A4Fwb4/xzdvMxw=
+X-Received: by 2002:a0c:e5cf:: with SMTP id u15mr9219809qvm.14.1602176377192;
+ Thu, 08 Oct 2020 09:59:37 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+References: <CAHk-=wjSqtXAqfUJxFtWNwmguFASTgB0dz1dT3V-78Quiezqbg@mail.gmail.com>
+ <160197822988.7002.13716982099938468868.tip-bot2@tip-bot2>
+ <20201007111447.GA23257@zn.tnic> <20201007164536.GJ5607@zn.tnic>
+ <20201007170305.GK5607@zn.tnic> <CAPcyv4jgLRzDzXkbdHwA-XUwWuSoA1tZfVqgvFQ5jxq=m2P_Bg@mail.gmail.com>
+ <20201007192528.GL5607@zn.tnic>
+In-Reply-To: <20201007192528.GL5607@zn.tnic>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Thu, 8 Oct 2020 09:59:26 -0700
+Message-ID: <CAPcyv4j=EfGKO6nNBggQunxmkOQqxAMX1M5kQDr68uU+ZQnRLA@mail.gmail.com>
+Subject: Re: [tip: ras/core] x86, powerpc: Rename memcpy_mcsafe() to
+ copy_mc_to_{user, kernel}()
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     linux-tip-commits@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        stable <stable@vger.kernel.org>, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If riov and wiov are both defined and they point to different
-objects, only riov is initialized. If the wiov is not initialized
-by the caller, the function fails returning -EINVAL and printing
-"Readable desc 0x... after writable" error message.
+On Wed, Oct 7, 2020 at 12:54 PM Borislav Petkov <bp@alien8.de> wrote:
+>
+> On Wed, Oct 07, 2020 at 11:53:15AM -0700, Dan Williams wrote:
+> > Oh nice! I just sent a patch [1] to fix this up as well,
+>
+> Yeah, for some reason it took you a while to see it - wondering if your
+> mail servers are slow again.
+>
+> > but mine goes
+> > after minimizing when it is exported, I think perhaps both are needed.
+> >
+> > http://lore.kernel.org/r/160209507277.2768223.9933672492157583642.stgit@dwillia2-desk3.amr.corp.intel.com
+>
+> Looks like it.
+>
+> Why not rip out COPY_MC_TEST altogether though? Or you wanna do that
+> after the merge window?
+>
+> It would be good to not have that export in 5.10 final if it is not
+> really needed.
 
-Let's replace the 'else if' clause with 'if' to initialize both
-riov and wiov if they are not NULL.
-
-As checkpatch pointed out, we also avoid crashing the kernel
-when riov and wiov are both NULL, replacing BUG() with WARN_ON()
-and returning -EINVAL.
-
-Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- drivers/vhost/vringh.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index e059a9a47cdf..8bd8b403f087 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -284,13 +284,14 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 	desc_max = vrh->vring.num;
- 	up_next = -1;
- 
-+	/* You must want something! */
-+	if (WARN_ON(!riov && !wiov))
-+		return -EINVAL;
-+
- 	if (riov)
- 		riov->i = riov->used = 0;
--	else if (wiov)
-+	if (wiov)
- 		wiov->i = wiov->used = 0;
--	else
--		/* You must want something! */
--		BUG();
- 
- 	for (;;) {
- 		void *addr;
--- 
-2.26.2
-
+I'll draft a patch to rip it out. If you have a chance to grab it
+before the merge window, great, if not I can funnel it through
+nvdimm.git since the bulk of it will be touching
+tools/testing/nvdimm/.
