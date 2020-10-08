@@ -2,112 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 236A4287D2A
-	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 22:31:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F2FA287D38
+	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 22:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730429AbgJHUa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Oct 2020 16:30:59 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:38215 "EHLO
+        id S1730506AbgJHUcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Oct 2020 16:32:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:43075 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725979AbgJHUa6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 16:30:58 -0400
+        by vger.kernel.org with ESMTP id S1730497AbgJHUce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 16:32:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602189057;
+        s=mimecast20190719; t=1602189152;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=lgT/Pao2dhRy7r2cOmOSyyn/G9gLMf1e4iWJG7ETJJY=;
-        b=M2zZYYdJ5+q+9TleHTorYoPeLeaQ/nhamfBEfqyigEje8LU5drjh6BmyAOpV+aVx+XGfx5
-        4X5eo7mbSVR9yA90vRjWjRWEHmxQ2cbzdo/DTxpi6Zpzcz8AAm2aKKC+kqTyQq6Ut6F14D
-        hzjlO1nKEtxYHCUWWHgT5KogDayU0CQ=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-7-6Nv9iDXlPMKutyuBD7O_OA-1; Thu, 08 Oct 2020 16:30:55 -0400
-X-MC-Unique: 6Nv9iDXlPMKutyuBD7O_OA-1
-Received: by mail-wr1-f70.google.com with SMTP id i10so4311957wrq.5
-        for <stable@vger.kernel.org>; Thu, 08 Oct 2020 13:30:55 -0700 (PDT)
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=tpdXmRvgARTnY1If9z6ashQTu7MgRoRzw2/k90YmvbQ=;
+        b=NJy2StpKyDQLlHkBZ2gT/KV2Qgk5q7sQXxpsl538I7a5xsY4GxxIbC19w8bbFIDPlLNNJh
+        jWB/4K5FGGhMUd8y2gGHCivILJ96Ph3q6Dd7X1YZyIXKDfbNQRpUEli3pwwtOmrJvq+W2D
+        5IPIvJ83q935Ia5tLTNv46OLFYib2zk=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-173-e0tfjs4sM3uqWClwk9manw-1; Thu, 08 Oct 2020 16:32:30 -0400
+X-MC-Unique: e0tfjs4sM3uqWClwk9manw-1
+Received: by mail-wr1-f72.google.com with SMTP id g7so4363988wrm.2
+        for <stable@vger.kernel.org>; Thu, 08 Oct 2020 13:32:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=lgT/Pao2dhRy7r2cOmOSyyn/G9gLMf1e4iWJG7ETJJY=;
-        b=DFp4/qypVVvIME+KNOK+Tey1MU1eP5K7ueDzUyUxn4fs9nJAuIrElZlqpIBRksDK4s
-         fleGWcMoLE2X67Tl/ZTvTF5E1Xt+NyA6MfhIJ39ei/sYf7abVlMtQFyK1wK+HPCPT+zO
-         Q0qajO+BVD7OR2ApYX8j9SKTiPQRkMx9UPLtDWjRRW0U1UH+Ia7kDR3FbrX3Q4EwZrxM
-         PK3KOaA5Xyv2vtIP6cmY5H/rfrUZiMftzjV9oiO9zTGqUtsc8NvRq7Sai5QDxJLf61yo
-         47s5HPSWQy+koZv3wcGose2rrssgZHD5MuSDUCGKd5MGe1vVybGA3uycTLm4ohzpyp+m
-         2haA==
-X-Gm-Message-State: AOAM530QdxjEe/4T6rChI6nlie9c6GwZECebKAtwQo6M1oNnnNuws9oe
-        EP1/WTUXWs+n2AJoMr0OQV/BtziVB3a/TETUYizTfEF/NsHBxrMuKH1o/PiJkJ5pJtwRmC4RHw9
-        30NSEjMZ/Nkt3KDI0
-X-Received: by 2002:a7b:c305:: with SMTP id k5mr10972369wmj.102.1602189054222;
-        Thu, 08 Oct 2020 13:30:54 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz39hXz1Of1vVfE+ExLOVbu6aOgDjiquQ4GfgQ/XcsmEw8zvuDHbrPJdW4dVAvGz1TOUqEloQ==
-X-Received: by 2002:a7b:c305:: with SMTP id k5mr10972350wmj.102.1602189054015;
-        Thu, 08 Oct 2020 13:30:54 -0700 (PDT)
-Received: from redhat.com (bzq-79-179-71-128.red.bezeqint.net. [79.179.71.128])
-        by smtp.gmail.com with ESMTPSA id a81sm9549014wmf.32.2020.10.08.13.30.51
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=tpdXmRvgARTnY1If9z6ashQTu7MgRoRzw2/k90YmvbQ=;
+        b=OsF0kOFQ0tPtiBHoRCZhLdHj68g0q8v95QRL5Al43LvhrM2SfZYjBjQksjZ+bYaSQ6
+         zvMhgIsOFtHV36cSAZuOxJ4uEelqwEpsGxgOtE7jIhO0d+aOgbYMH/Jce+fyFukmAgsC
+         zYkcpwnwT+VoEX3RsRSm7HOAOjouKS8Ye84giFmuCjTR85VQE+nLnLrNcMkWu+RMgVU8
+         z7MPL+rM1sLfoYDi8k9QIZACV7AXUQ4cG7+jSvoNJNq/TkCUztCbXDD7eIKi9Ex1br2e
+         65YVdpY135nRfu4+IfWi/pP6emeE9huPshSwEMuo/PXXp9WvqABIGZMaaGnaBixM411u
+         eUmA==
+X-Gm-Message-State: AOAM532P2pgUbmvZG7ffQqLydbhojjmB5tRzQjWOEaIvZ4OcNPbVaYzN
+        BBX9+1/upyRBQ5WZifY+McpAlZON5E7/iZRjST8n+2HpJqSwgp9EBbH2UO1kmv2sG6c1ogLoRmX
+        cqF0YbInlPcLrp0vE
+X-Received: by 2002:a1c:6457:: with SMTP id y84mr10281553wmb.36.1602189149158;
+        Thu, 08 Oct 2020 13:32:29 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwQUG0KijlK+QL7Ax8XS9d5dAD0ojfOCzcq6UzOONYpRTIZTzyZtNzvqD6dDng76NlJsz1nrg==
+X-Received: by 2002:a1c:6457:: with SMTP id y84mr10281528wmb.36.1602189148924;
+        Thu, 08 Oct 2020 13:32:28 -0700 (PDT)
+Received: from steredhat (host-79-27-201-176.retail.telecomitalia.it. [79.27.201.176])
+        by smtp.gmail.com with ESMTPSA id o14sm8603590wmc.36.2020.10.08.13.32.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Oct 2020 13:30:53 -0700 (PDT)
-Date:   Thu, 8 Oct 2020 16:30:51 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        elic@nvidia.com, groug@kaod.org, jasowang@redhat.com,
-        lkp@intel.com, michael.christie@oracle.com, mst@redhat.com,
-        si-wei.liu@oracle.com, stable@vger.kernel.org
-Subject: [GIT PULL] vhost,vdpa: last minute fixes
-Message-ID: <20201008163051-mutt-send-email-mst@kernel.org>
+        Thu, 08 Oct 2020 13:32:28 -0700 (PDT)
+Date:   Thu, 8 Oct 2020 22:32:25 +0200
+From:   Stefano Garzarella <sgarzare@redhat.com>
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        Rusty Russell <rusty@rustcorp.com.au>, stable@vger.kernel.org,
+        Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vringh: fix __vringh_iov() when riov and wiov are
+ different
+Message-ID: <20201008203225.7ndzfnpyxxntthtj@steredhat>
+References: <20201008161311.114398-1-sgarzare@redhat.com>
+ <20201008160035-mutt-send-email-mst@kernel.org>
+ <20201008202436.r33jqbbttqynfvhe@steredhat>
+ <20201008162813-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Mutt-Fcc: =sent
+In-Reply-To: <20201008162813-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following changes since commit a127c5bbb6a8eee851cbdec254424c480b8edd75:
+On Thu, Oct 08, 2020 at 04:28:40PM -0400, Michael S. Tsirkin wrote:
+> On Thu, Oct 08, 2020 at 10:24:36PM +0200, Stefano Garzarella wrote:
+> > On Thu, Oct 08, 2020 at 04:00:51PM -0400, Michael S. Tsirkin wrote:
+> > > On Thu, Oct 08, 2020 at 06:13:11PM +0200, Stefano Garzarella wrote:
+> > > > If riov and wiov are both defined and they point to different
+> > > > objects, only riov is initialized. If the wiov is not initialized
+> > > > by the caller, the function fails returning -EINVAL and printing
+> > > > "Readable desc 0x... after writable" error message.
+> > > > 
+> > > > Let's replace the 'else if' clause with 'if' to initialize both
+> > > > riov and wiov if they are not NULL.
+> > > > 
+> > > > As checkpatch pointed out, we also avoid crashing the kernel
+> > > > when riov and wiov are both NULL, replacing BUG() with WARN_ON()
+> > > > and returning -EINVAL.
+> > > > 
+> > > > Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
+> > > > Cc: stable@vger.kernel.org
+> > > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> > > 
+> > > Can you add more detail please? when does this trigger?
+> > 
+> > I'm developing vdpa_sim_blk and I'm using vringh_getdesc_iotlb()
+> > to get readable and writable buffers.
+> > 
+> > With virtio-blk devices a descriptors has both readable and writable
+> > buffers (eg. virtio_blk_outhdr in the readable buffer and status as last byte
+> > of writable buffer).
+> > So, I'm calling vringh_getdesc_iotlb() one time to get both type of buffer
+> > and put them in 2 iovecs:
+> > 
+> > 	ret = vringh_getdesc_iotlb(&vq->vring, &vq->riov, &vq->wiov,
+> > 				   &vq->head, GFP_ATOMIC);
+> > 
+> > With this patch applied it works well, without the function fails
+> > returning -EINVAL and printing "Readable desc 0x... after writable".
+> > 
+> > Am I using vringh_getdesc_iotlb() in the wrong way?
+> > 
+> > Thanks,
+> > Stefano
+> > 
+> 
+> 
+> I think it's ok, this info just needs to be in the commit log ...
 
-  vhost-vdpa: fix backend feature ioctls (2020-09-24 05:54:36 -0400)
+Sure, I'll send a v2 adding this info.
+Sorry for not adding it earlier!
 
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to aff90770e54cdb40228f2ab339339e95d0aa0c9a:
-
-  vdpa/mlx5: Fix dependency on MLX5_CORE (2020-10-08 16:02:00 -0400)
-
-----------------------------------------------------------------
-vhost,vdpa: last minute fixes
-
-Some last minute fixes. The last two of them haven't been in next but
-they do seem kind of obvious, very small and safe, fix bugs reported in
-the field, and they are both in a new mlx5 vdpa driver, so it's not like
-we can introduce regressions.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Eli Cohen (1):
-      vdpa/mlx5: Fix dependency on MLX5_CORE
-
-Greg Kurz (3):
-      vhost: Don't call access_ok() when using IOTLB
-      vhost: Use vhost_get_used_size() in vhost_vring_set_addr()
-      vhost: Don't call log_access_ok() when using IOTLB
-
-Mike Christie (1):
-      vhost vdpa: fix vhost_vdpa_open error handling
-
-Si-Wei Liu (3):
-      vhost-vdpa: fix vhost_vdpa_map() on error condition
-      vhost-vdpa: fix page pinning leakage in error path
-      vdpa/mlx5: should keep avail_index despite device status
-
- drivers/vdpa/Kconfig              |   7 +--
- drivers/vdpa/mlx5/net/mlx5_vnet.c |  20 ++++--
- drivers/vhost/vdpa.c              | 127 +++++++++++++++++++++++---------------
- drivers/vhost/vhost.c             |  33 +++++++---
- 4 files changed, 117 insertions(+), 70 deletions(-)
+Thanks,
+Stefano
 
