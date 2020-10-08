@@ -2,100 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2464287D50
-	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 22:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58A14287E18
+	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 23:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728947AbgJHUnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Oct 2020 16:43:07 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58627 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726022AbgJHUnH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 16:43:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602189785;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=huKURS9xZVwjRl6HwVKXLMhhJbFrna5oxeAZtRaNfLM=;
-        b=XntqAV6R1GvrlFkLdDIUC/xMyHYjio6kfZv35RvU8oZm2LQ7ab3J4QTY2VlTAW9a6WKQlr
-        +3jYcB0QSYCA3Q18i9LGBI1tltuO2Mhwg89ZrjXTHBfqRs/LsVdHkNLn6/2fAf6EnbAg+r
-        SB4hJ6oxNm0YJ+n0igiAt+eQh0fgXHE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-367-0rDDCUGZOiWINQ_Q48nHTg-1; Thu, 08 Oct 2020 16:43:03 -0400
-X-MC-Unique: 0rDDCUGZOiWINQ_Q48nHTg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6B147425EB;
-        Thu,  8 Oct 2020 20:43:02 +0000 (UTC)
-Received: from steredhat.redhat.com (ovpn-112-116.ams2.redhat.com [10.36.112.116])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 556BD55786;
-        Thu,  8 Oct 2020 20:42:57 +0000 (UTC)
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     mst@redhat.com
-Cc:     kvm@vger.kernel.org, netdev@vger.kernel.org,
+        id S1728725AbgJHVhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Oct 2020 17:37:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45988 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725952AbgJHVhp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 8 Oct 2020 17:37:45 -0400
+Subject: Re: [GIT PULL] vhost,vdpa: last minute fixes
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1602193065;
+        bh=XS1HskSXLJf+LYLFsE6ajUTo2eQzDoEdbBf1YNqM7u0=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=dKd3zSsHJYrGMRpDprCyOmqOGWFqmVGEky+iBm1QOIEw0lEtQGcSURQxkhbaX7gCd
+         SWcv1qdUriNz1P7DtyBBBJ8mz5FeDVQOVb2Y/eaJRjhjLMzEpNoz+P4slsU3FbaPwu
+         dPxQ/Ey04e7ACH0NKFFWLNCC8f9R6C64aXaaradg=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20201008163051-mutt-send-email-mst@kernel.org>
+References: <20201008163051-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: Linux virtualization <virtualization.lists.linux-foundation.org>
+X-PR-Tracked-Message-Id: <20201008163051-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: aff90770e54cdb40228f2ab339339e95d0aa0c9a
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 3fdd47c3b40ac48e6e6e5904cf24d12e6e073a96
+Message-Id: <160219306497.23094.13564756320158233179.pr-tracker-bot@kernel.org>
+Date:   Thu, 08 Oct 2020 21:37:44 +0000
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>, lkp@intel.com,
+        kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        si-wei.liu@oracle.com, elic@nvidia.com,
         virtualization@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Rusty Russell <rusty@rustcorp.com.au>,
-        Jason Wang <jasowang@redhat.com>
-Subject: [PATCH v2] vringh: fix __vringh_iov() when riov and wiov are different
-Date:   Thu,  8 Oct 2020 22:42:56 +0200
-Message-Id: <20201008204256.162292-1-sgarzare@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+        michael.christie@oracle.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If riov and wiov are both defined and they point to different
-objects, only riov is initialized. If the wiov is not initialized
-by the caller, the function fails returning -EINVAL and printing
-"Readable desc 0x... after writable" error message.
+The pull request you sent on Thu, 8 Oct 2020 16:30:51 -0400:
 
-This issue happens when descriptors have both readable and writable
-buffers (eg. virtio-blk devices has virtio_blk_outhdr in the readable
-buffer and status as last byte of writable buffer) and we call
-__vringh_iov() to get both type of buffers in two different iovecs.
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Let's replace the 'else if' clause with 'if' to initialize both
-riov and wiov if they are not NULL.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/3fdd47c3b40ac48e6e6e5904cf24d12e6e073a96
 
-As checkpatch pointed out, we also avoid crashing the kernel
-when riov and wiov are both NULL, replacing BUG() with WARN_ON()
-and returning -EINVAL.
+Thank you!
 
-Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- drivers/vhost/vringh.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index e059a9a47cdf..8bd8b403f087 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -284,13 +284,14 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 	desc_max = vrh->vring.num;
- 	up_next = -1;
- 
-+	/* You must want something! */
-+	if (WARN_ON(!riov && !wiov))
-+		return -EINVAL;
-+
- 	if (riov)
- 		riov->i = riov->used = 0;
--	else if (wiov)
-+	if (wiov)
- 		wiov->i = wiov->used = 0;
--	else
--		/* You must want something! */
--		BUG();
- 
- 	for (;;) {
- 		void *addr;
 -- 
-2.26.2
-
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
