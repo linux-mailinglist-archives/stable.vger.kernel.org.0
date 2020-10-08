@@ -2,62 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 268EC2878D1
-	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 17:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 704782879C1
+	for <lists+stable@lfdr.de>; Thu,  8 Oct 2020 18:13:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731792AbgJHP4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Oct 2020 11:56:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42076 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731787AbgJHP4O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 11:56:14 -0400
-Received: from mail-ua1-x943.google.com (mail-ua1-x943.google.com [IPv6:2607:f8b0:4864:20::943])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E5B1C061755
-        for <stable@vger.kernel.org>; Thu,  8 Oct 2020 08:56:14 -0700 (PDT)
-Received: by mail-ua1-x943.google.com with SMTP id r21so2027950uaw.10
-        for <stable@vger.kernel.org>; Thu, 08 Oct 2020 08:56:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=xIxxeyYE22btbSkux6+XSljFtl+YYajO/UmbddfVEc8=;
-        b=kwqe2D3BfZvJuA9PhDmOu9OQOR7GDt/UEFOap964paxtHzUsxfeIDkQSGxflLzEhgf
-         kLUyF6d1sI0/MMlgqPsWrF1ERtk6MQC8bh/RlEMTy0BHPjfC2cq26PwUNvcC6E0LG04n
-         RBT2yimkStJsXPHcaYIaMCQqmQ9C8WKKVCcSXhFimZCimxLM/D6oORvD8Phmlr9cz8XQ
-         XnS+33GDrRY5C/pR50QtzvCLjcuzMHbFRhxZKqi4CNF5neajU9OhfAcBCgUautv4Z7/k
-         I5NJfsREp0ptb//PBlziNl6B/cb0Z0wQj/nXlJWWtdc7wrwhRkCt269OswZxh11+UueM
-         LGCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=xIxxeyYE22btbSkux6+XSljFtl+YYajO/UmbddfVEc8=;
-        b=K2+KE1FuYcVtMfOBHd5IGAZOmt4qOB3u1DZhPsJK/Mnd1eGV3H6Ih862Ok04/I2u2b
-         4GoFSdU0W4CZtcDzMIKj4POL5hugyGQJWmslPLit+H16Wa48ot2eCOb+9VJwlU6BUUNj
-         cpAHIoJWiUqw1sQxg1fAkWGEE7v9GGMGtnjnRAU3MMRGAjkvExXbSBmvGhONnhYc4SxS
-         ENi41aY2ic2DC1/ATcXfKlu3Z3c4AkuZ+MPfjTRBf6NSOsI7WAzIukA/C/ygEEBb8DIz
-         0vSgNiDWQuroZMu4xM155erVyglsYQOcm+A7Yf2Rv5uiZRe41a73F+GgN829skuSFZIC
-         V3IQ==
-X-Gm-Message-State: AOAM531owQ2KmYKX04JedJ0/VXxbCrpvqJKXk7f4piOtiMoJhcWaIhGt
-        3lpj8E5sGAKsYO4eXnQIWJRVE15K0qOpAAG0K+Y=
-X-Google-Smtp-Source: ABdhPJymvytlMFttIlfT4U8Xi1RNaVxDTOfn8tBwUyHqkcglLRXXXkIRsaF4RPICiZYQ0A9QYkQVcRhgoME6anBsFcg=
-X-Received: by 2002:a9f:2436:: with SMTP id 51mr5232348uaq.103.1602172573271;
- Thu, 08 Oct 2020 08:56:13 -0700 (PDT)
+        id S1730491AbgJHQN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 8 Oct 2020 12:13:26 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:56095 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730461AbgJHQN0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 12:13:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1602173604;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=M5rKlvyqoDFzwipoeIl60H9emhyCrrxKsQPGoqtwZ9M=;
+        b=faGQqAfLdLptiGPjQZVUVqrXwZe72f2c2SoysRWD8AgDApRhyx5T9JeQZjS8p5nESVjnf9
+        Dki479dSDSg5NtYNXPAgpDmhqQkyqd7/gXV+4FsJuoo5wwXKImQWMncLjyj16mZy2fkbez
+        TEHDcZoCfkWIcGpOz0GL4VX4NeXLO08=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-9-j20hkdD8N7KaClBXpnB_5A-1; Thu, 08 Oct 2020 12:13:22 -0400
+X-MC-Unique: j20hkdD8N7KaClBXpnB_5A-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 33A1387952A;
+        Thu,  8 Oct 2020 16:13:20 +0000 (UTC)
+Received: from steredhat.redhat.com (ovpn-112-116.ams2.redhat.com [10.36.112.116])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2B8855C1BD;
+        Thu,  8 Oct 2020 16:13:11 +0000 (UTC)
+From:   Stefano Garzarella <sgarzare@redhat.com>
+To:     mst@redhat.com
+Cc:     netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        Rusty Russell <rusty@rustcorp.com.au>, stable@vger.kernel.org,
+        Jason Wang <jasowang@redhat.com>
+Subject: [PATCH] vringh: fix __vringh_iov() when riov and wiov are different
+Date:   Thu,  8 Oct 2020 18:13:11 +0200
+Message-Id: <20201008161311.114398-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-Received: by 2002:a67:6ac2:0:0:0:0:0 with HTTP; Thu, 8 Oct 2020 08:56:12 -0700 (PDT)
-Reply-To: aapoissa7@gmail.com
-From:   "Bar. Mark Carissa" <hammangoni@gmail.com>
-Date:   Thu, 8 Oct 2020 15:56:12 +0000
-Message-ID: <CAB2dg0h3XNr=+kbccCb+hgiqksFf+rCfds88vV-9Fio8hW01GQ@mail.gmail.com>
-Subject: re..
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-How things generally? Hope this message meet you well, Please do not
-Ignore this message unlike before, because your Inheritance Fund of (
-Five Million three hundred thousand United States Dollars Only) is now
-Unveil waiting for your immediate positive.
+If riov and wiov are both defined and they point to different
+objects, only riov is initialized. If the wiov is not initialized
+by the caller, the function fails returning -EINVAL and printing
+"Readable desc 0x... after writable" error message.
 
-Mark Carissa
+Let's replace the 'else if' clause with 'if' to initialize both
+riov and wiov if they are not NULL.
+
+As checkpatch pointed out, we also avoid crashing the kernel
+when riov and wiov are both NULL, replacing BUG() with WARN_ON()
+and returning -EINVAL.
+
+Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ drivers/vhost/vringh.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index e059a9a47cdf..8bd8b403f087 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -284,13 +284,14 @@ __vringh_iov(struct vringh *vrh, u16 i,
+ 	desc_max = vrh->vring.num;
+ 	up_next = -1;
+ 
++	/* You must want something! */
++	if (WARN_ON(!riov && !wiov))
++		return -EINVAL;
++
+ 	if (riov)
+ 		riov->i = riov->used = 0;
+-	else if (wiov)
++	if (wiov)
+ 		wiov->i = wiov->used = 0;
+-	else
+-		/* You must want something! */
+-		BUG();
+ 
+ 	for (;;) {
+ 		void *addr;
+-- 
+2.26.2
+
