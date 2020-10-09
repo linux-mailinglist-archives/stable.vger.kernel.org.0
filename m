@@ -2,132 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7489228904C
-	for <lists+stable@lfdr.de>; Fri,  9 Oct 2020 19:53:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EFFF289146
+	for <lists+stable@lfdr.de>; Fri,  9 Oct 2020 20:38:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389529AbgJIRxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Oct 2020 13:53:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56896 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388603AbgJIRxC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Oct 2020 13:53:02 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D20DC0613D2
-        for <stable@vger.kernel.org>; Fri,  9 Oct 2020 10:53:02 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id f19so7469318pfj.11
-        for <stable@vger.kernel.org>; Fri, 09 Oct 2020 10:53:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=AgAEZ7sWItuVnIb9ynJJNs8FX8xEsZgoQcQEgt74eD0=;
-        b=w5zZXePXDabWvLxyjT2tmEFwS7y4hGLJ5Oh10UWk6L++QuqbZfrrV+htMTH66D9KIl
-         8K9hkxfj2g5o7djIr53Odv4tyHzejdPizeCwSwgnPkDXDVnM67Z4vda/4mph/duzLQzC
-         TV8Pj2mGCsmoKXnxgbP9hTHgmIO9Qe6V20MsthEvuxRTZX8AJUbmlZ6GQOOWpxBcAJha
-         Tz2biVfI2fjjuyuA5TzAS1P1ACEiy5sEnWpQN2biJiiq2Wv22/iAUHNDOd+NT4d1H4c3
-         vI4lasS85pW7t4t609tXKDOzd1i5KpwqDhoVRxcf/ksrgdTSonFDrUhwWalGqBcw1L5z
-         04Ag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=AgAEZ7sWItuVnIb9ynJJNs8FX8xEsZgoQcQEgt74eD0=;
-        b=PnU8TgjdiPeCx36oSMjn77XGEqmfwR7cm4fzZ9bKbRtdqgYRB10OPZGT5MsVmiTFdo
-         6ju9HcDNFV4zCmqBYKiVYg1fKOIaplRXKTSK/fU17UP5q4UifxbLrYKR+fVP6BIFGfae
-         HS0bwSmD0/LW9rMb6WWIiUh59ARCSLGWO1W4NUaMPsWOn0tLpHPQ2d1wgW0BLVWnvrHQ
-         Ub6GY3KogiwidqguGaOsqx6WMWO0UrAE4gu+NBoYvairHBGX4C+5wPXaqm1rekmizSll
-         IHEAdQMTFRuwPzlqwM5eBFDjU2thm0h35uDdcGRv8zBnVDcKPhQU7KXQtd53HLgHzpUN
-         ePNQ==
-X-Gm-Message-State: AOAM531Xtc3fYqGcgXE0f8o4NTHowWcEMgvV+PRzj04sbA+1pNFKBZ1Z
-        3fh+PIE2tgp8bHI64YJGgu4raOn3s6NupQ==
-X-Google-Smtp-Source: ABdhPJzmO5+R3PCk2mjvFHzA74kv/bBMunDW8FnBml/nH9+j3zZ5w7/QgGa30qc5oKb4C3XPbQBylg==
-X-Received: by 2002:a63:ab07:: with SMTP id p7mr1089852pgf.326.1602265981576;
-        Fri, 09 Oct 2020 10:53:01 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z6sm12036681pfg.12.2020.10.09.10.53.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Oct 2020 10:53:00 -0700 (PDT)
-Message-ID: <5f80a37c.1c69fb81.91619.6887@mx.google.com>
-Date:   Fri, 09 Oct 2020 10:53:00 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1730740AbgJISiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Oct 2020 14:38:18 -0400
+Received: from mail.csu.ru ([195.54.14.68]:49415 "HELO mail.csu.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+        id S1725852AbgJIShV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Oct 2020 14:37:21 -0400
+X-Greylist: delayed 1932 seconds by postgrey-1.27 at vger.kernel.org; Fri, 09 Oct 2020 14:37:11 EDT
+Received: from webmail.csu.ru (webmail.csu.ru [195.54.14.80])
+        (Authenticated sender: gmu)
+        by mail.csu.ru (Postfix) with ESMTPA id 4EB68146ACE;
+        Fri,  9 Oct 2020 23:04:42 +0500 (+05)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.csu.ru 4EB68146ACE
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=csu.ru; s=lso;
+        t=1602266691; bh=EHyoM7tvrYOQrxF04FX0pRVRvphefdiNsT3iXJDpiBo=;
+        h=Date:Subject:From:Reply-To:From;
+        b=AkU6a5Ug3MW1vmmjfxzJHROve1qzrVOskW98zPBWqwGHEY7b7Mk1v8Cs4hkNvHkEc
+         mYC7pjQb/hzg21XefS4YRufwd4CLGeV/4uF6HTx1yjJ173s/gPzO74NQNDzDtmJw0i
+         9Z/+ALP2ARxiQQV/SvHpecwaeAEu0CY0x8n6i71s=
+Received: from 156.146.59.22
+        (SquirrelMail authenticated user gmu)
+        by webmail.csu.ru with HTTP;
+        Fri, 9 Oct 2020 23:04:44 +0500
+Message-ID: <4b858450690a3cf6ebdd989321b80c72.squirrel@webmail.csu.ru>
+Date:   Fri, 9 Oct 2020 23:04:44 +0500
+Subject: Vorschlag
+From:   "Yi Huiman" <info@csu.ru>
+Reply-To: info@huiman.cf
+User-Agent: SquirrelMail/1.4.22
 MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+X-Priority: 3 (Normal)
+Importance: Normal
+X-KLMS-Rule-ID: 1
+X-KLMS-Message-Action: clean
+X-KLMS-AntiSpam-Lua-Profiles: 159051 [Oct 09 2020]
+X-KLMS-AntiSpam-Version: 5.9.11.0
+X-KLMS-AntiSpam-Envelope-From: info@csu.ru
+X-KLMS-AntiSpam-Auth: dmarc=none header.from=csu.ru;spf=softfail smtp.mailfrom=csu.ru;dkim=none
+X-KLMS-AntiSpam-Rate: 70
+X-KLMS-AntiSpam-Status: not_detected
+X-KLMS-AntiSpam-Method: none
+X-KLMS-AntiSpam-Info: LuaCore: 381 381 faef97d3f9d8f5dd6a9feadc50ba5b34b9486c58, {rep_avail}, {Tracking_content_type, plain}, {Prob_reply_not_match_from}, {Prob_to_header_missing}, {Prob_Reply_to_without_To}, {Tracking_susp_macro_from_formal}, webmail.csu.ru:7.1.1;csu.ru:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;huiman.cf:7.1.1;127.0.0.199:7.1.2;195.54.14.80:7.1.2, ApMailHostAddress: 195.54.14.80
+X-MS-Exchange-Organization-SCL: -1
+X-KLMS-AntiSpam-Interceptor-Info: scan successful
+X-KLMS-AntiPhishing: Clean, bases: 2020/10/09 16:54:00
+X-KLMS-AntiVirus: Kaspersky Security for Linux Mail Server, version 8.0.3.30, bases: 2020/10/09 00:29:00 #15463494
+X-KLMS-AntiVirus-Status: Clean, skipped
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.70-21-g648f1d360c17
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.4 baseline: 134 runs,
- 3 regressions (v5.4.70-21-g648f1d360c17)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 134 runs, 3 regressions (v5.4.70-21-g648f1d36=
-0c17)
+ich habe ein Gesch=E4ft Vorschlag f=FCr dich.
 
-Regressions Summary
--------------------
-
-platform         | arch  | lab           | compiler | defconfig | results
------------------+-------+---------------+----------+-----------+--------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.70-21-g648f1d360c17/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.70-21-g648f1d360c17
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      648f1d360c17ad3bdf2643db30e942f3aaed6348 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig | results
------------------+-------+---------------+----------+-----------+--------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f804122bf98b8bfa94ff411
-
-  Results:     85 PASS, 5 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.70-21=
--g648f1d360c17/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevi=
-n.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.70-21=
--g648f1d360c17/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevi=
-n.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.bootrr.cros-ec-sensors-accel0-probed: https://kernelci.org/tes=
-t/case/id/5f804122bf98b8bfa94ff425
-      failing since 9 days (last pass: v5.4.68-384-g856fa448539c, first fai=
-l: v5.4.68-388-gcf92ab7a7853)
-
-    2020-10-09 10:53:13.815000  <8>[   23.208737] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dcros-ec-sensors-accel0-probed RESULT=3Dfail>
-     * baseline.bootrr.cros-ec-sensors-accel1-probed: https://kernelci.org/=
-test/case/id/5f804122bf98b8bfa94ff426
-      failing since 9 days (last pass: v5.4.68-384-g856fa448539c, first fai=
-l: v5.4.68-388-gcf92ab7a7853) * baseline.bootrr.cros-ec-sensors-gyro0-probe=
-d: https://kernelci.org/test/case/id/5f804122bf98b8bfa94ff427
-      failing since 9 days (last pass: v5.4.68-384-g856fa448539c, first fai=
-l: v5.4.68-388-gcf92ab7a7853)
-
-    2020-10-09 10:53:15.849000  /lava-2707298/1/../bin/lava-test-case
-      =20
