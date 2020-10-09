@@ -2,212 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B94D2880C5
-	for <lists+stable@lfdr.de>; Fri,  9 Oct 2020 05:44:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95EC42880FB
+	for <lists+stable@lfdr.de>; Fri,  9 Oct 2020 06:05:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731529AbgJIDoO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 8 Oct 2020 23:44:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38370 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731521AbgJIDoO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 8 Oct 2020 23:44:14 -0400
-Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE472C0613D4
-        for <stable@vger.kernel.org>; Thu,  8 Oct 2020 20:44:12 -0700 (PDT)
-Received: by mail-qk1-x743.google.com with SMTP id b69so9296895qkg.8
-        for <stable@vger.kernel.org>; Thu, 08 Oct 2020 20:44:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=rnokm4ExtvEJSv/7qKTingivUqdsSMzAazkHgkumQMc=;
-        b=ljMPhrv3y+oIQ1RtFF0ZxpSVyT1Zx8hvyR5Nl6nxJaU1k/mQLi9pc4+PAtvmxDnKf6
-         NeWJKAxXIRK1EeT7Tr/zIADJp/FtaUKIXiqd2U8JJUJTEBdvrPP1ZaENZquC8jf7C4jE
-         28KED4bkaAe/gs0ymJkug2a5Nzd3A1NRtsTInu1pmTzReXvejhpWX1loCqf5CiiHZsyV
-         jSEA3+0YoQgm075RU5pSTkEaGMNscuLju9BsA+2e3181UodGgwM1J/vxpuq2ESVs/Pnc
-         Rmvi/3fogD0s1VCycFHCYmdBtqyAOmHQuD1mmc6najlu/99ODWg1MembXdptktKPcUop
-         uOQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=rnokm4ExtvEJSv/7qKTingivUqdsSMzAazkHgkumQMc=;
-        b=srs9V2/q61Bl0Jf7xkO2SIgjfbXRcqrkYUKWtEQ5Z52S4L5gNWcy0dPQKsfgUgk98p
-         hVPPz5QLQ3RogA3bretSDYGN86lLxs16QawNhY1JuBj0l7A/5eX4X4rLsRL51yOOyL9x
-         6DaHVXhp1LrhtW/ZOKlcpfcj6V12KYMW8JXEJlex2I1xgBmc2NYR4M2LLlGylCWv9fql
-         6ZV8RJ/uWveaFEPm20Wj5fkNiENKdYE9rSLExpcCwzSC6RQDplg7NVmoJf1PZ286qEnO
-         JTFqfAZF+x5VA8VRbNszi0MpMn9WxRwNWhreOEcVSi7k9eqkuhzheupLZ2zrrFHYbAqD
-         0yzQ==
-X-Gm-Message-State: AOAM532thx1ktxqYeleXeR5C78JLEPgQj8sX7ToQrZK5+W8wFSuPpskI
-        529vCo/FdM/z2FyAY2PNBt3Gmm3CZPiegQgCMbPhrwrY7LEtPQ==
-X-Google-Smtp-Source: ABdhPJy6TCb6LYYLP++Y76eo24OCtuB5SwX3BVaYoYBNLCu3yPX9fDB6lOFD2wX/DXtr2Lbix3NpYgGbixaIRGG/oW4=
-X-Received: by 2002:a37:7843:: with SMTP id t64mr11523831qkc.140.1602215051444;
- Thu, 08 Oct 2020 20:44:11 -0700 (PDT)
+        id S1726384AbgJIEFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Oct 2020 00:05:46 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:33317 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726357AbgJIEFp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Oct 2020 00:05:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1602216343;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YKXcX1Zdg1COG+JHgP7kxCkfawMp8ssx2TcF3Bvm0fI=;
+        b=TTwroaamE2V/V7AqPCfK5KlBszS5iOb37Dk+/jhbbEf5U0a7coi4awOVa4g1Xp127gkhny
+        jrYAOytxgcmThliTRUIhVfRph9aS/j2bhux9QPPYrKn8d5L3+nN+I1cZleQca3FR3OqfOI
+        JJ65iNFwm1VjFwr2e6y2Hip4nYj6Oio=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-294-MQnK_CGjM6qCMDUK3oEmaQ-1; Fri, 09 Oct 2020 00:05:41 -0400
+X-MC-Unique: MQnK_CGjM6qCMDUK3oEmaQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06F5280B70A;
+        Fri,  9 Oct 2020 04:05:40 +0000 (UTC)
+Received: from [10.72.13.133] (ovpn-13-133.pek2.redhat.com [10.72.13.133])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8BB42100164C;
+        Fri,  9 Oct 2020 04:05:20 +0000 (UTC)
+Subject: Re: [PATCH v2] vringh: fix __vringh_iov() when riov and wiov are
+ different
+To:     Stefano Garzarella <sgarzare@redhat.com>, mst@redhat.com
+Cc:     kvm@vger.kernel.org, netdev@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Rusty Russell <rusty@rustcorp.com.au>
+References: <20201008204256.162292-1-sgarzare@redhat.com>
+From:   Jason Wang <jasowang@redhat.com>
+Message-ID: <8d84abcb-2f2e-8f24-039f-447e8686b878@redhat.com>
+Date:   Fri, 9 Oct 2020 12:05:15 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20200620092047.GR1551@shell.armlinux.org.uk> <E1jmZgq-0001UG-1c@rmk-PC.armlinux.org.uk>
-In-Reply-To: <E1jmZgq-0001UG-1c@rmk-PC.armlinux.org.uk>
-From:   Marcin Wojtas <mw@semihalf.com>
-Date:   Fri, 9 Oct 2020 05:43:56 +0200
-Message-ID: <CAPv3WKdJKAEwCoj5z6NzP2xRFfT1HG+2o0wigt=Czi4bG7EQcg@mail.gmail.com>
-Subject: Re: [PATCH net-next 2/4] net: mvpp2: add mvpp2_phylink_to_port() helper
-To:     stable@vger.kernel.org
-Cc:     Antoine Tenart <antoine.tenart@bootlin.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        netdev <netdev@vger.kernel.org>,
-        Gabor Samu <samu_gabor@yahoo.ca>,
-        Jon Nettleton <jon@solid-run.com>,
-        Andrew Elwell <andrew.elwell@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201008204256.162292-1-sgarzare@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-sob., 20 cze 2020 o 11:21 Russell King <rmk+kernel@armlinux.org.uk> napisa=
-=C5=82(a):
+On 2020/10/9 上午4:42, Stefano Garzarella wrote:
+> If riov and wiov are both defined and they point to different
+> objects, only riov is initialized. If the wiov is not initialized
+> by the caller, the function fails returning -EINVAL and printing
+> "Readable desc 0x... after writable" error message.
 >
-> Add a helper to convert the struct phylink_config pointer passed in
-> from phylink to the drivers internal struct mvpp2_port.
+> This issue happens when descriptors have both readable and writable
+> buffers (eg. virtio-blk devices has virtio_blk_outhdr in the readable
+> buffer and status as last byte of writable buffer) and we call
+> __vringh_iov() to get both type of buffers in two different iovecs.
 >
-> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> Let's replace the 'else if' clause with 'if' to initialize both
+> riov and wiov if they are not NULL.
+>
+> As checkpatch pointed out, we also avoid crashing the kernel
+> when riov and wiov are both NULL, replacing BUG() with WARN_ON()
+> and returning -EINVAL.
+
+
+It looks like I met the exact similar issue when developing ctrl vq 
+support (which requires both READ and WRITE descriptor).
+
+While I was trying to fix the issue I found the following comment:
+
+  * Note that you may need to clean up riov and wiov, even on error!
+  */
+int vringh_getdesc_iotlb(struct vringh *vrh,
+
+I saw some driver call vringh_kiov_cleanup().
+
+So I just follow to use that.
+
+I'm not quite sure which one is better.
+
+Thanks
+
+
+>
+> Fixes: f87d0fbb5798 ("vringh: host-side implementation of virtio rings.")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 > ---
->  .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 29 +++++++++----------
->  1 file changed, 14 insertions(+), 15 deletions(-)
+>   drivers/vhost/vringh.c | 9 +++++----
+>   1 file changed, 5 insertions(+), 4 deletions(-)
 >
-> diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/ne=
-t/ethernet/marvell/mvpp2/mvpp2_main.c
-> index 7653277d03b7..313f5a60a605 100644
-> --- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> +++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> @@ -4767,12 +4767,16 @@ static void mvpp2_port_copy_mac_addr(struct net_d=
-evice *dev, struct mvpp2 *priv,
->         eth_hw_addr_random(dev);
->  }
->
-> +static struct mvpp2_port *mvpp2_phylink_to_port(struct phylink_config *c=
-onfig)
-> +{
-> +       return container_of(config, struct mvpp2_port, phylink_config);
-> +}
+> diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+> index e059a9a47cdf..8bd8b403f087 100644
+> --- a/drivers/vhost/vringh.c
+> +++ b/drivers/vhost/vringh.c
+> @@ -284,13 +284,14 @@ __vringh_iov(struct vringh *vrh, u16 i,
+>   	desc_max = vrh->vring.num;
+>   	up_next = -1;
+>   
+> +	/* You must want something! */
+> +	if (WARN_ON(!riov && !wiov))
+> +		return -EINVAL;
 > +
->  static void mvpp2_phylink_validate(struct phylink_config *config,
->                                    unsigned long *supported,
->                                    struct phylink_link_state *state)
->  {
-> -       struct mvpp2_port *port =3D container_of(config, struct mvpp2_por=
-t,
-> -                                              phylink_config);
-> +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(config);
->         __ETHTOOL_DECLARE_LINK_MODE_MASK(mask) =3D { 0, };
->
->         /* Invalid combinations */
-> @@ -4913,8 +4917,7 @@ static void mvpp2_gmac_pcs_get_state(struct mvpp2_p=
-ort *port,
->  static void mvpp2_phylink_mac_pcs_get_state(struct phylink_config *confi=
-g,
->                                             struct phylink_link_state *st=
-ate)
->  {
-> -       struct mvpp2_port *port =3D container_of(config, struct mvpp2_por=
-t,
-> -                                              phylink_config);
-> +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(config);
->
->         if (port->priv->hw_version =3D=3D MVPP22 && port->gop_id =3D=3D 0=
-) {
->                 u32 mode =3D readl(port->base + MVPP22_XLG_CTRL3_REG);
-> @@ -4931,8 +4934,7 @@ static void mvpp2_phylink_mac_pcs_get_state(struct =
-phylink_config *config,
->
->  static void mvpp2_mac_an_restart(struct phylink_config *config)
->  {
-> -       struct mvpp2_port *port =3D container_of(config, struct mvpp2_por=
-t,
-> -                                              phylink_config);
-> +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(config);
->         u32 val =3D readl(port->base + MVPP2_GMAC_AUTONEG_CONFIG);
->
->         writel(val | MVPP2_GMAC_IN_BAND_RESTART_AN,
-> @@ -5105,13 +5107,12 @@ static void mvpp2_gmac_config(struct mvpp2_port *=
-port, unsigned int mode,
->  static void mvpp2_mac_config(struct phylink_config *config, unsigned int=
- mode,
->                              const struct phylink_link_state *state)
->  {
-> -       struct net_device *dev =3D to_net_dev(config->dev);
-> -       struct mvpp2_port *port =3D netdev_priv(dev);
-> +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(config);
->         bool change_interface =3D port->phy_interface !=3D state->interfa=
-ce;
->
->         /* Check for invalid configuration */
->         if (mvpp2_is_xlg(state->interface) && port->gop_id !=3D 0) {
-> -               netdev_err(dev, "Invalid mode on %s\n", dev->name);
-> +               netdev_err(port->dev, "Invalid mode on %s\n", port->dev->=
-name);
->                 return;
->         }
->
-> @@ -5151,8 +5152,7 @@ static void mvpp2_mac_link_up(struct phylink_config=
- *config,
->                               int speed, int duplex,
->                               bool tx_pause, bool rx_pause)
->  {
-> -       struct net_device *dev =3D to_net_dev(config->dev);
-> -       struct mvpp2_port *port =3D netdev_priv(dev);
-> +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(config);
->         u32 val;
->
->         if (mvpp2_is_xlg(interface)) {
-> @@ -5199,14 +5199,13 @@ static void mvpp2_mac_link_up(struct phylink_conf=
-ig *config,
->
->         mvpp2_egress_enable(port);
->         mvpp2_ingress_enable(port);
-> -       netif_tx_wake_all_queues(dev);
-> +       netif_tx_wake_all_queues(port->dev);
->  }
->
->  static void mvpp2_mac_link_down(struct phylink_config *config,
->                                 unsigned int mode, phy_interface_t interf=
-ace)
->  {
-> -       struct net_device *dev =3D to_net_dev(config->dev);
-> -       struct mvpp2_port *port =3D netdev_priv(dev);
-> +       struct mvpp2_port *port =3D mvpp2_phylink_to_port(config);
->         u32 val;
->
->         if (!phylink_autoneg_inband(mode)) {
-> @@ -5223,7 +5222,7 @@ static void mvpp2_mac_link_down(struct phylink_conf=
-ig *config,
->                 }
->         }
->
-> -       netif_tx_stop_all_queues(dev);
-> +       netif_tx_stop_all_queues(port->dev);
->         mvpp2_egress_disable(port);
->         mvpp2_ingress_disable(port);
->
-> --
-> 2.20.1
->
+>   	if (riov)
+>   		riov->i = riov->used = 0;
+> -	else if (wiov)
+> +	if (wiov)
+>   		wiov->i = wiov->used = 0;
+> -	else
+> -		/* You must want something! */
+> -		BUG();
+>   
+>   	for (;;) {
+>   		void *addr;
 
-This patch fixes a regression that was introduced in v5.3:
-Commit 44cc27e43fa3 ("net: phylink: Add struct phylink_config to PHYLINK AP=
-I")
-
-Above results in a NULL pointer dereference when booting the
-Armada7k8k/CN913x with ACPI between 5.3 and 5.8, which will be
-problematic especially for the distros using LTSv5.4 and above (the
-issue was reported on Fedora 32).
-
-Please help with backporting to the stable v5.3+ branches (it applies
-smoothly on v5.4/v5.6/v5.8).
-
-Best regards,
-Marcin
