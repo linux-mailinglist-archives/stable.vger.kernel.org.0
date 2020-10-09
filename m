@@ -2,153 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D65512884FB
-	for <lists+stable@lfdr.de>; Fri,  9 Oct 2020 10:14:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE9CC2884FE
+	for <lists+stable@lfdr.de>; Fri,  9 Oct 2020 10:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732455AbgJIIOb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Oct 2020 04:14:31 -0400
-Received: from mga07.intel.com ([134.134.136.100]:64707 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732337AbgJIIOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 9 Oct 2020 04:14:30 -0400
-IronPort-SDR: e+3puoUsUdb7L3TTi40fAdrDFeKcI4gZvBuXJNX74hClItggUuubWmDKln0RikKID3HGrcz+nK
- tthIkdISwazg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9768"; a="229642307"
-X-IronPort-AV: E=Sophos;i="5.77,354,1596524400"; 
-   d="scan'208";a="229642307"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2020 01:14:30 -0700
-IronPort-SDR: YcJBdM1PzjfJwai4zUBc0OtOchYNS7a1Th0pljAQHNKxFRIN4DgsA8YWWqHyMIRW5JY21xCkRK
- HJlstn4ytQ6w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,354,1596524400"; 
-   d="scan'208";a="462112210"
-Received: from yhuang-dev.sh.intel.com (HELO yhuang-dev) ([10.239.159.65])
-  by orsmga004.jf.intel.com with ESMTP; 09 Oct 2020 01:14:26 -0700
-From:   "Huang\, Ying" <ying.huang@intel.com>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        alex.shi@linux.alibaba.com, cai@lca.pw, hannes@cmpxchg.org,
-        linux-mm@kvack.org, mhocko@suse.com, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, shakeelb@google.com,
-        shy828301@gmail.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject: Re: [patch 04/15] shmem: shmem_writepage() split unlikely i915 THP
-References: <20200918211925.7e97f0ef63d92f5cfe5ccbc5@linux-foundation.org>
-        <20200919042009.bomzxmrg7%akpm@linux-foundation.org>
-        <20200919044408.GL32101@casper.infradead.org>
-        <alpine.LSU.2.11.2009182208210.13525@eggly.anvils>
-        <20200919161847.GN32101@casper.infradead.org>
-        <20201002183712.GA11185@casper.infradead.org>
-Date:   Fri, 09 Oct 2020 16:14:25 +0800
-In-Reply-To: <20201002183712.GA11185@casper.infradead.org> (Matthew Wilcox's
-        message of "Fri, 2 Oct 2020 19:37:12 +0100")
-Message-ID: <877drz95pa.fsf@yhuang-dev.intel.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.3 (gnu/linux)
+        id S1732522AbgJIIOp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Oct 2020 04:14:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51920 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732477AbgJIIOn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Oct 2020 04:14:43 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01CD6C0613D2
+        for <stable@vger.kernel.org>; Fri,  9 Oct 2020 01:14:43 -0700 (PDT)
+Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1kQnXn-0006kZ-A8; Fri, 09 Oct 2020 10:14:27 +0200
+Received: from ore by dude.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1kQnXl-00053q-Gt; Fri, 09 Oct 2020 10:14:25 +0200
+Date:   Fri, 9 Oct 2020 10:14:25 +0200
+From:   Oleksij Rempel <o.rempel@pengutronix.de>
+To:     Christian Eggers <ceggers@arri.de>
+Cc:     Oleksij Rempel <linux@rempel-privat.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        David Laight <David.Laight@ACULAB.COM>,
+        linux-kernel@vger.kernel.org,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v5 3/3] i2c: imx: Don't generate STOP condition if
+ arbitration has been lost
+Message-ID: <20201009081425.GD817@pengutronix.de>
+References: <20201007084524.10835-1-ceggers@arri.de>
+ <20201007084524.10835-4-ceggers@arri.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20201007084524.10835-4-ceggers@arri.de>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 10:13:39 up 35 days, 22:21, 227 users,  load average: 10.92, 14.39,
+ 9.84
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
+X-SA-Exim-Mail-From: ore@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Matthew,
+On Wed, Oct 07, 2020 at 10:45:24AM +0200, Christian Eggers wrote:
+> If arbitration is lost, the master automatically changes to slave mode.
+> I2SR_IBB may or may not be reset by hardware. Raising a STOP condition
+> by resetting I2CR_MSTA has no effect and will not clear I2SR_IBB.
+> 
+> So calling i2c_imx_bus_busy() is not required and would busy-wait until
+> timeout.
+> 
+> Signed-off-by: Christian Eggers <ceggers@arri.de>
+> Tested (not extensively) on Vybrid VF500 (Toradex VF50):
+> Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
+> Cc: stable@vger.kernel.org # Requires trivial backporting, simple remove
+>                            # the 3rd argument from the calls to
+>                            # i2c_imx_bus_busy().
 
-Sorry for late reply.  I just come back from a long holiday.
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Thank you!
 
-Matthew Wilcox <willy@infradead.org> writes:
 
-> On Sat, Sep 19, 2020 at 05:18:47PM +0100, Matthew Wilcox wrote:
->> On Fri, Sep 18, 2020 at 10:44:32PM -0700, Hugh Dickins wrote:
->> > It behaves a lot better with this patch in than without it; but you're
->> > right, only the head will get written to swap, and the tails left in
->> > memory; with dirty cleared, so they may be left indefinitely (I've
->> > not yet looked to see when if ever PageDirty might get set later).
->> > 
->> > Hmm. It may just be a matter of restyling the i915 code with
->> > 
->> > 		if (!page_mapped(page)) {
->> > 			clear_page_dirty_for_io(page);
->> > 
->> > but I don't want to rush to that conclusion - there might turn
->> > out to be a good way of doing it at the shmem_writepage() end, but
->> > probably only hacks available.  I'll mull it over: it deserves some
->> > thought about what would suit, if a THP arrived here some other way.
->> 
->> I think the ultimate solution is to do as I have done for iomap and make
->> ->writepage handle arbitrary sized pages.  However, I don't know the
->> swap I/O path particularly well, and I would rather not learn it just yet.
->> 
->> How about this for a band-aid until we sort that out properly?  Just mark
->> the page as dirty before splitting it so subsequent iterations see the
->> subpages as dirty.  Arguably, we should use set_page_dirty() instead of
->> SetPageDirty, but I don't think i915 cares.  In particular, it uses
->> an untagged iteration instead of searching for PAGECACHE_TAG_DIRTY.
->> 
->> diff --git a/mm/shmem.c b/mm/shmem.c
->> index 271548ca20f3..6231207ab1eb 100644
->> --- a/mm/shmem.c
->> +++ b/mm/shmem.c
->> @@ -1362,8 +1362,21 @@ static int shmem_writepage(struct page *page, struct writeback_control *wbc)
->>  	swp_entry_t swap;
->>  	pgoff_t index;
->>  
->> -	VM_BUG_ON_PAGE(PageCompound(page), page);
->>  	BUG_ON(!PageLocked(page));
->> +
->> +	/*
->> +	 * If /sys/kernel/mm/transparent_hugepage/shmem_enabled is "force",
->> +	 * then drivers/gpu/drm/i915/gem/i915_gem_shmem.c gets huge pages,
->> +	 * and its shmem_writeback() needs them to be split when swapping.
->> +	 */
->> +	if (PageTransCompound(page)) {
->> +		/* Ensure the subpages are still dirty */
->> +		SetPageDirty(page);
->> +		if (split_huge_page(page) < 0)
->> +			goto redirty;
->> +		ClearPageDirty(page);
->> +	}
->> +
->>  	mapping = page->mapping;
->>  	index = page->index;
->>  	inode = mapping->host;
->
-> It turns out that I have an entirely different reason for wanting
-> ->writepage to handle an unsplit page.  In vmscan.c:shrink_page_list(),
-> we currently try to split file-backed THPs.  This always fails for XFS
-> file-backed THPs because they have page_private set which increments
-> the refcount by 1.  And so we OOM when the page cache is full of XFS
-> THPs.  I've been running successfully for a few days with this patch:
->
-> @@ -1271,10 +1271,6 @@ static unsigned int shrink_page_list(struct list_head *page_list,
->                                 /* Adding to swap updated mapping */
->                                 mapping = page_mapping(page);
->                         }
-> -               } else if (unlikely(PageTransHuge(page))) {
-> -                       /* Split file THP */
-> -                       if (split_huge_page_to_list(page, page_list))
-> -                               goto keep_locked;
->                 }
->  
->                 /*
->
->
-> Kirill points out that this will probably make shmem unhappy (it's
-> possible that said pages will get split anyway if they're mapped
-> because we pass TTU_SPLIT_HUGE_PMD into try_to_unmap()), but if
-> they're (a) Dirty, (b) !mapped, we'll call pageout() which calls
-> ->writepage().
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 63575af41c09..5d8a79319b2b 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -615,6 +615,8 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx, bool atomic)
+>  		/* Stop I2C transaction */
+>  		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+>  		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +		if (!(temp & I2CR_MSTA))
+> +			i2c_imx->stopped = 1;
+>  		temp &= ~(I2CR_MSTA | I2CR_MTX);
+>  		if (i2c_imx->dma)
+>  			temp &= ~I2CR_DMAEN;
+> @@ -778,9 +780,12 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
+>  		 */
+>  		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
+>  		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +		if (!(temp & I2CR_MSTA))
+> +			i2c_imx->stopped = 1;
+>  		temp &= ~(I2CR_MSTA | I2CR_MTX);
+>  		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> -		i2c_imx_bus_busy(i2c_imx, 0, false);
+> +		if (!i2c_imx->stopped)
+> +			i2c_imx_bus_busy(i2c_imx, 0, false);
+>  	} else {
+>  		/*
+>  		 * For i2c master receiver repeat restart operation like:
+> @@ -905,9 +910,12 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
+>  				dev_dbg(&i2c_imx->adapter.dev,
+>  					"<%s> clear MSTA\n", __func__);
+>  				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +				if (!(temp & I2CR_MSTA))
+> +					i2c_imx->stopped =  1;
+>  				temp &= ~(I2CR_MSTA | I2CR_MTX);
+>  				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> -				i2c_imx_bus_busy(i2c_imx, 0, atomic);
+> +				if (!i2c_imx->stopped)
+> +					i2c_imx_bus_busy(i2c_imx, 0, atomic);
+>  			} else {
+>  				/*
+>  				 * For i2c master receiver repeat restart operation like:
+> -- 
+> Christian Eggers
+> Embedded software developer
+> 
+> Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
+> Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRA 57918
+> Persoenlich haftender Gesellschafter: Arnold & Richter Cine Technik GmbH
+> Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRB 54477
+> Geschaeftsfuehrer: Dr. Michael Neuhaeuser; Stephan Schenk; Walter Trauninger; Markus Zeiler
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
 
-We may distinguish the shmem THPs from the XFS file cache THPs via
-PageSwapBacked()?
-
-Best Regards,
-Huang, Ying
-
-> The patch above is probably not exactly the right solution for this
-> case, since pageout() calls writepage only once, not once for each
-> sub-page.  This is hard to write a cute patch for because the
-> pages get unlocked by split_huge_page().  I think I'm going to have
-> to learn about the swap path, unless someone can save me from that.
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
