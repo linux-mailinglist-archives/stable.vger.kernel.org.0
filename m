@@ -2,122 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0DF12883FA
-	for <lists+stable@lfdr.de>; Fri,  9 Oct 2020 09:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE61B2884E6
+	for <lists+stable@lfdr.de>; Fri,  9 Oct 2020 10:08:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732406AbgJIHxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Oct 2020 03:53:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48478 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729278AbgJIHxq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Oct 2020 03:53:46 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C2D9C0613D4
-        for <stable@vger.kernel.org>; Fri,  9 Oct 2020 00:53:46 -0700 (PDT)
-Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1kQnDc-0002nC-33; Fri, 09 Oct 2020 09:53:36 +0200
-Received: from ore by dude.hi.pengutronix.de with local (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1kQnDb-0000D2-KW; Fri, 09 Oct 2020 09:53:35 +0200
-Date:   Fri, 9 Oct 2020 09:53:35 +0200
-From:   Oleksij Rempel <o.rempel@pengutronix.de>
-To:     Christian Eggers <ceggers@arri.de>
-Cc:     Oleksij Rempel <linux@rempel-privat.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        David Laight <David.Laight@ACULAB.COM>,
-        linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v5 2/3] i2c: imx: Check for I2SR_IAL after every byte
-Message-ID: <20201009075335.GC817@pengutronix.de>
-References: <20201007084524.10835-1-ceggers@arri.de>
- <20201007084524.10835-3-ceggers@arri.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20201007084524.10835-3-ceggers@arri.de>
-X-Sent-From: Pengutronix Hildesheim
-X-URL:  http://www.pengutronix.de/
-X-IRC:  #ptxdist @freenode
-X-Accept-Language: de,en
-X-Accept-Content-Type: text/plain
-X-Uptime: 09:53:03 up 35 days, 22:00, 231 users,  load average: 0.34, 1.03,
- 4.32
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
-X-SA-Exim-Mail-From: ore@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+        id S1732458AbgJIIIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Oct 2020 04:08:25 -0400
+Received: from m42-4.mailgun.net ([69.72.42.4]:57356 "EHLO m42-4.mailgun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732479AbgJIIIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 9 Oct 2020 04:08:23 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1602230903; h=Message-Id: Date: Subject: Cc: To: From:
+ Sender; bh=75E1HKPsei40eEw+eHRkIo0miSo6IqCWxY6d9GK39LU=; b=GSVqwRnfQqjHzJGhmjRYTQxhSNcTBza5E5CIM5fCa39ZdjUvi5Eq01XKGNf0JmZ23OK3/KWI
+ 5uTAcbLiXcfPed4aXG/SO2AC5oqtpFctGbNjINItc8GnVQsVfsKWajEKXoWVcjwTH6Ce2uEq
+ NJil5TVx7uSPtudCulRIQlJfNhA=
+X-Mailgun-Sending-Ip: 69.72.42.4
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n04.prod.us-east-1.postgun.com with SMTP id
+ 5f801a6daad2c3cd1c5149e3 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 09 Oct 2020 08:08:13
+ GMT
+Sender: ipkumar=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 95EBEC43382; Fri,  9 Oct 2020 08:08:11 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+Received: from ipkumar-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: ipkumar)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 8FF1BC43382;
+        Fri,  9 Oct 2020 08:08:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 8FF1BC43382
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=ipkumar@codeaurora.org
+From:   Praveenkumar I <ipkumar@codeaurora.org>
+To:     miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        sivaprak@codeaurora.org, peter.ujfalusi@ti.com,
+        boris.brezillon@collabora.com, linux-mtd@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, kathirav@codeaurora.org,
+        Praveenkumar I <ipkumar@codeaurora.org>
+Subject: [PATCH] mtd: rawnand: qcom: Fix DMA sync on FLASH_STATUS register read
+Date:   Fri,  9 Oct 2020 13:37:52 +0530
+Message-Id: <1602230872-25616-1-git-send-email-ipkumar@codeaurora.org>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 07, 2020 at 10:45:23AM +0200, Christian Eggers wrote:
-> Arbitration Lost (IAL) can happen after every single byte transfer. If
-> arbitration is lost, the I2C hardware will autonomously switch from
-> master mode to slave. If a transfer is not aborted in this state,
-> consecutive transfers will not be executed by the hardware and will
-> timeout.
-> 
-> Signed-off-by: Christian Eggers <ceggers@arri.de>
-> Tested (not extensively) on Vybrid VF500 (Toradex VF50):
-> Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
-> Cc: stable@vger.kernel.org
+After each codeword NAND_FLASH_STATUS is read for possible operational
+failures. But there is no DMA sync for CPU operation before reading it
+and this leads to incorrect or older copy of DMA buffer in reg_read_buf.
 
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+This patch adds the DMA sync on reg_read_buf for CPU before reading it.
 
-Thank you!
+Fixes: 5bc36b2bf6e2 ("mtd: rawnand: qcom: check for operation errors in case of raw read")
+Signed-off-by: Praveenkumar I <ipkumar@codeaurora.org>
+---
+ drivers/mtd/nand/raw/qcom_nandc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> ---
->  drivers/i2c/busses/i2c-imx.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index cbdcab73a055..63575af41c09 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -490,6 +490,16 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
->  		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
->  		return -ETIMEDOUT;
->  	}
-> +
-> +	/* check for arbitration lost */
-> +	if (i2c_imx->i2csr & I2SR_IAL) {
-> +		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
-> +		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
-> +
-> +		i2c_imx->i2csr = 0;
-> +		return -EAGAIN;
-> +	}
-> +
->  	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
->  	i2c_imx->i2csr = 0;
->  	return 0;
-> -- 
-> Christian Eggers
-> Embedded software developer
-> 
-> Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
-> Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRA 57918
-> Persoenlich haftender Gesellschafter: Arnold & Richter Cine Technik GmbH
-> Sitz: Muenchen - Registergericht: Amtsgericht Muenchen - Handelsregisternummer: HRB 54477
-> Geschaeftsfuehrer: Dr. Michael Neuhaeuser; Stephan Schenk; Walter Trauninger; Markus Zeiler
-> 
-> 
-> 
-
+diff --git a/drivers/mtd/nand/raw/qcom_nandc.c b/drivers/mtd/nand/raw/qcom_nandc.c
+index bd7a7251429b..5bb85f1ba84c 100644
+--- a/drivers/mtd/nand/raw/qcom_nandc.c
++++ b/drivers/mtd/nand/raw/qcom_nandc.c
+@@ -1570,6 +1570,8 @@ static int check_flash_errors(struct qcom_nand_host *host, int cw_cnt)
+ 	struct qcom_nand_controller *nandc = get_qcom_nand_controller(chip);
+ 	int i;
+ 
++	nandc_read_buffer_sync(nandc, true);
++
+ 	for (i = 0; i < cw_cnt; i++) {
+ 		u32 flash = le32_to_cpu(nandc->reg_read_buf[i]);
+ 
 -- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
+
