@@ -2,101 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5803B288383
-	for <lists+stable@lfdr.de>; Fri,  9 Oct 2020 09:29:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 158D42883F5
+	for <lists+stable@lfdr.de>; Fri,  9 Oct 2020 09:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732028AbgJIH35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Oct 2020 03:29:57 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:33389 "EHLO
-        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732006AbgJIH35 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Oct 2020 03:29:57 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A4D831940B45;
-        Fri,  9 Oct 2020 03:29:56 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 09 Oct 2020 03:29:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=6TJ0BF
-        z5ugKwZK03r1uj0fZaQkta31GJEKmQEJuk7eg=; b=T3fz+GjbJ1zedUE9Vms4EY
-        xVYdV4BZZ0AnEoLSolIY9icgLA2cBeYvySdbk2Kz2TzjA77hhLbGvSX+Mw0unpYM
-        C3qlKcvFUDgODbLvTr84RXTOdEfpSgA6ElWiSjBqW62c5ovWVkCLTMvurtHLWISq
-        XbLn49XtjfTamTm+3p57vQ3+Y4ItUq7Vm6BjF0GY3Wx6pJpD76IzWykg/BX8UusJ
-        Emw0v71L3FYHvqDwD3EIVldBudXwQcTkkb8VqXBcszgOIAqKmL+5IeRGIrn3o0Eh
-        Ngfy7+ReCYLVBTQqXOknu7VlU4Co+9KTAn1pfiamwhIXszh5EaVXyM/0xWCFD7oA
-        ==
-X-ME-Sender: <xms:dBGAX6WyY9z6qPJIbCSykBbeEd-ucL7t1cIiKrGmnq2xj8QTBSk0Bg>
-    <xme:dBGAX2lqBXcR5DdNLWW_HqbMtyUfUEMS8Wc1Z47hFLJbcZLt4bHy9UgIm8D57fZEH
-    zv2jbuBKoshtA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrhedtgdduudelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:dBGAX-b8FKnR6R3nUv6jA7I68syFuXKcLO66VZ5YZPm1ApFuYHMSDg>
-    <xmx:dBGAXxW-EbbBgoqMjwdlmphtQBd5Z8ZtlilsWrUaAfGLxtbkxfiUnQ>
-    <xmx:dBGAX0mR9CPwXA84zX1OvO0FAVef0kDfqhupiIvU8rmbuSousb5Hbw>
-    <xmx:dBGAX7uQUmRc2gSPs9UFkekMHY2vrhW-8OSUCvlmApBnAeow7IA_Sg>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 42586328005A;
-        Fri,  9 Oct 2020 03:29:56 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] vhost: Use vhost_get_used_size() in vhost_vring_set_addr()" failed to apply to 4.19-stable tree
-To:     groug@kaod.org, mst@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 09 Oct 2020 09:30:35 +0200
-Message-ID: <160222863513621@kroah.com>
+        id S1732386AbgJIHwq convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 9 Oct 2020 03:52:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48312 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732325AbgJIHwn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Oct 2020 03:52:43 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E669DC0613D2
+        for <stable@vger.kernel.org>; Fri,  9 Oct 2020 00:52:42 -0700 (PDT)
+Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1kQnCY-0002Xm-HD; Fri, 09 Oct 2020 09:52:30 +0200
+Received: from ore by dude.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1kQnCW-0000CR-LS; Fri, 09 Oct 2020 09:52:28 +0200
+Date:   Fri, 9 Oct 2020 09:52:28 +0200
+From:   Oleksij Rempel <o.rempel@pengutronix.de>
+To:     Christian Eggers <ceggers@arri.de>
+Cc:     Oleksij Rempel <linux@rempel-privat.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        David Laight <David.Laight@ACULAB.COM>,
+        linux-kernel@vger.kernel.org,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v5 1/3] i2c: imx: Fix reset of I2SR_IAL flag
+Message-ID: <20201009075228.GB817@pengutronix.de>
+References: <20201007084524.10835-1-ceggers@arri.de>
+ <20201007084524.10835-2-ceggers@arri.de>
+ <20201009071132.GA817@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20201009071132.GA817@pengutronix.de>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 09:48:09 up 35 days, 21:55, 230 users,  load average: 2.27, 1.77,
+ 5.72
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
+X-SA-Exim-Mail-From: ore@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Oct 09, 2020 at 09:11:32AM +0200, Oleksij Rempel wrote:
+> Hi Christian,
+> 
+> On Wed, Oct 07, 2020 at 10:45:22AM +0200, Christian Eggers wrote:
+> > According to the "VFxxx Controller Reference Manual" (and the comment
+> > block starting at line 97), Vybrid requires writing a one for clearing
+> > an interrupt flag. Syncing the method for clearing I2SR_IIF in
+> > i2c_imx_isr().
+> > 
+> > Signed-off-by: Christian Eggers <ceggers@arri.de>
+> > Fixes: 4b775022f6fd ("i2c: imx: add struct to hold more configurable quirks")
+> > Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  drivers/i2c/busses/i2c-imx.c | 20 +++++++++++++++-----
+> >  1 file changed, 15 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> > index 0ab5381aa012..cbdcab73a055 100644
+> > --- a/drivers/i2c/busses/i2c-imx.c
+> > +++ b/drivers/i2c/busses/i2c-imx.c
+> > @@ -412,6 +412,19 @@ static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
+> >  	dma->chan_using = NULL;
+> >  }
+> >  
+> > +static void i2c_imx_clear_irq(struct imx_i2c_struct *i2c_imx, unsigned int bits)
+> > +{
+> > +	unsigned int temp;
+> > +
+> > +	/*
+> > +	 * i2sr_clr_opcode is the value to clear all interrupts. Here we want to
+> > +	 * clear only <bits>, so we write ~i2sr_clr_opcode with just <bits>
+> > +	 * toggled. This is required because i.MX needs W1C and Vybrid uses W0C.
+> > +	 */
+> 
+> This comment need correction. The i.MX needs W0C and Vybrid uses W1C 
+> 
+> > +	temp = ~i2c_imx->hwdata->i2sr_clr_opcode ^ bits;
+> > +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+> > +}
+> > +
+> >  static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+> >  {
+> >  	unsigned long orig_jiffies = jiffies;
+> > @@ -424,8 +437,7 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool a
+> >  
+> >  		/* check for arbitration lost */
+> >  		if (temp & I2SR_IAL) {
+> > -			temp &= ~I2SR_IAL;
+> > -			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+> > +			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+> >  			return -EAGAIN;
+> >  		}
+> >  
+> > @@ -623,9 +635,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+> >  	if (temp & I2SR_IIF) {
+> >  		/* save status register */
+> >  		i2c_imx->i2csr = temp;
+> > -		temp &= ~I2SR_IIF;
+> > -		temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+> > -		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+> > +		i2c_imx_clear_irq(i2c_imx, I2SR_IIF);
+> >  		wake_up(&i2c_imx->queue);
+> >  		return IRQ_HANDLED;
+> >  	}
+> > -- 
+> 
+> Otherwise
+> 
+> Acked-by: Oleksij Rempel <o.rempel@pengutronix.de> 
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+By reviewing the second patch we found at least one more missing Vybrid
+related case in the i2c_imx_trx_complete() function:
+	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
 
-thanks,
+	this is OK for iMX by broken on Vybrid.
 
-greg k-h
+Since you already fixing it in this patch for some of IMX_I2C_I2SR
+writes, please do it here as well. This is the last unhandled case...:)
 
------------------- original commit in Linus's tree ------------------
-
-From 71878fa46c7e3b40fa7b3f1b6e4ba3f92f1ac359 Mon Sep 17 00:00:00 2001
-From: Greg Kurz <groug@kaod.org>
-Date: Sat, 3 Oct 2020 12:02:03 +0200
-Subject: [PATCH] vhost: Use vhost_get_used_size() in vhost_vring_set_addr()
-
-The open-coded computation of the used size doesn't take the event
-into account when the VIRTIO_RING_F_EVENT_IDX feature is present.
-Fix that by using vhost_get_used_size().
-
-Fixes: 8ea8cf89e19a ("vhost: support event index")
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kurz <groug@kaod.org>
-Link: https://lore.kernel.org/r/160171932300.284610.11846106312938909461.stgit@bahia.lan
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index c3b49975dc28..9d2c225fb518 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1519,8 +1519,7 @@ static long vhost_vring_set_addr(struct vhost_dev *d,
- 		/* Also validate log access for used ring if enabled. */
- 		if ((a.flags & (0x1 << VHOST_VRING_F_LOG)) &&
- 			!log_access_ok(vq->log_base, a.log_guest_addr,
--				sizeof *vq->used +
--				vq->num * sizeof *vq->used->ring))
-+				       vhost_get_used_size(vq, vq->num)))
- 			return -EINVAL;
- 	}
- 
-
+Regards,
+Oleksij
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
