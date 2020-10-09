@@ -2,124 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A6D289C37
-	for <lists+stable@lfdr.de>; Sat, 10 Oct 2020 01:48:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 150DB289C84
+	for <lists+stable@lfdr.de>; Sat, 10 Oct 2020 01:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728304AbgJIXrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Oct 2020 19:47:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54406 "EHLO
+        id S1728586AbgJIX6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Oct 2020 19:58:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727316AbgJIXme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Oct 2020 19:42:34 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393C6C0613D6
-        for <stable@vger.kernel.org>; Fri,  9 Oct 2020 16:42:05 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id b19so5230482pld.0
-        for <stable@vger.kernel.org>; Fri, 09 Oct 2020 16:42:05 -0700 (PDT)
+        with ESMTP id S1728484AbgJIX4G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Oct 2020 19:56:06 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE71FC0613D5
+        for <stable@vger.kernel.org>; Fri,  9 Oct 2020 16:56:05 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id e22so15504996ejr.4
+        for <stable@vger.kernel.org>; Fri, 09 Oct 2020 16:56:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Uf8zBz9EI2tmOtZiBX4rgeEAQwj1frD0ezpmfYkOc9c=;
-        b=fZfcql+60YWLdzmdJhvVd24shQtkhlb5kTpqYPFBTBHADJ/3uauC2fuk9MxtgD5SJb
-         5hq4aTPpkPCO88+5VX5GtIXj1AjKI6lNVFmMwNlvbluDBaMIoGLEob0xflheC+GUb/vh
-         7yv9bYvM5Xj3MJPRkRkh71aY3XfZpbOU/9XKDTAxWj8sPnfll77PZg3Li1WeGHGgguYr
-         oO61TB472gcaNSZjCxStdvVLba8DdyqM2Vrk8TwHC7JjkK23S9FwmXLenNr2mmvONUSO
-         g3DS+i3tBp4t8KLdxyoJMplyRjykZQ3NIDMJaNvzZWlmDLQ6wGBXe6e0ruE4FrJoNQ0j
-         f9yg==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=IPdxDQlENWSfpPb8m9w3VUBFTBbLxzL+QHT5Q7alVxQ=;
+        b=fQdIh4djnuSGMfj9MCXUJcK54rVHbGql/S9bIo7zmGk9Re0VAHTGytb0ofHe8mw6Ax
+         xRgaVCL7B7U4Zt6fw9jgw660MQP2zNBp+7O9/qYsD6usesAohUkrI/kueIKcNUKfH9vz
+         Ka1y4WgPbRZjyp5O86H9w09HZZXp53fDg6UOzktbTln2uzRsx0T9lDud9lxkiiOtG7Nw
+         Qe9F8VwfMB4e/E+eE5/z+Wsy9to7HVVe796FQqczGtKybt4WYf8Wirpi7YmfmWumsy/0
+         xeYi7voQwgnBTRbSVBfcmvd4/JIAVha3hk3waHsIl/aDmXZ1om3ycqWnnvQc4Y7ov8ks
+         NYlw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Uf8zBz9EI2tmOtZiBX4rgeEAQwj1frD0ezpmfYkOc9c=;
-        b=D66dksbN5emrKYa2kZVyPwUW0rqfNeoomjx6MwKHI8sWsYQGzG/NKY8fQdxgj2wGxy
-         iauAOOS//dRk8nRbUCKUeOYy3QOyYJGqAkcp8Q7qX4RSK2R3KHAvotbw/MipQ+i2NV1B
-         HZHwkQ1alYuG15GgxsSMYX/TEQ04h8YzMi6Rujhm4hE3oFDjrb5530v+QCOswXtJkE/t
-         9FMoihnBcNvQjYWo6k+4F5MeTz+9HgqOz3kR0CqIC1dvgG4/atbBrAGpZOkytWPebK7w
-         SwZYjnu07qTkAnW5rknUSaFIvtyLmpSkspo0x+zRoWOAG0IsQiDCoD9gmQp174algJEn
-         mIUg==
-X-Gm-Message-State: AOAM533jjdBE0Y9ZT0eK7An1QnOHVDy1S+b6dKGxNkdoj+RuhPRT6ZSl
-        5+/kfAjMfpe5lI0frYKYQOJX/YqaPWX8Pw==
-X-Google-Smtp-Source: ABdhPJyULnIyVBvfQBuF6qIJoynd0w937NTOkcv/czl7udSO5/Ni4ZEDYLLhLtMD5ynQK8a9mTzQWA==
-X-Received: by 2002:a17:902:b402:b029:d2:686a:4f43 with SMTP id x2-20020a170902b402b02900d2686a4f43mr14109630plr.34.1602286924357;
-        Fri, 09 Oct 2020 16:42:04 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u7sm11931853pfn.37.2020.10.09.16.42.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Oct 2020 16:42:03 -0700 (PDT)
-Message-ID: <5f80f54b.1c69fb81.9318e.6e46@mx.google.com>
-Date:   Fri, 09 Oct 2020 16:42:03 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IPdxDQlENWSfpPb8m9w3VUBFTBbLxzL+QHT5Q7alVxQ=;
+        b=dUlgzGg8xPDZ8SdaUNB5p7Rs40ZzlZsVrpTTT9GabWNO+3s5NPkuUmEzExRXcl6PxU
+         +VX4cki45vhHL4nEOdjCf2jn1NF8trNmpKBqft6Zr8GiD83CdWoyNFlDVf4yG9rZlqqY
+         BCIQKqVvVfF6W4TsIyG/8VXbvx2+bVzZvwi2HkZlJYVZ3W6dAKy7MTVbyypsQJ1JHQNa
+         ptAIXFddH62ipygUcTEUX0ymn35DCt8wXe0Z+mhPFIe9ktbu00j3NuQ926BQeZNrf0Lm
+         Kw24VnCAv9oqENcZW1EzTBgM0iM3Db00C6DxCem2sy/ehqClbxZWxJEWdRD6o8XEXDr0
+         WVBQ==
+X-Gm-Message-State: AOAM532eQbMCfuMfhnw4vyY0i/28f5OVxWuj+B6jqLmQmHeUuP6MX2c9
+        gDT4+K/j+0dSkV1LYKeJFUWvRFE+ObBDgYtMymd2uA==
+X-Google-Smtp-Source: ABdhPJwqk+RVMoDkKaaEGsG8HZa5eoeMNPMDOI2JXZqb17BCRC3S4AOUoW9xsq+Qq2lMMjnQhm2GKqi+W4Z2+M/alLE=
+X-Received: by 2002:a17:906:c007:: with SMTP id e7mr16875732ejz.55.1602287764312;
+ Fri, 09 Oct 2020 16:56:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.238-34-g9bc7672e9390
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.9 baseline: 51 runs,
- 1 regressions (v4.9.238-34-g9bc7672e9390)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20201009232455.4054810-1-tkjos@google.com>
+In-Reply-To: <20201009232455.4054810-1-tkjos@google.com>
+From:   Todd Kjos <tkjos@google.com>
+Date:   Fri, 9 Oct 2020 16:55:52 -0700
+Message-ID: <CAHRSSEwtW7xKAA=qAmZpHvkdaVvz=cAPwF+8NUUE51+p4tgNBg@mail.gmail.com>
+Subject: Re: [PATCH] binder: fix UAF when releasing todo list
+To:     Todd Kjos <tkjos@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Christian Brauner <christian@brauner.io>,
+        =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
+        "open list:ANDROID DRIVERS" <devel@driverdev.osuosl.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Martijn Coenen <maco@google.com>
+Cc:     "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Android Kernel Team <kernel-team@android.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 51 runs, 1 regressions (v4.9.238-34-g9bc7672e=
-9390)
+On Fri, Oct 9, 2020 at 4:24 PM Todd Kjos <tkjos@google.com> wrote:
+>
+> When releasing a thread todo list when tearing down
+> a binder_proc, the following race was possible which
+> could result in a use-after-free:
+>
+> 1.  Thread 1: enter binder_release_work from binder_thread_release
+> 2.  Thread 2: binder_update_ref_for_handle() -> binder_dec_node_ilocked()
+> 3.  Thread 2: dec nodeA --> 0 (will free node)
+> 4.  Thread 1: ACQ inner_proc_lock
+> 5.  Thread 2: block on inner_proc_lock
+> 6.  Thread 1: dequeue work (BINDER_WORK_NODE, part of nodeA)
+> 7.  Thread 1: REL inner_proc_lock
+> 8.  Thread 2: ACQ inner_proc_lock
+> 9.  Thread 2: todo list cleanup, but work was already dequeued
+> 10. Thread 2: free node
+> 11. Thread 2: REL inner_proc_lock
+> 12. Thread 1: deref w->type (UAF)
+>
+> The problem was that for a BINDER_WORK_NODE, the binder_work element
+> must not be accessed after releasing the inner_proc_lock while
+> processing the todo list elements since another thread might be
+> handling a deref on the node containing the binder_work element
+> leading to the node being freed.
+>
+> Signed-off-by: Todd Kjos <tkjos@google.com>
 
-Regressions Summary
--------------------
+Cc: <stable@vger.kernel.org> # 4.14, 4.19, 5.4, 5.8
 
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.238-34-g9bc7672e9390/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.238-34-g9bc7672e9390
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9bc7672e9390f3b47fc22d20c96373057537a607 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f80b6dfc987df5a004ff3fc
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.238-3=
-4-g9bc7672e9390/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.238-3=
-4-g9bc7672e9390/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f80b6dfc987df5=
-a004ff403
-      failing since 0 day (last pass: v4.9.238-26-g1959353b3c5c, first fail=
-: v4.9.238-31-gff7df5c6ca79)
-      2 lines
-
-    2020-10-09 19:15:39.362000  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-234 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-      =20
+> ---
+>  drivers/android/binder.c | 35 ++++++++++-------------------------
+>  1 file changed, 10 insertions(+), 25 deletions(-)
+>
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index f936530a19b0..e8a1db4a86ed 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -223,7 +223,7 @@ static struct binder_transaction_log_entry *binder_transaction_log_add(
+>  struct binder_work {
+>         struct list_head entry;
+>
+> -       enum {
+> +       enum binder_work_type {
+>                 BINDER_WORK_TRANSACTION = 1,
+>                 BINDER_WORK_TRANSACTION_COMPLETE,
+>                 BINDER_WORK_RETURN_ERROR,
+> @@ -885,27 +885,6 @@ static struct binder_work *binder_dequeue_work_head_ilocked(
+>         return w;
+>  }
+>
+> -/**
+> - * binder_dequeue_work_head() - Dequeues the item at head of list
+> - * @proc:         binder_proc associated with list
+> - * @list:         list to dequeue head
+> - *
+> - * Removes the head of the list if there are items on the list
+> - *
+> - * Return: pointer dequeued binder_work, NULL if list was empty
+> - */
+> -static struct binder_work *binder_dequeue_work_head(
+> -                                       struct binder_proc *proc,
+> -                                       struct list_head *list)
+> -{
+> -       struct binder_work *w;
+> -
+> -       binder_inner_proc_lock(proc);
+> -       w = binder_dequeue_work_head_ilocked(list);
+> -       binder_inner_proc_unlock(proc);
+> -       return w;
+> -}
+> -
+>  static void
+>  binder_defer_work(struct binder_proc *proc, enum binder_deferred_state defer);
+>  static void binder_free_thread(struct binder_thread *thread);
+> @@ -4587,13 +4566,17 @@ static void binder_release_work(struct binder_proc *proc,
+>                                 struct list_head *list)
+>  {
+>         struct binder_work *w;
+> +       enum binder_work_type wtype;
+>
+>         while (1) {
+> -               w = binder_dequeue_work_head(proc, list);
+> +               binder_inner_proc_lock(proc);
+> +               w = binder_dequeue_work_head_ilocked(list);
+> +               wtype = w ? w->type : 0;
+> +               binder_inner_proc_unlock(proc);
+>                 if (!w)
+>                         return;
+>
+> -               switch (w->type) {
+> +               switch (wtype) {
+>                 case BINDER_WORK_TRANSACTION: {
+>                         struct binder_transaction *t;
+>
+> @@ -4627,9 +4610,11 @@ static void binder_release_work(struct binder_proc *proc,
+>                         kfree(death);
+>                         binder_stats_deleted(BINDER_STAT_DEATH);
+>                 } break;
+> +               case BINDER_WORK_NODE:
+> +                       break;
+>                 default:
+>                         pr_err("unexpected work type, %d, not freed\n",
+> -                              w->type);
+> +                              wtype);
+>                         break;
+>                 }
+>         }
+> --
+> 2.28.0.1011.ga647a8990f-goog
+>
