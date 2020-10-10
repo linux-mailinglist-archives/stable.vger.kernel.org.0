@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED9728A387
-	for <lists+stable@lfdr.de>; Sun, 11 Oct 2020 01:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58FB828A252
+	for <lists+stable@lfdr.de>; Sun, 11 Oct 2020 00:56:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730730AbgJJW45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 10 Oct 2020 18:56:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57030 "EHLO mail.kernel.org"
+        id S2390334AbgJJW44 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 10 Oct 2020 18:56:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732658AbgJJTys (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 10 Oct 2020 15:54:48 -0400
+        id S1731608AbgJJTyP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 10 Oct 2020 15:54:15 -0400
 Received: from localhost (p5486c996.dip0.t-ipconnect.de [84.134.201.150])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4E2F215A4;
-        Sat, 10 Oct 2020 11:09:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD28A21D46;
+        Sat, 10 Oct 2020 11:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602328163;
-        bh=guPsHCw4PMTVOWJTZw4CsPJSCk9MAFXYM2VZvw2WA4k=;
+        s=default; t=1602328170;
+        bh=t7al5w5BieFitDjitckP3mPrbG7YcyWWXG1nP1aMJ40=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=i7phJFa3z6bYqbhOf7Xa2rFx5F++Iu6q9just5v7UZvPg7FGxS5F54wuZDo1mf6Lf
-         RIeW3V0yHIf/Lfm91VCCBlSglcBUp2Th3orwmRh/X7e8wRAj0pmlZUrYJIk+Xy/RQ7
-         BoBo6L9ZFSiZQ7TD6Rqlc/3KSv94746GghhlYKLk=
-Date:   Sat, 10 Oct 2020 13:09:20 +0200
+        b=Heocty798Mk4lRLO1z6/g9IhhRKNrGZUZkjDVmkmwV/Gn2bKF9P85KfaMaFLi1QSy
+         fsWqU0m+y7F8G+dic/PmXFwe3M9OLH7dluuKRNfRgbE5BaItQw+GvkzdlV+X3FzJnb
+         DYqWiZZ7H0dUDhvy4QIp7OgD6LsqwOTA5u0JYA0E=
+Date:   Sat, 10 Oct 2020 13:09:27 +0200
 From:   Wolfram Sang <wsa@kernel.org>
 To:     Christian Eggers <ceggers@arri.de>
 Cc:     Oleksij Rempel <linux@rempel-privat.de>,
@@ -39,59 +39,59 @@ Cc:     Oleksij Rempel <linux@rempel-privat.de>,
         linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-kernel@vger.kernel.org,
         Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v6 1/3] i2c: imx: Fix reset of I2SR_IAL flag
-Message-ID: <20201010110920.GB4669@ninjato>
+Subject: Re: [PATCH v6 2/3] i2c: imx: Check for I2SR_IAL after every byte
+Message-ID: <20201010110927.GC4669@ninjato>
 References: <20201009110320.20832-1-ceggers@arri.de>
- <20201009110320.20832-2-ceggers@arri.de>
+ <20201009110320.20832-3-ceggers@arri.de>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
+        protocol="application/pgp-signature"; boundary="qjNfmADvan18RZcF"
 Content-Disposition: inline
-In-Reply-To: <20201009110320.20832-2-ceggers@arri.de>
+In-Reply-To: <20201009110320.20832-3-ceggers@arri.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---yEPQxsgoJgBvi8ip
-Content-Type: text/plain; charset=utf-8
+--qjNfmADvan18RZcF
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 09, 2020 at 01:03:18PM +0200, Christian Eggers wrote:
-> According to the "VFxxx Controller Reference Manual" (and the comment
-> block starting at line 97), Vybrid requires writing a one for clearing
-> an interrupt flag. Syncing the method for clearing I2SR_IIF in
-> i2c_imx_isr().
+On Fri, Oct 09, 2020 at 01:03:19PM +0200, Christian Eggers wrote:
+> Arbitration Lost (IAL) can happen after every single byte transfer. If
+> arbitration is lost, the I2C hardware will autonomously switch from
+> master mode to slave. If a transfer is not aborted in this state,
+> consecutive transfers will not be executed by the hardware and will
+> timeout.
 >=20
 > Signed-off-by: Christian Eggers <ceggers@arri.de>
-> Fixes: 4b775022f6fd ("i2c: imx: add struct to hold more configurable quir=
-ks")
-> Reviewed-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+> Tested (not extensively) on Vybrid VF500 (Toradex VF50):
+> Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
 > Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
 > Cc: stable@vger.kernel.org
 
 Applied to for-next, thanks!
 
 
---yEPQxsgoJgBvi8ip
+--qjNfmADvan18RZcF
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl+BlmAACgkQFA3kzBSg
-KbbC/g/+J3lmdYmZN+MyWSAAetqyLefppTqeUIVJCkpDWPxL9EX+w95GwIRhRXeT
-ssG6heAi9Jfd6JZh3I6JL8b64KtpDFfHGbtbAVlHNerlxPTN8G3uJPJ3fCN/pLWl
-toaYPfNaaILFJADg5qIuyeRPWBQEzvDEAmto/ZxrqIKw4bmxgGahxcNSHqufPSm6
-HOtjvkexaNaGU3b6bCn9+PfaFJPmlzQt0q8wDJtLFG0Mt5WTA2Hij//7jSYEf4Pr
-m2tK61bE3NhkhP27oF9lrELFiU0Jcwf8hge8t1dKOkOvRwioC1i83aJtj7Qk9coA
-M6t9ug1TnDuDm84iGDwXL0wpIgFmiJ8hrlaBVawlI127D8drgCIpSmApVoSzPhD7
-h/XDPQU0fCXDc7IU2P92k+JQIK/V9t6pSyJzJEwCBErsgeTSX/F/zkV6SJSwhabf
-p868NtBjIkoFLOQJ1x6LzF3Qkp7mWN9mRNav99fyLERJ+8g2DmLYbs42hM1PsxUc
-wYmksyqt53UegAQNy1/WgPtnTQQGvmtr8qaA9OEL51O9Nekkco3pbJfKMyKlM+az
-T8YvUbprSVXRctP2lYhDEIDMGgLnScByUXqjTTs3wG0TDeD6d5gGUeHGJZ7X0z2t
-o95VgwchByOAS00njE6YX7FX3JUM5CDl492pegyTSqoukR7xQk0=
-=Dbak
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl+BlmcACgkQFA3kzBSg
+KbafYQ/+M+tg4UJCR0bClfylxiM2x+NgKiJFR1xhe3/Eba3W7Je0rdC1gvGT+hQz
+SkcdXhP7p2D5UjbD3CPL72PjDDr1pLBH3b7nNhnl/QNxMERLBD6j7nGDRrA/3b+J
+DRkz3dYBxSs99gvQtqFu/sqAk1en98WiKOAHcGXXnC1xQ19Q6TUd5oEGQYSC0MQQ
+WSxnchFXcCo/s4MusxS0NowQAmcSSPgQf4oxt9SDIyH+CIYMFLblgFysSaGCJYMt
+LlR/6NIE125XLOL61oNj1qNdn5kuu7sxoL9yukeh/2Yc+KqzBYjbM+wWepMrdAta
+GM20nit0RWOrU0bqApYvfa4/7Wam+3TmhRGSS7vM5Hm1boxHpLmFnkcarFSsrken
+aAZ/tIkliEuaMHjv+RAfFuQg2Q4vsAWz3XTfDJBPJhzlDhiC74/54yYg4whLDX7g
+I1La5oe7l8p/3zIB6MtzQUmbbreyQ4d+wroQKOeL4qETZfDjm7i9XtXWgeQkb79p
+9MQt8I7iGzK3/R0Bvn7gqdQ7oNlitjl1vuQnoFgLDRrcUGVuoAIK0E0kYoFaI7el
+hGxYDBeo+NpdVg2dQAltEcXD4HDsr4hk5DgDoNxw+VmUS6pUrDDQZEhmJpMuyhjX
+fWwnTVSBJUFT3q5g34e9u3mW5uYgNESHPBbeMVUdzX9xr7UD+UI=
+=I8DM
 -----END PGP SIGNATURE-----
 
---yEPQxsgoJgBvi8ip--
+--qjNfmADvan18RZcF--
