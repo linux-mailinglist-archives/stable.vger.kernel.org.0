@@ -2,90 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5FC3289CA3
-	for <lists+stable@lfdr.de>; Sat, 10 Oct 2020 02:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3C96289CD3
+	for <lists+stable@lfdr.de>; Sat, 10 Oct 2020 02:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728542AbgJJAQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 9 Oct 2020 20:16:36 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:4417 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728611AbgJJABA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 9 Oct 2020 20:01:00 -0400
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
-        id <B5f80f9760000>; Fri, 09 Oct 2020 16:59:50 -0700
-Received: from rcampbell-dev.nvidia.com (172.20.13.39) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sat, 10 Oct
- 2020 00:00:42 +0000
-Subject: Re: [PATCH] mm/memcg: fix device private memcg accounting
-To:     Andrew Morton <akpm@linux-foundation.org>
-CC:     <linux-mm@kvack.org>, <cgroups@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        "Michal Hocko" <mhocko@kernel.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Ira Weiny <ira.weiny@intel.com>, <stable@vger.kernel.org>
-References: <20201009215952.2726-1-rcampbell@nvidia.com>
- <20201009155055.f87de51ea04d4ea879e3981a@linux-foundation.org>
-From:   Ralph Campbell <rcampbell@nvidia.com>
-X-Nvconfidentiality: public
-Message-ID: <d1aab0b0-4327-38da-6587-98f1740228fd@nvidia.com>
-Date:   Fri, 9 Oct 2020 17:00:37 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1729082AbgJJAzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 9 Oct 2020 20:55:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34804 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729090AbgJJAi0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 9 Oct 2020 20:38:26 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA757C0613CF
+        for <stable@vger.kernel.org>; Fri,  9 Oct 2020 17:38:24 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id i2so8592610pgh.7
+        for <stable@vger.kernel.org>; Fri, 09 Oct 2020 17:38:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=wUzVuyngBr19t12IK9+p+VNZfvzkDz8BdoInn0onBeA=;
+        b=qJvKVroyt/tzAbM4j5/pMpYkWR9k7X94YVRPp7ZwebZDmpRqwMG34u3OWO54taRcKx
+         VCVh+jPQoDv1LOBmcrGIkE9eKDozA9h9iuAWpiMvsGvF5kq+Br9xfROpIBKBxBSKNGvl
+         cWP57gBDYhvebGx9CuA9TTDQCtOC4kqXcxg3tww2O2xaemg2rJOp0GslmWIVy5Kcru7c
+         ZYU9XCVOOc26wFbaxz4cFpprw698Hdlbo6kZ4u7dVKaNY6dMRYi00UP+PM0gPlgCdEy+
+         trUFloMtMzD73eaErKMVMg8rtnvDhZpixqf1k56FKzbggqi8bKEmxpwH4x9NmQF1CJ7P
+         AB5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=wUzVuyngBr19t12IK9+p+VNZfvzkDz8BdoInn0onBeA=;
+        b=JwAPXczlpZeCssfDIcejsugAtJyYsASIJk7dyUR0GDiNEwQ1N389L68SwiW0nZZt6O
+         VuxVmCBWosftuaJRiJnpyEqpkse/G7Ktwwg2YgAiUGewHOThRMQ5jDGRcQ8zR3kNBYl5
+         2fZtxHk01gu2CW5H6gZ3sOuq31VIE6JHbp9TGd8cvYkN+/uRVyRxO1Chrlz2KGrJvT9i
+         o5asm4ARx6q/CRrvSEUCGwjg0Y/Sn/RrldgOasQCxPaUHbJ6UzxvF1LyRc8/ClbCYFfx
+         budzXxJzORh8aS8xPbKgTWSq4BGvBXLtyJnNJIMK+5FX4f1aj0rEwYe85C5KS8L3W9wc
+         PjaQ==
+X-Gm-Message-State: AOAM532ns1Uqk3mQVVvAcSzwcPVs7K/n+mnmuKf4NU0WkIZoA/P8DThq
+        VHg68QcNPd/GIabGLP8D7tihHZ/B9rJa1A==
+X-Google-Smtp-Source: ABdhPJzRHyiqlfDXzAGxu9w8dosMZGpSnYf4CsdW/Bt+qSjbxleFt8BQ+vbAb/IsnFRlnwHLSmKtCQ==
+X-Received: by 2002:a63:4945:: with SMTP id y5mr5305155pgk.181.1602290303992;
+        Fri, 09 Oct 2020 17:38:23 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m12sm12233241pjs.34.2020.10.09.17.38.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 09 Oct 2020 17:38:23 -0700 (PDT)
+Message-ID: <5f81027f.1c69fb81.ce765.6bbb@mx.google.com>
+Date:   Fri, 09 Oct 2020 17:38:23 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20201009155055.f87de51ea04d4ea879e3981a@linux-foundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1602287990; bh=Us6utgoPebZq88AOhUuXmDuRmb+E4XSLkLaXZoYTNTE=;
-        h=Subject:To:CC:References:From:X-Nvconfidentiality:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:Content-Type:Content-Language:
-         Content-Transfer-Encoding:X-Originating-IP:X-ClientProxiedBy;
-        b=iROueIQaQrO/x4pGQ5v6OqqoOKyMi9Es4tkR4HMVEI8xMT6oLWIWP6iq1upLtberH
-         +6V4+BWrvHQyJK4yHkyI38Siwr1tQ9/smCkCqt5I2UKBXN4YDAF+qPxgMGkqOll4YM
-         nhbaUlawwEgU59fLkN0y2u6KbDSicb5L5uOgIfvdZiIQBffNQzex1c5VkVSRaz4Rdy
-         5eXSRS2/vAiMTd2L9aFXo3yM+4RCKevyPDwWuiNCrxl/pHo4+VAav6wyPgMQXMA1o6
-         wTC2BxUgt6rkx4TpHUfXS15vpEkdJFr1JVNPAHHo8h/r6ZBaT6SjCJWgDGNv2wUq5R
-         9LLlkYSx66hqQ==
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.70-31-gf8a7c17f9bb0
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.4 baseline: 130 runs,
+ 3 regressions (v5.4.70-31-gf8a7c17f9bb0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.4 baseline: 130 runs, 3 regressions (v5.4.70-31-gf8a7c17f=
+9bb0)
 
-On 10/9/20 3:50 PM, Andrew Morton wrote:
-> On Fri, 9 Oct 2020 14:59:52 -0700 Ralph Campbell <rcampbell@nvidia.com> wrote:
-> 
->> The code in mc_handle_swap_pte() checks for non_swap_entry() and returns
->> NULL before checking is_device_private_entry() so device private pages
->> are never handled.
->> Fix this by checking for non_swap_entry() after handling device private
->> swap PTEs.
->>
->> Cc: stable@vger.kernel.org
-> 
-> I was going to ask "what are the end-user visible effects of the bug".
-> This is important information with a cc:stable.
-> 
->>
->> I'm not sure exactly how to test this. I ran the HMM self tests but
->> that is a minimal sanity check. I think moving the self test from one
->> memory cgroup to another while it is running would exercise this patch.
->> I'm looking at how the test could move itself to another group after
->> migrating some anonymous memory to the test driver.
->>
-> 
-> But this makes me suspect the answer is "there aren't any that we know
-> of".  Are you sure a cc:stable is warranted?
-> 
+Regressions Summary
+-------------------
 
-I assume the memory cgroup accounting would be off somehow when moving
-a process to another memory cgroup.
-Currently, the device private page is charged like a normal anonymous page
-when allocated and is uncharged when the page is freed so I think that path is OK.
-Maybe someone who knows more about memory cgroup accounting can comment?
+platform         | arch  | lab           | compiler | defconfig | results
+-----------------+-------+---------------+----------+-----------+--------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.70-31-gf8a7c17f9bb0/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.70-31-gf8a7c17f9bb0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f8a7c17f9bb00b29d40b41711a96ee0d05b70fda =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig | results
+-----------------+-------+---------------+----------+-----------+--------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f80a0793b4da5daa54ff3ea
+
+  Results:     85 PASS, 5 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.70-31=
+-gf8a7c17f9bb0/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevi=
+n.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.70-31=
+-gf8a7c17f9bb0/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevi=
+n.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.bootrr.cros-ec-sensors-accel0-probed: https://kernelci.org/tes=
+t/case/id/5f80a0793b4da5daa54ff3fe
+      failing since 10 days (last pass: v5.4.68-384-g856fa448539c, first fa=
+il: v5.4.68-388-gcf92ab7a7853)
+
+    2020-10-09 17:40:00.724000  <8>[   20.637700] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dcros-ec-sensors-accel0-probed RESULT=3Dfail>
+     * baseline.bootrr.cros-ec-sensors-accel1-probed: https://kernelci.org/=
+test/case/id/5f80a0793b4da5daa54ff3ff
+      failing since 10 days (last pass: v5.4.68-384-g856fa448539c, first fa=
+il: v5.4.68-388-gcf92ab7a7853) * baseline.bootrr.cros-ec-sensors-gyro0-prob=
+ed: https://kernelci.org/test/case/id/5f80a0793b4da5daa54ff400
+      failing since 10 days (last pass: v5.4.68-384-g856fa448539c, first fa=
+il: v5.4.68-388-gcf92ab7a7853)
+
+    2020-10-09 17:40:02.758000  /lava-2708379/1/../bin/lava-test-case
+      =20
