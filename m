@@ -2,104 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 659D628A8C1
-	for <lists+stable@lfdr.de>; Sun, 11 Oct 2020 19:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF62B28A932
+	for <lists+stable@lfdr.de>; Sun, 11 Oct 2020 20:16:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730322AbgJKR6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Oct 2020 13:58:31 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:40228 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388512AbgJKR5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Oct 2020 13:57:47 -0400
-Date:   Sun, 11 Oct 2020 17:57:44 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1602439065;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BF0Ze4dvqMf0pTwdJ5HFaX1ph4Dhew8fG0GpRsWS0N8=;
-        b=rEM8akXbI0/FmpUMJcoK7tv3l1aZC1d8K4qfKlKnKPT9pZIiUcHKCAGsBCLXHJteIEbcNT
-        n1wotxb3G+ZJ4rq2GGWDeXijneTwWS/dVAQvNaqcZOdUlhIiB9sqqMZcPzZCbDkDUuUbA3
-        uEMFKoP80re4FHBjnEemth+F300NsFj1DDjBO6bm3RPXQ6a5uEf6Mjca44TRzVzWR3xOcA
-        x70C3uOtCZ6PvcdDn5SgwBR+e/09hFzpX7QS2kTS5nxfNPy1t2oGj3s3thEV89LhHO/q9E
-        0dlExkTn9PwQOsLahLnRYn6EdBWL1THncgteRr8X+v8Qudu44JTM/yv5jjAOGA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1602439065;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BF0Ze4dvqMf0pTwdJ5HFaX1ph4Dhew8fG0GpRsWS0N8=;
-        b=KmCVLgmSBO/DAYwKRzSoSFsD7gcUwUOExUCGmN+XjzhF1UE/pwB2CH1SnL2zXNKUr07RvZ
-        rUYV8ybE5Z2+3fCQ==
-From:   "tip-bot2 for Huacai Chen" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: irq/core] irqchip/loongson-htvec: Fix initial interrupt clearing
-Cc:     Huacai Chen <chenhc@lemote.com>, Marc Zyngier <maz@kernel.org>,
-        stable@vger.kernel.org, x86 <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1599819978-13999-2-git-send-email-chenhc@lemote.com>
-References: <1599819978-13999-2-git-send-email-chenhc@lemote.com>
-MIME-Version: 1.0
-Message-ID: <160243906476.7002.12870041209542641118.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        id S1725967AbgJKSQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Oct 2020 14:16:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49610 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725852AbgJKSQK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Oct 2020 14:16:10 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03E16C0613CE
+        for <stable@vger.kernel.org>; Sun, 11 Oct 2020 11:16:09 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id b26so11346869pff.3
+        for <stable@vger.kernel.org>; Sun, 11 Oct 2020 11:16:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Wu9IadXgqL5suYBML9aqT9gxczURcuJcJ917sIID5PA=;
+        b=IOyaL7ILjMJKvwPPr//hEqKAjYeD2EFvYrt9OLRwts1ifZPTL3P+nA+Qwf67z1Lo+A
+         TaD2gINBihSTXcjT9I4GVZMg4t2LzjDxoHsf9KCRsGWq6CLTX5b+JpsfpTHjdXkTxprL
+         yRo6XBGC3KPj1Z1ZFt6o2BUu9EBJ5G0/REdsfmJfzBhBYKrQSHBNyLMp051122aPXz59
+         5qwdCOuETH5odydatA0HKZMGXhxOGuEdvReipeUFeQ1aN2qFunm0CXy2yK6GD/R4Tx0a
+         7eBGAI3tnTZBcDtcIWc0Ei/Zco7jFg42cjy7dCxFotcZYJLWCP3VqrtolSneQWD5KYmJ
+         wdNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Wu9IadXgqL5suYBML9aqT9gxczURcuJcJ917sIID5PA=;
+        b=VHy18lbnwsKMnN0v+Nyqe693PIDXHNLVpRIQ2tr+iy7YpmErox/cfZRhYOtrt4Nsu3
+         F1apAY6Mn+8cDwe3I/XAalh1pGQMKgxsKTfj51/wkqg25h+xjKlDzQpDLbcxA1gBionU
+         YlwtZRrp3pyfhlPA4KDKbsPhxyib8K9zUIPs7GjJX5XQOmDF0XvpRsM02INPk9XcSR+w
+         nW6hVCk2CCpIz//1Yz86Xac5iEo7MFXN0kPY1rnOEtdNmp5vF13po4VpsZ2iSp2I2JsI
+         /BcXx9bcOEfdqDjIcWZmz0fcal1iQuUUm1b/m0Vtoui5MMMRgvxUV3iuHyFo5tJ+B1B+
+         HbOA==
+X-Gm-Message-State: AOAM532pwgBZ4eTKLdlRgkxQ90JWmu1f6DPlviWd+pwEcqhn8kv8ODZc
+        MyxHI1IQA6+WgwOU6VhQIlv0V+KmcNdigQ==
+X-Google-Smtp-Source: ABdhPJy3HD7ZoT8lYTFis0iVpSXtHW+/9XSxOAnUMfDUuLRzhvSRqWAFt8hb1Ff5kmQR6dsakCuL2g==
+X-Received: by 2002:a17:90a:c204:: with SMTP id e4mr13568289pjt.209.1602440169039;
+        Sun, 11 Oct 2020 11:16:09 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a5sm16705278pgk.13.2020.10.11.11.16.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 11 Oct 2020 11:16:08 -0700 (PDT)
+Message-ID: <5f834be8.1c69fb81.2ea4b.f1ed@mx.google.com>
+Date:   Sun, 11 Oct 2020 11:16:08 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.70-38-g55678c4c1bef
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.4.y baseline: 132 runs,
+ 3 regressions (v5.4.70-38-g55678c4c1bef)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/core branch of tip:
+stable-rc/linux-5.4.y baseline: 132 runs, 3 regressions (v5.4.70-38-g55678c=
+4c1bef)
 
-Commit-ID:     1d1e5630de78f7253ac24b92cee6427c3ff04d56
-Gitweb:        https://git.kernel.org/tip/1d1e5630de78f7253ac24b92cee6427c3ff04d56
-Author:        Huacai Chen <chenhc@lemote.com>
-AuthorDate:    Fri, 11 Sep 2020 18:26:18 +08:00
-Committer:     Marc Zyngier <maz@kernel.org>
-CommitterDate: Sun, 13 Sep 2020 15:30:11 +01:00
+Regressions Summary
+-------------------
 
-irqchip/loongson-htvec: Fix initial interrupt clearing
+platform         | arch  | lab           | compiler | defconfig | results
+-----------------+-------+---------------+----------+-----------+--------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
 
-In htvec_reset() only the first group of initial interrupts is cleared.
-This sometimes causes spurious interrupts, so let's clear all groups.
 
-While at it, fix the nearby comment that to match the reality of what
-the driver does.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.70-38-g55678c4c1bef/plan/baseline/
 
-Fixes: 818e915fbac518e8c78e1877 ("irqchip: Add Loongson HyperTransport Vector support")
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1599819978-13999-2-git-send-email-chenhc@lemote.com
----
- drivers/irqchip/irq-loongson-htvec.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.70-38-g55678c4c1bef
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      55678c4c1befcdabf19d4227bd84dfd25d5c30b4 =
 
-diff --git a/drivers/irqchip/irq-loongson-htvec.c b/drivers/irqchip/irq-loongson-htvec.c
-index 13e6016..6392aaf 100644
---- a/drivers/irqchip/irq-loongson-htvec.c
-+++ b/drivers/irqchip/irq-loongson-htvec.c
-@@ -151,7 +151,7 @@ static void htvec_reset(struct htvec *priv)
- 	/* Clear IRQ cause registers, mask all interrupts */
- 	for (idx = 0; idx < priv->num_parents; idx++) {
- 		writel_relaxed(0x0, priv->base + HTVEC_EN_OFF + 4 * idx);
--		writel_relaxed(0xFFFFFFFF, priv->base);
-+		writel_relaxed(0xFFFFFFFF, priv->base + 4 * idx);
- 	}
- }
- 
-@@ -172,7 +172,7 @@ static int htvec_of_init(struct device_node *node,
- 		goto free_priv;
- 	}
- 
--	/* Interrupt may come from any of the 4 interrupt line */
-+	/* Interrupt may come from any of the 8 interrupt lines */
- 	for (i = 0; i < HTVEC_MAX_PARENT_IRQ; i++) {
- 		parent_irq[i] = irq_of_parse_and_map(node, i);
- 		if (parent_irq[i] <= 0)
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig | results
+-----------------+-------+---------------+----------+-----------+--------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-8    | defconfig | 85/90  =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f82f3651dd4ca93264ff3e8
+
+  Results:     85 PASS, 5 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.70-=
+38-g55678c4c1bef/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-ke=
+vin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.70-=
+38-g55678c4c1bef/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-ke=
+vin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.bootrr.cros-ec-sensors-accel0-probed: https://kernelci.org/tes=
+t/case/id/5f82f3651dd4ca93264ff3fc
+      failing since 11 days (last pass: v5.4.68-388-g8a579883a490, first fa=
+il: v5.4.68-389-g256bdd45e196)
+
+    2020-10-11 11:58:20.691000  /lava-2712356/1/../bin/lava-test-case
+     * baseline.bootrr.cros-ec-sensors-accel1-probed: https://kernelci.org/=
+test/case/id/5f82f3651dd4ca93264ff3fd
+      failing since 11 days (last pass: v5.4.68-388-g8a579883a490, first fa=
+il: v5.4.68-389-g256bdd45e196)
+
+    2020-10-11 11:58:21.713000  /lava-2712356/1/../bin/lava-test-case
+     * baseline.bootrr.cros-ec-sensors-gyro0-probed: https://kernelci.org/t=
+est/case/id/5f82f3651dd4ca93264ff3fe
+      failing since 11 days (last pass: v5.4.68-388-g8a579883a490, first fa=
+il: v5.4.68-389-g256bdd45e196)
+
+    2020-10-11 11:58:22.734000  /lava-2712356/1/../bin/lava-test-case
+      =20
