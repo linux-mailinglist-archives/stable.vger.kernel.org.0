@@ -2,120 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4B3128AA97
-	for <lists+stable@lfdr.de>; Sun, 11 Oct 2020 23:05:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB0F28AAD1
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 00:03:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387399AbgJKVFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 11 Oct 2020 17:05:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387398AbgJKVFk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 11 Oct 2020 17:05:40 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D32E4C0613CE
-        for <stable@vger.kernel.org>; Sun, 11 Oct 2020 14:05:39 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id j7so1396033pgk.5
-        for <stable@vger.kernel.org>; Sun, 11 Oct 2020 14:05:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Su0E/bYoD3n7UQqCYT4fPk5vyn+127U+Qp+9b+91yHk=;
-        b=XGxiT25StGDMnvfl697T+nucvdLOU2bB+T0NlNqklMtFB54vArnnEC+eY1WFe/YS0V
-         v7dhT520+XX6+4m+mKQwwN560HaAGGxSGCVkXc2NJz5NajEdBcRijLuUAsxGVm3QGd9p
-         QaO3oLIfjXMwr/6iTA5RzK9nY/XJq6ke27/hJBDuXLkcSp8VVXp9kvdPm9kaXA+xL0Kk
-         ZGqX5v/TXKnzvSu00qhWE2nzOdROT5mI+kI84EhjXzn7i/ABJk7Cr1WMd4u09jwg5pj/
-         JPglAzOvW/iPN7NZWoqqp9x5vj6+YSiLp+U7VpDN+6V6/oAiuWhHamArHEj+qjX/ALBq
-         74sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Su0E/bYoD3n7UQqCYT4fPk5vyn+127U+Qp+9b+91yHk=;
-        b=fk5AEpJHfthtawSRGOrXAt9UHcjmZ8Ml8rnxIoO0WKB0npVHT4kvqAvsjkCsVqfyy4
-         I7qfghxoNKwVLm3/UOR9ujOGews5olbe6leRjWqs+h1kahP/wR8FtsvDP+DRLerD7ILx
-         Yc+Q1CDWxXe92pWsTpLWLFiyTMo1hhR+5N5dTNFGeYyLW3/SVsI8Mioc8JKEgeQY7tm4
-         Fjft6M1O4OIzQsW1KnxKzMK1ubS68NoBzT/sMHUS5IZTFDslgTnqEdbLaLnpi/3AVWQU
-         8DkjTbBYJtLHGJ0NLIRvdke8g5lJMb97xYH0q6BWXTlzHmim/LxYJlFGu6iI9iqyomks
-         nr7Q==
-X-Gm-Message-State: AOAM532X1FXLCepIk42twLIMNZ+v5+9YZZFgSV2yifsyNpMiqvU+P5ux
-        lNMxIwLR1nkcoi7SlGcvH4PFlCYRZj6hAw==
-X-Google-Smtp-Source: ABdhPJx/5EbzI5AiE5W/mjGkBm29QPvApCml8j51BeaiA3s5kzabzsbWkIjXqhL0Vj2M31367FhOXg==
-X-Received: by 2002:a17:90a:1704:: with SMTP id z4mr16208576pjd.7.1602450338920;
-        Sun, 11 Oct 2020 14:05:38 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w19sm18433031pff.6.2020.10.11.14.05.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2020 14:05:38 -0700 (PDT)
-Message-ID: <5f8373a2.1c69fb81.a86d1.36a8@mx.google.com>
-Date:   Sun, 11 Oct 2020 14:05:38 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2387502AbgJKWDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 11 Oct 2020 18:03:40 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:54376 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387413AbgJKWDk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 11 Oct 2020 18:03:40 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 5813A1C0B77; Mon, 12 Oct 2020 00:03:38 +0200 (CEST)
+Date:   Mon, 12 Oct 2020 00:03:37 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Chris Packham <Chris.Packham@alliedtelesis.co.nz>
+Cc:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 21/38] spi: fsl-espi: Only process interrupts for
+ expected events
+Message-ID: <20201011220337.GA21317@amd>
+References: <20201005142108.650363140@linuxfoundation.org>
+ <20201005142109.694666032@linuxfoundation.org>
+ <20201006193634.GB8771@duo.ucw.cz>
+ <e96519d3-8b58-4715-1ada-6139749e6da3@alliedtelesis.co.nz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.200-52-ga168ae016734
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.14 baseline: 124 runs,
- 1 regressions (v4.14.200-52-ga168ae016734)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
+Content-Disposition: inline
+In-Reply-To: <e96519d3-8b58-4715-1ada-6139749e6da3@alliedtelesis.co.nz>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 124 runs, 1 regressions (v4.14.200-52-ga168a=
-e016734)
 
-Regressions Summary
--------------------
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
+Hi!
 
+> >> [ Upstream commit b867eef4cf548cd9541225aadcdcee644669b9e1 ]
+> >>
+> >> The SPIE register contains counts for the TX FIFO so any time the irq
+> >> handler was invoked we would attempt to process the RX/TX fifos. Use t=
+he
+> >> SPIM value to mask the events so that we only process interrupts that
+> >> were expected.
+> >>
+> >> This was a latent issue exposed by commit 3282a3da25bd ("powerpc/64:
+> >> Implement soft interrupt replay in C").
+> > We don't seem to have commit 3282... in 4.19, so we don't need this
+> > one in 4.19-stable according to the changelog.
+> Technically 3282... exposed the issue by making it more likely to happen=
+=20
+> so 4.19 might just have a really low probability of seeing the issue (I=
+=20
+> think I did try reproducing it on kernels of that vintage). Personally=20
+> I'm not too fussed the kernel versions I care about have the fix. Maybe=
+=20
+> someone from NXP cares enough to pursue it.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.200-52-ga168ae016734/plan/baseline/
+Okay, I guess low-probability bugs are still fair game for
+-stable. The commit was not dropped from 4.19, so nothing needs to be
+done here.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.200-52-ga168ae016734
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a168ae016734b6fff48b64bfb075e62dc28ac392 =
+Sorry for the noise,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
+--vtzGhvizbBRQ85DL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Test Regressions
----------------- =
+iEYEARECAAYFAl+DgTkACgkQMOfwapXb+vJkNgCgjq6ULenHyb9JLZZNXtmSMQBD
+jW0An0L/u8/KrR5KDde+rGieiXyNeQf/
+=W3dM
+-----END PGP SIGNATURE-----
 
-
-
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f83379b5e777ebc524ff427
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.200=
--52-ga168ae016734/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.200=
--52-ga168ae016734/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f83379b5e777eb=
-c524ff42e
-      failing since 1 day (last pass: v4.14.200-39-g650bb80f17b6, first fai=
-l: v4.14.200-44-g1bef439a8958)
-      2 lines  =20
+--vtzGhvizbBRQ85DL--
