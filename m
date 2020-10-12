@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 683B228B6E5
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D17128BA24
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731005AbgJLNih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:38:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40186 "EHLO mail.kernel.org"
+        id S2390792AbgJLOGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:06:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731016AbgJLNhR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:37:17 -0400
+        id S1730700AbgJLNen (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:34:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 865C922227;
-        Mon, 12 Oct 2020 13:37:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 624A820878;
+        Mon, 12 Oct 2020 13:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509828;
-        bh=hocMgNtBd4DxsvkWNVvvyAOw39ZzxOwXGRKQIWOYQeU=;
+        s=default; t=1602509681;
+        bh=JY3QkbtFRG3ZJnkRtN1wiSMf34tBUOJ1EJgwJRKXcxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQnvh+9TiqVuiA1Fti7nyFBtGIF5Vo6UzXSDuXVhYpiGwm+i49/9Onb6B1oEZLnzs
-         Uk6yCLhCyB6FnyF5BApN3UxhEP3sZxagyJhma4UPWlo9ZA59S1WkfXn1J2801/gxwT
-         +KrwOyzHBJRavKXBhuwinE1a0ik9+mFYbCL6Cscs=
+        b=m4y3uEwIKPBzA5iiqcg3vn/gjMvC/ggYLe8xquPlkS2icS5mAiv7Swmy0ohuYEDwz
+         M9+ZdEHfIZvmjW/UrU6y5CloYR2JEIZew/eERWUA63EwK0M5Itg12Amf04rpTCI0Op
+         /b7ima92uJUR9EE4hvhH0MI0EvTKW4QPy1Bfj41M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 45/70] macsec: avoid use-after-free in macsec_handle_frame()
+        stable@vger.kernel.org,
+        syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 39/54] net: team: fix memory leak in __team_options_register
 Date:   Mon, 12 Oct 2020 15:27:01 +0200
-Message-Id: <20201012132632.349654207@linuxfoundation.org>
+Message-Id: <20201012132631.387586022@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-commit c7cc9200e9b4a2ac172e990ef1975cd42975dad6 upstream.
+commit 9a9e77495958c7382b2438bc19746dd3aaaabb8e upstream.
 
-De-referencing skb after call to gro_cells_receive() is not allowed.
-We need to fetch skb->len earlier.
+The variable "i" isn't initialized back correctly after the first loop
+under the label inst_rollback gets executed.
 
-Fixes: 5491e7c6b1a9 ("macsec: enable GRO and RPS on macsec devices")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The value of "i" is assigned to be option_count - 1, and the ensuing
+loop (under alloc_rollback) begins by initializing i--.
+Thus, the value of i when the loop begins execution will now become
+i = option_count - 2.
+
+Thus, when kfree(dst_opts[i]) is called in the second loop in this
+order, (i.e., inst_rollback followed by alloc_rollback),
+dst_optsp[option_count - 2] is the first element freed, and
+dst_opts[option_count - 1] does not get freed, and thus, a memory
+leak is caused.
+
+This memory leak can be fixed, by assigning i = option_count (instead of
+option_count - 1).
+
+Fixes: 80f7c6683fe0 ("team: add support for per-port options")
+Reported-by: syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com
+Tested-by: syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/macsec.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/team/team.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1081,6 +1081,7 @@ static rx_handler_result_t macsec_handle
- 	struct macsec_rx_sa *rx_sa;
- 	struct macsec_rxh_data *rxd;
- 	struct macsec_dev *macsec;
-+	unsigned int len;
- 	sci_t sci;
- 	u32 pn;
- 	bool cbit;
-@@ -1236,9 +1237,10 @@ deliver:
- 	macsec_rxsc_put(rx_sc);
+--- a/drivers/net/team/team.c
++++ b/drivers/net/team/team.c
+@@ -299,7 +299,7 @@ inst_rollback:
+ 	for (i--; i >= 0; i--)
+ 		__team_option_inst_del_option(team, dst_opts[i]);
  
- 	skb_orphan(skb);
-+	len = skb->len;
- 	ret = gro_cells_receive(&macsec->gro_cells, skb);
- 	if (ret == NET_RX_SUCCESS)
--		count_rx(dev, skb->len);
-+		count_rx(dev, len);
- 	else
- 		macsec->secy.netdev->stats.rx_dropped++;
- 
+-	i = option_count - 1;
++	i = option_count;
+ alloc_rollback:
+ 	for (i--; i >= 0; i--)
+ 		kfree(dst_opts[i]);
 
 
