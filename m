@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B344E28B9AE
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C28A28B7A2
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:45:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731085AbgJLOCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:02:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40588 "EHLO mail.kernel.org"
+        id S2389613AbgJLNpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:45:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387538AbgJLNhf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:37:35 -0400
+        id S2388373AbgJLNnR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:43:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F6F621D7F;
-        Mon, 12 Oct 2020 13:37:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E8DA221FE;
+        Mon, 12 Oct 2020 13:43:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509853;
-        bh=qa0/iPBshBLUs7BLG3q2biC+JWob9mLPteJ8XteCzTE=;
+        s=default; t=1602510196;
+        bh=UfrYpmMLSfHoSfyBBh1Q85+/udG9IiZNyjLAVN6D9bY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=paOg9HVLW64vqAagUq3csr2Jl7JpAgeCfT9Wh6NT52BmjrSrUZsn8Uv8WTC7J9Rso
-         DdVV9HQ4iCxlEOgoKRE+FO3rgkM5zqovRYrzXt6jdXWMwv3qO5XmN0L8CsbpLqCHTC
-         rzdPmzWnEVQncYIAujBcJy4nZF66evrIema1vpKU=
+        b=fJALk0hE1250vV73Ndbb9cRIGdmPVQxXsglWmaZRdp41NJIZXRib/MGGFHJo6cJDw
+         IslJVrWOmXZNCKUftmcwBS3ubWXBVBLCprbYDKY4xaghzKre97qwA367mM/G2j6/uP
+         kJWCmXGGB1pqybKZsflZku7IPrOzg50cik/XTqU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 58/70] platform/x86: fix kconfig dependency warning for FUJITSU_LAPTOP
+Subject: [PATCH 5.4 51/85] xfrm: clone XFRMA_SEC_CTX in xfrm_do_migrate
 Date:   Mon, 12 Oct 2020 15:27:14 +0200
-Message-Id: <20201012132632.978601991@linuxfoundation.org>
+Message-Id: <20201012132635.320244639@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+From: Antony Antony <antony.antony@secunet.com>
 
-[ Upstream commit afdd1ebb72051e8b6b83c4d7dc542a9be0e1352d ]
+[ Upstream commit 7aa05d304785204703a67a6aa7f1db402889a172 ]
 
-When FUJITSU_LAPTOP is enabled and NEW_LEDS is disabled, it results in the
-following Kbuild warning:
+XFRMA_SEC_CTX was not cloned from the old to the new.
+Migrate this attribute during XFRMA_MSG_MIGRATE
 
-WARNING: unmet direct dependencies detected for LEDS_CLASS
-  Depends on [n]: NEW_LEDS [=n]
-  Selected by [y]:
-  - FUJITSU_LAPTOP [=y] && X86 [=y] && X86_PLATFORM_DEVICES [=y] && ACPI [=y] && INPUT [=y] && BACKLIGHT_CLASS_DEVICE [=y] && (ACPI_VIDEO [=n] || ACPI_VIDEO [=n]=n)
+v1->v2:
+ - return -ENOMEM on error
+v2->v3:
+ - fix return type to int
 
-The reason is that FUJITSU_LAPTOP selects LEDS_CLASS without depending on
-or selecting NEW_LEDS while LEDS_CLASS is subordinate to NEW_LEDS.
-
-Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
-
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Fixes: d89bcc83e709 ("platform/x86: fujitsu-laptop: select LEDS_CLASS")
-Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 80c9abaabf42 ("[XFRM]: Extension for dynamic update of endpoint address(es)")
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ net/xfrm/xfrm_state.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 09035705d0a07..4f872e62508a8 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -183,6 +183,7 @@ config FUJITSU_LAPTOP
- 	depends on BACKLIGHT_CLASS_DEVICE
- 	depends on ACPI_VIDEO || ACPI_VIDEO = n
- 	select INPUT_SPARSEKMAP
-+	select NEW_LEDS
- 	select LEDS_CLASS
- 	---help---
- 	  This is a driver for laptops built by Fujitsu:
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 10d30f0338d72..fc1b391ba1554 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1438,6 +1438,30 @@ out:
+ EXPORT_SYMBOL(xfrm_state_add);
+ 
+ #ifdef CONFIG_XFRM_MIGRATE
++static inline int clone_security(struct xfrm_state *x, struct xfrm_sec_ctx *security)
++{
++	struct xfrm_user_sec_ctx *uctx;
++	int size = sizeof(*uctx) + security->ctx_len;
++	int err;
++
++	uctx = kmalloc(size, GFP_KERNEL);
++	if (!uctx)
++		return -ENOMEM;
++
++	uctx->exttype = XFRMA_SEC_CTX;
++	uctx->len = size;
++	uctx->ctx_doi = security->ctx_doi;
++	uctx->ctx_alg = security->ctx_alg;
++	uctx->ctx_len = security->ctx_len;
++	memcpy(uctx + 1, security->ctx_str, security->ctx_len);
++	err = security_xfrm_state_alloc(x, uctx);
++	kfree(uctx);
++	if (err)
++		return err;
++
++	return 0;
++}
++
+ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
+ 					   struct xfrm_encap_tmpl *encap)
+ {
+@@ -1494,6 +1518,10 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
+ 			goto error;
+ 	}
+ 
++	if (orig->security)
++		if (clone_security(x, orig->security))
++			goto error;
++
+ 	if (orig->coaddr) {
+ 		x->coaddr = kmemdup(orig->coaddr, sizeof(*x->coaddr),
+ 				    GFP_KERNEL);
 -- 
 2.25.1
 
