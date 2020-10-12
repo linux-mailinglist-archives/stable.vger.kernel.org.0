@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2095028B78C
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:44:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD60328B722
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389513AbgJLNof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:44:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
+        id S1731484AbgJLNk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:40:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731550AbgJLNmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:42:49 -0400
+        id S1731459AbgJLNjw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:39:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E26732224A;
-        Mon, 12 Oct 2020 13:42:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D25B20678;
+        Mon, 12 Oct 2020 13:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510166;
-        bh=QeBgHF9A7YrtFh6Cm0jBGVSXwT4Fhymy+ntAJ/D5UUU=;
+        s=default; t=1602509991;
+        bh=VG9CSanfmLO4eHxmZo/+noXJhoJKQEcs8kV3iIYycxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDocVcnPKqR7AOfwyppZWGGsYLBpUjqWPtlFv3GnAZfYMRpyB7A5RzXc/NEsivbdB
-         NOZMN1XLCPx7vkwxSQGtN2C5oSYSBdYVtXNlr8ccxDBgYn2C5+obnJocfa9GwtEPZo
-         2NGP+VSnz8X8iAp0cQjqY/QZ53qO6HzpF2p3Gm5k=
+        b=nxHyktmhhtae6vAYSKe85ArBd9EMB3b6dzftSuJ2W+SwvioVraFx7/BrI/Bt/QnoK
+         7yaDzeZwkf8l+fmgl+zFaxZrLRSDv4Uw/o0m363+xC7UWfsZNoT+xtleS6h/ZBi6YM
+         7soJ81g7UyqdD4vYd8gr2e/RZnPcqsSe/rsYsaSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 68/85] net/mlx5e: Fix VLAN cleanup flow
+Subject: [PATCH 4.19 45/49] rxrpc: Fix server keyring leak
 Date:   Mon, 12 Oct 2020 15:27:31 +0200
-Message-Id: <20201012132636.113447606@linuxfoundation.org>
+Message-Id: <20201012132631.478883436@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 8c7353b6f716436ad0bfda2b5c5524ab2dde5894 ]
+[ Upstream commit 38b1dc47a35ba14c3f4472138ea56d014c2d609b ]
 
-Prior to this patch unloading an interface in promiscuous mode with RX
-VLAN filtering feature turned off - resulted in a warning. This is due
-to a wrong condition in the VLAN rules cleanup flow, which left the
-any-vid rules in the VLAN steering table. These rules prevented
-destroying the flow group and the flow table.
+If someone calls setsockopt() twice to set a server key keyring, the first
+keyring is leaked.
 
-The any-vid rules are removed in 2 flows, but none of them remove it in
-case both promiscuous is set and VLAN filtering is off. Fix the issue by
-changing the condition of the VLAN table cleanup flow to clean also in
-case of promiscuous mode.
+Fix it to return an error instead if the server key keyring is already set.
 
-mlx5_core 0000:00:08.0: mlx5_destroy_flow_group:2123:(pid 28729): Flow group 20 wasn't destroyed, refcount > 1
-mlx5_core 0000:00:08.0: mlx5_destroy_flow_group:2123:(pid 28729): Flow group 19 wasn't destroyed, refcount > 1
-mlx5_core 0000:00:08.0: mlx5_destroy_flow_table:2112:(pid 28729): Flow table 262149 wasn't destroyed, refcount > 1
-...
-...
-------------[ cut here ]------------
-FW pages counter is 11560 after reclaiming all pages
-WARNING: CPU: 1 PID: 28729 at
-drivers/net/ethernet/mellanox/mlx5/core/pagealloc.c:660
-mlx5_reclaim_startup_pages+0x178/0x230 [mlx5_core]
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS
-rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-Call Trace:
-  mlx5_function_teardown+0x2f/0x90 [mlx5_core]
-  mlx5_unload_one+0x71/0x110 [mlx5_core]
-  remove_one+0x44/0x80 [mlx5_core]
-  pci_device_remove+0x3e/0xc0
-  device_release_driver_internal+0xfb/0x1c0
-  device_release_driver+0x12/0x20
-  pci_stop_bus_device+0x68/0x90
-  pci_stop_and_remove_bus_device+0x12/0x20
-  hv_eject_device_work+0x6f/0x170 [pci_hyperv]
-  ? __schedule+0x349/0x790
-  process_one_work+0x206/0x400
-  worker_thread+0x34/0x3f0
-  ? process_one_work+0x400/0x400
-  kthread+0x126/0x140
-  ? kthread_park+0x90/0x90
-  ret_from_fork+0x22/0x30
-   ---[ end trace 6283bde8d26170dc ]---
-
-Fixes: 9df30601c843 ("net/mlx5e: Restore vlan filter after seamless reset")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_fs.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/rxrpc/key.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-index 73d3dc07331f1..c5be0cdfaf0fa 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-@@ -415,8 +415,12 @@ static void mlx5e_del_vlan_rules(struct mlx5e_priv *priv)
- 	for_each_set_bit(i, priv->fs.vlan.active_svlans, VLAN_N_VID)
- 		mlx5e_del_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID, i);
+diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
+index 1fe203c56faf0..2fe2add62a8ed 100644
+--- a/net/rxrpc/key.c
++++ b/net/rxrpc/key.c
+@@ -905,7 +905,7 @@ int rxrpc_request_key(struct rxrpc_sock *rx, char __user *optval, int optlen)
  
--	if (priv->fs.vlan.cvlan_filter_disabled &&
--	    !(priv->netdev->flags & IFF_PROMISC))
-+	WARN_ON_ONCE(!(test_bit(MLX5E_STATE_DESTROYING, &priv->state)));
-+
-+	/* must be called after DESTROY bit is set and
-+	 * set_rx_mode is called and flushed
-+	 */
-+	if (priv->fs.vlan.cvlan_filter_disabled)
- 		mlx5e_del_any_vid_rules(priv);
- }
+ 	_enter("");
  
+-	if (optlen <= 0 || optlen > PAGE_SIZE - 1)
++	if (optlen <= 0 || optlen > PAGE_SIZE - 1 || rx->securities)
+ 		return -EINVAL;
+ 
+ 	description = memdup_user_nul(optval, optlen);
 -- 
 2.25.1
 
