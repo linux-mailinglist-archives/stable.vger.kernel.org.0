@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A78128B8D8
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:57:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED2EA28B8C4
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389669AbgJLNze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46202 "EHLO mail.kernel.org"
+        id S2390448AbgJLNzH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:55:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389649AbgJLNpk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389650AbgJLNpk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:45:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7051F2224A;
-        Mon, 12 Oct 2020 13:44:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C29C922261;
+        Mon, 12 Oct 2020 13:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510252;
-        bh=fiJukRJ+WRGEyZJetaXIXsfY+w7AKHEaZnV+x7b20t4=;
+        s=default; t=1602510255;
+        bh=jiqiZKr6WW7lmafzr4fFkQ2idmz7/4D94NYZplkQuHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yksbV5hEWypvWLHJXSV9w5a8X/kgpswvYaNlexgCMmkB3oZcH7Ajodw2v1c6ZtfB4
-         u3yjaNNZ3pOuOGshIjNZ4tjxWLn2v8xrinz51sox55LpIwmOsY2MEa62wS97dY3eS4
-         JJwskODZ0V06E5bVxNKC+OPpDuMYlpxs238g7P+U=
+        b=SlYQwQZEqXTrp4AVRsZxEO1utOCjOfcOquR1L3vysH2aVeY64gEALYXs/l0IXAcDY
+         Sx4DAoTs87cHkRIODhENShMheqThGtv3OPhfHLAr9i+L31ymAiMK3LnjGzMaP9G2UG
+         Ut0j+2g18Z/ada45+m6MSEY9Ojuqeh6Y/QctWZvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
-        Dave P Martin <Dave.Martin@arm.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.8 006/124] crypto: arm64: Use x16 with indirect branch to bti_c
-Date:   Mon, 12 Oct 2020 15:30:10 +0200
-Message-Id: <20201012133147.153980512@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+b91107320911a26c9a95@syzkaller.appspotmail.com>,
+        Namjae Jeon <namjae.jeon@samsung.com>
+Subject: [PATCH 5.8 007/124] exfat: fix use of uninitialized spinlock on error path
+Date:   Mon, 12 Oct 2020 15:30:11 +0200
+Message-Id: <20201012133147.201909317@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -45,67 +43,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Namjae Jeon <namjae.jeon@samsung.com>
 
-commit 39e4716caa598a07a98598b2e7cd03055ce25fb9 upstream.
+commit 8ff006e57ad3a25f909c456d053aa498b6673a39 upstream.
 
-The AES code uses a 'br x7' as part of a function called by
-a macro. That branch needs a bti_j as a target. This results
-in a panic as seen below. Using x16 (or x17) with an indirect
-branch keeps the target bti_c.
+syzbot reported warning message:
 
-  Bad mode in Synchronous Abort handler detected on CPU1, code 0x34000003 -- BTI
-  CPU: 1 PID: 265 Comm: cryptomgr_test Not tainted 5.8.11-300.fc33.aarch64 #1
-  pstate: 20400c05 (nzCv daif +PAN -UAO BTYPE=j-)
-  pc : aesbs_encrypt8+0x0/0x5f0 [aes_neon_bs]
-  lr : aesbs_xts_encrypt+0x48/0xe0 [aes_neon_bs]
-  sp : ffff80001052b730
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1d6/0x29e lib/dump_stack.c:118
+ register_lock_class+0xf06/0x1520 kernel/locking/lockdep.c:893
+ __lock_acquire+0xfd/0x2ae0 kernel/locking/lockdep.c:4320
+ lock_acquire+0x148/0x720 kernel/locking/lockdep.c:5029
+ __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
+ _raw_spin_lock+0x2a/0x40 kernel/locking/spinlock.c:151
+ spin_lock include/linux/spinlock.h:354 [inline]
+ exfat_cache_inval_inode+0x30/0x280 fs/exfat/cache.c:226
+ exfat_evict_inode+0x124/0x270 fs/exfat/inode.c:660
+ evict+0x2bb/0x6d0 fs/inode.c:576
+ exfat_fill_super+0x1e07/0x27d0 fs/exfat/super.c:681
+ get_tree_bdev+0x3e9/0x5f0 fs/super.c:1342
+ vfs_get_tree+0x88/0x270 fs/super.c:1547
+ do_new_mount fs/namespace.c:2875 [inline]
+ path_mount+0x179d/0x29e0 fs/namespace.c:3192
+ do_mount fs/namespace.c:3205 [inline]
+ __do_sys_mount fs/namespace.c:3413 [inline]
+ __se_sys_mount+0x126/0x180 fs/namespace.c:3390
+ do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-  aesbs_encrypt8+0x0/0x5f0 [aes_neon_bs]
-   __xts_crypt+0xb0/0x2dc [aes_neon_bs]
-   xts_encrypt+0x28/0x3c [aes_neon_bs]
-  crypto_skcipher_encrypt+0x50/0x84
-  simd_skcipher_encrypt+0xc8/0xe0
-  crypto_skcipher_encrypt+0x50/0x84
-  test_skcipher_vec_cfg+0x224/0x5f0
-  test_skcipher+0xbc/0x120
-  alg_test_skcipher+0xa0/0x1b0
-  alg_test+0x3dc/0x47c
-  cryptomgr_test+0x38/0x60
+If exfat_read_root() returns an error, spinlock is used in
+exfat_evict_inode() without initialization. This patch combines
+exfat_cache_init_inode() with exfat_inode_init_once() to initialize
+spinlock by slab constructor.
 
-Fixes: 0e89640b640d ("crypto: arm64 - Use modern annotations for assembly functions")
-Cc: <stable@vger.kernel.org> # 5.6.x-
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Suggested-by: Dave P Martin <Dave.Martin@arm.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20201006163326.2780619-1-jeremy.linton@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: c35b6810c495 ("exfat: add exfat cache")
+Cc: stable@vger.kernel.org # v5.7+
+Reported-by: syzbot <syzbot+b91107320911a26c9a95@syzkaller.appspotmail.com>
+Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/crypto/aes-neonbs-core.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/exfat/cache.c    |   11 -----------
+ fs/exfat/exfat_fs.h |    3 ++-
+ fs/exfat/inode.c    |    2 --
+ fs/exfat/super.c    |    5 ++++-
+ 4 files changed, 6 insertions(+), 15 deletions(-)
 
---- a/arch/arm64/crypto/aes-neonbs-core.S
-+++ b/arch/arm64/crypto/aes-neonbs-core.S
-@@ -788,7 +788,7 @@ SYM_FUNC_START_LOCAL(__xts_crypt8)
+--- a/fs/exfat/cache.c
++++ b/fs/exfat/cache.c
+@@ -17,7 +17,6 @@
+ #include "exfat_raw.h"
+ #include "exfat_fs.h"
  
- 0:	mov		bskey, x21
- 	mov		rounds, x22
--	br		x7
-+	br		x16
- SYM_FUNC_END(__xts_crypt8)
+-#define EXFAT_CACHE_VALID	0
+ #define EXFAT_MAX_CACHE		16
  
- 	.macro		__xts_crypt, do8, o0, o1, o2, o3, o4, o5, o6, o7
-@@ -806,7 +806,7 @@ SYM_FUNC_END(__xts_crypt8)
- 	uzp1		v30.4s, v30.4s, v25.4s
- 	ld1		{v25.16b}, [x24]
+ struct exfat_cache {
+@@ -61,16 +60,6 @@ void exfat_cache_shutdown(void)
+ 	kmem_cache_destroy(exfat_cachep);
+ }
  
--99:	adr		x7, \do8
-+99:	adr		x16, \do8
- 	bl		__xts_crypt8
+-void exfat_cache_init_inode(struct inode *inode)
+-{
+-	struct exfat_inode_info *ei = EXFAT_I(inode);
+-
+-	spin_lock_init(&ei->cache_lru_lock);
+-	ei->nr_caches = 0;
+-	ei->cache_valid_id = EXFAT_CACHE_VALID + 1;
+-	INIT_LIST_HEAD(&ei->cache_lru);
+-}
+-
+ static inline struct exfat_cache *exfat_cache_alloc(void)
+ {
+ 	return kmem_cache_alloc(exfat_cachep, GFP_NOFS);
+--- a/fs/exfat/exfat_fs.h
++++ b/fs/exfat/exfat_fs.h
+@@ -250,6 +250,8 @@ struct exfat_sb_info {
+ 	struct rcu_head rcu;
+ };
  
- 	ldp		q16, q17, [sp, #.Lframe_local_offset]
++#define EXFAT_CACHE_VALID	0
++
+ /*
+  * EXFAT file system inode in-memory data
+  */
+@@ -429,7 +431,6 @@ extern const struct dentry_operations ex
+ /* cache.c */
+ int exfat_cache_init(void);
+ void exfat_cache_shutdown(void);
+-void exfat_cache_init_inode(struct inode *inode);
+ void exfat_cache_inval_inode(struct inode *inode);
+ int exfat_get_cluster(struct inode *inode, unsigned int cluster,
+ 		unsigned int *fclus, unsigned int *dclus,
+--- a/fs/exfat/inode.c
++++ b/fs/exfat/inode.c
+@@ -610,8 +610,6 @@ static int exfat_fill_inode(struct inode
+ 	ei->i_crtime = info->crtime;
+ 	inode->i_atime = info->atime;
+ 
+-	exfat_cache_init_inode(inode);
+-
+ 	return 0;
+ }
+ 
+--- a/fs/exfat/super.c
++++ b/fs/exfat/super.c
+@@ -361,7 +361,6 @@ static int exfat_read_root(struct inode
+ 	inode->i_mtime = inode->i_atime = inode->i_ctime = ei->i_crtime =
+ 		current_time(inode);
+ 	exfat_truncate_atime(&inode->i_atime);
+-	exfat_cache_init_inode(inode);
+ 	return 0;
+ }
+ 
+@@ -747,6 +746,10 @@ static void exfat_inode_init_once(void *
+ {
+ 	struct exfat_inode_info *ei = (struct exfat_inode_info *)foo;
+ 
++	spin_lock_init(&ei->cache_lru_lock);
++	ei->nr_caches = 0;
++	ei->cache_valid_id = EXFAT_CACHE_VALID + 1;
++	INIT_LIST_HEAD(&ei->cache_lru);
+ 	INIT_HLIST_NODE(&ei->i_hash_fat);
+ 	inode_init_once(&ei->vfs_inode);
+ }
 
 
