@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9848F28B75E
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB3F728B94C
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731342AbgJLNm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:42:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47256 "EHLO mail.kernel.org"
+        id S2389450AbgJLN7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:59:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389240AbgJLNmW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:42:22 -0400
+        id S2388781AbgJLNkM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:40:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA4DC22258;
-        Mon, 12 Oct 2020 13:42:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80062221FE;
+        Mon, 12 Oct 2020 13:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510141;
-        bh=L9dPZE/RKFQvpjg8FwbM1ATyvHGThL0hF9imxpcw4js=;
+        s=default; t=1602510011;
+        bh=AG1TfoMTwzFHLKKQyRE0DQy1LySPs80CkCMyJyxDNtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eROlEBn1X9ffIuyGYe5mB5p6hf1BWNvT9BJwIx9voIL3MiQmi+j/F9GKXNyW/+a/w
-         7IedyGnDOi9wQKjL+MS/V7HFf/h8K0fBaDMx05FxPcnPzI8KWqT1tHFruK5AsDI/Ja
-         a9LsB1jMmGHjoy+ti7BQDg8oqjnY7KP7tBo+wn/8=
+        b=o9YvTClPl5Zh+RrAAMLRLxGvZVUTUyEh8eNml8jE3a6o05IdX0zfLj5QVcDtg/1pN
+         GIwqLBuTc3M7lUKWs9LVpY9cyZyfHiBYV5of04d/CfoMek5TYUnvA4uGTYkY+KCJ/+
+         V9nKNjYCLnMWgLv0K+aXWPSkV150D0uizNQMIGKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Khoronzhuk <ikhoronz@cisco.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 58/85] net: ethernet: cavium: octeon_mgmt: use phy_start and phy_stop
+Subject: [PATCH 4.19 35/49] platform/x86: fix kconfig dependency warning for FUJITSU_LAPTOP
 Date:   Mon, 12 Oct 2020 15:27:21 +0200
-Message-Id: <20201012132635.651037462@linuxfoundation.org>
+Message-Id: <20201012132631.074994688@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Khoronzhuk <ivan.khoronzhuk@gmail.com>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit 4663ff60257aec4ee1e2e969a7c046f0aff35ab8 ]
+[ Upstream commit afdd1ebb72051e8b6b83c4d7dc542a9be0e1352d ]
 
-To start also "phy state machine", with UP state as it should be,
-the phy_start() has to be used, in another case machine even is not
-triggered. After this change negotiation is supposed to be triggered
-by SM workqueue.
+When FUJITSU_LAPTOP is enabled and NEW_LEDS is disabled, it results in the
+following Kbuild warning:
 
-It's not correct usage, but it appears after the following patch,
-so add it as a fix.
+WARNING: unmet direct dependencies detected for LEDS_CLASS
+  Depends on [n]: NEW_LEDS [=n]
+  Selected by [y]:
+  - FUJITSU_LAPTOP [=y] && X86 [=y] && X86_PLATFORM_DEVICES [=y] && ACPI [=y] && INPUT [=y] && BACKLIGHT_CLASS_DEVICE [=y] && (ACPI_VIDEO [=n] || ACPI_VIDEO [=n]=n)
 
-Fixes: 74a992b3598a ("net: phy: add phy_check_link_status")
-Signed-off-by: Ivan Khoronzhuk <ikhoronz@cisco.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The reason is that FUJITSU_LAPTOP selects LEDS_CLASS without depending on
+or selecting NEW_LEDS while LEDS_CLASS is subordinate to NEW_LEDS.
+
+Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: d89bcc83e709 ("platform/x86: fujitsu-laptop: select LEDS_CLASS")
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/octeon/octeon_mgmt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/platform/x86/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c b/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-index d375e438d8054..4fa9d485e2096 100644
---- a/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-+++ b/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-@@ -1222,7 +1222,7 @@ static int octeon_mgmt_open(struct net_device *netdev)
- 	 */
- 	if (netdev->phydev) {
- 		netif_carrier_off(netdev);
--		phy_start_aneg(netdev->phydev);
-+		phy_start(netdev->phydev);
- 	}
- 
- 	netif_wake_queue(netdev);
-@@ -1250,8 +1250,10 @@ static int octeon_mgmt_stop(struct net_device *netdev)
- 	napi_disable(&p->napi);
- 	netif_stop_queue(netdev);
- 
--	if (netdev->phydev)
-+	if (netdev->phydev) {
-+		phy_stop(netdev->phydev);
- 		phy_disconnect(netdev->phydev);
-+	}
- 
- 	netif_carrier_off(netdev);
- 
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index 1e2524de6a63c..a13bb4ddd0cf1 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -235,6 +235,7 @@ config FUJITSU_LAPTOP
+ 	depends on BACKLIGHT_CLASS_DEVICE
+ 	depends on ACPI_VIDEO || ACPI_VIDEO = n
+ 	select INPUT_SPARSEKMAP
++	select NEW_LEDS
+ 	select LEDS_CLASS
+ 	---help---
+ 	  This is a driver for laptops built by Fujitsu:
 -- 
 2.25.1
 
