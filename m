@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AEAA28B937
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6956C28B691
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390046AbgJLN6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:58:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43450 "EHLO mail.kernel.org"
+        id S1730660AbgJLNe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:34:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731468AbgJLNk4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:40:56 -0400
+        id S1730251AbgJLNeX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:34:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C149A2224A;
-        Mon, 12 Oct 2020 13:40:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8315221FF;
+        Mon, 12 Oct 2020 13:33:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510039;
-        bh=Cm8oRoMhqtPQ8VwK6tUug8MUgovYGLFNqrjpyTJLxKA=;
+        s=default; t=1602509640;
+        bh=bcv8Lud4gs41IJaT0W7P1F4O8D4lq4qTnSGKz0wkDY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eti8JrsBf0zJk/AceTG6GZOjFZkwaAhmD2tvF0GW9hy3XNeavGD+xRf5+DKp3Fri8
-         hUofxqLv8U8hj9fXcEowvRHfe4OrIgtDdekDe8q58sPLycbGMuNEZIoAD/WMRvdfCI
-         WDUwAKRC2DvnaUS6vNhhOWakS8wM+QL+lrV42n20=
+        b=hjnKWkToTSC6aRJisVo8PVMJdlBbDEmeO1YpRW1B8lbuQfyc2Fjc4oKBT+EIh+L4U
+         NWQ+xRPHwrt7fNVMMMc502pr4v33r2BinuXTQjz+Cnw7GSYixnz24bzY2lgYvPjQkl
+         k+yJ+sHRfyKKJvRwn80PJ3SjW3S0QEn+WYhP3/Wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org, zhuyinyin@bytedance.com, Muchun Song" 
-        <songmuchun@bytedance.com>, Jens Axboe <axboe@kernel.dk>,
-        Muchun Song <songmuchun@bytedance.com>
-Subject: [PATCH 5.4 07/85] io_uring: Fix remove irrelevant req from the task_list
-Date:   Mon, 12 Oct 2020 15:26:30 +0200
-Message-Id: <20201012132633.210398077@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Schiller <ms@dev.tdt.de>,
+        Xie He <xie.he.0141@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 09/54] drivers/net/wan/lapbether: Make skb->protocol consistent with the header
+Date:   Mon, 12 Oct 2020 15:26:31 +0200
+Message-Id: <20201012132630.018986735@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-If the process 0 has been initialized io_uring is complete, and
-then fork process 1. If process 1 exits and it leads to delete
-all reqs from the task_list. If we kill process 0. We will not
-send SIGINT signal to the kworker. So we can not remove the req
-from the task_list. The io_sq_wq_submit_work() can do that for
-us.
+[ Upstream commit 83f9a9c8c1edc222846dc1bde6e3479703e8e5a3 ]
 
-Fixes: 1c4404efcf2c ("io_uring: make sure async workqueue is canceled on exit")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This driver is a virtual driver stacked on top of Ethernet interfaces.
+
+When this driver transmits data on the Ethernet device, the skb->protocol
+setting is inconsistent with the Ethernet header prepended to the skb.
+
+This causes a user listening on the Ethernet interface with an AF_PACKET
+socket, to see different sll_protocol values for incoming and outgoing
+frames, because incoming frames would have this value set by parsing the
+Ethernet header.
+
+This patch changes the skb->protocol value for outgoing Ethernet frames,
+making it consistent with the Ethernet header prepended. This makes a
+user listening on the Ethernet device with an AF_PACKET socket, to see
+the same sll_protocol value for incoming and outgoing frames.
+
+Cc: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/net/wan/lapbether.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2272,13 +2272,11 @@ restart:
- 					break;
- 				cond_resched();
- 			} while (1);
--end_req:
--			if (!list_empty(&req->task_list)) {
--				spin_lock_irq(&ctx->task_lock);
--				list_del_init(&req->task_list);
--				spin_unlock_irq(&ctx->task_lock);
--			}
- 		}
-+end_req:
-+		spin_lock_irq(&ctx->task_lock);
-+		list_del_init(&req->task_list);
-+		spin_unlock_irq(&ctx->task_lock);
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index c6db9a4e7c457..ef746ba74ab4c 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -201,8 +201,6 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
+ 	struct net_device *dev;
+ 	int size = skb->len;
  
- 		/* drop submission reference */
- 		io_put_req(req);
-@@ -3722,15 +3720,16 @@ static int io_uring_fasync(int fd, struc
- static void io_cancel_async_work(struct io_ring_ctx *ctx,
- 				 struct files_struct *files)
- {
-+	struct io_kiocb *req;
+-	skb->protocol = htons(ETH_P_X25);
+-
+ 	ptr = skb_push(skb, 2);
+ 
+ 	*ptr++ = size % 256;
+@@ -213,6 +211,8 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
+ 
+ 	skb->dev = dev = lapbeth->ethdev;
+ 
++	skb->protocol = htons(ETH_P_DEC);
 +
- 	if (list_empty(&ctx->task_list))
- 		return;
+ 	skb_reset_network_header(skb);
  
- 	spin_lock_irq(&ctx->task_lock);
--	while (!list_empty(&ctx->task_list)) {
--		struct io_kiocb *req;
- 
--		req = list_first_entry(&ctx->task_list, struct io_kiocb, task_list);
--		list_del_init(&req->task_list);
-+	list_for_each_entry(req, &ctx->task_list, task_list) {
-+		if (files && req->files != files)
-+			continue;
- 
- 		/*
- 		 * The below executes an smp_mb(), which matches with the
-@@ -3740,7 +3739,7 @@ static void io_cancel_async_work(struct
- 		 */
- 		smp_store_mb(req->flags, req->flags | REQ_F_CANCEL); /* B */
- 
--		if (req->work_task && (!files || req->files == files))
-+		if (req->work_task)
- 			send_sig(SIGINT, req->work_task, 1);
- 	}
- 	spin_unlock_irq(&ctx->task_lock);
+ 	dev_hard_header(skb, dev, ETH_P_DEC, bcast_addr, NULL, 0);
+-- 
+2.25.1
+
 
 
