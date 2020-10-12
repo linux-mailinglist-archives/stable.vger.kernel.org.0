@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A99628B842
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:50:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FA1128B844
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:50:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390085AbgJLNum (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:50:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55914 "EHLO mail.kernel.org"
+        id S2390090AbgJLNuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:50:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731876AbgJLNsR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731881AbgJLNsR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:48:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B28F120679;
-        Mon, 12 Oct 2020 13:47:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B506204EA;
+        Mon, 12 Oct 2020 13:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510448;
-        bh=WNWnkFrg3u7y8D9ZPKPunc+98N2g9XUHgudcluYBRiw=;
+        s=default; t=1602510450;
+        bh=F+qkMl6KMVqlXzx7JDD+1l+y/Ak3Qf5lN4+M2ejDddo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MiOwtVRM/cuRQJehqUcsrScEC2kgWsYBBX2J03vEM+F9Z8SNc/BFIu55nExzgrrb8
-         a30uHmEw3swFu8G1MV4P5XKFSpjU23/ThUT36YUPRfXhZXLugryJU+B2waiTYhQylc
-         RxnINO5z7j5Tck9gHwtSmo/JI/nfwO/t0OmBxVh0=
+        b=F/Cbquu5J3+tfVSF+38MMY3g7YoL35W1NRKmOqtVTKsJhyJWgJFM63kt1XDw0qRZn
+         W9+y2DgbnhIXglegOT3boyWP9ePykGq2krZjwjN56ufFAWIZ7imLFMt0jEBfzVSa85
+         nFmLBtGAuv1hhk+3mBdlWdp2ByZldxCdFE7BJKqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 103/124] rxrpc: Fix server keyring leak
-Date:   Mon, 12 Oct 2020 15:31:47 +0200
-Message-Id: <20201012133151.848250785@linuxfoundation.org>
+Subject: [PATCH 5.8 104/124] net: mscc: ocelot: rename ocelot_board.c to ocelot_vsc7514.c
+Date:   Mon, 12 Oct 2020 15:31:48 +0200
+Message-Id: <20201012133151.895635620@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -42,35 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 38b1dc47a35ba14c3f4472138ea56d014c2d609b ]
+[ Upstream commit 589aa6e7c9de322d47eb33a5cee8cc38838319e6 ]
 
-If someone calls setsockopt() twice to set a server key keyring, the first
-keyring is leaked.
+To follow the model of felix and seville where we have one
+platform-specific file, rename this file to the actual SoC it serves.
 
-Fix it to return an error instead if the server key keyring is already set.
-
-Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/key.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mscc/Makefile                             | 2 +-
+ drivers/net/ethernet/mscc/{ocelot_board.c => ocelot_vsc7514.c} | 0
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+ rename drivers/net/ethernet/mscc/{ocelot_board.c => ocelot_vsc7514.c} (100%)
 
-diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
-index 64cbbd2f16944..85a9ff8cd236a 100644
---- a/net/rxrpc/key.c
-+++ b/net/rxrpc/key.c
-@@ -903,7 +903,7 @@ int rxrpc_request_key(struct rxrpc_sock *rx, char __user *optval, int optlen)
- 
- 	_enter("");
- 
--	if (optlen <= 0 || optlen > PAGE_SIZE - 1)
-+	if (optlen <= 0 || optlen > PAGE_SIZE - 1 || rx->securities)
- 		return -EINVAL;
- 
- 	description = memdup_user_nul(optval, optlen);
+diff --git a/drivers/net/ethernet/mscc/Makefile b/drivers/net/ethernet/mscc/Makefile
+index 91b33b55054e1..ad97a5cca6f99 100644
+--- a/drivers/net/ethernet/mscc/Makefile
++++ b/drivers/net/ethernet/mscc/Makefile
+@@ -2,4 +2,4 @@
+ obj-$(CONFIG_MSCC_OCELOT_SWITCH) += mscc_ocelot_common.o
+ mscc_ocelot_common-y := ocelot.o ocelot_io.o
+ mscc_ocelot_common-y += ocelot_regs.o ocelot_tc.o ocelot_police.o ocelot_ace.o ocelot_flower.o ocelot_ptp.o
+-obj-$(CONFIG_MSCC_OCELOT_SWITCH_OCELOT) += ocelot_board.o
++obj-$(CONFIG_MSCC_OCELOT_SWITCH_OCELOT) += ocelot_vsc7514.o
+diff --git a/drivers/net/ethernet/mscc/ocelot_board.c b/drivers/net/ethernet/mscc/ocelot_vsc7514.c
+similarity index 100%
+rename from drivers/net/ethernet/mscc/ocelot_board.c
+rename to drivers/net/ethernet/mscc/ocelot_vsc7514.c
 -- 
 2.25.1
 
