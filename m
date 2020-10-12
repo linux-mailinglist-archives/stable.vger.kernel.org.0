@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 034B528B9C4
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5104428B73D
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403763AbgJLOD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:03:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39334 "EHLO mail.kernel.org"
+        id S1731143AbgJLNlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:41:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730869AbgJLNgi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:36:38 -0400
+        id S1730935AbgJLNlJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:41:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E58A6204EA;
-        Mon, 12 Oct 2020 13:36:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6D222074F;
+        Mon, 12 Oct 2020 13:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509797;
-        bh=qovHLqOX6dKC0er9q16ugt2Pz/B2zNU1ngILNW7pJts=;
+        s=default; t=1602510068;
+        bh=b/2IR38nm6lRVpvPTsy+ng0C1Ow0lnQ250QHF6yuCkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZdhSwjhjDxUXhlShgEuOhrWqtYC/mYLoXeGFL9hjBKBN/WnFjqvo6Ql3Ts8FB8fLN
-         jvRxHBygqX5/Vy8g9chIo0X0zoiiZcMToG7l385vU0KdirrIS3CmLRR6kfazCe2mCH
-         dvAPoA59PdKWTHh9/Ap8xQwSW8bT+Ju0V34bcJjE=
+        b=Oi49tRXkWdED1nucVFt0EjYbZ6s6sGnl08QSjw47SEbjqzJIz25W21rQZiF1luIIV
+         xjqyoOg9qdG/39E7+TBZg5KyhLsCPKnxY2Xthh28ldKNq23NKmbyXw8ukyoQIfGr3h
+         fjF9e4spIpHpRZkcQzS6IpgHhyE1bbEzwZIefof0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 34/70] Revert "ravb: Fixed to be able to unload modules"
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Anand Jain <anand.jain@oracle.com>
+Subject: [PATCH 5.4 27/85] Btrfs: send, fix emission of invalid clone operations within the same file
 Date:   Mon, 12 Oct 2020 15:26:50 +0200
-Message-Id: <20201012132631.823734115@linuxfoundation.org>
+Message-Id: <20201012132634.157773036@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,244 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 77972b55fb9d35d4a6b0abca99abffaa4ec6a85b upstream.
+commit 9722b10148504c4153a74a9c89725af271e490fc upstream.
 
-This reverts commit 1838d6c62f57836639bd3d83e7855e0ee4f6defc.
+When doing an incremental send and a file has extents shared with itself
+at different file offsets, it's possible for send to emit clone operations
+that will fail at the destination because the source range goes beyond the
+file's current size. This happens when the file size has increased in the
+send snapshot, there is a hole between the shared extents and both shared
+extents are at file offsets which are greater the file's size in the
+parent snapshot.
 
-This commit moved the ravb_mdio_init() call (and thus the
-of_mdiobus_register() call) from the ravb_probe() to the ravb_open()
-call.  This causes a regression during system resume (s2idle/s2ram), as
-new PHY devices cannot be bound while suspended.
+Example:
 
-During boot, the Micrel PHY is detected like this:
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt/sdb
 
-    Micrel KSZ9031 Gigabit PHY e6800000.ethernet-ffffffff:00: attached PHY driver [Micrel KSZ9031 Gigabit PHY] (mii_bus:phy_addr=e6800000.ethernet-ffffffff:00, irq=228)
-    ravb e6800000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+  $ xfs_io -f -c "pwrite -S 0xf1 0 64K" /mnt/sdb/foobar
+  $ btrfs subvolume snapshot -r /mnt/sdb /mnt/sdb/base
+  $ btrfs send -f /tmp/1.snap /mnt/sdb/base
 
-During system suspend, (A) defer_all_probes is set to true, and (B)
-usermodehelper_disabled is set to UMH_DISABLED, to avoid drivers being
-probed while suspended.
+  # Create a 320K extent at file offset 512K.
+  $ xfs_io -c "pwrite -S 0xab 512K 64K" /mnt/sdb/foobar
+  $ xfs_io -c "pwrite -S 0xcd 576K 64K" /mnt/sdb/foobar
+  $ xfs_io -c "pwrite -S 0xef 640K 64K" /mnt/sdb/foobar
+  $ xfs_io -c "pwrite -S 0x64 704K 64K" /mnt/sdb/foobar
+  $ xfs_io -c "pwrite -S 0x73 768K 64K" /mnt/sdb/foobar
 
-  A. If CONFIG_MODULES=n, phy_device_register() calling device_add()
-     merely adds the device, but does not probe it yet, as
-     really_probe() returns early due to defer_all_probes being set:
+  # Clone part of that 320K extent into a lower file offset (192K).
+  # This file offset is greater than the file's size in the parent
+  # snapshot (64K). Also the clone range is a bit behind the offset of
+  # the 320K extent so that we leave a hole between the shared extents.
+  $ xfs_io -c "reflink /mnt/sdb/foobar 448K 192K 192K" /mnt/sdb/foobar
 
-       dpm_resume+0x128/0x4f8
-	 device_resume+0xcc/0x1b0
-	   dpm_run_callback+0x74/0x340
-	     ravb_resume+0x190/0x1b8
-	       ravb_open+0x84/0x770
-		 of_mdiobus_register+0x1e0/0x468
-		   of_mdiobus_register_phy+0x1b8/0x250
-		     of_mdiobus_phy_device_register+0x178/0x1e8
-		       phy_device_register+0x114/0x1b8
-			 device_add+0x3d4/0x798
-			   bus_probe_device+0x98/0xa0
-			     device_initial_probe+0x10/0x18
-			       __device_attach+0xe4/0x140
-				 bus_for_each_drv+0x64/0xc8
-				   __device_attach_driver+0xb8/0xe0
-				     driver_probe_device.part.11+0xc4/0xd8
-				       really_probe+0x32c/0x3b8
+  $ btrfs subvolume snapshot -r /mnt/sdb /mnt/sdb/incr
+  $ btrfs send -p /mnt/sdb/base -f /tmp/2.snap /mnt/sdb/incr
 
-     Later, phy_attach_direct() notices no PHY driver has been bound,
-     and falls back to the Generic PHY, leading to degraded operation:
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt/sdc
 
-       Generic PHY e6800000.ethernet-ffffffff:00: attached PHY driver [Generic PHY] (mii_bus:phy_addr=e6800000.ethernet-ffffffff:00, irq=POLL)
-       ravb e6800000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+  $ btrfs receive -f /tmp/1.snap /mnt/sdc
+  $ btrfs receive -f /tmp/2.snap /mnt/sdc
+  ERROR: failed to clone extents to foobar: Invalid argument
 
-  B. If CONFIG_MODULES=y, request_module() returns early with -EBUSY due
-     to UMH_DISABLED, and MDIO initialization fails completely:
+The problem is that after processing the extent at file offset 256K, which
+refers to the first 128K of the 320K extent created by the buffered write
+operations, we have 'cur_inode_next_write_offset' set to 384K, which
+corresponds to the end offset of the partially shared extent (256K + 128K)
+and to the current file size in the receiver. Then when we process the
+extent at offset 512K, we do extent backreference iteration to figure out
+if we can clone the extent from some other inode or from the same inode,
+and we consider the extent at offset 256K of the same inode as a valid
+source for a clone operation, which is not correct because at that point
+the current file size in the receiver is 384K, which corresponds to the
+end of last processed extent (at file offset 256K), so using a clone
+source range from 256K to 256K + 320K is invalid because that goes past
+the current size of the file (384K) - this makes the receiver get an
+-EINVAL error when attempting the clone operation.
 
-       mdio_bus e6800000.ethernet-ffffffff:00: error -16 loading PHY driver module for ID 0x00221622
-       ravb e6800000.ethernet eth0: failed to initialize MDIO
-       PM: dpm_run_callback(): ravb_resume+0x0/0x1b8 returns -16
-       PM: Device e6800000.ethernet failed to resume: error -16
+So fix this by excluding clone sources that have a range that goes beyond
+the current file size in the receiver when iterating extent backreferences.
 
-     Ignoring -EBUSY in phy_request_driver_module(), like was done for
-     -ENOENT in commit 21e194425abd65b5 ("net: phy: fix issue with loading
-     PHY driver w/o initramfs"), would makes it fall back to the Generic
-     PHY, like in the CONFIG_MODULES=n case.
+A test case for fstests follows soon.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: stable@vger.kernel.org
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 11f2069c113e02 ("Btrfs: send, allow clone operations within the same file")
+CC: stable@vger.kernel.org # 5.5+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/renesas/ravb_main.c |  110 +++++++++++++++----------------
- 1 file changed, 55 insertions(+), 55 deletions(-)
+ fs/btrfs/send.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1374,51 +1374,6 @@ static inline int ravb_hook_irq(unsigned
- 	return error;
- }
- 
--/* MDIO bus init function */
--static int ravb_mdio_init(struct ravb_private *priv)
--{
--	struct platform_device *pdev = priv->pdev;
--	struct device *dev = &pdev->dev;
--	int error;
--
--	/* Bitbang init */
--	priv->mdiobb.ops = &bb_ops;
--
--	/* MII controller setting */
--	priv->mii_bus = alloc_mdio_bitbang(&priv->mdiobb);
--	if (!priv->mii_bus)
--		return -ENOMEM;
--
--	/* Hook up MII support for ethtool */
--	priv->mii_bus->name = "ravb_mii";
--	priv->mii_bus->parent = dev;
--	snprintf(priv->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
--		 pdev->name, pdev->id);
--
--	/* Register MDIO bus */
--	error = of_mdiobus_register(priv->mii_bus, dev->of_node);
--	if (error)
--		goto out_free_bus;
--
--	return 0;
--
--out_free_bus:
--	free_mdio_bitbang(priv->mii_bus);
--	return error;
--}
--
--/* MDIO bus release function */
--static int ravb_mdio_release(struct ravb_private *priv)
--{
--	/* Unregister mdio bus */
--	mdiobus_unregister(priv->mii_bus);
--
--	/* Free bitbang info */
--	free_mdio_bitbang(priv->mii_bus);
--
--	return 0;
--}
--
- /* Network device open function for Ethernet AVB */
- static int ravb_open(struct net_device *ndev)
- {
-@@ -1427,13 +1382,6 @@ static int ravb_open(struct net_device *
- 	struct device *dev = &pdev->dev;
- 	int error;
- 
--	/* MDIO bus init */
--	error = ravb_mdio_init(priv);
--	if (error) {
--		netdev_err(ndev, "failed to initialize MDIO\n");
--		return error;
--	}
--
- 	napi_enable(&priv->napi[RAVB_BE]);
- 	napi_enable(&priv->napi[RAVB_NC]);
- 
-@@ -1511,7 +1459,6 @@ out_free_irq:
- out_napi_off:
- 	napi_disable(&priv->napi[RAVB_NC]);
- 	napi_disable(&priv->napi[RAVB_BE]);
--	ravb_mdio_release(priv);
- 	return error;
- }
- 
-@@ -1810,8 +1757,6 @@ static int ravb_close(struct net_device
- 	ravb_ring_free(ndev, RAVB_BE);
- 	ravb_ring_free(ndev, RAVB_NC);
- 
--	ravb_mdio_release(priv);
--
- 	return 0;
- }
- 
-@@ -1913,6 +1858,51 @@ static const struct net_device_ops ravb_
- 	.ndo_set_mac_address	= eth_mac_addr,
- };
- 
-+/* MDIO bus init function */
-+static int ravb_mdio_init(struct ravb_private *priv)
-+{
-+	struct platform_device *pdev = priv->pdev;
-+	struct device *dev = &pdev->dev;
-+	int error;
-+
-+	/* Bitbang init */
-+	priv->mdiobb.ops = &bb_ops;
-+
-+	/* MII controller setting */
-+	priv->mii_bus = alloc_mdio_bitbang(&priv->mdiobb);
-+	if (!priv->mii_bus)
-+		return -ENOMEM;
-+
-+	/* Hook up MII support for ethtool */
-+	priv->mii_bus->name = "ravb_mii";
-+	priv->mii_bus->parent = dev;
-+	snprintf(priv->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
-+		 pdev->name, pdev->id);
-+
-+	/* Register MDIO bus */
-+	error = of_mdiobus_register(priv->mii_bus, dev->of_node);
-+	if (error)
-+		goto out_free_bus;
-+
-+	return 0;
-+
-+out_free_bus:
-+	free_mdio_bitbang(priv->mii_bus);
-+	return error;
-+}
-+
-+/* MDIO bus release function */
-+static int ravb_mdio_release(struct ravb_private *priv)
-+{
-+	/* Unregister mdio bus */
-+	mdiobus_unregister(priv->mii_bus);
-+
-+	/* Free bitbang info */
-+	free_mdio_bitbang(priv->mii_bus);
-+
-+	return 0;
-+}
-+
- static const struct of_device_id ravb_match_table[] = {
- 	{ .compatible = "renesas,etheravb-r8a7790", .data = (void *)RCAR_GEN2 },
- 	{ .compatible = "renesas,etheravb-r8a7794", .data = (void *)RCAR_GEN2 },
-@@ -2142,6 +2132,13 @@ static int ravb_probe(struct platform_de
- 		eth_hw_addr_random(ndev);
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -1270,7 +1270,8 @@ static int __iterate_backrefs(u64 ino, u
+ 		 * destination of the stream.
+ 		 */
+ 		if (ino == bctx->cur_objectid &&
+-		    offset >= bctx->sctx->cur_inode_next_write_offset)
++		    offset + bctx->extent_len >
++		    bctx->sctx->cur_inode_next_write_offset)
+ 			return 0;
  	}
  
-+	/* MDIO bus init */
-+	error = ravb_mdio_init(priv);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to initialize MDIO\n");
-+		goto out_dma_free;
-+	}
-+
- 	netif_napi_add(ndev, &priv->napi[RAVB_BE], ravb_poll, 64);
- 	netif_napi_add(ndev, &priv->napi[RAVB_NC], ravb_poll, 64);
- 
-@@ -2164,6 +2161,8 @@ static int ravb_probe(struct platform_de
- out_napi_del:
- 	netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
-+	ravb_mdio_release(priv);
-+out_dma_free:
- 	dma_free_coherent(ndev->dev.parent, priv->desc_bat_size, priv->desc_bat,
- 			  priv->desc_bat_dma);
- 
-@@ -2196,6 +2195,7 @@ static int ravb_remove(struct platform_d
- 	unregister_netdev(ndev);
- 	netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
-+	ravb_mdio_release(priv);
- 	pm_runtime_disable(&pdev->dev);
- 	free_netdev(ndev);
- 	platform_set_drvdata(pdev, NULL);
 
 
