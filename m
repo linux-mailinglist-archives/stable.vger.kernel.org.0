@@ -2,120 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1CF428BF1C
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 19:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1FE128BFAB
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 20:27:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404081AbgJLRjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 13:39:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39936 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404054AbgJLRjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 13:39:42 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF981C0613D0
-        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 10:39:42 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id n9so15000594pgf.9
-        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 10:39:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=8yCVofX6EK/M3+wlxth+stymdsjqcMumN8dgOB8gGRY=;
-        b=yO1Fzi5ycJ7yFerJ8ZqB7qpIbuB3GoHZ8k3rmLdST3+g7PJoOnkWZX+xAXIksMYuEz
-         T8vihQYEpoNuX2W+B3lLKi5mcZOkX0ZjE2gjrj75gmo/XQpe8FKA+ep87/jVtL5GQ7Z+
-         WplGs1kXvcwOHqqE3d85cmGd0qYakrHI2yFwTtcbWTlPfW4okAIwQK9NOTcUqKqQYJE9
-         T2rwzQcYCC4oieTf5I9S79YjHa2F3MfAJCiOnsS8ht+qYFl/rhrQktxhPbM7PDOCTSba
-         qqAOuqc6z21vWaqQPKcsMVQPo7azKn27r9HVFkr1kQRjCg5ieefflwzUJpGOE6NRJxma
-         YM7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=8yCVofX6EK/M3+wlxth+stymdsjqcMumN8dgOB8gGRY=;
-        b=eEO4xmFn/FXrzDDhhKETVu2ZbhjnSuZ/FPk6oj+utRHy7PvoPXrSoJfAXSfgtuEDal
-         fCNx2sb7fFag8t8XL92/8WjfELbhs82WYEs7Nt4iwDExsMco9tivibTJzkaXcJFr5OwR
-         up4IV1ivbKhZvU1GK5DDzDjrPLbjSP3Q5KveKTvN+nJr89FJJ8TBujiT3uhlVEmvQVKs
-         VzZm+hs4rlXOl7Rvz5CnZQEqfDn114W2mrPw5ghy630p2i7+0HnDp6A1m9xR8qJ+4n/q
-         Sk+bzyWQi7sGgfsnAQl1bG3PHUyZeXeNJv2DINgVRX2KyFeXQdnUgyZQPvLNLS+oT723
-         7ClQ==
-X-Gm-Message-State: AOAM530YdAeRMcwKXc6cnttYylwJJ+ys9HB7BbmRP1B2Sbd6lvqwkYM2
-        JZUysngKFZzS/zxz4ahmXfe1eCms9AmGZw==
-X-Google-Smtp-Source: ABdhPJz3m0UqPVZOqhSvDHBUZHM8LccJgyT8VUr9lHnAorxQBrLyU3ekHrXLOJ+ODEh2opURSwfXbg==
-X-Received: by 2002:a17:90a:1702:: with SMTP id z2mr21247863pjd.88.1602524382011;
-        Mon, 12 Oct 2020 10:39:42 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j23sm12260058pgm.76.2020.10.12.10.39.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2020 10:39:41 -0700 (PDT)
-Message-ID: <5f8494dd.1c69fb81.80873.7a39@mx.google.com>
-Date:   Mon, 12 Oct 2020 10:39:41 -0700 (PDT)
+        id S1729603AbgJLS1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 14:27:34 -0400
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:7067 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726636AbgJLS1d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 14:27:33 -0400
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+        id <B5f84a0090000>; Mon, 12 Oct 2020 11:27:21 -0700
+Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL109.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 12 Oct
+ 2020 18:27:33 +0000
+Received: from jonathanh-vm-01.nvidia.com (10.124.1.5) by mail.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
+ Transport; Mon, 12 Oct 2020 18:27:33 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <pavel@denx.de>, <stable@vger.kernel.org>,
+        <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.4 00/39] 4.4.239-rc1 review
+In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
+References: <20201012132628.130632267@linuxfoundation.org>
+X-NVConfidentiality: public
 Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.238-53-g3bfeb60986ac
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.9.y baseline: 122 runs,
- 1 regressions (v4.9.238-53-g3bfeb60986ac)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <d839ba5b54404ac483d9e2b0b1e8da36@HQMAIL101.nvidia.com>
+Date:   Mon, 12 Oct 2020 18:27:33 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1602527241; bh=jwygHflDFho+TZBCetQR5o7CsOpYEh7ivNOz6C/HnFk=;
+        h=From:To:CC:Subject:In-Reply-To:References:X-NVConfidentiality:
+         Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:
+         Date;
+        b=OPv6LFj8IdqMbKMetCK55sCkqvDCL9Y4Fj8xraXvT3reh3GjV+0lnJPZ341I7+hhZ
+         U147k/hPiFoSwFebiOT58BEDzsTa5Zir4zd5NIMWtd6SJBITnxed1GYRjnombOGdUf
+         7iS/Rj3K3t5Fi0ThtigSBucOfrPv8FJDl/8ZhPjO+g1dmPSKlArm3qHneJjVu2GbgL
+         YxlLIwZxsYKwXBBNh8UxFXAofBDNIYAv4XddGqKIiRrN/suqVDLJrXJ89/5Ad2YeKe
+         Ag6CSngrgcImZ3dLM3/yQ4Owc9Ss1caqfOK+R+sc8yxa3aQ/U0Y8ZG5aL+p6hm5P9q
+         a933S/+piaPnw==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 122 runs, 1 regressions (v4.9.238-53-g3bfeb=
-60986ac)
+On Mon, 12 Oct 2020 15:26:30 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.239 release.
+> There are 39 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 14 Oct 2020 13:26:14 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.239-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Regressions Summary
--------------------
+All tests passing for Tegra ...
 
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    28 tests:	28 pass, 0 fail
 
+Linux version:	4.4.239-rc1-g36437aaa5512
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.238-53-g3bfeb60986ac/plan/baseline/
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.238-53-g3bfeb60986ac
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3bfeb60986ac5540c0260d9b412cc8b164f1ba42 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f84553f03274262824ff3fe
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.238=
--53-g3bfeb60986ac/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.238=
--53-g3bfeb60986ac/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f84553f0327426=
-2824ff405
-      failing since 6 days (last pass: v4.9.238, first fail: v4.9.238-23-g3=
-14770acbbde)
-      2 lines  =20
+Jon
