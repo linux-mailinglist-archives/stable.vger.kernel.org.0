@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7487E28B88B
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:53:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A5E28B88A
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:53:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390308AbgJLNxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:53:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53862 "EHLO mail.kernel.org"
+        id S2389417AbgJLNxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:53:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731407AbgJLNq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731398AbgJLNq4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:46:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D99562076E;
-        Mon, 12 Oct 2020 13:46:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23E2C20878;
+        Mon, 12 Oct 2020 13:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510385;
-        bh=1WjjM+9nuXrf8EQNcqGaaKVZAUagAstyPaXSeg9FrBc=;
+        s=default; t=1602510387;
+        bh=0CMrJjWFHQ/Vh6o6OlG25LLmyoGua1YSTFewTOGmhw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nEZ5e5xC1pLr/KTlkd08d6UO8NJfYIapsCATSQ3EtGZVGhVuT0H/Nh01rSRcd/GaG
-         RhIPtH/C7GpMKaH4X+1KfJxhRuBI4wdiEhi9xtGTtIljSMbnHVdjzjL678tW6qEHHf
-         /AUCIjEzhKVMfqQuwe+9xTvjPTwicTT0qZ3n7Xv4=
+        b=Aa3jmvD+mTuuvML/gdlgcVPc5G3VQPSMM1gWm5bQ1ob76/a9ADPDXaAdpCDYFnMK6
+         zD3Qht6XNK8ardllv46FGIZfByRJl+THSLAUvL1YkHifoIIz5ss4EeM8KmcBcAtGW6
+         0qsj29o5/OS21e3puNsZagh7oqnsxE4qcOcLPAEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wilken Gottwalt <wilken.gottwalt@mailbox.org>,
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Tonghao Zhang <xiangxia.m.yue@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 076/124] net: usb: ax88179_178a: fix missing stop entry in driver_info
-Date:   Mon, 12 Oct 2020 15:31:20 +0200
-Message-Id: <20201012133150.538256181@linuxfoundation.org>
+Subject: [PATCH 5.8 077/124] virtio-net: dont disable guest csum when disable LRO
+Date:   Mon, 12 Oct 2020 15:31:21 +0200
+Message-Id: <20201012133150.586204035@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -44,32 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
-[ Upstream commit 9666ea66a74adfe295cb3a8760c76e1ef70f9caf ]
+[ Upstream commit 1a03b8a35a957f9f38ecb8a97443b7380bbf6a8b ]
 
-Adds the missing .stop entry in the Belkin driver_info structure.
+Open vSwitch and Linux bridge will disable LRO of the interface
+when this interface added to them. Now when disable the LRO, the
+virtio-net csum is disable too. That drops the forwarding performance.
 
-Fixes: e20bd60bf62a ("net: usb: asix88179_178a: Add support for the Belkin B2B128")
-Signed-off-by: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
+Fixes: a02e8964eaf9 ("virtio-net: ethtool configurable LRO")
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/ax88179_178a.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/virtio_net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
-index a38e868e44d46..f0ef3706aad96 100644
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1823,6 +1823,7 @@ static const struct driver_info belkin_info = {
- 	.status = ax88179_status,
- 	.link_reset = ax88179_link_reset,
- 	.reset	= ax88179_reset,
-+	.stop	= ax88179_stop,
- 	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ba38765dc4905..c34927b1d806e 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -63,6 +63,11 @@ static const unsigned long guest_offloads[] = {
+ 	VIRTIO_NET_F_GUEST_CSUM
+ };
+ 
++#define GUEST_OFFLOAD_LRO_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
++				(1ULL << VIRTIO_NET_F_GUEST_TSO6) | \
++				(1ULL << VIRTIO_NET_F_GUEST_ECN)  | \
++				(1ULL << VIRTIO_NET_F_GUEST_UFO))
++
+ struct virtnet_stat_desc {
+ 	char desc[ETH_GSTRING_LEN];
+ 	size_t offset;
+@@ -2547,7 +2552,8 @@ static int virtnet_set_features(struct net_device *dev,
+ 		if (features & NETIF_F_LRO)
+ 			offloads = vi->guest_offloads_capable;
+ 		else
+-			offloads = 0;
++			offloads = vi->guest_offloads_capable &
++				   ~GUEST_OFFLOAD_LRO_MASK;
+ 
+ 		err = virtnet_set_guest_offloads(vi, offloads);
+ 		if (err)
 -- 
 2.25.1
 
