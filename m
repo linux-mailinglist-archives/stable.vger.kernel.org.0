@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA9B028B90C
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:57:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED9A728B91E
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390334AbgJLN5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:57:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46218 "EHLO mail.kernel.org"
+        id S2390610AbgJLN5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:57:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389365AbgJLNnk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389353AbgJLNnk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:43:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31F2A22251;
-        Mon, 12 Oct 2020 13:43:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B5832222F;
+        Mon, 12 Oct 2020 13:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510210;
-        bh=beGJu3rWvTpblMJs/GmKYmVmzuSd2vlgK2kh3X3A9rc=;
+        s=default; t=1602510212;
+        bh=dw7TOefPrgEBFQ8QKruENJPntnLB1JjXdXZx+35+3+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0W13JXoGHMjhk38Hkz31/TiDWwZyMVkUFFj9tWxJmQmXDPnGamwj4pYZ1uTfTbfz6
-         18PuqRVCBq/UIRs3q2rRJ0o4ody83riHkNo0tcxT1oA7PaKPVnD/j4vgeFBaftwsYu
-         7S/Op2nZLIHwt47oZXqPX2e1wThLLmY2ZLQn1CPM=
+        b=H/JvpSvzjEElpuQ3uO8cFdMqzzHnaIpLzE16HAmeAM99YocRBORtbXl2PGaOJm+Ew
+         6jOvpcBHSjUlG4SKoPGaF1AqRPVYNJgj98EGp1pl2e1fHAsW7csuHdkmR/HGsOb4p1
+         eckSldZ7OlZ5L35Q5mpqIQ/FZcPaHvMrS7+28bcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Davide Caratti <dcaratti@redhat.com>,
+        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 79/85] net/core: check length before updating Ethertype in skb_mpls_{push,pop}
-Date:   Mon, 12 Oct 2020 15:27:42 +0200
-Message-Id: <20201012132636.643978471@linuxfoundation.org>
+Subject: [PATCH 5.4 80/85] net/tls: race causes kernel panic
+Date:   Mon, 12 Oct 2020 15:27:43 +0200
+Message-Id: <20201012132636.683819156@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
 References: <20201012132632.846779148@linuxfoundation.org>
@@ -43,48 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Rohit Maheshwari <rohitm@chelsio.com>
 
-commit 4296adc3e32f5d544a95061160fe7e127be1b9ff upstream.
+commit 38f7e1c0c43dd25b06513137bb6fd35476f9ec6d upstream.
 
-Openvswitch allows to drop a packet's Ethernet header, therefore
-skb_mpls_push() and skb_mpls_pop() might be called with ethernet=true
-and mac_len=0. In that case the pointer passed to skb_mod_eth_type()
-doesn't point to an Ethernet header and the new Ethertype is written at
-unexpected locations.
+BUG: kernel NULL pointer dereference, address: 00000000000000b8
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 80000008b6fef067 P4D 80000008b6fef067 PUD 8b6fe6067 PMD 0
+ Oops: 0000 [#1] SMP PTI
+ CPU: 12 PID: 23871 Comm: kworker/12:80 Kdump: loaded Tainted: G S
+ 5.9.0-rc3+ #1
+ Hardware name: Supermicro X10SRA-F/X10SRA-F, BIOS 2.1 03/29/2018
+ Workqueue: events tx_work_handler [tls]
+ RIP: 0010:tx_work_handler+0x1b/0x70 [tls]
+ Code: dc fe ff ff e8 16 d4 a3 f6 66 0f 1f 44 00 00 0f 1f 44 00 00 55 53 48 8b
+ 6f 58 48 8b bd a0 04 00 00 48 85 ff 74 1c 48 8b 47 28 <48> 8b 90 b8 00 00 00 83
+ e2 02 75 0c f0 48 0f ba b0 b8 00 00 00 00
+ RSP: 0018:ffffa44ace61fe88 EFLAGS: 00010286
+ RAX: 0000000000000000 RBX: ffff91da9e45cc30 RCX: dead000000000122
+ RDX: 0000000000000001 RSI: ffff91da9e45cc38 RDI: ffff91d95efac200
+ RBP: ffff91da133fd780 R08: 0000000000000000 R09: 000073746e657665
+ R10: 8080808080808080 R11: 0000000000000000 R12: ffff91dad7d30700
+ R13: ffff91dab6561080 R14: 0ffff91dad7d3070 R15: ffff91da9e45cc38
+ FS:  0000000000000000(0000) GS:ffff91dad7d00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00000000000000b8 CR3: 0000000906478003 CR4: 00000000003706e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  process_one_work+0x1a7/0x370
+  worker_thread+0x30/0x370
+  ? process_one_work+0x370/0x370
+  kthread+0x114/0x130
+  ? kthread_park+0x80/0x80
+  ret_from_fork+0x22/0x30
 
-Fix this by verifying that mac_len is big enough to contain an Ethernet
-header.
+tls_sw_release_resources_tx() waits for encrypt_pending, which
+can have race, so we need similar changes as in commit
+0cada33241d9de205522e3858b18e506ca5cce2c here as well.
 
-Fixes: fa4e0f8855fc ("net/sched: fix corrupted L2 header with MPLS 'push' and 'pop' actions")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Acked-by: Davide Caratti <dcaratti@redhat.com>
+Fixes: a42055e8d2c3 ("net/tls: Add support for async encryption of records for performance")
+Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
+Acked-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/skbuff.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/tls/tls_sw.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -5515,7 +5515,7 @@ int skb_mpls_push(struct sk_buff *skb, _
- 	lse->label_stack_entry = mpls_lse;
- 	skb_postpush_rcsum(skb, lse, MPLS_HLEN);
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -2137,10 +2137,15 @@ void tls_sw_release_resources_tx(struct
+ 	struct tls_context *tls_ctx = tls_get_ctx(sk);
+ 	struct tls_sw_context_tx *ctx = tls_sw_ctx_tx(tls_ctx);
+ 	struct tls_rec *rec, *tmp;
++	int pending;
  
--	if (ethernet)
-+	if (ethernet && mac_len >= ETH_HLEN)
- 		skb_mod_eth_type(skb, eth_hdr(skb), mpls_proto);
- 	skb->protocol = mpls_proto;
+ 	/* Wait for any pending async encryptions to complete */
+-	smp_store_mb(ctx->async_notify, true);
+-	if (atomic_read(&ctx->encrypt_pending))
++	spin_lock_bh(&ctx->encrypt_compl_lock);
++	ctx->async_notify = true;
++	pending = atomic_read(&ctx->encrypt_pending);
++	spin_unlock_bh(&ctx->encrypt_compl_lock);
++
++	if (pending)
+ 		crypto_wait_req(-EINPROGRESS, &ctx->async_wait);
  
-@@ -5555,7 +5555,7 @@ int skb_mpls_pop(struct sk_buff *skb, __
- 	skb_reset_mac_header(skb);
- 	skb_set_network_header(skb, mac_len);
- 
--	if (ethernet) {
-+	if (ethernet && mac_len >= ETH_HLEN) {
- 		struct ethhdr *hdr;
- 
- 		/* use mpls_hdr() to get ethertype to account for VLANs. */
+ 	tls_tx_records(sk, -1);
 
 
