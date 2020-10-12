@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DAC928B94B
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF34428B99D
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388717AbgJLN7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:59:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44230 "EHLO mail.kernel.org"
+        id S2389554AbgJLOCG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:02:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730825AbgJLNkJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:40:09 -0400
+        id S1730285AbgJLNiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:38:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EEAE22228;
-        Mon, 12 Oct 2020 13:40:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A424622268;
+        Mon, 12 Oct 2020 13:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510008;
-        bh=smyZOToIGCutT2X2q6p5QufM/zkBX0u0uJwZ7MgKHk0=;
+        s=default; t=1602509868;
+        bh=g9eZMOySVwoeHzqMnMxXsSUskHfz637tZ/TK/8hEtgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sGGkhPhNiX2sxXMdlzo0Lw92KZR1sYCX4olyDOWKJUhDzWtQPpMcy8HIMMul4x4DJ
-         a9LGuQ/pO4983b9Y0kTb5AwuT0DVRsZ7Piv7p8DgSG7Zlqlke436cbC//jlm6H55ga
-         emWF6hdD8KqwNmDSAy02fpiXyFrsQJFfxvFwhRzw=
+        b=HWy/z2jXvaMe4Z3+uOZhhWE1B47ufqujbUDpI5/fJ+kscbyk7/hNpu/2Ndcask3n3
+         U2gIdWNCasBroVgR9uJY9DM0NKH+memnjQ4fZ3glM+643KZjXE8kiTnER/E0ckt692
+         xy0cXgmfIFosFsdDQuNF4+kHqShCUkH/cWog9eKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Voon Weifeng <weifeng.voon@intel.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 34/49] net: stmmac: removed enabling eee in EEE set callback
+Subject: [PATCH 4.14 64/70] rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()
 Date:   Mon, 12 Oct 2020 15:27:20 +0200
-Message-Id: <20201012132631.030643415@linuxfoundation.org>
+Message-Id: <20201012132633.284230434@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Voon Weifeng <weifeng.voon@intel.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 7241c5a697479c7d0c5a96595822cdab750d41ae ]
+[ Upstream commit 9a059cd5ca7d9c5c4ca5a6e755cf72f230176b6a ]
 
-EEE should be only be enabled during stmmac_mac_link_up() when the
-link are up and being set up properly. set_eee should only do settings
-configuration and disabling the eee.
+If rxrpc_read() (which allows KEYCTL_READ to read a key), sees a token of a
+type it doesn't recognise, it can BUG in a couple of places, which is
+unnecessary as it can easily get back to userspace.
 
-Without this fix, turning on EEE using ethtool will return
-"Operation not supported". This is due to the driver is in a dead loop
-waiting for eee to be advertised in the for eee to be activated but the
-driver will only configure the EEE advertisement after the eee is
-activated.
+Fix this to print an error message instead.
 
-Ethtool should only return "Operation not supported" if there is no EEE
-capbility in the MAC controller.
-
-Fixes: 8a7493e58ad6 ("net: stmmac: Fix a race in EEE enable callback")
-Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
-Acked-by: Mark Gross <mgross@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 99455153d067 ("RxRPC: Parse security index 5 keys (Kerberos 5)")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/stmicro/stmmac/stmmac_ethtool.c  | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ net/rxrpc/key.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-index 4d5fb4b51cc4f..5986fe927ad0b 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-@@ -694,23 +694,16 @@ static int stmmac_ethtool_op_set_eee(struct net_device *dev,
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	int ret;
+diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
+index fead67b42a993..1fe203c56faf0 100644
+--- a/net/rxrpc/key.c
++++ b/net/rxrpc/key.c
+@@ -1110,7 +1110,8 @@ static long rxrpc_read(const struct key *key,
+ 			break;
  
--	if (!edata->eee_enabled) {
-+	if (!priv->dma_cap.eee)
-+		return -EOPNOTSUPP;
-+
-+	if (!edata->eee_enabled)
- 		stmmac_disable_eee_mode(priv);
--	} else {
--		/* We are asking for enabling the EEE but it is safe
--		 * to verify all by invoking the eee_init function.
--		 * In case of failure it will return an error.
--		 */
--		edata->eee_enabled = stmmac_eee_init(priv);
--		if (!edata->eee_enabled)
--			return -EOPNOTSUPP;
--	}
+ 		default: /* we have a ticket we can't encode */
+-			BUG();
++			pr_err("Unsupported key token type (%u)\n",
++			       token->security_index);
+ 			continue;
+ 		}
  
- 	ret = phy_ethtool_set_eee(dev->phydev, edata);
- 	if (ret)
- 		return ret;
+@@ -1226,7 +1227,6 @@ static long rxrpc_read(const struct key *key,
+ 			break;
  
--	priv->eee_enabled = edata->eee_enabled;
- 	priv->tx_lpi_timer = edata->tx_lpi_timer;
- 	return 0;
- }
+ 		default:
+-			BUG();
+ 			break;
+ 		}
+ 
 -- 
 2.25.1
 
