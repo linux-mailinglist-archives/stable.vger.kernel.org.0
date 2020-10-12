@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDAB628B813
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A05528B814
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389755AbgJLNtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:49:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55730 "EHLO mail.kernel.org"
+        id S2389586AbgJLNtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:49:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731924AbgJLNsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:48:20 -0400
+        id S1731930AbgJLNsV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:48:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E64EA20878;
-        Mon, 12 Oct 2020 13:48:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F21F2065C;
+        Mon, 12 Oct 2020 13:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510498;
-        bh=ohG4jcxQpj6BX36E9+eDBoto7OXUW459oTJuDdrlIp4=;
+        s=default; t=1602510500;
+        bh=nkughcisM3Tew1sDWfUS+ImMOVIfJ4vGc+Frw2AFkWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ANawH8kGEi59VM+S6LYA1qfUmIhhBiDEtiK4EgWZbzlgOS5y7YqANlO8Jj6Gj7K0N
-         k3Jjie5QuWYUo5Ye5nawWtlWTdCbRLpkuvMs8ZnExDvU4BIoLsn6xH6oANz30jK5I9
-         LWQWDb0LwTt2/oYuPSqOnWWXqYghAp5LpIXaI/do=
+        b=oUxYcE/vxN0DpyWO3WwyRXaoWzeR55VZx9K0M1zzcb3pYezjvjBVjPSbRjCKJcJSv
+         RH2Jlnppu62/sCyRTm2BE55II0Y+hgIVgzJiSoC11qzvCpTj9JkXG+lJfFexNHf+RD
+         II5xKIbquLE6/ndX3o90hQLGuIdTlLSIQxDES/L4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.8 118/124] net/mlx5e: Fix drivers declaration to support GRE offload
-Date:   Mon, 12 Oct 2020 15:32:02 +0200
-Message-Id: <20201012133152.560252948@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>
+Subject: [PATCH 5.8 119/124] tty/vt: Do not warn when huge selection requested
+Date:   Mon, 12 Oct 2020 15:32:03 +0200
+Message-Id: <20201012133152.609765516@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -44,60 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@mellanox.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit 3d093bc2369003b4ce6c3522d9b383e47c40045d upstream.
+commit 44c413d9a51752056d606bf6f312003ac1740fab upstream.
 
-Declare GRE offload support with respect to the inner protocol. Add a
-list of supported inner protocols on which the driver can offload
-checksum and GSO. For other protocols, inform the stack to do the needed
-operations. There is no noticeable impact on GRE performance.
+The tty TIOCL_SETSEL ioctl allocates a memory buffer big enough for text
+selection area. The maximum allowed console size is
+VC_RESIZE_MAXCOL * VC_RESIZE_MAXROW == 32767*32767 == ~1GB and typical
+MAX_ORDER is set to allow allocations lot less than than (circa 16MB).
 
-Fixes: 2729984149e6 ("net/mlx5e: Support TSO and TX checksum offloads for GRE tunnels")
-Signed-off-by: Aya Levin <ayal@mellanox.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+So it is quite possible to trigger huge allocation (and syzkaller just
+did that) which is going to fail (which is fine) with a backtrace in
+mm/page_alloc.c at WARN_ON_ONCE(!(gfp_mask & __GFP_NOWARN)) and
+this may trigger panic (if panic_on_warn is enabled) and
+leak kernel addresses to dmesg.
+
+This passes __GFP_NOWARN to kmalloc_array to avoid unnecessary user-
+triggered WARN_ON. Note that the error is not ignored and
+the warning is still printed.
+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Link: https://lore.kernel.org/r/20200617070444.116704-1-aik@ozlabs.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/tty/vt/selection.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4323,6 +4323,21 @@ void mlx5e_del_vxlan_port(struct net_dev
- 	mlx5e_vxlan_queue_work(priv, be16_to_cpu(ti->port), 0);
- }
- 
-+static bool mlx5e_gre_tunnel_inner_proto_offload_supported(struct mlx5_core_dev *mdev,
-+							   struct sk_buff *skb)
-+{
-+	switch (skb->inner_protocol) {
-+	case htons(ETH_P_IP):
-+	case htons(ETH_P_IPV6):
-+	case htons(ETH_P_TEB):
-+		return true;
-+	case htons(ETH_P_MPLS_UC):
-+	case htons(ETH_P_MPLS_MC):
-+		return MLX5_CAP_ETH(mdev, tunnel_stateless_mpls_over_gre);
-+	}
-+	return false;
-+}
-+
- static netdev_features_t mlx5e_tunnel_features_check(struct mlx5e_priv *priv,
- 						     struct sk_buff *skb,
- 						     netdev_features_t features)
-@@ -4345,7 +4360,9 @@ static netdev_features_t mlx5e_tunnel_fe
- 
- 	switch (proto) {
- 	case IPPROTO_GRE:
--		return features;
-+		if (mlx5e_gre_tunnel_inner_proto_offload_supported(priv->mdev, skb))
-+			return features;
-+		break;
- 	case IPPROTO_IPIP:
- 	case IPPROTO_IPV6:
- 		if (mlx5e_tunnel_proto_supported(priv->mdev, IPPROTO_IPIP))
+--- a/drivers/tty/vt/selection.c
++++ b/drivers/tty/vt/selection.c
+@@ -193,7 +193,7 @@ static int vc_selection_store_chars(stru
+ 	/* Allocate a new buffer before freeing the old one ... */
+ 	/* chars can take up to 4 bytes with unicode */
+ 	bp = kmalloc_array((vc_sel.end - vc_sel.start) / 2 + 1, unicode ? 4 : 1,
+-			   GFP_KERNEL);
++			   GFP_KERNEL | __GFP_NOWARN);
+ 	if (!bp) {
+ 		printk(KERN_WARNING "selection: kmalloc() failed\n");
+ 		clear_selection();
 
 
