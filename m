@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E51A428B802
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8D3528B838
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:50:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388755AbgJLNsk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:48:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53874 "EHLO mail.kernel.org"
+        id S2389769AbgJLNuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:50:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731907AbgJLNsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731922AbgJLNsT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:48:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B655122272;
-        Mon, 12 Oct 2020 13:47:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05F8420838;
+        Mon, 12 Oct 2020 13:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510473;
-        bh=0hs6sUWUUadl862mFBfbn80B9RAWItTP2g8QhSrKaWw=;
+        s=default; t=1602510475;
+        bh=xaKaBIrkkXGyYw7amhaPuxjNGljU04YxFH7p5PWnDjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLjCnRUxkF78aqPeJcJc0tZnrpRA10nQelGagjxwNFUEv9Mcs9KHL3e+X5iIuqdvc
-         /qJcHBHbkbyfg0Cm8tK/ypQ1lPYemhsJLjnNasVobZ136SNy/E6MMv3as3JrbJvzcS
-         tMOHjw0EuqPqCVYJ/daJM1aNl1Wzt1EKZq5GXWeA=
+        b=DP2hT/0goXcApwoBoCJqhMxRtgAWm77MrzGOXkaxfRDF7VRHIbtxCsfDYFk2+vHmT
+         duVgxIZCYcT88F5cT3tWH4KwsEScbjyKcRm1DJNQGuBobFbimS36br4q6Xjpq+dFIN
+         27+x2Uo0ZKj6EAb6kyKFK+hQSrnZXPlhMtM93jF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Alexandre Ferrieux <alexandre.ferrieux@orange.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 113/124] tcp: fix receive window update in tcp_add_backlog()
-Date:   Mon, 12 Oct 2020 15:31:57 +0200
-Message-Id: <20201012133152.323410412@linuxfoundation.org>
+Subject: [PATCH 5.8 114/124] netlink: fix policy dump leak
+Date:   Mon, 12 Oct 2020 15:31:58 +0200
+Message-Id: <20201012133152.369524503@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -45,89 +43,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 86bccd0367130f481ca99ba91de1c6a5aa1c78c1 upstream.
+commit a95bc734e60449e7b073ff7ff70c35083b290ae9 upstream.
 
-We got reports from GKE customers flows being reset by netfilter
-conntrack unless nf_conntrack_tcp_be_liberal is set to 1.
+If userspace doesn't complete the policy dump, we leak the
+allocated state. Fix this.
 
-Traces seemed to suggest ACK packet being dropped by the
-packet capture, or more likely that ACK were received in the
-wrong order.
-
- wscale=7, SYN and SYNACK not shown here.
-
- This ACK allows the sender to send 1871*128 bytes from seq 51359321 :
- New right edge of the window -> 51359321+1871*128=51598809
-
- 09:17:23.389210 IP A > B: Flags [.], ack 51359321, win 1871, options [nop,nop,TS val 10 ecr 999], length 0
-
- 09:17:23.389212 IP B > A: Flags [.], seq 51422681:51424089, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 1408
- 09:17:23.389214 IP A > B: Flags [.], ack 51422681, win 1376, options [nop,nop,TS val 10 ecr 999], length 0
- 09:17:23.389253 IP B > A: Flags [.], seq 51424089:51488857, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 64768
- 09:17:23.389272 IP A > B: Flags [.], ack 51488857, win 859, options [nop,nop,TS val 10 ecr 999], length 0
- 09:17:23.389275 IP B > A: Flags [.], seq 51488857:51521241, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 32384
-
- Receiver now allows to send 606*128=77568 from seq 51521241 :
- New right edge of the window -> 51521241+606*128=51598809
-
- 09:17:23.389296 IP A > B: Flags [.], ack 51521241, win 606, options [nop,nop,TS val 10 ecr 999], length 0
-
- 09:17:23.389308 IP B > A: Flags [.], seq 51521241:51553625, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 32384
-
- It seems the sender exceeds RWIN allowance, since 51611353 > 51598809
-
- 09:17:23.389346 IP B > A: Flags [.], seq 51553625:51611353, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 57728
- 09:17:23.389356 IP B > A: Flags [.], seq 51611353:51618393, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 7040
-
- 09:17:23.389367 IP A > B: Flags [.], ack 51611353, win 0, options [nop,nop,TS val 10 ecr 999], length 0
-
- netfilter conntrack is not happy and sends RST
-
- 09:17:23.389389 IP A > B: Flags [R], seq 92176528, win 0, length 0
- 09:17:23.389488 IP B > A: Flags [R], seq 174478967, win 0, length 0
-
- Now imagine ACK were delivered out of order and tcp_add_backlog() sets window based on wrong packet.
- New right edge of the window -> 51521241+859*128=51631193
-
-Normally TCP stack handles OOO packets just fine, but it
-turns out tcp_add_backlog() does not. It can update the window
-field of the aggregated packet even if the ACK sequence
-of the last received packet is too old.
-
-Many thanks to Alexandre Ferrieux for independently reporting the issue
-and suggesting a fix.
-
-Fixes: 4f693b55c3d2 ("tcp: implement coalescing on backlog queue")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Alexandre Ferrieux <alexandre.ferrieux@orange.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
+Fixes: d07dcf9aadd6 ("netlink: add infrastructure to expose policies to userspace")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/tcp_ipv4.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/net/netlink.h   |    3 ++-
+ net/netlink/genetlink.c |    9 ++++++++-
+ net/netlink/policy.c    |   24 ++++++++++--------------
+ 3 files changed, 20 insertions(+), 16 deletions(-)
 
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1787,12 +1787,12 @@ bool tcp_add_backlog(struct sock *sk, st
+--- a/include/net/netlink.h
++++ b/include/net/netlink.h
+@@ -1936,7 +1936,8 @@ void nla_get_range_signed(const struct n
+ int netlink_policy_dump_start(const struct nla_policy *policy,
+ 			      unsigned int maxtype,
+ 			      unsigned long *state);
+-bool netlink_policy_dump_loop(unsigned long *state);
++bool netlink_policy_dump_loop(unsigned long state);
+ int netlink_policy_dump_write(struct sk_buff *skb, unsigned long state);
++void netlink_policy_dump_free(unsigned long state);
  
- 	__skb_pull(skb, hdrlen);
- 	if (skb_try_coalesce(tail, skb, &fragstolen, &delta)) {
--		thtail->window = th->window;
+ #endif
+--- a/net/netlink/genetlink.c
++++ b/net/netlink/genetlink.c
+@@ -1079,7 +1079,7 @@ static int ctrl_dumppolicy(struct sk_buf
+ 	if (err)
+ 		return err;
+ 
+-	while (netlink_policy_dump_loop(&cb->args[1])) {
++	while (netlink_policy_dump_loop(cb->args[1])) {
+ 		void *hdr;
+ 		struct nlattr *nest;
+ 
+@@ -1113,6 +1113,12 @@ nla_put_failure:
+ 	return skb->len;
+ }
+ 
++static int ctrl_dumppolicy_done(struct netlink_callback *cb)
++{
++	netlink_policy_dump_free(cb->args[1]);
++	return 0;
++}
++
+ static const struct genl_ops genl_ctrl_ops[] = {
+ 	{
+ 		.cmd		= CTRL_CMD_GETFAMILY,
+@@ -1123,6 +1129,7 @@ static const struct genl_ops genl_ctrl_o
+ 	{
+ 		.cmd		= CTRL_CMD_GETPOLICY,
+ 		.dumpit		= ctrl_dumppolicy,
++		.done		= ctrl_dumppolicy_done,
+ 	},
+ };
+ 
+--- a/net/netlink/policy.c
++++ b/net/netlink/policy.c
+@@ -84,7 +84,6 @@ int netlink_policy_dump_start(const stru
+ 	unsigned int policy_idx;
+ 	int err;
+ 
+-	/* also returns 0 if "*_state" is our ERR_PTR() end marker */
+ 	if (*_state)
+ 		return 0;
+ 
+@@ -140,21 +139,11 @@ static bool netlink_policy_dump_finished
+ 	       !state->policies[state->policy_idx].policy;
+ }
+ 
+-bool netlink_policy_dump_loop(unsigned long *_state)
++bool netlink_policy_dump_loop(unsigned long _state)
+ {
+-	struct nl_policy_dump *state = (void *)*_state;
 -
- 		TCP_SKB_CB(tail)->end_seq = TCP_SKB_CB(skb)->end_seq;
+-	if (IS_ERR(state))
+-		return false;
+-
+-	if (netlink_policy_dump_finished(state)) {
+-		kfree(state);
+-		/* store end marker instead of freed state */
+-		*_state = (unsigned long)ERR_PTR(-ENOENT);
+-		return false;
+-	}
++	struct nl_policy_dump *state = (void *)_state;
  
--		if (after(TCP_SKB_CB(skb)->ack_seq, TCP_SKB_CB(tail)->ack_seq))
-+		if (likely(!before(TCP_SKB_CB(skb)->ack_seq, TCP_SKB_CB(tail)->ack_seq))) {
- 			TCP_SKB_CB(tail)->ack_seq = TCP_SKB_CB(skb)->ack_seq;
-+			thtail->window = th->window;
-+		}
+-	return true;
++	return !netlink_policy_dump_finished(state);
+ }
  
- 		/* We have to update both TCP_SKB_CB(tail)->tcp_flags and
- 		 * thtail->fin, so that the fast path in tcp_rcv_established()
+ int netlink_policy_dump_write(struct sk_buff *skb, unsigned long _state)
+@@ -309,3 +298,10 @@ nla_put_failure:
+ 	nla_nest_cancel(skb, policy);
+ 	return -ENOBUFS;
+ }
++
++void netlink_policy_dump_free(unsigned long _state)
++{
++	struct nl_policy_dump *state = (void *)_state;
++
++	kfree(state);
++}
 
 
