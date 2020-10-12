@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA14728B659
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8251328BA2E
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388614AbgJLNdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:33:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34508 "EHLO mail.kernel.org"
+        id S2390808AbgJLOGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:06:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388663AbgJLNce (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:32:34 -0400
+        id S1730629AbgJLNeY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:34:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 674502078E;
-        Mon, 12 Oct 2020 13:32:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEF0722203;
+        Mon, 12 Oct 2020 13:34:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509553;
-        bh=OzOTN8jKo7kNhY9MZajRoUo7sdMGGo9dIRe98N8tscs=;
+        s=default; t=1602509647;
+        bh=yS1r1UBTDMPm7jip7j1VkAgdBj3p4UJo4rbsI63Irv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0mof9CgiClCvUhHVIuAXDHNUU3oOn1FbB1GBknNwhMFcXXFtvaQzw7M7i90CoEwT
-         huGVzEjIB+oi9d005Z151rEuSaH97iTdNJWfvjs8nmz8aP4EP9rzICm89LywDVYNIB
-         MHRZzb/T3rWcxIu3GT1P4HLl4q2g2Cgh45tcuwyA=
+        b=tznA6sLJU+dDtucqEVe7wo37rTNuQ4lZiZdt36OUTxRkUCFjem+n8gSlR+FPir2P5
+         7DacJKzTKmfrNfu3LNlcsKuF9yrM2L+u2m4dwFmvY4Gs+b23akuL2Qi8bk/EbD7rfp
+         AR/awww5uye4MkvVg9c7T2vn5pFo9lExpEXHxSus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.4 17/39] fbdev, newport_con: Move FONT_EXTRA_WORDS macros into linux/font.h
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 25/54] Revert "ravb: Fixed to be able to unload modules"
 Date:   Mon, 12 Oct 2020 15:26:47 +0200
-Message-Id: <20201012132628.945606515@linuxfoundation.org>
+Message-Id: <20201012132630.754606012@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,105 +44,244 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit bb0890b4cd7f8203e3aa99c6d0f062d6acdaad27 upstream.
+commit 77972b55fb9d35d4a6b0abca99abffaa4ec6a85b upstream.
 
-drivers/video/console/newport_con.c is borrowing FONT_EXTRA_WORDS macros
-from drivers/video/fbdev/core/fbcon.h. To keep things simple, move all
-definitions into <linux/font.h>.
+This reverts commit 1838d6c62f57836639bd3d83e7855e0ee4f6defc.
 
-Since newport_con now uses four extra words, initialize the fourth word in
-newport_set_font() properly.
+This commit moved the ravb_mdio_init() call (and thus the
+of_mdiobus_register() call) from the ravb_probe() to the ravb_open()
+call.  This causes a regression during system resume (s2idle/s2ram), as
+new PHY devices cannot be bound while suspended.
 
+During boot, the Micrel PHY is detected like this:
+
+    Micrel KSZ9031 Gigabit PHY e6800000.ethernet-ffffffff:00: attached PHY driver [Micrel KSZ9031 Gigabit PHY] (mii_bus:phy_addr=e6800000.ethernet-ffffffff:00, irq=228)
+    ravb e6800000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+
+During system suspend, (A) defer_all_probes is set to true, and (B)
+usermodehelper_disabled is set to UMH_DISABLED, to avoid drivers being
+probed while suspended.
+
+  A. If CONFIG_MODULES=n, phy_device_register() calling device_add()
+     merely adds the device, but does not probe it yet, as
+     really_probe() returns early due to defer_all_probes being set:
+
+       dpm_resume+0x128/0x4f8
+	 device_resume+0xcc/0x1b0
+	   dpm_run_callback+0x74/0x340
+	     ravb_resume+0x190/0x1b8
+	       ravb_open+0x84/0x770
+		 of_mdiobus_register+0x1e0/0x468
+		   of_mdiobus_register_phy+0x1b8/0x250
+		     of_mdiobus_phy_device_register+0x178/0x1e8
+		       phy_device_register+0x114/0x1b8
+			 device_add+0x3d4/0x798
+			   bus_probe_device+0x98/0xa0
+			     device_initial_probe+0x10/0x18
+			       __device_attach+0xe4/0x140
+				 bus_for_each_drv+0x64/0xc8
+				   __device_attach_driver+0xb8/0xe0
+				     driver_probe_device.part.11+0xc4/0xd8
+				       really_probe+0x32c/0x3b8
+
+     Later, phy_attach_direct() notices no PHY driver has been bound,
+     and falls back to the Generic PHY, leading to degraded operation:
+
+       Generic PHY e6800000.ethernet-ffffffff:00: attached PHY driver [Generic PHY] (mii_bus:phy_addr=e6800000.ethernet-ffffffff:00, irq=POLL)
+       ravb e6800000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
+
+  B. If CONFIG_MODULES=y, request_module() returns early with -EBUSY due
+     to UMH_DISABLED, and MDIO initialization fails completely:
+
+       mdio_bus e6800000.ethernet-ffffffff:00: error -16 loading PHY driver module for ID 0x00221622
+       ravb e6800000.ethernet eth0: failed to initialize MDIO
+       PM: dpm_run_callback(): ravb_resume+0x0/0x1b8 returns -16
+       PM: Device e6800000.ethernet failed to resume: error -16
+
+     Ignoring -EBUSY in phy_request_driver_module(), like was done for
+     -ENOENT in commit 21e194425abd65b5 ("net: phy: fix issue with loading
+     PHY driver w/o initramfs"), would makes it fall back to the Generic
+     PHY, like in the CONFIG_MODULES=n case.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Cc: stable@vger.kernel.org
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/7fb8bc9b0abc676ada6b7ac0e0bd443499357267.1600953813.git.yepeilin.cs@gmail.com
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/console/fbcon.h        |    7 -------
- drivers/video/console/fbcon_rotate.c |    1 +
- drivers/video/console/newport_con.c  |    7 +------
- drivers/video/console/tileblit.c     |    1 +
- include/linux/font.h                 |    8 ++++++++
- 5 files changed, 11 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/renesas/ravb_main.c |  110 +++++++++++++++----------------
+ 1 file changed, 55 insertions(+), 55 deletions(-)
 
---- a/drivers/video/console/fbcon.h
-+++ b/drivers/video/console/fbcon.h
-@@ -151,13 +151,6 @@ static inline int attr_col_ec(int shift,
- #define attr_bgcol_ec(bgshift, vc, info) attr_col_ec(bgshift, vc, info, 0)
- #define attr_fgcol_ec(fgshift, vc, info) attr_col_ec(fgshift, vc, info, 1)
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -1336,51 +1336,6 @@ static inline int ravb_hook_irq(unsigned
+ 	return error;
+ }
  
--/* Font */
--#define REFCOUNT(fd)	(((int *)(fd))[-1])
--#define FNTSIZE(fd)	(((int *)(fd))[-2])
--#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
--#define FNTSUM(fd)	(((int *)(fd))[-4])
--#define FONT_EXTRA_WORDS 4
+-/* MDIO bus init function */
+-static int ravb_mdio_init(struct ravb_private *priv)
+-{
+-	struct platform_device *pdev = priv->pdev;
+-	struct device *dev = &pdev->dev;
+-	int error;
 -
-     /*
-      *  Scroll Method
-      */
---- a/drivers/video/console/fbcon_rotate.c
-+++ b/drivers/video/console/fbcon_rotate.c
-@@ -14,6 +14,7 @@
- #include <linux/fb.h>
- #include <linux/vt_kern.h>
- #include <linux/console.h>
-+#include <linux/font.h>
- #include <asm/types.h>
- #include "fbcon.h"
- #include "fbcon_rotate.h"
---- a/drivers/video/console/newport_con.c
-+++ b/drivers/video/console/newport_con.c
-@@ -35,12 +35,6 @@
- 
- #define FONT_DATA ((unsigned char *)font_vga_8x16.data)
- 
--/* borrowed from fbcon.c */
--#define REFCOUNT(fd)	(((int *)(fd))[-1])
--#define FNTSIZE(fd)	(((int *)(fd))[-2])
--#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
--#define FONT_EXTRA_WORDS 3
+-	/* Bitbang init */
+-	priv->mdiobb.ops = &bb_ops;
 -
- static unsigned char *font_data[MAX_NR_CONSOLES];
+-	/* MII controller setting */
+-	priv->mii_bus = alloc_mdio_bitbang(&priv->mdiobb);
+-	if (!priv->mii_bus)
+-		return -ENOMEM;
+-
+-	/* Hook up MII support for ethtool */
+-	priv->mii_bus->name = "ravb_mii";
+-	priv->mii_bus->parent = dev;
+-	snprintf(priv->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
+-		 pdev->name, pdev->id);
+-
+-	/* Register MDIO bus */
+-	error = of_mdiobus_register(priv->mii_bus, dev->of_node);
+-	if (error)
+-		goto out_free_bus;
+-
+-	return 0;
+-
+-out_free_bus:
+-	free_mdio_bitbang(priv->mii_bus);
+-	return error;
+-}
+-
+-/* MDIO bus release function */
+-static int ravb_mdio_release(struct ravb_private *priv)
+-{
+-	/* Unregister mdio bus */
+-	mdiobus_unregister(priv->mii_bus);
+-
+-	/* Free bitbang info */
+-	free_mdio_bitbang(priv->mii_bus);
+-
+-	return 0;
+-}
+-
+ /* Network device open function for Ethernet AVB */
+ static int ravb_open(struct net_device *ndev)
+ {
+@@ -1389,13 +1344,6 @@ static int ravb_open(struct net_device *
+ 	struct device *dev = &pdev->dev;
+ 	int error;
  
- static struct newport_regs *npregs;
-@@ -522,6 +516,7 @@ static int newport_set_font(int unit, st
- 	FNTSIZE(new_data) = size;
- 	FNTCHARCNT(new_data) = op->charcount;
- 	REFCOUNT(new_data) = 0;	/* usage counter */
-+	FNTSUM(new_data) = 0;
+-	/* MDIO bus init */
+-	error = ravb_mdio_init(priv);
+-	if (error) {
+-		netdev_err(ndev, "failed to initialize MDIO\n");
+-		return error;
+-	}
+-
+ 	napi_enable(&priv->napi[RAVB_BE]);
+ 	napi_enable(&priv->napi[RAVB_NC]);
  
- 	p = new_data;
- 	for (i = 0; i < op->charcount; i++) {
---- a/drivers/video/console/tileblit.c
-+++ b/drivers/video/console/tileblit.c
-@@ -13,6 +13,7 @@
- #include <linux/fb.h>
- #include <linux/vt_kern.h>
- #include <linux/console.h>
-+#include <linux/font.h>
- #include <asm/types.h>
- #include "fbcon.h"
+@@ -1473,7 +1421,6 @@ out_free_irq:
+ out_napi_off:
+ 	napi_disable(&priv->napi[RAVB_NC]);
+ 	napi_disable(&priv->napi[RAVB_BE]);
+-	ravb_mdio_release(priv);
+ 	return error;
+ }
  
---- a/include/linux/font.h
-+++ b/include/linux/font.h
-@@ -57,4 +57,12 @@ extern const struct font_desc *get_defau
- /* Max. length for the name of a predefined font */
- #define MAX_FONT_NAME	32
+@@ -1771,8 +1718,6 @@ static int ravb_close(struct net_device
+ 	ravb_ring_free(ndev, RAVB_BE);
+ 	ravb_ring_free(ndev, RAVB_NC);
  
-+/* Extra word getters */
-+#define REFCOUNT(fd)	(((int *)(fd))[-1])
-+#define FNTSIZE(fd)	(((int *)(fd))[-2])
-+#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
-+#define FNTSUM(fd)	(((int *)(fd))[-4])
+-	ravb_mdio_release(priv);
+-
+ 	return 0;
+ }
+ 
+@@ -1875,6 +1820,51 @@ static const struct net_device_ops ravb_
+ 	.ndo_change_mtu		= eth_change_mtu,
+ };
+ 
++/* MDIO bus init function */
++static int ravb_mdio_init(struct ravb_private *priv)
++{
++	struct platform_device *pdev = priv->pdev;
++	struct device *dev = &pdev->dev;
++	int error;
 +
-+#define FONT_EXTRA_WORDS 4
++	/* Bitbang init */
++	priv->mdiobb.ops = &bb_ops;
 +
- #endif /* _VIDEO_FONT_H */
++	/* MII controller setting */
++	priv->mii_bus = alloc_mdio_bitbang(&priv->mdiobb);
++	if (!priv->mii_bus)
++		return -ENOMEM;
++
++	/* Hook up MII support for ethtool */
++	priv->mii_bus->name = "ravb_mii";
++	priv->mii_bus->parent = dev;
++	snprintf(priv->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
++		 pdev->name, pdev->id);
++
++	/* Register MDIO bus */
++	error = of_mdiobus_register(priv->mii_bus, dev->of_node);
++	if (error)
++		goto out_free_bus;
++
++	return 0;
++
++out_free_bus:
++	free_mdio_bitbang(priv->mii_bus);
++	return error;
++}
++
++/* MDIO bus release function */
++static int ravb_mdio_release(struct ravb_private *priv)
++{
++	/* Unregister mdio bus */
++	mdiobus_unregister(priv->mii_bus);
++
++	/* Free bitbang info */
++	free_mdio_bitbang(priv->mii_bus);
++
++	return 0;
++}
++
+ static const struct of_device_id ravb_match_table[] = {
+ 	{ .compatible = "renesas,etheravb-r8a7790", .data = (void *)RCAR_GEN2 },
+ 	{ .compatible = "renesas,etheravb-r8a7794", .data = (void *)RCAR_GEN2 },
+@@ -2079,6 +2069,13 @@ static int ravb_probe(struct platform_de
+ 		eth_hw_addr_random(ndev);
+ 	}
+ 
++	/* MDIO bus init */
++	error = ravb_mdio_init(priv);
++	if (error) {
++		dev_err(&pdev->dev, "failed to initialize MDIO\n");
++		goto out_dma_free;
++	}
++
+ 	netif_napi_add(ndev, &priv->napi[RAVB_BE], ravb_poll, 64);
+ 	netif_napi_add(ndev, &priv->napi[RAVB_NC], ravb_poll, 64);
+ 
+@@ -2098,6 +2095,8 @@ static int ravb_probe(struct platform_de
+ out_napi_del:
+ 	netif_napi_del(&priv->napi[RAVB_NC]);
+ 	netif_napi_del(&priv->napi[RAVB_BE]);
++	ravb_mdio_release(priv);
++out_dma_free:
+ 	dma_free_coherent(ndev->dev.parent, priv->desc_bat_size, priv->desc_bat,
+ 			  priv->desc_bat_dma);
+ 
+@@ -2130,6 +2129,7 @@ static int ravb_remove(struct platform_d
+ 	unregister_netdev(ndev);
+ 	netif_napi_del(&priv->napi[RAVB_NC]);
+ 	netif_napi_del(&priv->napi[RAVB_BE]);
++	ravb_mdio_release(priv);
+ 	pm_runtime_disable(&pdev->dev);
+ 	free_netdev(ndev);
+ 	platform_set_drvdata(pdev, NULL);
 
 
