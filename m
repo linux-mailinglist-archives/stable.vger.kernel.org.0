@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92C5F28BA6B
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:10:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01CD228B6D2
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:38:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726897AbgJLOI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:08:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35472 "EHLO mail.kernel.org"
+        id S2388535AbgJLNhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:37:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389153AbgJLNdV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:33:21 -0400
+        id S1730996AbgJLNhO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:37:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BFB420878;
-        Mon, 12 Oct 2020 13:33:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CF2921BE5;
+        Mon, 12 Oct 2020 13:36:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509600;
-        bh=iRvc1h8Jd7frY6IyZasTKD964KP/bVwB2tsTNK254ho=;
+        s=default; t=1602509806;
+        bh=xu3parxoOquZtLOZWNhfKDsRWR89l6biFvMyZKIebg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=baD1rDVAdJWD4Yw31o3xiQKGevyL40+0DxV9U65xv7OeFo/t4gClVvJzfqT4s+JDD
-         2tk/mxBde3SGQd5NBZsv9th/quQ1TKjmd9FYDcMwiZppfmTRlvVkK7qWzwTDebwCba
-         74n+bcolZtY/+vmNaBajZUY3pMvEEsbmot3xjcu8=
+        b=0JWpeOrjuqtMze9sgay/BarEfer3F0kvqj0AaisYk7W5/OEhIKnYcoR+N6pW5PR0i
+         gX3V3jbguAe7J5kNNYYxR/Jmgi5uzpp/rs7xeLiS2yb4OBbKI9TPXpTsWqnQtViLqk
+         lY117OCW+CTT57V9jmFmpnbev1LCAi4E6w0p4FbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        mark gross <mgross@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.4 23/39] platform/x86: thinkpad_acpi: initialize tp_nvram_state variable
+        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 37/70] usermodehelper: reset umask to default before executing user process
 Date:   Mon, 12 Oct 2020 15:26:53 +0200
-Message-Id: <20201012132629.240360556@linuxfoundation.org>
+Message-Id: <20201012132631.961594032@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 5f38b06db8af3ed6c2fc1b427504ca56fae2eacc upstream.
+commit 4013c1496c49615d90d36b9d513eee8e369778e9 upstream.
 
-clang static analysis flags this represenative problem
-thinkpad_acpi.c:2523:7: warning: Branch condition evaluates
-  to a garbage value
-                if (!oldn->mute ||
-                    ^~~~~~~~~~~
+Kernel threads intentionally do CLONE_FS in order to follow any changes
+that 'init' does to set up the root directory (or cwd).
 
-In hotkey_kthread() mute is conditionally set by hotkey_read_nvram()
-but unconditionally checked by hotkey_compare_and_issue_event().
-So the tp_nvram_state variable s[2] needs to be initialized.
+It is admittedly a bit odd, but it avoids the situation where 'init'
+does some extensive setup to initialize the system environment, and then
+we execute a usermode helper program, and it uses the original FS setup
+from boot time that may be very limited and incomplete.
 
-Fixes: 01e88f25985d ("ACPI: thinkpad-acpi: add CMOS NVRAM polling for hot keys (v9)")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: mark gross <mgross@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+[ Both Al Viro and Eric Biederman point out that 'pivot_root()' will
+  follow the root regardless, since it fixes up other users of root (see
+  chroot_fs_refs() for details), but overmounting root and doing a
+  chroot() would not. ]
+
+However, Vegard Nossum noticed that the CLONE_FS not only means that we
+follow the root and current working directories, it also means we share
+umask with whatever init changed it to. That wasn't intentional.
+
+Just reset umask to the original default (0022) before actually starting
+the usermode helper program.
+
+Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Acked-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/thinkpad_acpi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/umh.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -2474,7 +2474,7 @@ static void hotkey_compare_and_issue_eve
-  */
- static int hotkey_kthread(void *data)
- {
--	struct tp_nvram_state s[2];
-+	struct tp_nvram_state s[2] = { 0 };
- 	u32 poll_mask, event_mask;
- 	unsigned int si, so;
- 	unsigned long t;
+--- a/kernel/umh.c
++++ b/kernel/umh.c
+@@ -13,6 +13,7 @@
+ #include <linux/cred.h>
+ #include <linux/file.h>
+ #include <linux/fdtable.h>
++#include <linux/fs_struct.h>
+ #include <linux/workqueue.h>
+ #include <linux/security.h>
+ #include <linux/mount.h>
+@@ -71,6 +72,14 @@ static int call_usermodehelper_exec_asyn
+ 	spin_unlock_irq(&current->sighand->siglock);
+ 
+ 	/*
++	 * Initial kernel threads share ther FS with init, in order to
++	 * get the init root directory. But we've now created a new
++	 * thread that is going to execve a user process and has its own
++	 * 'struct fs_struct'. Reset umask to the default.
++	 */
++	current->fs->umask = 0022;
++
++	/*
+ 	 * Our parent (unbound workqueue) runs with elevated scheduling
+ 	 * priority. Avoid propagating that into the userspace child.
+ 	 */
 
 
