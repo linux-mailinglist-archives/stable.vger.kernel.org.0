@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91B9028B98F
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FEBD28B674
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389241AbgJLOBn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:01:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41466 "EHLO mail.kernel.org"
+        id S1730285AbgJLNd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:33:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731094AbgJLNiH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:07 -0400
+        id S2389034AbgJLNdG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:33:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F2B52074F;
-        Mon, 12 Oct 2020 13:38:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7706215A4;
+        Mon, 12 Oct 2020 13:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509886;
-        bh=JY3QkbtFRG3ZJnkRtN1wiSMf34tBUOJ1EJgwJRKXcxM=;
+        s=default; t=1602509584;
+        bh=VJP6cWDmF70P//hqJEqs4hXISTyeBc5QluYFXdLwK/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgQmgy1AItnbdZF2vWuJgYG6DGjurxyLJnTFArAJmv3Uf0XYwSDedKJE8Gd1KD6S/
-         yptW8DbEix6CReSu2Ucfk/4OSCOP+GOR81Mqzn/hoszgjnj+nd5x5VxYwWPxJX5Rwj
-         uw4NZPB+/N7KNBub5RAv7n7RRgmrssnsCpyDMP40=
+        b=kQl6B6t2MEteqAhX06nD0PNRd4VXytcPaNzs+VBNNcfQKd+o5PJf9ziwix4nbPpo2
+         k64s8gpOAVM8RnhMjxv6Vrywe2l3s1G9j0z0n8/sQcRfNaNyjocPTQikCfOLW6jqmP
+         seVTQgjvtuVCTMgy2CBXgwJCZxhbPWYrm94bxgv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 51/70] net: team: fix memory leak in __team_options_register
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 37/39] rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()
 Date:   Mon, 12 Oct 2020 15:27:07 +0200
-Message-Id: <20201012132632.642941802@linuxfoundation.org>
+Message-Id: <20201012132629.870534627@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
+References: <20201012132628.130632267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 9a9e77495958c7382b2438bc19746dd3aaaabb8e upstream.
+[ Upstream commit 9a059cd5ca7d9c5c4ca5a6e755cf72f230176b6a ]
 
-The variable "i" isn't initialized back correctly after the first loop
-under the label inst_rollback gets executed.
+If rxrpc_read() (which allows KEYCTL_READ to read a key), sees a token of a
+type it doesn't recognise, it can BUG in a couple of places, which is
+unnecessary as it can easily get back to userspace.
 
-The value of "i" is assigned to be option_count - 1, and the ensuing
-loop (under alloc_rollback) begins by initializing i--.
-Thus, the value of i when the loop begins execution will now become
-i = option_count - 2.
+Fix this to print an error message instead.
 
-Thus, when kfree(dst_opts[i]) is called in the second loop in this
-order, (i.e., inst_rollback followed by alloc_rollback),
-dst_optsp[option_count - 2] is the first element freed, and
-dst_opts[option_count - 1] does not get freed, and thus, a memory
-leak is caused.
-
-This memory leak can be fixed, by assigning i = option_count (instead of
-option_count - 1).
-
-Fixes: 80f7c6683fe0 ("team: add support for per-port options")
-Reported-by: syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com
-Tested-by: syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 99455153d067 ("RxRPC: Parse security index 5 keys (Kerberos 5)")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/team/team.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/ar-key.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -299,7 +299,7 @@ inst_rollback:
- 	for (i--; i >= 0; i--)
- 		__team_option_inst_del_option(team, dst_opts[i]);
+diff --git a/net/rxrpc/ar-key.c b/net/rxrpc/ar-key.c
+index 543d200f4fa14..20549c13eb13d 100644
+--- a/net/rxrpc/ar-key.c
++++ b/net/rxrpc/ar-key.c
+@@ -1114,7 +1114,8 @@ static long rxrpc_read(const struct key *key,
+ 			break;
  
--	i = option_count - 1;
-+	i = option_count;
- alloc_rollback:
- 	for (i--; i >= 0; i--)
- 		kfree(dst_opts[i]);
+ 		default: /* we have a ticket we can't encode */
+-			BUG();
++			pr_err("Unsupported key token type (%u)\n",
++			       token->security_index);
+ 			continue;
+ 		}
+ 
+@@ -1235,7 +1236,6 @@ static long rxrpc_read(const struct key *key,
+ 			break;
+ 
+ 		default:
+-			BUG();
+ 			break;
+ 		}
+ 
+-- 
+2.25.1
+
 
 
