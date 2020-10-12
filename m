@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D706528B6EE
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9566228B91B
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729782AbgJLNjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:39:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42386 "EHLO mail.kernel.org"
+        id S2390623AbgJLN51 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:57:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730291AbgJLNir (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:47 -0400
+        id S2389346AbgJLNnj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:43:39 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E252E20678;
-        Mon, 12 Oct 2020 13:38:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 716C6208B8;
+        Mon, 12 Oct 2020 13:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509926;
-        bh=2UScKxsKiQ4yW6zBcZG68y9/Sr72p5mYnaR5HyUBc8Q=;
+        s=default; t=1602510198;
+        bh=c3FF0dtBNxenNhYRG9lbq4FRJg05wTXpy+HDvjExw4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2HwSzK0fQYeURVkjOL0k6BdZr/fEt7q7zFX4EUWdQ74vX+LhqxGvVjOMGA0u+n1a
-         8x+Iz7Bm/x00HakU/mvitu4pHf0K5qoyskcWJwChWY+Ahi0lBJmzsiKUJe35pAfOm6
-         g/7MnqSNt/UTcHbKQ4wY+JYCyguv+hUm7j1FmFnA=
+        b=yzkT4tC6uUyqyPTlaTewESzxVxPhZWvhSrIeIvdM74Tq9im2PZKCrmHxRjtMrUP35
+         otctcW1In2kB/eHMvEOK8+FBynPH3GOI9fzVhUGgfK/XgoRKsqBKYgRxjXQbR+8iOb
+         BngLuRUzC/AbHfEpkoHTXRYTn+H3MCvWxzhwkJkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 18/49] macsec: avoid use-after-free in macsec_handle_frame()
-Date:   Mon, 12 Oct 2020 15:27:04 +0200
-Message-Id: <20201012132630.290423413@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.4 42/85] i2c: owl: Clear NACK and BUS error bits
+Date:   Mon, 12 Oct 2020 15:27:05 +0200
+Message-Id: <20201012132634.883041993@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-commit c7cc9200e9b4a2ac172e990ef1975cd42975dad6 upstream.
+commit f5b3f433641c543ebe5171285a42aa6adcdb2d22 upstream.
 
-De-referencing skb after call to gro_cells_receive() is not allowed.
-We need to fetch skb->len earlier.
+When the NACK and BUS error bits are set by the hardware, the driver is
+responsible for clearing them by writing "1" into the corresponding
+status registers.
 
-Fixes: 5491e7c6b1a9 ("macsec: enable GRO and RPS on macsec devices")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Hence perform the necessary operations in owl_i2c_interrupt().
+
+Fixes: d211e62af466 ("i2c: Add Actions Semiconductor Owl family S900 I2C driver")
+Reported-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/macsec.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-owl.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1085,6 +1085,7 @@ static rx_handler_result_t macsec_handle
- 	struct macsec_rx_sa *rx_sa;
- 	struct macsec_rxh_data *rxd;
- 	struct macsec_dev *macsec;
-+	unsigned int len;
- 	sci_t sci;
- 	u32 pn;
- 	bool cbit;
-@@ -1240,9 +1241,10 @@ deliver:
- 	macsec_rxsc_put(rx_sc);
+--- a/drivers/i2c/busses/i2c-owl.c
++++ b/drivers/i2c/busses/i2c-owl.c
+@@ -179,6 +179,9 @@ static irqreturn_t owl_i2c_interrupt(int
+ 	fifostat = readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT);
+ 	if (fifostat & OWL_I2C_FIFOSTAT_RNB) {
+ 		i2c_dev->err = -ENXIO;
++		/* Clear NACK error bit by writing "1" */
++		owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_FIFOSTAT,
++				   OWL_I2C_FIFOSTAT_RNB, true);
+ 		goto stop;
+ 	}
  
- 	skb_orphan(skb);
-+	len = skb->len;
- 	ret = gro_cells_receive(&macsec->gro_cells, skb);
- 	if (ret == NET_RX_SUCCESS)
--		count_rx(dev, skb->len);
-+		count_rx(dev, len);
- 	else
- 		macsec->secy.netdev->stats.rx_dropped++;
+@@ -186,6 +189,9 @@ static irqreturn_t owl_i2c_interrupt(int
+ 	stat = readl(i2c_dev->base + OWL_I2C_REG_STAT);
+ 	if (stat & OWL_I2C_STAT_BEB) {
+ 		i2c_dev->err = -EIO;
++		/* Clear BUS error bit by writing "1" */
++		owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_STAT,
++				   OWL_I2C_STAT_BEB, true);
+ 		goto stop;
+ 	}
  
 
 
