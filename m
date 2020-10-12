@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 378E028C09C
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:05:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CAA128C09A
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391532AbgJLTFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2391538AbgJLTFV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Oct 2020 15:05:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54370 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391358AbgJLTEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2391355AbgJLTEZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 15:04:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C6A32222A;
-        Mon, 12 Oct 2020 19:04:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4FBB22258;
+        Mon, 12 Oct 2020 19:04:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602529460;
-        bh=al8to7U6I0P4qOAXSQzkEDMUQu67lNVAh5a1h+QqPKU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=tAf8cwaStb1ooB+5EnR7g2NkH8QO7ZqtJ3/knYgiPIGMjSJEueGBuND0ITbEL7Xoz
-         4Jw3XE+BScm0dvJXbXprNWyeaoTsbzY8ngcplZ7DBANVu5Ht7G29pxF2q0QiZMLviB
-         Wko50CZlbXjLapilfayavi/u2qTQnfI9UTyyBnoI=
+        s=default; t=1602529461;
+        bh=6Co/gsGu6KjrXaEmBLDO2KaZP7cCA9HeWbgIWngnSbU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=PxwBuextDRCxXPn70CXoJ7VgzsyXedP2YuPD6mChXKYftbysecmb9JNKz/oilwc3i
+         1weWZk3keGa6/IbhWgVEK696T4uvUkWex/JfELrfUkyqan7XLM4bEW+SaZcd1Zcqfh
+         1SC4BMW2sWJECVP73abziNTPoLE342rq+IAWWj0U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        acpi4asus-user@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 1/6] platform/x86: asus-nb-wmi: Revert "Do not load on Asus T100TA and T200TA"
-Date:   Mon, 12 Oct 2020 15:04:13 -0400
-Message-Id: <20201012190418.3279866-1-sashal@kernel.org>
+Cc:     Jamie Iles <jamie@nuviainc.com>,
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 2/6] net/fsl: quieten expected MDIO access failures
+Date:   Mon, 12 Oct 2020 15:04:14 -0400
+Message-Id: <20201012190418.3279866-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20201012190418.3279866-1-sashal@kernel.org>
+References: <20201012190418.3279866-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,72 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Jamie Iles <jamie@nuviainc.com>
 
-[ Upstream commit aab9e7896ec98b2a6b4eeeed71cc666776bb8def ]
+[ Upstream commit 1ec8e74855588cecb2620b28b877c08f45765374 ]
 
-The WMI INIT method on for some reason turns on the camera LED on these
-2-in-1s, without the WMI interface allowing further control over the LED.
+MDIO reads can happen during PHY probing, and printing an error with
+dev_err can result in a large number of error messages during device
+probe.  On a platform with a serial console this can result in
+excessively long boot times in a way that looks like an infinite loop
+when multiple busses are present.  Since 0f183fd151c (net/fsl: enable
+extended scanning in xgmac_mdio) we perform more scanning so there are
+potentially more failures.
 
-To fix this commit b5f7311d3a2e ("platform/x86: asus-nb-wmi: Do not load
-on Asus T100TA and T200TA") added a blacklist with these 2 models on it
-since the WMI driver did not add any extra functionality to these models.
+Reduce the logging level to dev_dbg which is consistent with the
+Freescale enetc driver.
 
-Recently I've been working on making more 2-in-1 models report their
-tablet-mode (SW_TABLET_MODE) to userspace; and I've found that these 2
-Asus models report this through WMI. This commit reverts the adding
-of the blacklist, so that the Asus WMI driver can be used on these
-models to report their tablet-mode.
-
-Note, not calling INIT is also not an option, because then we will not
-receive events when the tablet-mode changes. So the LED issue will need
-to be fixed somewhere else entirely.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jeremy Linton <jeremy.linton@arm.com>
+Signed-off-by: Jamie Iles <jamie@nuviainc.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 24 ------------------------
- 1 file changed, 24 deletions(-)
+ drivers/net/ethernet/freescale/xgmac_mdio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index ee64c9512a3a9..cccf250cd1e33 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -551,33 +551,9 @@ static struct asus_wmi_driver asus_nb_wmi_driver = {
- 	.detect_quirks = asus_nb_wmi_quirks,
- };
- 
--static const struct dmi_system_id asus_nb_wmi_blacklist[] __initconst = {
--	{
--		/*
--		 * asus-nb-wm adds no functionality. The T100TA has a detachable
--		 * USB kbd, so no hotkeys and it has no WMI rfkill; and loading
--		 * asus-nb-wm causes the camera LED to turn and _stay_ on.
--		 */
--		.matches = {
--			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100TA"),
--		},
--	},
--	{
--		/* The Asus T200TA has the same issue as the T100TA */
--		.matches = {
--			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T200TA"),
--		},
--	},
--	{} /* Terminating entry */
--};
- 
- static int __init asus_nb_wmi_init(void)
- {
--	if (dmi_check_system(asus_nb_wmi_blacklist))
--		return -ENODEV;
--
- 	return asus_wmi_register_driver(&asus_nb_wmi_driver);
- }
- 
+diff --git a/drivers/net/ethernet/freescale/xgmac_mdio.c b/drivers/net/ethernet/freescale/xgmac_mdio.c
+index a15b4a97c172d..d407471f3be04 100644
+--- a/drivers/net/ethernet/freescale/xgmac_mdio.c
++++ b/drivers/net/ethernet/freescale/xgmac_mdio.c
+@@ -229,7 +229,7 @@ static int xgmac_mdio_read(struct mii_bus *bus, int phy_id, int regnum)
+ 	/* Return all Fs if nothing was there */
+ 	if ((xgmac_read32(&regs->mdio_stat, endian) & MDIO_STAT_RD_ER) &&
+ 	    !priv->has_a011043) {
+-		dev_err(&bus->dev,
++		dev_dbg(&bus->dev,
+ 			"Error while reading PHY%d reg at %d.%hhu\n",
+ 			phy_id, dev_addr, regnum);
+ 		return 0xffff;
 -- 
 2.25.1
 
