@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CBE328B6F8
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F9E128B67A
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731365AbgJLNjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:39:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40116 "EHLO mail.kernel.org"
+        id S2389204AbgJLNeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:34:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731247AbgJLNio (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:44 -0400
+        id S2389030AbgJLNcr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:32:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93D812222C;
-        Mon, 12 Oct 2020 13:38:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBCC3204EA;
+        Mon, 12 Oct 2020 13:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509917;
-        bh=6d2A1CF4f0xvg4GXQgVD9qYb2Sp7zjGQKdlXbCOoAE4=;
+        s=default; t=1602509565;
+        bh=AIPOUgDrEhBvroaU/P9P3ES4Mn0db5g6zCY8tG9ugwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GPFcSs/ScjWECzpZWiEXbSan5oqvq5ePDYmDOwR+HNQkiPBVRHVcwEw8qc1xUK5CU
-         u1dXBimJy2JNn/jgVQSpiYVzybTTP8+j1t/y05NzE/xI2bN0ZQ/wodKthRyn20+M+J
-         jIMDebfBlas7MpdLx/Nalg5pBTDHlgrAY80Bapzc=
+        b=wCUgxSzTKtdJlINs3WD2iAlQg7RfkF6b1MefcDzIRSm/RlyL6TTrXXIN3Fnc7fcuq
+         Upt9fICCstwralY0HyT1n4PNvQKdPcDI1B1ijIR6j52voiyvuIpENva6nUmZ2MM5Cy
+         Z5SadyT+zj3Red8FuojeiSpMIOYasL1q9JYi0Yrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Volker=20R=C3=BCmelin?= <volker.ruemelin@googlemail.com>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
-        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.19 14/49] i2c: i801: Exclude device from suspend direct complete optimization
+        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
+        Daniel Walter <dwalter@sigma-star.at>,
+        Boris Brezillon <boris.brezillon@free-electrons.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 30/39] mtd: nand: Provide nand_cleanup() function to free NAND related resources
 Date:   Mon, 12 Oct 2020 15:27:00 +0200
-Message-Id: <20201012132630.104038482@linuxfoundation.org>
+Message-Id: <20201012132629.561192866@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
+References: <20201012132628.130632267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean Delvare <jdelvare@suse.de>
+From: Richard Weinberger <richard@nod.at>
 
-commit 845b89127bc5458d0152a4d63f165c62a22fcb70 upstream.
+[ Upstream commit d44154f969a44269a9288c274c1c2fd9e85df8a5 ]
 
-By default, PCI drivers with runtime PM enabled will skip the calls
-to suspend and resume on system PM. For this driver, we don't want
-that, as we need to perform additional steps for system PM to work
-properly on all systems. So instruct the PM core to not skip these
-calls.
+Provide a nand_cleanup() function to free all nand related resources
+without unregistering the mtd device.
+This should allow drivers to call mtd_device_unregister() and handle
+its return value and still being able to cleanup all nand related
+resources.
 
-Fixes: a9c8088c7988 ("i2c: i801: Don't restore config registers on runtime PM")
-Reported-by: Volker Rümelin <volker.ruemelin@googlemail.com>
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-[iwamatsu: Use DPM_FLAG_NEVER_SKIP instead of DPM_FLAG_NO_DIRECT_COMPLETE]
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Daniel Walter <dwalter@sigma-star.at>
+Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-i801.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/nand/nand_base.c | 22 +++++++++++++++-------
+ include/linux/mtd/nand.h     |  6 +++++-
+ 2 files changed, 20 insertions(+), 8 deletions(-)
 
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1698,6 +1698,7 @@ static int i801_probe(struct pci_dev *de
+diff --git a/drivers/mtd/nand/nand_base.c b/drivers/mtd/nand/nand_base.c
+index 8406f346b0be5..09864226428b2 100644
+--- a/drivers/mtd/nand/nand_base.c
++++ b/drivers/mtd/nand/nand_base.c
+@@ -4427,18 +4427,14 @@ int nand_scan(struct mtd_info *mtd, int maxchips)
+ EXPORT_SYMBOL(nand_scan);
  
- 	pci_set_drvdata(dev, priv);
+ /**
+- * nand_release - [NAND Interface] Free resources held by the NAND device
+- * @mtd: MTD device structure
++ * nand_cleanup - [NAND Interface] Free resources held by the NAND device
++ * @chip: NAND chip object
+  */
+-void nand_release(struct mtd_info *mtd)
++void nand_cleanup(struct nand_chip *chip)
+ {
+-	struct nand_chip *chip = mtd->priv;
+-
+ 	if (chip->ecc.mode == NAND_ECC_SOFT_BCH)
+ 		nand_bch_free((struct nand_bch_control *)chip->ecc.priv);
  
-+	dev_pm_set_driver_flags(&dev->dev, DPM_FLAG_NEVER_SKIP);
- 	pm_runtime_set_autosuspend_delay(&dev->dev, 1000);
- 	pm_runtime_use_autosuspend(&dev->dev);
- 	pm_runtime_put_autosuspend(&dev->dev);
+-	mtd_device_unregister(mtd);
+-
+ 	/* Free bad block table memory */
+ 	kfree(chip->bbt);
+ 	if (!(chip->options & NAND_OWN_BUFFERS))
+@@ -4449,6 +4445,18 @@ void nand_release(struct mtd_info *mtd)
+ 			& NAND_BBT_DYNAMICSTRUCT)
+ 		kfree(chip->badblock_pattern);
+ }
++EXPORT_SYMBOL_GPL(nand_cleanup);
++
++/**
++ * nand_release - [NAND Interface] Unregister the MTD device and free resources
++ *		  held by the NAND device
++ * @mtd: MTD device structure
++ */
++void nand_release(struct mtd_info *mtd)
++{
++	mtd_device_unregister(mtd);
++	nand_cleanup(mtd->priv);
++}
+ EXPORT_SYMBOL_GPL(nand_release);
+ 
+ static int __init nand_base_init(void)
+diff --git a/include/linux/mtd/nand.h b/include/linux/mtd/nand.h
+index 93fc372007937..1a066faf7b801 100644
+--- a/include/linux/mtd/nand.h
++++ b/include/linux/mtd/nand.h
+@@ -38,7 +38,7 @@ extern int nand_scan_ident(struct mtd_info *mtd, int max_chips,
+ 			   struct nand_flash_dev *table);
+ extern int nand_scan_tail(struct mtd_info *mtd);
+ 
+-/* Free resources held by the NAND device */
++/* Unregister the MTD device and free resources held by the NAND device */
+ extern void nand_release(struct mtd_info *mtd);
+ 
+ /* Internal helper for board drivers which need to override command function */
+@@ -1029,4 +1029,8 @@ int nand_check_erased_ecc_chunk(void *data, int datalen,
+ 				void *ecc, int ecclen,
+ 				void *extraoob, int extraooblen,
+ 				int threshold);
++
++/* Free resources held by the NAND device */
++void nand_cleanup(struct nand_chip *chip);
++
+ #endif /* __LINUX_MTD_NAND_H */
+-- 
+2.25.1
+
 
 
