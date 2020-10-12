@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D6FC28B744
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:42:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6179A28BA51
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731517AbgJLNmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:42:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46750 "EHLO mail.kernel.org"
+        id S1730706AbgJLOIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:08:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731507AbgJLNmD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:42:03 -0400
+        id S2389225AbgJLNeV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:34:21 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FF1220838;
-        Mon, 12 Oct 2020 13:41:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19526215A4;
+        Mon, 12 Oct 2020 13:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510108;
-        bh=kj6sxvvaay1N0knIRsy0kDpNRDM8VKzidKLrpRkenaw=;
+        s=default; t=1602509621;
+        bh=Sk17WUeJFmvZw7vGnTJ9gGzFZbhHP9bVX7SaI9iXvtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYdMJTbhEW6hjtwl8ST4MYURUnY4ZywVfv0A+79O2fxupH5S3knqZVuMttJcAUFsu
-         tWQ4xUdtzkbwz+6iCwqyb2WjohasieibdwcLL7IR8VYJ7fzcIbWtiXltmKN8OFc7jj
-         dZ0tjcXYR574LvrO1CD0oTUogxoDg2XIrTc/DNdQ=
+        b=oS4qntBhQ1NtJpuCqQlNmEhjcLba1R7/n74qAffhN028DuY216nu0+osgQ6kFYLlJ
+         7YtZDzX2N03Rd+l17kI+YOG8Q3ALtT4SsY/5mLwFCm2b9bymuV9Lh9SDKYRVx/Dyxi
+         qwOQeqeI9QBP4PBgogdVN2jZUDFYkZTL03WG/G7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 13/85] usermodehelper: reset umask to default before executing user process
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 14/54] iommu/exynos: add missing put_device() call in exynos_iommu_of_xlate()
 Date:   Mon, 12 Oct 2020 15:26:36 +0200
-Message-Id: <20201012132633.506236900@linuxfoundation.org>
+Message-Id: <20201012132630.252717421@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit 4013c1496c49615d90d36b9d513eee8e369778e9 upstream.
+[ Upstream commit 1a26044954a6d1f4d375d5e62392446af663be7a ]
 
-Kernel threads intentionally do CLONE_FS in order to follow any changes
-that 'init' does to set up the root directory (or cwd).
+if of_find_device_by_node() succeed, exynos_iommu_of_xlate() doesn't have
+a corresponding put_device(). Thus add put_device() to fix the exception
+handling for this function implementation.
 
-It is admittedly a bit odd, but it avoids the situation where 'init'
-does some extensive setup to initialize the system environment, and then
-we execute a usermode helper program, and it uses the original FS setup
-from boot time that may be very limited and incomplete.
-
-[ Both Al Viro and Eric Biederman point out that 'pivot_root()' will
-  follow the root regardless, since it fixes up other users of root (see
-  chroot_fs_refs() for details), but overmounting root and doing a
-  chroot() would not. ]
-
-However, Vegard Nossum noticed that the CLONE_FS not only means that we
-follow the root and current working directories, it also means we share
-umask with whatever init changed it to. That wasn't intentional.
-
-Just reset umask to the original default (0022) before actually starting
-the usermode helper program.
-
-Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Acked-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: aa759fd376fb ("iommu/exynos: Add callback for initializing devices from device tree")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Link: https://lore.kernel.org/r/20200918011335.909141-1-yukuai3@huawei.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/umh.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/iommu/exynos-iommu.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/kernel/umh.c
-+++ b/kernel/umh.c
-@@ -14,6 +14,7 @@
- #include <linux/cred.h>
- #include <linux/file.h>
- #include <linux/fdtable.h>
-+#include <linux/fs_struct.h>
- #include <linux/workqueue.h>
- #include <linux/security.h>
- #include <linux/mount.h>
-@@ -76,6 +77,14 @@ static int call_usermodehelper_exec_asyn
- 	spin_unlock_irq(&current->sighand->siglock);
+diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+index beef59eb94fa7..626b434e7967a 100644
+--- a/drivers/iommu/exynos-iommu.c
++++ b/drivers/iommu/exynos-iommu.c
+@@ -1265,13 +1265,17 @@ static int exynos_iommu_of_xlate(struct device *dev,
+ 		return -ENODEV;
  
- 	/*
-+	 * Initial kernel threads share ther FS with init, in order to
-+	 * get the init root directory. But we've now created a new
-+	 * thread that is going to execve a user process and has its own
-+	 * 'struct fs_struct'. Reset umask to the default.
-+	 */
-+	current->fs->umask = 0022;
-+
-+	/*
- 	 * Our parent (unbound workqueue) runs with elevated scheduling
- 	 * priority. Avoid propagating that into the userspace child.
- 	 */
+ 	data = platform_get_drvdata(sysmmu);
+-	if (!data)
++	if (!data) {
++		put_device(&sysmmu->dev);
+ 		return -ENODEV;
++	}
+ 
+ 	if (!owner) {
+ 		owner = kzalloc(sizeof(*owner), GFP_KERNEL);
+-		if (!owner)
++		if (!owner) {
++			put_device(&sysmmu->dev);
+ 			return -ENOMEM;
++		}
+ 
+ 		INIT_LIST_HEAD(&owner->controllers);
+ 		dev->archdata.iommu = owner;
+-- 
+2.25.1
+
 
 
