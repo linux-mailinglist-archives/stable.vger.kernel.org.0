@@ -2,131 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FC6628C433
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 23:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 700A728C3BA
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 23:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729239AbgJLVll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 17:41:41 -0400
-Received: from lan.nucleusys.com ([92.247.61.126]:36706 "EHLO
-        zztop.nucleusys.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726780AbgJLVll (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 17:41:41 -0400
-X-Greylist: delayed 2422 seconds by postgrey-1.27 at vger.kernel.org; Mon, 12 Oct 2020 17:41:40 EDT
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=nucleusys.com; s=x; h=In-Reply-To:Content-Type:MIME-Version:References:
-        Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=CJIzxj74bRbK6s07BM0CYFriStr95mhUR/FUtxsHOVI=; b=cyr+pQNICJxG1pzmfwF4K8B77P
-        xbKi8vFMvJcXOeKnMkdUYQn+MEsresCGmf29nTQmbd+YE8gU2/8BmXmi5H0vPXAG8SOyc+5Wxrkja
-        tTbvRUyzQ9l0MqbHI/cn0jK0BjZGcZrQFqIXMZbwNb59/nzYODrQ56QYd6+q01k8GwZA=;
-Received: from lan.nucleusys.com ([92.247.61.126] helo=nucleusys.com)
-        by zztop.nucleusys.com with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <petkan@nucleusys.com>)
-        id 1kS4wN-0007CC-HJ; Tue, 13 Oct 2020 00:01:07 +0300
-Date:   Tue, 13 Oct 2020 00:01:06 +0300
-From:   Petko Manolov <petkan@nucleusys.com>
-To:     Joe Perches <joe@perches.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com,
-        "David S . Miller" <davem@davemloft.net>,
-        linux-usb@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.8 18/24] net: usb: rtl8150: set random MAC
- address when set_ethernet_addr() fails
-Message-ID: <20201012210105.GA26582@nucleusys.com>
-References: <20201012190239.3279198-1-sashal@kernel.org>
- <20201012190239.3279198-18-sashal@kernel.org>
- <c93d120c850c5fecadaea845517f0fdbfd9a61c7.camel@perches.com>
+        id S1731967AbgJLVDB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 17:03:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43494 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731960AbgJLVDB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 17:03:01 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64CE3C0613D0
+        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 14:03:01 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id w21so6588606plq.3
+        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 14:03:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5Aqgss+LAk1YYUBKpfZl7bI4/QBYQzZ88GnSck8f6GE=;
+        b=0HyyaKJBolul3st+ltX9Ka9R9tvY8BCc52rE+qQq1r6YWvwvHG71rGqq99DFzLIMbZ
+         4+ivbK+DUuzwjdvrf7lJbaBFYdOVkwmShgCbykBlTGzpnFwU96SPVCeJWz0N5JYrUI50
+         5jM/RtkjbYbYOIdPJ3qkxl5L7d7ALA1HKkcZq4V8G56cqX308Gyr3//RFnPdpaoZwCcc
+         Jq/hlOd+Z4m7CB+Vzo8S2b0ilgATYuIdZ0SwnE9Catp8mjM1KcxbOQT/l8MguKkIUt9X
+         szH7jQfki1jhO97Rs/5DrtmhnimQs1qmIDAAWX0RWbBANckZrZDOjP7qEhYi1Qupnes4
+         7TXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5Aqgss+LAk1YYUBKpfZl7bI4/QBYQzZ88GnSck8f6GE=;
+        b=iyu8V07e1Ae//KxRaWrED2gYU4aIupY8oh/NzSvvDNQ1u7OL3o5RHtZTZ4fVywFAUz
+         eSS3X0TKF7vpJFYw2SJQDIWptPmr4CkDFrvEFDCTCzErqVd0cM2zJAjJomacoe9XQAUn
+         N8xjXAwfb/w+IlcWI7dBriEZA+g2QeAyg9N3cFZN1PMlZP49hzmEKPZ/preU+R5V9N7A
+         zOX0VyRzd7QRP2vlycmjBA/7ZXhWLkxSMeI2BV2AEkiseyD2ocPVj5uIlsqgIdXK+Dyu
+         28GbOsMgJBIxbm00gsX3Xb7MqCOaxXHLF9j3JktQWXiXhThMictKxBgvsGdKRo7i2AFZ
+         Ddhg==
+X-Gm-Message-State: AOAM532fZbPmHXLGOH7avDZNsp3aC96VGGcRKIgiHekF/KMY2vWTV4Nx
+        eLrMSy6NL3e9GJwjpytqAsg86PUrt0rlFA==
+X-Google-Smtp-Source: ABdhPJy7qh5z2Ly47Jrbndcb1+cH3x7Qef+pTtb7WmJwgKeP+7sNh56cMpHaZAfoOEjWr+BEQOh/5Q==
+X-Received: by 2002:a17:902:bc8a:b029:d4:dc57:6c29 with SMTP id bb10-20020a170902bc8ab02900d4dc576c29mr6548906plb.77.1602536580517;
+        Mon, 12 Oct 2020 14:03:00 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i2sm25629896pjk.12.2020.10.12.14.02.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Oct 2020 14:02:59 -0700 (PDT)
+Message-ID: <5f84c483.1c69fb81.84ba0.1a14@mx.google.com>
+Date:   Mon, 12 Oct 2020 14:02:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c93d120c850c5fecadaea845517f0fdbfd9a61c7.camel@perches.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Score: -1.0 (-)
-X-Spam-Report: Spam detection software, running on the system "zztop.nucleusys.com",
- has NOT identified this incoming email as spam.  The original
- message has been attached to this so you can view it or label
- similar future email.  If you have any questions, see
- the administrator of that system for details.
- Content preview:  On 20-10-12 12:11:18, Joe Perches wrote: > On Mon, 2020-10-12
-    at 15:02 -0400, Sasha Levin wrote: > > From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-    > > > > [ Upstream commit f45a4248ea4cc13ed50 [...] 
- Content analysis details:   (-1.0 points, 5.0 required)
-  pts rule name              description
- ---- ---------------------- --------------------------------------------------
- -1.0 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.70-86-g228d88e992eb
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.4.y baseline: 130 runs,
+ 5 regressions (v5.4.70-86-g228d88e992eb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 20-10-12 12:11:18, Joe Perches wrote:
-> On Mon, 2020-10-12 at 15:02 -0400, Sasha Levin wrote:
-> > From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-> > 
-> > [ Upstream commit f45a4248ea4cc13ed50618ff066849f9587226b2 ]
-> > 
-> > When get_registers() fails in set_ethernet_addr(),the uninitialized
-> > value of node_id gets copied over as the address.
-> > So, check the return value of get_registers().
-> > 
-> > If get_registers() executed successfully (i.e., it returns
-> > sizeof(node_id)), copy over the MAC address using ether_addr_copy()
-> > (instead of using memcpy()).
-> > 
-> > Else, if get_registers() failed instead, a randomly generated MAC
-> > address is set as the MAC address instead.
-> 
-> This autosel is premature.
-> 
-> This patch always sets a random MAC.
-> See the follow on patch: https://lkml.org/lkml/2020/10/11/131
-> To my knowledge, this follow-ob has yet to be applied:
+stable-rc/linux-5.4.y baseline: 130 runs, 5 regressions (v5.4.70-86-g228d88=
+e992eb)
 
-ACK, the follow-on patch has got the correct semantics.
+Regressions Summary
+-------------------
+
+platform              | arch  | lab           | compiler | defconfig       =
+| results
+----------------------+-------+---------------+----------+-----------------=
++--------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+| 0/1    =
+
+bcm2837-rpi-3-b       | arm64 | lab-baylibre  | gcc-8    | defconfig       =
+| 3/4    =
+
+rk3399-gru-kevin      | arm64 | lab-collabora | gcc-8    | defconfig       =
+| 85/90  =
 
 
-		Petko
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.70-86-g228d88e992eb/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.70-86-g228d88e992eb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      228d88e992eb144f13037001b6b6d0289b9b2f00 =
 
 
-> > diff --git a/drivers/net/usb/rtl8150.c b/drivers/net/usb/rtl8150.c
-> []
-> > @@ -274,12 +274,20 @@ static int write_mii_word(rtl8150_t * dev, u8 phy, __u8 indx, u16 reg)
-> >  		return 1;
-> >  }
-> >  
-> > -static inline void set_ethernet_addr(rtl8150_t * dev)
-> > +static void set_ethernet_addr(rtl8150_t *dev)
-> >  {
-> > -	u8 node_id[6];
-> > +	u8 node_id[ETH_ALEN];
-> > +	int ret;
-> > +
-> > +	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
-> >  
-> > -	get_registers(dev, IDR, sizeof(node_id), node_id);
-> > -	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
-> > +	if (ret == sizeof(node_id)) {
-> 
-> So this needs to use
-> 	if (!ret) {
-> 
-> or 
-> 	if (ret < 0)
-> 
-> and reversed code blocks
-> 
-> > +		ether_addr_copy(dev->netdev->dev_addr, node_id);
-> > +	} else {
-> > +		eth_hw_addr_random(dev->netdev);
-> > +		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
-> > +			      dev->netdev->dev_addr);
-> > +	}
-> >  }
-> >  
-> >  static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
-> 
-> 
+
+Test Regressions
+---------------- =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+| results
+----------------------+-------+---------------+----------+-----------------=
++--------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+| 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f848291f02c008b074ff3ea
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: sama5_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.70-=
+86-g228d88e992eb/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
+d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.70-=
+86-g228d88e992eb/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5=
+d4_xplained.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5f848291f02c008b074ff=
+3eb
+      failing since 183 days (last pass: v5.4.30-54-g6f04e8ca5355, first fa=
+il: v5.4.30-81-gf163418797b9)  =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+| results
+----------------------+-------+---------------+----------+-----------------=
++--------
+bcm2837-rpi-3-b       | arm64 | lab-baylibre  | gcc-8    | defconfig       =
+| 3/4    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f846871d8fe145c814ff3f1
+
+  Results:     3 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.70-=
+86-g228d88e992eb/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-=
+b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.70-=
+86-g228d88e992eb/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-=
+b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f846871d8fe145c=
+814ff3f5
+      new failure (last pass: v5.4.70-38-g55678c4c1bef)
+      2 lines
+
+    2020-10-12 14:27:56.775000  Connected to bcm2837-rpi-3-b console [chann=
+el connected] (~$quit to exit)
+    2020-10-12 14:27:56.775000  (user:khilman) is already connected
+    2020-10-12 14:28:12.519000  =00
+    2020-10-12 14:28:12.519000  =
+
+    2020-10-12 14:28:12.519000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
+0)
+    2020-10-12 14:28:12.520000  =
+
+    2020-10-12 14:28:12.520000  DRAM:  948 MiB
+    2020-10-12 14:28:12.534000  RPI 3 Model B (0xa02082)
+    2020-10-12 14:28:12.622000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
+    2020-10-12 14:28:12.654000  Loading Environment from FAT... *** Warning=
+ - bad CRC, using default environment
+    ... (382 line(s) more)
+      =
+
+
+
+platform              | arch  | lab           | compiler | defconfig       =
+| results
+----------------------+-------+---------------+----------+-----------------=
++--------
+rk3399-gru-kevin      | arm64 | lab-collabora | gcc-8    | defconfig       =
+| 85/90  =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f84682e0e01189dd34ff3ec
+
+  Results:     85 PASS, 5 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.70-=
+86-g228d88e992eb/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-ke=
+vin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.70-=
+86-g228d88e992eb/arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-ke=
+vin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.bootrr.cros-ec-sensors-accel0-probed: https://kernelci.org/tes=
+t/case/id/5f84682e0e01189dd34ff400
+      failing since 13 days (last pass: v5.4.68-388-g8a579883a490, first fa=
+il: v5.4.68-389-g256bdd45e196)
+
+    2020-10-12 14:28:53.796000  <8>[   23.203901] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dcros-ec-sensors-accel0-probed RESULT=3Dfail>
+     * baseline.bootrr.cros-ec-sensors-accel1-probed: https://kernelci.org/=
+test/case/id/5f84682e0e01189dd34ff401
+      failing since 13 days (last pass: v5.4.68-388-g8a579883a490, first fa=
+il: v5.4.68-389-g256bdd45e196) * baseline.bootrr.cros-ec-sensors-gyro0-prob=
+ed: https://kernelci.org/test/case/id/5f84682e0e01189dd34ff402
+      failing since 13 days (last pass: v5.4.68-388-g8a579883a490, first fa=
+il: v5.4.68-389-g256bdd45e196)
+
+    2020-10-12 14:28:55.830000  /lava-2715347/1/../bin/lava-test-case
+    2020-10-12 14:28:55.839000  <8>[   25.247346] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dcros-ec-sensors-gyro0-probed RESULT=3Dfail>
+      =20
