@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D43C28B979
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1614628B711
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390814AbgJLOA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40706 "EHLO mail.kernel.org"
+        id S2388813AbgJLNkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:40:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731236AbgJLNin (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:43 -0400
+        id S1731352AbgJLNjP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:39:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30135221FE;
-        Mon, 12 Oct 2020 13:38:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 577F420838;
+        Mon, 12 Oct 2020 13:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509900;
-        bh=6wAB02IwfsC7DHvdEzt8a2/LnQp5Sy5OvIscxeAHml4=;
+        s=default; t=1602509952;
+        bh=6ywTh4+0mnnRnCT5j+Wl7afSosu3sCue0g9jlw3VrSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XeTDDUXrFR2j4kZLmypwQCj905ARsif6klfpkM/dl8VsaWSKS5YN/ispSmccVMK4Y
-         zj3alrARUNnSWtZ/Op5W4WqzMpv1otyaoPpl1dsJREJDES/W1JCRNrdWSIoN1SGbN6
-         0e3OaCm2knf4ehbx8l9zgprb6M1VyxE1H+J7x2YM=
+        b=VROMFPfGQczR/jCgqv71WV5xenuE/To8gsf6uuImD7V+lv6NWXn9i3ImKc5b+ABM4
+         7Bm2SzgZem+zNuGal4PxIodLJ0ygdUlhg25npTjxJeJBwAJIBzp1UOa5TulXmozgnR
+         YDu1ovZoUTShYPAHYp//IuKxRlSfJ37JwvFzjBrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Voon Weifeng <weifeng.voon@intel.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 57/70] net: stmmac: removed enabling eee in EEE set callback
-Date:   Mon, 12 Oct 2020 15:27:13 +0200
-Message-Id: <20201012132632.927620045@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Dumitru Ceara <dceara@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 28/49] openvswitch: handle DNAT tuple collision
+Date:   Mon, 12 Oct 2020 15:27:14 +0200
+Message-Id: <20201012132630.764037085@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Voon Weifeng <weifeng.voon@intel.com>
+From: Dumitru Ceara <dceara@redhat.com>
 
-[ Upstream commit 7241c5a697479c7d0c5a96595822cdab750d41ae ]
+commit 8aa7b526dc0b5dbf40c1b834d76a667ad672a410 upstream.
 
-EEE should be only be enabled during stmmac_mac_link_up() when the
-link are up and being set up properly. set_eee should only do settings
-configuration and disabling the eee.
+With multiple DNAT rules it's possible that after destination
+translation the resulting tuples collide.
 
-Without this fix, turning on EEE using ethtool will return
-"Operation not supported". This is due to the driver is in a dead loop
-waiting for eee to be advertised in the for eee to be activated but the
-driver will only configure the EEE advertisement after the eee is
-activated.
+For example, two openvswitch flows:
+nw_dst=10.0.0.10,tp_dst=10, actions=ct(commit,table=2,nat(dst=20.0.0.1:20))
+nw_dst=10.0.0.20,tp_dst=10, actions=ct(commit,table=2,nat(dst=20.0.0.1:20))
 
-Ethtool should only return "Operation not supported" if there is no EEE
-capbility in the MAC controller.
+Assuming two TCP clients initiating the following connections:
+10.0.0.10:5000->10.0.0.10:10
+10.0.0.10:5000->10.0.0.20:10
 
-Fixes: 8a7493e58ad6 ("net: stmmac: Fix a race in EEE enable callback")
-Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
-Acked-by: Mark Gross <mgross@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Both tuples would translate to 10.0.0.10:5000->20.0.0.1:20 causing
+nf_conntrack_confirm() to fail because of tuple collision.
+
+Netfilter handles this case by allocating a null binding for SNAT at
+egress by default.  Perform the same operation in openvswitch for DNAT
+if no explicit SNAT is requested by the user and allocate a null binding
+for SNAT for packets in the "original" direction.
+
+Reported-at: https://bugzilla.redhat.com/1877128
+Suggested-by: Florian Westphal <fw@strlen.de>
+Fixes: 05752523e565 ("openvswitch: Interface with NAT.")
+Signed-off-by: Dumitru Ceara <dceara@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../net/ethernet/stmicro/stmmac/stmmac_ethtool.c  | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ net/openvswitch/conntrack.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-index 8c71090081852..5105e1f724fb7 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-@@ -677,23 +677,16 @@ static int stmmac_ethtool_op_set_eee(struct net_device *dev,
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	int ret;
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -899,15 +899,19 @@ static int ovs_ct_nat(struct net *net, s
+ 	}
+ 	err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range, maniptype);
  
--	if (!edata->eee_enabled) {
-+	if (!priv->dma_cap.eee)
-+		return -EOPNOTSUPP;
-+
-+	if (!edata->eee_enabled)
- 		stmmac_disable_eee_mode(priv);
--	} else {
--		/* We are asking for enabling the EEE but it is safe
--		 * to verify all by invoking the eee_init function.
--		 * In case of failure it will return an error.
--		 */
--		edata->eee_enabled = stmmac_eee_init(priv);
--		if (!edata->eee_enabled)
--			return -EOPNOTSUPP;
--	}
+-	if (err == NF_ACCEPT &&
+-	    ct->status & IPS_SRC_NAT && ct->status & IPS_DST_NAT) {
+-		if (maniptype == NF_NAT_MANIP_SRC)
+-			maniptype = NF_NAT_MANIP_DST;
+-		else
+-			maniptype = NF_NAT_MANIP_SRC;
++	if (err == NF_ACCEPT && ct->status & IPS_DST_NAT) {
++		if (ct->status & IPS_SRC_NAT) {
++			if (maniptype == NF_NAT_MANIP_SRC)
++				maniptype = NF_NAT_MANIP_DST;
++			else
++				maniptype = NF_NAT_MANIP_SRC;
  
- 	ret = phy_ethtool_set_eee(dev->phydev, edata);
- 	if (ret)
- 		return ret;
+-		err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range,
+-					 maniptype);
++			err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range,
++						 maniptype);
++		} else if (CTINFO2DIR(ctinfo) == IP_CT_DIR_ORIGINAL) {
++			err = ovs_ct_nat_execute(skb, ct, ctinfo, NULL,
++						 NF_NAT_MANIP_SRC);
++		}
+ 	}
  
--	priv->eee_enabled = edata->eee_enabled;
- 	priv->tx_lpi_timer = edata->tx_lpi_timer;
- 	return 0;
- }
--- 
-2.25.1
-
+ 	/* Mark NAT done if successful and update the flow key. */
 
 
