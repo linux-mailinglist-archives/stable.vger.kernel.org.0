@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5952528B70B
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 034B528B9C4
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388766AbgJLNkH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:40:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43126 "EHLO mail.kernel.org"
+        id S2403763AbgJLOD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:03:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730025AbgJLNjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:39:21 -0400
+        id S1730869AbgJLNgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:36:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E84A2087E;
-        Mon, 12 Oct 2020 13:39:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E58A6204EA;
+        Mon, 12 Oct 2020 13:36:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509959;
-        bh=OGdeTlFKw57eyKFUEiRtSsYgTwVINWma8HeXhYBjhbE=;
+        s=default; t=1602509797;
+        bh=qovHLqOX6dKC0er9q16ugt2Pz/B2zNU1ngILNW7pJts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pxZI7QMSOqc6JlC+UoNDZmPDvCPnO4hPQPbmrEF4xw14qOYtUvHfFfcTIry431mLR
-         96QjIxDV5uqKTLjcxT6zyluzH9Q+MJ1fUrR6LQ11sKOnuOQhuEVcYZADRN5VvyxTE5
-         ugF8BiooXAAbwnHV2BXgwmWkC6lfXNZRCEsNbf64=
+        b=ZdhSwjhjDxUXhlShgEuOhrWqtYC/mYLoXeGFL9hjBKBN/WnFjqvo6Ql3Ts8FB8fLN
+         jvRxHBygqX5/Vy8g9chIo0X0zoiiZcMToG7l385vU0KdirrIS3CmLRR6kfazCe2mCH
+         dvAPoA59PdKWTHh9/Ap8xQwSW8bT+Ju0V34bcJjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         Sergei Shtylyov <sergei.shtylyov@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 04/49] Revert "ravb: Fixed to be able to unload modules"
+Subject: [PATCH 4.14 34/70] Revert "ravb: Fixed to be able to unload modules"
 Date:   Mon, 12 Oct 2020 15:26:50 +0200
-Message-Id: <20201012132629.654184210@linuxfoundation.org>
+Message-Id: <20201012132631.823734115@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -117,7 +117,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/renesas/ravb_main.c
 +++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1337,51 +1337,6 @@ static inline int ravb_hook_irq(unsigned
+@@ -1374,51 +1374,6 @@ static inline int ravb_hook_irq(unsigned
  	return error;
  }
  
@@ -169,7 +169,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /* Network device open function for Ethernet AVB */
  static int ravb_open(struct net_device *ndev)
  {
-@@ -1390,13 +1345,6 @@ static int ravb_open(struct net_device *
+@@ -1427,13 +1382,6 @@ static int ravb_open(struct net_device *
  	struct device *dev = &pdev->dev;
  	int error;
  
@@ -183,7 +183,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	napi_enable(&priv->napi[RAVB_BE]);
  	napi_enable(&priv->napi[RAVB_NC]);
  
-@@ -1474,7 +1422,6 @@ out_free_irq:
+@@ -1511,7 +1459,6 @@ out_free_irq:
  out_napi_off:
  	napi_disable(&priv->napi[RAVB_NC]);
  	napi_disable(&priv->napi[RAVB_BE]);
@@ -191,7 +191,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	return error;
  }
  
-@@ -1774,8 +1721,6 @@ static int ravb_close(struct net_device
+@@ -1810,8 +1757,6 @@ static int ravb_close(struct net_device
  	ravb_ring_free(ndev, RAVB_BE);
  	ravb_ring_free(ndev, RAVB_NC);
  
@@ -200,8 +200,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	return 0;
  }
  
-@@ -1922,6 +1867,51 @@ static const struct net_device_ops ravb_
- 	.ndo_set_features	= ravb_set_features,
+@@ -1913,6 +1858,51 @@ static const struct net_device_ops ravb_
+ 	.ndo_set_mac_address	= eth_mac_addr,
  };
  
 +/* MDIO bus init function */
@@ -252,7 +252,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static const struct of_device_id ravb_match_table[] = {
  	{ .compatible = "renesas,etheravb-r8a7790", .data = (void *)RCAR_GEN2 },
  	{ .compatible = "renesas,etheravb-r8a7794", .data = (void *)RCAR_GEN2 },
-@@ -2148,6 +2138,13 @@ static int ravb_probe(struct platform_de
+@@ -2142,6 +2132,13 @@ static int ravb_probe(struct platform_de
  		eth_hw_addr_random(ndev);
  	}
  
@@ -266,7 +266,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	netif_napi_add(ndev, &priv->napi[RAVB_BE], ravb_poll, 64);
  	netif_napi_add(ndev, &priv->napi[RAVB_NC], ravb_poll, 64);
  
-@@ -2169,6 +2166,8 @@ static int ravb_probe(struct platform_de
+@@ -2164,6 +2161,8 @@ static int ravb_probe(struct platform_de
  out_napi_del:
  	netif_napi_del(&priv->napi[RAVB_NC]);
  	netif_napi_del(&priv->napi[RAVB_BE]);
@@ -275,7 +275,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	dma_free_coherent(ndev->dev.parent, priv->desc_bat_size, priv->desc_bat,
  			  priv->desc_bat_dma);
  
-@@ -2200,6 +2199,7 @@ static int ravb_remove(struct platform_d
+@@ -2196,6 +2195,7 @@ static int ravb_remove(struct platform_d
  	unregister_netdev(ndev);
  	netif_napi_del(&priv->napi[RAVB_NC]);
  	netif_napi_del(&priv->napi[RAVB_BE]);
