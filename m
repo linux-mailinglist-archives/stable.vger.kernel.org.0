@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7414928B670
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3412028B98C
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389116AbgJLNdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:33:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35232 "EHLO mail.kernel.org"
+        id S1731155AbgJLOBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:01:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389096AbgJLNdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:33:09 -0400
+        id S1731123AbgJLNiM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:38:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F805204EA;
-        Mon, 12 Oct 2020 13:33:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D16FC2087E;
+        Mon, 12 Oct 2020 13:38:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509589;
-        bh=DPJ7hSF8Bve5Cv5O4DeRfsryLXidSFc+kkrXAutzhMA=;
+        s=default; t=1602509891;
+        bh=r8DWUr5vtaIWRZFDmh+jkP2C0tU7Kp5rr1T8j+PXNYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQYnZlBW3aGwDscmi2uUYa4T4XOcVeBHCl9dFGxkqda63+vhc61MECZfAUSCG25P9
-         tSWngK3Lk9Fp8QENj5b7D46JkfgGbRTXKTy1sz/OSf5u7qS1QoRGUFxJkcsKH7RCHc
-         TF0ei0pe9coQbdvPepTJlDxZvgQJWjnozb8Pm/ZA=
+        b=H2RwVsMjTtpBqOzSAYn5RzMnvEG8m5ihFjxT1COGx64y728V0rSyE1ROhLzVeSPKz
+         Km0wgH7e5FzInYXkGDBq6UMdvlOu2urnIJGC9RCYNQROXVoJjPfv9MM2hGdqD5Cl0w
+         K+BISH5IK0WYmHgeoTyGmp0bgF+GmS+56qfirt3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com,
-        Petko Manolov <petkan@nucleusys.com>,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 39/39] net: usb: rtl8150: set random MAC address when set_ethernet_addr() fails
+        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 53/70] drm/amdgpu: prevent double kfree ttm->sg
 Date:   Mon, 12 Oct 2020 15:27:09 +0200
-Message-Id: <20201012132629.954915748@linuxfoundation.org>
+Message-Id: <20201012132632.733230061@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Philip Yang <Philip.Yang@amd.com>
 
-commit f45a4248ea4cc13ed50618ff066849f9587226b2 upstream.
+[ Upstream commit 1d0e16ac1a9e800598dcfa5b6bc53b704a103390 ]
 
-When get_registers() fails in set_ethernet_addr(),the uninitialized
-value of node_id gets copied over as the address.
-So, check the return value of get_registers().
+Set ttm->sg to NULL after kfree, to avoid memory corruption backtrace:
 
-If get_registers() executed successfully (i.e., it returns
-sizeof(node_id)), copy over the MAC address using ether_addr_copy()
-(instead of using memcpy()).
+[  420.932812] kernel BUG at
+/build/linux-do9eLF/linux-4.15.0/mm/slub.c:295!
+[  420.934182] invalid opcode: 0000 [#1] SMP NOPTI
+[  420.935445] Modules linked in: xt_conntrack ipt_MASQUERADE
+[  420.951332] Hardware name: Dell Inc. PowerEdge R7525/0PYVT1, BIOS
+1.5.4 07/09/2020
+[  420.952887] RIP: 0010:__slab_free+0x180/0x2d0
+[  420.954419] RSP: 0018:ffffbe426291fa60 EFLAGS: 00010246
+[  420.955963] RAX: ffff9e29263e9c30 RBX: ffff9e29263e9c30 RCX:
+000000018100004b
+[  420.957512] RDX: ffff9e29263e9c30 RSI: fffff3d33e98fa40 RDI:
+ffff9e297e407a80
+[  420.959055] RBP: ffffbe426291fb00 R08: 0000000000000001 R09:
+ffffffffc0d39ade
+[  420.960587] R10: ffffbe426291fb20 R11: ffff9e49ffdd4000 R12:
+ffff9e297e407a80
+[  420.962105] R13: fffff3d33e98fa40 R14: ffff9e29263e9c30 R15:
+ffff9e2954464fd8
+[  420.963611] FS:  00007fa2ea097780(0000) GS:ffff9e297e840000(0000)
+knlGS:0000000000000000
+[  420.965144] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  420.966663] CR2: 00007f16bfffefb8 CR3: 0000001ff0c62000 CR4:
+0000000000340ee0
+[  420.968193] Call Trace:
+[  420.969703]  ? __page_cache_release+0x3c/0x220
+[  420.971294]  ? amdgpu_ttm_tt_unpopulate+0x5e/0x80 [amdgpu]
+[  420.972789]  kfree+0x168/0x180
+[  420.974353]  ? amdgpu_ttm_tt_set_user_pages+0x64/0xc0 [amdgpu]
+[  420.975850]  ? kfree+0x168/0x180
+[  420.977403]  amdgpu_ttm_tt_unpopulate+0x5e/0x80 [amdgpu]
+[  420.978888]  ttm_tt_unpopulate.part.10+0x53/0x60 [amdttm]
+[  420.980357]  ttm_tt_destroy.part.11+0x4f/0x60 [amdttm]
+[  420.981814]  ttm_tt_destroy+0x13/0x20 [amdttm]
+[  420.983273]  ttm_bo_cleanup_memtype_use+0x36/0x80 [amdttm]
+[  420.984725]  ttm_bo_release+0x1c9/0x360 [amdttm]
+[  420.986167]  amdttm_bo_put+0x24/0x30 [amdttm]
+[  420.987663]  amdgpu_bo_unref+0x1e/0x30 [amdgpu]
+[  420.989165]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x9ca/0xb10
+[amdgpu]
+[  420.990666]  kfd_ioctl_alloc_memory_of_gpu+0xef/0x2c0 [amdgpu]
 
-Else, if get_registers() failed instead, a randomly generated MAC
-address is set as the MAC address instead.
-
-Reported-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
-Tested-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
-Acked-by: Petko Manolov <petkan@nucleusys.com>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/rtl8150.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/usb/rtl8150.c
-+++ b/drivers/net/usb/rtl8150.c
-@@ -277,12 +277,20 @@ static int write_mii_word(rtl8150_t * de
- 		return 1;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index bc746131987ff..ae700e445fbc8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -727,6 +727,7 @@ static int amdgpu_ttm_tt_pin_userptr(struct ttm_tt *ttm)
+ 
+ release_sg:
+ 	kfree(ttm->sg);
++	ttm->sg = NULL;
+ 	return r;
  }
  
--static inline void set_ethernet_addr(rtl8150_t * dev)
-+static void set_ethernet_addr(rtl8150_t *dev)
- {
--	u8 node_id[6];
-+	u8 node_id[ETH_ALEN];
-+	int ret;
- 
--	get_registers(dev, IDR, sizeof(node_id), node_id);
--	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
-+	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
-+
-+	if (ret == sizeof(node_id)) {
-+		ether_addr_copy(dev->netdev->dev_addr, node_id);
-+	} else {
-+		eth_hw_addr_random(dev->netdev);
-+		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
-+			      dev->netdev->dev_addr);
-+	}
- }
- 
- static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
+-- 
+2.25.1
+
 
 
