@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 861C128B7A3
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 388D228B71A
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389625AbgJLNpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:45:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48502 "EHLO mail.kernel.org"
+        id S1730460AbgJLNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:40:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389289AbgJLNnP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:43:15 -0400
+        id S1731339AbgJLNjL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:39:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFEB721D81;
-        Mon, 12 Oct 2020 13:43:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF10820878;
+        Mon, 12 Oct 2020 13:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510194;
-        bh=NAMGh12AMVvn72LzdUDV6g8w9N4PLdldcf1Bd4jNMB8=;
+        s=default; t=1602509950;
+        bh=De3gEN+CBHnWtDRAND/n6SiXQyX1JjoVXDnEnT7GyN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPboFW4EMMUgae8QkUvqNv+PCGvBxodYXu++vQpmuBU02eWeEEhHH3Uhp3eimbo2Z
-         MKbyNZNnM8vkzcRUIVgr9mX1D53qKYclzypJlOTcqh7C9ftg37D7CI+f7bHnVMHASk
-         6B9wVs+2wWarxMnKx9ZayISIqMi8NUoxs21Vx8rg=
+        b=qc4CwQ1msJPfpU3Equ3Zv95PsQ5vQG1yFwwbTF0jAian84G9TullLcVIOWb1q0jLs
+         mXXV8myxf1EfNa0teLG6Pg3+/+PtidmwHRCPJp6YhF4SEFj8hgr897z+5joxiH1adS
+         c9Zic1/rCjRCiR2sgfP7bxbS9zmK9Cm3P4zpWRoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/85] xfrm: clone XFRMA_REPLAY_ESN_VAL in xfrm_do_migrate
+        stable@vger.kernel.org,
+        syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 27/49] net: team: fix memory leak in __team_options_register
 Date:   Mon, 12 Oct 2020 15:27:13 +0200
-Message-Id: <20201012132635.272819536@linuxfoundation.org>
+Message-Id: <20201012132630.722495511@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antony Antony <antony.antony@secunet.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit 91a46c6d1b4fcbfa4773df9421b8ad3e58088101 ]
+commit 9a9e77495958c7382b2438bc19746dd3aaaabb8e upstream.
 
-XFRMA_REPLAY_ESN_VAL was not cloned completely from the old to the new.
-Migrate this attribute during XFRMA_MSG_MIGRATE
+The variable "i" isn't initialized back correctly after the first loop
+under the label inst_rollback gets executed.
 
-v1->v2:
- - move curleft cloning to a separate patch
+The value of "i" is assigned to be option_count - 1, and the ensuing
+loop (under alloc_rollback) begins by initializing i--.
+Thus, the value of i when the loop begins execution will now become
+i = option_count - 2.
 
-Fixes: af2f464e326e ("xfrm: Assign esn pointers when cloning a state")
-Signed-off-by: Antony Antony <antony.antony@secunet.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Thus, when kfree(dst_opts[i]) is called in the second loop in this
+order, (i.e., inst_rollback followed by alloc_rollback),
+dst_optsp[option_count - 2] is the first element freed, and
+dst_opts[option_count - 1] does not get freed, and thus, a memory
+leak is caused.
+
+This memory leak can be fixed, by assigning i = option_count (instead of
+option_count - 1).
+
+Fixes: 80f7c6683fe0 ("team: add support for per-port options")
+Reported-by: syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com
+Tested-by: syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/net/xfrm.h | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/net/team/team.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 12aa6e15e43f6..c00b9ae71ae40 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1773,21 +1773,17 @@ static inline unsigned int xfrm_replay_state_esn_len(struct xfrm_replay_state_es
- static inline int xfrm_replay_clone(struct xfrm_state *x,
- 				     struct xfrm_state *orig)
- {
--	x->replay_esn = kzalloc(xfrm_replay_state_esn_len(orig->replay_esn),
-+
-+	x->replay_esn = kmemdup(orig->replay_esn,
-+				xfrm_replay_state_esn_len(orig->replay_esn),
- 				GFP_KERNEL);
- 	if (!x->replay_esn)
- 		return -ENOMEM;
--
--	x->replay_esn->bmp_len = orig->replay_esn->bmp_len;
--	x->replay_esn->replay_window = orig->replay_esn->replay_window;
--
--	x->preplay_esn = kmemdup(x->replay_esn,
--				 xfrm_replay_state_esn_len(x->replay_esn),
-+	x->preplay_esn = kmemdup(orig->preplay_esn,
-+				 xfrm_replay_state_esn_len(orig->preplay_esn),
- 				 GFP_KERNEL);
--	if (!x->preplay_esn) {
--		kfree(x->replay_esn);
-+	if (!x->preplay_esn)
- 		return -ENOMEM;
--	}
+--- a/drivers/net/team/team.c
++++ b/drivers/net/team/team.c
+@@ -294,7 +294,7 @@ inst_rollback:
+ 	for (i--; i >= 0; i--)
+ 		__team_option_inst_del_option(team, dst_opts[i]);
  
- 	return 0;
- }
--- 
-2.25.1
-
+-	i = option_count - 1;
++	i = option_count;
+ alloc_rollback:
+ 	for (i--; i >= 0; i--)
+ 		kfree(dst_opts[i]);
 
 
