@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B78EA28B92F
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B472428B6B6
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:38:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731047AbgJLN6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:58:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43908 "EHLO mail.kernel.org"
+        id S1730870AbgJLNgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:36:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731481AbgJLNk6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:40:58 -0400
+        id S2388748AbgJLNgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:36:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 274EE22260;
-        Mon, 12 Oct 2020 13:40:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B23E8204EA;
+        Mon, 12 Oct 2020 13:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510053;
-        bh=GRmaemHNO56jxAAxfhtxvLRBCsKt9NA3rAsCZsZQ544=;
+        s=default; t=1602509783;
+        bh=f8I6H2/jqM8koxnBlbTyxjnfPaHzq0NPYF/1oI9hfeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vSluG8OCXEen5vFJEH6IZrg8/vnvUEKSXRfRZ94CTEIhAEskedvGZSva4X0gt9hBy
-         fOe1GH4Lbl2c2XOOqV6aPcV9ryw2CsdYOarKXsiIuFN34uHZYNZNL3LxMzGalDSNcf
-         67nzm1e11IcLLjV1A8B6Vxz7meAzGt9SOsctmlb8=
+        b=c6sAoLcvZxAEACunC5FAM2gCGPZ1jsrfAGYnu0E5jomNYBInITucuR+X1Cs3ET9qc
+         MS6f1fez/oomNjaZ70vbHrk9pcKvBAWtjwoIHR8enOlNG6D0SJgkQMoGNmoA3jEKTH
+         EqF6kMUdJ/7mlEKvfmnbZfnbkRcDfL2Je1n80LVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+805f5f6ae37411f15b64@syzkaller.appspotmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        stable <stable@kernel.org>,
-        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 5.4 21/85] driver core: Fix probe_count imbalance in really_probe()
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 4.14 28/70] epoll: EPOLL_CTL_ADD: close the race in decision to take fast path
 Date:   Mon, 12 Oct 2020 15:26:44 +0200
-Message-Id: <20201012132633.870032032@linuxfoundation.org>
+Message-Id: <20201012132631.559110164@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit b292b50b0efcc7095d8bf15505fba6909bb35dce upstream.
+commit fe0a916c1eae8e17e86c3753d13919177d63ed7e upstream.
 
-syzbot is reporting hung task in wait_for_device_probe() [1]. At least,
-we always need to decrement probe_count if we incremented probe_count in
-really_probe().
+Checking for the lack of epitems refering to the epoll we want to insert into
+is not enough; we might have an insertion of that epoll into another one that
+has already collected the set of files to recheck for excessive reverse paths,
+but hasn't gotten to creating/inserting the epitem for it.
 
-However, since I can't find "Resources present before probing" message in
-the console log, both "this message simply flowed off" and "syzbot is not
-hitting this path" will be possible. Therefore, while we are at it, let's
-also prepare for concurrent wait_for_device_probe() calls by replacing
-wake_up() with wake_up_all().
+However, any such insertion in progress can be detected - it will update the
+generation count in our epoll when it's done looking through it for files
+to check.  That gets done under ->mtx of our epoll and that allows us to
+detect that safely.
 
-[1] https://syzkaller.appspot.com/bug?id=25c833f1983c9c1d512f4ff860dd0d7f5a2e2c0f
+We are *not* holding epmutex here, so the generation count is not stable.
+However, since both the update of ep->gen by loop check and (later)
+insertion into ->f_ep_link are done with ep->mtx held, we are fine -
+the sequence is
+	grab epmutex
+	bump loop_check_gen
+	...
+	grab tep->mtx		// 1
+	tep->gen = loop_check_gen
+	...
+	drop tep->mtx		// 2
+	...
+	grab tep->mtx		// 3
+	...
+	insert into ->f_ep_link
+	...
+	drop tep->mtx		// 4
+	bump loop_check_gen
+	drop epmutex
+and if the fastpath check in another thread happens for that
+eventpoll, it can come
+	* before (1) - in that case fastpath is just fine
+	* after (4) - we'll see non-empty ->f_ep_link, slow path
+taken
+	* between (2) and (3) - loop_check_gen is stable,
+with ->mtx providing barriers and we end up taking slow path.
 
-Reported-by: syzbot <syzbot+805f5f6ae37411f15b64@syzkaller.appspotmail.com>
-Fixes: 7c35e699c88bd607 ("driver core: Print device when resources present in really_probe()")
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20200713021254.3444-1-penguin-kernel@I-love.SAKURA.ne.jp
-[iwamatsu: Drop patch for deferred_probe_timeout_work_func()]
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+Note that ->f_ep_link emptiness check is slightly racy - we are protected
+against insertions into that list, but removals can happen right under us.
+Not a problem - in the worst case we'll end up taking a slow path for
+no good reason.
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/base/dd.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -518,7 +518,8 @@ static int really_probe(struct device *d
- 		 drv->bus->name, __func__, drv->name, dev_name(dev));
- 	if (!list_empty(&dev->devres_head)) {
- 		dev_crit(dev, "Resources present before probing\n");
--		return -EBUSY;
-+		ret = -EBUSY;
-+		goto done;
- 	}
- 
- re_probe:
-@@ -639,7 +640,7 @@ pinctrl_bind_failed:
- 	ret = 0;
- done:
- 	atomic_dec(&probe_count);
--	wake_up(&probe_waitqueue);
-+	wake_up_all(&probe_waitqueue);
- 	return ret;
- }
- 
+---
+ fs/eventpoll.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -2079,6 +2079,7 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, in
+ 	mutex_lock_nested(&ep->mtx, 0);
+ 	if (op == EPOLL_CTL_ADD) {
+ 		if (!list_empty(&f.file->f_ep_links) ||
++				ep->gen == loop_check_gen ||
+ 						is_file_epoll(tf.file)) {
+ 			full_check = 1;
+ 			mutex_unlock(&ep->mtx);
 
 
