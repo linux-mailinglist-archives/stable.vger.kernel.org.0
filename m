@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAACA28B997
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B291E28B768
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:43:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731731AbgJLOB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:01:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40186 "EHLO mail.kernel.org"
+        id S2389300AbgJLNnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:43:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730904AbgJLNiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:01 -0400
+        id S2389141AbgJLNmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:42:17 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C60D922244;
-        Mon, 12 Oct 2020 13:37:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11A1821D7F;
+        Mon, 12 Oct 2020 13:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509863;
-        bh=5Ex+mXH27rZvA7S/asn1Wb6Cz7VFNrhQORRj7MTgRhE=;
+        s=default; t=1602510136;
+        bh=ZHxrrTtIL4qvu+XzZtjBKNSlmeA6jwRsBaw7+lM8ec0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xWMEHkRV3II7pTRclxiuDJxvveekGkk7Vbg4oOw1ly3HfScmwy1p8AdLtPI/Fmp0y
-         BwbJgwtKmNtdEzH88iwIJ87X6Da7S3AEd7eY5fr+LvVA3l+Ct0hhNSo/gKNjFIYs8n
-         NHIcTyFkVJYD7I3uDisuPVGJ5i9jnnAy0aZAL+G4=
+        b=IJIqPV8YRQIxwRRT0NzZShnWZ96rMNgGa3ljKU8gfMzSbctfCvVNCXbH21axc1sOE
+         5nTmshCTe3zmSyUxjU3sHYcNGMsdbYzwCG44LaGCvItt6araex4d7B6OjukicR/WYa
+         kDMiqmT8uwvHz8FTS/XNOM6ilGley2PlvE7lw3vI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wilken Gottwalt <wilken.gottwalt@mailbox.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Vaibhav Gupta <vaibhavgupta40@gmail.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 62/70] net: usb: ax88179_178a: fix missing stop entry in driver_info
-Date:   Mon, 12 Oct 2020 15:27:18 +0200
-Message-Id: <20201012132633.183992972@linuxfoundation.org>
+Subject: [PATCH 5.4 56/85] iavf: use generic power management
+Date:   Mon, 12 Oct 2020 15:27:19 +0200
+Message-Id: <20201012132635.565534692@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +44,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
+From: Vaibhav Gupta <vaibhavgupta40@gmail.com>
 
-[ Upstream commit 9666ea66a74adfe295cb3a8760c76e1ef70f9caf ]
+[ Upstream commit bc5cbd73eb493944b8665dc517f684c40eb18a4a ]
 
-Adds the missing .stop entry in the Belkin driver_info structure.
+With the support of generic PM callbacks, drivers no longer need to use
+legacy .suspend() and .resume() in which they had to maintain PCI states
+changes and device's power state themselves. The required operations are
+done by PCI core.
 
-Fixes: e20bd60bf62a ("net: usb: asix88179_178a: Add support for the Belkin B2B128")
-Signed-off-by: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+PCI drivers are not expected to invoke PCI helper functions like
+pci_save/restore_state(), pci_enable/disable_device(),
+pci_set_power_state(), etc. Their tasks are completed by PCI core itself.
+
+Compile-tested only.
+
+Signed-off-by: Vaibhav Gupta <vaibhavgupta40@gmail.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/ax88179_178a.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 45 ++++++---------------
+ 1 file changed, 12 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
-index 875639b0e9d56..e7193a541244b 100644
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1736,6 +1736,7 @@ static const struct driver_info belkin_info = {
- 	.status = ax88179_status,
- 	.link_reset = ax88179_link_reset,
- 	.reset	= ax88179_reset,
-+	.stop	= ax88179_stop,
- 	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 222ae76809aa1..bcb95b2ea792f 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -3773,7 +3773,6 @@ err_dma:
+ 	return err;
+ }
+ 
+-#ifdef CONFIG_PM
+ /**
+  * iavf_suspend - Power management suspend routine
+  * @pdev: PCI device information struct
+@@ -3781,11 +3780,10 @@ err_dma:
+  *
+  * Called when the system (VM) is entering sleep/suspend.
+  **/
+-static int iavf_suspend(struct pci_dev *pdev, pm_message_t state)
++static int __maybe_unused iavf_suspend(struct device *dev_d)
+ {
+-	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct net_device *netdev = dev_get_drvdata(dev_d);
+ 	struct iavf_adapter *adapter = netdev_priv(netdev);
+-	int retval = 0;
+ 
+ 	netif_device_detach(netdev);
+ 
+@@ -3803,12 +3801,6 @@ static int iavf_suspend(struct pci_dev *pdev, pm_message_t state)
+ 
+ 	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
+ 
+-	retval = pci_save_state(pdev);
+-	if (retval)
+-		return retval;
+-
+-	pci_disable_device(pdev);
+-
+ 	return 0;
+ }
+ 
+@@ -3818,24 +3810,13 @@ static int iavf_suspend(struct pci_dev *pdev, pm_message_t state)
+  *
+  * Called when the system (VM) is resumed from sleep/suspend.
+  **/
+-static int iavf_resume(struct pci_dev *pdev)
++static int __maybe_unused iavf_resume(struct device *dev_d)
+ {
++	struct pci_dev *pdev = to_pci_dev(dev_d);
+ 	struct iavf_adapter *adapter = pci_get_drvdata(pdev);
+ 	struct net_device *netdev = adapter->netdev;
+ 	u32 err;
+ 
+-	pci_set_power_state(pdev, PCI_D0);
+-	pci_restore_state(pdev);
+-	/* pci_restore_state clears dev->state_saved so call
+-	 * pci_save_state to restore it.
+-	 */
+-	pci_save_state(pdev);
+-
+-	err = pci_enable_device_mem(pdev);
+-	if (err) {
+-		dev_err(&pdev->dev, "Cannot enable PCI device from suspend.\n");
+-		return err;
+-	}
+ 	pci_set_master(pdev);
+ 
+ 	rtnl_lock();
+@@ -3859,7 +3840,6 @@ static int iavf_resume(struct pci_dev *pdev)
+ 	return err;
+ }
+ 
+-#endif /* CONFIG_PM */
+ /**
+  * iavf_remove - Device Removal Routine
+  * @pdev: PCI device information struct
+@@ -3961,16 +3941,15 @@ static void iavf_remove(struct pci_dev *pdev)
+ 	pci_disable_device(pdev);
+ }
+ 
++static SIMPLE_DEV_PM_OPS(iavf_pm_ops, iavf_suspend, iavf_resume);
++
+ static struct pci_driver iavf_driver = {
+-	.name     = iavf_driver_name,
+-	.id_table = iavf_pci_tbl,
+-	.probe    = iavf_probe,
+-	.remove   = iavf_remove,
+-#ifdef CONFIG_PM
+-	.suspend  = iavf_suspend,
+-	.resume   = iavf_resume,
+-#endif
+-	.shutdown = iavf_shutdown,
++	.name      = iavf_driver_name,
++	.id_table  = iavf_pci_tbl,
++	.probe     = iavf_probe,
++	.remove    = iavf_remove,
++	.driver.pm = &iavf_pm_ops,
++	.shutdown  = iavf_shutdown,
+ };
+ 
+ /**
 -- 
 2.25.1
 
