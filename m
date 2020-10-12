@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C7528C131
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED36328C13A
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730927AbgJLTCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 15:02:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52100 "EHLO mail.kernel.org"
+        id S1730833AbgJLTKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 15:10:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730855AbgJLTCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 15:02:47 -0400
+        id S1730857AbgJLTCt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 15:02:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 195EC208B8;
-        Mon, 12 Oct 2020 19:02:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FA89208D5;
+        Mon, 12 Oct 2020 19:02:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602529367;
-        bh=QkXWm29UpJ9d+OpzSznNbEi0x37isxAZEbbDPaxmB58=;
+        s=default; t=1602529368;
+        bh=QRWbLLlc5LX4W6tV/eifgyen0KK9C7vxrps4PQ+Cm0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1xP70aK+0Fvsq9AlB7faCcsM9e0jxM/y+LTCIiU+SPydBPFSFhm7zDTlX+hTs69/
-         KacxXIsrSf6VB6WiqHus2hqg57YMm+Ga7kr32aQH7N3IQSbeBbyJaiPeLijhNPaAU0
-         yxAjvGxH+9PqmFxUat/LfdVXrIvn6fhw0bqK7XHo=
+        b=iGR0DTQCbeOzyqgztIr+ENvLRGoi0Pp5AcYYzaNKAXwHP6dkkGrXlpPayZP+we249
+         kXiKO8GMuJVfRI6X5rZ0vsvXanaqoCgDkPVEZ1XM5X9bNOgWW/hdHzK0pq6SiDUv5V
+         ea+R3bApGjVqTPnZ4ML2xwDnBh8gjUHRieVxgdFk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vadim Pasternak <vadimp@nvidia.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+Cc:     Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.8 05/24] platform/x86: mlx-platform: Fix extended topology configuration for power supply units
-Date:   Mon, 12 Oct 2020 15:02:20 -0400
-Message-Id: <20201012190239.3279198-5-sashal@kernel.org>
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.8 06/24] mt76: mt7615: reduce maximum VHT MPDU length to 7991
+Date:   Mon, 12 Oct 2020 15:02:21 -0400
+Message-Id: <20201012190239.3279198-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201012190239.3279198-1-sashal@kernel.org>
 References: <20201012190239.3279198-1-sashal@kernel.org>
@@ -44,72 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 2b06a1c889ca33d550675db4b0ca91e1b4dd9873 ]
+[ Upstream commit efb1676306f664625c0c546dd10d18d33c75e3fc ]
 
-Fix topology configuration for power supply units in structure
-'mlxplat_mlxcpld_ext_pwr_items_data', due to hardware change.
+After fixing mac80211 to allow larger A-MSDUs in some cases, there have been
+reports of performance regressions and packet loss with some clients.
+It appears that the issue occurs when the hardware is transmitting A-MSDUs
+bigger than 8k. Limit the local VHT MPDU size capability to 7991, matching
+the value used for MT7915 as well.
 
-Note: no need to backport the fix, since there is no such hardware yet
-(equipped with four power) at the filed.
-
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200923052442.24141-1-nbd@nbd.name
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/mlx-platform.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/mlx-platform.c b/drivers/platform/x86/mlx-platform.c
-index c27548fd386ac..0443632faed9f 100644
---- a/drivers/platform/x86/mlx-platform.c
-+++ b/drivers/platform/x86/mlx-platform.c
-@@ -163,7 +163,6 @@
- #define MLXPLAT_CPLD_NR_NONE			-1
- #define MLXPLAT_CPLD_PSU_DEFAULT_NR		10
- #define MLXPLAT_CPLD_PSU_MSNXXXX_NR		4
--#define MLXPLAT_CPLD_PSU_MSNXXXX_NR2		3
- #define MLXPLAT_CPLD_FAN1_DEFAULT_NR		11
- #define MLXPLAT_CPLD_FAN2_DEFAULT_NR		12
- #define MLXPLAT_CPLD_FAN3_DEFAULT_NR		13
-@@ -337,6 +336,15 @@ static struct i2c_board_info mlxplat_mlxcpld_pwr[] = {
- 	},
- };
- 
-+static struct i2c_board_info mlxplat_mlxcpld_ext_pwr[] = {
-+	{
-+		I2C_BOARD_INFO("dps460", 0x5b),
-+	},
-+	{
-+		I2C_BOARD_INFO("dps460", 0x5a),
-+	},
-+};
-+
- static struct i2c_board_info mlxplat_mlxcpld_fan[] = {
- 	{
- 		I2C_BOARD_INFO("24c32", 0x50),
-@@ -911,15 +919,15 @@ static struct mlxreg_core_data mlxplat_mlxcpld_ext_pwr_items_data[] = {
- 		.label = "pwr3",
- 		.reg = MLXPLAT_CPLD_LPC_REG_PWR_OFFSET,
- 		.mask = BIT(2),
--		.hpdev.brdinfo = &mlxplat_mlxcpld_pwr[0],
--		.hpdev.nr = MLXPLAT_CPLD_PSU_MSNXXXX_NR2,
-+		.hpdev.brdinfo = &mlxplat_mlxcpld_ext_pwr[0],
-+		.hpdev.nr = MLXPLAT_CPLD_PSU_MSNXXXX_NR,
- 	},
- 	{
- 		.label = "pwr4",
- 		.reg = MLXPLAT_CPLD_LPC_REG_PWR_OFFSET,
- 		.mask = BIT(3),
--		.hpdev.brdinfo = &mlxplat_mlxcpld_pwr[1],
--		.hpdev.nr = MLXPLAT_CPLD_PSU_MSNXXXX_NR2,
-+		.hpdev.brdinfo = &mlxplat_mlxcpld_ext_pwr[1],
-+		.hpdev.nr = MLXPLAT_CPLD_PSU_MSNXXXX_NR,
- 	},
- };
- 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/init.c b/drivers/net/wireless/mediatek/mt76/mt7615/init.c
+index e2d80518e5af9..992a36602ad4c 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/init.c
+@@ -453,7 +453,7 @@ void mt7615_init_device(struct mt7615_dev *dev)
+ 	dev->mphy.sband_2g.sband.ht_cap.cap |= IEEE80211_HT_CAP_LDPC_CODING;
+ 	dev->mphy.sband_5g.sband.ht_cap.cap |= IEEE80211_HT_CAP_LDPC_CODING;
+ 	dev->mphy.sband_5g.sband.vht_cap.cap |=
+-			IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_11454 |
++			IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_7991 |
+ 			IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_MASK;
+ 	mt7615_cap_dbdc_disable(dev);
+ 	dev->phy.dfs_state = -1;
 -- 
 2.25.1
 
