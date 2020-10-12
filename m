@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 261DD28B6CB
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:38:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DED428B69C
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388142AbgJLNhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:37:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40140 "EHLO mail.kernel.org"
+        id S1728446AbgJLNf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:35:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731011AbgJLNhP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:37:15 -0400
+        id S1730640AbgJLNe2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:34:28 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D5D621D81;
-        Mon, 12 Oct 2020 13:36:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D2C920838;
+        Mon, 12 Oct 2020 13:34:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509811;
-        bh=Vg1T2YZp02cZX+Ff+PnbpejyRUOriqiX5Ovu8vTRhfg=;
+        s=default; t=1602509665;
+        bh=9vOzk6L5ZlgzV3aSRh7G4WCOGUmax/tn8RhXBuTL/64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JpBSX2Gv2NoxjjOzj87X2zzAGFAOx+/nAGcUfzWEsVKu9kRPeoYLzmuQxVHT1rPJx
-         diGcF6iNDmytdEpjwMbkomOJ/nbFrQ/c2IQumAWIpP9dY6GqQ3pTbKcenLvj44+Ray
-         yhZQ4fXpQZA8X4GMNF3vIlY0zz0n+6fLQ4irKRMw=
+        b=Nk0/5PWJx0aJ1fpj/a5Mq7wOhNpPtbopufJj25uI0CaPMmRzsARKDrEXTMrPDEVlD
+         IOcGrx/xNX0NXg2xVGxJ1FfF6TqSOvPgbhlsm7a00D/OOZ0vZZJ5GlmAhBVlSYbaO6
+         l822LGYczCzZ8JXQzZuZDvs426g5fAH8MqzKtp8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.14 39/70] platform/x86: thinkpad_acpi: re-initialize ACPI buffer size when reuse
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.9 33/54] mtd: rawnand: sunxi: Fix the probe error path
 Date:   Mon, 12 Oct 2020 15:26:55 +0200
-Message-Id: <20201012132632.060315100@linuxfoundation.org>
+Message-Id: <20201012132631.124815696@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Ma <aaron.ma@canonical.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 720ef73d1a239e33c3ad8fac356b9b1348e68aaf upstream.
+commit 3d84515ffd8fb657e10fa5b1215e9f095fa7efca upstream.
 
-Evaluating ACPI _BCL could fail, then ACPI buffer size will be set to 0.
-When reuse this ACPI buffer, AE_BUFFER_OVERFLOW will be triggered.
+nand_release() is supposed be called after MTD device registration.
+Here, only nand_scan() happened, so use nand_cleanup() instead.
 
-Re-initialize buffer size will make ACPI evaluate successfully.
-
-Fixes: 46445b6b896fd ("thinkpad-acpi: fix handle locate for video and query of _BCL")
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 1fef62c1423b ("mtd: nand: add sunxi NAND flash controller support")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-54-miquel.raynal@bootlin.com
+[iwamatsu: adjust filename]
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/platform/x86/thinkpad_acpi.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/sunxi_nand.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -6749,8 +6749,10 @@ static int __init tpacpi_query_bcl_level
- 	list_for_each_entry(child, &device->children, node) {
- 		acpi_status status = acpi_evaluate_object(child->handle, "_BCL",
- 							  NULL, &buffer);
--		if (ACPI_FAILURE(status))
-+		if (ACPI_FAILURE(status)) {
-+			buffer.length = ACPI_ALLOCATE_BUFFER;
- 			continue;
-+		}
+--- a/drivers/mtd/nand/sunxi_nand.c
++++ b/drivers/mtd/nand/sunxi_nand.c
+@@ -2108,7 +2108,7 @@ static int sunxi_nand_chip_init(struct d
+ 	ret = mtd_device_register(mtd, NULL, 0);
+ 	if (ret) {
+ 		dev_err(dev, "failed to register mtd device: %d\n", ret);
+-		nand_release(nand);
++		nand_cleanup(nand);
+ 		return ret;
+ 	}
  
- 		obj = (union acpi_object *)buffer.pointer;
- 		if (!obj || (obj->type != ACPI_TYPE_PACKAGE)) {
 
 
