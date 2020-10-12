@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F264728B720
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:41:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7414928B670
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388992AbgJLNku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:40:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42708 "EHLO mail.kernel.org"
+        id S2389116AbgJLNdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:33:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731311AbgJLNjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:39:01 -0400
+        id S2389096AbgJLNdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:33:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09AAA206D9;
-        Mon, 12 Oct 2020 13:38:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F805204EA;
+        Mon, 12 Oct 2020 13:33:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509940;
-        bh=IR3w9cnGCf8ID0rmeiqr6NR5rCMzKtDVMfPQdvg+bgI=;
+        s=default; t=1602509589;
+        bh=DPJ7hSF8Bve5Cv5O4DeRfsryLXidSFc+kkrXAutzhMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uYzJAMtraSf28xgqBGMmumPF2P8hMJo/qc4940zVHixSjm7D8pb3UeBWjis48wZWo
-         0KDtFt9QEFeym+cDAFGOftfaS68EUiEIthFuNjxBnrzZ7cdb+ALK76MKqVv2za1BrK
-         uAi0A25N9AuN3hIMMxXsCQdp/57gftM6b9XP0bgE=
+        b=TQYnZlBW3aGwDscmi2uUYa4T4XOcVeBHCl9dFGxkqda63+vhc61MECZfAUSCG25P9
+         tSWngK3Lk9Fp8QENj5b7D46JkfgGbRTXKTy1sz/OSf5u7qS1QoRGUFxJkcsKH7RCHc
+         TF0ei0pe9coQbdvPepTJlDxZvgQJWjnozb8Pm/ZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Belin <nbelin@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.19 23/49] i2c: meson: fixup rate calculation with filter delay
+        stable@vger.kernel.org,
+        syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com,
+        Petko Manolov <petkan@nucleusys.com>,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 39/39] net: usb: rtl8150: set random MAC address when set_ethernet_addr() fails
 Date:   Mon, 12 Oct 2020 15:27:09 +0200
-Message-Id: <20201012132630.530478622@linuxfoundation.org>
+Message-Id: <20201012132629.954915748@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
+References: <20201012132628.130632267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Belin <nbelin@baylibre.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-commit 1334d3b4e49e35d8912a7c37ffca4c5afb9a0516 upstream.
+commit f45a4248ea4cc13ed50618ff066849f9587226b2 upstream.
 
-Apparently, 15 cycles of the peripheral clock are used by the controller
-for sampling and filtering. Because this was not known before, the rate
-calculation is slightly off.
+When get_registers() fails in set_ethernet_addr(),the uninitialized
+value of node_id gets copied over as the address.
+So, check the return value of get_registers().
 
-Clean up and fix the calculation taking this filtering delay into account.
+If get_registers() executed successfully (i.e., it returns
+sizeof(node_id)), copy over the MAC address using ether_addr_copy()
+(instead of using memcpy()).
 
-Fixes: 30021e3707a7 ("i2c: add support for Amlogic Meson I2C controller")
-Signed-off-by: Nicolas Belin <nbelin@baylibre.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Else, if get_registers() failed instead, a randomly generated MAC
+address is set as the MAC address instead.
+
+Reported-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
+Tested-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
+Acked-by: Petko Manolov <petkan@nucleusys.com>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-meson.c |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ drivers/net/usb/rtl8150.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/i2c/busses/i2c-meson.c
-+++ b/drivers/i2c/busses/i2c-meson.c
-@@ -36,10 +36,8 @@
- #define REG_CTRL_ACK_IGNORE	BIT(1)
- #define REG_CTRL_STATUS		BIT(2)
- #define REG_CTRL_ERROR		BIT(3)
--#define REG_CTRL_CLKDIV_SHIFT	12
--#define REG_CTRL_CLKDIV_MASK	GENMASK(21, 12)
--#define REG_CTRL_CLKDIVEXT_SHIFT 28
--#define REG_CTRL_CLKDIVEXT_MASK	GENMASK(29, 28)
-+#define REG_CTRL_CLKDIV		GENMASK(21, 12)
-+#define REG_CTRL_CLKDIVEXT	GENMASK(29, 28)
+--- a/drivers/net/usb/rtl8150.c
++++ b/drivers/net/usb/rtl8150.c
+@@ -277,12 +277,20 @@ static int write_mii_word(rtl8150_t * de
+ 		return 1;
+ }
  
- #define REG_SLV_ADDR		GENMASK(7, 0)
- #define REG_SLV_SDA_FILTER	GENMASK(10, 8)
-@@ -48,6 +46,7 @@
- #define REG_SLV_SCL_LOW_EN	BIT(28)
+-static inline void set_ethernet_addr(rtl8150_t * dev)
++static void set_ethernet_addr(rtl8150_t *dev)
+ {
+-	u8 node_id[6];
++	u8 node_id[ETH_ALEN];
++	int ret;
  
- #define I2C_TIMEOUT_MS		500
-+#define FILTER_DELAY		15
+-	get_registers(dev, IDR, sizeof(node_id), node_id);
+-	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
++	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
++
++	if (ret == sizeof(node_id)) {
++		ether_addr_copy(dev->netdev->dev_addr, node_id);
++	} else {
++		eth_hw_addr_random(dev->netdev);
++		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
++			      dev->netdev->dev_addr);
++	}
+ }
  
- enum {
- 	TOKEN_END = 0,
-@@ -142,19 +141,21 @@ static void meson_i2c_set_clk_div(struct
- 	unsigned long clk_rate = clk_get_rate(i2c->clk);
- 	unsigned int div;
- 
--	div = DIV_ROUND_UP(clk_rate, freq * i2c->data->div_factor);
-+	div = DIV_ROUND_UP(clk_rate, freq);
-+	div -= FILTER_DELAY;
-+	div = DIV_ROUND_UP(div, i2c->data->div_factor);
- 
- 	/* clock divider has 12 bits */
--	if (div >= (1 << 12)) {
-+	if (div > GENMASK(11, 0)) {
- 		dev_err(i2c->dev, "requested bus frequency too low\n");
--		div = (1 << 12) - 1;
-+		div = GENMASK(11, 0);
- 	}
- 
--	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
--			   (div & GENMASK(9, 0)) << REG_CTRL_CLKDIV_SHIFT);
-+	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV,
-+			   FIELD_PREP(REG_CTRL_CLKDIV, div & GENMASK(9, 0)));
- 
--	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT_MASK,
--			   (div >> 10) << REG_CTRL_CLKDIVEXT_SHIFT);
-+	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT,
-+			   FIELD_PREP(REG_CTRL_CLKDIVEXT, div >> 10));
- 
- 	/* Disable HIGH/LOW mode */
- 	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_SCL_LOW_EN, 0);
+ static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
 
 
