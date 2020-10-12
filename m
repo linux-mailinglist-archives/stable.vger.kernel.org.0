@@ -2,47 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC5EC28B958
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D42E28B78A
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388609AbgJLN7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:59:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43974 "EHLO mail.kernel.org"
+        id S2389465AbgJLNoW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:44:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388691AbgJLNkA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:40:00 -0400
+        id S1731563AbgJLNmx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:42:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52DFE21D7F;
-        Mon, 12 Oct 2020 13:39:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDF0920878;
+        Mon, 12 Oct 2020 13:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509999;
-        bh=Rnhk7T9mAIqQWbrNqx+3n4D9k2bdIFK3DiNgdOQrz4Y=;
+        s=default; t=1602510173;
+        bh=Ut6KHLaSy8tNe7tzpQc8C15DiC5Rw6/5u5gY2qHqNGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkD07rsLoYQ7dlNIHHfiColAcq98m9jnCDoJnb4pB+HgcDD9KkxM54av0MG8dxqTd
-         9KOgQnluwKUMqw/ehR7FV9Au3cNFDRPb32LJeFNrOoM7kRo69q4iVJuddTh03QiU0A
-         xv1BrlVLm2uPiXPTJsear2et1BnkJ53OdHEbJgi4=
+        b=X4L+dhN8875rxV6u/NfPyvK+Atq88tf03aOo7zybh4symVvinnrl1fRHXa4ZBoHKh
+         kAjRwxD5DpX3x0857HbbvcPEFWF0275roxO0g1/yyJfk+/8LuScYZyHDdLYaHakkmH
+         sabLYrUExbWiwqUPjh7raH8kogkX6nP1W+xBmWrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vijay Balakrishna <vijayb@linux.microsoft.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Allen Pais <apais@microsoft.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 48/49] mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 71/85] rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()
 Date:   Mon, 12 Oct 2020 15:27:34 +0200
-Message-Id: <20201012132631.610989729@linuxfoundation.org>
+Message-Id: <20201012132636.259092014@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,114 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijay Balakrishna <vijayb@linux.microsoft.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 4aab2be0983031a05cb4a19696c9da5749523426 upstream.
+[ Upstream commit 9a059cd5ca7d9c5c4ca5a6e755cf72f230176b6a ]
 
-When memory is hotplug added or removed the min_free_kbytes should be
-recalculated based on what is expected by khugepaged.  Currently after
-hotplug, min_free_kbytes will be set to a lower default and higher
-default set when THP enabled is lost.
+If rxrpc_read() (which allows KEYCTL_READ to read a key), sees a token of a
+type it doesn't recognise, it can BUG in a couple of places, which is
+unnecessary as it can easily get back to userspace.
 
-This change restores min_free_kbytes as expected for THP consumers.
+Fix this to print an error message instead.
 
-[vijayb@linux.microsoft.com: v5]
-  Link: https://lkml.kernel.org/r/1601398153-5517-1-git-send-email-vijayb@linux.microsoft.com
-
-Fixes: f000565adb77 ("thp: set recommended min free kbytes")
-Signed-off-by: Vijay Balakrishna <vijayb@linux.microsoft.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Allen Pais <apais@microsoft.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/1600305709-2319-2-git-send-email-vijayb@linux.microsoft.com
-Link: https://lkml.kernel.org/r/1600204258-13683-1-git-send-email-vijayb@linux.microsoft.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 99455153d067 ("RxRPC: Parse security index 5 keys (Kerberos 5)")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/khugepaged.h |    5 +++++
- mm/khugepaged.c            |   13 +++++++++++--
- mm/page_alloc.c            |    3 +++
- 3 files changed, 19 insertions(+), 2 deletions(-)
+ net/rxrpc/key.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/linux/khugepaged.h
-+++ b/include/linux/khugepaged.h
-@@ -15,6 +15,7 @@ extern int __khugepaged_enter(struct mm_
- extern void __khugepaged_exit(struct mm_struct *mm);
- extern int khugepaged_enter_vma_merge(struct vm_area_struct *vma,
- 				      unsigned long vm_flags);
-+extern void khugepaged_min_free_kbytes_update(void);
+diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
+index d77e89766406a..32f46edcf7c67 100644
+--- a/net/rxrpc/key.c
++++ b/net/rxrpc/key.c
+@@ -1108,7 +1108,8 @@ static long rxrpc_read(const struct key *key,
+ 			break;
  
- #define khugepaged_enabled()					       \
- 	(transparent_hugepage_flags &				       \
-@@ -73,6 +74,10 @@ static inline int khugepaged_enter_vma_m
- {
- 	return 0;
- }
-+
-+static inline void khugepaged_min_free_kbytes_update(void)
-+{
-+}
- #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+ 		default: /* we have a ticket we can't encode */
+-			BUG();
++			pr_err("Unsupported key token type (%u)\n",
++			       token->security_index);
+ 			continue;
+ 		}
  
- #endif /* _LINUX_KHUGEPAGED_H */
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -53,6 +53,9 @@ enum scan_result {
- #define CREATE_TRACE_POINTS
- #include <trace/events/huge_memory.h>
+@@ -1224,7 +1225,6 @@ static long rxrpc_read(const struct key *key,
+ 			break;
  
-+static struct task_struct *khugepaged_thread __read_mostly;
-+static DEFINE_MUTEX(khugepaged_mutex);
-+
- /* default scan 8*512 pte (or vmas) every 30 second */
- static unsigned int khugepaged_pages_to_scan __read_mostly;
- static unsigned int khugepaged_pages_collapsed;
-@@ -1952,8 +1955,6 @@ static void set_recommended_min_free_kby
+ 		default:
+-			BUG();
+ 			break;
+ 		}
  
- int start_stop_khugepaged(void)
- {
--	static struct task_struct *khugepaged_thread __read_mostly;
--	static DEFINE_MUTEX(khugepaged_mutex);
- 	int err = 0;
- 
- 	mutex_lock(&khugepaged_mutex);
-@@ -1980,3 +1981,11 @@ fail:
- 	mutex_unlock(&khugepaged_mutex);
- 	return err;
- }
-+
-+void khugepaged_min_free_kbytes_update(void)
-+{
-+	mutex_lock(&khugepaged_mutex);
-+	if (khugepaged_enabled() && khugepaged_thread)
-+		set_recommended_min_free_kbytes();
-+	mutex_unlock(&khugepaged_mutex);
-+}
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -66,6 +66,7 @@
- #include <linux/ftrace.h>
- #include <linux/lockdep.h>
- #include <linux/nmi.h>
-+#include <linux/khugepaged.h>
- 
- #include <asm/sections.h>
- #include <asm/tlbflush.h>
-@@ -7399,6 +7400,8 @@ int __meminit init_per_zone_wmark_min(vo
- 	setup_min_slab_ratio();
- #endif
- 
-+	khugepaged_min_free_kbytes_update();
-+
- 	return 0;
- }
- postcore_initcall(init_per_zone_wmark_min)
+-- 
+2.25.1
+
 
 
