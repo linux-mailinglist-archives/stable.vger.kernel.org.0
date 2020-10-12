@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C68E328B682
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72FF128B6AD
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730382AbgJLNeb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:34:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36762 "EHLO mail.kernel.org"
+        id S1730960AbgJLNgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:36:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730163AbgJLNeW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:34:22 -0400
+        id S1730723AbgJLNfr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:35:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D954221EB;
-        Mon, 12 Oct 2020 13:33:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4CE721BE5;
+        Mon, 12 Oct 2020 13:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509630;
-        bh=r9jUpOgGpSfN02fFNw1fqjMQ5gLzMzDHY2178iSZcmQ=;
+        s=default; t=1602509743;
+        bh=uhklsGMvmDuSfpQw0E0z9Z3B/B8b1QvtXsxAGER1tNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i0GIAQhnM2tyPKhc9r/M6YiqFudS7t/tzltHkdppZJaZGGmkke4xhTiHwtmQicD7L
-         OsoY8/mypsUr0iXUDyYVoGgcsrHhyw888v4sdiwkvBwjdhDCuSfn+KvDV2FagkqC99
-         loZsMiuMkgD9IhKXxEQVByDS9kBsivF40RIdmvws=
+        b=hackKoyHS1msGw3CEdO6GsIrT2ZjtPBbX8dGecCmq9zWNwIPxIs+eqtVOZMLBI3hm
+         gmpYJVh8kJP24qPNhCQwN3k5m8xsDfZlJj/YqABDdworaZH9H0gkrXBpMgcrSyEFOm
+         yis8qQ1XHEbr3BtjcP836lAORpTtEcof6/c64VP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Andr=C3=A9s=20Barrantes=20Silman?= 
-        <andresbs2000@protonmail.com>, Jiri Kosina <jkosina@suse.cz>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 05/54] Input: i8042 - add nopnp quirk for Acer Aspire 5 A515
+        stable@vger.kernel.org, Lucy Yan <lucyyan@google.com>,
+        Moritz Fischer <mdf@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 11/70] net: dec: de2104x: Increase receive ring size for Tulip
 Date:   Mon, 12 Oct 2020 15:26:27 +0200
-Message-Id: <20201012132629.845792443@linuxfoundation.org>
+Message-Id: <20201012132630.770741066@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Lucy Yan <lucyyan@google.com>
 
-commit 5fc27b098dafb8e30794a9db0705074c7d766179 upstream.
+[ Upstream commit ee460417d254d941dfea5fb7cff841f589643992 ]
 
-Touchpad on this laptop is not detected properly during boot, as PNP
-enumerates (wrongly) AUX port as disabled on this machine.
+Increase Rx ring size to address issue where hardware is reaching
+the receive work limit.
 
-Fix that by adding this board (with admittedly quite funny DMI
-identifiers) to nopnp quirk list.
+Before:
 
-Reported-by: Andrés Barrantes Silman <andresbs2000@protonmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2009252337340.3336@cbobk.fhfr.pm
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[  102.223342] de2104x 0000:17:00.0 eth0: rx work limit reached
+[  102.245695] de2104x 0000:17:00.0 eth0: rx work limit reached
+[  102.251387] de2104x 0000:17:00.0 eth0: rx work limit reached
+[  102.267444] de2104x 0000:17:00.0 eth0: rx work limit reached
 
+Signed-off-by: Lucy Yan <lucyyan@google.com>
+Reviewed-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/dec/tulip/de2104x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -797,6 +797,13 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
- 		},
- 	},
-+	{
-+		/* Acer Aspire 5 A515 */
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "Grumpy_PK"),
-+			DMI_MATCH(DMI_BOARD_VENDOR, "PK"),
-+		},
-+	},
- 	{ }
- };
+diff --git a/drivers/net/ethernet/dec/tulip/de2104x.c b/drivers/net/ethernet/dec/tulip/de2104x.c
+index c87b8cc429638..6ca15c595f543 100644
+--- a/drivers/net/ethernet/dec/tulip/de2104x.c
++++ b/drivers/net/ethernet/dec/tulip/de2104x.c
+@@ -91,7 +91,7 @@ MODULE_PARM_DESC (rx_copybreak, "de2104x Breakpoint at which Rx packets are copi
+ #define DSL			CONFIG_DE2104X_DSL
+ #endif
  
+-#define DE_RX_RING_SIZE		64
++#define DE_RX_RING_SIZE		128
+ #define DE_TX_RING_SIZE		64
+ #define DE_RING_BYTES		\
+ 		((sizeof(struct de_desc) * DE_RX_RING_SIZE) +	\
+-- 
+2.25.1
+
 
 
