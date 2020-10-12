@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDFD28B65C
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06C6E28B749
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388370AbgJLNdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:33:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34274 "EHLO mail.kernel.org"
+        id S2388135AbgJLNmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388530AbgJLNc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:32:27 -0400
+        id S1731505AbgJLNmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:42:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82011204EA;
-        Mon, 12 Oct 2020 13:32:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD6D422202;
+        Mon, 12 Oct 2020 13:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509547;
-        bh=LGXr3Fb2J82Lc2+22Ud1es4udhjjIXRiFM5vElhzJt4=;
+        s=default; t=1602510113;
+        bh=XtpB59G9TYE4H0HNJH7eGgnDt+9I9era3TAO16Mqdc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cq7qKMvRAoq0P9xEI3iJ/GN9bzAZlYZK23q5bC92redngbyQvHJhlhUbrpIsWg9kU
-         c0rMd1ZHUHnsSN/opzvuLsRf66Kw/EgzzLk+801paDNGq2BJ+K9RBC/6NE7NsVgWMi
-         MSjZb6P/Vfs1MYheg6KGKwB6GwX9eHZqjYmLdCns=
+        b=VDZTkSO6dCg+9NnIoiHLQesKuXHsuNnBrrn1bZSXqYr3TERUDPRqFv7uZb4YWJKE4
+         IMLNyTGSwRSOvh3BDWWB60KMYKAT6LLKTiodWhe2zUtDMxgoJfIL6+rGxTTDxVwzco
+         Y2quvUFTlxSK7h7uhocoHAUKuyaI4Lw7enXEjZcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/39] nfs: Fix security label length not being reset
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 15/85] platform/x86: intel-vbtn: Fix SW_TABLET_MODE always reporting 1 on the HP Pavilion 11 x360
 Date:   Mon, 12 Oct 2020 15:26:38 +0200
-Message-Id: <20201012132628.543672457@linuxfoundation.org>
+Message-Id: <20201012132633.594520872@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit d33030e2ee3508d65db5644551435310df86010e ]
+commit d823346876a970522ff9e4d2b323c9b734dcc4de upstream.
 
-nfs_readdir_page_filler() iterates over entries in a directory, reusing
-the same security label buffer, but does not reset the buffer's length.
-This causes decode_attr_security_label() to return -ERANGE if an entry's
-security label is longer than the previous one's. This error, in
-nfs4_decode_dirent(), only gets passed up as -EAGAIN, which causes another
-failed attempt to copy into the buffer. The second error is ignored and
-the remaining entries do not show up in ls, specifically the getdents64()
-syscall.
+Commit cfae58ed681c ("platform/x86: intel-vbtn: Only blacklist
+SW_TABLET_MODE on the 9 / "Laptop" chasis-type") restored SW_TABLET_MODE
+reporting on the HP stream x360 11 series on which it was previously broken
+by commit de9647efeaa9 ("platform/x86: intel-vbtn: Only activate tablet
+mode switch on 2-in-1's").
 
-Reproduce by creating multiple files in NFS and giving one of the later
-files a longer security label. ls will not see that file nor any that are
-added afterwards, though they will exist on the backend.
+It turns out that enabling SW_TABLET_MODE reporting on devices with a
+chassis-type of 10 ("Notebook") causes SW_TABLET_MODE to always report 1
+at boot on the HP Pavilion 11 x360, which causes libinput to disable the
+kbd and touchpad.
 
-In nfs_readdir_page_filler(), reset security label buffer length before
-every reuse
+The HP Pavilion 11 x360's ACPI VGBS method sets bit 4 instead of bit 6 when
+NOT in tablet mode at boot. Inspecting all the DSDTs in my DSDT collection
+shows only one other model, the Medion E1239T ever setting bit 4 and it
+always sets this together with bit 6.
 
-Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
-Fixes: b4487b935452 ("nfs: Fix getxattr kernel panic and memory overflow")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So lets treat bit 4 as a second bit which when set indicates the device not
+being in tablet-mode, as we already do for bit 6.
+
+While at it also prefix all VGBS constant defines with "VGBS_".
+
+Fixes: cfae58ed681c ("platform/x86: intel-vbtn: Only blacklist SW_TABLET_MODE on the 9 / "Laptop" chasis-type")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Mark Gross <mgross@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/dir.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/platform/x86/intel-vbtn.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index 21e5fcbcb2272..ba7e98d8ce098 100644
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -562,6 +562,9 @@ int nfs_readdir_page_filler(nfs_readdir_descriptor_t *desc, struct nfs_entry *en
- 	xdr_set_scratch_buffer(&stream, page_address(scratch), PAGE_SIZE);
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -15,9 +15,13 @@
+ #include <linux/platform_device.h>
+ #include <linux/suspend.h>
  
- 	do {
-+		if (entry->label)
-+			entry->label->len = NFS4_MAXLABELLEN;
++/* Returned when NOT in tablet mode on some HP Stream x360 11 models */
++#define VGBS_TABLET_MODE_FLAG_ALT	0x10
+ /* When NOT in tablet mode, VGBS returns with the flag 0x40 */
+-#define TABLET_MODE_FLAG 0x40
+-#define DOCK_MODE_FLAG   0x80
++#define VGBS_TABLET_MODE_FLAG		0x40
++#define VGBS_DOCK_MODE_FLAG		0x80
 +
- 		status = xdr_decode(desc, entry, &stream);
- 		if (status != 0) {
- 			if (status == -EAGAIN)
--- 
-2.25.1
-
++#define VGBS_TABLET_MODE_FLAGS (VGBS_TABLET_MODE_FLAG | VGBS_TABLET_MODE_FLAG_ALT)
+ 
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("AceLan Kao");
+@@ -148,9 +152,9 @@ static void detect_tablet_mode(struct pl
+ 	if (ACPI_FAILURE(status))
+ 		return;
+ 
+-	m = !(vgbs & TABLET_MODE_FLAG);
++	m = !(vgbs & VGBS_TABLET_MODE_FLAGS);
+ 	input_report_switch(priv->input_dev, SW_TABLET_MODE, m);
+-	m = (vgbs & DOCK_MODE_FLAG) ? 1 : 0;
++	m = (vgbs & VGBS_DOCK_MODE_FLAG) ? 1 : 0;
+ 	input_report_switch(priv->input_dev, SW_DOCK, m);
+ }
+ 
 
 
