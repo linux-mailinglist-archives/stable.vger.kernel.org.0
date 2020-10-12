@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C28A28B7A2
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCFE828BA00
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389613AbgJLNpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:45:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48538 "EHLO mail.kernel.org"
+        id S2390967AbgJLOFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:05:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388373AbgJLNnR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:43:17 -0400
+        id S1730262AbgJLNfh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:35:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E8DA221FE;
-        Mon, 12 Oct 2020 13:43:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14731208B8;
+        Mon, 12 Oct 2020 13:35:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510196;
-        bh=UfrYpmMLSfHoSfyBBh1Q85+/udG9IiZNyjLAVN6D9bY=;
+        s=default; t=1602509728;
+        bh=cRZwsTwV1n6Wp1uz0djYGfR4/C8Jq4a8bdMtfvv7hLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJALk0hE1250vV73Ndbb9cRIGdmPVQxXsglWmaZRdp41NJIZXRib/MGGFHJo6cJDw
-         IslJVrWOmXZNCKUftmcwBS3ubWXBVBLCprbYDKY4xaghzKre97qwA367mM/G2j6/uP
-         kJWCmXGGB1pqybKZsflZku7IPrOzg50cik/XTqU8=
+        b=OHg9D/E2KWti101XC9NyT3b+JHOnWIBoa6nYbZjty3XPTEpOfe1FepBDcmun15QQR
+         WWFGIVWSyvC/Woqbz8hw3BWZP28WhaU936cfhTvvNPsgPIrrSoEA+gG+lJrfj3WTTj
+         69rWFRz6ANvwUxbzl5kHJA89FJ9V1YGDr7wA7YTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Kajol Jain <kjain@linux.ibm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Barret Rhoden <brho@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 51/85] xfrm: clone XFRMA_SEC_CTX in xfrm_do_migrate
+Subject: [PATCH 4.9 52/54] perf: Fix task_function_call() error handling
 Date:   Mon, 12 Oct 2020 15:27:14 +0200
-Message-Id: <20201012132635.320244639@linuxfoundation.org>
+Message-Id: <20201012132631.977230363@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antony Antony <antony.antony@secunet.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit 7aa05d304785204703a67a6aa7f1db402889a172 ]
+[ Upstream commit 6d6b8b9f4fceab7266ca03d194f60ec72bd4b654 ]
 
-XFRMA_SEC_CTX was not cloned from the old to the new.
-Migrate this attribute during XFRMA_MSG_MIGRATE
+The error handling introduced by commit:
 
-v1->v2:
- - return -ENOMEM on error
-v2->v3:
- - fix return type to int
+  2ed6edd33a21 ("perf: Add cond_resched() to task_function_call()")
 
-Fixes: 80c9abaabf42 ("[XFRM]: Extension for dynamic update of endpoint address(es)")
-Signed-off-by: Antony Antony <antony.antony@secunet.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+looses any return value from smp_call_function_single() that is not
+{0, -EINVAL}. This is a problem because it will return -EXNIO when the
+target CPU is offline. Worse, in that case it'll turn into an infinite
+loop.
+
+Fixes: 2ed6edd33a21 ("perf: Add cond_resched() to task_function_call()")
+Reported-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Barret Rhoden <brho@google.com>
+Tested-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Link: https://lkml.kernel.org/r/20200827064732.20860-1-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_state.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ kernel/events/core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 10d30f0338d72..fc1b391ba1554 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -1438,6 +1438,30 @@ out:
- EXPORT_SYMBOL(xfrm_state_add);
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index b562467d2d498..7aad4d22b4223 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -94,7 +94,7 @@ static void remote_function(void *data)
+  * retry due to any failures in smp_call_function_single(), such as if the
+  * task_cpu() goes offline concurrently.
+  *
+- * returns @func return value or -ESRCH when the process isn't running
++ * returns @func return value or -ESRCH or -ENXIO when the process isn't running
+  */
+ static int
+ task_function_call(struct task_struct *p, remote_function_f func, void *info)
+@@ -110,7 +110,8 @@ task_function_call(struct task_struct *p, remote_function_f func, void *info)
+ 	for (;;) {
+ 		ret = smp_call_function_single(task_cpu(p), remote_function,
+ 					       &data, 1);
+-		ret = !ret ? data.ret : -EAGAIN;
++		if (!ret)
++			ret = data.ret;
  
- #ifdef CONFIG_XFRM_MIGRATE
-+static inline int clone_security(struct xfrm_state *x, struct xfrm_sec_ctx *security)
-+{
-+	struct xfrm_user_sec_ctx *uctx;
-+	int size = sizeof(*uctx) + security->ctx_len;
-+	int err;
-+
-+	uctx = kmalloc(size, GFP_KERNEL);
-+	if (!uctx)
-+		return -ENOMEM;
-+
-+	uctx->exttype = XFRMA_SEC_CTX;
-+	uctx->len = size;
-+	uctx->ctx_doi = security->ctx_doi;
-+	uctx->ctx_alg = security->ctx_alg;
-+	uctx->ctx_len = security->ctx_len;
-+	memcpy(uctx + 1, security->ctx_str, security->ctx_len);
-+	err = security_xfrm_state_alloc(x, uctx);
-+	kfree(uctx);
-+	if (err)
-+		return err;
-+
-+	return 0;
-+}
-+
- static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
- 					   struct xfrm_encap_tmpl *encap)
- {
-@@ -1494,6 +1518,10 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
- 			goto error;
- 	}
- 
-+	if (orig->security)
-+		if (clone_security(x, orig->security))
-+			goto error;
-+
- 	if (orig->coaddr) {
- 		x->coaddr = kmemdup(orig->coaddr, sizeof(*x->coaddr),
- 				    GFP_KERNEL);
+ 		if (ret != -EAGAIN)
+ 			break;
 -- 
 2.25.1
 
