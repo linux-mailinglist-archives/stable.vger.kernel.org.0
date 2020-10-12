@@ -2,1135 +2,250 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE7D28C46D
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 00:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E93DE28C4C9
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 00:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731469AbgJLWAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 18:00:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52472 "EHLO
+        id S2389104AbgJLWc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 18:32:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730870AbgJLWAX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 18:00:23 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 561CEC0613D0
-        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 15:00:22 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id u24so15771854pgi.1
-        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 15:00:22 -0700 (PDT)
+        with ESMTP id S2388401AbgJLWc5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 18:32:57 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD814C0613D0
+        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 15:32:57 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id k8so15073492pfk.2
+        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 15:32:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Pr2zT10LSH8cAGtrmBMQ2VceP67WP5lxMZorR78dxFc=;
-        b=ekhaU/hmyxSz9tN3w5wN/cy8TU+T7O6TpaZQ4UXXUlDef2N7bysvcn6zr0m/VD+RqV
-         j/l7G6HTgcCQ4I4pUw0N9R2sSIMBRuQ6XWIBLNd6PMEsWiAMNALG6r4gScFuXwl2diRr
-         HxgFK1McuW+DwPRBSe+GrlzRdQ2cExJ9RYvc9G2grkg/PjSX0tfajni4UgM7Nl9R6GVg
-         ie+W/RbDLSQk5lDBM+Q6IUvrNwC3u9LcShHM6iBGOk79He2Zu0j0E13WCG98q4fu11B/
-         twf39T+YvHU+4FJMSAaEfN+p4pbZ32Sbm2q+s4ZChcG0OFTo+bxxmMPvF8MV3+H9RvzA
-         OURA==
+        d=google.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=0p1xZm0lO43Wq2Pshg/s4Pw9+YyfLbjNVBtjjMP2OCA=;
+        b=SpbywymtTmRb0GthUUmeGEGkHPtnqud956WXhgJYwdLlisFmmaz9XUJmWBYHDPCTlZ
+         ae8uFOFdGh/LIalCHiWlS+Armi05+C+z2iBHC/jn6jQF2skJsFdwQ85/MCWCvl9Zn7me
+         R+b+zJqgayDw1v39850agGqJT7z+/3rqhp4MlMIKzWKYb/I1YKs47LJNfzSVpdx726V4
+         zzuD0Q5njRrTUrLFup9aMXKO7mNNvDhjmNMfPljR3hIMONmxpyx8MT+6mtCIBczHW/t+
+         FbhITvZ4ueQHdPkOx12Zr8hTVilFYDzHv9TvdvYSAzFTwNThRbBgBuCXMaZcfu34iqLB
+         avmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Pr2zT10LSH8cAGtrmBMQ2VceP67WP5lxMZorR78dxFc=;
-        b=NPsYEmHH4L28uWuIyFOdcux62cxTpKSvsOvxaNovPab4At5lI/AU/jCrZuK0eSBYNp
-         nNvpeR+ZneqeMAfHRpyBgnXXHTe9B76drNJwMvSJtQ6b43ZzGm/63tfgLZkxZQu+1E63
-         XI85NXrMd8srdu7gOrkQcaWTWv0/l9etk3Ezshp2c+W5YiXxxsjNXVUI02LCQ874weMD
-         4bVotzVvLonYyhew2G6lazVVsR1cjyKfeGP14L6RbeXROtN4Oq9trHDf3YtWdU41OwfS
-         WbBM3573ocD4YyuYmNIzONY5CFa88tG0BsPGRSAovi1hhLLLAG4/2mfgVyBOPLUSqs0e
-         U+Lg==
-X-Gm-Message-State: AOAM533FNE5EOuZX1r3qGUH24D42V6owUU01qZEKOwb5Rm2gPePZ1UG3
-        j11neSCPOVxfZxciox9Oie77/d+Bxa5QzQ==
-X-Google-Smtp-Source: ABdhPJz4tHn1f9W1skQOxC3Ahk4ASccqY2QYcuGKqJZuUN3g3lKnXY0WJVDqwUhbHxy1+t0i1k9pdA==
-X-Received: by 2002:a17:90a:c90d:: with SMTP id v13mr21091167pjt.166.1602540020900;
-        Mon, 12 Oct 2020 15:00:20 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u69sm22369036pfc.27.2020.10.12.15.00.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2020 15:00:20 -0700 (PDT)
-Message-ID: <5f84d1f4.1c69fb81.fff92.c6cc@mx.google.com>
-Date:   Mon, 12 Oct 2020 15:00:20 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=0p1xZm0lO43Wq2Pshg/s4Pw9+YyfLbjNVBtjjMP2OCA=;
+        b=OwrngEOfadBeL6yQ95wMAUcHWhP1ZfI7gchXO0LXeFs5efysyG5sxN5Kerss/6mxma
+         rXsoQEAnHTNTKeZXX9gfydPkNLG2aJUNmRRIrNNgGQ+5W3kZEwNqRSGzkPGwqaEZTzJw
+         Ev74kyrguklZ5Vm3ynaK8Cp4UOMOnjGlkyefd6AMlhmXpoyXGcW/jmCsBN0llUqrjwRN
+         36bjiMkXs2uQK4+F8ONAXykgo3rKQCni9DTOEJWsZNYb/AxJYkAZL0UbVx+dDiq6Pk/O
+         UaUztRVIbYBpRO3l5MPXNIHxD9XBF8KfKA8SvtEJHXDQvRra4vG9Oo+sgsHPOqvnh7sc
+         S/Mg==
+X-Gm-Message-State: AOAM5333fPdB5qdo4JBDLUwHDyLdn5//bImTOZS5Q+C9iMf0yfdyWN9g
+        rrbmuHXhv546EWmBC+HmweLR6K3hGAMkD8HCpBaRcw==
+X-Google-Smtp-Source: ABdhPJz8njObFoAmb634Wsoypal9PXwQVW6eNhzczXoGYIe9xOTJIN8X74Oo9Zhk6lA5GORFPA97cVMqh0XMgS5vAXM=
+X-Received: by 2002:a17:90a:3b48:: with SMTP id t8mr22439487pjf.32.1602541977057;
+ Mon, 12 Oct 2020 15:32:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.4.238-40-g36437aaa5512
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.4.y build: 186 builds: 2 failed, 184 passed,
- 2 errors, 13 warnings (v4.4.238-40-g36437aaa5512)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 12 Oct 2020 15:32:46 -0700
+Message-ID: <CAKwvOdnBqCT0XG298nLqE7=WvxrYJFqV6jZ8-fZX0fF67bLQBQ@mail.gmail.com>
+Subject: llvm-nm and lld patches for arm32
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     "# 3.4.x" <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Dmitry Golovin <dima@golovin.in>,
+        =?UTF-8?Q?Matthias_M=C3=A4nnich?= <maennich@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Content-Type: multipart/mixed; boundary="00000000000048160d05b180e12d"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y build: 186 builds: 2 failed, 184 passed, 2 errors, 13=
- warnings (v4.4.238-40-g36437aaa5512)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.238-40-g36437aaa5512/
-
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.238-40-g36437aaa5512
-Git Commit: 36437aaa551298340a942cd706837e40efdae9c3
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
-
-Build Failures Detected:
-
-arm:
-    rpc_defconfig: (gcc-8) FAIL
-
-mips:
-    sead3micro_defconfig: (gcc-8) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-    allnoconfig (gcc-8): 3 warnings
-    tinyconfig (gcc-8): 4 warnings
-
-arm64:
-
-arm:
-    clps711x_defconfig (gcc-8): 1 warning
-    davinci_all_defconfig (gcc-8): 1 warning
-    lpc32xx_defconfig (gcc-8): 1 warning
-    mxs_defconfig (gcc-8): 1 warning
-
-i386:
-
-mips:
-    ip22_defconfig (gcc-8): 1 warning
-    ip28_defconfig (gcc-8): 1 warning
-    sead3micro_defconfig (gcc-8): 2 errors
-
-x86_64:
-
-Errors summary:
-
-    1    /scratch/linux/arch/mips/kernel/genex.S:271: Error: branch to a sy=
-mbol in another ISA mode
-    1    /scratch/linux/arch/mips/kernel/genex.S:152: Error: branch to a sy=
-mbol in another ISA mode
-
-Warnings summary:
-
-    7    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct d=
-ependencies (FUTEX)
-    2    /scratch/linux/drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning=
-: passing argument 5 of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from=
- integer without a cast [-Wint-conversion]
-    1    /scratch/linux/arch/arm/mach-mxs/mach-mxs.c:285:26: warning: dupli=
-cate =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specif=
-ier]
-    1    /scratch/linux/arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: du=
-plicate =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-spe=
-cifier]
-    1    /scratch/linux/arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: du=
-plicate =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-spe=
-cifier]
-    1    /scratch/linux/arch/arm/mach-clps711x/board-autcpu12.c:163:26: war=
-ning: duplicate =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-=
-decl-specifier]
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
-smatches
-
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    /scratch/linux/arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning:=
- duplicate =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-=
-specifier]
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    /scratch/linux/arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplica=
-te =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifie=
-r]
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    /scratch/linux/drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: pas=
-sing argument 5 of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from inte=
-ger without a cast [-Wint-conversion]
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    /scratch/linux/drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: pas=
-sing argument 5 of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from inte=
-ger without a cast [-Wint-conversion]
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    /scratch/linux/arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplica=
-te =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifie=
-r]
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ls1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    /scratch/linux/arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =
-=E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-realview-smp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-sead3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sead3micro_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 =
-section mismatches
-
-Errors:
-    /scratch/linux/arch/mips/kernel/genex.S:152: Error: branch to a symbol =
-in another ISA mode
-    /scratch/linux/arch/mips/kernel/genex.S:271: Error: branch to a symbol =
-in another ISA mode
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section mis=
-matches
-
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----
-For more info write to <info@kernelci.org>
+--00000000000048160d05b180e12d
+Content-Type: text/plain; charset="UTF-8"
+
+Dear Stable Maintainers,
+Please consider cherry-picking:
+
+commit fe00e50b2db8 ("ARM: 8858/1: vdso: use $(LD) instead of $(CC) to
+link VDSO")
+
+to linux-4.19.y.
+
+It cherry picks cleanly and first landed in v5.2-rc1.
+
+It allows us to more easily use ld.lld on arm32 for Android.
+
+
+Also, please consider cherry-picking:
+
+commit 29c623d64f0d ("ARM: 8939/1: kbuild: use correct nm executable")
+
+to both linux-5.4.y and linux-4.19.y.
+
+It cherry picks cleanly and first landed in v5.5-rc1.
+
+It allows us to more easily use llvm-nm on arm32 for Android.
+
+
+I've attached both backports as mbox files. Please let me know if it
+would be preferable in the future for me to have one email per patch
+being backported.  I tested both locally, and the patches are passing
+our presubmit testing in Android.
+-- 
+Thanks,
+~Nick Desaulniers
+
+--00000000000048160d05b180e12d
+Content-Type: application/octet-stream; name="5.4.arm.llvm-nm.mbox"
+Content-Disposition: attachment; filename="5.4.arm.llvm-nm.mbox"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kg73yb2k0>
+X-Attachment-Id: f_kg73yb2k0
+
+RnJvbSA1OTc3MGUxZjliNmU0YjkzOWNkYzBjZjFiZWUyZTk0MzI1YWJjMjNhIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBEbWl0cnkgR29sb3ZpbiA8ZGltYUBnb2xvdmluLmluPgpEYXRl
+OiBUdWUsIDE5IE5vdiAyMDE5IDE2OjM5OjQyICswMTAwClN1YmplY3Q6IFtQQVRDSF0gQVJNOiA4
+OTM5LzE6IGtidWlsZDogdXNlIGNvcnJlY3Qgbm0gZXhlY3V0YWJsZQoKY29tbWl0IDI5YzYyM2Q2
+NGYwZGNkNmFhMTBlMGVhYmQxNjIzM2U3NzExNDA5MGIgdXBzdHJlYW0uCgpTaW5jZSAkKE5NKSB2
+YXJpYWJsZSBjYW4gYmUgZWFzaWx5IG92ZXJyaWRkZW4gZm9yIHRoZSB3aG9sZSBidWlsZCwgaXQn
+cwpiZXR0ZXIgdG8gdXNlIGl0IGluc3RlYWQgb2YgJChDUk9TU19DT01QSUxFKW5tLiBUaGUgdXNl
+IG9mICQoQ1JPU1NfQ09NUElMRSkKcHJlZml4ZWQgdmFyaWFibGVzIHdoZXJlIHRoZWlyIGNhbGN1
+bGF0ZWQgZXF1aXZhbGVudHMgY2FuIGJlIHVzZWQgaXMKaW5jb3JyZWN0LiBUaGlzIGZpeGVzIGlz
+c3VlcyB3aXRoIGJ1aWxkcyB3aGVyZSAkKE5NKSBpcyBzZXQgdG8gbGx2bS1ubS4KCkxpbms6IGh0
+dHBzOi8vZ2l0aHViLmNvbS9DbGFuZ0J1aWx0TGludXgvbGludXgvaXNzdWVzLzc2NgoKU2lnbmVk
+LW9mZi1ieTogRG1pdHJ5IEdvbG92aW4gPGRpbWFAZ29sb3Zpbi5pbj4KU3VnZ2VzdGVkLWJ5OiBO
+aWNrIERlc2F1bG5pZXJzIDxuZGVzYXVsbmllcnNAZ29vZ2xlLmNvbT4KQ2M6IE1hdHRoaWFzIE1h
+ZW5uaWNoIDxtYWVubmljaEBnb29nbGUuY29tPgpSZXZpZXdlZC1ieTogTmF0aGFuIENoYW5jZWxs
+b3IgPG5hdGVjaGFuY2VsbG9yQGdtYWlsLmNvbT4KVGVzdGVkLWJ5OiBOYXRoYW4gQ2hhbmNlbGxv
+ciA8bmF0ZWNoYW5jZWxsb3JAZ21haWwuY29tPgpSZXZpZXdlZC1ieTogTWFzYWhpcm8gWWFtYWRh
+IDx5YW1hZGEubWFzYWhpcm9Ac29jaW9uZXh0LmNvbT4KUmV2aWV3ZWQtYnk6IE5pY2sgRGVzYXVs
+bmllcnMgPG5kZXNhdWxuaWVyc0Bnb29nbGUuY29tPgpTaWduZWQtb2ZmLWJ5OiBSdXNzZWxsIEtp
+bmcgPHJtaytrZXJuZWxAYXJtbGludXgub3JnLnVrPgpTaWduZWQtb2ZmLWJ5OiBOaWNrIERlc2F1
+bG5pZXJzIDxuZGVzYXVsbmllcnNAZ29vZ2xlLmNvbT4KLS0tCiBhcmNoL2FybS9ib290L2NvbXBy
+ZXNzZWQvTWFrZWZpbGUgfCA0ICsrLS0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyks
+IDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vYm9vdC9jb21wcmVzc2VkL01h
+a2VmaWxlIGIvYXJjaC9hcm0vYm9vdC9jb21wcmVzc2VkL01ha2VmaWxlCmluZGV4IDE0ODM5NjZk
+Y2YyMy4uNmRhNjc3ODlhYzIyIDEwMDY0NAotLS0gYS9hcmNoL2FybS9ib290L2NvbXByZXNzZWQv
+TWFrZWZpbGUKKysrIGIvYXJjaC9hcm0vYm9vdC9jb21wcmVzc2VkL01ha2VmaWxlCkBAIC0xMjEs
+NyArMTIxLDcgQEAgY2NmbGFncy15IDo9IC1mcGljICQoY2FsbCBjYy1vcHRpb24sLW1uby1zaW5n
+bGUtcGljLWJhc2UsKSAtZm5vLWJ1aWx0aW4gXAogYXNmbGFncy15IDo9IC1EWklNQUdFCiAKICMg
+U3VwcGx5IGtlcm5lbCBCU1Mgc2l6ZSB0byB0aGUgZGVjb21wcmVzc29yIHZpYSBhIGxpbmtlciBz
+eW1ib2wuCi1LQlNTX1NaID0gJChzaGVsbCBlY2hvICQkKCgkJCgkKENST1NTX0NPTVBJTEUpbm0g
+JChvYmopLy4uLy4uLy4uLy4uL3ZtbGludXggfCBcCitLQlNTX1NaID0gJChzaGVsbCBlY2hvICQk
+KCgkJCgkKE5NKSAkKG9iaikvLi4vLi4vLi4vLi4vdm1saW51eCB8IFwKIAkJc2VkIC1uIC1lICdz
+L15cKFteIF0qXCkgW0FCXSBfX2Jzc19zdGFydCQkLy0weFwxL3AnIFwKIAkJICAgICAgIC1lICdz
+L15cKFteIF0qXCkgW0FCXSBfX2Jzc19zdG9wJCQvKzB4XDEvcCcpICkpICkKIExERkxBR1Nfdm1s
+aW51eCA9IC0tZGVmc3ltIF9rZXJuZWxfYnNzX3NpemU9JChLQlNTX1NaKQpAQCAtMTY1LDcgKzE2
+NSw3IEBAICQob2JqKS9ic3dhcHNkaTIuUzogJChzcmN0cmVlKS9hcmNoLyQoU1JDQVJDSCkvbGli
+L2Jzd2Fwc2RpMi5TCiAjIFRoZSAuZGF0YSBzZWN0aW9uIGlzIGFscmVhZHkgZGlzY2FyZGVkIGJ5
+IHRoZSBsaW5rZXIgc2NyaXB0IHNvIG5vIG5lZWQKICMgdG8gYm90aGVyIGFib3V0IGl0IGhlcmUu
+CiBjaGVja19mb3JfYmFkX3N5bXMgPSBcCi1iYWRfc3ltcz0kJCgkKENST1NTX0NPTVBJTEUpbm0g
+JEAgfCBzZWQgLW4gJ3MvXi5cezhcfSBbYmNdIFwoLipcKS9cMS9wJykgJiYgXAorYmFkX3N5bXM9
+JCQoJChOTSkgJEAgfCBzZWQgLW4gJ3MvXi5cezhcfSBbYmNdIFwoLipcKS9cMS9wJykgJiYgXAog
+WyAteiAiJCRiYWRfc3ltcyIgXSB8fCBcCiAgICggZWNobyAiZm9sbG93aW5nIHN5bWJvbHMgbXVz
+dCBoYXZlIG5vbiBsb2NhbC9wcml2YXRlIHNjb3BlOiIgPiYyOyBcCiAgICAgZWNobyAiJCRiYWRf
+c3ltcyIgPiYyOyBmYWxzZSApCi0tIAoyLjI4LjAuMTAxMS5nYTY0N2E4OTkwZi1nb29nCgo=
+--00000000000048160d05b180e12d
+Content-Type: application/octet-stream; name="4.19.arm.lld.llvm-nm.mbox"
+Content-Disposition: attachment; filename="4.19.arm.lld.llvm-nm.mbox"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kg73yb3g1>
+X-Attachment-Id: f_kg73yb3g1
+
+RnJvbSA2YjFkMDJlNzk2NDA4ZmZjNDM2ZDk1MGUzMjJiMjA1NzAwYzU1ZmI0IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBNYXNhaGlybyBZYW1hZGEgPHlhbWFkYS5tYXNhaGlyb0Bzb2Np
+b25leHQuY29tPgpEYXRlOiBUaHUsIDE4IEFwciAyMDE5IDEwOjU3OjQ5ICswMTAwClN1YmplY3Q6
+IFtQQVRDSCAxLzJdIEFSTTogODg1OC8xOiB2ZHNvOiB1c2UgJChMRCkgaW5zdGVhZCBvZiAkKEND
+KSB0byBsaW5rCiBWRFNPCgpjb21taXQgZmUwMGU1MGIyZGI4YzYwZTRlYzkwYmVmYWQxZjViYWI4
+Y2EyYzgwMCB1cHN0cmVhbS4KCldlIHVzZSAkKExEKSB0byBsaW5rIHZtbGludXgsIG1vZHVsZXMs
+IGRlY29tcHJlc3NvcnMsIGV0Yy4KClZEU08gaXMgdGhlIG9ubHkgZXhjZXB0aW9uYWwgY2FzZSB3
+aGVyZSAkKENDKSBpcyB1c2VkIGFzIHRoZSBsaW5rZXIKZHJpdmVyLCBidXQgSSBkbyBub3Qga25v
+dyB3aHkgd2UgbmVlZCB0byBkbyBzby4gVkRTTyB1c2VzIGEgc3BlY2lhbApsaW5rZXIgc2NyaXB0
+LCBhbmQgZG9lcyBub3QgbGluayBzdGFuZGFyZCBsaWJyYXJpZXMgYXQgYWxsLgoKSSBjaGFuZ2Vk
+IHRoZSBNYWtlZmlsZSB0byB1c2UgJChMRCkgcmF0aGVyIHRoYW4gJChDQykuIEkgY29uZmlybWVk
+CnRoZSBzYW1lIHZkc28uc28ucmF3IHdhcyBzdGlsbCBwcm9kdWNlZC4KClVzZXJzIHdpbGwgYmUg
+YWJsZSB0byB1c2UgdGhlaXIgZmF2b3JpdGUgbGlua2VyIChlLmcuIGxsZCBpbnN0ZWFkIG9mCm9m
+IGJmZCkgYnkgcGFzc2luZyBMRD0gZnJvbSB0aGUgY29tbWFuZCBsaW5lLgoKTXkgcGxhbiBpcyB0
+byByZXdyaXRlIGFsbCBWRFNPIE1ha2VmaWxlcyB0byB1c2UgJChMRCksIHRoZW4gZGVsZXRlCgpj
+Yy1sZG9wdGlvbi4KClNpZ25lZC1vZmYtYnk6IE1hc2FoaXJvIFlhbWFkYSA8eWFtYWRhLm1hc2Fo
+aXJvQHNvY2lvbmV4dC5jb20+ClJldmlld2VkLWJ5OiBOaWNrIERlc2F1bG5pZXJzIDxuZGVzYXVs
+bmllcnNAZ29vZ2xlLmNvbT4KU2lnbmVkLW9mZi1ieTogUnVzc2VsbCBLaW5nIDxybWsra2VybmVs
+QGFybWxpbnV4Lm9yZy51az4KU2lnbmVkLW9mZi1ieTogTmljayBEZXNhdWxuaWVycyA8bmRlc2F1
+bG5pZXJzQGdvb2dsZS5jb20+Ci0tLQogYXJjaC9hcm0vdmRzby9NYWtlZmlsZSB8IDIxICsrKysr
+KysrLS0tLS0tLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDggaW5zZXJ0aW9ucygrKSwgMTMgZGVs
+ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vdmRzby9NYWtlZmlsZSBiL2FyY2gvYXJt
+L3Zkc28vTWFrZWZpbGUKaW5kZXggZjRlZmZmOWQzYWZiLi5mYWRmNTU0ZDkzOTEgMTAwNjQ0Ci0t
+LSBhL2FyY2gvYXJtL3Zkc28vTWFrZWZpbGUKKysrIGIvYXJjaC9hcm0vdmRzby9NYWtlZmlsZQpA
+QCAtMTAsMTIgKzEwLDEyIEBAIG9iai12ZHNvIDo9ICQoYWRkcHJlZml4ICQob2JqKS8sICQob2Jq
+LXZkc28pKQogY2NmbGFncy15IDo9IC1mUElDIC1mbm8tY29tbW9uIC1mbm8tYnVpbHRpbiAtZm5v
+LXN0YWNrLXByb3RlY3RvcgogY2NmbGFncy15ICs9IC1ERElTQUJMRV9CUkFOQ0hfUFJPRklMSU5H
+CiAKLVZEU09fTERGTEFHUyA6PSAtV2wsLUJzeW1ib2xpYyAtV2wsLS1uby11bmRlZmluZWQgLVds
+LC1zb25hbWU9bGludXgtdmRzby5zby4xCi1WRFNPX0xERkxBR1MgKz0gLVdsLC16LG1heC1wYWdl
+LXNpemU9NDA5NiAtV2wsLXosY29tbW9uLXBhZ2Utc2l6ZT00MDk2Ci1WRFNPX0xERkxBR1MgKz0g
+LW5vc3RkbGliIC1zaGFyZWQKLVZEU09fTERGTEFHUyArPSAkKGNhbGwgY2MtbGRvcHRpb24sIC1X
+bCQoY29tbWEpLS1oYXNoLXN0eWxlPXN5c3YpCi1WRFNPX0xERkxBR1MgKz0gJChjYWxsIGNjLWxk
+b3B0aW9uLCAtV2wkKGNvbW1hKS0tYnVpbGQtaWQpCi1WRFNPX0xERkxBR1MgKz0gJChjYWxsIGNj
+LWxkb3B0aW9uLCAtZnVzZS1sZD1iZmQpCitsZGZsYWdzLXkgPSAtQnN5bWJvbGljIC0tbm8tdW5k
+ZWZpbmVkIC1zb25hbWU9bGludXgtdmRzby5zby4xIFwKKwkgICAgLXogbWF4LXBhZ2Utc2l6ZT00
+MDk2IC16IGNvbW1vbi1wYWdlLXNpemU9NDA5NiBcCisJICAgIC1ub3N0ZGxpYiAtc2hhcmVkIFwK
+KwkgICAgJChjYWxsIGxkLW9wdGlvbiwgLS1oYXNoLXN0eWxlPXN5c3YpIFwKKwkgICAgJChjYWxs
+IGxkLW9wdGlvbiwgLS1idWlsZC1pZCkgXAorCSAgICAtVAogCiBvYmotJChDT05GSUdfVkRTTykg
+Kz0gdmRzby5vCiBleHRyYS0kKENPTkZJR19WRFNPKSArPSB2ZHNvLmxkcwpAQCAtMzcsOCArMzcs
+OCBAQCBLQ09WX0lOU1RSVU1FTlQgOj0gbgogJChvYmopL3Zkc28ubyA6ICQob2JqKS92ZHNvLnNv
+CiAKICMgTGluayBydWxlIGZvciB0aGUgLnNvIGZpbGUKLSQob2JqKS92ZHNvLnNvLnJhdzogJChz
+cmMpL3Zkc28ubGRzICQob2JqLXZkc28pIEZPUkNFCi0JJChjYWxsIGlmX2NoYW5nZWQsdmRzb2xk
+KQorJChvYmopL3Zkc28uc28ucmF3OiAkKG9iaikvdmRzby5sZHMgJChvYmotdmRzbykgRk9SQ0UK
+KwkkKGNhbGwgaWZfY2hhbmdlZCxsZCkKIAogJChvYmopL3Zkc28uc28uZGJnOiAkKG9iaikvdmRz
+by5zby5yYXcgJChvYmopL3Zkc29tdW5nZSBGT1JDRQogCSQoY2FsbCBpZl9jaGFuZ2VkLHZkc29t
+dW5nZSkKQEAgLTQ4LDExICs0OCw2IEBAICQob2JqKS8lLnNvOiBPQkpDT1BZRkxBR1MgOj0gLVMK
+ICQob2JqKS8lLnNvOiAkKG9iaikvJS5zby5kYmcgRk9SQ0UKIAkkKGNhbGwgaWZfY2hhbmdlZCxv
+Ympjb3B5KQogCi0jIEFjdHVhbCBidWlsZCBjb21tYW5kcwotcXVpZXRfY21kX3Zkc29sZCA9IFZE
+U08gICAgJEAKLSAgICAgIGNtZF92ZHNvbGQgPSAkKENDKSAkKGNfZmxhZ3MpICQoVkRTT19MREZM
+QUdTKSBcCi0gICAgICAgICAgICAgICAgICAgLVdsLC1UICQoZmlsdGVyICUubGRzLCReKSAkKGZp
+bHRlciAlLm8sJF4pIC1vICRACi0KIHF1aWV0X2NtZF92ZHNvbXVuZ2UgPSBNVU5HRSAgICRACiAg
+ICAgICBjbWRfdmRzb211bmdlID0gJChvYmp0cmVlKS8kKG9iaikvdmRzb211bmdlICQ8ICRACiAK
+LS0gCjIuMjguMC4xMDExLmdhNjQ3YTg5OTBmLWdvb2cKCgpGcm9tIDg3ZTNhYjUxZTcyM2Y4MTI1
+NTE3ZDU3MjA4MjViMTRiZDBmNmUyNjIgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxCkZyb206IERt
+aXRyeSBHb2xvdmluIDxkaW1hQGdvbG92aW4uaW4+CkRhdGU6IFR1ZSwgMTkgTm92IDIwMTkgMTY6
+Mzk6NDIgKzAxMDAKU3ViamVjdDogW1BBVENIIDIvMl0gQVJNOiA4OTM5LzE6IGtidWlsZDogdXNl
+IGNvcnJlY3Qgbm0gZXhlY3V0YWJsZQoKY29tbWl0IDI5YzYyM2Q2NGYwZGNkNmFhMTBlMGVhYmQx
+NjIzM2U3NzExNDA5MGIgdXBzdHJlYW0uCgpTaW5jZSAkKE5NKSB2YXJpYWJsZSBjYW4gYmUgZWFz
+aWx5IG92ZXJyaWRkZW4gZm9yIHRoZSB3aG9sZSBidWlsZCwgaXQncwpiZXR0ZXIgdG8gdXNlIGl0
+IGluc3RlYWQgb2YgJChDUk9TU19DT01QSUxFKW5tLiBUaGUgdXNlIG9mICQoQ1JPU1NfQ09NUElM
+RSkKcHJlZml4ZWQgdmFyaWFibGVzIHdoZXJlIHRoZWlyIGNhbGN1bGF0ZWQgZXF1aXZhbGVudHMg
+Y2FuIGJlIHVzZWQgaXMKaW5jb3JyZWN0LiBUaGlzIGZpeGVzIGlzc3VlcyB3aXRoIGJ1aWxkcyB3
+aGVyZSAkKE5NKSBpcyBzZXQgdG8gbGx2bS1ubS4KCkxpbms6IGh0dHBzOi8vZ2l0aHViLmNvbS9D
+bGFuZ0J1aWx0TGludXgvbGludXgvaXNzdWVzLzc2NgoKU2lnbmVkLW9mZi1ieTogRG1pdHJ5IEdv
+bG92aW4gPGRpbWFAZ29sb3Zpbi5pbj4KU3VnZ2VzdGVkLWJ5OiBOaWNrIERlc2F1bG5pZXJzIDxu
+ZGVzYXVsbmllcnNAZ29vZ2xlLmNvbT4KQ2M6IE1hdHRoaWFzIE1hZW5uaWNoIDxtYWVubmljaEBn
+b29nbGUuY29tPgpSZXZpZXdlZC1ieTogTmF0aGFuIENoYW5jZWxsb3IgPG5hdGVjaGFuY2VsbG9y
+QGdtYWlsLmNvbT4KVGVzdGVkLWJ5OiBOYXRoYW4gQ2hhbmNlbGxvciA8bmF0ZWNoYW5jZWxsb3JA
+Z21haWwuY29tPgpSZXZpZXdlZC1ieTogTWFzYWhpcm8gWWFtYWRhIDx5YW1hZGEubWFzYWhpcm9A
+c29jaW9uZXh0LmNvbT4KUmV2aWV3ZWQtYnk6IE5pY2sgRGVzYXVsbmllcnMgPG5kZXNhdWxuaWVy
+c0Bnb29nbGUuY29tPgpTaWduZWQtb2ZmLWJ5OiBSdXNzZWxsIEtpbmcgPHJtaytrZXJuZWxAYXJt
+bGludXgub3JnLnVrPgpTaWduZWQtb2ZmLWJ5OiBOaWNrIERlc2F1bG5pZXJzIDxuZGVzYXVsbmll
+cnNAZ29vZ2xlLmNvbT4KLS0tCiBhcmNoL2FybS9ib290L2NvbXByZXNzZWQvTWFrZWZpbGUgfCA0
+ICsrLS0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpk
+aWZmIC0tZ2l0IGEvYXJjaC9hcm0vYm9vdC9jb21wcmVzc2VkL01ha2VmaWxlIGIvYXJjaC9hcm0v
+Ym9vdC9jb21wcmVzc2VkL01ha2VmaWxlCmluZGV4IDFmNWE1ZmZlN2ZjZi4uYzc2MjAwNDU3MmVm
+IDEwMDY0NAotLS0gYS9hcmNoL2FybS9ib290L2NvbXByZXNzZWQvTWFrZWZpbGUKKysrIGIvYXJj
+aC9hcm0vYm9vdC9jb21wcmVzc2VkL01ha2VmaWxlCkBAIC0xMjAsNyArMTIwLDcgQEAgY2NmbGFn
+cy15IDo9IC1mcGljICQoY2FsbCBjYy1vcHRpb24sLW1uby1zaW5nbGUtcGljLWJhc2UsKSAtZm5v
+LWJ1aWx0aW4gLUkkKG9iaikKIGFzZmxhZ3MteSA6PSAtRFpJTUFHRQogCiAjIFN1cHBseSBrZXJu
+ZWwgQlNTIHNpemUgdG8gdGhlIGRlY29tcHJlc3NvciB2aWEgYSBsaW5rZXIgc3ltYm9sLgotS0JT
+U19TWiA9ICQoc2hlbGwgZWNobyAkJCgoJCQoJChDUk9TU19DT01QSUxFKW5tICQob2JqKS8uLi8u
+Li8uLi8uLi92bWxpbnV4IHwgXAorS0JTU19TWiA9ICQoc2hlbGwgZWNobyAkJCgoJCQoJChOTSkg
+JChvYmopLy4uLy4uLy4uLy4uL3ZtbGludXggfCBcCiAJCXNlZCAtbiAtZSAncy9eXChbXiBdKlwp
+IFtBQl0gX19ic3Nfc3RhcnQkJC8tMHhcMS9wJyBcCiAJCSAgICAgICAtZSAncy9eXChbXiBdKlwp
+IFtBQl0gX19ic3Nfc3RvcCQkLysweFwxL3AnKSApKSApCiBMREZMQUdTX3ZtbGludXggPSAtLWRl
+ZnN5bSBfa2VybmVsX2Jzc19zaXplPSQoS0JTU19TWikKQEAgLTE2Niw3ICsxNjYsNyBAQCAkKG9i
+aikvYnN3YXBzZGkyLlM6ICQoc3JjdHJlZSkvYXJjaC8kKFNSQ0FSQ0gpL2xpYi9ic3dhcHNkaTIu
+UwogIyBUaGUgLmRhdGEgc2VjdGlvbiBpcyBhbHJlYWR5IGRpc2NhcmRlZCBieSB0aGUgbGlua2Vy
+IHNjcmlwdCBzbyBubyBuZWVkCiAjIHRvIGJvdGhlciBhYm91dCBpdCBoZXJlLgogY2hlY2tfZm9y
+X2JhZF9zeW1zID0gXAotYmFkX3N5bXM9JCQoJChDUk9TU19DT01QSUxFKW5tICRAIHwgc2VkIC1u
+ICdzL14uXHs4XH0gW2JjXSBcKC4qXCkvXDEvcCcpICYmIFwKK2JhZF9zeW1zPSQkKCQoTk0pICRA
+IHwgc2VkIC1uICdzL14uXHs4XH0gW2JjXSBcKC4qXCkvXDEvcCcpICYmIFwKIFsgLXogIiQkYmFk
+X3N5bXMiIF0gfHwgXAogICAoIGVjaG8gImZvbGxvd2luZyBzeW1ib2xzIG11c3QgaGF2ZSBub24g
+bG9jYWwvcHJpdmF0ZSBzY29wZToiID4mMjsgXAogICAgIGVjaG8gIiQkYmFkX3N5bXMiID4mMjsg
+cm0gLWYgJEA7IGZhbHNlICkKLS0gCjIuMjguMC4xMDExLmdhNjQ3YTg5OTBmLWdvb2cKCg==
+--00000000000048160d05b180e12d--
