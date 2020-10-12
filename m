@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CC4828B67B
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D87F128B920
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389017AbgJLNeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:34:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34782 "EHLO mail.kernel.org"
+        id S2390627AbgJLN5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:57:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389033AbgJLNcs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:32:48 -0400
+        id S1731290AbgJLNlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:41:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3909720678;
-        Mon, 12 Oct 2020 13:32:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76BA322244;
+        Mon, 12 Oct 2020 13:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509567;
-        bh=4blNXUI1xL+qepDcBCoVHP/4UqJ4NeUDb97ie2v5ehE=;
+        s=default; t=1602510096;
+        bh=rvnjSrMEECJgoM3x7gvKWcniaay8WsK1fAvGitthpDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVKllAxw/ga2kEr/b+U68lP+YHVddrXzrdiAMTKBXwh0jF7med7le51h9XOoRConl
-         wgoHPivRTy2CjZ4dnKfmFUrHPeUy1e2qnJUTBGv5kPd//NtFN8i1vTh7iAUvwlUpr6
-         dMHYvzchcd1pGdW5btZxJlz92KFzgkESZ+SxAKps=
+        b=xszxZZZOIzO6XsgdQPD6m6dOSZSdQB2oP5jr4BhH7h8mGxDiPfevS8NKUnpP4aLr2
+         WXKPgU8uxwgy4SCqpwKRRhyi23NTg8Ti/qFP7X4GUWEpOG83pKUTSjrfyotFw4+Q5a
+         3Dfjl+5/IKWzit/g0uDgFjbefAfam6VvME/g1cLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 31/39] xfrm: clone XFRMA_REPLAY_ESN_VAL in xfrm_do_migrate
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 5.4 38/85] xfrmi: drop ignore_df check before updating pmtu
 Date:   Mon, 12 Oct 2020 15:27:01 +0200
-Message-Id: <20201012132629.610741704@linuxfoundation.org>
+Message-Id: <20201012132634.688974448@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antony Antony <antony.antony@secunet.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 91a46c6d1b4fcbfa4773df9421b8ad3e58088101 ]
+commit 45a36a18d01907710bad5258d81f76c18882ad88 upstream.
 
-XFRMA_REPLAY_ESN_VAL was not cloned completely from the old to the new.
-Migrate this attribute during XFRMA_MSG_MIGRATE
+xfrm interfaces currently test for !skb->ignore_df when deciding
+whether to update the pmtu on the skb's dst. Because of this, no pmtu
+exception is created when we do something like:
 
-v1->v2:
- - move curleft cloning to a separate patch
+    ping -s 1438 <dest>
 
-Fixes: af2f464e326e ("xfrm: Assign esn pointers when cloning a state")
-Signed-off-by: Antony Antony <antony.antony@secunet.com>
+By dropping this check, the pmtu exception will be created and the
+next ping attempt will work.
+
+Fixes: f203b76d7809 ("xfrm: Add virtual xfrm interfaces")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
 Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/net/xfrm.h | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ net/xfrm/xfrm_interface.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 89685c7bc7c0f..7a9c18deaa512 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1730,21 +1730,17 @@ static inline int xfrm_replay_state_esn_len(struct xfrm_replay_state_esn *replay
- static inline int xfrm_replay_clone(struct xfrm_state *x,
- 				     struct xfrm_state *orig)
- {
--	x->replay_esn = kzalloc(xfrm_replay_state_esn_len(orig->replay_esn),
-+
-+	x->replay_esn = kmemdup(orig->replay_esn,
-+				xfrm_replay_state_esn_len(orig->replay_esn),
- 				GFP_KERNEL);
- 	if (!x->replay_esn)
- 		return -ENOMEM;
--
--	x->replay_esn->bmp_len = orig->replay_esn->bmp_len;
--	x->replay_esn->replay_window = orig->replay_esn->replay_window;
--
--	x->preplay_esn = kmemdup(x->replay_esn,
--				 xfrm_replay_state_esn_len(x->replay_esn),
-+	x->preplay_esn = kmemdup(orig->preplay_esn,
-+				 xfrm_replay_state_esn_len(orig->preplay_esn),
- 				 GFP_KERNEL);
--	if (!x->preplay_esn) {
--		kfree(x->replay_esn);
-+	if (!x->preplay_esn)
- 		return -ENOMEM;
--	}
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -293,7 +293,7 @@ xfrmi_xmit2(struct sk_buff *skb, struct
+ 	}
  
- 	return 0;
- }
--- 
-2.25.1
-
+ 	mtu = dst_mtu(dst);
+-	if (!skb->ignore_df && skb->len > mtu) {
++	if (skb->len > mtu) {
+ 		skb_dst_update_pmtu_no_confirm(skb, mtu);
+ 
+ 		if (skb->protocol == htons(ETH_P_IPV6)) {
 
 
