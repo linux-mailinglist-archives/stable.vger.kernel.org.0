@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F1E28C057
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:03:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C7BB28C058
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:03:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390858AbgJLTD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390839AbgJLTD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Oct 2020 15:03:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52546 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390065AbgJLTDJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 15:03:09 -0400
+        id S2390144AbgJLTDK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 15:03:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 943C12073A;
-        Mon, 12 Oct 2020 19:03:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE94421BE5;
+        Mon, 12 Oct 2020 19:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602529388;
-        bh=KyFwZq91g0c69Vtm1zs1HoCWvTLdAGjQ987vXshT4rQ=;
+        s=default; t=1602529389;
+        bh=GxyUJ336LKwVyiU9N8vXJbaW07K1JUB7kHNAeeWC/Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOaIM8kuiYRRtVKh+yZFV16ckGXnJbepaSp/mRVRG9gM/3grfBLQFuaV6tXptazwL
-         oAkHEiadVJJbXe4OMT7w+FtU3OyLLeAjPcuhjNjG5vWQ+UOyZcvagVFP10qhPHjE0N
-         GWPxKOu3Ugb9psa3iVN+2NdOXSvfdbIzmErDgK6w=
+        b=fkMuuLDwZ9RTuK4sRq/SVAfPIhq4Mthc6s5UQy4GtJ+CMnfrYzmcbQ+TrzwY/+ZYA
+         tcaJrkSgbl56sR3QFuykZrlMa4RISaPB0f+p00XCM+O7VSYYAvob+ID3gOXITBLOop
+         QSSTE3Ia48yAm6GWQZ9uaQdnM5JcPmSlUPuYewbA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuhiro Kohada <kohada.t2@gmail.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 22/24] exfat: fix pointer error checking
-Date:   Mon, 12 Oct 2020 15:02:37 -0400
-Message-Id: <20201012190239.3279198-22-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 23/24] gpio: pca953x: Survive spurious interrupts
+Date:   Mon, 12 Oct 2020 15:02:38 -0400
+Message-Id: <20201012190239.3279198-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201012190239.3279198-1-sashal@kernel.org>
 References: <20201012190239.3279198-1-sashal@kernel.org>
@@ -42,60 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuhiro Kohada <kohada.t2@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit d6c9efd92443b23307995f34246c2374056ebbd8 ]
+[ Upstream commit 8b81edd80baf12d64420daff1759380aa9a14998 ]
 
-Fix missing result check of exfat_build_inode().
-And use PTR_ERR_OR_ZERO instead of PTR_ERR.
+The pca953x driver never checks the result of irq_find_mapping(),
+which returns 0 when no mapping is found. When a spurious interrupt
+is delivered (which can happen under obscure circumstances), the
+kernel explodes as it still tries to handle the error code as
+a real interrupt.
 
-Signed-off-by: Tetsuhiro Kohada <kohada.t2@gmail.com>
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+Handle this particular case and warn on spurious interrupts.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20201005140217.1390851-1-maz@kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exfat/namei.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/gpio/gpio-pca953x.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/fs/exfat/namei.c b/fs/exfat/namei.c
-index 2b9e21094a96d..4b53a3efd6d46 100644
---- a/fs/exfat/namei.c
-+++ b/fs/exfat/namei.c
-@@ -578,7 +578,8 @@ static int exfat_create(struct inode *dir, struct dentry *dentry, umode_t mode,
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index 11c3bbd105f11..1de182b85e4c4 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -821,8 +821,21 @@ static irqreturn_t pca953x_irq_handler(int irq, void *devid)
+ 	ret = pca953x_irq_pending(chip, pending);
+ 	mutex_unlock(&chip->i2c_lock);
  
- 	i_pos = exfat_make_i_pos(&info);
- 	inode = exfat_build_inode(sb, &info, i_pos);
--	if (IS_ERR(inode))
-+	err = PTR_ERR_OR_ZERO(inode);
-+	if (err)
- 		goto unlock;
+-	for_each_set_bit(level, pending, gc->ngpio)
+-		handle_nested_irq(irq_find_mapping(gc->irq.domain, level));
++	if (ret) {
++		ret = 0;
++
++		for_each_set_bit(level, pending, gc->ngpio) {
++			int nested_irq = irq_find_mapping(gc->irq.domain, level);
++
++			if (unlikely(nested_irq <= 0)) {
++				dev_warn_ratelimited(gc->parent, "unmapped interrupt %d\n", level);
++				continue;
++			}
++
++			handle_nested_irq(nested_irq);
++			ret = 1;
++		}
++	}
  
- 	inode_inc_iversion(inode);
-@@ -745,10 +746,9 @@ static struct dentry *exfat_lookup(struct inode *dir, struct dentry *dentry,
- 
- 	i_pos = exfat_make_i_pos(&info);
- 	inode = exfat_build_inode(sb, &info, i_pos);
--	if (IS_ERR(inode)) {
--		err = PTR_ERR(inode);
-+	err = PTR_ERR_OR_ZERO(inode);
-+	if (err)
- 		goto unlock;
--	}
- 
- 	i_mode = inode->i_mode;
- 	alias = d_find_alias(inode);
-@@ -890,10 +890,9 @@ static int exfat_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
- 
- 	i_pos = exfat_make_i_pos(&info);
- 	inode = exfat_build_inode(sb, &info, i_pos);
--	if (IS_ERR(inode)) {
--		err = PTR_ERR(inode);
-+	err = PTR_ERR_OR_ZERO(inode);
-+	if (err)
- 		goto unlock;
--	}
- 
- 	inode_inc_iversion(inode);
- 	inode->i_mtime = inode->i_atime = inode->i_ctime =
+ 	return IRQ_RETVAL(ret);
+ }
 -- 
 2.25.1
 
