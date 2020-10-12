@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78DBD28B76E
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D2228B969
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389367AbgJLNnk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:43:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46220 "EHLO mail.kernel.org"
+        id S2390742AbgJLOAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731546AbgJLNms (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:42:48 -0400
+        id S1728130AbgJLNjm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:39:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D69B22202;
-        Mon, 12 Oct 2020 13:42:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 148CE21D81;
+        Mon, 12 Oct 2020 13:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510154;
-        bh=k78XAI5isEK/D5oZDtstYulxItLHO5vvYCvSyiP5twM=;
+        s=default; t=1602509981;
+        bh=ualpSjygNXqURRiZsGyee47tHeQIYsGssVDS2IJdcE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qh6e9icFiDcrNm4Z3mUqjeXp5TpLavbLjLB+5jsSFdF3KoFO7dIGGCgOQp/5Hs8OH
-         gc9AVzNOeAOW//Ap8h3UeMve4UFhwDyMmiIu54Dy6l1713RjcEhIF3E/Izwtzvnvzn
-         IqX2MEPyHR/2aFKibdaOBdbelZCJf5jgApkHl8z0=
+        b=H9TJtPdvT3Ki3/Y5x2NtFd9gOUkudh5IVcgHTCw8S2w/RYO5lNtIo2akrWV4YvYnE
+         6QyYG46NcVaqkD5geLviXY/iRhwRuLXpcQrtzw55ZRgggeub2AsxBun68L6Otr1SEt
+         11DkHKwfvGi+yeM7z5izWD8OqBP2f8qEmvU9lGJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wilken Gottwalt <wilken.gottwalt@mailbox.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 63/85] net: usb: ax88179_178a: fix missing stop entry in driver_info
-Date:   Mon, 12 Oct 2020 15:27:26 +0200
-Message-Id: <20201012132635.874229686@linuxfoundation.org>
+Subject: [PATCH 4.19 41/49] net/mlx5e: Fix VLAN create flow
+Date:   Mon, 12 Oct 2020 15:27:27 +0200
+Message-Id: <20201012132631.312190140@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit 9666ea66a74adfe295cb3a8760c76e1ef70f9caf ]
+[ Upstream commit d4a16052bccdd695982f89d815ca075825115821 ]
 
-Adds the missing .stop entry in the Belkin driver_info structure.
+When interface is attached while in promiscuous mode and with VLAN
+filtering turned off, both configurations are not respected and VLAN
+filtering is performed.
+There are 2 flows which add the any-vid rules during interface attach:
+VLAN creation table and set rx mode. Each is relaying on the other to
+add any-vid rules, eventually non of them does.
 
-Fixes: e20bd60bf62a ("net: usb: asix88179_178a: Add support for the Belkin B2B128")
-Signed-off-by: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by adding any-vid rules on VLAN creation regardless of
+promiscuous mode.
+
+Fixes: 9df30601c843 ("net/mlx5e: Restore vlan filter after seamless reset")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/ax88179_178a.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_fs.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
-index df2f7cc6dc03a..8e37e1f58c4b9 100644
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1719,6 +1719,7 @@ static const struct driver_info belkin_info = {
- 	.status = ax88179_status,
- 	.link_reset = ax88179_link_reset,
- 	.reset	= ax88179_reset,
-+	.stop	= ax88179_stop,
- 	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
- 	.rx_fixup = ax88179_rx_fixup,
- 	.tx_fixup = ax88179_tx_fixup,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
+index b8c3ceaed585b..7ddacc9e4fe40 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
+@@ -217,6 +217,9 @@ static int __mlx5e_add_vlan_rule(struct mlx5e_priv *priv,
+ 		break;
+ 	}
+ 
++	if (WARN_ONCE(*rule_p, "VLAN rule already exists type %d", rule_type))
++		return 0;
++
+ 	*rule_p = mlx5_add_flow_rules(ft, spec, &flow_act, &dest, 1);
+ 
+ 	if (IS_ERR(*rule_p)) {
+@@ -397,8 +400,7 @@ static void mlx5e_add_vlan_rules(struct mlx5e_priv *priv)
+ 	for_each_set_bit(i, priv->fs.vlan.active_svlans, VLAN_N_VID)
+ 		mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID, i);
+ 
+-	if (priv->fs.vlan.cvlan_filter_disabled &&
+-	    !(priv->netdev->flags & IFF_PROMISC))
++	if (priv->fs.vlan.cvlan_filter_disabled)
+ 		mlx5e_add_any_vid_rules(priv);
+ }
+ 
 -- 
 2.25.1
 
