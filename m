@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28C4B28B79C
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:45:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30E528B964
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389244AbgJLNo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:44:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46202 "EHLO mail.kernel.org"
+        id S1731457AbgJLOAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:00:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731545AbgJLNmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:42:49 -0400
+        id S1730786AbgJLNjr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:39:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 456EA22244;
-        Mon, 12 Oct 2020 13:42:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31EDF2076E;
+        Mon, 12 Oct 2020 13:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510161;
-        bh=JHkqCSZdy7MzQOPZEl0Ec0T8/etdya31jdOjtdOcFdQ=;
+        s=default; t=1602509986;
+        bh=g9eZMOySVwoeHzqMnMxXsSUskHfz637tZ/TK/8hEtgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ed/qU/vIRGOvodVUlZKmAY63kTXM0y5wPO3bgrAckCN6CPSrG2cWU7J7HjgGHmxAl
-         ar1jIMuvrgGGmwdRA9/ZeFgE2kBxZzI/SdXkdbReWxYxbaXPoeoJSe2c1F3/A+yRWP
-         bgflon+83W4X+2rZklYH4HOQNn7Blz473PTt8QFs=
+        b=rGPbaYCVXVWI99tbAJd3ZWTKL8Jod1nYk3RqouQ3tlNgBMkWUSPcIiVMEe2lMTB4a
+         BRMwepJD5g129Bxs0TxrmIdrjRW8nVNNTJM7HzEnDmfyOk81AKUWz08BoM8swLbYIv
+         CV0FgA9hqeUs8rVODIPxEkkM2yK2S2OflysUsZBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Eran Ben Elisha <eranbe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 66/85] net/mlx5: Fix request_irqs error flow
+Subject: [PATCH 4.19 43/49] rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()
 Date:   Mon, 12 Oct 2020 15:27:29 +0200
-Message-Id: <20201012132636.017657813@linuxfoundation.org>
+Message-Id: <20201012132631.396121637@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 732ebfab7fe96b7ac9a3df3208f14752a4bb6db3 ]
+[ Upstream commit 9a059cd5ca7d9c5c4ca5a6e755cf72f230176b6a ]
 
-Fix error flow handling in request_irqs which try to free irq
-that we failed to request.
-It fixes the below trace.
+If rxrpc_read() (which allows KEYCTL_READ to read a key), sees a token of a
+type it doesn't recognise, it can BUG in a couple of places, which is
+unnecessary as it can easily get back to userspace.
 
-WARNING: CPU: 1 PID: 7587 at kernel/irq/manage.c:1684 free_irq+0x4d/0x60
-CPU: 1 PID: 7587 Comm: bash Tainted: G        W  OE    4.15.15-1.el7MELLANOXsmp-x86_64 #1
-Hardware name: Advantech SKY-6200/SKY-6200, BIOS F2.00 08/06/2020
-RIP: 0010:free_irq+0x4d/0x60
-RSP: 0018:ffffc9000ef47af0 EFLAGS: 00010282
-RAX: ffff88001476ae00 RBX: 0000000000000655 RCX: 0000000000000000
-RDX: ffff88001476ae00 RSI: ffffc9000ef47ab8 RDI: ffff8800398bb478
-RBP: ffff88001476a838 R08: ffff88001476ae00 R09: 000000000000156d
-R10: 0000000000000000 R11: 0000000000000004 R12: ffff88001476a838
-R13: 0000000000000006 R14: ffff88001476a888 R15: 00000000ffffffe4
-FS:  00007efeadd32740(0000) GS:ffff88047fc40000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fc9cc010008 CR3: 00000001a2380004 CR4: 00000000007606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- mlx5_irq_table_create+0x38d/0x400 [mlx5_core]
- ? atomic_notifier_chain_register+0x50/0x60
- mlx5_load_one+0x7ee/0x1130 [mlx5_core]
- init_one+0x4c9/0x650 [mlx5_core]
- pci_device_probe+0xb8/0x120
- driver_probe_device+0x2a1/0x470
- ? driver_allows_async_probing+0x30/0x30
- bus_for_each_drv+0x54/0x80
- __device_attach+0xa3/0x100
- pci_bus_add_device+0x4a/0x90
- pci_iov_add_virtfn+0x2dc/0x2f0
- pci_enable_sriov+0x32e/0x420
- mlx5_core_sriov_configure+0x61/0x1b0 [mlx5_core]
- ? kstrtoll+0x22/0x70
- num_vf_store+0x4b/0x70 [mlx5_core]
- kernfs_fop_write+0x102/0x180
- __vfs_write+0x26/0x140
- ? rcu_all_qs+0x5/0x80
- ? _cond_resched+0x15/0x30
- ? __sb_start_write+0x41/0x80
- vfs_write+0xad/0x1a0
- SyS_write+0x42/0x90
- do_syscall_64+0x60/0x110
- entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+Fix this to print an error message instead.
 
-Fixes: 24163189da48 ("net/mlx5: Separate IRQ request/free from EQ life cycle")
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 99455153d067 ("RxRPC: Parse security index 5 keys (Kerberos 5)")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/key.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
-index 373981a659c7c..6fd9749203944 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
-@@ -115,7 +115,7 @@ static int request_irqs(struct mlx5_core_dev *dev, int nvec)
- 	return 0;
+diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
+index fead67b42a993..1fe203c56faf0 100644
+--- a/net/rxrpc/key.c
++++ b/net/rxrpc/key.c
+@@ -1110,7 +1110,8 @@ static long rxrpc_read(const struct key *key,
+ 			break;
  
- err_request_irq:
--	for (; i >= 0; i--) {
-+	while (i--) {
- 		struct mlx5_irq *irq = mlx5_irq_get(dev, i);
- 		int irqn = pci_irq_vector(dev->pdev, i);
+ 		default: /* we have a ticket we can't encode */
+-			BUG();
++			pr_err("Unsupported key token type (%u)\n",
++			       token->security_index);
+ 			continue;
+ 		}
+ 
+@@ -1226,7 +1227,6 @@ static long rxrpc_read(const struct key *key,
+ 			break;
+ 
+ 		default:
+-			BUG();
+ 			break;
+ 		}
  
 -- 
 2.25.1
