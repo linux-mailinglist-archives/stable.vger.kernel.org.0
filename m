@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED9A728B91E
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C9A528B90B
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:57:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390610AbgJLN5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:57:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
+        id S2390124AbgJLN5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389353AbgJLNnk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389359AbgJLNnk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:43:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B5832222F;
-        Mon, 12 Oct 2020 13:43:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7A3322258;
+        Mon, 12 Oct 2020 13:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510212;
-        bh=dw7TOefPrgEBFQ8QKruENJPntnLB1JjXdXZx+35+3+Q=;
+        s=default; t=1602510215;
+        bh=3NAHrMyM+Dk+ImUqf2+TPLuwterFTTgSnbK/EVAPtVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H/JvpSvzjEElpuQ3uO8cFdMqzzHnaIpLzE16HAmeAM99YocRBORtbXl2PGaOJm+Ew
-         6jOvpcBHSjUlG4SKoPGaF1AqRPVYNJgj98EGp1pl2e1fHAsW7csuHdkmR/HGsOb4p1
-         eckSldZ7OlZ5L35Q5mpqIQ/FZcPaHvMrS7+28bcc=
+        b=j++l2JildNU5u5xpmSOUjgInGYVEihreOGy8cN5ZxGBoIs49QM8Ba2R8urbuJ9czz
+         HmiOeeTKSeo+Vq6dN4Rm9RlTkOfRoh1HED2TOP6lO9c1rGsmsNeL3tD6NYM4q2791h
+         30n/XbkHQlrQA03GhikdRqLLYEz52aGpQUJYug84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rohit Maheshwari <rohitm@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 80/85] net/tls: race causes kernel panic
-Date:   Mon, 12 Oct 2020 15:27:43 +0200
-Message-Id: <20201012132636.683819156@linuxfoundation.org>
+        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.4 81/85] net/mlx5e: Fix drivers declaration to support GRE offload
+Date:   Mon, 12 Oct 2020 15:27:44 +0200
+Message-Id: <20201012132636.734315339@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
 References: <20201012132632.846779148@linuxfoundation.org>
@@ -43,75 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rohit Maheshwari <rohitm@chelsio.com>
+From: Aya Levin <ayal@mellanox.com>
 
-commit 38f7e1c0c43dd25b06513137bb6fd35476f9ec6d upstream.
+commit 3d093bc2369003b4ce6c3522d9b383e47c40045d upstream.
 
-BUG: kernel NULL pointer dereference, address: 00000000000000b8
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 80000008b6fef067 P4D 80000008b6fef067 PUD 8b6fe6067 PMD 0
- Oops: 0000 [#1] SMP PTI
- CPU: 12 PID: 23871 Comm: kworker/12:80 Kdump: loaded Tainted: G S
- 5.9.0-rc3+ #1
- Hardware name: Supermicro X10SRA-F/X10SRA-F, BIOS 2.1 03/29/2018
- Workqueue: events tx_work_handler [tls]
- RIP: 0010:tx_work_handler+0x1b/0x70 [tls]
- Code: dc fe ff ff e8 16 d4 a3 f6 66 0f 1f 44 00 00 0f 1f 44 00 00 55 53 48 8b
- 6f 58 48 8b bd a0 04 00 00 48 85 ff 74 1c 48 8b 47 28 <48> 8b 90 b8 00 00 00 83
- e2 02 75 0c f0 48 0f ba b0 b8 00 00 00 00
- RSP: 0018:ffffa44ace61fe88 EFLAGS: 00010286
- RAX: 0000000000000000 RBX: ffff91da9e45cc30 RCX: dead000000000122
- RDX: 0000000000000001 RSI: ffff91da9e45cc38 RDI: ffff91d95efac200
- RBP: ffff91da133fd780 R08: 0000000000000000 R09: 000073746e657665
- R10: 8080808080808080 R11: 0000000000000000 R12: ffff91dad7d30700
- R13: ffff91dab6561080 R14: 0ffff91dad7d3070 R15: ffff91da9e45cc38
- FS:  0000000000000000(0000) GS:ffff91dad7d00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00000000000000b8 CR3: 0000000906478003 CR4: 00000000003706e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  process_one_work+0x1a7/0x370
-  worker_thread+0x30/0x370
-  ? process_one_work+0x370/0x370
-  kthread+0x114/0x130
-  ? kthread_park+0x80/0x80
-  ret_from_fork+0x22/0x30
+Declare GRE offload support with respect to the inner protocol. Add a
+list of supported inner protocols on which the driver can offload
+checksum and GSO. For other protocols, inform the stack to do the needed
+operations. There is no noticeable impact on GRE performance.
 
-tls_sw_release_resources_tx() waits for encrypt_pending, which
-can have race, so we need similar changes as in commit
-0cada33241d9de205522e3858b18e506ca5cce2c here as well.
-
-Fixes: a42055e8d2c3 ("net/tls: Add support for async encryption of records for performance")
-Signed-off-by: Rohit Maheshwari <rohitm@chelsio.com>
-Acked-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2729984149e6 ("net/mlx5e: Support TSO and TX checksum offloads for GRE tunnels")
+Signed-off-by: Aya Levin <ayal@mellanox.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/tls/tls_sw.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -2137,10 +2137,15 @@ void tls_sw_release_resources_tx(struct
- 	struct tls_context *tls_ctx = tls_get_ctx(sk);
- 	struct tls_sw_context_tx *ctx = tls_sw_ctx_tx(tls_ctx);
- 	struct tls_rec *rec, *tmp;
-+	int pending;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4328,6 +4328,21 @@ void mlx5e_del_vxlan_port(struct net_dev
+ 	mlx5e_vxlan_queue_work(priv, be16_to_cpu(ti->port), 0);
+ }
  
- 	/* Wait for any pending async encryptions to complete */
--	smp_store_mb(ctx->async_notify, true);
--	if (atomic_read(&ctx->encrypt_pending))
-+	spin_lock_bh(&ctx->encrypt_compl_lock);
-+	ctx->async_notify = true;
-+	pending = atomic_read(&ctx->encrypt_pending);
-+	spin_unlock_bh(&ctx->encrypt_compl_lock);
++static bool mlx5e_gre_tunnel_inner_proto_offload_supported(struct mlx5_core_dev *mdev,
++							   struct sk_buff *skb)
++{
++	switch (skb->inner_protocol) {
++	case htons(ETH_P_IP):
++	case htons(ETH_P_IPV6):
++	case htons(ETH_P_TEB):
++		return true;
++	case htons(ETH_P_MPLS_UC):
++	case htons(ETH_P_MPLS_MC):
++		return MLX5_CAP_ETH(mdev, tunnel_stateless_mpls_over_gre);
++	}
++	return false;
++}
 +
-+	if (pending)
- 		crypto_wait_req(-EINPROGRESS, &ctx->async_wait);
+ static netdev_features_t mlx5e_tunnel_features_check(struct mlx5e_priv *priv,
+ 						     struct sk_buff *skb,
+ 						     netdev_features_t features)
+@@ -4350,7 +4365,9 @@ static netdev_features_t mlx5e_tunnel_fe
  
- 	tls_tx_records(sk, -1);
+ 	switch (proto) {
+ 	case IPPROTO_GRE:
+-		return features;
++		if (mlx5e_gre_tunnel_inner_proto_offload_supported(priv->mdev, skb))
++			return features;
++		break;
+ 	case IPPROTO_IPIP:
+ 	case IPPROTO_IPV6:
+ 		if (mlx5e_tunnel_proto_supported(priv->mdev, IPPROTO_IPIP))
 
 
