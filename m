@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7342628C04B
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:03:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B6EB28C10E
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731008AbgJLTDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 15:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52452 "EHLO mail.kernel.org"
+        id S2388035AbgJLTIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 15:08:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389663AbgJLTDF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 15:03:05 -0400
+        id S1730977AbgJLTDG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 15:03:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B65CE2067C;
-        Mon, 12 Oct 2020 19:03:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE77D214D8;
+        Mon, 12 Oct 2020 19:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602529384;
-        bh=Kmkb6hRz4+TOx950kSgcQvZxH2dY+imBL1JTQWpMf0U=;
+        s=default; t=1602529385;
+        bh=qIcFeA+fGiwcihUVhIK+KK5uybAa7QnSrfNH0fopBZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cN0Uet3OrcpMUSngD93Gtf4JFcQi6O0V2BY6+3G1bZTykpg6+ioj6I3XSeKDqF76C
-         J1T8ivBI1RFwD1U1+++LXR6WIKOMF4XERkBuPyhG+xKulD7u2NpiYqKwU1eaqCtKNA
-         yiknElqhGODxzdePxmCdaVPxEsu+M17cxgp9RjdM=
+        b=Z9keOqMkNgjGUa2tWFg+1oY02uo8ZJ3RgndMyv4JAnuMz7pi/69NcWavTnSoLzg8s
+         v1EJTfJJyIldAr53pLEB8cA28d3NOZa+HAM77WhgCVTbjh8hihv6xo3JDix74k75dc
+         /4AwDdmIKovNVhMfoIv6QbYii0xbMCeyPppkva+E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
+Cc:     Guo Ren <guoren@linux.alibaba.com>,
+        Aurelien Jarno <aurelien@aurel32.net>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 19/24] usermodehelper: reset umask to default before executing user process
-Date:   Mon, 12 Oct 2020 15:02:34 -0400
-Message-Id: <20201012190239.3279198-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 20/24] riscv: Fixup bootup failure with HARDENED_USERCOPY
+Date:   Mon, 12 Oct 2020 15:02:35 -0400
+Message-Id: <20201012190239.3279198-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201012190239.3279198-1-sashal@kernel.org>
 References: <20201012190239.3279198-1-sashal@kernel.org>
@@ -44,66 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit 4013c1496c49615d90d36b9d513eee8e369778e9 ]
+[ Upstream commit 84814460eef9af0fb56a4698341c9cb7996a6312 ]
 
-Kernel threads intentionally do CLONE_FS in order to follow any changes
-that 'init' does to set up the root directory (or cwd).
+6184358da000 ("riscv: Fixup static_obj() fail") attempted to elide a lockdep
+failure by rearranging our kernel image to place all initdata within [_stext,
+_end], thus triggering lockdep to treat these as static objects.  These objects
+are released and eventually reallocated, causing check_kernel_text_object() to
+trigger a BUG().
 
-It is admittedly a bit odd, but it avoids the situation where 'init'
-does some extensive setup to initialize the system environment, and then
-we execute a usermode helper program, and it uses the original FS setup
-from boot time that may be very limited and incomplete.
+This backs out the change to make [_stext, _end] all-encompassing, instead just
+moving initdata.  This results in initdata being outside of [__init_begin,
+__init_end], which means initdata can't be freed.
 
-[ Both Al Viro and Eric Biederman point out that 'pivot_root()' will
-  follow the root regardless, since it fixes up other users of root (see
-  chroot_fs_refs() for details), but overmounting root and doing a
-  chroot() would not. ]
-
-However, Vegard Nossum noticed that the CLONE_FS not only means that we
-follow the root and current working directories, it also means we share
-umask with whatever init changed it to. That wasn't intentional.
-
-Just reset umask to the original default (0022) before actually starting
-the usermode helper program.
-
-Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Acked-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/linux-riscv/1593266228-61125-1-git-send-email-guoren@kernel.org/T/#t
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Reported-by: Aurelien Jarno <aurelien@aurel32.net>
+Tested-by: Aurelien Jarno <aurelien@aurel32.net>
+[Palmer: Clean up commit text]
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/umh.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/riscv/kernel/vmlinux.lds.S | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/umh.c b/kernel/umh.c
-index 79f139a7ca03c..6aaf456d402d9 100644
---- a/kernel/umh.c
-+++ b/kernel/umh.c
-@@ -14,6 +14,7 @@
- #include <linux/cred.h>
- #include <linux/file.h>
- #include <linux/fdtable.h>
-+#include <linux/fs_struct.h>
- #include <linux/workqueue.h>
- #include <linux/security.h>
- #include <linux/mount.h>
-@@ -75,6 +76,14 @@ static int call_usermodehelper_exec_async(void *data)
- 	flush_signal_handlers(current, 1);
- 	spin_unlock_irq(&current->sighand->siglock);
+diff --git a/arch/riscv/kernel/vmlinux.lds.S b/arch/riscv/kernel/vmlinux.lds.S
+index f3586e31ed1ec..34d00d9e6eac0 100644
+--- a/arch/riscv/kernel/vmlinux.lds.S
++++ b/arch/riscv/kernel/vmlinux.lds.S
+@@ -22,13 +22,11 @@ SECTIONS
+ 	/* Beginning of code and text segment */
+ 	. = LOAD_OFFSET;
+ 	_start = .;
+-	_stext = .;
+ 	HEAD_TEXT_SECTION
+ 	. = ALIGN(PAGE_SIZE);
  
-+	/*
-+	 * Initial kernel threads share ther FS with init, in order to
-+	 * get the init root directory. But we've now created a new
-+	 * thread that is going to execve a user process and has its own
-+	 * 'struct fs_struct'. Reset umask to the default.
-+	 */
-+	current->fs->umask = 0022;
+ 	__init_begin = .;
+ 	INIT_TEXT_SECTION(PAGE_SIZE)
+-	INIT_DATA_SECTION(16)
+ 	. = ALIGN(8);
+ 	__soc_early_init_table : {
+ 		__soc_early_init_table_start = .;
+@@ -55,6 +53,7 @@ SECTIONS
+ 	. = ALIGN(SECTION_ALIGN);
+ 	.text : {
+ 		_text = .;
++		_stext = .;
+ 		TEXT_TEXT
+ 		SCHED_TEXT
+ 		CPUIDLE_TEXT
+@@ -67,6 +66,8 @@ SECTIONS
+ 		_etext = .;
+ 	}
+ 
++	INIT_DATA_SECTION(16)
 +
- 	/*
- 	 * Our parent (unbound workqueue) runs with elevated scheduling
- 	 * priority. Avoid propagating that into the userspace child.
+ 	/* Start of data section */
+ 	_sdata = .;
+ 	RO_DATA(SECTION_ALIGN)
 -- 
 2.25.1
 
