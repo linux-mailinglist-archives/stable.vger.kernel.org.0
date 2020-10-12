@@ -2,90 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F21B228C2CF
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 22:43:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FC6628C433
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 23:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729083AbgJLUnd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 16:43:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40392 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728989AbgJLUnd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 16:43:33 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 777FBC0613D2
-        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 13:43:33 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id w11so1583841pll.8
-        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 13:43:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=A6mr2GZ0DBJINQQpjmdYC2+OXujmO1pjxp1POyMlL2Y=;
-        b=nkPnEYk/TLpBpiZhbw9Co0vkESAqfDQdMLbvHaLr/5IjpIdqevfPju7kohqgEo7ksk
-         j9P4eHXHwHse0/oE9MbGn0/vvREbCk0OI8mhvlDRWvcZK/YTrWdc7u0RFoY/0Xiq7owD
-         nfZ04P9MBRZDiskcE9fB7lgt/sSthpVDBiOtE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=A6mr2GZ0DBJINQQpjmdYC2+OXujmO1pjxp1POyMlL2Y=;
-        b=ul8HOXUcA1ZyQxuhAZEb+W1yt52Cv9X3gB5Sis3wH8F4Nxo79wpxnW7a1jZCqXtlSr
-         ufL4/nGMTvVes8Xh/xJPCw9HC6g7pxV68Ri5cheOeVo/thsG1fIKYA6R/66XZpv3aOGb
-         06zM8gtZLMpIbiAsCKk9rB+sQM27KVsfBr7Bw98T2iUkqlkJQ39dOn0gdtJT3EG6yECF
-         /h7C7w8fj8zq3pcC8x9y3Zxi9Fua8HLLqsczBCpG9w4Bfuwj9wiQolSs+DHcXQdYGM75
-         lOfTf3vsf2DnE2utqvHT31ugXQ5qv476Cobej6OTlu5P6TjaVzj3D9MH2u1ZjpoQklsG
-         aonA==
-X-Gm-Message-State: AOAM531oKXCA9LK2VbELA3VgCs/CyNz7UH4f/V3SVxVXpiywnKZ8UyUr
-        eSiBo48fMFJDk5FrSUxGY1gJbg==
-X-Google-Smtp-Source: ABdhPJy1Hfs3WCk1tNDDRBB108LnSHEMkiQWQrCzfTBIswhUfzDcCcfAA0yjxRQniPbRDHSo0ZL6TQ==
-X-Received: by 2002:a17:902:8f82:b029:d4:bf4f:13da with SMTP id z2-20020a1709028f82b02900d4bf4f13damr16441277plo.40.1602535412935;
-        Mon, 12 Oct 2020 13:43:32 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id w5sm21123501pgf.61.2020.10.12.13.43.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2020 13:43:32 -0700 (PDT)
-Date:   Mon, 12 Oct 2020 13:43:31 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Christopher Lameter <cl@linux.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, stable@vger.kernel.org,
-        Marco Elver <elver@google.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Vlastimil Babka <vbabka@suse.cz>, Roman Gushchin <guro@fb.com>,
-        linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH v2 2/3] mm/slub: Fix redzoning for small allocations
-Message-ID: <202010121342.836D3C26CF@keescook>
-References: <20201009195411.4018141-1-keescook@chromium.org>
- <20201009195411.4018141-3-keescook@chromium.org>
- <alpine.DEB.2.22.394.2010120754010.150059@www.lameter.com>
+        id S1729239AbgJLVll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 17:41:41 -0400
+Received: from lan.nucleusys.com ([92.247.61.126]:36706 "EHLO
+        zztop.nucleusys.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726780AbgJLVll (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 17:41:41 -0400
+X-Greylist: delayed 2422 seconds by postgrey-1.27 at vger.kernel.org; Mon, 12 Oct 2020 17:41:40 EDT
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=nucleusys.com; s=x; h=In-Reply-To:Content-Type:MIME-Version:References:
+        Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=CJIzxj74bRbK6s07BM0CYFriStr95mhUR/FUtxsHOVI=; b=cyr+pQNICJxG1pzmfwF4K8B77P
+        xbKi8vFMvJcXOeKnMkdUYQn+MEsresCGmf29nTQmbd+YE8gU2/8BmXmi5H0vPXAG8SOyc+5Wxrkja
+        tTbvRUyzQ9l0MqbHI/cn0jK0BjZGcZrQFqIXMZbwNb59/nzYODrQ56QYd6+q01k8GwZA=;
+Received: from lan.nucleusys.com ([92.247.61.126] helo=nucleusys.com)
+        by zztop.nucleusys.com with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <petkan@nucleusys.com>)
+        id 1kS4wN-0007CC-HJ; Tue, 13 Oct 2020 00:01:07 +0300
+Date:   Tue, 13 Oct 2020 00:01:06 +0300
+From:   Petko Manolov <petkan@nucleusys.com>
+To:     Joe Perches <joe@perches.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        linux-usb@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.8 18/24] net: usb: rtl8150: set random MAC
+ address when set_ethernet_addr() fails
+Message-ID: <20201012210105.GA26582@nucleusys.com>
+References: <20201012190239.3279198-1-sashal@kernel.org>
+ <20201012190239.3279198-18-sashal@kernel.org>
+ <c93d120c850c5fecadaea845517f0fdbfd9a61c7.camel@perches.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.22.394.2010120754010.150059@www.lameter.com>
+In-Reply-To: <c93d120c850c5fecadaea845517f0fdbfd9a61c7.camel@perches.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Score: -1.0 (-)
+X-Spam-Report: Spam detection software, running on the system "zztop.nucleusys.com",
+ has NOT identified this incoming email as spam.  The original
+ message has been attached to this so you can view it or label
+ similar future email.  If you have any questions, see
+ the administrator of that system for details.
+ Content preview:  On 20-10-12 12:11:18, Joe Perches wrote: > On Mon, 2020-10-12
+    at 15:02 -0400, Sasha Levin wrote: > > From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+    > > > > [ Upstream commit f45a4248ea4cc13ed50 [...] 
+ Content analysis details:   (-1.0 points, 5.0 required)
+  pts rule name              description
+ ---- ---------------------- --------------------------------------------------
+ -1.0 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 12, 2020 at 08:01:04AM +0000, Christopher Lameter wrote:
-> On Fri, 9 Oct 2020, Kees Cook wrote:
+On 20-10-12 12:11:18, Joe Perches wrote:
+> On Mon, 2020-10-12 at 15:02 -0400, Sasha Levin wrote:
+> > From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+> > 
+> > [ Upstream commit f45a4248ea4cc13ed50618ff066849f9587226b2 ]
+> > 
+> > When get_registers() fails in set_ethernet_addr(),the uninitialized
+> > value of node_id gets copied over as the address.
+> > So, check the return value of get_registers().
+> > 
+> > If get_registers() executed successfully (i.e., it returns
+> > sizeof(node_id)), copy over the MAC address using ether_addr_copy()
+> > (instead of using memcpy()).
+> > 
+> > Else, if get_registers() failed instead, a randomly generated MAC
+> > address is set as the MAC address instead.
 > 
-> > Store the freelist pointer out of line when object_size is smaller than
-> > sizeof(void *) and redzoning is enabled.
-> >
-> > (Note that no caches with such a size are known to exist in the kernel
-> > currently.)
+> This autosel is premature.
 > 
-> Ummm... The smallest allowable cache size is sizeof(void *) as I recall.
-> 
-> 
-> mm/slab_common.c::kmem_sanity_check() checks the sizes when caches are
-> created.
+> This patch always sets a random MAC.
+> See the follow on patch: https://lkml.org/lkml/2020/10/11/131
+> To my knowledge, this follow-ob has yet to be applied:
 
-Ah thank you! Yes, I really thought there was a place where that
-happened, but I missed it. This patch can be dropped.
+ACK, the follow-on patch has got the correct semantics.
 
--- 
-Kees Cook
+
+		Petko
+
+
+> > diff --git a/drivers/net/usb/rtl8150.c b/drivers/net/usb/rtl8150.c
+> []
+> > @@ -274,12 +274,20 @@ static int write_mii_word(rtl8150_t * dev, u8 phy, __u8 indx, u16 reg)
+> >  		return 1;
+> >  }
+> >  
+> > -static inline void set_ethernet_addr(rtl8150_t * dev)
+> > +static void set_ethernet_addr(rtl8150_t *dev)
+> >  {
+> > -	u8 node_id[6];
+> > +	u8 node_id[ETH_ALEN];
+> > +	int ret;
+> > +
+> > +	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
+> >  
+> > -	get_registers(dev, IDR, sizeof(node_id), node_id);
+> > -	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
+> > +	if (ret == sizeof(node_id)) {
+> 
+> So this needs to use
+> 	if (!ret) {
+> 
+> or 
+> 	if (ret < 0)
+> 
+> and reversed code blocks
+> 
+> > +		ether_addr_copy(dev->netdev->dev_addr, node_id);
+> > +	} else {
+> > +		eth_hw_addr_random(dev->netdev);
+> > +		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
+> > +			      dev->netdev->dev_addr);
+> > +	}
+> >  }
+> >  
+> >  static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
+> 
+> 
