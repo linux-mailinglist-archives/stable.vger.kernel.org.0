@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0C928C0CB
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:08:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EFEA28C0BE
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731106AbgJLTGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 15:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53900 "EHLO mail.kernel.org"
+        id S2388637AbgJLTGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 15:06:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391217AbgJLTEH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2391220AbgJLTEH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 15:04:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E421322228;
-        Mon, 12 Oct 2020 19:03:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 467E4214DB;
+        Mon, 12 Oct 2020 19:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602529431;
-        bh=l/GTNDyNPgVOAEVq8nHsDo7HB+ZI41peWrC4brwwVlU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EsYAAYAcIMHWWvJvNu9r8Erm6sq/WnbUsNkcjxuA/BvrCtO9eCbVp0f+FHKUZysJs
-         pM7zWY8Mc4S+HEC/U+kZLu+uQYaTpC3qfsvsRdbTh7zNZkx1nC4hdFyo/GIzp+WM25
-         r7dxytQCsG1F/PbY17F/3LySMwcEZ+wg9/UBLNGY=
+        s=default; t=1602529435;
+        bh=CggKdpQ7Mm9QiySjyESA5OeVtmAbn5X+EMP0sCwgTC0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=R7dHFmjWZAm2deDcN84G5fKTcDh8v/IklCFpBjT7+etIuqJXaqEnxomkIjWbvo5od
+         flvnVXF6u3ccSpPlDyyIiF2MC7hQLomOYmCFNaKtOzLIQuG+JpCTD/7nfXO8ERtJVV
+         BWKY0z6fn3O1r63VjlQCeHkjegd7AjALvKkoOQO4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wilken Gottwalt <wilken.gottwalt@mailbox.org>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/12] net: usb: qmi_wwan: add Cellient MPL200 card
-Date:   Mon, 12 Oct 2020 15:03:35 -0400
-Message-Id: <20201012190335.3279538-12-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        acpi4asus-user@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/11] platform/x86: asus-nb-wmi: Revert "Do not load on Asus T100TA and T200TA"
+Date:   Mon, 12 Oct 2020 15:03:43 -0400
+Message-Id: <20201012190353.3279662-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201012190335.3279538-1-sashal@kernel.org>
-References: <20201012190335.3279538-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,32 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 28802e7c0c9954218d1830f7507edc9d49b03a00 ]
+[ Upstream commit aab9e7896ec98b2a6b4eeeed71cc666776bb8def ]
 
-Add usb ids of the Cellient MPL200 card.
+The WMI INIT method on for some reason turns on the camera LED on these
+2-in-1s, without the WMI interface allowing further control over the LED.
 
-Signed-off-by: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+To fix this commit b5f7311d3a2e ("platform/x86: asus-nb-wmi: Do not load
+on Asus T100TA and T200TA") added a blacklist with these 2 models on it
+since the WMI driver did not add any extra functionality to these models.
+
+Recently I've been working on making more 2-in-1 models report their
+tablet-mode (SW_TABLET_MODE) to userspace; and I've found that these 2
+Asus models report this through WMI. This commit reverts the adding
+of the blacklist, so that the Asus WMI driver can be used on these
+models to report their tablet-mode.
+
+Note, not calling INIT is also not an option, because then we will not
+receive events when the tablet-mode changes. So the LED issue will need
+to be fixed somewhere else entirely.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/asus-nb-wmi.c | 24 ------------------------
+ 1 file changed, 24 deletions(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index af58bf54aa9b6..d2612b69257ea 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1312,6 +1312,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_QUIRK_SET_DTR(0x2cb7, 0x0104, 4)},	/* Fibocom NL678 series */
- 	{QMI_FIXED_INTF(0x0489, 0xe0b4, 0)},	/* Foxconn T77W968 LTE */
- 	{QMI_FIXED_INTF(0x0489, 0xe0b5, 0)},	/* Foxconn T77W968 LTE with eSIM support*/
-+	{QMI_FIXED_INTF(0x2692, 0x9025, 4)},    /* Cellient MPL200 (rebranded Qualcomm 05c6:9025) */
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index 8db2dc05b8cf2..59f3a37a44d7a 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -517,33 +517,9 @@ static struct asus_wmi_driver asus_nb_wmi_driver = {
+ 	.detect_quirks = asus_nb_wmi_quirks,
+ };
  
- 	/* 4. Gobi 1000 devices */
- 	{QMI_GOBI1K_DEVICE(0x05c6, 0x9212)},	/* Acer Gobi Modem Device */
+-static const struct dmi_system_id asus_nb_wmi_blacklist[] __initconst = {
+-	{
+-		/*
+-		 * asus-nb-wm adds no functionality. The T100TA has a detachable
+-		 * USB kbd, so no hotkeys and it has no WMI rfkill; and loading
+-		 * asus-nb-wm causes the camera LED to turn and _stay_ on.
+-		 */
+-		.matches = {
+-			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100TA"),
+-		},
+-	},
+-	{
+-		/* The Asus T200TA has the same issue as the T100TA */
+-		.matches = {
+-			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T200TA"),
+-		},
+-	},
+-	{} /* Terminating entry */
+-};
+ 
+ static int __init asus_nb_wmi_init(void)
+ {
+-	if (dmi_check_system(asus_nb_wmi_blacklist))
+-		return -ENODEV;
+-
+ 	return asus_wmi_register_driver(&asus_nb_wmi_driver);
+ }
+ 
 -- 
 2.25.1
 
