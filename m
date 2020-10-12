@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1743828B71E
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:41:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C7128B98D
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388898AbgJLNkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:40:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42752 "EHLO mail.kernel.org"
+        id S1731112AbgJLOBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:01:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731318AbgJLNjD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:39:03 -0400
+        id S1731137AbgJLNiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:38:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F63120678;
-        Mon, 12 Oct 2020 13:39:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B82D20878;
+        Mon, 12 Oct 2020 13:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509942;
-        bh=c3FF0dtBNxenNhYRG9lbq4FRJg05wTXpy+HDvjExw4Q=;
+        s=default; t=1602509893;
+        bh=uq6qvqO3FjtwUjLOU+NwnGrIC6pZlDYOHE+3f3ensts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcPe+9bEYsltDSfQ8xpnqueyqoVQGCpjbtx2LvC92KVe5YJthAK6SkPz/dWb/uIJb
-         73w6hAvhW2M1MEG1SDKHBdpczPg3RG4v/9hJvxXYEz2iq1Xtq9fDWHfoXiiKwJ5R6E
-         Yyq7mRIC/JBkeg0iLic/k7iCaQTOspot/mJdjmjI=
+        b=rLhQwJHbnItwZWGVifiFcTSrpELLtzIxN/+mk+ANu3XXpGy2ESbA2zvcw0QPuGaMo
+         oevFgxvsqIWZyLzGlJ2f2xYBxQBToGyZ2edD6/B3KsJxpxUw9O95CJkksAfN+oj+nS
+         HCBPY1nVHk9ST/AuCGgGK+/khePZtRYbuxb1wHAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.19 24/49] i2c: owl: Clear NACK and BUS error bits
+        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 54/70] xfrm: clone XFRMA_REPLAY_ESN_VAL in xfrm_do_migrate
 Date:   Mon, 12 Oct 2020 15:27:10 +0200
-Message-Id: <20201012132630.577881416@linuxfoundation.org>
+Message-Id: <20201012132632.777777307@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+From: Antony Antony <antony.antony@secunet.com>
 
-commit f5b3f433641c543ebe5171285a42aa6adcdb2d22 upstream.
+[ Upstream commit 91a46c6d1b4fcbfa4773df9421b8ad3e58088101 ]
 
-When the NACK and BUS error bits are set by the hardware, the driver is
-responsible for clearing them by writing "1" into the corresponding
-status registers.
+XFRMA_REPLAY_ESN_VAL was not cloned completely from the old to the new.
+Migrate this attribute during XFRMA_MSG_MIGRATE
 
-Hence perform the necessary operations in owl_i2c_interrupt().
+v1->v2:
+ - move curleft cloning to a separate patch
 
-Fixes: d211e62af466 ("i2c: Add Actions Semiconductor Owl family S900 I2C driver")
-Reported-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: af2f464e326e ("xfrm: Assign esn pointers when cloning a state")
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-owl.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ include/net/xfrm.h | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
---- a/drivers/i2c/busses/i2c-owl.c
-+++ b/drivers/i2c/busses/i2c-owl.c
-@@ -179,6 +179,9 @@ static irqreturn_t owl_i2c_interrupt(int
- 	fifostat = readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT);
- 	if (fifostat & OWL_I2C_FIFOSTAT_RNB) {
- 		i2c_dev->err = -ENXIO;
-+		/* Clear NACK error bit by writing "1" */
-+		owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_FIFOSTAT,
-+				   OWL_I2C_FIFOSTAT_RNB, true);
- 		goto stop;
- 	}
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 57b8b11cf7d42..86ff111574496 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1808,21 +1808,17 @@ static inline int xfrm_replay_state_esn_len(struct xfrm_replay_state_esn *replay
+ static inline int xfrm_replay_clone(struct xfrm_state *x,
+ 				     struct xfrm_state *orig)
+ {
+-	x->replay_esn = kzalloc(xfrm_replay_state_esn_len(orig->replay_esn),
++
++	x->replay_esn = kmemdup(orig->replay_esn,
++				xfrm_replay_state_esn_len(orig->replay_esn),
+ 				GFP_KERNEL);
+ 	if (!x->replay_esn)
+ 		return -ENOMEM;
+-
+-	x->replay_esn->bmp_len = orig->replay_esn->bmp_len;
+-	x->replay_esn->replay_window = orig->replay_esn->replay_window;
+-
+-	x->preplay_esn = kmemdup(x->replay_esn,
+-				 xfrm_replay_state_esn_len(x->replay_esn),
++	x->preplay_esn = kmemdup(orig->preplay_esn,
++				 xfrm_replay_state_esn_len(orig->preplay_esn),
+ 				 GFP_KERNEL);
+-	if (!x->preplay_esn) {
+-		kfree(x->replay_esn);
++	if (!x->preplay_esn)
+ 		return -ENOMEM;
+-	}
  
-@@ -186,6 +189,9 @@ static irqreturn_t owl_i2c_interrupt(int
- 	stat = readl(i2c_dev->base + OWL_I2C_REG_STAT);
- 	if (stat & OWL_I2C_STAT_BEB) {
- 		i2c_dev->err = -EIO;
-+		/* Clear BUS error bit by writing "1" */
-+		owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_STAT,
-+				   OWL_I2C_STAT_BEB, true);
- 		goto stop;
- 	}
- 
+ 	return 0;
+ }
+-- 
+2.25.1
+
 
 
