@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4EEB28B800
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:48:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E51A428B802
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732000AbgJLNsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:48:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55260 "EHLO mail.kernel.org"
+        id S2388755AbgJLNsk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:48:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731897AbgJLNsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731907AbgJLNsT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:48:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8657720BED;
-        Mon, 12 Oct 2020 13:47:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B655122272;
+        Mon, 12 Oct 2020 13:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510471;
-        bh=5tWNcCoKg5oSxqfUKlUJ5LWcW1/nl0CrljNvfBXbwZI=;
+        s=default; t=1602510473;
+        bh=0hs6sUWUUadl862mFBfbn80B9RAWItTP2g8QhSrKaWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHH7aYBRJ9QLnAeo43HCPVkfDwZ3Y+xhjOWCBfC+EFE4kpL973wADZP14B2zHZhYD
-         jLzlNJRLKwInhUAR87gH/dW8DAuwycCTDjs8Vcx+19syybzBMPr/Svm1HmMhh3uPvb
-         DvsWikZrcTNzjZ7um1TjZHWXdWq4buUaSg2E9B68=
+        b=yLjCnRUxkF78aqPeJcJc0tZnrpRA10nQelGagjxwNFUEv9Mcs9KHL3e+X5iIuqdvc
+         /qJcHBHbkbyfg0Cm8tK/ypQ1lPYemhsJLjnNasVobZ136SNy/E6MMv3as3JrbJvzcS
+         tMOHjw0EuqPqCVYJ/daJM1aNl1Wzt1EKZq5GXWeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vijay Balakrishna <vijayb@linux.microsoft.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Allen Pais <apais@microsoft.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.8 112/124] mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
-Date:   Mon, 12 Oct 2020 15:31:56 +0200
-Message-Id: <20201012133152.274520952@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Alexandre Ferrieux <alexandre.ferrieux@orange.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.8 113/124] tcp: fix receive window update in tcp_add_backlog()
+Date:   Mon, 12 Oct 2020 15:31:57 +0200
+Message-Id: <20201012133152.323410412@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -51,114 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijay Balakrishna <vijayb@linux.microsoft.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 4aab2be0983031a05cb4a19696c9da5749523426 upstream.
+commit 86bccd0367130f481ca99ba91de1c6a5aa1c78c1 upstream.
 
-When memory is hotplug added or removed the min_free_kbytes should be
-recalculated based on what is expected by khugepaged.  Currently after
-hotplug, min_free_kbytes will be set to a lower default and higher
-default set when THP enabled is lost.
+We got reports from GKE customers flows being reset by netfilter
+conntrack unless nf_conntrack_tcp_be_liberal is set to 1.
 
-This change restores min_free_kbytes as expected for THP consumers.
+Traces seemed to suggest ACK packet being dropped by the
+packet capture, or more likely that ACK were received in the
+wrong order.
 
-[vijayb@linux.microsoft.com: v5]
-  Link: https://lkml.kernel.org/r/1601398153-5517-1-git-send-email-vijayb@linux.microsoft.com
+ wscale=7, SYN and SYNACK not shown here.
 
-Fixes: f000565adb77 ("thp: set recommended min free kbytes")
-Signed-off-by: Vijay Balakrishna <vijayb@linux.microsoft.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Allen Pais <apais@microsoft.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/1600305709-2319-2-git-send-email-vijayb@linux.microsoft.com
-Link: https://lkml.kernel.org/r/1600204258-13683-1-git-send-email-vijayb@linux.microsoft.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ This ACK allows the sender to send 1871*128 bytes from seq 51359321 :
+ New right edge of the window -> 51359321+1871*128=51598809
+
+ 09:17:23.389210 IP A > B: Flags [.], ack 51359321, win 1871, options [nop,nop,TS val 10 ecr 999], length 0
+
+ 09:17:23.389212 IP B > A: Flags [.], seq 51422681:51424089, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 1408
+ 09:17:23.389214 IP A > B: Flags [.], ack 51422681, win 1376, options [nop,nop,TS val 10 ecr 999], length 0
+ 09:17:23.389253 IP B > A: Flags [.], seq 51424089:51488857, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 64768
+ 09:17:23.389272 IP A > B: Flags [.], ack 51488857, win 859, options [nop,nop,TS val 10 ecr 999], length 0
+ 09:17:23.389275 IP B > A: Flags [.], seq 51488857:51521241, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 32384
+
+ Receiver now allows to send 606*128=77568 from seq 51521241 :
+ New right edge of the window -> 51521241+606*128=51598809
+
+ 09:17:23.389296 IP A > B: Flags [.], ack 51521241, win 606, options [nop,nop,TS val 10 ecr 999], length 0
+
+ 09:17:23.389308 IP B > A: Flags [.], seq 51521241:51553625, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 32384
+
+ It seems the sender exceeds RWIN allowance, since 51611353 > 51598809
+
+ 09:17:23.389346 IP B > A: Flags [.], seq 51553625:51611353, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 57728
+ 09:17:23.389356 IP B > A: Flags [.], seq 51611353:51618393, ack 1577, win 268, options [nop,nop,TS val 999 ecr 10], length 7040
+
+ 09:17:23.389367 IP A > B: Flags [.], ack 51611353, win 0, options [nop,nop,TS val 10 ecr 999], length 0
+
+ netfilter conntrack is not happy and sends RST
+
+ 09:17:23.389389 IP A > B: Flags [R], seq 92176528, win 0, length 0
+ 09:17:23.389488 IP B > A: Flags [R], seq 174478967, win 0, length 0
+
+ Now imagine ACK were delivered out of order and tcp_add_backlog() sets window based on wrong packet.
+ New right edge of the window -> 51521241+859*128=51631193
+
+Normally TCP stack handles OOO packets just fine, but it
+turns out tcp_add_backlog() does not. It can update the window
+field of the aggregated packet even if the ACK sequence
+of the last received packet is too old.
+
+Many thanks to Alexandre Ferrieux for independently reporting the issue
+and suggesting a fix.
+
+Fixes: 4f693b55c3d2 ("tcp: implement coalescing on backlog queue")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Alexandre Ferrieux <alexandre.ferrieux@orange.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/khugepaged.h |    5 +++++
- mm/khugepaged.c            |   13 +++++++++++--
- mm/page_alloc.c            |    3 +++
- 3 files changed, 19 insertions(+), 2 deletions(-)
+ net/ipv4/tcp_ipv4.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/linux/khugepaged.h
-+++ b/include/linux/khugepaged.h
-@@ -15,6 +15,7 @@ extern int __khugepaged_enter(struct mm_
- extern void __khugepaged_exit(struct mm_struct *mm);
- extern int khugepaged_enter_vma_merge(struct vm_area_struct *vma,
- 				      unsigned long vm_flags);
-+extern void khugepaged_min_free_kbytes_update(void);
- #ifdef CONFIG_SHMEM
- extern void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr);
- #else
-@@ -85,6 +86,10 @@ static inline void collapse_pte_mapped_t
- 					   unsigned long addr)
- {
- }
-+
-+static inline void khugepaged_min_free_kbytes_update(void)
-+{
-+}
- #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -1787,12 +1787,12 @@ bool tcp_add_backlog(struct sock *sk, st
  
- #endif /* _LINUX_KHUGEPAGED_H */
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -56,6 +56,9 @@ enum scan_result {
- #define CREATE_TRACE_POINTS
- #include <trace/events/huge_memory.h>
+ 	__skb_pull(skb, hdrlen);
+ 	if (skb_try_coalesce(tail, skb, &fragstolen, &delta)) {
+-		thtail->window = th->window;
+-
+ 		TCP_SKB_CB(tail)->end_seq = TCP_SKB_CB(skb)->end_seq;
  
-+static struct task_struct *khugepaged_thread __read_mostly;
-+static DEFINE_MUTEX(khugepaged_mutex);
-+
- /* default scan 8*512 pte (or vmas) every 30 second */
- static unsigned int khugepaged_pages_to_scan __read_mostly;
- static unsigned int khugepaged_pages_collapsed;
-@@ -2304,8 +2307,6 @@ static void set_recommended_min_free_kby
+-		if (after(TCP_SKB_CB(skb)->ack_seq, TCP_SKB_CB(tail)->ack_seq))
++		if (likely(!before(TCP_SKB_CB(skb)->ack_seq, TCP_SKB_CB(tail)->ack_seq))) {
+ 			TCP_SKB_CB(tail)->ack_seq = TCP_SKB_CB(skb)->ack_seq;
++			thtail->window = th->window;
++		}
  
- int start_stop_khugepaged(void)
- {
--	static struct task_struct *khugepaged_thread __read_mostly;
--	static DEFINE_MUTEX(khugepaged_mutex);
- 	int err = 0;
- 
- 	mutex_lock(&khugepaged_mutex);
-@@ -2332,3 +2333,11 @@ fail:
- 	mutex_unlock(&khugepaged_mutex);
- 	return err;
- }
-+
-+void khugepaged_min_free_kbytes_update(void)
-+{
-+	mutex_lock(&khugepaged_mutex);
-+	if (khugepaged_enabled() && khugepaged_thread)
-+		set_recommended_min_free_kbytes();
-+	mutex_unlock(&khugepaged_mutex);
-+}
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -69,6 +69,7 @@
- #include <linux/nmi.h>
- #include <linux/psi.h>
- #include <linux/padata.h>
-+#include <linux/khugepaged.h>
- 
- #include <asm/sections.h>
- #include <asm/tlbflush.h>
-@@ -7884,6 +7885,8 @@ int __meminit init_per_zone_wmark_min(vo
- 	setup_min_slab_ratio();
- #endif
- 
-+	khugepaged_min_free_kbytes_update();
-+
- 	return 0;
- }
- postcore_initcall(init_per_zone_wmark_min)
+ 		/* We have to update both TCP_SKB_CB(tail)->tcp_flags and
+ 		 * thtail->fin, so that the fast path in tcp_rcv_established()
 
 
