@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 388D228B71A
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D43C28B979
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730460AbgJLNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:40:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42914 "EHLO mail.kernel.org"
+        id S2390814AbgJLOA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731339AbgJLNjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:39:11 -0400
+        id S1731236AbgJLNin (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:38:43 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF10820878;
-        Mon, 12 Oct 2020 13:39:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30135221FE;
+        Mon, 12 Oct 2020 13:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509950;
-        bh=De3gEN+CBHnWtDRAND/n6SiXQyX1JjoVXDnEnT7GyN4=;
+        s=default; t=1602509900;
+        bh=6wAB02IwfsC7DHvdEzt8a2/LnQp5Sy5OvIscxeAHml4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qc4CwQ1msJPfpU3Equ3Zv95PsQ5vQG1yFwwbTF0jAian84G9TullLcVIOWb1q0jLs
-         mXXV8myxf1EfNa0teLG6Pg3+/+PtidmwHRCPJp6YhF4SEFj8hgr897z+5joxiH1adS
-         c9Zic1/rCjRCiR2sgfP7bxbS9zmK9Cm3P4zpWRoM=
+        b=XeTDDUXrFR2j4kZLmypwQCj905ARsif6klfpkM/dl8VsaWSKS5YN/ispSmccVMK4Y
+         zj3alrARUNnSWtZ/Op5W4WqzMpv1otyaoPpl1dsJREJDES/W1JCRNrdWSIoN1SGbN6
+         0e3OaCm2knf4ehbx8l9zgprb6M1VyxE1H+J7x2YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 27/49] net: team: fix memory leak in __team_options_register
+        stable@vger.kernel.org, Voon Weifeng <weifeng.voon@intel.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 57/70] net: stmmac: removed enabling eee in EEE set callback
 Date:   Mon, 12 Oct 2020 15:27:13 +0200
-Message-Id: <20201012132630.722495511@linuxfoundation.org>
+Message-Id: <20201012132632.927620045@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Voon Weifeng <weifeng.voon@intel.com>
 
-commit 9a9e77495958c7382b2438bc19746dd3aaaabb8e upstream.
+[ Upstream commit 7241c5a697479c7d0c5a96595822cdab750d41ae ]
 
-The variable "i" isn't initialized back correctly after the first loop
-under the label inst_rollback gets executed.
+EEE should be only be enabled during stmmac_mac_link_up() when the
+link are up and being set up properly. set_eee should only do settings
+configuration and disabling the eee.
 
-The value of "i" is assigned to be option_count - 1, and the ensuing
-loop (under alloc_rollback) begins by initializing i--.
-Thus, the value of i when the loop begins execution will now become
-i = option_count - 2.
+Without this fix, turning on EEE using ethtool will return
+"Operation not supported". This is due to the driver is in a dead loop
+waiting for eee to be advertised in the for eee to be activated but the
+driver will only configure the EEE advertisement after the eee is
+activated.
 
-Thus, when kfree(dst_opts[i]) is called in the second loop in this
-order, (i.e., inst_rollback followed by alloc_rollback),
-dst_optsp[option_count - 2] is the first element freed, and
-dst_opts[option_count - 1] does not get freed, and thus, a memory
-leak is caused.
+Ethtool should only return "Operation not supported" if there is no EEE
+capbility in the MAC controller.
 
-This memory leak can be fixed, by assigning i = option_count (instead of
-option_count - 1).
-
-Fixes: 80f7c6683fe0 ("team: add support for per-port options")
-Reported-by: syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com
-Tested-by: syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Fixes: 8a7493e58ad6 ("net: stmmac: Fix a race in EEE enable callback")
+Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
+Acked-by: Mark Gross <mgross@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/team/team.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/stmicro/stmmac/stmmac_ethtool.c  | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -294,7 +294,7 @@ inst_rollback:
- 	for (i--; i >= 0; i--)
- 		__team_option_inst_del_option(team, dst_opts[i]);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
+index 8c71090081852..5105e1f724fb7 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
+@@ -677,23 +677,16 @@ static int stmmac_ethtool_op_set_eee(struct net_device *dev,
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	int ret;
  
--	i = option_count - 1;
-+	i = option_count;
- alloc_rollback:
- 	for (i--; i >= 0; i--)
- 		kfree(dst_opts[i]);
+-	if (!edata->eee_enabled) {
++	if (!priv->dma_cap.eee)
++		return -EOPNOTSUPP;
++
++	if (!edata->eee_enabled)
+ 		stmmac_disable_eee_mode(priv);
+-	} else {
+-		/* We are asking for enabling the EEE but it is safe
+-		 * to verify all by invoking the eee_init function.
+-		 * In case of failure it will return an error.
+-		 */
+-		edata->eee_enabled = stmmac_eee_init(priv);
+-		if (!edata->eee_enabled)
+-			return -EOPNOTSUPP;
+-	}
+ 
+ 	ret = phy_ethtool_set_eee(dev->phydev, edata);
+ 	if (ret)
+ 		return ret;
+ 
+-	priv->eee_enabled = edata->eee_enabled;
+ 	priv->tx_lpi_timer = edata->tx_lpi_timer;
+ 	return 0;
+ }
+-- 
+2.25.1
+
 
 
