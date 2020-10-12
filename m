@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0BE628BA23
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 216B628B9BC
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391035AbgJLOGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:06:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36762 "EHLO mail.kernel.org"
+        id S2389463AbgJLODM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:03:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730188AbgJLNe1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:34:27 -0400
+        id S1731009AbgJLNhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:37:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A0D9204EA;
-        Mon, 12 Oct 2020 13:34:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C59D3221FC;
+        Mon, 12 Oct 2020 13:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509663;
-        bh=rGO0nh+ZyyGaMqRoDtqx7gw0K/rBiVikqxB5jMVOVAU=;
+        s=default; t=1602509809;
+        bh=2BdFwFQtTbQE3+U5mDfKpEwafb59mUIhSlTGuBmQSJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yz4ll3fWDbvwU99oMbxNcPhuxBapwhaIy9Js5O1K/CU4Ard7k/bdpv/dkqyc5mhzX
-         iNV7rJrBoUTS/00fP6qRSukPl7ejCMVXyA5492co1J2VFYN3jdzDu4Dxcr9cC6Wvw0
-         bJ1I6c+D4NIX7eEwDDmyIHWw6athbA7yyi9Bxezk=
+        b=FfgHvhJQJFz5+ZRrr6CS2BhJ38FO+/wOYzbgURl+C2PNg5n431RkeRr9tlMCSMGVh
+         RYZMGy4MtGKHmYYUxkANHu7JnsGVdQWrzL6qCy8nxLkCbJf82FAPAN+dYXkUnhvykA
+         NhZ+8NsVMy1k5cN+ubm6sSTy3XsjHIFO5oOcR1Cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tommi Rantala <tommi.t.rantala@nokia.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 4.9 32/54] perf top: Fix stdio interface input handling with glibc 2.28+
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        mark gross <mgross@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.14 38/70] platform/x86: thinkpad_acpi: initialize tp_nvram_state variable
 Date:   Mon, 12 Oct 2020 15:26:54 +0200
-Message-Id: <20201012132631.077054924@linuxfoundation.org>
+Message-Id: <20201012132632.012673485@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,53 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tommi Rantala <tommi.t.rantala@nokia.com>
+From: Tom Rix <trix@redhat.com>
 
-commit 29b4f5f188571c112713c35cc87eefb46efee612 upstream.
+commit 5f38b06db8af3ed6c2fc1b427504ca56fae2eacc upstream.
 
-Since glibc 2.28 when running 'perf top --stdio', input handling no
-longer works, but hitting any key always just prints the "Mapped keys"
-help text.
+clang static analysis flags this represenative problem
+thinkpad_acpi.c:2523:7: warning: Branch condition evaluates
+  to a garbage value
+                if (!oldn->mute ||
+                    ^~~~~~~~~~~
 
-To fix it, call clearerr() in the display_thread() loop to clear any EOF
-sticky errors, as instructed in the glibc NEWS file
-(https://sourceware.org/git/?p=glibc.git;a=blob;f=NEWS):
+In hotkey_kthread() mute is conditionally set by hotkey_read_nvram()
+but unconditionally checked by hotkey_compare_and_issue_event().
+So the tp_nvram_state variable s[2] needs to be initialized.
 
- * All stdio functions now treat end-of-file as a sticky condition.  If you
-   read from a file until EOF, and then the file is enlarged by another
-   process, you must call clearerr or another function with the same effect
-   (e.g. fseek, rewind) before you can read the additional data.  This
-   corrects a longstanding C99 conformance bug.  It is most likely to affect
-   programs that use stdio to read interactive input from a terminal.
-   (Bug #1190.)
-
-Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200305083714.9381-2-tommi.t.rantala@nokia.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 01e88f25985d ("ACPI: thinkpad-acpi: add CMOS NVRAM polling for hot keys (v9)")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: mark gross <mgross@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/builtin-top.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/thinkpad_acpi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/builtin-top.c
-+++ b/tools/perf/builtin-top.c
-@@ -633,7 +633,9 @@ repeat:
- 	delay_msecs = top->delay_secs * MSEC_PER_SEC;
- 	set_term_quiet_input(&save);
- 	/* trash return*/
--	getc(stdin);
-+	clearerr(stdin);
-+	if (poll(&stdin_poll, 1, 0) > 0)
-+		getc(stdin);
- 
- 	while (!done) {
- 		perf_top__print_sym_table(top);
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -2477,7 +2477,7 @@ static void hotkey_compare_and_issue_eve
+  */
+ static int hotkey_kthread(void *data)
+ {
+-	struct tp_nvram_state s[2];
++	struct tp_nvram_state s[2] = { 0 };
+ 	u32 poll_mask, event_mask;
+ 	unsigned int si, so;
+ 	unsigned long t;
 
 
