@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E2A028B79D
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:45:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 007C228B960
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389565AbgJLNo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:44:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
+        id S2390379AbgJLOAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:00:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731553AbgJLNmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:42:49 -0400
+        id S1731461AbgJLNjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:39:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E8362225F;
-        Mon, 12 Oct 2020 13:42:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADFEA2087E;
+        Mon, 12 Oct 2020 13:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510168;
-        bh=Y7zIKQ9+uwjsy6YzMob7+w13D/hTN3gvmic7c7rJ9ac=;
+        s=default; t=1602509994;
+        bh=s6ADBcTjHZ3iiqt/bK4CzylMNoHP4CtDNcj9pTtmnJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qFji+vdbx/YFWJISZhKjdi1JIkCg9i0tfPLpa+YjJUZiyNUV/SxCt1CJljECX54vB
-         6yI9Dn0+zneuNdDId0rTefdeVC/x1kmpvPKL0vc5EZ0XvctzfAsQ7a6jGwXzkMmkT9
-         cj+tYAtrR2LbjWbPUbumoh5R/zqGP+k8Y/FJCVYM=
+        b=LiGMmWdLyw6CwsQRpcZho9lMN0ZtMcFPooYDM+E0Men/55r9C4Cpw8amLrYMZPSpm
+         BYJ5bG8SeJhhjPEjmSiPsMmoJqDxWi53vjwjVNnH2VjX7X8DEB96SBQGkhq/gsHLMY
+         iGUCZy6vumvh9f/g015QBPQnXDkMzYXM1TAlOGbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Kajol Jain <kjain@linux.ibm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Barret Rhoden <brho@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 69/85] net/mlx5e: Fix VLAN create flow
+Subject: [PATCH 4.19 46/49] perf: Fix task_function_call() error handling
 Date:   Mon, 12 Oct 2020 15:27:32 +0200
-Message-Id: <20201012132636.160075797@linuxfoundation.org>
+Message-Id: <20201012132631.529843742@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit d4a16052bccdd695982f89d815ca075825115821 ]
+[ Upstream commit 6d6b8b9f4fceab7266ca03d194f60ec72bd4b654 ]
 
-When interface is attached while in promiscuous mode and with VLAN
-filtering turned off, both configurations are not respected and VLAN
-filtering is performed.
-There are 2 flows which add the any-vid rules during interface attach:
-VLAN creation table and set rx mode. Each is relaying on the other to
-add any-vid rules, eventually non of them does.
+The error handling introduced by commit:
 
-Fix this by adding any-vid rules on VLAN creation regardless of
-promiscuous mode.
+  2ed6edd33a21 ("perf: Add cond_resched() to task_function_call()")
 
-Fixes: 9df30601c843 ("net/mlx5e: Restore vlan filter after seamless reset")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+looses any return value from smp_call_function_single() that is not
+{0, -EINVAL}. This is a problem because it will return -EXNIO when the
+target CPU is offline. Worse, in that case it'll turn into an infinite
+loop.
+
+Fixes: 2ed6edd33a21 ("perf: Add cond_resched() to task_function_call()")
+Reported-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Barret Rhoden <brho@google.com>
+Tested-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Link: https://lkml.kernel.org/r/20200827064732.20860-1-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_fs.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/events/core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-index c5be0cdfaf0fa..713dc210f710c 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-@@ -217,6 +217,9 @@ static int __mlx5e_add_vlan_rule(struct mlx5e_priv *priv,
- 		break;
- 	}
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index a17e6302ded53..a35d742b0ba82 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -98,7 +98,7 @@ static void remote_function(void *data)
+  * retry due to any failures in smp_call_function_single(), such as if the
+  * task_cpu() goes offline concurrently.
+  *
+- * returns @func return value or -ESRCH when the process isn't running
++ * returns @func return value or -ESRCH or -ENXIO when the process isn't running
+  */
+ static int
+ task_function_call(struct task_struct *p, remote_function_f func, void *info)
+@@ -114,7 +114,8 @@ task_function_call(struct task_struct *p, remote_function_f func, void *info)
+ 	for (;;) {
+ 		ret = smp_call_function_single(task_cpu(p), remote_function,
+ 					       &data, 1);
+-		ret = !ret ? data.ret : -EAGAIN;
++		if (!ret)
++			ret = data.ret;
  
-+	if (WARN_ONCE(*rule_p, "VLAN rule already exists type %d", rule_type))
-+		return 0;
-+
- 	*rule_p = mlx5_add_flow_rules(ft, spec, &flow_act, &dest, 1);
- 
- 	if (IS_ERR(*rule_p)) {
-@@ -397,8 +400,7 @@ static void mlx5e_add_vlan_rules(struct mlx5e_priv *priv)
- 	for_each_set_bit(i, priv->fs.vlan.active_svlans, VLAN_N_VID)
- 		mlx5e_add_vlan_rule(priv, MLX5E_VLAN_RULE_TYPE_MATCH_STAG_VID, i);
- 
--	if (priv->fs.vlan.cvlan_filter_disabled &&
--	    !(priv->netdev->flags & IFF_PROMISC))
-+	if (priv->fs.vlan.cvlan_filter_disabled)
- 		mlx5e_add_any_vid_rules(priv);
- }
- 
+ 		if (ret != -EAGAIN)
+ 			break;
 -- 
 2.25.1
 
