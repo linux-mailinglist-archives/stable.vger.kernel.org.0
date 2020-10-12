@@ -2,630 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 387D328B8C3
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0194A28B902
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390445AbgJLNzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:55:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48072 "EHLO mail.kernel.org"
+        id S2389425AbgJLN4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:56:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389653AbgJLNpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:45:42 -0400
+        id S2389395AbgJLNns (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:43:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACBD722265;
-        Mon, 12 Oct 2020 13:44:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49E3A206D9;
+        Mon, 12 Oct 2020 13:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510262;
-        bh=6tazBKMQqMGZ4jYq0P/ejFsBBI4jEytUCUN36qkfBjc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=xIYHvwNO/YO07AC4Cob0CKV6IxyAv4ai4Swx0RB4p2h8/O1z58iUo/9GOgtQiwk2Z
-         BHEYVUN+yDHAmhL7jdkntHLk5vc2V28AKietsXNdVWq5We67LSWMsmF4eEEW8/P5+N
-         52m+14wtAhOq/+Y3QiHg9LLuNOXkeIF7rt21BtW8=
+        s=default; t=1602510226;
+        bh=LJ2flt7nWpz2GXElbHKjH4iNpHzys7pEADYWNQjaCYQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=JedCLmbVJzBs4J+nCDiVQOe2uq9KlSvGqCWNVMDlZjOrGX/2QSeWb7JGo/U5WcAtj
+         Jit9lEALazmTbZ0d77W8ovIzKXZK6+QmMeujxNx1O0WurjaUlgSUrBqByCxnDzE+dM
+         qrCgsUYhaUV941mT6vzDMvTQS2RjzBTD+jzFPMFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        pavel@denx.de, stable@vger.kernel.org
-Subject: [PATCH 5.8 000/124] 5.8.15-rc1 review
-Date:   Mon, 12 Oct 2020 15:30:04 +0200
-Message-Id: <20201012133146.834528783@linuxfoundation.org>
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.8 001/124] fbdev, newport_con: Move FONT_EXTRA_WORDS macros into linux/font.h
+Date:   Mon, 12 Oct 2020 15:30:05 +0200
+Message-Id: <20201012133146.911937643@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-MIME-Version: 1.0
+In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
+References: <20201012133146.834528783@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.8.15-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.8.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.8.15-rc1
-X-KernelTest-Deadline: 2020-10-14T13:31+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.8.15 release.
-There are 124 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Wed, 14 Oct 2020 13:31:22 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.15-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.8.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.8.15-rc1
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    net_sched: commit action insertions together
-
-Cong Wang <xiyou.wangcong@gmail.com>
-    net_sched: defer tcf_idr_insert() in tcf_action_init_1()
-
-Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-    net: qrtr: ns: Protect radix_tree_deref_slot() using rcu read locks
-
-Anant Thazhemadam <anant.thazhemadam@gmail.com>
-    net: usb: rtl8150: set random MAC address when set_ethernet_addr() fails
-
-Xiongfeng Wang <wangxiongfeng2@huawei.com>
-    Input: ati_remote2 - add missing newlines when printing module parameters
-
-Alexey Kardashevskiy <aik@ozlabs.ru>
-    tty/vt: Do not warn when huge selection requested
-
-Aya Levin <ayal@mellanox.com>
-    net/mlx5e: Fix driver's declaration to support GRE offload
-
-Rohit Maheshwari <rohitm@chelsio.com>
-    net/tls: race causes kernel panic
-
-Nikolay Aleksandrov <nikolay@nvidia.com>
-    net: bridge: fdb: don't flush ext_learn entries
-
-Guillaume Nault <gnault@redhat.com>
-    net/core: check length before updating Ethertype in skb_mpls_{push,pop}
-
-Johannes Berg <johannes.berg@intel.com>
-    netlink: fix policy dump leak
-
-Eric Dumazet <edumazet@google.com>
-    tcp: fix receive window update in tcp_add_backlog()
-
-Vijay Balakrishna <vijayb@linux.microsoft.com>
-    mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
-
-Minchan Kim <minchan@kernel.org>
-    mm: validate inode in mapping_set_error()
-
-Coly Li <colyli@suse.de>
-    mmc: core: don't set limits.discard_granularity as 0
-
-Kajol Jain <kjain@linux.ibm.com>
-    perf: Fix task_function_call() error handling
-
-David Howells <dhowells@redhat.com>
-    afs: Fix deadlock between writeback and truncate
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: mscc: ocelot: divide watermark value by 60 when writing to SYS_ATOP
-
-Maxim Kochetkov <fido_max@inbox.ru>
-    net: mscc: ocelot: extend watermark encoding function
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: mscc: ocelot: split writes to pause frame enable bit and to thresholds
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: mscc: ocelot: rename ocelot_board.c to ocelot_vsc7514.c
-
-David Howells <dhowells@redhat.com>
-    rxrpc: Fix server keyring leak
-
-David Howells <dhowells@redhat.com>
-    rxrpc: The server keyring isn't network-namespaced
-
-David Howells <dhowells@redhat.com>
-    rxrpc: Fix some missing _bh annotations on locking conn->state_lock
-
-David Howells <dhowells@redhat.com>
-    rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()
-
-Marc Dionne <marc.dionne@auristor.com>
-    rxrpc: Fix rxkad token xdr encoding
-
-Tom Rix <trix@redhat.com>
-    net: mvneta: fix double free of txq->buf
-
-Si-Wei Liu <si-wei.liu@oracle.com>
-    vhost-vdpa: fix page pinning leakage in error path
-
-Si-Wei Liu <si-wei.liu@oracle.com>
-    vhost-vdpa: fix vhost_vdpa_map() on error condition
-
-Randy Dunlap <rdunlap@infradead.org>
-    net: hinic: fix DEVLINK build errors
-
-Vineetha G. Jaya Kumaran <vineetha.g.jaya.kumaran@intel.com>
-    net: stmmac: Modify configuration method of EEE timers
-
-Vlad Buslov <vladbu@nvidia.com>
-    net/mlx5e: Fix race condition on nhe->n pointer in neigh update
-
-Aya Levin <ayal@nvidia.com>
-    net/mlx5e: Fix VLAN create flow
-
-Aya Levin <ayal@nvidia.com>
-    net/mlx5e: Fix VLAN cleanup flow
-
-Aya Levin <ayal@mellanox.com>
-    net/mlx5e: Fix return status when setting unsupported FEC mode
-
-Aya Levin <ayal@mellanox.com>
-    net/mlx5e: Add resiliency in Striding RQ mode for packets larger than MTU
-
-Maor Gottlieb <maorg@nvidia.com>
-    net/mlx5: Fix request_irqs error flow
-
-Eran Ben Elisha <eranbe@nvidia.com>
-    net/mlx5: Add retry mechanism to the command entry index allocation
-
-Eran Ben Elisha <eranbe@mellanox.com>
-    net/mlx5: poll cmd EQ in case of command timeout
-
-Eran Ben Elisha <eranbe@mellanox.com>
-    net/mlx5: Avoid possible free of command entry while timeout comp handler
-
-Eran Ben Elisha <eranbe@mellanox.com>
-    net/mlx5: Fix a race when moving command interface to polling mode
-
-Qian Cai <cai@redhat.com>
-    pipe: Fix memory leaks in create_pipe_files()
-
-Hariprasad Kelam <hkelam@marvell.com>
-    octeontx2-pf: Fix synchnorization issue in mbox
-
-Hariprasad Kelam <hkelam@marvell.com>
-    octeontx2-pf: Fix the device state on error
-
-Geetha sowjanya <gakula@marvell.com>
-    octeontx2-pf: Fix TCP/UDP checksum offload for IPv6 frames
-
-Subbaraya Sundeep <sbhatta@marvell.com>
-    octeontx2-af: Fix enable/disable of default NPC entries
-
-Willy Liu <willy.liu@realtek.com>
-    net: phy: realtek: fix rtl8211e rx/tx delay config
-
-Tonghao Zhang <xiangxia.m.yue@gmail.com>
-    virtio-net: don't disable guest csum when disable LRO
-
-Wilken Gottwalt <wilken.gottwalt@mailbox.org>
-    net: usb: ax88179_178a: fix missing stop entry in driver_info
-
-Heiner Kallweit <hkallweit1@gmail.com>
-    r8169: fix RTL8168f/RTL8411 EPHY config
-
-Ido Schimmel <idosch@nvidia.com>
-    mlxsw: spectrum_acl: Fix mlxsw_sp_acl_tcam_group_add()'s error path
-
-Randy Dunlap <rdunlap@infradead.org>
-    mdio: fix mdio-thunder.c dependency & build error
-
-Eric Dumazet <edumazet@google.com>
-    bonding: set dev->needed_headroom in bond_setup_by_slave()
-
-Ivan Khoronzhuk <ivan.khoronzhuk@gmail.com>
-    net: ethernet: cavium: octeon_mgmt: use phy_start and phy_stop
-
-Wong Vee Khee <vee.khee.wong@intel.com>
-    net: stmmac: Fix clock handling on remove path
-
-Ronak Doshi <doshir@vmware.com>
-    vmxnet3: fix cksum offload issues for non-udp tunnels
-
-Jacob Keller <jacob.e.keller@intel.com>
-    ice: fix memory leak in ice_vsi_setup
-
-Jacob Keller <jacob.e.keller@intel.com>
-    ice: fix memory leak if register_netdev_fails
-
-Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-    iavf: Fix incorrect adapter get in iavf_resume
-
-Vaibhav Gupta <vaibhavgupta40@gmail.com>
-    iavf: use generic power management
-
-Herbert Xu <herbert@gondor.apana.org.au>
-    xfrm: Use correct address family in xfrm_state_find
-
-Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
-    net: dsa: felix: convert TAS link speed based on phylink speed
-
-Luo bin <luobin9@huawei.com>
-    hinic: fix wrong return value of mac-set cmd
-
-Luo bin <luobin9@huawei.com>
-    hinic: add log in exception handling processes
-
-Necip Fazil Yildiran <fazilyildiran@gmail.com>
-    platform/x86: fix kconfig dependency warning for FUJITSU_LAPTOP
-
-Necip Fazil Yildiran <fazilyildiran@gmail.com>
-    platform/x86: fix kconfig dependency warning for LG_LAPTOP
-
-Voon Weifeng <weifeng.voon@intel.com>
-    net: stmmac: removed enabling eee in EEE set callback
-
-Magnus Karlsson <magnus.karlsson@intel.com>
-    xsk: Do not discard packet when NETDEV_TX_BUSY
-
-Antony Antony <antony.antony@secunet.com>
-    xfrm: clone whole liftime_cur structure in xfrm_do_migrate
-
-Antony Antony <antony.antony@secunet.com>
-    xfrm: clone XFRMA_SEC_CTX in xfrm_do_migrate
-
-Antony Antony <antony.antony@secunet.com>
-    xfrm: clone XFRMA_REPLAY_ESN_VAL in xfrm_do_migrate
-
-Antony Antony <antony.antony@secunet.com>
-    xfrm: clone XFRMA_SET_MARK in xfrm_do_migrate
-
-Lu Baolu <baolu.lu@linux.intel.com>
-    iommu/vt-d: Fix lockdep splat in iommu_flush_dev_iotlb()
-
-Josef Bacik <josef@toxicpanda.com>
-    btrfs: move btrfs_rm_dev_replace_free_srcdev outside of all locks
-
-Zack Rusin <zackr@vmware.com>
-    drm/vmwgfx: Fix error handling in get_node
-
-Flora Cui <flora.cui@amd.com>
-    drm/amd/display: fix return value check for hdcp_work
-
-Sudheesh Mavila <sudheesh.mavila@amd.com>
-    drm/amd/pm: Removed fixed clock in auto mode DPM
-
-Jens Axboe <axboe@kernel.dk>
-    io_uring: fix potential ABBA deadlock in ->show_fdinfo()
-
-Josef Bacik <josef@toxicpanda.com>
-    btrfs: move btrfs_scratch_superblocks into btrfs_dev_replace_finishing
-
-Philip Yang <Philip.Yang@amd.com>
-    drm/amdgpu: prevent double kfree ttm->sg
-
-Dumitru Ceara <dceara@redhat.com>
-    openvswitch: handle DNAT tuple collision
-
-Anant Thazhemadam <anant.thazhemadam@gmail.com>
-    net: team: fix memory leak in __team_options_register
-
-Eric Dumazet <edumazet@google.com>
-    team: set dev->needed_headroom in team_setup_by_port()
-
-Eric Dumazet <edumazet@google.com>
-    sctp: fix sctp_auth_init_hmacs() error path
-
-Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-    i2c: owl: Clear NACK and BUS error bits
-
-Nicolas Belin <nbelin@baylibre.com>
-    i2c: meson: fixup rate calculation with filter delay
-
-Jerome Brunet <jbrunet@baylibre.com>
-    i2c: meson: keep peripheral clock enabled
-
-Jerome Brunet <jbrunet@baylibre.com>
-    i2c: meson: fix clock setting overwrite
-
-Vladimir Zapolskiy <vladimir@tuxera.com>
-    cifs: Fix incomplete memory allocation on setxattr path
-
-Sabrina Dubroca <sd@queasysnail.net>
-    espintcp: restore IP CB before handing the packet to xfrm
-
-Sabrina Dubroca <sd@queasysnail.net>
-    xfrmi: drop ignore_df check before updating pmtu
-
-Coly Li <colyli@suse.de>
-    nvme-tcp: check page by sendpage_ok() before calling kernel_sendpage()
-
-Coly Li <colyli@suse.de>
-    tcp: use sendpage_ok() to detect misused .sendpage
-
-Coly Li <colyli@suse.de>
-    net: introduce helper sendpage_ok() in include/linux/net.h
-
-Hugh Dickins <hughd@google.com>
-    mm/khugepaged: fix filemap page_to_pgoff(page) != offset
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    gpiolib: Disable compat ->read() code in UML case
-
-Atish Patra <atish.patra@wdc.com>
-    RISC-V: Make sure memblock reserves the memory containing DT
-
-Eric Dumazet <edumazet@google.com>
-    macsec: avoid use-after-free in macsec_handle_frame()
-
-Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-    nvme-core: put ctrl ref when module ref get fail
-
-Aaron Ma <aaron.ma@canonical.com>
-    platform/x86: thinkpad_acpi: re-initialize ACPI buffer size when reuse
-
-Hans de Goede <hdegoede@redhat.com>
-    platform/x86: intel-vbtn: Switch to an allow-list for SW_TABLET_MODE reporting
-
-Heiner Kallweit <hkallweit1@gmail.com>
-    r8169: consider that PHY reset may still be in progress after applying firmware
-
-Tony Ambardar <tony.ambardar@gmail.com>
-    bpf: Prevent .BTF section elimination
-
-Tony Ambardar <tony.ambardar@gmail.com>
-    bpf: Fix sysfs export of empty BTF section
-
-Hans de Goede <hdegoede@redhat.com>
-    platform/x86: asus-wmi: Fix SW_TABLET_MODE always reporting 1 on many different models
-
-Tom Rix <trix@redhat.com>
-    platform/x86: thinkpad_acpi: initialize tp_nvram_state variable
-
-Hans de Goede <hdegoede@redhat.com>
-    platform/x86: intel-vbtn: Fix SW_TABLET_MODE always reporting 1 on the HP Pavilion 11 x360
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    Platform: OLPC: Fix memleak in olpc_ec_probe
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    splice: teach splice pipe reading about empty pipe buffers
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    usermodehelper: reset umask to default before executing user process
-
-Greg Kurz <groug@kaod.org>
-    vhost: Use vhost_get_used_size() in vhost_vring_set_addr()
-
-Greg Kurz <groug@kaod.org>
-    vhost: Don't call access_ok() when using IOTLB
-
-Peilin Ye <yepeilin.cs@gmail.com>
-    block/scsi-ioctl: Fix kernel-infoleak in scsi_put_cdrom_generic_arg()
-
-Christoph Hellwig <hch@lst.de>
-    partitions/ibm: fix non-DASD devices
-
-Karol Herbst <kherbst@redhat.com>
-    drm/nouveau/mem: guard against NULL pointer access in mem_del
-
-Karol Herbst <kherbst@redhat.com>
-    drm/nouveau/device: return error for unknown chipsets
-
-Anant Thazhemadam <anant.thazhemadam@gmail.com>
-    net: wireless: nl80211: fix out-of-bounds access in nl80211_del_key()
-
-Namjae Jeon <namjae.jeon@samsung.com>
-    exfat: fix use of uninitialized spinlock on error path
-
-Jeremy Linton <jeremy.linton@arm.com>
-    crypto: arm64: Use x16 with indirect branch to bti_c
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Fix scalar32_min_max_or bounds tracking
-
-Geert Uytterhoeven <geert+renesas@glider.be>
-    Revert "ravb: Fixed to be able to unload modules"
-
-Peilin Ye <yepeilin.cs@gmail.com>
-    fbcon: Fix global-out-of-bounds read in fbcon_get_font()
-
-Peilin Ye <yepeilin.cs@gmail.com>
-    Fonts: Support FONT_EXTRA_WORDS macros for built-in fonts
-
-Peilin Ye <yepeilin.cs@gmail.com>
-    fbdev, newport_con: Move FONT_EXTRA_WORDS macros into linux/font.h
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/arm64/crypto/aes-neonbs-core.S                |   4 +-
- arch/riscv/mm/init.c                               |   1 +
- block/partitions/ibm.c                             |   7 +-
- block/scsi_ioctl.c                                 |   1 +
- drivers/gpio/gpiolib.c                             |   2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c            |   1 +
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c |   2 +-
- drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c  |  10 +-
- drivers/gpu/drm/nouveau/nouveau_mem.c              |   2 +
- drivers/gpu/drm/nouveau/nvkm/engine/device/base.c  |   1 +
- drivers/gpu/drm/vmwgfx/vmwgfx_gmrid_manager.c      |   2 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_thp.c                |   2 +-
- drivers/i2c/busses/i2c-meson.c                     |  52 +++---
- drivers/i2c/busses/i2c-owl.c                       |   6 +
- drivers/input/misc/ati_remote2.c                   |   4 +-
- drivers/iommu/intel/iommu.c                        |   4 +-
- drivers/mmc/core/queue.c                           |   2 +-
- drivers/net/bonding/bond_main.c                    |   1 +
- drivers/net/dsa/ocelot/felix_vsc9959.c             |  35 +++-
- drivers/net/ethernet/cavium/octeon/octeon_mgmt.c   |   6 +-
- drivers/net/ethernet/huawei/hinic/Kconfig          |   1 +
- .../net/ethernet/huawei/hinic/hinic_hw_api_cmd.c   |  27 ++-
- .../net/ethernet/huawei/hinic/hinic_hw_api_cmd.h   |   4 +
- drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.c  |   2 +
- drivers/net/ethernet/huawei/hinic/hinic_hw_cmdq.h  |   2 +
- drivers/net/ethernet/huawei/hinic/hinic_hw_dev.c   |  12 +-
- drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.c   |  39 +++++
- drivers/net/ethernet/huawei/hinic/hinic_hw_eqs.h   |   6 +-
- drivers/net/ethernet/huawei/hinic/hinic_hw_if.c    |  23 +++
- drivers/net/ethernet/huawei/hinic/hinic_hw_if.h    |  10 +-
- drivers/net/ethernet/huawei/hinic/hinic_hw_mbox.c  |   2 +
- drivers/net/ethernet/huawei/hinic/hinic_hw_mgmt.c  |   1 +
- drivers/net/ethernet/huawei/hinic/hinic_port.c     |  68 ++++----
- drivers/net/ethernet/huawei/hinic/hinic_sriov.c    |  18 +-
- drivers/net/ethernet/intel/iavf/iavf_main.c        |  49 ++----
- drivers/net/ethernet/intel/ice/ice_lib.c           |  20 ++-
- drivers/net/ethernet/intel/ice/ice_lib.h           |   6 -
- drivers/net/ethernet/intel/ice/ice_main.c          |  13 +-
- drivers/net/ethernet/marvell/mvneta.c              |  13 +-
- drivers/net/ethernet/marvell/octeontx2/af/mbox.c   |  12 +-
- drivers/net/ethernet/marvell/octeontx2/af/mbox.h   |   1 +
- drivers/net/ethernet/marvell/octeontx2/af/rvu.h    |   3 +-
- .../net/ethernet/marvell/octeontx2/af/rvu_nix.c    |   5 +-
- .../net/ethernet/marvell/octeontx2/af/rvu_npc.c    |  26 ++-
- .../net/ethernet/marvell/octeontx2/nic/otx2_pf.c   |  16 +-
- .../net/ethernet/marvell/octeontx2/nic/otx2_txrx.c |   1 +
- .../net/ethernet/marvell/octeontx2/nic/otx2_vf.c   |   4 +-
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c      | 181 +++++++++++++++------
- drivers/net/ethernet/mellanox/mlx5/core/en.h       |   8 +-
- drivers/net/ethernet/mellanox/mlx5/core/en/port.c  |   3 +
- .../net/ethernet/mellanox/mlx5/core/en/rep/neigh.c |  81 +++++----
- drivers/net/ethernet/mellanox/mlx5/core/en_fs.c    |  14 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |  74 ++++++++-
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.h   |   6 -
- drivers/net/ethernet/mellanox/mlx5/core/eq.c       |  42 ++++-
- drivers/net/ethernet/mellanox/mlx5/core/lib/eq.h   |   2 +
- drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c  |   2 +-
- .../ethernet/mellanox/mlxsw/spectrum_acl_tcam.c    |   3 +-
- drivers/net/ethernet/mscc/Makefile                 |   2 +-
- drivers/net/ethernet/mscc/ocelot.c                 |  43 ++---
- .../mscc/{ocelot_board.c => ocelot_vsc7514.c}      |  13 ++
- drivers/net/ethernet/realtek/r8169_main.c          |  11 +-
- drivers/net/ethernet/renesas/ravb_main.c           | 110 ++++++-------
- drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c  |   1 -
- drivers/net/ethernet/stmicro/stmmac/stmmac.h       |   2 +
- .../net/ethernet/stmicro/stmmac/stmmac_ethtool.c   |  27 +--
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |  23 ++-
- drivers/net/macsec.c                               |   4 +-
- drivers/net/phy/Kconfig                            |   1 +
- drivers/net/phy/realtek.c                          |  31 ++--
- drivers/net/team/team.c                            |   3 +-
- drivers/net/usb/ax88179_178a.c                     |   1 +
- drivers/net/usb/rtl8150.c                          |  16 +-
- drivers/net/virtio_net.c                           |   8 +-
- drivers/net/vmxnet3/vmxnet3_drv.c                  |   5 +-
- drivers/net/vmxnet3/vmxnet3_ethtool.c              |  28 ++++
- drivers/net/vmxnet3/vmxnet3_int.h                  |   4 +
- drivers/nvme/host/core.c                           |   4 +-
- drivers/nvme/host/tcp.c                            |   7 +-
- drivers/platform/olpc/olpc-ec.c                    |   4 +-
- drivers/platform/x86/Kconfig                       |   2 +
- drivers/platform/x86/asus-nb-wmi.c                 |  32 ++++
- drivers/platform/x86/asus-wmi.c                    |  16 +-
- drivers/platform/x86/asus-wmi.h                    |   1 +
- drivers/platform/x86/intel-vbtn.c                  |  64 ++++++--
- drivers/platform/x86/thinkpad_acpi.c               |   6 +-
- drivers/tty/vt/selection.c                         |   2 +-
- drivers/vhost/vdpa.c                               | 122 ++++++++------
- drivers/vhost/vhost.c                              |  12 +-
- drivers/video/console/newport_con.c                |   7 +-
- drivers/video/fbdev/core/fbcon.c                   |  12 ++
- drivers/video/fbdev/core/fbcon.h                   |   7 -
- drivers/video/fbdev/core/fbcon_rotate.c            |   1 +
- drivers/video/fbdev/core/tileblit.c                |   1 +
- fs/afs/inode.c                                     |  47 +++++-
- fs/afs/internal.h                                  |   1 +
- fs/afs/write.c                                     |  11 ++
- fs/btrfs/dev-replace.c                             |   6 +-
- fs/btrfs/volumes.c                                 |  13 +-
- fs/btrfs/volumes.h                                 |   3 +
- fs/cifs/smb2ops.c                                  |   2 +-
- fs/exfat/cache.c                                   |  11 --
- fs/exfat/exfat_fs.h                                |   3 +-
- fs/exfat/inode.c                                   |   2 -
- fs/exfat/super.c                                   |   5 +-
- fs/io_uring.c                                      |  19 ++-
- fs/pipe.c                                          |  11 +-
- fs/splice.c                                        |  20 +++
- include/asm-generic/vmlinux.lds.h                  |   2 +-
- include/linux/font.h                               |  13 ++
- include/linux/khugepaged.h                         |   5 +
- include/linux/mlx5/driver.h                        |   2 +
- include/linux/net.h                                |  16 ++
- include/linux/pagemap.h                            |   3 +-
- include/linux/watch_queue.h                        |   6 +
- include/net/act_api.h                              |   2 -
- include/net/netlink.h                              |   3 +-
- include/net/xfrm.h                                 |  16 +-
- include/soc/mscc/ocelot.h                          |   1 +
- kernel/bpf/sysfs_btf.c                             |   6 +-
- kernel/bpf/verifier.c                              |   8 +-
- kernel/events/core.c                               |   5 +-
- kernel/umh.c                                       |   9 +
- lib/fonts/font_10x18.c                             |   9 +-
- lib/fonts/font_6x10.c                              |   9 +-
- lib/fonts/font_6x11.c                              |   9 +-
- lib/fonts/font_7x14.c                              |   9 +-
- lib/fonts/font_8x16.c                              |   9 +-
- lib/fonts/font_8x8.c                               |   9 +-
- lib/fonts/font_acorn_8x8.c                         |   9 +-
- lib/fonts/font_mini_4x6.c                          |   8 +-
- lib/fonts/font_pearl_8x8.c                         |   9 +-
- lib/fonts/font_sun12x22.c                          |   9 +-
- lib/fonts/font_sun8x16.c                           |   7 +-
- lib/fonts/font_ter16x32.c                          |   9 +-
- mm/khugepaged.c                                    |  25 ++-
- mm/page_alloc.c                                    |   3 +
- net/bridge/br_fdb.c                                |   2 +
- net/core/skbuff.c                                  |   4 +-
- net/ipv4/tcp.c                                     |   3 +-
- net/ipv4/tcp_ipv4.c                                |   6 +-
- net/netlink/genetlink.c                            |   9 +-
- net/netlink/policy.c                               |  24 ++-
- net/openvswitch/conntrack.c                        |  22 ++-
- net/qrtr/ns.c                                      |  34 +++-
- net/rxrpc/conn_event.c                             |   6 +-
- net/rxrpc/key.c                                    |  20 ++-
- net/sched/act_api.c                                |  52 ++++--
- net/sched/act_bpf.c                                |   4 +-
- net/sched/act_connmark.c                           |   1 -
- net/sched/act_csum.c                               |   3 -
- net/sched/act_ct.c                                 |   2 -
- net/sched/act_ctinfo.c                             |   3 -
- net/sched/act_gact.c                               |   2 -
- net/sched/act_gate.c                               |   3 -
- net/sched/act_ife.c                                |   3 -
- net/sched/act_ipt.c                                |   2 -
- net/sched/act_mirred.c                             |   2 -
- net/sched/act_mpls.c                               |   2 -
- net/sched/act_nat.c                                |   3 -
- net/sched/act_pedit.c                              |   2 -
- net/sched/act_police.c                             |   2 -
- net/sched/act_sample.c                             |   2 -
- net/sched/act_simple.c                             |   2 -
- net/sched/act_skbedit.c                            |   2 -
- net/sched/act_skbmod.c                             |   2 -
- net/sched/act_tunnel_key.c                         |   3 -
- net/sched/act_vlan.c                               |   2 -
- net/sctp/auth.c                                    |   1 +
- net/tls/tls_sw.c                                   |   9 +-
- net/wireless/nl80211.c                             |   3 +
- net/xdp/xsk.c                                      |  17 +-
- net/xfrm/espintcp.c                                |   6 +-
- net/xfrm/xfrm_interface.c                          |   2 +-
- net/xfrm/xfrm_state.c                              |  42 ++++-
- 176 files changed, 1519 insertions(+), 756 deletions(-)
+From: Peilin Ye <yepeilin.cs@gmail.com>
+
+commit bb0890b4cd7f8203e3aa99c6d0f062d6acdaad27 upstream.
+
+drivers/video/console/newport_con.c is borrowing FONT_EXTRA_WORDS macros
+from drivers/video/fbdev/core/fbcon.h. To keep things simple, move all
+definitions into <linux/font.h>.
+
+Since newport_con now uses four extra words, initialize the fourth word in
+newport_set_font() properly.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/7fb8bc9b0abc676ada6b7ac0e0bd443499357267.1600953813.git.yepeilin.cs@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ drivers/video/console/newport_con.c     |    7 +------
+ drivers/video/fbdev/core/fbcon.h        |    7 -------
+ drivers/video/fbdev/core/fbcon_rotate.c |    1 +
+ drivers/video/fbdev/core/tileblit.c     |    1 +
+ include/linux/font.h                    |    8 ++++++++
+ 5 files changed, 11 insertions(+), 13 deletions(-)
+
+--- a/drivers/video/console/newport_con.c
++++ b/drivers/video/console/newport_con.c
+@@ -35,12 +35,6 @@
+ 
+ #define FONT_DATA ((unsigned char *)font_vga_8x16.data)
+ 
+-/* borrowed from fbcon.c */
+-#define REFCOUNT(fd)	(((int *)(fd))[-1])
+-#define FNTSIZE(fd)	(((int *)(fd))[-2])
+-#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
+-#define FONT_EXTRA_WORDS 3
+-
+ static unsigned char *font_data[MAX_NR_CONSOLES];
+ 
+ static struct newport_regs *npregs;
+@@ -522,6 +516,7 @@ static int newport_set_font(int unit, st
+ 	FNTSIZE(new_data) = size;
+ 	FNTCHARCNT(new_data) = op->charcount;
+ 	REFCOUNT(new_data) = 0;	/* usage counter */
++	FNTSUM(new_data) = 0;
+ 
+ 	p = new_data;
+ 	for (i = 0; i < op->charcount; i++) {
+--- a/drivers/video/fbdev/core/fbcon.h
++++ b/drivers/video/fbdev/core/fbcon.h
+@@ -152,13 +152,6 @@ static inline int attr_col_ec(int shift,
+ #define attr_bgcol_ec(bgshift, vc, info) attr_col_ec(bgshift, vc, info, 0)
+ #define attr_fgcol_ec(fgshift, vc, info) attr_col_ec(fgshift, vc, info, 1)
+ 
+-/* Font */
+-#define REFCOUNT(fd)	(((int *)(fd))[-1])
+-#define FNTSIZE(fd)	(((int *)(fd))[-2])
+-#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
+-#define FNTSUM(fd)	(((int *)(fd))[-4])
+-#define FONT_EXTRA_WORDS 4
+-
+     /*
+      *  Scroll Method
+      */
+--- a/drivers/video/fbdev/core/fbcon_rotate.c
++++ b/drivers/video/fbdev/core/fbcon_rotate.c
+@@ -14,6 +14,7 @@
+ #include <linux/fb.h>
+ #include <linux/vt_kern.h>
+ #include <linux/console.h>
++#include <linux/font.h>
+ #include <asm/types.h>
+ #include "fbcon.h"
+ #include "fbcon_rotate.h"
+--- a/drivers/video/fbdev/core/tileblit.c
++++ b/drivers/video/fbdev/core/tileblit.c
+@@ -13,6 +13,7 @@
+ #include <linux/fb.h>
+ #include <linux/vt_kern.h>
+ #include <linux/console.h>
++#include <linux/font.h>
+ #include <asm/types.h>
+ #include "fbcon.h"
+ 
+--- a/include/linux/font.h
++++ b/include/linux/font.h
+@@ -59,4 +59,12 @@ extern const struct font_desc *get_defau
+ /* Max. length for the name of a predefined font */
+ #define MAX_FONT_NAME	32
+ 
++/* Extra word getters */
++#define REFCOUNT(fd)	(((int *)(fd))[-1])
++#define FNTSIZE(fd)	(((int *)(fd))[-2])
++#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
++#define FNTSUM(fd)	(((int *)(fd))[-4])
++
++#define FONT_EXTRA_WORDS 4
++
+ #endif /* _VIDEO_FONT_H */
 
 
