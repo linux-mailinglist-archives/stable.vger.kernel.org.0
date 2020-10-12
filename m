@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBEC428B65E
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3972828B97F
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389064AbgJLNdH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:33:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35198 "EHLO mail.kernel.org"
+        id S2390775AbgJLOA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389059AbgJLNdH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:33:07 -0400
+        id S1731294AbgJLNi7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:38:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42717221EB;
-        Mon, 12 Oct 2020 13:33:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A273821D81;
+        Mon, 12 Oct 2020 13:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509586;
-        bh=0BeFLgFqdU3EcsLD1F/sJ6++72ggvfkwP3dYbDM0IPA=;
+        s=default; t=1602509938;
+        bh=v32w6gzbd+mgm20XfeIYCSJ5DfnFGrjg/6O7LtYd2YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrPjHUl8HVbje0v8arv8eMxcWJS1C8vFjY5w1pqcKXcvhQIEpV6SYKomnr2JkcQCM
-         goVfnZsUc+wGvGiGYYrNEZRykxsz9A9bTX4iX6xvJfPijZsxQYpCMeX8Mv/6n+NHS/
-         PO2sBXWruKkVL5Ys/q020asAo/gsYDtmkH3BfofI=
+        b=L1Ppa47AK7EoaMiMLhLLu77kuHH/4s2kjh+tLliPoXGUvqd2MD5h66EgRRfxRSE6A
+         6lGq7UAz1VwER9qlxBw3qB7Jfj/Tg82PdPQaArMpn9388BR7f5kpy3G2JlhdgsURYm
+         Wti6nILKKmKLi6+eGc0qbvcNJbH8T2QfF2+6f5UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 38/39] rxrpc: Fix server keyring leak
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.19 22/49] i2c: meson: fix clock setting overwrite
 Date:   Mon, 12 Oct 2020 15:27:08 +0200
-Message-Id: <20201012132629.911556969@linuxfoundation.org>
+Message-Id: <20201012132630.480627807@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 38b1dc47a35ba14c3f4472138ea56d014c2d609b ]
+commit 28683e847e2f20eed22cdd24f185d7783db396d3 upstream.
 
-If someone calls setsockopt() twice to set a server key keyring, the first
-keyring is leaked.
+When the slave address is written in do_start(), SLAVE_ADDR is written
+completely. This may overwrite some setting related to the clock rate
+or signal filtering.
 
-Fix it to return an error instead if the server key keyring is already set.
+Fix this by writing only the bits related to slave address. To avoid
+causing unexpected changed, explicitly disable filtering or high/low
+clock mode which may have been left over by the bootloader.
 
-Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 30021e3707a7 ("i2c: add support for Amlogic Meson I2C controller")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/rxrpc/ar-key.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-meson.c |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/net/rxrpc/ar-key.c
-+++ b/net/rxrpc/ar-key.c
-@@ -897,7 +897,7 @@ int rxrpc_request_key(struct rxrpc_sock
+--- a/drivers/i2c/busses/i2c-meson.c
++++ b/drivers/i2c/busses/i2c-meson.c
+@@ -8,6 +8,7 @@
+  * published by the Free Software Foundation.
+  */
  
- 	_enter("");
++#include <linux/bitfield.h>
+ #include <linux/clk.h>
+ #include <linux/completion.h>
+ #include <linux/i2c.h>
+@@ -40,6 +41,12 @@
+ #define REG_CTRL_CLKDIVEXT_SHIFT 28
+ #define REG_CTRL_CLKDIVEXT_MASK	GENMASK(29, 28)
  
--	if (optlen <= 0 || optlen > PAGE_SIZE - 1)
-+	if (optlen <= 0 || optlen > PAGE_SIZE - 1 || rx->securities)
- 		return -EINVAL;
++#define REG_SLV_ADDR		GENMASK(7, 0)
++#define REG_SLV_SDA_FILTER	GENMASK(10, 8)
++#define REG_SLV_SCL_FILTER	GENMASK(13, 11)
++#define REG_SLV_SCL_LOW		GENMASK(27, 16)
++#define REG_SLV_SCL_LOW_EN	BIT(28)
++
+ #define I2C_TIMEOUT_MS		500
  
- 	description = kmalloc(optlen + 1, GFP_KERNEL);
+ enum {
+@@ -149,6 +156,9 @@ static void meson_i2c_set_clk_div(struct
+ 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT_MASK,
+ 			   (div >> 10) << REG_CTRL_CLKDIVEXT_SHIFT);
+ 
++	/* Disable HIGH/LOW mode */
++	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_SCL_LOW_EN, 0);
++
+ 	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
+ 		clk_rate, freq, div);
+ }
+@@ -276,7 +286,10 @@ static void meson_i2c_do_start(struct me
+ 	token = (msg->flags & I2C_M_RD) ? TOKEN_SLAVE_ADDR_READ :
+ 		TOKEN_SLAVE_ADDR_WRITE;
+ 
+-	writel(msg->addr << 1, i2c->regs + REG_SLAVE_ADDR);
++
++	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_ADDR,
++			   FIELD_PREP(REG_SLV_ADDR, msg->addr << 1));
++
+ 	meson_i2c_add_token(i2c, TOKEN_START);
+ 	meson_i2c_add_token(i2c, token);
+ }
+@@ -435,6 +448,10 @@ static int meson_i2c_probe(struct platfo
+ 		return ret;
+ 	}
+ 
++	/* Disable filtering */
++	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR,
++			   REG_SLV_SDA_FILTER | REG_SLV_SCL_FILTER, 0);
++
+ 	meson_i2c_set_clk_div(i2c, timings.bus_freq_hz);
+ 
+ 	return 0;
 
 
