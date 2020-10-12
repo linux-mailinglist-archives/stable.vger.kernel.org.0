@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D18428B7FB
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:48:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F6B128B837
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:50:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731292AbgJLNsU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:48:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53860 "EHLO mail.kernel.org"
+        id S2389888AbgJLNuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:50:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731915AbgJLNsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731903AbgJLNsT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:48:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27D992227E;
-        Mon, 12 Oct 2020 13:48:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62C242227F;
+        Mon, 12 Oct 2020 13:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510484;
-        bh=ORIgENwL/u9MRnfUHrdosyH1O0UGpGutj3gMjsIHVTk=;
+        s=default; t=1602510486;
+        bh=Lz38F2htKW8lqyS4IEjzMtC5yF0YCQOCPlgyXQRaPeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xya7qNRgu7dErkk0bZSAb7foK2LI4GfvUB1bgNF9ajHvD74IeMYW7ydWPFNK8MaUN
-         nFmPuUl1LpL5wyAs2pZZEYa24w5lwakbARWltVgnJ4X5XGeW/mSSX3rNYWG5KIAw+2
-         7ZDzyypFQiaMaCHZBgRaHF6jLnRdcsrbuc3ioGO4=
+        b=qWWnrHcS65RNgJZ7eL++67wF0irDpnXIXh4O58FrCljuOE5XjBRvi4fwMvYB0/kqc
+         zjIPkeAj0lgySE9Q3NcxP3dfOjbiSGSmQDnc6KJflNMj+R+6+8EYmhHEFTIPsl4GeK
+         +QfVIE9fQyfCatPXAn+fE2MA/IbjhK4+VSILl6e8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
+        Eran Ben Elisha <eranbe@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 089/124] net/mlx5e: Add resiliency in Striding RQ mode for packets larger than MTU
-Date:   Mon, 12 Oct 2020 15:31:33 +0200
-Message-Id: <20201012133151.167866752@linuxfoundation.org>
+Subject: [PATCH 5.8 090/124] net/mlx5e: Fix return status when setting unsupported FEC mode
+Date:   Mon, 12 Oct 2020 15:31:34 +0200
+Message-Id: <20201012133151.210002525@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -46,194 +47,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Aya Levin <ayal@mellanox.com>
 
-[ Upstream commit c3c9402373fe20e2d08c04f437ce4dcd252cffb2 ]
+[ Upstream commit 2608a2f831c47dfdf18885a7289be5af97182b05 ]
 
-Prior to this fix, in Striding RQ mode the driver was vulnerable when
-receiving packets in the range (stride size - headroom, stride size].
-Where stride size is calculated by mtu+headroom+tailroom aligned to the
-closest power of 2.
-Usually, this filtering is performed by the HW, except for a few cases:
-- Between 2 VFs over the same PF with different MTUs
-- On bluefield, when the host physical function sets a larger MTU than
-  the ARM has configured on its representor and uplink representor.
+Verify the configured FEC mode is supported by at least a single link
+mode before applying the command. Otherwise fail the command and return
+"Operation not supported".
+Prior to this patch, the command was successful, yet it falsely set all
+link modes to FEC auto mode - like configuring FEC mode to auto. Auto
+mode is the default configuration if a link mode doesn't support the
+configured FEC mode.
 
-When the HW filtering is not present, packets that are larger than MTU
-might be harmful for the RQ's integrity, in the following impacts:
-1) Overflow from one WQE to the next, causing a memory corruption that
-in most cases is unharmful: as the write happens to the headroom of next
-packet, which will be overwritten by build_skb(). In very rare cases,
-high stress/load, this is harmful. When the next WQE is not yet reposted
-and points to existing SKB head.
-2) Each oversize packet overflows to the headroom of the next WQE. On
-the last WQE of the WQ, where addresses wrap-around, the address of the
-remainder headroom does not belong to the next WQE, but it is out of the
-memory region range. This results in a HW CQE error that moves the RQ
-into an error state.
-
-Solution:
-Add a page buffer at the end of each WQE to absorb the leak. Actually
-the maximal overflow size is headroom but since all memory units must be
-of the same size, we use page size to comply with UMR WQEs. The increase
-in memory consumption is of a single page per RQ. Initialize the mkey
-with all MTTs pointing to a default page. When the channels are
-activated, UMR WQEs will redirect the RX WQEs to the actual memory from
-the RQ's pool, while the overflow MTTs remain mapped to the default page.
-
-Fixes: 73281b78a37a ("net/mlx5e: Derive Striding RQ size from MTU")
+Fixes: b5ede32d3329 ("net/mlx5e: Add support for FEC modes based on 50G per lane links")
 Signed-off-by: Aya Levin <ayal@mellanox.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h  |  8 ++-
- .../net/ethernet/mellanox/mlx5/core/en_main.c | 55 +++++++++++++++++--
- 2 files changed, 58 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/port.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index 76b23ba7a4687..cb3857e136d62 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -90,7 +90,12 @@ struct page_pool;
- #define MLX5_MPWRQ_PAGES_PER_WQE		BIT(MLX5_MPWRQ_WQE_PAGE_ORDER)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/port.c b/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
+index 98e909bf3c1ec..3e32264cf6131 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port.c
+@@ -566,6 +566,9 @@ int mlx5e_set_fec_mode(struct mlx5_core_dev *dev, u16 fec_policy)
+ 	if (fec_policy >= (1 << MLX5E_FEC_LLRS_272_257_1) && !fec_50g_per_lane)
+ 		return -EOPNOTSUPP;
  
- #define MLX5_MTT_OCTW(npages) (ALIGN(npages, 8) / 2)
--#define MLX5E_REQUIRED_WQE_MTTS		(ALIGN(MLX5_MPWRQ_PAGES_PER_WQE, 8))
-+/* Add another page to MLX5E_REQUIRED_WQE_MTTS as a buffer between
-+ * WQEs, This page will absorb write overflow by the hardware, when
-+ * receiving packets larger than MTU. These oversize packets are
-+ * dropped by the driver at a later stage.
-+ */
-+#define MLX5E_REQUIRED_WQE_MTTS		(ALIGN(MLX5_MPWRQ_PAGES_PER_WQE + 1, 8))
- #define MLX5E_LOG_ALIGNED_MPWQE_PPW	(ilog2(MLX5E_REQUIRED_WQE_MTTS))
- #define MLX5E_REQUIRED_MTTS(wqes)	(wqes * MLX5E_REQUIRED_WQE_MTTS)
- #define MLX5E_MAX_RQ_NUM_MTTS	\
-@@ -621,6 +626,7 @@ struct mlx5e_rq {
- 	u32                    rqn;
- 	struct mlx5_core_dev  *mdev;
- 	struct mlx5_core_mkey  umr_mkey;
-+	struct mlx5e_dma_info  wqe_overflow;
- 
- 	/* XDP read-mostly */
- 	struct xdp_rxq_info    xdp_rxq;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index cccf65fc116ee..b23ad0b6761c4 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -258,12 +258,17 @@ static int mlx5e_rq_alloc_mpwqe_info(struct mlx5e_rq *rq,
- 
- static int mlx5e_create_umr_mkey(struct mlx5_core_dev *mdev,
- 				 u64 npages, u8 page_shift,
--				 struct mlx5_core_mkey *umr_mkey)
-+				 struct mlx5_core_mkey *umr_mkey,
-+				 dma_addr_t filler_addr)
- {
--	int inlen = MLX5_ST_SZ_BYTES(create_mkey_in);
-+	struct mlx5_mtt *mtt;
-+	int inlen;
- 	void *mkc;
- 	u32 *in;
- 	int err;
-+	int i;
++	if (fec_policy && !mlx5e_fec_in_caps(dev, fec_policy))
++		return -EOPNOTSUPP;
 +
-+	inlen = MLX5_ST_SZ_BYTES(create_mkey_in) + sizeof(*mtt) * npages;
- 
- 	in = kvzalloc(inlen, GFP_KERNEL);
- 	if (!in)
-@@ -283,6 +288,18 @@ static int mlx5e_create_umr_mkey(struct mlx5_core_dev *mdev,
- 	MLX5_SET(mkc, mkc, translations_octword_size,
- 		 MLX5_MTT_OCTW(npages));
- 	MLX5_SET(mkc, mkc, log_page_size, page_shift);
-+	MLX5_SET(create_mkey_in, in, translations_octword_actual_size,
-+		 MLX5_MTT_OCTW(npages));
-+
-+	/* Initialize the mkey with all MTTs pointing to a default
-+	 * page (filler_addr). When the channels are activated, UMR
-+	 * WQEs will redirect the RX WQEs to the actual memory from
-+	 * the RQ's pool, while the gaps (wqe_overflow) remain mapped
-+	 * to the default page.
-+	 */
-+	mtt = MLX5_ADDR_OF(create_mkey_in, in, klm_pas_mtt);
-+	for (i = 0 ; i < npages ; i++)
-+		mtt[i].ptag = cpu_to_be64(filler_addr);
- 
- 	err = mlx5_core_create_mkey(mdev, umr_mkey, in, inlen);
- 
-@@ -294,7 +311,8 @@ static int mlx5e_create_rq_umr_mkey(struct mlx5_core_dev *mdev, struct mlx5e_rq
- {
- 	u64 num_mtts = MLX5E_REQUIRED_MTTS(mlx5_wq_ll_get_size(&rq->mpwqe.wq));
- 
--	return mlx5e_create_umr_mkey(mdev, num_mtts, PAGE_SHIFT, &rq->umr_mkey);
-+	return mlx5e_create_umr_mkey(mdev, num_mtts, PAGE_SHIFT, &rq->umr_mkey,
-+				     rq->wqe_overflow.addr);
- }
- 
- static inline u64 mlx5e_get_mpwqe_offset(struct mlx5e_rq *rq, u16 wqe_ix)
-@@ -362,6 +380,28 @@ static void mlx5e_rq_err_cqe_work(struct work_struct *recover_work)
- 	mlx5e_reporter_rq_cqe_err(rq);
- }
- 
-+static int mlx5e_alloc_mpwqe_rq_drop_page(struct mlx5e_rq *rq)
-+{
-+	rq->wqe_overflow.page = alloc_page(GFP_KERNEL);
-+	if (!rq->wqe_overflow.page)
-+		return -ENOMEM;
-+
-+	rq->wqe_overflow.addr = dma_map_page(rq->pdev, rq->wqe_overflow.page, 0,
-+					     PAGE_SIZE, rq->buff.map_dir);
-+	if (dma_mapping_error(rq->pdev, rq->wqe_overflow.addr)) {
-+		__free_page(rq->wqe_overflow.page);
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
-+
-+static void mlx5e_free_mpwqe_rq_drop_page(struct mlx5e_rq *rq)
-+{
-+	 dma_unmap_page(rq->pdev, rq->wqe_overflow.addr, PAGE_SIZE,
-+			rq->buff.map_dir);
-+	 __free_page(rq->wqe_overflow.page);
-+}
-+
- static int mlx5e_alloc_rq(struct mlx5e_channel *c,
- 			  struct mlx5e_params *params,
- 			  struct mlx5e_xsk_param *xsk,
-@@ -421,6 +461,10 @@ static int mlx5e_alloc_rq(struct mlx5e_channel *c,
- 		if (err)
- 			goto err_rq_wq_destroy;
- 
-+		err = mlx5e_alloc_mpwqe_rq_drop_page(rq);
-+		if (err)
-+			goto err_rq_wq_destroy;
-+
- 		rq->mpwqe.wq.db = &rq->mpwqe.wq.db[MLX5_RCV_DBR];
- 
- 		wq_sz = mlx5_wq_ll_get_size(&rq->mpwqe.wq);
-@@ -459,7 +503,7 @@ static int mlx5e_alloc_rq(struct mlx5e_channel *c,
- 
- 		err = mlx5e_create_rq_umr_mkey(mdev, rq);
- 		if (err)
--			goto err_rq_wq_destroy;
-+			goto err_rq_drop_page;
- 		rq->mkey_be = cpu_to_be32(rq->umr_mkey.key);
- 
- 		err = mlx5e_rq_alloc_mpwqe_info(rq, c);
-@@ -598,6 +642,8 @@ err_free:
- 	case MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ:
- 		kvfree(rq->mpwqe.info);
- 		mlx5_core_destroy_mkey(mdev, &rq->umr_mkey);
-+err_rq_drop_page:
-+		mlx5e_free_mpwqe_rq_drop_page(rq);
- 		break;
- 	default: /* MLX5_WQ_TYPE_CYCLIC */
- 		kvfree(rq->wqe.frags);
-@@ -631,6 +677,7 @@ static void mlx5e_free_rq(struct mlx5e_rq *rq)
- 	case MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ:
- 		kvfree(rq->mpwqe.info);
- 		mlx5_core_destroy_mkey(rq->mdev, &rq->umr_mkey);
-+		mlx5e_free_mpwqe_rq_drop_page(rq);
- 		break;
- 	default: /* MLX5_WQ_TYPE_CYCLIC */
- 		kvfree(rq->wqe.frags);
+ 	MLX5_SET(pplm_reg, in, local_port, 1);
+ 	err = mlx5_core_access_reg(dev, in, sz, out, sz, MLX5_REG_PPLM, 0, 0);
+ 	if (err)
 -- 
 2.25.1
 
