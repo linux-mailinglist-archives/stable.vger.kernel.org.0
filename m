@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A570228B679
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E443628B6FD
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730289AbgJLNeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:34:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34852 "EHLO mail.kernel.org"
+        id S1731244AbgJLNj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:39:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389053AbgJLNcv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:32:51 -0400
+        id S1731245AbgJLNio (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:38:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99B092076E;
-        Mon, 12 Oct 2020 13:32:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3ECD522260;
+        Mon, 12 Oct 2020 13:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509570;
-        bh=+OE2575atGNjV7HZCpDK/x5iQ+0tazzU5+lVj2Tz96w=;
+        s=default; t=1602509921;
+        bh=/g3W7hr7KvAF0cdnjpNiuXY73YrP3finCRJsnw/Dmv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJxx2jnmZhUUSo48wrxBImWLIXP+ShWbWnAlZoogNX5PhrqPi51COos64MK97tpX7
-         WxjG8fgrE9OB1F0gh8Eq/7Bwoqowx9dNqwrvam0oHCyYkvZqO1oGySwSrjr+FIaHwB
-         eAdwZuuDZelAdKh89qZW5M1UimQlIlR5ZzYIyKeQ=
+        b=kXWUR3uxXTyWrKLUEctewQh+sUyFO2l2xKxGuYuYCmIhnJUemjTBC12Vo+0AoTrtE
+         +qzL3ORTbLCg14ON97nuJJFSuovYoxYmdSRV7EPZBGkSR6nyl0BT+7Ls4ZbxESuV7T
+         6j0a2yEeRnC5HlH63alljdRHDhO3C5nT2VC47Vdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 32/39] xfrm: clone whole liftime_cur structure in xfrm_do_migrate
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.19 16/49] arm64: dts: stratix10: add status to qspi dts node
 Date:   Mon, 12 Oct 2020 15:27:02 +0200
-Message-Id: <20201012132629.653957048@linuxfoundation.org>
+Message-Id: <20201012132630.188337926@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +42,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antony Antony <antony.antony@secunet.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-[ Upstream commit 8366685b2883e523f91e9816d7be371eb1144749 ]
+commit 263a0269a59c0b4145829462a107fe7f7327105f upstream.
 
-When we clone state only add_time was cloned. It missed values like
-bytes, packets.  Now clone the all members of the structure.
+Add status = "okay" to QSPI node.
 
-v1->v3:
- - use memcpy to copy the entire structure
-
-Fixes: 80c9abaabf42 ("[XFRM]: Extension for dynamic update of endpoint address(es)")
-Signed-off-by: Antony Antony <antony.antony@secunet.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0cb140d07fc75 ("arm64: dts: stratix10: Add QSPI support for Stratix10")
+Cc: linux-stable <stable@vger.kernel.org> # >= v5.6
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+[iwamatsu: Drop arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts]
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/xfrm/xfrm_state.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index d3595f1d00f25..a3114abe74f20 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -1207,7 +1207,7 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig)
- 	x->tfcpad = orig->tfcpad;
- 	x->replay_maxdiff = orig->replay_maxdiff;
- 	x->replay_maxage = orig->replay_maxage;
--	x->curlft.add_time = orig->curlft.add_time;
-+	memcpy(&x->curlft, &orig->curlft, sizeof(x->curlft));
- 	x->km.state = orig->km.state;
- 	x->km.seq = orig->km.seq;
- 	x->replay = orig->replay;
--- 
-2.25.1
-
+--- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
++++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
+@@ -151,6 +151,7 @@
+ };
+ 
+ &qspi {
++	status = "okay";
+ 	flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
 
 
