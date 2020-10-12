@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E008F28B993
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78DBD28B76E
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731400AbgJLOBn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:01:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41404 "EHLO mail.kernel.org"
+        id S2389367AbgJLNnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:43:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731061AbgJLNiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:05 -0400
+        id S1731546AbgJLNms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:42:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D69F9206D9;
-        Mon, 12 Oct 2020 13:38:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D69B22202;
+        Mon, 12 Oct 2020 13:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509884;
-        bh=DPJ7hSF8Bve5Cv5O4DeRfsryLXidSFc+kkrXAutzhMA=;
+        s=default; t=1602510154;
+        bh=k78XAI5isEK/D5oZDtstYulxItLHO5vvYCvSyiP5twM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wmf9JptQr5XeSN9Jb/T5HsjjHA/zDhT68NTOrZuh0Xsfk3kqMs/QHw07IEmTmplg
-         BQarp77Cj/o1faiRfngxzhgTHJQROfj8iogQprcn24QqFKKDM1YctAz8LNCM8DUDnG
-         Diw2LD03CxXP4YPp3t131gNbLGH8E2gAGLUBuMOY=
+        b=qh6e9icFiDcrNm4Z3mUqjeXp5TpLavbLjLB+5jsSFdF3KoFO7dIGGCgOQp/5Hs8OH
+         gc9AVzNOeAOW//Ap8h3UeMve4UFhwDyMmiIu54Dy6l1713RjcEhIF3E/Izwtzvnvzn
+         IqX2MEPyHR/2aFKibdaOBdbelZCJf5jgApkHl8z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com,
-        Petko Manolov <petkan@nucleusys.com>,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 70/70] net: usb: rtl8150: set random MAC address when set_ethernet_addr() fails
+        Wilken Gottwalt <wilken.gottwalt@mailbox.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 63/85] net: usb: ax88179_178a: fix missing stop entry in driver_info
 Date:   Mon, 12 Oct 2020 15:27:26 +0200
-Message-Id: <20201012132633.582211822@linuxfoundation.org>
+Message-Id: <20201012132635.874229686@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
 
-commit f45a4248ea4cc13ed50618ff066849f9587226b2 upstream.
+[ Upstream commit 9666ea66a74adfe295cb3a8760c76e1ef70f9caf ]
 
-When get_registers() fails in set_ethernet_addr(),the uninitialized
-value of node_id gets copied over as the address.
-So, check the return value of get_registers().
+Adds the missing .stop entry in the Belkin driver_info structure.
 
-If get_registers() executed successfully (i.e., it returns
-sizeof(node_id)), copy over the MAC address using ether_addr_copy()
-(instead of using memcpy()).
-
-Else, if get_registers() failed instead, a randomly generated MAC
-address is set as the MAC address instead.
-
-Reported-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
-Tested-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
-Acked-by: Petko Manolov <petkan@nucleusys.com>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Fixes: e20bd60bf62a ("net: usb: asix88179_178a: Add support for the Belkin B2B128")
+Signed-off-by: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/rtl8150.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/net/usb/ax88179_178a.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/usb/rtl8150.c
-+++ b/drivers/net/usb/rtl8150.c
-@@ -277,12 +277,20 @@ static int write_mii_word(rtl8150_t * de
- 		return 1;
- }
- 
--static inline void set_ethernet_addr(rtl8150_t * dev)
-+static void set_ethernet_addr(rtl8150_t *dev)
- {
--	u8 node_id[6];
-+	u8 node_id[ETH_ALEN];
-+	int ret;
- 
--	get_registers(dev, IDR, sizeof(node_id), node_id);
--	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
-+	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
-+
-+	if (ret == sizeof(node_id)) {
-+		ether_addr_copy(dev->netdev->dev_addr, node_id);
-+	} else {
-+		eth_hw_addr_random(dev->netdev);
-+		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
-+			      dev->netdev->dev_addr);
-+	}
- }
- 
- static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
+diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
+index df2f7cc6dc03a..8e37e1f58c4b9 100644
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -1719,6 +1719,7 @@ static const struct driver_info belkin_info = {
+ 	.status = ax88179_status,
+ 	.link_reset = ax88179_link_reset,
+ 	.reset	= ax88179_reset,
++	.stop	= ax88179_stop,
+ 	.flags	= FLAG_ETHER | FLAG_FRAMING_AX,
+ 	.rx_fixup = ax88179_rx_fixup,
+ 	.tx_fixup = ax88179_tx_fixup,
+-- 
+2.25.1
+
 
 
