@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64CC628B672
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F35FD28BA14
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729521AbgJLNdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:33:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
+        id S2390536AbgJLOFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:05:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389087AbgJLNdH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:33:07 -0400
+        id S1730198AbgJLNe7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:34:59 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67893221FE;
-        Mon, 12 Oct 2020 13:33:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 098822074F;
+        Mon, 12 Oct 2020 13:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509581;
-        bh=JbvYROR+bboXCz+9/plE70jg83xF3Ig95ip6ss1LtH8=;
+        s=default; t=1602509698;
+        bh=UGayOPVXU2WO+bnlcd+OVub1MOJYYtQTVKEkBtaRuHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VuWw6Vh+KaEtfCO9KSf9kp0yRbMjrADambFc16fF2vhx7LdBXv4gWr+PlLJ0q3dRr
-         XBa55xIFACCXR8NDwMUzs5jrQCegDq76bZ4GnlRncBK5KrLCMo3+xnQFIuj/uo+I9K
-         BZaRYsThYlGSKXtAsU8dXTfnS2WvzVuyVyPAus3o=
+        b=BUlKeSa2NRrfH6ya9fs/Ec604V2ub/d34BN9GhYBopltpzOIeRQVI8uhxiz651WU2
+         H2vWlEQiwb4gQQaQDUQ+3q5SrJxAtGy4teQ2bz9D2LtvTSujD+ulufgRR+2QKNqLvY
+         QjBGbcNQ3IcI4Zeuxb/3k2/IKEMXWWM8suFPeDxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+577fbac3145a6eb2e7a5@syzkaller.appspotmail.com,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 36/39] rxrpc: Fix rxkad token xdr encoding
-Date:   Mon, 12 Oct 2020 15:27:06 +0200
-Message-Id: <20201012132629.819174766@linuxfoundation.org>
+Subject: [PATCH 4.9 45/54] xfrm: Use correct address family in xfrm_state_find
+Date:   Mon, 12 Oct 2020 15:27:07 +0200
+Message-Id: <20201012132631.653483848@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Dionne <marc.dionne@auristor.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 56305118e05b2db8d0395bba640ac9a3aee92624 ]
+[ Upstream commit e94ee171349db84c7cfdc5fefbebe414054d0924 ]
 
-The session key should be encoded with just the 8 data bytes and
-no length; ENCODE_DATA precedes it with a 4 byte length, which
-confuses some existing tools that try to parse this format.
+The struct flowi must never be interpreted by itself as its size
+depends on the address family.  Therefore it must always be grouped
+with its original family value.
 
-Add an ENCODE_BYTES macro that does not include a length, and use
-it for the key.  Also adjust the expected length.
+In this particular instance, the original family value is lost in
+the function xfrm_state_find.  Therefore we get a bogus read when
+it's coupled with the wrong family which would occur with inter-
+family xfrm states.
 
-Note that commit 774521f353e1d ("rxrpc: Fix an assertion in
-rxrpc_read()") had fixed a BUG by changing the length rather than
-fixing the encoding.  The original length was correct.
+This patch fixes it by keeping the original family value.
 
-Fixes: 99455153d067 ("RxRPC: Parse security index 5 keys (Kerberos 5)")
-Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
+Note that the same bug could potentially occur in LSM through
+the xfrm_state_pol_flow_match hook.  I checked the current code
+there and it seems to be safe for now as only secid is used which
+is part of struct flowi_common.  But that API should be changed
+so that so that we don't get new bugs in the future.  We could
+do that by replacing fl with just secid or adding a family field.
+
+Reported-by: syzbot+577fbac3145a6eb2e7a5@syzkaller.appspotmail.com
+Fixes: 48b8d78315bf ("[XFRM]: State selection update to use inner...")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/ar-key.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ net/xfrm/xfrm_state.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/net/rxrpc/ar-key.c b/net/rxrpc/ar-key.c
-index 91d43ab3a9610..543d200f4fa14 100644
---- a/net/rxrpc/ar-key.c
-+++ b/net/rxrpc/ar-key.c
-@@ -1149,6 +1149,14 @@ static long rxrpc_read(const struct key *key,
- 			goto fault;					\
- 		xdr += (_l + 3) >> 2;					\
- 	} while(0)
-+#define ENCODE_BYTES(l, s)						\
-+	do {								\
-+		u32 _l = (l);						\
-+		memcpy(xdr, (s), _l);					\
-+		if (_l & 3)						\
-+			memcpy((u8 *)xdr + _l, &zero, 4 - (_l & 3));	\
-+		xdr += (_l + 3) >> 2;					\
-+	} while(0)
- #define ENCODE64(x)					\
- 	do {						\
- 		__be64 y = cpu_to_be64(x);		\
-@@ -1177,7 +1185,7 @@ static long rxrpc_read(const struct key *key,
- 		case RXRPC_SECURITY_RXKAD:
- 			ENCODE(token->kad->vice_id);
- 			ENCODE(token->kad->kvno);
--			ENCODE_DATA(8, token->kad->session_key);
-+			ENCODE_BYTES(8, token->kad->session_key);
- 			ENCODE(token->kad->start);
- 			ENCODE(token->kad->expiry);
- 			ENCODE(token->kad->primary_flag);
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index e210d9b77de18..0eb85765d35a1 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -761,7 +761,8 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
+ 	 */
+ 	if (x->km.state == XFRM_STATE_VALID) {
+ 		if ((x->sel.family &&
+-		     !xfrm_selector_match(&x->sel, fl, x->sel.family)) ||
++		     (x->sel.family != family ||
++		      !xfrm_selector_match(&x->sel, fl, family))) ||
+ 		    !security_xfrm_state_pol_flow_match(x, pol, fl))
+ 			return;
+ 
+@@ -774,7 +775,9 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
+ 		*acq_in_progress = 1;
+ 	} else if (x->km.state == XFRM_STATE_ERROR ||
+ 		   x->km.state == XFRM_STATE_EXPIRED) {
+-		if (xfrm_selector_match(&x->sel, fl, x->sel.family) &&
++		if ((!x->sel.family ||
++		     (x->sel.family == family &&
++		      xfrm_selector_match(&x->sel, fl, family))) &&
+ 		    security_xfrm_state_pol_flow_match(x, pol, fl))
+ 			*error = -ESRCH;
+ 	}
+@@ -813,7 +816,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
+ 		    tmpl->mode == x->props.mode &&
+ 		    tmpl->id.proto == x->id.proto &&
+ 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
+-			xfrm_state_look_at(pol, x, fl, encap_family,
++			xfrm_state_look_at(pol, x, fl, family,
+ 					   &best, &acquire_in_progress, &error);
+ 	}
+ 	if (best || acquire_in_progress)
+@@ -829,7 +832,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
+ 		    tmpl->mode == x->props.mode &&
+ 		    tmpl->id.proto == x->id.proto &&
+ 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
+-			xfrm_state_look_at(pol, x, fl, encap_family,
++			xfrm_state_look_at(pol, x, fl, family,
+ 					   &best, &acquire_in_progress, &error);
+ 	}
+ 
 -- 
 2.25.1
 
