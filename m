@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FB9828B718
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:41:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53F3328BA03
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388855AbgJLNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:40:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42852 "EHLO mail.kernel.org"
+        id S1731843AbgJLOFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731331AbgJLNjI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:39:08 -0400
+        id S1730810AbgJLNfZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:35:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 908992076E;
-        Mon, 12 Oct 2020 13:39:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6960722227;
+        Mon, 12 Oct 2020 13:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509948;
-        bh=rS/DKVSXYHaqG/sx+63VH2DsCVYVXiUBflgXOxQzpvQ=;
+        s=default; t=1602509723;
+        bh=xNQeYc8vbiD1ts3rSFDYRnaEEWjjM7CPcujzTGXaWD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/e9+24fHkT7VIZgDrhRVilohcFWN4jgsWriGu+qtp/ixx12LZAbBxSKxUR2JMcOO
-         +8cD1PCDCMnbFXlc2z+fe/tKv8K8hmntjvA6Aw7hiqn6Ae4LT6zh+X+TA1s1+0kzNc
-         AUXTriGvrBOfGwYL18Z+yjVJXVlKnk5tdOhJPe/0=
+        b=pLJQisWGeETkqHpef1KYUxTZrVapTDvhyxTh6Ge4/MZ1hM7owFLRq+A9gCzMGnBY/
+         EZZhqyindvIVKJTgA5qYdWNFxxtjn/O+/tXB2/6OdpHNylXbJRl1ouUOLqyyRNLbVp
+         4QBSKowIrRgvKlU8I5DCuxuCYFpXr+2zkkIT7eO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 26/49] team: set dev->needed_headroom in team_setup_by_port()
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 50/54] rxrpc: Fix some missing _bh annotations on locking conn->state_lock
 Date:   Mon, 12 Oct 2020 15:27:12 +0200
-Message-Id: <20201012132630.666443258@linuxfoundation.org>
+Message-Id: <20201012132631.889260681@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 89d01748b2354e210b5d4ea47bc25a42a1b42c82 upstream.
+[ Upstream commit fa1d113a0f96f9ab7e4fe4f8825753ba1e34a9d3 ]
 
-Some devices set needed_headroom. If we ignore it, we might
-end up crashing in various skb_push() for example in ipgre_header()
-since some layers assume enough headroom has been reserved.
+conn->state_lock may be taken in softirq mode, but a previous patch
+replaced an outer lock in the response-packet event handling code, and lost
+the _bh from that when doing so.
 
-Fixes: 1d76efe1577b ("team: add support for non-ethernet devices")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by applying the _bh annotation to the state_lock locking.
 
+Fixes: a1399f8bb033 ("rxrpc: Call channels should have separate call number spaces")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/team/team.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/rxrpc/conn_event.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -2086,6 +2086,7 @@ static void team_setup_by_port(struct ne
- 	dev->header_ops	= port_dev->header_ops;
- 	dev->type = port_dev->type;
- 	dev->hard_header_len = port_dev->hard_header_len;
-+	dev->needed_headroom = port_dev->needed_headroom;
- 	dev->addr_len = port_dev->addr_len;
- 	dev->mtu = port_dev->mtu;
- 	memcpy(dev->broadcast, port_dev->broadcast, port_dev->addr_len);
+diff --git a/net/rxrpc/conn_event.c b/net/rxrpc/conn_event.c
+index b099b64366f35..ec02dd7c12ef4 100644
+--- a/net/rxrpc/conn_event.c
++++ b/net/rxrpc/conn_event.c
+@@ -309,18 +309,18 @@ static int rxrpc_process_event(struct rxrpc_connection *conn,
+ 			return ret;
+ 
+ 		spin_lock(&conn->channel_lock);
+-		spin_lock(&conn->state_lock);
++		spin_lock_bh(&conn->state_lock);
+ 
+ 		if (conn->state == RXRPC_CONN_SERVICE_CHALLENGING) {
+ 			conn->state = RXRPC_CONN_SERVICE;
+-			spin_unlock(&conn->state_lock);
++			spin_unlock_bh(&conn->state_lock);
+ 			for (loop = 0; loop < RXRPC_MAXCALLS; loop++)
+ 				rxrpc_call_is_secure(
+ 					rcu_dereference_protected(
+ 						conn->channels[loop].call,
+ 						lockdep_is_held(&conn->channel_lock)));
+ 		} else {
+-			spin_unlock(&conn->state_lock);
++			spin_unlock_bh(&conn->state_lock);
+ 		}
+ 
+ 		spin_unlock(&conn->channel_lock);
+-- 
+2.25.1
+
 
 
