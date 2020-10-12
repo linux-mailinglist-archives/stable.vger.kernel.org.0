@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52AAA28B9C9
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA14728B659
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390436AbgJLODr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:03:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39186 "EHLO mail.kernel.org"
+        id S2388614AbgJLNdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:33:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730424AbgJLNgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:36:32 -0400
+        id S2388663AbgJLNce (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:32:34 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B46452076E;
-        Mon, 12 Oct 2020 13:36:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 674502078E;
+        Mon, 12 Oct 2020 13:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509790;
-        bh=Uqcssya3qJQURCLZ5TZcMKCc+eeib0YtWVFfrFHR1vk=;
+        s=default; t=1602509553;
+        bh=OzOTN8jKo7kNhY9MZajRoUo7sdMGGo9dIRe98N8tscs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbjWU33o/WbW+8zviYWmpZjCXLeO+fOQWwOp69Jrs5I7TcLqoaaTI+F8tH2HnmJCq
-         a7BuKqAPPGUK4h35sjPs6ImDT5h5m/poCYK+VIoLrNOA52pIMVn71Bok6/SEo6xfYJ
-         by8Wcd36UDjUPP0kTJyCvMEjWcC7AyqdBNE8FCWs=
+        b=X0mof9CgiClCvUhHVIuAXDHNUU3oOn1FbB1GBknNwhMFcXXFtvaQzw7M7i90CoEwT
+         huGVzEjIB+oi9d005Z151rEuSaH97iTdNJWfvjs8nmz8aP4EP9rzICm89LywDVYNIB
+         MHRZzb/T3rWcxIu3GT1P4HLl4q2g2Cgh45tcuwyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Giuliano Procida <gprocida@google.com>
-Subject: [PATCH 4.14 31/70] drm/syncobj: Fix drm_syncobj_handle_to_fd refcount leak
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.4 17/39] fbdev, newport_con: Move FONT_EXTRA_WORDS macros into linux/font.h
 Date:   Mon, 12 Oct 2020 15:26:47 +0200
-Message-Id: <20201012132631.677832766@linuxfoundation.org>
+Message-Id: <20201012132628.945606515@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
+References: <20201012132628.130632267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giuliano Procida <gprocida@google.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-Commit 5fb252cad61f20ae5d5a8b199f6cc4faf6f418e1, a cherry-pick of
-upstream commit e7cdf5c82f1773c3386b93bbcf13b9bfff29fa31, introduced a
-refcount imbalance and thus a struct drm_syncobj object leak which can
-be triggered with DRM_IOCTL_SYNCOBJ_HANDLE_TO_FD.
+commit bb0890b4cd7f8203e3aa99c6d0f062d6acdaad27 upstream.
 
-The function drm_syncobj_handle_to_fd first calls drm_syncobj_find
-which increments the refcount of the object on success. In all of the
-drm_syncobj_handle_to_fd error paths, the refcount is decremented, but
-in the success path the refcount should remain at +1 as the struct
-drm_syncobj now belongs to the newly opened file. Instead, the
-refcount was incremented again to +2.
+drivers/video/console/newport_con.c is borrowing FONT_EXTRA_WORDS macros
+from drivers/video/fbdev/core/fbcon.h. To keep things simple, move all
+definitions into <linux/font.h>.
 
-Fixes: 5fb252cad61f ("drm/syncobj: Stop reusing the same struct file for all syncobj -> fd")
-Signed-off-by: Giuliano Procida <gprocida@google.com>
+Since newport_con now uses four extra words, initialize the fourth word in
+newport_set_font() properly.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/7fb8bc9b0abc676ada6b7ac0e0bd443499357267.1600953813.git.yepeilin.cs@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_syncobj.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/video/console/fbcon.h        |    7 -------
+ drivers/video/console/fbcon_rotate.c |    1 +
+ drivers/video/console/newport_con.c  |    7 +------
+ drivers/video/console/tileblit.c     |    1 +
+ include/linux/font.h                 |    8 ++++++++
+ 5 files changed, 11 insertions(+), 13 deletions(-)
 
---- a/drivers/gpu/drm/drm_syncobj.c
-+++ b/drivers/gpu/drm/drm_syncobj.c
-@@ -355,7 +355,6 @@ static int drm_syncobj_handle_to_fd(stru
- 		return PTR_ERR(file);
- 	}
+--- a/drivers/video/console/fbcon.h
++++ b/drivers/video/console/fbcon.h
+@@ -151,13 +151,6 @@ static inline int attr_col_ec(int shift,
+ #define attr_bgcol_ec(bgshift, vc, info) attr_col_ec(bgshift, vc, info, 0)
+ #define attr_fgcol_ec(fgshift, vc, info) attr_col_ec(fgshift, vc, info, 1)
  
--	drm_syncobj_get(syncobj);
- 	fd_install(fd, file);
+-/* Font */
+-#define REFCOUNT(fd)	(((int *)(fd))[-1])
+-#define FNTSIZE(fd)	(((int *)(fd))[-2])
+-#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
+-#define FNTSUM(fd)	(((int *)(fd))[-4])
+-#define FONT_EXTRA_WORDS 4
+-
+     /*
+      *  Scroll Method
+      */
+--- a/drivers/video/console/fbcon_rotate.c
++++ b/drivers/video/console/fbcon_rotate.c
+@@ -14,6 +14,7 @@
+ #include <linux/fb.h>
+ #include <linux/vt_kern.h>
+ #include <linux/console.h>
++#include <linux/font.h>
+ #include <asm/types.h>
+ #include "fbcon.h"
+ #include "fbcon_rotate.h"
+--- a/drivers/video/console/newport_con.c
++++ b/drivers/video/console/newport_con.c
+@@ -35,12 +35,6 @@
  
- 	*p_fd = fd;
+ #define FONT_DATA ((unsigned char *)font_vga_8x16.data)
+ 
+-/* borrowed from fbcon.c */
+-#define REFCOUNT(fd)	(((int *)(fd))[-1])
+-#define FNTSIZE(fd)	(((int *)(fd))[-2])
+-#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
+-#define FONT_EXTRA_WORDS 3
+-
+ static unsigned char *font_data[MAX_NR_CONSOLES];
+ 
+ static struct newport_regs *npregs;
+@@ -522,6 +516,7 @@ static int newport_set_font(int unit, st
+ 	FNTSIZE(new_data) = size;
+ 	FNTCHARCNT(new_data) = op->charcount;
+ 	REFCOUNT(new_data) = 0;	/* usage counter */
++	FNTSUM(new_data) = 0;
+ 
+ 	p = new_data;
+ 	for (i = 0; i < op->charcount; i++) {
+--- a/drivers/video/console/tileblit.c
++++ b/drivers/video/console/tileblit.c
+@@ -13,6 +13,7 @@
+ #include <linux/fb.h>
+ #include <linux/vt_kern.h>
+ #include <linux/console.h>
++#include <linux/font.h>
+ #include <asm/types.h>
+ #include "fbcon.h"
+ 
+--- a/include/linux/font.h
++++ b/include/linux/font.h
+@@ -57,4 +57,12 @@ extern const struct font_desc *get_defau
+ /* Max. length for the name of a predefined font */
+ #define MAX_FONT_NAME	32
+ 
++/* Extra word getters */
++#define REFCOUNT(fd)	(((int *)(fd))[-1])
++#define FNTSIZE(fd)	(((int *)(fd))[-2])
++#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
++#define FNTSUM(fd)	(((int *)(fd))[-4])
++
++#define FONT_EXTRA_WORDS 4
++
+ #endif /* _VIDEO_FONT_H */
 
 
