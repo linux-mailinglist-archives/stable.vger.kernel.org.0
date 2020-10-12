@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BADF28B8AA
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:55:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54ED328B896
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390357AbgJLNyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:54:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46220 "EHLO mail.kernel.org"
+        id S1729033AbgJLNyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:54:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388566AbgJLNpy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389751AbgJLNpy (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:45:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7E94222B8;
-        Mon, 12 Oct 2020 13:44:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE8E7222E7;
+        Mon, 12 Oct 2020 13:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510294;
-        bh=cZI/MYrr5Rfr3RLWsFgi34WIikBwuGavccw39t8j4F8=;
+        s=default; t=1602510296;
+        bh=Fucqm5kCTOJqF97SiN85RcuXiui8/JSqJeatcBtmsxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lo54mKeXm5A5p86WcLjC7K2RryRWVij9D+sdXOqMgiQYxxHdSjZyO5UBLGTzfgZ2o
-         FbvB+JCfhPvQzzbjDk3B0JNvIVEXbl/emmJHlzXR5qQ++kM+PzggcT11OZSPy1dVsO
-         jLm/aUFeYkKqcocWjilh+/8khaHO2AiWZsCkOEz0=
+        b=JTANp1IvH4UF9E9gc24uGlFk5TQToVy6OHujoehyW6XV9huBWBlfxeF3WRlqfliJ3
+         RGqsuGvMQmFb9knCQLiK836ug5WcX+VYyZ/NV9N/AuPGeFTKolUZnSOS3qC8COR6wd
+         WufdxUaGh7d+cFKm7LX4dbxlfmzyNwHitxLuKokw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
         Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.8 037/124] i2c: meson: fix clock setting overwrite
-Date:   Mon, 12 Oct 2020 15:30:41 +0200
-Message-Id: <20201012133148.643410655@linuxfoundation.org>
+Subject: [PATCH 5.8 038/124] i2c: meson: keep peripheral clock enabled
+Date:   Mon, 12 Oct 2020 15:30:42 +0200
+Message-Id: <20201012133148.691247743@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -44,80 +44,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jerome Brunet <jbrunet@baylibre.com>
 
-commit 28683e847e2f20eed22cdd24f185d7783db396d3 upstream.
+commit 79e137b1540165f788394658442284d55a858984 upstream.
 
-When the slave address is written in do_start(), SLAVE_ADDR is written
-completely. This may overwrite some setting related to the clock rate
-or signal filtering.
+SCL rate appears to be different than what is expected. For example,
+We get 164kHz on i2c3 of the vim3 when 400kHz is expected. This is
+partially due to the peripheral clock being disabled when the clock is
+set.
 
-Fix this by writing only the bits related to slave address. To avoid
-causing unexpected changed, explicitly disable filtering or high/low
-clock mode which may have been left over by the bootloader.
+Let's keep the peripheral clock on after probe to fix the problem. This
+does not affect the SCL output which is still gated when i2c is idle.
 
-Fixes: 30021e3707a7 ("i2c: add support for Amlogic Meson I2C controller")
+Fixes: 09af1c2fa490 ("i2c: meson: set clock divider in probe instead of setting it for each transfer")
 Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-meson.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-meson.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
 --- a/drivers/i2c/busses/i2c-meson.c
 +++ b/drivers/i2c/busses/i2c-meson.c
-@@ -5,6 +5,7 @@
-  * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
-  */
+@@ -370,16 +370,12 @@ static int meson_i2c_xfer_messages(struc
+ 	struct meson_i2c *i2c = adap->algo_data;
+ 	int i, ret = 0;
  
-+#include <linux/bitfield.h>
- #include <linux/clk.h>
- #include <linux/completion.h>
- #include <linux/i2c.h>
-@@ -38,6 +39,12 @@
- #define REG_CTRL_CLKDIVEXT_SHIFT 28
- #define REG_CTRL_CLKDIVEXT_MASK	GENMASK(29, 28)
+-	clk_enable(i2c->clk);
+-
+ 	for (i = 0; i < num; i++) {
+ 		ret = meson_i2c_xfer_msg(i2c, msgs + i, i == num - 1, atomic);
+ 		if (ret)
+ 			break;
+ 	}
  
-+#define REG_SLV_ADDR		GENMASK(7, 0)
-+#define REG_SLV_SDA_FILTER	GENMASK(10, 8)
-+#define REG_SLV_SCL_FILTER	GENMASK(13, 11)
-+#define REG_SLV_SCL_LOW		GENMASK(27, 16)
-+#define REG_SLV_SCL_LOW_EN	BIT(28)
-+
- #define I2C_TIMEOUT_MS		500
- 
- enum {
-@@ -147,6 +154,9 @@ static void meson_i2c_set_clk_div(struct
- 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT_MASK,
- 			   (div >> 10) << REG_CTRL_CLKDIVEXT_SHIFT);
- 
-+	/* Disable HIGH/LOW mode */
-+	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_SCL_LOW_EN, 0);
-+
- 	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
- 		clk_rate, freq, div);
+-	clk_disable(i2c->clk);
+-
+ 	return ret ?: i;
  }
-@@ -280,7 +290,10 @@ static void meson_i2c_do_start(struct me
- 	token = (msg->flags & I2C_M_RD) ? TOKEN_SLAVE_ADDR_READ :
- 		TOKEN_SLAVE_ADDR_WRITE;
  
--	writel(msg->addr << 1, i2c->regs + REG_SLAVE_ADDR);
-+
-+	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_ADDR,
-+			   FIELD_PREP(REG_SLV_ADDR, msg->addr << 1));
-+
- 	meson_i2c_add_token(i2c, TOKEN_START);
- 	meson_i2c_add_token(i2c, token);
- }
-@@ -461,6 +474,10 @@ static int meson_i2c_probe(struct platfo
+@@ -448,7 +444,7 @@ static int meson_i2c_probe(struct platfo
  		return ret;
  	}
  
-+	/* Disable filtering */
-+	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR,
-+			   REG_SLV_SDA_FILTER | REG_SLV_SCL_FILTER, 0);
-+
- 	meson_i2c_set_clk_div(i2c, timings.bus_freq_hz);
+-	ret = clk_prepare(i2c->clk);
++	ret = clk_prepare_enable(i2c->clk);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "can't prepare clock\n");
+ 		return ret;
+@@ -470,7 +466,7 @@ static int meson_i2c_probe(struct platfo
+ 
+ 	ret = i2c_add_adapter(&i2c->adap);
+ 	if (ret < 0) {
+-		clk_unprepare(i2c->clk);
++		clk_disable_unprepare(i2c->clk);
+ 		return ret;
+ 	}
+ 
+@@ -488,7 +484,7 @@ static int meson_i2c_remove(struct platf
+ 	struct meson_i2c *i2c = platform_get_drvdata(pdev);
+ 
+ 	i2c_del_adapter(&i2c->adap);
+-	clk_unprepare(i2c->clk);
++	clk_disable_unprepare(i2c->clk);
  
  	return 0;
+ }
 
 
