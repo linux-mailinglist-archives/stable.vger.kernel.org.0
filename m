@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AB9C28B9E6
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D33228B936
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388576AbgJLNgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:36:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38816 "EHLO mail.kernel.org"
+        id S2390394AbgJLN6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388126AbgJLNgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:36:09 -0400
+        id S1731464AbgJLNk4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:40:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF5112076E;
-        Mon, 12 Oct 2020 13:36:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4980C22247;
+        Mon, 12 Oct 2020 13:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509769;
-        bh=x9rJTn/ZOTLcmzUHgBJnyjHCPBI8NwOuBd7Gjgf5FHM=;
+        s=default; t=1602510029;
+        bh=wocJRq6DpbhI1Rx1kC1XD3zfBIuT/XQUgzDfHPElZvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w9ZyXRHl/518dvA3ciT4Q6bINmaAIBK9KvrNA1NiVRTSGfEJVhxHG2sLVgzUQ6Elt
-         fQ162Iiy8iXagMCM4A4aP3tQFb/g1fj0+vmj7uQn9RV17KRprdOHF4JVWiN6Ka2iJ4
-         CZligFvXzSn5SE/+WBa7gt2lIPdmsKVfZn4DUBGk=
+        b=1irbWeGtLWz7Wr1TDpjHro/Sp4Z2GxX+eAZCziaOisTzBZLTm9QSnD4ahLoATUDqc
+         DVZ1uMkdpL17++AnQON1tA+ktxr/fFpckKCQ9AB4AutfWHVpElXlan+ALVdr+bhdSS
+         Lp3fayMoxeJtIACg/Zj1b0plueLI5a5QkiQhNQ/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
-        Martin Schiller <ms@dev.tdt.de>,
-        Xie He <xie.he.0141@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/70] drivers/net/wan/hdlc_fr: Add needed_headroom for PVC devices
-Date:   Mon, 12 Oct 2020 15:26:25 +0200
-Message-Id: <20201012132630.674204830@linuxfoundation.org>
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        syzbot+29d4ed7f3bdedf2aa2fd@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 03/85] fbcon: Fix global-out-of-bounds read in fbcon_get_font()
+Date:   Mon, 12 Oct 2020 15:26:26 +0200
+Message-Id: <20201012132633.024150331@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit 44a049c42681de71c783d75cd6e56b4e339488b0 ]
+commit 5af08640795b2b9a940c9266c0260455377ae262 upstream.
 
-PVC devices are virtual devices in this driver stacked on top of the
-actual HDLC device. They are the devices normal users would use.
-PVC devices have two types: normal PVC devices and Ethernet-emulating
-PVC devices.
+fbcon_get_font() is reading out-of-bounds. A malicious user may resize
+`vc->vc_font.height` to a large value, causing fbcon_get_font() to
+read out of `fontdata`.
 
-When transmitting data with PVC devices, the ndo_start_xmit function
-will prepend a header of 4 or 10 bytes. Currently this driver requests
-this headroom to be reserved for normal PVC devices by setting their
-hard_header_len to 10. However, this does not work when these devices
-are used with AF_PACKET/RAW sockets. Also, this driver does not request
-this headroom for Ethernet-emulating PVC devices (but deals with this
-problem by reallocating the skb when needed, which is not optimal).
+fbcon_get_font() handles both built-in and user-provided fonts.
+Fortunately, recently we have added FONT_EXTRA_WORDS support for built-in
+fonts, so fix it by adding range checks using FNTSIZE().
 
-This patch replaces hard_header_len with needed_headroom, and set
-needed_headroom for Ethernet-emulating PVC devices, too. This makes
-the driver to request headroom for all PVC devices in all cases.
+This patch depends on patch "fbdev, newport_con: Move FONT_EXTRA_WORDS
+macros into linux/font.h", and patch "Fonts: Support FONT_EXTRA_WORDS
+macros for built-in fonts".
 
-Cc: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: syzbot+29d4ed7f3bdedf2aa2fd@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=08b8be45afea11888776f897895aef9ad1c3ecfd
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/b34544687a1a09d6de630659eb7a773f4953238b.1600953813.git.yepeilin.cs@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wan/hdlc_fr.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/core/fbcon.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/net/wan/hdlc_fr.c b/drivers/net/wan/hdlc_fr.c
-index 78596e42a3f3f..a09af49cd08b9 100644
---- a/drivers/net/wan/hdlc_fr.c
-+++ b/drivers/net/wan/hdlc_fr.c
-@@ -1045,7 +1045,7 @@ static void pvc_setup(struct net_device *dev)
- {
- 	dev->type = ARPHRD_DLCI;
- 	dev->flags = IFF_POINTOPOINT;
--	dev->hard_header_len = 10;
-+	dev->hard_header_len = 0;
- 	dev->addr_len = 2;
- 	netif_keep_dst(dev);
- }
-@@ -1097,6 +1097,7 @@ static int fr_add_pvc(struct net_device *frad, unsigned int dlci, int type)
- 	dev->mtu = HDLC_MAX_MTU;
- 	dev->min_mtu = 68;
- 	dev->max_mtu = HDLC_MAX_MTU;
-+	dev->needed_headroom = 10;
- 	dev->priv_flags |= IFF_NO_QUEUE;
- 	dev->ml_priv = pvc;
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2292,6 +2292,9 @@ static int fbcon_get_font(struct vc_data
  
--- 
-2.25.1
-
+ 	if (font->width <= 8) {
+ 		j = vc->vc_font.height;
++		if (font->charcount * j > FNTSIZE(fontdata))
++			return -EINVAL;
++
+ 		for (i = 0; i < font->charcount; i++) {
+ 			memcpy(data, fontdata, j);
+ 			memset(data + j, 0, 32 - j);
+@@ -2300,6 +2303,9 @@ static int fbcon_get_font(struct vc_data
+ 		}
+ 	} else if (font->width <= 16) {
+ 		j = vc->vc_font.height * 2;
++		if (font->charcount * j > FNTSIZE(fontdata))
++			return -EINVAL;
++
+ 		for (i = 0; i < font->charcount; i++) {
+ 			memcpy(data, fontdata, j);
+ 			memset(data + j, 0, 64 - j);
+@@ -2307,6 +2313,9 @@ static int fbcon_get_font(struct vc_data
+ 			fontdata += j;
+ 		}
+ 	} else if (font->width <= 24) {
++		if (font->charcount * (vc->vc_font.height * sizeof(u32)) > FNTSIZE(fontdata))
++			return -EINVAL;
++
+ 		for (i = 0; i < font->charcount; i++) {
+ 			for (j = 0; j < vc->vc_font.height; j++) {
+ 				*data++ = fontdata[0];
+@@ -2319,6 +2328,9 @@ static int fbcon_get_font(struct vc_data
+ 		}
+ 	} else {
+ 		j = vc->vc_font.height * 4;
++		if (font->charcount * j > FNTSIZE(fontdata))
++			return -EINVAL;
++
+ 		for (i = 0; i < font->charcount; i++) {
+ 			memcpy(data, fontdata, j);
+ 			memset(data + j, 0, 128 - j);
 
 
