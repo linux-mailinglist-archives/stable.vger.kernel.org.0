@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF5A28B6EC
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B3AB28B65F
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731295AbgJLNi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:38:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42408 "EHLO mail.kernel.org"
+        id S2389094AbgJLNdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:33:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731265AbgJLNiu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:50 -0400
+        id S2389088AbgJLNdH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:33:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EE232074F;
-        Mon, 12 Oct 2020 13:38:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2F83208B8;
+        Mon, 12 Oct 2020 13:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509928;
-        bh=mDCsPGLmCKZfKONAXRGl6sNY1heGZtD936mD0ykrios=;
+        s=default; t=1602509577;
+        bh=I3m3vXF3o8N0+zpZBCkLgAvfoCzyO6oiMBj7CgTQPEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7UJ6GMTfEpGtELfblPEqyIysa7GHZELCf1hyPbc+5lgpQSFxmzwR/lzZ2iyFtS1b
-         OmSP/n3Zx3AAf6Lme2+ivmZYCArtZeCUe6kbJBcN8vmTKrM7keDDqXukFuBHOIlPLA
-         gpV5ZQ3BPQOJamU5vWjLzh41rF3/5a5Vk0yfKbAc=
+        b=rzkxAFPLvqALldZMbk5qKz3jFMUZAnARC98hor8OwnCzWeM3RTRhDT2QSnADqZTKg
+         yCgNVurRQL157mB2AiZyHcu0QJ0PO8KgbOqD80dtfpNWn60YXi3TQOtRVJe2htrTdi
+         yTQq5K5XyO4Ubb5f1H50qeGwVqr1GPXxlX87LT60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Lisov <dennis.lissov@gmail.com>,
-        Qian Cai <cai@lca.pw>, Hugh Dickins <hughd@google.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Suren Baghdasaryan <surenb@google.com>
-Subject: [PATCH 4.19 19/49] mm/khugepaged: fix filemap page_to_pgoff(page) != offset
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 35/39] bonding: set dev->needed_headroom in bond_setup_by_slave()
 Date:   Mon, 12 Oct 2020 15:27:05 +0200
-Message-Id: <20201012132630.341352860@linuxfoundation.org>
+Message-Id: <20201012132629.784800595@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
+References: <20201012132628.130632267@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,106 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 033b5d77551167f8c24ca862ce83d3e0745f9245 upstream.
+[ Upstream commit f32f19339596b214c208c0dba716f4b6cc4f6958 ]
 
-There have been elusive reports of filemap_fault() hitting its
-VM_BUG_ON_PAGE(page_to_pgoff(page) != offset, page) on kernels built
-with CONFIG_READ_ONLY_THP_FOR_FS=y.
+syzbot managed to crash a host by creating a bond
+with a GRE device.
 
-Suren has hit it on a kernel with CONFIG_READ_ONLY_THP_FOR_FS=y and
-CONFIG_NUMA is not set: and he has analyzed it down to how khugepaged
-without NUMA reuses the same huge page after collapse_file() failed
-(whereas NUMA targets its allocation to the respective node each time).
-And most of us were usually testing with CONFIG_NUMA=y kernels.
+For non Ethernet device, bonding calls bond_setup_by_slave()
+instead of ether_setup(), and unfortunately dev->needed_headroom
+was not copied from the new added member.
 
-collapse_file(old start)
-  new_page = khugepaged_alloc_page(hpage)
-  __SetPageLocked(new_page)
-  new_page->index = start // hpage->index=old offset
-  new_page->mapping = mapping
-  xas_store(&xas, new_page)
+[  171.243095] skbuff: skb_under_panic: text:ffffffffa184b9ea len:116 put:20 head:ffff883f84012dc0 data:ffff883f84012dbc tail:0x70 end:0xd00 dev:bond0
+[  171.243111] ------------[ cut here ]------------
+[  171.243112] kernel BUG at net/core/skbuff.c:112!
+[  171.243117] invalid opcode: 0000 [#1] SMP KASAN PTI
+[  171.243469] gsmi: Log Shutdown Reason 0x03
+[  171.243505] Call Trace:
+[  171.243506]  <IRQ>
+[  171.243512]  [<ffffffffa171be59>] skb_push+0x49/0x50
+[  171.243516]  [<ffffffffa184b9ea>] ipgre_header+0x2a/0xf0
+[  171.243520]  [<ffffffffa17452d7>] neigh_connected_output+0xb7/0x100
+[  171.243524]  [<ffffffffa186f1d3>] ip6_finish_output2+0x383/0x490
+[  171.243528]  [<ffffffffa186ede2>] __ip6_finish_output+0xa2/0x110
+[  171.243531]  [<ffffffffa186acbc>] ip6_finish_output+0x2c/0xa0
+[  171.243534]  [<ffffffffa186abe9>] ip6_output+0x69/0x110
+[  171.243537]  [<ffffffffa186ac90>] ? ip6_output+0x110/0x110
+[  171.243541]  [<ffffffffa189d952>] mld_sendpack+0x1b2/0x2d0
+[  171.243544]  [<ffffffffa189d290>] ? mld_send_report+0xf0/0xf0
+[  171.243548]  [<ffffffffa189c797>] mld_ifc_timer_expire+0x2d7/0x3b0
+[  171.243551]  [<ffffffffa189c4c0>] ? mld_gq_timer_expire+0x50/0x50
+[  171.243556]  [<ffffffffa0fea270>] call_timer_fn+0x30/0x130
+[  171.243559]  [<ffffffffa0fea17c>] expire_timers+0x4c/0x110
+[  171.243563]  [<ffffffffa0fea0e3>] __run_timers+0x213/0x260
+[  171.243566]  [<ffffffffa0fecb7d>] ? ktime_get+0x3d/0xa0
+[  171.243570]  [<ffffffffa0ff9c4e>] ? clockevents_program_event+0x7e/0xe0
+[  171.243574]  [<ffffffffa0f7e5d5>] ? sched_clock_cpu+0x15/0x190
+[  171.243577]  [<ffffffffa0fe973d>] run_timer_softirq+0x1d/0x40
+[  171.243581]  [<ffffffffa1c00152>] __do_softirq+0x152/0x2f0
+[  171.243585]  [<ffffffffa0f44e1f>] irq_exit+0x9f/0xb0
+[  171.243588]  [<ffffffffa1a02e1d>] smp_apic_timer_interrupt+0xfd/0x1a0
+[  171.243591]  [<ffffffffa1a01ea6>] apic_timer_interrupt+0x86/0x90
 
-                          filemap_fault
-                            page = find_get_page(mapping, offset)
-                            // if offset falls inside hpage then
-                            // compound_head(page) == hpage
-                            lock_page_maybe_drop_mmap()
-                              __lock_page(page)
-
-  // collapse fails
-  xas_store(&xas, old page)
-  new_page->mapping = NULL
-  unlock_page(new_page)
-
-collapse_file(new start)
-  new_page = khugepaged_alloc_page(hpage)
-  __SetPageLocked(new_page)
-  new_page->index = start // hpage->index=new offset
-  new_page->mapping = mapping // mapping becomes valid again
-
-                            // since compound_head(page) == hpage
-                            // page_to_pgoff(page) got changed
-                            VM_BUG_ON_PAGE(page_to_pgoff(page) != offset)
-
-An initial patch replaced __SetPageLocked() by lock_page(), which did
-fix the race which Suren illustrates above.  But testing showed that it's
-not good enough: if the racing task's __lock_page() gets delayed long
-after its find_get_page(), then it may follow collapse_file(new start)'s
-successful final unlock_page(), and crash on the same VM_BUG_ON_PAGE.
-
-It could be fixed by relaxing filemap_fault()'s VM_BUG_ON_PAGE to a
-check and retry (as is done for mapping), with similar relaxations in
-find_lock_entry() and pagecache_get_page(): but it's not obvious what
-else might get caught out; and khugepaged non-NUMA appears to be unique
-in exposing a page to page cache, then revoking, without going through
-a full cycle of freeing before reuse.
-
-Instead, non-NUMA khugepaged_prealloc_page() release the old page
-if anyone else has a reference to it (1% of cases when I tested).
-
-Although never reported on huge tmpfs, I believe its find_lock_entry()
-has been at similar risk; but huge tmpfs does not rely on khugepaged
-for its normal working nearly so much as READ_ONLY_THP_FOR_FS does.
-
-Reported-by: Denis Lisov <dennis.lissov@gmail.com>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206569
-Link: https://lore.kernel.org/linux-mm/?q=20200219144635.3b7417145de19b65f258c943%40linux-foundation.org
-Reported-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/linux-xfs/?q=20200616013309.GB815%40lca.pw
-Reported-and-analyzed-by: Suren Baghdasaryan <surenb@google.com>
-Fixes: 87c460a0bded ("mm/khugepaged: collapse_shmem() without freezing new_page")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Cc: stable@vger.kernel.org # v4.9+
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: f5184d267c1a ("net: Allow netdevices to specify needed head/tailroom")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/khugepaged.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/bonding/bond_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -820,6 +820,18 @@ static struct page *khugepaged_alloc_hug
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index aaf75d5e6e480..5811235a64c89 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -1132,6 +1132,7 @@ static void bond_setup_by_slave(struct net_device *bond_dev,
  
- static bool khugepaged_prealloc_page(struct page **hpage, bool *wait)
- {
-+	/*
-+	 * If the hpage allocated earlier was briefly exposed in page cache
-+	 * before collapse_file() failed, it is possible that racing lookups
-+	 * have not yet completed, and would then be unpleasantly surprised by
-+	 * finding the hpage reused for the same mapping at a different offset.
-+	 * Just release the previous allocation if there is any danger of that.
-+	 */
-+	if (*hpage && page_count(*hpage) > 1) {
-+		put_page(*hpage);
-+		*hpage = NULL;
-+	}
-+
- 	if (!*hpage)
- 		*hpage = khugepaged_alloc_hugepage(wait);
+ 	bond_dev->type		    = slave_dev->type;
+ 	bond_dev->hard_header_len   = slave_dev->hard_header_len;
++	bond_dev->needed_headroom   = slave_dev->needed_headroom;
+ 	bond_dev->addr_len	    = slave_dev->addr_len;
  
+ 	memcpy(bond_dev->broadcast, slave_dev->broadcast,
+-- 
+2.25.1
+
 
 
