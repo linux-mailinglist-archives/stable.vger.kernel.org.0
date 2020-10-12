@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE6228B867
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:52:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 326CB28B85A
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390203AbgJLNwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:52:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55742 "EHLO mail.kernel.org"
+        id S2390111AbgJLNvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:51:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731827AbgJLNsM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:48:12 -0400
+        id S1731832AbgJLNsN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:48:13 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F48B2224A;
-        Mon, 12 Oct 2020 13:47:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC7C122258;
+        Mon, 12 Oct 2020 13:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510438;
-        bh=Ut6KHLaSy8tNe7tzpQc8C15DiC5Rw6/5u5gY2qHqNGU=;
+        s=default; t=1602510441;
+        bh=98IodN3bwtoZU6ziWbtwzDOTtjghWYF7SO6Q6eeFQZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2LUfBjuhZ5W7hln7MihgwLNIrwdtLmwxEjhIfSBp2HxqjTeywjqteoVm2o+3ybTX
-         rK73FetLRT0AUtT+xETydAS75uK6yju0WqEXOFGZa2qfBY0u8auOE/VYCKVkJ4soeh
-         aRypOJEI+B4ZdB2JDiosAWJaYKqS/1KSviAxHiog=
+        b=gEko0OrPklMtrXpyzN+LARZy+YuS0NH8eAR/8BPwx6FmpHOmG1PJyG7TU6GIDurpJ
+         jOfmOrNIvU6vh49WKCZkcJ2nRZMvyuLuZ7P3IyrBvVbF4YOendE+JiDa+49x8Cgqjd
+         kYb89I8TvsRlZeQF0nWQFOysbHDAPSUEfATRE478=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 100/124] rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()
-Date:   Mon, 12 Oct 2020 15:31:44 +0200
-Message-Id: <20201012133151.699260037@linuxfoundation.org>
+Subject: [PATCH 5.8 101/124] rxrpc: Fix some missing _bh annotations on locking conn->state_lock
+Date:   Mon, 12 Oct 2020 15:31:45 +0200
+Message-Id: <20201012133151.747499050@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -44,43 +44,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 9a059cd5ca7d9c5c4ca5a6e755cf72f230176b6a ]
+[ Upstream commit fa1d113a0f96f9ab7e4fe4f8825753ba1e34a9d3 ]
 
-If rxrpc_read() (which allows KEYCTL_READ to read a key), sees a token of a
-type it doesn't recognise, it can BUG in a couple of places, which is
-unnecessary as it can easily get back to userspace.
+conn->state_lock may be taken in softirq mode, but a previous patch
+replaced an outer lock in the response-packet event handling code, and lost
+the _bh from that when doing so.
 
-Fix this to print an error message instead.
+Fix this by applying the _bh annotation to the state_lock locking.
 
-Fixes: 99455153d067 ("RxRPC: Parse security index 5 keys (Kerberos 5)")
+Fixes: a1399f8bb033 ("rxrpc: Call channels should have separate call number spaces")
 Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/key.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/rxrpc/conn_event.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
-index d77e89766406a..32f46edcf7c67 100644
---- a/net/rxrpc/key.c
-+++ b/net/rxrpc/key.c
-@@ -1108,7 +1108,8 @@ static long rxrpc_read(const struct key *key,
- 			break;
+diff --git a/net/rxrpc/conn_event.c b/net/rxrpc/conn_event.c
+index 447f55ca68860..6e972b4823efa 100644
+--- a/net/rxrpc/conn_event.c
++++ b/net/rxrpc/conn_event.c
+@@ -340,18 +340,18 @@ static int rxrpc_process_event(struct rxrpc_connection *conn,
+ 			return ret;
  
- 		default: /* we have a ticket we can't encode */
--			BUG();
-+			pr_err("Unsupported key token type (%u)\n",
-+			       token->security_index);
- 			continue;
+ 		spin_lock(&conn->channel_lock);
+-		spin_lock(&conn->state_lock);
++		spin_lock_bh(&conn->state_lock);
+ 
+ 		if (conn->state == RXRPC_CONN_SERVICE_CHALLENGING) {
+ 			conn->state = RXRPC_CONN_SERVICE;
+-			spin_unlock(&conn->state_lock);
++			spin_unlock_bh(&conn->state_lock);
+ 			for (loop = 0; loop < RXRPC_MAXCALLS; loop++)
+ 				rxrpc_call_is_secure(
+ 					rcu_dereference_protected(
+ 						conn->channels[loop].call,
+ 						lockdep_is_held(&conn->channel_lock)));
+ 		} else {
+-			spin_unlock(&conn->state_lock);
++			spin_unlock_bh(&conn->state_lock);
  		}
  
-@@ -1224,7 +1225,6 @@ static long rxrpc_read(const struct key *key,
- 			break;
- 
- 		default:
--			BUG();
- 			break;
- 		}
- 
+ 		spin_unlock(&conn->channel_lock);
 -- 
 2.25.1
 
