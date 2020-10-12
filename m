@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A38B28B710
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E5B728B9AF
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388803AbgJLNkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:40:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43018 "EHLO mail.kernel.org"
+        id S1731811AbgJLOCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:02:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731354AbgJLNjQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:39:16 -0400
+        id S2387878AbgJLNhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:37:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4FB3221FC;
-        Mon, 12 Oct 2020 13:39:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C185B21D81;
+        Mon, 12 Oct 2020 13:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509955;
-        bh=SWvCop2WZqgWmdAfIzaIY2uElDz0F4ea8HQLKznVC1c=;
+        s=default; t=1602509856;
+        bh=6D16Ojn1327Tw+cEBJU5AZf5RJUIh1UJwNkpv29XaTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCI7S1TYZAuhf11dDZ/T+tEpX6Hmj7Oaz2Oiy2akW0YdYHpwYnrefCFtKcKMZ0jk6
-         aQnRjfKnQPv7xiBKvP7HKMN+EQ6V3vPmFxF0nRaVYy0gNOxu40gX/aroLFpaAELTdT
-         UMvysYU8WG2zRPfdSn1N0L/eg0X2zkBuiKOSi8ug=
+        b=Mr9bgLVPeoBxdZoI5NSWbr7wNyXG0Qs8uHAHt2GvIisChEsRj314LIUPZsYbVKr5f
+         4A1kVz8jgJghB5vYXrQ560P7Us8Uivo+HM7PBnXbpE6LoGRuKxkYRucyotseWqC125
+         WohO5hxAdNTAJRCf+clljw6ytkyNhCE/qIhpvs/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        syzbot+577fbac3145a6eb2e7a5@syzkaller.appspotmail.com,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 29/49] drm/amdgpu: prevent double kfree ttm->sg
+Subject: [PATCH 4.14 59/70] xfrm: Use correct address family in xfrm_state_find
 Date:   Mon, 12 Oct 2020 15:27:15 +0200
-Message-Id: <20201012132630.803558121@linuxfoundation.org>
+Message-Id: <20201012132633.031362262@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 1d0e16ac1a9e800598dcfa5b6bc53b704a103390 ]
+[ Upstream commit e94ee171349db84c7cfdc5fefbebe414054d0924 ]
 
-Set ttm->sg to NULL after kfree, to avoid memory corruption backtrace:
+The struct flowi must never be interpreted by itself as its size
+depends on the address family.  Therefore it must always be grouped
+with its original family value.
 
-[  420.932812] kernel BUG at
-/build/linux-do9eLF/linux-4.15.0/mm/slub.c:295!
-[  420.934182] invalid opcode: 0000 [#1] SMP NOPTI
-[  420.935445] Modules linked in: xt_conntrack ipt_MASQUERADE
-[  420.951332] Hardware name: Dell Inc. PowerEdge R7525/0PYVT1, BIOS
-1.5.4 07/09/2020
-[  420.952887] RIP: 0010:__slab_free+0x180/0x2d0
-[  420.954419] RSP: 0018:ffffbe426291fa60 EFLAGS: 00010246
-[  420.955963] RAX: ffff9e29263e9c30 RBX: ffff9e29263e9c30 RCX:
-000000018100004b
-[  420.957512] RDX: ffff9e29263e9c30 RSI: fffff3d33e98fa40 RDI:
-ffff9e297e407a80
-[  420.959055] RBP: ffffbe426291fb00 R08: 0000000000000001 R09:
-ffffffffc0d39ade
-[  420.960587] R10: ffffbe426291fb20 R11: ffff9e49ffdd4000 R12:
-ffff9e297e407a80
-[  420.962105] R13: fffff3d33e98fa40 R14: ffff9e29263e9c30 R15:
-ffff9e2954464fd8
-[  420.963611] FS:  00007fa2ea097780(0000) GS:ffff9e297e840000(0000)
-knlGS:0000000000000000
-[  420.965144] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  420.966663] CR2: 00007f16bfffefb8 CR3: 0000001ff0c62000 CR4:
-0000000000340ee0
-[  420.968193] Call Trace:
-[  420.969703]  ? __page_cache_release+0x3c/0x220
-[  420.971294]  ? amdgpu_ttm_tt_unpopulate+0x5e/0x80 [amdgpu]
-[  420.972789]  kfree+0x168/0x180
-[  420.974353]  ? amdgpu_ttm_tt_set_user_pages+0x64/0xc0 [amdgpu]
-[  420.975850]  ? kfree+0x168/0x180
-[  420.977403]  amdgpu_ttm_tt_unpopulate+0x5e/0x80 [amdgpu]
-[  420.978888]  ttm_tt_unpopulate.part.10+0x53/0x60 [amdttm]
-[  420.980357]  ttm_tt_destroy.part.11+0x4f/0x60 [amdttm]
-[  420.981814]  ttm_tt_destroy+0x13/0x20 [amdttm]
-[  420.983273]  ttm_bo_cleanup_memtype_use+0x36/0x80 [amdttm]
-[  420.984725]  ttm_bo_release+0x1c9/0x360 [amdttm]
-[  420.986167]  amdttm_bo_put+0x24/0x30 [amdttm]
-[  420.987663]  amdgpu_bo_unref+0x1e/0x30 [amdgpu]
-[  420.989165]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x9ca/0xb10
-[amdgpu]
-[  420.990666]  kfd_ioctl_alloc_memory_of_gpu+0xef/0x2c0 [amdgpu]
+In this particular instance, the original family value is lost in
+the function xfrm_state_find.  Therefore we get a bogus read when
+it's coupled with the wrong family which would occur with inter-
+family xfrm states.
 
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This patch fixes it by keeping the original family value.
+
+Note that the same bug could potentially occur in LSM through
+the xfrm_state_pol_flow_match hook.  I checked the current code
+there and it seems to be safe for now as only secid is used which
+is part of struct flowi_common.  But that API should be changed
+so that so that we don't get new bugs in the future.  We could
+do that by replacing fl with just secid or adding a family field.
+
+Reported-by: syzbot+577fbac3145a6eb2e7a5@syzkaller.appspotmail.com
+Fixes: 48b8d78315bf ("[XFRM]: State selection update to use inner...")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/xfrm/xfrm_state.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index fcf421263fd96..abad7460084f2 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -954,6 +954,7 @@ static int amdgpu_ttm_tt_pin_userptr(struct ttm_tt *ttm)
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 3f21d34833cf0..05c275a712f11 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -909,7 +909,8 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
+ 	 */
+ 	if (x->km.state == XFRM_STATE_VALID) {
+ 		if ((x->sel.family &&
+-		     !xfrm_selector_match(&x->sel, fl, x->sel.family)) ||
++		     (x->sel.family != family ||
++		      !xfrm_selector_match(&x->sel, fl, family))) ||
+ 		    !security_xfrm_state_pol_flow_match(x, pol, fl))
+ 			return;
  
- release_sg:
- 	kfree(ttm->sg);
-+	ttm->sg = NULL;
- 	return r;
- }
+@@ -922,7 +923,9 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
+ 		*acq_in_progress = 1;
+ 	} else if (x->km.state == XFRM_STATE_ERROR ||
+ 		   x->km.state == XFRM_STATE_EXPIRED) {
+-		if (xfrm_selector_match(&x->sel, fl, x->sel.family) &&
++		if ((!x->sel.family ||
++		     (x->sel.family == family &&
++		      xfrm_selector_match(&x->sel, fl, family))) &&
+ 		    security_xfrm_state_pol_flow_match(x, pol, fl))
+ 			*error = -ESRCH;
+ 	}
+@@ -961,7 +964,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
+ 		    tmpl->mode == x->props.mode &&
+ 		    tmpl->id.proto == x->id.proto &&
+ 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
+-			xfrm_state_look_at(pol, x, fl, encap_family,
++			xfrm_state_look_at(pol, x, fl, family,
+ 					   &best, &acquire_in_progress, &error);
+ 	}
+ 	if (best || acquire_in_progress)
+@@ -977,7 +980,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
+ 		    tmpl->mode == x->props.mode &&
+ 		    tmpl->id.proto == x->id.proto &&
+ 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
+-			xfrm_state_look_at(pol, x, fl, encap_family,
++			xfrm_state_look_at(pol, x, fl, family,
+ 					   &best, &acquire_in_progress, &error);
+ 	}
  
 -- 
 2.25.1
