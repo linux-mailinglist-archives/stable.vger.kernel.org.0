@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C000D28B8B2
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:55:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C14E228B7D7
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390397AbgJLNye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:54:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48386 "EHLO mail.kernel.org"
+        id S2389789AbgJLNp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:45:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389710AbgJLNpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389711AbgJLNpv (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:45:51 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1612022269;
-        Mon, 12 Oct 2020 13:44:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BA9C2226B;
+        Mon, 12 Oct 2020 13:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510282;
-        bh=pl7LCW119ip8axyFAyoqVRDAqit24zSZwgJSz5TQBJ0=;
+        s=default; t=1602510285;
+        bh=wePNkQv9o5UWyIChMcyLeEgOxui2j6cLkgOIcvrBYs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+6hUI2vtTy974JgjszAYt6KMkLd+3Y7DqHBMfRFnY2VgweuRmmasolwXTcolPnDZ
-         FhuRCDLw8QExKhrpU55+TfNuHP8PizXgeTyWMVbnvSQfB9jkrjdCdZknnl0qcl9sSP
-         n+FU1i4eMwqwrbW+1R7g84LpYRKNFCoBvmDuaeWA=
+        b=zNgtR2ddSaLvM5fe7PxGosC8f6vJNEbv8zRz5JubfDX2HAH4CEZRiQIlddUMBVXSg
+         eKypXq0ImAHi8LP981cR/Jiakqc4oqsnkny3CiPpwyPFClEbCjPkIpS+2pikXrgi1Q
+         2yDGCpflqcMnPvdCHYZ4pdsTrZFucvnwo8uZ1Tc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
-        Jan Kara <jack@suse.com>, Jens Axboe <axboe@kernel.dk>,
-        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Vlastimil Babka <vbabka@suse.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 033/124] nvme-tcp: check page by sendpage_ok() before calling kernel_sendpage()
-Date:   Mon, 12 Oct 2020 15:30:37 +0200
-Message-Id: <20201012133148.452480327@linuxfoundation.org>
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 5.8 034/124] xfrmi: drop ignore_df check before updating pmtu
+Date:   Mon, 12 Oct 2020 15:30:38 +0200
+Message-Id: <20201012133148.500496559@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -49,58 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-commit 7d4194abfc4de13a2663c7fee6891de8360f7a52 upstream.
+commit 45a36a18d01907710bad5258d81f76c18882ad88 upstream.
 
-Currently nvme_tcp_try_send_data() doesn't use kernel_sendpage() to
-send slab pages. But for pages allocated by __get_free_pages() without
-__GFP_COMP, which also have refcount as 0, they are still sent by
-kernel_sendpage() to remote end, this is problematic.
+xfrm interfaces currently test for !skb->ignore_df when deciding
+whether to update the pmtu on the skb's dst. Because of this, no pmtu
+exception is created when we do something like:
 
-The new introduced helper sendpage_ok() checks both PageSlab tag and
-page_count counter, and returns true if the checking page is OK to be
-sent by kernel_sendpage().
+    ping -s 1438 <dest>
 
-This patch fixes the page checking issue of nvme_tcp_try_send_data()
-with sendpage_ok(). If sendpage_ok() returns true, send this page by
-kernel_sendpage(), otherwise use sock_no_sendpage to handle this page.
+By dropping this check, the pmtu exception will be created and the
+next ping attempt will work.
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Hannes Reinecke <hare@suse.de>
-Cc: Jan Kara <jack@suse.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
-Cc: Philipp Reisner <philipp.reisner@linbit.com>
-Cc: Sagi Grimberg <sagi@grimberg.me>
-Cc: Vlastimil Babka <vbabka@suse.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f203b76d7809 ("xfrm: Add virtual xfrm interfaces")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvme/host/tcp.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/xfrm/xfrm_interface.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -889,12 +889,11 @@ static int nvme_tcp_try_send_data(struct
- 		else
- 			flags |= MSG_MORE | MSG_SENDPAGE_NOTLAST;
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -292,7 +292,7 @@ xfrmi_xmit2(struct sk_buff *skb, struct
+ 	}
  
--		/* can't zcopy slab pages */
--		if (unlikely(PageSlab(page))) {
--			ret = sock_no_sendpage(queue->sock, page, offset, len,
-+		if (sendpage_ok(page)) {
-+			ret = kernel_sendpage(queue->sock, page, offset, len,
- 					flags);
- 		} else {
--			ret = kernel_sendpage(queue->sock, page, offset, len,
-+			ret = sock_no_sendpage(queue->sock, page, offset, len,
- 					flags);
- 		}
- 		if (ret <= 0)
+ 	mtu = dst_mtu(dst);
+-	if (!skb->ignore_df && skb->len > mtu) {
++	if (skb->len > mtu) {
+ 		skb_dst_update_pmtu_no_confirm(skb, mtu);
+ 
+ 		if (skb->protocol == htons(ETH_P_IPV6)) {
 
 
