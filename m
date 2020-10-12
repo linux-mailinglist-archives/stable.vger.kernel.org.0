@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F35FD28BA14
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50EE328B6EF
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390536AbgJLOFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:05:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37512 "EHLO mail.kernel.org"
+        id S1731310AbgJLNjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:39:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730198AbgJLNe7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:34:59 -0400
+        id S1729967AbgJLNi4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:38:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 098822074F;
-        Mon, 12 Oct 2020 13:34:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4602820878;
+        Mon, 12 Oct 2020 13:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509698;
-        bh=UGayOPVXU2WO+bnlcd+OVub1MOJYYtQTVKEkBtaRuHM=;
+        s=default; t=1602509935;
+        bh=Mk8i4dFCL5ViCIc6idHAfoNkCFqo9TF57mL4kcdq64M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUlKeSa2NRrfH6ya9fs/Ec604V2ub/d34BN9GhYBopltpzOIeRQVI8uhxiz651WU2
-         H2vWlEQiwb4gQQaQDUQ+3q5SrJxAtGy4teQ2bz9D2LtvTSujD+ulufgRR+2QKNqLvY
-         QjBGbcNQ3IcI4Zeuxb/3k2/IKEMXWWM8suFPeDxc=
+        b=kK6o71L9C2p1G+o2l0k6g5ncNvzoUWJsYkpreZWB1cuyv8jPpaPUfo/7zc1HMjfSl
+         ygtToTMdF4empSmQ6rNUbE1Osz0qjeYClkKuiss4ZJ7ZRUX+E22Co4TOynLgVJ2QRH
+         9mcznBR4tk4XiulOGjIzNLsQx+nZKvVZRJeeXHNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+577fbac3145a6eb2e7a5@syzkaller.appspotmail.com,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 45/54] xfrm: Use correct address family in xfrm_state_find
+        stable@vger.kernel.org, Vladimir Zapolskiy <vladimir@tuxera.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 21/49] cifs: Fix incomplete memory allocation on setxattr path
 Date:   Mon, 12 Oct 2020 15:27:07 +0200
-Message-Id: <20201012132631.653483848@linuxfoundation.org>
+Message-Id: <20201012132630.431427197@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Vladimir Zapolskiy <vladimir@tuxera.com>
 
-[ Upstream commit e94ee171349db84c7cfdc5fefbebe414054d0924 ]
+commit 64b7f674c292207624b3d788eda2dde3dc1415df upstream.
 
-The struct flowi must never be interpreted by itself as its size
-depends on the address family.  Therefore it must always be grouped
-with its original family value.
+On setxattr() syscall path due to an apprent typo the size of a dynamically
+allocated memory chunk for storing struct smb2_file_full_ea_info object is
+computed incorrectly, to be more precise the first addend is the size of
+a pointer instead of the wanted object size. Coincidentally it makes no
+difference on 64-bit platforms, however on 32-bit targets the following
+memcpy() writes 4 bytes of data outside of the dynamically allocated memory.
 
-In this particular instance, the original family value is lost in
-the function xfrm_state_find.  Therefore we get a bogus read when
-it's coupled with the wrong family which would occur with inter-
-family xfrm states.
+  =============================================================================
+  BUG kmalloc-16 (Not tainted): Redzone overwritten
+  -----------------------------------------------------------------------------
 
-This patch fixes it by keeping the original family value.
+  Disabling lock debugging due to kernel taint
+  INFO: 0x79e69a6f-0x9e5cdecf @offset=368. First byte 0x73 instead of 0xcc
+  INFO: Slab 0xd36d2454 objects=85 used=51 fp=0xf7d0fc7a flags=0x35000201
+  INFO: Object 0x6f171df3 @offset=352 fp=0x00000000
 
-Note that the same bug could potentially occur in LSM through
-the xfrm_state_pol_flow_match hook.  I checked the current code
-there and it seems to be safe for now as only secid is used which
-is part of struct flowi_common.  But that API should be changed
-so that so that we don't get new bugs in the future.  We could
-do that by replacing fl with just secid or adding a family field.
+  Redzone 5d4ff02d: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+  Object 6f171df3: 00 00 00 00 00 05 06 00 73 6e 72 75 62 00 66 69  ........snrub.fi
+  Redzone 79e69a6f: 73 68 32 0a                                      sh2.
+  Padding 56254d82: 5a 5a 5a 5a 5a 5a 5a 5a                          ZZZZZZZZ
+  CPU: 0 PID: 8196 Comm: attr Tainted: G    B             5.9.0-rc8+ #3
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+  Call Trace:
+   dump_stack+0x54/0x6e
+   print_trailer+0x12c/0x134
+   check_bytes_and_report.cold+0x3e/0x69
+   check_object+0x18c/0x250
+   free_debug_processing+0xfe/0x230
+   __slab_free+0x1c0/0x300
+   kfree+0x1d3/0x220
+   smb2_set_ea+0x27d/0x540
+   cifs_xattr_set+0x57f/0x620
+   __vfs_setxattr+0x4e/0x60
+   __vfs_setxattr_noperm+0x4e/0x100
+   __vfs_setxattr_locked+0xae/0xd0
+   vfs_setxattr+0x4e/0xe0
+   setxattr+0x12c/0x1a0
+   path_setxattr+0xa4/0xc0
+   __ia32_sys_lsetxattr+0x1d/0x20
+   __do_fast_syscall_32+0x40/0x70
+   do_fast_syscall_32+0x29/0x60
+   do_SYSENTER_32+0x15/0x20
+   entry_SYSENTER_32+0x9f/0xf2
 
-Reported-by: syzbot+577fbac3145a6eb2e7a5@syzkaller.appspotmail.com
-Fixes: 48b8d78315bf ("[XFRM]: State selection update to use inner...")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5517554e4313 ("cifs: Add support for writing attributes on SMB2+")
+Signed-off-by: Vladimir Zapolskiy <vladimir@tuxera.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/xfrm/xfrm_state.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ fs/cifs/smb2ops.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index e210d9b77de18..0eb85765d35a1 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -761,7 +761,8 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
- 	 */
- 	if (x->km.state == XFRM_STATE_VALID) {
- 		if ((x->sel.family &&
--		     !xfrm_selector_match(&x->sel, fl, x->sel.family)) ||
-+		     (x->sel.family != family ||
-+		      !xfrm_selector_match(&x->sel, fl, family))) ||
- 		    !security_xfrm_state_pol_flow_match(x, pol, fl))
- 			return;
- 
-@@ -774,7 +775,9 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
- 		*acq_in_progress = 1;
- 	} else if (x->km.state == XFRM_STATE_ERROR ||
- 		   x->km.state == XFRM_STATE_EXPIRED) {
--		if (xfrm_selector_match(&x->sel, fl, x->sel.family) &&
-+		if ((!x->sel.family ||
-+		     (x->sel.family == family &&
-+		      xfrm_selector_match(&x->sel, fl, family))) &&
- 		    security_xfrm_state_pol_flow_match(x, pol, fl))
- 			*error = -ESRCH;
- 	}
-@@ -813,7 +816,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
- 		    tmpl->mode == x->props.mode &&
- 		    tmpl->id.proto == x->id.proto &&
- 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
--			xfrm_state_look_at(pol, x, fl, encap_family,
-+			xfrm_state_look_at(pol, x, fl, family,
- 					   &best, &acquire_in_progress, &error);
- 	}
- 	if (best || acquire_in_progress)
-@@ -829,7 +832,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
- 		    tmpl->mode == x->props.mode &&
- 		    tmpl->id.proto == x->id.proto &&
- 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
--			xfrm_state_look_at(pol, x, fl, encap_family,
-+			xfrm_state_look_at(pol, x, fl, family,
- 					   &best, &acquire_in_progress, &error);
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -950,7 +950,7 @@ smb2_set_ea(const unsigned int xid, stru
+ 		return rc;
  	}
  
--- 
-2.25.1
-
+-	len = sizeof(ea) + ea_name_len + ea_value_len + 1;
++	len = sizeof(*ea) + ea_name_len + ea_value_len + 1;
+ 	ea = kzalloc(len, GFP_KERNEL);
+ 	if (ea == NULL) {
+ 		SMB2_close(xid, tcon, fid.persistent_fid, fid.volatile_fid);
 
 
