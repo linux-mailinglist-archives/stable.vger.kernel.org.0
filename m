@@ -2,103 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4B5828C08A
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:05:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3CA228C15D
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:20:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391361AbgJLTEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 15:04:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54396 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391400AbgJLTE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 15:04:27 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C204322203;
-        Mon, 12 Oct 2020 19:04:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602529466;
-        bh=+5+pS2ispcwRZwG6pyNLvhJ9r0xoiWE3FsuAUwpMXmY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LqSGM9AVstKS5q9HXl2q+lHRdfP9GLhpq3mRMu0TRtz+bkqToJoToFLuHBxPUMoo4
-         rSXOJPwljn3TdNRKeSkY3b/W1T860ZI/Xb85hd85EA2pNcE7axhEE8F6T/Mmi8wDp+
-         /V5Qe6qbdpPMP9W2C8QuYOl00T+WHSotRk+ZyLvI=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+        id S2389033AbgJLTUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 15:20:50 -0400
+Received: from smtprelay0090.hostedemail.com ([216.40.44.90]:46976 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730938AbgJLTUt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 15:20:49 -0400
+X-Greylist: delayed 567 seconds by postgrey-1.27 at vger.kernel.org; Mon, 12 Oct 2020 15:20:49 EDT
+Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com [10.5.19.251])
+        by smtpgrave06.hostedemail.com (Postfix) with ESMTP id 35F9281236A8
+        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 19:11:23 +0000 (UTC)
+Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay01.hostedemail.com (Postfix) with ESMTP id E3DE9100E7B44;
+        Mon, 12 Oct 2020 19:11:20 +0000 (UTC)
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Spam-Summary: 50,0,0,,d41d8cd98f00b204,joe@perches.com,,RULES_HIT:41:355:379:599:800:960:967:973:988:989:1260:1277:1311:1313:1314:1345:1359:1431:1437:1515:1516:1518:1534:1541:1593:1594:1711:1730:1747:1777:1792:2393:2525:2560:2563:2682:2685:2828:2859:2933:2937:2939:2942:2945:2947:2951:2954:3022:3138:3139:3140:3141:3142:3353:3622:3865:3866:3867:3868:3870:3871:3872:3934:3936:3938:3941:3944:3947:3950:3953:3956:3959:4250:4321:4605:5007:7514:7576:7903:9025:9165:10004:10400:10471:10481:10848:11026:11232:11658:11914:12043:12296:12297:12438:12555:12740:12760:12895:13069:13255:13311:13357:13439:13972:14181:14659:14721:19900:21080:21451:21611:21627:21788:21939:21990:30003:30012:30054:30070:30079:30091,0,RBL:none,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:,MSBL:0,DNSBL:none,Custom_rules:0:0:0,LFtime:1,LUA_SUMMARY:none
+X-HE-Tag: lamp55_0c0ae3f271fc
+X-Filterd-Recvd-Size: 2942
+Received: from XPS-9350.home (unknown [47.151.133.149])
+        (Authenticated sender: joe@perches.com)
+        by omf03.hostedemail.com (Postfix) with ESMTPA;
+        Mon, 12 Oct 2020 19:11:19 +0000 (UTC)
+Message-ID: <c93d120c850c5fecadaea845517f0fdbfd9a61c7.camel@perches.com>
+Subject: Re: [PATCH AUTOSEL 5.8 18/24] net: usb: rtl8150: set random MAC
+ address when set_ethernet_addr() fails
+From:   Joe Perches <joe@perches.com>
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
 Cc:     Anant Thazhemadam <anant.thazhemadam@gmail.com>,
         syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com,
         Petko Manolov <petkan@nucleusys.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 6/6] net: usb: rtl8150: set random MAC address when set_ethernet_addr() fails
-Date:   Mon, 12 Oct 2020 15:04:18 -0400
-Message-Id: <20201012190418.3279866-6-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201012190418.3279866-1-sashal@kernel.org>
-References: <20201012190418.3279866-1-sashal@kernel.org>
+        linux-usb@vger.kernel.org, netdev@vger.kernel.org
+Date:   Mon, 12 Oct 2020 12:11:18 -0700
+In-Reply-To: <20201012190239.3279198-18-sashal@kernel.org>
+References: <20201012190239.3279198-1-sashal@kernel.org>
+         <20201012190239.3279198-18-sashal@kernel.org>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.36.4-0ubuntu1 
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+On Mon, 2020-10-12 at 15:02 -0400, Sasha Levin wrote:
+> From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+> 
+> [ Upstream commit f45a4248ea4cc13ed50618ff066849f9587226b2 ]
+> 
+> When get_registers() fails in set_ethernet_addr(),the uninitialized
+> value of node_id gets copied over as the address.
+> So, check the return value of get_registers().
+> 
+> If get_registers() executed successfully (i.e., it returns
+> sizeof(node_id)), copy over the MAC address using ether_addr_copy()
+> (instead of using memcpy()).
+> 
+> Else, if get_registers() failed instead, a randomly generated MAC
+> address is set as the MAC address instead.
 
-[ Upstream commit f45a4248ea4cc13ed50618ff066849f9587226b2 ]
+This autosel is premature.
 
-When get_registers() fails in set_ethernet_addr(),the uninitialized
-value of node_id gets copied over as the address.
-So, check the return value of get_registers().
+This patch always sets a random MAC.
+See the follow on patch: https://lkml.org/lkml/2020/10/11/131
+To my knowledge, this follow-ob has yet to be applied:
 
-If get_registers() executed successfully (i.e., it returns
-sizeof(node_id)), copy over the MAC address using ether_addr_copy()
-(instead of using memcpy()).
+> diff --git a/drivers/net/usb/rtl8150.c b/drivers/net/usb/rtl8150.c
+[]
+> @@ -274,12 +274,20 @@ static int write_mii_word(rtl8150_t * dev, u8 phy, __u8 indx, u16 reg)
+>  		return 1;
+>  }
+>  
+> -static inline void set_ethernet_addr(rtl8150_t * dev)
+> +static void set_ethernet_addr(rtl8150_t *dev)
+>  {
+> -	u8 node_id[6];
+> +	u8 node_id[ETH_ALEN];
+> +	int ret;
+> +
+> +	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
+>  
+> -	get_registers(dev, IDR, sizeof(node_id), node_id);
+> -	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
+> +	if (ret == sizeof(node_id)) {
 
-Else, if get_registers() failed instead, a randomly generated MAC
-address is set as the MAC address instead.
+So this needs to use
+	if (!ret) {
 
-Reported-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
-Tested-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
-Acked-by: Petko Manolov <petkan@nucleusys.com>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/usb/rtl8150.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+or 
+	if (ret < 0)
 
-diff --git a/drivers/net/usb/rtl8150.c b/drivers/net/usb/rtl8150.c
-index 58b1e18fdd64d..7230f1e8210ff 100644
---- a/drivers/net/usb/rtl8150.c
-+++ b/drivers/net/usb/rtl8150.c
-@@ -277,12 +277,20 @@ static int write_mii_word(rtl8150_t * dev, u8 phy, __u8 indx, u16 reg)
- 		return 1;
- }
- 
--static inline void set_ethernet_addr(rtl8150_t * dev)
-+static void set_ethernet_addr(rtl8150_t *dev)
- {
--	u8 node_id[6];
-+	u8 node_id[ETH_ALEN];
-+	int ret;
-+
-+	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
- 
--	get_registers(dev, IDR, sizeof(node_id), node_id);
--	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
-+	if (ret == sizeof(node_id)) {
-+		ether_addr_copy(dev->netdev->dev_addr, node_id);
-+	} else {
-+		eth_hw_addr_random(dev->netdev);
-+		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
-+			      dev->netdev->dev_addr);
-+	}
- }
- 
- static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
--- 
-2.25.1
+and reversed code blocks
+
+> +		ether_addr_copy(dev->netdev->dev_addr, node_id);
+> +	} else {
+> +		eth_hw_addr_random(dev->netdev);
+> +		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
+> +			      dev->netdev->dev_addr);
+> +	}
+>  }
+>  
+>  static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
 
