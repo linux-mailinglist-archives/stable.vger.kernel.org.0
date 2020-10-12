@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E443628B6FD
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4E628B8D3
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731244AbgJLNj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:39:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40156 "EHLO mail.kernel.org"
+        id S1731451AbgJLNpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:45:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731245AbgJLNio (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:44 -0400
+        id S1731509AbgJLNmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:42:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3ECD522260;
-        Mon, 12 Oct 2020 13:38:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F8BE20878;
+        Mon, 12 Oct 2020 13:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509921;
-        bh=/g3W7hr7KvAF0cdnjpNiuXY73YrP3finCRJsnw/Dmv4=;
+        s=default; t=1602510101;
+        bh=62GCCzbQfGFJHTVA3GyMn3wJSoKS6XiQCT9nQDpeDN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXWUR3uxXTyWrKLUEctewQh+sUyFO2l2xKxGuYuYCmIhnJUemjTBC12Vo+0AoTrtE
-         +qzL3ORTbLCg14ON97nuJJFSuovYoxYmdSRV7EPZBGkSR6nyl0BT+7Ls4ZbxESuV7T
-         6j0a2yEeRnC5HlH63alljdRHDhO3C5nT2VC47Vdc=
+        b=093biQAJk3u5GWPt2CQ07orshpsCSXXzCh65WI0gl+BVdtREnyDEzJzUDh3S7BQrS
+         bfPh3nA2MlJBDvQCVuS0E8mYEjT6AxeIYRR3OiFm9q8LeVadzIsDE9R7R6trVvBAwS
+         ZfDzmNWtEPjsQQexu3EpYQscPa9OPLtxM8F2+Cwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.19 16/49] arm64: dts: stratix10: add status to qspi dts node
+        stable@vger.kernel.org, Vladimir Zapolskiy <vladimir@tuxera.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 39/85] cifs: Fix incomplete memory allocation on setxattr path
 Date:   Mon, 12 Oct 2020 15:27:02 +0200
-Message-Id: <20201012132630.188337926@linuxfoundation.org>
+Message-Id: <20201012132634.737182302@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,31 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Vladimir Zapolskiy <vladimir@tuxera.com>
 
-commit 263a0269a59c0b4145829462a107fe7f7327105f upstream.
+commit 64b7f674c292207624b3d788eda2dde3dc1415df upstream.
 
-Add status = "okay" to QSPI node.
+On setxattr() syscall path due to an apprent typo the size of a dynamically
+allocated memory chunk for storing struct smb2_file_full_ea_info object is
+computed incorrectly, to be more precise the first addend is the size of
+a pointer instead of the wanted object size. Coincidentally it makes no
+difference on 64-bit platforms, however on 32-bit targets the following
+memcpy() writes 4 bytes of data outside of the dynamically allocated memory.
 
-Fixes: 0cb140d07fc75 ("arm64: dts: stratix10: Add QSPI support for Stratix10")
-Cc: linux-stable <stable@vger.kernel.org> # >= v5.6
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-[iwamatsu: Drop arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts]
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+  =============================================================================
+  BUG kmalloc-16 (Not tainted): Redzone overwritten
+  -----------------------------------------------------------------------------
+
+  Disabling lock debugging due to kernel taint
+  INFO: 0x79e69a6f-0x9e5cdecf @offset=368. First byte 0x73 instead of 0xcc
+  INFO: Slab 0xd36d2454 objects=85 used=51 fp=0xf7d0fc7a flags=0x35000201
+  INFO: Object 0x6f171df3 @offset=352 fp=0x00000000
+
+  Redzone 5d4ff02d: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+  Object 6f171df3: 00 00 00 00 00 05 06 00 73 6e 72 75 62 00 66 69  ........snrub.fi
+  Redzone 79e69a6f: 73 68 32 0a                                      sh2.
+  Padding 56254d82: 5a 5a 5a 5a 5a 5a 5a 5a                          ZZZZZZZZ
+  CPU: 0 PID: 8196 Comm: attr Tainted: G    B             5.9.0-rc8+ #3
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+  Call Trace:
+   dump_stack+0x54/0x6e
+   print_trailer+0x12c/0x134
+   check_bytes_and_report.cold+0x3e/0x69
+   check_object+0x18c/0x250
+   free_debug_processing+0xfe/0x230
+   __slab_free+0x1c0/0x300
+   kfree+0x1d3/0x220
+   smb2_set_ea+0x27d/0x540
+   cifs_xattr_set+0x57f/0x620
+   __vfs_setxattr+0x4e/0x60
+   __vfs_setxattr_noperm+0x4e/0x100
+   __vfs_setxattr_locked+0xae/0xd0
+   vfs_setxattr+0x4e/0xe0
+   setxattr+0x12c/0x1a0
+   path_setxattr+0xa4/0xc0
+   __ia32_sys_lsetxattr+0x1d/0x20
+   __do_fast_syscall_32+0x40/0x70
+   do_fast_syscall_32+0x29/0x60
+   do_SYSENTER_32+0x15/0x20
+   entry_SYSENTER_32+0x9f/0xf2
+
+Fixes: 5517554e4313 ("cifs: Add support for writing attributes on SMB2+")
+Signed-off-by: Vladimir Zapolskiy <vladimir@tuxera.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
-+++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
-@@ -151,6 +151,7 @@
- };
+---
+ fs/cifs/smb2ops.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1179,7 +1179,7 @@ smb2_set_ea(const unsigned int xid, stru
+ 	rqst[1].rq_iov = si_iov;
+ 	rqst[1].rq_nvec = 1;
  
- &qspi {
-+	status = "okay";
- 	flash@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
+-	len = sizeof(ea) + ea_name_len + ea_value_len + 1;
++	len = sizeof(*ea) + ea_name_len + ea_value_len + 1;
+ 	ea = kzalloc(len, GFP_KERNEL);
+ 	if (ea == NULL) {
+ 		rc = -ENOMEM;
 
 
