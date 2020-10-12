@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F9E128B67A
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D38C28B759
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:43:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389204AbgJLNeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:34:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34724 "EHLO mail.kernel.org"
+        id S2389257AbgJLNm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:42:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389030AbgJLNcr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:32:47 -0400
+        id S1731090AbgJLNlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:41:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBCC3204EA;
-        Mon, 12 Oct 2020 13:32:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 168482222C;
+        Mon, 12 Oct 2020 13:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509565;
-        bh=AIPOUgDrEhBvroaU/P9P3ES4Mn0db5g6zCY8tG9ugwc=;
+        s=default; t=1602510094;
+        bh=P+J3iYdLRe/4gnQUT2CTlAkEiy7G0U67pId7UtyfoC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCUgxSzTKtdJlINs3WD2iAlQg7RfkF6b1MefcDzIRSm/RlyL6TTrXXIN3Fnc7fcuq
-         Upt9fICCstwralY0HyT1n4PNvQKdPcDI1B1ijIR6j52voiyvuIpENva6nUmZ2MM5Cy
-         Z5SadyT+zj3Red8FuojeiSpMIOYasL1q9JYi0Yrc=
+        b=I5p+6HGa/oz3obYGIOkRAt3LRdEuBGTf+UTZBm3MdpYfuMh19lgJ+3skyagp88HZT
+         yylgYjBGz6VWTK9vvVZDy8Z+xn1ujDEg4PfA5vLIEpMDVyegeNuw4MLZaHcRRrg11C
+         h334BNpR+ZZ5N6WTH/jn/k4Hxg8hNhTHp40Dj3Cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
-        Daniel Walter <dwalter@sigma-star.at>,
-        Boris Brezillon <boris.brezillon@free-electrons.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 30/39] mtd: nand: Provide nand_cleanup() function to free NAND related resources
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Hannes Reinecke <hare@suse.de>,
+        Jan Kara <jack@suse.com>, Jens Axboe <axboe@kernel.dk>,
+        Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Vlastimil Babka <vbabka@suse.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 37/85] nvme-tcp: check page by sendpage_ok() before calling kernel_sendpage()
 Date:   Mon, 12 Oct 2020 15:27:00 +0200
-Message-Id: <20201012132629.561192866@linuxfoundation.org>
+Message-Id: <20201012132634.639060575@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,94 +49,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit d44154f969a44269a9288c274c1c2fd9e85df8a5 ]
+commit 7d4194abfc4de13a2663c7fee6891de8360f7a52 upstream.
 
-Provide a nand_cleanup() function to free all nand related resources
-without unregistering the mtd device.
-This should allow drivers to call mtd_device_unregister() and handle
-its return value and still being able to cleanup all nand related
-resources.
+Currently nvme_tcp_try_send_data() doesn't use kernel_sendpage() to
+send slab pages. But for pages allocated by __get_free_pages() without
+__GFP_COMP, which also have refcount as 0, they are still sent by
+kernel_sendpage() to remote end, this is problematic.
 
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Daniel Walter <dwalter@sigma-star.at>
-Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The new introduced helper sendpage_ok() checks both PageSlab tag and
+page_count counter, and returns true if the checking page is OK to be
+sent by kernel_sendpage().
+
+This patch fixes the page checking issue of nvme_tcp_try_send_data()
+with sendpage_ok(). If sendpage_ok() returns true, send this page by
+kernel_sendpage(), otherwise use sock_no_sendpage to handle this page.
+
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Jan Kara <jack@suse.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Mikhail Skorzhinskii <mskorzhinskiy@solarflare.com>
+Cc: Philipp Reisner <philipp.reisner@linbit.com>
+Cc: Sagi Grimberg <sagi@grimberg.me>
+Cc: Vlastimil Babka <vbabka@suse.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/mtd/nand/nand_base.c | 22 +++++++++++++++-------
- include/linux/mtd/nand.h     |  6 +++++-
- 2 files changed, 20 insertions(+), 8 deletions(-)
+ drivers/nvme/host/tcp.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/nand/nand_base.c b/drivers/mtd/nand/nand_base.c
-index 8406f346b0be5..09864226428b2 100644
---- a/drivers/mtd/nand/nand_base.c
-+++ b/drivers/mtd/nand/nand_base.c
-@@ -4427,18 +4427,14 @@ int nand_scan(struct mtd_info *mtd, int maxchips)
- EXPORT_SYMBOL(nand_scan);
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -861,12 +861,11 @@ static int nvme_tcp_try_send_data(struct
+ 		else
+ 			flags |= MSG_MORE;
  
- /**
-- * nand_release - [NAND Interface] Free resources held by the NAND device
-- * @mtd: MTD device structure
-+ * nand_cleanup - [NAND Interface] Free resources held by the NAND device
-+ * @chip: NAND chip object
-  */
--void nand_release(struct mtd_info *mtd)
-+void nand_cleanup(struct nand_chip *chip)
- {
--	struct nand_chip *chip = mtd->priv;
--
- 	if (chip->ecc.mode == NAND_ECC_SOFT_BCH)
- 		nand_bch_free((struct nand_bch_control *)chip->ecc.priv);
- 
--	mtd_device_unregister(mtd);
--
- 	/* Free bad block table memory */
- 	kfree(chip->bbt);
- 	if (!(chip->options & NAND_OWN_BUFFERS))
-@@ -4449,6 +4445,18 @@ void nand_release(struct mtd_info *mtd)
- 			& NAND_BBT_DYNAMICSTRUCT)
- 		kfree(chip->badblock_pattern);
- }
-+EXPORT_SYMBOL_GPL(nand_cleanup);
-+
-+/**
-+ * nand_release - [NAND Interface] Unregister the MTD device and free resources
-+ *		  held by the NAND device
-+ * @mtd: MTD device structure
-+ */
-+void nand_release(struct mtd_info *mtd)
-+{
-+	mtd_device_unregister(mtd);
-+	nand_cleanup(mtd->priv);
-+}
- EXPORT_SYMBOL_GPL(nand_release);
- 
- static int __init nand_base_init(void)
-diff --git a/include/linux/mtd/nand.h b/include/linux/mtd/nand.h
-index 93fc372007937..1a066faf7b801 100644
---- a/include/linux/mtd/nand.h
-+++ b/include/linux/mtd/nand.h
-@@ -38,7 +38,7 @@ extern int nand_scan_ident(struct mtd_info *mtd, int max_chips,
- 			   struct nand_flash_dev *table);
- extern int nand_scan_tail(struct mtd_info *mtd);
- 
--/* Free resources held by the NAND device */
-+/* Unregister the MTD device and free resources held by the NAND device */
- extern void nand_release(struct mtd_info *mtd);
- 
- /* Internal helper for board drivers which need to override command function */
-@@ -1029,4 +1029,8 @@ int nand_check_erased_ecc_chunk(void *data, int datalen,
- 				void *ecc, int ecclen,
- 				void *extraoob, int extraooblen,
- 				int threshold);
-+
-+/* Free resources held by the NAND device */
-+void nand_cleanup(struct nand_chip *chip);
-+
- #endif /* __LINUX_MTD_NAND_H */
--- 
-2.25.1
-
+-		/* can't zcopy slab pages */
+-		if (unlikely(PageSlab(page))) {
+-			ret = sock_no_sendpage(queue->sock, page, offset, len,
++		if (sendpage_ok(page)) {
++			ret = kernel_sendpage(queue->sock, page, offset, len,
+ 					flags);
+ 		} else {
+-			ret = kernel_sendpage(queue->sock, page, offset, len,
++			ret = sock_no_sendpage(queue->sock, page, offset, len,
+ 					flags);
+ 		}
+ 		if (ret <= 0)
 
 
