@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C8328B9B0
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31B3F28B932
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731074AbgJLOCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:02:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40706 "EHLO mail.kernel.org"
+        id S1731608AbgJLN6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:58:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387950AbgJLNhj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:37:39 -0400
+        id S1731311AbgJLNk4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:40:56 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DEDE21BE5;
-        Mon, 12 Oct 2020 13:37:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4910A22202;
+        Mon, 12 Oct 2020 13:40:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509858;
-        bh=Y0TwAnMAo1vf2xBBoj30cPh5LU+yw9oGuUdn2lan18I=;
+        s=default; t=1602510022;
+        bh=PZN35SPpSz/Kz9MmIP1Hox82tgjCS2cttSyiyXk3NYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hnovP84MyKuDxfuHUi46kAuf5LcG707GwSo3LucZVItCDRm0qzdyFu5Hzp7XM1yW3
-         KYBSQvpZKI3wpRCKNA7xvN1S8huSvAF9bsKCCaxLm8gLMkXgGhCnEizjfPiHAUJAy8
-         Y0H1Li+3hwJyW93x3I1j+QTiUeRX1bKoDfQhdRPI=
+        b=wOwVRIW9yIXx4IjrMrMpKBLdK0gfK/UJqTx/imQSTnlcVBMCiKyNtT8aAFletipJV
+         +RosQz+OJSw/szspL0I7LyrXIvQSLS4PfaN1zg9k/TgUQh/vNasshCDX6481C8Iwr+
+         BewRoLq6nNQARGlNdECtb2FTLFeTcQCOdy5Cl0Ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 60/70] bonding: set dev->needed_headroom in bond_setup_by_slave()
+Subject: [PATCH 4.19 30/49] xfrm: clone XFRMA_SET_MARK in xfrm_do_migrate
 Date:   Mon, 12 Oct 2020 15:27:16 +0200
-Message-Id: <20201012132633.083900103@linuxfoundation.org>
+Message-Id: <20201012132630.850011419@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Antony Antony <antony.antony@secunet.com>
 
-[ Upstream commit f32f19339596b214c208c0dba716f4b6cc4f6958 ]
+[ Upstream commit 545e5c571662b1cd79d9588f9d3b6e36985b8007 ]
 
-syzbot managed to crash a host by creating a bond
-with a GRE device.
+XFRMA_SET_MARK and XFRMA_SET_MARK_MASK was not cloned from the old
+to the new. Migrate these two attributes during XFRMA_MSG_MIGRATE
 
-For non Ethernet device, bonding calls bond_setup_by_slave()
-instead of ether_setup(), and unfortunately dev->needed_headroom
-was not copied from the new added member.
-
-[  171.243095] skbuff: skb_under_panic: text:ffffffffa184b9ea len:116 put:20 head:ffff883f84012dc0 data:ffff883f84012dbc tail:0x70 end:0xd00 dev:bond0
-[  171.243111] ------------[ cut here ]------------
-[  171.243112] kernel BUG at net/core/skbuff.c:112!
-[  171.243117] invalid opcode: 0000 [#1] SMP KASAN PTI
-[  171.243469] gsmi: Log Shutdown Reason 0x03
-[  171.243505] Call Trace:
-[  171.243506]  <IRQ>
-[  171.243512]  [<ffffffffa171be59>] skb_push+0x49/0x50
-[  171.243516]  [<ffffffffa184b9ea>] ipgre_header+0x2a/0xf0
-[  171.243520]  [<ffffffffa17452d7>] neigh_connected_output+0xb7/0x100
-[  171.243524]  [<ffffffffa186f1d3>] ip6_finish_output2+0x383/0x490
-[  171.243528]  [<ffffffffa186ede2>] __ip6_finish_output+0xa2/0x110
-[  171.243531]  [<ffffffffa186acbc>] ip6_finish_output+0x2c/0xa0
-[  171.243534]  [<ffffffffa186abe9>] ip6_output+0x69/0x110
-[  171.243537]  [<ffffffffa186ac90>] ? ip6_output+0x110/0x110
-[  171.243541]  [<ffffffffa189d952>] mld_sendpack+0x1b2/0x2d0
-[  171.243544]  [<ffffffffa189d290>] ? mld_send_report+0xf0/0xf0
-[  171.243548]  [<ffffffffa189c797>] mld_ifc_timer_expire+0x2d7/0x3b0
-[  171.243551]  [<ffffffffa189c4c0>] ? mld_gq_timer_expire+0x50/0x50
-[  171.243556]  [<ffffffffa0fea270>] call_timer_fn+0x30/0x130
-[  171.243559]  [<ffffffffa0fea17c>] expire_timers+0x4c/0x110
-[  171.243563]  [<ffffffffa0fea0e3>] __run_timers+0x213/0x260
-[  171.243566]  [<ffffffffa0fecb7d>] ? ktime_get+0x3d/0xa0
-[  171.243570]  [<ffffffffa0ff9c4e>] ? clockevents_program_event+0x7e/0xe0
-[  171.243574]  [<ffffffffa0f7e5d5>] ? sched_clock_cpu+0x15/0x190
-[  171.243577]  [<ffffffffa0fe973d>] run_timer_softirq+0x1d/0x40
-[  171.243581]  [<ffffffffa1c00152>] __do_softirq+0x152/0x2f0
-[  171.243585]  [<ffffffffa0f44e1f>] irq_exit+0x9f/0xb0
-[  171.243588]  [<ffffffffa1a02e1d>] smp_apic_timer_interrupt+0xfd/0x1a0
-[  171.243591]  [<ffffffffa1a01ea6>] apic_timer_interrupt+0x86/0x90
-
-Fixes: f5184d267c1a ("net: Allow netdevices to specify needed head/tailroom")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9b42c1f179a6 ("xfrm: Extend the output_mark to support input direction and masking.")
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 1 +
+ net/xfrm/xfrm_state.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 861d2c0a521a4..6aaf1196d9a55 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1129,6 +1129,7 @@ static void bond_setup_by_slave(struct net_device *bond_dev,
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 47a8ff972a2bf..d76b019673aa0 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1410,6 +1410,7 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
+ 	}
  
- 	bond_dev->type		    = slave_dev->type;
- 	bond_dev->hard_header_len   = slave_dev->hard_header_len;
-+	bond_dev->needed_headroom   = slave_dev->needed_headroom;
- 	bond_dev->addr_len	    = slave_dev->addr_len;
+ 	memcpy(&x->mark, &orig->mark, sizeof(x->mark));
++	memcpy(&x->props.smark, &orig->props.smark, sizeof(x->props.smark));
  
- 	memcpy(bond_dev->broadcast, slave_dev->broadcast,
+ 	if (xfrm_init_state(x) < 0)
+ 		goto error;
 -- 
 2.25.1
 
