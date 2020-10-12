@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E576728B653
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AA4728B983
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389036AbgJLNct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:32:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34698 "EHLO mail.kernel.org"
+        id S1730998AbgJLNii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:38:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389020AbgJLNco (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:32:44 -0400
+        id S1731012AbgJLNhQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:37:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B64620878;
-        Mon, 12 Oct 2020 13:32:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 863B220678;
+        Mon, 12 Oct 2020 13:37:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509563;
-        bh=tTd+Le/81yhAQ2xyfR4Qm36z4Rjv8LTlDbI2rHX8MhM=;
+        s=default; t=1602509821;
+        bh=QiVfN9+kP/aDzJYxr9iODSc5ZKL5DqZO/13vTxIklb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4qaeyHga3FNJxUYujSkYuMVzSK6jEq97dFgacSV3ABWsCnW+Ia9XWqPFGaIuyvJS
-         zufk8+gsgL3BQSaNC1bE4afc5C9Jhr1bQd6vO2kwjuJuidQmwlqgOZblOsb64vGkGc
-         Y1wSiFHy5wltXkIjX5PZfcAUOFMtxNU7xj59mES8=
+        b=D2nxgtqdf2T0tijqmjzsKgVuKIlmB+Cbpu5QpLh7HKGSondzRSSIQxcYEwfKoQM2s
+         0mPstuSbc5dgoFIJlp1MfjRs8+Ed6XzdpUYrV+aK2xqt6zkDlPVYRQRR5WAHxEjz0A
+         xPR0g3704UZBi5ufiB8Tfv5MdtUZ+tZsH/h/RI3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 29/39] net: team: fix memory leak in __team_options_register
+        stable@vger.kernel.org, Robbie Ko <robbieko@synology.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Anand Jain <anand.jain@oracle.com>
+Subject: [PATCH 4.14 43/70] Btrfs: fix unexpected failure of nocow buffered writes after snapshotting when low on space
 Date:   Mon, 12 Oct 2020 15:26:59 +0200
-Message-Id: <20201012132629.511847133@linuxfoundation.org>
+Message-Id: <20201012132632.255115359@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Robbie Ko <robbieko@synology.com>
 
-commit 9a9e77495958c7382b2438bc19746dd3aaaabb8e upstream.
+commit 8ecebf4d767e2307a946c8905278d6358eda35c3 upstream.
 
-The variable "i" isn't initialized back correctly after the first loop
-under the label inst_rollback gets executed.
+Commit e9894fd3e3b3 ("Btrfs: fix snapshot vs nocow writting") forced
+nocow writes to fallback to COW, during writeback, when a snapshot is
+created. This resulted in writes made before creating the snapshot to
+unexpectedly fail with ENOSPC during writeback when success (0) was
+returned to user space through the write system call.
 
-The value of "i" is assigned to be option_count - 1, and the ensuing
-loop (under alloc_rollback) begins by initializing i--.
-Thus, the value of i when the loop begins execution will now become
-i = option_count - 2.
+The steps leading to this problem are:
 
-Thus, when kfree(dst_opts[i]) is called in the second loop in this
-order, (i.e., inst_rollback followed by alloc_rollback),
-dst_optsp[option_count - 2] is the first element freed, and
-dst_opts[option_count - 1] does not get freed, and thus, a memory
-leak is caused.
+1. When it's not possible to allocate data space for a write, the
+   buffered write path checks if a NOCOW write is possible.  If it is,
+   it will not reserve space and success (0) is returned to user space.
 
-This memory leak can be fixed, by assigning i = option_count (instead of
-option_count - 1).
+2. Then when a snapshot is created, the root's will_be_snapshotted
+   atomic is incremented and writeback is triggered for all inode's that
+   belong to the root being snapshotted. Incrementing that atomic forces
+   all previous writes to fallback to COW during writeback (running
+   delalloc).
 
-Fixes: 80f7c6683fe0 ("team: add support for per-port options")
-Reported-by: syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com
-Tested-by: syzbot+69b804437cfec30deac3@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+3. This results in the writeback for the inodes to fail and therefore
+   setting the ENOSPC error in their mappings, so that a subsequent
+   fsync on them will report the error to user space. So it's not a
+   completely silent data loss (since fsync will report ENOSPC) but it's
+   a very unexpected and undesirable behaviour, because if a clean
+   shutdown/unmount of the filesystem happens without previous calls to
+   fsync, it is expected to have the data present in the files after
+   mounting the filesystem again.
+
+So fix this by adding a new atomic named snapshot_force_cow to the
+root structure which prevents this behaviour and works the following way:
+
+1. It is incremented when we start to create a snapshot after triggering
+   writeback and before waiting for writeback to finish.
+
+2. This new atomic is now what is used by writeback (running delalloc)
+   to decide whether we need to fallback to COW or not. Because we
+   incremented this new atomic after triggering writeback in the
+   snapshot creation ioctl, we ensure that all buffered writes that
+   happened before snapshot creation will succeed and not fallback to
+   COW (which would make them fail with ENOSPC).
+
+3. The existing atomic, will_be_snapshotted, is kept because it is used
+   to force new buffered writes, that start after we started
+   snapshotting, to reserve data space even when NOCOW is possible.
+   This makes these writes fail early with ENOSPC when there's no
+   available space to allocate, preventing the unexpected behaviour of
+   writeback later failing with ENOSPC due to a fallback to COW mode.
+
+Fixes: e9894fd3e3b3 ("Btrfs: fix snapshot vs nocow writting")
+Signed-off-by: Robbie Ko <robbieko@synology.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/team/team.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/ctree.h   |    1 +
+ fs/btrfs/disk-io.c |    1 +
+ fs/btrfs/inode.c   |   25 ++++---------------------
+ fs/btrfs/ioctl.c   |   16 ++++++++++++++++
+ 4 files changed, 22 insertions(+), 21 deletions(-)
 
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -285,7 +285,7 @@ inst_rollback:
- 	for (i--; i >= 0; i--)
- 		__team_option_inst_del_option(team, dst_opts[i]);
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -1257,6 +1257,7 @@ struct btrfs_root {
+ 	int send_in_progress;
+ 	struct btrfs_subvolume_writers *subv_writers;
+ 	atomic_t will_be_snapshotted;
++	atomic_t snapshot_force_cow;
  
--	i = option_count - 1;
-+	i = option_count;
- alloc_rollback:
- 	for (i--; i >= 0; i--)
- 		kfree(dst_opts[i]);
+ 	/* For qgroup metadata space reserve */
+ 	atomic64_t qgroup_meta_rsv;
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1200,6 +1200,7 @@ static void __setup_root(struct btrfs_ro
+ 	refcount_set(&root->refs, 1);
+ 	atomic_set(&root->will_be_snapshotted, 0);
+ 	atomic64_set(&root->qgroup_meta_rsv, 0);
++	atomic_set(&root->snapshot_force_cow, 0);
+ 	root->log_transid = 0;
+ 	root->log_transid_committed = -1;
+ 	root->last_log_commit = 0;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1335,7 +1335,7 @@ static noinline int run_delalloc_nocow(s
+ 	u64 disk_num_bytes;
+ 	u64 ram_bytes;
+ 	int extent_type;
+-	int ret, err;
++	int ret;
+ 	int type;
+ 	int nocow;
+ 	int check_prev = 1;
+@@ -1460,11 +1460,8 @@ next_slot:
+ 			 * if there are pending snapshots for this root,
+ 			 * we fall into common COW way.
+ 			 */
+-			if (!nolock) {
+-				err = btrfs_start_write_no_snapshotting(root);
+-				if (!err)
+-					goto out_check;
+-			}
++			if (!nolock && atomic_read(&root->snapshot_force_cow))
++				goto out_check;
+ 			/*
+ 			 * force cow if csum exists in the range.
+ 			 * this ensure that csum for a given extent are
+@@ -1473,9 +1470,6 @@ next_slot:
+ 			ret = csum_exist_in_range(fs_info, disk_bytenr,
+ 						  num_bytes);
+ 			if (ret) {
+-				if (!nolock)
+-					btrfs_end_write_no_snapshotting(root);
+-
+ 				/*
+ 				 * ret could be -EIO if the above fails to read
+ 				 * metadata.
+@@ -1488,11 +1482,8 @@ next_slot:
+ 				WARN_ON_ONCE(nolock);
+ 				goto out_check;
+ 			}
+-			if (!btrfs_inc_nocow_writers(fs_info, disk_bytenr)) {
+-				if (!nolock)
+-					btrfs_end_write_no_snapshotting(root);
++			if (!btrfs_inc_nocow_writers(fs_info, disk_bytenr))
+ 				goto out_check;
+-			}
+ 			nocow = 1;
+ 		} else if (extent_type == BTRFS_FILE_EXTENT_INLINE) {
+ 			extent_end = found_key.offset +
+@@ -1505,8 +1496,6 @@ next_slot:
+ out_check:
+ 		if (extent_end <= start) {
+ 			path->slots[0]++;
+-			if (!nolock && nocow)
+-				btrfs_end_write_no_snapshotting(root);
+ 			if (nocow)
+ 				btrfs_dec_nocow_writers(fs_info, disk_bytenr);
+ 			goto next_slot;
+@@ -1528,8 +1517,6 @@ out_check:
+ 					     end, page_started, nr_written, 1,
+ 					     NULL);
+ 			if (ret) {
+-				if (!nolock && nocow)
+-					btrfs_end_write_no_snapshotting(root);
+ 				if (nocow)
+ 					btrfs_dec_nocow_writers(fs_info,
+ 								disk_bytenr);
+@@ -1549,8 +1536,6 @@ out_check:
+ 					  ram_bytes, BTRFS_COMPRESS_NONE,
+ 					  BTRFS_ORDERED_PREALLOC);
+ 			if (IS_ERR(em)) {
+-				if (!nolock && nocow)
+-					btrfs_end_write_no_snapshotting(root);
+ 				if (nocow)
+ 					btrfs_dec_nocow_writers(fs_info,
+ 								disk_bytenr);
+@@ -1589,8 +1574,6 @@ out_check:
+ 					     EXTENT_CLEAR_DATA_RESV,
+ 					     PAGE_UNLOCK | PAGE_SET_PRIVATE2);
+ 
+-		if (!nolock && nocow)
+-			btrfs_end_write_no_snapshotting(root);
+ 		cur_offset = extent_end;
+ 
+ 		/*
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -655,6 +655,7 @@ static int create_snapshot(struct btrfs_
+ 	struct btrfs_pending_snapshot *pending_snapshot;
+ 	struct btrfs_trans_handle *trans;
+ 	int ret;
++	bool snapshot_force_cow = false;
+ 
+ 	if (!test_bit(BTRFS_ROOT_REF_COWS, &root->state))
+ 		return -EINVAL;
+@@ -671,6 +672,11 @@ static int create_snapshot(struct btrfs_
+ 		goto free_pending;
+ 	}
+ 
++	/*
++	 * Force new buffered writes to reserve space even when NOCOW is
++	 * possible. This is to avoid later writeback (running dealloc) to
++	 * fallback to COW mode and unexpectedly fail with ENOSPC.
++	 */
+ 	atomic_inc(&root->will_be_snapshotted);
+ 	smp_mb__after_atomic();
+ 	btrfs_wait_for_no_snapshotting_writes(root);
+@@ -679,6 +685,14 @@ static int create_snapshot(struct btrfs_
+ 	if (ret)
+ 		goto dec_and_free;
+ 
++	/*
++	 * All previous writes have started writeback in NOCOW mode, so now
++	 * we force future writes to fallback to COW mode during snapshot
++	 * creation.
++	 */
++	atomic_inc(&root->snapshot_force_cow);
++	snapshot_force_cow = true;
++
+ 	btrfs_wait_ordered_extents(root, U64_MAX, 0, (u64)-1);
+ 
+ 	btrfs_init_block_rsv(&pending_snapshot->block_rsv,
+@@ -744,6 +758,8 @@ static int create_snapshot(struct btrfs_
+ fail:
+ 	btrfs_subvolume_release_metadata(fs_info, &pending_snapshot->block_rsv);
+ dec_and_free:
++	if (snapshot_force_cow)
++		atomic_dec(&root->snapshot_force_cow);
+ 	if (atomic_dec_and_test(&root->will_be_snapshotted))
+ 		wake_up_atomic_t(&root->will_be_snapshotted);
+ free_pending:
 
 
