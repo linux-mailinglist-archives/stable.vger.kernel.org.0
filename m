@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E43D128B9EE
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:05:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE3C28BA5A
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390816AbgJLOEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:04:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38658 "EHLO mail.kernel.org"
+        id S1730275AbgJLOIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730947AbgJLNgC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:36:02 -0400
+        id S1730584AbgJLNda (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:33:30 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0797204EA;
-        Mon, 12 Oct 2020 13:36:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B2002074F;
+        Mon, 12 Oct 2020 13:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509762;
-        bh=+lY72T++mi2yCqmDkAbpdLZPhicPGPe0qnP/BOHIv2g=;
+        s=default; t=1602509609;
+        bh=myPPuIP290xrbvnpk6NifaYnCfQgqD8J2edymKs38XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/kVgMxByGuzJNbf1yZFUHSWmnAqkj5tUnPwvAm30xoEyZR5S+15GYaY+1PdSsp75
-         Lc9Mbx3NOvYnbhToBx0L8m5Crcs820zLSVaPqdClujR6lyLTwiYH8D/ywC5d12QWw5
-         Fr4eQclo9uKyzOza4hSbEJ0HYB4IgMS6ISKUOktY=
+        b=A+UN8RCVAXPEA9D/GGVIBiQjBhlVixSgiIPWbI0SkRKhc/+rSOFFRSxAEtLUYBFnr
+         7HPtPb97JSuMLaKtGoMmUAftLzxY4VC55tdQXMVtWlydjyvjlACvnobLuPth2FZxjC
+         bL/fETqPuQQRv7Y2UMcjlESUVKHpA6YBule/1mWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dillon min <dillon.minfei@gmail.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 4.14 06/70] gpio: tc35894: fix up tc35894 interrupt configuration
-Date:   Mon, 12 Oct 2020 15:26:22 +0200
-Message-Id: <20201012132630.522455850@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 01/54] vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock
+Date:   Mon, 12 Oct 2020 15:26:23 +0200
+Message-Id: <20201012132629.662022259@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,40 +45,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dillon min <dillon.minfei@gmail.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit 214b0e1ad01abf4c1f6d8d28fa096bf167e47cef upstream.
+[ Upstream commit 9c7a5582f5d720dc35cfcc42ccaded69f0642e4a ]
 
-The offset of regmap is incorrect, j * 8 is move to the
-wrong register.
+Some callbacks used by the upper layers can run while we are in the
+.remove(). A potential use-after-free can happen, because we free
+the_virtio_vsock without knowing if the callbacks are over or not.
 
-for example:
+To solve this issue we move the assignment of the_virtio_vsock at the
+end of .probe(), when we finished all the initialization, and at the
+beginning of .remove(), before to release resources.
+For the same reason, we do the same also for the vdev->priv.
 
-asume i = 0, j = 1. we want to set KPY5 as interrupt
-falling edge mode, regmap[0][1] should be TC3589x_GPIOIBE1 0xcd
-but, regmap[i] + j * 8 = TC3589x_GPIOIBE0 + 8 ,point to 0xd4,
-this is TC3589x_GPIOIE2 not TC3589x_GPIOIBE1.
+We use RCU to be sure that all callbacks that use the_virtio_vsock
+ended before freeing it. This is not required for callbacks that
+use vdev->priv, because after the vdev->config->del_vqs() we are sure
+that they are ended and will no longer be invoked.
 
-Fixes: d88b25be3584 ("gpio: Add TC35892 GPIO driver")
-Cc: Cc: stable@vger.kernel.org
-Signed-off-by: dillon min <dillon.minfei@gmail.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We also take the mutex during the .remove() to avoid that .probe() can
+run while we are resetting the device.
 
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-tc3589x.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/vmw_vsock/virtio_transport.c | 50 ++++++++++++++++++++------------
+ 1 file changed, 32 insertions(+), 18 deletions(-)
 
---- a/drivers/gpio/gpio-tc3589x.c
-+++ b/drivers/gpio/gpio-tc3589x.c
-@@ -209,7 +209,7 @@ static void tc3589x_gpio_irq_sync_unlock
- 				continue;
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 0bd5a60f3bdeb..32ad7cfa5fa74 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -62,19 +62,22 @@ struct virtio_vsock {
+ 	u32 guest_cid;
+ };
  
- 			tc3589x_gpio->oldregs[i][j] = new;
--			tc3589x_reg_write(tc3589x, regmap[i] + j * 8, new);
-+			tc3589x_reg_write(tc3589x, regmap[i] + j, new);
- 		}
+-static struct virtio_vsock *virtio_vsock_get(void)
+-{
+-	return the_virtio_vsock;
+-}
+-
+ static u32 virtio_transport_get_local_cid(void)
+ {
+-	struct virtio_vsock *vsock = virtio_vsock_get();
++	struct virtio_vsock *vsock;
++	u32 ret;
+ 
+-	if (!vsock)
+-		return VMADDR_CID_ANY;
++	rcu_read_lock();
++	vsock = rcu_dereference(the_virtio_vsock);
++	if (!vsock) {
++		ret = VMADDR_CID_ANY;
++		goto out_rcu;
++	}
+ 
+-	return vsock->guest_cid;
++	ret = vsock->guest_cid;
++out_rcu:
++	rcu_read_unlock();
++	return ret;
+ }
+ 
+ static void
+@@ -156,10 +159,12 @@ virtio_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+ 	struct virtio_vsock *vsock;
+ 	int len = pkt->len;
+ 
+-	vsock = virtio_vsock_get();
++	rcu_read_lock();
++	vsock = rcu_dereference(the_virtio_vsock);
+ 	if (!vsock) {
+ 		virtio_transport_free_pkt(pkt);
+-		return -ENODEV;
++		len = -ENODEV;
++		goto out_rcu;
  	}
  
+ 	if (pkt->reply)
+@@ -170,6 +175,9 @@ virtio_transport_send_pkt(struct virtio_vsock_pkt *pkt)
+ 	spin_unlock_bh(&vsock->send_pkt_list_lock);
+ 
+ 	queue_work(virtio_vsock_workqueue, &vsock->send_pkt_work);
++
++out_rcu:
++	rcu_read_unlock();
+ 	return len;
+ }
+ 
+@@ -478,7 +486,8 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 		return ret;
+ 
+ 	/* Only one virtio-vsock device per guest is supported */
+-	if (the_virtio_vsock) {
++	if (rcu_dereference_protected(the_virtio_vsock,
++				lockdep_is_held(&the_virtio_vsock_mutex))) {
+ 		ret = -EBUSY;
+ 		goto out;
+ 	}
+@@ -502,8 +511,6 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	vsock->rx_buf_max_nr = 0;
+ 	atomic_set(&vsock->queued_replies, 0);
+ 
+-	vdev->priv = vsock;
+-	the_virtio_vsock = vsock;
+ 	mutex_init(&vsock->tx_lock);
+ 	mutex_init(&vsock->rx_lock);
+ 	mutex_init(&vsock->event_lock);
+@@ -522,6 +529,9 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 	virtio_vsock_event_fill(vsock);
+ 	mutex_unlock(&vsock->event_lock);
+ 
++	vdev->priv = vsock;
++	rcu_assign_pointer(the_virtio_vsock, vsock);
++
+ 	mutex_unlock(&the_virtio_vsock_mutex);
+ 	return 0;
+ 
+@@ -536,6 +546,12 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	struct virtio_vsock *vsock = vdev->priv;
+ 	struct virtio_vsock_pkt *pkt;
+ 
++	mutex_lock(&the_virtio_vsock_mutex);
++
++	vdev->priv = NULL;
++	rcu_assign_pointer(the_virtio_vsock, NULL);
++	synchronize_rcu();
++
+ 	flush_work(&vsock->rx_work);
+ 	flush_work(&vsock->tx_work);
+ 	flush_work(&vsock->event_work);
+@@ -565,12 +581,10 @@ static void virtio_vsock_remove(struct virtio_device *vdev)
+ 	}
+ 	spin_unlock_bh(&vsock->send_pkt_list_lock);
+ 
+-	mutex_lock(&the_virtio_vsock_mutex);
+-	the_virtio_vsock = NULL;
+-	mutex_unlock(&the_virtio_vsock_mutex);
+-
+ 	vdev->config->del_vqs(vdev);
+ 
++	mutex_unlock(&the_virtio_vsock_mutex);
++
+ 	kfree(vsock);
+ }
+ 
+-- 
+2.25.1
+
 
 
