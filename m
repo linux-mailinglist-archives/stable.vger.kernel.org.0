@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CA3528B76D
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7BD928B6A8
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389342AbgJLNni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:43:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46910 "EHLO mail.kernel.org"
+        id S1730949AbgJLNgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:36:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731536AbgJLNmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:42:10 -0400
+        id S1730686AbgJLNfi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:35:38 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 377E92074F;
-        Mon, 12 Oct 2020 13:42:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C31DC2222A;
+        Mon, 12 Oct 2020 13:35:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510129;
-        bh=zhWx1SIoZQ9nkQPPAdEMjkvc9ZuMVeASYAFxnBccCVQ=;
+        s=default; t=1602509733;
+        bh=DPJ7hSF8Bve5Cv5O4DeRfsryLXidSFc+kkrXAutzhMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKrKzAH5y4nmaJsNgE6AHgNSsSNkC+9A0JdauuXLpgnR9c0P7tBj2wGypBwxHhQv+
-         vSSp8USqOww1e9jtIgYqqX9AxuGHyOrQiPJYanxd2U8XL007Mrs5/RpvtHe45d8oWm
-         GmKvO5HyCoZ4dyoohSq9eVodXHfx7sFRvmwcNqZU=
+        b=XVnMAue6qXHNqUMyrhGEuHfAJ+s6goFN/rd2qtq0nm9dU0NGgpXq/ONrdD5TutoB0
+         3RmkiLYgvyd4IwPGfYcJbTaxt48XXBLtqg8qKyRjGGCARPnaMyoGvuU8orE2ygrJAQ
+         iLhCf2XzisQgJ9UljKj3XjGK1O0BTG2QUOrNnAAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Voon Weifeng <weifeng.voon@intel.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 53/85] net: stmmac: removed enabling eee in EEE set callback
+        stable@vger.kernel.org,
+        syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com,
+        Petko Manolov <petkan@nucleusys.com>,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 54/54] net: usb: rtl8150: set random MAC address when set_ethernet_addr() fails
 Date:   Mon, 12 Oct 2020 15:27:16 +0200
-Message-Id: <20201012132635.417241209@linuxfoundation.org>
+Message-Id: <20201012132632.078339755@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Voon Weifeng <weifeng.voon@intel.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-[ Upstream commit 7241c5a697479c7d0c5a96595822cdab750d41ae ]
+commit f45a4248ea4cc13ed50618ff066849f9587226b2 upstream.
 
-EEE should be only be enabled during stmmac_mac_link_up() when the
-link are up and being set up properly. set_eee should only do settings
-configuration and disabling the eee.
+When get_registers() fails in set_ethernet_addr(),the uninitialized
+value of node_id gets copied over as the address.
+So, check the return value of get_registers().
 
-Without this fix, turning on EEE using ethtool will return
-"Operation not supported". This is due to the driver is in a dead loop
-waiting for eee to be advertised in the for eee to be activated but the
-driver will only configure the EEE advertisement after the eee is
-activated.
+If get_registers() executed successfully (i.e., it returns
+sizeof(node_id)), copy over the MAC address using ether_addr_copy()
+(instead of using memcpy()).
 
-Ethtool should only return "Operation not supported" if there is no EEE
-capbility in the MAC controller.
+Else, if get_registers() failed instead, a randomly generated MAC
+address is set as the MAC address instead.
 
-Fixes: 8a7493e58ad6 ("net: stmmac: Fix a race in EEE enable callback")
-Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
-Acked-by: Mark Gross <mgross@linux.intel.com>
+Reported-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
+Tested-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
+Acked-by: Petko Manolov <petkan@nucleusys.com>
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../net/ethernet/stmicro/stmmac/stmmac_ethtool.c  | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ drivers/net/usb/rtl8150.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-index 1a768837ca728..ce1346c14b05a 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-@@ -662,23 +662,16 @@ static int stmmac_ethtool_op_set_eee(struct net_device *dev,
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	int ret;
- 
--	if (!edata->eee_enabled) {
-+	if (!priv->dma_cap.eee)
-+		return -EOPNOTSUPP;
-+
-+	if (!edata->eee_enabled)
- 		stmmac_disable_eee_mode(priv);
--	} else {
--		/* We are asking for enabling the EEE but it is safe
--		 * to verify all by invoking the eee_init function.
--		 * In case of failure it will return an error.
--		 */
--		edata->eee_enabled = stmmac_eee_init(priv);
--		if (!edata->eee_enabled)
--			return -EOPNOTSUPP;
--	}
- 
- 	ret = phylink_ethtool_set_eee(priv->phylink, edata);
- 	if (ret)
- 		return ret;
- 
--	priv->eee_enabled = edata->eee_enabled;
- 	priv->tx_lpi_timer = edata->tx_lpi_timer;
- 	return 0;
+--- a/drivers/net/usb/rtl8150.c
++++ b/drivers/net/usb/rtl8150.c
+@@ -277,12 +277,20 @@ static int write_mii_word(rtl8150_t * de
+ 		return 1;
  }
--- 
-2.25.1
-
+ 
+-static inline void set_ethernet_addr(rtl8150_t * dev)
++static void set_ethernet_addr(rtl8150_t *dev)
+ {
+-	u8 node_id[6];
++	u8 node_id[ETH_ALEN];
++	int ret;
+ 
+-	get_registers(dev, IDR, sizeof(node_id), node_id);
+-	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
++	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
++
++	if (ret == sizeof(node_id)) {
++		ether_addr_copy(dev->netdev->dev_addr, node_id);
++	} else {
++		eth_hw_addr_random(dev->netdev);
++		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
++			      dev->netdev->dev_addr);
++	}
+ }
+ 
+ static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
 
 
