@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F3328BA03
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46B9F28B790
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:45:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731843AbgJLOFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:05:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38002 "EHLO mail.kernel.org"
+        id S2389503AbgJLNoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:44:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730810AbgJLNfZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:35:25 -0400
+        id S1731421AbgJLNnM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:43:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6960722227;
-        Mon, 12 Oct 2020 13:35:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B8B121BE5;
+        Mon, 12 Oct 2020 13:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509723;
-        bh=xNQeYc8vbiD1ts3rSFDYRnaEEWjjM7CPcujzTGXaWD8=;
+        s=default; t=1602510191;
+        bh=hy3wofTbcHYl/O6Wzjta6ryuFIEiG9aOQHF4fXFAF8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLJQisWGeETkqHpef1KYUxTZrVapTDvhyxTh6Ge4/MZ1hM7owFLRq+A9gCzMGnBY/
-         EZZhqyindvIVKJTgA5qYdWNFxxtjn/O+/tXB2/6OdpHNylXbJRl1ouUOLqyyRNLbVp
-         4QBSKowIrRgvKlU8I5DCuxuCYFpXr+2zkkIT7eO0=
+        b=kzAxl9MZU/dGAD4ZgseFLkDM1eNMnRfbFzInnpgEOXKDiAz6Oje8R0F1M4D0ZfAHU
+         32tw/1L0J42QgcFi8dCwkjeOpvbQsEuB/NpGzo9WY0hFqqNAdO3020aHQJXTN3D+XG
+         zrEyMgC64TsUqR4VkQ4Hj9u9wV2duvErJL8Mdgf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 50/54] rxrpc: Fix some missing _bh annotations on locking conn->state_lock
+Subject: [PATCH 5.4 49/85] xfrm: clone XFRMA_SET_MARK in xfrm_do_migrate
 Date:   Mon, 12 Oct 2020 15:27:12 +0200
-Message-Id: <20201012132631.889260681@linuxfoundation.org>
+Message-Id: <20201012132635.225387533@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Antony Antony <antony.antony@secunet.com>
 
-[ Upstream commit fa1d113a0f96f9ab7e4fe4f8825753ba1e34a9d3 ]
+[ Upstream commit 545e5c571662b1cd79d9588f9d3b6e36985b8007 ]
 
-conn->state_lock may be taken in softirq mode, but a previous patch
-replaced an outer lock in the response-packet event handling code, and lost
-the _bh from that when doing so.
+XFRMA_SET_MARK and XFRMA_SET_MARK_MASK was not cloned from the old
+to the new. Migrate these two attributes during XFRMA_MSG_MIGRATE
 
-Fix this by applying the _bh annotation to the state_lock locking.
-
-Fixes: a1399f8bb033 ("rxrpc: Call channels should have separate call number spaces")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: 9b42c1f179a6 ("xfrm: Extend the output_mark to support input direction and masking.")
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/conn_event.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/xfrm/xfrm_state.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/rxrpc/conn_event.c b/net/rxrpc/conn_event.c
-index b099b64366f35..ec02dd7c12ef4 100644
---- a/net/rxrpc/conn_event.c
-+++ b/net/rxrpc/conn_event.c
-@@ -309,18 +309,18 @@ static int rxrpc_process_event(struct rxrpc_connection *conn,
- 			return ret;
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index f3423562d9336..10d30f0338d72 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -1507,6 +1507,7 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
+ 	}
  
- 		spin_lock(&conn->channel_lock);
--		spin_lock(&conn->state_lock);
-+		spin_lock_bh(&conn->state_lock);
+ 	memcpy(&x->mark, &orig->mark, sizeof(x->mark));
++	memcpy(&x->props.smark, &orig->props.smark, sizeof(x->props.smark));
  
- 		if (conn->state == RXRPC_CONN_SERVICE_CHALLENGING) {
- 			conn->state = RXRPC_CONN_SERVICE;
--			spin_unlock(&conn->state_lock);
-+			spin_unlock_bh(&conn->state_lock);
- 			for (loop = 0; loop < RXRPC_MAXCALLS; loop++)
- 				rxrpc_call_is_secure(
- 					rcu_dereference_protected(
- 						conn->channels[loop].call,
- 						lockdep_is_held(&conn->channel_lock)));
- 		} else {
--			spin_unlock(&conn->state_lock);
-+			spin_unlock_bh(&conn->state_lock);
- 		}
- 
- 		spin_unlock(&conn->channel_lock);
+ 	if (xfrm_init_state(x) < 0)
+ 		goto error;
 -- 
 2.25.1
 
