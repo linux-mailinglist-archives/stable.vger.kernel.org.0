@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A05528B814
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D1128B812
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389586AbgJLNtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:49:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53874 "EHLO mail.kernel.org"
+        id S2389718AbgJLNtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:49:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731930AbgJLNsV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:48:21 -0400
+        id S1731955AbgJLNsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:48:23 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F21F2065C;
-        Mon, 12 Oct 2020 13:48:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59D4E21BE5;
+        Mon, 12 Oct 2020 13:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510500;
-        bh=nkughcisM3Tew1sDWfUS+ImMOVIfJ4vGc+Frw2AFkWQ=;
+        s=default; t=1602510502;
+        bh=Whn8XnJvOHsttyDLbBYWnTyVKBIF5HdEn0aFsAE4mug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUxYcE/vxN0DpyWO3WwyRXaoWzeR55VZx9K0M1zzcb3pYezjvjBVjPSbRjCKJcJSv
-         RH2Jlnppu62/sCyRTm2BE55II0Y+hgIVgzJiSoC11qzvCpTj9JkXG+lJfFexNHf+RD
-         II5xKIbquLE6/ndX3o90hQLGuIdTlLSIQxDES/L4=
+        b=Js5KdabllyK/v7ynPHErE7PM3/MdcYDDIih4LbyrWJ4OhZ4PDFgNOoLj3Q3sJ7eKp
+         1/VAAdEWxSK7MBY5UY79cG/QgrZaLREul+MkcwK9aMa6Xk32TJZ4mQUdxQwm8g9M9X
+         Uh38DJOqoeUoxB60rOEjuadp79WoJtlDKzZZUUDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>
-Subject: [PATCH 5.8 119/124] tty/vt: Do not warn when huge selection requested
-Date:   Mon, 12 Oct 2020 15:32:03 +0200
-Message-Id: <20201012133152.609765516@linuxfoundation.org>
+        stable@vger.kernel.org, Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.8 120/124] Input: ati_remote2 - add missing newlines when printing module parameters
+Date:   Mon, 12 Oct 2020 15:32:04 +0200
+Message-Id: <20201012133152.663019341@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -41,43 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit 44c413d9a51752056d606bf6f312003ac1740fab upstream.
+commit 37bd9e803daea816f2dc2c8f6dc264097eb3ebd2 upstream.
 
-The tty TIOCL_SETSEL ioctl allocates a memory buffer big enough for text
-selection area. The maximum allowed console size is
-VC_RESIZE_MAXCOL * VC_RESIZE_MAXROW == 32767*32767 == ~1GB and typical
-MAX_ORDER is set to allow allocations lot less than than (circa 16MB).
+When I cat some module parameters by sysfs, it displays as follows. It's
+better to add a newline for easy reading.
 
-So it is quite possible to trigger huge allocation (and syzkaller just
-did that) which is going to fail (which is fine) with a backtrace in
-mm/page_alloc.c at WARN_ON_ONCE(!(gfp_mask & __GFP_NOWARN)) and
-this may trigger panic (if panic_on_warn is enabled) and
-leak kernel addresses to dmesg.
+root@syzkaller:~# cat /sys/module/ati_remote2/parameters/mode_mask
+0x1froot@syzkaller:~# cat /sys/module/ati_remote2/parameters/channel_mask
+0xffffroot@syzkaller:~#
 
-This passes __GFP_NOWARN to kmalloc_array to avoid unnecessary user-
-triggered WARN_ON. Note that the error is not ignored and
-the warning is still printed.
-
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Link: https://lore.kernel.org/r/20200617070444.116704-1-aik@ozlabs.ru
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Link: https://lore.kernel.org/r/20200720092148.9320-1-wangxiongfeng2@huawei.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/vt/selection.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/misc/ati_remote2.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/vt/selection.c
-+++ b/drivers/tty/vt/selection.c
-@@ -193,7 +193,7 @@ static int vc_selection_store_chars(stru
- 	/* Allocate a new buffer before freeing the old one ... */
- 	/* chars can take up to 4 bytes with unicode */
- 	bp = kmalloc_array((vc_sel.end - vc_sel.start) / 2 + 1, unicode ? 4 : 1,
--			   GFP_KERNEL);
-+			   GFP_KERNEL | __GFP_NOWARN);
- 	if (!bp) {
- 		printk(KERN_WARNING "selection: kmalloc() failed\n");
- 		clear_selection();
+--- a/drivers/input/misc/ati_remote2.c
++++ b/drivers/input/misc/ati_remote2.c
+@@ -68,7 +68,7 @@ static int ati_remote2_get_channel_mask(
+ {
+ 	pr_debug("%s()\n", __func__);
+ 
+-	return sprintf(buffer, "0x%04x", *(unsigned int *)kp->arg);
++	return sprintf(buffer, "0x%04x\n", *(unsigned int *)kp->arg);
+ }
+ 
+ static int ati_remote2_set_mode_mask(const char *val,
+@@ -84,7 +84,7 @@ static int ati_remote2_get_mode_mask(cha
+ {
+ 	pr_debug("%s()\n", __func__);
+ 
+-	return sprintf(buffer, "0x%02x", *(unsigned int *)kp->arg);
++	return sprintf(buffer, "0x%02x\n", *(unsigned int *)kp->arg);
+ }
+ 
+ static unsigned int channel_mask = ATI_REMOTE2_MAX_CHANNEL_MASK;
 
 
