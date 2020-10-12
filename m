@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E26B28B82A
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F6F28B801
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389962AbgJLNts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:49:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55732 "EHLO mail.kernel.org"
+        id S1732003AbgJLNsj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:48:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731908AbgJLNsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731902AbgJLNsT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:48:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89CF522281;
-        Mon, 12 Oct 2020 13:47:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0AB122273;
+        Mon, 12 Oct 2020 13:48:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510480;
-        bh=yXflGQVwbU9svzeLupID0xXvGgR4Va0wrZMGKcYCTVs=;
+        s=default; t=1602510482;
+        bh=JHkqCSZdy7MzQOPZEl0Ec0T8/etdya31jdOjtdOcFdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=StabADUIv63IVbs2zkXFiRgpaF00bPqrn4mNHpwVynEFZMbEiYLnF03wIq55AZEpf
-         l575bSLVxxHQDPCXjORw36uHXUn+C1ICI5CPESJaXmxRMluk8JnXXxZZNnyjPZrrfO
-         i8r6ewj1yDvovog1+Im6KvPqm7tGbSWiQzNJ7tg0=
+        b=Gk1i1j7UaUw+kS0bWLMTGBnpjWS8ooO6zGDAeN+UJ3NGyTShXhZQUBHVAAzCaOG6E
+         eUhdHoapk/iYFssK9k9/ZoA4K6cTWpCY4g9lZKEgFVoKxpfZqtkqskFfE/J3+8P0pA
+         wZjcF+J7VYm01daoSGAZ4WkFbH5HEp/FsbAfGzvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eran Ben Elisha <eranbe@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
+        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
+        Eran Ben Elisha <eranbe@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 087/124] net/mlx5: Add retry mechanism to the command entry index allocation
-Date:   Mon, 12 Oct 2020 15:31:31 +0200
-Message-Id: <20201012133151.073837836@linuxfoundation.org>
+Subject: [PATCH 5.8 088/124] net/mlx5: Fix request_irqs error flow
+Date:   Mon, 12 Oct 2020 15:31:32 +0200
+Message-Id: <20201012133151.121230561@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -44,67 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eran Ben Elisha <eranbe@nvidia.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit 410bd754cd73c4a2ac3856d9a03d7b08f9c906bf ]
+[ Upstream commit 732ebfab7fe96b7ac9a3df3208f14752a4bb6db3 ]
 
-It is possible that new command entry index allocation will temporarily
-fail. The new command holds the semaphore, so it means that a free entry
-should be ready soon. Add one second retry mechanism before returning an
-error.
+Fix error flow handling in request_irqs which try to free irq
+that we failed to request.
+It fixes the below trace.
 
-Patch "net/mlx5: Avoid possible free of command entry while timeout comp
-handler" increase the possibility to bump into this temporarily failure
-as it delays the entry index release for non-callback commands.
+WARNING: CPU: 1 PID: 7587 at kernel/irq/manage.c:1684 free_irq+0x4d/0x60
+CPU: 1 PID: 7587 Comm: bash Tainted: G        W  OE    4.15.15-1.el7MELLANOXsmp-x86_64 #1
+Hardware name: Advantech SKY-6200/SKY-6200, BIOS F2.00 08/06/2020
+RIP: 0010:free_irq+0x4d/0x60
+RSP: 0018:ffffc9000ef47af0 EFLAGS: 00010282
+RAX: ffff88001476ae00 RBX: 0000000000000655 RCX: 0000000000000000
+RDX: ffff88001476ae00 RSI: ffffc9000ef47ab8 RDI: ffff8800398bb478
+RBP: ffff88001476a838 R08: ffff88001476ae00 R09: 000000000000156d
+R10: 0000000000000000 R11: 0000000000000004 R12: ffff88001476a838
+R13: 0000000000000006 R14: ffff88001476a888 R15: 00000000ffffffe4
+FS:  00007efeadd32740(0000) GS:ffff88047fc40000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fc9cc010008 CR3: 00000001a2380004 CR4: 00000000007606e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ mlx5_irq_table_create+0x38d/0x400 [mlx5_core]
+ ? atomic_notifier_chain_register+0x50/0x60
+ mlx5_load_one+0x7ee/0x1130 [mlx5_core]
+ init_one+0x4c9/0x650 [mlx5_core]
+ pci_device_probe+0xb8/0x120
+ driver_probe_device+0x2a1/0x470
+ ? driver_allows_async_probing+0x30/0x30
+ bus_for_each_drv+0x54/0x80
+ __device_attach+0xa3/0x100
+ pci_bus_add_device+0x4a/0x90
+ pci_iov_add_virtfn+0x2dc/0x2f0
+ pci_enable_sriov+0x32e/0x420
+ mlx5_core_sriov_configure+0x61/0x1b0 [mlx5_core]
+ ? kstrtoll+0x22/0x70
+ num_vf_store+0x4b/0x70 [mlx5_core]
+ kernfs_fop_write+0x102/0x180
+ __vfs_write+0x26/0x140
+ ? rcu_all_qs+0x5/0x80
+ ? _cond_resched+0x15/0x30
+ ? __sb_start_write+0x41/0x80
+ vfs_write+0xad/0x1a0
+ SyS_write+0x42/0x90
+ do_syscall_64+0x60/0x110
+ entry_SYSCALL_64_after_hwframe+0x3d/0xa2
 
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Fixes: 24163189da48 ("net/mlx5: Separate IRQ request/free from EQ life cycle")
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 21 ++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-index 37dae95e61d5f..2b597ac365f84 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-@@ -883,6 +883,25 @@ static bool opcode_allowed(struct mlx5_cmd *cmd, u16 opcode)
- 	return cmd->allowed_opcode == opcode;
- }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
+index 373981a659c7c..6fd9749203944 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
+@@ -115,7 +115,7 @@ static int request_irqs(struct mlx5_core_dev *dev, int nvec)
+ 	return 0;
  
-+static int cmd_alloc_index_retry(struct mlx5_cmd *cmd)
-+{
-+	unsigned long alloc_end = jiffies + msecs_to_jiffies(1000);
-+	int idx;
-+
-+retry:
-+	idx = cmd_alloc_index(cmd);
-+	if (idx < 0 && time_before(jiffies, alloc_end)) {
-+		/* Index allocation can fail on heavy load of commands. This is a temporary
-+		 * situation as the current command already holds the semaphore, meaning that
-+		 * another command completion is being handled and it is expected to release
-+		 * the entry index soon.
-+		 */
-+		cpu_relax();
-+		goto retry;
-+	}
-+	return idx;
-+}
-+
- static void cmd_work_handler(struct work_struct *work)
- {
- 	struct mlx5_cmd_work_ent *ent = container_of(work, struct mlx5_cmd_work_ent, work);
-@@ -900,7 +919,7 @@ static void cmd_work_handler(struct work_struct *work)
- 	sem = ent->page_queue ? &cmd->pages_sem : &cmd->sem;
- 	down(sem);
- 	if (!ent->page_queue) {
--		alloc_ret = cmd_alloc_index(cmd);
-+		alloc_ret = cmd_alloc_index_retry(cmd);
- 		if (alloc_ret < 0) {
- 			mlx5_core_err_rl(dev, "failed to allocate command entry\n");
- 			if (ent->callback) {
+ err_request_irq:
+-	for (; i >= 0; i--) {
++	while (i--) {
+ 		struct mlx5_irq *irq = mlx5_irq_get(dev, i);
+ 		int irqn = pci_irq_vector(dev->pdev, i);
+ 
 -- 
 2.25.1
 
