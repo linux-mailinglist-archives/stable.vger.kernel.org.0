@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B42528B8C0
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09B5A28B8BB
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389976AbgJLNzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:55:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49174 "EHLO mail.kernel.org"
+        id S2390396AbgJLNyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:54:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389685AbgJLNpp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:45:45 -0400
+        id S2389696AbgJLNps (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:45:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1698322266;
-        Mon, 12 Oct 2020 13:44:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5913021BE5;
+        Mon, 12 Oct 2020 13:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510271;
-        bh=Cq25miAfdQyRlTPU8qtyp+GbvM4dFtyLo9Qe4f8Imhg=;
+        s=default; t=1602510273;
+        bh=87vBj+uHV7nk6yoGej2Hcm8LlmoOilfSL1aaEibYHqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e30ICbWnvDDDYWk0HoIZZ4AMHOuxn+d2jxKPXqI+NjitdJ/4TKVwg5MbogfOKjsNv
-         3QrKy72ZnwxK+K5U1BXOzEOduSi0grBMatnLYz0AWK6OwamqAOEby7uSOzImf2rgbD
-         gfjZjTAwTfcE1eYQlmAoEN5/cRb9qhZfsJKeinZs=
+        b=mjHh3xxbWbxv0ySlDk/bpAdct1UAh6Y8krcNU98qxsV8fBHd1OPTHrw1T05dFFB2R
+         ssFg3lp4hpe4DjW+oZzg8P78C+ti/j/ipuyz3U4wjESCWlZEwk1zhf4nafP3TjUQcB
+         PceRkxDFwXEglz0EFDR4+yAKclVS4dTpNw8DXrmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atish Patra <atish.patra@wdc.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>
-Subject: [PATCH 5.8 028/124] RISC-V: Make sure memblock reserves the memory containing DT
-Date:   Mon, 12 Oct 2020 15:30:32 +0200
-Message-Id: <20201012133148.208719220@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.8 029/124] gpiolib: Disable compat ->read() code in UML case
+Date:   Mon, 12 Oct 2020 15:30:33 +0200
+Message-Id: <20201012133148.257019902@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -42,34 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atish Patra <atish.patra@wdc.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit a78c6f5956a949b496a5b087188dde52483edf51 upstream.
+commit 47e538d86d5776ac8152146c3ed3d22326243190 upstream.
 
-Currently, the memory containing DT is not reserved. Thus, that region
-of memory can be reallocated or reused for other purposes. This may result
-in  corrupted DT for nommu virt board in Qemu. We may not face any issue
-in kendryte as DT is embedded in the kernel image for that.
+It appears that UML (arch/um) has no compat.h header defined and hence
+can't compile a recently provided piece of code in GPIO library.
 
-Fixes: 6bd33e1ece52 ("riscv: add nommu support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Atish Patra <atish.patra@wdc.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Disable compat ->read() code in UML case to avoid compilation errors.
+
+While at it, use pattern which is already being used in the kernel elsewhere.
+
+Fixes: 5ad284ab3a01 ("gpiolib: Fix line event handling in syscall compatible mode")
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20201005131044.87276-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/riscv/mm/init.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpio/gpiolib.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -515,6 +515,7 @@ asmlinkage void __init setup_vm(uintptr_
- #else
- 	dtb_early_va = (void *)dtb_pa;
- #endif
-+	dtb_early_pa = dtb_pa;
- }
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -838,7 +838,7 @@ static __poll_t lineevent_poll(struct fi
  
- static inline void setup_vm_final(void)
+ static ssize_t lineevent_get_size(void)
+ {
+-#ifdef __x86_64__
++#if defined(CONFIG_X86_64) && !defined(CONFIG_UML)
+ 	/* i386 has no padding after 'id' */
+ 	if (in_ia32_syscall()) {
+ 		struct compat_gpioeevent_data {
 
 
