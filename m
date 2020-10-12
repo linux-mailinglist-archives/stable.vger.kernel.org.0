@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2557A28BA28
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBC8928B740
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:42:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389520AbgJLOG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:06:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36760 "EHLO mail.kernel.org"
+        id S1730667AbgJLNlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:41:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730230AbgJLNe1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:34:27 -0400
+        id S2389108AbgJLNlL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:41:11 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 016422222F;
-        Mon, 12 Oct 2020 13:34:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F4BD2076E;
+        Mon, 12 Oct 2020 13:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509656;
-        bh=/ZHgex/KMwOUGfYEdwGUNIyuAGKFvjjDlQKu+Q02E1c=;
+        s=default; t=1602510070;
+        bh=Ccz4JWh+v4134ZyEbJ2S3IXk2/venNaodAGSpyjqWwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vTl5xbgGsKW6UdWbYKg+Shi0/7D1hwlZ9xoThCC4X3uwIsejRd3JVAW7eVZuQVJNb
-         rZ0N2xsf81xjrFWoEmhpi76XORF2NbJVYwQCGYtRnSZsBLHglvXrSESkiGE748EFjO
-         GnjLAT24V43JatmpS5HwrKLe5oYctn4IMIqYakUA=
+        b=fKtczoa5ImfixHfEkB5l3BqTblp58vAOaO+AY9rV6TIsSyWF1aTHNj3Q3Tqm56sAF
+         Z/WUrkETnHkDSUVCnPBhEk1nbLdIwCHFxFT+zeuWr78KkZ8ASB79RaulN9QtugS0GK
+         omFD53hhvb3orI6R+DcAOnSPPacUUMLe+B0AI0BQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        mark gross <mgross@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.9 29/54] platform/x86: thinkpad_acpi: initialize tp_nvram_state variable
+        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
+        Josef Bacik <josef@toxicpanda.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Anand Jain <anand.jain@oracle.com>
+Subject: [PATCH 5.4 28/85] btrfs: volumes: Use more straightforward way to calculate map length
 Date:   Mon, 12 Oct 2020 15:26:51 +0200
-Message-Id: <20201012132630.941946479@linuxfoundation.org>
+Message-Id: <20201012132634.207705689@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 5f38b06db8af3ed6c2fc1b427504ca56fae2eacc upstream.
+commit 2d974619a77f106f3d1341686dea95c0eaad601f upstream.
 
-clang static analysis flags this represenative problem
-thinkpad_acpi.c:2523:7: warning: Branch condition evaluates
-  to a garbage value
-                if (!oldn->mute ||
-                    ^~~~~~~~~~~
+The old code goes:
 
-In hotkey_kthread() mute is conditionally set by hotkey_read_nvram()
-but unconditionally checked by hotkey_compare_and_issue_event().
-So the tp_nvram_state variable s[2] needs to be initialized.
+ 	offset = logical - em->start;
+	length = min_t(u64, em->len - offset, length);
 
-Fixes: 01e88f25985d ("ACPI: thinkpad-acpi: add CMOS NVRAM polling for hot keys (v9)")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: mark gross <mgross@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Where @length calculation is dependent on offset, it can take reader
+several more seconds to find it's just the same code as:
+
+ 	offset = logical - em->start;
+	length = min_t(u64, em->start + em->len - logical, length);
+
+Use above code to make the length calculate independent from other
+variable, thus slightly increase the readability.
+
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/platform/x86/thinkpad_acpi.c |    2 +-
+ fs/btrfs/volumes.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -2476,7 +2476,7 @@ static void hotkey_compare_and_issue_eve
-  */
- static int hotkey_kthread(void *data)
- {
--	struct tp_nvram_state s[2];
-+	struct tp_nvram_state s[2] = { 0 };
- 	u32 poll_mask, event_mask;
- 	unsigned int si, so;
- 	unsigned long t;
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -5714,7 +5714,7 @@ static int __btrfs_map_block_for_discard
+ 	}
+ 
+ 	offset = logical - em->start;
+-	length = min_t(u64, em->len - offset, length);
++	length = min_t(u64, em->start + em->len - logical, length);
+ 
+ 	stripe_len = map->stripe_len;
+ 	/*
 
 
