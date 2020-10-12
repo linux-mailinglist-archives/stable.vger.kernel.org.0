@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7BD928B6A8
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:37:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1975528B9A4
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730949AbgJLNgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:36:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36796 "EHLO mail.kernel.org"
+        id S2390046AbgJLOC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:02:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730686AbgJLNfi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:35:38 -0400
+        id S1729809AbgJLNiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:38:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C31DC2222A;
-        Mon, 12 Oct 2020 13:35:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43CBE22228;
+        Mon, 12 Oct 2020 13:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509733;
-        bh=DPJ7hSF8Bve5Cv5O4DeRfsryLXidSFc+kkrXAutzhMA=;
+        s=default; t=1602509860;
+        bh=eMqosG4lrKOhjxzhNXzZxFfVQARlSV+MNl3lOSuaQ8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVnMAue6qXHNqUMyrhGEuHfAJ+s6goFN/rd2qtq0nm9dU0NGgpXq/ONrdD5TutoB0
-         3RmkiLYgvyd4IwPGfYcJbTaxt48XXBLtqg8qKyRjGGCARPnaMyoGvuU8orE2ygrJAQ
-         iLhCf2XzisQgJ9UljKj3XjGK1O0BTG2QUOrNnAAU=
+        b=alqx/ifzdMD031+o3QIBDxHES7OC/Uxm3CC/6m1wVzMy5DD80fy7tV847vCob6ay5
+         aoLftxfLsy4HBvwaLMw75TeABE9gbxchVQBySjD58Fh6Zxc15BvbQhyUgkmYkznkK0
+         MUTScaekvm8tykWTR6JiK/nSuXtXpOURMlCtE7YA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com,
-        Petko Manolov <petkan@nucleusys.com>,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 54/54] net: usb: rtl8150: set random MAC address when set_ethernet_addr() fails
-Date:   Mon, 12 Oct 2020 15:27:16 +0200
-Message-Id: <20201012132632.078339755@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Heiner Kallweit <hkallweit1@gmail.com>, netdev@vger.kernel.org,
+        David Daney <david.daney@cavium.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 61/70] mdio: fix mdio-thunder.c dependency & build error
+Date:   Mon, 12 Oct 2020 15:27:17 +0200
+Message-Id: <20201012132633.133106852@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +48,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit f45a4248ea4cc13ed50618ff066849f9587226b2 upstream.
+[ Upstream commit 7dbbcf496f2a4b6d82cfc7810a0746e160b79762 ]
 
-When get_registers() fails in set_ethernet_addr(),the uninitialized
-value of node_id gets copied over as the address.
-So, check the return value of get_registers().
+Fix build error by selecting MDIO_DEVRES for MDIO_THUNDER.
+Fixes this build error:
 
-If get_registers() executed successfully (i.e., it returns
-sizeof(node_id)), copy over the MAC address using ether_addr_copy()
-(instead of using memcpy()).
+ld: drivers/net/phy/mdio-thunder.o: in function `thunder_mdiobus_pci_probe':
+drivers/net/phy/mdio-thunder.c:78: undefined reference to `devm_mdiobus_alloc_size'
 
-Else, if get_registers() failed instead, a randomly generated MAC
-address is set as the MAC address instead.
-
-Reported-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
-Tested-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
-Acked-by: Petko Manolov <petkan@nucleusys.com>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Fixes: 379d7ac7ca31 ("phy: mdio-thunder: Add driver for Cavium Thunder SoC MDIO buses.")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: netdev@vger.kernel.org
+Cc: David Daney <david.daney@cavium.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/rtl8150.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/net/phy/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/usb/rtl8150.c
-+++ b/drivers/net/usb/rtl8150.c
-@@ -277,12 +277,20 @@ static int write_mii_word(rtl8150_t * de
- 		return 1;
- }
- 
--static inline void set_ethernet_addr(rtl8150_t * dev)
-+static void set_ethernet_addr(rtl8150_t *dev)
- {
--	u8 node_id[6];
-+	u8 node_id[ETH_ALEN];
-+	int ret;
- 
--	get_registers(dev, IDR, sizeof(node_id), node_id);
--	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
-+	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
-+
-+	if (ret == sizeof(node_id)) {
-+		ether_addr_copy(dev->netdev->dev_addr, node_id);
-+	} else {
-+		eth_hw_addr_random(dev->netdev);
-+		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
-+			      dev->netdev->dev_addr);
-+	}
- }
- 
- static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
+diff --git a/drivers/net/phy/Kconfig b/drivers/net/phy/Kconfig
+index cd931cf9dcc26..e08d822338341 100644
+--- a/drivers/net/phy/Kconfig
++++ b/drivers/net/phy/Kconfig
+@@ -146,6 +146,7 @@ config MDIO_THUNDER
+ 	depends on 64BIT
+ 	depends on PCI
+ 	select MDIO_CAVIUM
++	select MDIO_DEVRES
+ 	help
+ 	  This driver supports the MDIO interfaces found on Cavium
+ 	  ThunderX SoCs when the MDIO bus device appears as a PCI
+-- 
+2.25.1
+
 
 
