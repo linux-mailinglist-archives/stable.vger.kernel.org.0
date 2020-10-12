@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1614628B711
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B344E28B9AE
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388813AbgJLNkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:40:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42964 "EHLO mail.kernel.org"
+        id S1731085AbgJLOCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:02:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731352AbgJLNjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:39:15 -0400
+        id S2387538AbgJLNhf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:37:35 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 577F420838;
-        Mon, 12 Oct 2020 13:39:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F6F621D7F;
+        Mon, 12 Oct 2020 13:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509952;
-        bh=6ywTh4+0mnnRnCT5j+Wl7afSosu3sCue0g9jlw3VrSM=;
+        s=default; t=1602509853;
+        bh=qa0/iPBshBLUs7BLG3q2biC+JWob9mLPteJ8XteCzTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VROMFPfGQczR/jCgqv71WV5xenuE/To8gsf6uuImD7V+lv6NWXn9i3ImKc5b+ABM4
-         7Bm2SzgZem+zNuGal4PxIodLJ0ygdUlhg25npTjxJeJBwAJIBzp1UOa5TulXmozgnR
-         YDu1ovZoUTShYPAHYp//IuKxRlSfJ37JwvFzjBrA=
+        b=paOg9HVLW64vqAagUq3csr2Jl7JpAgeCfT9Wh6NT52BmjrSrUZsn8Uv8WTC7J9Rso
+         DdVV9HQ4iCxlEOgoKRE+FO3rgkM5zqovRYrzXt6jdXWMwv3qO5XmN0L8CsbpLqCHTC
+         rzdPmzWnEVQncYIAujBcJy4nZF66evrIema1vpKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Dumitru Ceara <dceara@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 28/49] openvswitch: handle DNAT tuple collision
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 58/70] platform/x86: fix kconfig dependency warning for FUJITSU_LAPTOP
 Date:   Mon, 12 Oct 2020 15:27:14 +0200
-Message-Id: <20201012132630.764037085@linuxfoundation.org>
+Message-Id: <20201012132632.978601991@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dumitru Ceara <dceara@redhat.com>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-commit 8aa7b526dc0b5dbf40c1b834d76a667ad672a410 upstream.
+[ Upstream commit afdd1ebb72051e8b6b83c4d7dc542a9be0e1352d ]
 
-With multiple DNAT rules it's possible that after destination
-translation the resulting tuples collide.
+When FUJITSU_LAPTOP is enabled and NEW_LEDS is disabled, it results in the
+following Kbuild warning:
 
-For example, two openvswitch flows:
-nw_dst=10.0.0.10,tp_dst=10, actions=ct(commit,table=2,nat(dst=20.0.0.1:20))
-nw_dst=10.0.0.20,tp_dst=10, actions=ct(commit,table=2,nat(dst=20.0.0.1:20))
+WARNING: unmet direct dependencies detected for LEDS_CLASS
+  Depends on [n]: NEW_LEDS [=n]
+  Selected by [y]:
+  - FUJITSU_LAPTOP [=y] && X86 [=y] && X86_PLATFORM_DEVICES [=y] && ACPI [=y] && INPUT [=y] && BACKLIGHT_CLASS_DEVICE [=y] && (ACPI_VIDEO [=n] || ACPI_VIDEO [=n]=n)
 
-Assuming two TCP clients initiating the following connections:
-10.0.0.10:5000->10.0.0.10:10
-10.0.0.10:5000->10.0.0.20:10
+The reason is that FUJITSU_LAPTOP selects LEDS_CLASS without depending on
+or selecting NEW_LEDS while LEDS_CLASS is subordinate to NEW_LEDS.
 
-Both tuples would translate to 10.0.0.10:5000->20.0.0.1:20 causing
-nf_conntrack_confirm() to fail because of tuple collision.
+Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
 
-Netfilter handles this case by allocating a null binding for SNAT at
-egress by default.  Perform the same operation in openvswitch for DNAT
-if no explicit SNAT is requested by the user and allocate a null binding
-for SNAT for packets in the "original" direction.
-
-Reported-at: https://bugzilla.redhat.com/1877128
-Suggested-by: Florian Westphal <fw@strlen.de>
-Fixes: 05752523e565 ("openvswitch: Interface with NAT.")
-Signed-off-by: Dumitru Ceara <dceara@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: d89bcc83e709 ("platform/x86: fujitsu-laptop: select LEDS_CLASS")
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/conntrack.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/platform/x86/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/openvswitch/conntrack.c
-+++ b/net/openvswitch/conntrack.c
-@@ -899,15 +899,19 @@ static int ovs_ct_nat(struct net *net, s
- 	}
- 	err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range, maniptype);
- 
--	if (err == NF_ACCEPT &&
--	    ct->status & IPS_SRC_NAT && ct->status & IPS_DST_NAT) {
--		if (maniptype == NF_NAT_MANIP_SRC)
--			maniptype = NF_NAT_MANIP_DST;
--		else
--			maniptype = NF_NAT_MANIP_SRC;
-+	if (err == NF_ACCEPT && ct->status & IPS_DST_NAT) {
-+		if (ct->status & IPS_SRC_NAT) {
-+			if (maniptype == NF_NAT_MANIP_SRC)
-+				maniptype = NF_NAT_MANIP_DST;
-+			else
-+				maniptype = NF_NAT_MANIP_SRC;
- 
--		err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range,
--					 maniptype);
-+			err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range,
-+						 maniptype);
-+		} else if (CTINFO2DIR(ctinfo) == IP_CT_DIR_ORIGINAL) {
-+			err = ovs_ct_nat_execute(skb, ct, ctinfo, NULL,
-+						 NF_NAT_MANIP_SRC);
-+		}
- 	}
- 
- 	/* Mark NAT done if successful and update the flow key. */
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index 09035705d0a07..4f872e62508a8 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -183,6 +183,7 @@ config FUJITSU_LAPTOP
+ 	depends on BACKLIGHT_CLASS_DEVICE
+ 	depends on ACPI_VIDEO || ACPI_VIDEO = n
+ 	select INPUT_SPARSEKMAP
++	select NEW_LEDS
+ 	select LEDS_CLASS
+ 	---help---
+ 	  This is a driver for laptops built by Fujitsu:
+-- 
+2.25.1
+
 
 
