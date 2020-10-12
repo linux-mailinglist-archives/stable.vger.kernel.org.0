@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 171AA28C0B9
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:07:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A4CE28C081
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 21:05:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390298AbgJLTF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 15:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53910 "EHLO mail.kernel.org"
+        id S2391402AbgJLTE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 15:04:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391315AbgJLTEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 15:04:24 -0400
+        id S2391343AbgJLTEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 15:04:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D595E2073A;
-        Mon, 12 Oct 2020 19:04:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4899922247;
+        Mon, 12 Oct 2020 19:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602529443;
-        bh=CnE2lC2lYtQSLtaPahgvjcCkXoR6mNxAYKvONxHRGsY=;
+        s=default; t=1602529445;
+        bh=ShvNEEGhHk2gSVxuSwLHj1bk8F+pdYDgrwV5iL7PQF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1dqDD/6tucuPQHmuNN1utudWdPf1fT0AN9rk4Te501NsKJZGsX8RI/Z41FoTMbPJa
-         ohxtCFpFwMZAdXGf5bCHUq/zz3ysH8KFzw/cawS7b+I6lr7B9Puy5D8+x1mdIMx8NL
-         I/ztvXJP5lsntJE+re2k1M3t2eWsGjw/aSnpmr8Q=
+        b=vOgf6eQ8gXJnoQJCAm4K60wlnN9sjVq4Tfa4Ar93FdzIbzI2I6GUmzY0sVv6gbeBU
+         HqrmM3ZB9R/hwABbDL1xpKAaYn3Wduaj8UIxPPLjGCM7ibuwzc24BtEO6x6srG3fu7
+         uiqnLdH0mnMMk0ra3aZBk+iWasQu2+KLKzM9xfCU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com,
-        Petko Manolov <petkan@nucleusys.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 08/11] net: usb: rtl8150: set random MAC address when set_ethernet_addr() fails
-Date:   Mon, 12 Oct 2020 15:03:50 -0400
-Message-Id: <20201012190353.3279662-8-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 09/11] usermodehelper: reset umask to default before executing user process
+Date:   Mon, 12 Oct 2020 15:03:51 -0400
+Message-Id: <20201012190353.3279662-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20201012190353.3279662-1-sashal@kernel.org>
 References: <20201012190353.3279662-1-sashal@kernel.org>
@@ -45,60 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit f45a4248ea4cc13ed50618ff066849f9587226b2 ]
+[ Upstream commit 4013c1496c49615d90d36b9d513eee8e369778e9 ]
 
-When get_registers() fails in set_ethernet_addr(),the uninitialized
-value of node_id gets copied over as the address.
-So, check the return value of get_registers().
+Kernel threads intentionally do CLONE_FS in order to follow any changes
+that 'init' does to set up the root directory (or cwd).
 
-If get_registers() executed successfully (i.e., it returns
-sizeof(node_id)), copy over the MAC address using ether_addr_copy()
-(instead of using memcpy()).
+It is admittedly a bit odd, but it avoids the situation where 'init'
+does some extensive setup to initialize the system environment, and then
+we execute a usermode helper program, and it uses the original FS setup
+from boot time that may be very limited and incomplete.
 
-Else, if get_registers() failed instead, a randomly generated MAC
-address is set as the MAC address instead.
+[ Both Al Viro and Eric Biederman point out that 'pivot_root()' will
+  follow the root regardless, since it fixes up other users of root (see
+  chroot_fs_refs() for details), but overmounting root and doing a
+  chroot() would not. ]
 
-Reported-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
-Tested-by: syzbot+abbc768b560c84d92fd3@syzkaller.appspotmail.com
-Acked-by: Petko Manolov <petkan@nucleusys.com>
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+However, Vegard Nossum noticed that the CLONE_FS not only means that we
+follow the root and current working directories, it also means we share
+umask with whatever init changed it to. That wasn't intentional.
+
+Just reset umask to the original default (0022) before actually starting
+the usermode helper program.
+
+Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Acked-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/rtl8150.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ kernel/umh.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/net/usb/rtl8150.c b/drivers/net/usb/rtl8150.c
-index 48ba80a8ca5ce..3f4fc78498e03 100644
---- a/drivers/net/usb/rtl8150.c
-+++ b/drivers/net/usb/rtl8150.c
-@@ -277,12 +277,20 @@ static int write_mii_word(rtl8150_t * dev, u8 phy, __u8 indx, u16 reg)
- 		return 1;
- }
+diff --git a/kernel/umh.c b/kernel/umh.c
+index a5daa8534d0ed..9c41f05f969bf 100644
+--- a/kernel/umh.c
++++ b/kernel/umh.c
+@@ -13,6 +13,7 @@
+ #include <linux/cred.h>
+ #include <linux/file.h>
+ #include <linux/fdtable.h>
++#include <linux/fs_struct.h>
+ #include <linux/workqueue.h>
+ #include <linux/security.h>
+ #include <linux/mount.h>
+@@ -70,6 +71,14 @@ static int call_usermodehelper_exec_async(void *data)
+ 	flush_signal_handlers(current, 1);
+ 	spin_unlock_irq(&current->sighand->siglock);
  
--static inline void set_ethernet_addr(rtl8150_t * dev)
-+static void set_ethernet_addr(rtl8150_t *dev)
- {
--	u8 node_id[6];
-+	u8 node_id[ETH_ALEN];
-+	int ret;
++	/*
++	 * Initial kernel threads share ther FS with init, in order to
++	 * get the init root directory. But we've now created a new
++	 * thread that is going to execve a user process and has its own
++	 * 'struct fs_struct'. Reset umask to the default.
++	 */
++	current->fs->umask = 0022;
 +
-+	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
- 
--	get_registers(dev, IDR, sizeof(node_id), node_id);
--	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
-+	if (ret == sizeof(node_id)) {
-+		ether_addr_copy(dev->netdev->dev_addr, node_id);
-+	} else {
-+		eth_hw_addr_random(dev->netdev);
-+		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
-+			      dev->netdev->dev_addr);
-+	}
- }
- 
- static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
+ 	/*
+ 	 * Our parent (unbound workqueue) runs with elevated scheduling
+ 	 * priority. Avoid propagating that into the userspace child.
 -- 
 2.25.1
 
