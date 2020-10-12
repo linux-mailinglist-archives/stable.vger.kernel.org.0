@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4236C28B80B
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:49:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB7028B836
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:50:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389454AbgJLNsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:48:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56340 "EHLO mail.kernel.org"
+        id S2389613AbgJLNuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:50:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731999AbgJLNse (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:48:34 -0400
+        id S1731918AbgJLNsT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:48:19 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82C332074F;
-        Mon, 12 Oct 2020 13:48:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 744772076E;
+        Mon, 12 Oct 2020 13:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510514;
-        bh=gu5AP9XOuemlsF9rtbBDcLHNd0+iCPJvfcl6OnecRWU=;
+        s=default; t=1602510493;
+        bh=3mnmW4Kn3WSOaWuJNFlbQfs1FOqdw20rPVotspi8Mw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3n4cBlxHYWv8Hh5Fdwy3j0NdjBUk1Sqr6176XNBRRzD06Q7/Aq1nwN7/xNEI5WHk
-         SEcJQbN+NHfwGHZqLejxc812KdRekxUCaktc4VB9WaQXcyhjGrK43M/qP9DcqzOjtQ
-         39ElVT2ZOSHD6Mv5nwGkHHXLe4aEFWlJY73r2mjU=
+        b=u9aAN3F1PIv+7Qexw5FtZALUGcGvuR7sZXVRlcopttujhQFuiRQmnqVOpATuk1Yzx
+         s1zB3fKEOTjCERLQMoyRvoHV5q+cQ53Rb4n55gbWz2ql0etG+YikizNb9uQlYCPMOX
+         gvXgYHl48Md21S4dUoqsFNJ6jZhRuBtKsmb6f4Bg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        Davide Caratti <dcaratti@redhat.com>,
+        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.8 115/124] net/core: check length before updating Ethertype in skb_mpls_{push,pop}
-Date:   Mon, 12 Oct 2020 15:31:59 +0200
-Message-Id: <20201012133152.415777438@linuxfoundation.org>
+Subject: [PATCH 5.8 116/124] net: bridge: fdb: dont flush ext_learn entries
+Date:   Mon, 12 Oct 2020 15:32:00 +0200
+Message-Id: <20201012133152.464287592@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -43,48 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-commit 4296adc3e32f5d544a95061160fe7e127be1b9ff upstream.
+commit f2f3729fb65c5c2e6db234e6316b71a7bdc4b30b upstream.
 
-Openvswitch allows to drop a packet's Ethernet header, therefore
-skb_mpls_push() and skb_mpls_pop() might be called with ethernet=true
-and mac_len=0. In that case the pointer passed to skb_mod_eth_type()
-doesn't point to an Ethernet header and the new Ethertype is written at
-unexpected locations.
+When a user-space software manages fdb entries externally it should
+set the ext_learn flag which marks the fdb entry as externally managed
+and avoids expiring it (they're treated as static fdbs). Unfortunately
+on events where fdb entries are flushed (STP down, netlink fdb flush
+etc) these fdbs are also deleted automatically by the bridge. That in turn
+causes trouble for the managing user-space software (e.g. in MLAG setups
+we lose remote fdb entries on port flaps).
+These entries are completely externally managed so we should avoid
+automatically deleting them, the only exception are offloaded entries
+(i.e. BR_FDB_ADDED_BY_EXT_LEARN + BR_FDB_OFFLOADED). They are flushed as
+before.
 
-Fix this by verifying that mac_len is big enough to contain an Ethernet
-header.
-
-Fixes: fa4e0f8855fc ("net/sched: fix corrupted L2 header with MPLS 'push' and 'pop' actions")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Acked-by: Davide Caratti <dcaratti@redhat.com>
+Fixes: eb100e0e24a2 ("net: bridge: allow to add externally learned entries from user-space")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/skbuff.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bridge/br_fdb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -5621,7 +5621,7 @@ int skb_mpls_push(struct sk_buff *skb, _
- 	lse->label_stack_entry = mpls_lse;
- 	skb_postpush_rcsum(skb, lse, MPLS_HLEN);
+--- a/net/bridge/br_fdb.c
++++ b/net/bridge/br_fdb.c
+@@ -404,6 +404,8 @@ void br_fdb_delete_by_port(struct net_br
  
--	if (ethernet)
-+	if (ethernet && mac_len >= ETH_HLEN)
- 		skb_mod_eth_type(skb, eth_hdr(skb), mpls_proto);
- 	skb->protocol = mpls_proto;
+ 		if (!do_all)
+ 			if (test_bit(BR_FDB_STATIC, &f->flags) ||
++			    (test_bit(BR_FDB_ADDED_BY_EXT_LEARN, &f->flags) &&
++			     !test_bit(BR_FDB_OFFLOADED, &f->flags)) ||
+ 			    (vid && f->key.vlan_id != vid))
+ 				continue;
  
-@@ -5661,7 +5661,7 @@ int skb_mpls_pop(struct sk_buff *skb, __
- 	skb_reset_mac_header(skb);
- 	skb_set_network_header(skb, mac_len);
- 
--	if (ethernet) {
-+	if (ethernet && mac_len >= ETH_HLEN) {
- 		struct ethhdr *hdr;
- 
- 		/* use mpls_hdr() to get ethertype to account for VLANs. */
 
 
