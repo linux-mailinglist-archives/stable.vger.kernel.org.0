@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44BBE28B6ED
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9CE528B9C2
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731302AbgJLNi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:38:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42478 "EHLO mail.kernel.org"
+        id S2390257AbgJLOD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:03:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731274AbgJLNix (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:53 -0400
+        id S1730808AbgJLNgh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:36:37 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 958772076E;
-        Mon, 12 Oct 2020 13:38:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79711208B8;
+        Mon, 12 Oct 2020 13:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509931;
+        s=default; t=1602509795;
         bh=v6TC/afamof1ms9LRUmLrPjC/pPoBr805aVrngS61SY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JtBa+583+sTOeLdScj5YSZjeo+wJ3w//mY0tcjmMOcjB+yr9t56pa7uww5UInx3cs
-         DuPXy/tRfVVsAeXNL++anty5sGiHBvOCcR9847WKir2IrNlwjs7NvG18K8wwFMqvN4
-         KY4co8yqM/yX9pBP3fLU8oXbGC+iYCIClQ3IMeRM=
+        b=W2Wf4/sg9Ya+C7d2zn5x9J6pfaVnHbq/qBUVxb6aw4remHcDvUJ3ldnTIzfSNYeL5
+         WQQfz+mljTnLdiG+hdolKkFjIBBqZO019Z47+6P4J/1lMRbM/X8xxMEBZ26LPM3iY4
+         YOhn4meS+LqvKHvaf1o85BKcdRf9bO2MS0WeJCu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
         Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.19 02/49] Fonts: Support FONT_EXTRA_WORDS macros for built-in fonts
-Date:   Mon, 12 Oct 2020 15:26:48 +0200
-Message-Id: <20201012132629.563296671@linuxfoundation.org>
+Subject: [PATCH 4.14 33/70] Fonts: Support FONT_EXTRA_WORDS macros for built-in fonts
+Date:   Mon, 12 Oct 2020 15:26:49 +0200
+Message-Id: <20201012132631.774855525@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
