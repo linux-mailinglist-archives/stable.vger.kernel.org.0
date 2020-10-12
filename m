@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95B1928B66C
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A38B28B70F
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389088AbgJLNdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:33:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35250 "EHLO mail.kernel.org"
+        id S2388798AbgJLNkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:40:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389116AbgJLNdM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:33:12 -0400
+        id S1730801AbgJLNjS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:39:18 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E924720678;
-        Mon, 12 Oct 2020 13:33:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2842A21D7F;
+        Mon, 12 Oct 2020 13:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509591;
-        bh=RyzAeQ9vihSfklRP/ulLDWhABDtni9FIhc8heIIPko8=;
+        s=default; t=1602509957;
+        bh=yPw1Tjcg7arkiZ9q+KvcQmSs2RcA9QimSAeawjaQDkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mGBefvd3YZSWorYYE3NFSPqx+Fq652bGW9luGuk/oxhBtclGjLmFAqnvB6Fvdac/E
-         /QH4KDGQAF/cemRbScAJiYgGvr6xC7ohTsH9jp7B6JCRwi94pMfPjnc27EvTtpVzyT
-         Ik7GgBselRYMz+SxoCExYaHEHz+Y/3ZxkvyP+zyA=
+        b=lPiauUC9xM21b8c6yxKecBP0cllgk+yYKYV1aPy9E8kqF2MLPQ+U+T4g1+7g0Zx6l
+         fyM6T++3eAb9fYUc9xQFSgCC3YAtFC1T67rnRqIx/FxQfR6v3D6/l83jmnveo9Fi9G
+         L2aaCMXq+rXN+jJOeVvQgi1ksh6hgB8Px2ARo7Dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 19/39] Revert "ravb: Fixed to be able to unload modules"
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        syzbot+29d4ed7f3bdedf2aa2fd@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 03/49] fbcon: Fix global-out-of-bounds read in fbcon_get_font()
 Date:   Mon, 12 Oct 2020 15:26:49 +0200
-Message-Id: <20201012132629.042093472@linuxfoundation.org>
+Message-Id: <20201012132629.608316610@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,243 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-commit 77972b55fb9d35d4a6b0abca99abffaa4ec6a85b upstream.
+commit 5af08640795b2b9a940c9266c0260455377ae262 upstream.
 
-This reverts commit 1838d6c62f57836639bd3d83e7855e0ee4f6defc.
+fbcon_get_font() is reading out-of-bounds. A malicious user may resize
+`vc->vc_font.height` to a large value, causing fbcon_get_font() to
+read out of `fontdata`.
 
-This commit moved the ravb_mdio_init() call (and thus the
-of_mdiobus_register() call) from the ravb_probe() to the ravb_open()
-call.  This causes a regression during system resume (s2idle/s2ram), as
-new PHY devices cannot be bound while suspended.
+fbcon_get_font() handles both built-in and user-provided fonts.
+Fortunately, recently we have added FONT_EXTRA_WORDS support for built-in
+fonts, so fix it by adding range checks using FNTSIZE().
 
-During boot, the Micrel PHY is detected like this:
+This patch depends on patch "fbdev, newport_con: Move FONT_EXTRA_WORDS
+macros into linux/font.h", and patch "Fonts: Support FONT_EXTRA_WORDS
+macros for built-in fonts".
 
-    Micrel KSZ9031 Gigabit PHY e6800000.ethernet-ffffffff:00: attached PHY driver [Micrel KSZ9031 Gigabit PHY] (mii_bus:phy_addr=e6800000.ethernet-ffffffff:00, irq=228)
-    ravb e6800000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
-
-During system suspend, (A) defer_all_probes is set to true, and (B)
-usermodehelper_disabled is set to UMH_DISABLED, to avoid drivers being
-probed while suspended.
-
-  A. If CONFIG_MODULES=n, phy_device_register() calling device_add()
-     merely adds the device, but does not probe it yet, as
-     really_probe() returns early due to defer_all_probes being set:
-
-       dpm_resume+0x128/0x4f8
-	 device_resume+0xcc/0x1b0
-	   dpm_run_callback+0x74/0x340
-	     ravb_resume+0x190/0x1b8
-	       ravb_open+0x84/0x770
-		 of_mdiobus_register+0x1e0/0x468
-		   of_mdiobus_register_phy+0x1b8/0x250
-		     of_mdiobus_phy_device_register+0x178/0x1e8
-		       phy_device_register+0x114/0x1b8
-			 device_add+0x3d4/0x798
-			   bus_probe_device+0x98/0xa0
-			     device_initial_probe+0x10/0x18
-			       __device_attach+0xe4/0x140
-				 bus_for_each_drv+0x64/0xc8
-				   __device_attach_driver+0xb8/0xe0
-				     driver_probe_device.part.11+0xc4/0xd8
-				       really_probe+0x32c/0x3b8
-
-     Later, phy_attach_direct() notices no PHY driver has been bound,
-     and falls back to the Generic PHY, leading to degraded operation:
-
-       Generic PHY e6800000.ethernet-ffffffff:00: attached PHY driver [Generic PHY] (mii_bus:phy_addr=e6800000.ethernet-ffffffff:00, irq=POLL)
-       ravb e6800000.ethernet eth0: Link is Up - 1Gbps/Full - flow control off
-
-  B. If CONFIG_MODULES=y, request_module() returns early with -EBUSY due
-     to UMH_DISABLED, and MDIO initialization fails completely:
-
-       mdio_bus e6800000.ethernet-ffffffff:00: error -16 loading PHY driver module for ID 0x00221622
-       ravb e6800000.ethernet eth0: failed to initialize MDIO
-       PM: dpm_run_callback(): ravb_resume+0x0/0x1b8 returns -16
-       PM: Device e6800000.ethernet failed to resume: error -16
-
-     Ignoring -EBUSY in phy_request_driver_module(), like was done for
-     -ENOENT in commit 21e194425abd65b5 ("net: phy: fix issue with loading
-     PHY driver w/o initramfs"), would makes it fall back to the Generic
-     PHY, like in the CONFIG_MODULES=n case.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Cc: stable@vger.kernel.org
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-and-tested-by: syzbot+29d4ed7f3bdedf2aa2fd@syzkaller.appspotmail.com
+Link: https://syzkaller.appspot.com/bug?id=08b8be45afea11888776f897895aef9ad1c3ecfd
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/b34544687a1a09d6de630659eb7a773f4953238b.1600953813.git.yepeilin.cs@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/renesas/ravb_main.c |  110 +++++++++++++++----------------
- 1 file changed, 55 insertions(+), 55 deletions(-)
+ drivers/video/fbdev/core/fbcon.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1214,64 +1214,12 @@ static const struct ethtool_ops ravb_eth
- 	.get_ts_info		= ravb_get_ts_info,
- };
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2270,6 +2270,9 @@ static int fbcon_get_font(struct vc_data
  
--/* MDIO bus init function */
--static int ravb_mdio_init(struct ravb_private *priv)
--{
--	struct platform_device *pdev = priv->pdev;
--	struct device *dev = &pdev->dev;
--	int error;
--
--	/* Bitbang init */
--	priv->mdiobb.ops = &bb_ops;
--
--	/* MII controller setting */
--	priv->mii_bus = alloc_mdio_bitbang(&priv->mdiobb);
--	if (!priv->mii_bus)
--		return -ENOMEM;
--
--	/* Hook up MII support for ethtool */
--	priv->mii_bus->name = "ravb_mii";
--	priv->mii_bus->parent = dev;
--	snprintf(priv->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
--		 pdev->name, pdev->id);
--
--	/* Register MDIO bus */
--	error = of_mdiobus_register(priv->mii_bus, dev->of_node);
--	if (error)
--		goto out_free_bus;
--
--	return 0;
--
--out_free_bus:
--	free_mdio_bitbang(priv->mii_bus);
--	return error;
--}
--
--/* MDIO bus release function */
--static int ravb_mdio_release(struct ravb_private *priv)
--{
--	/* Unregister mdio bus */
--	mdiobus_unregister(priv->mii_bus);
--
--	/* Free bitbang info */
--	free_mdio_bitbang(priv->mii_bus);
--
--	return 0;
--}
--
- /* Network device open function for Ethernet AVB */
- static int ravb_open(struct net_device *ndev)
- {
- 	struct ravb_private *priv = netdev_priv(ndev);
- 	int error;
- 
--	/* MDIO bus init */
--	error = ravb_mdio_init(priv);
--	if (error) {
--		netdev_err(ndev, "failed to initialize MDIO\n");
--		return error;
--	}
--
- 	napi_enable(&priv->napi[RAVB_BE]);
- 	napi_enable(&priv->napi[RAVB_NC]);
- 
-@@ -1320,7 +1268,6 @@ out_free_irq:
- out_napi_off:
- 	napi_disable(&priv->napi[RAVB_NC]);
- 	napi_disable(&priv->napi[RAVB_BE]);
--	ravb_mdio_release(priv);
- 	return error;
- }
- 
-@@ -1614,8 +1561,6 @@ static int ravb_close(struct net_device
- 	ravb_ring_free(ndev, RAVB_BE);
- 	ravb_ring_free(ndev, RAVB_NC);
- 
--	ravb_mdio_release(priv);
--
- 	return 0;
- }
- 
-@@ -1719,6 +1664,51 @@ static const struct net_device_ops ravb_
- 	.ndo_change_mtu		= eth_change_mtu,
- };
- 
-+/* MDIO bus init function */
-+static int ravb_mdio_init(struct ravb_private *priv)
-+{
-+	struct platform_device *pdev = priv->pdev;
-+	struct device *dev = &pdev->dev;
-+	int error;
+ 	if (font->width <= 8) {
+ 		j = vc->vc_font.height;
++		if (font->charcount * j > FNTSIZE(fontdata))
++			return -EINVAL;
 +
-+	/* Bitbang init */
-+	priv->mdiobb.ops = &bb_ops;
+ 		for (i = 0; i < font->charcount; i++) {
+ 			memcpy(data, fontdata, j);
+ 			memset(data + j, 0, 32 - j);
+@@ -2278,6 +2281,9 @@ static int fbcon_get_font(struct vc_data
+ 		}
+ 	} else if (font->width <= 16) {
+ 		j = vc->vc_font.height * 2;
++		if (font->charcount * j > FNTSIZE(fontdata))
++			return -EINVAL;
 +
-+	/* MII controller setting */
-+	priv->mii_bus = alloc_mdio_bitbang(&priv->mdiobb);
-+	if (!priv->mii_bus)
-+		return -ENOMEM;
+ 		for (i = 0; i < font->charcount; i++) {
+ 			memcpy(data, fontdata, j);
+ 			memset(data + j, 0, 64 - j);
+@@ -2285,6 +2291,9 @@ static int fbcon_get_font(struct vc_data
+ 			fontdata += j;
+ 		}
+ 	} else if (font->width <= 24) {
++		if (font->charcount * (vc->vc_font.height * sizeof(u32)) > FNTSIZE(fontdata))
++			return -EINVAL;
 +
-+	/* Hook up MII support for ethtool */
-+	priv->mii_bus->name = "ravb_mii";
-+	priv->mii_bus->parent = dev;
-+	snprintf(priv->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
-+		 pdev->name, pdev->id);
+ 		for (i = 0; i < font->charcount; i++) {
+ 			for (j = 0; j < vc->vc_font.height; j++) {
+ 				*data++ = fontdata[0];
+@@ -2297,6 +2306,9 @@ static int fbcon_get_font(struct vc_data
+ 		}
+ 	} else {
+ 		j = vc->vc_font.height * 4;
++		if (font->charcount * j > FNTSIZE(fontdata))
++			return -EINVAL;
 +
-+	/* Register MDIO bus */
-+	error = of_mdiobus_register(priv->mii_bus, dev->of_node);
-+	if (error)
-+		goto out_free_bus;
-+
-+	return 0;
-+
-+out_free_bus:
-+	free_mdio_bitbang(priv->mii_bus);
-+	return error;
-+}
-+
-+/* MDIO bus release function */
-+static int ravb_mdio_release(struct ravb_private *priv)
-+{
-+	/* Unregister mdio bus */
-+	mdiobus_unregister(priv->mii_bus);
-+
-+	/* Free bitbang info */
-+	free_mdio_bitbang(priv->mii_bus);
-+
-+	return 0;
-+}
-+
- static const struct of_device_id ravb_match_table[] = {
- 	{ .compatible = "renesas,etheravb-r8a7790", .data = (void *)RCAR_GEN2 },
- 	{ .compatible = "renesas,etheravb-r8a7794", .data = (void *)RCAR_GEN2 },
-@@ -1857,6 +1847,13 @@ static int ravb_probe(struct platform_de
- 		eth_hw_addr_random(ndev);
- 	}
- 
-+	/* MDIO bus init */
-+	error = ravb_mdio_init(priv);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to initialize MDIO\n");
-+		goto out_dma_free;
-+	}
-+
- 	netif_napi_add(ndev, &priv->napi[RAVB_BE], ravb_poll, 64);
- 	netif_napi_add(ndev, &priv->napi[RAVB_NC], ravb_poll, 64);
- 
-@@ -1876,6 +1873,8 @@ static int ravb_probe(struct platform_de
- out_napi_del:
- 	netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
-+	ravb_mdio_release(priv);
-+out_dma_free:
- 	dma_free_coherent(ndev->dev.parent, priv->desc_bat_size, priv->desc_bat,
- 			  priv->desc_bat_dma);
- out_release:
-@@ -1900,6 +1899,7 @@ static int ravb_remove(struct platform_d
- 	unregister_netdev(ndev);
- 	netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
-+	ravb_mdio_release(priv);
- 	pm_runtime_disable(&pdev->dev);
- 	free_netdev(ndev);
- 	platform_set_drvdata(pdev, NULL);
+ 		for (i = 0; i < font->charcount; i++) {
+ 			memcpy(data, fontdata, j);
+ 			memset(data + j, 0, 128 - j);
 
 
