@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3DF828B78B
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC5EC28B958
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389061AbgJLNoW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:44:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47038 "EHLO mail.kernel.org"
+        id S2388609AbgJLN7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:59:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731561AbgJLNmy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:42:54 -0400
+        id S2388691AbgJLNkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:40:00 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2A4D2076E;
-        Mon, 12 Oct 2020 13:42:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52DFE21D7F;
+        Mon, 12 Oct 2020 13:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510171;
-        bh=qdiCA891/AKho+tqEgtW7e7Hq0oe8jkjymgonMTJrmQ=;
+        s=default; t=1602509999;
+        bh=Rnhk7T9mAIqQWbrNqx+3n4D9k2bdIFK3DiNgdOQrz4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g8x7WZOG3jg3CN6Q3DYX+Cag0H40uthBr2TU02QsgLSLo4xgYuTfdZE0waSYlLTxx
-         jFro0hdLT3jtkn6lydBUN0Qw8aSaQ4N7zB/EHO5i+eaLLV4rhvOTpjtqZFUElIBKA2
-         NvERAxLq00mCziwJk+59nxTTIbQWcH2RruJ28ql4=
+        b=jkD07rsLoYQ7dlNIHHfiColAcq98m9jnCDoJnb4pB+HgcDD9KkxM54av0MG8dxqTd
+         9KOgQnluwKUMqw/ehR7FV9Au3cNFDRPb32LJeFNrOoM7kRo69q4iVJuddTh03QiU0A
+         xv1BrlVLm2uPiXPTJsear2et1BnkJ53OdHEbJgi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 70/85] rxrpc: Fix rxkad token xdr encoding
-Date:   Mon, 12 Oct 2020 15:27:33 +0200
-Message-Id: <20201012132636.208494904@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vijay Balakrishna <vijayb@linux.microsoft.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Allen Pais <apais@microsoft.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Song Liu <songliubraving@fb.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 48/49] mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
+Date:   Mon, 12 Oct 2020 15:27:34 +0200
+Message-Id: <20201012132631.610989729@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +51,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Dionne <marc.dionne@auristor.com>
+From: Vijay Balakrishna <vijayb@linux.microsoft.com>
 
-[ Upstream commit 56305118e05b2db8d0395bba640ac9a3aee92624 ]
+commit 4aab2be0983031a05cb4a19696c9da5749523426 upstream.
 
-The session key should be encoded with just the 8 data bytes and
-no length; ENCODE_DATA precedes it with a 4 byte length, which
-confuses some existing tools that try to parse this format.
+When memory is hotplug added or removed the min_free_kbytes should be
+recalculated based on what is expected by khugepaged.  Currently after
+hotplug, min_free_kbytes will be set to a lower default and higher
+default set when THP enabled is lost.
 
-Add an ENCODE_BYTES macro that does not include a length, and use
-it for the key.  Also adjust the expected length.
+This change restores min_free_kbytes as expected for THP consumers.
 
-Note that commit 774521f353e1d ("rxrpc: Fix an assertion in
-rxrpc_read()") had fixed a BUG by changing the length rather than
-fixing the encoding.  The original length was correct.
+[vijayb@linux.microsoft.com: v5]
+  Link: https://lkml.kernel.org/r/1601398153-5517-1-git-send-email-vijayb@linux.microsoft.com
 
-Fixes: 99455153d067 ("RxRPC: Parse security index 5 keys (Kerberos 5)")
-Signed-off-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f000565adb77 ("thp: set recommended min free kbytes")
+Signed-off-by: Vijay Balakrishna <vijayb@linux.microsoft.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Allen Pais <apais@microsoft.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/1600305709-2319-2-git-send-email-vijayb@linux.microsoft.com
+Link: https://lkml.kernel.org/r/1600204258-13683-1-git-send-email-vijayb@linux.microsoft.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/rxrpc/key.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ include/linux/khugepaged.h |    5 +++++
+ mm/khugepaged.c            |   13 +++++++++++--
+ mm/page_alloc.c            |    3 +++
+ 3 files changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
-index 0c98313dd7a8c..d77e89766406a 100644
---- a/net/rxrpc/key.c
-+++ b/net/rxrpc/key.c
-@@ -1073,7 +1073,7 @@ static long rxrpc_read(const struct key *key,
+--- a/include/linux/khugepaged.h
++++ b/include/linux/khugepaged.h
+@@ -15,6 +15,7 @@ extern int __khugepaged_enter(struct mm_
+ extern void __khugepaged_exit(struct mm_struct *mm);
+ extern int khugepaged_enter_vma_merge(struct vm_area_struct *vma,
+ 				      unsigned long vm_flags);
++extern void khugepaged_min_free_kbytes_update(void);
  
- 		switch (token->security_index) {
- 		case RXRPC_SECURITY_RXKAD:
--			toksize += 9 * 4;	/* viceid, kvno, key*2 + len, begin,
-+			toksize += 8 * 4;	/* viceid, kvno, key*2, begin,
- 						 * end, primary, tktlen */
- 			toksize += RND(token->kad->ticket_len);
- 			break;
-@@ -1139,6 +1139,14 @@ static long rxrpc_read(const struct key *key,
- 			memcpy((u8 *)xdr + _l, &zero, 4 - (_l & 3));	\
- 		xdr += (_l + 3) >> 2;					\
- 	} while(0)
-+#define ENCODE_BYTES(l, s)						\
-+	do {								\
-+		u32 _l = (l);						\
-+		memcpy(xdr, (s), _l);					\
-+		if (_l & 3)						\
-+			memcpy((u8 *)xdr + _l, &zero, 4 - (_l & 3));	\
-+		xdr += (_l + 3) >> 2;					\
-+	} while(0)
- #define ENCODE64(x)					\
- 	do {						\
- 		__be64 y = cpu_to_be64(x);		\
-@@ -1166,7 +1174,7 @@ static long rxrpc_read(const struct key *key,
- 		case RXRPC_SECURITY_RXKAD:
- 			ENCODE(token->kad->vice_id);
- 			ENCODE(token->kad->kvno);
--			ENCODE_DATA(8, token->kad->session_key);
-+			ENCODE_BYTES(8, token->kad->session_key);
- 			ENCODE(token->kad->start);
- 			ENCODE(token->kad->expiry);
- 			ENCODE(token->kad->primary_flag);
--- 
-2.25.1
-
+ #define khugepaged_enabled()					       \
+ 	(transparent_hugepage_flags &				       \
+@@ -73,6 +74,10 @@ static inline int khugepaged_enter_vma_m
+ {
+ 	return 0;
+ }
++
++static inline void khugepaged_min_free_kbytes_update(void)
++{
++}
+ #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+ 
+ #endif /* _LINUX_KHUGEPAGED_H */
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -53,6 +53,9 @@ enum scan_result {
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/huge_memory.h>
+ 
++static struct task_struct *khugepaged_thread __read_mostly;
++static DEFINE_MUTEX(khugepaged_mutex);
++
+ /* default scan 8*512 pte (or vmas) every 30 second */
+ static unsigned int khugepaged_pages_to_scan __read_mostly;
+ static unsigned int khugepaged_pages_collapsed;
+@@ -1952,8 +1955,6 @@ static void set_recommended_min_free_kby
+ 
+ int start_stop_khugepaged(void)
+ {
+-	static struct task_struct *khugepaged_thread __read_mostly;
+-	static DEFINE_MUTEX(khugepaged_mutex);
+ 	int err = 0;
+ 
+ 	mutex_lock(&khugepaged_mutex);
+@@ -1980,3 +1981,11 @@ fail:
+ 	mutex_unlock(&khugepaged_mutex);
+ 	return err;
+ }
++
++void khugepaged_min_free_kbytes_update(void)
++{
++	mutex_lock(&khugepaged_mutex);
++	if (khugepaged_enabled() && khugepaged_thread)
++		set_recommended_min_free_kbytes();
++	mutex_unlock(&khugepaged_mutex);
++}
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -66,6 +66,7 @@
+ #include <linux/ftrace.h>
+ #include <linux/lockdep.h>
+ #include <linux/nmi.h>
++#include <linux/khugepaged.h>
+ 
+ #include <asm/sections.h>
+ #include <asm/tlbflush.h>
+@@ -7399,6 +7400,8 @@ int __meminit init_per_zone_wmark_min(vo
+ 	setup_min_slab_ratio();
+ #endif
+ 
++	khugepaged_min_free_kbytes_update();
++
+ 	return 0;
+ }
+ postcore_initcall(init_per_zone_wmark_min)
 
 
