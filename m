@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68E8028B73B
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:41:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D48C28BA30
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731096AbgJLNlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:41:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45508 "EHLO mail.kernel.org"
+        id S2391065AbgJLOGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:06:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730538AbgJLNlG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:41:06 -0400
+        id S1730638AbgJLNeY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:34:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67C6320678;
-        Mon, 12 Oct 2020 13:41:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 650472222C;
+        Mon, 12 Oct 2020 13:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510065;
-        bh=jQi2E8JFqGCg1MtXW3mSS/ZR2oZmHW+9bj8lJ015Zt4=;
+        s=default; t=1602509651;
+        bh=llhQsNrmoDatdVMR5ldOsu5eOBzwTv8BywJVOAu/0Uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WeBqsXyB8QZI4KsAeLdVfRlIQF65T7XNeo4TRSWO1wX/7MHFumM5VrtG/BzsOuYcJ
-         85Z0GlHoa1tH2CkoEMt2aUdktE9cen7DHEV864PAwxZSSWALL6YCpv1opUB5cnuHkd
-         GhWh8npTAeMqSfNEeeeuPDXNUmGcvixYEeThGIQs=
+        b=eO1/FmrDp0xIFVTAWJnmsGRxggRqvO2yd1LgVwgK0xtO1GAT27PLBep8ED3Wo3mJV
+         jasbD9tnbXqYwVKdjJ0wyzEnria29dS5w5IhUq3JJ32D/g6YUDBGMF6iDeh7R22sbf
+         5ioeZLwJca8M4kk7JiFVz6c/I5pZskkjXCFDsGng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 5.4 26/85] Btrfs: send, allow clone operations within the same file
+        stable@vger.kernel.org,
+        syzbot+b1bb342d1d097516cbda@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 27/54] net: wireless: nl80211: fix out-of-bounds access in nl80211_del_key()
 Date:   Mon, 12 Oct 2020 15:26:49 +0200
-Message-Id: <20201012132634.114097309@linuxfoundation.org>
+Message-Id: <20201012132630.847835317@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
+References: <20201012132629.585664421@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-commit 11f2069c113e02971b8db6fda62f9b9cd31a030f upstream.
+commit 3dc289f8f139997f4e9d3cfccf8738f20d23e47b upstream.
 
-For send we currently skip clone operations when the source and
-destination files are the same. This is so because clone didn't support
-this case in its early days, but support for it was added back in May
-2013 by commit a96fbc72884fcb ("Btrfs: allow file data clone within a
-file"). This change adds support for it.
+In nl80211_parse_key(), key.idx is first initialized as -1.
+If this value of key.idx remains unmodified and gets returned, and
+nl80211_key_allowed() also returns 0, then rdev_del_key() gets called
+with key.idx = -1.
+This causes an out-of-bounds array access.
 
-Example:
+Handle this issue by checking if the value of key.idx after
+nl80211_parse_key() is called and return -EINVAL if key.idx < 0.
 
-  $ mkfs.btrfs -f /dev/sdd
-  $ mount /dev/sdd /mnt/sdd
-
-  $ xfs_io -f -c "pwrite -S 0xab -b 64K 0 64K" /mnt/sdd/foobar
-  $ xfs_io -c "reflink /mnt/sdd/foobar 0 64K 64K" /mnt/sdd/foobar
-
-  $ btrfs subvolume snapshot -r /mnt/sdd /mnt/sdd/snap
-
-  $ mkfs.btrfs -f /dev/sde
-  $ mount /dev/sde /mnt/sde
-
-  $ btrfs send /mnt/sdd/snap | btrfs receive /mnt/sde
-
-Without this change file foobar at the destination has a single 128Kb
-extent:
-
-  $ filefrag -v /mnt/sde/snap/foobar
-  Filesystem type is: 9123683e
-  File size of /mnt/sde/snap/foobar is 131072 (32 blocks of 4096 bytes)
-   ext:     logical_offset:        physical_offset: length:   expected: flags:
-     0:        0..      31:          0..        31:     32:             last,unknown_loc,delalloc,eof
-  /mnt/sde/snap/foobar: 1 extent found
-
-With this we get a single 64Kb extent that is shared at file offsets 0
-and 64K, just like in the source filesystem:
-
-  $ filefrag -v /mnt/sde/snap/foobar
-  Filesystem type is: 9123683e
-  File size of /mnt/sde/snap/foobar is 131072 (32 blocks of 4096 bytes)
-   ext:     logical_offset:        physical_offset: length:   expected: flags:
-     0:        0..      15:       3328..      3343:     16:             shared
-     1:       16..      31:       3328..      3343:     16:       3344: last,shared,eof
-  /mnt/sde/snap/foobar: 2 extents found
-
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+b1bb342d1d097516cbda@syzkaller.appspotmail.com
+Tested-by: syzbot+b1bb342d1d097516cbda@syzkaller.appspotmail.com
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Link: https://lore.kernel.org/r/20201007035401.9522-1-anant.thazhemadam@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/send.c |   18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ net/wireless/nl80211.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -1257,12 +1257,20 @@ static int __iterate_backrefs(u64 ino, u
- 	 */
- 	if (found->root == bctx->sctx->send_root) {
- 		/*
--		 * TODO for the moment we don't accept clones from the inode
--		 * that is currently send. We may change this when
--		 * BTRFS_IOC_CLONE_RANGE supports cloning from and to the same
--		 * file.
-+		 * If the source inode was not yet processed we can't issue a
-+		 * clone operation, as the source extent does not exist yet at
-+		 * the destination of the stream.
- 		 */
--		if (ino >= bctx->cur_objectid)
-+		if (ino > bctx->cur_objectid)
-+			return 0;
-+		/*
-+		 * We clone from the inode currently being sent as long as the
-+		 * source extent is already processed, otherwise we could try
-+		 * to clone from an extent that does not exist yet at the
-+		 * destination of the stream.
-+		 */
-+		if (ino == bctx->cur_objectid &&
-+		    offset >= bctx->sctx->cur_inode_next_write_offset)
- 			return 0;
- 	}
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -3283,6 +3283,9 @@ static int nl80211_del_key(struct sk_buf
+ 	if (err)
+ 		return err;
+ 
++	if (key.idx < 0)
++		return -EINVAL;
++
+ 	if (info->attrs[NL80211_ATTR_MAC])
+ 		mac_addr = nla_data(info->attrs[NL80211_ATTR_MAC]);
  
 
 
