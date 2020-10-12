@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4CE828BA56
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E44B28B9D1
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389079AbgJLOIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:08:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35680 "EHLO mail.kernel.org"
+        id S2388641AbgJLOEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:04:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389158AbgJLNdd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:33:33 -0400
+        id S2388626AbgJLNgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:36:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F77B208B8;
-        Mon, 12 Oct 2020 13:33:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 682FD204EA;
+        Mon, 12 Oct 2020 13:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509612;
-        bh=p3rAXtL37KnLY+KzTseFZEH5YawcMFyrP6rXTAVDu+I=;
+        s=default; t=1602509773;
+        bh=kb/xDZY5HRtm/9Aad0YHn71BSrGa64+RJEGGTIQklS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PEWPTe2nMV7mJKUuug0c64+0I0Rnf3HdZGpKyLy0ZzYieDs3UATh3oHbmEVI57aR4
-         k/En8i7+zkRc2pZ0JjezYjVkEK69J9AAG3l0ZaHq2bXXwCnM3TQtNUfhMtiD8vdzqB
-         SndxTfIbvyMCtJb04X1xKXCQnLF9bStuXDaAhuSI=
+        b=vWGc8ggpacg2/uUIpPKox1IWcQs+TgiDwBpVaL5Gzf/vf4Ias+rUIep11KAtGLsV1
+         WcvNwhEqjvpzAqURZAffKdxmT+yya98E9QvBZFrQUxNCy23um1gudve+28zb5hu8Xw
+         YT40G2AvMWS9/ADdBUjuGI33JTXO0L1+Q4QR2kz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Halasa <khc@pm.waw.pl>,
-        Xie He <xie.he.0141@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 10/54] drivers/net/wan/hdlc: Set skb->protocol before transmitting
+Subject: [PATCH 4.14 16/70] spi: fsl-espi: Only process interrupts for expected events
 Date:   Mon, 12 Oct 2020 15:26:32 +0200
-Message-Id: <20201012132630.062028365@linuxfoundation.org>
+Message-Id: <20201012132630.998887361@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit 9fb030a70431a2a2a1b292dbf0b2f399cc072c16 ]
+[ Upstream commit b867eef4cf548cd9541225aadcdcee644669b9e1 ]
 
-This patch sets skb->protocol before transmitting frames on the HDLC
-device, so that a user listening on the HDLC device with an AF_PACKET
-socket will see outgoing frames' sll_protocol field correctly set and
-consistent with that of incoming frames.
+The SPIE register contains counts for the TX FIFO so any time the irq
+handler was invoked we would attempt to process the RX/TX fifos. Use the
+SPIM value to mask the events so that we only process interrupts that
+were expected.
 
-1. Control frames in hdlc_cisco and hdlc_ppp
+This was a latent issue exposed by commit 3282a3da25bd ("powerpc/64:
+Implement soft interrupt replay in C").
 
-When these drivers send control frames, skb->protocol is not set.
-
-This value should be set to htons(ETH_P_HDLC), because when receiving
-control frames, their skb->protocol is set to htons(ETH_P_HDLC).
-
-When receiving, hdlc_type_trans in hdlc.h is called, which then calls
-cisco_type_trans or ppp_type_trans. The skb->protocol of control frames
-is set to htons(ETH_P_HDLC) so that the control frames can be received
-by hdlc_rcv in hdlc.c, which calls cisco_rx or ppp_rx to process the
-control frames.
-
-2. hdlc_fr
-
-When this driver sends control frames, skb->protocol is set to internal
-values used in this driver.
-
-When this driver sends data frames (from upper stacked PVC devices),
-skb->protocol is the same as that of the user data packet being sent on
-the upper PVC device (for normal PVC devices), or is htons(ETH_P_802_3)
-(for Ethernet-emulating PVC devices).
-
-However, skb->protocol for both control frames and data frames should be
-set to htons(ETH_P_HDLC), because when receiving, all frames received on
-the HDLC device will have their skb->protocol set to htons(ETH_P_HDLC).
-
-When receiving, hdlc_type_trans in hdlc.h is called, and because this
-driver doesn't provide a type_trans function in struct hdlc_proto,
-all frames will have their skb->protocol set to htons(ETH_P_HDLC).
-The frames are then received by hdlc_rcv in hdlc.c, which calls fr_rx
-to process the frames (control frames are consumed and data frames
-are re-received on upper PVC devices).
-
-Cc: Krzysztof Halasa <khc@pm.waw.pl>
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Link: https://lore.kernel.org/r/20200904002812.7300-1-chris.packham@alliedtelesis.co.nz
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/hdlc_cisco.c | 1 +
- drivers/net/wan/hdlc_fr.c    | 3 +++
- drivers/net/wan/hdlc_ppp.c   | 1 +
- 3 files changed, 5 insertions(+)
+ drivers/spi/spi-fsl-espi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wan/hdlc_cisco.c b/drivers/net/wan/hdlc_cisco.c
-index 7f99fb666f196..1587789ba9343 100644
---- a/drivers/net/wan/hdlc_cisco.c
-+++ b/drivers/net/wan/hdlc_cisco.c
-@@ -120,6 +120,7 @@ static void cisco_keepalive_send(struct net_device *dev, u32 type,
- 	skb_put(skb, sizeof(struct cisco_packet));
- 	skb->priority = TC_PRIO_CONTROL;
- 	skb->dev = dev;
-+	skb->protocol = htons(ETH_P_HDLC);
- 	skb_reset_network_header(skb);
+diff --git a/drivers/spi/spi-fsl-espi.c b/drivers/spi/spi-fsl-espi.c
+index 1d332e23f6ede..6a39ba5840c2e 100644
+--- a/drivers/spi/spi-fsl-espi.c
++++ b/drivers/spi/spi-fsl-espi.c
+@@ -556,13 +556,14 @@ static void fsl_espi_cpu_irq(struct fsl_espi *espi, u32 events)
+ static irqreturn_t fsl_espi_irq(s32 irq, void *context_data)
+ {
+ 	struct fsl_espi *espi = context_data;
+-	u32 events;
++	u32 events, mask;
  
- 	dev_queue_xmit(skb);
-diff --git a/drivers/net/wan/hdlc_fr.c b/drivers/net/wan/hdlc_fr.c
-index b6e0cfb095d35..bba19d068207a 100644
---- a/drivers/net/wan/hdlc_fr.c
-+++ b/drivers/net/wan/hdlc_fr.c
-@@ -435,6 +435,8 @@ static netdev_tx_t pvc_xmit(struct sk_buff *skb, struct net_device *dev)
- 			if (pvc->state.fecn) /* TX Congestion counter */
- 				dev->stats.tx_compressed++;
- 			skb->dev = pvc->frad;
-+			skb->protocol = htons(ETH_P_HDLC);
-+			skb_reset_network_header(skb);
- 			dev_queue_xmit(skb);
- 			return NETDEV_TX_OK;
- 		}
-@@ -557,6 +559,7 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
- 	skb_put(skb, i);
- 	skb->priority = TC_PRIO_CONTROL;
- 	skb->dev = dev;
-+	skb->protocol = htons(ETH_P_HDLC);
- 	skb_reset_network_header(skb);
+ 	spin_lock(&espi->lock);
  
- 	dev_queue_xmit(skb);
-diff --git a/drivers/net/wan/hdlc_ppp.c b/drivers/net/wan/hdlc_ppp.c
-index 63546d1317982..35589ee0cde11 100644
---- a/drivers/net/wan/hdlc_ppp.c
-+++ b/drivers/net/wan/hdlc_ppp.c
-@@ -254,6 +254,7 @@ static void ppp_tx_cp(struct net_device *dev, u16 pid, u8 code,
- 
- 	skb->priority = TC_PRIO_CONTROL;
- 	skb->dev = dev;
-+	skb->protocol = htons(ETH_P_HDLC);
- 	skb_reset_network_header(skb);
- 	skb_queue_tail(&tx_queue, skb);
- }
+ 	/* Get interrupt events(tx/rx) */
+ 	events = fsl_espi_read_reg(espi, ESPI_SPIE);
+-	if (!events) {
++	mask = fsl_espi_read_reg(espi, ESPI_SPIM);
++	if (!(events & mask)) {
+ 		spin_unlock(&espi->lock);
+ 		return IRQ_NONE;
+ 	}
 -- 
 2.25.1
 
