@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68AC028B668
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C7128B707
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730193AbgJLNdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:33:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35416 "EHLO mail.kernel.org"
+        id S2388055AbgJLNjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:39:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389142AbgJLNdS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:33:18 -0400
+        id S1731370AbgJLNjZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:39:25 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCCBE2076E;
-        Mon, 12 Oct 2020 13:33:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EE14221FE;
+        Mon, 12 Oct 2020 13:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509598;
-        bh=kMn9LsPkYIaEn3BCjd0s9jSqH6l7DgqHta1lfxvkPYM=;
+        s=default; t=1602509965;
+        bh=xfPx18DR1Yo1IeyBOmicVze493qZfk5VFd3DR5Muv9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q/seLyquKvvk7mk5OhyGRR7qS7quIfLrtbbpWcoO10R6rxFBmEM/ETJ0Xg8PeSjvZ
-         DzSN8ImdKDUkq5Ss8cVCTdc437IBE0zkhuZAHA8Tb5BCfC4gXMODCwV1GOedvUK64m
-         YUsJu8IjMZOEJKw4DyktoODUeysGMyU7FPTdD7hg=
+        b=JCTsfky4SZ7rjzPz8734OX9/65ovFiFsYvb9M37kARVnpG3oZ+UtYqDVLq5soQdwU
+         jSxzCLHYUzbbfWaM3TLahlZag/1c+AR6KS07WBS/kWmF1zmdYCcfeEVgTA4NHn8Ewj
+         pmuppFYybANZVNW1CjWxqMdlnAY7CLreq57nQLT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 22/39] usermodehelper: reset umask to default before executing user process
+        stable@vger.kernel.org, Karol Herbst <kherbst@redhat.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Dave Airlie <airlied@redhat.com>
+Subject: [PATCH 4.19 06/49] drm/nouveau/mem: guard against NULL pointer access in mem_del
 Date:   Mon, 12 Oct 2020 15:26:52 +0200
-Message-Id: <20201012132629.188589120@linuxfoundation.org>
+Message-Id: <20201012132629.739034353@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Karol Herbst <kherbst@redhat.com>
 
-commit 4013c1496c49615d90d36b9d513eee8e369778e9 upstream.
+commit d10285a25e29f13353bbf7760be8980048c1ef2f upstream.
 
-Kernel threads intentionally do CLONE_FS in order to follow any changes
-that 'init' does to set up the root directory (or cwd).
+other drivers seems to do something similar
 
-It is admittedly a bit odd, but it avoids the situation where 'init'
-does some extensive setup to initialize the system environment, and then
-we execute a usermode helper program, and it uses the original FS setup
-from boot time that may be very limited and incomplete.
-
-[ Both Al Viro and Eric Biederman point out that 'pivot_root()' will
-  follow the root regardless, since it fixes up other users of root (see
-  chroot_fs_refs() for details), but overmounting root and doing a
-  chroot() would not. ]
-
-However, Vegard Nossum noticed that the CLONE_FS not only means that we
-follow the root and current working directories, it also means we share
-umask with whatever init changed it to. That wasn't intentional.
-
-Just reset umask to the original default (0022) before actually starting
-the usermode helper program.
-
-Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Acked-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Cc: dri-devel <dri-devel@lists.freedesktop.org>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201006220528.13925-2-kherbst@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/kmod.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/nouveau/nouveau_mem.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/kmod.c
-+++ b/kernel/kmod.c
-@@ -28,6 +28,7 @@
- #include <linux/cred.h>
- #include <linux/file.h>
- #include <linux/fdtable.h>
-+#include <linux/fs_struct.h>
- #include <linux/workqueue.h>
- #include <linux/security.h>
- #include <linux/mount.h>
-@@ -223,6 +224,14 @@ static int call_usermodehelper_exec_asyn
- 	spin_unlock_irq(&current->sighand->siglock);
- 
- 	/*
-+	 * Initial kernel threads share ther FS with init, in order to
-+	 * get the init root directory. But we've now created a new
-+	 * thread that is going to execve a user process and has its own
-+	 * 'struct fs_struct'. Reset umask to the default.
-+	 */
-+	current->fs->umask = 0022;
-+
-+	/*
- 	 * Our parent (unbound workqueue) runs with elevated scheduling
- 	 * priority. Avoid propagating that into the userspace child.
- 	 */
+--- a/drivers/gpu/drm/nouveau/nouveau_mem.c
++++ b/drivers/gpu/drm/nouveau/nouveau_mem.c
+@@ -176,6 +176,8 @@ void
+ nouveau_mem_del(struct ttm_mem_reg *reg)
+ {
+ 	struct nouveau_mem *mem = nouveau_mem(reg);
++	if (!mem)
++		return;
+ 	nouveau_mem_fini(mem);
+ 	kfree(reg->mm_node);
+ 	reg->mm_node = NULL;
 
 
