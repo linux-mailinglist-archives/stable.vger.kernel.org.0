@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A29F128B7EE
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:48:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F0D28B7F3
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731748AbgJLNrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731744AbgJLNrz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Oct 2020 09:47:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49244 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389759AbgJLNpz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389704AbgJLNpz (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:45:55 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27C672231B;
-        Mon, 12 Oct 2020 13:45:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1D92222EC;
+        Mon, 12 Oct 2020 13:45:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510319;
-        bh=9/DrZWNqmTmhqHmCShZhFKwvtNEGexUpGzpXmrT1MZU=;
+        s=default; t=1602510322;
+        bh=B8xqfhZ/PIlTzUggovIe+j94Ce85wxzAlqwfT6+Sfdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QmH4i1oxNK8o5+CRECeSMzR2Peo6Gbj2lz04M08KQbmlKhk7JMvmdtkZ29n0yCrHZ
-         tS50K4VXFWlUxfWQWuKHTkbGnbGclWOV9M3lcYUdZi2o3ZdwMvJ9DTqi7xEJCXiY0J
-         k25N2CGTKOIwVqQIpcoMNW+P0Up2qOtI4SDMSJBI=
+        b=Foyn0y2Ew058yu46GuR0+zBm5z1ZRmyd2KYI80hk3psETQ6XQrc5oyEX1xhYXMLNS
+         KEat9TY5n3sB94a2ygx1xxU3T+TCUedTjt+6IpsuAOaQkFcT7yXTJq/Z5xCm3Xsq3F
+         89VlgtqB+4z5iKgIyS9BuaDu/VjQ/u2U5BVU4J2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2f8fa4e860edc3066aba@syzkaller.appspotmail.com,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 047/124] io_uring: fix potential ABBA deadlock in ->show_fdinfo()
-Date:   Mon, 12 Oct 2020 15:30:51 +0200
-Message-Id: <20201012133149.132199284@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Sudheesh Mavila <sudheesh.mavila@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.8 048/124] drm/amd/pm: Removed fixed clock in auto mode DPM
+Date:   Mon, 12 Oct 2020 15:30:52 +0200
+Message-Id: <20201012133149.179881039@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -43,205 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Sudheesh Mavila <sudheesh.mavila@amd.com>
 
-[ Upstream commit fad8e0de4426a776c9bcb060555e7c09e2d08db6 ]
+[ Upstream commit 97cf32996c46d9935cc133d910a75fb687dd6144 ]
 
-syzbot reports a potential lock deadlock between the normal IO path and
-->show_fdinfo():
+SMU10_UMD_PSTATE_PEAK_FCLK value should not be used to set the DPM.
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.9.0-rc6-syzkaller #0 Not tainted
-------------------------------------------------------
-syz-executor.2/19710 is trying to acquire lock:
-ffff888098ddc450 (sb_writers#4){.+.+}-{0:0}, at: io_write+0x6b5/0xb30 fs/io_uring.c:3296
-
-but task is already holding lock:
-ffff8880a11b8428 (&ctx->uring_lock){+.+.}-{3:3}, at: __do_sys_io_uring_enter+0xe9a/0x1bd0 fs/io_uring.c:8348
-
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
--> #2 (&ctx->uring_lock){+.+.}-{3:3}:
-       __mutex_lock_common kernel/locking/mutex.c:956 [inline]
-       __mutex_lock+0x134/0x10e0 kernel/locking/mutex.c:1103
-       __io_uring_show_fdinfo fs/io_uring.c:8417 [inline]
-       io_uring_show_fdinfo+0x194/0xc70 fs/io_uring.c:8460
-       seq_show+0x4a8/0x700 fs/proc/fd.c:65
-       seq_read+0x432/0x1070 fs/seq_file.c:208
-       do_loop_readv_writev fs/read_write.c:734 [inline]
-       do_loop_readv_writev fs/read_write.c:721 [inline]
-       do_iter_read+0x48e/0x6e0 fs/read_write.c:955
-       vfs_readv+0xe5/0x150 fs/read_write.c:1073
-       kernel_readv fs/splice.c:355 [inline]
-       default_file_splice_read.constprop.0+0x4e6/0x9e0 fs/splice.c:412
-       do_splice_to+0x137/0x170 fs/splice.c:871
-       splice_direct_to_actor+0x307/0x980 fs/splice.c:950
-       do_splice_direct+0x1b3/0x280 fs/splice.c:1059
-       do_sendfile+0x55f/0xd40 fs/read_write.c:1540
-       __do_sys_sendfile64 fs/read_write.c:1601 [inline]
-       __se_sys_sendfile64 fs/read_write.c:1587 [inline]
-       __x64_sys_sendfile64+0x1cc/0x210 fs/read_write.c:1587
-       do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-       entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
--> #1 (&p->lock){+.+.}-{3:3}:
-       __mutex_lock_common kernel/locking/mutex.c:956 [inline]
-       __mutex_lock+0x134/0x10e0 kernel/locking/mutex.c:1103
-       seq_read+0x61/0x1070 fs/seq_file.c:155
-       pde_read fs/proc/inode.c:306 [inline]
-       proc_reg_read+0x221/0x300 fs/proc/inode.c:318
-       do_loop_readv_writev fs/read_write.c:734 [inline]
-       do_loop_readv_writev fs/read_write.c:721 [inline]
-       do_iter_read+0x48e/0x6e0 fs/read_write.c:955
-       vfs_readv+0xe5/0x150 fs/read_write.c:1073
-       kernel_readv fs/splice.c:355 [inline]
-       default_file_splice_read.constprop.0+0x4e6/0x9e0 fs/splice.c:412
-       do_splice_to+0x137/0x170 fs/splice.c:871
-       splice_direct_to_actor+0x307/0x980 fs/splice.c:950
-       do_splice_direct+0x1b3/0x280 fs/splice.c:1059
-       do_sendfile+0x55f/0xd40 fs/read_write.c:1540
-       __do_sys_sendfile64 fs/read_write.c:1601 [inline]
-       __se_sys_sendfile64 fs/read_write.c:1587 [inline]
-       __x64_sys_sendfile64+0x1cc/0x210 fs/read_write.c:1587
-       do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-       entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
--> #0 (sb_writers#4){.+.+}-{0:0}:
-       check_prev_add kernel/locking/lockdep.c:2496 [inline]
-       check_prevs_add kernel/locking/lockdep.c:2601 [inline]
-       validate_chain kernel/locking/lockdep.c:3218 [inline]
-       __lock_acquire+0x2a96/0x5780 kernel/locking/lockdep.c:4441
-       lock_acquire+0x1f3/0xaf0 kernel/locking/lockdep.c:5029
-       percpu_down_read include/linux/percpu-rwsem.h:51 [inline]
-       __sb_start_write+0x228/0x450 fs/super.c:1672
-       io_write+0x6b5/0xb30 fs/io_uring.c:3296
-       io_issue_sqe+0x18f/0x5c50 fs/io_uring.c:5719
-       __io_queue_sqe+0x280/0x1160 fs/io_uring.c:6175
-       io_queue_sqe+0x692/0xfa0 fs/io_uring.c:6254
-       io_submit_sqe fs/io_uring.c:6324 [inline]
-       io_submit_sqes+0x1761/0x2400 fs/io_uring.c:6521
-       __do_sys_io_uring_enter+0xeac/0x1bd0 fs/io_uring.c:8349
-       do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-       entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-other info that might help us debug this:
-
-Chain exists of:
-  sb_writers#4 --> &p->lock --> &ctx->uring_lock
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&ctx->uring_lock);
-                               lock(&p->lock);
-                               lock(&ctx->uring_lock);
-  lock(sb_writers#4);
-
- *** DEADLOCK ***
-
-1 lock held by syz-executor.2/19710:
- #0: ffff8880a11b8428 (&ctx->uring_lock){+.+.}-{3:3}, at: __do_sys_io_uring_enter+0xe9a/0x1bd0 fs/io_uring.c:8348
-
-stack backtrace:
-CPU: 0 PID: 19710 Comm: syz-executor.2 Not tainted 5.9.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x198/0x1fd lib/dump_stack.c:118
- check_noncircular+0x324/0x3e0 kernel/locking/lockdep.c:1827
- check_prev_add kernel/locking/lockdep.c:2496 [inline]
- check_prevs_add kernel/locking/lockdep.c:2601 [inline]
- validate_chain kernel/locking/lockdep.c:3218 [inline]
- __lock_acquire+0x2a96/0x5780 kernel/locking/lockdep.c:4441
- lock_acquire+0x1f3/0xaf0 kernel/locking/lockdep.c:5029
- percpu_down_read include/linux/percpu-rwsem.h:51 [inline]
- __sb_start_write+0x228/0x450 fs/super.c:1672
- io_write+0x6b5/0xb30 fs/io_uring.c:3296
- io_issue_sqe+0x18f/0x5c50 fs/io_uring.c:5719
- __io_queue_sqe+0x280/0x1160 fs/io_uring.c:6175
- io_queue_sqe+0x692/0xfa0 fs/io_uring.c:6254
- io_submit_sqe fs/io_uring.c:6324 [inline]
- io_submit_sqes+0x1761/0x2400 fs/io_uring.c:6521
- __do_sys_io_uring_enter+0xeac/0x1bd0 fs/io_uring.c:8349
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45e179
-Code: 3d b2 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 0b b2 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f1194e74c78 EFLAGS: 00000246 ORIG_RAX: 00000000000001aa
-RAX: ffffffffffffffda RBX: 00000000000082c0 RCX: 000000000045e179
-RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000004
-RBP: 000000000118cf98 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000000000118cf4c
-R13: 00007ffd1aa5756f R14: 00007f1194e759c0 R15: 000000000118cf4c
-
-Fix this by just not diving into details if we fail to trylock the
-io_uring mutex. We know the ctx isn't going away during this operation,
-but we cannot safely iterate buffers/files/personalities if we don't
-hold the io_uring mutex.
-
-Reported-by: syzbot+2f8fa4e860edc3066aba@syzkaller.appspotmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Suggested-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ebc3586b18795..d2bb2ae9551f0 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7998,11 +7998,19 @@ static int io_uring_show_cred(int id, void *p, void *data)
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
+index 9ee8cf8267c88..43f7adff6cb74 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu10_hwmgr.c
+@@ -563,6 +563,8 @@ static int smu10_dpm_force_dpm_level(struct pp_hwmgr *hwmgr,
+ 	struct smu10_hwmgr *data = hwmgr->backend;
+ 	uint32_t min_sclk = hwmgr->display_config->min_core_set_clock;
+ 	uint32_t min_mclk = hwmgr->display_config->min_mem_set_clock/100;
++	uint32_t index_fclk = data->clock_vol_info.vdd_dep_on_fclk->count - 1;
++	uint32_t index_socclk = data->clock_vol_info.vdd_dep_on_socclk->count - 1;
  
- static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
- {
-+	bool has_lock;
- 	int i;
+ 	if (hwmgr->smu_version < 0x1E3700) {
+ 		pr_info("smu firmware version too old, can not set dpm level\n");
+@@ -676,13 +678,13 @@ static int smu10_dpm_force_dpm_level(struct pp_hwmgr *hwmgr,
+ 		smum_send_msg_to_smc_with_parameter(hwmgr,
+ 						PPSMC_MSG_SetHardMinFclkByFreq,
+ 						hwmgr->display_config->num_display > 3 ?
+-						SMU10_UMD_PSTATE_PEAK_FCLK :
++						data->clock_vol_info.vdd_dep_on_fclk->entries[0].clk :
+ 						min_mclk,
+ 						NULL);
  
--	mutex_lock(&ctx->uring_lock);
-+	/*
-+	 * Avoid ABBA deadlock between the seq lock and the io_uring mutex,
-+	 * since fdinfo case grabs it in the opposite direction of normal use
-+	 * cases. If we fail to get the lock, we just don't iterate any
-+	 * structures that could be going away outside the io_uring mutex.
-+	 */
-+	has_lock = mutex_trylock(&ctx->uring_lock);
-+
- 	seq_printf(m, "UserFiles:\t%u\n", ctx->nr_user_files);
--	for (i = 0; i < ctx->nr_user_files; i++) {
-+	for (i = 0; has_lock && i < ctx->nr_user_files; i++) {
- 		struct fixed_file_table *table;
- 		struct file *f;
- 
-@@ -8014,13 +8022,13 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
- 			seq_printf(m, "%5u: <none>\n", i);
- 	}
- 	seq_printf(m, "UserBufs:\t%u\n", ctx->nr_user_bufs);
--	for (i = 0; i < ctx->nr_user_bufs; i++) {
-+	for (i = 0; has_lock && i < ctx->nr_user_bufs; i++) {
- 		struct io_mapped_ubuf *buf = &ctx->user_bufs[i];
- 
- 		seq_printf(m, "%5u: 0x%llx/%u\n", i, buf->ubuf,
- 						(unsigned int) buf->len);
- 	}
--	if (!idr_is_empty(&ctx->personality_idr)) {
-+	if (has_lock && !idr_is_empty(&ctx->personality_idr)) {
- 		seq_printf(m, "Personalities:\n");
- 		idr_for_each(&ctx->personality_idr, io_uring_show_cred, m);
- 	}
-@@ -8035,7 +8043,8 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
- 					req->task->task_works != NULL);
- 	}
- 	spin_unlock_irq(&ctx->completion_lock);
--	mutex_unlock(&ctx->uring_lock);
-+	if (has_lock)
-+		mutex_unlock(&ctx->uring_lock);
- }
- 
- static void io_uring_show_fdinfo(struct seq_file *m, struct file *f)
+ 		smum_send_msg_to_smc_with_parameter(hwmgr,
+ 						PPSMC_MSG_SetHardMinSocclkByFreq,
+-						SMU10_UMD_PSTATE_MIN_SOCCLK,
++						data->clock_vol_info.vdd_dep_on_socclk->entries[0].clk,
+ 						NULL);
+ 		smum_send_msg_to_smc_with_parameter(hwmgr,
+ 						PPSMC_MSG_SetHardMinVcn,
+@@ -695,11 +697,11 @@ static int smu10_dpm_force_dpm_level(struct pp_hwmgr *hwmgr,
+ 						NULL);
+ 		smum_send_msg_to_smc_with_parameter(hwmgr,
+ 						PPSMC_MSG_SetSoftMaxFclkByFreq,
+-						SMU10_UMD_PSTATE_PEAK_FCLK,
++						data->clock_vol_info.vdd_dep_on_fclk->entries[index_fclk].clk,
+ 						NULL);
+ 		smum_send_msg_to_smc_with_parameter(hwmgr,
+ 						PPSMC_MSG_SetSoftMaxSocclkByFreq,
+-						SMU10_UMD_PSTATE_PEAK_SOCCLK,
++						data->clock_vol_info.vdd_dep_on_socclk->entries[index_socclk].clk,
+ 						NULL);
+ 		smum_send_msg_to_smc_with_parameter(hwmgr,
+ 						PPSMC_MSG_SetSoftMaxVcn,
 -- 
 2.25.1
 
