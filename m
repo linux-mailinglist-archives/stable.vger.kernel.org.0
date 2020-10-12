@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB3F728B94C
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF95328B94A
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389450AbgJLN7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389651AbgJLN7N (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Oct 2020 09:59:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44292 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388781AbgJLNkM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:40:12 -0400
+        id S2388787AbgJLNkO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:40:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80062221FE;
-        Mon, 12 Oct 2020 13:40:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E41B1221FC;
+        Mon, 12 Oct 2020 13:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510011;
-        bh=AG1TfoMTwzFHLKKQyRE0DQy1LySPs80CkCMyJyxDNtY=;
+        s=default; t=1602510013;
+        bh=gfcMD41HGhTeQ9DNaXOghSyGdFHy7OJGp03ALSKnYcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9YvTClPl5Zh+RrAAMLRLxGvZVUTUyEh8eNml8jE3a6o05IdX0zfLj5QVcDtg/1pN
-         GIwqLBuTc3M7lUKWs9LVpY9cyZyfHiBYV5of04d/CfoMek5TYUnvA4uGTYkY+KCJ/+
-         V9nKNjYCLnMWgLv0K+aXWPSkV150D0uizNQMIGKM=
+        b=GNwZ9O7/NhhISjYqB5L8TxkcyAW1P9pm2u40LprJqJ2eEA3+6H9vu6Sme7o+1zxCi
+         2YacP9TlsYXhIPiYLk3HeRrehwWR6k0BkDaQn4wBQJxLbZJKuRmXrPRHQf/Thhkz42
+         KKUAGTuNYMr1eehjcyAd+cFRg1cQURkkRTDvwI6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org,
+        syzbot+577fbac3145a6eb2e7a5@syzkaller.appspotmail.com,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/49] platform/x86: fix kconfig dependency warning for FUJITSU_LAPTOP
-Date:   Mon, 12 Oct 2020 15:27:21 +0200
-Message-Id: <20201012132631.074994688@linuxfoundation.org>
+Subject: [PATCH 4.19 36/49] xfrm: Use correct address family in xfrm_state_find
+Date:   Mon, 12 Oct 2020 15:27:22 +0200
+Message-Id: <20201012132631.109848901@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
 References: <20201012132629.469542486@linuxfoundation.org>
@@ -44,44 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit afdd1ebb72051e8b6b83c4d7dc542a9be0e1352d ]
+[ Upstream commit e94ee171349db84c7cfdc5fefbebe414054d0924 ]
 
-When FUJITSU_LAPTOP is enabled and NEW_LEDS is disabled, it results in the
-following Kbuild warning:
+The struct flowi must never be interpreted by itself as its size
+depends on the address family.  Therefore it must always be grouped
+with its original family value.
 
-WARNING: unmet direct dependencies detected for LEDS_CLASS
-  Depends on [n]: NEW_LEDS [=n]
-  Selected by [y]:
-  - FUJITSU_LAPTOP [=y] && X86 [=y] && X86_PLATFORM_DEVICES [=y] && ACPI [=y] && INPUT [=y] && BACKLIGHT_CLASS_DEVICE [=y] && (ACPI_VIDEO [=n] || ACPI_VIDEO [=n]=n)
+In this particular instance, the original family value is lost in
+the function xfrm_state_find.  Therefore we get a bogus read when
+it's coupled with the wrong family which would occur with inter-
+family xfrm states.
 
-The reason is that FUJITSU_LAPTOP selects LEDS_CLASS without depending on
-or selecting NEW_LEDS while LEDS_CLASS is subordinate to NEW_LEDS.
+This patch fixes it by keeping the original family value.
 
-Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+Note that the same bug could potentially occur in LSM through
+the xfrm_state_pol_flow_match hook.  I checked the current code
+there and it seems to be safe for now as only secid is used which
+is part of struct flowi_common.  But that API should be changed
+so that so that we don't get new bugs in the future.  We could
+do that by replacing fl with just secid or adding a family field.
 
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Fixes: d89bcc83e709 ("platform/x86: fujitsu-laptop: select LEDS_CLASS")
-Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reported-by: syzbot+577fbac3145a6eb2e7a5@syzkaller.appspotmail.com
+Fixes: 48b8d78315bf ("[XFRM]: State selection update to use inner...")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ net/xfrm/xfrm_state.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 1e2524de6a63c..a13bb4ddd0cf1 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -235,6 +235,7 @@ config FUJITSU_LAPTOP
- 	depends on BACKLIGHT_CLASS_DEVICE
- 	depends on ACPI_VIDEO || ACPI_VIDEO = n
- 	select INPUT_SPARSEKMAP
-+	select NEW_LEDS
- 	select LEDS_CLASS
- 	---help---
- 	  This is a driver for laptops built by Fujitsu:
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index c68eb587c0efb..a649d7c2f48ca 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -923,7 +923,8 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
+ 	 */
+ 	if (x->km.state == XFRM_STATE_VALID) {
+ 		if ((x->sel.family &&
+-		     !xfrm_selector_match(&x->sel, fl, x->sel.family)) ||
++		     (x->sel.family != family ||
++		      !xfrm_selector_match(&x->sel, fl, family))) ||
+ 		    !security_xfrm_state_pol_flow_match(x, pol, fl))
+ 			return;
+ 
+@@ -936,7 +937,9 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
+ 		*acq_in_progress = 1;
+ 	} else if (x->km.state == XFRM_STATE_ERROR ||
+ 		   x->km.state == XFRM_STATE_EXPIRED) {
+-		if (xfrm_selector_match(&x->sel, fl, x->sel.family) &&
++		if ((!x->sel.family ||
++		     (x->sel.family == family &&
++		      xfrm_selector_match(&x->sel, fl, family))) &&
+ 		    security_xfrm_state_pol_flow_match(x, pol, fl))
+ 			*error = -ESRCH;
+ 	}
+@@ -976,7 +979,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
+ 		    tmpl->mode == x->props.mode &&
+ 		    tmpl->id.proto == x->id.proto &&
+ 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
+-			xfrm_state_look_at(pol, x, fl, encap_family,
++			xfrm_state_look_at(pol, x, fl, family,
+ 					   &best, &acquire_in_progress, &error);
+ 	}
+ 	if (best || acquire_in_progress)
+@@ -993,7 +996,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
+ 		    tmpl->mode == x->props.mode &&
+ 		    tmpl->id.proto == x->id.proto &&
+ 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
+-			xfrm_state_look_at(pol, x, fl, encap_family,
++			xfrm_state_look_at(pol, x, fl, family,
+ 					   &best, &acquire_in_progress, &error);
+ 	}
+ 
 -- 
 2.25.1
 
