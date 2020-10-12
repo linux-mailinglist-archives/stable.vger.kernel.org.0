@@ -2,145 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8DD328B913
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36D3428B630
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:30:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390613AbgJLN5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:57:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389350AbgJLNnk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:43:40 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A3CD2222A;
-        Mon, 12 Oct 2020 13:43:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510203;
-        bh=WEB9VMgY/VEEjDjKqWEgNqEwcUNc+sZt4BZ3JpYFK+k=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iet9zbsPzBsb6xCp5I5Cf3dWQpgmlXandfP12F7taXuJoS9DJ58o850FhWlEnofu7
-         E7KF/rLX4hRpwudzRTmoDl1HL8+XxSQiUkIMq+TOvrDCOt28qxioB4S2HBzmIk5nNT
-         RsFkvGkkjGr7Xapvzi7NVd45tNtoYDh9L2xYs79E=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Buslov <vladbu@mellanox.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+2287853d392e4b42374a@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 85/85] net_sched: commit action insertions together
-Date:   Mon, 12 Oct 2020 15:27:48 +0200
-Message-Id: <20201012132636.916549718@linuxfoundation.org>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1729890AbgJLNaf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:30:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57736 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726742AbgJLNaf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 09:30:35 -0400
+Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AFDCC0613D0
+        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 06:30:35 -0700 (PDT)
+Received: by mail-qk1-x741.google.com with SMTP id c2so17663249qkf.10
+        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 06:30:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cmpxchg-org.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=pnPTIBXyXY3lw9klvumgMEMiErvTNBjNm3i9R50FiO8=;
+        b=vnTw9dJflaMIXNnNWw2vi/vOaGk2yCJ69WDQkdY4C16AMLkPTm9WzibqnJrH3CiqcT
+         mJCxscrz0aU5tFQt3oG+TShN2wD1khwShvSZmM7v3nm7O0dWqniUMmRiLZDDQYjBBccN
+         EQJUREQlsKPdgYnTyxfYxpHc0vHmAkbUNFICmbFU9qwruHcZYxq++kzYmfP+Jt3WKH/u
+         s9pLL3UOpMht2Ts8ZdKF5KM7CdNLZlGJtrvSuo0yDSxa4ZuiVm8uVJZWBNWu3bOhsbRd
+         aG5OPdQLY7OH+3bI0F0c0UQ5AwXOA6uNU9dy12iV8LG4GQPFUMJU45SjR9KBubkniWJy
+         zj0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=pnPTIBXyXY3lw9klvumgMEMiErvTNBjNm3i9R50FiO8=;
+        b=daOf1pbKZd4q+tbiyEG2wvaTJOFFcY/ddyW+sZxQEYh5YVGgkHJA8HsGnEyVscZ6Fr
+         Ia9M/m1Q6K+jOOFDTE+kjZdTdKqNt4TmyAmzb+7KZALGVGccc/2KqfpoBSqfVT8gcapg
+         A4DW9LVKOM+nZPkxKvS1DQ9xcXHEu7UApiwjsIV9fcuFvdB9u29+MWzh3+KsiFWcg4Hi
+         RaFv0Z8OpgBC4D2KRjJBavQDQsX9SJMLuVcIZtUDQ61OqfdW9dEG68OmllHc6TltAKe9
+         vFySRIZL5C8U3C0GNqe27AB/a7B9f917bnLdDn7v8twDroPvtfvwdrb7M55EgXU3hTNV
+         r98g==
+X-Gm-Message-State: AOAM533EANI/Rp1EKezojV00CdLIoav2sFty1tWT1v5L3kW7iylqSzLd
+        HHxO1j5/52CXNtR/QVDNQqDEwA==
+X-Google-Smtp-Source: ABdhPJxcAtD+DVNW0Lo9o9FmYxCJnyvNR7wF/YxZxRmvawTGsigNtgwmZAfyvj+gqt87sq8Idn2hFA==
+X-Received: by 2002:a05:620a:16cb:: with SMTP id a11mr10048726qkn.474.1602509434380;
+        Mon, 12 Oct 2020 06:30:34 -0700 (PDT)
+Received: from localhost (pool-96-232-200-60.nycmny.fios.verizon.net. [96.232.200.60])
+        by smtp.gmail.com with ESMTPSA id x91sm7657123qte.69.2020.10.12.06.30.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Oct 2020 06:30:33 -0700 (PDT)
+Date:   Mon, 12 Oct 2020 09:28:59 -0400
+From:   Johannes Weiner <hannes@cmpxchg.org>
+To:     Ralph Campbell <rcampbell@nvidia.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        cgroups@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Michal Hocko <mhocko@kernel.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>,
+        Balbir Singh <bsingharora@gmail.com>,
+        Ira Weiny <ira.weiny@intel.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] mm/memcg: fix device private memcg accounting
+Message-ID: <20201012132859.GD163830@cmpxchg.org>
+References: <20201009215952.2726-1-rcampbell@nvidia.com>
+ <20201009155055.f87de51ea04d4ea879e3981a@linux-foundation.org>
+ <d1aab0b0-4327-38da-6587-98f1740228fd@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d1aab0b0-4327-38da-6587-98f1740228fd@nvidia.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+On Fri, Oct 09, 2020 at 05:00:37PM -0700, Ralph Campbell wrote:
+> 
+> On 10/9/20 3:50 PM, Andrew Morton wrote:
+> > On Fri, 9 Oct 2020 14:59:52 -0700 Ralph Campbell <rcampbell@nvidia.com> wrote:
+> > 
+> > > The code in mc_handle_swap_pte() checks for non_swap_entry() and returns
+> > > NULL before checking is_device_private_entry() so device private pages
+> > > are never handled.
+> > > Fix this by checking for non_swap_entry() after handling device private
+> > > swap PTEs.
 
-commit 0fedc63fadf0404a729e73a35349481c8009c02f upstream.
+The fix looks good to me.
 
-syzbot is able to trigger a failure case inside the loop in
-tcf_action_init(), and when this happens we clean up with
-tcf_action_destroy(). But, as these actions are already inserted
-into the global IDR, other parallel process could free them
-before tcf_action_destroy(), then we will trigger a use-after-free.
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
 
-Fix this by deferring the insertions even later, after the loop,
-and committing all the insertions in a separate loop, so we will
-never fail in the middle of the insertions any more.
+> > But this makes me suspect the answer is "there aren't any that we know
+> > of".  Are you sure a cc:stable is warranted?
+> > 
+> 
+> I assume the memory cgroup accounting would be off somehow when moving
+> a process to another memory cgroup.
+> Currently, the device private page is charged like a normal anonymous page
+> when allocated and is uncharged when the page is freed so I think that path is OK.
+> Maybe someone who knows more about memory cgroup accounting can comment?
 
-One side effect is that the window between alloction and final
-insertion becomes larger, now it is more likely that the loop in
-tcf_del_walker() sees the placeholder -EBUSY pointer. So we have
-to check for error pointer in tcf_del_walker().
+As for whether to CC stable, I'm leaning toward no:
 
-Reported-and-tested-by: syzbot+2287853d392e4b42374a@syzkaller.appspotmail.com
-Fixes: 0190c1d452a9 ("net: sched: atomically check-allocate action")
-Cc: Vlad Buslov <vladbu@mellanox.com>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+- When moving tasks, we'd leave their device pages behind in the old
+  cgroup. This isn't great, but it doesn't cause counter imbalances or
+  corruption or anything - we also skip locked pages, we used to skip
+  pages mapped by more than one pte, the user can select whether to
+  move pages along tasks at all, and if so, whether only anon or file.
 
----
- net/sched/act_api.c |   32 +++++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+- Charge moving itself is a bit of a questionable feature, and users
+  have been moving away from it. Leaving tasks in a cgroup and
+  changing the configuration is a heck of a lot cheaper than moving
+  potentially gigabytes of pages to another configuration domain.
 
---- a/net/sched/act_api.c
-+++ b/net/sched/act_api.c
-@@ -303,6 +303,8 @@ static int tcf_del_walker(struct tcf_idr
- 
- 	mutex_lock(&idrinfo->lock);
- 	idr_for_each_entry_ul(idr, p, tmp, id) {
-+		if (IS_ERR(p))
-+			continue;
- 		ret = tcf_idr_release_unsafe(p);
- 		if (ret == ACT_P_DELETED) {
- 			module_put(ops->owner);
-@@ -828,14 +830,24 @@ static const struct nla_policy tcf_actio
- 	[TCA_ACT_OPTIONS]	= { .type = NLA_NESTED },
- };
- 
--static void tcf_idr_insert(struct tc_action *a)
-+static void tcf_idr_insert_many(struct tc_action *actions[])
- {
--	struct tcf_idrinfo *idrinfo = a->idrinfo;
-+	int i;
- 
--	mutex_lock(&idrinfo->lock);
--	/* Replace ERR_PTR(-EBUSY) allocated by tcf_idr_check_alloc */
--	WARN_ON(!IS_ERR(idr_replace(&idrinfo->action_idr, a, a->tcfa_index)));
--	mutex_unlock(&idrinfo->lock);
-+	for (i = 0; i < TCA_ACT_MAX_PRIO; i++) {
-+		struct tc_action *a = actions[i];
-+		struct tcf_idrinfo *idrinfo;
-+
-+		if (!a)
-+			continue;
-+		idrinfo = a->idrinfo;
-+		mutex_lock(&idrinfo->lock);
-+		/* Replace ERR_PTR(-EBUSY) allocated by tcf_idr_check_alloc if
-+		 * it is just created, otherwise this is just a nop.
-+		 */
-+		idr_replace(&idrinfo->action_idr, a, a->tcfa_index);
-+		mutex_unlock(&idrinfo->lock);
-+	}
- }
- 
- struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
-@@ -927,9 +939,6 @@ struct tc_action *tcf_action_init_1(stru
- 		return ERR_PTR(-EINVAL);
- 	}
- 
--	if (err == ACT_P_CREATED)
--		tcf_idr_insert(a);
--
- 	if (!name && tb[TCA_ACT_COOKIE])
- 		tcf_set_action_cookie(&a->act_cookie, cookie);
- 
-@@ -983,6 +992,11 @@ int tcf_action_init(struct net *net, str
- 		actions[i - 1] = act;
- 	}
- 
-+	/* We have to commit them all together, because if any error happened in
-+	 * between, we could not handle the failure gracefully.
-+	 */
-+	tcf_idr_insert_many(actions);
-+
- 	*attr_size = tcf_action_full_attrs_size(sz);
- 	return i - 1;
- 
-
-
+- According to the Fixes tag, this isn't a regression, either. Since
+  their inception, we have never migrated device pages.
