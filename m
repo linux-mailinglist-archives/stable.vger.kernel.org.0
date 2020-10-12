@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B1428B6AC
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BA9E28B9F1
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:05:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730412AbgJLNgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:36:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38558 "EHLO mail.kernel.org"
+        id S2388948AbgJLOE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:04:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730925AbgJLNf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:35:58 -0400
+        id S1730396AbgJLNgB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:36:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEB1220678;
-        Mon, 12 Oct 2020 13:35:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4750320678;
+        Mon, 12 Oct 2020 13:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509757;
-        bh=SzRte4HeNsd62UsF67ZtdD2Dak4L0o5TwSobw42um00=;
+        s=default; t=1602509759;
+        bh=So+kyJqE4R5w+GLcDUp3WYF+xV+I884hMRFXdDTon20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ljgzF8hf0odDf/5CMBKIznCm1tgbg3SSDbon/UjNptZJWX5RwhdBZqVmmSmxwYjlZ
-         jKdj4YR+pNybCvTblvFC+K+KpXv7NSZUzIjW05IVk/z/abxMwkAoBm5cOI/Dy/scSx
-         BLc9OU8aU6IjBz33e68aYtzHkoUuZwTs4VfiijLM=
+        b=YJlbH0Be/m76fopi/3Dx4GnFpTvGbQJnmQbI5Ee4mtXf3sf2ACQaWGf1ChZ59SVTW
+         A1/MfzqG80s9lBV4SnuFf26Yv7k4t2G5I3FEorRRjR/6JLBWnzQ4C0t3qNgjgwtf7j
+         0fIp3FLIZZtV1vP/yPifnOiRlVlt3QDiGjZ9e8k0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sebastien Boeuf <sebastien.boeuf@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/70] net: virtio_vsock: Enhance connection semantics
-Date:   Mon, 12 Oct 2020 15:26:20 +0200
-Message-Id: <20201012132630.420915523@linuxfoundation.org>
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Brooke Basile <brookebasile@gmail.com>,
+        stable <stable@kernel.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>
+Subject: [PATCH 4.14 05/70] USB: gadget: f_ncm: Fix NDP16 datagram validation
+Date:   Mon, 12 Oct 2020 15:26:21 +0200
+Message-Id: <20201012132630.470022726@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
 References: <20201012132630.201442517@linuxfoundation.org>
@@ -44,60 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastien Boeuf <sebastien.boeuf@intel.com>
+From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-[ Upstream commit df12eb6d6cd920ab2f0e0a43cd6e1c23a05cea91 ]
+commit 2b405533c2560d7878199c57d95a39151351df72 upstream.
 
-Whenever the vsock backend on the host sends a packet through the RX
-queue, it expects an answer on the TX queue. Unfortunately, there is one
-case where the host side will hang waiting for the answer and might
-effectively never recover if no timeout mechanism was implemented.
+commit 2b74b0a04d3e ("USB: gadget: f_ncm: add bounds checks to ncm_unwrap_ntb()")
+adds important bounds checking however it unfortunately also introduces  a
+bug with respect to section 3.3.1 of the NCM specification.
 
-This issue happens when the guest side starts binding to the socket,
-which insert a new bound socket into the list of already bound sockets.
-At this time, we expect the guest to also start listening, which will
-trigger the sk_state to move from TCP_CLOSE to TCP_LISTEN. The problem
-occurs if the host side queued a RX packet and triggered an interrupt
-right between the end of the binding process and the beginning of the
-listening process. In this specific case, the function processing the
-packet virtio_transport_recv_pkt() will find a bound socket, which means
-it will hit the switch statement checking for the sk_state, but the
-state won't be changed into TCP_LISTEN yet, which leads the code to pick
-the default statement. This default statement will only free the buffer,
-while it should also respond to the host side, by sending a packet on
-its TX queue.
+wDatagramIndex[1] : "Byte index, in little endian, of the second datagram
+described by this NDP16. If zero, then this marks the end of the sequence
+of datagrams in this NDP16."
 
-In order to simply fix this unfortunate chain of events, it is important
-that in case the default statement is entered, and because at this stage
-we know the host side is waiting for an answer, we must send back a
-packet containing the operation VIRTIO_VSOCK_OP_RST.
+wDatagramLength[1]: "Byte length, in little endian, of the second datagram
+described by this NDP16. If zero, then this marks the end of the sequence
+of datagrams in this NDP16."
 
-One could say that a proper timeout mechanism on the host side will be
-enough to avoid the backend to hang. But the point of this patch is to
-ensure the normal use case will be provided with proper responsiveness
-when it comes to establishing the connection.
+wDatagramIndex[1] and wDatagramLength[1] respectively then may be zero but
+that does not mean we should throw away the data referenced by
+wDatagramIndex[0] and wDatagramLength[0] as is currently the case.
 
-Signed-off-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Breaking the loop on (index2 == 0 || dg_len2 == 0) should come at the end
+as was previously the case and checks for index2 and dg_len2 should be
+removed since zero is valid.
+
+I'm not sure how much testing the above patch received but for me right now
+after enumeration ping doesn't work. Reverting the commit restores ping,
+scp, etc.
+
+The extra validation associated with wDatagramIndex[0] and
+wDatagramLength[0] appears to be valid so, this change removes the incorrect
+restriction on wDatagramIndex[1] and wDatagramLength[1] restoring data
+processing between host and device.
+
+Fixes: 2b74b0a04d3e ("USB: gadget: f_ncm: add bounds checks to ncm_unwrap_ntb()")
+Cc: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Cc: Brooke Basile <brookebasile@gmail.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Link: https://lore.kernel.org/r/20200920170158.1217068-1-bryan.odonoghue@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/vmw_vsock/virtio_transport_common.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/function/f_ncm.c |   30 ++----------------------------
+ 1 file changed, 2 insertions(+), 28 deletions(-)
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index dc4fb4aa76550..8e4c13cc61ba8 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1056,6 +1056,7 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 		virtio_transport_free_pkt(pkt);
- 		break;
- 	default:
-+		(void)virtio_transport_reset_no_sock(t, pkt);
- 		virtio_transport_free_pkt(pkt);
- 		break;
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -1210,7 +1210,6 @@ static int ncm_unwrap_ntb(struct gether
+ 	const struct ndp_parser_opts *opts = ncm->parser_opts;
+ 	unsigned	crc_len = ncm->is_crc ? sizeof(uint32_t) : 0;
+ 	int		dgram_counter;
+-	bool		ndp_after_header;
+ 
+ 	/* dwSignature */
+ 	if (get_unaligned_le32(tmp) != opts->nth_sign) {
+@@ -1237,7 +1236,6 @@ static int ncm_unwrap_ntb(struct gether
  	}
--- 
-2.25.1
-
+ 
+ 	ndp_index = get_ncm(&tmp, opts->ndp_index);
+-	ndp_after_header = false;
+ 
+ 	/* Run through all the NDP's in the NTB */
+ 	do {
+@@ -1253,8 +1251,6 @@ static int ncm_unwrap_ntb(struct gether
+ 			     ndp_index);
+ 			goto err;
+ 		}
+-		if (ndp_index == opts->nth_size)
+-			ndp_after_header = true;
+ 
+ 		/*
+ 		 * walk through NDP
+@@ -1333,37 +1329,13 @@ static int ncm_unwrap_ntb(struct gether
+ 			index2 = get_ncm(&tmp, opts->dgram_item_len);
+ 			dg_len2 = get_ncm(&tmp, opts->dgram_item_len);
+ 
+-			if (index2 == 0 || dg_len2 == 0)
+-				break;
+-
+ 			/* wDatagramIndex[1] */
+-			if (ndp_after_header) {
+-				if (index2 < opts->nth_size + opts->ndp_size) {
+-					INFO(port->func.config->cdev,
+-					     "Bad index: %#X\n", index2);
+-					goto err;
+-				}
+-			} else {
+-				if (index2 < opts->nth_size + opts->dpe_size) {
+-					INFO(port->func.config->cdev,
+-					     "Bad index: %#X\n", index2);
+-					goto err;
+-				}
+-			}
+ 			if (index2 > block_len - opts->dpe_size) {
+ 				INFO(port->func.config->cdev,
+ 				     "Bad index: %#X\n", index2);
+ 				goto err;
+ 			}
+ 
+-			/* wDatagramLength[1] */
+-			if ((dg_len2 < 14 + crc_len) ||
+-					(dg_len2 > frame_max)) {
+-				INFO(port->func.config->cdev,
+-				     "Bad dgram length: %#X\n", dg_len);
+-				goto err;
+-			}
+-
+ 			/*
+ 			 * Copy the data into a new skb.
+ 			 * This ensures the truesize is correct
+@@ -1380,6 +1352,8 @@ static int ncm_unwrap_ntb(struct gether
+ 			ndp_len -= 2 * (opts->dgram_item_len * 2);
+ 
+ 			dgram_counter++;
++			if (index2 == 0 || dg_len2 == 0)
++				break;
+ 		} while (ndp_len > 2 * (opts->dgram_item_len * 2));
+ 	} while (ndp_index);
+ 
 
 
