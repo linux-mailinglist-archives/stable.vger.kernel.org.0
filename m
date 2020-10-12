@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A29828B6A1
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:37:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D1A528B8D2
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730839AbgJLNfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:35:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37356 "EHLO mail.kernel.org"
+        id S2388373AbgJLNpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:45:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730740AbgJLNeu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:34:50 -0400
+        id S1731512AbgJLNmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:42:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8615321BE5;
-        Mon, 12 Oct 2020 13:34:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3A7922203;
+        Mon, 12 Oct 2020 13:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509689;
-        bh=2zpjsqHQJac+zL3lvzEoMNpkQcp72IfoDjRfZJkYqPE=;
+        s=default; t=1602510106;
+        bh=i6acXUDg8PGCFSJtg3uzPumV/pszmD9uG/oEDB6moBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lqCmdWWnI9VqpbieDBQBe8yS5APT3/wTUkpDZLTqNGI4iw6NYNxJ7bzi/5Y670IeF
-         Wzg22PXyGqS03wSrX3mYR59qhd3b3a63XcsvEBS+BKO6oItRuJpKCNPE6YOyFeXdND
-         OBZIOAn+V3NGdZLZzHgBXkLxnm2E15ia4nlxX9d4=
+        b=FlSjNtkuMmH5MtIcZWmBHUap9hz17fDucPqj8qLUiGD7Jv5WGLziHw5suMjUOIHxr
+         MMFUIbUH366rQwPjzRMBjeseXEuGrxZTFGxebWshyfYL46XKp6JGUgXsHdrcNGHs57
+         UnX+RM4vHFI4HHqv4rRW8zjB3R5roNo2v7PsTeEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 42/54] xfrm: clone XFRMA_REPLAY_ESN_VAL in xfrm_do_migrate
+        stable@vger.kernel.org, Nicolas Belin <nbelin@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.4 41/85] i2c: meson: fixup rate calculation with filter delay
 Date:   Mon, 12 Oct 2020 15:27:04 +0200
-Message-Id: <20201012132631.527506896@linuxfoundation.org>
+Message-Id: <20201012132634.834324417@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antony Antony <antony.antony@secunet.com>
+From: Nicolas Belin <nbelin@baylibre.com>
 
-[ Upstream commit 91a46c6d1b4fcbfa4773df9421b8ad3e58088101 ]
+commit 1334d3b4e49e35d8912a7c37ffca4c5afb9a0516 upstream.
 
-XFRMA_REPLAY_ESN_VAL was not cloned completely from the old to the new.
-Migrate this attribute during XFRMA_MSG_MIGRATE
+Apparently, 15 cycles of the peripheral clock are used by the controller
+for sampling and filtering. Because this was not known before, the rate
+calculation is slightly off.
 
-v1->v2:
- - move curleft cloning to a separate patch
+Clean up and fix the calculation taking this filtering delay into account.
 
-Fixes: af2f464e326e ("xfrm: Assign esn pointers when cloning a state")
-Signed-off-by: Antony Antony <antony.antony@secunet.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 30021e3707a7 ("i2c: add support for Amlogic Meson I2C controller")
+Signed-off-by: Nicolas Belin <nbelin@baylibre.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/net/xfrm.h | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-meson.c |   23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 9e2f260cbb518..b2a405c93a342 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1726,21 +1726,17 @@ static inline int xfrm_replay_state_esn_len(struct xfrm_replay_state_esn *replay
- static inline int xfrm_replay_clone(struct xfrm_state *x,
- 				     struct xfrm_state *orig)
- {
--	x->replay_esn = kzalloc(xfrm_replay_state_esn_len(orig->replay_esn),
-+
-+	x->replay_esn = kmemdup(orig->replay_esn,
-+				xfrm_replay_state_esn_len(orig->replay_esn),
- 				GFP_KERNEL);
- 	if (!x->replay_esn)
- 		return -ENOMEM;
--
--	x->replay_esn->bmp_len = orig->replay_esn->bmp_len;
--	x->replay_esn->replay_window = orig->replay_esn->replay_window;
--
--	x->preplay_esn = kmemdup(x->replay_esn,
--				 xfrm_replay_state_esn_len(x->replay_esn),
-+	x->preplay_esn = kmemdup(orig->preplay_esn,
-+				 xfrm_replay_state_esn_len(orig->preplay_esn),
- 				 GFP_KERNEL);
--	if (!x->preplay_esn) {
--		kfree(x->replay_esn);
-+	if (!x->preplay_esn)
- 		return -ENOMEM;
--	}
+--- a/drivers/i2c/busses/i2c-meson.c
++++ b/drivers/i2c/busses/i2c-meson.c
+@@ -33,10 +33,8 @@
+ #define REG_CTRL_ACK_IGNORE	BIT(1)
+ #define REG_CTRL_STATUS		BIT(2)
+ #define REG_CTRL_ERROR		BIT(3)
+-#define REG_CTRL_CLKDIV_SHIFT	12
+-#define REG_CTRL_CLKDIV_MASK	GENMASK(21, 12)
+-#define REG_CTRL_CLKDIVEXT_SHIFT 28
+-#define REG_CTRL_CLKDIVEXT_MASK	GENMASK(29, 28)
++#define REG_CTRL_CLKDIV		GENMASK(21, 12)
++#define REG_CTRL_CLKDIVEXT	GENMASK(29, 28)
  
- 	return 0;
- }
--- 
-2.25.1
-
+ #define REG_SLV_ADDR		GENMASK(7, 0)
+ #define REG_SLV_SDA_FILTER	GENMASK(10, 8)
+@@ -45,6 +43,7 @@
+ #define REG_SLV_SCL_LOW_EN	BIT(28)
+ 
+ #define I2C_TIMEOUT_MS		500
++#define FILTER_DELAY		15
+ 
+ enum {
+ 	TOKEN_END = 0,
+@@ -139,19 +138,21 @@ static void meson_i2c_set_clk_div(struct
+ 	unsigned long clk_rate = clk_get_rate(i2c->clk);
+ 	unsigned int div;
+ 
+-	div = DIV_ROUND_UP(clk_rate, freq * i2c->data->div_factor);
++	div = DIV_ROUND_UP(clk_rate, freq);
++	div -= FILTER_DELAY;
++	div = DIV_ROUND_UP(div, i2c->data->div_factor);
+ 
+ 	/* clock divider has 12 bits */
+-	if (div >= (1 << 12)) {
++	if (div > GENMASK(11, 0)) {
+ 		dev_err(i2c->dev, "requested bus frequency too low\n");
+-		div = (1 << 12) - 1;
++		div = GENMASK(11, 0);
+ 	}
+ 
+-	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV_MASK,
+-			   (div & GENMASK(9, 0)) << REG_CTRL_CLKDIV_SHIFT);
++	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIV,
++			   FIELD_PREP(REG_CTRL_CLKDIV, div & GENMASK(9, 0)));
+ 
+-	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT_MASK,
+-			   (div >> 10) << REG_CTRL_CLKDIVEXT_SHIFT);
++	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT,
++			   FIELD_PREP(REG_CTRL_CLKDIVEXT, div >> 10));
+ 
+ 	/* Disable HIGH/LOW mode */
+ 	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_SCL_LOW_EN, 0);
 
 
