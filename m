@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B1628B6F6
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:40:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B7A28B797
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731285AbgJLNjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:39:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40158 "EHLO mail.kernel.org"
+        id S2389581AbgJLNo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:44:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730053AbgJLNio (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:44 -0400
+        id S1731502AbgJLNmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:42:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C5BE21BE5;
-        Mon, 12 Oct 2020 13:38:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6586C2076E;
+        Mon, 12 Oct 2020 13:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509924;
-        bh=uvwa/k5xa2M1gsseXq64HOYbcOvqvzqq/Zn+AUygn8I=;
+        s=default; t=1602510103;
+        bh=wWPstj76VCjHe5UD4+nvWxKDxs8CX7HojEx61usBlKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3fNfDJiuTl7eus9IjXZJPG3ktJgD99NmtOr3hrzTGkWVUsM8c27lbbBo33ZiITcg
-         4IGKY6Mg014/U+Eh37Qu08taUJeLFQVYSti3igd5qxGja5QOTU8LSqtFKwX4nD0hn2
-         Rkyvco/j8ZroONDiAmEHGQe7z254kcdXrIkCd/VM=
+        b=KKk6d7NJXmsqF8TXA/y5QXP9hE12q9bE9+lBfbLPzyK06rglwfFuNs26ibH5fBBe+
+         JHWE2/7UVGBtjs3IMRWUdy0DQ5L0N41Ly+0E0sdpdH7MrGTpnafjRvgCj8LgbLXiew
+         KahmUpFrdCi+1/7E69EcF7TP8QQa4MzEWQ5ss8YU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.19 17/49] nvme-core: put ctrl ref when module ref get fail
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.4 40/85] i2c: meson: fix clock setting overwrite
 Date:   Mon, 12 Oct 2020 15:27:03 +0200
-Message-Id: <20201012132630.238981493@linuxfoundation.org>
+Message-Id: <20201012132634.785589451@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-commit 4bab69093044ca81f394bd0780be1b71c5a4d308 upstream.
+commit 28683e847e2f20eed22cdd24f185d7783db396d3 upstream.
 
-When try_module_get() fails in the nvme_dev_open() it returns without
-releasing the ctrl reference which was taken earlier.
+When the slave address is written in do_start(), SLAVE_ADDR is written
+completely. This may overwrite some setting related to the clock rate
+or signal filtering.
 
-Put the ctrl reference which is taken before calling the
-try_module_get() in the error return code path.
+Fix this by writing only the bits related to slave address. To avoid
+causing unexpected changed, explicitly disable filtering or high/low
+clock mode which may have been left over by the bootloader.
 
-Fixes: 52a3974feb1a "nvme-core: get/put ctrl and transport module in nvme_dev_open/release()"
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 30021e3707a7 ("i2c: add support for Amlogic Meson I2C controller")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvme/host/core.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-meson.c |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -2606,8 +2606,10 @@ static int nvme_dev_open(struct inode *i
+--- a/drivers/i2c/busses/i2c-meson.c
++++ b/drivers/i2c/busses/i2c-meson.c
+@@ -5,6 +5,7 @@
+  * Copyright (C) 2014 Beniamino Galvani <b.galvani@gmail.com>
+  */
+ 
++#include <linux/bitfield.h>
+ #include <linux/clk.h>
+ #include <linux/completion.h>
+ #include <linux/i2c.h>
+@@ -37,6 +38,12 @@
+ #define REG_CTRL_CLKDIVEXT_SHIFT 28
+ #define REG_CTRL_CLKDIVEXT_MASK	GENMASK(29, 28)
+ 
++#define REG_SLV_ADDR		GENMASK(7, 0)
++#define REG_SLV_SDA_FILTER	GENMASK(10, 8)
++#define REG_SLV_SCL_FILTER	GENMASK(13, 11)
++#define REG_SLV_SCL_LOW		GENMASK(27, 16)
++#define REG_SLV_SCL_LOW_EN	BIT(28)
++
+ #define I2C_TIMEOUT_MS		500
+ 
+ enum {
+@@ -146,6 +153,9 @@ static void meson_i2c_set_clk_div(struct
+ 	meson_i2c_set_mask(i2c, REG_CTRL, REG_CTRL_CLKDIVEXT_MASK,
+ 			   (div >> 10) << REG_CTRL_CLKDIVEXT_SHIFT);
+ 
++	/* Disable HIGH/LOW mode */
++	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_SCL_LOW_EN, 0);
++
+ 	dev_dbg(i2c->dev, "%s: clk %lu, freq %u, div %u\n", __func__,
+ 		clk_rate, freq, div);
+ }
+@@ -273,7 +283,10 @@ static void meson_i2c_do_start(struct me
+ 	token = (msg->flags & I2C_M_RD) ? TOKEN_SLAVE_ADDR_READ :
+ 		TOKEN_SLAVE_ADDR_WRITE;
+ 
+-	writel(msg->addr << 1, i2c->regs + REG_SLAVE_ADDR);
++
++	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR, REG_SLV_ADDR,
++			   FIELD_PREP(REG_SLV_ADDR, msg->addr << 1));
++
+ 	meson_i2c_add_token(i2c, TOKEN_START);
+ 	meson_i2c_add_token(i2c, token);
+ }
+@@ -432,6 +445,10 @@ static int meson_i2c_probe(struct platfo
+ 		return ret;
  	}
  
- 	nvme_get_ctrl(ctrl);
--	if (!try_module_get(ctrl->ops->module))
-+	if (!try_module_get(ctrl->ops->module)) {
-+		nvme_put_ctrl(ctrl);
- 		return -EINVAL;
-+	}
++	/* Disable filtering */
++	meson_i2c_set_mask(i2c, REG_SLAVE_ADDR,
++			   REG_SLV_SDA_FILTER | REG_SLV_SCL_FILTER, 0);
++
+ 	meson_i2c_set_clk_div(i2c, timings.bus_freq_hz);
  
- 	file->private_data = ctrl;
  	return 0;
 
 
