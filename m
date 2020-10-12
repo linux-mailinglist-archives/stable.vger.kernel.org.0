@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9DB528B6A6
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC92B28B9CA
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730492AbgJLNgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:36:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37830 "EHLO mail.kernel.org"
+        id S1731838AbgJLODs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:03:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728724AbgJLNfP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:35:15 -0400
+        id S1729253AbgJLNgb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:36:31 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19DA02087E;
-        Mon, 12 Oct 2020 13:35:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6679420838;
+        Mon, 12 Oct 2020 13:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509714;
-        bh=OzOTN8jKo7kNhY9MZajRoUo7sdMGGo9dIRe98N8tscs=;
+        s=default; t=1602509787;
+        bh=UWhmj8GHc6VZOaMpPuA9cuxbuD9HzZ/qL4BKknaSMQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anDTtNdxvZFXn31rhydP72OLGlXYeHuGzG86rRakdTMhd1M4YeuipsX3R/H8GgyoA
-         kz3G5gY9ixPiAMrJTT018QWH+T+JFlOrcPbtTCNJqFhrxdr8xaGreAeikeUX5suiNK
-         X8vJ1qqIlPW6o3bZq5VBpr0aaFM7sATGa/Xy2w68=
+        b=Efif56Yj/VfTiuUT/M0uIhspTVZmTz4eQXvRX0jWavn/Hi+9aFRqYTIi2SvpANDwD
+         43kHi7wm5ovqAdM13f6uVcBcs49ItQg6PBDhUDwryj5rzQOy1anwTpL3AHpvGRRMCY
+         pdpqY+eBs1XHOkwCbOtzF2Dgf5cFo+/miUoPLeRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.9 23/54] fbdev, newport_con: Move FONT_EXTRA_WORDS macros into linux/font.h
-Date:   Mon, 12 Oct 2020 15:26:45 +0200
-Message-Id: <20201012132630.659734237@linuxfoundation.org>
+        stable@vger.kernel.org, Will McVicker <willmcvicker@google.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.14 30/70] netfilter: ctnetlink: add a range check for l3/l4 protonum
+Date:   Mon, 12 Oct 2020 15:26:46 +0200
+Message-Id: <20201012132631.635692684@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,105 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <yepeilin.cs@gmail.com>
+From: Will McVicker <willmcvicker@google.com>
 
-commit bb0890b4cd7f8203e3aa99c6d0f062d6acdaad27 upstream.
+commit 1cc5ef91d2ff94d2bf2de3b3585423e8a1051cb6 upstream.
 
-drivers/video/console/newport_con.c is borrowing FONT_EXTRA_WORDS macros
-from drivers/video/fbdev/core/fbcon.h. To keep things simple, move all
-definitions into <linux/font.h>.
+The indexes to the nf_nat_l[34]protos arrays come from userspace. So
+check the tuple's family, e.g. l3num, when creating the conntrack in
+order to prevent an OOB memory access during setup.  Here is an example
+kernel panic on 4.14.180 when userspace passes in an index greater than
+NFPROTO_NUMPROTO.
 
-Since newport_con now uses four extra words, initialize the fourth word in
-newport_set_font() properly.
+Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+Modules linked in:...
+Process poc (pid: 5614, stack limit = 0x00000000a3933121)
+CPU: 4 PID: 5614 Comm: poc Tainted: G S      W  O    4.14.180-g051355490483
+Hardware name: Qualcomm Technologies, Inc. SM8150 V2 PM8150 Google Inc. MSM
+task: 000000002a3dfffe task.stack: 00000000a3933121
+pc : __cfi_check_fail+0x1c/0x24
+lr : __cfi_check_fail+0x1c/0x24
+...
+Call trace:
+__cfi_check_fail+0x1c/0x24
+name_to_dev_t+0x0/0x468
+nfnetlink_parse_nat_setup+0x234/0x258
+ctnetlink_parse_nat_setup+0x4c/0x228
+ctnetlink_new_conntrack+0x590/0xc40
+nfnetlink_rcv_msg+0x31c/0x4d4
+netlink_rcv_skb+0x100/0x184
+nfnetlink_rcv+0xf4/0x180
+netlink_unicast+0x360/0x770
+netlink_sendmsg+0x5a0/0x6a4
+___sys_sendmsg+0x314/0x46c
+SyS_sendmsg+0xb4/0x108
+el0_svc_naked+0x34/0x38
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/7fb8bc9b0abc676ada6b7ac0e0bd443499357267.1600953813.git.yepeilin.cs@gmail.com
+This crash is not happening since 5.4+, however, ctnetlink still
+allows for creating entries with unsupported layer 3 protocol number.
+
+Fixes: c1d10adb4a521 ("[NETFILTER]: Add ctnetlink port for nf_conntrack")
+Signed-off-by: Will McVicker <willmcvicker@google.com>
+[pablo@netfilter.org: rebased original patch on top of nf.git]
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/console/fbcon.h        |    7 -------
- drivers/video/console/fbcon_rotate.c |    1 +
- drivers/video/console/newport_con.c  |    7 +------
- drivers/video/console/tileblit.c     |    1 +
- include/linux/font.h                 |    8 ++++++++
- 5 files changed, 11 insertions(+), 13 deletions(-)
+ net/netfilter/nf_conntrack_netlink.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/video/console/fbcon.h
-+++ b/drivers/video/console/fbcon.h
-@@ -151,13 +151,6 @@ static inline int attr_col_ec(int shift,
- #define attr_bgcol_ec(bgshift, vc, info) attr_col_ec(bgshift, vc, info, 0)
- #define attr_fgcol_ec(fgshift, vc, info) attr_col_ec(fgshift, vc, info, 1)
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -1043,6 +1043,8 @@ ctnetlink_parse_tuple(const struct nlatt
+ 	if (!tb[CTA_TUPLE_IP])
+ 		return -EINVAL;
  
--/* Font */
--#define REFCOUNT(fd)	(((int *)(fd))[-1])
--#define FNTSIZE(fd)	(((int *)(fd))[-2])
--#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
--#define FNTSUM(fd)	(((int *)(fd))[-4])
--#define FONT_EXTRA_WORDS 4
--
-     /*
-      *  Scroll Method
-      */
---- a/drivers/video/console/fbcon_rotate.c
-+++ b/drivers/video/console/fbcon_rotate.c
-@@ -14,6 +14,7 @@
- #include <linux/fb.h>
- #include <linux/vt_kern.h>
- #include <linux/console.h>
-+#include <linux/font.h>
- #include <asm/types.h>
- #include "fbcon.h"
- #include "fbcon_rotate.h"
---- a/drivers/video/console/newport_con.c
-+++ b/drivers/video/console/newport_con.c
-@@ -35,12 +35,6 @@
++	if (l3num != NFPROTO_IPV4 && l3num != NFPROTO_IPV6)
++		return -EOPNOTSUPP;
+ 	tuple->src.l3num = l3num;
  
- #define FONT_DATA ((unsigned char *)font_vga_8x16.data)
- 
--/* borrowed from fbcon.c */
--#define REFCOUNT(fd)	(((int *)(fd))[-1])
--#define FNTSIZE(fd)	(((int *)(fd))[-2])
--#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
--#define FONT_EXTRA_WORDS 3
--
- static unsigned char *font_data[MAX_NR_CONSOLES];
- 
- static struct newport_regs *npregs;
-@@ -522,6 +516,7 @@ static int newport_set_font(int unit, st
- 	FNTSIZE(new_data) = size;
- 	FNTCHARCNT(new_data) = op->charcount;
- 	REFCOUNT(new_data) = 0;	/* usage counter */
-+	FNTSUM(new_data) = 0;
- 
- 	p = new_data;
- 	for (i = 0; i < op->charcount; i++) {
---- a/drivers/video/console/tileblit.c
-+++ b/drivers/video/console/tileblit.c
-@@ -13,6 +13,7 @@
- #include <linux/fb.h>
- #include <linux/vt_kern.h>
- #include <linux/console.h>
-+#include <linux/font.h>
- #include <asm/types.h>
- #include "fbcon.h"
- 
---- a/include/linux/font.h
-+++ b/include/linux/font.h
-@@ -57,4 +57,12 @@ extern const struct font_desc *get_defau
- /* Max. length for the name of a predefined font */
- #define MAX_FONT_NAME	32
- 
-+/* Extra word getters */
-+#define REFCOUNT(fd)	(((int *)(fd))[-1])
-+#define FNTSIZE(fd)	(((int *)(fd))[-2])
-+#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
-+#define FNTSUM(fd)	(((int *)(fd))[-4])
-+
-+#define FONT_EXTRA_WORDS 4
-+
- #endif /* _VIDEO_FONT_H */
+ 	err = ctnetlink_parse_tuple_ip(tb[CTA_TUPLE_IP], tuple);
 
 
