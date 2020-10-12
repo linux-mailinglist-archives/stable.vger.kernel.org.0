@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED2EA28B8C4
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63FD928B8DB
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:57:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390448AbgJLNzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:55:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
+        id S2390394AbgJLNzf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:55:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389650AbgJLNpk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389651AbgJLNpk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Oct 2020 09:45:40 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C29C922261;
-        Mon, 12 Oct 2020 13:44:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 154E322260;
+        Mon, 12 Oct 2020 13:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510255;
-        bh=jiqiZKr6WW7lmafzr4fFkQ2idmz7/4D94NYZplkQuHw=;
+        s=default; t=1602510257;
+        bh=o1m9s6MnzVt3J4IWQ9ycSCEP8hCKJGnaDSBvWXmk75w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlYQwQZEqXTrp4AVRsZxEO1utOCjOfcOquR1L3vysH2aVeY64gEALYXs/l0IXAcDY
-         Sx4DAoTs87cHkRIODhENShMheqThGtv3OPhfHLAr9i+L31ymAiMK3LnjGzMaP9G2UG
-         Ut0j+2g18Z/ada45+m6MSEY9Ojuqeh6Y/QctWZvw=
+        b=dxtA9Bycguc9VzW2rKrpSct0AzIIPBMihMG0FgH+ggU57VOstEeJhBwGkK+DvORRP
+         tKplQJTdUz+HGKb6zJde4Zt4du+Q3zO3ndDXZoLfHI4D8P0JXF1y8n7LqG1JgpihLd
+         xK6BmfqF4CJuOSXrJkA2PElaEprzAjy7A/0fxitY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+b91107320911a26c9a95@syzkaller.appspotmail.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>
-Subject: [PATCH 5.8 007/124] exfat: fix use of uninitialized spinlock on error path
-Date:   Mon, 12 Oct 2020 15:30:11 +0200
-Message-Id: <20201012133147.201909317@linuxfoundation.org>
+        syzbot+b1bb342d1d097516cbda@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.8 008/124] net: wireless: nl80211: fix out-of-bounds access in nl80211_del_key()
+Date:   Mon, 12 Oct 2020 15:30:12 +0200
+Message-Id: <20201012133147.250879494@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -43,130 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <namjae.jeon@samsung.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-commit 8ff006e57ad3a25f909c456d053aa498b6673a39 upstream.
+commit 3dc289f8f139997f4e9d3cfccf8738f20d23e47b upstream.
 
-syzbot reported warning message:
+In nl80211_parse_key(), key.idx is first initialized as -1.
+If this value of key.idx remains unmodified and gets returned, and
+nl80211_key_allowed() also returns 0, then rdev_del_key() gets called
+with key.idx = -1.
+This causes an out-of-bounds array access.
 
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1d6/0x29e lib/dump_stack.c:118
- register_lock_class+0xf06/0x1520 kernel/locking/lockdep.c:893
- __lock_acquire+0xfd/0x2ae0 kernel/locking/lockdep.c:4320
- lock_acquire+0x148/0x720 kernel/locking/lockdep.c:5029
- __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
- _raw_spin_lock+0x2a/0x40 kernel/locking/spinlock.c:151
- spin_lock include/linux/spinlock.h:354 [inline]
- exfat_cache_inval_inode+0x30/0x280 fs/exfat/cache.c:226
- exfat_evict_inode+0x124/0x270 fs/exfat/inode.c:660
- evict+0x2bb/0x6d0 fs/inode.c:576
- exfat_fill_super+0x1e07/0x27d0 fs/exfat/super.c:681
- get_tree_bdev+0x3e9/0x5f0 fs/super.c:1342
- vfs_get_tree+0x88/0x270 fs/super.c:1547
- do_new_mount fs/namespace.c:2875 [inline]
- path_mount+0x179d/0x29e0 fs/namespace.c:3192
- do_mount fs/namespace.c:3205 [inline]
- __do_sys_mount fs/namespace.c:3413 [inline]
- __se_sys_mount+0x126/0x180 fs/namespace.c:3390
- do_syscall_64+0x31/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Handle this issue by checking if the value of key.idx after
+nl80211_parse_key() is called and return -EINVAL if key.idx < 0.
 
-If exfat_read_root() returns an error, spinlock is used in
-exfat_evict_inode() without initialization. This patch combines
-exfat_cache_init_inode() with exfat_inode_init_once() to initialize
-spinlock by slab constructor.
-
-Fixes: c35b6810c495 ("exfat: add exfat cache")
-Cc: stable@vger.kernel.org # v5.7+
-Reported-by: syzbot <syzbot+b91107320911a26c9a95@syzkaller.appspotmail.com>
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+b1bb342d1d097516cbda@syzkaller.appspotmail.com
+Tested-by: syzbot+b1bb342d1d097516cbda@syzkaller.appspotmail.com
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Link: https://lore.kernel.org/r/20201007035401.9522-1-anant.thazhemadam@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/exfat/cache.c    |   11 -----------
- fs/exfat/exfat_fs.h |    3 ++-
- fs/exfat/inode.c    |    2 --
- fs/exfat/super.c    |    5 ++++-
- 4 files changed, 6 insertions(+), 15 deletions(-)
+ net/wireless/nl80211.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/exfat/cache.c
-+++ b/fs/exfat/cache.c
-@@ -17,7 +17,6 @@
- #include "exfat_raw.h"
- #include "exfat_fs.h"
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -4172,6 +4172,9 @@ static int nl80211_del_key(struct sk_buf
+ 	if (err)
+ 		return err;
  
--#define EXFAT_CACHE_VALID	0
- #define EXFAT_MAX_CACHE		16
- 
- struct exfat_cache {
-@@ -61,16 +60,6 @@ void exfat_cache_shutdown(void)
- 	kmem_cache_destroy(exfat_cachep);
- }
- 
--void exfat_cache_init_inode(struct inode *inode)
--{
--	struct exfat_inode_info *ei = EXFAT_I(inode);
--
--	spin_lock_init(&ei->cache_lru_lock);
--	ei->nr_caches = 0;
--	ei->cache_valid_id = EXFAT_CACHE_VALID + 1;
--	INIT_LIST_HEAD(&ei->cache_lru);
--}
--
- static inline struct exfat_cache *exfat_cache_alloc(void)
- {
- 	return kmem_cache_alloc(exfat_cachep, GFP_NOFS);
---- a/fs/exfat/exfat_fs.h
-+++ b/fs/exfat/exfat_fs.h
-@@ -250,6 +250,8 @@ struct exfat_sb_info {
- 	struct rcu_head rcu;
- };
- 
-+#define EXFAT_CACHE_VALID	0
++	if (key.idx < 0)
++		return -EINVAL;
 +
- /*
-  * EXFAT file system inode in-memory data
-  */
-@@ -429,7 +431,6 @@ extern const struct dentry_operations ex
- /* cache.c */
- int exfat_cache_init(void);
- void exfat_cache_shutdown(void);
--void exfat_cache_init_inode(struct inode *inode);
- void exfat_cache_inval_inode(struct inode *inode);
- int exfat_get_cluster(struct inode *inode, unsigned int cluster,
- 		unsigned int *fclus, unsigned int *dclus,
---- a/fs/exfat/inode.c
-+++ b/fs/exfat/inode.c
-@@ -610,8 +610,6 @@ static int exfat_fill_inode(struct inode
- 	ei->i_crtime = info->crtime;
- 	inode->i_atime = info->atime;
+ 	if (info->attrs[NL80211_ATTR_MAC])
+ 		mac_addr = nla_data(info->attrs[NL80211_ATTR_MAC]);
  
--	exfat_cache_init_inode(inode);
--
- 	return 0;
- }
- 
---- a/fs/exfat/super.c
-+++ b/fs/exfat/super.c
-@@ -361,7 +361,6 @@ static int exfat_read_root(struct inode
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = ei->i_crtime =
- 		current_time(inode);
- 	exfat_truncate_atime(&inode->i_atime);
--	exfat_cache_init_inode(inode);
- 	return 0;
- }
- 
-@@ -747,6 +746,10 @@ static void exfat_inode_init_once(void *
- {
- 	struct exfat_inode_info *ei = (struct exfat_inode_info *)foo;
- 
-+	spin_lock_init(&ei->cache_lru_lock);
-+	ei->nr_caches = 0;
-+	ei->cache_valid_id = EXFAT_CACHE_VALID + 1;
-+	INIT_LIST_HEAD(&ei->cache_lru);
- 	INIT_HLIST_NODE(&ei->i_hash_fat);
- 	inode_init_once(&ei->vfs_inode);
- }
 
 
