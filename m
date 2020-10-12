@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD0BF28BA02
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:07:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 861C128B7A3
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:45:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731558AbgJLOFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:05:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38062 "EHLO mail.kernel.org"
+        id S2389625AbgJLNpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:45:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730453AbgJLNf0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:35:26 -0400
+        id S2389289AbgJLNnP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:43:15 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B04B722203;
-        Mon, 12 Oct 2020 13:35:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFEB721D81;
+        Mon, 12 Oct 2020 13:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509726;
-        bh=/hxe9addzgsfIKyP7sFYqT4K5eZlskGM9ITZGN5/8lw=;
+        s=default; t=1602510194;
+        bh=NAMGh12AMVvn72LzdUDV6g8w9N4PLdldcf1Bd4jNMB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GpcXSvlonZA8fQGoKwFpv5UizYZIIGyoM8DXpUagdHk5i3LAcXmvbAZOAzuxJhdaw
-         Z6cDKMEHwXXK4bRD9sQGUzUyv6FWPnRmnYPXvHTE3tCyMXCxV+2Vvwn1u/W9lSvJ6y
-         Hona8+e49dlcplQESbSsP1OXNp/Sjp+6Xpi/NzFE=
+        b=lPboFW4EMMUgae8QkUvqNv+PCGvBxodYXu++vQpmuBU02eWeEEhHH3Uhp3eimbo2Z
+         MKbyNZNnM8vkzcRUIVgr9mX1D53qKYclzypJlOTcqh7C9ftg37D7CI+f7bHnVMHASk
+         6B9wVs+2wWarxMnKx9ZayISIqMi8NUoxs21Vx8rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 51/54] rxrpc: Fix server keyring leak
+Subject: [PATCH 5.4 50/85] xfrm: clone XFRMA_REPLAY_ESN_VAL in xfrm_do_migrate
 Date:   Mon, 12 Oct 2020 15:27:13 +0200
-Message-Id: <20201012132631.937441267@linuxfoundation.org>
+Message-Id: <20201012132635.272819536@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Antony Antony <antony.antony@secunet.com>
 
-[ Upstream commit 38b1dc47a35ba14c3f4472138ea56d014c2d609b ]
+[ Upstream commit 91a46c6d1b4fcbfa4773df9421b8ad3e58088101 ]
 
-If someone calls setsockopt() twice to set a server key keyring, the first
-keyring is leaked.
+XFRMA_REPLAY_ESN_VAL was not cloned completely from the old to the new.
+Migrate this attribute during XFRMA_MSG_MIGRATE
 
-Fix it to return an error instead if the server key keyring is already set.
+v1->v2:
+ - move curleft cloning to a separate patch
 
-Fixes: 17926a79320a ("[AF_RXRPC]: Provide secure RxRPC sockets for use by userspace and kernel both")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: af2f464e326e ("xfrm: Assign esn pointers when cloning a state")
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/key.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/xfrm.h | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/net/rxrpc/key.c b/net/rxrpc/key.c
-index 01d2d40ef21cb..fa475b02bdceb 100644
---- a/net/rxrpc/key.c
-+++ b/net/rxrpc/key.c
-@@ -899,7 +899,7 @@ int rxrpc_request_key(struct rxrpc_sock *rx, char __user *optval, int optlen)
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 12aa6e15e43f6..c00b9ae71ae40 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1773,21 +1773,17 @@ static inline unsigned int xfrm_replay_state_esn_len(struct xfrm_replay_state_es
+ static inline int xfrm_replay_clone(struct xfrm_state *x,
+ 				     struct xfrm_state *orig)
+ {
+-	x->replay_esn = kzalloc(xfrm_replay_state_esn_len(orig->replay_esn),
++
++	x->replay_esn = kmemdup(orig->replay_esn,
++				xfrm_replay_state_esn_len(orig->replay_esn),
+ 				GFP_KERNEL);
+ 	if (!x->replay_esn)
+ 		return -ENOMEM;
+-
+-	x->replay_esn->bmp_len = orig->replay_esn->bmp_len;
+-	x->replay_esn->replay_window = orig->replay_esn->replay_window;
+-
+-	x->preplay_esn = kmemdup(x->replay_esn,
+-				 xfrm_replay_state_esn_len(x->replay_esn),
++	x->preplay_esn = kmemdup(orig->preplay_esn,
++				 xfrm_replay_state_esn_len(orig->preplay_esn),
+ 				 GFP_KERNEL);
+-	if (!x->preplay_esn) {
+-		kfree(x->replay_esn);
++	if (!x->preplay_esn)
+ 		return -ENOMEM;
+-	}
  
- 	_enter("");
- 
--	if (optlen <= 0 || optlen > PAGE_SIZE - 1)
-+	if (optlen <= 0 || optlen > PAGE_SIZE - 1 || rx->securities)
- 		return -EINVAL;
- 
- 	description = memdup_user_nul(optval, optlen);
+ 	return 0;
+ }
 -- 
 2.25.1
 
