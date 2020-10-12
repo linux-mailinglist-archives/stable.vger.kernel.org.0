@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49F5728B7E7
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:48:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BC6A28B7F6
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:48:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731677AbgJLNrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:47:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
+        id S1731802AbgJLNsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:48:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389766AbgJLNpz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:45:55 -0400
+        id S2389760AbgJLNpy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:45:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BEDD222E8;
-        Mon, 12 Oct 2020 13:45:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2B8F22314;
+        Mon, 12 Oct 2020 13:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510312;
-        bh=bSyBxzwAqqnWvwHF+Fn0Kuo6xxDaf9D9Sscz5X00zAw=;
+        s=default; t=1602510317;
+        bh=64iZkH//6Etu50zL4X6LwKEv6EOLBImp+ePf3S0fXxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N5UOc0NZgybXDyQTsqjTvS+cn/EQR0dWAATitmiu8JllSMBZZKcY8mcbiBBX3qXOM
-         Wk3xx3JMdepmzfpTTWOnJ5ANU5qZEGG9TWlwrcX6CQfznF/KivhEeD7qnhMpKn16J9
-         y83KuPM+Wt+UuK6nICXwShxDdeapo8Jk1+rStUq8=
+        b=puqk6HCxgXcFp4NVb92ytEomK7R1OUB94VbP2lebezLkYTyGzkeXoKgjgAmERbvuw
+         oM+41TsZ//FmU5+6IuOaZJFe0DZl88K4v6NPPphdPCub5lsebNkGCj2XWQZNega6XO
+         e+FUJzAgzx0G/WZbEfQvEHyM4JbeDcQ9SsFx7dBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 045/124] drm/amdgpu: prevent double kfree ttm->sg
-Date:   Mon, 12 Oct 2020 15:30:49 +0200
-Message-Id: <20201012133149.036599766@linuxfoundation.org>
+Subject: [PATCH 5.8 046/124] btrfs: move btrfs_scratch_superblocks into btrfs_dev_replace_finishing
+Date:   Mon, 12 Oct 2020 15:30:50 +0200
+Message-Id: <20201012133149.083904543@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -45,74 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 1d0e16ac1a9e800598dcfa5b6bc53b704a103390 ]
+[ Upstream commit 313b085851c13ca08320372a05a7047ea25d3dd4 ]
 
-Set ttm->sg to NULL after kfree, to avoid memory corruption backtrace:
+We need to move the closing of the src_device out of all the device
+replace locking, but we definitely want to zero out the superblock
+before we commit the last time to make sure the device is properly
+removed.  Handle this by pushing btrfs_scratch_superblocks into
+btrfs_dev_replace_finishing, and then later on we'll move the src_device
+closing and freeing stuff where we need it to be.
 
-[  420.932812] kernel BUG at
-/build/linux-do9eLF/linux-4.15.0/mm/slub.c:295!
-[  420.934182] invalid opcode: 0000 [#1] SMP NOPTI
-[  420.935445] Modules linked in: xt_conntrack ipt_MASQUERADE
-[  420.951332] Hardware name: Dell Inc. PowerEdge R7525/0PYVT1, BIOS
-1.5.4 07/09/2020
-[  420.952887] RIP: 0010:__slab_free+0x180/0x2d0
-[  420.954419] RSP: 0018:ffffbe426291fa60 EFLAGS: 00010246
-[  420.955963] RAX: ffff9e29263e9c30 RBX: ffff9e29263e9c30 RCX:
-000000018100004b
-[  420.957512] RDX: ffff9e29263e9c30 RSI: fffff3d33e98fa40 RDI:
-ffff9e297e407a80
-[  420.959055] RBP: ffffbe426291fb00 R08: 0000000000000001 R09:
-ffffffffc0d39ade
-[  420.960587] R10: ffffbe426291fb20 R11: ffff9e49ffdd4000 R12:
-ffff9e297e407a80
-[  420.962105] R13: fffff3d33e98fa40 R14: ffff9e29263e9c30 R15:
-ffff9e2954464fd8
-[  420.963611] FS:  00007fa2ea097780(0000) GS:ffff9e297e840000(0000)
-knlGS:0000000000000000
-[  420.965144] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  420.966663] CR2: 00007f16bfffefb8 CR3: 0000001ff0c62000 CR4:
-0000000000340ee0
-[  420.968193] Call Trace:
-[  420.969703]  ? __page_cache_release+0x3c/0x220
-[  420.971294]  ? amdgpu_ttm_tt_unpopulate+0x5e/0x80 [amdgpu]
-[  420.972789]  kfree+0x168/0x180
-[  420.974353]  ? amdgpu_ttm_tt_set_user_pages+0x64/0xc0 [amdgpu]
-[  420.975850]  ? kfree+0x168/0x180
-[  420.977403]  amdgpu_ttm_tt_unpopulate+0x5e/0x80 [amdgpu]
-[  420.978888]  ttm_tt_unpopulate.part.10+0x53/0x60 [amdttm]
-[  420.980357]  ttm_tt_destroy.part.11+0x4f/0x60 [amdttm]
-[  420.981814]  ttm_tt_destroy+0x13/0x20 [amdttm]
-[  420.983273]  ttm_bo_cleanup_memtype_use+0x36/0x80 [amdttm]
-[  420.984725]  ttm_bo_release+0x1c9/0x360 [amdttm]
-[  420.986167]  amdttm_bo_put+0x24/0x30 [amdttm]
-[  420.987663]  amdgpu_bo_unref+0x1e/0x30 [amdgpu]
-[  420.989165]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x9ca/0xb10
-[amdgpu]
-[  420.990666]  kfd_ioctl_alloc_memory_of_gpu+0xef/0x2c0 [amdgpu]
-
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/dev-replace.c |  3 +++
+ fs/btrfs/volumes.c     | 12 +++---------
+ fs/btrfs/volumes.h     |  3 +++
+ 3 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index e59c01a83dace..9a3267f06376f 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -1052,6 +1052,7 @@ static int amdgpu_ttm_tt_pin_userptr(struct ttm_tt *ttm)
+diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
+index eb86e4b88c73a..26c9da82e6a91 100644
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -783,6 +783,9 @@ error:
+ 	/* replace the sysfs entry */
+ 	btrfs_sysfs_remove_devices_dir(fs_info->fs_devices, src_device);
+ 	btrfs_sysfs_update_devid(tgt_device);
++	if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &src_device->dev_state))
++		btrfs_scratch_superblocks(fs_info, src_device->bdev,
++					  src_device->name->str);
+ 	btrfs_rm_dev_replace_free_srcdev(src_device);
  
- release_sg:
- 	kfree(ttm->sg);
-+	ttm->sg = NULL;
- 	return r;
+ 	/* write back the superblocks */
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 956eb0d6bc584..8b5f666a3ea66 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -1999,9 +1999,9 @@ static u64 btrfs_num_devices(struct btrfs_fs_info *fs_info)
+ 	return num_devices;
  }
  
+-static void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
+-				      struct block_device *bdev,
+-				      const char *device_path)
++void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
++			       struct block_device *bdev,
++			       const char *device_path)
+ {
+ 	struct btrfs_super_block *disk_super;
+ 	int copy_num;
+@@ -2224,12 +2224,6 @@ void btrfs_rm_dev_replace_free_srcdev(struct btrfs_device *srcdev)
+ 	struct btrfs_fs_info *fs_info = srcdev->fs_info;
+ 	struct btrfs_fs_devices *fs_devices = srcdev->fs_devices;
+ 
+-	if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &srcdev->dev_state)) {
+-		/* zero out the old super if it is writable */
+-		btrfs_scratch_superblocks(fs_info, srcdev->bdev,
+-					  srcdev->name->str);
+-	}
+-
+ 	btrfs_close_bdev(srcdev);
+ 	synchronize_rcu();
+ 	btrfs_free_device(srcdev);
+diff --git a/fs/btrfs/volumes.h b/fs/btrfs/volumes.h
+index 75af2334b2e37..83862e27f5663 100644
+--- a/fs/btrfs/volumes.h
++++ b/fs/btrfs/volumes.h
+@@ -573,6 +573,9 @@ void btrfs_set_fs_info_ptr(struct btrfs_fs_info *fs_info);
+ void btrfs_reset_fs_info_ptr(struct btrfs_fs_info *fs_info);
+ bool btrfs_check_rw_degradable(struct btrfs_fs_info *fs_info,
+ 					struct btrfs_device *failing_dev);
++void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
++			       struct block_device *bdev,
++			       const char *device_path);
+ 
+ int btrfs_bg_type_to_factor(u64 flags);
+ const char *btrfs_bg_type_to_raid_name(u64 flags);
 -- 
 2.25.1
 
