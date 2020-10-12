@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1975528B9A4
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BAC328B776
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390046AbgJLOC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:02:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41310 "EHLO mail.kernel.org"
+        id S2389348AbgJLNnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:43:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729809AbgJLNiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:38:01 -0400
+        id S1731251AbgJLNmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:42:12 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43CBE22228;
-        Mon, 12 Oct 2020 13:37:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8235820838;
+        Mon, 12 Oct 2020 13:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509860;
-        bh=eMqosG4lrKOhjxzhNXzZxFfVQARlSV+MNl3lOSuaQ8U=;
+        s=default; t=1602510132;
+        bh=VRFkl8UQEweXXXH956FOeul/efo8ZH9C04VAN2CQGbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alqx/ifzdMD031+o3QIBDxHES7OC/Uxm3CC/6m1wVzMy5DD80fy7tV847vCob6ay5
-         aoLftxfLsy4HBvwaLMw75TeABE9gbxchVQBySjD58Fh6Zxc15BvbQhyUgkmYkznkK0
-         MUTScaekvm8tykWTR6JiK/nSuXtXpOURMlCtE7YA=
+        b=Rs5sAcEfHv3ALzDkCoiIzXLZWvTJFQuEFCSA4ArSCBQSoAL1lKzeK/hKJZFg01e3U
+         A/ep9EE0s0DYfJ1Wp+Wk4ujXKFCbJqUPHD0ScDxbNw6bvAzuNw6DKXDiPS4BMvPEO6
+         pBLGZ7SaiAKb3fwNI0EmtCNk18saban4wxN7c4jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Heiner Kallweit <hkallweit1@gmail.com>, netdev@vger.kernel.org,
-        David Daney <david.daney@cavium.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 61/70] mdio: fix mdio-thunder.c dependency & build error
+Subject: [PATCH 5.4 54/85] platform/x86: fix kconfig dependency warning for FUJITSU_LAPTOP
 Date:   Mon, 12 Oct 2020 15:27:17 +0200
-Message-Id: <20201012132633.133106852@linuxfoundation.org>
+Message-Id: <20201012132635.468253683@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,43 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Necip Fazil Yildiran <fazilyildiran@gmail.com>
 
-[ Upstream commit 7dbbcf496f2a4b6d82cfc7810a0746e160b79762 ]
+[ Upstream commit afdd1ebb72051e8b6b83c4d7dc542a9be0e1352d ]
 
-Fix build error by selecting MDIO_DEVRES for MDIO_THUNDER.
-Fixes this build error:
+When FUJITSU_LAPTOP is enabled and NEW_LEDS is disabled, it results in the
+following Kbuild warning:
 
-ld: drivers/net/phy/mdio-thunder.o: in function `thunder_mdiobus_pci_probe':
-drivers/net/phy/mdio-thunder.c:78: undefined reference to `devm_mdiobus_alloc_size'
+WARNING: unmet direct dependencies detected for LEDS_CLASS
+  Depends on [n]: NEW_LEDS [=n]
+  Selected by [y]:
+  - FUJITSU_LAPTOP [=y] && X86 [=y] && X86_PLATFORM_DEVICES [=y] && ACPI [=y] && INPUT [=y] && BACKLIGHT_CLASS_DEVICE [=y] && (ACPI_VIDEO [=n] || ACPI_VIDEO [=n]=n)
 
-Fixes: 379d7ac7ca31 ("phy: mdio-thunder: Add driver for Cavium Thunder SoC MDIO buses.")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: netdev@vger.kernel.org
-Cc: David Daney <david.daney@cavium.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The reason is that FUJITSU_LAPTOP selects LEDS_CLASS without depending on
+or selecting NEW_LEDS while LEDS_CLASS is subordinate to NEW_LEDS.
+
+Honor the kconfig menu hierarchy to remove kconfig dependency warnings.
+
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: d89bcc83e709 ("platform/x86: fujitsu-laptop: select LEDS_CLASS")
+Signed-off-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/Kconfig | 1 +
+ drivers/platform/x86/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/phy/Kconfig b/drivers/net/phy/Kconfig
-index cd931cf9dcc26..e08d822338341 100644
---- a/drivers/net/phy/Kconfig
-+++ b/drivers/net/phy/Kconfig
-@@ -146,6 +146,7 @@ config MDIO_THUNDER
- 	depends on 64BIT
- 	depends on PCI
- 	select MDIO_CAVIUM
-+	select MDIO_DEVRES
- 	help
- 	  This driver supports the MDIO interfaces found on Cavium
- 	  ThunderX SoCs when the MDIO bus device appears as a PCI
+diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
+index 1cab993205142..000d5693fae74 100644
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -269,6 +269,7 @@ config FUJITSU_LAPTOP
+ 	depends on BACKLIGHT_CLASS_DEVICE
+ 	depends on ACPI_VIDEO || ACPI_VIDEO = n
+ 	select INPUT_SPARSEKMAP
++	select NEW_LEDS
+ 	select LEDS_CLASS
+ 	---help---
+ 	  This is a driver for laptops built by Fujitsu:
 -- 
 2.25.1
 
