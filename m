@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E94628B732
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:41:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1054628B978
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389221AbgJLNl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:41:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44166 "EHLO mail.kernel.org"
+        id S2389395AbgJLOA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389009AbgJLNlA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:41:00 -0400
+        id S1731238AbgJLNio (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:38:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1956E20678;
-        Mon, 12 Oct 2020 13:40:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB70A22227;
+        Mon, 12 Oct 2020 13:38:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510058;
-        bh=0eJa7RhJIardyML5iBkzlYb6QbrNEuYZ1CbCF0lDW1s=;
+        s=default; t=1602509905;
+        bh=65OatsPb62h7nFuZTN2/8uWClJo9QVTyxauDWcLOAzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oC4+Wl+WbZFwrzhradSr6rI+5z12uIF268AQ3486b/J9XveIaAhdoIlp7Rjgrd19M
-         vG8X4z5IqSBM4ulTGah8i8ZrXS4p3DAuz6GRZwS/gKJMqusmhI+Xt0Xsaly/7+4H24
-         cjzj2mtywQ7JJwR9Vlb0BjIxidUflZF9c5Ny1nvA=
+        b=zNqEqdUUzYPO7IKnE7ZEe2ceyVmzvUjc3xU4FaegajdesfzterTaUDpBC7MM9KgsX
+         YHO2tlAicj9K/AhnnxNULJiT4vM9h+dTDhobXLx8quYKPRthDzqqpC8lTJTEiApkXQ
+         ToXSa3UspmHvU0nxHg9hBh528AMxl8Zi5fU8eqaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tommi Rantala <tommi.t.rantala@nokia.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.4 23/85] perf top: Fix stdio interface input handling with glibc 2.28+
-Date:   Mon, 12 Oct 2020 15:26:46 +0200
-Message-Id: <20201012132633.966541649@linuxfoundation.org>
+        stable@vger.kernel.org, Peilin Ye <yepeilin.cs@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.19 01/49] fbdev, newport_con: Move FONT_EXTRA_WORDS macros into linux/font.h
+Date:   Mon, 12 Oct 2020 15:26:47 +0200
+Message-Id: <20201012132629.530016562@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
+References: <20201012132629.469542486@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,53 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tommi Rantala <tommi.t.rantala@nokia.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-commit 29b4f5f188571c112713c35cc87eefb46efee612 upstream.
+commit bb0890b4cd7f8203e3aa99c6d0f062d6acdaad27 upstream.
 
-Since glibc 2.28 when running 'perf top --stdio', input handling no
-longer works, but hitting any key always just prints the "Mapped keys"
-help text.
+drivers/video/console/newport_con.c is borrowing FONT_EXTRA_WORDS macros
+from drivers/video/fbdev/core/fbcon.h. To keep things simple, move all
+definitions into <linux/font.h>.
 
-To fix it, call clearerr() in the display_thread() loop to clear any EOF
-sticky errors, as instructed in the glibc NEWS file
-(https://sourceware.org/git/?p=glibc.git;a=blob;f=NEWS):
+Since newport_con now uses four extra words, initialize the fourth word in
+newport_set_font() properly.
 
- * All stdio functions now treat end-of-file as a sticky condition.  If you
-   read from a file until EOF, and then the file is enlarged by another
-   process, you must call clearerr or another function with the same effect
-   (e.g. fseek, rewind) before you can read the additional data.  This
-   corrects a longstanding C99 conformance bug.  It is most likely to affect
-   programs that use stdio to read interactive input from a terminal.
-   (Bug #1190.)
-
-Signed-off-by: Tommi Rantala <tommi.t.rantala@nokia.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200305083714.9381-2-tommi.t.rantala@nokia.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/7fb8bc9b0abc676ada6b7ac0e0bd443499357267.1600953813.git.yepeilin.cs@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/builtin-top.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/video/console/newport_con.c     |    7 +------
+ drivers/video/fbdev/core/fbcon.h        |    7 -------
+ drivers/video/fbdev/core/fbcon_rotate.c |    1 +
+ drivers/video/fbdev/core/tileblit.c     |    1 +
+ include/linux/font.h                    |    8 ++++++++
+ 5 files changed, 11 insertions(+), 13 deletions(-)
 
---- a/tools/perf/builtin-top.c
-+++ b/tools/perf/builtin-top.c
-@@ -683,7 +683,9 @@ repeat:
- 	delay_msecs = top->delay_secs * MSEC_PER_SEC;
- 	set_term_quiet_input(&save);
- 	/* trash return*/
--	getc(stdin);
-+	clearerr(stdin);
-+	if (poll(&stdin_poll, 1, 0) > 0)
-+		getc(stdin);
+--- a/drivers/video/console/newport_con.c
++++ b/drivers/video/console/newport_con.c
+@@ -35,12 +35,6 @@
  
- 	while (!done) {
- 		perf_top__print_sym_table(top);
+ #define FONT_DATA ((unsigned char *)font_vga_8x16.data)
+ 
+-/* borrowed from fbcon.c */
+-#define REFCOUNT(fd)	(((int *)(fd))[-1])
+-#define FNTSIZE(fd)	(((int *)(fd))[-2])
+-#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
+-#define FONT_EXTRA_WORDS 3
+-
+ static unsigned char *font_data[MAX_NR_CONSOLES];
+ 
+ static struct newport_regs *npregs;
+@@ -522,6 +516,7 @@ static int newport_set_font(int unit, st
+ 	FNTSIZE(new_data) = size;
+ 	FNTCHARCNT(new_data) = op->charcount;
+ 	REFCOUNT(new_data) = 0;	/* usage counter */
++	FNTSUM(new_data) = 0;
+ 
+ 	p = new_data;
+ 	for (i = 0; i < op->charcount; i++) {
+--- a/drivers/video/fbdev/core/fbcon.h
++++ b/drivers/video/fbdev/core/fbcon.h
+@@ -152,13 +152,6 @@ static inline int attr_col_ec(int shift,
+ #define attr_bgcol_ec(bgshift, vc, info) attr_col_ec(bgshift, vc, info, 0)
+ #define attr_fgcol_ec(fgshift, vc, info) attr_col_ec(fgshift, vc, info, 1)
+ 
+-/* Font */
+-#define REFCOUNT(fd)	(((int *)(fd))[-1])
+-#define FNTSIZE(fd)	(((int *)(fd))[-2])
+-#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
+-#define FNTSUM(fd)	(((int *)(fd))[-4])
+-#define FONT_EXTRA_WORDS 4
+-
+     /*
+      *  Scroll Method
+      */
+--- a/drivers/video/fbdev/core/fbcon_rotate.c
++++ b/drivers/video/fbdev/core/fbcon_rotate.c
+@@ -14,6 +14,7 @@
+ #include <linux/fb.h>
+ #include <linux/vt_kern.h>
+ #include <linux/console.h>
++#include <linux/font.h>
+ #include <asm/types.h>
+ #include "fbcon.h"
+ #include "fbcon_rotate.h"
+--- a/drivers/video/fbdev/core/tileblit.c
++++ b/drivers/video/fbdev/core/tileblit.c
+@@ -13,6 +13,7 @@
+ #include <linux/fb.h>
+ #include <linux/vt_kern.h>
+ #include <linux/console.h>
++#include <linux/font.h>
+ #include <asm/types.h>
+ #include "fbcon.h"
+ 
+--- a/include/linux/font.h
++++ b/include/linux/font.h
+@@ -57,4 +57,12 @@ extern const struct font_desc *get_defau
+ /* Max. length for the name of a predefined font */
+ #define MAX_FONT_NAME	32
+ 
++/* Extra word getters */
++#define REFCOUNT(fd)	(((int *)(fd))[-1])
++#define FNTSIZE(fd)	(((int *)(fd))[-2])
++#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
++#define FNTSUM(fd)	(((int *)(fd))[-4])
++
++#define FONT_EXTRA_WORDS 4
++
+ #endif /* _VIDEO_FONT_H */
 
 
