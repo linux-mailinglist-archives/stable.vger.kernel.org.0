@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2028328B7E4
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:47:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B79628B7CE
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731668AbgJLNrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:47:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46218 "EHLO mail.kernel.org"
+        id S1731292AbgJLNqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:46:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389776AbgJLNpz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:45:55 -0400
+        id S2389800AbgJLNp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:45:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 863AA20678;
-        Mon, 12 Oct 2020 13:45:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3C922076E;
+        Mon, 12 Oct 2020 13:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510355;
-        bh=pRDNhhA5MqCmIjb47GSA9dMLymFbT6whng7N0e/eRpE=;
+        s=default; t=1602510357;
+        bh=7Jp3shl7xbWXcAIayJ7RPBKk9nhLcI4JZd5t3RWmzCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgWiMZTt//pC5EnivvaNTyA3ykoi+MgdegjvJUKALy9Rah3AdJYbN+8PgeIW1Thic
-         j5BZ29vLGN+IR2TxtfwGEp0AWR1X1W8NQd4dwR/jd6mbm1VRHGStgnMM6KYmJBr/7H
-         +wJo4SkG60mBIYuy3gEQ0qU4lArJhZ247f/+Wl7w=
+        b=up8/eqzwNM3Vgg09Tlq9ZC0TChe/jreXHuIvyxVRD1iK1AUK/lEeyTUzWLTUN8FSL
+         7IkBrwceJMon2ylOaS9Z8GR8obwZs8idVfx3R0d+Z//d2op39DkgNlvF/LZLR6y//P
+         gfwai1o8DIqpK/DrP+o8V0KtjhrCY7tePWAtcLIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+577fbac3145a6eb2e7a5@syzkaller.appspotmail.com,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Vaibhav Gupta <vaibhavgupta40@gmail.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.8 064/124] xfrm: Use correct address family in xfrm_state_find
-Date:   Mon, 12 Oct 2020 15:31:08 +0200
-Message-Id: <20201012133149.950267522@linuxfoundation.org>
+Subject: [PATCH 5.8 065/124] iavf: use generic power management
+Date:   Mon, 12 Oct 2020 15:31:09 +0200
+Message-Id: <20201012133150.000256292@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
 References: <20201012133146.834528783@linuxfoundation.org>
@@ -45,80 +44,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Vaibhav Gupta <vaibhavgupta40@gmail.com>
 
-[ Upstream commit e94ee171349db84c7cfdc5fefbebe414054d0924 ]
+[ Upstream commit bc5cbd73eb493944b8665dc517f684c40eb18a4a ]
 
-The struct flowi must never be interpreted by itself as its size
-depends on the address family.  Therefore it must always be grouped
-with its original family value.
+With the support of generic PM callbacks, drivers no longer need to use
+legacy .suspend() and .resume() in which they had to maintain PCI states
+changes and device's power state themselves. The required operations are
+done by PCI core.
 
-In this particular instance, the original family value is lost in
-the function xfrm_state_find.  Therefore we get a bogus read when
-it's coupled with the wrong family which would occur with inter-
-family xfrm states.
+PCI drivers are not expected to invoke PCI helper functions like
+pci_save/restore_state(), pci_enable/disable_device(),
+pci_set_power_state(), etc. Their tasks are completed by PCI core itself.
 
-This patch fixes it by keeping the original family value.
+Compile-tested only.
 
-Note that the same bug could potentially occur in LSM through
-the xfrm_state_pol_flow_match hook.  I checked the current code
-there and it seems to be safe for now as only secid is used which
-is part of struct flowi_common.  But that API should be changed
-so that so that we don't get new bugs in the future.  We could
-do that by replacing fl with just secid or adding a family field.
-
-Reported-by: syzbot+577fbac3145a6eb2e7a5@syzkaller.appspotmail.com
-Fixes: 48b8d78315bf ("[XFRM]: State selection update to use inner...")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Vaibhav Gupta <vaibhavgupta40@gmail.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_state.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 45 ++++++---------------
+ 1 file changed, 12 insertions(+), 33 deletions(-)
 
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 6b431a3830721..158510cd34ae8 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -1019,7 +1019,8 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
- 	 */
- 	if (x->km.state == XFRM_STATE_VALID) {
- 		if ((x->sel.family &&
--		     !xfrm_selector_match(&x->sel, fl, x->sel.family)) ||
-+		     (x->sel.family != family ||
-+		      !xfrm_selector_match(&x->sel, fl, family))) ||
- 		    !security_xfrm_state_pol_flow_match(x, pol, fl))
- 			return;
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index d338efe5f3f55..b3b349ecb0a8d 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -3777,7 +3777,6 @@ err_dma:
+ 	return err;
+ }
  
-@@ -1032,7 +1033,9 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
- 		*acq_in_progress = 1;
- 	} else if (x->km.state == XFRM_STATE_ERROR ||
- 		   x->km.state == XFRM_STATE_EXPIRED) {
--		if (xfrm_selector_match(&x->sel, fl, x->sel.family) &&
-+		if ((!x->sel.family ||
-+		     (x->sel.family == family &&
-+		      xfrm_selector_match(&x->sel, fl, family))) &&
- 		    security_xfrm_state_pol_flow_match(x, pol, fl))
- 			*error = -ESRCH;
- 	}
-@@ -1072,7 +1075,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
- 		    tmpl->mode == x->props.mode &&
- 		    tmpl->id.proto == x->id.proto &&
- 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
--			xfrm_state_look_at(pol, x, fl, encap_family,
-+			xfrm_state_look_at(pol, x, fl, family,
- 					   &best, &acquire_in_progress, &error);
- 	}
- 	if (best || acquire_in_progress)
-@@ -1089,7 +1092,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
- 		    tmpl->mode == x->props.mode &&
- 		    tmpl->id.proto == x->id.proto &&
- 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
--			xfrm_state_look_at(pol, x, fl, encap_family,
-+			xfrm_state_look_at(pol, x, fl, family,
- 					   &best, &acquire_in_progress, &error);
- 	}
+-#ifdef CONFIG_PM
+ /**
+  * iavf_suspend - Power management suspend routine
+  * @pdev: PCI device information struct
+@@ -3785,11 +3784,10 @@ err_dma:
+  *
+  * Called when the system (VM) is entering sleep/suspend.
+  **/
+-static int iavf_suspend(struct pci_dev *pdev, pm_message_t state)
++static int __maybe_unused iavf_suspend(struct device *dev_d)
+ {
+-	struct net_device *netdev = pci_get_drvdata(pdev);
++	struct net_device *netdev = dev_get_drvdata(dev_d);
+ 	struct iavf_adapter *adapter = netdev_priv(netdev);
+-	int retval = 0;
  
+ 	netif_device_detach(netdev);
+ 
+@@ -3807,12 +3805,6 @@ static int iavf_suspend(struct pci_dev *pdev, pm_message_t state)
+ 
+ 	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
+ 
+-	retval = pci_save_state(pdev);
+-	if (retval)
+-		return retval;
+-
+-	pci_disable_device(pdev);
+-
+ 	return 0;
+ }
+ 
+@@ -3822,24 +3814,13 @@ static int iavf_suspend(struct pci_dev *pdev, pm_message_t state)
+  *
+  * Called when the system (VM) is resumed from sleep/suspend.
+  **/
+-static int iavf_resume(struct pci_dev *pdev)
++static int __maybe_unused iavf_resume(struct device *dev_d)
+ {
++	struct pci_dev *pdev = to_pci_dev(dev_d);
+ 	struct iavf_adapter *adapter = pci_get_drvdata(pdev);
+ 	struct net_device *netdev = adapter->netdev;
+ 	u32 err;
+ 
+-	pci_set_power_state(pdev, PCI_D0);
+-	pci_restore_state(pdev);
+-	/* pci_restore_state clears dev->state_saved so call
+-	 * pci_save_state to restore it.
+-	 */
+-	pci_save_state(pdev);
+-
+-	err = pci_enable_device_mem(pdev);
+-	if (err) {
+-		dev_err(&pdev->dev, "Cannot enable PCI device from suspend.\n");
+-		return err;
+-	}
+ 	pci_set_master(pdev);
+ 
+ 	rtnl_lock();
+@@ -3863,7 +3844,6 @@ static int iavf_resume(struct pci_dev *pdev)
+ 	return err;
+ }
+ 
+-#endif /* CONFIG_PM */
+ /**
+  * iavf_remove - Device Removal Routine
+  * @pdev: PCI device information struct
+@@ -3965,16 +3945,15 @@ static void iavf_remove(struct pci_dev *pdev)
+ 	pci_disable_device(pdev);
+ }
+ 
++static SIMPLE_DEV_PM_OPS(iavf_pm_ops, iavf_suspend, iavf_resume);
++
+ static struct pci_driver iavf_driver = {
+-	.name     = iavf_driver_name,
+-	.id_table = iavf_pci_tbl,
+-	.probe    = iavf_probe,
+-	.remove   = iavf_remove,
+-#ifdef CONFIG_PM
+-	.suspend  = iavf_suspend,
+-	.resume   = iavf_resume,
+-#endif
+-	.shutdown = iavf_shutdown,
++	.name      = iavf_driver_name,
++	.id_table  = iavf_pci_tbl,
++	.probe     = iavf_probe,
++	.remove    = iavf_remove,
++	.driver.pm = &iavf_pm_ops,
++	.shutdown  = iavf_shutdown,
+ };
+ 
+ /**
 -- 
 2.25.1
 
