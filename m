@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA7A628BA16
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:08:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4672028B77F
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390745AbgJLOFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:05:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37556 "EHLO mail.kernel.org"
+        id S1726780AbgJLNoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:44:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730757AbgJLNfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:35:01 -0400
+        id S2389195AbgJLNnG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:43:06 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AE2F2076E;
-        Mon, 12 Oct 2020 13:35:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 690402087E;
+        Mon, 12 Oct 2020 13:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509700;
-        bh=jJgw/SkZ18YIhaj5TflwF/qZFLPKihsWDmc7/ASX/y4=;
+        s=default; t=1602510184;
+        bh=kEXTnfRial0Iy2Rh+fkaI/D+lfjwelUdeomIUAaV/WQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJeYp3NN6sKkYVO8Njj1HGTzbaQxR2bNWSrBtY9T+c7HIB580RPnUywuTHX4jp64q
-         lHz74jo2a4SyKahz3bzKxPFkCG3BTmdJO7sycyig3omtzQCHirEylW/vnGIYgdhwRc
-         skcoPkx12EuYjpMFLjaa3XohccnZmqmW2YJajXqU=
+        b=k05FDc+2H8ORmFwtKYQ4v8qFZlGE2Ln0OyrcymEa0vficlPir0CxiMZ6K2xoSEsrQ
+         OS7WKY2lGd6iE45tHwpiqNesMK4YRzRprtKxbUgeqR6IiE1Z9LzilwQ7YeimYfRHEl
+         kjWzZlAVJx8fNYvrHAV/9jGIhRC3dwgvuY5PV7OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 46/54] bonding: set dev->needed_headroom in bond_setup_by_slave()
-Date:   Mon, 12 Oct 2020 15:27:08 +0200
-Message-Id: <20201012132631.697205084@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Dumitru Ceara <dceara@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 46/85] openvswitch: handle DNAT tuple collision
+Date:   Mon, 12 Oct 2020 15:27:09 +0200
+Message-Id: <20201012132635.078248798@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.585664421@linuxfoundation.org>
-References: <20201012132629.585664421@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Dumitru Ceara <dceara@redhat.com>
 
-[ Upstream commit f32f19339596b214c208c0dba716f4b6cc4f6958 ]
+commit 8aa7b526dc0b5dbf40c1b834d76a667ad672a410 upstream.
 
-syzbot managed to crash a host by creating a bond
-with a GRE device.
+With multiple DNAT rules it's possible that after destination
+translation the resulting tuples collide.
 
-For non Ethernet device, bonding calls bond_setup_by_slave()
-instead of ether_setup(), and unfortunately dev->needed_headroom
-was not copied from the new added member.
+For example, two openvswitch flows:
+nw_dst=10.0.0.10,tp_dst=10, actions=ct(commit,table=2,nat(dst=20.0.0.1:20))
+nw_dst=10.0.0.20,tp_dst=10, actions=ct(commit,table=2,nat(dst=20.0.0.1:20))
 
-[  171.243095] skbuff: skb_under_panic: text:ffffffffa184b9ea len:116 put:20 head:ffff883f84012dc0 data:ffff883f84012dbc tail:0x70 end:0xd00 dev:bond0
-[  171.243111] ------------[ cut here ]------------
-[  171.243112] kernel BUG at net/core/skbuff.c:112!
-[  171.243117] invalid opcode: 0000 [#1] SMP KASAN PTI
-[  171.243469] gsmi: Log Shutdown Reason 0x03
-[  171.243505] Call Trace:
-[  171.243506]  <IRQ>
-[  171.243512]  [<ffffffffa171be59>] skb_push+0x49/0x50
-[  171.243516]  [<ffffffffa184b9ea>] ipgre_header+0x2a/0xf0
-[  171.243520]  [<ffffffffa17452d7>] neigh_connected_output+0xb7/0x100
-[  171.243524]  [<ffffffffa186f1d3>] ip6_finish_output2+0x383/0x490
-[  171.243528]  [<ffffffffa186ede2>] __ip6_finish_output+0xa2/0x110
-[  171.243531]  [<ffffffffa186acbc>] ip6_finish_output+0x2c/0xa0
-[  171.243534]  [<ffffffffa186abe9>] ip6_output+0x69/0x110
-[  171.243537]  [<ffffffffa186ac90>] ? ip6_output+0x110/0x110
-[  171.243541]  [<ffffffffa189d952>] mld_sendpack+0x1b2/0x2d0
-[  171.243544]  [<ffffffffa189d290>] ? mld_send_report+0xf0/0xf0
-[  171.243548]  [<ffffffffa189c797>] mld_ifc_timer_expire+0x2d7/0x3b0
-[  171.243551]  [<ffffffffa189c4c0>] ? mld_gq_timer_expire+0x50/0x50
-[  171.243556]  [<ffffffffa0fea270>] call_timer_fn+0x30/0x130
-[  171.243559]  [<ffffffffa0fea17c>] expire_timers+0x4c/0x110
-[  171.243563]  [<ffffffffa0fea0e3>] __run_timers+0x213/0x260
-[  171.243566]  [<ffffffffa0fecb7d>] ? ktime_get+0x3d/0xa0
-[  171.243570]  [<ffffffffa0ff9c4e>] ? clockevents_program_event+0x7e/0xe0
-[  171.243574]  [<ffffffffa0f7e5d5>] ? sched_clock_cpu+0x15/0x190
-[  171.243577]  [<ffffffffa0fe973d>] run_timer_softirq+0x1d/0x40
-[  171.243581]  [<ffffffffa1c00152>] __do_softirq+0x152/0x2f0
-[  171.243585]  [<ffffffffa0f44e1f>] irq_exit+0x9f/0xb0
-[  171.243588]  [<ffffffffa1a02e1d>] smp_apic_timer_interrupt+0xfd/0x1a0
-[  171.243591]  [<ffffffffa1a01ea6>] apic_timer_interrupt+0x86/0x90
+Assuming two TCP clients initiating the following connections:
+10.0.0.10:5000->10.0.0.10:10
+10.0.0.10:5000->10.0.0.20:10
 
-Fixes: f5184d267c1a ("net: Allow netdevices to specify needed head/tailroom")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Both tuples would translate to 10.0.0.10:5000->20.0.0.1:20 causing
+nf_conntrack_confirm() to fail because of tuple collision.
+
+Netfilter handles this case by allocating a null binding for SNAT at
+egress by default.  Perform the same operation in openvswitch for DNAT
+if no explicit SNAT is requested by the user and allocate a null binding
+for SNAT for packets in the "original" direction.
+
+Reported-at: https://bugzilla.redhat.com/1877128
+Suggested-by: Florian Westphal <fw@strlen.de>
+Fixes: 05752523e565 ("openvswitch: Interface with NAT.")
+Signed-off-by: Dumitru Ceara <dceara@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/bonding/bond_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/openvswitch/conntrack.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 8322129c3f987..240d7850c8252 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1129,6 +1129,7 @@ static void bond_setup_by_slave(struct net_device *bond_dev,
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -905,15 +905,19 @@ static int ovs_ct_nat(struct net *net, s
+ 	}
+ 	err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range, maniptype);
  
- 	bond_dev->type		    = slave_dev->type;
- 	bond_dev->hard_header_len   = slave_dev->hard_header_len;
-+	bond_dev->needed_headroom   = slave_dev->needed_headroom;
- 	bond_dev->addr_len	    = slave_dev->addr_len;
+-	if (err == NF_ACCEPT &&
+-	    ct->status & IPS_SRC_NAT && ct->status & IPS_DST_NAT) {
+-		if (maniptype == NF_NAT_MANIP_SRC)
+-			maniptype = NF_NAT_MANIP_DST;
+-		else
+-			maniptype = NF_NAT_MANIP_SRC;
++	if (err == NF_ACCEPT && ct->status & IPS_DST_NAT) {
++		if (ct->status & IPS_SRC_NAT) {
++			if (maniptype == NF_NAT_MANIP_SRC)
++				maniptype = NF_NAT_MANIP_DST;
++			else
++				maniptype = NF_NAT_MANIP_SRC;
  
- 	memcpy(bond_dev->broadcast, slave_dev->broadcast,
--- 
-2.25.1
-
+-		err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range,
+-					 maniptype);
++			err = ovs_ct_nat_execute(skb, ct, ctinfo, &info->range,
++						 maniptype);
++		} else if (CTINFO2DIR(ctinfo) == IP_CT_DIR_ORIGINAL) {
++			err = ovs_ct_nat_execute(skb, ct, ctinfo, NULL,
++						 NF_NAT_MANIP_SRC);
++		}
+ 	}
+ 
+ 	/* Mark NAT done if successful and update the flow key. */
 
 
