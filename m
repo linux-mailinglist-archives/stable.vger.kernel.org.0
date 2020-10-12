@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FEBD28B674
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C98628B761
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730285AbgJLNd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:33:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35190 "EHLO mail.kernel.org"
+        id S1731408AbgJLNnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:43:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389034AbgJLNdG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:33:06 -0400
+        id S1731503AbgJLNms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:42:48 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7706215A4;
-        Mon, 12 Oct 2020 13:33:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD9C62222C;
+        Mon, 12 Oct 2020 13:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509584;
-        bh=VJP6cWDmF70P//hqJEqs4hXISTyeBc5QluYFXdLwK/I=;
+        s=default; t=1602510150;
+        bh=u1OySPcaotgKE1T1leil2PbA46WBXofxQknpYJSVmmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQl6B6t2MEteqAhX06nD0PNRd4VXytcPaNzs+VBNNcfQKd+o5PJf9ziwix4nbPpo2
-         k64s8gpOAVM8RnhMjxv6Vrywe2l3s1G9j0z0n8/sQcRfNaNyjocPTQikCfOLW6jqmP
-         seVTQgjvtuVCTMgy2CBXgwJCZxhbPWYrm94bxgv0=
+        b=SMBGd122cKTw+0bDiCHAzlx317HnVLZh2bJD3TNAEkjaAso0X7IvpdySWU6OZacWw
+         Fknjp6bpHvZ3BhlLJwxuDOS/o66fI2Pc+JJ+2rnodbh9UkzqHztfK9+fPIWeAW5Rxk
+         BqPWlhFDYv9gBth9oMk9AAq/iz93EGUeCvjnm6gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 37/39] rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 44/85] team: set dev->needed_headroom in team_setup_by_port()
 Date:   Mon, 12 Oct 2020 15:27:07 +0200
-Message-Id: <20201012132629.870534627@linuxfoundation.org>
+Message-Id: <20201012132634.975885361@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
-References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 9a059cd5ca7d9c5c4ca5a6e755cf72f230176b6a ]
+commit 89d01748b2354e210b5d4ea47bc25a42a1b42c82 upstream.
 
-If rxrpc_read() (which allows KEYCTL_READ to read a key), sees a token of a
-type it doesn't recognise, it can BUG in a couple of places, which is
-unnecessary as it can easily get back to userspace.
+Some devices set needed_headroom. If we ignore it, we might
+end up crashing in various skb_push() for example in ipgre_header()
+since some layers assume enough headroom has been reserved.
 
-Fix this to print an error message instead.
+Fixes: 1d76efe1577b ("team: add support for non-ethernet devices")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 99455153d067 ("RxRPC: Parse security index 5 keys (Kerberos 5)")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/ar-key.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/team/team.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/rxrpc/ar-key.c b/net/rxrpc/ar-key.c
-index 543d200f4fa14..20549c13eb13d 100644
---- a/net/rxrpc/ar-key.c
-+++ b/net/rxrpc/ar-key.c
-@@ -1114,7 +1114,8 @@ static long rxrpc_read(const struct key *key,
- 			break;
- 
- 		default: /* we have a ticket we can't encode */
--			BUG();
-+			pr_err("Unsupported key token type (%u)\n",
-+			       token->security_index);
- 			continue;
- 		}
- 
-@@ -1235,7 +1236,6 @@ static long rxrpc_read(const struct key *key,
- 			break;
- 
- 		default:
--			BUG();
- 			break;
- 		}
- 
--- 
-2.25.1
-
+--- a/drivers/net/team/team.c
++++ b/drivers/net/team/team.c
+@@ -2111,6 +2111,7 @@ static void team_setup_by_port(struct ne
+ 	dev->header_ops	= port_dev->header_ops;
+ 	dev->type = port_dev->type;
+ 	dev->hard_header_len = port_dev->hard_header_len;
++	dev->needed_headroom = port_dev->needed_headroom;
+ 	dev->addr_len = port_dev->addr_len;
+ 	dev->mtu = port_dev->mtu;
+ 	memcpy(dev->broadcast, port_dev->broadcast, port_dev->addr_len);
 
 
