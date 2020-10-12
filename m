@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6054428B74C
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1403A28B9BE
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388055AbgJLNmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:42:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46214 "EHLO mail.kernel.org"
+        id S2390848AbgJLODN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:03:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731077AbgJLNlh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:41:37 -0400
+        id S1731004AbgJLNhO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:37:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81DDF221FC;
-        Mon, 12 Oct 2020 13:41:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31A0322202;
+        Mon, 12 Oct 2020 13:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510087;
-        bh=S+YFtUA5XDumNX/F9yPoBb0FU8aoU0vSWe/PnjTLB2Y=;
+        s=default; t=1602509818;
+        bh=i/8HbRzEGX4wWm4uRh2kyiPpqym/dW/95Q+ypT/ldq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=axl+PVe0dAuJa1xMc5/mUkzcK85QXTz09UbuxNzErx2nvnEu9YYTFWKtrdxoOYdPy
-         swzrDb9T0palA014EZG5MAsWdBu9QjNXPV0jo/qAFtE6czONY6VhQb4MSTMhxGJJ/E
-         trsXULNK5UzaLHsw7V+kVHGumqjDoKm2xIXLEyTM=
+        b=ZoTrcdJ0Rfg87u5ZvDox7RQkMHgKHGL/HvAPVKGfC/ZdT8KpLB40IhsGkDHrcZUiZ
+         X+dNJByQTN7iTz31Sd0USW5BlrZwyp8FwUtOkWKSITrnqPlGg9OATz6H7i/THurIk2
+         rtIOkAh6ewoQHPhVdq5qaY6BWZfpSbK7Rzp67etU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Lisov <dennis.lissov@gmail.com>,
-        Qian Cai <cai@lca.pw>, Hugh Dickins <hughd@google.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Suren Baghdasaryan <surenb@google.com>
-Subject: [PATCH 5.4 34/85] mm/khugepaged: fix filemap page_to_pgoff(page) != offset
-Date:   Mon, 12 Oct 2020 15:26:57 +0200
-Message-Id: <20201012132634.499402561@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.14 42/70] mtd: rawnand: sunxi: Fix the probe error path
+Date:   Mon, 12 Oct 2020 15:26:58 +0200
+Message-Id: <20201012132632.202138435@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
-References: <20201012132632.846779148@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,106 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 033b5d77551167f8c24ca862ce83d3e0745f9245 upstream.
+commit 3d84515ffd8fb657e10fa5b1215e9f095fa7efca upstream.
 
-There have been elusive reports of filemap_fault() hitting its
-VM_BUG_ON_PAGE(page_to_pgoff(page) != offset, page) on kernels built
-with CONFIG_READ_ONLY_THP_FOR_FS=y.
+nand_release() is supposed be called after MTD device registration.
+Here, only nand_scan() happened, so use nand_cleanup() instead.
 
-Suren has hit it on a kernel with CONFIG_READ_ONLY_THP_FOR_FS=y and
-CONFIG_NUMA is not set: and he has analyzed it down to how khugepaged
-without NUMA reuses the same huge page after collapse_file() failed
-(whereas NUMA targets its allocation to the respective node each time).
-And most of us were usually testing with CONFIG_NUMA=y kernels.
-
-collapse_file(old start)
-  new_page = khugepaged_alloc_page(hpage)
-  __SetPageLocked(new_page)
-  new_page->index = start // hpage->index=old offset
-  new_page->mapping = mapping
-  xas_store(&xas, new_page)
-
-                          filemap_fault
-                            page = find_get_page(mapping, offset)
-                            // if offset falls inside hpage then
-                            // compound_head(page) == hpage
-                            lock_page_maybe_drop_mmap()
-                              __lock_page(page)
-
-  // collapse fails
-  xas_store(&xas, old page)
-  new_page->mapping = NULL
-  unlock_page(new_page)
-
-collapse_file(new start)
-  new_page = khugepaged_alloc_page(hpage)
-  __SetPageLocked(new_page)
-  new_page->index = start // hpage->index=new offset
-  new_page->mapping = mapping // mapping becomes valid again
-
-                            // since compound_head(page) == hpage
-                            // page_to_pgoff(page) got changed
-                            VM_BUG_ON_PAGE(page_to_pgoff(page) != offset)
-
-An initial patch replaced __SetPageLocked() by lock_page(), which did
-fix the race which Suren illustrates above.  But testing showed that it's
-not good enough: if the racing task's __lock_page() gets delayed long
-after its find_get_page(), then it may follow collapse_file(new start)'s
-successful final unlock_page(), and crash on the same VM_BUG_ON_PAGE.
-
-It could be fixed by relaxing filemap_fault()'s VM_BUG_ON_PAGE to a
-check and retry (as is done for mapping), with similar relaxations in
-find_lock_entry() and pagecache_get_page(): but it's not obvious what
-else might get caught out; and khugepaged non-NUMA appears to be unique
-in exposing a page to page cache, then revoking, without going through
-a full cycle of freeing before reuse.
-
-Instead, non-NUMA khugepaged_prealloc_page() release the old page
-if anyone else has a reference to it (1% of cases when I tested).
-
-Although never reported on huge tmpfs, I believe its find_lock_entry()
-has been at similar risk; but huge tmpfs does not rely on khugepaged
-for its normal working nearly so much as READ_ONLY_THP_FOR_FS does.
-
-Reported-by: Denis Lisov <dennis.lissov@gmail.com>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=206569
-Link: https://lore.kernel.org/linux-mm/?q=20200219144635.3b7417145de19b65f258c943%40linux-foundation.org
-Reported-by: Qian Cai <cai@lca.pw>
-Link: https://lore.kernel.org/linux-xfs/?q=20200616013309.GB815%40lca.pw
-Reported-and-analyzed-by: Suren Baghdasaryan <surenb@google.com>
-Fixes: 87c460a0bded ("mm/khugepaged: collapse_shmem() without freezing new_page")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Cc: stable@vger.kernel.org # v4.9+
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 1fef62c1423b ("mtd: nand: add sunxi NAND flash controller support")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-54-miquel.raynal@bootlin.com
+[iwamatsu: adjust filename]
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- mm/khugepaged.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/mtd/nand/sunxi_nand.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -832,6 +832,18 @@ static struct page *khugepaged_alloc_hug
- 
- static bool khugepaged_prealloc_page(struct page **hpage, bool *wait)
- {
-+	/*
-+	 * If the hpage allocated earlier was briefly exposed in page cache
-+	 * before collapse_file() failed, it is possible that racing lookups
-+	 * have not yet completed, and would then be unpleasantly surprised by
-+	 * finding the hpage reused for the same mapping at a different offset.
-+	 * Just release the previous allocation if there is any danger of that.
-+	 */
-+	if (*hpage && page_count(*hpage) > 1) {
-+		put_page(*hpage);
-+		*hpage = NULL;
-+	}
-+
- 	if (!*hpage)
- 		*hpage = khugepaged_alloc_hugepage(wait);
+--- a/drivers/mtd/nand/sunxi_nand.c
++++ b/drivers/mtd/nand/sunxi_nand.c
+@@ -2125,7 +2125,7 @@ static int sunxi_nand_chip_init(struct d
+ 	ret = mtd_device_register(mtd, NULL, 0);
+ 	if (ret) {
+ 		dev_err(dev, "failed to register mtd device: %d\n", ret);
+-		nand_release(nand);
++		nand_cleanup(nand);
+ 		return ret;
+ 	}
  
 
 
