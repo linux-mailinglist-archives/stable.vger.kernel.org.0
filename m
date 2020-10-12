@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B71228B944
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:01:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA68728B99F
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389326AbgJLN64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 09:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44400 "EHLO mail.kernel.org"
+        id S2390114AbgJLOCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 10:02:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388795AbgJLNkQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:40:16 -0400
+        id S1730990AbgJLNiB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:38:01 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F8F12222C;
-        Mon, 12 Oct 2020 13:40:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A139922246;
+        Mon, 12 Oct 2020 13:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602510015;
-        bh=sxcVJjaOeoj5xTexMNx9F4btIuaE/WM6YcZuVq2Ly9w=;
+        s=default; t=1602509875;
+        bh=tunlYpfNiwZtjEIQQxkuqN3PapJ/yxgpnKpkcb+AWAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hcDKVmGydd4ExM4cw0xeQByjQlqYDhCwv6kVWLdU4XAS27WQqdf3SgwROi+nj1qjA
-         8VJmehkwPJmreMaX6/qtR1IFMpH8U1p0AwNx6o1xCGPsY8Cz6HXnhZCFWxT5E3jAZj
-         z46dDjGrToY14F4NlirDsqBHQOSuy/TiSL2L71MY=
+        b=qTjZFfFrnyXx6iquN+RLLr4GZI1CtHvSBKFZGJyZYMC7LoqTXHzcoTuWCd310jF0t
+         EQ3PZWVrdz8RbHH0FI28eVsI9EiQA8bdHTZupD1Q7fBjfgnIrJr/GyhntqWc2/aMaV
+         ddjyTBOx8XpbsIkBkXMDW1hOWBQlh5yDVp8DiuEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Kajol Jain <kjain@linux.ibm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Barret Rhoden <brho@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 37/49] bonding: set dev->needed_headroom in bond_setup_by_slave()
+Subject: [PATCH 4.14 67/70] perf: Fix task_function_call() error handling
 Date:   Mon, 12 Oct 2020 15:27:23 +0200
-Message-Id: <20201012132631.153465000@linuxfoundation.org>
+Message-Id: <20201012132633.432960852@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132629.469542486@linuxfoundation.org>
-References: <20201012132629.469542486@linuxfoundation.org>
+In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
+References: <20201012132630.201442517@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit f32f19339596b214c208c0dba716f4b6cc4f6958 ]
+[ Upstream commit 6d6b8b9f4fceab7266ca03d194f60ec72bd4b654 ]
 
-syzbot managed to crash a host by creating a bond
-with a GRE device.
+The error handling introduced by commit:
 
-For non Ethernet device, bonding calls bond_setup_by_slave()
-instead of ether_setup(), and unfortunately dev->needed_headroom
-was not copied from the new added member.
+  2ed6edd33a21 ("perf: Add cond_resched() to task_function_call()")
 
-[  171.243095] skbuff: skb_under_panic: text:ffffffffa184b9ea len:116 put:20 head:ffff883f84012dc0 data:ffff883f84012dbc tail:0x70 end:0xd00 dev:bond0
-[  171.243111] ------------[ cut here ]------------
-[  171.243112] kernel BUG at net/core/skbuff.c:112!
-[  171.243117] invalid opcode: 0000 [#1] SMP KASAN PTI
-[  171.243469] gsmi: Log Shutdown Reason 0x03
-[  171.243505] Call Trace:
-[  171.243506]  <IRQ>
-[  171.243512]  [<ffffffffa171be59>] skb_push+0x49/0x50
-[  171.243516]  [<ffffffffa184b9ea>] ipgre_header+0x2a/0xf0
-[  171.243520]  [<ffffffffa17452d7>] neigh_connected_output+0xb7/0x100
-[  171.243524]  [<ffffffffa186f1d3>] ip6_finish_output2+0x383/0x490
-[  171.243528]  [<ffffffffa186ede2>] __ip6_finish_output+0xa2/0x110
-[  171.243531]  [<ffffffffa186acbc>] ip6_finish_output+0x2c/0xa0
-[  171.243534]  [<ffffffffa186abe9>] ip6_output+0x69/0x110
-[  171.243537]  [<ffffffffa186ac90>] ? ip6_output+0x110/0x110
-[  171.243541]  [<ffffffffa189d952>] mld_sendpack+0x1b2/0x2d0
-[  171.243544]  [<ffffffffa189d290>] ? mld_send_report+0xf0/0xf0
-[  171.243548]  [<ffffffffa189c797>] mld_ifc_timer_expire+0x2d7/0x3b0
-[  171.243551]  [<ffffffffa189c4c0>] ? mld_gq_timer_expire+0x50/0x50
-[  171.243556]  [<ffffffffa0fea270>] call_timer_fn+0x30/0x130
-[  171.243559]  [<ffffffffa0fea17c>] expire_timers+0x4c/0x110
-[  171.243563]  [<ffffffffa0fea0e3>] __run_timers+0x213/0x260
-[  171.243566]  [<ffffffffa0fecb7d>] ? ktime_get+0x3d/0xa0
-[  171.243570]  [<ffffffffa0ff9c4e>] ? clockevents_program_event+0x7e/0xe0
-[  171.243574]  [<ffffffffa0f7e5d5>] ? sched_clock_cpu+0x15/0x190
-[  171.243577]  [<ffffffffa0fe973d>] run_timer_softirq+0x1d/0x40
-[  171.243581]  [<ffffffffa1c00152>] __do_softirq+0x152/0x2f0
-[  171.243585]  [<ffffffffa0f44e1f>] irq_exit+0x9f/0xb0
-[  171.243588]  [<ffffffffa1a02e1d>] smp_apic_timer_interrupt+0xfd/0x1a0
-[  171.243591]  [<ffffffffa1a01ea6>] apic_timer_interrupt+0x86/0x90
+looses any return value from smp_call_function_single() that is not
+{0, -EINVAL}. This is a problem because it will return -EXNIO when the
+target CPU is offline. Worse, in that case it'll turn into an infinite
+loop.
 
-Fixes: f5184d267c1a ("net: Allow netdevices to specify needed head/tailroom")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2ed6edd33a21 ("perf: Add cond_resched() to task_function_call()")
+Reported-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Barret Rhoden <brho@google.com>
+Tested-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Link: https://lkml.kernel.org/r/20200827064732.20860-1-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/events/core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index d32e32e791741..a59333b87eafd 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1123,6 +1123,7 @@ static void bond_setup_by_slave(struct net_device *bond_dev,
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index e50b140053f9a..5807fad2c4057 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -98,7 +98,7 @@ static void remote_function(void *data)
+  * retry due to any failures in smp_call_function_single(), such as if the
+  * task_cpu() goes offline concurrently.
+  *
+- * returns @func return value or -ESRCH when the process isn't running
++ * returns @func return value or -ESRCH or -ENXIO when the process isn't running
+  */
+ static int
+ task_function_call(struct task_struct *p, remote_function_f func, void *info)
+@@ -114,7 +114,8 @@ task_function_call(struct task_struct *p, remote_function_f func, void *info)
+ 	for (;;) {
+ 		ret = smp_call_function_single(task_cpu(p), remote_function,
+ 					       &data, 1);
+-		ret = !ret ? data.ret : -EAGAIN;
++		if (!ret)
++			ret = data.ret;
  
- 	bond_dev->type		    = slave_dev->type;
- 	bond_dev->hard_header_len   = slave_dev->hard_header_len;
-+	bond_dev->needed_headroom   = slave_dev->needed_headroom;
- 	bond_dev->addr_len	    = slave_dev->addr_len;
- 
- 	memcpy(bond_dev->broadcast, slave_dev->broadcast,
+ 		if (ret != -EAGAIN)
+ 			break;
 -- 
 2.25.1
 
