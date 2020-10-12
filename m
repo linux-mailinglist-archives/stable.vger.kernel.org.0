@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA4228B9CF
-	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 16:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8540C28B735
+	for <lists+stable@lfdr.de>; Mon, 12 Oct 2020 15:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390883AbgJLOEF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 10:04:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38966 "EHLO mail.kernel.org"
+        id S1730850AbgJLNlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 09:41:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388668AbgJLNgQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 09:36:16 -0400
+        id S1731475AbgJLNk6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 09:40:58 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C33D72076E;
-        Mon, 12 Oct 2020 13:36:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EFDE22267;
+        Mon, 12 Oct 2020 13:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602509776;
-        bh=cAc9SVIjfg6BCU3+Mi+hwrdDWDsKxVFO2cw2CcXk7YE=;
+        s=default; t=1602510048;
+        bh=tLxdMqLT8QxChfXR/jy3a00D2pfMQ+Y54lQM1YFDLNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bc1h5QbSC7fQBhf1yaZpdLwASMlGDl88G52yY4Vl1ej2ky+0V/Vlv1SXVKUnGH6gt
-         jnrmPwSROAi7eJ8FaJvRhuBpjpPiY+qDH4HGAfoJLDqF1lRwZfEGDVLgJGkFQ10Ccj
-         P4BSpBmS450m/+rp8Fiz4DZ5GvbAy7LcqtxEZkaw=
+        b=PY7rUWG/ANT3Tcbo4Pat8hduMvtYwvygOiSsG0/IhY8qrCFiZlRIWjBnXNsROEmxt
+         ntU/fY2k0IPTbTfw3ew8Z7qF3IAbqCg3K+z4oTz8+wL1Iph6dn6kLQKEXKO2lvueHr
+         MD1p1Eb1t+usftRcZ43vdbt81yiUqyhzKL7L2LMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Stefan Nuernberger <snu@amazon.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Amit Shah <aams@amazon.com>
-Subject: [PATCH 4.14 25/70] net/packet: fix overflow in tpacket_rcv
-Date:   Mon, 12 Oct 2020 15:26:41 +0200
-Message-Id: <20201012132631.426074555@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 19/85] platform/x86: intel-vbtn: Switch to an allow-list for SW_TABLET_MODE reporting
+Date:   Mon, 12 Oct 2020 15:26:42 +0200
+Message-Id: <20201012132633.769739901@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201012132630.201442517@linuxfoundation.org>
-References: <20201012132630.201442517@linuxfoundation.org>
+In-Reply-To: <20201012132632.846779148@linuxfoundation.org>
+References: <20201012132632.846779148@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +45,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Or Cohen <orcohen@paloaltonetworks.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit acf69c946233259ab4d64f8869d4037a198c7f06 upstream.
+commit 8169bd3e6e193497cab781acddcff8fde5d0c416 upstream.
 
-Using tp_reserve to calculate netoff can overflow as
-tp_reserve is unsigned int and netoff is unsigned short.
+2 recent commits:
+cfae58ed681c ("platform/x86: intel-vbtn: Only blacklist SW_TABLET_MODE
+on the 9 / "Laptop" chasis-type")
+1fac39fd0316 ("platform/x86: intel-vbtn: Also handle tablet-mode switch on
+"Detachable" and "Portable" chassis-types")
 
-This may lead to macoff receving a smaller value then
-sizeof(struct virtio_net_hdr), and if po->has_vnet_hdr
-is set, an out-of-bounds write will occur when
-calling virtio_net_hdr_from_skb.
+Enabled reporting of SW_TABLET_MODE on more devices since the vbtn ACPI
+interface is used by the firmware on some of those devices to report this.
 
-The bug is fixed by converting netoff to unsigned int
-and checking if it exceeds USHRT_MAX.
+Testing has shown that unconditionally enabling SW_TABLET_MODE reporting
+on all devices with a chassis type of 8 ("Portable") or 10 ("Notebook")
+which support the VGBS method is a very bad idea.
 
-This addresses CVE-2020-14386
+Many of these devices are normal laptops (non 2-in-1) models with a VGBS
+which always returns 0, which we translate to SW_TABLET_MODE=1. This in
+turn causes userspace (libinput) to suppress events from the builtin
+keyboard and touchpad, making the laptop essentially unusable.
 
-Fixes: 8913336a7e8d ("packet: add PACKET_RESERVE sockopt")
-Signed-off-by: Or Cohen <orcohen@paloaltonetworks.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[ snu: backported to pre-5.3, changed tp_drops counting/locking ]
-Signed-off-by: Stefan Nuernberger <snu@amazon.com>
-CC: David Woodhouse <dwmw@amazon.co.uk>
-CC: Amit Shah <aams@amazon.com>
-CC: stable@vger.kernel.org
+Since the problem of wrongly reporting SW_TABLET_MODE=1 in combination
+with libinput, leads to a non-usable system. Where as OTOH many people will
+not even notice when SW_TABLET_MODE is not being reported, this commit
+changes intel_vbtn_has_switches() to use a DMI based allow-list.
+
+The new DMI based allow-list matches on the 31 ("Convertible") and
+32 ("Detachable") chassis-types, as these clearly are 2-in-1s and
+so far if they support the intel-vbtn ACPI interface they all have
+properly working SW_TABLET_MODE reporting.
+
+Besides these 2 generic matches, it also contains model specific matches
+for 2-in-1 models which use a different chassis-type and which are known
+to have properly working SW_TABLET_MODE reporting.
+
+This has been tested on the following 2-in-1 devices:
+
+Dell Venue 11 Pro 7130 vPro
+HP Pavilion X2 10-p002nd
+HP Stream x360 Convertible PC 11
+Medion E1239T
+
+Fixes: cfae58ed681c ("platform/x86: intel-vbtn: Only blacklist SW_TABLET_MODE on the 9 / "Laptop" chasis-type")
+BugLink: https://forum.manjaro.org/t/keyboard-and-touchpad-only-work-on-kernel-5-6/22668
+BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1175599
+Cc: Barnabás Pőcze <pobrn@protonmail.com>
+Cc: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/packet/af_packet.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2201,7 +2201,8 @@ static int tpacket_rcv(struct sk_buff *s
- 	int skb_len = skb->len;
- 	unsigned int snaplen, res;
- 	unsigned long status = TP_STATUS_USER;
--	unsigned short macoff, netoff, hdrlen;
-+	unsigned short macoff, hdrlen;
-+	unsigned int netoff;
- 	struct sk_buff *copy_skb = NULL;
- 	struct timespec ts;
- 	__u32 ts_status;
-@@ -2264,6 +2265,12 @@ static int tpacket_rcv(struct sk_buff *s
- 		}
- 		macoff = netoff - maclen;
- 	}
-+	if (netoff > USHRT_MAX) {
-+		spin_lock(&sk->sk_receive_queue.lock);
-+		po->stats.stats1.tp_drops++;
-+		spin_unlock(&sk->sk_receive_queue.lock);
-+		goto drop_n_restore;
-+	}
- 	if (po->tp_version <= TPACKET_V2) {
- 		if (macoff + snaplen > po->rx_ring.frame_size) {
- 			if (po->copy_thresh &&
+---
+ drivers/platform/x86/intel-vbtn.c |   52 +++++++++++++++++++++++++++++++-------
+ 1 file changed, 43 insertions(+), 9 deletions(-)
+
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -158,20 +158,54 @@ static void detect_tablet_mode(struct pl
+ 	input_report_switch(priv->input_dev, SW_DOCK, m);
+ }
+ 
++/*
++ * There are several laptops (non 2-in-1) models out there which support VGBS,
++ * but simply always return 0, which we translate to SW_TABLET_MODE=1. This in
++ * turn causes userspace (libinput) to suppress events from the builtin
++ * keyboard and touchpad, making the laptop essentially unusable.
++ *
++ * Since the problem of wrongly reporting SW_TABLET_MODE=1 in combination
++ * with libinput, leads to a non-usable system. Where as OTOH many people will
++ * not even notice when SW_TABLET_MODE is not being reported, a DMI based allow
++ * list is used here. This list mainly matches on the chassis-type of 2-in-1s.
++ *
++ * There are also some 2-in-1s which use the intel-vbtn ACPI interface to report
++ * SW_TABLET_MODE with a chassis-type of 8 ("Portable") or 10 ("Notebook"),
++ * these are matched on a per model basis, since many normal laptops with a
++ * possible broken VGBS ACPI-method also use these chassis-types.
++ */
++static const struct dmi_system_id dmi_switches_allow_list[] = {
++	{
++		.matches = {
++			DMI_EXACT_MATCH(DMI_CHASSIS_TYPE, "31" /* Convertible */),
++		},
++	},
++	{
++		.matches = {
++			DMI_EXACT_MATCH(DMI_CHASSIS_TYPE, "32" /* Detachable */),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Venue 11 Pro 7130"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP Stream x360 Convertible PC 11"),
++		},
++	},
++	{} /* Array terminator */
++};
++
+ static bool intel_vbtn_has_switches(acpi_handle handle)
+ {
+-	const char *chassis_type = dmi_get_system_info(DMI_CHASSIS_TYPE);
+ 	unsigned long long vgbs;
+ 	acpi_status status;
+ 
+-	/*
+-	 * Some normal laptops have a VGBS method despite being non-convertible
+-	 * and their VGBS method always returns 0, causing detect_tablet_mode()
+-	 * to report SW_TABLET_MODE=1 to userspace, which causes issues.
+-	 * These laptops have a DMI chassis_type of 9 ("Laptop"), do not report
+-	 * switches on any devices with a DMI chassis_type of 9.
+-	 */
+-	if (chassis_type && strcmp(chassis_type, "9") == 0)
++	if (!dmi_check_system(dmi_switches_allow_list))
+ 		return false;
+ 
+ 	status = acpi_evaluate_integer(handle, "VGBS", NULL, &vgbs);
 
 
