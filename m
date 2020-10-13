@@ -2,106 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7BAD28D1E6
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 18:12:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ECF828D261
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 18:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731558AbgJMQM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Oct 2020 12:12:27 -0400
-Received: from mga05.intel.com ([192.55.52.43]:40014 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731536AbgJMQM0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Oct 2020 12:12:26 -0400
-IronPort-SDR: /0lVX0+KRyzbPGi6JfgBaPRFtduICPAFaNySdE/tF1z1gnp7QlzS2ultfhFaKpCm19ZF7kLMfV
- Np0d//Zy0/Ug==
-X-IronPort-AV: E=McAfee;i="6000,8403,9773"; a="250631670"
-X-IronPort-AV: E=Sophos;i="5.77,371,1596524400"; 
-   d="scan'208";a="250631670"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Oct 2020 09:12:13 -0700
-IronPort-SDR: zKF/xkEo6YZKH8fa/Lxy9IM1MNZk6rF5y4/u9AAbyenS0tSOs6h5Gw4Hx2v3vmjPAGagM7mPsl
- tA+RCfhVLhJA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,371,1596524400"; 
-   d="scan'208";a="420574924"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga001.fm.intel.com with SMTP; 13 Oct 2020 09:12:11 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 13 Oct 2020 19:12:10 +0300
-Date:   Tue, 13 Oct 2020 19:12:10 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] drm/i915: Mark ininitial fb obj as WT on eLLC
- machines to avoid rcu lockup during fbdev init
-Message-ID: <20201013161210.GD6112@intel.com>
-References: <20201007120329.17076-1-ville.syrjala@linux.intel.com>
- <160260406924.2946.14780529118115559847@build.alporthouse.com>
+        id S1727664AbgJMQim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Oct 2020 12:38:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56092 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727531AbgJMQim (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Oct 2020 12:38:42 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D980C0613D0;
+        Tue, 13 Oct 2020 09:38:42 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id q136so23532oic.8;
+        Tue, 13 Oct 2020 09:38:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=zguI0JuEU9s5bd4nz8g8SURWdDV9HHhssYu4Na5QpRQ=;
+        b=E4PKskjboAsrsjOxYBeoCsodQxtM9p7s3xa3JQNpoSkzuNSYx9C9kxnZOibOdvq0lt
+         sGQP/xJJw9e/kFwC6lR2SVx88L+yUTCnOkmXyQsNCnDteRKlyooV1aYzwp3MYxZPVIDu
+         9IN0710QpPBMif4eV3uiiFnzGBhZT9fhCspup7vl+NUJ1XwFd2cUJNW71NGG3UQabb7f
+         alyVl9ScdcwNDXOFBEfIoQSw3jKwyTigSrgSV6WQ8cUEv6WO7Oe1kkst0tNPB9ic1QEh
+         BWV+dxqoICRBiyvWQhhpAsWDQ63ULZD5pb0deK/AKjTwZZLTXwPZLwUri6uqOf803zH8
+         FsKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=zguI0JuEU9s5bd4nz8g8SURWdDV9HHhssYu4Na5QpRQ=;
+        b=WfdHrj0HJtLYsYochgw4uY5EYoYWXT7ur5Ugt4LphRVC+53E4T232BI+y3sbZuSjHQ
+         wQTFWKu/rg+K8rafV4OW+g42U1zbQ6jXqTA9YKCWGo0ECVzBsVuILnbtqT9/3eUqKcJZ
+         PalSOf8EWAW5jAN5rpyCS7gAAQ30w1dvXngnOvJqvgLYBLyf2zv2SPsBi9lXP8j6fV3K
+         //THVMlhMjB3bINCw/MQDQXif5UUwmaM8gxPgDxr96CzStsq/jBNWGqoXHv40M8vJF5E
+         B8e+hKPELT44BdH6A8R614zzCr/bQky+zcY8O6BgkUFHWAD0lqg10dI5c+W5hRdWQF4/
+         vJxQ==
+X-Gm-Message-State: AOAM533azYyAMW9HjBbfi5FPpBUwWVWf/1ULo6AHOgQ+oWh+e672DT8c
+        ty8jtY97WtKzMmI/fwwKPAhxTr0UikM=
+X-Google-Smtp-Source: ABdhPJwiKuP0R4GVi7kCUGoZ7g2vBVVB+5z67CuevxAod7zZUuQcxUFEmDym8GLKgVNbxxufBdH26Q==
+X-Received: by 2002:aca:498b:: with SMTP id w133mr347171oia.138.1602607121503;
+        Tue, 13 Oct 2020 09:38:41 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id h4sm129640oot.45.2020.10.13.09.38.40
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 13 Oct 2020 09:38:40 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 13 Oct 2020 09:38:39 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/39] 4.4.239-rc1 review
+Message-ID: <20201013163839.GA251780@roeck-us.net>
+References: <20201012132628.130632267@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <160260406924.2946.14780529118115559847@build.alporthouse.com>
-X-Patchwork-Hint: comment
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 13, 2020 at 04:47:49PM +0100, Chris Wilson wrote:
-> See subject, s/ininitial/iniital/
+On Mon, Oct 12, 2020 at 03:26:30PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.239 release.
+> There are 39 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Quoting Ville Syrjala (2020-10-07 13:03:27)
-> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > 
-> > Currently we leave the cache_level of the initial fb obj
-> > set to NONE. This means on eLLC machines the first pin_to_display()
-> > will try to switch it to WT which requires a vma unbind+bind.
-> > If that happens during the fbdev initialization rcu does not
-> > seem operational which causes the unbind to get stuck. To
-> > most appearances this looks like a dead machine on boot.
-> > 
-> > Avoid the unbind by already marking the object cache_level
-> > as WT when creating it. We still do an excplicit ggtt pin
-> > which will rewrite the PTEs anyway, so they will match whatever
-> > cache level we set.
-> > 
-> > Cc: <stable@vger.kernel.org> # v5.7+
-> > Suggested-by: Chris Wilson <chris@chris-wilson.co.uk>
-> > Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2381
-> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > ---
-> >  drivers/gpu/drm/i915/display/intel_display.c | 8 ++++++++
-> >  1 file changed, 8 insertions(+)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-> > index 907e1d155443..00c08600c60a 100644
-> > --- a/drivers/gpu/drm/i915/display/intel_display.c
-> > +++ b/drivers/gpu/drm/i915/display/intel_display.c
-> > @@ -3445,6 +3445,14 @@ initial_plane_vma(struct drm_i915_private *i915,
-> >         if (IS_ERR(obj))
-> >                 return NULL;
-> >  
-> > +       /*
-> > +        * Mark it WT ahead of time to avoid changing the
-> > +        * cache_level during fbdev initialization. The
-> > +        * unbind there would get stuck waiting for rcu.
-> > +        */
-> > +       i915_gem_object_set_cache_coherency(obj, HAS_WT(i915) ?
-> > +                                           I915_CACHE_WT : I915_CACHE_NONE);
+> Responses should be made by Wed, 14 Oct 2020 13:26:14 +0000.
+> Anything received after that time might be too late.
 > 
-> Ok, I've been worrying about whether there were any more side-effects,
-> but I think it all comes out in the wash. The proof is definitely in the
-> eating, and we will know soon enough if we break someone's virtual
-> terminal.
 
-At least it seems to work on my CFL with eLLC caching enabled.
+Build results:
+	total: 165 pass: 165 fail: 0
+Qemu test results:
+	total: 332 pass: 332 fail: 0
 
-> 
-> Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Ta.
-
--- 
-Ville Syrjälä
-Intel
+Guenter
