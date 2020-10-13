@@ -2,195 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6881028C585
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 02:03:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECDEE28C5AC
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 02:28:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728821AbgJMAD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 20:03:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43334 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727891AbgJMAD6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 20:03:58 -0400
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E018CC0613D0
-        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 17:03:57 -0700 (PDT)
-Received: by mail-pl1-x62c.google.com with SMTP id w21so6876502plq.3
-        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 17:03:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=RAWa3nCHmybr/GXiOMd4+ES/Pcv7Gj3GBMbH0MQM/Wo=;
-        b=EbGKPCUPS82HwyHpu4F1ROpGEhTn7tPqwgsRScQr2Uvlg5j3BJX2cfvof7+vPFaDGD
-         NZ0y6fNzJaLVZwgoVoECCqNa+BOMVe12q3jKMhyTXLAa94gmADTNKhC3DRxwUMdrnoDq
-         ql0V3jLzoc++U74jXjKLcUDLY3Qd2bghyrYWUoXnZWkiRf/EpLGc5TQwEN1BgyR03wgE
-         LVo1Aa2r4l18XZetq33rYFfp8XWpXpzlkm9Q7dLozCO68ugd9fWj1mPA/2iwrjhgkRMu
-         STQP8Kkuv23hYzU1icLbe7S2zSfOtTsOK2YHDhtv0ZloV/+o5zxr9jLIub3C44huNrp7
-         3Xvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=RAWa3nCHmybr/GXiOMd4+ES/Pcv7Gj3GBMbH0MQM/Wo=;
-        b=NdbPZs5gXK7UpObmfMivs9tJU6ijm3WRgv/72CCLLW4q/e3D+3VWl3q4OEiWWspqxC
-         4nmeU0C6/E0JDXwzCdxMVW06FFlU02BAG3jUYL/DEtabReQBcPKv68h8do76iY/n4AvC
-         iG89LncngVHR8w/cbx51UF67/yUqQNYRmpcZQkhb1Nrn85RS/pq2MWFQn/vmi9Nf1D9Q
-         6WRUAe0FiGYRcn/6pBvpWmrgBUhEf9fp49EIHBHcKzxR5FjEJNcJsLop2+M0p4Kkh5Pq
-         3ebjivPr69BuRMP4/uGsx7FX2W7dj2VSH3zAZnVmieiiVjbNHtGypDUS/spRG1zJ1cB8
-         3Bhw==
-X-Gm-Message-State: AOAM533T/2EcOWizO6OjjGI1u1F3EacTAv+uR3pS3eCDvk9eF5M/KD7C
-        Gt+HMpxV8jxMwRoNtWGBoiacar+F5AOLNg==
-X-Google-Smtp-Source: ABdhPJx2BiQ41YtW8AP44azQr1mlnon5oKHK/WtWy6WtrEMO/04DUSwkdXFY3d8pRNRel8IM9xOpKg==
-X-Received: by 2002:a17:902:aa44:b029:d3:8b4f:5083 with SMTP id c4-20020a170902aa44b02900d38b4f5083mr24901299plr.78.1602547436928;
-        Mon, 12 Oct 2020 17:03:56 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b4sm18210667pjz.51.2020.10.12.17.03.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2020 17:03:56 -0700 (PDT)
-Message-ID: <5f84eeec.1c69fb81.36b22.37ed@mx.google.com>
-Date:   Mon, 12 Oct 2020 17:03:56 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726918AbgJMA22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 20:28:28 -0400
+Received: from mga07.intel.com ([134.134.136.100]:8540 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726564AbgJMA22 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Oct 2020 20:28:28 -0400
+IronPort-SDR: 2aBZ6ae/1jTjspiGyqk+dF0PAUe4z0bKkUun/uWsBJzm8ihSWUAa0AGNuOzseXi8tF4ul5cXaQ
+ ehPuhBz/Z/iQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9772"; a="230002298"
+X-IronPort-AV: E=Sophos;i="5.77,368,1596524400"; 
+   d="scan'208";a="230002298"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Oct 2020 17:28:27 -0700
+IronPort-SDR: Bu4FvpltcYE9xk6Hvso9hT15D9oWCNGy5e/qOvb5X9q91LT1sAomgza7nohR1vgevo4eRkYxov
+ QDXBDKPpD9hA==
+X-IronPort-AV: E=Sophos;i="5.77,368,1596524400"; 
+   d="scan'208";a="299438052"
+Received: from lusin-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.53.81])
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Oct 2020 17:28:23 -0700
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     linux-integrity@vger.kernel.org
+Cc:     David Howells <dhowells@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        James Bottomley <jejb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        stable@vger.kernel.org,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Kent Yoder <key@linux.vnet.ibm.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        David Safford <safford@linux.vnet.ibm.com>,
+        "H. Peter Anvin" <hpa@linux.intel.com>,
+        keyrings@vger.kernel.org (open list:KEYS-TRUSTED),
+        linux-security-module@vger.kernel.org (open list:SECURITY SUBSYSTEM),
+        linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v3 1/3] KEYS: trusted: Fix incorrect handling of tpm_get_random()
+Date:   Tue, 13 Oct 2020 03:28:13 +0300
+Message-Id: <20201013002815.40256-2-jarkko.sakkinen@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20201013002815.40256-1-jarkko.sakkinen@linux.intel.com>
+References: <20201013002815.40256-1-jarkko.sakkinen@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.200-71-gaf37e8ff299b
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 98 runs,
- 3 regressions (v4.14.200-71-gaf37e8ff299b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 98 runs, 3 regressions (v4.14.200-71-gaf37=
-e8ff299b)
+When tpm_get_random() was introduced, it defined the following API for the
+return value:
 
-Regressions Summary
--------------------
+1. A positive value tells how many bytes of random data was generated.
+2. A negative value on error.
 
-platform              | arch  | lab           | compiler | defconfig       =
-    | results
-----------------------+-------+---------------+----------+-----------------=
-----+--------
-at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
-    | 0/1    =
+However, in the call sites the API was used incorrectly, i.e. as it would
+only return negative values and otherwise zero. Returning he positive read
+counts to the user space does not make any possible sense.
 
-meson-gxbb-p200       | arm64 | lab-baylibre  | gcc-8    | defconfig       =
-    | 0/1    =
+Fix this by returning -EIO when tpm_get_random() returns a positive value.
 
-panda                 | arm   | lab-collabora | gcc-8    | omap2plus_defcon=
-fig | 3/5    =
+Fixes: 41ab999c80f1 ("tpm: Move tpm_get_random api into the TPM device driver")
+Cc: stable@vger.kernel.org
+Cc: Mimi Zohar <zohar@linux.ibm.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Kent Yoder <key@linux.vnet.ibm.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+---
+ security/keys/trusted-keys/trusted_tpm1.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
+diff --git a/security/keys/trusted-keys/trusted_tpm1.c b/security/keys/trusted-keys/trusted_tpm1.c
+index b9fe02e5f84f..c7b1701cdac5 100644
+--- a/security/keys/trusted-keys/trusted_tpm1.c
++++ b/security/keys/trusted-keys/trusted_tpm1.c
+@@ -403,9 +403,12 @@ static int osap(struct tpm_buf *tb, struct osapsess *s,
+ 	int ret;
+ 
+ 	ret = tpm_get_random(chip, ononce, TPM_NONCE_SIZE);
+-	if (ret != TPM_NONCE_SIZE)
++	if (ret < 0)
+ 		return ret;
+ 
++	if (ret != TPM_NONCE_SIZE)
++		return -EIO;
++
+ 	tpm_buf_reset(tb, TPM_TAG_RQU_COMMAND, TPM_ORD_OSAP);
+ 	tpm_buf_append_u16(tb, type);
+ 	tpm_buf_append_u32(tb, handle);
+@@ -496,8 +499,12 @@ static int tpm_seal(struct tpm_buf *tb, uint16_t keytype,
+ 		goto out;
+ 
+ 	ret = tpm_get_random(chip, td->nonceodd, TPM_NONCE_SIZE);
++	if (ret < 0)
++		return ret;
++
+ 	if (ret != TPM_NONCE_SIZE)
+-		goto out;
++		return -EIO;
++
+ 	ordinal = htonl(TPM_ORD_SEAL);
+ 	datsize = htonl(datalen);
+ 	pcrsize = htonl(pcrinfosize);
+@@ -601,9 +608,12 @@ static int tpm_unseal(struct tpm_buf *tb,
+ 
+ 	ordinal = htonl(TPM_ORD_UNSEAL);
+ 	ret = tpm_get_random(chip, nonceodd, TPM_NONCE_SIZE);
++	if (ret < 0)
++		return ret;
++
+ 	if (ret != TPM_NONCE_SIZE) {
+ 		pr_info("trusted_key: tpm_get_random failed (%d)\n", ret);
+-		return ret;
++		return -EIO;
+ 	}
+ 	ret = TSS_authhmac(authdata1, keyauth, TPM_NONCE_SIZE,
+ 			   enonce1, nonceodd, cont, sizeof(uint32_t),
+@@ -1013,8 +1023,12 @@ static int trusted_instantiate(struct key *key,
+ 	case Opt_new:
+ 		key_len = payload->key_len;
+ 		ret = tpm_get_random(chip, payload->key, key_len);
++		if (ret < 0)
++			goto out;
++
+ 		if (ret != key_len) {
+ 			pr_info("trusted_key: key_create failed (%d)\n", ret);
++			ret = -EIO;
+ 			goto out;
+ 		}
+ 		if (tpm2)
+-- 
+2.25.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.200-71-gaf37e8ff299b/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.200-71-gaf37e8ff299b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      af37e8ff299b6807fa85fde68b814a94f56a76b6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | results
-----------------------+-------+---------------+----------+-----------------=
-----+--------
-at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
-    | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f84aba3f03a39c9c64ff415
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-00-71-gaf37e8ff299b/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sa=
-ma5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-00-71-gaf37e8ff299b/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sa=
-ma5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f84aba3f03a39c9c64ff=
-416
-      failing since 80 days (last pass: v4.14.188-126-g5b1e982af0f8, first =
-fail: v4.14.189)  =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | results
-----------------------+-------+---------------+----------+-----------------=
-----+--------
-meson-gxbb-p200       | arm64 | lab-baylibre  | gcc-8    | defconfig       =
-    | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f8498f89ac8d509854ff3e0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-00-71-gaf37e8ff299b/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-00-71-gaf37e8ff299b/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f8498f99ac8d509854ff=
-3e1
-      failing since 195 days (last pass: v4.14.172-114-g734382e2d26e, first=
- fail: v4.14.174-131-g234ce78cac23)  =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-    | results
-----------------------+-------+---------------+----------+-----------------=
-----+--------
-panda                 | arm   | lab-collabora | gcc-8    | omap2plus_defcon=
-fig | 3/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f84b48be8ee38cdd94ff3f8
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-00-71-gaf37e8ff299b/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-00-71-gaf37e8ff299b/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f84b48be8ee38c=
-dd94ff3ff
-      new failure (last pass: v4.14.200-69-gc6bda4c1748c)
-      2 lines
-
-    2020-10-12 19:54:47.694000  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-      =20
