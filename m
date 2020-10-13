@@ -2,96 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB8D28CFFA
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 16:14:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6045A28D12D
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 17:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388506AbgJMOOY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Oct 2020 10:14:24 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:33820 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388488AbgJMOOX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Oct 2020 10:14:23 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id EE30A1C0B77; Tue, 13 Oct 2020 16:14:21 +0200 (CEST)
-Date:   Tue, 13 Oct 2020 16:14:21 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Marek Szyprowski <m.szyprowski@samsung.com>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Yu Kuai <yukuai3@huawei.com>, Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 27/38] iommu/exynos: add missing put_device() call
- in exynos_iommu_of_xlate()
-Message-ID: <20201013141421.GA22886@duo.ucw.cz>
-References: <20201005142108.650363140@linuxfoundation.org>
- <20201005142109.977461657@linuxfoundation.org>
- <CGME20201007095256eucas1p150311eeced01b2cc66f6a9ef7061e6ff@eucas1p1.samsung.com>
- <20201007094737.GA12593@duo.ucw.cz>
- <5b869c86-8d35-e834-4fec-6b63a942e484@samsung.com>
+        id S1730923AbgJMPY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Oct 2020 11:24:28 -0400
+Received: from netrider.rowland.org ([192.131.102.5]:33839 "HELO
+        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1726657AbgJMPY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Oct 2020 11:24:27 -0400
+Received: (qmail 673224 invoked by uid 1000); 13 Oct 2020 11:24:26 -0400
+Date:   Tue, 13 Oct 2020 11:24:26 -0400
+From:   Alan Stern <stern@rowland.harvard.edu>
+To:     Pratham Pratap <prathampratap@codeaurora.org>
+Cc:     gregkh@linuxfoundation.org, rafael.j.wysocki@intel.com,
+        mathias.nyman@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sallenki@codeaurora.org, mgautam@codeaurora.org,
+        jackp@codeaurora.org, stable@vger.kernel.org
+Subject: Re: [PATCH] usb: core: Don't wait for completion of urbs
+Message-ID: <20201013152426.GB670875@rowland.harvard.edu>
+References: <1602586022-13239-1-git-send-email-prathampratap@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5b869c86-8d35-e834-4fec-6b63a942e484@samsung.com>
+In-Reply-To: <1602586022-13239-1-git-send-email-prathampratap@codeaurora.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Oct 13, 2020 at 04:17:02PM +0530, Pratham Pratap wrote:
+> Consider a case where host is trying to submit urbs to the
+> connected device while holding the us->dev_mutex and due to
+> some reason it is stuck while waiting for the completion of
+> the urbs. Now the scsi error mechanism kicks in and it calls
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Are you talking about usb-storage?  You should describe the context 
+better -- judging by the patch title, it looks like you're talking 
+about a core driver instead.
 
-Hi!
-> >> From: Yu Kuai <yukuai3@huawei.com>
-> >>
-> >> [ Upstream commit 1a26044954a6d1f4d375d5e62392446af663be7a ]
-> >>
-> >> if of_find_device_by_node() succeed, exynos_iommu_of_xlate() doesn't h=
-ave
-> >> a corresponding put_device(). Thus add put_device() to fix the excepti=
-on
-> >> handling for this function implementation.
-> > Okay, this looks reasonable, but...
-> >
-> > Do we miss put_device() in normal path, too? I'd expect another
-> > put_device at end of exynos_iommu_of_xlate() or perhaps in release
-> > path somewhere...
->=20
-> Frankly, there is no release path, so there is no need for put_device.=20
-> Once initialized, Exynos IOMMU stays in the system forever. There is no=
-=20
-> point to remove IOMMU nor the API for that. Keeping increased refcount=20
-> for its device just matches this behavior.
->=20
-> If the missing put_device() is really a problem, then we can move it=20
-> from the error path just after data =3D platform_get_drvdata(sysmmu)=20
-> assignment. Feel free to send a patch if you think this is a more=20
-> appropriate approach.
+> the device reset handler which is trying to acquire the same
+> mutex causing a deadlock situation.
 
-exynos_iommu_detach_device() looks like a place where resources could
-be freed? But if there's no release path, we don't really need to do anythi=
-ng.=20
+That isn't supposed to happen.  The SCSI error handler should always 
+cancel all the outstanding commands before invoking the device reset 
+handler.  Cancelling the commands will cause the URBs to complete.
 
-Sorry about the noise.
+If you found a test case where this doesn't happen, it probably means 
+there's a bug in the SCSI core code or the USB host controller driver.  
+That bug should be fixed; don't introduce random timeout values to try 
+and work around it.
 
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX4W2PQAKCRAw5/Bqldv6
-8m7vAJ4iXq02bm6+RavPQxrGMERfz/4fsQCfQdFAYbgb57aGCx7w0yA3EfNXz4Y=
-=CDgo
------END PGP SIGNATURE-----
-
---9jxsPFA5p3P2qPhR--
+Alan Stern
