@@ -2,286 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4EE28C5B5
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 02:28:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F9E28C67C
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 02:50:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727056AbgJMA2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 20:28:44 -0400
-Received: from mga05.intel.com ([192.55.52.43]:48095 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727028AbgJMA2n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Oct 2020 20:28:43 -0400
-IronPort-SDR: lqM/y9FL8MOod9/w0OIjhRHzpH0X8y3klyySfXP2+dTRZ0RahvNiaKbDNnr8CFdLdtvftmOFNs
- XQvJ/pdM9Rlw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9772"; a="250518563"
-X-IronPort-AV: E=Sophos;i="5.77,368,1596524400"; 
-   d="scan'208";a="250518563"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Oct 2020 17:28:42 -0700
-IronPort-SDR: 9wB8uvUl5YmPBYIIbizvh8JTxqZU+2JjQGkMcialqhA8ji0C9LIdoJ/2eNjYpJdJ8Tc/pDD6GL
- P89jA2732Lgw==
-X-IronPort-AV: E=Sophos;i="5.77,368,1596524400"; 
-   d="scan'208";a="299438099"
-Received: from lusin-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.53.81])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Oct 2020 17:28:38 -0700
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        James Bottomley <jejb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        kernel test robot <lkp@intel.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Alexey Klimov <aklimov@redhat.com>,
-        linux-kernel@vger.kernel.org (open list),
-        keyrings@vger.kernel.org (open list:KEYS-TRUSTED),
-        linux-security-module@vger.kernel.org (open list:SECURITY SUBSYSTEM)
-Subject: [PATCH v3 3/3] KEYS: trusted: Reserve TPM for seal and unseal operations
-Date:   Tue, 13 Oct 2020 03:28:15 +0300
-Message-Id: <20201013002815.40256-4-jarkko.sakkinen@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201013002815.40256-1-jarkko.sakkinen@linux.intel.com>
-References: <20201013002815.40256-1-jarkko.sakkinen@linux.intel.com>
+        id S1727936AbgJMAup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 20:50:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50678 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727917AbgJMAup (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 20:50:45 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B27C0613D0
+        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 17:50:43 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id c20so4819360pfr.8
+        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 17:50:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=V8H1guCZcvYrPjCpSevzD8p74oXausvzkyNlIsC3xx8=;
+        b=Ubso2DlXqsrqj3i1JL51SOy+zTeZ8ipc6cETvQ1V7egj3ma6oVzIO81FfyY4Zfexs5
+         U1XNFh0L4qnToqkUClkN7udbSWu1jpvKIaZwpZFJG+MDgL2HdSjVrYEWuDy9zq/mBAb6
+         KxT07SBZaB4di5F8LAINSxbRIR+Pu5F55a0QmjqrMUyhUm+cLsrpJZLEjvBWkcr7HeuA
+         el5cvPIDc9dCRIiTYKEe7nKG3L4nVXukKcvm1aGl5Zg/Y15x/FI4qL6r/T/aIderIxUI
+         /Azbdz7UM57GzMAGffeJOWRxkwwP2+eadSfR1/UmzOZCLywz5f+VOXjuXird6lHa5rdz
+         mP1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=V8H1guCZcvYrPjCpSevzD8p74oXausvzkyNlIsC3xx8=;
+        b=el1GWcKTpgbpaxMQqNTIJeZJNxY/IYim5TVumtflrylLZtWYSkyHHfdbBphTAObvxr
+         yfU6ILVmjTW+ZA+Zx9JrQpl0DRZOinMLD5fsGazNTaZrw20jbr4cknBtOrQh1IMkePk+
+         GCMD9PFIgqe6IQaeANWzpl9Fp1O7Fprob0F4Q5FlULY0K/NJErCvKDme7zMnZcs8bqJ9
+         w8/WgTpDAWInKw9ioLvnG70vHCuH3QWfmPkujLigPLX/4u83Wb6mfGQDugj6qsfi0SZ6
+         fhMrQX1y0qOU32h8cdNCmCPIoC23ZzHXkzDRQWADBBesTuHvAurNkc2o3yl4sBMQmc8Y
+         v1TQ==
+X-Gm-Message-State: AOAM5333BHKDiWFVSD8LJkiyJH7ChulygDbAOdXe7BV0iHv0gl2zumgM
+        2T/bwKhS4RP927PkAdT0ANoL7V7/WLgrCA==
+X-Google-Smtp-Source: ABdhPJynM83WJndTFhp+1u5PIMJRb0I/KszkDYcG+gV2ZMtoyk7NFCM5w/HrIxH4lt77hLIySs/0Vw==
+X-Received: by 2002:a62:7749:0:b029:152:9d3b:c85e with SMTP id s70-20020a6277490000b02901529d3bc85emr25290623pfc.16.1602550243050;
+        Mon, 12 Oct 2020 17:50:43 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id lb13sm1454470pjb.5.2020.10.12.17.50.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Oct 2020 17:50:42 -0700 (PDT)
+Message-ID: <5f84f9e2.1c69fb81.acaa0.467f@mx.google.com>
+Date:   Mon, 12 Oct 2020 17:50:42 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.238-55-g132affe7fbd6
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.9.y baseline: 114 runs,
+ 1 regressions (v4.9.238-55-g132affe7fbd6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When TPM 2.0 trusted keys code was moved to the trusted keys subsystem,
-the operations were unwrapped from tpm_try_get_ops() and tpm_put_ops(),
-which are used to take temporarily the ownership of the TPM chip. The
-ownership is only taken inside tpm_send(), but this is not sufficient,
-as in the key load TPM2_CC_LOAD, TPM2_CC_UNSEAL and TPM2_FLUSH_CONTEXT
-need to be done as a one single atom.
+stable-rc/linux-4.9.y baseline: 114 runs, 1 regressions (v4.9.238-55-g132af=
+fe7fbd6)
 
-Fix this issue by introducting trusted_tpm_load() and trusted_tpm_new(),
-which wrap these operations, and take the TPM chip ownership before
-sending anything. Use tpm_transmit_cmd() to send TPM commands instead
-of tpm_send(), reverting back to the old behaviour.
+Regressions Summary
+-------------------
 
-Fixes: 2e19e10131a0 ("KEYS: trusted: Move TPM2 trusted keys code")
-Reported-by: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: stable@vger.kernel.org
-Cc: David Howells <dhowells@redhat.com>
-Cc: Mimi Zohar <zohar@linux.ibm.com>
-Cc: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Reported-by: kernel test robot <lkp@intel.com>
----
- drivers/char/tpm/tpm.h                    |  4 --
- include/linux/tpm.h                       | 17 ++++-
- security/keys/trusted-keys/trusted_tpm1.c | 78 +++++++++++++++--------
- security/keys/trusted-keys/trusted_tpm2.c |  6 +-
- 4 files changed, 72 insertions(+), 33 deletions(-)
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
 
-diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
-index 947d1db0a5cc..283f78211c3a 100644
---- a/drivers/char/tpm/tpm.h
-+++ b/drivers/char/tpm/tpm.h
-@@ -164,8 +164,6 @@ extern const struct file_operations tpmrm_fops;
- extern struct idr dev_nums_idr;
- 
- ssize_t tpm_transmit(struct tpm_chip *chip, u8 *buf, size_t bufsiz);
--ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_buf *buf,
--			 size_t min_rsp_body_length, const char *desc);
- int tpm_get_timeouts(struct tpm_chip *);
- int tpm_auto_startup(struct tpm_chip *chip);
- 
-@@ -194,8 +192,6 @@ static inline void tpm_msleep(unsigned int delay_msec)
- int tpm_chip_start(struct tpm_chip *chip);
- void tpm_chip_stop(struct tpm_chip *chip);
- struct tpm_chip *tpm_find_get_ops(struct tpm_chip *chip);
--__must_check int tpm_try_get_ops(struct tpm_chip *chip);
--void tpm_put_ops(struct tpm_chip *chip);
- 
- struct tpm_chip *tpm_chip_alloc(struct device *dev,
- 				const struct tpm_class_ops *ops);
-diff --git a/include/linux/tpm.h b/include/linux/tpm.h
-index 8f4ff39f51e7..f0ebce14d2f8 100644
---- a/include/linux/tpm.h
-+++ b/include/linux/tpm.h
-@@ -397,6 +397,10 @@ static inline u32 tpm2_rc_value(u32 rc)
- #if defined(CONFIG_TCG_TPM) || defined(CONFIG_TCG_TPM_MODULE)
- 
- extern int tpm_is_tpm2(struct tpm_chip *chip);
-+extern __must_check int tpm_try_get_ops(struct tpm_chip *chip);
-+extern void tpm_put_ops(struct tpm_chip *chip);
-+extern ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_buf *buf,
-+				size_t min_rsp_body_length, const char *desc);
- extern int tpm_pcr_read(struct tpm_chip *chip, u32 pcr_idx,
- 			struct tpm_digest *digest);
- extern int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx,
-@@ -410,7 +414,18 @@ static inline int tpm_is_tpm2(struct tpm_chip *chip)
- {
- 	return -ENODEV;
- }
--
-+static inline int tpm_try_get_ops(struct tpm_chip *chip)
-+{
-+	return -ENODEV;
-+}
-+static inline void tpm_put_ops(struct tpm_chip *chip)
-+{
-+}
-+static inline ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_buf *buf,
-+				       size_t min_rsp_body_length, const char *desc)
-+{
-+	return -ENODEV;
-+}
- static inline int tpm_pcr_read(struct tpm_chip *chip, int pcr_idx,
- 			       struct tpm_digest *digest)
- {
-diff --git a/security/keys/trusted-keys/trusted_tpm1.c b/security/keys/trusted-keys/trusted_tpm1.c
-index 7a937c3c5283..20ca18e17437 100644
---- a/security/keys/trusted-keys/trusted_tpm1.c
-+++ b/security/keys/trusted-keys/trusted_tpm1.c
-@@ -950,6 +950,51 @@ static struct trusted_key_payload *trusted_payload_alloc(struct key *key)
- 	return p;
- }
- 
-+static int trusted_tpm_load(struct tpm_chip *chip,
-+			    struct trusted_key_payload *payload,
-+			    struct trusted_key_options *options)
-+{
-+	int ret;
-+
-+	if (tpm_is_tpm2(chip)) {
-+		ret = tpm_try_get_ops(chip);
-+		if (!ret) {
-+			ret = tpm2_unseal_trusted(chip, payload, options);
-+			tpm_put_ops(chip);
-+		}
-+	} else {
-+		ret = key_unseal(payload, options);
-+	}
-+
-+	return ret;
-+}
-+
-+static int trusted_tpm_new(struct tpm_chip *chip,
-+			   struct trusted_key_payload *payload,
-+			   struct trusted_key_options *options)
-+{
-+	int ret;
-+
-+	ret = tpm_get_random(chip, payload->key, payload->key_len);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (ret != payload->key_len)
-+		return -EIO;
-+
-+	if (tpm_is_tpm2(chip)) {
-+		ret = tpm_try_get_ops(chip);
-+		if (!ret) {
-+			ret = tpm2_seal_trusted(chip, payload, options);
-+			tpm_put_ops(chip);
-+		}
-+	} else {
-+		ret = key_seal(payload, options);
-+	}
-+
-+	return ret;
-+}
-+
- /*
-  * trusted_instantiate - create a new trusted key
-  *
-@@ -968,12 +1013,6 @@ static int trusted_instantiate(struct key *key,
- 	char *datablob;
- 	int ret = 0;
- 	int key_cmd;
--	size_t key_len;
--	int tpm2;
--
--	tpm2 = tpm_is_tpm2(chip);
--	if (tpm2 < 0)
--		return tpm2;
- 
- 	if (datalen <= 0 || datalen > 32767 || !prep->data)
- 		return -EINVAL;
-@@ -1011,32 +1050,21 @@ static int trusted_instantiate(struct key *key,
- 
- 	switch (key_cmd) {
- 	case Opt_load:
--		if (tpm2)
--			ret = tpm2_unseal_trusted(chip, payload, options);
--		else
--			ret = key_unseal(payload, options);
-+		ret = trusted_tpm_load(chip, payload, options);
-+
- 		dump_payload(payload);
- 		dump_options(options);
-+
- 		if (ret < 0)
--			pr_info("trusted_key: key_unseal failed (%d)\n", ret);
-+			pr_info("%s: load failed (%d)\n", __func__, ret);
-+
- 		break;
- 	case Opt_new:
--		key_len = payload->key_len;
--		ret = tpm_get_random(chip, payload->key, key_len);
--		if (ret < 0)
--			goto out;
-+		ret = trusted_tpm_new(chip, payload, options);
- 
--		if (ret != key_len) {
--			pr_info("trusted_key: key_create failed (%d)\n", ret);
--			ret = -EIO;
--			goto out;
--		}
--		if (tpm2)
--			ret = tpm2_seal_trusted(chip, payload, options);
--		else
--			ret = key_seal(payload, options);
- 		if (ret < 0)
--			pr_info("trusted_key: key_seal failed (%d)\n", ret);
-+			pr_info("%s: new failed (%d)\n", __func__, ret);
-+
- 		break;
- 	default:
- 		ret = -EINVAL;
-diff --git a/security/keys/trusted-keys/trusted_tpm2.c b/security/keys/trusted-keys/trusted_tpm2.c
-index 08ec7f48f01d..effdb67fac6d 100644
---- a/security/keys/trusted-keys/trusted_tpm2.c
-+++ b/security/keys/trusted-keys/trusted_tpm2.c
-@@ -130,7 +130,7 @@ int tpm2_seal_trusted(struct tpm_chip *chip,
- 		goto out;
- 	}
- 
--	rc = tpm_send(chip, buf.data, tpm_buf_length(&buf));
-+	rc = tpm_transmit_cmd(chip, &buf, 4, "sealing data");
- 	if (rc)
- 		goto out;
- 
-@@ -211,7 +211,7 @@ static int tpm2_load_cmd(struct tpm_chip *chip,
- 		goto out;
- 	}
- 
--	rc = tpm_send(chip, buf.data, tpm_buf_length(&buf));
-+	rc = tpm_transmit_cmd(chip, &buf, 4, "loading blob");
- 	if (!rc)
- 		*blob_handle = be32_to_cpup(
- 			(__be32 *) &buf.data[TPM_HEADER_SIZE]);
-@@ -260,7 +260,7 @@ static int tpm2_unseal_cmd(struct tpm_chip *chip,
- 			     options->blobauth /* hmac */,
- 			     TPM_DIGEST_SIZE);
- 
--	rc = tpm_send(chip, buf.data, tpm_buf_length(&buf));
-+	rc = tpm_transmit_cmd(chip, &buf, 6, "unsealing");
- 	if (rc > 0)
- 		rc = -EPERM;
- 
--- 
-2.25.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.238-55-g132affe7fbd6/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.238-55-g132affe7fbd6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      132affe7fbd620235ac2d7fefa7051090b58f392 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | results
+---------+------+---------------+----------+---------------------+--------
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f84bed59130dfb2a34ff409
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.238=
+-55-g132affe7fbd6/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.238=
+-55-g132affe7fbd6/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f84bed59130dfb=
+2a34ff410
+      failing since 7 days (last pass: v4.9.238, first fail: v4.9.238-23-g3=
+14770acbbde)
+      2 lines  =20
