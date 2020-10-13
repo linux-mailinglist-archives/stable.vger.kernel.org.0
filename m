@@ -2,126 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9B1F28CBEF
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 12:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7C6128CC47
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 13:10:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729286AbgJMKrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Oct 2020 06:47:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58224 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729751AbgJMKrX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Oct 2020 06:47:23 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E0BFC0613D5
-        for <stable@vger.kernel.org>; Tue, 13 Oct 2020 03:47:23 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id c6so10465799plr.9
-        for <stable@vger.kernel.org>; Tue, 13 Oct 2020 03:47:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3ntn9DyzGhS3Z3M/6At8ah3hrJim5BqR8VboOKGYXuk=;
-        b=kbKZRb0lBrjXF0JRvIgqzz1CK/uC7OVsZHPL6O59fHj0/lSFGVZe2KKQI7G/w6RPf6
-         vROmgjPYyQJyQu+F26D58XDj2jVhEAQQFQy6Wqr72ww2x69wD134o0igXuw+saJjUzrQ
-         kyHWk928ARymQyutup6JacQ+1lgyfmsSQ9QWv4qCChuHNMZ+NMTFgfDfAVZjLh29/bdj
-         28nm7Hf/00FMMm3ikW8obaSX91W12J52n6xLwAkbR5JriYM3S+V9AwgEueHs4buirLfP
-         KyEjmGFE17Gi9+0SSeRiatndtnUlI3l1pydRwfjKeXyYFNSYQ5m6jR9zXVrniX2hALCw
-         5okA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3ntn9DyzGhS3Z3M/6At8ah3hrJim5BqR8VboOKGYXuk=;
-        b=JxMgWJfb7YY0YBHE4Z2BFHla6AFkdoO8pdwGY0S+8cnBPHpPnIt3u2pePrLlT5OqoY
-         tuZN6QX8S2ZmatEBam9AvxouGuBhQfU3zthXXxzQxHTruZkkUS5YfH7fTQx3upCBHoGf
-         a0Jfk3sjQGHkwABEkuTojmDG2rraC9jZVaBEH/4SLy9gbNVRU237wnKl3MUuM+ihG+9i
-         Zbw+ysHJaq7AZ5+fBAhwyWIWlAMYwmKOfrvgKu4PRvFkWT4k1W7EqVriZW7aRq21CgEE
-         spopLJUxNmUHW5V6kEnChfl6bZnKm2DmTXiDnPFJsLIEG3tVqw1zbFYHHrQBtgv7UpoV
-         jSdQ==
-X-Gm-Message-State: AOAM532XqXzhVebu+fQUTuGHbJO0DhUk3vftl0QFwBdwKvigV81WD3Jz
-        r8aDwTTWWHUwtQCJ6gChpVhiXLxcWKjq4g==
-X-Google-Smtp-Source: ABdhPJw+8+1bwSo09gOqqXEU8moZlqzw24zKWdkyC9JWlNb5+dSXLb4O+rcjMxksMd/ApEo6xfTeHA==
-X-Received: by 2002:a17:90a:5885:: with SMTP id j5mr23627253pji.117.1602586042614;
-        Tue, 13 Oct 2020 03:47:22 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 32sm22410613pgu.17.2020.10.13.03.47.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2020 03:47:21 -0700 (PDT)
-Message-ID: <5f8585b9.1c69fb81.52540.b2ef@mx.google.com>
-Date:   Tue, 13 Oct 2020 03:47:21 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1731014AbgJMLKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Oct 2020 07:10:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44194 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726662AbgJMLKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Oct 2020 07:10:18 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49EFF214DB;
+        Tue, 13 Oct 2020 11:10:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1602587417;
+        bh=QM+nvI722PuUaCbJjwtF4VtruSHvxnlMXoRt5pyjiIc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MNCTYpBtgN5rwgqV64fESdMTkMO3SXBldohkqvVSaMG+SE8H51511hmPidRonjKPm
+         fyddFGNix2Qos55yYTQk2CCxEK4Mhr0PhkTTwC8RDuoEyiypTd4PnE/mOkeuCbEOds
+         CKLU+0NkQ1qH+6fTM8OovISWzIofHRg6jpiW9u4E=
+Date:   Tue, 13 Oct 2020 13:10:55 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Pratham Pratap <prathampratap@codeaurora.org>
+Cc:     stern@rowland.harvard.edu, rafael.j.wysocki@intel.com,
+        mathias.nyman@linux.intel.com, andriy.shevchenko@linux.intel.com,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        sallenki@codeaurora.org, mgautam@codeaurora.org,
+        jackp@codeaurora.org, stable@vger.kernel.org
+Subject: Re: [PATCH] usb: core: Don't wait for completion of urbs
+Message-ID: <20201013111055.GA1942304@kroah.com>
+References: <1602586022-13239-1-git-send-email-prathampratap@codeaurora.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.150-49-g269cfef6b429
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 179 runs,
- 1 regressions (v4.19.150-49-g269cfef6b429)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1602586022-13239-1-git-send-email-prathampratap@codeaurora.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 179 runs, 1 regressions (v4.19.150-49-g269cf=
-ef6b429)
+On Tue, Oct 13, 2020 at 04:17:02PM +0530, Pratham Pratap wrote:
+> Consider a case where host is trying to submit urbs to the
+> connected device while holding the us->dev_mutex and due to
+> some reason it is stuck while waiting for the completion of
+> the urbs. Now the scsi error mechanism kicks in and it calls
+> the device reset handler which is trying to acquire the same
+> mutex causing a deadlock situation.
+> 
+> Below is the call stack of the task which acquired the mutex
+> (0xFFFFFFC660447460) and waiting for completion.
+> 
+> B::v.f_/task_0xFFFFFFC6604DB280
+> -000|__switch_to(prev = 0xFFFFFFC6604DB280, ?)
+> -001|prepare_lock_switch(inline)
+> -001|context_switch(inline)
+> -001|__schedule(?)
+> -002|schedule()
+> -003|schedule_timeout(timeout = 9223372036854775807)
+> -004|do_wait_for_common(x = 0xFFFFFFC660447570,
+> action = 0xFFFFFF98ED5A7398, timeout = 9223372036854775807, ?)
+> -005|spin_unlock_irq(inline)
+> -005|__wait_for_common(inline)
+> -005|wait_for_common(inline)
+> -005|wait_for_completion(x = 0xFFFFFFC660447570)
+> -006|sg_clean(inline)
+> -006|usb_sg_wait()
+> -007|atomic64_andnot(inline)
+> -007|atomic_long_andnot(inline)
+> -007|clear_bit(inline)
+> -007|usb_stor_bulk_transfer_sglist(us = 0xFFFFFFC660447460,
+> pipe = 3221291648, sg = 0xFFFFFFC65D6415D0, ?, length = 512,
+> act_len = 0xFFFFFF801258BC90)
 
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 4/5    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.150-49-g269cfef6b429/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.150-49-g269cfef6b429
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      269cfef6b42978d332ff8f0e889255658f133148 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 4/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f85482f835dc098a64ff3ee
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.150=
--49-g269cfef6b429/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.150=
--49-g269cfef6b429/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
+No need to line-wrap for stuff like this.
 
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f85482f835dc09=
-8a64ff3f5
-      failing since 1 day (last pass: v4.19.150-28-g0d0080f64605, first fai=
-l: v4.19.150-29-gd8f1e7f2dffe)
-      2 lines
 
-    2020-10-13 06:24:42.678000  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/106
-    2020-10-13 06:24:42.687000  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-      =20
+> -008|scsi_bufflen(inline)
+> -008|usb_stor_bulk_srb(inline)
+> -008|usb_stor_Bulk_transport(srb = 0xFFFFFFC65D641438,
+> us = 0xFFFFFFC660447460)
+> -009|test_bit(inline)
+> -009|usb_stor_invoke_transport(srb = 0xFFFFFFC65D641438,
+> us = 0xFFFFFFC660447460)
+> -010|usb_stor_transparent_scsi_command(?, ?)
+> -011|usb_stor_control_thread(__us = 0xFFFFFFC660447460)  //us->dev_mutex
+> -012|kthread(_create = 0xFFFFFFC6604C5E80)
+> -013|ret_from_fork(asm)
+>  ---|end of frame
+> 
+> Below is the call stack of the task which trying to acquire the same
+> mutex(0xFFFFFFC660447460) in the error handling path.
+> 
+> B::v.f_/task_0xFFFFFFC6609AA1C0
+> -000|__switch_to(prev = 0xFFFFFFC6609AA1C0, ?)
+> -001|prepare_lock_switch(inline)
+> -001|context_switch(inline)
+> -001|__schedule(?)
+> -002|schedule()
+> -003|schedule_preempt_disabled()
+> -004|__mutex_lock_common(lock = 0xFFFFFFC660447460, state = 2, ?, ?, ?,
+> ?, ?)
+> -005|__mutex_lock_slowpath(?)
+> -006|__cmpxchg_acq(inline)
+> -006|__mutex_trylock_fast(inline)
+> -006|mutex_lock(lock = 0xFFFFFFC660447460)   //us->dev_mutex
+> -007|device_reset(?)
+> -008|scsi_try_bus_device_reset(inline)
+> -008|scsi_eh_bus_device_reset(inline)
+> -008|scsi_eh_ready_devs(shost = 0xFFFFFFC660446C80,
+> work_q = 0xFFFFFF80191C3DE8, done_q = 0xFFFFFF80191C3DD8)
+> -009|scsi_error_handler(data = 0xFFFFFFC660446C80)
+> -010|kthread(_create = 0xFFFFFFC66042C080)
+> -011|ret_from_fork(asm)
+>  ---|end of frame
+> 
+> Fix this by adding 5 seconds timeout while waiting for completion.
+> 
+> Fixes: 3e35bf39e (USB: fix codingstyle issues in drivers/usb/core/message.c)
+
+Please read the documentation for how to properly add a Fixes: line
+(hint, your sha1 isn't big enough.)
+
+And does this really "fix" a commit that chnaged the coding style?  I
+doubt that...
+
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Pratham Pratap <prathampratap@codeaurora.org>
+> ---
+>  drivers/usb/core/message.c | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+> index ae1de9c..b1e839c 100644
+> --- a/drivers/usb/core/message.c
+> +++ b/drivers/usb/core/message.c
+> @@ -515,15 +515,13 @@ EXPORT_SYMBOL_GPL(usb_sg_init);
+>   */
+>  void usb_sg_wait(struct usb_sg_request *io)
+>  {
+> -	int i;
+> +	int i, retval;
+>  	int entries = io->entries;
+>  
+>  	/* queue the urbs.  */
+>  	spin_lock_irq(&io->lock);
+>  	i = 0;
+>  	while (i < entries && !io->status) {
+> -		int retval;
+> -
+>  		io->urbs[i]->dev = io->dev;
+>  		spin_unlock_irq(&io->lock);
+>  
+> @@ -569,7 +567,13 @@ void usb_sg_wait(struct usb_sg_request *io)
+>  	 * So could the submit loop above ... but it's easier to
+>  	 * solve neither problem than to solve both!
+>  	 */
+> -	wait_for_completion(&io->complete);
+> +	retval = wait_for_completion_timeout(&io->complete,
+> +						msecs_to_jiffies(5000));
+
+Where did you pick 5 seconds from?  Are you sure that will work
+properly?  What about devices with very long i/o stalls when data is
+being flushed out, are you sure this will not trigger there?
+
+> +	if (retval == 0) {
+> +		dev_err(&io->dev->dev, "%s, timed out while waiting for io_complete\n",
+> +				__func__);
+> +		usb_sg_cancel(io);
+
+So this is cancelled, but how does userspace know the error happened and
+it was a timeout?
+
+thanks,
+
+greg k-h
