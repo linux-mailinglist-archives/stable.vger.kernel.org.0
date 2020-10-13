@@ -2,179 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7C6128CC47
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 13:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2BFC28CC4C
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 13:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731014AbgJMLKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Oct 2020 07:10:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44194 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726662AbgJMLKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Oct 2020 07:10:18 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49EFF214DB;
-        Tue, 13 Oct 2020 11:10:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602587417;
-        bh=QM+nvI722PuUaCbJjwtF4VtruSHvxnlMXoRt5pyjiIc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MNCTYpBtgN5rwgqV64fESdMTkMO3SXBldohkqvVSaMG+SE8H51511hmPidRonjKPm
-         fyddFGNix2Qos55yYTQk2CCxEK4Mhr0PhkTTwC8RDuoEyiypTd4PnE/mOkeuCbEOds
-         CKLU+0NkQ1qH+6fTM8OovISWzIofHRg6jpiW9u4E=
-Date:   Tue, 13 Oct 2020 13:10:55 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Pratham Pratap <prathampratap@codeaurora.org>
-Cc:     stern@rowland.harvard.edu, rafael.j.wysocki@intel.com,
-        mathias.nyman@linux.intel.com, andriy.shevchenko@linux.intel.com,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sallenki@codeaurora.org, mgautam@codeaurora.org,
-        jackp@codeaurora.org, stable@vger.kernel.org
-Subject: Re: [PATCH] usb: core: Don't wait for completion of urbs
-Message-ID: <20201013111055.GA1942304@kroah.com>
-References: <1602586022-13239-1-git-send-email-prathampratap@codeaurora.org>
+        id S1731275AbgJMLLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Oct 2020 07:11:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33686 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731262AbgJMLLZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Oct 2020 07:11:25 -0400
+Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD36AC0613D0
+        for <stable@vger.kernel.org>; Tue, 13 Oct 2020 04:11:24 -0700 (PDT)
+Received: by mail-yb1-xb41.google.com with SMTP id l15so1194923ybp.2
+        for <stable@vger.kernel.org>; Tue, 13 Oct 2020 04:11:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=KulN+jSrp6kXZZEXwKhEcm7gJqmGX8C6QkWid3bTiyY=;
+        b=nk51rb0c4zBnb8qa50gfwhTaEFSuMJiLsyobEEYHj7M8qW5XSG2QVMz8QdWcfd/c4n
+         euWAjzwhXhWnLoe6HQpmosS79tD5aJPZwhkfYlvSG3IZ5sdYkbUx3DjYiP5IVAkPpwul
+         GIbXuwKp5CzJWaFaSUbRVUzUKmbYKCTCWbMrXwmkyhieNaXjMWVm3XOTBWaJnYqYIw5k
+         R95f8KdV/M+aokWJiLCa3fq++670een6bHXyYpVxUDMOCsgZmtbckb/zDLtid2niNBZY
+         BFwNSDNoFFDeXT/umSYZw/PpOPiB8TBocXcVjDl/W0f/wkMIddN8AIFpWVcCA+ZfiD96
+         Kl/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=KulN+jSrp6kXZZEXwKhEcm7gJqmGX8C6QkWid3bTiyY=;
+        b=pi4253Ug2UO2up3VaqZHy5iCFjwyw5LE09sxHljVsH5kumAXa81L2BeNlDATGB6Df3
+         2OU8ugcZ9U4d/AFAvmFBHmqdbIckWG33375pF268DCvEyPTqI+PuO4cHkeMnQVY95Dhc
+         iV/Rw5qMI9iwpVZos27LNknrQPjyAZZ1H1SZ+LQV4+4EPWjXvTsxN4Cg7nCcgEDQZmUA
+         4O4ycJwJWjK4B4MS/c4Aoteq/niejgrluGadthWJcJINKrJJ48mDsj47dhaqu3M8r6mW
+         lkuFbUqcd3/bajQmdSXzD+EJvq3Rk9vkvwgRXM53hhk9q1koSfv+JfMH1AiCx5y5SYlM
+         pSVg==
+X-Gm-Message-State: AOAM532CqD4YpGYqR1OogcTWdvI8j/j0OA+1s006Rrhl1AyTCI5kHIJi
+        BL6yFHxQt8tJixeWmZLBEL9vt2VwCtgUqfzpkc4=
+X-Google-Smtp-Source: ABdhPJwRVxhiE0QoUEs96/3SZxCOiKsgcWwxNJVrvltpxIrGvEV15dFUFleiRyhDcydGY9QCyjbH7WQkB2VAdfSFpwg=
+X-Received: by 2002:a25:44:: with SMTP id 65mr37274013yba.6.1602587484165;
+ Tue, 13 Oct 2020 04:11:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1602586022-13239-1-git-send-email-prathampratap@codeaurora.org>
+References: <20201013074600.9784-1-benchuanggli@gmail.com> <20201013080105.GA1681211@kroah.com>
+ <CACT4zj8xjeRFnXekojFseHUTqouRwCwmXsCFVMWA+jhnW-DaDQ@mail.gmail.com> <20201013085806.GB1681211@kroah.com>
+In-Reply-To: <20201013085806.GB1681211@kroah.com>
+From:   Ben Chuang <benchuanggli@gmail.com>
+Date:   Tue, 13 Oct 2020 19:11:13 +0800
+Message-ID: <CACT4zj-ShpspM0PNA_Q4fkEAubiTfp_rxcZ6FkQgcKoYx7WaNA@mail.gmail.com>
+Subject: Re: [PATCH] mmc: sdhci-pci-gli: Set SDR104's clock to 205MHz and
+ enable SSC for GL975x
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     sashal@kernel.org, stable@vger.kernel.org,
+        Ben Chuang <ben.chuang@genesyslogic.com.tw>,
+        greg.tu@genesyslogic.com.tw, seanhy.chen@genesyslogic.com.tw,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 13, 2020 at 04:17:02PM +0530, Pratham Pratap wrote:
-> Consider a case where host is trying to submit urbs to the
-> connected device while holding the us->dev_mutex and due to
-> some reason it is stuck while waiting for the completion of
-> the urbs. Now the scsi error mechanism kicks in and it calls
-> the device reset handler which is trying to acquire the same
-> mutex causing a deadlock situation.
-> 
-> Below is the call stack of the task which acquired the mutex
-> (0xFFFFFFC660447460) and waiting for completion.
-> 
-> B::v.f_/task_0xFFFFFFC6604DB280
-> -000|__switch_to(prev = 0xFFFFFFC6604DB280, ?)
-> -001|prepare_lock_switch(inline)
-> -001|context_switch(inline)
-> -001|__schedule(?)
-> -002|schedule()
-> -003|schedule_timeout(timeout = 9223372036854775807)
-> -004|do_wait_for_common(x = 0xFFFFFFC660447570,
-> action = 0xFFFFFF98ED5A7398, timeout = 9223372036854775807, ?)
-> -005|spin_unlock_irq(inline)
-> -005|__wait_for_common(inline)
-> -005|wait_for_common(inline)
-> -005|wait_for_completion(x = 0xFFFFFFC660447570)
-> -006|sg_clean(inline)
-> -006|usb_sg_wait()
-> -007|atomic64_andnot(inline)
-> -007|atomic_long_andnot(inline)
-> -007|clear_bit(inline)
-> -007|usb_stor_bulk_transfer_sglist(us = 0xFFFFFFC660447460,
-> pipe = 3221291648, sg = 0xFFFFFFC65D6415D0, ?, length = 512,
-> act_len = 0xFFFFFF801258BC90)
+On Tue, Oct 13, 2020 at 4:57 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Oct 13, 2020 at 04:33:38PM +0800, Ben Chuang wrote:
+> > On Tue, Oct 13, 2020 at 4:00 PM Greg KH <gregkh@linuxfoundation.org> wr=
+ote:
+> > >
+> > > On Tue, Oct 13, 2020 at 03:46:00PM +0800, Ben Chuang wrote:
+> > > > From: Ben Chuang <ben.chuang@genesyslogic.com.tw>
+> > > >
+> > > > commit 786d33c887e15061ff95942db68fe5c6ca98e5fc upstream.
+> > > >
+> > > > Set SDR104's clock to 205MHz and enable SSC for GL9750 and GL9755
+> > > >
+> > > > Signed-off-by: Ben Chuang <ben.chuang@genesyslogic.com.tw>
+> > > > Link: https://lore.kernel.org/r/20200717033350.13006-1-benchuanggli=
+@gmail.com
+> > > > Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> > > > Cc: <stable@vger.kernel.org> # 5.4.x
+> > > > ---
+> > > > Hi Greg and Sasha,
+> > > >
+> > > > The patch is to improve the EMI of the hardware.
+> > > > So it should be also required for some hardware devices using the v=
+5.4.
+> > > > Please tell me if have other questions.
+> > >
+> > > This looks like a "add support for new hardware" type of patch, right=
+?
+> >
+> > No, this is for a mass production hardware.
+>
+> That does not make sense, sorry.
+>
+> Is this a bug that is being fixed, did the hardware work properly before
+> 5.4 and now it does not?  Or has it never worked properly and 5.9 is the
+> first kernel that it now works on?
 
-No need to line-wrap for stuff like this.
+It seems there is misunderstanding regarding =E2=80=9Chardware=E2=80=9D mea=
+ns.
+I originally thought that the "hardware" refers to GL975x chips.
 
+This Genesys patch is to fix the EMI problem for GL975x controller on a sys=
+tem.
+There is a new Linux-based system now in development stage build in
+the GL975x controller
+encounter the EMI problem due to the Kernel 5.4 do not support Genesys
+patch for EMI.
+Hence we would like to add the patch to Kernel 5.4.
 
+>
+> > There are still some customer cases using v5.4 LTS hence we need to
+> > add the patch for v5.4 LTS.
+>
+> Your customer problems are not the upstream kernel's problems, this is
+> why they pay you :)
 
-> -008|scsi_bufflen(inline)
-> -008|usb_stor_bulk_srb(inline)
-> -008|usb_stor_Bulk_transport(srb = 0xFFFFFFC65D641438,
-> us = 0xFFFFFFC660447460)
-> -009|test_bit(inline)
-> -009|usb_stor_invoke_transport(srb = 0xFFFFFFC65D641438,
-> us = 0xFFFFFFC660447460)
-> -010|usb_stor_transparent_scsi_command(?, ?)
-> -011|usb_stor_control_thread(__us = 0xFFFFFFC660447460)  //us->dev_mutex
-> -012|kthread(_create = 0xFFFFFFC6604C5E80)
-> -013|ret_from_fork(asm)
->  ---|end of frame
-> 
-> Below is the call stack of the task which trying to acquire the same
-> mutex(0xFFFFFFC660447460) in the error handling path.
-> 
-> B::v.f_/task_0xFFFFFFC6609AA1C0
-> -000|__switch_to(prev = 0xFFFFFFC6609AA1C0, ?)
-> -001|prepare_lock_switch(inline)
-> -001|context_switch(inline)
-> -001|__schedule(?)
-> -002|schedule()
-> -003|schedule_preempt_disabled()
-> -004|__mutex_lock_common(lock = 0xFFFFFFC660447460, state = 2, ?, ?, ?,
-> ?, ?)
-> -005|__mutex_lock_slowpath(?)
-> -006|__cmpxchg_acq(inline)
-> -006|__mutex_trylock_fast(inline)
-> -006|mutex_lock(lock = 0xFFFFFFC660447460)   //us->dev_mutex
-> -007|device_reset(?)
-> -008|scsi_try_bus_device_reset(inline)
-> -008|scsi_eh_bus_device_reset(inline)
-> -008|scsi_eh_ready_devs(shost = 0xFFFFFFC660446C80,
-> work_q = 0xFFFFFF80191C3DE8, done_q = 0xFFFFFF80191C3DD8)
-> -009|scsi_error_handler(data = 0xFFFFFFC660446C80)
-> -010|kthread(_create = 0xFFFFFFC66042C080)
-> -011|ret_from_fork(asm)
->  ---|end of frame
-> 
-> Fix this by adding 5 seconds timeout while waiting for completion.
-> 
-> Fixes: 3e35bf39e (USB: fix codingstyle issues in drivers/usb/core/message.c)
+Thanks for  your reminder :)
 
-Please read the documentation for how to properly add a Fixes: line
-(hint, your sha1 isn't big enough.)
+>
+> Have you read the stable kernel rules:
+>     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.ht=
+ml
+>
+> What category does this patch fall into?
 
-And does this really "fix" a commit that chnaged the coding style?  I
-doubt that...
+Hmm. I think It fixes an EMI issue of hardware (system).
 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Pratham Pratap <prathampratap@codeaurora.org>
-> ---
->  drivers/usb/core/message.c | 12 ++++++++----
->  1 file changed, 8 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-> index ae1de9c..b1e839c 100644
-> --- a/drivers/usb/core/message.c
-> +++ b/drivers/usb/core/message.c
-> @@ -515,15 +515,13 @@ EXPORT_SYMBOL_GPL(usb_sg_init);
->   */
->  void usb_sg_wait(struct usb_sg_request *io)
->  {
-> -	int i;
-> +	int i, retval;
->  	int entries = io->entries;
->  
->  	/* queue the urbs.  */
->  	spin_lock_irq(&io->lock);
->  	i = 0;
->  	while (i < entries && !io->status) {
-> -		int retval;
-> -
->  		io->urbs[i]->dev = io->dev;
->  		spin_unlock_irq(&io->lock);
->  
-> @@ -569,7 +567,13 @@ void usb_sg_wait(struct usb_sg_request *io)
->  	 * So could the submit loop above ... but it's easier to
->  	 * solve neither problem than to solve both!
->  	 */
-> -	wait_for_completion(&io->complete);
-> +	retval = wait_for_completion_timeout(&io->complete,
-> +						msecs_to_jiffies(5000));
+>
+> thanks,
+>
+> greg k-h
 
-Where did you pick 5 seconds from?  Are you sure that will work
-properly?  What about devices with very long i/o stalls when data is
-being flushed out, are you sure this will not trigger there?
-
-> +	if (retval == 0) {
-> +		dev_err(&io->dev->dev, "%s, timed out while waiting for io_complete\n",
-> +				__func__);
-> +		usb_sg_cancel(io);
-
-So this is cancelled, but how does userspace know the error happened and
-it was a timeout?
-
-thanks,
-
-greg k-h
+Best regards,
+Ben
