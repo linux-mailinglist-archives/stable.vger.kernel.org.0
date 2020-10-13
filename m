@@ -2,56 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6045A28D12D
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 17:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F2F28D17B
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 17:48:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730923AbgJMPY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Oct 2020 11:24:28 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:33839 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1726657AbgJMPY1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Oct 2020 11:24:27 -0400
-Received: (qmail 673224 invoked by uid 1000); 13 Oct 2020 11:24:26 -0400
-Date:   Tue, 13 Oct 2020 11:24:26 -0400
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     Pratham Pratap <prathampratap@codeaurora.org>
-Cc:     gregkh@linuxfoundation.org, rafael.j.wysocki@intel.com,
-        mathias.nyman@linux.intel.com, andriy.shevchenko@linux.intel.com,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sallenki@codeaurora.org, mgautam@codeaurora.org,
-        jackp@codeaurora.org, stable@vger.kernel.org
-Subject: Re: [PATCH] usb: core: Don't wait for completion of urbs
-Message-ID: <20201013152426.GB670875@rowland.harvard.edu>
-References: <1602586022-13239-1-git-send-email-prathampratap@codeaurora.org>
+        id S1731282AbgJMPsY convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 13 Oct 2020 11:48:24 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:62602 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1731256AbgJMPsW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Oct 2020 11:48:22 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 22704345-1500050 
+        for multiple; Tue, 13 Oct 2020 16:47:49 +0100
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1602586022-13239-1-git-send-email-prathampratap@codeaurora.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20201007120329.17076-1-ville.syrjala@linux.intel.com>
+References: <20201007120329.17076-1-ville.syrjala@linux.intel.com>
+Subject: Re: [PATCH 1/3] drm/i915: Mark ininitial fb obj as WT on eLLC machines to avoid rcu lockup during fbdev init
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     stable@vger.kernel.org
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>,
+        intel-gfx@lists.freedesktop.org
+Date:   Tue, 13 Oct 2020 16:47:49 +0100
+Message-ID: <160260406924.2946.14780529118115559847@build.alporthouse.com>
+User-Agent: alot/0.9
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 13, 2020 at 04:17:02PM +0530, Pratham Pratap wrote:
-> Consider a case where host is trying to submit urbs to the
-> connected device while holding the us->dev_mutex and due to
-> some reason it is stuck while waiting for the completion of
-> the urbs. Now the scsi error mechanism kicks in and it calls
+See subject, s/ininitial/iniital/
 
-Are you talking about usb-storage?  You should describe the context 
-better -- judging by the patch title, it looks like you're talking 
-about a core driver instead.
+Quoting Ville Syrjala (2020-10-07 13:03:27)
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> 
+> Currently we leave the cache_level of the initial fb obj
+> set to NONE. This means on eLLC machines the first pin_to_display()
+> will try to switch it to WT which requires a vma unbind+bind.
+> If that happens during the fbdev initialization rcu does not
+> seem operational which causes the unbind to get stuck. To
+> most appearances this looks like a dead machine on boot.
+> 
+> Avoid the unbind by already marking the object cache_level
+> as WT when creating it. We still do an excplicit ggtt pin
+> which will rewrite the PTEs anyway, so they will match whatever
+> cache level we set.
+> 
+> Cc: <stable@vger.kernel.org> # v5.7+
+> Suggested-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2381
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> ---
+>  drivers/gpu/drm/i915/display/intel_display.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+> index 907e1d155443..00c08600c60a 100644
+> --- a/drivers/gpu/drm/i915/display/intel_display.c
+> +++ b/drivers/gpu/drm/i915/display/intel_display.c
+> @@ -3445,6 +3445,14 @@ initial_plane_vma(struct drm_i915_private *i915,
+>         if (IS_ERR(obj))
+>                 return NULL;
+>  
+> +       /*
+> +        * Mark it WT ahead of time to avoid changing the
+> +        * cache_level during fbdev initialization. The
+> +        * unbind there would get stuck waiting for rcu.
+> +        */
+> +       i915_gem_object_set_cache_coherency(obj, HAS_WT(i915) ?
+> +                                           I915_CACHE_WT : I915_CACHE_NONE);
 
-> the device reset handler which is trying to acquire the same
-> mutex causing a deadlock situation.
+Ok, I've been worrying about whether there were any more side-effects,
+but I think it all comes out in the wash. The proof is definitely in the
+eating, and we will know soon enough if we break someone's virtual
+terminal.
 
-That isn't supposed to happen.  The SCSI error handler should always 
-cancel all the outstanding commands before invoking the device reset 
-handler.  Cancelling the commands will cause the URBs to complete.
-
-If you found a test case where this doesn't happen, it probably means 
-there's a bug in the SCSI core code or the USB host controller driver.  
-That bug should be fixed; don't introduce random timeout values to try 
-and work around it.
-
-Alan Stern
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+-Chris
