@@ -2,120 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1F9E28C67C
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 02:50:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 555EF28C691
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 03:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727936AbgJMAup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Oct 2020 20:50:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50678 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727917AbgJMAup (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 20:50:45 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B27C0613D0
-        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 17:50:43 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id c20so4819360pfr.8
-        for <stable@vger.kernel.org>; Mon, 12 Oct 2020 17:50:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=V8H1guCZcvYrPjCpSevzD8p74oXausvzkyNlIsC3xx8=;
-        b=Ubso2DlXqsrqj3i1JL51SOy+zTeZ8ipc6cETvQ1V7egj3ma6oVzIO81FfyY4Zfexs5
-         U1XNFh0L4qnToqkUClkN7udbSWu1jpvKIaZwpZFJG+MDgL2HdSjVrYEWuDy9zq/mBAb6
-         KxT07SBZaB4di5F8LAINSxbRIR+Pu5F55a0QmjqrMUyhUm+cLsrpJZLEjvBWkcr7HeuA
-         el5cvPIDc9dCRIiTYKEe7nKG3L4nVXukKcvm1aGl5Zg/Y15x/FI4qL6r/T/aIderIxUI
-         /Azbdz7UM57GzMAGffeJOWRxkwwP2+eadSfR1/UmzOZCLywz5f+VOXjuXird6lHa5rdz
-         mP1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=V8H1guCZcvYrPjCpSevzD8p74oXausvzkyNlIsC3xx8=;
-        b=el1GWcKTpgbpaxMQqNTIJeZJNxY/IYim5TVumtflrylLZtWYSkyHHfdbBphTAObvxr
-         yfU6ILVmjTW+ZA+Zx9JrQpl0DRZOinMLD5fsGazNTaZrw20jbr4cknBtOrQh1IMkePk+
-         GCMD9PFIgqe6IQaeANWzpl9Fp1O7Fprob0F4Q5FlULY0K/NJErCvKDme7zMnZcs8bqJ9
-         w8/WgTpDAWInKw9ioLvnG70vHCuH3QWfmPkujLigPLX/4u83Wb6mfGQDugj6qsfi0SZ6
-         fhMrQX1y0qOU32h8cdNCmCPIoC23ZzHXkzDRQWADBBesTuHvAurNkc2o3yl4sBMQmc8Y
-         v1TQ==
-X-Gm-Message-State: AOAM5333BHKDiWFVSD8LJkiyJH7ChulygDbAOdXe7BV0iHv0gl2zumgM
-        2T/bwKhS4RP927PkAdT0ANoL7V7/WLgrCA==
-X-Google-Smtp-Source: ABdhPJynM83WJndTFhp+1u5PIMJRb0I/KszkDYcG+gV2ZMtoyk7NFCM5w/HrIxH4lt77hLIySs/0Vw==
-X-Received: by 2002:a62:7749:0:b029:152:9d3b:c85e with SMTP id s70-20020a6277490000b02901529d3bc85emr25290623pfc.16.1602550243050;
-        Mon, 12 Oct 2020 17:50:43 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id lb13sm1454470pjb.5.2020.10.12.17.50.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2020 17:50:42 -0700 (PDT)
-Message-ID: <5f84f9e2.1c69fb81.acaa0.467f@mx.google.com>
-Date:   Mon, 12 Oct 2020 17:50:42 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728009AbgJMBDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Oct 2020 21:03:42 -0400
+Received: from bedivere.hansenpartnership.com ([96.44.175.130]:43932 "EHLO
+        bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727950AbgJMBDm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Oct 2020 21:03:42 -0400
+X-Greylist: delayed 335 seconds by postgrey-1.27 at vger.kernel.org; Mon, 12 Oct 2020 21:03:41 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by bedivere.hansenpartnership.com (Postfix) with ESMTP id 71CD71280606;
+        Mon, 12 Oct 2020 17:58:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
+        s=20151216; t=1602550686;
+        bh=nbQ1CDoSn294pE1sw8CK2+ECGhZdnj5Vl/PP6DgpkMA=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=TBcwAfss8IXbR6MoAvkjSpxA9lUvtg0gX7/IYm0MwF9BTgrP3r5l/owiN7qssYN5q
+         0q9yK4BAod5msY69rQAjkKeGClagHI0FGuLXWKVYWYdzgZ8HbRN/HyzuV/rNAPk4TU
+         odtrTwXJr6gNHw7Sgt6VXRc5goYeFKQct/92VSWw=
+Received: from bedivere.hansenpartnership.com ([127.0.0.1])
+        by localhost (bedivere.hansenpartnership.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id aYc40rcVWBG3; Mon, 12 Oct 2020 17:58:06 -0700 (PDT)
+Received: from jarvis.int.hansenpartnership.com (c-73-35-198-56.hsd1.wa.comcast.net [73.35.198.56])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by bedivere.hansenpartnership.com (Postfix) with ESMTPSA id 3F3A812805AB;
+        Mon, 12 Oct 2020 17:58:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
+        s=20151216; t=1602550686;
+        bh=nbQ1CDoSn294pE1sw8CK2+ECGhZdnj5Vl/PP6DgpkMA=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=TBcwAfss8IXbR6MoAvkjSpxA9lUvtg0gX7/IYm0MwF9BTgrP3r5l/owiN7qssYN5q
+         0q9yK4BAod5msY69rQAjkKeGClagHI0FGuLXWKVYWYdzgZ8HbRN/HyzuV/rNAPk4TU
+         odtrTwXJr6gNHw7Sgt6VXRc5goYeFKQct/92VSWw=
+Message-ID: <b56dd2e9f3934e24f08005b9c5588c54b4837ff6.camel@HansenPartnership.com>
+Subject: Re: [PATCH v3 3/3] KEYS: trusted: Reserve TPM for seal and unseal
+ operations
+From:   James Bottomley <James.Bottomley@HansenPartnership.com>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        linux-integrity@vger.kernel.org
+Cc:     David Howells <dhowells@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>, stable@vger.kernel.org,
+        Sumit Garg <sumit.garg@linaro.org>,
+        kernel test robot <lkp@intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Alexey Klimov <aklimov@redhat.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        "open list:KEYS-TRUSTED" <keyrings@vger.kernel.org>,
+        "open list:SECURITY SUBSYSTEM" 
+        <linux-security-module@vger.kernel.org>
+Date:   Mon, 12 Oct 2020 17:58:04 -0700
+In-Reply-To: <20201013002815.40256-4-jarkko.sakkinen@linux.intel.com>
+References: <20201013002815.40256-1-jarkko.sakkinen@linux.intel.com>
+         <20201013002815.40256-4-jarkko.sakkinen@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.4 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.238-55-g132affe7fbd6
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.9.y baseline: 114 runs,
- 1 regressions (v4.9.238-55-g132affe7fbd6)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 114 runs, 1 regressions (v4.9.238-55-g132af=
-fe7fbd6)
+On Tue, 2020-10-13 at 03:28 +0300, Jarkko Sakkinen wrote:
+[...]
+> diff --git a/include/linux/tpm.h b/include/linux/tpm.h
+> index 8f4ff39f51e7..f0ebce14d2f8 100644
+> --- a/include/linux/tpm.h
+> +++ b/include/linux/tpm.h
+> @@ -397,6 +397,10 @@ static inline u32 tpm2_rc_value(u32 rc)
+>  #if defined(CONFIG_TCG_TPM) || defined(CONFIG_TCG_TPM_MODULE)
+>  
+>  extern int tpm_is_tpm2(struct tpm_chip *chip);
+> +extern __must_check int tpm_try_get_ops(struct tpm_chip *chip);
+> +extern void tpm_put_ops(struct tpm_chip *chip);
+> +extern ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct
+> tpm_buf *buf,
+> +				size_t min_rsp_body_length, const char
+> *desc);
+>  extern int tpm_pcr_read(struct tpm_chip *chip, u32 pcr_idx,
+>  			struct tpm_digest *digest);
+>  extern int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx,
+> @@ -410,7 +414,18 @@ static inline int tpm_is_tpm2(struct tpm_chip
+> *chip)
+>  {
+>  	return -ENODEV;
+>  }
+> -
+> +static inline int tpm_try_get_ops(struct tpm_chip *chip)
+> +{
+> +	return -ENODEV;
+> +}
+> +static inline void tpm_put_ops(struct tpm_chip *chip)
+> +{
+> +}
+> +static inline ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct
+> tpm_buf *buf,
+> +				       size_t min_rsp_body_length,
+> const char *desc)
+> +{
+> +	return -ENODEV;
+> +}
+>  static inline int tpm_pcr_read(struct tpm_chip *chip, int pcr_idx,
 
-Regressions Summary
--------------------
+I don't think we want this, do we?  That's only for API access which
+should be available when the TPM isn't selected.  Given that get/put
+are TPM critical operations, they should only appear when inside code
+where the TPM has already been selected.  If they appear outside TPM
+selected code, I think we want the compile to fail, which is why we
+don't want these backup definitions.
 
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.238-55-g132affe7fbd6/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.238-55-g132affe7fbd6
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      132affe7fbd620235ac2d7fefa7051090b58f392 =
+James
 
 
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f84bed59130dfb2a34ff409
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.238=
--55-g132affe7fbd6/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.238=
--55-g132affe7fbd6/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f84bed59130dfb=
-2a34ff410
-      failing since 7 days (last pass: v4.9.238, first fail: v4.9.238-23-g3=
-14770acbbde)
-      2 lines  =20
