@@ -2,86 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC67528CD2B
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 13:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E5AE28CF71
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 15:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727932AbgJML53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Oct 2020 07:57:29 -0400
-Received: from mga06.intel.com ([134.134.136.31]:34936 "EHLO mga06.intel.com"
+        id S1728784AbgJMNsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Oct 2020 09:48:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727659AbgJMLys (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Oct 2020 07:54:48 -0400
-IronPort-SDR: Scd0mm16A64LiqS+eh/1r45Ks+uPMg4iDIj6ll6VrSgdDmHP1qn3zi/o32A7o15W0FRGPMPBpQ
- q8RPUMgy8j5A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9772"; a="227534122"
-X-IronPort-AV: E=Sophos;i="5.77,370,1596524400"; 
-   d="scan'208";a="227534122"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Oct 2020 04:54:48 -0700
-IronPort-SDR: F944B7h/7nzU6a6i3JexdZZDLrmZFFivxWDYZzRvDVoPCqI8W1H5uWlgmxy/W1luG63OD/pXOu
- 8GdFE1RXTNJA==
-X-IronPort-AV: E=Sophos;i="5.77,370,1596524400"; 
-   d="scan'208";a="356131387"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Oct 2020 04:54:44 -0700
-Received: from andy by smile with local (Exim 4.94)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1kSIuA-005nGI-Dq; Tue, 13 Oct 2020 14:55:46 +0300
-Date:   Tue, 13 Oct 2020 14:55:46 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Pratham Pratap <prathampratap@codeaurora.org>
-Cc:     gregkh@linuxfoundation.org, stern@rowland.harvard.edu,
-        rafael.j.wysocki@intel.com, mathias.nyman@linux.intel.com,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        sallenki@codeaurora.org, mgautam@codeaurora.org,
-        jackp@codeaurora.org, stable@vger.kernel.org
-Subject: Re: [PATCH] usb: core: Don't wait for completion of urbs
-Message-ID: <20201013115546.GM4077@smile.fi.intel.com>
-References: <1602586022-13239-1-git-send-email-prathampratap@codeaurora.org>
+        id S1727292AbgJMNsN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Oct 2020 09:48:13 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 107B52474E;
+        Tue, 13 Oct 2020 13:48:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1602596892;
+        bh=Vc6zC/HFdE19SlF19xRJgWbFPBOASS38GINE+YRuMAI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zy5dTpuYnxWR1H2EvH7+RSdLWBYRYICo8XB++ifx6UX5S5rDC+PvjowmBHoILOqol
+         n78kYHGEPp58i875ZGy8+RV2Huyzy37Dewfm/C95wsETEeD4Zu9wbqyPwrADWLYY4U
+         7IPhPk7zAtOpxW40pFg+DOwgPkCas65/5Y95/biQ=
+Date:   Tue, 13 Oct 2020 15:48:49 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ben Chuang <benchuanggli@gmail.com>
+Cc:     sashal@kernel.org, stable@vger.kernel.org,
+        Ben Chuang <ben.chuang@genesyslogic.com.tw>,
+        greg.tu@genesyslogic.com.tw, seanhy.chen@genesyslogic.com.tw,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: Re: [PATCH] mmc: sdhci-pci-gli: Set SDR104's clock to 205MHz and
+ enable SSC for GL975x
+Message-ID: <20201013134849.GA1968052@kroah.com>
+References: <20201013074600.9784-1-benchuanggli@gmail.com>
+ <20201013080105.GA1681211@kroah.com>
+ <CACT4zj8xjeRFnXekojFseHUTqouRwCwmXsCFVMWA+jhnW-DaDQ@mail.gmail.com>
+ <20201013085806.GB1681211@kroah.com>
+ <CACT4zj-ShpspM0PNA_Q4fkEAubiTfp_rxcZ6FkQgcKoYx7WaNA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1602586022-13239-1-git-send-email-prathampratap@codeaurora.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CACT4zj-ShpspM0PNA_Q4fkEAubiTfp_rxcZ6FkQgcKoYx7WaNA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 13, 2020 at 04:17:02PM +0530, Pratham Pratap wrote:
+On Tue, Oct 13, 2020 at 07:11:13PM +0800, Ben Chuang wrote:
+> On Tue, Oct 13, 2020 at 4:57 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Tue, Oct 13, 2020 at 04:33:38PM +0800, Ben Chuang wrote:
+> > > On Tue, Oct 13, 2020 at 4:00 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > On Tue, Oct 13, 2020 at 03:46:00PM +0800, Ben Chuang wrote:
+> > > > > From: Ben Chuang <ben.chuang@genesyslogic.com.tw>
+> > > > >
+> > > > > commit 786d33c887e15061ff95942db68fe5c6ca98e5fc upstream.
+> > > > >
+> > > > > Set SDR104's clock to 205MHz and enable SSC for GL9750 and GL9755
+> > > > >
+> > > > > Signed-off-by: Ben Chuang <ben.chuang@genesyslogic.com.tw>
+> > > > > Link: https://lore.kernel.org/r/20200717033350.13006-1-benchuanggli@gmail.com
+> > > > > Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> > > > > Cc: <stable@vger.kernel.org> # 5.4.x
+> > > > > ---
+> > > > > Hi Greg and Sasha,
+> > > > >
+> > > > > The patch is to improve the EMI of the hardware.
+> > > > > So it should be also required for some hardware devices using the v5.4.
+> > > > > Please tell me if have other questions.
+> > > >
+> > > > This looks like a "add support for new hardware" type of patch, right?
+> > >
+> > > No, this is for a mass production hardware.
+> >
+> > That does not make sense, sorry.
+> >
+> > Is this a bug that is being fixed, did the hardware work properly before
+> > 5.4 and now it does not?  Or has it never worked properly and 5.9 is the
+> > first kernel that it now works on?
+> 
+> It seems there is misunderstanding regarding “hardware” means.
+> I originally thought that the "hardware" refers to GL975x chips.
+> 
+> This Genesys patch is to fix the EMI problem for GL975x controller on a system.
 
-...
+Did it work on the 4.19 kernel?  Another older kernel?  Or is 5.9 the
+first kernel release where it works?
 
-> Fixes: 3e35bf39e (USB: fix codingstyle issues in drivers/usb/core/message.c)
+In other words, is this fixing a regression, or just enabling hardware
+support for something that has never worked before for this hardware?
 
-Two hints how to use Git with Linux kernel development.
+> There is a new Linux-based system now in development stage build in
+> the GL975x controller
+> encounter the EMI problem due to the Kernel 5.4 do not support Genesys
+> patch for EMI.
+> Hence we would like to add the patch to Kernel 5.4.
 
-First is about what Greg pointed out, i.e. proper Fixes line.
+Why not just use 5.9 for this system?
 
-Add to your ~/.gitconfig the following:
+thanks,
 
-	[core]
-		abbrev = 12
-
-	[alias]
-		one = show -s --pretty='format:%h (\"%s\")'
-
-In result you may run
-
-	git one 3e35bf39e
-
-and use the output.
-
-Second one is about Cc list. I recommend to use
-
-	scripts/get_maintainer.pl --git --git-min-percent=67
-
-to retrieve it.
-
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+greg k-h
