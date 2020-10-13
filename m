@@ -2,104 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E5AE28CF71
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 15:48:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB8D28CFFA
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 16:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728784AbgJMNsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Oct 2020 09:48:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45506 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727292AbgJMNsN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Oct 2020 09:48:13 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 107B52474E;
-        Tue, 13 Oct 2020 13:48:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602596892;
-        bh=Vc6zC/HFdE19SlF19xRJgWbFPBOASS38GINE+YRuMAI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zy5dTpuYnxWR1H2EvH7+RSdLWBYRYICo8XB++ifx6UX5S5rDC+PvjowmBHoILOqol
-         n78kYHGEPp58i875ZGy8+RV2Huyzy37Dewfm/C95wsETEeD4Zu9wbqyPwrADWLYY4U
-         7IPhPk7zAtOpxW40pFg+DOwgPkCas65/5Y95/biQ=
-Date:   Tue, 13 Oct 2020 15:48:49 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ben Chuang <benchuanggli@gmail.com>
-Cc:     sashal@kernel.org, stable@vger.kernel.org,
-        Ben Chuang <ben.chuang@genesyslogic.com.tw>,
-        greg.tu@genesyslogic.com.tw, seanhy.chen@genesyslogic.com.tw,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH] mmc: sdhci-pci-gli: Set SDR104's clock to 205MHz and
- enable SSC for GL975x
-Message-ID: <20201013134849.GA1968052@kroah.com>
-References: <20201013074600.9784-1-benchuanggli@gmail.com>
- <20201013080105.GA1681211@kroah.com>
- <CACT4zj8xjeRFnXekojFseHUTqouRwCwmXsCFVMWA+jhnW-DaDQ@mail.gmail.com>
- <20201013085806.GB1681211@kroah.com>
- <CACT4zj-ShpspM0PNA_Q4fkEAubiTfp_rxcZ6FkQgcKoYx7WaNA@mail.gmail.com>
+        id S2388506AbgJMOOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Oct 2020 10:14:24 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:33820 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388488AbgJMOOX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Oct 2020 10:14:23 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id EE30A1C0B77; Tue, 13 Oct 2020 16:14:21 +0200 (CEST)
+Date:   Tue, 13 Oct 2020 16:14:21 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Marek Szyprowski <m.szyprowski@samsung.com>
+Cc:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Yu Kuai <yukuai3@huawei.com>, Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 27/38] iommu/exynos: add missing put_device() call
+ in exynos_iommu_of_xlate()
+Message-ID: <20201013141421.GA22886@duo.ucw.cz>
+References: <20201005142108.650363140@linuxfoundation.org>
+ <20201005142109.977461657@linuxfoundation.org>
+ <CGME20201007095256eucas1p150311eeced01b2cc66f6a9ef7061e6ff@eucas1p1.samsung.com>
+ <20201007094737.GA12593@duo.ucw.cz>
+ <5b869c86-8d35-e834-4fec-6b63a942e484@samsung.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CACT4zj-ShpspM0PNA_Q4fkEAubiTfp_rxcZ6FkQgcKoYx7WaNA@mail.gmail.com>
+In-Reply-To: <5b869c86-8d35-e834-4fec-6b63a942e484@samsung.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 13, 2020 at 07:11:13PM +0800, Ben Chuang wrote:
-> On Tue, Oct 13, 2020 at 4:57 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+> >> From: Yu Kuai <yukuai3@huawei.com>
+> >>
+> >> [ Upstream commit 1a26044954a6d1f4d375d5e62392446af663be7a ]
+> >>
+> >> if of_find_device_by_node() succeed, exynos_iommu_of_xlate() doesn't h=
+ave
+> >> a corresponding put_device(). Thus add put_device() to fix the excepti=
+on
+> >> handling for this function implementation.
+> > Okay, this looks reasonable, but...
 > >
-> > On Tue, Oct 13, 2020 at 04:33:38PM +0800, Ben Chuang wrote:
-> > > On Tue, Oct 13, 2020 at 4:00 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > On Tue, Oct 13, 2020 at 03:46:00PM +0800, Ben Chuang wrote:
-> > > > > From: Ben Chuang <ben.chuang@genesyslogic.com.tw>
-> > > > >
-> > > > > commit 786d33c887e15061ff95942db68fe5c6ca98e5fc upstream.
-> > > > >
-> > > > > Set SDR104's clock to 205MHz and enable SSC for GL9750 and GL9755
-> > > > >
-> > > > > Signed-off-by: Ben Chuang <ben.chuang@genesyslogic.com.tw>
-> > > > > Link: https://lore.kernel.org/r/20200717033350.13006-1-benchuanggli@gmail.com
-> > > > > Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> > > > > Cc: <stable@vger.kernel.org> # 5.4.x
-> > > > > ---
-> > > > > Hi Greg and Sasha,
-> > > > >
-> > > > > The patch is to improve the EMI of the hardware.
-> > > > > So it should be also required for some hardware devices using the v5.4.
-> > > > > Please tell me if have other questions.
-> > > >
-> > > > This looks like a "add support for new hardware" type of patch, right?
-> > >
-> > > No, this is for a mass production hardware.
-> >
-> > That does not make sense, sorry.
-> >
-> > Is this a bug that is being fixed, did the hardware work properly before
-> > 5.4 and now it does not?  Or has it never worked properly and 5.9 is the
-> > first kernel that it now works on?
-> 
-> It seems there is misunderstanding regarding “hardware” means.
-> I originally thought that the "hardware" refers to GL975x chips.
-> 
-> This Genesys patch is to fix the EMI problem for GL975x controller on a system.
+> > Do we miss put_device() in normal path, too? I'd expect another
+> > put_device at end of exynos_iommu_of_xlate() or perhaps in release
+> > path somewhere...
+>=20
+> Frankly, there is no release path, so there is no need for put_device.=20
+> Once initialized, Exynos IOMMU stays in the system forever. There is no=
+=20
+> point to remove IOMMU nor the API for that. Keeping increased refcount=20
+> for its device just matches this behavior.
+>=20
+> If the missing put_device() is really a problem, then we can move it=20
+> from the error path just after data =3D platform_get_drvdata(sysmmu)=20
+> assignment. Feel free to send a patch if you think this is a more=20
+> appropriate approach.
 
-Did it work on the 4.19 kernel?  Another older kernel?  Or is 5.9 the
-first kernel release where it works?
+exynos_iommu_detach_device() looks like a place where resources could
+be freed? But if there's no release path, we don't really need to do anythi=
+ng.=20
 
-In other words, is this fixing a regression, or just enabling hardware
-support for something that has never worked before for this hardware?
+Sorry about the noise.
 
-> There is a new Linux-based system now in development stage build in
-> the GL975x controller
-> encounter the EMI problem due to the Kernel 5.4 do not support Genesys
-> patch for EMI.
-> Hence we would like to add the patch to Kernel 5.4.
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-Why not just use 5.9 for this system?
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature; name="signature.asc"
 
-thanks,
+-----BEGIN PGP SIGNATURE-----
 
-greg k-h
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX4W2PQAKCRAw5/Bqldv6
+8m7vAJ4iXq02bm6+RavPQxrGMERfz/4fsQCfQdFAYbgb57aGCx7w0yA3EfNXz4Y=
+=CDgo
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--
