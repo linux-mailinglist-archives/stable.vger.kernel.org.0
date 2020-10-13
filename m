@@ -2,98 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B894128CA4E
-	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 10:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BC0C28CA72
+	for <lists+stable@lfdr.de>; Tue, 13 Oct 2020 10:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390846AbgJMIdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Oct 2020 04:33:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37496 "EHLO
+        id S2403956AbgJMIqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Oct 2020 04:46:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390540AbgJMIdu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Oct 2020 04:33:50 -0400
-Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 949B8C0613D0
-        for <stable@vger.kernel.org>; Tue, 13 Oct 2020 01:33:50 -0700 (PDT)
-Received: by mail-yb1-xb42.google.com with SMTP id n65so11760668ybg.10
-        for <stable@vger.kernel.org>; Tue, 13 Oct 2020 01:33:50 -0700 (PDT)
+        with ESMTP id S2403884AbgJMIqY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Oct 2020 04:46:24 -0400
+Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56958C0613D0
+        for <stable@vger.kernel.org>; Tue, 13 Oct 2020 01:46:24 -0700 (PDT)
+Received: by mail-il1-x141.google.com with SMTP id l16so19616671ilt.13
+        for <stable@vger.kernel.org>; Tue, 13 Oct 2020 01:46:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=uhd5tajPl3p2EhRAOxhBLCa9aRjZCog0fqMGqUJWmCM=;
-        b=qIDn7OF/hyM3k838UwYegKn6w9NtHxWnD0yJx0cZAsSMDAXCgwdRVC5aunFKBFpI3a
-         HRtxvDqDoB62WyEmLLj7RJ68thkaa2LT0L1jgaP9xgfX2WzxdS+LZANTrwa27cq38rx/
-         apYLInCLOzo9QSkyJLKvhlTtZFHNSodOxgK8GW/tNo9xNFecGWn+nbfKS2NAYtsriPgP
-         w++ImeBDkccQDGDuzUYoTjYXfEUA+yCQ7g4QM0ibKvVSywIazAlNg1vG3wUGFj3FbfBQ
-         a2GaOmLdp88uODD7bNnT+zcwmY9uwRVV21x5h2Y1YLg1Px6vejdSmFwxZlK4lGchchMZ
-         FoRg==
+         :cc:content-transfer-encoding;
+        bh=inxASniRk+nKPwQE5RqwMS79wSDTalVbSDOYsROMjGU=;
+        b=zUwWbGL0KmDNH2kfOC2wq2piH6iJ+MHtTesnpM5Hm5g2zYrqmzxKFOkKcpI3x25PaH
+         SZ2Y20eGc4jFCIc71YeKfDzA6pMM04m5SLSiypMEAQySN1khCC8rzHGgqNyFX8Ol3gHY
+         m7pg4C58iJz/XEUmpF3G2SOMBJTfMvZPVZyPg2LbXOoJrWtOzFzPGWiyTyv0uNLMRyWQ
+         uJW6ik5C6xivO0a0UKzFkFxnvZnivJuWtAyWZJe/GinS9wQQhO+zD+TMzFDx/Sh6wHPg
+         /gORZBvZt7J0EFX+Vn4jvEA12HOP6HA/wjghntg+kaDWxs/Ed47EC7+yIGxyn/Dp3xH8
+         2FGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=uhd5tajPl3p2EhRAOxhBLCa9aRjZCog0fqMGqUJWmCM=;
-        b=oa43sEIxP8raYsT4eCrx+UNNuFDMq3uzEizMwKcFHZcR3rYoPB3ie9RVyz3LECDgTh
-         IU/615akC4O3y+xzYB5PL0zo4KEspoopIaqvmDGbMK9hHPQLIAzIn0EYMjnvd7d7d0po
-         Rvpjk+oNByjIcYLkd5+TW+S6BVA2X83k/G09z4NlEKLaf4InHT/mvMUqPgZmgq8r22LJ
-         OX5BQeITALvQCo467TOBYqHoGvnuBllumEAx0feXM2/5+QFb9PC43L8pZH5mDlPX+iic
-         sAZIzchKZSgGhGRegtwEkGpB0/SIkmTz97bsGPed+BMPUoOFoR8rlsJBu7Dgtq3IQnCu
-         7tIw==
-X-Gm-Message-State: AOAM531nLENNbQr8Kbh3YrGRa5hVfJua3cSX71i3ZvD1jevkBEYoNLsl
-        UApRunB63RUY8Z5SVBkV97obgu2OZNs1zY0Nf3c=
-X-Google-Smtp-Source: ABdhPJy1fnByeKpGO9MSWfwbt2WhoI5vU3M+KjmO2lXW1KqatJCIEdKl1EmU4ouJRAprdDZrQVswl1c5GSipz6y7HgI=
-X-Received: by 2002:a25:8546:: with SMTP id f6mr39649045ybn.476.1602578029866;
- Tue, 13 Oct 2020 01:33:49 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=inxASniRk+nKPwQE5RqwMS79wSDTalVbSDOYsROMjGU=;
+        b=Iyd4HSPB0RGiC0x8NktJBfNZgnc8kVqJ+NEHrYWvpOyp1gNT3gxW5OP95Dx1QyWz4Q
+         Eoj10fRiDfj+9EQnIi4vDukTasnnVXMh6Z+pgyAnpwUAbyTl/W6OCgyRpsfK3zrUfb/N
+         dZQhw/vsvnautJvQE+3SR5xFFDPOtJDFO6jpeHHXJEojVwwmK3CIUh105O3OATMoNaz3
+         wW0rMZLnR5Sc4rX+EoFdg5uVk+DrNAd8P4l1U2JqB4C4r1TS2miWdZ6CYQarucmnAL7+
+         u5pVpE/mMKoJnTtuPjbEzUoy/FoprplQOKPJI0u20egG6jD2PNZmak3B1ONwM71dEHJW
+         ieGQ==
+X-Gm-Message-State: AOAM530+4PXMEszgQV64F9r1hIzqH7QRE0yU5qQ1sO1fY1MZaOAEZwe0
+        ZF0z7jHyhrp+XzVbLHZtDAMO4+16mPQOXAbLKReHHA==
+X-Google-Smtp-Source: ABdhPJy32YaZGZqMwyirJbci3IlbfeRACXpCMzLMIYsB9mlyURbQD8gL/Jo+e5PYuS5Jdzwp6J72f9yb3bSvoHa1wHU=
+X-Received: by 2002:a05:6e02:4d:: with SMTP id i13mr2213600ilr.216.1602578783566;
+ Tue, 13 Oct 2020 01:46:23 -0700 (PDT)
 MIME-Version: 1.0
-References: <20201013074600.9784-1-benchuanggli@gmail.com> <20201013080105.GA1681211@kroah.com>
-In-Reply-To: <20201013080105.GA1681211@kroah.com>
-From:   Ben Chuang <benchuanggli@gmail.com>
-Date:   Tue, 13 Oct 2020 16:33:38 +0800
-Message-ID: <CACT4zj8xjeRFnXekojFseHUTqouRwCwmXsCFVMWA+jhnW-DaDQ@mail.gmail.com>
-Subject: Re: [PATCH] mmc: sdhci-pci-gli: Set SDR104's clock to 205MHz and
- enable SSC for GL975x
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     sashal@kernel.org, stable@vger.kernel.org,
-        Ben Chuang <ben.chuang@genesyslogic.com.tw>,
-        greg.tu@genesyslogic.com.tw, seanhy.chen@genesyslogic.com.tw,
-        Ulf Hansson <ulf.hansson@linaro.org>
+References: <20201012132628.130632267@linuxfoundation.org>
+In-Reply-To: <20201012132628.130632267@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 13 Oct 2020 14:16:11 +0530
+Message-ID: <CA+G9fYu61UPujPUSwH4bviWuQdYRty5jbyTmAeTvn92iEVCLEw@mail.gmail.com>
+Subject: Re: [PATCH 4.4 00/39] 4.4.239-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 13, 2020 at 4:00 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Mon, 12 Oct 2020 at 19:03, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On Tue, Oct 13, 2020 at 03:46:00PM +0800, Ben Chuang wrote:
-> > From: Ben Chuang <ben.chuang@genesyslogic.com.tw>
-> >
-> > commit 786d33c887e15061ff95942db68fe5c6ca98e5fc upstream.
-> >
-> > Set SDR104's clock to 205MHz and enable SSC for GL9750 and GL9755
-> >
-> > Signed-off-by: Ben Chuang <ben.chuang@genesyslogic.com.tw>
-> > Link: https://lore.kernel.org/r/20200717033350.13006-1-benchuanggli@gmail.com
-> > Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> > Cc: <stable@vger.kernel.org> # 5.4.x
-> > ---
-> > Hi Greg and Sasha,
-> >
-> > The patch is to improve the EMI of the hardware.
-> > So it should be also required for some hardware devices using the v5.4.
-> > Please tell me if have other questions.
+> This is the start of the stable review cycle for the 4.4.239 release.
+> There are 39 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> This looks like a "add support for new hardware" type of patch, right?
-
-No, this is for a mass production hardware.
-There are still some customer cases using v5.4 LTS hence we need to
-add the patch for v5.4 LTS.
-
+> Responses should be made by Wed, 14 Oct 2020 13:26:14 +0000.
+> Anything received after that time might be too late.
 >
-> If so, why not just use the 5.9 or newer kernel?  This is really big for
-> a stable patch.
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.4.239-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.4.y
+> and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
 
-Best regards,
-Ben
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.239-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.4.y
+git commit: 36437aaa551298340a942cd706837e40efdae9c3
+git describe: v4.4.238-40-g36437aaa5512
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.=
+y/build/v4.4.238-40-g36437aaa5512
+
+
+No regressions (compared to build v4.4.238)
+
+No fixes (compared to build v4.4.238)
+
+Ran 15013 total tests in the following environments and test suites.
+
+Environments
+--------------
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* perf
+* v4l2-compliance
+* install-android-platform-tools-r2600
+* ssuite
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.239-rc1
+git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
+git branch: 4.4.239-rc1-hikey-20201012-828
+git commit: 018c0e7c8dc0d88c038fd4495aa01958e4bce669
+git describe: 4.4.239-rc1-hikey-20201012-828
+Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
+-oe/build/4.4.239-rc1-hikey-20201012-828
+
+
+No regressions (compared to build 4.4.239-rc1-hikey-20201011-826)
+
+No fixes (compared to build 4.4.239-rc1-hikey-20201011-826)
+
+Ran 1745 total tests in the following environments and test suites.
+
+Environments
+--------------
+- hi6220-hikey - arm64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
