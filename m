@@ -2,129 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 912A528E627
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 20:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 187F028E66F
+	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 20:32:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729462AbgJNSRN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 14:17:13 -0400
-Received: from mail-co1nam11on2104.outbound.protection.outlook.com ([40.107.220.104]:48793
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727114AbgJNSRN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Oct 2020 14:17:13 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=mJeZR1HxidMhgpNRdxG0LVsqh/+HY5uwutt4QFbyTry7zaKLc4pam+0a6IKjIz5Yn+XQtnbThXTRwD92yKA0VmhhDliaNVbCnl9carAfShJCbRkJ9lt47yWvRh7voRbvLMPKQ3t9bmKH7Pt7PJ5oj0DDlzdIyziCbSrWEGGoZQKzkDW3G2e6amL1KS2KQtyE8QgpWmpC3N2j4dcuuBL24kx7PQwcUDL62UwwLyrfELKP+TYEaR24TeJLBx+EEob6kgi8UhZEMvaf010R6VnNUzruJ7o9CISofLkVr0Z8ct1A3w5rTd4hrmfBYPhXqRFgjDeX4SloIFF+Jx2CvZazcg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vuwuZ7Ow/70Tk/xZiDO3Y9Yb6RbPkbqSK2pMVmeaWJA=;
- b=efXCbujDDcDhKBZXd5ts9cTjJ/L54trMS748bvpxIde8jUHSGwWzEdMU7N+vm86PuOXUcCb6tTnPVmUFTIHzbZhwcxd/pqJM8oKX267qkcke8MNlIWj+Y8HvBR52xH4vrtXrb8xv6OGGIjYQ0v/rnF9GqJ9p9+OBUXmCqiXryEEnrkJMnZTgvDXSlZGw9VPemJnp+P+8Pw9msU2hKENMF9dZ9d/naOxWAUi+TwNoYilWo1T0AG61zeeeUJ7mZnsx4QkvJ0qCiuxl4o6yIH+zZaVsH9ZZqV/EPaXtpmb5Lo1TsXElzcdJwRRYp22O29wguYwCDM+Wz3/FMut+N6nMwA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=hammerspace.com; dmarc=pass action=none
- header.from=hammerspace.com; dkim=pass header.d=hammerspace.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hammerspace.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vuwuZ7Ow/70Tk/xZiDO3Y9Yb6RbPkbqSK2pMVmeaWJA=;
- b=VO+gIhrpWOVj3dpcUxTTWZHZ9WyhgSgCYsqaZM5F5F+yM+P77g6ICWJnwJINmK/WUKtJC7AqNwqrzX5MGccUN9p5D4g86suPjy3vweq5paUlW9fX3Huu5PYr/hX9EuUwDmpU3IpXy0dFsaRyb1x8S0K9ifCjfXmTMsrmnjfV600=
-Received: from MN2PR13MB3957.namprd13.prod.outlook.com (2603:10b6:208:263::11)
- by MN2PR13MB3664.namprd13.prod.outlook.com (2603:10b6:208:19f::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3477.11; Wed, 14 Oct
- 2020 18:17:10 +0000
-Received: from MN2PR13MB3957.namprd13.prod.outlook.com
- ([fe80::e8a1:6acc:70f0:ef39]) by MN2PR13MB3957.namprd13.prod.outlook.com
- ([fe80::e8a1:6acc:70f0:ef39%7]) with mapi id 15.20.3477.019; Wed, 14 Oct 2020
- 18:17:10 +0000
-From:   Trond Myklebust <trondmy@hammerspace.com>
-To:     "ashishsangwan2@gmail.com" <ashishsangwan2@gmail.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
-        "anna.schumaker@netapp.com" <anna.schumaker@netapp.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] NFS: Fix mode bits and nlink count for v4 referral dirs
-Thread-Topic: [PATCH] NFS: Fix mode bits and nlink count for v4 referral dirs
-Thread-Index: AQHWm/OGeyO0BuEaoUK9JXx6hV8a+KmXdI6A
-Date:   Wed, 14 Oct 2020 18:17:10 +0000
-Message-ID: <2d1ff3421a88ece2f1b7708cdbc9d34b00ad3e81.camel@hammerspace.com>
-References: <20201006151456.20875-1-ashishsangwan2@gmail.com>
-In-Reply-To: <20201006151456.20875-1-ashishsangwan2@gmail.com>
-Accept-Language: en-US, en-GB
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: gmail.com; dkim=none (message not signed)
- header.d=none;gmail.com; dmarc=none action=none header.from=hammerspace.com;
-x-originating-ip: [68.36.133.222]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 933ea864-fc25-4606-4177-08d8706d5e26
-x-ms-traffictypediagnostic: MN2PR13MB3664:
-x-microsoft-antispam-prvs: <MN2PR13MB366440BB1935CD5734548D8CB8050@MN2PR13MB3664.namprd13.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2958;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: xENKoglYRxSlqiZQNYThvFgmovMqelpij45DZg2UVWVTt9ejAzwDqqFvnSvLiw9TBAwPaJ5fVm+UIeCHtNoN5WnN+klk9MdzmQvdeZ0vALCWfVfcC8dq7+9DGwE2qryf0G2py0vA7ys96TfAhTOmY4zTbvaRelpOCk4nn3wGbiRwJVt6CNztIsWJR+kOO1HPtqFJuZJbWibR1ACCLJx+664rU1uo4ExmrZhy1TAPLkDK7xnmP651Befk/cx4eK1Q33E2nv8/0zOxofFFPJlbPbdYIFKDQOIEq1DBPwiE1KHkUYI2VKCiHtCqGu6S2Ypbdw9uhJQ2WgLZmW/OTczW4w==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR13MB3957.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(136003)(366004)(376002)(346002)(396003)(39840400004)(6512007)(478600001)(36756003)(26005)(76116006)(66446008)(66946007)(66556008)(6506007)(71200400001)(66476007)(186003)(91956017)(64756008)(6486002)(2906002)(5660300002)(86362001)(4326008)(8936002)(54906003)(2616005)(6916009)(8676002)(316002)(83380400001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: DGCEdl/E6g+mz54uuOY96gdSvzx1qvLj/R1X2K9jQ6j2WxwYWwaJPf3wIBUpuiuwP5257fZwxRJsmojsEFaN5fPEZ/rc1buc5x3F2C74ead6Yorq3n8WY4P53cZQBa/JAbMdGpvdWqq+241FBChSTU3lbhTiA92ehEEzy2l2C72rBeedBD/Ap3vMpjm7NcgvMw07i4o/xQaQInmsweU41R7sbSU9wv9EyO5aNn90DTynA36PWLaHSkI6oTVLqFPp/glV93vPwQrC7/5PkVMtOAIr/JrMMJ48i7AcyWI1XDNowUMvdU//8c3PM4FyxwS3nCKc6/cFWH5opUSFmCQvQl4tjw8UrxJJ6ZGb6+QvyAy2KRDxRd/dHFzH8HjCEZc9fv/TtahDtjW66MKGmWWQciXxvEobxnP+5FoY65VYUa3H7utdT8OZc/gZzYMqgq0CitrtrxfUzebzrTPfJvSX/pTSHfHSIJQaS9k9aeKLM+UFJVXAmg9BPPux3yUYRJ8AnYprdllZT4BgaKQoIcjqdcEFKC3gpKAKyZpaDGixE8AstWP90mJFPLqRRaRPf1Mkwpi82KQRS+XjSz8SBHGgnEqOqPrEQVmChQ2zLsjzhYjAx0NrO5xLqmYSWHvn88RRAGvFujo/wzOgVmiJ2QhtjA==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <3ED7695FE3950145B1706F4287A85DA5@namprd13.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S1729908AbgJNScH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Oct 2020 14:32:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40972 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727830AbgJNScH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 14:32:07 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41D78C061755
+        for <stable@vger.kernel.org>; Wed, 14 Oct 2020 11:32:07 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id f19so296964pfj.11
+        for <stable@vger.kernel.org>; Wed, 14 Oct 2020 11:32:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=c6axx0JELED5T9x8hDekihgKHYOlBdjdLpETONjmu8c=;
+        b=cLEGBAMzgBYqIeyntg76eUJMmxXJ1MNUZxeTtNAIZKQnCBei6uRmaz7ndRk1t9iTWI
+         Pl7mzQXPFw1zp2QZrQ5B2LoxmW5TKl5nxb7hXGVoDdtBIzUG0oIXjH5XjA1Pi2CXbuwc
+         5Bh7gFzREGuR4L/ynTKBnwhE5XNyF+46+46O1fD+hfALFjlm1Mtdr5pKZ2BeYK+yXtUD
+         Hp62bbIVlhWP+3caL3fMcJ5d4BWSoFvV+BOeEtBoWDBDIS8QjklV1xeieC3qdfmDE25Y
+         GkHrTGdx0HV6fO/SGtZkpy1b0797P2vn6B8geeqXilBtlN3QtekGZas8NkhDl2xA2W18
+         tFNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=c6axx0JELED5T9x8hDekihgKHYOlBdjdLpETONjmu8c=;
+        b=CL8NO924vPzawIWsjXIR7aVNkO+HU1td0myNxQYpK6W3SiWdHC4+S+UDJX0sJZ0AxB
+         UK6JjjjphqhiVl4I3pZ7JRfr7CeBYkhgS6iTwJvJTO2Z/q9HERr/jovXp+oPTPUgcXLm
+         u7nKaE3+aKOEUhODcNJ03brMM89YXVO9CGYk+SNLir59Fh5APj2xFugqI+VKUFkSS5uk
+         ryZgI6beMBnFSFpDg6uVblk5TIrAJob2zSzVvrSgJj9S7TYTA2cOUJQkGcZt1cRH5Vss
+         hJUZU5Me+raRCzT5Dw0hXy4jPAhxNozGcPRECO5B2O6x+VrnJG523XujRt/UAspBlBiX
+         tI/A==
+X-Gm-Message-State: AOAM531GWFyGcp0UAL1Ah+I0gTQpu9HG19ZBqfaiBxfqNfHjbqCL8heu
+        9L/ffsXj4jtnwSdbqxrSZ7Vvgw==
+X-Google-Smtp-Source: ABdhPJxQzA+WhcXkPBbng2l0r2nsFfK2oQ9wNzu93wQ7S/hbLO8j28mBmTbydltYT5ssCx3UBl+DKg==
+X-Received: by 2002:a05:6a00:786:b029:155:2e1d:a948 with SMTP id g6-20020a056a000786b02901552e1da948mr605567pfu.22.1602700326761;
+        Wed, 14 Oct 2020 11:32:06 -0700 (PDT)
+Received: from debian ([171.61.243.166])
+        by smtp.gmail.com with ESMTPSA id p16sm335175pfq.63.2020.10.14.11.32.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Oct 2020 11:32:05 -0700 (PDT)
+Message-ID: <f1ed28462ca01522e683ef023f4f497e7a17a768.camel@rajagiritech.edu.in>
+Subject: Re: [PATCH 5.8 000/124] 5.8.15-rc1 review
+From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
+Date:   Thu, 15 Oct 2020 00:01:56 +0530
+In-Reply-To: <20201014095652.GA3599360@kroah.com>
+References: <20201012133146.834528783@linuxfoundation.org>
+         <d31bda1df5cc75e3217d88eece08dcc2c3c29531.camel@rajagiritech.edu.in>
+         <20201014095652.GA3599360@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.4-2 
 MIME-Version: 1.0
-X-OriginatorOrg: hammerspace.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR13MB3957.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 933ea864-fc25-4606-4177-08d8706d5e26
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Oct 2020 18:17:10.5878
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 0d4fed5c-3a70-46fe-9430-ece41741f59e
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: GLcssNSdHlNX/8+irl7sd17Bm9YsLKR3Ha94WUDElKCXawiumR6meFD5FAxPQvWty5IUgJwD3yc/MRki3IkTGQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR13MB3664
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVHVlLCAyMDIwLTEwLTA2IGF0IDA4OjE0IC0wNzAwLCBBc2hpc2ggU2FuZ3dhbiB3cm90ZToN
-Cj4gUmVxdWVzdCBmb3IgbW9kZSBiaXRzIGFuZCBubGluayBjb3VudCBpbiB0aGUgbmZzNF9nZXRf
-cmVmZXJyYWwgY2FsbA0KPiBhbmQgaWYgc2VydmVyIHJldHVybnMgdGhlbSB1c2UgdGhlbSBpbnN0
-ZWFkIG9mIGhhcmQgY29kZWQgdmFsdWVzLg0KPiANCj4gQ0M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5v
-cmcNCj4gU2lnbmVkLW9mZi1ieTogQXNoaXNoIFNhbmd3YW4gPGFzaGlzaHNhbmd3YW4yQGdtYWls
-LmNvbT4NCj4gLS0tDQo+ICBmcy9uZnMvbmZzNHByb2MuYyB8IDIwICsrKysrKysrKysrKysrKysr
-LS0tDQo+ICAxIGZpbGUgY2hhbmdlZCwgMTcgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkN
-Cj4gDQo+IGRpZmYgLS1naXQgYS9mcy9uZnMvbmZzNHByb2MuYyBiL2ZzL25mcy9uZnM0cHJvYy5j
-DQo+IGluZGV4IDZlOTVjODVmZTM5NS4uZWZlYzA1YzVmNTM1IDEwMDY0NA0KPiAtLS0gYS9mcy9u
-ZnMvbmZzNHByb2MuYw0KPiArKysgYi9mcy9uZnMvbmZzNHByb2MuYw0KPiBAQCAtMjY2LDcgKzI2
-Niw5IEBAIGNvbnN0IHUzMiBuZnM0X2ZzX2xvY2F0aW9uc19iaXRtYXBbM10gPSB7DQo+ICAJfCBG
-QVRUUjRfV09SRDBfRlNJRA0KPiAgCXwgRkFUVFI0X1dPUkQwX0ZJTEVJRA0KPiAgCXwgRkFUVFI0
-X1dPUkQwX0ZTX0xPQ0FUSU9OUywNCj4gLQlGQVRUUjRfV09SRDFfT1dORVINCj4gKwlGQVRUUjRf
-V09SRDFfTU9ERQ0KPiArCXwgRkFUVFI0X1dPUkQxX05VTUxJTktTDQo+ICsJfCBGQVRUUjRfV09S
-RDFfT1dORVINCj4gIAl8IEZBVFRSNF9XT1JEMV9PV05FUl9HUk9VUA0KPiAgCXwgRkFUVFI0X1dP
-UkQxX1JBV0RFVg0KPiAgCXwgRkFUVFI0X1dPUkQxX1NQQUNFX1VTRUQNCj4gQEAgLTc1OTQsMTYg
-Kzc1OTYsMjggQEAgbmZzNF9saXN0eGF0dHJfbmZzNF91c2VyKHN0cnVjdCBpbm9kZSAqaW5vZGUs
-DQo+IGNoYXIgKmxpc3QsIHNpemVfdCBsaXN0X2xlbikNCj4gICAqLw0KPiAgc3RhdGljIHZvaWQg
-bmZzX2ZpeHVwX3JlZmVycmFsX2F0dHJpYnV0ZXMoc3RydWN0IG5mc19mYXR0ciAqZmF0dHIpDQo+
-ICB7DQo+ICsJYm9vbCBmaXhfbW9kZSA9IHRydWUsIGZpeF9ubGluayA9IHRydWU7DQo+ICsNCj4g
-IAlpZiAoISgoKGZhdHRyLT52YWxpZCAmIE5GU19BVFRSX0ZBVFRSX01PVU5URURfT05fRklMRUlE
-KSB8fA0KPiAgCSAgICAgICAoZmF0dHItPnZhbGlkICYgTkZTX0FUVFJfRkFUVFJfRklMRUlEKSkg
-JiYNCj4gIAkgICAgICAoZmF0dHItPnZhbGlkICYgTkZTX0FUVFJfRkFUVFJfRlNJRCkgJiYNCj4g
-IAkgICAgICAoZmF0dHItPnZhbGlkICYgTkZTX0FUVFJfRkFUVFJfVjRfTE9DQVRJT05TKSkpDQo+
-ICAJCXJldHVybjsNCj4gIA0KPiArCWlmIChmYXR0ci0+dmFsaWQgJiBORlNfQVRUUl9GQVRUUl9N
-T0RFKQ0KPiArCQlmaXhfbW9kZSA9IGZhbHNlOw0KPiArCWlmIChmYXR0ci0+dmFsaWQgJiBORlNf
-QVRUUl9GQVRUUl9OTElOSykNCj4gKwkJZml4X25saW5rID0gZmFsc2U7DQo+ICAJZmF0dHItPnZh
-bGlkIHw9IE5GU19BVFRSX0ZBVFRSX1RZUEUgfCBORlNfQVRUUl9GQVRUUl9NT0RFIHwNCj4gIAkJ
-TkZTX0FUVFJfRkFUVFJfTkxJTksgfCBORlNfQVRUUl9GQVRUUl9WNF9SRUZFUlJBTDsNCj4gLQlm
-YXR0ci0+bW9kZSA9IFNfSUZESVIgfCBTX0lSVUdPIHwgU19JWFVHTzsNCj4gLQlmYXR0ci0+bmxp
-bmsgPSAyOw0KPiArDQo+ICsJaWYgKGZpeF9tb2RlKQ0KPiArCQlmYXR0ci0+bW9kZSA9IFNfSUZE
-SVIgfCBTX0lSVUdPIHwgU19JWFVHTzsNCj4gKwllbHNlDQo+ICsJCWZhdHRyLT5tb2RlIHw9IFNf
-SUZESVI7DQo+ICsNCj4gKwlpZiAoZml4X25saW5rKQ0KPiArCQlmYXR0ci0+bmxpbmsgPSAyOw0K
-PiAgfQ0KPiAgDQo+ICBzdGF0aWMgaW50IF9uZnM0X3Byb2NfZnNfbG9jYXRpb25zKHN0cnVjdCBy
-cGNfY2xudCAqY2xpZW50LCBzdHJ1Y3QNCj4gaW5vZGUgKmRpciwNCg0KTkFDSyB0byB0aGlzIHBh
-dGNoLiBUaGUgd2hvbGUgcG9pbnQgaXMgdGhhdCBpZiB0aGUgc2VydmVyIGhhcyBhDQpyZWZlcnJh
-bCwgdGhlbiBpdCBpcyBub3QgZ29pbmcgdG8gZ2l2ZSB1cyBhbnkgYXR0cmlidXRlcyBvdGhlciB0
-aGFuIHRoZQ0Kb25lcyB3ZSdyZSBhbHJlYWR5IGFza2luZyBmb3IgYmVjYXVzZSBpdCBtYXkgbm90
-IGV2ZW4gaGF2ZSBhIHJlYWwNCmRpcmVjdG9yeS4gVGhlIGNsaWVudCBpcyByZXF1aXJlZCB0byBm
-YWtlIHVwIGFuIGlub2RlLCBoZW5jZSB0aGUNCmV4aXN0aW5nIGNvZGUuDQoNCi0tIA0KVHJvbmQg
-TXlrbGVidXN0DQpMaW51eCBORlMgY2xpZW50IG1haW50YWluZXIsIEhhbW1lcnNwYWNlDQp0cm9u
-ZC5teWtsZWJ1c3RAaGFtbWVyc3BhY2UuY29tDQoNCg0K
+On Wed, 2020-10-14 at 11:56 +0200, Greg Kroah-Hartman wrote:
+> On Mon, Oct 12, 2020 at 11:00:07PM +0530, Jeffrin Jose T wrote:
+> >  * On Mon, 2020-10-12 at 15:30 +0200, Greg Kroah-Hartman wrote:
+> > > This is the start of the stable review cycle for the 5.8.15
+> > > release.
+> > > There are 124 patches in this series, all will be posted as a
+> > > response
+> > > to this one.  If anyone has any issues with these being applied,
+> > > please
+> > > let me know.
+> > > 
+> > > Responses should be made by Wed, 14 Oct 2020 13:31:22 +0000.
+> > > Anything received after that time might be too late.
+> > > 
+> > > The whole patch series can be found in one patch at:
+> > > 	
+> > > https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.15-rc1.gz
+> > > or in the git tree and branch at:
+> > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
+> > > stable-rc.git linux-5.8.y
+> > > and the diffstat can be found below.
+> > > 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > 
+> > hello,
+> > 
+> > Compiled and booted 5.8.15-rc1+ .  No typical dmesg regression.
+> > I also  have something to mention here. I saw  a warning related in
+> > several  kernels which looks like the following...
+> > 
+> > "MDS CPU bug present and SMT on, data leak possible"
+> > 
+> > But now in 5.8.15-rc1+ , that warning disappeared.
+> 
+> Odds are your microcode/bios finally got updated on that machine,
+> right?
+> 
+i do not think thot the bios got updoted, becouse the bug is still
+shown 
+to be present in 5.8.13-rc1+  . so moy be the updoted kernel is fixing
+the 
+bug or gives  o workround.
+
+-- 
+software engineer
+rajagiri school of engineering and technology
+
