@@ -2,97 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D49A28E384
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 17:46:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E143328E408
+	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 18:09:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730421AbgJNPqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 11:46:52 -0400
-Received: from m42-4.mailgun.net ([69.72.42.4]:25253 "EHLO m42-4.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726112AbgJNPqw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Oct 2020 11:46:52 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1602690411; h=Message-Id: Date: Subject: Cc: To: From:
- Sender; bh=GdAJsxlfjQDS2Suiw8hdgs3pLDF9j25++frwrCPkCvg=; b=euntpR218KmTjdr3qA1nfr6nwfizGtUcilQ4aIkQGyA26mfCg2+fTyoU19T6NyUlMFjHTd8J
- DS3TFmXtKKv0vpo17tbNt/H7BF8IX/QzhfXL9M5I7dcEiwxFnsPKE93/v/PfhuE7qzmcmcuO
- zq3PCHfBVHjvRK7FCV8ctmNFzqA=
-X-Mailgun-Sending-Ip: 69.72.42.4
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n04.prod.us-east-1.postgun.com with SMTP id
- 5f871d630764f13b002c8c3a (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 14 Oct 2020 15:46:43
- GMT
-Sender: kathirav=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id A9225C433FF; Wed, 14 Oct 2020 15:46:42 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
-        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
-Received: from kathirav-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: kathirav)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 03AF0C433C9;
-        Wed, 14 Oct 2020 15:46:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 03AF0C433C9
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=kathirav@codeaurora.org
-From:   Kathiravan T <kathirav@codeaurora.org>
-To:     agross@kernel.org, bjorn.andersson@linaro.org, robh+dt@kernel.org,
-        sivaprak@codeaurora.org, sricharan@codeaurora.org,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Kathiravan T <kathirav@codeaurora.org>
-Subject: [PATCH] arm64: dts: ipq6018: update the reserved-memory node
-Date:   Wed, 14 Oct 2020 21:16:17 +0530
-Message-Id: <1602690377-21304-1-git-send-email-kathirav@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
+        id S1730693AbgJNQJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Oct 2020 12:09:08 -0400
+Received: from esa1.microchip.iphmx.com ([68.232.147.91]:30565 "EHLO
+        esa1.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727829AbgJNQJI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 12:09:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1602691748; x=1634227748;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=nYxnxg2+RQprtzLlI6wg7jfBRlbQ4KTtTqP8g1Qf1KE=;
+  b=e4TzfwWEXT0MjldBfZdNndVNSt2pAIs5/ee52i1IbUX8fdeu69N0/FMD
+   vtJFGDvALtumEileHYJQQrXKh7S1gA4iJdGAAZhtqQrADl7CHtnMvALKQ
+   FPSAVjEpsu27t9xIgkOe+JzBpLVS+SPpc9EsQ+JX14hQIGC3dZDCn+lOy
+   tjE7xXjZliEfnW+bCScemRnQO1wLjqVzHs71KW0qd2DqXkir1I2nI947d
+   +dEewSTFq4yYJme2gBE8Vky7iic+fLnULDR8iMKEZ+II/RI+xEPa5y0nO
+   Kv/WEHvWnlL3Py+iIrAhQDE2ZxWMtHxEEUn7ksvDuuT+7Sab1kpHRXx+K
+   A==;
+IronPort-SDR: /gXAgu2LkaNngK04jDWy1kDKIp56+nZeSl6zQwVRwBp1HE690GUFLX2hIY9A7kImXPZwsq7P2E
+ APBMdLjPosxrrhDbg+HFkm7VgAhfv0oUGnxM0lrfqFzuvIlv36SoD95UTGpeSUv9Iil3vUGgp5
+ YSwuMQMr7+Q+FPuj+SlCIKsDA/BusDtuSVxvMFdGZC8JpM1ZGjTSGloZyEA5tZhzIjOdZOy18+
+ IFGhTtu3hHkXYikFjrTsSxoTThDg2bOFbVV3gOsHQAvsLOWcnQJSr/WcD72VxiSdM+G8aerq28
+ 3i0=
+X-IronPort-AV: E=Sophos;i="5.77,375,1596524400"; 
+   d="scan'208";a="99507189"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa1.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 14 Oct 2020 09:09:07 -0700
+Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
+ chn-vm-ex03.mchp-main.com (10.10.85.151) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1979.3; Wed, 14 Oct 2020 09:09:07 -0700
+Received: from [10.171.246.17] (10.10.115.15) by chn-vm-ex01.mchp-main.com
+ (10.10.85.143) with Microsoft SMTP Server id 15.1.1979.3 via Frontend
+ Transport; Wed, 14 Oct 2020 09:09:04 -0700
+Subject: Re: [PATCH] clk: at91: sam9x60: support only two programmable clocks
+To:     Claudiu Beznea <claudiu.beznea@microchip.com>,
+        <mturquette@baylibre.com>, <sboyd@kernel.org>,
+        <alexandre.belloni@bootlin.com>, <ludovic.desroches@microchip.com>
+CC:     <linux-clk@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <1602686072-28296-1-git-send-email-claudiu.beznea@microchip.com>
+From:   Nicolas Ferre <nicolas.ferre@microchip.com>
+Organization: microchip
+Message-ID: <1b6f29c9-c9b1-fc1e-7f08-ec4da720accc@microchip.com>
+Date:   Wed, 14 Oct 2020 18:09:03 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <1602686072-28296-1-git-send-email-claudiu.beznea@microchip.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Memory region reserved for the TZ is changed long back. Let's
-update the same to align with the corret region. Its size also
-increased to 4MB from 2MB.
+On 14/10/2020 at 16:34, Claudiu Beznea wrote:
+> According to datasheet (Chapter 29.16.13, PMC Programmable Clock Register)
+> there are only two programmable clocks on SAM9X60.
+> 
+> Fixes: 01e2113de9a5 ("clk: at91: add sam9x60 pmc driver")
+> Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-Along with that, bump the Q6 region size to 85MB.
+This is a fix:
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-Fixes: 1e8277854b49 ("arm64: dts: Add ipq6018 SoC and CP01 board support")
-Signed-off-by: Kathiravan T <kathirav@codeaurora.org>
----
- arch/arm64/boot/dts/qcom/ipq6018.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Cc: <stable@vger.kernel.org> # v5.2+
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq6018.dtsi b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-index 1aa8d8579463..ee7acddcbdfa 100644
---- a/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-@@ -98,8 +98,8 @@ reserved-memory {
- 		#size-cells = <2>;
- 		ranges;
- 
--		tz: tz@48500000 {
--			reg = <0x0 0x48500000 0x0 0x00200000>;
-+		tz: memory@4a600000 {
-+			reg = <0x0 0x4a600000 0x0 0x00400000>;
- 			no-map;
- 		};
- 
-@@ -109,7 +109,7 @@ smem_region: memory@4aa00000 {
- 		};
- 
- 		q6_region: memory@4ab00000 {
--			reg = <0x0 0x4ab00000 0x0 0x02800000>;
-+			reg = <0x0 0x4ab00000 0x0 0x05500000>;
- 			no-map;
- 		};
- 	};
+> ---
+>   drivers/clk/at91/sam9x60.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/clk/at91/sam9x60.c b/drivers/clk/at91/sam9x60.c
+> index ab6318c0589e..3c4c95603595 100644
+> --- a/drivers/clk/at91/sam9x60.c
+> +++ b/drivers/clk/at91/sam9x60.c
+> @@ -279,7 +279,7 @@ static void __init sam9x60_pmc_setup(struct device_node *np)
+>   	parent_names[3] = "masterck";
+>   	parent_names[4] = "pllack_divck";
+>   	parent_names[5] = "upllck_divck";
+> -	for (i = 0; i < 8; i++) {
+> +	for (i = 0; i < 2; i++) {
+>   		char name[6];
+>   
+>   		snprintf(name, sizeof(name), "prog%d", i);
+> 
 
-base-commit: bbf5c979011a099af5dc76498918ed7df445635b
+
 -- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
-
+Nicolas Ferre
