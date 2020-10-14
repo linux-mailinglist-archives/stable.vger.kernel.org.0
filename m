@@ -2,163 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B4D28DFB2
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 13:16:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 615CA28DFC5
+	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 13:24:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728959AbgJNLQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 07:16:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58078 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726654AbgJNLQ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 07:16:28 -0400
-X-Greylist: delayed 374 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 14 Oct 2020 04:16:28 PDT
-Received: from orcam.me.uk (unknown [IPv6:2001:4190:8020::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 29D8FC061755
-        for <stable@vger.kernel.org>; Wed, 14 Oct 2020 04:16:28 -0700 (PDT)
-Received: from bugs.linux-mips.org (eddie.linux-mips.org [IPv6:2a01:4f8:201:92aa::3])
-        by orcam.me.uk (Postfix) with ESMTPS id E01212BE086;
-        Wed, 14 Oct 2020 12:10:10 +0100 (BST)
-Date:   Wed, 14 Oct 2020 12:10:09 +0100 (BST)
-From:   "Maciej W. Rozycki" <macro@linux-mips.org>
-To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-cc:     Serge Semin <fancer.lancer@gmail.com>, linux-mips@vger.kernel.org,
+        id S1730681AbgJNLYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Oct 2020 07:24:02 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47806 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730677AbgJNLYB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 07:24:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1602674640;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=3H6mGsRZewK80OZHFyPkl46RKkyXB0PbUSdyfxyv/nQ=;
+        b=HyQv8i/wihW30LtwkNZJtEMWb+T2k30mpmJA/FVZxsGHKDhlwwLMWXBGslf4AdVILGnenF
+        HLRJLe0uPskFpXlWqCCylz7KV5782SRj+fFQbcw5Dr1yqsa6+jm91BEsiySwYN/8+SUC3y
+        ShWM/wQtEnJGiUdyF1FbPCmjaA/vtkw=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-539-R6AeEOE4PFeMk5IQ3yHcOA-1; Wed, 14 Oct 2020 07:23:57 -0400
+X-MC-Unique: R6AeEOE4PFeMk5IQ3yHcOA-1
+Received: by mail-ed1-f71.google.com with SMTP id dc23so1055489edb.13
+        for <stable@vger.kernel.org>; Wed, 14 Oct 2020 04:23:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3H6mGsRZewK80OZHFyPkl46RKkyXB0PbUSdyfxyv/nQ=;
+        b=D7twLSLf4d7Xq41jw41viMyYnczfg5riua1S5Ovh21eVtQX6J1WxkgON73VdM1JHC8
+         W0+nMcu47i7vpK/kQJBcdilR6l3uQpCrCj5Cr4sR4TX/m/FICeia0gJ9vXhqEAD0K+KN
+         DBKIT6nJYQcBBexCkPinKoBMCSZtjHMSZXOYMAeuas5ccGcHDyjq3dMzYP54qUsp+33i
+         yyt+vaFGBJ3lrR3HgigsrhqFh1oaRt4A80THZTY2WVzLXdVDxWTYQkcORQ+q33lushwl
+         /rBGMI7ZFsT5l+PACxGWXvsR11nGyAlpuZQKk47NW51JfRjEA76YSczquMZZ6o49tnXf
+         RqYQ==
+X-Gm-Message-State: AOAM531sjHWBppp4SkO3Kb2xeyIVZ0VPzieY4q2W9D6e+XiazHOrWV+b
+        oztn2m4xeMIXiLqzwvfIeUhkIgDESwcmDlEkHugGxw4DBtLESv6Rny7mE3Tuu7+Del2dAYhfqsH
+        1WQn1fxXEIkIcZwte
+X-Received: by 2002:a17:906:5052:: with SMTP id e18mr4562640ejk.530.1602674635893;
+        Wed, 14 Oct 2020 04:23:55 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzKr1m32t14FkDc/W8AweDP9IBnI3ylZgpuTkWQR5km+xGPX1lrPGf71ctcfLHQF7DtS46eAg==
+X-Received: by 2002:a17:906:5052:: with SMTP id e18mr4562615ejk.530.1602674635646;
+        Wed, 14 Oct 2020 04:23:55 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id rn10sm1584899ejb.8.2020.10.14.04.23.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 14 Oct 2020 04:23:55 -0700 (PDT)
+Subject: Re: [PATCH AUTOSEL 5.8 17/20] i2c: core: Call
+ i2c_acpi_install_space_handler() before i2c_acpi_register_devices()
+To:     kieran.bingham@ideasonboard.com, Sasha Levin <sashal@kernel.org>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] MIPS: DEC: Restore bootmem reservation for firmware working
- memory area
-Message-ID: <alpine.LFD.2.21.2010141123010.866917@eddie.linux-mips.org>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org
+References: <20200921144027.2135390-1-sashal@kernel.org>
+ <20200921144027.2135390-17-sashal@kernel.org>
+ <1977b57b-fae6-d9d4-e6bf-3d4013619537@ideasonboard.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <bbeb7cae-d856-bb25-4602-8dd3bae62773@redhat.com>
+Date:   Wed, 14 Oct 2020 13:23:54 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1977b57b-fae6-d9d4-e6bf-3d4013619537@ideasonboard.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix a crash on DEC platforms starting with:
+Hi,
 
-VFS: Mounted root (nfs filesystem) on device 0:11.
-Freeing unused PROM memory: 124k freed
-BUG: Bad page state in process swapper  pfn:00001
-page:(ptrval) refcount:0 mapcount:-128 mapping:00000000 index:0x1 pfn:0x1
-flags: 0x0()
-raw: 00000000 00000100 00000122 00000000 00000001 00000000 ffffff7f 00000000
-page dumped because: nonzero mapcount
-Modules linked in:
-CPU: 0 PID: 1 Comm: swapper Not tainted 5.9.0-00858-g865c50e1d279 #1
-Stack : 8065dc48 0000000b 8065d2b8 9bc27dcc 80645bfc 9bc259a4 806a1b97 80703124
-        80710000 8064a900 00000001 80099574 806b116c 1000ec00 9bc27d88 806a6f30
-        00000000 00000000 80645bfc 00000000 31232039 80706ba4 2e392e35 8039f348
-        2d383538 00000070 0000000a 35363867 00000000 806c2830 80710000 806b0000
-        80710000 8064a900 00000001 81000000 00000000 00000000 8035af2c 80700000
-        ...
-Call Trace:
-[<8004bc5c>] show_stack+0x34/0x104
-[<8015675c>] bad_page+0xfc/0x128
-[<80157714>] free_pcppages_bulk+0x1f4/0x5dc
-[<801591cc>] free_unref_page+0xc0/0x130
-[<8015cb04>] free_reserved_area+0x144/0x1d8
-[<805abd78>] kernel_init+0x20/0x100
-[<80046070>] ret_from_kernel_thread+0x14/0x1c
-Disabling lock debugging due to kernel taint
+On 10/14/20 1:09 PM, Kieran Bingham wrote:
+> Hi Hans, Sasha,
+> 
+> As mentioned on https://github.com/linux-surface/kernel/issues/63, I'm
+> afraid I've bisected a boot time issue on the Microsoft Surface Go 2 to
+> this commit on the stable 5.8 tree.
+> 
+> The effect as reported there is that the boot process stalls just after
+> loading the usbhid module.
+> 
+> Typing, or interacting with the Keyboard (Type Cover) at that point
+> appears to cause usb bus resets, but I don't know if that's a related
+> symptom or just an effect of some underlying root cause.
+> 
+> I have been running a linux-media kernel on this device without issue.
+> 
+> Is this commit in 5.9? I'll build a vanilla v5.9 kernel and see if it
+> occurs there too.
 
-caused by an attempt to free bootmem space that as from commit 
-b93ddc4f9156 ("mips: Reserve memory for the kernel image resources") has 
-not been anymore reserved due to the removal of generic MIPS arch code 
-that used to reserve all the memory from the beginning of RAM up to the 
-kernel load address.
+Yes the commit is in 5.9 too. Still would be interesting to see if 5.9 hits
+this issue too. I guess it will, but as I mentioned in:
 
-This memory does need to be reserved on DEC platforms however as it is 
-used by REX firmware as working area, as per the TURBOchannel firmware 
-specification[1]:
+https://github.com/linux-surface/kernel/issues/63
 
-Table 2-2  REX Memory Regions
--------------------------------------------------------------------------
-        Starting        Ending
-Region  Address         Address         Use
--------------------------------------------------------------------------
-0       0xa0000000      0xa000ffff      Restart block, exception vectors,
-                                        REX stack and bss
-1       0xa0010000      0xa0017fff      Keyboard or tty drivers
+I do not understand why this commit is causing this issue.
 
-2       0xa0018000      0xa001f3ff 1)   CRT driver
+So I just checked and the whole acpidump is not using I2C
+opregion stuff at all:
 
-3       0xa0020000      0xa002ffff      boot, cnfg, init and t objects
+[hans@x1 microsoft-surface-go2]$ ack GenericSerialBus *.dsl
+[hans@x1 microsoft-surface-go2]$
 
-4       0xa0020000      0xa002ffff      64KB scratch space
--------------------------------------------------------------------------
-1) Note that the last 3 Kbytes of region 2 are reserved for backward
-compatibility with previous system software.
--------------------------------------------------------------------------
+And there is only 1 _REG handler which is for the
+embedded-controller.
 
-(this table uses KSEG2 unmapped virtual addresses, which in the MIPS 
-architecture are offset from physical addresses by a fixed value of 
-0xa0000000 and therefore the regions referred do correspond to the 
-beginning of the physical address space) and we call into the firmware 
-on several occasions throughout the bootstrap process.  It is believed 
-that pre-REX firmware used with non-TURBOchannel DEC platforms has the 
-same requirements, as hinted by note #1 cited.
+So this patch should not make a difference at all on the GO2,
+other then maybe a subtle timing difference somewhere ... ?
 
-Recreate the discarded reservation then, in DEC platform code, removing 
-the crash.
+Regards,
 
-References:
+Hans
 
-[1] "TURBOchannel Firmware Specification", On-line version, 
-    EK-TCAAD-FS-004, Digital Equipment Corporation, January 1993, 
-    Chapter 2 "System Module Firmware", p. 2-5
 
-Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
-Fixes: b93ddc4f9156 ("mips: Reserve memory for the kernel image resources")
-Cc: stable@vger.kernel.org # v5.2+
----
- arch/mips/dec/setup.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+> On 21/09/2020 15:40, Sasha Levin wrote:
+>> From: Hans de Goede <hdegoede@redhat.com>
+>>
+>> [ Upstream commit 21653a4181ff292480599dad996a2b759ccf050f ]
+>>
+>> Some ACPI i2c-devices _STA method (which is used to detect if the device
+>> is present) use autodetection code which probes which device is present
+>> over i2c. This requires the I2C ACPI OpRegion handler to be registered
+>> before we enumerate i2c-clients under the i2c-adapter.
+>>
+>> This fixes the i2c touchpad on the Lenovo ThinkBook 14-IIL and
+>> ThinkBook 15 IIL not getting an i2c-client instantiated and thus not
+>> working.
+>>
+>> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1842039
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+>> Signed-off-by: Wolfram Sang <wsa@kernel.org>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>   drivers/i2c/i2c-core-base.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+>> index 4f09d4c318287..7031393c74806 100644
+>> --- a/drivers/i2c/i2c-core-base.c
+>> +++ b/drivers/i2c/i2c-core-base.c
+>> @@ -1336,8 +1336,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+>>   
+>>   	/* create pre-declared device nodes */
+>>   	of_i2c_register_devices(adap);
+>> -	i2c_acpi_register_devices(adap);
+>>   	i2c_acpi_install_space_handler(adap);
+>> +	i2c_acpi_register_devices(adap);
+>>   
+>>   	if (adap->nr < __i2c_first_dynamic_bus_num)
+>>   		i2c_scan_static_board_info(adap);
+>>
+> 
+> 
 
-linux-dec-prom-memblock-reserve.diff
-Index: linux-3maxp/arch/mips/dec/setup.c
-===================================================================
---- linux-3maxp.orig/arch/mips/dec/setup.c
-+++ linux-3maxp/arch/mips/dec/setup.c
-@@ -6,7 +6,7 @@
-  * for more details.
-  *
-  * Copyright (C) 1998 Harald Koerfgen
-- * Copyright (C) 2000, 2001, 2002, 2003, 2005  Maciej W. Rozycki
-+ * Copyright (C) 2000, 2001, 2002, 2003, 2005, 2020  Maciej W. Rozycki
-  */
- #include <linux/console.h>
- #include <linux/export.h>
-@@ -15,6 +15,7 @@
- #include <linux/ioport.h>
- #include <linux/irq.h>
- #include <linux/irqnr.h>
-+#include <linux/memblock.h>
- #include <linux/param.h>
- #include <linux/percpu-defs.h>
- #include <linux/sched.h>
-@@ -22,6 +23,7 @@
- #include <linux/types.h>
- #include <linux/pm.h>
- 
-+#include <asm/addrspace.h>
- #include <asm/bootinfo.h>
- #include <asm/cpu.h>
- #include <asm/cpu-features.h>
-@@ -29,7 +31,9 @@
- #include <asm/irq.h>
- #include <asm/irq_cpu.h>
- #include <asm/mipsregs.h>
-+#include <asm/page.h>
- #include <asm/reboot.h>
-+#include <asm/sections.h>
- #include <asm/time.h>
- #include <asm/traps.h>
- #include <asm/wbflush.h>
-@@ -146,6 +150,9 @@ void __init plat_mem_setup(void)
- 
- 	ioport_resource.start = ~0UL;
- 	ioport_resource.end = 0UL;
-+
-+	/* Stay away from the firmware working memory area for now. */
-+	memblock_reserve(PHYS_OFFSET, __pa_symbol(&_text));
- }
- 
- /*
