@@ -2,98 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B8E028E309
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 17:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A96D728E2E2
+	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 17:13:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731738AbgJNPSv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 11:18:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39096 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726596AbgJNPSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 11:18:50 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D51C061755;
-        Wed, 14 Oct 2020 08:18:49 -0700 (PDT)
-Message-Id: <20201014145727.102895678@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1602688728;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=ZKsj80ymynJu9n+vKl8hANyFjBXKxoMgZSnkilPgmtg=;
-        b=KuTToN1VvpQUXs32to1oL9yEvRSqsKVK4qRmQncPwyQyH0cbRLTdvwNI/EF2PhSEga3R/i
-        BloWNR888cauapc4ikFbY1Jr9MbnXS3QiFaL1787kNrimjSmO8S/DnSnqX6L01RMyzM4m7
-        hDt98E3Txy63I+KlpdyJ6n5MLwrPVMmAms55aaGQtaRo+ink3bBgGncDVc6gxnXgTYw5p+
-        1Opw4/09QqaBRnHEVPqRrOAfLa2ODYvpoxR2CXUgpLcQvFfzsCUvfN4EYU5Hm3yxdDFVOw
-        WwTc3m64UdJkmMuoOdAURJA1sCZmMn/ZQP7A8z4dgeWo+1+4/w27emBoJbHesA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1602688728;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=ZKsj80ymynJu9n+vKl8hANyFjBXKxoMgZSnkilPgmtg=;
-        b=I4dgr4cb6Tpgy6SE79KKi5KhiM4OWAwi+eCcNRnqXnqoFBbtoj200noBAovosqw68dctAH
-        3D4yxMwgfYoclyAw==
-Date:   Wed, 14 Oct 2020 16:52:16 +0200
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Thomas Winischhofer <thomas@winischhofer.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Johan Hovold <johan@kernel.org>,
-        Mathias Nyman <mathias.nyman@intel.com>,
-        Valentina Manea <valentina.manea.m@gmail.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        linux-omap@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Duncan Sands <duncan.sands@free.fr>
-Subject: [patch 01/12] USB: sisusbvga: Make console support depend on BROKEN
-References: <20201014145215.518912759@linutronix.de>
+        id S1730186AbgJNPNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Oct 2020 11:13:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38870 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726006AbgJNPNI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Oct 2020 11:13:08 -0400
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B963920714;
+        Wed, 14 Oct 2020 15:13:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1602688387;
+        bh=3i5dhUIVAy4nbl1V3WKqV1+5PF4u0kkQVmgry44PdW4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gzuO+r6W7qZ91N2av8n7cDiJfqvdzzX0Uxet1DjP0Yb+jG2gMQ7tIkr4vBi1TDDxs
+         uDrbp8rf55Q547yyfMenJUUEZH1KtXXuJ6rOOUar/kY35JoRXL7H2Nlb58n289xUyV
+         kC8PuMo4SVtLa6g6oqYHuVvILNHMMRZcWwneEOI4=
+Date:   Wed, 14 Oct 2020 17:13:41 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Wolfram Sang <wsa@the-dreams.de>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        stable@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: Re: [PATCH 5.8+ regression fix 0/1] i2c: core: Restore
+ acpi_walk_dep_device_list() getting called after registering the ACPI i2c
+ devs
+Message-ID: <20201014151341.GB3761660@kroah.com>
+References: <20201014144158.18036-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201014144158.18036-1-hdegoede@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The console part of sisusbvga is broken vs. printk(). It uses in_atomic()
-to detect contexts in which it cannot sleep despite the big fat comment in
-preempt.h which says: Do not use in_atomic() in driver code.
+On Wed, Oct 14, 2020 at 04:41:57PM +0200, Hans de Goede wrote:
+> Hi All,
+> 
+> I am afraid that commit 21653a4181ff ("i2c: core: Call
+> i2c_acpi_install_space_handler() before i2c_acpi_register_devices()")
+> which is in 5.9 and was also added to 5.8.13 (and possible other
+> stable series releases) causes a regression on some devices including
+> on the Microsoft Surface Go 2 (and possibly also the Go 1) where the
+> system no longer boots.
 
-in_atomic() does not work on kernels with CONFIG_PREEMPT_COUNT=n which
-means that spin/rw_lock held regions are not detected by it.
+That commit is also in the following stable releases:
+	4.9.238 4.14.200 4.19.149 5.4.69 5.8.13
 
-There is no way to make this work by handing context information through to
-the driver and this only can be solved once the core printk infrastructure
-supports sleepable console drivers.
+so it would need to fixed in all of those places :)
 
-Make it depend on BROKEN for now.
+thanks,
 
-Fixes: 1bbb4f2035d9 ("[PATCH] USB: sisusb[vga] update")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
-Cc: stable@vger.kernel.org
----
- drivers/usb/misc/sisusbvga/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/drivers/usb/misc/sisusbvga/Kconfig
-+++ b/drivers/usb/misc/sisusbvga/Kconfig
-@@ -16,7 +16,7 @@ config USB_SISUSBVGA
- 
- config USB_SISUSBVGA_CON
- 	bool "Text console and mode switching support" if USB_SISUSBVGA
--	depends on VT
-+	depends on VT && BROKEN
- 	select FONT_8x16
- 	help
- 	  Say Y here if you want a VGA text console via the USB dongle or
-
+greg k-h
