@@ -2,54 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA2A28E81D
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 22:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5E9728ED4A
+	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 08:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729103AbgJNUyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 16:54:03 -0400
-Received: from [157.25.102.26] ([157.25.102.26]:39198 "EHLO orcam.me.uk"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726028AbgJNUyD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Oct 2020 16:54:03 -0400
-X-Greylist: delayed 35030 seconds by postgrey-1.27 at vger.kernel.org; Wed, 14 Oct 2020 16:54:02 EDT
-Received: from bugs.linux-mips.org (eddie.linux-mips.org [IPv6:2a01:4f8:201:92aa::3])
-        by orcam.me.uk (Postfix) with ESMTPS id 6BC052BE086;
-        Wed, 14 Oct 2020 21:53:59 +0100 (BST)
-Date:   Wed, 14 Oct 2020 21:53:55 +0100 (BST)
-From:   "Maciej W. Rozycki" <macro@linux-mips.org>
-To:     Serge Semin <fancer.lancer@gmail.com>
-cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] MIPS: DEC: Restore bootmem reservation for firmware
- working memory area
-In-Reply-To: <20201014180114.fnz5ewt2tzkgxin4@mobilestation>
-Message-ID: <alpine.LFD.2.21.2010142146110.866917@eddie.linux-mips.org>
-References: <alpine.LFD.2.21.2010141123010.866917@eddie.linux-mips.org> <20201014180114.fnz5ewt2tzkgxin4@mobilestation>
+        id S1728343AbgJOG5u convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 15 Oct 2020 02:57:50 -0400
+Received: from o242.office.exmedia.jp ([61.194.0.242]:25633 "HELO
+        grp01.exgroup.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1725208AbgJOG5t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Oct 2020 02:57:49 -0400
+X-Greylist: delayed 22916 seconds by postgrey-1.27 at vger.kernel.org; Thu, 15 Oct 2020 02:57:49 EDT
+Received: (qmail 41978 invoked by uid 98); 15 Oct 2020 05:54:12 +0900
+X-Qmail-Scanner-Diagnostics: from  by grp01.exgroup.jp (envelope-from <test@ridaisai.com>, uid 82) with qmail-scanner-2.10 
+ (spamassassin: 3.3.2.  
+ Clear:RC:1(127.0.0.1):. 
+ Processed in 0.008886 secs); 14 Oct 2020 20:54:12 -0000
+X-Authentication: test was authenticated by grp01.exgroup.jp
+ at  15 Oct 2020 05:54:12 +0900
+Received: from 88-108-166-70.dynamic.dsl.as9105.com (HELO DESKTOP-CHMT5R3.lan) (88.108.166.70)
+  by grp01.exgroup.jp with SMTP; 15 Oct 2020 05:54:12 +0900
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: REPLY.!
+To:     Recipients <test@ridaisai.com>
+From:   "From: Raymond Chien Hang Seng" <test@ridaisai.com>
+Date:   Wed, 14 Oct 2020 21:53:59 +0100
+Reply-To: cheir873@gmail.com
+Message-ID: <160270885282141965@grp01.exgroup.jp>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Serge,
-
-> > @@ -146,6 +150,9 @@ void __init plat_mem_setup(void)
-> >  
-> >  	ioport_resource.start = ~0UL;
-> >  	ioport_resource.end = 0UL;
-> > +
-> > +	/* Stay away from the firmware working memory area for now. */
-> 
-> > +	memblock_reserve(PHYS_OFFSET, __pa_symbol(&_text));
-> 
-> Shouldn't that be:
-> +	memblock_reserve(PHYS_OFFSET, __pa_symbol(&_text) - PHYS_OFFSET);
-> instead?
-
- Good point: unlike `free_init_pages' which uses start/end this function 
-uses start/size as its arguments.  For DEC effectively it does not matter 
-as PHYS_OFFSET is 0 anyway, but code has to be semantically correct.  
-I'll post an update.
-
-  Maciej
+I am Vice Chairman of Hang Seng Bank, I have Important Matter to Discuss with you concerning my late client. Died without a NEXT OF KIN. Send me your private email for full details information. email me at
+E-Mail: raymondchien78@gmail.com
+Regards 
+Mr.Raymond Chien
