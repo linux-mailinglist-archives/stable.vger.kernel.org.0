@@ -2,119 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 749B728E268
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 16:42:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B8E028E309
+	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 17:19:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729296AbgJNOmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 10:42:10 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:54168 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728010AbgJNOmK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 10:42:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602686528;
+        id S1731738AbgJNPSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Oct 2020 11:18:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39096 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726596AbgJNPSu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 11:18:50 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D51C061755;
+        Wed, 14 Oct 2020 08:18:49 -0700 (PDT)
+Message-Id: <20201014145727.102895678@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1602688728;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=PlJoLtIpkVOz1qyb1zjr6+0JD61+zNOgWz6cLK2byzI=;
-        b=C4AjXVjdVGUKCu5oNCj9/TDbYMSbriuAdgzvCQEUImzrRWIM1gE6B7PLDUkGkd3cTvqMlT
-        DP9g+JU8kE6dYHrKCxrodkcfAA0AmoPGSjhuwZ6Ao8YJ37KKI4SYyADgpu93TW6gsLLLsx
-        fA9kg/VB8anBv5GUvm7YCxkocWqPL/I=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-1-X78Fyf9RO3q9XwTFpdIA2w-1; Wed, 14 Oct 2020 10:42:06 -0400
-X-MC-Unique: X78Fyf9RO3q9XwTFpdIA2w-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6F5421021213;
-        Wed, 14 Oct 2020 14:42:04 +0000 (UTC)
-Received: from x1.localdomain (ovpn-112-126.ams2.redhat.com [10.36.112.126])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 90CFC6EF7B;
-        Wed, 14 Oct 2020 14:42:02 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Wolfram Sang <wsa@the-dreams.de>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        stable@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH 5.8+ regression fix] i2c: core: Restore acpi_walk_dep_device_list() getting called after registering the ACPI i2c devs
-Date:   Wed, 14 Oct 2020 16:41:58 +0200
-Message-Id: <20201014144158.18036-2-hdegoede@redhat.com>
-In-Reply-To: <20201014144158.18036-1-hdegoede@redhat.com>
-References: <20201014144158.18036-1-hdegoede@redhat.com>
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:  references:references;
+        bh=ZKsj80ymynJu9n+vKl8hANyFjBXKxoMgZSnkilPgmtg=;
+        b=KuTToN1VvpQUXs32to1oL9yEvRSqsKVK4qRmQncPwyQyH0cbRLTdvwNI/EF2PhSEga3R/i
+        BloWNR888cauapc4ikFbY1Jr9MbnXS3QiFaL1787kNrimjSmO8S/DnSnqX6L01RMyzM4m7
+        hDt98E3Txy63I+KlpdyJ6n5MLwrPVMmAms55aaGQtaRo+ink3bBgGncDVc6gxnXgTYw5p+
+        1Opw4/09QqaBRnHEVPqRrOAfLa2ODYvpoxR2CXUgpLcQvFfzsCUvfN4EYU5Hm3yxdDFVOw
+        WwTc3m64UdJkmMuoOdAURJA1sCZmMn/ZQP7A8z4dgeWo+1+4/w27emBoJbHesA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1602688728;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:  references:references;
+        bh=ZKsj80ymynJu9n+vKl8hANyFjBXKxoMgZSnkilPgmtg=;
+        b=I4dgr4cb6Tpgy6SE79KKi5KhiM4OWAwi+eCcNRnqXnqoFBbtoj200noBAovosqw68dctAH
+        3D4yxMwgfYoclyAw==
+Date:   Wed, 14 Oct 2020 16:52:16 +0200
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Thomas Winischhofer <thomas@winischhofer.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Johan Hovold <johan@kernel.org>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Valentina Manea <valentina.manea.m@gmail.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        linux-omap@vger.kernel.org, Kukjin Kim <kgene@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Duncan Sands <duncan.sands@free.fr>
+Subject: [patch 01/12] USB: sisusbvga: Make console support depend on BROKEN
+References: <20201014145215.518912759@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8-bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 21653a4181ff ("i2c: core: Call i2c_acpi_install_space_handler()
-before i2c_acpi_register_devices()")'s intention was to only move the
-acpi_install_address_space_handler() call to the point before where
-the ACPI declared i2c-children of the adapter where instantiated by
-i2c_acpi_register_devices().
+The console part of sisusbvga is broken vs. printk(). It uses in_atomic()
+to detect contexts in which it cannot sleep despite the big fat comment in
+preempt.h which says: Do not use in_atomic() in driver code.
 
-But i2c_acpi_install_space_handler() had a call to
-acpi_walk_dep_device_list() hidden (that is I missed it) at the end
-of it, so as an unwanted side-effect now acpi_walk_dep_device_list()
-was also being called before i2c_acpi_register_devices().
+in_atomic() does not work on kernels with CONFIG_PREEMPT_COUNT=n which
+means that spin/rw_lock held regions are not detected by it.
 
-Move the acpi_walk_dep_device_list() call to the end of
-i2c_acpi_register_devices(), so that it is once again called *after*
-the i2c_client-s hanging of the adapter have been created.
+There is no way to make this work by handing context information through to
+the driver and this only can be solved once the core printk infrastructure
+supports sleepable console drivers.
 
-This fixes the Microsoft Surface Go 2 hanging at boot.
+Make it depend on BROKEN for now.
 
-Fixes: 21653a4181ff ("i2c: core: Call i2c_acpi_install_space_handler() before i2c_acpi_register_devices()")
-Suggested-by: Maximilian Luz <luzmaximilian@gmail.com>
-Reported-and-tested-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 1bbb4f2035d9 ("[PATCH] USB: sisusb[vga] update")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Winischhofer <thomas@winischhofer.net>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org
+Cc: stable@vger.kernel.org
 ---
- drivers/i2c/i2c-core-acpi.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/usb/misc/sisusbvga/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index e627d7b2790f..37c510d9347a 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -264,6 +264,7 @@ static acpi_status i2c_acpi_add_device(acpi_handle handle, u32 level,
- void i2c_acpi_register_devices(struct i2c_adapter *adap)
- {
- 	acpi_status status;
-+	acpi_handle handle;
+--- a/drivers/usb/misc/sisusbvga/Kconfig
++++ b/drivers/usb/misc/sisusbvga/Kconfig
+@@ -16,7 +16,7 @@ config USB_SISUSBVGA
  
- 	if (!has_acpi_companion(&adap->dev))
- 		return;
-@@ -274,6 +275,15 @@ void i2c_acpi_register_devices(struct i2c_adapter *adap)
- 				     adap, NULL);
- 	if (ACPI_FAILURE(status))
- 		dev_warn(&adap->dev, "failed to enumerate I2C slaves\n");
-+
-+	if (!adap->dev.parent)
-+		return;
-+
-+	handle = ACPI_HANDLE(adap->dev.parent);
-+	if (!handle)
-+		return;
-+
-+	acpi_walk_dep_device_list(handle);
- }
- 
- static const struct acpi_device_id i2c_acpi_force_400khz_device_ids[] = {
-@@ -719,7 +729,6 @@ int i2c_acpi_install_space_handler(struct i2c_adapter *adapter)
- 		return -ENOMEM;
- 	}
- 
--	acpi_walk_dep_device_list(handle);
- 	return 0;
- }
- 
--- 
-2.28.0
+ config USB_SISUSBVGA_CON
+ 	bool "Text console and mode switching support" if USB_SISUSBVGA
+-	depends on VT
++	depends on VT && BROKEN
+ 	select FONT_8x16
+ 	help
+ 	  Say Y here if you want a VGA text console via the USB dongle or
 
