@@ -2,64 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A96D728E2E2
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 17:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D49A28E384
+	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 17:46:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730186AbgJNPNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 11:13:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38870 "EHLO mail.kernel.org"
+        id S1730421AbgJNPqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Oct 2020 11:46:52 -0400
+Received: from m42-4.mailgun.net ([69.72.42.4]:25253 "EHLO m42-4.mailgun.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726006AbgJNPNI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Oct 2020 11:13:08 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726112AbgJNPqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Oct 2020 11:46:52 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1602690411; h=Message-Id: Date: Subject: Cc: To: From:
+ Sender; bh=GdAJsxlfjQDS2Suiw8hdgs3pLDF9j25++frwrCPkCvg=; b=euntpR218KmTjdr3qA1nfr6nwfizGtUcilQ4aIkQGyA26mfCg2+fTyoU19T6NyUlMFjHTd8J
+ DS3TFmXtKKv0vpo17tbNt/H7BF8IX/QzhfXL9M5I7dcEiwxFnsPKE93/v/PfhuE7qzmcmcuO
+ zq3PCHfBVHjvRK7FCV8ctmNFzqA=
+X-Mailgun-Sending-Ip: 69.72.42.4
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n04.prod.us-east-1.postgun.com with SMTP id
+ 5f871d630764f13b002c8c3a (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 14 Oct 2020 15:46:43
+ GMT
+Sender: kathirav=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id A9225C433FF; Wed, 14 Oct 2020 15:46:42 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL,
+        URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+Received: from kathirav-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B963920714;
-        Wed, 14 Oct 2020 15:13:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602688387;
-        bh=3i5dhUIVAy4nbl1V3WKqV1+5PF4u0kkQVmgry44PdW4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gzuO+r6W7qZ91N2av8n7cDiJfqvdzzX0Uxet1DjP0Yb+jG2gMQ7tIkr4vBi1TDDxs
-         uDrbp8rf55Q547yyfMenJUUEZH1KtXXuJ6rOOUar/kY35JoRXL7H2Nlb58n289xUyV
-         kC8PuMo4SVtLa6g6oqYHuVvILNHMMRZcWwneEOI4=
-Date:   Wed, 14 Oct 2020 17:13:41 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Wolfram Sang <wsa@the-dreams.de>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        stable@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: Re: [PATCH 5.8+ regression fix 0/1] i2c: core: Restore
- acpi_walk_dep_device_list() getting called after registering the ACPI i2c
- devs
-Message-ID: <20201014151341.GB3761660@kroah.com>
-References: <20201014144158.18036-1-hdegoede@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201014144158.18036-1-hdegoede@redhat.com>
+        (Authenticated sender: kathirav)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 03AF0C433C9;
+        Wed, 14 Oct 2020 15:46:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 03AF0C433C9
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=kathirav@codeaurora.org
+From:   Kathiravan T <kathirav@codeaurora.org>
+To:     agross@kernel.org, bjorn.andersson@linaro.org, robh+dt@kernel.org,
+        sivaprak@codeaurora.org, sricharan@codeaurora.org,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Kathiravan T <kathirav@codeaurora.org>
+Subject: [PATCH] arm64: dts: ipq6018: update the reserved-memory node
+Date:   Wed, 14 Oct 2020 21:16:17 +0530
+Message-Id: <1602690377-21304-1-git-send-email-kathirav@codeaurora.org>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 14, 2020 at 04:41:57PM +0200, Hans de Goede wrote:
-> Hi All,
-> 
-> I am afraid that commit 21653a4181ff ("i2c: core: Call
-> i2c_acpi_install_space_handler() before i2c_acpi_register_devices()")
-> which is in 5.9 and was also added to 5.8.13 (and possible other
-> stable series releases) causes a regression on some devices including
-> on the Microsoft Surface Go 2 (and possibly also the Go 1) where the
-> system no longer boots.
+Memory region reserved for the TZ is changed long back. Let's
+update the same to align with the corret region. Its size also
+increased to 4MB from 2MB.
 
-That commit is also in the following stable releases:
-	4.9.238 4.14.200 4.19.149 5.4.69 5.8.13
+Along with that, bump the Q6 region size to 85MB.
 
-so it would need to fixed in all of those places :)
+Fixes: 1e8277854b49 ("arm64: dts: Add ipq6018 SoC and CP01 board support")
+Signed-off-by: Kathiravan T <kathirav@codeaurora.org>
+---
+ arch/arm64/boot/dts/qcom/ipq6018.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-thanks,
+diff --git a/arch/arm64/boot/dts/qcom/ipq6018.dtsi b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
+index 1aa8d8579463..ee7acddcbdfa 100644
+--- a/arch/arm64/boot/dts/qcom/ipq6018.dtsi
++++ b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
+@@ -98,8 +98,8 @@ reserved-memory {
+ 		#size-cells = <2>;
+ 		ranges;
+ 
+-		tz: tz@48500000 {
+-			reg = <0x0 0x48500000 0x0 0x00200000>;
++		tz: memory@4a600000 {
++			reg = <0x0 0x4a600000 0x0 0x00400000>;
+ 			no-map;
+ 		};
+ 
+@@ -109,7 +109,7 @@ smem_region: memory@4aa00000 {
+ 		};
+ 
+ 		q6_region: memory@4ab00000 {
+-			reg = <0x0 0x4ab00000 0x0 0x02800000>;
++			reg = <0x0 0x4ab00000 0x0 0x05500000>;
+ 			no-map;
+ 		};
+ 	};
 
-greg k-h
+base-commit: bbf5c979011a099af5dc76498918ed7df445635b
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
+
