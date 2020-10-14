@@ -2,1528 +2,254 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D18728DB82
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 10:31:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4385A28DB7E
+	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 10:31:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728884AbgJNI3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 04:29:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52508 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726044AbgJNI3d (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727960AbgJNI3d (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 14 Oct 2020 04:29:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52540 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727658AbgJNI3c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Oct 2020 04:29:32 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19BB9212CC;
-        Wed, 14 Oct 2020 08:29:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C716520BED;
+        Wed, 14 Oct 2020 08:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602664171;
-        bh=7INQPq/ICId8+CqKpqJPBCyfdouZhaEawBwhdVITOD8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WM6uXErUGn+errnRNmBvUi8OYDEDrdAvrNsPBhn4smezE/zMohczFrZ3Ue8Nz6Wv2
-         XIJOmSFev5yYnK8xrTVAnpiQoR8BrbOOTaS6FH7yy1zMXctmzX+Lz7KAdzAeulO9n+
-         icO/wO8Y6TCJUYaw6ieGnbkmONxNtGPEINbaPsUw=
+        s=default; t=1602664174;
+        bh=dwVYD2T+FEN0G+Tdvhi/xH24SUHIfq2bj9NfEEP2Wrw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=xVSvoQSYCSzO1aMyI523xaK9IxAc5RDGap9cmPCLP3s+z9YPXJ70jOwsmIif77pny
+         pQ8KSXueK3NECwaJh7OYt5ZZZACqOFp7F/p+gigJHjsLQ4U++WM4lgk6Ycewskgbwy
+         pKswPU51aKbYWQEAnLwdhcr5RcSX1awu/wJ1q3Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.4.239
-Date:   Wed, 14 Oct 2020 10:29:59 +0200
-Message-Id: <160266419817245@kroah.com>
+Subject: Linux 4.9.239
+Date:   Wed, 14 Oct 2020 10:30:06 +0200
+Message-Id: <160266420614166@kroah.com>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <1602664198225233@kroah.com>
-References: <1602664198225233@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 209fe98a591c..74072b5a958b 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 4
--SUBLEVEL = 238
-+SUBLEVEL = 239
- EXTRAVERSION =
- NAME = Blurry Fish Butt
- 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 04a923186081..6bb3a425bbd3 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -285,7 +285,8 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 		 drv->bus->name, __func__, drv->name, dev_name(dev));
- 	if (!list_empty(&dev->devres_head)) {
- 		dev_crit(dev, "Resources present before probing\n");
--		return -EBUSY;
-+		ret = -EBUSY;
-+		goto done;
- 	}
- 
- 	dev->driver = drv;
-@@ -363,7 +364,7 @@ probe_failed:
- 	ret = 0;
- done:
- 	atomic_dec(&probe_count);
--	wake_up(&probe_waitqueue);
-+	wake_up_all(&probe_waitqueue);
- 	return ret;
- }
- 
-diff --git a/drivers/clk/samsung/clk-exynos4.c b/drivers/clk/samsung/clk-exynos4.c
-index 6c8e45e007c8..8edbb20ccff5 100644
---- a/drivers/clk/samsung/clk-exynos4.c
-+++ b/drivers/clk/samsung/clk-exynos4.c
-@@ -1059,7 +1059,7 @@ static struct samsung_gate_clock exynos4210_gate_clks[] __initdata = {
- 	GATE(CLK_PCIE, "pcie", "aclk133", GATE_IP_FSYS, 14, 0, 0),
- 	GATE(CLK_SMMU_PCIE, "smmu_pcie", "aclk133", GATE_IP_FSYS, 18, 0, 0),
- 	GATE(CLK_MODEMIF, "modemif", "aclk100", GATE_IP_PERIL, 28, 0, 0),
--	GATE(CLK_CHIPID, "chipid", "aclk100", E4210_GATE_IP_PERIR, 0, 0, 0),
-+	GATE(CLK_CHIPID, "chipid", "aclk100", E4210_GATE_IP_PERIR, 0, CLK_IGNORE_UNUSED, 0),
- 	GATE(CLK_SYSREG, "sysreg", "aclk100", E4210_GATE_IP_PERIR, 0,
- 			CLK_IGNORE_UNUSED, 0),
- 	GATE(CLK_HDMI_CEC, "hdmi_cec", "aclk100", E4210_GATE_IP_PERIR, 11, 0,
-@@ -1100,7 +1100,7 @@ static struct samsung_gate_clock exynos4x12_gate_clks[] __initdata = {
- 		0),
- 	GATE(CLK_TSADC, "tsadc", "aclk133", E4X12_GATE_BUS_FSYS1, 16, 0, 0),
- 	GATE(CLK_MIPI_HSI, "mipi_hsi", "aclk133", GATE_IP_FSYS, 10, 0, 0),
--	GATE(CLK_CHIPID, "chipid", "aclk100", E4X12_GATE_IP_PERIR, 0, 0, 0),
-+	GATE(CLK_CHIPID, "chipid", "aclk100", E4X12_GATE_IP_PERIR, 0, CLK_IGNORE_UNUSED, 0),
- 	GATE(CLK_SYSREG, "sysreg", "aclk100", E4X12_GATE_IP_PERIR, 1,
- 			CLK_IGNORE_UNUSED, 0),
- 	GATE(CLK_HDMI_CEC, "hdmi_cec", "aclk100", E4X12_GATE_IP_PERIR, 11, 0,
-diff --git a/drivers/gpio/gpio-tc3589x.c b/drivers/gpio/gpio-tc3589x.c
-index d1d585ddb9ab..dd19805d587d 100644
---- a/drivers/gpio/gpio-tc3589x.c
-+++ b/drivers/gpio/gpio-tc3589x.c
-@@ -157,7 +157,7 @@ static void tc3589x_gpio_irq_sync_unlock(struct irq_data *d)
- 				continue;
- 
- 			tc3589x_gpio->oldregs[i][j] = new;
--			tc3589x_reg_write(tc3589x, regmap[i] + j * 8, new);
-+			tc3589x_reg_write(tc3589x, regmap[i] + j, new);
- 		}
- 	}
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-index d3ee8f19f1ef..5ff941bbfb5b 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_display.c
-@@ -311,7 +311,7 @@ int amdgpu_crtc_set_config(struct drm_mode_set *set)
- 	   take the current one */
- 	if (active && !adev->have_disp_power_ref) {
- 		adev->have_disp_power_ref = true;
--		goto out;
-+		return ret;
- 	}
- 	/* if we have no active crtcs, then drop the power ref
- 	   we got before */
-diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
-index b167ab25310a..34a35e927fc6 100644
---- a/drivers/i2c/busses/i2c-cpm.c
-+++ b/drivers/i2c/busses/i2c-cpm.c
-@@ -74,6 +74,9 @@ struct i2c_ram {
- 	char    res1[4];	/* Reserved */
- 	ushort  rpbase;		/* Relocation pointer */
- 	char    res2[2];	/* Reserved */
-+	/* The following elements are only for CPM2 */
-+	char    res3[4];	/* Reserved */
-+	uint    sdmatmp;	/* Internal */
- };
- 
- #define I2COM_START	0x80
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index e5799639fb54..82ff44637ed7 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -797,6 +797,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nopnp_table[] = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
- 		},
- 	},
-+	{
-+		/* Acer Aspire 5 A515 */
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "Grumpy_PK"),
-+			DMI_MATCH(DMI_BOARD_VENDOR, "PK"),
-+		},
-+	},
- 	{ }
- };
- 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index 29a31eb9ace3..02df8d9dc842 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -1158,13 +1158,17 @@ static int exynos_iommu_of_xlate(struct device *dev,
- 		return -ENODEV;
- 
- 	data = platform_get_drvdata(sysmmu);
--	if (!data)
-+	if (!data) {
-+		put_device(&sysmmu->dev);
- 		return -ENODEV;
-+	}
- 
- 	if (!owner) {
- 		owner = kzalloc(sizeof(*owner), GFP_KERNEL);
--		if (!owner)
-+		if (!owner) {
-+			put_device(&sysmmu->dev);
- 			return -ENOMEM;
-+		}
- 
- 		INIT_LIST_HEAD(&owner->controllers);
- 		dev->archdata.iommu = owner;
-diff --git a/drivers/mtd/nand/nand_base.c b/drivers/mtd/nand/nand_base.c
-index 8406f346b0be..09864226428b 100644
---- a/drivers/mtd/nand/nand_base.c
-+++ b/drivers/mtd/nand/nand_base.c
-@@ -4427,18 +4427,14 @@ int nand_scan(struct mtd_info *mtd, int maxchips)
- EXPORT_SYMBOL(nand_scan);
- 
- /**
-- * nand_release - [NAND Interface] Free resources held by the NAND device
-- * @mtd: MTD device structure
-+ * nand_cleanup - [NAND Interface] Free resources held by the NAND device
-+ * @chip: NAND chip object
-  */
--void nand_release(struct mtd_info *mtd)
-+void nand_cleanup(struct nand_chip *chip)
- {
--	struct nand_chip *chip = mtd->priv;
--
- 	if (chip->ecc.mode == NAND_ECC_SOFT_BCH)
- 		nand_bch_free((struct nand_bch_control *)chip->ecc.priv);
- 
--	mtd_device_unregister(mtd);
--
- 	/* Free bad block table memory */
- 	kfree(chip->bbt);
- 	if (!(chip->options & NAND_OWN_BUFFERS))
-@@ -4449,6 +4445,18 @@ void nand_release(struct mtd_info *mtd)
- 			& NAND_BBT_DYNAMICSTRUCT)
- 		kfree(chip->badblock_pattern);
- }
-+EXPORT_SYMBOL_GPL(nand_cleanup);
-+
-+/**
-+ * nand_release - [NAND Interface] Unregister the MTD device and free resources
-+ *		  held by the NAND device
-+ * @mtd: MTD device structure
-+ */
-+void nand_release(struct mtd_info *mtd)
-+{
-+	mtd_device_unregister(mtd);
-+	nand_cleanup(mtd->priv);
-+}
- EXPORT_SYMBOL_GPL(nand_release);
- 
- static int __init nand_base_init(void)
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index aaf75d5e6e48..5811235a64c8 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1132,6 +1132,7 @@ static void bond_setup_by_slave(struct net_device *bond_dev,
- 
- 	bond_dev->type		    = slave_dev->type;
- 	bond_dev->hard_header_len   = slave_dev->hard_header_len;
-+	bond_dev->needed_headroom   = slave_dev->needed_headroom;
- 	bond_dev->addr_len	    = slave_dev->addr_len;
- 
- 	memcpy(bond_dev->broadcast, slave_dev->broadcast,
-diff --git a/drivers/net/ethernet/dec/tulip/de2104x.c b/drivers/net/ethernet/dec/tulip/de2104x.c
-index cadcee645f74..11ce50a05799 100644
---- a/drivers/net/ethernet/dec/tulip/de2104x.c
-+++ b/drivers/net/ethernet/dec/tulip/de2104x.c
-@@ -91,7 +91,7 @@ MODULE_PARM_DESC (rx_copybreak, "de2104x Breakpoint at which Rx packets are copi
- #define DSL			CONFIG_DE2104X_DSL
- #endif
- 
--#define DE_RX_RING_SIZE		64
-+#define DE_RX_RING_SIZE		128
- #define DE_TX_RING_SIZE		64
- #define DE_RING_BYTES		\
- 		((sizeof(struct de_desc) * DE_RX_RING_SIZE) +	\
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index d5bf0f275307..460b29ac5fd8 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1214,64 +1214,12 @@ static const struct ethtool_ops ravb_ethtool_ops = {
- 	.get_ts_info		= ravb_get_ts_info,
- };
- 
--/* MDIO bus init function */
--static int ravb_mdio_init(struct ravb_private *priv)
--{
--	struct platform_device *pdev = priv->pdev;
--	struct device *dev = &pdev->dev;
--	int error;
--
--	/* Bitbang init */
--	priv->mdiobb.ops = &bb_ops;
--
--	/* MII controller setting */
--	priv->mii_bus = alloc_mdio_bitbang(&priv->mdiobb);
--	if (!priv->mii_bus)
--		return -ENOMEM;
--
--	/* Hook up MII support for ethtool */
--	priv->mii_bus->name = "ravb_mii";
--	priv->mii_bus->parent = dev;
--	snprintf(priv->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
--		 pdev->name, pdev->id);
--
--	/* Register MDIO bus */
--	error = of_mdiobus_register(priv->mii_bus, dev->of_node);
--	if (error)
--		goto out_free_bus;
--
--	return 0;
--
--out_free_bus:
--	free_mdio_bitbang(priv->mii_bus);
--	return error;
--}
--
--/* MDIO bus release function */
--static int ravb_mdio_release(struct ravb_private *priv)
--{
--	/* Unregister mdio bus */
--	mdiobus_unregister(priv->mii_bus);
--
--	/* Free bitbang info */
--	free_mdio_bitbang(priv->mii_bus);
--
--	return 0;
--}
--
- /* Network device open function for Ethernet AVB */
- static int ravb_open(struct net_device *ndev)
- {
- 	struct ravb_private *priv = netdev_priv(ndev);
- 	int error;
- 
--	/* MDIO bus init */
--	error = ravb_mdio_init(priv);
--	if (error) {
--		netdev_err(ndev, "failed to initialize MDIO\n");
--		return error;
--	}
--
- 	napi_enable(&priv->napi[RAVB_BE]);
- 	napi_enable(&priv->napi[RAVB_NC]);
- 
-@@ -1320,7 +1268,6 @@ out_free_irq:
- out_napi_off:
- 	napi_disable(&priv->napi[RAVB_NC]);
- 	napi_disable(&priv->napi[RAVB_BE]);
--	ravb_mdio_release(priv);
- 	return error;
- }
- 
-@@ -1614,8 +1561,6 @@ static int ravb_close(struct net_device *ndev)
- 	ravb_ring_free(ndev, RAVB_BE);
- 	ravb_ring_free(ndev, RAVB_NC);
- 
--	ravb_mdio_release(priv);
--
- 	return 0;
- }
- 
-@@ -1719,6 +1664,51 @@ static const struct net_device_ops ravb_netdev_ops = {
- 	.ndo_change_mtu		= eth_change_mtu,
- };
- 
-+/* MDIO bus init function */
-+static int ravb_mdio_init(struct ravb_private *priv)
-+{
-+	struct platform_device *pdev = priv->pdev;
-+	struct device *dev = &pdev->dev;
-+	int error;
-+
-+	/* Bitbang init */
-+	priv->mdiobb.ops = &bb_ops;
-+
-+	/* MII controller setting */
-+	priv->mii_bus = alloc_mdio_bitbang(&priv->mdiobb);
-+	if (!priv->mii_bus)
-+		return -ENOMEM;
-+
-+	/* Hook up MII support for ethtool */
-+	priv->mii_bus->name = "ravb_mii";
-+	priv->mii_bus->parent = dev;
-+	snprintf(priv->mii_bus->id, MII_BUS_ID_SIZE, "%s-%x",
-+		 pdev->name, pdev->id);
-+
-+	/* Register MDIO bus */
-+	error = of_mdiobus_register(priv->mii_bus, dev->of_node);
-+	if (error)
-+		goto out_free_bus;
-+
-+	return 0;
-+
-+out_free_bus:
-+	free_mdio_bitbang(priv->mii_bus);
-+	return error;
-+}
-+
-+/* MDIO bus release function */
-+static int ravb_mdio_release(struct ravb_private *priv)
-+{
-+	/* Unregister mdio bus */
-+	mdiobus_unregister(priv->mii_bus);
-+
-+	/* Free bitbang info */
-+	free_mdio_bitbang(priv->mii_bus);
-+
-+	return 0;
-+}
-+
- static const struct of_device_id ravb_match_table[] = {
- 	{ .compatible = "renesas,etheravb-r8a7790", .data = (void *)RCAR_GEN2 },
- 	{ .compatible = "renesas,etheravb-r8a7794", .data = (void *)RCAR_GEN2 },
-@@ -1857,6 +1847,13 @@ static int ravb_probe(struct platform_device *pdev)
- 		eth_hw_addr_random(ndev);
- 	}
- 
-+	/* MDIO bus init */
-+	error = ravb_mdio_init(priv);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to initialize MDIO\n");
-+		goto out_dma_free;
-+	}
-+
- 	netif_napi_add(ndev, &priv->napi[RAVB_BE], ravb_poll, 64);
- 	netif_napi_add(ndev, &priv->napi[RAVB_NC], ravb_poll, 64);
- 
-@@ -1876,6 +1873,8 @@ static int ravb_probe(struct platform_device *pdev)
- out_napi_del:
- 	netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
-+	ravb_mdio_release(priv);
-+out_dma_free:
- 	dma_free_coherent(ndev->dev.parent, priv->desc_bat_size, priv->desc_bat,
- 			  priv->desc_bat_dma);
- out_release:
-@@ -1900,6 +1899,7 @@ static int ravb_remove(struct platform_device *pdev)
- 	unregister_netdev(ndev);
- 	netif_napi_del(&priv->napi[RAVB_NC]);
- 	netif_napi_del(&priv->napi[RAVB_BE]);
-+	ravb_mdio_release(priv);
- 	pm_runtime_disable(&pdev->dev);
- 	free_netdev(ndev);
- 	platform_set_drvdata(pdev, NULL);
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-index fbf701e5f1e9..6fe441696882 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-@@ -616,23 +616,16 @@ static int stmmac_ethtool_op_set_eee(struct net_device *dev,
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	int ret;
- 
--	if (!edata->eee_enabled) {
-+	if (!priv->dma_cap.eee)
-+		return -EOPNOTSUPP;
-+
-+	if (!edata->eee_enabled)
- 		stmmac_disable_eee_mode(priv);
--	} else {
--		/* We are asking for enabling the EEE but it is safe
--		 * to verify all by invoking the eee_init function.
--		 * In case of failure it will return an error.
--		 */
--		edata->eee_enabled = stmmac_eee_init(priv);
--		if (!edata->eee_enabled)
--			return -EOPNOTSUPP;
--	}
- 
- 	ret = phy_ethtool_set_eee(dev->phydev, edata);
- 	if (ret)
- 		return ret;
- 
--	priv->eee_enabled = edata->eee_enabled;
- 	priv->tx_lpi_timer = edata->tx_lpi_timer;
- 	return 0;
- }
-diff --git a/drivers/net/team/team.c b/drivers/net/team/team.c
-index d0943415aeff..2ed1453b9224 100644
---- a/drivers/net/team/team.c
-+++ b/drivers/net/team/team.c
-@@ -285,7 +285,7 @@ inst_rollback:
- 	for (i--; i >= 0; i--)
- 		__team_option_inst_del_option(team, dst_opts[i]);
- 
--	i = option_count - 1;
-+	i = option_count;
- alloc_rollback:
- 	for (i--; i >= 0; i--)
- 		kfree(dst_opts[i]);
-@@ -2038,6 +2038,7 @@ static void team_setup_by_port(struct net_device *dev,
- 	dev->header_ops	= port_dev->header_ops;
- 	dev->type = port_dev->type;
- 	dev->hard_header_len = port_dev->hard_header_len;
-+	dev->needed_headroom = port_dev->needed_headroom;
- 	dev->addr_len = port_dev->addr_len;
- 	dev->mtu = port_dev->mtu;
- 	memcpy(dev->broadcast, port_dev->broadcast, port_dev->addr_len);
-diff --git a/drivers/net/usb/rndis_host.c b/drivers/net/usb/rndis_host.c
-index 524a47a28120..b20b380d91bf 100644
---- a/drivers/net/usb/rndis_host.c
-+++ b/drivers/net/usb/rndis_host.c
-@@ -213,7 +213,7 @@ int rndis_command(struct usbnet *dev, struct rndis_msg_hdr *buf, int buflen)
- 			dev_dbg(&info->control->dev,
- 				"rndis response error, code %d\n", retval);
- 		}
--		msleep(20);
-+		msleep(40);
- 	}
- 	dev_dbg(&info->control->dev, "rndis response timeout\n");
- 	return -ETIMEDOUT;
-diff --git a/drivers/net/usb/rtl8150.c b/drivers/net/usb/rtl8150.c
-index 58b1e18fdd64..7230f1e8210f 100644
---- a/drivers/net/usb/rtl8150.c
-+++ b/drivers/net/usb/rtl8150.c
-@@ -277,12 +277,20 @@ static int write_mii_word(rtl8150_t * dev, u8 phy, __u8 indx, u16 reg)
- 		return 1;
- }
- 
--static inline void set_ethernet_addr(rtl8150_t * dev)
-+static void set_ethernet_addr(rtl8150_t *dev)
- {
--	u8 node_id[6];
-+	u8 node_id[ETH_ALEN];
-+	int ret;
-+
-+	ret = get_registers(dev, IDR, sizeof(node_id), node_id);
- 
--	get_registers(dev, IDR, sizeof(node_id), node_id);
--	memcpy(dev->netdev->dev_addr, node_id, sizeof(node_id));
-+	if (ret == sizeof(node_id)) {
-+		ether_addr_copy(dev->netdev->dev_addr, node_id);
-+	} else {
-+		eth_hw_addr_random(dev->netdev);
-+		netdev_notice(dev->netdev, "Assigned a random MAC address: %pM\n",
-+			      dev->netdev->dev_addr);
-+	}
- }
- 
- static int rtl8150_set_mac_address(struct net_device *netdev, void *p)
-diff --git a/drivers/net/wan/hdlc_cisco.c b/drivers/net/wan/hdlc_cisco.c
-index f8ed079d8bc3..7a6f851d9843 100644
---- a/drivers/net/wan/hdlc_cisco.c
-+++ b/drivers/net/wan/hdlc_cisco.c
-@@ -120,6 +120,7 @@ static void cisco_keepalive_send(struct net_device *dev, u32 type,
- 	skb_put(skb, sizeof(struct cisco_packet));
- 	skb->priority = TC_PRIO_CONTROL;
- 	skb->dev = dev;
-+	skb->protocol = htons(ETH_P_HDLC);
- 	skb_reset_network_header(skb);
- 
- 	dev_queue_xmit(skb);
-diff --git a/drivers/net/wan/hdlc_fr.c b/drivers/net/wan/hdlc_fr.c
-index 89541cc90e87..74d46f7e77ea 100644
---- a/drivers/net/wan/hdlc_fr.c
-+++ b/drivers/net/wan/hdlc_fr.c
-@@ -435,6 +435,8 @@ static netdev_tx_t pvc_xmit(struct sk_buff *skb, struct net_device *dev)
- 			if (pvc->state.fecn) /* TX Congestion counter */
- 				dev->stats.tx_compressed++;
- 			skb->dev = pvc->frad;
-+			skb->protocol = htons(ETH_P_HDLC);
-+			skb_reset_network_header(skb);
- 			dev_queue_xmit(skb);
- 			return NETDEV_TX_OK;
- 		}
-@@ -557,6 +559,7 @@ static void fr_lmi_send(struct net_device *dev, int fullrep)
- 	skb_put(skb, i);
- 	skb->priority = TC_PRIO_CONTROL;
- 	skb->dev = dev;
-+	skb->protocol = htons(ETH_P_HDLC);
- 	skb_reset_network_header(skb);
- 
- 	dev_queue_xmit(skb);
-diff --git a/drivers/net/wan/hdlc_ppp.c b/drivers/net/wan/hdlc_ppp.c
-index a2559f213dae..473a9b8ec9ba 100644
---- a/drivers/net/wan/hdlc_ppp.c
-+++ b/drivers/net/wan/hdlc_ppp.c
-@@ -254,6 +254,7 @@ static void ppp_tx_cp(struct net_device *dev, u16 pid, u8 code,
- 
- 	skb->priority = TC_PRIO_CONTROL;
- 	skb->dev = dev;
-+	skb->protocol = htons(ETH_P_HDLC);
- 	skb_reset_network_header(skb);
- 	skb_queue_tail(&tx_queue, skb);
- }
-diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
-index c6db9a4e7c45..ef746ba74ab4 100644
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -201,8 +201,6 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
- 	struct net_device *dev;
- 	int size = skb->len;
- 
--	skb->protocol = htons(ETH_P_X25);
--
- 	ptr = skb_push(skb, 2);
- 
- 	*ptr++ = size % 256;
-@@ -213,6 +211,8 @@ static void lapbeth_data_transmit(struct net_device *ndev, struct sk_buff *skb)
- 
- 	skb->dev = dev = lapbeth->ethdev;
- 
-+	skb->protocol = htons(ETH_P_DEC);
-+
- 	skb_reset_network_header(skb);
- 
- 	dev_hard_header(skb, dev, ETH_P_DEC, bcast_addr, NULL, 0);
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 0bed4733c4f0..9180b24ba60a 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -2474,7 +2474,7 @@ static void hotkey_compare_and_issue_event(struct tp_nvram_state *oldn,
-  */
- static int hotkey_kthread(void *data)
- {
--	struct tp_nvram_state s[2];
-+	struct tp_nvram_state s[2] = { 0 };
- 	u32 poll_mask, event_mask;
- 	unsigned int si, so;
- 	unsigned long t;
-@@ -6362,8 +6362,10 @@ static int __init tpacpi_query_bcl_levels(acpi_handle handle)
- 	list_for_each_entry(child, &device->children, node) {
- 		acpi_status status = acpi_evaluate_object(child->handle, "_BCL",
- 							  NULL, &buffer);
--		if (ACPI_FAILURE(status))
-+		if (ACPI_FAILURE(status)) {
-+			buffer.length = ACPI_ALLOCATE_BUFFER;
- 			continue;
-+		}
- 
- 		obj = (union acpi_object *)buffer.pointer;
- 		if (!obj || (obj->type != ACPI_TYPE_PACKAGE)) {
-diff --git a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
-index e57fa26bcff1..29bb67921639 100644
---- a/drivers/video/console/fbcon.c
-+++ b/drivers/video/console/fbcon.c
-@@ -2234,6 +2234,9 @@ static int fbcon_get_font(struct vc_data *vc, struct console_font *font)
- 
- 	if (font->width <= 8) {
- 		j = vc->vc_font.height;
-+		if (font->charcount * j > FNTSIZE(fontdata))
-+			return -EINVAL;
-+
- 		for (i = 0; i < font->charcount; i++) {
- 			memcpy(data, fontdata, j);
- 			memset(data + j, 0, 32 - j);
-@@ -2242,6 +2245,9 @@ static int fbcon_get_font(struct vc_data *vc, struct console_font *font)
- 		}
- 	} else if (font->width <= 16) {
- 		j = vc->vc_font.height * 2;
-+		if (font->charcount * j > FNTSIZE(fontdata))
-+			return -EINVAL;
-+
- 		for (i = 0; i < font->charcount; i++) {
- 			memcpy(data, fontdata, j);
- 			memset(data + j, 0, 64 - j);
-@@ -2249,6 +2255,9 @@ static int fbcon_get_font(struct vc_data *vc, struct console_font *font)
- 			fontdata += j;
- 		}
- 	} else if (font->width <= 24) {
-+		if (font->charcount * (vc->vc_font.height * sizeof(u32)) > FNTSIZE(fontdata))
-+			return -EINVAL;
-+
- 		for (i = 0; i < font->charcount; i++) {
- 			for (j = 0; j < vc->vc_font.height; j++) {
- 				*data++ = fontdata[0];
-@@ -2261,6 +2270,9 @@ static int fbcon_get_font(struct vc_data *vc, struct console_font *font)
- 		}
- 	} else {
- 		j = vc->vc_font.height * 4;
-+		if (font->charcount * j > FNTSIZE(fontdata))
-+			return -EINVAL;
-+
- 		for (i = 0; i < font->charcount; i++) {
- 			memcpy(data, fontdata, j);
- 			memset(data + j, 0, 128 - j);
-diff --git a/drivers/video/console/fbcon.h b/drivers/video/console/fbcon.h
-index 5ebdccd070eb..701eecab3317 100644
---- a/drivers/video/console/fbcon.h
-+++ b/drivers/video/console/fbcon.h
-@@ -151,13 +151,6 @@ static inline int attr_col_ec(int shift, struct vc_data *vc,
- #define attr_bgcol_ec(bgshift, vc, info) attr_col_ec(bgshift, vc, info, 0)
- #define attr_fgcol_ec(fgshift, vc, info) attr_col_ec(fgshift, vc, info, 1)
- 
--/* Font */
--#define REFCOUNT(fd)	(((int *)(fd))[-1])
--#define FNTSIZE(fd)	(((int *)(fd))[-2])
--#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
--#define FNTSUM(fd)	(((int *)(fd))[-4])
--#define FONT_EXTRA_WORDS 4
--
-     /*
-      *  Scroll Method
-      */
-diff --git a/drivers/video/console/fbcon_rotate.c b/drivers/video/console/fbcon_rotate.c
-index db6528f2d3f2..0e3321081945 100644
---- a/drivers/video/console/fbcon_rotate.c
-+++ b/drivers/video/console/fbcon_rotate.c
-@@ -14,6 +14,7 @@
- #include <linux/fb.h>
- #include <linux/vt_kern.h>
- #include <linux/console.h>
-+#include <linux/font.h>
- #include <asm/types.h>
- #include "fbcon.h"
- #include "fbcon_rotate.h"
-diff --git a/drivers/video/console/newport_con.c b/drivers/video/console/newport_con.c
-index bd0c6e53bec1..740284a4554c 100644
---- a/drivers/video/console/newport_con.c
-+++ b/drivers/video/console/newport_con.c
-@@ -35,12 +35,6 @@
- 
- #define FONT_DATA ((unsigned char *)font_vga_8x16.data)
- 
--/* borrowed from fbcon.c */
--#define REFCOUNT(fd)	(((int *)(fd))[-1])
--#define FNTSIZE(fd)	(((int *)(fd))[-2])
--#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
--#define FONT_EXTRA_WORDS 3
--
- static unsigned char *font_data[MAX_NR_CONSOLES];
- 
- static struct newport_regs *npregs;
-@@ -522,6 +516,7 @@ static int newport_set_font(int unit, struct console_font *op)
- 	FNTSIZE(new_data) = size;
- 	FNTCHARCNT(new_data) = op->charcount;
- 	REFCOUNT(new_data) = 0;	/* usage counter */
-+	FNTSUM(new_data) = 0;
- 
- 	p = new_data;
- 	for (i = 0; i < op->charcount; i++) {
-diff --git a/drivers/video/console/tileblit.c b/drivers/video/console/tileblit.c
-index 3c0b242dba5f..691717276c3e 100644
---- a/drivers/video/console/tileblit.c
-+++ b/drivers/video/console/tileblit.c
-@@ -13,6 +13,7 @@
- #include <linux/fb.h>
- #include <linux/vt_kern.h>
- #include <linux/console.h>
-+#include <linux/font.h>
- #include <asm/types.h>
- #include "fbcon.h"
- 
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index e5324642023d..2ef15a4018d0 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -217,8 +217,7 @@ struct eventpoll {
- 	struct file *file;
- 
- 	/* used to optimize loop detection check */
--	int visited;
--	struct list_head visited_list_link;
-+	u64 gen;
- };
- 
- /* Wait structure used by the poll hooks */
-@@ -262,6 +261,8 @@ static long max_user_watches __read_mostly;
-  */
- static DEFINE_MUTEX(epmutex);
- 
-+static u64 loop_check_gen = 0;
-+
- /* Used to check for epoll file descriptor inclusion loops */
- static struct nested_calls poll_loop_ncalls;
- 
-@@ -277,9 +278,6 @@ static struct kmem_cache *epi_cache __read_mostly;
- /* Slab cache used to allocate "struct eppoll_entry" */
- static struct kmem_cache *pwq_cache __read_mostly;
- 
--/* Visited nodes during ep_loop_check(), so we can unset them when we finish */
--static LIST_HEAD(visited_list);
--
- /*
-  * List of files with newly added links, where we may need to limit the number
-  * of emanating paths. Protected by the epmutex.
-@@ -1234,7 +1232,7 @@ static int reverse_path_check(void)
- 
- static int ep_create_wakeup_source(struct epitem *epi)
- {
--	const char *name;
-+	struct name_snapshot n;
- 	struct wakeup_source *ws;
- 
- 	if (!epi->ep->ws) {
-@@ -1243,8 +1241,9 @@ static int ep_create_wakeup_source(struct epitem *epi)
- 			return -ENOMEM;
- 	}
- 
--	name = epi->ffd.file->f_path.dentry->d_name.name;
--	ws = wakeup_source_register(name);
-+	take_dentry_name_snapshot(&n, epi->ffd.file->f_path.dentry);
-+	ws = wakeup_source_register(n.name);
-+	release_dentry_name_snapshot(&n);
- 
- 	if (!ws)
- 		return -ENOMEM;
-@@ -1304,6 +1303,22 @@ static int ep_insert(struct eventpoll *ep, struct epoll_event *event,
- 		RCU_INIT_POINTER(epi->ws, NULL);
- 	}
- 
-+	/* Add the current item to the list of active epoll hook for this file */
-+	spin_lock(&tfile->f_lock);
-+	list_add_tail_rcu(&epi->fllink, &tfile->f_ep_links);
-+	spin_unlock(&tfile->f_lock);
-+
-+	/*
-+	 * Add the current item to the RB tree. All RB tree operations are
-+	 * protected by "mtx", and ep_insert() is called with "mtx" held.
-+	 */
-+	ep_rbtree_insert(ep, epi);
-+
-+	/* now check if we've created too many backpaths */
-+	error = -EINVAL;
-+	if (full_check && reverse_path_check())
-+		goto error_remove_epi;
-+
- 	/* Initialize the poll table using the queue callback */
- 	epq.epi = epi;
- 	init_poll_funcptr(&epq.pt, ep_ptable_queue_proc);
-@@ -1326,22 +1341,6 @@ static int ep_insert(struct eventpoll *ep, struct epoll_event *event,
- 	if (epi->nwait < 0)
- 		goto error_unregister;
- 
--	/* Add the current item to the list of active epoll hook for this file */
--	spin_lock(&tfile->f_lock);
--	list_add_tail_rcu(&epi->fllink, &tfile->f_ep_links);
--	spin_unlock(&tfile->f_lock);
--
--	/*
--	 * Add the current item to the RB tree. All RB tree operations are
--	 * protected by "mtx", and ep_insert() is called with "mtx" held.
--	 */
--	ep_rbtree_insert(ep, epi);
--
--	/* now check if we've created too many backpaths */
--	error = -EINVAL;
--	if (full_check && reverse_path_check())
--		goto error_remove_epi;
--
- 	/* We have to drop the new item inside our item list to keep track of it */
- 	spin_lock_irqsave(&ep->lock, flags);
- 
-@@ -1367,6 +1366,8 @@ static int ep_insert(struct eventpoll *ep, struct epoll_event *event,
- 
- 	return 0;
- 
-+error_unregister:
-+	ep_unregister_pollwait(ep, epi);
- error_remove_epi:
- 	spin_lock(&tfile->f_lock);
- 	list_del_rcu(&epi->fllink);
-@@ -1374,9 +1375,6 @@ error_remove_epi:
- 
- 	rb_erase(&epi->rbn, &ep->rbr);
- 
--error_unregister:
--	ep_unregister_pollwait(ep, epi);
--
- 	/*
- 	 * We need to do this because an event could have been arrived on some
- 	 * allocated wait queue. Note that we don't care about the ep->ovflist
-@@ -1697,13 +1695,12 @@ static int ep_loop_check_proc(void *priv, void *cookie, int call_nests)
- 	struct epitem *epi;
- 
- 	mutex_lock_nested(&ep->mtx, call_nests + 1);
--	ep->visited = 1;
--	list_add(&ep->visited_list_link, &visited_list);
-+	ep->gen = loop_check_gen;
- 	for (rbp = rb_first(&ep->rbr); rbp; rbp = rb_next(rbp)) {
- 		epi = rb_entry(rbp, struct epitem, rbn);
- 		if (unlikely(is_file_epoll(epi->ffd.file))) {
- 			ep_tovisit = epi->ffd.file->private_data;
--			if (ep_tovisit->visited)
-+			if (ep_tovisit->gen == loop_check_gen)
- 				continue;
- 			error = ep_call_nested(&poll_loop_ncalls, EP_MAX_NESTS,
- 					ep_loop_check_proc, epi->ffd.file,
-@@ -1744,18 +1741,8 @@ static int ep_loop_check_proc(void *priv, void *cookie, int call_nests)
-  */
- static int ep_loop_check(struct eventpoll *ep, struct file *file)
- {
--	int ret;
--	struct eventpoll *ep_cur, *ep_next;
--
--	ret = ep_call_nested(&poll_loop_ncalls, EP_MAX_NESTS,
-+	return ep_call_nested(&poll_loop_ncalls, EP_MAX_NESTS,
- 			      ep_loop_check_proc, file, ep, current);
--	/* clear visited list */
--	list_for_each_entry_safe(ep_cur, ep_next, &visited_list,
--							visited_list_link) {
--		ep_cur->visited = 0;
--		list_del(&ep_cur->visited_list_link);
--	}
--	return ret;
- }
- 
- static void clear_tfile_check_list(void)
-@@ -1899,6 +1886,7 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, int, op, int, fd,
- 	mutex_lock_nested(&ep->mtx, 0);
- 	if (op == EPOLL_CTL_ADD) {
- 		if (!list_empty(&f.file->f_ep_links) ||
-+				ep->gen == loop_check_gen ||
- 						is_file_epoll(tf.file)) {
- 			full_check = 1;
- 			mutex_unlock(&ep->mtx);
-@@ -1957,6 +1945,7 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, int, op, int, fd,
- error_tgt_fput:
- 	if (full_check) {
- 		clear_tfile_check_list();
-+		loop_check_gen++;
- 		mutex_unlock(&epmutex);
- 	}
- 
-diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index 21e5fcbcb227..ba7e98d8ce09 100644
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -562,6 +562,9 @@ int nfs_readdir_page_filler(nfs_readdir_descriptor_t *desc, struct nfs_entry *en
- 	xdr_set_scratch_buffer(&stream, page_address(scratch), PAGE_SIZE);
- 
- 	do {
-+		if (entry->label)
-+			entry->label->len = NFS4_MAXLABELLEN;
-+
- 		status = xdr_decode(desc, entry, &stream);
- 		if (status != 0) {
- 			if (status == -EAGAIN)
-diff --git a/include/linux/font.h b/include/linux/font.h
-index d6821769dd1e..f85e70bd4793 100644
---- a/include/linux/font.h
-+++ b/include/linux/font.h
-@@ -57,4 +57,17 @@ extern const struct font_desc *get_default_font(int xres, int yres,
- /* Max. length for the name of a predefined font */
- #define MAX_FONT_NAME	32
- 
-+/* Extra word getters */
-+#define REFCOUNT(fd)	(((int *)(fd))[-1])
-+#define FNTSIZE(fd)	(((int *)(fd))[-2])
-+#define FNTCHARCNT(fd)	(((int *)(fd))[-3])
-+#define FNTSUM(fd)	(((int *)(fd))[-4])
-+
-+#define FONT_EXTRA_WORDS 4
-+
-+struct font_data {
-+	unsigned int extra[FONT_EXTRA_WORDS];
-+	const unsigned char data[];
-+} __packed;
-+
- #endif /* _VIDEO_FONT_H */
-diff --git a/include/linux/mtd/nand.h b/include/linux/mtd/nand.h
-index 93fc37200793..1a066faf7b80 100644
---- a/include/linux/mtd/nand.h
-+++ b/include/linux/mtd/nand.h
-@@ -38,7 +38,7 @@ extern int nand_scan_ident(struct mtd_info *mtd, int max_chips,
- 			   struct nand_flash_dev *table);
- extern int nand_scan_tail(struct mtd_info *mtd);
- 
--/* Free resources held by the NAND device */
-+/* Unregister the MTD device and free resources held by the NAND device */
- extern void nand_release(struct mtd_info *mtd);
- 
- /* Internal helper for board drivers which need to override command function */
-@@ -1029,4 +1029,8 @@ int nand_check_erased_ecc_chunk(void *data, int datalen,
- 				void *ecc, int ecclen,
- 				void *extraoob, int extraooblen,
- 				int threshold);
-+
-+/* Free resources held by the NAND device */
-+void nand_cleanup(struct nand_chip *chip);
-+
- #endif /* __LINUX_MTD_NAND_H */
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 89685c7bc7c0..7a9c18deaa51 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1730,21 +1730,17 @@ static inline int xfrm_replay_state_esn_len(struct xfrm_replay_state_esn *replay
- static inline int xfrm_replay_clone(struct xfrm_state *x,
- 				     struct xfrm_state *orig)
- {
--	x->replay_esn = kzalloc(xfrm_replay_state_esn_len(orig->replay_esn),
-+
-+	x->replay_esn = kmemdup(orig->replay_esn,
-+				xfrm_replay_state_esn_len(orig->replay_esn),
- 				GFP_KERNEL);
- 	if (!x->replay_esn)
- 		return -ENOMEM;
--
--	x->replay_esn->bmp_len = orig->replay_esn->bmp_len;
--	x->replay_esn->replay_window = orig->replay_esn->replay_window;
--
--	x->preplay_esn = kmemdup(x->replay_esn,
--				 xfrm_replay_state_esn_len(x->replay_esn),
-+	x->preplay_esn = kmemdup(orig->preplay_esn,
-+				 xfrm_replay_state_esn_len(orig->preplay_esn),
- 				 GFP_KERNEL);
--	if (!x->preplay_esn) {
--		kfree(x->replay_esn);
-+	if (!x->preplay_esn)
- 		return -ENOMEM;
--	}
- 
- 	return 0;
- }
-diff --git a/kernel/kmod.c b/kernel/kmod.c
-index e4e5e98002fe..3f3bbae4cec3 100644
---- a/kernel/kmod.c
-+++ b/kernel/kmod.c
-@@ -28,6 +28,7 @@
- #include <linux/cred.h>
- #include <linux/file.h>
- #include <linux/fdtable.h>
-+#include <linux/fs_struct.h>
- #include <linux/workqueue.h>
- #include <linux/security.h>
- #include <linux/mount.h>
-@@ -222,6 +223,14 @@ static int call_usermodehelper_exec_async(void *data)
- 	flush_signal_handlers(current, 1);
- 	spin_unlock_irq(&current->sighand->siglock);
- 
-+	/*
-+	 * Initial kernel threads share ther FS with init, in order to
-+	 * get the init root directory. But we've now created a new
-+	 * thread that is going to execve a user process and has its own
-+	 * 'struct fs_struct'. Reset umask to the default.
-+	 */
-+	current->fs->umask = 0022;
-+
- 	/*
- 	 * Our parent (unbound workqueue) runs with elevated scheduling
- 	 * priority. Avoid propagating that into the userspace child.
-diff --git a/lib/fonts/font_10x18.c b/lib/fonts/font_10x18.c
-index 6be72bb218ee..87e904f550c1 100644
---- a/lib/fonts/font_10x18.c
-+++ b/lib/fonts/font_10x18.c
-@@ -7,8 +7,8 @@
- 
- #define FONTDATAMAX 9216
- 
--static const unsigned char fontdata_10x18[FONTDATAMAX] = {
--
-+static struct font_data fontdata_10x18 = {
-+	{ 0, 0, FONTDATAMAX, 0 }, {
- 	/* 0 0x00 '^@' */
- 	0x00, 0x00, /* 0000000000 */
- 	0x00, 0x00, /* 0000000000 */
-@@ -5128,8 +5128,7 @@ static const unsigned char fontdata_10x18[FONTDATAMAX] = {
- 	0x00, 0x00, /* 0000000000 */
- 	0x00, 0x00, /* 0000000000 */
- 	0x00, 0x00, /* 0000000000 */
--
--};
-+} };
- 
- 
- const struct font_desc font_10x18 = {
-@@ -5137,7 +5136,7 @@ const struct font_desc font_10x18 = {
- 	.name	= "10x18",
- 	.width	= 10,
- 	.height	= 18,
--	.data	= fontdata_10x18,
-+	.data	= fontdata_10x18.data,
- #ifdef __sparc__
- 	.pref	= 5,
- #else
-diff --git a/lib/fonts/font_6x10.c b/lib/fonts/font_6x10.c
-index b20620904d31..896ffa987c97 100644
---- a/lib/fonts/font_6x10.c
-+++ b/lib/fonts/font_6x10.c
-@@ -1,7 +1,9 @@
- #include <linux/font.h>
- 
--static const unsigned char fontdata_6x10[] = {
-+#define FONTDATAMAX 2560
- 
-+static struct font_data fontdata_6x10 = {
-+	{ 0, 0, FONTDATAMAX, 0 }, {
- 	/* 0 0x00 '^@' */
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
-@@ -3073,14 +3075,13 @@ static const unsigned char fontdata_6x10[] = {
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
--
--};
-+} };
- 
- const struct font_desc font_6x10 = {
- 	.idx	= FONT6x10_IDX,
- 	.name	= "6x10",
- 	.width	= 6,
- 	.height	= 10,
--	.data	= fontdata_6x10,
-+	.data	= fontdata_6x10.data,
- 	.pref	= 0,
- };
-diff --git a/lib/fonts/font_6x11.c b/lib/fonts/font_6x11.c
-index 46e86e67aa6a..eb46a59307d2 100644
---- a/lib/fonts/font_6x11.c
-+++ b/lib/fonts/font_6x11.c
-@@ -8,8 +8,8 @@
- 
- #define FONTDATAMAX (11*256)
- 
--static const unsigned char fontdata_6x11[FONTDATAMAX] = {
--
-+static struct font_data fontdata_6x11 = {
-+	{ 0, 0, FONTDATAMAX, 0 }, {
- 	/* 0 0x00 '^@' */
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
-@@ -3337,8 +3337,7 @@ static const unsigned char fontdata_6x11[FONTDATAMAX] = {
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
--
--};
-+} };
- 
- 
- const struct font_desc font_vga_6x11 = {
-@@ -3346,7 +3345,7 @@ const struct font_desc font_vga_6x11 = {
- 	.name	= "ProFont6x11",
- 	.width	= 6,
- 	.height	= 11,
--	.data	= fontdata_6x11,
-+	.data	= fontdata_6x11.data,
- 	/* Try avoiding this font if possible unless on MAC */
- 	.pref	= -2000,
- };
-diff --git a/lib/fonts/font_7x14.c b/lib/fonts/font_7x14.c
-index 3b7dbf9c060b..c88b3bba001b 100644
---- a/lib/fonts/font_7x14.c
-+++ b/lib/fonts/font_7x14.c
-@@ -7,8 +7,8 @@
- 
- #define FONTDATAMAX 3584
- 
--static const unsigned char fontdata_7x14[FONTDATAMAX] = {
--
-+static struct font_data fontdata_7x14 = {
-+	{ 0, 0, FONTDATAMAX, 0 }, {
- 	/* 0 0x00 '^@' */
- 	0x00, /* 0000000 */
- 	0x00, /* 0000000 */
-@@ -4104,8 +4104,7 @@ static const unsigned char fontdata_7x14[FONTDATAMAX] = {
- 	0x00, /* 0000000 */
- 	0x00, /* 0000000 */
- 	0x00, /* 0000000 */
--
--};
-+} };
- 
- 
- const struct font_desc font_7x14 = {
-@@ -4113,6 +4112,6 @@ const struct font_desc font_7x14 = {
- 	.name	= "7x14",
- 	.width	= 7,
- 	.height	= 14,
--	.data	= fontdata_7x14,
-+	.data	= fontdata_7x14.data,
- 	.pref	= 0,
- };
-diff --git a/lib/fonts/font_8x16.c b/lib/fonts/font_8x16.c
-index 00a0c67a5c7d..ba53e2643670 100644
---- a/lib/fonts/font_8x16.c
-+++ b/lib/fonts/font_8x16.c
-@@ -9,8 +9,8 @@
- 
- #define FONTDATAMAX 4096
- 
--static const unsigned char fontdata_8x16[FONTDATAMAX] = {
--
-+static struct font_data fontdata_8x16 = {
-+	{ 0, 0, FONTDATAMAX, 0 }, {
- 	/* 0 0x00 '^@' */
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
-@@ -4618,8 +4618,7 @@ static const unsigned char fontdata_8x16[FONTDATAMAX] = {
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
--
--};
-+} };
- 
- 
- const struct font_desc font_vga_8x16 = {
-@@ -4627,7 +4626,7 @@ const struct font_desc font_vga_8x16 = {
- 	.name	= "VGA8x16",
- 	.width	= 8,
- 	.height	= 16,
--	.data	= fontdata_8x16,
-+	.data	= fontdata_8x16.data,
- 	.pref	= 0,
- };
- EXPORT_SYMBOL(font_vga_8x16);
-diff --git a/lib/fonts/font_8x8.c b/lib/fonts/font_8x8.c
-index 9f56efe2cee7..4d28b81e8237 100644
---- a/lib/fonts/font_8x8.c
-+++ b/lib/fonts/font_8x8.c
-@@ -8,8 +8,8 @@
- 
- #define FONTDATAMAX 2048
- 
--static const unsigned char fontdata_8x8[FONTDATAMAX] = {
--
-+static struct font_data fontdata_8x8 = {
-+	{ 0, 0, FONTDATAMAX, 0 }, {
- 	/* 0 0x00 '^@' */
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
-@@ -2569,8 +2569,7 @@ static const unsigned char fontdata_8x8[FONTDATAMAX] = {
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
- 	0x00, /* 00000000 */
--
--};
-+} };
- 
- 
- const struct font_desc font_vga_8x8 = {
-@@ -2578,6 +2577,6 @@ const struct font_desc font_vga_8x8 = {
- 	.name	= "VGA8x8",
- 	.width	= 8,
- 	.height	= 8,
--	.data	= fontdata_8x8,
-+	.data	= fontdata_8x8.data,
- 	.pref	= 0,
- };
-diff --git a/lib/fonts/font_acorn_8x8.c b/lib/fonts/font_acorn_8x8.c
-index 639e31ae1100..957398b762d3 100644
---- a/lib/fonts/font_acorn_8x8.c
-+++ b/lib/fonts/font_acorn_8x8.c
-@@ -2,7 +2,10 @@
- 
- #include <linux/font.h>
- 
--static const unsigned char acorndata_8x8[] = {
-+#define FONTDATAMAX 2048
-+
-+static struct font_data acorndata_8x8 = {
-+{ 0, 0, FONTDATAMAX, 0 }, {
- /* 00 */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* ^@ */
- /* 01 */  0x7e, 0x81, 0xa5, 0x81, 0xbd, 0x99, 0x81, 0x7e, /* ^A */
- /* 02 */  0x7e, 0xff, 0xbd, 0xff, 0xc3, 0xe7, 0xff, 0x7e, /* ^B */
-@@ -259,14 +262,14 @@ static const unsigned char acorndata_8x8[] = {
- /* FD */  0x38, 0x04, 0x18, 0x20, 0x3c, 0x00, 0x00, 0x00,
- /* FE */  0x00, 0x00, 0x3c, 0x3c, 0x3c, 0x3c, 0x00, 0x00,
- /* FF */  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
--};
-+} };
- 
- const struct font_desc font_acorn_8x8 = {
- 	.idx	= ACORN8x8_IDX,
- 	.name	= "Acorn8x8",
- 	.width	= 8,
- 	.height	= 8,
--	.data	= acorndata_8x8,
-+	.data	= acorndata_8x8.data,
- #ifdef CONFIG_ARCH_ACORN
- 	.pref	= 20,
- #else
-diff --git a/lib/fonts/font_mini_4x6.c b/lib/fonts/font_mini_4x6.c
-index 838caa1cfef7..1449876c6a27 100644
---- a/lib/fonts/font_mini_4x6.c
-+++ b/lib/fonts/font_mini_4x6.c
-@@ -43,8 +43,8 @@ __END__;
- 
- #define FONTDATAMAX 1536
- 
--static const unsigned char fontdata_mini_4x6[FONTDATAMAX] = {
--
-+static struct font_data fontdata_mini_4x6 = {
-+	{ 0, 0, FONTDATAMAX, 0 }, {
- 	/*{*/
- 	  	/*   Char 0: ' '  */
- 	0xee,	/*=  [*** ]       */
-@@ -2145,14 +2145,14 @@ static const unsigned char fontdata_mini_4x6[FONTDATAMAX] = {
- 	0xee,	/*=   [*** ]        */
- 	0x00,	/*=   [    ]        */
- 	/*}*/
--};
-+} };
- 
- const struct font_desc font_mini_4x6 = {
- 	.idx	= MINI4x6_IDX,
- 	.name	= "MINI4x6",
- 	.width	= 4,
- 	.height	= 6,
--	.data	= fontdata_mini_4x6,
-+	.data	= fontdata_mini_4x6.data,
- 	.pref	= 3,
- };
- 
-diff --git a/lib/fonts/font_pearl_8x8.c b/lib/fonts/font_pearl_8x8.c
-index dc6ad539ca4e..4649314333bb 100644
---- a/lib/fonts/font_pearl_8x8.c
-+++ b/lib/fonts/font_pearl_8x8.c
-@@ -13,8 +13,8 @@
- 
- #define FONTDATAMAX 2048
- 
--static const unsigned char fontdata_pearl8x8[FONTDATAMAX] = {
--
-+static struct font_data fontdata_pearl8x8 = {
-+   { 0, 0, FONTDATAMAX, 0 }, {
-    /* 0 0x00 '^@' */
-    0x00, /* 00000000 */
-    0x00, /* 00000000 */
-@@ -2574,14 +2574,13 @@ static const unsigned char fontdata_pearl8x8[FONTDATAMAX] = {
-    0x00, /* 00000000 */
-    0x00, /* 00000000 */
-    0x00, /* 00000000 */
--
--};
-+} };
- 
- const struct font_desc font_pearl_8x8 = {
- 	.idx	= PEARL8x8_IDX,
- 	.name	= "PEARL8x8",
- 	.width	= 8,
- 	.height	= 8,
--	.data	= fontdata_pearl8x8,
-+	.data	= fontdata_pearl8x8.data,
- 	.pref	= 2,
- };
-diff --git a/lib/fonts/font_sun12x22.c b/lib/fonts/font_sun12x22.c
-index d3643853c33a..c6967cdf4207 100644
---- a/lib/fonts/font_sun12x22.c
-+++ b/lib/fonts/font_sun12x22.c
-@@ -2,8 +2,8 @@
- 
- #define FONTDATAMAX 11264
- 
--static const unsigned char fontdata_sun12x22[FONTDATAMAX] = {
--
-+static struct font_data fontdata_sun12x22 = {
-+	{ 0, 0, FONTDATAMAX, 0 }, {
- 	/* 0 0x00 '^@' */
- 	0x00, 0x00, /* 000000000000 */
- 	0x00, 0x00, /* 000000000000 */
-@@ -6147,8 +6147,7 @@ static const unsigned char fontdata_sun12x22[FONTDATAMAX] = {
- 	0x00, 0x00, /* 000000000000 */
- 	0x00, 0x00, /* 000000000000 */
- 	0x00, 0x00, /* 000000000000 */
--
--};
-+} };
- 
- 
- const struct font_desc font_sun_12x22 = {
-@@ -6156,7 +6155,7 @@ const struct font_desc font_sun_12x22 = {
- 	.name	= "SUN12x22",
- 	.width	= 12,
- 	.height	= 22,
--	.data	= fontdata_sun12x22,
-+	.data	= fontdata_sun12x22.data,
- #ifdef __sparc__
- 	.pref	= 5,
- #else
-diff --git a/lib/fonts/font_sun8x16.c b/lib/fonts/font_sun8x16.c
-index 268151325b83..7d979e578899 100644
---- a/lib/fonts/font_sun8x16.c
-+++ b/lib/fonts/font_sun8x16.c
-@@ -2,7 +2,8 @@
- 
- #define FONTDATAMAX 4096
- 
--static const unsigned char fontdata_sun8x16[FONTDATAMAX] = {
-+static struct font_data fontdata_sun8x16 = {
-+{ 0, 0, FONTDATAMAX, 0 }, {
- /* */ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
- /* */ 0x00,0x00,0x7e,0x81,0xa5,0x81,0x81,0xbd,0x99,0x81,0x81,0x7e,0x00,0x00,0x00,0x00,
- /* */ 0x00,0x00,0x7e,0xff,0xdb,0xff,0xff,0xc3,0xe7,0xff,0xff,0x7e,0x00,0x00,0x00,0x00,
-@@ -259,14 +260,14 @@ static const unsigned char fontdata_sun8x16[FONTDATAMAX] = {
- /* */ 0x00,0x70,0xd8,0x30,0x60,0xc8,0xf8,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
- /* */ 0x00,0x00,0x00,0x00,0x7c,0x7c,0x7c,0x7c,0x7c,0x7c,0x7c,0x00,0x00,0x00,0x00,0x00,
- /* */ 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
--};
-+} };
- 
- const struct font_desc font_sun_8x16 = {
- 	.idx	= SUN8x16_IDX,
- 	.name	= "SUN8x16",
- 	.width	= 8,
- 	.height	= 16,
--	.data	= fontdata_sun8x16,
-+	.data	= fontdata_sun8x16.data,
- #ifdef __sparc__
- 	.pref	= 10,
- #else
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index f324a1124418..b349b8410ec8 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -1022,6 +1022,8 @@ ctnetlink_parse_tuple(const struct nlattr * const cda[],
- 	if (!tb[CTA_TUPLE_IP])
- 		return -EINVAL;
- 
-+	if (l3num != NFPROTO_IPV4 && l3num != NFPROTO_IPV6)
-+		return -EOPNOTSUPP;
- 	tuple->src.l3num = l3num;
- 
- 	err = ctnetlink_parse_tuple_ip(tb[CTA_TUPLE_IP], tuple);
-diff --git a/net/rxrpc/ar-key.c b/net/rxrpc/ar-key.c
-index 91d43ab3a961..ea615e53eab2 100644
---- a/net/rxrpc/ar-key.c
-+++ b/net/rxrpc/ar-key.c
-@@ -897,7 +897,7 @@ int rxrpc_request_key(struct rxrpc_sock *rx, char __user *optval, int optlen)
- 
- 	_enter("");
- 
--	if (optlen <= 0 || optlen > PAGE_SIZE - 1)
-+	if (optlen <= 0 || optlen > PAGE_SIZE - 1 || rx->securities)
- 		return -EINVAL;
- 
- 	description = kmalloc(optlen + 1, GFP_KERNEL);
-@@ -1114,7 +1114,8 @@ static long rxrpc_read(const struct key *key,
- 			break;
- 
- 		default: /* we have a ticket we can't encode */
--			BUG();
-+			pr_err("Unsupported key token type (%u)\n",
-+			       token->security_index);
- 			continue;
- 		}
- 
-@@ -1149,6 +1150,14 @@ static long rxrpc_read(const struct key *key,
- 			goto fault;					\
- 		xdr += (_l + 3) >> 2;					\
- 	} while(0)
-+#define ENCODE_BYTES(l, s)						\
-+	do {								\
-+		u32 _l = (l);						\
-+		memcpy(xdr, (s), _l);					\
-+		if (_l & 3)						\
-+			memcpy((u8 *)xdr + _l, &zero, 4 - (_l & 3));	\
-+		xdr += (_l + 3) >> 2;					\
-+	} while(0)
- #define ENCODE64(x)					\
- 	do {						\
- 		__be64 y = cpu_to_be64(x);		\
-@@ -1177,7 +1186,7 @@ static long rxrpc_read(const struct key *key,
- 		case RXRPC_SECURITY_RXKAD:
- 			ENCODE(token->kad->vice_id);
- 			ENCODE(token->kad->kvno);
--			ENCODE_DATA(8, token->kad->session_key);
-+			ENCODE_BYTES(8, token->kad->session_key);
- 			ENCODE(token->kad->start);
- 			ENCODE(token->kad->expiry);
- 			ENCODE(token->kad->primary_flag);
-@@ -1227,7 +1236,6 @@ static long rxrpc_read(const struct key *key,
- 			break;
- 
- 		default:
--			BUG();
- 			break;
- 		}
- 
-diff --git a/net/sctp/auth.c b/net/sctp/auth.c
-index 1543e39f47c3..04cd87d26ed1 100644
---- a/net/sctp/auth.c
-+++ b/net/sctp/auth.c
-@@ -496,6 +496,7 @@ int sctp_auth_init_hmacs(struct sctp_endpoint *ep, gfp_t gfp)
- out_err:
- 	/* Clean up any successful allocations */
- 	sctp_auth_destroy_hmacs(ep->auth_hmacs);
-+	ep->auth_hmacs = NULL;
- 	return -ENOMEM;
- }
- 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 55de35c4434a..95366e35ab13 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -3101,6 +3101,9 @@ static int nl80211_del_key(struct sk_buff *skb, struct genl_info *info)
- 	if (err)
- 		return err;
- 
-+	if (key.idx < 0)
-+		return -EINVAL;
-+
- 	if (info->attrs[NL80211_ATTR_MAC])
- 		mac_addr = nla_data(info->attrs[NL80211_ATTR_MAC]);
- 
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index d3595f1d00f2..5bb5950d6276 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -742,7 +742,8 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
- 	 */
- 	if (x->km.state == XFRM_STATE_VALID) {
- 		if ((x->sel.family &&
--		     !xfrm_selector_match(&x->sel, fl, x->sel.family)) ||
-+		     (x->sel.family != family ||
-+		      !xfrm_selector_match(&x->sel, fl, family))) ||
- 		    !security_xfrm_state_pol_flow_match(x, pol, fl))
- 			return;
- 
-@@ -755,7 +756,9 @@ static void xfrm_state_look_at(struct xfrm_policy *pol, struct xfrm_state *x,
- 		*acq_in_progress = 1;
- 	} else if (x->km.state == XFRM_STATE_ERROR ||
- 		   x->km.state == XFRM_STATE_EXPIRED) {
--		if (xfrm_selector_match(&x->sel, fl, x->sel.family) &&
-+		if ((!x->sel.family ||
-+		     (x->sel.family == family &&
-+		      xfrm_selector_match(&x->sel, fl, family))) &&
- 		    security_xfrm_state_pol_flow_match(x, pol, fl))
- 			*error = -ESRCH;
- 	}
-@@ -791,7 +794,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
- 		    tmpl->mode == x->props.mode &&
- 		    tmpl->id.proto == x->id.proto &&
- 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
--			xfrm_state_look_at(pol, x, fl, encap_family,
-+			xfrm_state_look_at(pol, x, fl, family,
- 					   &best, &acquire_in_progress, &error);
- 	}
- 	if (best || acquire_in_progress)
-@@ -807,7 +810,7 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
- 		    tmpl->mode == x->props.mode &&
- 		    tmpl->id.proto == x->id.proto &&
- 		    (tmpl->id.spi == x->id.spi || !tmpl->id.spi))
--			xfrm_state_look_at(pol, x, fl, encap_family,
-+			xfrm_state_look_at(pol, x, fl, family,
- 					   &best, &acquire_in_progress, &error);
- 	}
- 
-@@ -1207,7 +1210,7 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig)
- 	x->tfcpad = orig->tfcpad;
- 	x->replay_maxdiff = orig->replay_maxdiff;
- 	x->replay_maxage = orig->replay_maxage;
--	x->curlft.add_time = orig->curlft.add_time;
-+	memcpy(&x->curlft, &orig->curlft, sizeof(x->curlft));
- 	x->km.state = orig->km.state;
- 	x->km.seq = orig->km.seq;
- 	x->replay = orig->replay;
-diff --git a/tools/perf/builtin-top.c b/tools/perf/builtin-top.c
-index 4e64ba8163bb..7d6dd799bbcd 100644
---- a/tools/perf/builtin-top.c
-+++ b/tools/perf/builtin-top.c
-@@ -626,7 +626,9 @@ repeat:
- 	delay_msecs = top->delay_secs * 1000;
- 	set_term_quiet_input(&save);
- 	/* trash return*/
--	getc(stdin);
-+	clearerr(stdin);
-+	if (poll(&stdin_poll, 1, 0) > 0)
-+		getc(stdin);
- 
- 	while (!done) {
- 		perf_top__print_sym_table(top);
+I'm announcing the release of the 4.9.239 kernel.
+
+All users of the 4.9 kernel series must upgrade.
+
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                             |    2 
+ drivers/base/dd.c                                    |    5 
+ drivers/clk/samsung/clk-exynos4.c                    |    4 
+ drivers/gpio/gpio-tc3589x.c                          |    2 
+ drivers/gpu/drm/amd/amdgpu/amdgpu_display.c          |    2 
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c              |    1 
+ drivers/i2c/busses/i2c-cpm.c                         |    3 
+ drivers/input/serio/i8042-x86ia64io.h                |    7 +
+ drivers/iommu/exynos-iommu.c                         |    8 +
+ drivers/mtd/nand/sunxi_nand.c                        |    2 
+ drivers/net/bonding/bond_main.c                      |    1 
+ drivers/net/ethernet/dec/tulip/de2104x.c             |    2 
+ drivers/net/ethernet/renesas/ravb_main.c             |  110 +++++++++----------
+ drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c |   15 --
+ drivers/net/macsec.c                                 |    4 
+ drivers/net/phy/Kconfig                              |    1 
+ drivers/net/team/team.c                              |    3 
+ drivers/net/usb/rndis_host.c                         |    2 
+ drivers/net/usb/rtl8150.c                            |   16 ++
+ drivers/net/wan/hdlc_cisco.c                         |    1 
+ drivers/net/wan/hdlc_fr.c                            |    3 
+ drivers/net/wan/hdlc_ppp.c                           |    1 
+ drivers/net/wan/lapbether.c                          |    4 
+ drivers/platform/x86/thinkpad_acpi.c                 |    6 -
+ drivers/usb/gadget/function/f_ncm.c                  |   30 -----
+ drivers/video/console/fbcon.c                        |   12 ++
+ drivers/video/console/fbcon.h                        |    7 -
+ drivers/video/console/fbcon_rotate.c                 |    1 
+ drivers/video/console/newport_con.c                  |    7 -
+ drivers/video/console/tileblit.c                     |    1 
+ fs/eventpoll.c                                       |   71 +++++-------
+ fs/nfs/dir.c                                         |    3 
+ include/linux/font.h                                 |   13 ++
+ include/linux/khugepaged.h                           |    5 
+ include/net/xfrm.h                                   |   16 +-
+ kernel/events/core.c                                 |    5 
+ kernel/kmod.c                                        |    9 +
+ kernel/trace/ftrace.c                                |    8 -
+ lib/fonts/font_10x18.c                               |    9 -
+ lib/fonts/font_6x10.c                                |    9 -
+ lib/fonts/font_6x11.c                                |    9 -
+ lib/fonts/font_7x14.c                                |    9 -
+ lib/fonts/font_8x16.c                                |    9 -
+ lib/fonts/font_8x8.c                                 |    9 -
+ lib/fonts/font_acorn_8x8.c                           |    9 +
+ lib/fonts/font_mini_4x6.c                            |    8 -
+ lib/fonts/font_pearl_8x8.c                           |    9 -
+ lib/fonts/font_sun12x22.c                            |    9 -
+ lib/fonts/font_sun8x16.c                             |    7 -
+ lib/random32.c                                       |    2 
+ mm/khugepaged.c                                      |   25 +++-
+ mm/page_alloc.c                                      |    3 
+ net/mac80211/vht.c                                   |    8 -
+ net/netfilter/nf_conntrack_netlink.c                 |    2 
+ net/openvswitch/conntrack.c                          |   22 ++-
+ net/packet/af_packet.c                               |    9 +
+ net/rxrpc/conn_event.c                               |    6 -
+ net/rxrpc/key.c                                      |   16 ++
+ net/sctp/auth.c                                      |    1 
+ net/vmw_vsock/virtio_transport.c                     |   96 +++++++++++++---
+ net/wireless/nl80211.c                               |    3 
+ net/xfrm/xfrm_state.c                                |   13 +-
+ tools/perf/builtin-top.c                             |    4 
+ 63 files changed, 414 insertions(+), 285 deletions(-)
+
+Aaron Ma (1):
+      platform/x86: thinkpad_acpi: re-initialize ACPI buffer size when reuse
+
+Al Viro (4):
+      epoll: do not insert into poll queues until all sanity checks are done
+      epoll: replace ->visited/visited_list with generation count
+      epoll: EPOLL_CTL_ADD: close the race in decision to take fast path
+      ep_create_wakeup_source(): dentry name can change under you...
+
+Anant Thazhemadam (3):
+      net: wireless: nl80211: fix out-of-bounds access in nl80211_del_key()
+      net: team: fix memory leak in __team_options_register
+      net: usb: rtl8150: set random MAC address when set_ethernet_addr() fails
+
+Antony Antony (2):
+      xfrm: clone XFRMA_REPLAY_ESN_VAL in xfrm_do_migrate
+      xfrm: clone whole liftime_cur structure in xfrm_do_migrate
+
+Bryan O'Donoghue (1):
+      USB: gadget: f_ncm: Fix NDP16 datagram validation
+
+David Howells (3):
+      rxrpc: Downgrade the BUG() for unsupported token type in rxrpc_read()
+      rxrpc: Fix some missing _bh annotations on locking conn->state_lock
+      rxrpc: Fix server keyring leak
+
+Dumitru Ceara (1):
+      openvswitch: handle DNAT tuple collision
+
+Eric Dumazet (4):
+      macsec: avoid use-after-free in macsec_handle_frame()
+      sctp: fix sctp_auth_init_hmacs() error path
+      team: set dev->needed_headroom in team_setup_by_port()
+      bonding: set dev->needed_headroom in bond_setup_by_slave()
+
+Felix Fietkau (1):
+      mac80211: do not allow bigger VHT MPDUs than the hardware supports
+
+Geert Uytterhoeven (1):
+      Revert "ravb: Fixed to be able to unload modules"
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.239
+
+Herbert Xu (1):
+      xfrm: Use correct address family in xfrm_state_find
+
+Hugh Dickins (1):
+      mm/khugepaged: fix filemap page_to_pgoff(page) != offset
+
+Jean Delvare (1):
+      drm/amdgpu: restore proper ref count in amdgpu_display_crtc_set_config
+
+Jeffrey Mitchell (1):
+      nfs: Fix security label length not being reset
+
+Jiri Kosina (1):
+      Input: i8042 - add nopnp quirk for Acer Aspire 5 A515
+
+Kajol Jain (1):
+      perf: Fix task_function_call() error handling
+
+Linus Torvalds (1):
+      usermodehelper: reset umask to default before executing user process
+
+Lucy Yan (1):
+      net: dec: de2104x: Increase receive ring size for Tulip
+
+Marc Dionne (1):
+      rxrpc: Fix rxkad token xdr encoding
+
+Marek Szyprowski (1):
+      clk: samsung: exynos4: mark 'chipid' clock as CLK_IGNORE_UNUSED
+
+Miquel Raynal (1):
+      mtd: rawnand: sunxi: Fix the probe error path
+
+Nicolas VINCENT (1):
+      i2c: cpm: Fix i2c_ram structure
+
+Olympia Giannou (1):
+      rndis_host: increase sleep time in the query-response loop
+
+Or Cohen (1):
+      net/packet: fix overflow in tpacket_rcv
+
+Peilin Ye (3):
+      fbdev, newport_con: Move FONT_EXTRA_WORDS macros into linux/font.h
+      Fonts: Support FONT_EXTRA_WORDS macros for built-in fonts
+      fbcon: Fix global-out-of-bounds read in fbcon_get_font()
+
+Philip Yang (1):
+      drm/amdgpu: prevent double kfree ttm->sg
+
+Randy Dunlap (1):
+      mdio: fix mdio-thunder.c dependency & build error
+
+Stefano Garzarella (2):
+      vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock
+      vsock/virtio: stop workers during the .remove()
+
+Steven Rostedt (VMware) (1):
+      ftrace: Move RCU is watching check after recursion check
+
+Tetsuo Handa (1):
+      driver core: Fix probe_count imbalance in really_probe()
+
+Thibaut Sautereau (1):
+      random32: Restore __latent_entropy attribute on net_rand_state
+
+Tom Rix (1):
+      platform/x86: thinkpad_acpi: initialize tp_nvram_state variable
+
+Tommi Rantala (1):
+      perf top: Fix stdio interface input handling with glibc 2.28+
+
+Vijay Balakrishna (1):
+      mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
+
+Voon Weifeng (1):
+      net: stmmac: removed enabling eee in EEE set callback
+
+Will McVicker (1):
+      netfilter: ctnetlink: add a range check for l3/l4 protonum
+
+Xie He (2):
+      drivers/net/wan/lapbether: Make skb->protocol consistent with the header
+      drivers/net/wan/hdlc: Set skb->protocol before transmitting
+
+Yu Kuai (1):
+      iommu/exynos: add missing put_device() call in exynos_iommu_of_xlate()
+
+dillon min (1):
+      gpio: tc35894: fix up tc35894 interrupt configuration
+
