@@ -2,137 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D6928E1E6
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 16:09:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2EFA28E26C
+	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 16:42:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726528AbgJNOJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 10:09:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56560 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727684AbgJNOJJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 10:09:09 -0400
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A65BEC061755
-        for <stable@vger.kernel.org>; Wed, 14 Oct 2020 07:09:09 -0700 (PDT)
-Received: by mail-pf1-x42c.google.com with SMTP id j18so2085273pfa.0
-        for <stable@vger.kernel.org>; Wed, 14 Oct 2020 07:09:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3AyPugw+CZjG3oG45aqMSiqdbK5eNibc2orZdw1fKWk=;
-        b=qvcIgG8NPYw5vm9aIWcthyMD1kl5LOzJIczrIyNny96jaMfpe3LpGVyFauMfLHtIGA
-         jaM59sbsRSTq6RovBAMD3rvJFqT/75P68TTfVh7CLCLjy8jNw+dslqnpJVtDcBMDbexX
-         kafRf4wYixT7FadEQCBBD59UgofmNmlok2Rcmq11LJ41XaRKsL63LdZ3mQ6R85d5jSCM
-         P9pg0VytbedE6DxXGFx++FvxDiTbA8PQ9bNI9/ZI+Vyqk71BIj2SFYUfmTEvWA6A62xD
-         hfVszYoS0VX3pzkqusJZplOvTaqcXkSahUMUBKMH9yC+DtBirCxlxWjUXpiyhVcuSrbz
-         Vhmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3AyPugw+CZjG3oG45aqMSiqdbK5eNibc2orZdw1fKWk=;
-        b=jvgvlNvMCbsztxl4Gpzo5MEJCvFa3B025iPcOwxNv3clPrlU2ZnZG5TSlxAJjJl3rr
-         SfLLoIq3H0V2LGHroKX0P1BMhzFEEhm07Ty8pLZFYx+tZFOjBszULNQ7zEvGFDolG/qI
-         FuTwFc0oxCTZmgMohmtaU1LiMag+jcL6Jqjzz43zKKEWwjs6J1aTJUMQ0IlyFpedSKFq
-         Xvugx0q7XxirW9VoG0vPP/uUSbdFqFvK6EBP7ZnY+rkLN2TZY5zrxXspFMdEwdAFxvNg
-         ASxVWiIea3BNRojV9Qn+fCk7wDC2eGjCIzehKXrsQDiE1UEGnK11/RT6HNw7Gpvgl2ga
-         jUHw==
-X-Gm-Message-State: AOAM531CbJvFWejY+A1KGVUpaWsRkn365+05KP6EgE2Sv7YOq+Axx9Z3
-        Uuze7vvSHyDdkqP0gnnbBtVyd5jKUXtAKA==
-X-Google-Smtp-Source: ABdhPJz3MAFc1Av02HXQPfS8jBNyAcfp43M7ylbdu5oyjj8nkLiM6/9DEUm5xZ/8CPd9tAE4n/K57A==
-X-Received: by 2002:a62:aa10:0:b029:155:d56e:5196 with SMTP id e16-20020a62aa100000b0290155d56e5196mr4579711pff.44.1602684548341;
-        Wed, 14 Oct 2020 07:09:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c10sm3567348pgl.92.2020.10.14.07.09.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Oct 2020 07:09:07 -0700 (PDT)
-Message-ID: <5f870683.1c69fb81.c6340.6a58@mx.google.com>
-Date:   Wed, 14 Oct 2020 07:09:07 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1729299AbgJNOmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Oct 2020 10:42:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:56970 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729153AbgJNOmK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 10:42:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1602686529;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=AyWfiZ87mZMggRfQO4NsuqE5LIObC7zu63xuUqiKqPA=;
+        b=CSwKIiqb/uPdCHKipnfEEBy4QzjSPAlpykvOITvDIDsKUhadiXSdqI2TzgAzsDISkHUwGw
+        HayDlGyrDcV9pVQNgOvpxaBEiV3Aq3R84adpUURwDpZrTHA4bkHV4ilnc95/uCOlIIfIeD
+        811qYUNBbXrr4pbYq7PilrHJUu+mEsU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-441-G-VBpyUcP4iS7GWHal35ww-1; Wed, 14 Oct 2020 10:42:04 -0400
+X-MC-Unique: G-VBpyUcP4iS7GWHal35ww-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3A4158030AE;
+        Wed, 14 Oct 2020 14:42:02 +0000 (UTC)
+Received: from x1.localdomain (ovpn-112-126.ams2.redhat.com [10.36.112.126])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 219D77BE43;
+        Wed, 14 Oct 2020 14:41:59 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Wolfram Sang <wsa@the-dreams.de>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        stable@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH 5.8+ regression fix 0/1] i2c: core: Restore acpi_walk_dep_device_list() getting called after registering the ACPI i2c devs
+Date:   Wed, 14 Oct 2020 16:41:57 +0200
+Message-Id: <20201014144158.18036-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.150-49-gfc7c0b3e8029
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 153 runs,
- 1 regressions (v4.19.150-49-gfc7c0b3e8029)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 153 runs, 1 regressions (v4.19.150-49-gfc7c0=
-b3e8029)
+Hi All,
 
-Regressions Summary
--------------------
+I am afraid that commit 21653a4181ff ("i2c: core: Call
+i2c_acpi_install_space_handler() before i2c_acpi_register_devices()")
+which is in 5.9 and was also added to 5.8.13 (and possible other
+stable series releases) causes a regression on some devices including
+on the Microsoft Surface Go 2 (and possibly also the Go 1) where the
+system no longer boots.
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
+Before the troublesome commit the ACPI related i2c core code looked
+like this:
 
+        /* create pre-declared device nodes */
+        of_i2c_register_devices(adap);
+        i2c_acpi_register_devices(adap);
+        i2c_acpi_install_space_handler(adap);
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.150-49-gfc7c0b3e8029/plan/baseline/
+	if (...
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.150-49-gfc7c0b3e8029
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fc7c0b3e8029f17fa83bafcafed2e1da943f8a08 =
+The trouble some commit changed this to:
 
+        /* create pre-declared device nodes */
+        of_i2c_register_devices(adap);
+        i2c_acpi_install_space_handler(adap);
+        i2c_acpi_register_devices(adap);
 
+	if (...
 
-Test Regressions
----------------- =
+The goal here was to only move the acpi_install_address_space_handler()
+which is wrapped by i2c_acpi_install_space_handler() which should be
+pretty safe. But as Maximilian Luz' sharp eyes pointed out while
+debugging the regression, i2c_acpi_install_space_handler() does more,
+it also contains a call to acpi_walk_dep_device_list() at the end.
+Which I missed and which is causing the trouble we are seeing now.
 
+The original code flow looked like this:
 
+1.  i2c_acpi_register_devices()
+1.1  Create ACPI declared i2c_clients for adap
+2.  i2c_acpi_install_space_handler(adap);
+2.1  acpi_install_address_space_handler()
+2.2  acpi_walk_dep_device_list()
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
+And after the troublesome commit it now looks like this:
 
+1.  i2c_acpi_install_space_handler(adap);
+1.1  acpi_install_address_space_handler()
+1.2  acpi_walk_dep_device_list()
+2.  i2c_acpi_register_devices()
+2.1  Create ACPI declared i2c_clients for adap
 
-  Details:     https://kernelci.org/test/plan/id/5f86cf673b33d5dede4ff412
+Notice that the acpi_walk_dep_device_list() now happens before
+the i2c_clients below this adapter are created.
 
-  Results:     3 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.150=
--49-gfc7c0b3e8029/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
--b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.150=
--49-gfc7c0b3e8029/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
--b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+The patch in this 1 patch series fixes this by moving the
+acpi_walk_dep_device_list() call to the end of
+i2c_acpi_register_devices(), partly restoring the original
+order, so that we now get:
 
+1.  i2c_acpi_install_space_handler(adap);
+1.1  acpi_install_address_space_handler()
+2.  i2c_acpi_register_devices()
+2.1  Create ACPI declared i2c_clients for adap
+2.2  acpi_walk_dep_device_list()
 
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f86cf673b33d5de=
-de4ff416
-      new failure (last pass: v4.19.150-49-g269cfef6b429)
-      1 lines
+So we end up calling acpi_walk_dep_device_list() last
+again, as before.
 
-    2020-10-14 10:12:10.537000  Connected to bcm2837-rpi-3-b console [chann=
-el connected] (~$quit to exit)
-    2020-10-14 10:12:10.537000  (user:khilman) is already connected
-    2020-10-14 10:12:26.427000  =00
-    2020-10-14 10:12:26.427000  =
+Sorry for missing this the first time around.
 
-    2020-10-14 10:12:26.427000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
-0)
-    2020-10-14 10:12:26.427000  =
+Wolfram, can we get this queued up to go to Linus
+soonish ?
 
-    2020-10-14 10:12:26.428000  DRAM:  948 MiB
-    2020-10-14 10:12:26.442000  RPI 3 Model B (0xa02082)
-    2020-10-14 10:12:26.530000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
-    2020-10-14 10:12:26.561000  Loading Environment from FAT... *** Warning=
- - bad CRC, using default environment
-    ... (362 line(s) more)
-      =20
+Greg, in essence this is a partial revert of the trouble
+some commit. With the 2 combined acpi_walk_dep_device_list()
+is called last again, while still doing the
+acpi_install_address_space_handler() call earlier.
+
+Since this is a somewhat nasty regression and since the poor
+timing wrt the merge-window, I was hoping that you would be
+willing to make an exception and pick up this fix before
+it hits Linus' tree?
+
+The alternative would be to revert this now and then pick
+up both again later, when the fix has landed in Linus'
+tree. The problem with that is that reverting the original
+troublesome commit will regress all these bugs:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1842039
+https://bugzilla.redhat.com/show_bug.cgi?id=1871793
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1861610
+
+Regards,
+
+Hans
+
