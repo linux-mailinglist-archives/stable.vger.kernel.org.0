@@ -2,118 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 187F028E66F
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 20:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C17928E6E8
+	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 21:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729908AbgJNScH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 14:32:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40972 "EHLO
+        id S1730409AbgJNTJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Oct 2020 15:09:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727830AbgJNScH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 14:32:07 -0400
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41D78C061755
-        for <stable@vger.kernel.org>; Wed, 14 Oct 2020 11:32:07 -0700 (PDT)
-Received: by mail-pf1-x443.google.com with SMTP id f19so296964pfj.11
-        for <stable@vger.kernel.org>; Wed, 14 Oct 2020 11:32:07 -0700 (PDT)
+        with ESMTP id S1726115AbgJNTJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 15:09:43 -0400
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA9EC061755;
+        Wed, 14 Oct 2020 12:09:43 -0700 (PDT)
+Received: by mail-il1-x143.google.com with SMTP id w17so543332ilg.8;
+        Wed, 14 Oct 2020 12:09:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=c6axx0JELED5T9x8hDekihgKHYOlBdjdLpETONjmu8c=;
-        b=cLEGBAMzgBYqIeyntg76eUJMmxXJ1MNUZxeTtNAIZKQnCBei6uRmaz7ndRk1t9iTWI
-         Pl7mzQXPFw1zp2QZrQ5B2LoxmW5TKl5nxb7hXGVoDdtBIzUG0oIXjH5XjA1Pi2CXbuwc
-         5Bh7gFzREGuR4L/ynTKBnwhE5XNyF+46+46O1fD+hfALFjlm1Mtdr5pKZ2BeYK+yXtUD
-         Hp62bbIVlhWP+3caL3fMcJ5d4BWSoFvV+BOeEtBoWDBDIS8QjklV1xeieC3qdfmDE25Y
-         GkHrTGdx0HV6fO/SGtZkpy1b0797P2vn6B8geeqXilBtlN3QtekGZas8NkhDl2xA2W18
-         tFNg==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=vJ1nHXm544IufxzpS6W1OHKpFLa6HHKFKEYPJk1K/jI=;
+        b=ZtI7mQbOFJ1QO8SGwtWjKh1Hlrg/2l/t2Mmr+Mwgq5uUMaqt3a0p5gfmuJsOBDLakD
+         MYJesXxpgX2UbumN1VBpedBsGCG+mSeOigAqr1vgpY1fSmYcxf1lzbsqCvckKEeshyzt
+         SWw6kB4a3QHfnRyywZaP0KaAdFLZpx2m5YIs9FfnRjWd86Rw3CODEpFtxGelDul8LLcS
+         C1yi3OEt7/q1qrpHxjdylK07RRGd6VtenLaaku0Jz8H1pMLokJ5Cn7sAMUAAgqvETiUS
+         0mU6ZHGghPUXRXNHFROqkQlBx/n9CsalDYj5iQis9T/nNZRn+vwSC3xiLdrypzHEqb4M
+         x9Vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=c6axx0JELED5T9x8hDekihgKHYOlBdjdLpETONjmu8c=;
-        b=CL8NO924vPzawIWsjXIR7aVNkO+HU1td0myNxQYpK6W3SiWdHC4+S+UDJX0sJZ0AxB
-         UK6JjjjphqhiVl4I3pZ7JRfr7CeBYkhgS6iTwJvJTO2Z/q9HERr/jovXp+oPTPUgcXLm
-         u7nKaE3+aKOEUhODcNJ03brMM89YXVO9CGYk+SNLir59Fh5APj2xFugqI+VKUFkSS5uk
-         ryZgI6beMBnFSFpDg6uVblk5TIrAJob2zSzVvrSgJj9S7TYTA2cOUJQkGcZt1cRH5Vss
-         hJUZU5Me+raRCzT5Dw0hXy4jPAhxNozGcPRECO5B2O6x+VrnJG523XujRt/UAspBlBiX
-         tI/A==
-X-Gm-Message-State: AOAM531GWFyGcp0UAL1Ah+I0gTQpu9HG19ZBqfaiBxfqNfHjbqCL8heu
-        9L/ffsXj4jtnwSdbqxrSZ7Vvgw==
-X-Google-Smtp-Source: ABdhPJxQzA+WhcXkPBbng2l0r2nsFfK2oQ9wNzu93wQ7S/hbLO8j28mBmTbydltYT5ssCx3UBl+DKg==
-X-Received: by 2002:a05:6a00:786:b029:155:2e1d:a948 with SMTP id g6-20020a056a000786b02901552e1da948mr605567pfu.22.1602700326761;
-        Wed, 14 Oct 2020 11:32:06 -0700 (PDT)
-Received: from debian ([171.61.243.166])
-        by smtp.gmail.com with ESMTPSA id p16sm335175pfq.63.2020.10.14.11.32.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Oct 2020 11:32:05 -0700 (PDT)
-Message-ID: <f1ed28462ca01522e683ef023f4f497e7a17a768.camel@rajagiritech.edu.in>
-Subject: Re: [PATCH 5.8 000/124] 5.8.15-rc1 review
-From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Date:   Thu, 15 Oct 2020 00:01:56 +0530
-In-Reply-To: <20201014095652.GA3599360@kroah.com>
-References: <20201012133146.834528783@linuxfoundation.org>
-         <d31bda1df5cc75e3217d88eece08dcc2c3c29531.camel@rajagiritech.edu.in>
-         <20201014095652.GA3599360@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.4-2 
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vJ1nHXm544IufxzpS6W1OHKpFLa6HHKFKEYPJk1K/jI=;
+        b=sB7LJg0hs2dn2gYrD9n6mlMOWImwcdAGYkpgx6KoEzBuY1BUJ5MzGWL8TFeWnAC+At
+         jbjq0ccpXXicqMYZbyyA/I8Lbx6Ch3pHLOWySaB1sYHR57xWrvuDh2Abcc5aTytRSfG1
+         czOTSZlNpKQGj5PezkjHScSJejgP2q/4C27Y5Ht3DSiCVKE7QOvIvH/pK9VYzu6dEM7W
+         wo2wCQDwJB5hKaN4SO/vok0pl1+7d44WQK9u7gnne4IOBRIK1Wwo9QM+nwq4ljvqg8ks
+         6YVcvAt0c1g9vNeFq3uQmqakEOtuBu6IKNjeU0Ik3LRwJQMcDBsXKkvfbijHClj0UrIL
+         VzbA==
+X-Gm-Message-State: AOAM530w3INjS6G9BwuWflfiKU//BCSrWCv1C/vby8uFTE7c4qZW6iVh
+        aNBjao7bPxqxMCIKPZBSQVhBLSXVsDETU35DNLU1usRsuvvyNA==
+X-Google-Smtp-Source: ABdhPJy7WRMfB+1jjmRcweTCJ2aiDFHUwa+aAdI5T6ctQftI4CddTIVgSDtZ59PeWQtt7GXHJrpfC0dlVyGJwmVX/V8=
+X-Received: by 2002:a92:99cb:: with SMTP id t72mr550757ilk.172.1602702582726;
+ Wed, 14 Oct 2020 12:09:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+References: <20201006151456.20875-1-ashishsangwan2@gmail.com> <2d1ff3421a88ece2f1b7708cdbc9d34b00ad3e81.camel@hammerspace.com>
+In-Reply-To: <2d1ff3421a88ece2f1b7708cdbc9d34b00ad3e81.camel@hammerspace.com>
+From:   Ashish Sangwan <ashishsangwan2@gmail.com>
+Date:   Thu, 15 Oct 2020 00:39:31 +0530
+Message-ID: <CAOiN93mh-ssTDuN1fAptECqc5JpUHtK=1V56jY_0MtWEcT=U2Q@mail.gmail.com>
+Subject: Re: [PATCH] NFS: Fix mode bits and nlink count for v4 referral dirs
+To:     Trond Myklebust <trondmy@hammerspace.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
+        "anna.schumaker@netapp.com" <anna.schumaker@netapp.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2020-10-14 at 11:56 +0200, Greg Kroah-Hartman wrote:
-> On Mon, Oct 12, 2020 at 11:00:07PM +0530, Jeffrin Jose T wrote:
-> >  * On Mon, 2020-10-12 at 15:30 +0200, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 5.8.15
-> > > release.
-> > > There are 124 patches in this series, all will be posted as a
-> > > response
-> > > to this one.  If anyone has any issues with these being applied,
-> > > please
-> > > let me know.
-> > > 
-> > > Responses should be made by Wed, 14 Oct 2020 13:31:22 +0000.
-> > > Anything received after that time might be too late.
-> > > 
-> > > The whole patch series can be found in one patch at:
-> > > 	
-> > > https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.15-rc1.gz
-> > > or in the git tree and branch at:
-> > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
-> > > stable-rc.git linux-5.8.y
-> > > and the diffstat can be found below.
-> > > 
-> > > thanks,
-> > > 
-> > > greg k-h
-> > 
-> > hello,
-> > 
-> > Compiled and booted 5.8.15-rc1+ .  No typical dmesg regression.
-> > I also  have something to mention here. I saw  a warning related in
-> > several  kernels which looks like the following...
-> > 
-> > "MDS CPU bug present and SMT on, data leak possible"
-> > 
-> > But now in 5.8.15-rc1+ , that warning disappeared.
-> 
-> Odds are your microcode/bios finally got updated on that machine,
-> right?
-> 
-i do not think thot the bios got updoted, becouse the bug is still
-shown 
-to be present in 5.8.13-rc1+  . so moy be the updoted kernel is fixing
-the 
-bug or gives  o workround.
+On Wed, Oct 14, 2020 at 11:47 PM Trond Myklebust
+<trondmy@hammerspace.com> wrote:
+>
+> On Tue, 2020-10-06 at 08:14 -0700, Ashish Sangwan wrote:
+> > Request for mode bits and nlink count in the nfs4_get_referral call
+> > and if server returns them use them instead of hard coded values.
+> >
+> > CC: stable@vger.kernel.org
+> > Signed-off-by: Ashish Sangwan <ashishsangwan2@gmail.com>
+> > ---
+> >  fs/nfs/nfs4proc.c | 20 +++++++++++++++++---
+> >  1 file changed, 17 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+> > index 6e95c85fe395..efec05c5f535 100644
+> > --- a/fs/nfs/nfs4proc.c
+> > +++ b/fs/nfs/nfs4proc.c
+> > @@ -266,7 +266,9 @@ const u32 nfs4_fs_locations_bitmap[3] = {
+> >       | FATTR4_WORD0_FSID
+> >       | FATTR4_WORD0_FILEID
+> >       | FATTR4_WORD0_FS_LOCATIONS,
+> > -     FATTR4_WORD1_OWNER
+> > +     FATTR4_WORD1_MODE
+> > +     | FATTR4_WORD1_NUMLINKS
+> > +     | FATTR4_WORD1_OWNER
+> >       | FATTR4_WORD1_OWNER_GROUP
+> >       | FATTR4_WORD1_RAWDEV
+> >       | FATTR4_WORD1_SPACE_USED
+> > @@ -7594,16 +7596,28 @@ nfs4_listxattr_nfs4_user(struct inode *inode,
+> > char *list, size_t list_len)
+> >   */
+> >  static void nfs_fixup_referral_attributes(struct nfs_fattr *fattr)
+> >  {
+> > +     bool fix_mode = true, fix_nlink = true;
+> > +
+> >       if (!(((fattr->valid & NFS_ATTR_FATTR_MOUNTED_ON_FILEID) ||
+> >              (fattr->valid & NFS_ATTR_FATTR_FILEID)) &&
+> >             (fattr->valid & NFS_ATTR_FATTR_FSID) &&
+> >             (fattr->valid & NFS_ATTR_FATTR_V4_LOCATIONS)))
+> >               return;
+> >
+> > +     if (fattr->valid & NFS_ATTR_FATTR_MODE)
+> > +             fix_mode = false;
+> > +     if (fattr->valid & NFS_ATTR_FATTR_NLINK)
+> > +             fix_nlink = false;
+> >       fattr->valid |= NFS_ATTR_FATTR_TYPE | NFS_ATTR_FATTR_MODE |
+> >               NFS_ATTR_FATTR_NLINK | NFS_ATTR_FATTR_V4_REFERRAL;
+> > -     fattr->mode = S_IFDIR | S_IRUGO | S_IXUGO;
+> > -     fattr->nlink = 2;
+> > +
+> > +     if (fix_mode)
+> > +             fattr->mode = S_IFDIR | S_IRUGO | S_IXUGO;
+> > +     else
+> > +             fattr->mode |= S_IFDIR;
+> > +
+> > +     if (fix_nlink)
+> > +             fattr->nlink = 2;
+> >  }
+> >
+> >  static int _nfs4_proc_fs_locations(struct rpc_clnt *client, struct
+> > inode *dir,
+>
+> NACK to this patch. The whole point is that if the server has a
+> referral, then it is not going to give us any attributes other than the
+> ones we're already asking for because it may not even have a real
+> directory. The client is required to fake up an inode, hence the
+> existing code.
 
--- 
-software engineer
-rajagiri school of engineering and technology
+Hi Trond, thanks for reviewing the patch!
+Sorry but I didn't understand the reason to NACK it. Could you please
+elaborate your concern?
+These are the current attributes we request from the server on a referral:
+FATTR4_WORD0_CHANGE
+| FATTR4_WORD0_SIZE
+| FATTR4_WORD0_FSID
+| FATTR4_WORD0_FILEID
+| FATTR4_WORD0_FS_LOCATIONS,
+FATTR4_WORD1_OWNER
+| FATTR4_WORD1_OWNER_GROUP
+| FATTR4_WORD1_RAWDEV
+| FATTR4_WORD1_SPACE_USED
+| FATTR4_WORD1_TIME_ACCESS
+| FATTR4_WORD1_TIME_METADATA
+| FATTR4_WORD1_TIME_MODIFY
+| FATTR4_WORD1_MOUNTED_ON_FILEID,
 
+So you are suggesting that it's ok to ask for SIZE, OWNER, OWNER
+GROUP, SPACE USED, TIMESTAMPs etc but not ok to ask for mode bits and
+numlinks?
+Also, isn't the whole point of the server returning attribute map is
+to tell the client which attribute is valid? So, in the case where the
+server does not have the required information then it will not return
+those attributes and we will fall back to the old behavior.
+Whether the server has nlink and mode information is entirely up to
+the server implementation. For example, the referral's stat
+information could be maintained in a distributed database which can be
+accessed from any node in the cluster.
+
+Thanks,
+Ashish
+>
+> --
+> Trond Myklebust
+> Linux NFS client maintainer, Hammerspace
+> trond.myklebust@hammerspace.com
+>
+>
