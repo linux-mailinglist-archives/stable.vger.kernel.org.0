@@ -2,176 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B9E28D72F
-	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 01:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F98F28DCC2
+	for <lists+stable@lfdr.de>; Wed, 14 Oct 2020 11:20:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730095AbgJMXxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Oct 2020 19:53:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38100 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729556AbgJMXxL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Oct 2020 19:53:11 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2F9A22202;
-        Tue, 13 Oct 2020 23:53:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602633190;
-        bh=BA2yLTwGwGOpTQ1VF3mEHvOygAJ/X8NPfMQ/UHjxjDo=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=13+L2yTrQQd3doaNKG/baBKrOSaCXTgFN5xP//+wy+NS108qu3ozaCVadSO6KRGh8
-         4IdEgp9/D0NpJQgoIB6AtLJ1t5ewUixJFKAMtHHrW0FlQuN3irOzfR4Fx726czEirp
-         Y0ie29JiT3boVYL/2l2a2ZjoTXmsOGs3SGX9T1SY=
-Date:   Tue, 13 Oct 2020 16:53:09 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, bharata@linux.ibm.com, cl@linux.com,
-        guro@fb.com, hannes@cmpxchg.org, iamjoonsoo.kim@lge.com,
-        linux-mm@kvack.org, mhocko@kernel.org, mm-commits@vger.kernel.org,
-        rientjes@google.com, shakeelb@google.com, stable@vger.kernel.org,
-        tj@kernel.org, torvalds@linux-foundation.org, vbabka@suse.cz
-Subject:  [patch 088/181] mm: memcg/slab: uncharge during
- kmem_cache_free_bulk()
-Message-ID: <20201013235309.EcZce1ggx%akpm@linux-foundation.org>
-In-Reply-To: <20201013164658.3bfd96cc224d8923e66a9f4e@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1729818AbgJNJUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Oct 2020 05:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39962 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730431AbgJNJTk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 05:19:40 -0400
+Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865D3C00868C
+        for <stable@vger.kernel.org>; Tue, 13 Oct 2020 18:21:52 -0700 (PDT)
+Received: by mail-il1-x141.google.com with SMTP id o9so3375998ilo.0
+        for <stable@vger.kernel.org>; Tue, 13 Oct 2020 18:21:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ZAQeGgpeqN79999lxdxGr8+/QYmcQXgu9OaQTkWNF5k=;
+        b=bQy+C2w7IW95f5PX6o0ydd2dtTnxZO3KvVJcfpadd9LaTY4WT+mEW7/SptgJl/U2t2
+         ODnHRK9RDeuEaziItvvlOPyAwIpgT5eaKiHhw6N8otgXHJHfHvwRpN15+Sn5dCptlXST
+         2oSRYNvFAhGaFrcJinK2wlC4vyNuS7RuNYkYE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ZAQeGgpeqN79999lxdxGr8+/QYmcQXgu9OaQTkWNF5k=;
+        b=DtxJ49O7hqjETdPmnTvsiWElusJYfp1mxal4+cGg52zt1jaJFt3oziqshrrcjGcnco
+         NnaGCWap4InR56L8lb2lrsK6HxTmh0rM8vD2aXZmfF4rA2pBA1n3srb6Yy5C+Q6AmXMh
+         qpCg8T203xLfBK+HPeshiJixhuPob5vwKLob4V3YV3Jidne50BcnL9chn4BQfaNjNOl8
+         6Yq9CptEF/7sYT9W2dBfpLlE2qZ2/ng9V2CGUCWA8hP8s/eZ8yq2bKCcqkPsl0tMAeSR
+         kuPBaxuYDcdi1gcElBDzeO6YC+jZd6lCielQO2cefBiqvBcYXGEtMq9GrWByUjtM2HGo
+         MTcA==
+X-Gm-Message-State: AOAM533EDCjdgpOmcz/xvWM/DPF7ZyFz9nsJHyIXbUVWd0zM/IfBTnfp
+        TIhXUclh6HXftIy+lRiBuZWjmg==
+X-Google-Smtp-Source: ABdhPJzhjIZdpZB0ZizzMuxxQ1oxWpKlyuq15zeGBM6WMJvcvmBqcwtT9ZsyU029OMMj+MmzhY/Mfw==
+X-Received: by 2002:a92:d211:: with SMTP id y17mr1844782ily.215.1602638511881;
+        Tue, 13 Oct 2020 18:21:51 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id b14sm1786955ilg.63.2020.10.13.18.21.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 13 Oct 2020 18:21:51 -0700 (PDT)
+Subject: Re: [PATCH 5.8 000/124] 5.8.15-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20201012133146.834528783@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <75488e9d-392a-0a15-cfb2-5ba00e04f9f5@linuxfoundation.org>
+Date:   Tue, 13 Oct 2020 19:21:50 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20201012133146.834528783@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bharata B Rao <bharata@linux.ibm.com>
-Subject: mm: memcg/slab: uncharge during kmem_cache_free_bulk()
+On 10/12/20 7:30 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.8.15 release.
+> There are 124 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 14 Oct 2020 13:31:22 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.15-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.8.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+>
+Compiled and booted on my test system. No dmesg regressions.
 
-Object cgroup charging is done for all the objects during allocation, but
-during freeing, uncharging ends up happening for only one object in the
-case of bulk allocation/freeing.
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Fix this by having a separate call to uncharge all the objects from
-kmem_cache_free_bulk() and by modifying memcg_slab_free_hook() to take
-care of bulk uncharging.
+thanks,
+-- Shuah
 
-Link: https://lkml.kernel.org/r/20201009060423.390479-1-bharata@linux.ibm.com
-Fixes: 964d4bd370d5 ("mm: memcg/slab: save obj_cgroup for non-root slab objects"
-Signed-off-by: Bharata B Rao <bharata@linux.ibm.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
 
- mm/slab.c |    2 +-
- mm/slab.h |   50 +++++++++++++++++++++++++++++++-------------------
- mm/slub.c |    3 ++-
- 3 files changed, 34 insertions(+), 21 deletions(-)
-
---- a/mm/slab.c~mm-memcg-slab-uncharge-during-kmem_cache_free_bulk
-+++ a/mm/slab.c
-@@ -3438,7 +3438,7 @@ void ___cache_free(struct kmem_cache *ca
- 		memset(objp, 0, cachep->object_size);
- 	kmemleak_free_recursive(objp, cachep->flags);
- 	objp = cache_free_debugcheck(cachep, objp, caller);
--	memcg_slab_free_hook(cachep, virt_to_head_page(objp), objp);
-+	memcg_slab_free_hook(cachep, &objp, 1);
- 
- 	/*
- 	 * Skip calling cache_free_alien() when the platform is not numa.
---- a/mm/slab.h~mm-memcg-slab-uncharge-during-kmem_cache_free_bulk
-+++ a/mm/slab.h
-@@ -345,30 +345,42 @@ static inline void memcg_slab_post_alloc
- 	obj_cgroup_put(objcg);
- }
- 
--static inline void memcg_slab_free_hook(struct kmem_cache *s, struct page *page,
--					void *p)
-+static inline void memcg_slab_free_hook(struct kmem_cache *s_orig,
-+					void **p, int objects)
- {
-+	struct kmem_cache *s;
- 	struct obj_cgroup *objcg;
-+	struct page *page;
- 	unsigned int off;
-+	int i;
- 
- 	if (!memcg_kmem_enabled())
- 		return;
- 
--	if (!page_has_obj_cgroups(page))
--		return;
--
--	off = obj_to_index(s, page, p);
--	objcg = page_obj_cgroups(page)[off];
--	page_obj_cgroups(page)[off] = NULL;
--
--	if (!objcg)
--		return;
--
--	obj_cgroup_uncharge(objcg, obj_full_size(s));
--	mod_objcg_state(objcg, page_pgdat(page), cache_vmstat_idx(s),
--			-obj_full_size(s));
--
--	obj_cgroup_put(objcg);
-+	for (i = 0; i < objects; i++) {
-+		if (unlikely(!p[i]))
-+			continue;
-+
-+		page = virt_to_head_page(p[i]);
-+		if (!page_has_obj_cgroups(page))
-+			continue;
-+
-+		if (!s_orig)
-+			s = page->slab_cache;
-+		else
-+			s = s_orig;
-+
-+		off = obj_to_index(s, page, p[i]);
-+		objcg = page_obj_cgroups(page)[off];
-+		if (!objcg)
-+			continue;
-+
-+		page_obj_cgroups(page)[off] = NULL;
-+		obj_cgroup_uncharge(objcg, obj_full_size(s));
-+		mod_objcg_state(objcg, page_pgdat(page), cache_vmstat_idx(s),
-+				-obj_full_size(s));
-+		obj_cgroup_put(objcg);
-+	}
- }
- 
- #else /* CONFIG_MEMCG_KMEM */
-@@ -406,8 +418,8 @@ static inline void memcg_slab_post_alloc
- {
- }
- 
--static inline void memcg_slab_free_hook(struct kmem_cache *s, struct page *page,
--					void *p)
-+static inline void memcg_slab_free_hook(struct kmem_cache *s,
-+					void **p, int objects)
- {
- }
- #endif /* CONFIG_MEMCG_KMEM */
---- a/mm/slub.c~mm-memcg-slab-uncharge-during-kmem_cache_free_bulk
-+++ a/mm/slub.c
-@@ -3095,7 +3095,7 @@ static __always_inline void do_slab_free
- 	struct kmem_cache_cpu *c;
- 	unsigned long tid;
- 
--	memcg_slab_free_hook(s, page, head);
-+	memcg_slab_free_hook(s, &head, 1);
- redo:
- 	/*
- 	 * Determine the currently cpus per cpu slab.
-@@ -3257,6 +3257,7 @@ void kmem_cache_free_bulk(struct kmem_ca
- 	if (WARN_ON(!size))
- 		return;
- 
-+	memcg_slab_free_hook(s, p, size);
- 	do {
- 		struct detached_freelist df;
- 
-_
