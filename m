@@ -2,167 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 635DE28F1D2
-	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 14:06:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9114A28F310
+	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 15:18:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726392AbgJOMGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Oct 2020 08:06:18 -0400
-Received: from mail-dm6nam08on2130.outbound.protection.outlook.com ([40.107.102.130]:58303
-        "EHLO NAM04-DM6-obe.outbound.protection.outlook.com"
+        id S1728740AbgJONSh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Oct 2020 09:18:37 -0400
+Received: from mail-dm6nam10on2071.outbound.protection.outlook.com ([40.107.93.71]:25696
+        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726320AbgJOMGR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Oct 2020 08:06:17 -0400
+        id S1728418AbgJONSh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Oct 2020 09:18:37 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Nr7UzeK7Y3uHF1dxY/BEoQk71S2gjz1MZYpFTi/q345lPQRqtJqpv6Mz4d17eBNYgaDKHX0eQQKXDyGr5Cs10lGafNWaKHTYYJMKg4cXj3wSW09eX5reoLMTwtKrTCO8y+d4uKJvCkitJF07YuKbNvP2HnqEAg+s6yHbcsarXvNPY6KLY/4Wckn0E9th53Q93DHtpfQaGqeJuHJi64+HaHbTY1Y0ftoiazMvd1BcqBqfdEdMkF1wG4QDm4TGprnHmWKnYMEoA7tYQeFvd1imc4jI5265wOVmFo2GL2j6f/pSYsO28oC4V59C/Vpb/rTjtgY/xv1EpLshpsZXT30Nag==
+ b=j6Jxzi4DMmOf2O/+scMktAliezLfxX/hswQ4XmKm6ehrKNceDTDJm1rmYVV7LVVdTMtUsA+Wv/2s0Suh0D0yMJsXa75de+HYmvYKqGS+hX21xBO/Vd5ausc2uREsLiQlkbHXW+EQZg0zSMekGFxe2SV/885G37EHmmrAaC3C6SAzBWzGa812a2DZRb9yXD64jNwXI1TLUSB5W+XunDaE6MV6SvBWDhZBw7IOdELNKcZ/bfKmGUkTEEiYAm0JiYAJE+/4cFzkW7Gl+vr/2xdYkEX7We550kBTZHc+2tUy37CciZB5JNT0CB0txbGoOTR8psbmpLedvZwqAfP4gly0Eg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CYznImnAiacttCmxwlLNH1QI6gnJwRFX9TIZRuUttkI=;
- b=bEKaa+ZfdzAnaJl6Y6lXBA2KYofqvQtugS0jvrhlOPxJ/FKtbShS7rwg3xGJTu63nvjOQ0U9nHVT72nStecRXGIfujrtAFeSM27XNdmNjY2s+ontbr/qqrefxl8hvs717oKssTL4klFDL2XoxyvctajJWL4Mr0svbJYb0zzDVBoY96SAMB9U3Lvws7uTq+/OtEd1XAtRtAbtsWwuj4KJQMqr0Upv1yfwcYLeq8yhbyhxvfxJjD9E2ujbEaysSF19rzYaQwjm3zX3DP3eETuRzRp59apHwQSGfwtR1Glxkb7IYQRLlZ6BHSGae8+rW4S+qyFuHtbtnsN8BRrnah44fA==
+ bh=2q3hzR2KbCY1G5qi/aeoMdsSsacCL6VaqVi+v5nhh/Q=;
+ b=SngFrLjvBz8DNcDl+El7weOeFrqcurKdlREMtdI0PN+n/jFZNu9tFQ+z/RXPKCUKRYIubXmeKMZZux4OvYuNJSw77fhzju+jSMwi88N8B7Y4nz/UvHEui95DT0BiGQH+shKPmyInkcCldYreBU4JZriITG7IfOTqqxcAlQAFzWDVQThwYZEf/qattfHSqLpOTUJdAu0kTPJPLbdBhQmH1HUkaBAZzsw63syQ3A+xS0RKfkt+SnDE+DMzxv6h4tbBzOZ6geyG/M+cvncQwo7h5l6EZNScLKMG3r204YZ2YBf03gkBDTaBymxrLemcjwRLhWIL16nb3/2i/B+uIKXPxQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=hammerspace.com; dmarc=pass action=none
- header.from=hammerspace.com; dkim=pass header.d=hammerspace.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hammerspace.com;
- s=selector2;
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CYznImnAiacttCmxwlLNH1QI6gnJwRFX9TIZRuUttkI=;
- b=JRLIgMpDel/RroIirWXcAm2SlDqqwska/UzS9v8Voe/ZZWcm+jyFKajWsHxOxWKty7oZ3xQSD2T2jPRYlcnfsPrvrO1t5+SiacOc55xHIaCdAj5bb9pjdpjRtWAcdKqwBdWEFTdwU90h0jqf2PSvgoFAnvev0BtOauIdMHYA3TQ=
-Received: from MN2PR13MB3957.namprd13.prod.outlook.com (20.180.244.203) by
- MN2PR13MB3975.namprd13.prod.outlook.com (20.180.245.83) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3477.11; Thu, 15 Oct 2020 12:06:12 +0000
-Received: from MN2PR13MB3957.namprd13.prod.outlook.com
- ([fe80::e8a1:6acc:70f0:ef39]) by MN2PR13MB3957.namprd13.prod.outlook.com
- ([fe80::e8a1:6acc:70f0:ef39%8]) with mapi id 15.20.3499.004; Thu, 15 Oct 2020
- 12:06:12 +0000
-From:   Trond Myklebust <trondmy@hammerspace.com>
-To:     "ashishsangwan2@gmail.com" <ashishsangwan2@gmail.com>,
-        "chuck.lever@oracle.com" <chuck.lever@oracle.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
-        "anna.schumaker@netapp.com" <anna.schumaker@netapp.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] NFS: Fix mode bits and nlink count for v4 referral dirs
-Thread-Topic: [PATCH] NFS: Fix mode bits and nlink count for v4 referral dirs
-Thread-Index: AQHWm/OGeyO0BuEaoUK9JXx6hV8a+KmXdI6AgAAOoYCAARwMgA==
-Date:   Thu, 15 Oct 2020 12:06:12 +0000
-Message-ID: <622f03cd08acd861a5155a181191e9ce399bbb37.camel@hammerspace.com>
-References: <20201006151456.20875-1-ashishsangwan2@gmail.com>
-         <2d1ff3421a88ece2f1b7708cdbc9d34b00ad3e81.camel@hammerspace.com>
-         <CAOiN93mh-ssTDuN1fAptECqc5JpUHtK=1V56jY_0MtWEcT=U2Q@mail.gmail.com>
-In-Reply-To: <CAOiN93mh-ssTDuN1fAptECqc5JpUHtK=1V56jY_0MtWEcT=U2Q@mail.gmail.com>
-Accept-Language: en-US, en-GB
+ bh=2q3hzR2KbCY1G5qi/aeoMdsSsacCL6VaqVi+v5nhh/Q=;
+ b=FEbgQhaFN7/1xxQRhsZa7itNA39P9qao5J2w0Pt6v3mIr2n+r6mlv6jB4NfNFkQ5I8+P9S+ca1i4PCAjDB1xSddrjS2WUc8l7On/mn5FaoGDo0KvjN6BFQPkUsvJhBNg5dccJzv0W+fiJjd4E4GkzaC/8i3OCmhMoD40FVb5OhY=
+Received: from MN2PR12MB4488.namprd12.prod.outlook.com (2603:10b6:208:24e::19)
+ by BL0PR12MB2338.namprd12.prod.outlook.com (2603:10b6:207:4c::28) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3477.20; Thu, 15 Oct
+ 2020 13:18:34 +0000
+Received: from MN2PR12MB4488.namprd12.prod.outlook.com
+ ([fe80::99dd:ff77:1ffd:d96a]) by MN2PR12MB4488.namprd12.prod.outlook.com
+ ([fe80::99dd:ff77:1ffd:d96a%3]) with mapi id 15.20.3477.021; Thu, 15 Oct 2020
+ 13:18:34 +0000
+From:   "Deucher, Alexander" <Alexander.Deucher@amd.com>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Alex Deucher <alexdeucher@gmail.com>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs
+ handlers"
+Thread-Topic: [PATCH] Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs
+ handlers"
+Thread-Index: AQHWomieOyAGFaf48EOq2y93EG1BbqmYH2aAgACGVcA=
+Date:   Thu, 15 Oct 2020 13:18:34 +0000
+Message-ID: <MN2PR12MB448853FE73DE3EF2D64BE36CF7020@MN2PR12MB4488.namprd12.prod.outlook.com>
+References: <20201014202836.240347-1-alexander.deucher@amd.com>
+ <20201015051451.GA405484@kroah.com>
+In-Reply-To: <20201015051451.GA405484@kroah.com>
+Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-authentication-results: gmail.com; dkim=none (message not signed)
- header.d=none;gmail.com; dmarc=none action=none header.from=hammerspace.com;
-x-originating-ip: [68.36.133.222]
+msip_labels: MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_Enabled=true;
+ MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_SetDate=2020-10-15T13:17:07Z;
+ MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_Method=Privileged;
+ MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_Name=Public_0;
+ MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
+ MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_ActionId=51a1dbac-de9e-49de-afb8-00009f7cbe1a;
+ MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_ContentBits=1
+msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_enabled: true
+msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_setdate: 2020-10-15T13:18:29Z
+msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_method: Privileged
+msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_name: Public_0
+msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_siteid: 3dd8961f-e488-4e60-8e11-a82d994e183d
+msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_actionid: 43683619-6795-4775-a2a1-000099ae216a
+msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_contentbits: 0
+authentication-results: linuxfoundation.org; dkim=none (message not signed)
+ header.d=none;linuxfoundation.org; dmarc=none action=none
+ header.from=amd.com;
+x-originating-ip: [165.204.10.250]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 2ade235d-93e8-4b45-fba6-08d87102b5b7
-x-ms-traffictypediagnostic: MN2PR13MB3975:
-x-microsoft-antispam-prvs: <MN2PR13MB397593AAF0BD65DF5D098732B8020@MN2PR13MB3975.namprd13.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 4ff6a06a-eae6-4bb7-5665-08d8710cd1c8
+x-ms-traffictypediagnostic: BL0PR12MB2338:
+x-microsoft-antispam-prvs: <BL0PR12MB233838DFA478A638CF4EF089F7020@BL0PR12MB2338.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:1122;
 x-ms-exchange-senderadcheck: 1
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: nChVLlkuZ++NPQZ+Z6ZV9AWye1b4Ho6DqmE8GWRVWIoQ5VoGMqZXtB57DzbnAEYbQaa4A3hB5ykWoujNgT7Whr8Z9s46v/sIh9WYHC/u+28Tl+vfM9K6Lgfi+ysmAn3GtS3m0bYTLKXdUXqGOmaHwYOpKrUdZ8ou0WFLIUf9FHpZttPjQaeTl5RaXqJThkzjsSdvVChpV26FhFsM+3y8hc8JqRjUKy9GNpKEGSLkFOXYlXHk/vN8c/04E7rlmERkLF838mX8ThUfQ4KWrtT2N6laJTN5phCVRj4ilujfROTmUMuHYS9bNxl6g7rp9sKUX3cKuNN3X1a6Vr5MwqBwlA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR13MB3957.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(136003)(396003)(376002)(39840400004)(346002)(66476007)(36756003)(26005)(2906002)(71200400001)(6486002)(86362001)(186003)(478600001)(4326008)(2616005)(91956017)(76116006)(83380400001)(8676002)(66946007)(64756008)(66446008)(5660300002)(6512007)(4001150100001)(8936002)(6506007)(53546011)(54906003)(110136005)(316002)(66556008);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: +35e+eIfCZm76z69tIBMJPIk7K9W4b7CLMQLDPyFvirZPmLcOiSb55EW3xNHxGgwIH2JgH2J8BJNx1sAfwblevy78jiDJtOCq795ufvgvtCH4YBdIUWuvKm27FNd7OJyTnvhdgQYL6RhEuxu84T0+ciCEgHdioUdLn2MJRjqo9MWbpZ/ms7K5YfHu3/DYtiwAMDfuVV8+FLPS4+qpT1g3DmLv61ETuRY85DR8QhLuHySjJi4duBXcrbjIcFfu6v/W9JPaQJ9Y5m/3ZDi4aaiK4V/qnViR8pX7pAbe1YnNxCuGudwMaKudDWgLaq63ptlZ6xkwpT0lhQVJExkKhinqvbQ+agy/ZFElobxwk8F2wls+j2J1fGX5jMIDEoqkqo0GieKuoTmbcje8T/AqunlS/JPLTXTp0121z4D/CCbKZlC4SMUjAX4dPZDo3lwCm6XZ8yi6W1X+0m81EZuxEFYtk6yLy0Ie6yBUIdM5venzZzpL3oXVTHVvZ0rC5smla+P6Tnyte6ohjK0cuMd/bcaPIzYbXo8Top6/u8VDS42aD9++G6lM2RcZdvxmujXbZt0GXWDtAcuPTa7Lbrcngm3Qi1MiIpGMsK1Hgl77s/WnT1n14tYmPFmOfe/G8J3vV3Hwgaj9a9/VzNSnD08bbxekQ==
+x-microsoft-antispam-message-info: qYQZkAKcvk3yZsHfisfWgri87hxjqfalNq4MkOafjZi8UEwURY46gq6GNZQEs+UmQnGzKell/k9daKfxRLuyaJmWeQSMk99FoJWHMDEfINDBL8lf1bcyp3nVhkhj2coYy2JWRdO73k6Ko9VVK9tuxuUTaSCnN1fAMc8Z2e5Awms+0ut8UakuAmor+spfQpmwA6zoNGcsEIdpXDwi0wj1DD7lFYKS/vf/Vk1PBGUyeAWifHOJiujoF4C2mXErj4HewwMMhhoyEH7EZyxhGXogvb2pVZ3AwkXI23rS1h63AZGFAyYxOpxHYzA6m5w3vlFr
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4488.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(396003)(346002)(376002)(136003)(366004)(8676002)(83380400001)(86362001)(8936002)(9686003)(110136005)(33656002)(316002)(71200400001)(64756008)(66556008)(2906002)(66946007)(66446008)(76116006)(7696005)(52536014)(478600001)(26005)(186003)(6506007)(53546011)(4744005)(55016002)(4326008)(5660300002)(66476007);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: +9YZCUJOD4ROIGQ2FNwSrImh17QyEBvbzVXJlb/cnO1f5TofTqmXHxLMRt1kdzZdpe8Jf4QIACzNA4duv2+qt2Um98rs/aXrda+O0EFQknapqGCB+XCChouUmlYsj7UkYJXWQz7NnjKjhknpoQKigX1LvbSiFxFSeSnIl/P7GaS37cQXPmitBS7AGS3Fgg74iy2hnzu2EnjRuiqW2KBwnBlGUYsMGTMKUfykNNXdBgZvzMZpcih5QW4cqy9hpM7qv/B0qJaW/juzVcXu15W1MVbdQKgZSbwrMX/kuba62RSSNN1p2fbn1rgygAqalvrvbT6qx09Rhkn2KaUCFZB331aCu18w+PxFDgsuyD7L7YJ9vFKBESJK8YbU4rXQm18wg0NOnXC7ItXbckXRFtaOIMdJjdpd0j378vmFkGuyTWw5JysxSBf4tRQh2O3EBxrePOkxMx7TWyn5jzs0EF5eGFKlsvauFT7U5RpoNzcF1/b+3BkWAhHe3jW0/qM+91RjSxPrgV3q/a4Gl/XB54ioNPR6q+82KV3145Gk+JrRmDjqDSKuq7U1VXQGzqxKScAVngEPPh+uAPb6XMPuQZtUr/tZEeojNStS0ZFILwf4/GZoj6w1z8yzxaKjMaQ82PQJntLSQ1ZToGNIY/OEWQox1Q==
 x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <5EF2DE2ACED7F74E8DEA8D54587B27C8@namprd13.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-X-OriginatorOrg: hammerspace.com
+X-OriginatorOrg: amd.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR13MB3957.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2ade235d-93e8-4b45-fba6-08d87102b5b7
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Oct 2020 12:06:12.4148
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4488.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4ff6a06a-eae6-4bb7-5665-08d8710cd1c8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Oct 2020 13:18:34.5570
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 0d4fed5c-3a70-46fe-9430-ece41741f59e
+X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: dqHMzzJ+nfDkRIHGLIRE62a7fampx30jN0nwr/YlMKc1FGYcTHtktKg02QQVSnpz45xLPS4h0+wkUX4Yc6agOQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR13MB3975
+X-MS-Exchange-CrossTenant-userprincipalname: mpo6wtgN0QAp8SrAO9wdBteDI0oqkDTlsApvgu3kVS72ToqGITvQ2P+H2AOj2kjVKlZJcBH52MJCovrYcR6S4Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB2338
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVGh1LCAyMDIwLTEwLTE1IGF0IDAwOjM5ICswNTMwLCBBc2hpc2ggU2FuZ3dhbiB3cm90ZToN
-Cj4gT24gV2VkLCBPY3QgMTQsIDIwMjAgYXQgMTE6NDcgUE0gVHJvbmQgTXlrbGVidXN0DQo+IDx0
-cm9uZG15QGhhbW1lcnNwYWNlLmNvbT4gd3JvdGU6DQo+ID4gT24gVHVlLCAyMDIwLTEwLTA2IGF0
-IDA4OjE0IC0wNzAwLCBBc2hpc2ggU2FuZ3dhbiB3cm90ZToNCj4gPiA+IFJlcXVlc3QgZm9yIG1v
-ZGUgYml0cyBhbmQgbmxpbmsgY291bnQgaW4gdGhlIG5mczRfZ2V0X3JlZmVycmFsDQo+ID4gPiBj
-YWxsDQo+ID4gPiBhbmQgaWYgc2VydmVyIHJldHVybnMgdGhlbSB1c2UgdGhlbSBpbnN0ZWFkIG9m
-IGhhcmQgY29kZWQgdmFsdWVzLg0KPiA+ID4gDQo+ID4gPiBDQzogc3RhYmxlQHZnZXIua2VybmVs
-Lm9yZw0KPiA+ID4gU2lnbmVkLW9mZi1ieTogQXNoaXNoIFNhbmd3YW4gPGFzaGlzaHNhbmd3YW4y
-QGdtYWlsLmNvbT4NCj4gPiA+IC0tLQ0KPiA+ID4gIGZzL25mcy9uZnM0cHJvYy5jIHwgMjAgKysr
-KysrKysrKysrKysrKystLS0NCj4gPiA+ICAxIGZpbGUgY2hhbmdlZCwgMTcgaW5zZXJ0aW9ucygr
-KSwgMyBkZWxldGlvbnMoLSkNCj4gPiA+IA0KPiA+ID4gZGlmZiAtLWdpdCBhL2ZzL25mcy9uZnM0
-cHJvYy5jIGIvZnMvbmZzL25mczRwcm9jLmMNCj4gPiA+IGluZGV4IDZlOTVjODVmZTM5NS4uZWZl
-YzA1YzVmNTM1IDEwMDY0NA0KPiA+ID4gLS0tIGEvZnMvbmZzL25mczRwcm9jLmMNCj4gPiA+ICsr
-KyBiL2ZzL25mcy9uZnM0cHJvYy5jDQo+ID4gPiBAQCAtMjY2LDcgKzI2Niw5IEBAIGNvbnN0IHUz
-MiBuZnM0X2ZzX2xvY2F0aW9uc19iaXRtYXBbM10gPSB7DQo+ID4gPiAgICAgICB8IEZBVFRSNF9X
-T1JEMF9GU0lEDQo+ID4gPiAgICAgICB8IEZBVFRSNF9XT1JEMF9GSUxFSUQNCj4gPiA+ICAgICAg
-IHwgRkFUVFI0X1dPUkQwX0ZTX0xPQ0FUSU9OUywNCj4gPiA+IC0gICAgIEZBVFRSNF9XT1JEMV9P
-V05FUg0KPiA+ID4gKyAgICAgRkFUVFI0X1dPUkQxX01PREUNCj4gPiA+ICsgICAgIHwgRkFUVFI0
-X1dPUkQxX05VTUxJTktTDQo+ID4gPiArICAgICB8IEZBVFRSNF9XT1JEMV9PV05FUg0KPiA+ID4g
-ICAgICAgfCBGQVRUUjRfV09SRDFfT1dORVJfR1JPVVANCj4gPiA+ICAgICAgIHwgRkFUVFI0X1dP
-UkQxX1JBV0RFVg0KPiA+ID4gICAgICAgfCBGQVRUUjRfV09SRDFfU1BBQ0VfVVNFRA0KPiA+ID4g
-QEAgLTc1OTQsMTYgKzc1OTYsMjggQEAgbmZzNF9saXN0eGF0dHJfbmZzNF91c2VyKHN0cnVjdCBp
-bm9kZQ0KPiA+ID4gKmlub2RlLA0KPiA+ID4gY2hhciAqbGlzdCwgc2l6ZV90IGxpc3RfbGVuKQ0K
-PiA+ID4gICAqLw0KPiA+ID4gIHN0YXRpYyB2b2lkIG5mc19maXh1cF9yZWZlcnJhbF9hdHRyaWJ1
-dGVzKHN0cnVjdCBuZnNfZmF0dHINCj4gPiA+ICpmYXR0cikNCj4gPiA+ICB7DQo+ID4gPiArICAg
-ICBib29sIGZpeF9tb2RlID0gdHJ1ZSwgZml4X25saW5rID0gdHJ1ZTsNCj4gPiA+ICsNCj4gPiA+
-ICAgICAgIGlmICghKCgoZmF0dHItPnZhbGlkICYgTkZTX0FUVFJfRkFUVFJfTU9VTlRFRF9PTl9G
-SUxFSUQpIHx8DQo+ID4gPiAgICAgICAgICAgICAgKGZhdHRyLT52YWxpZCAmIE5GU19BVFRSX0ZB
-VFRSX0ZJTEVJRCkpICYmDQo+ID4gPiAgICAgICAgICAgICAoZmF0dHItPnZhbGlkICYgTkZTX0FU
-VFJfRkFUVFJfRlNJRCkgJiYNCj4gPiA+ICAgICAgICAgICAgIChmYXR0ci0+dmFsaWQgJiBORlNf
-QVRUUl9GQVRUUl9WNF9MT0NBVElPTlMpKSkNCj4gPiA+ICAgICAgICAgICAgICAgcmV0dXJuOw0K
-PiA+ID4gDQo+ID4gPiArICAgICBpZiAoZmF0dHItPnZhbGlkICYgTkZTX0FUVFJfRkFUVFJfTU9E
-RSkNCj4gPiA+ICsgICAgICAgICAgICAgZml4X21vZGUgPSBmYWxzZTsNCj4gPiA+ICsgICAgIGlm
-IChmYXR0ci0+dmFsaWQgJiBORlNfQVRUUl9GQVRUUl9OTElOSykNCj4gPiA+ICsgICAgICAgICAg
-ICAgZml4X25saW5rID0gZmFsc2U7DQo+ID4gPiAgICAgICBmYXR0ci0+dmFsaWQgfD0gTkZTX0FU
-VFJfRkFUVFJfVFlQRSB8IE5GU19BVFRSX0ZBVFRSX01PREUgfA0KPiA+ID4gICAgICAgICAgICAg
-ICBORlNfQVRUUl9GQVRUUl9OTElOSyB8IE5GU19BVFRSX0ZBVFRSX1Y0X1JFRkVSUkFMOw0KPiA+
-ID4gLSAgICAgZmF0dHItPm1vZGUgPSBTX0lGRElSIHwgU19JUlVHTyB8IFNfSVhVR087DQo+ID4g
-PiAtICAgICBmYXR0ci0+bmxpbmsgPSAyOw0KPiA+ID4gKw0KPiA+ID4gKyAgICAgaWYgKGZpeF9t
-b2RlKQ0KPiA+ID4gKyAgICAgICAgICAgICBmYXR0ci0+bW9kZSA9IFNfSUZESVIgfCBTX0lSVUdP
-IHwgU19JWFVHTzsNCj4gPiA+ICsgICAgIGVsc2UNCj4gPiA+ICsgICAgICAgICAgICAgZmF0dHIt
-Pm1vZGUgfD0gU19JRkRJUjsNCj4gPiA+ICsNCj4gPiA+ICsgICAgIGlmIChmaXhfbmxpbmspDQo+
-ID4gPiArICAgICAgICAgICAgIGZhdHRyLT5ubGluayA9IDI7DQo+ID4gPiAgfQ0KPiA+ID4gDQo+
-ID4gPiAgc3RhdGljIGludCBfbmZzNF9wcm9jX2ZzX2xvY2F0aW9ucyhzdHJ1Y3QgcnBjX2NsbnQg
-KmNsaWVudCwNCj4gPiA+IHN0cnVjdA0KPiA+ID4gaW5vZGUgKmRpciwNCj4gPiANCj4gPiBOQUNL
-IHRvIHRoaXMgcGF0Y2guIFRoZSB3aG9sZSBwb2ludCBpcyB0aGF0IGlmIHRoZSBzZXJ2ZXIgaGFz
-IGENCj4gPiByZWZlcnJhbCwgdGhlbiBpdCBpcyBub3QgZ29pbmcgdG8gZ2l2ZSB1cyBhbnkgYXR0
-cmlidXRlcyBvdGhlciB0aGFuDQo+ID4gdGhlDQo+ID4gb25lcyB3ZSdyZSBhbHJlYWR5IGFza2lu
-ZyBmb3IgYmVjYXVzZSBpdCBtYXkgbm90IGV2ZW4gaGF2ZSBhIHJlYWwNCj4gPiBkaXJlY3Rvcnku
-IFRoZSBjbGllbnQgaXMgcmVxdWlyZWQgdG8gZmFrZSB1cCBhbiBpbm9kZSwgaGVuY2UgdGhlDQo+
-ID4gZXhpc3RpbmcgY29kZS4NCj4gDQo+IEhpIFRyb25kLCB0aGFua3MgZm9yIHJldmlld2luZyB0
-aGUgcGF0Y2ghDQo+IFNvcnJ5IGJ1dCBJIGRpZG4ndCB1bmRlcnN0YW5kIHRoZSByZWFzb24gdG8g
-TkFDSyBpdC4gQ291bGQgeW91IHBsZWFzZQ0KPiBlbGFib3JhdGUgeW91ciBjb25jZXJuPw0KPiBU
-aGVzZSBhcmUgdGhlIGN1cnJlbnQgYXR0cmlidXRlcyB3ZSByZXF1ZXN0IGZyb20gdGhlIHNlcnZl
-ciBvbiBhDQo+IHJlZmVycmFsOg0KPiBGQVRUUjRfV09SRDBfQ0hBTkdFDQo+ID4gRkFUVFI0X1dP
-UkQwX1NJWkUNCj4gPiBGQVRUUjRfV09SRDBfRlNJRA0KPiA+IEZBVFRSNF9XT1JEMF9GSUxFSUQN
-Cj4gPiBGQVRUUjRfV09SRDBfRlNfTE9DQVRJT05TLA0KPiBGQVRUUjRfV09SRDFfT1dORVINCj4g
-PiBGQVRUUjRfV09SRDFfT1dORVJfR1JPVVANCj4gPiBGQVRUUjRfV09SRDFfUkFXREVWDQo+ID4g
-RkFUVFI0X1dPUkQxX1NQQUNFX1VTRUQNCj4gPiBGQVRUUjRfV09SRDFfVElNRV9BQ0NFU1MNCj4g
-PiBGQVRUUjRfV09SRDFfVElNRV9NRVRBREFUQQ0KPiA+IEZBVFRSNF9XT1JEMV9USU1FX01PRElG
-WQ0KPiA+IEZBVFRSNF9XT1JEMV9NT1VOVEVEX09OX0ZJTEVJRCwNCj4gDQo+IFNvIHlvdSBhcmUg
-c3VnZ2VzdGluZyB0aGF0IGl0J3Mgb2sgdG8gYXNrIGZvciBTSVpFLCBPV05FUiwgT1dORVINCj4g
-R1JPVVAsIFNQQUNFIFVTRUQsIFRJTUVTVEFNUHMgZXRjIGJ1dCBub3Qgb2sgdG8gYXNrIGZvciBt
-b2RlIGJpdHMgYW5kDQo+IG51bWxpbmtzPw0KDQpOby4gV2Ugc2hvdWxkbid0IGJlIGFza2luZyBm
-b3IgYW55IG9mIHRoYXQgaW5mb3JtYXRpb24gZm9yIGEgcmVmZXJyYWwNCmJlY2F1c2UgdGhlIHNl
-cnZlciBpc24ndCBzdXBwb3NlZCB0byByZXR1cm4gYW55IHZhbHVlcyBmb3IgaXQuDQoNCkNodWNr
-IGFuZCBBbm5hLCB3aGF0J3MgdGhlIGRlYWwgd2l0aCBjb21taXQgYzA1Y2VmY2M3MjQxPyBUaGF0
-IGFwcGVhcnMNCnRvIGhhdmUgY2hhbmdlZCB0aGUgb3JpZ2luYWwgY29kZSB0byBzcGVjdWxhdGl2
-ZWx5IGFzc3VtZSB0aGF0IHRoZQ0Kc2VydmVyIHdpbGwgdmlvbGF0ZSBSRkM1NjYxIFNlY3Rpb24g
-MTEuMy4xIGFuZC9vciBSRkM3NTMwIFNlY3Rpb24NCjguMy4xLiBTcGVjaWZpY2FsbHksIHRoZSBw
-YXJhZ3JhcGggdGhhdCBzYXlzOg0KDQoiDQogICBPdGhlciBhdHRyaWJ1dGVzIFNIT1VMRCBOT1Qg
-YmUgbWFkZSBhdmFpbGFibGUgZm9yIGFic2VudCBmaWxlDQogICBzeXN0ZW1zLCBldmVuIHdoZW4g
-aXQgaXMgcG9zc2libGUgdG8gcHJvdmlkZSB0aGVtLiAgVGhlIHNlcnZlciBzaG91bGQNCiAgIG5v
-dCBhc3N1bWUgdGhhdCBtb3JlIGluZm9ybWF0aW9uIGlzIGFsd2F5cyBiZXR0ZXIgYW5kIHNob3Vs
-ZCBhdm9pZA0KICAgZ3JhdHVpdG91c2x5IHByb3ZpZGluZyBhZGRpdGlvbmFsIGluZm9ybWF0aW9u
-LiINCg0KU28gd2h5IGlzIHRoZSBjbGllbnQgYXNraW5nIGZvciB0aGVtPw0KDQotLSANClRyb25k
-IE15a2xlYnVzdA0KTGludXggTkZTIGNsaWVudCBtYWludGFpbmVyLCBIYW1tZXJzcGFjZQ0KdHJv
-bmQubXlrbGVidXN0QGhhbW1lcnNwYWNlLmNvbQ0KDQoNCg==
+[AMD Public Use]
+
+> -----Original Message-----
+> From: Greg KH <gregkh@linuxfoundation.org>
+> Sent: Thursday, October 15, 2020 1:15 AM
+> To: Alex Deucher <alexdeucher@gmail.com>
+> Cc: stable@vger.kernel.org; Deucher, Alexander
+> <Alexander.Deucher@amd.com>
+> Subject: Re: [PATCH] Revert "drm/amdgpu: Fix NULL dereference in dpm
+> sysfs handlers"
+>=20
+> On Wed, Oct 14, 2020 at 04:28:36PM -0400, Alex Deucher wrote:
+> > This regressed some working configurations so revert it.  Will fix
+> > this properly for 5.9 and backport then.
+>=20
+> What do you mean "backport then"?
+>=20
+> >
+> > This reverts commit 38e0c89a19fd13f28d2b4721035160a3e66e270b.
+> >
+> > This needs to be applied to 5.9 as well.  -next (5.10) has this
+> > already, but 5.9 missed it.
+>=20
+> What is the real fix for this?  Is it in Linus's tree and I can just back=
+port that
+> fix?
+>=20
+
+This is no real fix.  The revert is the fix.  Sorry, I should have clarifie=
+d that.
+
+Thanks,
+
+Alex
+
+> thanks,
+>=20
+> greg k-h
