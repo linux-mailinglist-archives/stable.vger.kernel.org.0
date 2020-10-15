@@ -2,115 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B80E28ECF4
-	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 08:13:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2553C28EDB7
+	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 09:29:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727531AbgJOGNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Oct 2020 02:13:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36834 "EHLO
+        id S1727437AbgJOH3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Oct 2020 03:29:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725922AbgJOGNY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Oct 2020 02:13:24 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E38C061755
-        for <stable@vger.kernel.org>; Wed, 14 Oct 2020 23:13:24 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id o3so1217948pgr.11
-        for <stable@vger.kernel.org>; Wed, 14 Oct 2020 23:13:24 -0700 (PDT)
+        with ESMTP id S1726103AbgJOH3d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Oct 2020 03:29:33 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70501C061755;
+        Thu, 15 Oct 2020 00:29:33 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id 10so1486799pfp.5;
+        Thu, 15 Oct 2020 00:29:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=FSx8r5Yn0aHsTIlqeNtZt7OE2QlbWG9h09P7bjUml+4=;
-        b=TS5dc/GvRkuaGCxtjRZF9n2h5P9odLU09fSa21Aq413F1ryp7rH9pfUxrnoZ52S4jL
-         W8intmzkNf2OY6bmrRJxABq6ClHyRUedyr+Btp8Cea4fDEcWtugIbM/v8YT90iKZcCoc
-         WexovjjA6IVfg9wXAF8Q/FcZcg+RS7k4YeFSuHluWeaewHbRkGZHpuQ6MzGXedsMP1l7
-         WrH+//oqc14qWfwwCH7ylbzoa38JRCUkGESirrZm1g42bCK0/8UkI/xwotAulUw7YkXB
-         LvziN++2T2PFIieabcVl9MkEE8FTpsxydSuiySXtybdRynj0ZKgVvhzw19yA9HxFe87H
-         DoEA==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=NyOBxb8AoqgMUHKsBXW28Vj4sUWrwj4sJ2HYf/jBgew=;
+        b=MlOIA+nXW3/bDb+PqTOTIb+xXh78CgOPa/ayPCooqogLZXD8aWauC4GJxf/L3Pez5L
+         KP+AoUHMfsk1gUxsUHmmFgqOFjTrtTBxfaJDMMwJe8z1anzpv4ggZRA4Bh38fZqZ5dfp
+         GNTcEWbQglnIi93azUEdBko2OMYna5a6Qq0t4SQqbifCM3XoDXN9R8Ru44gd7KJe0Qq4
+         ZIPpXamMchjP5aAnW393A3lsUoosYRWyUXU5OSRsZcvCZvY2DlFaIpcS/w+0DBRd+m7n
+         CVPCNYjWuf40NsBK3rqKRlzmvADq1BtSOlKvU60siYCNi+29yweLiVngur9cFw3pqUmY
+         zPuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=FSx8r5Yn0aHsTIlqeNtZt7OE2QlbWG9h09P7bjUml+4=;
-        b=fp8eXjau/bJtY0MTkHnovkMVtdDptbtXJYd9hjXGnB5MQ000rYVTo3cWFZ6YakQZPs
-         8F9EMCZbJE9quVoFhqcnO4zFSTy72X4PSBb06jUOFG19BBmFimc89/gBWVZ3oCQmlFUA
-         3UvdycJUZjH32FjU1b6sWc1BHDcA7IhhNe07xOVk0XecYdV/0YJuQ6a8N2BOERbrXgGe
-         4CcMNg/M0F5Ef1t3cqio02UbxuRHfe+k/Vi2RUxC/MzkR52LyPMgHlSFW6jZKqvBNt1l
-         EEpi+4TzuDXG3NhgT04ZKn9+S6xcdlMn7TchJqtp+k531wXYPQ/CowyrmMdvWnZl4YZR
-         IYWQ==
-X-Gm-Message-State: AOAM530nLZknyP1MFpuIo46gs7QHuVQj2iyuriRfom7aLa8GeMkra3AV
-        +z/BqMim2tD2Q4vpBFW3UifRnJxih0B0hw==
-X-Google-Smtp-Source: ABdhPJzf0k5xadvXHxswRJ8bRHnwKbfYsgIHRsk5EMulEu1KSVfR5VkXeqAD22rc4UV2GRd+yIYk0Q==
-X-Received: by 2002:a05:6a00:d2:b029:152:5ebd:426 with SMTP id e18-20020a056a0000d2b02901525ebd0426mr2710328pfj.5.1602742402762;
-        Wed, 14 Oct 2020 23:13:22 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m11sm1724425pfa.69.2020.10.14.23.13.21
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=NyOBxb8AoqgMUHKsBXW28Vj4sUWrwj4sJ2HYf/jBgew=;
+        b=PLwkmDJNkLxAy9+W0HR3LZxH9yahR6TNikXFuup88H6jEtR2b/oiI/RwKDrIeDA7QR
+         5FvG/zC+kFGNaWagxquh3JtNSoLvJRyUT3r06JkmATou36pChPmsHfSLmVQJAchjM/gp
+         oRjsx6nkJr55h/FFiVWAUoWFlTJvu0xXcRzO1iqnn03BhS+EHSSvYo8XRhM8gRtr9QqD
+         Neti3bfV+hJT/JYg7JpqBccDfjV3RD2XB4i4NNuRRtJUNeaJ41RjCiqTzMvBdnlCq4Mt
+         mPWYYt/h/Xy+EZHQMSJlGKgNTR8dwS7ysLlPZy25IWEqv235rAr2KVEjebR0bsUJL3w+
+         KLzg==
+X-Gm-Message-State: AOAM532b2quVdGBm2Y3NQ0WIxV9pb8bYO4NxCDm2CpdN1FEHuokvmb8P
+        DjRbCMlofRB6OcFtFkUtWM0=
+X-Google-Smtp-Source: ABdhPJwW7T2inHeWLA2QxFD2R5JIGjpObY6McSyfUtJoEIyfFMSYNCFm7TKYxylXn1eZE6DKx7ABww==
+X-Received: by 2002:aa7:86ce:0:b029:152:1702:d791 with SMTP id h14-20020aa786ce0000b02901521702d791mr2909804pfo.13.1602746972721;
+        Thu, 15 Oct 2020 00:29:32 -0700 (PDT)
+Received: from laptop.hsd1.wa.comcast.net ([2601:600:9b7f:872e:a655:30fb:7373:c762])
+        by smtp.gmail.com with ESMTPSA id u7sm2039426pfn.37.2020.10.15.00.29.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Oct 2020 23:13:22 -0700 (PDT)
-Message-ID: <5f87e882.1c69fb81.b58d9.4521@mx.google.com>
-Date:   Wed, 14 Oct 2020 23:13:22 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.201
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.14.y baseline: 123 runs, 1 regressions (v4.14.201)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        Thu, 15 Oct 2020 00:29:32 -0700 (PDT)
+From:   Andrei Vagin <avagin@gmail.com>
+To:     Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Shuah Khan <shuah@kernel.org>, Andrei Vagin <avagin@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] futex: adjust a futex timeout with a per-timens offset
+Date:   Thu, 15 Oct 2020 00:29:08 -0700
+Message-Id: <20201015072909.271426-1-avagin@gmail.com>
+X-Mailer: git-send-email 2.17.2
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y baseline: 123 runs, 1 regressions (v4.14.201)
+For all commands except FUTEX_WAIT, timeout is interpreted as an
+absolute value. This absolute value is inside the task's time namespace
+and has to be converted to the host's time.
 
-Regressions Summary
--------------------
+Cc: <stable@vger.kernel.org>
+Fixes: 5a590f35add9 ("posix-clocks: Wire up clock_gettime() with timens offsets")
+Reported-by: Hans van der Laan <j.h.vanderlaan@student.utwente.nl>
+Signed-off-by: Andrei Vagin <avagin@gmail.com>
+---
+ kernel/futex.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
+diff --git a/kernel/futex.c b/kernel/futex.c
+index a5876694a60e..9ff2b8c5a506 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -39,6 +39,7 @@
+ #include <linux/freezer.h>
+ #include <linux/memblock.h>
+ #include <linux/fault-inject.h>
++#include <linux/time_namespace.h>
+ 
+ #include <asm/futex.h>
+ 
+@@ -3797,6 +3798,8 @@ SYSCALL_DEFINE6(futex, u32 __user *, uaddr, int, op, u32, val,
+ 		t = timespec64_to_ktime(ts);
+ 		if (cmd == FUTEX_WAIT)
+ 			t = ktime_add_safe(ktime_get(), t);
++		else if (!(cmd & FUTEX_CLOCK_REALTIME))
++			t = timens_ktime_to_host(CLOCK_MONOTONIC, t);
+ 		tp = &t;
+ 	}
+ 	/*
+-- 
+2.26.2
 
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
-/v4.14.201/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.14.y
-  Describe: v4.14.201
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      a21a9b514b8821af1230fb1a751600d847aeb1a2 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | results
----------+------+---------------+----------+---------------------+--------
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f87af079b35244a024ff40f
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.201/=
-arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.201/=
-arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5f87af079b35244=
-a024ff416
-      new failure (last pass: v4.14.200)
-      2 lines  =20
