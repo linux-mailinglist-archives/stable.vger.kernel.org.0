@@ -2,141 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9114A28F310
-	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 15:18:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5D628F328
+	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 15:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728740AbgJONSh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Oct 2020 09:18:37 -0400
-Received: from mail-dm6nam10on2071.outbound.protection.outlook.com ([40.107.93.71]:25696
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728418AbgJONSh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Oct 2020 09:18:37 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=j6Jxzi4DMmOf2O/+scMktAliezLfxX/hswQ4XmKm6ehrKNceDTDJm1rmYVV7LVVdTMtUsA+Wv/2s0Suh0D0yMJsXa75de+HYmvYKqGS+hX21xBO/Vd5ausc2uREsLiQlkbHXW+EQZg0zSMekGFxe2SV/885G37EHmmrAaC3C6SAzBWzGa812a2DZRb9yXD64jNwXI1TLUSB5W+XunDaE6MV6SvBWDhZBw7IOdELNKcZ/bfKmGUkTEEiYAm0JiYAJE+/4cFzkW7Gl+vr/2xdYkEX7We550kBTZHc+2tUy37CciZB5JNT0CB0txbGoOTR8psbmpLedvZwqAfP4gly0Eg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2q3hzR2KbCY1G5qi/aeoMdsSsacCL6VaqVi+v5nhh/Q=;
- b=SngFrLjvBz8DNcDl+El7weOeFrqcurKdlREMtdI0PN+n/jFZNu9tFQ+z/RXPKCUKRYIubXmeKMZZux4OvYuNJSw77fhzju+jSMwi88N8B7Y4nz/UvHEui95DT0BiGQH+shKPmyInkcCldYreBU4JZriITG7IfOTqqxcAlQAFzWDVQThwYZEf/qattfHSqLpOTUJdAu0kTPJPLbdBhQmH1HUkaBAZzsw63syQ3A+xS0RKfkt+SnDE+DMzxv6h4tbBzOZ6geyG/M+cvncQwo7h5l6EZNScLKMG3r204YZ2YBf03gkBDTaBymxrLemcjwRLhWIL16nb3/2i/B+uIKXPxQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
+        id S1729139AbgJON0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Oct 2020 09:26:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728216AbgJON0V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Oct 2020 09:26:21 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE5CC061755;
+        Thu, 15 Oct 2020 06:26:20 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id e18so3456867wrw.9;
+        Thu, 15 Oct 2020 06:26:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2q3hzR2KbCY1G5qi/aeoMdsSsacCL6VaqVi+v5nhh/Q=;
- b=FEbgQhaFN7/1xxQRhsZa7itNA39P9qao5J2w0Pt6v3mIr2n+r6mlv6jB4NfNFkQ5I8+P9S+ca1i4PCAjDB1xSddrjS2WUc8l7On/mn5FaoGDo0KvjN6BFQPkUsvJhBNg5dccJzv0W+fiJjd4E4GkzaC/8i3OCmhMoD40FVb5OhY=
-Received: from MN2PR12MB4488.namprd12.prod.outlook.com (2603:10b6:208:24e::19)
- by BL0PR12MB2338.namprd12.prod.outlook.com (2603:10b6:207:4c::28) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3477.20; Thu, 15 Oct
- 2020 13:18:34 +0000
-Received: from MN2PR12MB4488.namprd12.prod.outlook.com
- ([fe80::99dd:ff77:1ffd:d96a]) by MN2PR12MB4488.namprd12.prod.outlook.com
- ([fe80::99dd:ff77:1ffd:d96a%3]) with mapi id 15.20.3477.021; Thu, 15 Oct 2020
- 13:18:34 +0000
-From:   "Deucher, Alexander" <Alexander.Deucher@amd.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Alex Deucher <alexdeucher@gmail.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs
- handlers"
-Thread-Topic: [PATCH] Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs
- handlers"
-Thread-Index: AQHWomieOyAGFaf48EOq2y93EG1BbqmYH2aAgACGVcA=
-Date:   Thu, 15 Oct 2020 13:18:34 +0000
-Message-ID: <MN2PR12MB448853FE73DE3EF2D64BE36CF7020@MN2PR12MB4488.namprd12.prod.outlook.com>
-References: <20201014202836.240347-1-alexander.deucher@amd.com>
- <20201015051451.GA405484@kroah.com>
-In-Reply-To: <20201015051451.GA405484@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_Enabled=true;
- MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_SetDate=2020-10-15T13:17:07Z;
- MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_Method=Privileged;
- MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_Name=Public_0;
- MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
- MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_ActionId=51a1dbac-de9e-49de-afb8-00009f7cbe1a;
- MSIP_Label_0d814d60-469d-470c-8cb0-58434e2bf457_ContentBits=1
-msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_enabled: true
-msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_setdate: 2020-10-15T13:18:29Z
-msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_method: Privileged
-msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_name: Public_0
-msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_siteid: 3dd8961f-e488-4e60-8e11-a82d994e183d
-msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_actionid: 43683619-6795-4775-a2a1-000099ae216a
-msip_label_0d814d60-469d-470c-8cb0-58434e2bf457_contentbits: 0
-authentication-results: linuxfoundation.org; dkim=none (message not signed)
- header.d=none;linuxfoundation.org; dmarc=none action=none
- header.from=amd.com;
-x-originating-ip: [165.204.10.250]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 4ff6a06a-eae6-4bb7-5665-08d8710cd1c8
-x-ms-traffictypediagnostic: BL0PR12MB2338:
-x-microsoft-antispam-prvs: <BL0PR12MB233838DFA478A638CF4EF089F7020@BL0PR12MB2338.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:1122;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: qYQZkAKcvk3yZsHfisfWgri87hxjqfalNq4MkOafjZi8UEwURY46gq6GNZQEs+UmQnGzKell/k9daKfxRLuyaJmWeQSMk99FoJWHMDEfINDBL8lf1bcyp3nVhkhj2coYy2JWRdO73k6Ko9VVK9tuxuUTaSCnN1fAMc8Z2e5Awms+0ut8UakuAmor+spfQpmwA6zoNGcsEIdpXDwi0wj1DD7lFYKS/vf/Vk1PBGUyeAWifHOJiujoF4C2mXErj4HewwMMhhoyEH7EZyxhGXogvb2pVZ3AwkXI23rS1h63AZGFAyYxOpxHYzA6m5w3vlFr
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB4488.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(39860400002)(396003)(346002)(376002)(136003)(366004)(8676002)(83380400001)(86362001)(8936002)(9686003)(110136005)(33656002)(316002)(71200400001)(64756008)(66556008)(2906002)(66946007)(66446008)(76116006)(7696005)(52536014)(478600001)(26005)(186003)(6506007)(53546011)(4744005)(55016002)(4326008)(5660300002)(66476007);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: +9YZCUJOD4ROIGQ2FNwSrImh17QyEBvbzVXJlb/cnO1f5TofTqmXHxLMRt1kdzZdpe8Jf4QIACzNA4duv2+qt2Um98rs/aXrda+O0EFQknapqGCB+XCChouUmlYsj7UkYJXWQz7NnjKjhknpoQKigX1LvbSiFxFSeSnIl/P7GaS37cQXPmitBS7AGS3Fgg74iy2hnzu2EnjRuiqW2KBwnBlGUYsMGTMKUfykNNXdBgZvzMZpcih5QW4cqy9hpM7qv/B0qJaW/juzVcXu15W1MVbdQKgZSbwrMX/kuba62RSSNN1p2fbn1rgygAqalvrvbT6qx09Rhkn2KaUCFZB331aCu18w+PxFDgsuyD7L7YJ9vFKBESJK8YbU4rXQm18wg0NOnXC7ItXbckXRFtaOIMdJjdpd0j378vmFkGuyTWw5JysxSBf4tRQh2O3EBxrePOkxMx7TWyn5jzs0EF5eGFKlsvauFT7U5RpoNzcF1/b+3BkWAhHe3jW0/qM+91RjSxPrgV3q/a4Gl/XB54ioNPR6q+82KV3145Gk+JrRmDjqDSKuq7U1VXQGzqxKScAVngEPPh+uAPb6XMPuQZtUr/tZEeojNStS0ZFILwf4/GZoj6w1z8yzxaKjMaQ82PQJntLSQ1ZToGNIY/OEWQox1Q==
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=vbVg16QrGKyvlMckDNn7Gc3nciHNv5GDTwM3pbpTXY0=;
+        b=sxyRa8oiLkOGh5khW9uyt4C/N1rfSh5E5GnzgOtuPTlJF9vh+poDXThSHdRMZgmNca
+         M7Momf8eX1CN0ezKJ4p7KIMfevKqKcG5zw/bhPZqHGf62PrAqxDkzIuHBoL3EaUqmLZM
+         3ryp28PiXOe8ApVwwawYhM3pEa/K8s9hYdXjOd5BSIlWPL8gTTL9m8CZQyTjz0j61YbP
+         Ac3oqCo0urF5XfrtJJqdhXLZat8966EmUzPp/oKQeI8C6XxOpeLO27+XDAGpfo751a29
+         cDMWcyzWFFqFV7a9jke1xUN3LT6FA6ZdX1Il8cqKkz1lvhrqSGQ9Nd/ZPQis73qBz5HH
+         tIyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=vbVg16QrGKyvlMckDNn7Gc3nciHNv5GDTwM3pbpTXY0=;
+        b=fPw5O3H8JQ/F8WU5aj3JlMBCJpgfKwzy84ibsuoSeVRLySs7/eFfPwCsNV4AOLEOKU
+         JpdJsdZwhmXBMP1vJnM/855nwEFjTWWXj9QxMeatj3dtbbWzQWltv7PdkUIxVXjfhkoc
+         VEeJ2kUP+EDbMC3v+lOkEuwkKsXkZ5/ZvWsiefPiLi6iT6Hx2PksA4FVIZ++qroc0ivL
+         gGzc1dzDUtW01PGYOImRPbKeMGV/K2K5IfsmcOq+NvYSkfaXSWVQHr13y+OIA1zNUoA9
+         tfoA7gve7jNbEsxVyb1HQg0nucSrwUFYZsLydUt+IXhAs2lNCY9CI8pyPfOxP87iU1jh
+         P2jw==
+X-Gm-Message-State: AOAM533X4pNi0O+Y3qWwHQH8j6a4FEAfWEmxuP6IA+T+92fXVj86rxY7
+        tuIl+cOZGlIwV/M85osA8MM=
+X-Google-Smtp-Source: ABdhPJzkVhQlHr4psjqGHvJgXaBFBjQpUe8HpzLEiIam3P0cz3ZzpqDT4ckaobCUecVdBb41Fj4W1w==
+X-Received: by 2002:adf:dd50:: with SMTP id u16mr4575900wrm.419.1602768379590;
+        Thu, 15 Oct 2020 06:26:19 -0700 (PDT)
+Received: from ?IPv6:2a02:8084:e84:2480:228:f8ff:fe6f:83a8? ([2a02:8084:e84:2480:228:f8ff:fe6f:83a8])
+        by smtp.gmail.com with ESMTPSA id e25sm2431731wra.71.2020.10.15.06.26.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Oct 2020 06:26:18 -0700 (PDT)
+Subject: Re: [PATCH 1/2] futex: adjust a futex timeout with a per-timens
+ offset
+To:     Andrei Vagin <avagin@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Darren Hart <dvhart@infradead.org>,
+        Shuah Khan <shuah@kernel.org>, stable@vger.kernel.org
+References: <20201015072909.271426-1-avagin@gmail.com>
+From:   Dmitry Safonov <0x7f454c46@gmail.com>
+Message-ID: <fc50656f-2df8-06c9-653a-8d2910949401@gmail.com>
+Date:   Thu, 15 Oct 2020 14:26:16 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB4488.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4ff6a06a-eae6-4bb7-5665-08d8710cd1c8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Oct 2020 13:18:34.5570
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: mpo6wtgN0QAp8SrAO9wdBteDI0oqkDTlsApvgu3kVS72ToqGITvQ2P+H2AOj2kjVKlZJcBH52MJCovrYcR6S4Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB2338
+In-Reply-To: <20201015072909.271426-1-avagin@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[AMD Public Use]
+On 10/15/20 8:29 AM, Andrei Vagin wrote:
+> For all commands except FUTEX_WAIT, timeout is interpreted as an
+> absolute value. This absolute value is inside the task's time namespace
+> and has to be converted to the host's time.
+> 
+> Cc: <stable@vger.kernel.org>
+> Fixes: 5a590f35add9 ("posix-clocks: Wire up clock_gettime() with timens offsets")
+> Reported-by: Hans van der Laan <j.h.vanderlaan@student.utwente.nl>
+> Signed-off-by: Andrei Vagin <avagin@gmail.com>[..]
+> @@ -3797,6 +3798,8 @@ SYSCALL_DEFINE6(futex, u32 __user *, uaddr, int, op, u32, val,
+>  		t = timespec64_to_ktime(ts);
+>  		if (cmd == FUTEX_WAIT)
+>  			t = ktime_add_safe(ktime_get(), t);
+> +		else if (!(cmd & FUTEX_CLOCK_REALTIME))
+> +			t = timens_ktime_to_host(CLOCK_MONOTONIC, t);
 
-> -----Original Message-----
-> From: Greg KH <gregkh@linuxfoundation.org>
-> Sent: Thursday, October 15, 2020 1:15 AM
-> To: Alex Deucher <alexdeucher@gmail.com>
-> Cc: stable@vger.kernel.org; Deucher, Alexander
-> <Alexander.Deucher@amd.com>
-> Subject: Re: [PATCH] Revert "drm/amdgpu: Fix NULL dereference in dpm
-> sysfs handlers"
->=20
-> On Wed, Oct 14, 2020 at 04:28:36PM -0400, Alex Deucher wrote:
-> > This regressed some working configurations so revert it.  Will fix
-> > this properly for 5.9 and backport then.
->=20
-> What do you mean "backport then"?
->=20
-> >
-> > This reverts commit 38e0c89a19fd13f28d2b4721035160a3e66e270b.
-> >
-> > This needs to be applied to 5.9 as well.  -next (5.10) has this
-> > already, but 5.9 missed it.
->=20
-> What is the real fix for this?  Is it in Linus's tree and I can just back=
-port that
-> fix?
->=20
+Err, it probably should be
+: else if (!(op & FUTEX_CLOCK_REALTIME))
 
-This is no real fix.  The revert is the fix.  Sorry, I should have clarifie=
-d that.
+And there's also
+: SYSCALL_DEFINE6(futex_time32, ...)
+which wants to be patched.
 
 Thanks,
-
-Alex
-
-> thanks,
->=20
-> greg k-h
+          Dmitry
