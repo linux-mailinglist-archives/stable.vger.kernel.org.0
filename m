@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D285E28FA8C
-	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 23:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B458928FA8F
+	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 23:19:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726280AbgJOVTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Oct 2020 17:19:21 -0400
-Received: from aer-iport-1.cisco.com ([173.38.203.51]:19033 "EHLO
-        aer-iport-1.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726018AbgJOVTV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Oct 2020 17:19:21 -0400
+        id S1726326AbgJOVTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Oct 2020 17:19:43 -0400
+Received: from aer-iport-4.cisco.com ([173.38.203.54]:13547 "EHLO
+        aer-iport-4.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726018AbgJOVTm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Oct 2020 17:19:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=cisco.com; i=@cisco.com; l=5134; q=dns/txt; s=iport;
-  t=1602796759; x=1604006359;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=9W7XKoe/y0Es4udir4FrsxACCCi20QTG0WTfjW7GMPE=;
-  b=WOlA8SWRBOQiFW+bEogX8osVzy04744UsuQieopOOprNEHbQ00m7qFyM
-   BaFJs1GJXdDLm2wx5mhG7Hb+W92qepk3TJXLTzDA3r8R9Jj3CAkgKzfDD
-   tuYtpwUvkPZiH0yhyYwEt5XUI0Xuj8/OqSj1o/tYvLGOrxjdrbeKmVcNo
-   c=;
+  d=cisco.com; i=@cisco.com; l=3067; q=dns/txt; s=iport;
+  t=1602796782; x=1604006382;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=lH6jrHLM2LX3foBPwgTy4DW20QBSCwznVHa81qFZOuI=;
+  b=mFYQnfnEJmsiQEWFcMCYcrlsPunXm4zZpI1KjAo7tglt+dzpiZSQSoJ+
+   O4AVJdRndiWAzCJ3grCwJHE/9vfc2jtlaCWTm1yORTcAXkuW7MQM1gbSV
+   VkSHHvSCHGJJdzatzKwoaA9wYcqM9qhC6gR16QhUJvadNUyhakWTjN5sw
+   w=;
 X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: =?us-ascii?q?A0DfBAB4uohf/xbLJq1ghFOBdAEgEiy?=
- =?us-ascii?q?NP4gYnCYLAQEBDy8EAQGESgKCCSY4EwIDAQELAQEFAQEBAgEGBG2FaIVyAQE?=
- =?us-ascii?q?CAgEnCwFGBQsgMVcZgltLgl0grE6BdTOKW4E4iDeEYQEyBoFBP4ERgmJsijQ?=
- =?us-ascii?q?EkCUEp0+CdJpfDyKDFo9OjmaOSaU4gWsjgVdNIxU7gmlQGQ2OKxeOJj8DMAI?=
- =?us-ascii?q?2AgYKAQEDCY5IAQE?=
+X-IronPort-Anti-Spam-Result: =?us-ascii?q?A0DSBAD5uohf/xbLJq1ghkcBIBIsjT+?=
+ =?us-ascii?q?kPgsBAQEPLwQBAYRKggsmOBMCAwEBCwEBBQEBAQIBBgRthWiGIAsBRjCBIYM?=
+ =?us-ascii?q?mgn2sT4F1M4pbgTiIN4RhMwaBQT+EX4UKhSoEkCmnT4J0ml8PIqFKLbNUgWs?=
+ =?us-ascii?q?jgVdNIxWDJFAZDY4rFxSOEj8DMAI2AgYKAQEDCY5IAQE?=
 X-IronPort-AV: E=Sophos;i="5.77,380,1596499200"; 
-   d="scan'208";a="30387899"
+   d="scan'208";a="30328712"
 Received: from aer-iport-nat.cisco.com (HELO aer-core-1.cisco.com) ([173.38.203.22])
-  by aer-iport-1.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 15 Oct 2020 21:12:04 +0000
+  by aer-iport-4.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 15 Oct 2020 21:12:29 +0000
 Received: from hce-anki.rd.cisco.com ([10.47.78.239])
-        by aer-core-1.cisco.com (8.15.2/8.15.2) with ESMTP id 09FLC3V5020717;
-        Thu, 15 Oct 2020 21:12:04 GMT
+        by aer-core-1.cisco.com (8.15.2/8.15.2) with ESMTP id 09FLCTWS020769;
+        Thu, 15 Oct 2020 21:12:29 GMT
 From:   Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Marcel Holtmann <marcel@holtmann.org>, stable@vger.kernel.org
-Subject: [v4.9..v5.4/bluetooth PATCH 3/3] Bluetooth: Disconnect if E0 is used for Level 4
-Date:   Thu, 15 Oct 2020 23:12:02 +0200
-Message-Id: <20201015211202.1188015-3-hegtvedt@cisco.com>
+Subject: [v4.4/bluetooth PATCH 1/3] Bluetooth: Consolidate encryption handling in hci_encrypt_cfm
+Date:   Thu, 15 Oct 2020 23:12:23 +0200
+Message-Id: <20201015211225.1188104-1-hegtvedt@cisco.com>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20201015211202.1188015-1-hegtvedt@cisco.com>
-References: <20201015211202.1188015-1-hegtvedt@cisco.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Outbound-SMTP-Client: 10.47.78.239, [10.47.78.239]
@@ -55,148 +52,104 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-E0 is not allowed with Level 4:
-
-BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C page 1319:
-
-  '128-bit equivalent strength for link and encryption keys
-   required using FIPS approved algorithms (E0 not allowed,
-   SAFER+ not allowed, and P-192 not allowed; encryption key
-   not shortened'
-
-SC enabled:
-
-> HCI Event: Read Remote Extended Features (0x23) plen 13
-        Status: Success (0x00)
-        Handle: 256
-        Page: 1/2
-        Features: 0x0b 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-          Secure Simple Pairing (Host Support)
-          LE Supported (Host)
-          Secure Connections (Host Support)
-> HCI Event: Encryption Change (0x08) plen 4
-        Status: Success (0x00)
-        Handle: 256
-        Encryption: Enabled with AES-CCM (0x02)
-
-SC disabled:
-
-> HCI Event: Read Remote Extended Features (0x23) plen 13
-        Status: Success (0x00)
-        Handle: 256
-        Page: 1/2
-        Features: 0x03 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-          Secure Simple Pairing (Host Support)
-          LE Supported (Host)
-> HCI Event: Encryption Change (0x08) plen 4
-        Status: Success (0x00)
-        Handle: 256
-        Encryption: Enabled with E0 (0x01)
-[May 8 20:23] Bluetooth: hci0: Invalid security: expect AES but E0 was used
-< HCI Command: Disconnect (0x01|0x0006) plen 3
-        Handle: 256
-        Reason: Authentication Failure (0x05)
+This makes hci_encrypt_cfm calls hci_connect_cfm in case the connection
+state is BT_CONFIG so callers don't have to check the state.
 
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-(cherry picked from commit 8746f135bb01872ff412d408ea1aa9ebd328c1f5)
-Cc: stable@vger.kernel.org # 4.9..5.4
+(cherry picked from commit 3ca44c16b0dcc764b641ee4ac226909f5c421aa3)
+Cc: stable@vger.kernel.org # 4.4
 ---
- include/net/bluetooth/hci_core.h | 10 ++++++----
- net/bluetooth/hci_conn.c         | 17 +++++++++++++++++
- net/bluetooth/hci_event.c        | 20 ++++++++------------
- 3 files changed, 31 insertions(+), 16 deletions(-)
+ include/net/bluetooth/hci_core.h | 20 ++++++++++++++++++--
+ net/bluetooth/hci_event.c        | 28 +++-------------------------
+ 2 files changed, 21 insertions(+), 27 deletions(-)
 
 diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index 144f580556f9..3cd232cf29c6 100644
+index 7c0c83dfe86e..0269a772bfe1 100644
 --- a/include/net/bluetooth/hci_core.h
 +++ b/include/net/bluetooth/hci_core.h
-@@ -1329,11 +1329,13 @@ static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status)
- 	else
- 		encrypt = 0x01;
+@@ -1235,10 +1235,26 @@ static inline void hci_auth_cfm(struct hci_conn *conn, __u8 status)
+ 		conn->security_cfm_cb(conn, status);
+ }
  
--	if (conn->sec_level == BT_SECURITY_SDP)
--		conn->sec_level = BT_SECURITY_LOW;
-+	if (!status) {
-+		if (conn->sec_level == BT_SECURITY_SDP)
-+			conn->sec_level = BT_SECURITY_LOW;
- 
--	if (conn->pending_sec_level > conn->sec_level)
--		conn->sec_level = conn->pending_sec_level;
-+		if (conn->pending_sec_level > conn->sec_level)
-+			conn->sec_level = conn->pending_sec_level;
-+	}
- 
- 	mutex_lock(&hci_cb_list_lock);
- 	list_for_each_entry(cb, &hci_cb_list, list) {
-diff --git a/net/bluetooth/hci_conn.c b/net/bluetooth/hci_conn.c
-index 87691404d0c6..ee57fa20bac3 100644
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1285,6 +1285,23 @@ int hci_conn_check_link_mode(struct hci_conn *conn)
- 			return 0;
- 	}
- 
-+	 /* AES encryption is required for Level 4:
-+	  *
-+	  * BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C
-+	  * page 1319:
-+	  *
-+	  * 128-bit equivalent strength for link and encryption keys
-+	  * required using FIPS approved algorithms (E0 not allowed,
-+	  * SAFER+ not allowed, and P-192 not allowed; encryption key
-+	  * not shortened)
-+	  */
-+	if (conn->sec_level == BT_SECURITY_FIPS &&
-+	    !test_bit(HCI_CONN_AES_CCM, &conn->flags)) {
-+		bt_dev_err(conn->hdev,
-+			   "Invalid security: Missing AES-CCM usage");
-+		return 0;
+-static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status,
+-								__u8 encrypt)
++static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status)
+ {
+ 	struct hci_cb *cb;
++	__u8 encrypt;
++
++	if (conn->state == BT_CONFIG) {
++		if (status)
++			conn->state = BT_CONNECTED;
++
++		hci_connect_cfm(conn, status);
++		hci_conn_drop(conn);
++		return;
 +	}
 +
- 	if (hci_conn_ssp_enabled(conn) &&
- 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
- 		return 0;
++	if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
++		encrypt = 0x00;
++	else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
++		encrypt = 0x02;
++	else
++		encrypt = 0x01;
+ 
+ 	if (conn->sec_level == BT_SECURITY_SDP)
+ 		conn->sec_level = BT_SECURITY_LOW;
 diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index de4cce5f1bd8..9917b399ddd0 100644
+index 03319ab8a7c6..bb9c13506bca 100644
 --- a/net/bluetooth/hci_event.c
 +++ b/net/bluetooth/hci_event.c
-@@ -2974,27 +2974,23 @@ static void hci_encrypt_change_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 
- 	clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
- 
-+	/* Check link security requirements are met */
-+	if (!hci_conn_check_link_mode(conn))
-+		ev->status = HCI_ERROR_AUTH_FAILURE;
-+
- 	if (ev->status && conn->state == BT_CONNECTED) {
- 		if (ev->status == HCI_ERROR_PIN_OR_KEY_MISSING)
- 			set_bit(HCI_CONN_AUTH_FAILURE, &conn->flags);
- 
-+		/* Notify upper layers so they can cleanup before
-+		 * disconnecting.
-+		 */
-+		hci_encrypt_cfm(conn, ev->status);
- 		hci_disconnect(conn, HCI_ERROR_AUTH_FAILURE);
- 		hci_conn_drop(conn);
- 		goto unlock;
+@@ -2479,7 +2479,7 @@ static void hci_auth_complete_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 				     &cp);
+ 		} else {
+ 			clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
+-			hci_encrypt_cfm(conn, ev->status, 0x00);
++			hci_encrypt_cfm(conn, ev->status);
+ 		}
  	}
  
--	/* In Secure Connections Only mode, do not allow any connections
--	 * that are not encrypted with AES-CCM using a P-256 authenticated
--	 * combination key.
--	 */
--	if (hci_dev_test_flag(hdev, HCI_SC_ONLY) &&
--	    (!test_bit(HCI_CONN_AES_CCM, &conn->flags) ||
--	     conn->key_type != HCI_LK_AUTH_COMBINATION_P256)) {
--		hci_connect_cfm(conn, HCI_ERROR_AUTH_FAILURE);
+@@ -2565,22 +2565,7 @@ static void read_enc_key_size_complete(struct hci_dev *hdev, u8 status,
+ 		conn->enc_key_size = rp->key_size;
+ 	}
+ 
+-	if (conn->state == BT_CONFIG) {
+-		conn->state = BT_CONNECTED;
+-		hci_connect_cfm(conn, 0);
 -		hci_conn_drop(conn);
--		goto unlock;
--	}
+-	} else {
+-		u8 encrypt;
 -
- 	/* Try reading the encryption key size for encrypted ACL links */
- 	if (!ev->status && ev->encrypt && conn->type == ACL_LINK) {
- 		struct hci_cp_read_enc_key_size cp;
+-		if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
+-			encrypt = 0x00;
+-		else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
+-			encrypt = 0x02;
+-		else
+-			encrypt = 0x01;
+-
+-		hci_encrypt_cfm(conn, 0, encrypt);
+-	}
++	hci_encrypt_cfm(conn, 0);
+ 
+ unlock:
+ 	hci_dev_unlock(hdev);
+@@ -2674,14 +2659,7 @@ static void hci_encrypt_change_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 	}
+ 
+ notify:
+-	if (conn->state == BT_CONFIG) {
+-		if (!ev->status)
+-			conn->state = BT_CONNECTED;
+-
+-		hci_connect_cfm(conn, ev->status);
+-		hci_conn_drop(conn);
+-	} else
+-		hci_encrypt_cfm(conn, ev->status, ev->encrypt);
++	hci_encrypt_cfm(conn, ev->status);
+ 
+ unlock:
+ 	hci_dev_unlock(hdev);
 -- 
 2.27.0
 
