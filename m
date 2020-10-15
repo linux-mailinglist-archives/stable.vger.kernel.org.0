@@ -2,169 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4A9728EB3F
-	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 04:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ADE328EB43
+	for <lists+stable@lfdr.de>; Thu, 15 Oct 2020 04:37:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725977AbgJOCgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Oct 2020 22:36:10 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:36705 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728524AbgJOCgK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 22:36:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1602729368;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=A4nV7WKozM0AOIQ1QdjvaOOj/choWDPKz6rzFA68jkM=;
-        b=MhSR2MpzCNiXDOqdobLutmkZ183XaW70Flio+/0eAdt1Dlgww3G4mHxRiMr9iHOxPK7nzz
-        ovL3DszLVV8paMYhAwi1Z6JMFX2IG2cP45iw8n3+cHU1RrmcFioDn6WC+6YeND5TX4F4tD
-        zDAR+tLbH7qIz0cxR+LkRXNtbNLcwiU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-301-aAUQ-D-8MkOG-RPN0FIymw-1; Wed, 14 Oct 2020 22:36:05 -0400
-X-MC-Unique: aAUQ-D-8MkOG-RPN0FIymw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ADE69803620;
-        Thu, 15 Oct 2020 02:36:03 +0000 (UTC)
-Received: from llong.remote.csb (ovpn-120-0.rdu2.redhat.com [10.10.120.0])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5EB8C27CC1;
-        Thu, 15 Oct 2020 02:36:02 +0000 (UTC)
-Subject: Re: [PATCH] slub: Actually fix freelist pointer vs redzoning
-To:     Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Marco Elver <elver@google.com>, stable@vger.kernel.org,
-        Pekka Enberg <penberg@kernel.org>,
-        Christoph Lameter <cl@linux.com>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20201008233443.3335464-1-keescook@chromium.org>
-From:   Waiman Long <longman@redhat.com>
-Organization: Red Hat
-Message-ID: <d712c80b-873f-0007-2300-dca8056ac6fd@redhat.com>
-Date:   Wed, 14 Oct 2020 22:36:01 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
-MIME-Version: 1.0
-In-Reply-To: <20201008233443.3335464-1-keescook@chromium.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+        id S2387721AbgJOChd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Oct 2020 22:37:33 -0400
+Received: from ma1-aaemail-dr-lapp02.apple.com ([17.171.2.68]:44118 "EHLO
+        ma1-aaemail-dr-lapp02.apple.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387703AbgJOChd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Oct 2020 22:37:33 -0400
+Received: from pps.filterd (ma1-aaemail-dr-lapp02.apple.com [127.0.0.1])
+        by ma1-aaemail-dr-lapp02.apple.com (8.16.0.42/8.16.0.42) with SMTP id 09F2X1cH028628;
+        Wed, 14 Oct 2020 19:37:25 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=apple.com; h=from : subject : to :
+ cc : message-id : date : mime-version : content-type :
+ content-transfer-encoding; s=20180706;
+ bh=kUj+D9OG6rY4+uTxt2+VvemSnMsboxNG9U7VkppOdOM=;
+ b=lMa7XmkuekZPf4FQ//63tUUPnb6fREIygitYuZuGqP/OUJwxTy6nWFHv/M6ZyqitnRnn
+ bMhLbMMhJTnRuoaOTCqkxM8jSHl3QGASZK8MCaK5wbMs7M+CWsxfm/wYPF28wHB/y142
+ sMnLpChJJU3rGXIt/f2QI9qPf3Uct7k6PwAh8tZbMg04UJwA3RJGfn71X2jW2f/DiJOm
+ 0+Vtt5Vxq/whbqb0GOh+x8g6ugN+9bkfnsSRcxOnhLMHw/7BFHxzZfMc9q0iuXUUd3UT
+ 0G3IUeLsjv/cpWbtmZhX+Cu4Ta+n85iTl4UNubR/UzEg6ogiqarZnwhhORehZ5KS2ECk rw== 
+Received: from rn-mailsvcp-mta-lapp03.rno.apple.com (rn-mailsvcp-mta-lapp03.rno.apple.com [10.225.203.151])
+        by ma1-aaemail-dr-lapp02.apple.com with ESMTP id 3439mudq77-3
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO);
+        Wed, 14 Oct 2020 19:37:24 -0700
+Received: from rn-mailsvcp-mmp-lapp03.rno.apple.com
+ (rn-mailsvcp-mmp-lapp03.rno.apple.com [17.179.253.16])
+ by rn-mailsvcp-mta-lapp03.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.6.20200729 64bit (built Jul 29
+ 2020)) with ESMTPS id <0QI800W3O1YBKW10@rn-mailsvcp-mta-lapp03.rno.apple.com>;
+ Wed, 14 Oct 2020 19:37:23 -0700 (PDT)
+Received: from process_milters-daemon.rn-mailsvcp-mmp-lapp03.rno.apple.com by
+ rn-mailsvcp-mmp-lapp03.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.6.20200729 64bit (built Jul 29
+ 2020)) id <0QI800S001NF8W00@rn-mailsvcp-mmp-lapp03.rno.apple.com>; Wed,
+ 14 Oct 2020 19:37:23 -0700 (PDT)
+X-Va-A: 
+X-Va-T-CD: 3a9d82d30857ca08436fbabda4f0d128
+X-Va-E-CD: 5c5b7582969293fb57a13fea63578bea
+X-Va-R-CD: 44c82d96f2bad333b59571b5ab51af9b
+X-Va-CD: 0
+X-Va-ID: b07062a3-90d7-4502-bcde-57c64ab09277
+X-V-A:  
+X-V-T-CD: 3a9d82d30857ca08436fbabda4f0d128
+X-V-E-CD: 5c5b7582969293fb57a13fea63578bea
+X-V-R-CD: 44c82d96f2bad333b59571b5ab51af9b
+X-V-CD: 0
+X-V-ID: 901e2c3a-2c88-4b5e-8661-0a58f2cfd477
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-10-15_01:2020-10-14,2020-10-15 signatures=0
+Received: from Vishnus-MacBook-Pro.local (unknown [17.149.214.245])
+ by rn-mailsvcp-mmp-lapp03.rno.apple.com
+ (Oracle Communications Messaging Server 8.1.0.6.20200729 64bit (built Jul 29
+ 2020))
+ with ESMTPSA id <0QI800SC61YA9J00@rn-mailsvcp-mmp-lapp03.rno.apple.com>; Wed,
+ 14 Oct 2020 19:37:23 -0700 (PDT)
+From:   Vishnu Rangayyan <vishnu.rangayyan@apple.com>
+Subject: acpi ged fix backport to 5.4 stable
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org,
+        Arjan van de Ven <arjan@linux.intel.com>,
+        Samuel Ortiz <sameo@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Andrew Forgue <andrewf@apple.com>
+Message-id: <74cde3d0-11fc-43fa-aaaf-ec61fd6ec318@apple.com>
+Date:   Wed, 14 Oct 2020 19:37:22 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
+ Gecko/20100101 Thunderbird/68.12.0
+MIME-version: 1.0
+Content-type: text/plain; charset=utf-8; format=flowed
+Content-transfer-encoding: 7bit
+Content-language: en-GB
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-10-15_01:2020-10-14,2020-10-15 signatures=0
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/8/20 7:34 PM, Kees Cook wrote:
-> It turns out that SLUB redzoning ("slub_debug=Z") checks from
-> s->object_size rather than from s->inuse (which is normally bumped to
-> make room for the freelist pointer), so a cache created with an object
-> size less than 24 would have their freelist pointer written beyond
-> s->object_size, causing the redzone to corrupt the freelist pointer.
-> This was very visible with "slub_debug=ZF":
->
-> BUG test (Tainted: G    B            ): Redzone overwritten
-> -----------------------------------------------------------------------------
->
-> INFO: 0xffff957ead1c05de-0xffff957ead1c05df @offset=1502. First byte 0x1a instead of 0xbb
-> INFO: Slab 0xffffef3950b47000 objects=170 used=170 fp=0x0000000000000000 flags=0x8000000000000200
-> INFO: Object 0xffff957ead1c05d8 @offset=1496 fp=0xffff957ead1c0620
->
-> Redzone (____ptrval____): bb bb bb bb bb bb bb bb               ........
-> Object  (____ptrval____): 00 00 00 00 00 f6 f4 a5               ........
-> Redzone (____ptrval____): 40 1d e8 1a aa                        @....
-> Padding (____ptrval____): 00 00 00 00 00 00 00 00               ........
->
-> Adjust the offset to stay within s->object_size.
->
-> (Note that there appear to be no such small-sized caches in the kernel
-> currently.)
->
-> Reported-by: Marco Elver <elver@google.com>
-> Link: https://lore.kernel.org/linux-mm/20200807160627.GA1420741@elver.google.com/
-> Fixes: 89b83f282d8b (slub: avoid redzone when choosing freepointer location)
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> ---
->   mm/slub.c | 17 +++++------------
->   1 file changed, 5 insertions(+), 12 deletions(-)
->
-> diff --git a/mm/slub.c b/mm/slub.c
-> index 68c02b2eecd9..979f5da26992 100644
-> --- a/mm/slub.c
-> +++ b/mm/slub.c
-> @@ -3641,7 +3641,6 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
->   {
->   	slab_flags_t flags = s->flags;
->   	unsigned int size = s->object_size;
-> -	unsigned int freepointer_area;
->   	unsigned int order;
->   
->   	/*
-> @@ -3650,13 +3649,6 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
->   	 * the possible location of the free pointer.
->   	 */
->   	size = ALIGN(size, sizeof(void *));
-> -	/*
-> -	 * This is the area of the object where a freepointer can be
-> -	 * safely written. If redzoning adds more to the inuse size, we
-> -	 * can't use that portion for writing the freepointer, so
-> -	 * s->offset must be limited within this for the general case.
-> -	 */
-> -	freepointer_area = size;
->   
->   #ifdef CONFIG_SLUB_DEBUG
->   	/*
-> @@ -3682,7 +3674,7 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
->   
->   	/*
->   	 * With that we have determined the number of bytes in actual use
-> -	 * by the object. This is the potential offset to the free pointer.
-> +	 * by the object and redzoning.
->   	 */
->   	s->inuse = size;
->   
-> @@ -3694,7 +3686,8 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
->   		 * kmem_cache_free.
->   		 *
->   		 * This is the case if we do RCU, have a constructor or
-> -		 * destructor or are poisoning the objects.
-> +		 * destructor, are poisoning the objects, or are
-> +		 * redzoning an object smaller than sizeof(void *).
->   		 *
->   		 * The assumption that s->offset >= s->inuse means free
->   		 * pointer is outside of the object is used in the
+Hi,
 
-There is no check to go into this if condition to put free pointer after 
-object when redzoning an object smaller than sizeof(void *). In that 
-sense, the additional comment isn't correct.
+Can we have this backport applied to 5.4 stable, its a useful fix for 
+generic kernels compatibility.
 
-Should we add that check even though we don't have slab objects with 
-such a small size in the kernel?
+commit ac36d37e943635fc072e9d4f47e40a48fbcdb3f0 upstream
 
-> @@ -3703,13 +3696,13 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
->   		 */
->   		s->offset = size;
->   		size += sizeof(void *);
-> -	} else if (freepointer_area > sizeof(void *)) {
-> +	} else {
->   		/*
->   		 * Store freelist pointer near middle of object to keep
->   		 * it away from the edges of the object to avoid small
->   		 * sized over/underflows from neighboring allocations.
->   		 */
-> -		s->offset = ALIGN(freepointer_area / 2, sizeof(void *));
-> +		s->offset = ALIGN_DOWN(s->object_size / 2, sizeof(void *));
->   	}
->   
->   #ifdef CONFIG_SLUB_DEBUG
-
-Other than the above, the patch looks good.
-
-Cheers,
-Longman
 
