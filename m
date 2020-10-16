@@ -2,53 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56D12290171
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B44DF2900DA
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394603AbgJPJOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:14:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38890 "EHLO mail.kernel.org"
+        id S2405574AbgJPJJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:09:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405227AbgJPJJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:09:57 -0400
+        id S2394998AbgJPJJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:09:16 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3CAE20848;
-        Fri, 16 Oct 2020 09:09:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C561121D40;
+        Fri, 16 Oct 2020 09:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839396;
-        bh=iKOWJVoDIZXni3KU+ogQlI6gzZv2/OUlWaXlqGHnH6U=;
+        s=default; t=1602839343;
+        bh=QZ+pHhxhZuRDFdgUcUatcunZsyI/WsCB1Z6Dc1FeeKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1HtOArXTLvGf+NNhl0f+adXTKn81X8t+WJImZfYV+07lBAhcBze7Ssa6n93D7K/b
-         4Ol4nrClPMYTgHei+qKNQLQexe1TekfZ2f7QDIXub9PrPQJFb29r84S0AKSFMl2BN6
-         +mvdRHdHITiVwOSnPmhdiT/Yr5gGC1TLeF4vfrhI=
+        b=khBS1RA1WgYG+GTKojJPGlP08gnoQF4ZvuiILucWzjW8Krs5pzoTSi7WYGXEw0Cpw
+         N5g9qIRX+SCaJtt0iYknBV6PtVoiILHQYx2GMCBXTZ4igFTQ0LM9M7WXK0tmNweo51
+         GBdPxGRllhSz+UFyW0wAw717nm+5IPfOjH4iKnw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Backlund <tmb@mageia.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Suzuki Poulouse <suzuki.poulose@arm.com>,
-        Tor Jeremiassen <tor@ti.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Paul Barker <pbarker@konsulko.com>
-Subject: [PATCH 5.4 01/22] perf cs-etm: Move definition of traceid_list global variable from header file
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
+Subject: [PATCH 4.19 10/21] Bluetooth: Disconnect if E0 is used for Level 4
 Date:   Fri, 16 Oct 2020 11:07:29 +0200
-Message-Id: <20201016090437.378628931@linuxfoundation.org>
+Message-Id: <20201016090437.814753346@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.308349327@linuxfoundation.org>
-References: <20201016090437.308349327@linuxfoundation.org>
+In-Reply-To: <20201016090437.301376476@linuxfoundation.org>
+References: <20201016090437.301376476@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,65 +44,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 168200b6d6ea0cb5765943ec5da5b8149701f36a upstream.
+commit 8746f135bb01872ff412d408ea1aa9ebd328c1f5 upstream.
 
-The variable 'traceid_list' is defined in the header file cs-etm.h,
-if multiple C files include cs-etm.h the compiler might complaint for
-multiple definition of 'traceid_list'.
+E0 is not allowed with Level 4:
 
-To fix multiple definition error, move the definition of 'traceid_list'
-into cs-etm.c.
+BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C page 1319:
 
-Fixes: cd8bfd8c973e ("perf tools: Add processing of coresight metadata")
-Reported-by: Thomas Backlund <tmb@mageia.org>
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Reviewed-by: Mike Leach <mike.leach@linaro.org>
-Tested-by: Mike Leach <mike.leach@linaro.org>
-Tested-by: Thomas Backlund <tmb@mageia.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Suzuki Poulouse <suzuki.poulose@arm.com>
-Cc: Tor Jeremiassen <tor@ti.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: http://lore.kernel.org/lkml/20200505133642.4756-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Paul Barker <pbarker@konsulko.com>
+  '128-bit equivalent strength for link and encryption keys
+   required using FIPS approved algorithms (E0 not allowed,
+   SAFER+ not allowed, and P-192 not allowed; encryption key
+   not shortened'
+
+SC enabled:
+
+> HCI Event: Read Remote Extended Features (0x23) plen 13
+        Status: Success (0x00)
+        Handle: 256
+        Page: 1/2
+        Features: 0x0b 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+          Secure Simple Pairing (Host Support)
+          LE Supported (Host)
+          Secure Connections (Host Support)
+> HCI Event: Encryption Change (0x08) plen 4
+        Status: Success (0x00)
+        Handle: 256
+        Encryption: Enabled with AES-CCM (0x02)
+
+SC disabled:
+
+> HCI Event: Read Remote Extended Features (0x23) plen 13
+        Status: Success (0x00)
+        Handle: 256
+        Page: 1/2
+        Features: 0x03 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+          Secure Simple Pairing (Host Support)
+          LE Supported (Host)
+> HCI Event: Encryption Change (0x08) plen 4
+        Status: Success (0x00)
+        Handle: 256
+        Encryption: Enabled with E0 (0x01)
+[May 8 20:23] Bluetooth: hci0: Invalid security: expect AES but E0 was used
+< HCI Command: Disconnect (0x01|0x0006) plen 3
+        Handle: 256
+        Reason: Authentication Failure (0x05)
+
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/cs-etm.c |    3 +++
- tools/perf/util/cs-etm.h |    3 ---
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ include/net/bluetooth/hci_core.h |   10 ++++++----
+ net/bluetooth/hci_conn.c         |   17 +++++++++++++++++
+ net/bluetooth/hci_event.c        |   20 ++++++++------------
+ 3 files changed, 31 insertions(+), 16 deletions(-)
 
---- a/tools/perf/util/cs-etm.c
-+++ b/tools/perf/util/cs-etm.c
-@@ -94,6 +94,9 @@ struct cs_etm_queue {
- 	struct cs_etm_traceid_queue **traceid_queues;
- };
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -1308,11 +1308,13 @@ static inline void hci_encrypt_cfm(struc
+ 	else
+ 		encrypt = 0x01;
  
-+/* RB tree for quick conversion between traceID and metadata pointers */
-+static struct intlist *traceid_list;
+-	if (conn->sec_level == BT_SECURITY_SDP)
+-		conn->sec_level = BT_SECURITY_LOW;
++	if (!status) {
++		if (conn->sec_level == BT_SECURITY_SDP)
++			conn->sec_level = BT_SECURITY_LOW;
+ 
+-	if (conn->pending_sec_level > conn->sec_level)
+-		conn->sec_level = conn->pending_sec_level;
++		if (conn->pending_sec_level > conn->sec_level)
++			conn->sec_level = conn->pending_sec_level;
++	}
+ 
+ 	mutex_lock(&hci_cb_list_lock);
+ 	list_for_each_entry(cb, &hci_cb_list, list) {
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -1282,6 +1282,23 @@ int hci_conn_check_link_mode(struct hci_
+ 			return 0;
+ 	}
+ 
++	 /* AES encryption is required for Level 4:
++	  *
++	  * BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C
++	  * page 1319:
++	  *
++	  * 128-bit equivalent strength for link and encryption keys
++	  * required using FIPS approved algorithms (E0 not allowed,
++	  * SAFER+ not allowed, and P-192 not allowed; encryption key
++	  * not shortened)
++	  */
++	if (conn->sec_level == BT_SECURITY_FIPS &&
++	    !test_bit(HCI_CONN_AES_CCM, &conn->flags)) {
++		bt_dev_err(conn->hdev,
++			   "Invalid security: Missing AES-CCM usage");
++		return 0;
++	}
 +
- static int cs_etm__update_queues(struct cs_etm_auxtrace *etm);
- static int cs_etm__process_queues(struct cs_etm_auxtrace *etm);
- static int cs_etm__process_timeless_queues(struct cs_etm_auxtrace *etm,
---- a/tools/perf/util/cs-etm.h
-+++ b/tools/perf/util/cs-etm.h
-@@ -114,9 +114,6 @@ enum cs_etm_isa {
- 	CS_ETM_ISA_T32,
- };
+ 	if (hci_conn_ssp_enabled(conn) &&
+ 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
+ 		return 0;
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -2890,26 +2890,22 @@ static void hci_encrypt_change_evt(struc
  
--/* RB tree for quick conversion between traceID and metadata pointers */
--struct intlist *traceid_list;
+ 	clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
+ 
++	/* Check link security requirements are met */
++	if (!hci_conn_check_link_mode(conn))
++		ev->status = HCI_ERROR_AUTH_FAILURE;
++
+ 	if (ev->status && conn->state == BT_CONNECTED) {
+ 		if (ev->status == HCI_ERROR_PIN_OR_KEY_MISSING)
+ 			set_bit(HCI_CONN_AUTH_FAILURE, &conn->flags);
+ 
++		/* Notify upper layers so they can cleanup before
++		 * disconnecting.
++		 */
++		hci_encrypt_cfm(conn, ev->status);
+ 		hci_disconnect(conn, HCI_ERROR_AUTH_FAILURE);
+ 		hci_conn_drop(conn);
+ 		goto unlock;
+ 	}
 -
- struct cs_etm_queue;
+-	/* In Secure Connections Only mode, do not allow any connections
+-	 * that are not encrypted with AES-CCM using a P-256 authenticated
+-	 * combination key.
+-	 */
+-	if (hci_dev_test_flag(hdev, HCI_SC_ONLY) &&
+-	    (!test_bit(HCI_CONN_AES_CCM, &conn->flags) ||
+-	     conn->key_type != HCI_LK_AUTH_COMBINATION_P256)) {
+-		hci_connect_cfm(conn, HCI_ERROR_AUTH_FAILURE);
+-		hci_conn_drop(conn);
+-		goto unlock;
+-	}
  
- struct cs_etm_packet {
+ 	/* Try reading the encryption key size for encrypted ACL links */
+ 	if (!ev->status && ev->encrypt && conn->type == ACL_LINK) {
 
 
