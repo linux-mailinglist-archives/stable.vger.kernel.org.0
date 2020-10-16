@@ -2,131 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A906F2906D7
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 16:11:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9332B2906F9
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 16:13:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408607AbgJPOLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 10:11:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51510 "EHLO
+        id S2395260AbgJPONY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 10:13:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2408605AbgJPOLR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 10:11:17 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F67C0613D3
-        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 07:11:17 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id r10so1517515pgb.10
-        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 07:11:17 -0700 (PDT)
+        with ESMTP id S2408648AbgJPONP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 10:13:15 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8899FC061755
+        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 07:13:15 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id g29so1539756pgl.2
+        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 07:13:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=sMQ2dMIgMKaSx58zvkJZR+Zaau89AWNULRIULAFQhWQ=;
-        b=BVs5BLt8c8o0TolmoLyLq5zl+Oh2F4C9/7OQX3Lmga+kuiMARfVa07ypjnDY8gPgqe
-         hYxLKcntwP/OuVYCkJth6rQWsP8K+2Wjqs3eikhad4j2J3R9GqrGTyPxc5l0o6C0BpuQ
-         d2Chf6HhGavHXOpZ5aAtjvrsDkmRa44OQG8xxwYeFbtuxK2dlUp45a8e/52h9isGkWYC
-         SnDx0MmV8brtesj//Rl583OqO+l3oX9z/eXc5EMfetwnwC/8C1ESIctWJFJofAFyBknF
-         ssZ0um/HfEoZuebvTu3uc1NLsBaIdcdw3SY4swj4xr5uXssYQV9FK1JZm9HmWCj555zV
-         xoTg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=EKD7gR4l89roFm/T7l2R4k2fft2+H+kPH19JpFEbfnM=;
+        b=K5zohS5YP65ZjgVL6eXFwMlrdnHlSEikILbkMBUtFG+gNlfoVtEmnOW+NqP/DfglKb
+         8i/6j8Kh8pXwuztGB1EdeNijgig96fZHrJVyHDZ0Bo0mrzkSIV8C216D50+86+O7kcCO
+         YRJOZv1bDJfNnGAT4hKsyK9nZE9japgJ3+gpmUecc4JKseWP/MgyY4ESr133ZK5qOcBs
+         JjYYF4tocdoyvSXAosV22StA/E1azBEmZEJln+atdXsUpTVubNIcvOcIHuroZ4gRjzMB
+         j/3tpdz0QkmzgwDvWPyhNXgDqCX18g1GSaOl6d1oWw1KrPBMt+zmiToIOsVoCMzq7BvJ
+         z05w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=sMQ2dMIgMKaSx58zvkJZR+Zaau89AWNULRIULAFQhWQ=;
-        b=Mm2sTikcay6wUuV3IW/BqDVm4MEPR8KblQUfcsO1yZVGbSeC4RjoqZQDK/9zc3MJJk
-         DgYDNIIePhibyIwHocq3ELN021zHKK9L+y/pDs7mW2Y1d6c2ygdSFYxDktNVkXFOH4Q2
-         Wuw3JTg6w50f7zkgiLFJm3SfY41Ilfd5EyKZ8FHzNf8RL2PgsuU8uIS8C4Ik+v04LPgQ
-         /NfLzqeBcnJuYePX1OJXNDT654YPUk6wj0A2BvfCNKL8j2Gl5g6zwmEppukTSIavMf2Y
-         Jh46pSojRgoce1b3Y18at9cKZPBP+Vs1SOWUPlbQwSkMI0789k9EL9mK0HZG7ISC1pWj
-         mctw==
-X-Gm-Message-State: AOAM532KVdQ1n6R5rcNo+xlKl+E6pho0iMEV3FzkuhVTBXHSq9eGGXU8
-        lb+VsXmMjyVbgRe4RRoZalNjHA==
-X-Google-Smtp-Source: ABdhPJx29URNxem/t+30RTckmeM/Ez+G8pGRwfIwLRIMeQ7mkCeZXBhW0fQG0J8lzwEVBMYXApcCKg==
-X-Received: by 2002:aa7:9afc:0:b029:152:9d45:6723 with SMTP id y28-20020aa79afc0000b02901529d456723mr3770149pfp.35.1602857476462;
-        Fri, 16 Oct 2020 07:11:16 -0700 (PDT)
-Received: from debian ([122.164.16.34])
-        by smtp.gmail.com with ESMTPSA id 16sm3334138pjl.27.2020.10.16.07.11.12
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=EKD7gR4l89roFm/T7l2R4k2fft2+H+kPH19JpFEbfnM=;
+        b=peO6UkGpXcFkvSg1WXBmRpWk49oE27uYIGB88GRQpcXtjln/GglYTzQk6SnrKPVth6
+         2j5vCyEpaJ96vonLwCnSXQxwl//QS07qqCgDaWTCLBb/sgOdLJtuM+gWOgPLhnblY015
+         nyTNioayVR95snL5OPxDyyCfgF1oRZwQ46fn/wSyU+o06jxRVZS/n6P3Cr3OIihsxU0V
+         syZkZeEOYguz1cEWTPsnWX8joE51PD5A4K8CQedZZmluWFmQ4Lwe0rsTBOe66Uiv5By9
+         Og3zdIS3RYrv7b7ARla1U1sg7ZmPyg7tafJ7SFpJJRldFpK50jJ/7cGqi4hkxZtMa+nC
+         BuOQ==
+X-Gm-Message-State: AOAM532rg5XzvF6rpsYW9mmX1EP81OM7/NneXbK232D5/08UQwMIBRRQ
+        lr4W7wpX5NseZUFAaHO513dbakla6wWd8w==
+X-Google-Smtp-Source: ABdhPJxoZqg1fxs5fydIbXcnlgjQmgggHMMl88ijRZFF1baIN7jV0u+5du0xIJVj9r6RlpGQ2pJVOQ==
+X-Received: by 2002:a62:8389:0:b029:152:416d:f026 with SMTP id h131-20020a6283890000b0290152416df026mr4158468pfe.64.1602857594803;
+        Fri, 16 Oct 2020 07:13:14 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h21sm3170836pgi.88.2020.10.16.07.13.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2020 07:11:15 -0700 (PDT)
-Message-ID: <7138d7bce8f8da009119f0107eeb7c85f67057b9.camel@rajagiritech.edu.in>
-Subject: Re: [PATCH 5.8 00/14] 5.8.16-rc1 review
-From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        pavel@denx.de, stable@vger.kernel.org
-Date:   Fri, 16 Oct 2020 19:41:05 +0530
-In-Reply-To: <20201016090437.153175229@linuxfoundation.org>
-References: <20201016090437.153175229@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.4-2 
+        Fri, 16 Oct 2020 07:13:14 -0700 (PDT)
+Message-ID: <5f89aa7a.1c69fb81.425c3.6163@mx.google.com>
+Date:   Fri, 16 Oct 2020 07:13:14 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.151-21-gcab48ee31796
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.19 baseline: 186 runs,
+ 1 regressions (v4.19.151-21-gcab48ee31796)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2020-10-16 at 11:07 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.8.16 release.
-> There are 14 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied,
-> please
-> let me know.
-> 
-> Responses should be made by Sun, 18 Oct 2020 09:04:25 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	
-> https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.16-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
-> stable-rc.git linux-5.8.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/queue/4.19 baseline: 186 runs, 1 regressions (v4.19.151-21-gcab48=
+ee31796)
 
-hello,
+Regressions Summary
+-------------------
 
-Compiled and booted  5.8.16-rc1+ .Every thing looks clean except "dmesg
--l warn"
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
 
-------x--------------x-----------------------------x-----------
 
-$dmesg -l warn
-[    0.601699] MDS CPU bug present and SMT on, data leak possible. See 
-https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/mds.html for
-more details.
-[    0.603104]  #3
-[    0.749457] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
-[   10.718252] i8042: PNP: PS/2 appears to have AUX port disabled, if
-this is incorrect please boot with i8042.nopnp
-[   12.651483] sdhci-pci 0000:00:1e.6: failed to setup card detect gpio
-[   14.398378] i2c_hid i2c-ELAN1300:00: supply vdd not found, using
-dummy regulator
-[   14.399033] i2c_hid i2c-ELAN1300:00: supply vddl not found, using
-dummy regulator
-[   23.866580] systemd[1]: /lib/systemd/system/plymouth-
-start.service:16: Unit configured to use KillMode=none. This is unsafe,
-as it disables systemd's process lifecycle management for the service.
-Please update your service to use a safer KillMode=, such as 'mixed' or
-'control-group'. Support for KillMode=none is deprecated and will
-eventually be removed.
-[   37.208082] uvcvideo 1-6:1.0: Entity type for entity Extension 4 was
-not initialized!
-[   37.208092] uvcvideo 1-6:1.0: Entity type for entity Processing 2
-was not initialized!
-[   37.208098] uvcvideo 1-6:1.0: Entity type for entity Camera 1 was
-not initialized!
-[   40.088516] FAT-fs (sda1): Volume was not properly unmounted. Some
-data may be corrupt. Please run fsck.
----------------x-------x-----------------x-------------------------
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.151-21-gcab48ee31796/plan/baseline/
 
-Tested-by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
--- 
-software engineer
-rajagiri school of engineering and technology
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.151-21-gcab48ee31796
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cab48ee31796f7293ee26cee550d4af7443753c8 =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f896f0de7ea8f0bea4ff40d
+
+  Results:     3 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.151=
+-21-gcab48ee31796/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.151=
+-21-gcab48ee31796/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
+-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f896f0de7ea8f0b=
+ea4ff411
+      new failure (last pass: v4.19.151-7-g003afd33610f)
+      4 lines  =20
