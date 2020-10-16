@@ -2,64 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBDD129089B
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 17:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94FE82908A9
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 17:40:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408447AbgJPPiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 11:38:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408427AbgJPPiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 11:38:25 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3B41207DE;
-        Fri, 16 Oct 2020 15:38:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602862705;
-        bh=wgXOoHVkVPjnMrqcgErkRfYElHlsFkJdpJKZOEHflzY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GOXom/y3bd47t/YLEAhgSEQ1l/L0yvd95y0T9YHf9ML0jENkmAQxf5Ri5jmXGgqU2
-         KCxPhTg3LIDHyvLm0J7VYNWhwVHg6fnRmryypMQ5Np5FedltLTyB7cvGc+W1Of4PGr
-         5MvSH53ZS7gtmkjRdqzlEL8MxxYqJVAhmFdQZkJg=
-Date:   Fri, 16 Oct 2020 11:38:23 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Daniel Burgener <dburgener@linux.microsoft.com>,
-        stable@vger.kernel.org, stephen.smalley.work@gmail.com,
-        paul@paul-moore.com, selinux@vger.kernel.org, jmorris@namei.org
-Subject: Re: [PATCH v5.4 v2 0/4] Update SELinuxfs out of tree and then
- swapover
-Message-ID: <20201016153823.GA2415204@sasha-vm>
-References: <20201016134835.1886478-1-dburgener@linux.microsoft.com>
- <20201016150120.GB1807231@kroah.com>
+        id S2407437AbgJPPkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 11:40:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37164 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2406010AbgJPPkj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 11:40:39 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BACC061755
+        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 08:40:39 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id l18so1690348pgg.0
+        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 08:40:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=U5aZC7DhJAY0VjsGA/khRQQeO0Imm5xNrS+/3gBxpFU=;
+        b=Z5XNG664eSDD7GDZn3pUd8FDpitB7LdUVpljuD+vyJZr3mdyYzxsjLPaokldOLLbJe
+         m/arUX/X4k+D2eBIvRdMI0IzBrUkExpNuFGdvaizCCT/ZSv3oZvDmtJnotv4+CwtwGD3
+         r5TEtws8Q6Lhc26GMh2oCGBZMIJEaGWGivX3STY/8EQsHfdPcJ5fjVVPznXHaX8lAFF3
+         3zybRbxj6ntdQy3nx32CpRIGhlqK3HvTNpyomhC7mSZpXrJFnUQC+D74b1b1Wbalommr
+         lMjPtBvogUk+m2lB0lYS5rLXhnca/eRpzZUjDaro/CTKR6XRzhPQqLOhtX6ITZ4Vzlre
+         xw8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=U5aZC7DhJAY0VjsGA/khRQQeO0Imm5xNrS+/3gBxpFU=;
+        b=kfpAG+ho3aAXBTdlFlJulQO7uAWoAqSZp1gfw5dz0pKDs55DNpFeicD74RI0OvCfH/
+         5NVd+CLBE7kCXWtAg7ZvcLpIrqtaEPOx3cthtQR2T41pBXE76xTHuAR/0JqHqvRaWWBf
+         SiNy3jBZEPGiG6Kmgd73Uagtc0uK0Ydq6UgQu14fg4fPVwVpRKSrgT7uywXdPSxz8F2D
+         Ls80bWpszEgGu9F+sci23O/c7mDmAnWiZa9mvuLI2D2J7jgXzjUAMMxLt3rAwoKRbx9m
+         +cB/+UYnwITpJBfr6n1fmX21clbhO7CbmADKgXP6/TAKX6qGR6N+9CPyXRvoAdfCAoyz
+         hblQ==
+X-Gm-Message-State: AOAM530I89+X4ER31siMXcFYsw5f2XtDPJgSLzsmg1TS+VAlwcGNStln
+        qXRIoUgYOEQYnZi3Y/geLEwMjSBafdY5Bw==
+X-Google-Smtp-Source: ABdhPJz9mcSz0u34vxtagr1ywhy91SyeSSQ+tv+LMW//fPCAWQABzeugTlitUjoKTuANEPysywtQ/g==
+X-Received: by 2002:aa7:93b6:0:b029:155:3b0b:d47a with SMTP id x22-20020aa793b60000b02901553b0bd47amr4265214pff.47.1602862838683;
+        Fri, 16 Oct 2020 08:40:38 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e19sm3285372pff.34.2020.10.16.08.40.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Oct 2020 08:40:37 -0700 (PDT)
+Message-ID: <5f89bef5.1c69fb81.8fc63.6962@mx.google.com>
+Date:   Fri, 16 Oct 2020 08:40:37 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20201016150120.GB1807231@kroah.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.8.15-15-ga69084e6863a
+X-Kernelci-Branch: linux-5.8.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.8.y baseline: 206 runs,
+ 1 regressions (v5.8.15-15-ga69084e6863a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 16, 2020 at 05:01:20PM +0200, Greg KH wrote:
->On Fri, Oct 16, 2020 at 09:48:31AM -0400, Daniel Burgener wrote:
->> v2: Include all commits from original series, and include commit ids
->>
->> This is a backport for stable of my series to fix a race condition in
->> selinuxfs during policy load:
->
->Has this race condition always been present, or is this a regression
->that is being fixed from previously working kernels?
+stable-rc/linux-5.8.y baseline: 206 runs, 1 regressions (v5.8.15-15-ga69084=
+e6863a)
 
-So this issue has always been there, but:
+Regressions Summary
+-------------------
 
->If it's always been present, why not just use 5.9 to solve it?
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
 
-Because it was merged for 5.10 rather than 5.9, which is a few months
-out, so Daniel is looking to see if we can have it in 5.8/5.4 to close
-the gap.
 
--- 
-Thanks,
-Sasha
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.8.y/kern=
+el/v5.8.15-15-ga69084e6863a/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.8.y
+  Describe: v5.8.15-15-ga69084e6863a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a69084e6863a56b57c00d2ab5f4da07ea351cdd7 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 3/4    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5f897fa38ee8ace11c4ff3e0
+
+  Results:     3 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.8.y/v5.8.15-=
+15-ga69084e6863a/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-=
+b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.8.y/v5.8.15-=
+15-ga69084e6863a/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-=
+b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f897fa38ee8ace1=
+1c4ff3e4
+      failing since 0 day (last pass: v5.8.14-125-gf4ed6fb8f168, first fail=
+: v5.8.15)
+      2 lines
+
+    2020-10-16 11:07:37.743000  Connected to bcm2837-rpi-3-b console [chann=
+el connected] (~$quit to exit)
+    2020-10-16 11:07:37.743000  (user:khilman) is already connected
+    2020-10-16 11:07:54.254000  =00
+    2020-10-16 11:07:54.254000  =
+
+    2020-10-16 11:07:54.255000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
+0)
+    2020-10-16 11:07:54.255000  =
+
+    2020-10-16 11:07:54.255000  DRAM:  948 MiB
+    2020-10-16 11:07:54.270000  RPI 3 Model B (0xa02082)
+    2020-10-16 11:07:54.359000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
+    2020-10-16 11:07:54.389000  Loading Environment from FAT... *** Warning=
+ - bad CRC, using default environment
+    ... (389 line(s) more)
+      =20
