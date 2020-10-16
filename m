@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF8DF29019A
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20E442900A6
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:11:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394777AbgJPJQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:16:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37424 "EHLO mail.kernel.org"
+        id S2394392AbgJPJHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:07:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394602AbgJPJIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:08:50 -0400
+        id S2394904AbgJPJHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:07:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FC1321582;
-        Fri, 16 Oct 2020 09:08:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1550B20789;
+        Fri, 16 Oct 2020 09:07:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839318;
-        bh=rCuKaO0ItDgcez7vR2S0pKoYWlZRDIP/DdBssTSD7QY=;
+        s=default; t=1602839263;
+        bh=D5hUL4SWsMlrsqXDEX491/eYSiPleStMN00z+BVSyTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zsvaPTdNWgz9WTRFmwDPUN/sdgOp/MJ89WyJ6e4H9m3QJM/yMp0Gc6vs32o+dKwvi
-         Oe/s7JA30jqDVz6jOjOT1n8q4MnkANN377Csi9AeDJUIN4wXO5jP85OBXUNPMTQ3Gh
-         WIkgdfhicD+m+JmtOPWz23HcCD+rqAHAAoWVJMjA=
+        b=VQLsdFyKNsQyV2DxuNS3soNwTNyTqV3d8eJLCt8w9xxGF3MDo3Yf5D6CNQoJDOcHN
+         IymdcxE+Q5XI6zWXh02AtmU0SLL42+VAXyE4giMQElOSFOZKWwv3wm6tuKoB0Tsmr6
+         khngWMQ44cUfAyiAeSVvqI1Ts2sGlUl+8Cf1JXiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 08/18] media: usbtv: Fix refcounting mixup
+        stable@vger.kernel.org,
+        syzbot+d94d02749498bb7bab4b@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 14/16] reiserfs: Initialize inode keys properly
 Date:   Fri, 16 Oct 2020 11:07:18 +0200
-Message-Id: <20201016090437.694246818@linuxfoundation.org>
+Message-Id: <20201016090437.917062205@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.265805669@linuxfoundation.org>
-References: <20201016090437.265805669@linuxfoundation.org>
+In-Reply-To: <20201016090437.205626543@linuxfoundation.org>
+References: <20201016090437.205626543@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Jan Kara <jack@suse.cz>
 
-commit bf65f8aabdb37bc1a785884374e919477fe13e10 upstream.
+commit 4443390e08d34d5771ab444f601cf71b3c9634a4 upstream.
 
-The premature free in the error path is blocked by V4L
-refcounting, not USB refcounting. Thanks to
-Ben Hutchings for review.
+reiserfs_read_locked_inode() didn't initialize key length properly. Use
+_make_cpu_key() macro for key initialization so that all key member are
+properly initialized.
 
-[v2] corrected attributions
-
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Fixes: 50e704453553 ("media: usbtv: prevent double free in error case")
 CC: stable@vger.kernel.org
-Reported-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: syzbot+d94d02749498bb7bab4b@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/usbtv/usbtv-core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/reiserfs/inode.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/media/usb/usbtv/usbtv-core.c
-+++ b/drivers/media/usb/usbtv/usbtv-core.c
-@@ -113,7 +113,8 @@ static int usbtv_probe(struct usb_interf
+--- a/fs/reiserfs/inode.c
++++ b/fs/reiserfs/inode.c
+@@ -1554,11 +1554,7 @@ void reiserfs_read_locked_inode(struct i
+ 	 * set version 1, version 2 could be used too, because stat data
+ 	 * key is the same in both versions
+ 	 */
+-	key.version = KEY_FORMAT_3_5;
+-	key.on_disk_key.k_dir_id = dirino;
+-	key.on_disk_key.k_objectid = inode->i_ino;
+-	key.on_disk_key.k_offset = 0;
+-	key.on_disk_key.k_type = 0;
++	_make_cpu_key(&key, KEY_FORMAT_3_5, dirino, inode->i_ino, 0, 0, 3);
  
- usbtv_audio_fail:
- 	/* we must not free at this point */
--	usb_get_dev(usbtv->udev);
-+	v4l2_device_get(&usbtv->v4l2_dev);
-+	/* this will undo the v4l2_device_get() */
- 	usbtv_video_free(usbtv);
- 
- usbtv_video_fail:
+ 	/* look for the object's stat data */
+ 	retval = search_item(inode->i_sb, &key, &path_to_sd);
 
 
