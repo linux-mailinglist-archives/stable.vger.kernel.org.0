@@ -2,148 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A13232909D6
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 18:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F9C2909E4
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 18:45:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410436AbgJPQkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 12:40:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46490 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2409112AbgJPQkF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 12:40:05 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E038CC061755;
-        Fri, 16 Oct 2020 09:40:05 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id n9so1765326pgf.9;
-        Fri, 16 Oct 2020 09:40:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=IckxrY+DJUgifghNLeuNR0thZvPKeVF++1zmyr1erYw=;
-        b=ESgt/PDnWql9lpWADVRcvJtTdx/yh6tAhrYC8ZbqFWYpenEaoveVB1MkC0MmzrYBkq
-         A2hcACvYNVxP+qeCOXAm6TAoHg/hA945fUoFPjZyDgwGUzM0gBZIAAgt2f2WdEixOwMc
-         MuvuXD0etsBBlcYQYZVQb0nnaZp6KJlo0Db6lw+kJqZnzH3zDaZxJ8q6h45XeRph8MCx
-         rDJyF81mIAxRxSew5JoQXhgwt1mXtnZ6p+gLQPRXbuD31FMcP8zYOHwfP4c+cBdpMPa/
-         g3a4a6g6G4qJAcV8hOS7BmEgZ9IbBpK/hWsUtfcO9d6EafuL7fBhEFwToR4bak2AEIOr
-         WedQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=IckxrY+DJUgifghNLeuNR0thZvPKeVF++1zmyr1erYw=;
-        b=ZQZ7syF6ObbW2/ktYVm4DWNpDvLu3y6rjFWc2PXj/62SrFct7P8BaJJMFTJONq03MY
-         O+mHGh2RAu0YLR3OVezwATVRnDZxKNQAbiRk4ZfyPhQ8XLO/0SbFz7qoSUXUQ8vSEuf5
-         qnh2XHnqFFKMf5ZELakTo9pJThyZWZvPdllkdOOujZhSwl9N5SxXLzcTxaYqf73pj6aL
-         /sabuLrPbXIHVrVPpYqsjgY4HTe6zCaxUpbDy/2CfkpnRXNK4gjpTBrDiSrBbkY3Ccnh
-         ezVs5TYKR5vuXRCkpPcgLaZuCtAEBmY0Wz86O00LdjnpT1bQiPA9/S/1SrlKZd5q8lmo
-         2HCw==
-X-Gm-Message-State: AOAM533aUFtw8ySkRAmoysJY6n6RRmf84/dCjCzU8y/NeoiN2HTMB+ie
-        Y8MqcYCWSogu+OIBUbhrERWGwHzHOI+wsSx/3CkKziFATDl9AA==
-X-Google-Smtp-Source: ABdhPJx6pQLev1hrd9p9RQDKLQbYA4y9N4AoDM8hkHzN15gVHnEjk9hji9W0yK8afB4GH5dGC6kXh6x1X4qhgS5fHFQ=
-X-Received: by 2002:a63:308:: with SMTP id 8mr3912525pgd.203.1602866405342;
- Fri, 16 Oct 2020 09:40:05 -0700 (PDT)
+        id S2409200AbgJPQpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 12:45:45 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:48994 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2409082AbgJPQpo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 12:45:44 -0400
+Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 5531C2090E5A;
+        Fri, 16 Oct 2020 09:45:45 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 5531C2090E5A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1602866745;
+        bh=542QDJZ+B/cg0axnQiCfQ5sg56CaXctfu4kzaV0IpAA=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=OhuM4ZtC17UMj1v9vK1hUJrfXUdM30RUw7qJkyUUF6q5goZwS7ZWxZZo4kCuIvEgm
+         ZDbYAf+8oD2a6fT1CXUoGnjuy4BF92KyfXu08oou7gMFjH94CE1rXIp6VYQ+6vxZXF
+         cvn5rnLBpzWQNiidRlq2W17qpMJrX6pgn5Lq9pzQ=
+Received: by mail-qk1-f181.google.com with SMTP id a23so2384106qkg.13;
+        Fri, 16 Oct 2020 09:45:45 -0700 (PDT)
+X-Gm-Message-State: AOAM5321C9HzQOwp5N9T+EP1F4smfLcJBEmdLXTcX2pqkf3X9Qb+/6mG
+        YWG5G+gRkrQbXJfY9lO4z52DUyMNxWwWyn0n8so=
+X-Google-Smtp-Source: ABdhPJw27DGni4F09kKQV25U5EziCkq3TkVrjSarep1ui3JDxtgLa+zPKbml6e3cNcid8ugJexx0GwNP8JBKQVNSvCw=
+X-Received: by 2002:ae9:e108:: with SMTP id g8mr4687994qkm.220.1602866744338;
+ Fri, 16 Oct 2020 09:45:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200917130920.6689-1-geert+renesas@glider.be>
-In-Reply-To: <20200917130920.6689-1-geert+renesas@glider.be>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Fri, 16 Oct 2020 19:40:54 +0300
-Message-ID: <CAHp75Vd3s1N_f9oM=MiMv6ZhtrOzYMKAQz+CURVkxG4JgGVw+Q@mail.gmail.com>
-Subject: Re: [PATCH v3] ata: sata_rcar: Fix DMA boundary mask
-To:     Geert Uytterhoeven <geert+renesas@glider.be>
-Cc:     Jens Axboe <axboe@kernel.dk>, Ulf Hansson <ulf.hansson@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        linux-ide@vger.kernel.org,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
+References: <20201014212746.161363-1-mcroce@linux.microsoft.com> <20201016122039.GH8871@alley>
+In-Reply-To: <20201016122039.GH8871@alley>
+From:   Matteo Croce <mcroce@linux.microsoft.com>
+Date:   Fri, 16 Oct 2020 18:45:08 +0200
+X-Gmail-Original-Message-ID: <CAFnufp1-0jj8Tq=NLRgFnUP5_j4GooguLz1AVTu16L8XR4e6Sw@mail.gmail.com>
+Message-ID: <CAFnufp1-0jj8Tq=NLRgFnUP5_j4GooguLz1AVTu16L8XR4e6Sw@mail.gmail.com>
+Subject: Re: [PATCH] reboot: fix parsing of reboot cpu number
+To:     Petr Mladek <pmladek@suse.com>
+Cc:     linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Arnd Bergmann <arnd@arndb.de>, Mike Rapoport <rppt@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Fabian Frederick <fabf@skynet.be>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 17, 2020 at 4:12 PM Geert Uytterhoeven
-<geert+renesas@glider.be> wrote:
+On Fri, Oct 16, 2020 at 2:20 PM Petr Mladek <pmladek@suse.com> wrote:
 >
-> Before commit 9495b7e92f716ab2 ("driver core: platform: Initialize
-> dma_parms for platform devices"), the R-Car SATA device didn't have DMA
-> parameters.  Hence the DMA boundary mask supplied by its driver was
-> silently ignored, as __scsi_init_queue() doesn't check the return value
-> of dma_set_seg_boundary(), and the default value of 0xffffffff was used.
+> On Wed 2020-10-14 23:27:46, Matteo Croce wrote:
+> > From: Matteo Croce <mcroce@microsoft.com>
+> >
+> > The kernel cmdline reboot= argument allows to specify the CPU used
+> > for rebooting, with the syntax `s####` among the other flags, e.g.
+> >
+> >   reboot=soft,s4
+> >   reboot=warm,s31,force
+> >
+> > In the early days the parsing was done with simple_strtoul(), later
+> > deprecated in favor of the safer kstrtoint() which handles overflow.
+> >
+> > But kstrtoint() returns -EINVAL if there are non-digit characters
+> > in a string, so if this flag is not the last given, it's silently
+> > ignored as well as the subsequent ones.
+> >
+> > To fix it, use _parse_integer() which still handles overflow, but
+> > restores the old behaviour of parsing until a non-digit character
+> > is found.
 >
-> Now the device has gained DMA parameters, the driver-supplied value is
-> used, and the following warning is printed on Salvator-XS:
+> Hmm, _parse_integer() is an internal function. And even the comment
+> says "Don't you dare use this function."
 >
->     DMA-API: sata_rcar ee300000.sata: mapping sg segment across boundary [start=0x00000000ffffe000] [end=0x00000000ffffefff] [boundary=0x000000001ffffffe]
->     WARNING: CPU: 5 PID: 38 at kernel/dma/debug.c:1233 debug_dma_map_sg+0x298/0x300
->
-> (the range of start/end values depend on whether IOMMU support is
->  enabled or not)
->
-> The issue here is that SATA_RCAR_DMA_BOUNDARY doesn't have bit 0 set, so
-> any typical end value, which is odd, will trigger the check.
->
-> Fix this by increasing the DMA boundary value by 1.
->
-> This also fixes the following WRITE DMA EXT timeout issue:
->
->     # dd if=/dev/urandom of=/mnt/de1/file1-1024M bs=1M count=1024
->     ata1.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x6 frozen
->     ata1.00: failed command: WRITE DMA EXT
->     ata1.00: cmd 35/00:00:00:e6:0c/00:0a:00:00:00/e0 tag 0 dma 1310720 out
->     res 40/00:01:00:00:00/00:00:00:00:00/00 Emask 0x4 (timeout)
->     ata1.00: status: { DRDY }
->
-> as seen by Shimoda-san since commit 429120f3df2dba2b ("block: fix
-> splitting segments on boundary masks").
->
-> Fixes: 8bfbeed58665dbbf ("sata_rcar: correct 'sata_rcar_sht'")
-> Fixes: 9495b7e92f716ab2 ("driver core: platform: Initialize dma_parms for platform devices")
-> Fixes: 429120f3df2dba2b ("block: fix splitting segments on boundary masks")
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-> Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-> Tested-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-> Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-> Cc: stable <stable@vger.kernel.org>
-> ---
-> v3:
->   - Add Reviewed-by, Tested-by,
->   - Augment description and Fixes: with Shimoda-san's problem report
->     https://lore.kernel.org/r/1600255098-21411-1-git-send-email-yoshihiro.shimoda.uh@renesas.com,
->
-> v2:
->   - Add Reviewed-by, Tested-by, Cc.
-> ---
->  drivers/ata/sata_rcar.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/ata/sata_rcar.c b/drivers/ata/sata_rcar.c
-> index 141ac600b64c87ef..44b0ed8f6bb8a120 100644
-> --- a/drivers/ata/sata_rcar.c
-> +++ b/drivers/ata/sata_rcar.c
-> @@ -120,7 +120,7 @@
->  /* Descriptor table word 0 bit (when DTA32M = 1) */
->  #define SATA_RCAR_DTEND                        BIT(0)
->
-> -#define SATA_RCAR_DMA_BOUNDARY         0x1FFFFFFEUL
-> +#define SATA_RCAR_DMA_BOUNDARY         0x1FFFFFFFUL
-
-Wondering if GENMASK() here will be better to avoid such mistakes.
-
->
->  /* Gen2 Physical Layer Control Registers */
->  #define RCAR_GEN2_PHY_CTL1_REG         0x1704
-> --
-> 2.17.1
+> I guess the it is because the base must be hardcoded. And
+> KSTRTOX_OVERFLOW bit must be handled.
 >
 
+I know, but it's the only function that I know which has the same
+behaviour of simple_strtoul(). Other than sscanf, which uses
+simple_strtoul().
+I didn't know that simple_strtoul() is no longer obsolete, I will
+revert to it then.
+
+> I suggest to go back to simple_strtoul(). It is not longer obsolete.
+> It still exists because it is needed for exactly this purpose,
+> see the comment in include/linux/kernel.h
+>
+> The potentional overflow is not a big deal. The result will be
+> that the system will reboot on another rCPU than expected. But
+> it might happen also with any typo.
+>
+> > While at it, limit the CPU number to num_possible_cpus(),
+> > because setting it to a value lower than INT_MAX but higher
+> > than NR_CPUS produces the following error on reboot and shutdown:
+>
+> Great catch! Please, fix this in a separate patch.
+>
+
+Ok, thanks!
 
 -- 
-With Best Regards,
-Andy Shevchenko
+per aspera ad upstream
