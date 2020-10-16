@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EB9A290082
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4E93290084
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:11:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405301AbgJPJGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:06:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34808 "EHLO mail.kernel.org"
+        id S2405310AbgJPJGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:06:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404669AbgJPJGo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:06:44 -0400
+        id S2405300AbgJPJGr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:06:47 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97FE020848;
-        Fri, 16 Oct 2020 09:06:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73BBD20723;
+        Fri, 16 Oct 2020 09:06:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839204;
-        bh=KcIEWczBuJ5XVoDH/sdmyOJrrZnoRvSFRt8CRA3yxyU=;
+        s=default; t=1602839206;
+        bh=Xs3UgQSYh54W2MdTbYCrFX0PD7eAZHMeoWxvebzHRHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2GhTICLCJVeahJGunCRlIpSWmNE+5GKhyFtbFYKj5hNG/4jTPPUAJNWQ+M8fWsXko
-         MUWElZQhpZ9cRRq/cqUb7pJuiKIirBOGwtdiVddQqyagtr2FH9RHundJsKhHq6iNBr
-         ZbFDDJHCc+vN8gLdHCM/nUu0lOff3H42+UAraUdI=
+        b=1HnWkqBphmJ8jE4j5hCpg6TwhG8FevHMmbyZYcWlJC+NgqwDrounrHlvK6Kxxj7Tq
+         l25LoDAbZO5SmYvSU1efDPBUf2PBMsK31U4m7nLNpAlxzLziPI0LfqaxqCI0Dq/eU0
+         0CYMCK84sf1//c92diUhC2OoKKzQ74BVTW+2/9f8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+009f546aa1370056b1c2@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Subject: [PATCH 4.4 10/16] staging: comedi: check validity of wMaxPacketSize of usb endpoints found
-Date:   Fri, 16 Oct 2020 11:07:03 +0200
-Message-Id: <20201016090435.923015648@linuxfoundation.org>
+        stable@vger.kernel.org, Scott Chen <scott@labau.com.tw>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 11/16] USB: serial: pl2303: add device-id for HP GC device
+Date:   Fri, 16 Oct 2020 11:07:04 +0200
+Message-Id: <20201016090435.971021031@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201016090435.423923738@linuxfoundation.org>
 References: <20201016090435.423923738@linuxfoundation.org>
@@ -43,41 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Scott Chen <scott@labau.com.tw>
 
-commit e1f13c879a7c21bd207dc6242455e8e3a1e88b40 upstream.
+commit 031f9664f8f9356cee662335bc56c93d16e75665 upstream.
 
-While finding usb endpoints in vmk80xx_find_usb_endpoints(), check if
-wMaxPacketSize = 0 for the endpoints found.
+This is adds a device id for HP LD381 which is a pl2303GC-base device.
 
-Some devices have isochronous endpoints that have wMaxPacketSize = 0
-(as required by the USB-2 spec).
-However, since this doesn't apply here, wMaxPacketSize = 0 can be
-considered to be invalid.
-
-Reported-by: syzbot+009f546aa1370056b1c2@syzkaller.appspotmail.com
-Tested-by: syzbot+009f546aa1370056b1c2@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20201010082933.5417-1-anant.thazhemadam@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Scott Chen <scott@labau.com.tw>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/comedi/drivers/vmk80xx.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/serial/pl2303.c |    1 +
+ drivers/usb/serial/pl2303.h |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/staging/comedi/drivers/vmk80xx.c
-+++ b/drivers/staging/comedi/drivers/vmk80xx.c
-@@ -676,6 +676,9 @@ static int vmk80xx_find_usb_endpoints(st
- 	if (!devpriv->ep_rx || !devpriv->ep_tx)
- 		return -ENODEV;
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -89,6 +89,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD220_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD220TA_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD381_PRODUCT_ID) },
++	{ USB_DEVICE(HP_VENDOR_ID, HP_LD381GC_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD960_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LD960TA_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM220_PRODUCT_ID) },
+--- a/drivers/usb/serial/pl2303.h
++++ b/drivers/usb/serial/pl2303.h
+@@ -125,6 +125,7 @@
  
-+	if (!usb_endpoint_maxp(devpriv->ep_rx) || !usb_endpoint_maxp(devpriv->ep_tx))
-+		return -EINVAL;
-+
- 	return 0;
- }
- 
+ /* Hewlett-Packard POS Pole Displays */
+ #define HP_VENDOR_ID		0x03f0
++#define HP_LD381GC_PRODUCT_ID	0x0183
+ #define HP_LM920_PRODUCT_ID	0x026b
+ #define HP_TD620_PRODUCT_ID	0x0956
+ #define HP_LD960_PRODUCT_ID	0x0b39
 
 
