@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BCB4290149
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D06FB290167
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391449AbgJPJMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:12:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
+        id S2395010AbgJPJOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:14:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405659AbgJPJK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:10:28 -0400
+        id S2405798AbgJPJLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:11:14 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0F0F20848;
-        Fri, 16 Oct 2020 09:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4442E21527;
+        Fri, 16 Oct 2020 09:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839427;
-        bh=bxmwtlgtVw8S6hOkPb05RjBaQrC9k+7FMbmRvHD1lcc=;
+        s=default; t=1602839471;
+        bh=iJDPr1SCZ19wIMLz4nGPwoBz1Tz+1pyLUTra09Ar6qM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgslWHdc6rX4ibruBO++ZGfNdFEm8AScRCze4xuVK1sYcos/9e8FUYL3BD4Vltb4P
-         EPZdpOHhFPFKAvZkgVpr1GhacawGYXEi0WWIN8ZuUJFM5Doy31EpcUqegaE2a+6EBh
-         CUBtiSKGRTpkT/pz+e2hCyqwZR3FTUTfo6t3EWVk=
+        b=sJUGuoXTH0qo30O/RjCsV3CsCm+GUXoyjSVU3vvpzEDCrggR45b98Y2GC6d3Klbtp
+         5fY64FJ4A3HI+g+ovqHZqVSXItQQM9wyTQSYgPBC1AuxyAXft0duBd6bhtomFeDjKR
+         pw+atpmt6mpcPZrNfkDBNy2xpqsHl5yS2ZhLciG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Stefan Bader <stefan.bader@canonical.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.4 20/22] xen/events: dont use chip_data for legacy IRQs
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.8 03/14] Bluetooth: A2MP: Fix not initializing all members
 Date:   Fri, 16 Oct 2020 11:07:48 +0200
-Message-Id: <20201016090438.315147130@linuxfoundation.org>
+Message-Id: <20201016090437.331232767@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.308349327@linuxfoundation.org>
-References: <20201016090437.308349327@linuxfoundation.org>
+In-Reply-To: <20201016090437.153175229@linuxfoundation.org>
+References: <20201016090437.153175229@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,123 +43,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 0891fb39ba67bd7ae023ea0d367297ffff010781 upstream.
+commit eddb7732119d53400f48a02536a84c509692faa8 upstream.
 
-Since commit c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
-Xen is using the chip_data pointer for storing IRQ specific data. When
-running as a HVM domain this can result in problems for legacy IRQs, as
-those might use chip_data for their own purposes.
+This fixes various places where a stack variable is used uninitialized.
 
-Use a local array for this purpose in case of legacy IRQs, avoiding the
-double use.
-
-Cc: stable@vger.kernel.org
-Fixes: c330fb1ddc0a ("XEN uses irqdesc::irq_data_common::handler_data to store a per interrupt XEN data pointer which contains XEN specific information.")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Tested-by: Stefan Bader <stefan.bader@canonical.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20200930091614.13660-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/events/events_base.c |   29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ net/bluetooth/a2mp.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -91,6 +91,8 @@ static bool (*pirq_needs_eoi)(unsigned i
- /* Xen will never allocate port zero for any purpose. */
- #define VALID_EVTCHN(chn)	((chn) != 0)
+--- a/net/bluetooth/a2mp.c
++++ b/net/bluetooth/a2mp.c
+@@ -226,6 +226,9 @@ static int a2mp_discover_rsp(struct amp_
+ 			struct a2mp_info_req req;
  
-+static struct irq_info *legacy_info_ptrs[NR_IRQS_LEGACY];
+ 			found = true;
 +
- static struct irq_chip xen_dynamic_chip;
- static struct irq_chip xen_percpu_chip;
- static struct irq_chip xen_pirq_chip;
-@@ -155,7 +157,18 @@ int get_evtchn_to_irq(unsigned evtchn)
- /* Get info for IRQ */
- struct irq_info *info_for_irq(unsigned irq)
- {
--	return irq_get_chip_data(irq);
-+	if (irq < nr_legacy_irqs())
-+		return legacy_info_ptrs[irq];
-+	else
-+		return irq_get_chip_data(irq);
-+}
++			memset(&req, 0, sizeof(req));
 +
-+static void set_info_for_irq(unsigned int irq, struct irq_info *info)
-+{
-+	if (irq < nr_legacy_irqs())
-+		legacy_info_ptrs[irq] = info;
-+	else
-+		irq_set_chip_data(irq, info);
- }
+ 			req.id = cl->id;
+ 			a2mp_send(mgr, A2MP_GETINFO_REQ, __next_ident(mgr),
+ 				  sizeof(req), &req);
+@@ -305,6 +308,8 @@ static int a2mp_getinfo_req(struct amp_m
+ 	if (!hdev || hdev->dev_type != HCI_AMP) {
+ 		struct a2mp_info_rsp rsp;
  
- /* Constructors for packed IRQ information. */
-@@ -376,7 +389,7 @@ static void xen_irq_init(unsigned irq)
- 	info->type = IRQT_UNBOUND;
- 	info->refcnt = -1;
++		memset(&rsp, 0, sizeof(rsp));
++
+ 		rsp.id = req->id;
+ 		rsp.status = A2MP_STATUS_INVALID_CTRL_ID;
  
--	irq_set_chip_data(irq, info);
-+	set_info_for_irq(irq, info);
+@@ -348,6 +353,8 @@ static int a2mp_getinfo_rsp(struct amp_m
+ 	if (!ctrl)
+ 		return -ENOMEM;
  
- 	list_add_tail(&info->list, &xen_irq_list_head);
- }
-@@ -425,14 +438,14 @@ static int __must_check xen_allocate_irq
++	memset(&req, 0, sizeof(req));
++
+ 	req.id = rsp->id;
+ 	a2mp_send(mgr, A2MP_GETAMPASSOC_REQ, __next_ident(mgr), sizeof(req),
+ 		  &req);
+@@ -376,6 +383,8 @@ static int a2mp_getampassoc_req(struct a
+ 		struct a2mp_amp_assoc_rsp rsp;
+ 		rsp.id = req->id;
  
- static void xen_free_irq(unsigned irq)
++		memset(&rsp, 0, sizeof(rsp));
++
+ 		if (tmp) {
+ 			rsp.status = A2MP_STATUS_COLLISION_OCCURED;
+ 			amp_mgr_put(tmp);
+@@ -464,7 +473,6 @@ static int a2mp_createphyslink_req(struc
+ 				   struct a2mp_cmd *hdr)
  {
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
+ 	struct a2mp_physlink_req *req = (void *) skb->data;
+-
+ 	struct a2mp_physlink_rsp rsp;
+ 	struct hci_dev *hdev;
+ 	struct hci_conn *hcon;
+@@ -475,6 +483,8 @@ static int a2mp_createphyslink_req(struc
  
- 	if (WARN_ON(!info))
+ 	BT_DBG("local_id %d, remote_id %d", req->local_id, req->remote_id);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.local_id = req->remote_id;
+ 	rsp.remote_id = req->local_id;
+ 
+@@ -553,6 +563,8 @@ static int a2mp_discphyslink_req(struct
+ 
+ 	BT_DBG("local_id %d remote_id %d", req->local_id, req->remote_id);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.local_id = req->remote_id;
+ 	rsp.remote_id = req->local_id;
+ 	rsp.status = A2MP_STATUS_SUCCESS;
+@@ -675,6 +687,8 @@ static int a2mp_chan_recv_cb(struct l2ca
+ 	if (err) {
+ 		struct a2mp_cmd_rej rej;
+ 
++		memset(&rej, 0, sizeof(rej));
++
+ 		rej.reason = cpu_to_le16(0);
+ 		hdr = (void *) skb->data;
+ 
+@@ -898,6 +912,8 @@ void a2mp_send_getinfo_rsp(struct hci_de
+ 
+ 	BT_DBG("%s mgr %p", hdev->name, mgr);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.id = hdev->id;
+ 	rsp.status = A2MP_STATUS_INVALID_CTRL_ID;
+ 
+@@ -995,6 +1011,8 @@ void a2mp_send_create_phy_link_rsp(struc
+ 	if (!mgr)
  		return;
  
- 	list_del(&info->list);
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	hs_hcon = hci_conn_hash_lookup_state(hdev, AMP_LINK, BT_CONNECT);
+ 	if (!hs_hcon) {
+ 		rsp.status = A2MP_STATUS_UNABLE_START_LINK_CREATION;
+@@ -1027,6 +1045,8 @@ void a2mp_discover_amp(struct l2cap_chan
  
--	irq_set_chip_data(irq, NULL);
-+	set_info_for_irq(irq, NULL);
+ 	mgr->bredr_chan = chan;
  
- 	WARN_ON(info->refcnt > 0);
- 
-@@ -602,7 +615,7 @@ EXPORT_SYMBOL_GPL(xen_irq_from_gsi);
- static void __unbind_from_irq(unsigned int irq)
- {
- 	int evtchn = evtchn_from_irq(irq);
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
- 
- 	if (info->refcnt > 0) {
- 		info->refcnt--;
-@@ -1106,7 +1119,7 @@ int bind_ipi_to_irqhandler(enum ipi_vect
- 
- void unbind_from_irqhandler(unsigned int irq, void *dev_id)
- {
--	struct irq_info *info = irq_get_chip_data(irq);
-+	struct irq_info *info = info_for_irq(irq);
- 
- 	if (WARN_ON(!info))
- 		return;
-@@ -1140,7 +1153,7 @@ int evtchn_make_refcounted(unsigned int
- 	if (irq == -1)
- 		return -ENOENT;
- 
--	info = irq_get_chip_data(irq);
-+	info = info_for_irq(irq);
- 
- 	if (!info)
- 		return -ENOENT;
-@@ -1168,7 +1181,7 @@ int evtchn_get(unsigned int evtchn)
- 	if (irq == -1)
- 		goto done;
- 
--	info = irq_get_chip_data(irq);
-+	info = info_for_irq(irq);
- 
- 	if (!info)
- 		goto done;
++	memset(&req, 0, sizeof(req));
++
+ 	req.mtu = cpu_to_le16(L2CAP_A2MP_DEFAULT_MTU);
+ 	req.ext_feat = 0;
+ 	a2mp_send(mgr, A2MP_DISCOVER_REQ, 1, sizeof(req), &req);
 
 
