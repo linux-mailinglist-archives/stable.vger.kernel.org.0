@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64ED52900B6
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2D9F2901A6
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405479AbgJPJIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:08:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36506 "EHLO mail.kernel.org"
+        id S2406361AbgJPJQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:16:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394946AbgJPJIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:08:04 -0400
+        id S2405027AbgJPJIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:08:24 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A47A820872;
-        Fri, 16 Oct 2020 09:08:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60ABC21556;
+        Fri, 16 Oct 2020 09:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839283;
-        bh=Ocuw6KufdcBtV6Q4Fl8ffU5fNhkL91RKlvDIOaKuLdY=;
+        s=default; t=1602839302;
+        bh=16/TAZ8EDeUaBagtevxZ1bw/cNO+Dxs9T4s6oryzSFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPtPC8r48mlpoBbN9m9lpR/4Z5I33wQk3SP+r2P6u2f6SlN+7ac6nG1KNJweQsILd
-         jqZQyfpr787UnpRfz6NHaiPHGQ4EQqck/VwfOOMMzY7LbRtlK8q0YA2sUjrnXN04oc
-         k2isUKoOaWhiBjrCjxvIp6rMjUuyYBFXIQkFORr4=
+        b=sgeTjRjHjUT95h6KZydA6eggEV5ArudDwcyQpF4WwCtuSwims+hYl1cKdxs2hHPfX
+         QHviJDAdZVg8m3oJm9iVr9G74za+m7KSUnXv50z9LV/66KJiHf0TXnjWYo37q4+6sW
+         UK+WyDHgOnDJJ3dHR1M+aj+7XuuStLsVObfX19CA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
-Subject: [PATCH 4.9 07/16] Bluetooth: Disconnect if E0 is used for Level 4
-Date:   Fri, 16 Oct 2020 11:07:11 +0200
-Message-Id: <20201016090437.581507022@linuxfoundation.org>
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.14 02/18] Bluetooth: A2MP: Fix not initializing all members
+Date:   Fri, 16 Oct 2020 11:07:12 +0200
+Message-Id: <20201016090437.390458348@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.205626543@linuxfoundation.org>
-References: <20201016090437.205626543@linuxfoundation.org>
+In-Reply-To: <20201016090437.265805669@linuxfoundation.org>
+References: <20201016090437.265805669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,143 +45,118 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 8746f135bb01872ff412d408ea1aa9ebd328c1f5 upstream.
+commit eddb7732119d53400f48a02536a84c509692faa8 upstream.
 
-E0 is not allowed with Level 4:
-
-BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C page 1319:
-
-  '128-bit equivalent strength for link and encryption keys
-   required using FIPS approved algorithms (E0 not allowed,
-   SAFER+ not allowed, and P-192 not allowed; encryption key
-   not shortened'
-
-SC enabled:
-
-> HCI Event: Read Remote Extended Features (0x23) plen 13
-        Status: Success (0x00)
-        Handle: 256
-        Page: 1/2
-        Features: 0x0b 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-          Secure Simple Pairing (Host Support)
-          LE Supported (Host)
-          Secure Connections (Host Support)
-> HCI Event: Encryption Change (0x08) plen 4
-        Status: Success (0x00)
-        Handle: 256
-        Encryption: Enabled with AES-CCM (0x02)
-
-SC disabled:
-
-> HCI Event: Read Remote Extended Features (0x23) plen 13
-        Status: Success (0x00)
-        Handle: 256
-        Page: 1/2
-        Features: 0x03 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-          Secure Simple Pairing (Host Support)
-          LE Supported (Host)
-> HCI Event: Encryption Change (0x08) plen 4
-        Status: Success (0x00)
-        Handle: 256
-        Encryption: Enabled with E0 (0x01)
-[May 8 20:23] Bluetooth: hci0: Invalid security: expect AES but E0 was used
-< HCI Command: Disconnect (0x01|0x0006) plen 3
-        Handle: 256
-        Reason: Authentication Failure (0x05)
+This fixes various places where a stack variable is used uninitialized.
 
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/net/bluetooth/hci_core.h |   10 ++++++----
- net/bluetooth/hci_conn.c         |   17 +++++++++++++++++
- net/bluetooth/hci_event.c        |   20 ++++++++------------
- 3 files changed, 31 insertions(+), 16 deletions(-)
+ net/bluetooth/a2mp.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1271,11 +1271,13 @@ static inline void hci_encrypt_cfm(struc
- 	else
- 		encrypt = 0x01;
+--- a/net/bluetooth/a2mp.c
++++ b/net/bluetooth/a2mp.c
+@@ -233,6 +233,9 @@ static int a2mp_discover_rsp(struct amp_
+ 			struct a2mp_info_req req;
  
--	if (conn->sec_level == BT_SECURITY_SDP)
--		conn->sec_level = BT_SECURITY_LOW;
-+	if (!status) {
-+		if (conn->sec_level == BT_SECURITY_SDP)
-+			conn->sec_level = BT_SECURITY_LOW;
- 
--	if (conn->pending_sec_level > conn->sec_level)
--		conn->sec_level = conn->pending_sec_level;
-+		if (conn->pending_sec_level > conn->sec_level)
-+			conn->sec_level = conn->pending_sec_level;
-+	}
- 
- 	mutex_lock(&hci_cb_list_lock);
- 	list_for_each_entry(cb, &hci_cb_list, list) {
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1163,6 +1163,23 @@ int hci_conn_check_link_mode(struct hci_
- 			return 0;
- 	}
- 
-+	 /* AES encryption is required for Level 4:
-+	  *
-+	  * BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C
-+	  * page 1319:
-+	  *
-+	  * 128-bit equivalent strength for link and encryption keys
-+	  * required using FIPS approved algorithms (E0 not allowed,
-+	  * SAFER+ not allowed, and P-192 not allowed; encryption key
-+	  * not shortened)
-+	  */
-+	if (conn->sec_level == BT_SECURITY_FIPS &&
-+	    !test_bit(HCI_CONN_AES_CCM, &conn->flags)) {
-+		bt_dev_err(conn->hdev,
-+			   "Invalid security: Missing AES-CCM usage");
-+		return 0;
-+	}
+ 			found = true;
 +
- 	if (hci_conn_ssp_enabled(conn) &&
- 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
- 		return 0;
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -2626,26 +2626,22 @@ static void hci_encrypt_change_evt(struc
- 
- 	clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
- 
-+	/* Check link security requirements are met */
-+	if (!hci_conn_check_link_mode(conn))
-+		ev->status = HCI_ERROR_AUTH_FAILURE;
++			memset(&req, 0, sizeof(req));
 +
- 	if (ev->status && conn->state == BT_CONNECTED) {
- 		if (ev->status == HCI_ERROR_PIN_OR_KEY_MISSING)
- 			set_bit(HCI_CONN_AUTH_FAILURE, &conn->flags);
+ 			req.id = cl->id;
+ 			a2mp_send(mgr, A2MP_GETINFO_REQ, __next_ident(mgr),
+ 				  sizeof(req), &req);
+@@ -312,6 +315,8 @@ static int a2mp_getinfo_req(struct amp_m
+ 	if (!hdev || hdev->dev_type != HCI_AMP) {
+ 		struct a2mp_info_rsp rsp;
  
-+		/* Notify upper layers so they can cleanup before
-+		 * disconnecting.
-+		 */
-+		hci_encrypt_cfm(conn, ev->status);
- 		hci_disconnect(conn, HCI_ERROR_AUTH_FAILURE);
- 		hci_conn_drop(conn);
- 		goto unlock;
- 	}
++		memset(&rsp, 0, sizeof(rsp));
++
+ 		rsp.id = req->id;
+ 		rsp.status = A2MP_STATUS_INVALID_CTRL_ID;
+ 
+@@ -355,6 +360,8 @@ static int a2mp_getinfo_rsp(struct amp_m
+ 	if (!ctrl)
+ 		return -ENOMEM;
+ 
++	memset(&req, 0, sizeof(req));
++
+ 	req.id = rsp->id;
+ 	a2mp_send(mgr, A2MP_GETAMPASSOC_REQ, __next_ident(mgr), sizeof(req),
+ 		  &req);
+@@ -383,6 +390,8 @@ static int a2mp_getampassoc_req(struct a
+ 		struct a2mp_amp_assoc_rsp rsp;
+ 		rsp.id = req->id;
+ 
++		memset(&rsp, 0, sizeof(rsp));
++
+ 		if (tmp) {
+ 			rsp.status = A2MP_STATUS_COLLISION_OCCURED;
+ 			amp_mgr_put(tmp);
+@@ -471,7 +480,6 @@ static int a2mp_createphyslink_req(struc
+ 				   struct a2mp_cmd *hdr)
+ {
+ 	struct a2mp_physlink_req *req = (void *) skb->data;
 -
--	/* In Secure Connections Only mode, do not allow any connections
--	 * that are not encrypted with AES-CCM using a P-256 authenticated
--	 * combination key.
--	 */
--	if (hci_dev_test_flag(hdev, HCI_SC_ONLY) &&
--	    (!test_bit(HCI_CONN_AES_CCM, &conn->flags) ||
--	     conn->key_type != HCI_LK_AUTH_COMBINATION_P256)) {
--		hci_connect_cfm(conn, HCI_ERROR_AUTH_FAILURE);
--		hci_conn_drop(conn);
--		goto unlock;
--	}
+ 	struct a2mp_physlink_rsp rsp;
+ 	struct hci_dev *hdev;
+ 	struct hci_conn *hcon;
+@@ -482,6 +490,8 @@ static int a2mp_createphyslink_req(struc
  
- 	/* Try reading the encryption key size for encrypted ACL links */
- 	if (!ev->status && ev->encrypt && conn->type == ACL_LINK) {
+ 	BT_DBG("local_id %d, remote_id %d", req->local_id, req->remote_id);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.local_id = req->remote_id;
+ 	rsp.remote_id = req->local_id;
+ 
+@@ -560,6 +570,8 @@ static int a2mp_discphyslink_req(struct
+ 
+ 	BT_DBG("local_id %d remote_id %d", req->local_id, req->remote_id);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.local_id = req->remote_id;
+ 	rsp.remote_id = req->local_id;
+ 	rsp.status = A2MP_STATUS_SUCCESS;
+@@ -682,6 +694,8 @@ static int a2mp_chan_recv_cb(struct l2ca
+ 	if (err) {
+ 		struct a2mp_cmd_rej rej;
+ 
++		memset(&rej, 0, sizeof(rej));
++
+ 		rej.reason = cpu_to_le16(0);
+ 		hdr = (void *) skb->data;
+ 
+@@ -905,6 +919,8 @@ void a2mp_send_getinfo_rsp(struct hci_de
+ 
+ 	BT_DBG("%s mgr %p", hdev->name, mgr);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.id = hdev->id;
+ 	rsp.status = A2MP_STATUS_INVALID_CTRL_ID;
+ 
+@@ -1002,6 +1018,8 @@ void a2mp_send_create_phy_link_rsp(struc
+ 	if (!mgr)
+ 		return;
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	hs_hcon = hci_conn_hash_lookup_state(hdev, AMP_LINK, BT_CONNECT);
+ 	if (!hs_hcon) {
+ 		rsp.status = A2MP_STATUS_UNABLE_START_LINK_CREATION;
+@@ -1034,6 +1052,8 @@ void a2mp_discover_amp(struct l2cap_chan
+ 
+ 	mgr->bredr_chan = chan;
+ 
++	memset(&req, 0, sizeof(req));
++
+ 	req.mtu = cpu_to_le16(L2CAP_A2MP_DEFAULT_MTU);
+ 	req.ext_feat = 0;
+ 	a2mp_send(mgr, A2MP_DISCOVER_REQ, 1, sizeof(req), &req);
 
 
