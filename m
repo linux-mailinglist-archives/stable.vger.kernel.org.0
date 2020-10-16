@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E70FD290141
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6879290138
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405366AbgJPJMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:12:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40212 "EHLO mail.kernel.org"
+        id S2405604AbgJPJJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:09:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395095AbgJPJKu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:10:50 -0400
+        id S2394998AbgJPJJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:09:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B0DD212CC;
-        Fri, 16 Oct 2020 09:10:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF8FD21527;
+        Fri, 16 Oct 2020 09:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839449;
-        bh=GaoTJfp89LDA0mVPVPI1MzNalAdYrae75hGl6RBAtYk=;
+        s=default; t=1602839383;
+        bh=fVvVSlX1NflFRITbbllodyVJEz+j1pa0M5tf1dmctAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGVBO2/P3m+sQFub28edSn1gpZ60tdpHMCsQ9k/0RGWLCyyPHyouDJo78eiZ+bDWk
-         JZfwYPNC9ev5rNj9ZndkXFBFozcqVQ+LSIzTXeUBkLEIL3DZd8C594oigi0LHLGqCT
-         G1Bg48QcowSY2KmbHIgIc2cWyTJUTFk7J0XaBdoc=
+        b=fCzlJ5W+QqUuPVSGSdREXUO4Nn0E5Nbxy+FmFHUeNjZmY290BpVi4x0hF1O8BRSOz
+         ANy5JykoQv0XHM+NxAy3Tud1Xfj8yN6bBDUqa0yIHxlq4n0wH653UcvBxaxuYeHsXS
+         /CqX3JpNGXj5glcDzcd30suMjSBZzfifEwo5PP6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
-Subject: [PATCH 5.4 09/22] Bluetooth: Consolidate encryption handling in hci_encrypt_cfm
+        syzbot+9b33c9b118d77ff59b6f@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.19 18/21] reiserfs: Fix oops during mount
 Date:   Fri, 16 Oct 2020 11:07:37 +0200
-Message-Id: <20201016090437.775724462@linuxfoundation.org>
+Message-Id: <20201016090438.181624388@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.308349327@linuxfoundation.org>
-References: <20201016090437.308349327@linuxfoundation.org>
+In-Reply-To: <20201016090437.301376476@linuxfoundation.org>
+References: <20201016090437.301376476@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 3ca44c16b0dcc764b641ee4ac226909f5c421aa3 upstream.
+commit c2bb80b8bdd04dfe32364b78b61b6a47f717af52 upstream.
 
-This makes hci_encrypt_cfm calls hci_connect_cfm in case the connection
-state is BT_CONFIG so callers don't have to check the state.
+With suitably crafted reiserfs image and mount command reiserfs will
+crash when trying to verify that XATTR_ROOT directory can be looked up
+in / as that recurses back to xattr code like:
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
+ xattr_lookup+0x24/0x280 fs/reiserfs/xattr.c:395
+ reiserfs_xattr_get+0x89/0x540 fs/reiserfs/xattr.c:677
+ reiserfs_get_acl+0x63/0x690 fs/reiserfs/xattr_acl.c:209
+ get_acl+0x152/0x2e0 fs/posix_acl.c:141
+ check_acl fs/namei.c:277 [inline]
+ acl_permission_check fs/namei.c:309 [inline]
+ generic_permission+0x2ba/0x550 fs/namei.c:353
+ do_inode_permission fs/namei.c:398 [inline]
+ inode_permission+0x234/0x4a0 fs/namei.c:463
+ lookup_one_len+0xa6/0x200 fs/namei.c:2557
+ reiserfs_lookup_privroot+0x85/0x1e0 fs/reiserfs/xattr.c:972
+ reiserfs_fill_super+0x2b51/0x3240 fs/reiserfs/super.c:2176
+ mount_bdev+0x24f/0x360 fs/super.c:1417
+
+Fix the problem by bailing from reiserfs_xattr_get() when xattrs are not
+yet initialized.
+
+CC: stable@vger.kernel.org
+Reported-by: syzbot+9b33c9b118d77ff59b6f@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/net/bluetooth/hci_core.h |   20 ++++++++++++++++++--
- net/bluetooth/hci_event.c        |   28 +++-------------------------
- 2 files changed, 21 insertions(+), 27 deletions(-)
+ fs/reiserfs/xattr.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1308,10 +1308,26 @@ static inline void hci_auth_cfm(struct h
- 		conn->security_cfm_cb(conn, status);
- }
+--- a/fs/reiserfs/xattr.c
++++ b/fs/reiserfs/xattr.c
+@@ -665,6 +665,13 @@ reiserfs_xattr_get(struct inode *inode,
+ 	if (get_inode_sd_version(inode) == STAT_DATA_V1)
+ 		return -EOPNOTSUPP;
  
--static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status,
--								__u8 encrypt)
-+static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status)
- {
- 	struct hci_cb *cb;
-+	__u8 encrypt;
++	/*
++	 * priv_root needn't be initialized during mount so allow initial
++	 * lookups to succeed.
++	 */
++	if (!REISERFS_SB(inode->i_sb)->priv_root)
++		return 0;
 +
-+	if (conn->state == BT_CONFIG) {
-+		if (status)
-+			conn->state = BT_CONNECTED;
-+
-+		hci_connect_cfm(conn, status);
-+		hci_conn_drop(conn);
-+		return;
-+	}
-+
-+	if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
-+		encrypt = 0x00;
-+	else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
-+		encrypt = 0x02;
-+	else
-+		encrypt = 0x01;
- 
- 	if (conn->sec_level == BT_SECURITY_SDP)
- 		conn->sec_level = BT_SECURITY_LOW;
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -2840,7 +2840,7 @@ static void hci_auth_complete_evt(struct
- 				     &cp);
- 		} else {
- 			clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
--			hci_encrypt_cfm(conn, ev->status, 0x00);
-+			hci_encrypt_cfm(conn, ev->status);
- 		}
- 	}
- 
-@@ -2925,22 +2925,7 @@ static void read_enc_key_size_complete(s
- 		conn->enc_key_size = rp->key_size;
- 	}
- 
--	if (conn->state == BT_CONFIG) {
--		conn->state = BT_CONNECTED;
--		hci_connect_cfm(conn, 0);
--		hci_conn_drop(conn);
--	} else {
--		u8 encrypt;
--
--		if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
--			encrypt = 0x00;
--		else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
--			encrypt = 0x02;
--		else
--			encrypt = 0x01;
--
--		hci_encrypt_cfm(conn, 0, encrypt);
--	}
-+	hci_encrypt_cfm(conn, 0);
- 
- unlock:
- 	hci_dev_unlock(hdev);
-@@ -3058,14 +3043,7 @@ static void hci_encrypt_change_evt(struc
- 	}
- 
- notify:
--	if (conn->state == BT_CONFIG) {
--		if (!ev->status)
--			conn->state = BT_CONNECTED;
--
--		hci_connect_cfm(conn, ev->status);
--		hci_conn_drop(conn);
--	} else
--		hci_encrypt_cfm(conn, ev->status, ev->encrypt);
-+	hci_encrypt_cfm(conn, ev->status);
- 
- unlock:
- 	hci_dev_unlock(hdev);
+ 	dentry = xattr_lookup(inode, name, XATTR_REPLACE);
+ 	if (IS_ERR(dentry)) {
+ 		err = PTR_ERR(dentry);
 
 
