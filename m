@@ -2,130 +2,316 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 049F82907D9
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 16:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DB62907E5
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 17:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409134AbgJPO7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 10:59:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44210 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2407887AbgJPO7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 10:59:52 -0400
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23DD820723;
-        Fri, 16 Oct 2020 14:59:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602860391;
-        bh=GSZY6sHejgN8vNkkNjwxRDnRcllqsRJYfJxRW3MLcs4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R7zwmU34keOG9Bop567zYcDWJivxpTMy8Av9/Jx2CjMqa+i7zdSt7ImapcYoC2CXe
-         /2dc9D7elIsxbgyJGhQIu9iPqlg0ho5K6jo5zrZWZkEa0c+rEpVMGeyNsPMFifzqzE
-         RXqiVDnlYtvM+vRXrGgZnS0DjQqoL7bQmvSz/+Zs=
-Date:   Fri, 16 Oct 2020 17:00:21 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, pavel@denx.de, stable@vger.kernel.org
-Subject: Re: [PATCH 5.8 00/14] 5.8.16-rc1 review
-Message-ID: <20201016150021.GA1807231@kroah.com>
-References: <20201016090437.153175229@linuxfoundation.org>
- <7138d7bce8f8da009119f0107eeb7c85f67057b9.camel@rajagiritech.edu.in>
+        id S2409687AbgJPPBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 11:01:04 -0400
+Received: from mail-03.mail-europe.com ([91.134.188.129]:53214 "EHLO
+        mail-03.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2409647AbgJPPBD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 11:01:03 -0400
+Date:   Fri, 16 Oct 2020 15:00:49 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail; t=1602860456;
+        bh=Oq0wpmvGRC9hGW185tYRKgXrLh7BTScF8zS8kr+piaA=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=CVyTAib1rCG/mIIKq/4zeVAAEP/QCMcHgTxRr0lDGwuV3lFEcDxqhg5WnliVrlI4s
+         jbYPam7zi+csX2bGlcaZ1xDt3GkQtH8v2+lVcb4iYNhhEEZiGAuPx+eyu3WSOq6A0b
+         gpeiTgCiPupV+4CmKudaxFM8Gcg8YrT5lH5ssAtE=
+To:     Coiby Xu <coiby.xu@gmail.com>
+From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        Helmut Stult <helmut.stult@schinfo.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Reply-To: =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: add polling mode based on connected GPIO chip's pin status
+Message-ID: <T2SIcFVxZ81NUwKLDbSESA7Wpm7DYowEiii8ZaxTPtrdXZZeHLq5iZPkN5BLlp-9C6PLwUZOVwNpMdEdPSRZcAG4MmDt-tfyKZoQYJ0KHOA=@protonmail.com>
+In-Reply-To: <20201016131335.8121-1-coiby.xu@gmail.com>
+References: <20201016131335.8121-1-coiby.xu@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7138d7bce8f8da009119f0107eeb7c85f67057b9.camel@rajagiritech.edu.in>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 16, 2020 at 07:41:05PM +0530, Jeffrin Jose T wrote:
-> On Fri, 2020-10-16 at 11:07 +0200, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.8.16 release.
-> > There are 14 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied,
-> > please
-> > let me know.
-> > 
-> > Responses should be made by Sun, 18 Oct 2020 09:04:25 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	
-> > https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.8.16-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
-> > stable-rc.git linux-5.8.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> hello,
-> 
-> Compiled and booted  5.8.16-rc1+ .Every thing looks clean except "dmesg
-> -l warn"
-> 
-> ------x--------------x-----------------------------x-----------
-> 
-> $dmesg -l warn
-> [    0.601699] MDS CPU bug present and SMT on, data leak possible. See 
-> https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/mds.html for
-> more details.
+Hi,
 
-Please see that link for more details :)
+I still think that `i2c_hid_resume()` and `i2c_hid_suspend()` are asymmetri=
+c and
+that might lead to issues.
 
-> [    0.603104]  #3
 
-Odd.
+> [...]
+> When polling mode is enabled, an I2C device can't wake up the suspended
+> system since enable/disable_irq_wake is invalid for polling mode.
+>
 
-> [    0.749457] ENERGY_PERF_BIAS: Set to 'normal', was 'performance'
+Excuse my ignorance, but could you elaborate this because I am not sure I u=
+nderstand.
+Aren't the two things orthogonal (polling and waking up the system)?
 
-Why is this a warning?  Oh well.
 
-> [   10.718252] i8042: PNP: PS/2 appears to have AUX port disabled, if
-> this is incorrect please boot with i8042.nopnp
+> [...]
+>  #define I2C_HID_PWR_ON=09=090x00
+>  #define I2C_HID_PWR_SLEEP=090x01
+>
+> +/* polling mode */
+> +#define I2C_POLLING_DISABLED 0
+> +#define I2C_POLLING_GPIO_PIN 1
 
-Is this incorrect?
+This is a very small detail, but I personally think that these defines shou=
+ld be
+called I2C_HID_.... since they are only used here.
 
-> [   12.651483] sdhci-pci 0000:00:1e.6: failed to setup card detect gpio
 
-Normal.
+> +#define POLLING_INTERVAL 10
+> +
+> +static u8 polling_mode;
+> +module_param(polling_mode, byte, 0444);
+> +MODULE_PARM_DESC(polling_mode, "How to poll - 0 disabled; 1 based on GPI=
+O pin's status");
+> +
+> +static unsigned int polling_interval_active_us =3D 4000;
+> +module_param(polling_interval_active_us, uint, 0644);
+> +MODULE_PARM_DESC(polling_interval_active_us,
+> +=09=09 "Poll every {polling_interval_active_us} us when the touchpad is =
+active. Default to 4000 us");
+> +
+> +static unsigned int polling_interval_idle_ms =3D 10;
 
-> [   14.398378] i2c_hid i2c-ELAN1300:00: supply vdd not found, using
-> dummy regulator
-> [   14.399033] i2c_hid i2c-ELAN1300:00: supply vddl not found, using
-> dummy regulator
+There is a define for this value, I don't really see why you don't use it h=
+ere.
+And if there is a define for one value, I don't really see why there isn't =
+one
+for the other. (As far as I see `POLLING_INTERVAL` is not even used anywher=
+e.)
 
-Both normal
 
-> [   23.866580] systemd[1]: /lib/systemd/system/plymouth-
-> start.service:16: Unit configured to use KillMode=none. This is unsafe,
-> as it disables systemd's process lifecycle management for the service.
-> Please update your service to use a safer KillMode=, such as 'mixed' or
-> 'control-group'. Support for KillMode=none is deprecated and will
-> eventually be removed.
+> +module_param(polling_interval_idle_ms, uint, 0644);
+> +MODULE_PARM_DESC(polling_interval_ms,
+> +=09=09 "Poll every {polling_interval_idle_ms} ms when the touchpad is id=
+le. Default to 10 ms");
+>  /* debug option */
+>  static bool debug;
+>  module_param(debug, bool, 0444);
+> @@ -158,6 +178,8 @@ struct i2c_hid {
+>
+>  =09struct i2c_hid_platform_data pdata;
+>
+> +=09struct task_struct *polling_thread;
+> +
+>  =09bool=09=09=09irq_wake_enabled;
+>  =09struct mutex=09=09reset_lock;
+>  };
+> @@ -772,7 +794,9 @@ static int i2c_hid_start(struct hid_device *hid)
+>  =09=09i2c_hid_free_buffers(ihid);
+>
+>  =09=09ret =3D i2c_hid_alloc_buffers(ihid, bufsize);
+> -=09=09enable_irq(client->irq);
+> +
+> +=09=09if (polling_mode =3D=3D I2C_POLLING_DISABLED)
+> +=09=09=09enable_irq(client->irq);
+>
+>  =09=09if (ret)
+>  =09=09=09return ret;
+> @@ -814,6 +838,86 @@ struct hid_ll_driver i2c_hid_ll_driver =3D {
+>  };
+>  EXPORT_SYMBOL_GPL(i2c_hid_ll_driver);
+>
+> +static int get_gpio_pin_state(struct irq_desc *irq_desc)
+> +{
+> +=09struct gpio_chip *gc =3D irq_data_get_irq_chip_data(&irq_desc->irq_da=
+ta);
+> +
+> +=09return gc->get(gc, irq_desc->irq_data.hwirq);
+> +}
+> +
+> +static bool interrupt_line_active(struct i2c_client *client)
+> +{
+> +=09unsigned long trigger_type =3D irq_get_trigger_type(client->irq);
+> +=09struct irq_desc *irq_desc =3D irq_to_desc(client->irq);
+> +
+> +=09/*
+> +=09 * According to Windows Precsiontion Touchpad's specs
+> +=09 * https://docs.microsoft.com/en-us/windows-hardware/design/component=
+-guidelines/windows-precision-touchpad-device-bus-connectivity,
+> +=09 * GPIO Interrupt Assertion Leve could be either ActiveLow or
+> +=09 * ActiveHigh.
+> +=09 */
+> +=09if (trigger_type & IRQF_TRIGGER_LOW)
+> +=09=09return !get_gpio_pin_state(irq_desc);
+> +
+> +=09return get_gpio_pin_state(irq_desc);
+> +}
 
-Not the kernel.
+Excuse my ignorance, but I think some kind of error handling regarding the =
+return
+value of `get_gpio_pin_state()` should be present here.
 
-> [   37.208082] uvcvideo 1-6:1.0: Entity type for entity Extension 4 was
-> not initialized!
-> [   37.208092] uvcvideo 1-6:1.0: Entity type for entity Processing 2
-> was not initialized!
-> [   37.208098] uvcvideo 1-6:1.0: Entity type for entity Camera 1 was
-> not initialized!
 
-Crummy device :(
+> +
+> +static int i2c_hid_polling_thread(void *i2c_hid)
+> +{
+> +=09struct i2c_hid *ihid =3D i2c_hid;
+> +=09struct i2c_client *client =3D ihid->client;
+> +=09unsigned int polling_interval_idle;
+> +
+> +=09while (1) {
+> +=09=09/*
+> +=09=09 * re-calculate polling_interval_idle
+> +=09=09 * so the module parameters polling_interval_idle_ms can be
+> +=09=09 * changed dynamically through sysfs as polling_interval_active_us
+> +=09=09 */
+> +=09=09polling_interval_idle =3D polling_interval_idle_ms * 1000;
+> +=09=09if (test_bit(I2C_HID_READ_PENDING, &ihid->flags))
+> +=09=09=09usleep_range(50000, 100000);
+> +
+> +=09=09if (kthread_should_stop())
+> +=09=09=09break;
+> +
+> +=09=09while (interrupt_line_active(client)) {
 
-> [   40.088516] FAT-fs (sda1): Volume was not properly unmounted. Some
-> data may be corrupt. Please run fsck.
+I realize it's quite unlikely, but can't this be a endless loop if data is =
+coming
+in at a high enough rate? Maybe the maximum number of iterations could be l=
+imited here?
 
-Please run fsck :)
 
-thanks,
+> +=09=09=09i2c_hid_get_input(ihid);
+> +=09=09=09usleep_range(polling_interval_active_us,
+> +=09=09=09=09     polling_interval_active_us + 100);
+> +=09=09}
+> +
+> +=09=09usleep_range(polling_interval_idle,
+> +=09=09=09     polling_interval_idle + 1000);
+> +=09}
+> +
+> +=09do_exit(0);
+> +=09return 0;
+> +}
+> +
+> +static int i2c_hid_init_polling(struct i2c_hid *ihid)
+> +{
+> +=09struct i2c_client *client =3D ihid->client;
+> +
+> +=09if (!irq_get_trigger_type(client->irq)) {
+> +=09=09dev_warn(&client->dev,
+> +=09=09=09 "Failed to get GPIO Interrupt Assertion Level, could not enabl=
+e polling mode for %s",
+> +=09=09=09 client->name);
+> +=09=09return -1;
+> +=09}
+> +
+> +=09ihid->polling_thread =3D kthread_create(i2c_hid_polling_thread, ihid,
+> +=09=09=09=09=09      "I2C HID polling thread");
+> +
+> +=09if (ihid->polling_thread) {
 
-greg k-h
+`kthread_create()` returns an errno in a pointer, so this check is incorrec=
+t. It should be
+
+ if (!IS_ERR(ihid->polling_thread))
+
+I think it's a bit inconsistent that in this function you do:
+
+ if (err)
+   bail
+
+ if (!err)
+   return ok
+
+ return err
+
+moreover, I think the errno should be propagated, so use
+
+ return PTR_ERR(ihid->polling_thread);
+
+for example, when bailing out.
+
+
+> +=09=09pr_info("I2C HID polling thread");
+> +=09=09wake_up_process(ihid->polling_thread);
+> +=09=09return 0;
+> +=09}
+> +
+> +=09return -1;
+> +}
+> +
+> [...]
+>  #ifdef CONFIG_PM_SLEEP
+> @@ -1183,15 +1300,16 @@ static int i2c_hid_suspend(struct device *dev)
+>  =09/* Save some power */
+>  =09i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+>
+> -=09disable_irq(client->irq);
+> -
+> -=09if (device_may_wakeup(&client->dev)) {
+> -=09=09wake_status =3D enable_irq_wake(client->irq);
+> -=09=09if (!wake_status)
+> -=09=09=09ihid->irq_wake_enabled =3D true;
+> -=09=09else
+> -=09=09=09hid_warn(hid, "Failed to enable irq wake: %d\n",
+> -=09=09=09=09wake_status);
+> +=09if (polling_mode =3D=3D I2C_POLLING_DISABLED) {
+> +=09=09disable_irq(client->irq);
+> +=09=09if (device_may_wakeup(&client->dev)) {
+> +=09=09=09wake_status =3D enable_irq_wake(client->irq);
+> +=09=09=09if (!wake_status)
+> +=09=09=09=09ihid->irq_wake_enabled =3D true;
+> +=09=09=09else
+> +=09=09=09=09hid_warn(hid, "Failed to enable irq wake: %d\n",
+> +=09=09=09=09=09 wake_status);
+> +=09=09}
+>  =09} else {
+>  =09=09regulator_bulk_disable(ARRAY_SIZE(ihid->pdata.supplies),
+>  =09=09=09=09       ihid->pdata.supplies);
+> @@ -1208,7 +1326,7 @@ static int i2c_hid_resume(struct device *dev)
+>  =09struct hid_device *hid =3D ihid->hid;
+>  =09int wake_status;
+>
+> -=09if (!device_may_wakeup(&client->dev)) {
+> +=09if (!device_may_wakeup(&client->dev) || polling_mode !=3D I2C_POLLING=
+_DISABLED) {
+>  =09=09ret =3D regulator_bulk_enable(ARRAY_SIZE(ihid->pdata.supplies),
+>  =09=09=09=09=09    ihid->pdata.supplies);
+>  =09=09if (ret)
+> @@ -1225,7 +1343,8 @@ static int i2c_hid_resume(struct device *dev)
+>  =09=09=09=09wake_status);
+>  =09}
+>
+> -=09enable_irq(client->irq);
+> +=09if (polling_mode =3D=3D I2C_POLLING_DISABLED)
+> +=09=09enable_irq(client->irq);
+> [...]
+
+Before this patch, if a device cannot wake up, then the regulators are disa=
+bled
+when suspending, after this patch, regulators are only disabled if polling =
+is
+used. But they are enabled if the device cannot wake up *or* polling is use=
+d.
+
+Excuse my ignorance, but I do not understand why the following two changes =
+are not enough:
+
+in `i2c_hid_suspend()`:
+ if (polling_mode =3D=3D I2C_POLLING_DISABLED)
+   disable_irq(client->irq);
+
+in `i2c_hid_resume()`:
+ if (polling_mode =3D=3D I2C_POLLING_DISABLED)
+   enable_irq(client->irq);
+
+
+Regards,
+Barnab=C3=A1s P=C5=91cze
