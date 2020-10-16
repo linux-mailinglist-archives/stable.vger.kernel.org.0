@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F292900CE
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 005762900C0
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:11:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394999AbgJPJJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:09:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37246 "EHLO mail.kernel.org"
+        id S2405524AbgJPJIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:08:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405528AbgJPJIl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:08:41 -0400
+        id S2394896AbgJPJHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:07:36 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 206AD212CC;
-        Fri, 16 Oct 2020 09:08:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29DA120848;
+        Fri, 16 Oct 2020 09:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839310;
-        bh=JLO0QHixhiiMTy3rjrTt/63ZS9JiB5dRkm3GGdJ+i1E=;
+        s=default; t=1602839255;
+        bh=KcIEWczBuJ5XVoDH/sdmyOJrrZnoRvSFRt8CRA3yxyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dpJsBHQVtBgbOUfL+aPWg10XPjFhj7px7LQHg0vjKMeJzzApgj7Kobzwa6JLwe9ZW
-         CXQBGHNVfTVxek6IZKEq1WzTffKG+6TGmtxa/uFOMrxCzSWreJwhMhTcIGqXtjoHdG
-         2W2V8/1LxWbHx6l4xcVHYBVVl5UjoZ0OW6zIrkWI=
+        b=uHwSoE93sWCE05g1YPAwdQFiuq+Ri1QQQ9b4yi5avCi/h4ykd7i6Vv8vX8iYo2SQd
+         5pctjbmaCpGae9hmCNsEwlFmNiNAuhPm1o9HrSzD3iODHL3mb7116Ors1GCbNXQ/pC
+         GM1LnGETw1sHgUPZem2h1gbHesyujCCfpEgI+Eng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
-Subject: [PATCH 4.14 05/18] Bluetooth: Consolidate encryption handling in hci_encrypt_cfm
+        syzbot+009f546aa1370056b1c2@syzkaller.appspotmail.com,
+        Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Subject: [PATCH 4.9 11/16] staging: comedi: check validity of wMaxPacketSize of usb endpoints found
 Date:   Fri, 16 Oct 2020 11:07:15 +0200
-Message-Id: <20201016090437.542385523@linuxfoundation.org>
+Message-Id: <20201016090437.776010612@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.265805669@linuxfoundation.org>
-References: <20201016090437.265805669@linuxfoundation.org>
+In-Reply-To: <20201016090437.205626543@linuxfoundation.org>
+References: <20201016090437.205626543@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
 
-commit 3ca44c16b0dcc764b641ee4ac226909f5c421aa3 upstream.
+commit e1f13c879a7c21bd207dc6242455e8e3a1e88b40 upstream.
 
-This makes hci_encrypt_cfm calls hci_connect_cfm in case the connection
-state is BT_CONFIG so callers don't have to check the state.
+While finding usb endpoints in vmk80xx_find_usb_endpoints(), check if
+wMaxPacketSize = 0 for the endpoints found.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
+Some devices have isochronous endpoints that have wMaxPacketSize = 0
+(as required by the USB-2 spec).
+However, since this doesn't apply here, wMaxPacketSize = 0 can be
+considered to be invalid.
+
+Reported-by: syzbot+009f546aa1370056b1c2@syzkaller.appspotmail.com
+Tested-by: syzbot+009f546aa1370056b1c2@syzkaller.appspotmail.com
+Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20201010082933.5417-1-anant.thazhemadam@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/net/bluetooth/hci_core.h |   20 ++++++++++++++++++--
- net/bluetooth/hci_event.c        |   28 +++-------------------------
- 2 files changed, 21 insertions(+), 27 deletions(-)
+ drivers/staging/comedi/drivers/vmk80xx.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1252,10 +1252,26 @@ static inline void hci_auth_cfm(struct h
- 		conn->security_cfm_cb(conn, status);
+--- a/drivers/staging/comedi/drivers/vmk80xx.c
++++ b/drivers/staging/comedi/drivers/vmk80xx.c
+@@ -676,6 +676,9 @@ static int vmk80xx_find_usb_endpoints(st
+ 	if (!devpriv->ep_rx || !devpriv->ep_tx)
+ 		return -ENODEV;
+ 
++	if (!usb_endpoint_maxp(devpriv->ep_rx) || !usb_endpoint_maxp(devpriv->ep_tx))
++		return -EINVAL;
++
+ 	return 0;
  }
  
--static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status,
--								__u8 encrypt)
-+static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status)
- {
- 	struct hci_cb *cb;
-+	__u8 encrypt;
-+
-+	if (conn->state == BT_CONFIG) {
-+		if (status)
-+			conn->state = BT_CONNECTED;
-+
-+		hci_connect_cfm(conn, status);
-+		hci_conn_drop(conn);
-+		return;
-+	}
-+
-+	if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
-+		encrypt = 0x00;
-+	else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
-+		encrypt = 0x02;
-+	else
-+		encrypt = 0x01;
- 
- 	if (conn->sec_level == BT_SECURITY_SDP)
- 		conn->sec_level = BT_SECURITY_LOW;
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -2493,7 +2493,7 @@ static void hci_auth_complete_evt(struct
- 				     &cp);
- 		} else {
- 			clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
--			hci_encrypt_cfm(conn, ev->status, 0x00);
-+			hci_encrypt_cfm(conn, ev->status);
- 		}
- 	}
- 
-@@ -2579,22 +2579,7 @@ static void read_enc_key_size_complete(s
- 		conn->enc_key_size = rp->key_size;
- 	}
- 
--	if (conn->state == BT_CONFIG) {
--		conn->state = BT_CONNECTED;
--		hci_connect_cfm(conn, 0);
--		hci_conn_drop(conn);
--	} else {
--		u8 encrypt;
--
--		if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
--			encrypt = 0x00;
--		else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
--			encrypt = 0x02;
--		else
--			encrypt = 0x01;
--
--		hci_encrypt_cfm(conn, 0, encrypt);
--	}
-+	hci_encrypt_cfm(conn, 0);
- 
- unlock:
- 	hci_dev_unlock(hdev);
-@@ -2691,14 +2676,7 @@ static void hci_encrypt_change_evt(struc
- 	}
- 
- notify:
--	if (conn->state == BT_CONFIG) {
--		if (!ev->status)
--			conn->state = BT_CONNECTED;
--
--		hci_connect_cfm(conn, ev->status);
--		hci_conn_drop(conn);
--	} else
--		hci_encrypt_cfm(conn, ev->status, ev->encrypt);
-+	hci_encrypt_cfm(conn, ev->status);
- 
- unlock:
- 	hci_dev_unlock(hdev);
 
 
