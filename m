@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB83429015C
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D31E0290122
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406067AbgJPJNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:13:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41316 "EHLO mail.kernel.org"
+        id S2405921AbgJPJME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:12:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405874AbgJPJLj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:11:39 -0400
+        id S2405880AbgJPJLl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:11:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44E7C20848;
-        Fri, 16 Oct 2020 09:11:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B08E220872;
+        Fri, 16 Oct 2020 09:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839498;
-        bh=JDYK2fvaEMqe0ctZcXUeHNpGFMH5xFt6jfhJEhdIJms=;
+        s=default; t=1602839501;
+        bh=OkU+ijpoJzBxsdp/VudQKEGfE7VMXl6Vmb731poS+Is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLVbh5RtOLs4tJ1Ac12v2TLRYdgUl3bKtkzWYCM25TV+iaflXZX5Cae6TG9eo2X6/
-         JMOfRTgIxfQEEbTIDIWuv4vKs7B+GCMQ/nWkU4wUaMirLpKJjxCaHp0BBUUo3PmSGx
-         K1ShFxBQScalG3zTv8wFycv+8mUHSSRpW0SiXcXw=
+        b=sBfcPyj1kExoRg33a/q7oQFWdb4GE05LWaL4nGD8fUtNPNhjGTU0ue0JbhFgcYDRS
+         uU7ahG8Y2cNpim4jsWzBUgimCaEtif9Azmr58CnUch+skrCL0DL+3djz4mLfesN+ck
+         TZNCRYUQG3YEvePgBPlWX7x+l9Y5tG1boYmt4qfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9b33c9b118d77ff59b6f@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.9 12/15] reiserfs: Fix oops during mount
-Date:   Fri, 16 Oct 2020 11:08:14 +0200
-Message-Id: <20201016090437.772584754@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.9 13/15] Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs handlers"
+Date:   Fri, 16 Oct 2020 11:08:15 +0200
+Message-Id: <20201016090437.824053443@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201016090437.170032996@linuxfoundation.org>
 References: <20201016090437.170032996@linuxfoundation.org>
@@ -43,55 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit c2bb80b8bdd04dfe32364b78b61b6a47f717af52 upstream.
+commit 2456c290a7889be492cb96092b62d16c11176f72 upstream.
 
-With suitably crafted reiserfs image and mount command reiserfs will
-crash when trying to verify that XATTR_ROOT directory can be looked up
-in / as that recurses back to xattr code like:
+This regressed some working configurations so revert it.  Will
+fix this properly for 5.9 and backport then.
 
- xattr_lookup+0x24/0x280 fs/reiserfs/xattr.c:395
- reiserfs_xattr_get+0x89/0x540 fs/reiserfs/xattr.c:677
- reiserfs_get_acl+0x63/0x690 fs/reiserfs/xattr_acl.c:209
- get_acl+0x152/0x2e0 fs/posix_acl.c:141
- check_acl fs/namei.c:277 [inline]
- acl_permission_check fs/namei.c:309 [inline]
- generic_permission+0x2ba/0x550 fs/namei.c:353
- do_inode_permission fs/namei.c:398 [inline]
- inode_permission+0x234/0x4a0 fs/namei.c:463
- lookup_one_len+0xa6/0x200 fs/namei.c:2557
- reiserfs_lookup_privroot+0x85/0x1e0 fs/reiserfs/xattr.c:972
- reiserfs_fill_super+0x2b51/0x3240 fs/reiserfs/super.c:2176
- mount_bdev+0x24f/0x360 fs/super.c:1417
+This reverts commit 38e0c89a19fd13f28d2b4721035160a3e66e270b.
 
-Fix the problem by bailing from reiserfs_xattr_get() when xattrs are not
-yet initialized.
-
-CC: stable@vger.kernel.org
-Reported-by: syzbot+9b33c9b118d77ff59b6f@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/reiserfs/xattr.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/reiserfs/xattr.c
-+++ b/fs/reiserfs/xattr.c
-@@ -674,6 +674,13 @@ reiserfs_xattr_get(struct inode *inode,
- 	if (get_inode_sd_version(inode) == STAT_DATA_V1)
- 		return -EOPNOTSUPP;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
+@@ -796,7 +796,8 @@ static ssize_t amdgpu_set_pp_od_clk_volt
+ 		tmp_str++;
+ 	while (isspace(*++tmp_str));
  
-+	/*
-+	 * priv_root needn't be initialized during mount so allow initial
-+	 * lookups to succeed.
-+	 */
-+	if (!REISERFS_SB(inode->i_sb)->priv_root)
-+		return 0;
-+
- 	dentry = xattr_lookup(inode, name, XATTR_REPLACE);
- 	if (IS_ERR(dentry)) {
- 		err = PTR_ERR(dentry);
+-	while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
++	while (tmp_str[0]) {
++		sub_str = strsep(&tmp_str, delimiter);
+ 		ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
+ 		if (ret)
+ 			return -EINVAL;
+@@ -1066,7 +1067,8 @@ static ssize_t amdgpu_read_mask(const ch
+ 	memcpy(buf_cpy, buf, bytes);
+ 	buf_cpy[bytes] = '\0';
+ 	tmp = buf_cpy;
+-	while ((sub_str = strsep(&tmp, delimiter)) != NULL) {
++	while (tmp[0]) {
++		sub_str = strsep(&tmp, delimiter);
+ 		if (strlen(sub_str)) {
+ 			ret = kstrtol(sub_str, 0, &level);
+ 			if (ret)
+@@ -1695,7 +1697,8 @@ static ssize_t amdgpu_set_pp_power_profi
+ 			i++;
+ 		memcpy(buf_cpy, buf, count-i);
+ 		tmp_str = buf_cpy;
+-		while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
++		while (tmp_str[0]) {
++			sub_str = strsep(&tmp_str, delimiter);
+ 			ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
+ 			if (ret)
+ 				return -EINVAL;
 
 
