@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66F3828FBB5
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 01:21:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06D4B28FC18
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 02:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389122AbgJOXVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Oct 2020 19:21:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54862 "EHLO
+        id S2387801AbgJPAc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Oct 2020 20:32:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389655AbgJOXU5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Oct 2020 19:20:57 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5103C0613D3
-        for <stable@vger.kernel.org>; Thu, 15 Oct 2020 16:20:57 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id u3so343326pjr.3
-        for <stable@vger.kernel.org>; Thu, 15 Oct 2020 16:20:57 -0700 (PDT)
+        with ESMTP id S2387608AbgJPAc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Oct 2020 20:32:56 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52E9EC061755
+        for <stable@vger.kernel.org>; Thu, 15 Oct 2020 17:32:55 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id v12so287667ply.12
+        for <stable@vger.kernel.org>; Thu, 15 Oct 2020 17:32:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=qAbs3pEHPIu1VPOMoNFRCuhVhQ8ceQr0VW5VjaOlEAI=;
-        b=dXbaiWYb7AVDGrsr8MnCZRmujyJzi9DD0ZZNLT2+1jVLmV5h4OICoZhh7dRz1GPPfA
-         o4IlVJDhjfwDZSqPonAoyFxTYPOd+NJRgCqCef4voy/cxW7TxuL/FoNs6daKn6oP9fne
-         Z+5rGcPXAvaR2wpCymCvX0fn4PWOs9l7EsWHawZZ0uo7keA2op2CQMv0d9Lvt5Y7onv7
-         rx84BFGuyThUa+PMBvICNvCKzIF7k/Vp6MeBUMxG6Y32fv6OltRQkc00Sa+SFP/+1D1c
-         EB6uFM9xjoZPshrLIQFrXmnqF4xM+M/PckkL1tE1c4tYjLK+Vk+BkS58WeAPLc0t3n/s
-         tcLg==
+        bh=TYdtkTc96+riDpos3Xmbky8mWZm+apmvW6veI3gNsH4=;
+        b=rED8IIXpcgw/kBtpd1Fld1HIpO+1A8iA/pBpDDVlNCFzwCMbTDyUg9HFSg2WtwxYwt
+         iK9n48osp/WTxggIJmOXyoJGpr8woSwcEndbfuPcqUqZ3WgI3OSSe9uAOjfx07fpwjUp
+         2pDAFrMvA+VWcxKL64SBbi4EetL/uKYVOXsVMuEobqFYsoc0uZ/3qNarrWzTzqnzGrQc
+         a9iObZoLQeFEZnotBGJ3ciokvgD+ec2TfJr3+ijhpH4Lyt8RdQIMyEu9SrztWacMpbl3
+         eVye52pQe7+F0rkTehNqX7vw4rKg6edYJFBtkFtxxWknMcByefxXbqlBCXnqA00dP8Ks
+         btHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=qAbs3pEHPIu1VPOMoNFRCuhVhQ8ceQr0VW5VjaOlEAI=;
-        b=XJ5eAS8gZ+ubdm82ZthpbDR8vpdwttN/ayW4cjtKlnEOhrKaD3eS0RLYvNxyn3Hr/6
-         K54CiF/VGqDBq0VkBRv/KxxAO9TTJZgYgwWOfZHx1S0zuyitlFGir6TSNSEc2G8uD2g5
-         2dp2gUIF2er08D78S3mne4rbpyCEEDtBUaVoYYBe8ymLX3KvjyjlR3+hb56YO9Rm2Sfo
-         rzBFJcMcU2/V07S1zNekuk6X9fMIRAXhyO/cSGUEgupvmOtS1xpQUSm2+Of4ymrNz27M
-         Q9BTtnsqmGUfUv5QvErYQFkOh64xaV0aYe6hxujTfzvOMOP+C4wDjGEnwJI9zXwtf3/h
-         Qqhw==
-X-Gm-Message-State: AOAM5323VJn5V7U2nLGEmmy+X0Ai6Wa7P37XwVtor0aXTj8ywGZBkydz
-        czeTBqJrwKGDqQav97tsViktCKFDjKHr7Q==
-X-Google-Smtp-Source: ABdhPJw/J/AdA9GolPTaXabpyPZKZWTKhjBEi6rhQLMHxZgDZwFjhEPrcUP76mgTSjKxJds4dgIx2A==
-X-Received: by 2002:a17:90a:e00c:: with SMTP id u12mr1047440pjy.185.1602804056350;
-        Thu, 15 Oct 2020 16:20:56 -0700 (PDT)
+        bh=TYdtkTc96+riDpos3Xmbky8mWZm+apmvW6veI3gNsH4=;
+        b=WmadHUE/14M+IXtQou66RqHqvIHqOQDRNT+lSQO70nQOYve5J6GDx8satnvOy/MukM
+         Z/TYDn4+5iatkVpLlrvNjeZqb1F/65amO4KDV8pI2XP4847actAv2wB3i783iUytcour
+         PtJR0fKg/VJsTzb6C+JmTG5D3XPAXiUfsWWttQzHWtEiDF9fAD+UrqmnvBuRhduL1vcm
+         alh2+0es65W1LF1GL9s9YzyAtO7oXgJPWT0J6zgXQjRkRPd8GoPwMD1afncwY7sKttLQ
+         d0RLgFQkI8m8rUCwQxneoHWZWVH49nqLUSlGPPEx+1FOTlDqJumOqpSlT9ONnY+nn05v
+         r0Cg==
+X-Gm-Message-State: AOAM531fpR1HD5Fuo+wSLJA2jlaaFpbjLiMH0Smj3VEUDZahWUN0H5ff
+        gGbjuvWUfUpNA1Zp7DydD+3g69X4ZcgRNQ==
+X-Google-Smtp-Source: ABdhPJwWCLFmA+D33fjaIVV5/aMqdMhlqlGs0gQh9EVWSjEDq4xY//o+Xy//9/FhSM9IWkT+5tFB8w==
+X-Received: by 2002:a17:902:82c8:b029:d5:af76:e447 with SMTP id u8-20020a17090282c8b02900d5af76e447mr1156142plz.42.1602808374548;
+        Thu, 15 Oct 2020 17:32:54 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 9sm360648pfx.138.2020.10.15.16.20.55
+        by smtp.gmail.com with ESMTPSA id k9sm444452pfi.188.2020.10.15.17.32.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Oct 2020 16:20:55 -0700 (PDT)
-Message-ID: <5f88d957.1c69fb81.42612.11bd@mx.google.com>
-Date:   Thu, 15 Oct 2020 16:20:55 -0700 (PDT)
+        Thu, 15 Oct 2020 17:32:53 -0700 (PDT)
+Message-ID: <5f88ea35.1c69fb81.70c19.1723@mx.google.com>
+Date:   Thu, 15 Oct 2020 17:32:53 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.151
-X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v5.4.71
+X-Kernelci-Branch: linux-5.4.y
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 187 runs, 3 regressions (v4.19.151)
+Subject: stable-rc/linux-5.4.y baseline: 204 runs, 4 regressions (v5.4.71)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -64,35 +64,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 187 runs, 3 regressions (v4.19.151)
+stable-rc/linux-5.4.y baseline: 204 runs, 4 regressions (v5.4.71)
 
 Regressions Summary
 -------------------
 
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
+platform              | arch  | lab           | compiler | defconfig       =
+| results
+----------------------+-------+---------------+----------+-----------------=
++--------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+| 0/1    =
 
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 3/4    =
-
-hsdk                  | arc   | lab-baylibre | gcc-8    | hsdk_defconfig  |=
- 0/1    =
+rk3399-gru-kevin      | arm64 | lab-collabora | gcc-8    | defconfig       =
+| 85/90  =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.151/plan/baseline/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.71/plan/baseline/
 
   Test:     baseline
   Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.151
+  Branch:   linux-5.4.y
+  Describe: v5.4.71
   URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able-rc.git
-  SHA:      47f6500403ea31aa0c8e329aeee607671d0f9086 =
+  SHA:      85b0841aab15c12948af951d477183ab3df7de14 =
 
 
 
@@ -101,104 +98,70 @@ Test Regressions
 
 
 
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-at91-sama5d4_xplained | arm   | lab-baylibre | gcc-8    | sama5_defconfig |=
- 0/1    =
+platform              | arch  | lab           | compiler | defconfig       =
+| results
+----------------------+-------+---------------+----------+-----------------=
++--------
+at91-sama5d4_xplained | arm   | lab-baylibre  | gcc-8    | sama5_defconfig =
+| 0/1    =
 
 
-  Details:     https://kernelci.org/test/plan/id/5f88a0fe0fad2a3f544ff3eb
+  Details:     https://kernelci.org/test/plan/id/5f88ae22be487c76f94ff3ee
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
   Full config: sama5_defconfig
   Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-51/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-51/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.ht=
-ml
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.71/=
+arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.71/=
+arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama5d4_xplained.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
 .05-3-g27eeeac7da2d/armel/baseline/rootfs.cpio.gz =
 
 
-  * baseline.login: https://kernelci.org/test/case/id/5f88a0fe0fad2a3f544ff=
-3ec
-      failing since 121 days (last pass: v4.19.126-55-gf6c346f2d42d, first =
-fail: v4.19.126-113-gd694d4388e88)  =
+  * baseline.login: https://kernelci.org/test/case/id/5f88ae22be487c76f94ff=
+3ef
+      failing since 187 days (last pass: v5.4.30-54-g6f04e8ca5355, first fa=
+il: v5.4.30-81-gf163418797b9)  =
 
 
 
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-bcm2837-rpi-3-b       | arm64 | lab-baylibre | gcc-8    | defconfig       |=
- 3/4    =
+platform              | arch  | lab           | compiler | defconfig       =
+| results
+----------------------+-------+---------------+----------+-----------------=
++--------
+rk3399-gru-kevin      | arm64 | lab-collabora | gcc-8    | defconfig       =
+| 85/90  =
 
 
-  Details:     https://kernelci.org/test/plan/id/5f889e91d648b60b054ff401
+  Details:     https://kernelci.org/test/plan/id/5f88adc93a13af06954ff3f6
 
-  Results:     3 PASS, 1 FAIL, 0 SKIP
+  Results:     85 PASS, 5 FAIL, 0 SKIP
   Full config: defconfig
   Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-51/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-51/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.71/=
+arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.71/=
+arm64/defconfig/gcc-8/lab-collabora/baseline-rk3399-gru-kevin.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
 .05-3-g27eeeac7da2d/arm64/baseline/rootfs.cpio.gz =
 
 
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5f889e91d648b60b=
-054ff405
-      new failure (last pass: v4.19.150-50-g7457eed4b647)
-      1 lines
+  * baseline.bootrr.cros-ec-sensors-accel0-probed: https://kernelci.org/tes=
+t/case/id/5f88adc93a13af06954ff40a
+      failing since 16 days (last pass: v5.4.68-388-g8a579883a490, first fa=
+il: v5.4.68-389-g256bdd45e196) * baseline.bootrr.cros-ec-sensors-accel1-pro=
+bed: https://kernelci.org/test/case/id/5f88adc93a13af06954ff40b
+      failing since 16 days (last pass: v5.4.68-388-g8a579883a490, first fa=
+il: v5.4.68-389-g256bdd45e196)
 
-    2020-10-15 19:08:20.241000  Connected to bcm2837-rpi-3-b console [chann=
-el connected] (~$quit to exit)
-    2020-10-15 19:08:20.242000  (user:khilman) is already connected
-    2020-10-15 19:08:36.614000  =00
-    2020-10-15 19:08:36.615000  =
+    2020-10-15 20:14:57.179000  /lava-2723902/1/../bin/lava-test-case
+     * baseline.bootrr.cros-ec-sensors-gyro0-probed: https://kernelci.org/t=
+est/case/id/5f88adc93a13af06954ff40c
+      failing since 16 days (last pass: v5.4.68-388-g8a579883a490, first fa=
+il: v5.4.68-389-g256bdd45e196)
 
-    2020-10-15 19:08:36.615000  U-Boot 2018.11 (Dec 04 2018 - 10:54:32 -080=
-0)
-    2020-10-15 19:08:36.615000  =
-
-    2020-10-15 19:08:36.615000  DRAM:  948 MiB
-    2020-10-15 19:08:36.631000  RPI 3 Model B (0xa02082)
-    2020-10-15 19:08:36.717000  MMC:   mmc@7e202000: 0, sdhci@7e300000: 1
-    2020-10-15 19:08:36.750000  Loading Environment from FAT... *** Warning=
- - bad CRC, using default environment
-    ... (361 line(s) more)
-      =
-
-
-
-platform              | arch  | lab          | compiler | defconfig       |=
- results
-----------------------+-------+--------------+----------+-----------------+=
---------
-hsdk                  | arc   | lab-baylibre | gcc-8    | hsdk_defconfig  |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5f889f4ad3a0a586d24ff41a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: hsdk_defconfig
-  Compiler:    gcc-8 (arc-elf32-gcc (ARCompact/ARCv2 ISA elf32 toolchain 20=
-19.03-rc1) 8.3.1 20190225)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-51/arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-51/arc/hsdk_defconfig/gcc-8/lab-baylibre/baseline-hsdk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-3-g27eeeac7da2d/arc/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5f889f4ad3a0a586d24ff=
-41b
-      failing since 87 days (last pass: v4.19.125-93-g80718197a8a3, first f=
-ail: v4.19.133-134-g9d319b54cc24)  =20
+    2020-10-15 20:14:58.201000  /lava-2723902/1/../bin/lava-test-case
+    2020-10-15 20:14:58.210000  <8>[   22.716998] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dcros-ec-sensors-gyro0-probed RESULT=3Dfail>
+      =20
