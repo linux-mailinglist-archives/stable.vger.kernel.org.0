@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA9692900E1
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 733362900ED
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394607AbgJPJJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:09:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38860 "EHLO mail.kernel.org"
+        id S2394750AbgJPJKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:10:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395031AbgJPJJy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:09:54 -0400
+        id S2394748AbgJPJKH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:10:07 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D49321556;
-        Fri, 16 Oct 2020 09:09:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63C0020848;
+        Fri, 16 Oct 2020 09:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839390;
-        bh=2NnDuYRJyEKpyYy6WLenbOh8rwv2CzOOMaCGt0RiM9U=;
+        s=default; t=1602839406;
+        bh=/UysN2AnYmczg2KD5D8HsfKr2UsfaKckj+vtchLRbi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QorNEtgThm/TlFywvR7sINbo7jbyUWnxy824SDHqWv3FG0evrIVbZnygEeq3s4Bnf
-         suU1HYwz/1KkJMs9BNC1z8OWTnMyT5v/dAPLIrBJzMI8pHS7ETzx/+E+o9DcaHnsVA
-         7Ji5h2buQYwfQaPTcwJDoM0bNUa0o0e3tjdWBL6w=
+        b=YFC1zM0syFy1DJi0b+KZiKF13LbcK9Pm1MDjjTXQrd0a/8wQygrUnFX8rSOQ0xFc+
+         4TU/kV4lyqF6nXf9mF6mS4CADy9yN+vev4g8bgvm/SJ9CcgnWxmaR5VK/xa4I3q1yf
+         C3j/Iz4RnLjKiXZp29LPgcAOJusF4I8EKn5g1ejw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dominik Przychodni <dominik.przychodni@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 21/21] crypto: qat - check cipher length for aead AES-CBC-HMAC-SHA
-Date:   Fri, 16 Oct 2020 11:07:40 +0200
-Message-Id: <20201016090438.326241843@linuxfoundation.org>
+        Wilken Gottwalt <wilken.gottwalt@mailbox.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 13/22] USB: serial: option: add Cellient MPL200 card
+Date:   Fri, 16 Oct 2020 11:07:41 +0200
+Message-Id: <20201016090437.967321577@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.301376476@linuxfoundation.org>
-References: <20201016090437.301376476@linuxfoundation.org>
+In-Reply-To: <20201016090437.308349327@linuxfoundation.org>
+References: <20201016090437.308349327@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Przychodni <dominik.przychodni@intel.com>
+From: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
 
-commit 45cb6653b0c355fc1445a8069ba78a4ce8720511 upstream.
+commit 3e765cab8abe7f84cb80d4a7a973fc97d5742647 upstream.
 
-Return -EINVAL for authenc(hmac(sha1),cbc(aes)),
-authenc(hmac(sha256),cbc(aes)) and authenc(hmac(sha512),cbc(aes))
-if the cipher length is not multiple of the AES block.
-This is to prevent an undefined device behaviour.
+Add usb ids of the Cellient MPL200 card.
 
-Fixes: d370cec32194 ("crypto: qat - Intel(R) QAT crypto interface")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dominik Przychodni <dominik.przychodni@intel.com>
-[giovanni.cabiddu@intel.com: reworded commit message]
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Wilken Gottwalt <wilken.gottwalt@mailbox.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/3db5418fe9e516f4b290736c5a199c9796025e3c.1601715478.git.wilken.gottwalt@mailbox.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/qat/qat_common/qat_algs.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/crypto/qat/qat_common/qat_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_algs.c
-@@ -828,6 +828,11 @@ static int qat_alg_aead_dec(struct aead_
- 	struct icp_qat_fw_la_bulk_req *msg;
- 	int digst_size = crypto_aead_authsize(aead_tfm);
- 	int ret, ctr = 0;
-+	u32 cipher_len;
-+
-+	cipher_len = areq->cryptlen - digst_size;
-+	if (cipher_len % AES_BLOCK_SIZE != 0)
-+		return -EINVAL;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -528,6 +528,7 @@ static void option_instat_callback(struc
+ /* Cellient products */
+ #define CELLIENT_VENDOR_ID			0x2692
+ #define CELLIENT_PRODUCT_MEN200			0x9005
++#define CELLIENT_PRODUCT_MPL200			0x9025
  
- 	ret = qat_alg_sgl_to_bufl(ctx->inst, areq->src, areq->dst, qat_req);
- 	if (unlikely(ret))
-@@ -842,7 +847,7 @@ static int qat_alg_aead_dec(struct aead_
- 	qat_req->req.comn_mid.src_data_addr = qat_req->buf.blp;
- 	qat_req->req.comn_mid.dest_data_addr = qat_req->buf.bloutp;
- 	cipher_param = (void *)&qat_req->req.serv_specif_rqpars;
--	cipher_param->cipher_length = areq->cryptlen - digst_size;
-+	cipher_param->cipher_length = cipher_len;
- 	cipher_param->cipher_offset = areq->assoclen;
- 	memcpy(cipher_param->u.cipher_IV_array, areq->iv, AES_BLOCK_SIZE);
- 	auth_param = (void *)((uint8_t *)cipher_param + sizeof(*cipher_param));
-@@ -871,6 +876,9 @@ static int qat_alg_aead_enc(struct aead_
- 	uint8_t *iv = areq->iv;
- 	int ret, ctr = 0;
- 
-+	if (areq->cryptlen % AES_BLOCK_SIZE != 0)
-+		return -EINVAL;
-+
- 	ret = qat_alg_sgl_to_bufl(ctx->inst, areq->src, areq->dst, qat_req);
- 	if (unlikely(ret))
- 		return ret;
+ /* Hyundai Petatel Inc. products */
+ #define PETATEL_VENDOR_ID			0x1ff4
+@@ -1982,6 +1983,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_4COM2, 0xff, 0x02, 0x01) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(MEDIATEK_VENDOR_ID, MEDIATEK_PRODUCT_DC_4COM2, 0xff, 0x00, 0x00) },
+ 	{ USB_DEVICE(CELLIENT_VENDOR_ID, CELLIENT_PRODUCT_MEN200) },
++	{ USB_DEVICE(CELLIENT_VENDOR_ID, CELLIENT_PRODUCT_MPL200),
++	  .driver_info = RSVD(1) | RSVD(4) },
+ 	{ USB_DEVICE(PETATEL_VENDOR_ID, PETATEL_PRODUCT_NP10T_600A) },
+ 	{ USB_DEVICE(PETATEL_VENDOR_ID, PETATEL_PRODUCT_NP10T_600E) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(TPLINK_VENDOR_ID, TPLINK_PRODUCT_LTE, 0xff, 0x00, 0x00) },	/* TP-Link LTE Module */
 
 
