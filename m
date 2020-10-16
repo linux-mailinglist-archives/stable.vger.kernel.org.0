@@ -2,53 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E2D0290C32
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 21:22:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A29F2290C36
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 21:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393102AbgJPTWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 15:22:52 -0400
-Received: from smtp-fw-9102.amazon.com ([207.171.184.29]:11792 "EHLO
-        smtp-fw-9102.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391431AbgJPTWw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 15:22:52 -0400
+        id S2410829AbgJPT0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 15:26:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43824 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2410828AbgJPTZ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 15:25:59 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A86C061755
+        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 12:25:57 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id h4so2054969pjk.0
+        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 12:25:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1602876172; x=1634412172;
-  h=from:to:subject:date:message-id:mime-version;
-  bh=eOO+uiMOArEmzXKk3CQSFfca5OToVSD2nODS+8S4R+M=;
-  b=NyaZliVHf//3MpuluaklecK5pCMALUF6yVs964rFLdv3eY3GQEZk7fAG
-   qVQSLR78Zkuv1o9GMMttKQPE9m5aNVacUOkT53/STPBXjA8Jj3WbH2HFL
-   HHNqDqo3IlKFK7kYDlg1xwnehEzS8sBmJsMse8W9042Fu/3iL27mBjTw8
-   k=;
-X-IronPort-AV: E=Sophos;i="5.77,383,1596499200"; 
-   d="scan'208";a="85394995"
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1d-38ae4ad2.us-east-1.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-9102.sea19.amazon.com with ESMTP; 16 Oct 2020 19:22:33 +0000
-Received: from EX13MTAUEA001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
-        by email-inbound-relay-1d-38ae4ad2.us-east-1.amazon.com (Postfix) with ESMTPS id 4394DA1DAF
-        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 19:22:32 +0000 (UTC)
-Received: from EX13D37UEA004.ant.amazon.com (10.43.61.245) by
- EX13MTAUEA001.ant.amazon.com (10.43.61.82) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Fri, 16 Oct 2020 19:22:32 +0000
-Received: from EX13MTAUEA001.ant.amazon.com (10.43.61.82) by
- EX13D37UEA004.ant.amazon.com (10.43.61.245) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Fri, 16 Oct 2020 19:22:32 +0000
-Received: from dev-dsk-pboris-1f-f9682a47.us-east-1.amazon.com (10.1.57.236)
- by mail-relay.amazon.com (10.43.61.243) with Microsoft SMTP Server id
- 15.0.1497.2 via Frontend Transport; Fri, 16 Oct 2020 19:22:32 +0000
-Received: by dev-dsk-pboris-1f-f9682a47.us-east-1.amazon.com (Postfix, from userid 5360108)
-        id 48216BE25F; Fri, 16 Oct 2020 19:22:32 +0000 (UTC)
-From:   Boris Protopopov <pboris@amazon.com>
-To:     <stable@vger.kernel.org>
-Subject: [PATCH 4.9-5.8] Convert trailing spaces and periods in path components
-Date:   Fri, 16 Oct 2020 19:22:22 +0000
-Message-ID: <20201016192223.31229-1-pboris@amazon.com>
-X-Mailer: git-send-email 2.15.3.AMZN
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=OXk1jfBaMHbzQu0BqQr7WofN8pSj9l5vUka1ouSx6Wc=;
+        b=GgLiO+wxevsX71YQYXp7fxr+ivsispxIh7DFqcdnGRxSfJDAPCPhNUhIDg/vyuD0bo
+         VYNmS8+YRoxz5z0zU2lC8HKdQhqJ3Jw/bW21rEQoWJc1/gmhKHkDJ87TQZrnE8X7C2CB
+         IyvCl7dqXHv4kDczugYjPhlUVbui404ozz0io=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=OXk1jfBaMHbzQu0BqQr7WofN8pSj9l5vUka1ouSx6Wc=;
+        b=IcbaLWLJjDYdsTiMu4RZGaQE6iot7lOjJkGZ/t7m5c7tCrzOQ6lCZwYix5bG9YfDas
+         n5wOUSijoIXFqHujzRNzT7UdPpDR3q5pSHtYc8NwlBZee101PgD4gI5Tr9spgnN+9/im
+         VGjNgNqvV2WNsyYU/4jaZZsZsaFwDkkeaCgs8TSTa05HTR3Pbl2JIvDfXAgqHszlCtBa
+         jE45nwzmHBM73mjpe1UPLZWvO7ANOlBqOSDUzIKbf1DJ0ouvCV+V47+WvMMnAZjt5ncT
+         YM9Oi+ainMEZi1Y6gChFXCto+mUdDMQ8Qi4ffJHhKpJlU7Bm7D72S0zpoFQDuTIa9TkZ
+         g9oA==
+X-Gm-Message-State: AOAM531ojA4jgFIzPMBuUgoeO7Tl+XTBdYzv6hedSEYPeuN9LjnEe5cS
+        NNaWl5i66cRkv91XvCsYWDzoQA==
+X-Google-Smtp-Source: ABdhPJx94/o/V5/ZWeAagrf96SWc3/wMDS0CxIjbADfA4+9mpVLezx3y3aVEvNSFSsQoBhbJaeZDHg==
+X-Received: by 2002:a17:902:be0c:b029:d2:8ceb:f39c with SMTP id r12-20020a170902be0cb02900d28cebf39cmr5538086pls.71.1602876357089;
+        Fri, 16 Oct 2020 12:25:57 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id 78sm3661187pfz.211.2020.10.16.12.25.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Oct 2020 12:25:56 -0700 (PDT)
+Date:   Fri, 16 Oct 2020 12:25:55 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Matteo Croce <mcroce@linux.microsoft.com>
+Cc:     linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Petr Mladek <pmladek@suse.com>, Arnd Bergmann <arnd@arndb.de>,
+        Mike Rapoport <rppt@kernel.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Fabian Frederick <fabf@skynet.be>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] reboot: fix overflow parsing reboot cpu number
+Message-ID: <202010161225.393710E4@keescook>
+References: <20201016180907.171957-1-mcroce@linux.microsoft.com>
+ <20201016180907.171957-2-mcroce@linux.microsoft.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201016180907.171957-2-mcroce@linux.microsoft.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Oct 16, 2020 at 08:09:06PM +0200, Matteo Croce wrote:
+> From: Matteo Croce <mcroce@microsoft.com>
+> 
+> Limit the CPU number to num_possible_cpus(), because setting it
+> to a value lower than INT_MAX but higher than NR_CPUS produces the
+> following error on reboot and shutdown:
+> 
+>     BUG: unable to handle page fault for address: ffffffff90ab1bb0
+>     #PF: supervisor read access in kernel mode
+>     #PF: error_code(0x0000) - not-present page
+>     PGD 1c09067 P4D 1c09067 PUD 1c0a063 PMD 0
+>     Oops: 0000 [#1] SMP
+>     CPU: 1 PID: 1 Comm: systemd-shutdow Not tainted 5.9.0-rc8-kvm #110
+>     Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+>     RIP: 0010:migrate_to_reboot_cpu+0xe/0x60
+>     Code: ea ea 00 48 89 fa 48 c7 c7 30 57 f1 81 e9 fa ef ff ff 66 2e 0f 1f 84 00 00 00 00 00 53 8b 1d d5 ea ea 00 e8 14 33 fe ff 89 da <48> 0f a3 15 ea fc bd 00 48 89 d0 73 29 89 c2 c1 e8 06 65 48 8b 3c
+>     RSP: 0018:ffffc90000013e08 EFLAGS: 00010246
+>     RAX: ffff88801f0a0000 RBX: 0000000077359400 RCX: 0000000000000000
+>     RDX: 0000000077359400 RSI: 0000000000000002 RDI: ffffffff81c199e0
+>     RBP: ffffffff81c1e3c0 R08: ffff88801f41f000 R09: ffffffff81c1e348
+>     R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+>     R13: 00007f32bedf8830 R14: 00000000fee1dead R15: 0000000000000000
+>     FS:  00007f32bedf8980(0000) GS:ffff88801f480000(0000) knlGS:0000000000000000
+>     CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>     CR2: ffffffff90ab1bb0 CR3: 000000001d057000 CR4: 00000000000006a0
+>     DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>     DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>     Call Trace:
+>     __do_sys_reboot.cold+0x34/0x5b
+>     ? vfs_writev+0x92/0xc0
+>     ? do_writev+0x52/0xd0
+>     do_syscall_64+0x2d/0x40
+>     entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>     RIP: 0033:0x7f32bfaaecd3
+>     Code: 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 89 fa be 69 19 12 28 bf ad de e1 fe b8 a9 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 05 c3 0f 1f 40 00 48 8b 15 89 81 0c 00 f7 d8
+>     RSP: 002b:00007fff6265fb58 EFLAGS: 00000202 ORIG_RAX: 00000000000000a9
+>     RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f32bfaaecd3
+>     RDX: 0000000001234567 RSI: 0000000028121969 RDI: 00000000fee1dead
+>     RBP: 0000000000000000 R08: 0000000000008020 R09: 00007fff6265ef60
+>     R10: 00007f32bedf8830 R11: 0000000000000202 R12: 0000000000000000
+>     R13: 0000557bba2c51c0 R14: 0000000000000000 R15: 00007fff6265fbc8
+>     CR2: ffffffff90ab1bb0
+>     ---[ end trace b813e80157136563 ]---
+>     RIP: 0010:migrate_to_reboot_cpu+0xe/0x60
+>     Code: ea ea 00 48 89 fa 48 c7 c7 30 57 f1 81 e9 fa ef ff ff 66 2e 0f 1f 84 00 00 00 00 00 53 8b 1d d5 ea ea 00 e8 14 33 fe ff 89 da <48> 0f a3 15 ea fc bd 00 48 89 d0 73 29 89 c2 c1 e8 06 65 48 8b 3c
+>     RSP: 0018:ffffc90000013e08 EFLAGS: 00010246
+>     RAX: ffff88801f0a0000 RBX: 0000000077359400 RCX: 0000000000000000
+>     RDX: 0000000077359400 RSI: 0000000000000002 RDI: ffffffff81c199e0
+>     RBP: ffffffff81c1e3c0 R08: ffff88801f41f000 R09: ffffffff81c1e348
+>     R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+>     R13: 00007f32bedf8830 R14: 00000000fee1dead R15: 0000000000000000
+>     FS:  00007f32bedf8980(0000) GS:ffff88801f480000(0000) knlGS:0000000000000000
+>     CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>     CR2: ffffffff90ab1bb0 CR3: 000000001d057000 CR4: 00000000000006a0
+>     DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>     DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>     Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000009
+>     Kernel Offset: disabled
+>     ---[ end Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000009 ]---
+> 
+> Fixes: 1b3a5d02ee07 ("reboot: move arch/x86 reboot= handling to generic kernel")
+> Signed-off-by: Matteo Croce <mcroce@microsoft.com>
 
-Please include in multiple versions
+Reviewed-by: Kees Cook <keescook@chromium.org>
+
+-- 
+Kees Cook
