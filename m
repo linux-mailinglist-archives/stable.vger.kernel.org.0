@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56CDA28FF55
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 09:43:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D05328FF57
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 09:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404731AbgJPHmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 03:42:54 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:57379 "EHLO
+        id S2404765AbgJPHnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 03:43:03 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:44943 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2404726AbgJPHmx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 03:42:53 -0400
+        by vger.kernel.org with ESMTP id S2404681AbgJPHnD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 03:43:03 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 0C0ADF8D;
-        Fri, 16 Oct 2020 03:42:52 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id EB94FF99;
+        Fri, 16 Oct 2020 03:43:02 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Fri, 16 Oct 2020 03:42:53 -0400
+  by compute4.internal (MEProxy); Fri, 16 Oct 2020 03:43:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=32C9y2
-        50ZND9z2DL/mO170+hDP3d/iWwGyFuDV/fQXE=; b=LkhT1/1QRqoyqOLj9/2a/Q
-        Uanw0fR9iK36UNdoSx4woggRxICAICArzJkLsW4yLOWdCL62UJCcLmB7/OFh8G//
-        nqA2Rp2WEyOs/P3dZMHHgWCUYn3BsWTazsJjkejdKSQY+N+Z/sBChvhYsw7JOo/F
-        OnfFQaSZpGQVIe8KmV9F9W2b89M3MY/f6k9An533VrCf3VHPQK2yUYSaUEjHMUmo
-        A109TQ81HTPaniIxnplAtZhDU8813g0034gN/jvCuDKF1I+EBRHcfyhyUvwxanTr
-        iL9rS3qugA4+PG/2/9mWYo9amKArQW+cUpOEuaef1yzvmC04fReSgWEfv7OHteHw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=NzpUJB
+        v+1jCrBK2WrToueLJbF4swlOxGeNdI78c2L3A=; b=hPyjb0+3UFxwAhKYnSddIR
+        nH4E8Q4Cz3M9KhV2PaX9BYipbb/QD5PEWY+F0Fx8JtM2vBdEcUsIOBzEBx8XMTBL
+        yNU9Z89WsM6MFV+/P3qxH0zxiO+xOpbCrL3s51Cz+lQkQrqk93XlK2JFOKFH/NXr
+        c1sFYMYzd/Ww/a8IV16LCsAwKqmgOWQ07T5jM30/Iphslu4C0vGbI6pkE7D3Nkdx
+        vwpOKlMuZezwJR60tAiCa9WPmMcIZwssujc5vInlq4raUwft9UmCwBJtDuNJr8vj
+        5qKglJXK29E+TlOOPCzcAb0jvHdHV7tXqwRCk3ClbCrE1NGAgDJvHaf8ZGDfjY6Q
         ==
-X-ME-Sender: <xms:_E6JXyjAaN5zA1cj99kE5dkCIUP2910np5huxtKNukS31uk0Kgjnog>
-    <xme:_E6JXzDdE-ygzk5_ZlPCJPnVDaks9HL8p22zdVmbKBg8j0iDX_SyFCPEP1NhEtytU
-    C23do8AzeiFhA>
+X-ME-Sender: <xms:Bk-JX4LhArOIeMNo4Gc3vbhYaiZKhR_5LtgcsvuSPlZk2pv4PuoAHw>
+    <xme:Bk-JX4LsorZlOg3E4hCcmYvGXsBu8UNlHbAXEzF3EaZP2cgN61AUrNEs32qYPYk7k
+    d34ewOF79ctGg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedujedrieeggdduvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:_E6JX6GlztwDGRkyfbE7EfpnoqSaAuPh1Di0DC_l693XOJ9ATpWSuw>
-    <xmx:_E6JX7SXGkAaE3FsRcRJCd_HfQ5GkbNROXp2ajCwymzrF2ku2iiluw>
-    <xmx:_E6JX_wT0l1KdZnY664oVvfhcsIjwk_6VRyfTUm0EZVQJ95dbZk_Xg>
-    <xmx:_E6JXwuGpPyB7MvrbVcrZNPSp8Y5oD6mimFOzdy5WiwNJgTZQC_Xp8b4CZc>
+X-ME-Proxy: <xmx:Bk-JX4vXE9-21STszczRloBpb4REwA4VOaa-ILgeZE770YvJy7ISYA>
+    <xmx:Bk-JX1YUIVIs168LPpcYSdsZvRwEzkezNcLF2W-Eq8NrkzzI4l7PLA>
+    <xmx:Bk-JX_aw5j_lZEGD1Xh8q69Ue9niFQ8gZhQVz_2bWBo1CYMA5xuCZw>
+    <xmx:Bk-JX51tcxjvvfGE1nIj7__2mTBYSoDJ89RrWTTUxWeLPd9ArrOgz-YnKzU>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 407F0328005D;
-        Fri, 16 Oct 2020 03:42:52 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 39B6B3280059;
+        Fri, 16 Oct 2020 03:43:02 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs" failed to apply to 5.8-stable tree
 To:     alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 16 Oct 2020 09:43:24 +0200
-Message-ID: <1602834204153149@kroah.com>
+Date:   Fri, 16 Oct 2020 09:43:25 +0200
+Message-ID: <160283420587109@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.8-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
