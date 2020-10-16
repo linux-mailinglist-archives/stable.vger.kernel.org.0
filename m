@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F0F72900F1
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C030429013A
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390716AbgJPJK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:10:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39464 "EHLO mail.kernel.org"
+        id S2405800AbgJPJLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:11:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394463AbgJPJKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:10:20 -0400
+        id S2405251AbgJPJKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:10:54 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B8E22145D;
-        Fri, 16 Oct 2020 09:10:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0105320872;
+        Fri, 16 Oct 2020 09:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839419;
-        bh=nJQ3OJhP3nQvj0m1UlC0a5K7IIXWDVG71TTpX6f38ZY=;
+        s=default; t=1602839454;
+        bh=20S+Ry+wwnSQSVzsqIq4suWan8f7Ps0V3Jj1KHwM0XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tWWqEVF+diTzoEJUL7i9qqCGKzJvbI2snUqVQOiqvf3FiR8kxQGfeKojeDmfBeWLC
-         m1vTczFSxCCELEqElnHBdfyZxhHcRjrJVfiwK9rL1CvAocsaeC+7trcDn7Pe2iwXL+
-         BAc/lRs2maBfyfhXoCs5Tl3gwexSyNIF57YscMxk=
+        b=wgySe4mq2Q/JHYMNTRgMYvtVQEqTcgCLp4Jx1dUF52e6CwxiAZhgs42MHzWE73xfg
+         t6pvTrz9K9BSMqHiKKJS1AjZiaswaf6w5Ncoq/2WA2b6RmkZ1HopNTqgaMGuKxMfig
+         9ADQyegZwnzsnrsu1nCusQBKTx/Kr62/ZXpUJwgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d94d02749498bb7bab4b@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.4 18/22] reiserfs: Initialize inode keys properly
+        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.8 01/14] crypto: bcm - Verify GCM/CCM key length in setkey
 Date:   Fri, 16 Oct 2020 11:07:46 +0200
-Message-Id: <20201016090438.212147025@linuxfoundation.org>
+Message-Id: <20201016090437.230112516@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.308349327@linuxfoundation.org>
-References: <20201016090437.308349327@linuxfoundation.org>
+In-Reply-To: <20201016090437.153175229@linuxfoundation.org>
+References: <20201016090437.153175229@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,37 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 4443390e08d34d5771ab444f601cf71b3c9634a4 upstream.
+commit 10a2f0b311094ffd45463a529a410a51ca025f27 upstream.
 
-reiserfs_read_locked_inode() didn't initialize key length properly. Use
-_make_cpu_key() macro for key initialization so that all key member are
-properly initialized.
+The setkey function for GCM/CCM algorithms didn't verify the key
+length before copying the key and subtracting the salt length.
 
-CC: stable@vger.kernel.org
-Reported-by: syzbot+d94d02749498bb7bab4b@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+This patch delays the copying of the key til after the verification
+has been done.  It also adds checks on the key length to ensure
+that it's at least as long as the salt.
+
+Fixes: 9d12ba86f818 ("crypto: brcm - Add Broadcom SPU driver")
+Cc: <stable@vger.kernel.org>
+Reported-by: kiyin(尹亮) <kiyin@tencent.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/reiserfs/inode.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/crypto/bcm/cipher.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/fs/reiserfs/inode.c
-+++ b/fs/reiserfs/inode.c
-@@ -1553,11 +1553,7 @@ void reiserfs_read_locked_inode(struct i
- 	 * set version 1, version 2 could be used too, because stat data
- 	 * key is the same in both versions
- 	 */
--	key.version = KEY_FORMAT_3_5;
--	key.on_disk_key.k_dir_id = dirino;
--	key.on_disk_key.k_objectid = inode->i_ino;
--	key.on_disk_key.k_offset = 0;
--	key.on_disk_key.k_type = 0;
-+	_make_cpu_key(&key, KEY_FORMAT_3_5, dirino, inode->i_ino, 0, 0, 3);
+--- a/drivers/crypto/bcm/cipher.c
++++ b/drivers/crypto/bcm/cipher.c
+@@ -2930,7 +2930,6 @@ static int aead_gcm_ccm_setkey(struct cr
  
- 	/* look for the object's stat data */
- 	retval = search_item(inode->i_sb, &key, &path_to_sd);
+ 	ctx->enckeylen = keylen;
+ 	ctx->authkeylen = 0;
+-	memcpy(ctx->enckey, key, ctx->enckeylen);
+ 
+ 	switch (ctx->enckeylen) {
+ 	case AES_KEYSIZE_128:
+@@ -2946,6 +2945,8 @@ static int aead_gcm_ccm_setkey(struct cr
+ 		goto badkey;
+ 	}
+ 
++	memcpy(ctx->enckey, key, ctx->enckeylen);
++
+ 	flow_log("  enckeylen:%u authkeylen:%u\n", ctx->enckeylen,
+ 		 ctx->authkeylen);
+ 	flow_dump("  enc: ", ctx->enckey, ctx->enckeylen);
+@@ -3000,6 +3001,10 @@ static int aead_gcm_esp_setkey(struct cr
+ 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < GCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len = GCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset = GCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
+@@ -3028,6 +3033,10 @@ static int rfc4543_gcm_esp_setkey(struct
+ 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < GCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len = GCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset = GCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
+@@ -3057,6 +3066,10 @@ static int aead_ccm_esp_setkey(struct cr
+ 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < CCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len = CCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset = CCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - CCM_ESP_SALT_SIZE, CCM_ESP_SALT_SIZE);
 
 
