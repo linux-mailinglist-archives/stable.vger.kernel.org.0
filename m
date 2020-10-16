@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D1E2900BF
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:11:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66682901A1
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405527AbgJPJIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:08:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35850 "EHLO mail.kernel.org"
+        id S2406345AbgJPJQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:16:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394266AbgJPJHd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:07:33 -0400
+        id S2405531AbgJPJIl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:08:41 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B996320789;
-        Fri, 16 Oct 2020 09:07:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FAC320789;
+        Fri, 16 Oct 2020 09:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839253;
-        bh=NorBG2TeowhGPmzQJ3vEEn3CsRxigg/CdmoZBOiYtRc=;
+        s=default; t=1602839308;
+        bh=zCbt4TgR/cSSoDbtAoAQDZcRmZDurmgTE2G7/PcMsGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QHA8lpRUT3uVvNjg8+zFQCwr2ztX+F2yDUU0ZnFT6ppsIAwnt9dtp5PkFYwmRzU/6
-         FiWC91ZcEijOPLBkCcLJRDOTncNUwr2bvZA9TyVEcVg5DM6rgMusOYiU2GPLl6nKJF
-         pUL01K7LpM6lIFVNrDJ1NGCS5H5I/SMP1ydZLFwA=
+        b=JCgD6CszeXqdkEcLkuEAul6nKO40p3SSYWyqt1puhUJqfhr3iLHiQFEwLwwXImhxP
+         oilwkMnOJ96Oejli1aDCK4bz1lE6j3KO0jwGhtpRC8/w1ZK8O8vfl1wqRmctPqRrDu
+         ESdWlqrsg1RQNrvCcGwVZSlL5R19XXXfWVRoZd3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonid Bloch <lb.workbox@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 10/16] USB: serial: option: Add Telit FT980-KS composition
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.14 04/18] Bluetooth: MGMT: Fix not checking if BT_HS is enabled
 Date:   Fri, 16 Oct 2020 11:07:14 +0200
-Message-Id: <20201016090437.729228276@linuxfoundation.org>
+Message-Id: <20201016090437.492139590@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.205626543@linuxfoundation.org>
-References: <20201016090437.205626543@linuxfoundation.org>
+In-Reply-To: <20201016090437.265805669@linuxfoundation.org>
+References: <20201016090437.265805669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leonid Bloch <lb.workbox@gmail.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 924a9213358fb92fa3c3225d6d042aa058167405 upstream.
+commit b560a208cda0297fef6ff85bbfd58a8f0a52a543 upstream.
 
-This commit adds the following Telit FT980-KS composition:
+This checks if BT_HS is enabled relecting it on MGMT_SETTING_HS instead
+of always reporting it as supported.
 
-0x1054: rndis, diag, adb, nmea, modem, modem, aux
-
-AT commands can be sent to /dev/ttyUSB2.
-
-Signed-off-by: Leonid Bloch <lb.workbox@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/ce86bc05-f4e2-b199-0cdc-792715e3f275@asocscloud.com
-Link: https://lore.kernel.org/r/20201004155813.2342-1-lb.workbox@gmail.com
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/bluetooth/mgmt.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1172,6 +1172,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1053, 0xff),	/* Telit FN980 (ECM) */
- 	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1054, 0xff),	/* Telit FT980-KS */
-+	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -635,7 +635,8 @@ static u32 get_supported_settings(struct
+ 
+ 		if (lmp_ssp_capable(hdev)) {
+ 			settings |= MGMT_SETTING_SSP;
+-			settings |= MGMT_SETTING_HS;
++			if (IS_ENABLED(CONFIG_BT_HS))
++				settings |= MGMT_SETTING_HS;
+ 		}
+ 
+ 		if (lmp_sc_capable(hdev))
+@@ -1645,6 +1646,10 @@ static int set_hs(struct sock *sk, struc
+ 
+ 	BT_DBG("request for %s", hdev->name);
+ 
++	if (!IS_ENABLED(CONFIG_BT_HS))
++		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS,
++				       MGMT_STATUS_NOT_SUPPORTED);
++
+ 	status = mgmt_bredr_support(hdev);
+ 	if (status)
+ 		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS, status);
 
 
