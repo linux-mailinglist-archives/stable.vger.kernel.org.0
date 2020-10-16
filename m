@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D31E0290122
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DD1C290123
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405921AbgJPJME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2405448AbgJPJME (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 16 Oct 2020 05:12:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41372 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405880AbgJPJLl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:11:41 -0400
+        id S2405384AbgJPJLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:11:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B08E220872;
-        Fri, 16 Oct 2020 09:11:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 221B520EDD;
+        Fri, 16 Oct 2020 09:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839501;
-        bh=OkU+ijpoJzBxsdp/VudQKEGfE7VMXl6Vmb731poS+Is=;
+        s=default; t=1602839503;
+        bh=20S+Ry+wwnSQSVzsqIq4suWan8f7Ps0V3Jj1KHwM0XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBfcPyj1kExoRg33a/q7oQFWdb4GE05LWaL4nGD8fUtNPNhjGTU0ue0JbhFgcYDRS
-         uU7ahG8Y2cNpim4jsWzBUgimCaEtif9Azmr58CnUch+skrCL0DL+3djz4mLfesN+ck
-         TZNCRYUQG3YEvePgBPlWX7x+l9Y5tG1boYmt4qfs=
+        b=Jng2ZM48+/q88UCyAnNhTKAQJUiFA1K6hkB7FD/ktR5xZe5MPpjoVQeRxbTlVdFjV
+         RX+YBRT5lXup0CQSKPL8AyxYJZLq1eikF6rKVDrLT8/4XqwecJA2M/6oGN9/Xhl8u6
+         G/r/T3WCqB0FES8gDO8HH0wlNyo0aTonr1LU9ADc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.9 13/15] Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs handlers"
-Date:   Fri, 16 Oct 2020 11:08:15 +0200
-Message-Id: <20201016090437.824053443@linuxfoundation.org>
+        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.9 14/15] crypto: bcm - Verify GCM/CCM key length in setkey
+Date:   Fri, 16 Oct 2020 11:08:16 +0200
+Message-Id: <20201016090437.872816378@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201016090437.170032996@linuxfoundation.org>
 References: <20201016090437.170032996@linuxfoundation.org>
@@ -41,54 +42,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 2456c290a7889be492cb96092b62d16c11176f72 upstream.
+commit 10a2f0b311094ffd45463a529a410a51ca025f27 upstream.
 
-This regressed some working configurations so revert it.  Will
-fix this properly for 5.9 and backport then.
+The setkey function for GCM/CCM algorithms didn't verify the key
+length before copying the key and subtracting the salt length.
 
-This reverts commit 38e0c89a19fd13f28d2b4721035160a3e66e270b.
+This patch delays the copying of the key til after the verification
+has been done.  It also adds checks on the key length to ensure
+that it's at least as long as the salt.
 
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 9d12ba86f818 ("crypto: brcm - Add Broadcom SPU driver")
+Cc: <stable@vger.kernel.org>
+Reported-by: kiyin(尹亮) <kiyin@tencent.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/crypto/bcm/cipher.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-@@ -796,7 +796,8 @@ static ssize_t amdgpu_set_pp_od_clk_volt
- 		tmp_str++;
- 	while (isspace(*++tmp_str));
+--- a/drivers/crypto/bcm/cipher.c
++++ b/drivers/crypto/bcm/cipher.c
+@@ -2930,7 +2930,6 @@ static int aead_gcm_ccm_setkey(struct cr
  
--	while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
-+	while (tmp_str[0]) {
-+		sub_str = strsep(&tmp_str, delimiter);
- 		ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
- 		if (ret)
- 			return -EINVAL;
-@@ -1066,7 +1067,8 @@ static ssize_t amdgpu_read_mask(const ch
- 	memcpy(buf_cpy, buf, bytes);
- 	buf_cpy[bytes] = '\0';
- 	tmp = buf_cpy;
--	while ((sub_str = strsep(&tmp, delimiter)) != NULL) {
-+	while (tmp[0]) {
-+		sub_str = strsep(&tmp, delimiter);
- 		if (strlen(sub_str)) {
- 			ret = kstrtol(sub_str, 0, &level);
- 			if (ret)
-@@ -1695,7 +1697,8 @@ static ssize_t amdgpu_set_pp_power_profi
- 			i++;
- 		memcpy(buf_cpy, buf, count-i);
- 		tmp_str = buf_cpy;
--		while ((sub_str = strsep(&tmp_str, delimiter)) != NULL) {
-+		while (tmp_str[0]) {
-+			sub_str = strsep(&tmp_str, delimiter);
- 			ret = kstrtol(sub_str, 0, &parameter[parameter_size]);
- 			if (ret)
- 				return -EINVAL;
+ 	ctx->enckeylen = keylen;
+ 	ctx->authkeylen = 0;
+-	memcpy(ctx->enckey, key, ctx->enckeylen);
+ 
+ 	switch (ctx->enckeylen) {
+ 	case AES_KEYSIZE_128:
+@@ -2946,6 +2945,8 @@ static int aead_gcm_ccm_setkey(struct cr
+ 		goto badkey;
+ 	}
+ 
++	memcpy(ctx->enckey, key, ctx->enckeylen);
++
+ 	flow_log("  enckeylen:%u authkeylen:%u\n", ctx->enckeylen,
+ 		 ctx->authkeylen);
+ 	flow_dump("  enc: ", ctx->enckey, ctx->enckeylen);
+@@ -3000,6 +3001,10 @@ static int aead_gcm_esp_setkey(struct cr
+ 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < GCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len = GCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset = GCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
+@@ -3028,6 +3033,10 @@ static int rfc4543_gcm_esp_setkey(struct
+ 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < GCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len = GCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset = GCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
+@@ -3057,6 +3066,10 @@ static int aead_ccm_esp_setkey(struct cr
+ 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 
+ 	flow_log("%s\n", __func__);
++
++	if (keylen < CCM_ESP_SALT_SIZE)
++		return -EINVAL;
++
+ 	ctx->salt_len = CCM_ESP_SALT_SIZE;
+ 	ctx->salt_offset = CCM_ESP_SALT_OFFSET;
+ 	memcpy(ctx->salt, key + keylen - CCM_ESP_SALT_SIZE, CCM_ESP_SALT_SIZE);
 
 
