@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A152290137
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FFCE2900E8
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405232AbgJPJJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:09:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38862 "EHLO mail.kernel.org"
+        id S2405627AbgJPJKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:10:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395032AbgJPJJy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:09:54 -0400
+        id S2405620AbgJPJKD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:10:03 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4D43214DB;
-        Fri, 16 Oct 2020 09:09:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AAA320872;
+        Fri, 16 Oct 2020 09:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839388;
-        bh=TLoZ2nW9uMFbkOVndOKF9Zt4XwRdMfYEvC7zkoU2E3A=;
+        s=default; t=1602839402;
+        bh=4ntB1gEHhJdBVmJmMHb+zLssQ3EvXaOGm5292pNrwK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSq/4fG9N6MhnX3B/cvnKQOXcX4q21MpvK5sU8ZPKygyShqPtQ7JLChUX+6Ls6by3
-         N02ws4cB4x6KREXxu3xjcnMf8YfURKIN7eI6MN53AuD0dgwwZRoR8xos0KEzDv2G2k
-         csSJqe4NE129Qg3x4hUWwxamvvGtYzZbYVT537h0=
+        b=edxyNuHyiy6PqAs63zCyqX4JJstwFtRQdPKC8frKjlSQlV0Acf/vQ9VxYhA/43g0W
+         fa6SLUEl373N8WjnhLXipSjarXQ3uSUAPh1i55Zk+Dg7mZAyYdwSUbT8e8GRNfSopW
+         AHQyMN2zHsZA0AeIT/2CbjMVIaz/Dxlp4kAWqZSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, =?UTF-8?q?kiyin ?= <kiyin@tencent.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 20/21] crypto: bcm - Verify GCM/CCM key length in setkey
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
+Subject: [PATCH 5.4 11/22] Bluetooth: Disconnect if E0 is used for Level 4
 Date:   Fri, 16 Oct 2020 11:07:39 +0200
-Message-Id: <20201016090438.277251906@linuxfoundation.org>
+Message-Id: <20201016090437.876092930@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.301376476@linuxfoundation.org>
-References: <20201016090437.301376476@linuxfoundation.org>
+In-Reply-To: <20201016090437.308349327@linuxfoundation.org>
+References: <20201016090437.308349327@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,78 +44,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 10a2f0b311094ffd45463a529a410a51ca025f27 upstream.
+commit 8746f135bb01872ff412d408ea1aa9ebd328c1f5 upstream.
 
-The setkey function for GCM/CCM algorithms didn't verify the key
-length before copying the key and subtracting the salt length.
+E0 is not allowed with Level 4:
 
-This patch delays the copying of the key til after the verification
-has been done.  It also adds checks on the key length to ensure
-that it's at least as long as the salt.
+BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C page 1319:
 
-Fixes: 9d12ba86f818 ("crypto: brcm - Add Broadcom SPU driver")
-Cc: <stable@vger.kernel.org>
-Reported-by: kiyin(尹亮) <kiyin@tencent.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+  '128-bit equivalent strength for link and encryption keys
+   required using FIPS approved algorithms (E0 not allowed,
+   SAFER+ not allowed, and P-192 not allowed; encryption key
+   not shortened'
+
+SC enabled:
+
+> HCI Event: Read Remote Extended Features (0x23) plen 13
+        Status: Success (0x00)
+        Handle: 256
+        Page: 1/2
+        Features: 0x0b 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+          Secure Simple Pairing (Host Support)
+          LE Supported (Host)
+          Secure Connections (Host Support)
+> HCI Event: Encryption Change (0x08) plen 4
+        Status: Success (0x00)
+        Handle: 256
+        Encryption: Enabled with AES-CCM (0x02)
+
+SC disabled:
+
+> HCI Event: Read Remote Extended Features (0x23) plen 13
+        Status: Success (0x00)
+        Handle: 256
+        Page: 1/2
+        Features: 0x03 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+          Secure Simple Pairing (Host Support)
+          LE Supported (Host)
+> HCI Event: Encryption Change (0x08) plen 4
+        Status: Success (0x00)
+        Handle: 256
+        Encryption: Enabled with E0 (0x01)
+[May 8 20:23] Bluetooth: hci0: Invalid security: expect AES but E0 was used
+< HCI Command: Disconnect (0x01|0x0006) plen 3
+        Handle: 256
+        Reason: Authentication Failure (0x05)
+
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/bcm/cipher.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ include/net/bluetooth/hci_core.h |   10 ++++++----
+ net/bluetooth/hci_conn.c         |   17 +++++++++++++++++
+ net/bluetooth/hci_event.c        |   20 ++++++++------------
+ 3 files changed, 31 insertions(+), 16 deletions(-)
 
---- a/drivers/crypto/bcm/cipher.c
-+++ b/drivers/crypto/bcm/cipher.c
-@@ -2980,7 +2980,6 @@ static int aead_gcm_ccm_setkey(struct cr
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -1329,11 +1329,13 @@ static inline void hci_encrypt_cfm(struc
+ 	else
+ 		encrypt = 0x01;
  
- 	ctx->enckeylen = keylen;
- 	ctx->authkeylen = 0;
--	memcpy(ctx->enckey, key, ctx->enckeylen);
+-	if (conn->sec_level == BT_SECURITY_SDP)
+-		conn->sec_level = BT_SECURITY_LOW;
++	if (!status) {
++		if (conn->sec_level == BT_SECURITY_SDP)
++			conn->sec_level = BT_SECURITY_LOW;
  
- 	switch (ctx->enckeylen) {
- 	case AES_KEYSIZE_128:
-@@ -2996,6 +2995,8 @@ static int aead_gcm_ccm_setkey(struct cr
- 		goto badkey;
+-	if (conn->pending_sec_level > conn->sec_level)
+-		conn->sec_level = conn->pending_sec_level;
++		if (conn->pending_sec_level > conn->sec_level)
++			conn->sec_level = conn->pending_sec_level;
++	}
+ 
+ 	mutex_lock(&hci_cb_list_lock);
+ 	list_for_each_entry(cb, &hci_cb_list, list) {
+--- a/net/bluetooth/hci_conn.c
++++ b/net/bluetooth/hci_conn.c
+@@ -1285,6 +1285,23 @@ int hci_conn_check_link_mode(struct hci_
+ 			return 0;
  	}
  
-+	memcpy(ctx->enckey, key, ctx->enckeylen);
++	 /* AES encryption is required for Level 4:
++	  *
++	  * BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C
++	  * page 1319:
++	  *
++	  * 128-bit equivalent strength for link and encryption keys
++	  * required using FIPS approved algorithms (E0 not allowed,
++	  * SAFER+ not allowed, and P-192 not allowed; encryption key
++	  * not shortened)
++	  */
++	if (conn->sec_level == BT_SECURITY_FIPS &&
++	    !test_bit(HCI_CONN_AES_CCM, &conn->flags)) {
++		bt_dev_err(conn->hdev,
++			   "Invalid security: Missing AES-CCM usage");
++		return 0;
++	}
 +
- 	flow_log("  enckeylen:%u authkeylen:%u\n", ctx->enckeylen,
- 		 ctx->authkeylen);
- 	flow_dump("  enc: ", ctx->enckey, ctx->enckeylen);
-@@ -3056,6 +3057,10 @@ static int aead_gcm_esp_setkey(struct cr
- 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 	if (hci_conn_ssp_enabled(conn) &&
+ 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
+ 		return 0;
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -2974,26 +2974,22 @@ static void hci_encrypt_change_evt(struc
  
- 	flow_log("%s\n", __func__);
-+
-+	if (keylen < GCM_ESP_SALT_SIZE)
-+		return -EINVAL;
-+
- 	ctx->salt_len = GCM_ESP_SALT_SIZE;
- 	ctx->salt_offset = GCM_ESP_SALT_OFFSET;
- 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
-@@ -3084,6 +3089,10 @@ static int rfc4543_gcm_esp_setkey(struct
- 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 	clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
  
- 	flow_log("%s\n", __func__);
++	/* Check link security requirements are met */
++	if (!hci_conn_check_link_mode(conn))
++		ev->status = HCI_ERROR_AUTH_FAILURE;
 +
-+	if (keylen < GCM_ESP_SALT_SIZE)
-+		return -EINVAL;
-+
- 	ctx->salt_len = GCM_ESP_SALT_SIZE;
- 	ctx->salt_offset = GCM_ESP_SALT_OFFSET;
- 	memcpy(ctx->salt, key + keylen - GCM_ESP_SALT_SIZE, GCM_ESP_SALT_SIZE);
-@@ -3113,6 +3122,10 @@ static int aead_ccm_esp_setkey(struct cr
- 	struct iproc_ctx_s *ctx = crypto_aead_ctx(cipher);
+ 	if (ev->status && conn->state == BT_CONNECTED) {
+ 		if (ev->status == HCI_ERROR_PIN_OR_KEY_MISSING)
+ 			set_bit(HCI_CONN_AUTH_FAILURE, &conn->flags);
  
- 	flow_log("%s\n", __func__);
-+
-+	if (keylen < CCM_ESP_SALT_SIZE)
-+		return -EINVAL;
-+
- 	ctx->salt_len = CCM_ESP_SALT_SIZE;
- 	ctx->salt_offset = CCM_ESP_SALT_OFFSET;
- 	memcpy(ctx->salt, key + keylen - CCM_ESP_SALT_SIZE, CCM_ESP_SALT_SIZE);
++		/* Notify upper layers so they can cleanup before
++		 * disconnecting.
++		 */
++		hci_encrypt_cfm(conn, ev->status);
+ 		hci_disconnect(conn, HCI_ERROR_AUTH_FAILURE);
+ 		hci_conn_drop(conn);
+ 		goto unlock;
+ 	}
+-
+-	/* In Secure Connections Only mode, do not allow any connections
+-	 * that are not encrypted with AES-CCM using a P-256 authenticated
+-	 * combination key.
+-	 */
+-	if (hci_dev_test_flag(hdev, HCI_SC_ONLY) &&
+-	    (!test_bit(HCI_CONN_AES_CCM, &conn->flags) ||
+-	     conn->key_type != HCI_LK_AUTH_COMBINATION_P256)) {
+-		hci_connect_cfm(conn, HCI_ERROR_AUTH_FAILURE);
+-		hci_conn_drop(conn);
+-		goto unlock;
+-	}
+ 
+ 	/* Try reading the encryption key size for encrypted ACL links */
+ 	if (!ev->status && ev->encrypt && conn->type == ACL_LINK) {
 
 
