@@ -2,146 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B770290182
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1CF1290145
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405568AbgJPJPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:15:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38146 "EHLO mail.kernel.org"
+        id S2406023AbgJPJMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:12:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405087AbgJPJJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:09:27 -0400
+        id S2405718AbgJPJKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:10:52 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCABC20848;
-        Fri, 16 Oct 2020 09:09:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8648920789;
+        Fri, 16 Oct 2020 09:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839366;
-        bh=60IszBw0AHzpThHVxQE6yYPaMEkQ7WNMgWk/4ICWN3g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTwfXxzo/5pdrQgD5fb3R3SxSXRuWJQZl0b85Q97TXZJ0SrdLxnOwzrfaeXuoG2iZ
-         Vn/qcg5S63YRl8/gW4fyWy9kdjjB3IUHSyGSy/qk6ceXRMsR5ubuAqUFkqahw3vTvG
-         gHLduIPmu9Kq+si3ykwqPZ6Q+g0AzBhb85wq/Jk0=
+        s=default; t=1602839452;
+        bh=JFyOXKDOIbqBQMtaGD/NrFmApPbxEXmHHPyMRhM6wLE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=af6+W33tajcowylm/lOEASMVH1jxwrSsukvxA7KkZB1MHIqJc6VcPnoACO97kbCgm
+         bovEQgGLtlSTAerTZLCXybxNzUoweJUHHnZSDx1ha2r5KFT2L4fB8n88QfkOClrDrN
+         B7NbSFUhNrcCmMV6B8wGUnjWtbYSUSXlMikEBAQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
-Subject: [PATCH 4.19 08/21] Bluetooth: Consolidate encryption handling in hci_encrypt_cfm
-Date:   Fri, 16 Oct 2020 11:07:27 +0200
-Message-Id: <20201016090437.716750153@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/22] 5.4.72-rc1 review
+Date:   Fri, 16 Oct 2020 11:07:28 +0200
+Message-Id: <20201016090437.308349327@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.301376476@linuxfoundation.org>
-References: <20201016090437.301376476@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.4.72-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.72-rc1
+X-KernelTest-Deadline: 2020-10-18T09:04+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+This is the start of the stable review cycle for the 5.4.72 release.
+There are 22 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 3ca44c16b0dcc764b641ee4ac226909f5c421aa3 upstream.
+Responses should be made by Sun, 18 Oct 2020 09:04:25 +0000.
+Anything received after that time might be too late.
 
-This makes hci_encrypt_cfm calls hci_connect_cfm in case the connection
-state is BT_CONFIG so callers don't have to check the state.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.72-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+thanks,
 
----
- include/net/bluetooth/hci_core.h |   20 ++++++++++++++++++--
- net/bluetooth/hci_event.c        |   28 +++-------------------------
- 2 files changed, 21 insertions(+), 27 deletions(-)
+greg k-h
 
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1287,10 +1287,26 @@ static inline void hci_auth_cfm(struct h
- 		conn->security_cfm_cb(conn, status);
- }
- 
--static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status,
--								__u8 encrypt)
-+static inline void hci_encrypt_cfm(struct hci_conn *conn, __u8 status)
- {
- 	struct hci_cb *cb;
-+	__u8 encrypt;
-+
-+	if (conn->state == BT_CONFIG) {
-+		if (status)
-+			conn->state = BT_CONNECTED;
-+
-+		hci_connect_cfm(conn, status);
-+		hci_conn_drop(conn);
-+		return;
-+	}
-+
-+	if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
-+		encrypt = 0x00;
-+	else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
-+		encrypt = 0x02;
-+	else
-+		encrypt = 0x01;
- 
- 	if (conn->sec_level == BT_SECURITY_SDP)
- 		conn->sec_level = BT_SECURITY_LOW;
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -2756,7 +2756,7 @@ static void hci_auth_complete_evt(struct
- 				     &cp);
- 		} else {
- 			clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
--			hci_encrypt_cfm(conn, ev->status, 0x00);
-+			hci_encrypt_cfm(conn, ev->status);
- 		}
- 	}
- 
-@@ -2841,22 +2841,7 @@ static void read_enc_key_size_complete(s
- 		conn->enc_key_size = rp->key_size;
- 	}
- 
--	if (conn->state == BT_CONFIG) {
--		conn->state = BT_CONNECTED;
--		hci_connect_cfm(conn, 0);
--		hci_conn_drop(conn);
--	} else {
--		u8 encrypt;
--
--		if (!test_bit(HCI_CONN_ENCRYPT, &conn->flags))
--			encrypt = 0x00;
--		else if (test_bit(HCI_CONN_AES_CCM, &conn->flags))
--			encrypt = 0x02;
--		else
--			encrypt = 0x01;
--
--		hci_encrypt_cfm(conn, 0, encrypt);
--	}
-+	hci_encrypt_cfm(conn, 0);
- 
- unlock:
- 	hci_dev_unlock(hdev);
-@@ -2955,14 +2940,7 @@ static void hci_encrypt_change_evt(struc
- 	}
- 
- notify:
--	if (conn->state == BT_CONFIG) {
--		if (!ev->status)
--			conn->state = BT_CONNECTED;
--
--		hci_connect_cfm(conn, ev->status);
--		hci_conn_drop(conn);
--	} else
--		hci_encrypt_cfm(conn, ev->status, ev->encrypt);
-+	hci_encrypt_cfm(conn, ev->status);
- 
- unlock:
- 	hci_dev_unlock(hdev);
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.72-rc1
+
+Dominik Przychodni <dominik.przychodni@intel.com>
+    crypto: qat - check cipher length for aead AES-CBC-HMAC-SHA
+
+Herbert Xu <herbert@gondor.apana.org.au>
+    crypto: bcm - Verify GCM/CCM key length in setkey
+
+Juergen Gross <jgross@suse.com>
+    xen/events: don't use chip_data for legacy IRQs
+
+Jan Kara <jack@suse.cz>
+    reiserfs: Fix oops during mount
+
+Jan Kara <jack@suse.cz>
+    reiserfs: Initialize inode keys properly
+
+Mychaela N. Falconia <falcon@freecalypso.org>
+    USB: serial: ftdi_sio: add support for FreeCalypso JTAG+UART adapters
+
+Scott Chen <scott@labau.com.tw>
+    USB: serial: pl2303: add device-id for HP GC device
+
+Anant Thazhemadam <anant.thazhemadam@gmail.com>
+    staging: comedi: check validity of wMaxPacketSize of usb endpoints found
+
+Leonid Bloch <lb.workbox@gmail.com>
+    USB: serial: option: Add Telit FT980-KS composition
+
+Wilken Gottwalt <wilken.gottwalt@mailbox.org>
+    USB: serial: option: add Cellient MPL200 card
+
+Oliver Neukum <oneukum@suse.com>
+    media: usbtv: Fix refcounting mixup
+
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: Disconnect if E0 is used for Level 4
+
+Patrick Steinhardt <ps@pks.im>
+    Bluetooth: Fix update of connection state in `hci_encrypt_cfm`
+
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: Consolidate encryption handling in hci_encrypt_cfm
+
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: MGMT: Fix not checking if BT_HS is enabled
+
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: L2CAP: Fix calling sk_filter on non-socket based channel
+
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: A2MP: Fix not initializing all members
+
+Arjan van de Ven <arjan@linux.intel.com>
+    ACPI: Always build evged in
+
+Dmitry Golovin <dima@golovin.in>
+    ARM: 8939/1: kbuild: use correct nm executable
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: take overcommit into account in inc_block_group_ro
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: don't pass system_chunk into can_overcommit
+
+Leo Yan <leo.yan@linaro.org>
+    perf cs-etm: Move definition of 'traceid_list' global variable from header file
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                 |  4 +--
+ arch/arm/boot/compressed/Makefile        |  4 +--
+ drivers/acpi/Makefile                    |  2 +-
+ drivers/crypto/bcm/cipher.c              | 15 +++++++++-
+ drivers/crypto/qat/qat_common/qat_algs.c | 10 ++++++-
+ drivers/media/usb/usbtv/usbtv-core.c     |  3 +-
+ drivers/staging/comedi/drivers/vmk80xx.c |  3 ++
+ drivers/usb/serial/ftdi_sio.c            |  5 ++++
+ drivers/usb/serial/ftdi_sio_ids.h        |  7 +++++
+ drivers/usb/serial/option.c              |  5 ++++
+ drivers/usb/serial/pl2303.c              |  1 +
+ drivers/usb/serial/pl2303.h              |  1 +
+ drivers/xen/events/events_base.c         | 29 +++++++++++++-----
+ fs/btrfs/block-group.c                   | 38 ++++++++++++++++--------
+ fs/btrfs/space-info.c                    | 50 +++++++++++++-------------------
+ fs/btrfs/space-info.h                    |  3 ++
+ fs/reiserfs/inode.c                      |  6 +---
+ fs/reiserfs/xattr.c                      |  7 +++++
+ include/net/bluetooth/hci_core.h         | 30 +++++++++++++++----
+ include/net/bluetooth/l2cap.h            |  2 ++
+ net/bluetooth/a2mp.c                     | 22 +++++++++++++-
+ net/bluetooth/hci_conn.c                 | 17 +++++++++++
+ net/bluetooth/hci_event.c                | 48 +++++++-----------------------
+ net/bluetooth/l2cap_core.c               |  7 +++--
+ net/bluetooth/l2cap_sock.c               | 14 +++++++++
+ net/bluetooth/mgmt.c                     |  7 ++++-
+ tools/perf/util/cs-etm.c                 |  3 ++
+ tools/perf/util/cs-etm.h                 |  3 --
+ 28 files changed, 232 insertions(+), 114 deletions(-)
 
 
