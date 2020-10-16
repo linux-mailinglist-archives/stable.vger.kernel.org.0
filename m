@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2AAA290126
+	by mail.lfdr.de (Postfix) with ESMTP id 33F70290125
 	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405967AbgJPJM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2405963AbgJPJM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 16 Oct 2020 05:12:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41566 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405420AbgJPJLv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:11:51 -0400
+        id S2405899AbgJPJLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:11:53 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B1BF20848;
-        Fri, 16 Oct 2020 09:11:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC3FE20789;
+        Fri, 16 Oct 2020 09:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839510;
-        bh=dHBIFlwDRD0RVrFh19IQ4vSZljIghYE5leBDPyb/w6M=;
+        s=default; t=1602839513;
+        bh=rCuKaO0ItDgcez7vR2S0pKoYWlZRDIP/DdBssTSD7QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=blmlXq3y70TvBrByXt4ZDMz+d/CC14IDhCfmnwg/TxwiosO1R0T5Zwv6xleQ+R6F3
-         veps3UIM7YrNgDmm3KmIwJaAbtJB7piCOIjESkKHF8gZzEupF6YopWSyPPcqOT1sM/
-         OOe2A6ZWBHiAAGSjEBcAzpUdcv5lk2buHL0GbkU0=
+        b=VETMSEPJY7niEVFz4zRlVFIoM3TkIiU/muNDHyA6ruBBADt8230xUxippYgJqGu89
+         y32wedirL+O3fyYz/VKcFdMAnVQPOTB/jeZ3/OI/k0daVEl4QCNfXLDazTQmSaR8/M
+         w3ryAF06xlaSR+DDq6PXwVqQQ23hp3mUXI+mDsZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.9 03/15] Bluetooth: MGMT: Fix not checking if BT_HS is enabled
-Date:   Fri, 16 Oct 2020 11:08:05 +0200
-Message-Id: <20201016090437.338603294@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.9 04/15] media: usbtv: Fix refcounting mixup
+Date:   Fri, 16 Oct 2020 11:08:06 +0200
+Message-Id: <20201016090437.387840662@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201016090437.170032996@linuxfoundation.org>
 References: <20201016090437.170032996@linuxfoundation.org>
@@ -43,43 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit b560a208cda0297fef6ff85bbfd58a8f0a52a543 upstream.
+commit bf65f8aabdb37bc1a785884374e919477fe13e10 upstream.
 
-This checks if BT_HS is enabled relecting it on MGMT_SETTING_HS instead
-of always reporting it as supported.
+The premature free in the error path is blocked by V4L
+refcounting, not USB refcounting. Thanks to
+Ben Hutchings for review.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+[v2] corrected attributions
+
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Fixes: 50e704453553 ("media: usbtv: prevent double free in error case")
+CC: stable@vger.kernel.org
+Reported-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/mgmt.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/media/usb/usbtv/usbtv-core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -782,7 +782,8 @@ static u32 get_supported_settings(struct
+--- a/drivers/media/usb/usbtv/usbtv-core.c
++++ b/drivers/media/usb/usbtv/usbtv-core.c
+@@ -113,7 +113,8 @@ static int usbtv_probe(struct usb_interf
  
- 		if (lmp_ssp_capable(hdev)) {
- 			settings |= MGMT_SETTING_SSP;
--			settings |= MGMT_SETTING_HS;
-+			if (IS_ENABLED(CONFIG_BT_HS))
-+				settings |= MGMT_SETTING_HS;
- 		}
+ usbtv_audio_fail:
+ 	/* we must not free at this point */
+-	usb_get_dev(usbtv->udev);
++	v4l2_device_get(&usbtv->v4l2_dev);
++	/* this will undo the v4l2_device_get() */
+ 	usbtv_video_free(usbtv);
  
- 		if (lmp_sc_capable(hdev))
-@@ -1815,6 +1816,10 @@ static int set_hs(struct sock *sk, struc
- 
- 	bt_dev_dbg(hdev, "sock %p", sk);
- 
-+	if (!IS_ENABLED(CONFIG_BT_HS))
-+		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS,
-+				       MGMT_STATUS_NOT_SUPPORTED);
-+
- 	status = mgmt_bredr_support(hdev);
- 	if (status)
- 		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS, status);
+ usbtv_video_fail:
 
 
