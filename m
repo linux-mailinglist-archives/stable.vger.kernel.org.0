@@ -2,138 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A4C4290AFF
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 19:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6994F290B1B
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 20:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732281AbgJPRyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 13:54:17 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:60280 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1731123AbgJPRyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 13:54:17 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 22739219-1500050 
-        for multiple; Fri, 16 Oct 2020 18:54:11 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>,
-        Akeem G Abodunrin <akeem.g.abodunrin@intel.com>,
-        Balestrieri Francesco <francesco.balestrieri@intel.com>,
-        Bloomfield Jon <jon.bloomfield@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] drm/i915/gt: Limit VFE threads based on GT
-Date:   Fri, 16 Oct 2020 18:54:11 +0100
-Message-Id: <20201016175411.30406-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
+        id S2390785AbgJPSJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 14:09:13 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:39397 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390770AbgJPSJN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 14:09:13 -0400
+Received: by mail-wm1-f65.google.com with SMTP id d3so3879030wma.4;
+        Fri, 16 Oct 2020 11:09:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pO0jw4bUW44xwUriD8J9vbmSKEotBZ3xMEfz+Pxr2R0=;
+        b=QXdv2MFSgVAIZ77Ex7CEywu65M+M7zFncF9WPZ98ea/M0LyrQcJBYAL9yPKeoyI7Tn
+         +yMOjOjMh++SAatEBJReO6k2NV2hhBOyte8S9+Sx/OxV9wXiAB9ws6quUPlnSo7mafJI
+         FUJ8xY3kzCYkM322C+XRjus+Rkk3v/fGyqIm224BEQ4ijmBLsrwDl0ZMSlC/Bq4Xyizb
+         +REK7pqNShxdANV505JQPteO0R/niZovCi8AD5GFE4d0kk1ZEPKa0VIdaIc+AYlkmC4+
+         RTSIDpPZl7TC5lIX7dRplKDdVlDx5HKYFumB5YDkQOGhkbZMvzbbOshZYOC9DrY0CMd4
+         6+qw==
+X-Gm-Message-State: AOAM533cudKq8dVDmZXY8iZZIFlbfZYwnmUcIuOM+bMZsK/nyt6cvalh
+        AbWlnrmZY5vg8XVomNb/GiCFAgjimyi7YbBx
+X-Google-Smtp-Source: ABdhPJx29M2wTIJKBHQqVqWl4YJ2nL9Q5MT8VjwCzweTlH/m2dpg2YKFNDYb3pAU/2yTt0NcOw720w==
+X-Received: by 2002:a7b:c92c:: with SMTP id h12mr5284146wml.134.1602871750470;
+        Fri, 16 Oct 2020 11:09:10 -0700 (PDT)
+Received: from msft-t490s.teknoraver.net (net-2-36-134-112.cust.vodafonedsl.it. [2.36.134.112])
+        by smtp.gmail.com with ESMTPSA id x1sm4369260wrl.41.2020.10.16.11.09.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Oct 2020 11:09:09 -0700 (PDT)
+From:   Matteo Croce <mcroce@linux.microsoft.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Guenter Roeck <linux@roeck-us.net>, Petr Mladek <pmladek@suse.com>,
+        Arnd Bergmann <arnd@arndb.de>, Mike Rapoport <rppt@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Robin Holt <robinmholt@gmail.com>,
+        Fabian Frederick <fabf@skynet.be>, stable@vger.kernel.org
+Subject: [PATCH 0/2] fix parsing of reboot= cmdline
+Date:   Fri, 16 Oct 2020 20:09:05 +0200
+Message-Id: <20201016180907.171957-1-mcroce@linux.microsoft.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MEDIA_STATE_VFE only accepts the 'maximum number of threads' in the
-range [0, n-1] where n is #EU * (#threads/EU) with the number of threads
-based on plaform and the number of EU based on the number of slices and
-subslices. This is a fixed number per platform/gt, so appropriately
-limit the number of threads we spawn to match the device.
+From: Matteo Croce <mcroce@microsoft.com>
 
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2024
-Fixes: 47f8253d2b89 ("drm/i915/gen7: Clear all EU/L3 residual contexts")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>
-Cc: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
-Cc: Balestrieri Francesco <francesco.balestrieri@intel.com>
-Cc: Bloomfield Jon <jon.bloomfield@intel.com>
-Cc: <stable@vger.kernel.org> # v5.7+
----
- drivers/gpu/drm/i915/gt/gen7_renderclear.c | 35 +++++++++++++++-------
- 1 file changed, 24 insertions(+), 11 deletions(-)
+The parsing of the reboot= cmdline has two major errors:
+- a missing bound check can crash the system on reboot
+- parsing of the cpu number only works if specified last
 
-diff --git a/drivers/gpu/drm/i915/gt/gen7_renderclear.c b/drivers/gpu/drm/i915/gt/gen7_renderclear.c
-index d93d85cd3027..f3b8fea6226e 100644
---- a/drivers/gpu/drm/i915/gt/gen7_renderclear.c
-+++ b/drivers/gpu/drm/i915/gt/gen7_renderclear.c
-@@ -7,8 +7,6 @@
- #include "i915_drv.h"
- #include "intel_gpu_commands.h"
- 
--#define MAX_URB_ENTRIES 64
--#define STATE_SIZE (4 * 1024)
- #define GT3_INLINE_DATA_DELAYS 0x1E00
- #define batch_advance(Y, CS) GEM_BUG_ON((Y)->end != (CS))
- 
-@@ -34,8 +32,7 @@ struct batch_chunk {
- };
- 
- struct batch_vals {
--	u32 max_primitives;
--	u32 max_urb_entries;
-+	u32 max_primitives; /* == number of VFE threads */
- 	u32 cmd_size;
- 	u32 state_size;
- 	u32 state_start;
-@@ -50,18 +47,35 @@ static void
- batch_get_defaults(struct drm_i915_private *i915, struct batch_vals *bv)
- {
- 	if (IS_HASWELL(i915)) {
--		bv->max_primitives = 280;
--		bv->max_urb_entries = MAX_URB_ENTRIES;
-+		switch (INTEL_INFO(i915)->gt) {
-+		default:
-+		case 1:
-+			bv->max_primitives = 70;
-+			break;
-+		case 2:
-+			bv->max_primitives = 140;
-+			break;
-+		case 3:
-+			bv->max_primitives = 280;
-+			break;
-+		}
- 		bv->surface_height = 16 * 16;
- 		bv->surface_width = 32 * 2 * 16;
- 	} else {
--		bv->max_primitives = 128;
--		bv->max_urb_entries = MAX_URB_ENTRIES / 2;
-+		switch (INTEL_INFO(i915)->gt) {
-+		default:
-+		case 1: /* including vlv */
-+			bv->max_primitives = 36;
-+			break;
-+		case 2:
-+			bv->max_primitives = 128;
-+			break;
-+		}
- 		bv->surface_height = 16 * 8;
- 		bv->surface_width = 32 * 16;
- 	}
- 	bv->cmd_size = bv->max_primitives * 4096;
--	bv->state_size = STATE_SIZE;
-+	bv->state_size = SZ_4K;
- 	bv->state_start = bv->cmd_size;
- 	bv->batch_size = bv->cmd_size + bv->state_size;
- 	bv->scratch_size = bv->surface_height * bv->surface_width;
-@@ -244,7 +258,6 @@ gen7_emit_vfe_state(struct batch_chunk *batch,
- 		    u32 urb_size, u32 curbe_size,
- 		    u32 mode)
- {
--	u32 urb_entries = bv->max_urb_entries;
- 	u32 threads = bv->max_primitives - 1;
- 	u32 *cs = batch_alloc_items(batch, 32, 8);
- 
-@@ -254,7 +267,7 @@ gen7_emit_vfe_state(struct batch_chunk *batch,
- 	*cs++ = 0;
- 
- 	/* number of threads & urb entries for GPGPU vs Media Mode */
--	*cs++ = threads << 16 | urb_entries << 8 | mode << 2;
-+	*cs++ = threads << 16 | 1 << 8 | mode << 2;
- 
- 	*cs++ = 0;
- 
+Fix both, along with a small code refactor.
+
+Matteo Croce (2):
+  reboot: fix overflow parsing reboot cpu number
+  reboot: fix parsing of reboot cpu number
+
+ kernel/reboot.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
+
 -- 
-2.20.1
+2.26.2
 
