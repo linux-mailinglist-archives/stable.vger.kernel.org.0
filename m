@@ -2,72 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 683A228FF83
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 09:54:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27FD928FF9F
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 10:00:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404831AbgJPHyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 03:54:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38518 "EHLO mail.kernel.org"
+        id S2404934AbgJPIAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 04:00:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404817AbgJPHyY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 03:54:24 -0400
+        id S2404837AbgJPIAo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 04:00:44 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4979207F7;
-        Fri, 16 Oct 2020 07:54:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0995D207F7;
+        Fri, 16 Oct 2020 08:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602834864;
-        bh=4Tt1hU0RTh/kMWQUK/UyNfqxN6pHPmTZpdL5lRvFEY8=;
+        s=default; t=1602835243;
+        bh=z3R5rMG1CNfodWBk5r8gqQ3c0h1EiVS8upNvCaOYWWo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OJBNMgsE0bBCE+voYak+yYSYWyc5MAOQ45zVU6D6iLM6Jb3aps6aawjxpqtpDeqrp
-         KE3EK/5BmvfI3hjdOy5ZKV/CVygK4p4rKtgYczsnGsRsXJZp/Ni96MjnJ97ENNW5kB
-         iqShatRICG9bmt1FMdr/ewlS11BG5/pOJbK5NzFY=
-Date:   Fri, 16 Oct 2020 09:54:55 +0200
+        b=C55FKWQngIgLPhuBYjbWeOMRWlw8UnQ2IkaYU+yjv/wyOG18fMWmtlu+2vLqaNlaB
+         YefEBF+Y+VE1IohOEmDySu0BJpXjqJbJB3AS4bvXaSXGL5LyXgmJSuiNJE/Q3of30C
+         Iz8Jt/fjV8hTRNDd1TEo9Rst6bCVdCB9gtS1LAgQ=
+Date:   Fri, 16 Oct 2020 10:01:14 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Hans-Christian Egtvedt (hegtvedt)" <hegtvedt@cisco.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [v4.4/bluetooth PATCH 1/3] Bluetooth: Consolidate encryption
- handling in hci_encrypt_cfm
-Message-ID: <20201016075455.GA1354412@kroah.com>
-References: <20201015211225.1188104-1-hegtvedt@cisco.com>
- <20201016073234.GB578349@kroah.com>
- <41626257-e150-e2dd-c6f2-ad586ec94c14@cisco.com>
+To:     Arnaud Patard <arnaud.patard@rtp-net.org>
+Cc:     stable@vger.kernel.org, netdev@vger.kernel.org,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [patch 1/1] drivers/net/ethernet/marvell/mvmdio.c: Fix non OF
+ case
+Message-ID: <20201016080114.GA1355531@kroah.com>
+References: <20201015093221.720980174@rtp-net.org>
+ <20201015100455.GA3938169@kroah.com>
+ <87wnzr6bun.fsf@lechat.rtp-net.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41626257-e150-e2dd-c6f2-ad586ec94c14@cisco.com>
+In-Reply-To: <87wnzr6bun.fsf@lechat.rtp-net.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 16, 2020 at 07:46:39AM +0000, Hans-Christian Egtvedt (hegtvedt) wrote:
-> On 16/10/2020 09:32, Greg KH wrote:
-> > On Thu, Oct 15, 2020 at 11:12:23PM +0200, Hans-Christian Noren Egtvedt wrote:
-> >> From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-> >>
-> >> This makes hci_encrypt_cfm calls hci_connect_cfm in case the connection
-> >> state is BT_CONFIG so callers don't have to check the state.
-> >>
-> >> Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-> >> Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-> >> (cherry picked from commit 3ca44c16b0dcc764b641ee4ac226909f5c421aa3)
-> >> Cc: stable@vger.kernel.org # 4.4
-> >> ---
-> >>  include/net/bluetooth/hci_core.h | 20 ++++++++++++++++++--
-> >>  net/bluetooth/hci_event.c        | 28 +++-------------------------
-> >>  2 files changed, 21 insertions(+), 27 deletions(-)
-> > 
-> > What differs here from the other patch series you sent?  Looks the same
-> > to me...
+On Thu, Oct 15, 2020 at 12:08:00PM +0200, Arnaud Patard wrote:
+> Greg KH <gregkh@linuxfoundation.org> writes:
 > 
-> Patch 1 and 2 in this series is identical, patch 3/3 is adjusted to
-> resolve a conflict. Sorry I did not make that clearer.
+> > On Thu, Oct 15, 2020 at 11:32:15AM +0200, Arnaud Patard wrote:
+> >> commit d934423ac26ed373dfe089734d505dca5ff679b6 upstream.
+> >> 
+> >> Orion5.x systems are still using machine files and not device-tree.
+> >> Commit 96cb4342382290c9 ("net: mvmdio: allow up to three clocks to be
+> >> specified for orion-mdio") has replaced devm_clk_get() with of_clk_get(),
+> >> leading to a oops at boot and not working network, as reported in
+> >> https://lists.debian.org/debian-arm/2019/07/msg00088.html and possibly in
+> >> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=908712.
+> >>     
+> >> Link: https://lists.debian.org/debian-arm/2019/07/msg00088.html
+> >> Fixes: 96cb4342382290c9 ("net: mvmdio: allow up to three clocks to be specified for orion-mdio")
+> >> Signed-off-by: Arnaud Patard <arnaud.patard@rtp-net.org>
+> >> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+> >> Signed-off-by: David S. Miller <davem@davemloft.net>
+> >> 
+> >
+> > What stable tree(s) are you asking for this to be backported to?
+> 
+> oops, forgot to put it in the mail subject. It's for 4.19.X, which is
+> used in Debian stable.
 
-No problem, thanks for confirming this, that makes me feel better that I
-didn't miss anything.
+Also works on 4.14.y, so I've put it there as well.
+
+thanks,
 
 greg k-h
