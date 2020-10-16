@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F3AD2900BC
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF8DF29019A
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405507AbgJPJId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35992 "EHLO mail.kernel.org"
+        id S2394777AbgJPJQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:16:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405427AbgJPJHm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:07:42 -0400
+        id S2394602AbgJPJIu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:08:50 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A501220878;
-        Fri, 16 Oct 2020 09:07:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FC1321582;
+        Fri, 16 Oct 2020 09:08:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839261;
-        bh=ukzwW89ghWFCLaIzcYhBOI+R1oV1C7LDKFoyrtpgwjY=;
+        s=default; t=1602839318;
+        bh=rCuKaO0ItDgcez7vR2S0pKoYWlZRDIP/DdBssTSD7QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2b2vbhMQPoIz0IplgTQ7fSNmaYiza/C2QrDY4vIKalblWyBLEz51JSHXcoAb/ZFz
-         o1O6BYWAGFTDdKovyfhV6S+C0fHyqG6RLlHI0J9/U+LkRb35BYxDdSed8edwUL1zbF
-         SHrjT0AP6WVezK1pOfPrYuogf3H8OfRhRg0erpYg=
+        b=zsvaPTdNWgz9WTRFmwDPUN/sdgOp/MJ89WyJ6e4H9m3QJM/yMp0Gc6vs32o+dKwvi
+         Oe/s7JA30jqDVz6jOjOT1n8q4MnkANN377Csi9AeDJUIN4wXO5jP85OBXUNPMTQ3Gh
+         WIkgdfhicD+m+JmtOPWz23HcCD+rqAHAAoWVJMjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Mychaela N. Falconia" <falcon@freecalypso.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 13/16] USB: serial: ftdi_sio: add support for FreeCalypso JTAG+UART adapters
-Date:   Fri, 16 Oct 2020 11:07:17 +0200
-Message-Id: <20201016090437.868287120@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.14 08/18] media: usbtv: Fix refcounting mixup
+Date:   Fri, 16 Oct 2020 11:07:18 +0200
+Message-Id: <20201016090437.694246818@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.205626543@linuxfoundation.org>
-References: <20201016090437.205626543@linuxfoundation.org>
+In-Reply-To: <20201016090437.265805669@linuxfoundation.org>
+References: <20201016090437.265805669@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,73 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mychaela N. Falconia <falcon@freecalypso.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 6cf87e5edd9944e1d3b6efd966ea401effc304ee upstream.
+commit bf65f8aabdb37bc1a785884374e919477fe13e10 upstream.
 
-There exist many FT2232-based JTAG+UART adapter designs in which
-FT2232 Channel A is used for JTAG and Channel B is used for UART.
-The best way to handle them in Linux is to have the ftdi_sio driver
-create a ttyUSB device only for Channel B and not for Channel A:
-a ttyUSB device for Channel A would be bogus and will disappear as
-soon as the user runs OpenOCD or other applications that access
-Channel A for JTAG from userspace, causing undesirable noise for
-users.  The ftdi_sio driver already has a dedicated quirk for such
-JTAG+UART FT2232 adapters, and it requires assigning custom USB IDs
-to such adapters and adding these IDs to the driver with the
-ftdi_jtag_quirk applied.
+The premature free in the error path is blocked by V4L
+refcounting, not USB refcounting. Thanks to
+Ben Hutchings for review.
 
-Boutique hardware manufacturer Falconia Partners LLC has created a
-couple of JTAG+UART adapter designs (one buffered, one unbuffered)
-as part of FreeCalypso project, and this hardware is specifically made
-to be used with Linux hosts, with the intent that Channel A will be
-accessed only from userspace via appropriate applications, and that
-Channel B will be supported by the ftdi_sio kernel driver, presenting
-a standard ttyUSB device to userspace.  Toward this end the hardware
-manufacturer will be programming FT2232 EEPROMs with custom USB IDs,
-specifically with the intent that these IDs will be recognized by
-the ftdi_sio driver with the ftdi_jtag_quirk applied.
+[v2] corrected attributions
 
-Signed-off-by: Mychaela N. Falconia <falcon@freecalypso.org>
-[johan: insert in PID order and drop unused define]
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Fixes: 50e704453553 ("media: usbtv: prevent double free in error case")
+CC: stable@vger.kernel.org
+Reported-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/ftdi_sio.c     |    5 +++++
- drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
- 2 files changed, 12 insertions(+)
+ drivers/media/usb/usbtv/usbtv-core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1032,6 +1032,11 @@ static const struct usb_device_id id_tab
- 	/* U-Blox devices */
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
-+	/* FreeCalypso USB adapters */
-+	{ USB_DEVICE(FTDI_VID, FTDI_FALCONIA_JTAG_BUF_PID),
-+		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
-+	{ USB_DEVICE(FTDI_VID, FTDI_FALCONIA_JTAG_UNBUF_PID),
-+		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
- 	{ }					/* Terminating entry */
- };
+--- a/drivers/media/usb/usbtv/usbtv-core.c
++++ b/drivers/media/usb/usbtv/usbtv-core.c
+@@ -113,7 +113,8 @@ static int usbtv_probe(struct usb_interf
  
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -38,6 +38,13 @@
+ usbtv_audio_fail:
+ 	/* we must not free at this point */
+-	usb_get_dev(usbtv->udev);
++	v4l2_device_get(&usbtv->v4l2_dev);
++	/* this will undo the v4l2_device_get() */
+ 	usbtv_video_free(usbtv);
  
- #define FTDI_LUMEL_PD12_PID	0x6002
- 
-+/*
-+ * Custom USB adapters made by Falconia Partners LLC
-+ * for FreeCalypso project, ID codes allocated to Falconia by FTDI.
-+ */
-+#define FTDI_FALCONIA_JTAG_BUF_PID	0x7150
-+#define FTDI_FALCONIA_JTAG_UNBUF_PID	0x7151
-+
- /* Sienna Serial Interface by Secyourit GmbH */
- #define FTDI_SIENNA_PID		0x8348
- 
+ usbtv_video_fail:
 
 
