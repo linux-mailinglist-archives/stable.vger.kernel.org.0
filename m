@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE8FA290108
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 265CB2900F9
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405819AbgJPJLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:11:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40790 "EHLO mail.kernel.org"
+        id S2395054AbgJPJKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:10:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405251AbgJPJLR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:11:17 -0400
+        id S2405691AbgJPJKd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:10:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CAFF20789;
-        Fri, 16 Oct 2020 09:11:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE7C020872;
+        Fri, 16 Oct 2020 09:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839476;
-        bh=NdKa06WsEB62szXY4H50HG9OvfqejlQ3mRTtRqW6VxQ=;
+        s=default; t=1602839432;
+        bh=Yxa45sRhN4L8yAo3gP9bLI6rDVWShpsgSmf9UUutsAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvBeKwqhMj8c9wvEwtjPThhW3Hr9y/vHFJhvhoV3PibaFvhH2eWt+UWM/VRkx+kds
-         yvdo/FQ/H7MGPqQJuIrmJJ+yw3WNj3Aopw5gE+GHG5PfpjQ+QLoMq7n8UJGcIT375x
-         HpizzvzDHjjbaNEiDcn+mjWPxtV1Ile+oIiqFbfA=
+        b=I884bw8S0v8R5tyV7G5XR+XGKOBAfs2QM0j8uUknJrO3ZEkCOBg6zuAhi7A0E8lEg
+         a6d7qCrmbkD3vCi7mzFSXbyK3a/SS9WC8PDNULvTrGTtlbAzGCAXfxHXGv35d7P043
+         jueSnF4wI/BFx9pOtyClOpP4/ybPOJ8hgyyfLD/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.8 05/14] Bluetooth: MGMT: Fix not checking if BT_HS is enabled
+        Dominik Przychodni <dominik.przychodni@intel.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 22/22] crypto: qat - check cipher length for aead AES-CBC-HMAC-SHA
 Date:   Fri, 16 Oct 2020 11:07:50 +0200
-Message-Id: <20201016090437.422158534@linuxfoundation.org>
+Message-Id: <20201016090438.407282894@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.153175229@linuxfoundation.org>
-References: <20201016090437.153175229@linuxfoundation.org>
+In-Reply-To: <20201016090437.308349327@linuxfoundation.org>
+References: <20201016090437.308349327@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Dominik Przychodni <dominik.przychodni@intel.com>
 
-commit b560a208cda0297fef6ff85bbfd58a8f0a52a543 upstream.
+commit 45cb6653b0c355fc1445a8069ba78a4ce8720511 upstream.
 
-This checks if BT_HS is enabled relecting it on MGMT_SETTING_HS instead
-of always reporting it as supported.
+Return -EINVAL for authenc(hmac(sha1),cbc(aes)),
+authenc(hmac(sha256),cbc(aes)) and authenc(hmac(sha512),cbc(aes))
+if the cipher length is not multiple of the AES block.
+This is to prevent an undefined device behaviour.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: d370cec32194 ("crypto: qat - Intel(R) QAT crypto interface")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dominik Przychodni <dominik.przychodni@intel.com>
+[giovanni.cabiddu@intel.com: reworded commit message]
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/mgmt.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/qat_algs.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -766,7 +766,8 @@ static u32 get_supported_settings(struct
- 
- 		if (lmp_ssp_capable(hdev)) {
- 			settings |= MGMT_SETTING_SSP;
--			settings |= MGMT_SETTING_HS;
-+			if (IS_ENABLED(CONFIG_BT_HS))
-+				settings |= MGMT_SETTING_HS;
- 		}
- 
- 		if (lmp_sc_capable(hdev))
-@@ -1794,6 +1795,10 @@ static int set_hs(struct sock *sk, struc
- 
- 	bt_dev_dbg(hdev, "sock %p", sk);
- 
-+	if (!IS_ENABLED(CONFIG_BT_HS))
-+		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS,
-+				       MGMT_STATUS_NOT_SUPPORTED);
+--- a/drivers/crypto/qat/qat_common/qat_algs.c
++++ b/drivers/crypto/qat/qat_common/qat_algs.c
+@@ -873,6 +873,11 @@ static int qat_alg_aead_dec(struct aead_
+ 	struct icp_qat_fw_la_bulk_req *msg;
+ 	int digst_size = crypto_aead_authsize(aead_tfm);
+ 	int ret, ctr = 0;
++	u32 cipher_len;
 +
- 	status = mgmt_bredr_support(hdev);
- 	if (status)
- 		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_HS, status);
++	cipher_len = areq->cryptlen - digst_size;
++	if (cipher_len % AES_BLOCK_SIZE != 0)
++		return -EINVAL;
+ 
+ 	ret = qat_alg_sgl_to_bufl(ctx->inst, areq->src, areq->dst, qat_req);
+ 	if (unlikely(ret))
+@@ -887,7 +892,7 @@ static int qat_alg_aead_dec(struct aead_
+ 	qat_req->req.comn_mid.src_data_addr = qat_req->buf.blp;
+ 	qat_req->req.comn_mid.dest_data_addr = qat_req->buf.bloutp;
+ 	cipher_param = (void *)&qat_req->req.serv_specif_rqpars;
+-	cipher_param->cipher_length = areq->cryptlen - digst_size;
++	cipher_param->cipher_length = cipher_len;
+ 	cipher_param->cipher_offset = areq->assoclen;
+ 	memcpy(cipher_param->u.cipher_IV_array, areq->iv, AES_BLOCK_SIZE);
+ 	auth_param = (void *)((uint8_t *)cipher_param + sizeof(*cipher_param));
+@@ -916,6 +921,9 @@ static int qat_alg_aead_enc(struct aead_
+ 	uint8_t *iv = areq->iv;
+ 	int ret, ctr = 0;
+ 
++	if (areq->cryptlen % AES_BLOCK_SIZE != 0)
++		return -EINVAL;
++
+ 	ret = qat_alg_sgl_to_bufl(ctx->inst, areq->src, areq->dst, qat_req);
+ 	if (unlikely(ret))
+ 		return ret;
 
 
