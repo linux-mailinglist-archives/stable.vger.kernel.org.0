@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D534D290106
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8093C29016D
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405807AbgJPJLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:11:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40444 "EHLO mail.kernel.org"
+        id S2405127AbgJPJO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:14:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405775AbgJPJLC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:11:02 -0400
+        id S2405782AbgJPJLE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:11:04 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50F05212CC;
-        Fri, 16 Oct 2020 09:11:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDB8A2145D;
+        Fri, 16 Oct 2020 09:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839461;
-        bh=yKckwfUmmqhsdO2j2KA/qh1gXICTdLHLltRHDtBq+Ys=;
+        s=default; t=1602839464;
+        bh=B9bVxAW98bzJSA1vfOQKLJJ4uQ3QIhd3vBidt5AavOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rKks0RX7YYUpwo6cx2Wfhhp+jsdAkjghd0+krdkzaBARCQu44lAoJoh2jauDLwQg9
-         RLvm32E/VD7Jy1Z2sKTBZnLmXu0fLOh9MmQtOq1j8iT5t8NvnxQXvTaRBlm19QTRxA
-         91dBGerebp6psTNOZSYvTwMV1q8MIhTJReVpPDBg=
+        b=z7mhFPiasgkjIWdB1QvCvEy6dSOtU5bLq2jgmJNFJ2OE9UwmIOI+Xudzmda/EHMSM
+         X7OQLftFrP9CV9FPk+UiNwqGs08P9C715ExyIyr9d4q1nPiP020sg494woXZ9g1tLI
+         5TmiNH+0MIdPLA65Zrvth3/PuEr7WsurcAWAZKcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Mychaela N. Falconia" <falcon@freecalypso.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.8 12/14] USB: serial: ftdi_sio: add support for FreeCalypso JTAG+UART adapters
-Date:   Fri, 16 Oct 2020 11:07:57 +0200
-Message-Id: <20201016090437.768446553@linuxfoundation.org>
+        syzbot+d94d02749498bb7bab4b@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.8 13/14] reiserfs: Initialize inode keys properly
+Date:   Fri, 16 Oct 2020 11:07:58 +0200
+Message-Id: <20201016090437.808135993@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201016090437.153175229@linuxfoundation.org>
 References: <20201016090437.153175229@linuxfoundation.org>
@@ -43,73 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mychaela N. Falconia <falcon@freecalypso.org>
+From: Jan Kara <jack@suse.cz>
 
-commit 6cf87e5edd9944e1d3b6efd966ea401effc304ee upstream.
+commit 4443390e08d34d5771ab444f601cf71b3c9634a4 upstream.
 
-There exist many FT2232-based JTAG+UART adapter designs in which
-FT2232 Channel A is used for JTAG and Channel B is used for UART.
-The best way to handle them in Linux is to have the ftdi_sio driver
-create a ttyUSB device only for Channel B and not for Channel A:
-a ttyUSB device for Channel A would be bogus and will disappear as
-soon as the user runs OpenOCD or other applications that access
-Channel A for JTAG from userspace, causing undesirable noise for
-users.  The ftdi_sio driver already has a dedicated quirk for such
-JTAG+UART FT2232 adapters, and it requires assigning custom USB IDs
-to such adapters and adding these IDs to the driver with the
-ftdi_jtag_quirk applied.
+reiserfs_read_locked_inode() didn't initialize key length properly. Use
+_make_cpu_key() macro for key initialization so that all key member are
+properly initialized.
 
-Boutique hardware manufacturer Falconia Partners LLC has created a
-couple of JTAG+UART adapter designs (one buffered, one unbuffered)
-as part of FreeCalypso project, and this hardware is specifically made
-to be used with Linux hosts, with the intent that Channel A will be
-accessed only from userspace via appropriate applications, and that
-Channel B will be supported by the ftdi_sio kernel driver, presenting
-a standard ttyUSB device to userspace.  Toward this end the hardware
-manufacturer will be programming FT2232 EEPROMs with custom USB IDs,
-specifically with the intent that these IDs will be recognized by
-the ftdi_sio driver with the ftdi_jtag_quirk applied.
-
-Signed-off-by: Mychaela N. Falconia <falcon@freecalypso.org>
-[johan: insert in PID order and drop unused define]
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+CC: stable@vger.kernel.org
+Reported-by: syzbot+d94d02749498bb7bab4b@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/ftdi_sio.c     |    5 +++++
- drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
- 2 files changed, 12 insertions(+)
+ fs/reiserfs/inode.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1037,6 +1037,11 @@ static const struct usb_device_id id_tab
- 	/* U-Blox devices */
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
-+	/* FreeCalypso USB adapters */
-+	{ USB_DEVICE(FTDI_VID, FTDI_FALCONIA_JTAG_BUF_PID),
-+		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
-+	{ USB_DEVICE(FTDI_VID, FTDI_FALCONIA_JTAG_UNBUF_PID),
-+		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
- 	{ }					/* Terminating entry */
- };
+--- a/fs/reiserfs/inode.c
++++ b/fs/reiserfs/inode.c
+@@ -1551,11 +1551,7 @@ void reiserfs_read_locked_inode(struct i
+ 	 * set version 1, version 2 could be used too, because stat data
+ 	 * key is the same in both versions
+ 	 */
+-	key.version = KEY_FORMAT_3_5;
+-	key.on_disk_key.k_dir_id = dirino;
+-	key.on_disk_key.k_objectid = inode->i_ino;
+-	key.on_disk_key.k_offset = 0;
+-	key.on_disk_key.k_type = 0;
++	_make_cpu_key(&key, KEY_FORMAT_3_5, dirino, inode->i_ino, 0, 0, 3);
  
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -39,6 +39,13 @@
- 
- #define FTDI_LUMEL_PD12_PID	0x6002
- 
-+/*
-+ * Custom USB adapters made by Falconia Partners LLC
-+ * for FreeCalypso project, ID codes allocated to Falconia by FTDI.
-+ */
-+#define FTDI_FALCONIA_JTAG_BUF_PID	0x7150
-+#define FTDI_FALCONIA_JTAG_UNBUF_PID	0x7151
-+
- /* Sienna Serial Interface by Secyourit GmbH */
- #define FTDI_SIENNA_PID		0x8348
- 
+ 	/* look for the object's stat data */
+ 	retval = search_item(inode->i_sb, &key, &path_to_sd);
 
 
