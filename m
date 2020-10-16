@@ -2,96 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E8AA290164
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F13629015B
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394998AbgJPJOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:14:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40744 "EHLO mail.kernel.org"
+        id S2406063AbgJPJNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:13:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405796AbgJPJLO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:11:14 -0400
+        id S2405465AbgJPJMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:12:09 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 431A020789;
-        Fri, 16 Oct 2020 09:11:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 989E72145D;
+        Fri, 16 Oct 2020 09:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839466;
-        bh=JDYK2fvaEMqe0ctZcXUeHNpGFMH5xFt6jfhJEhdIJms=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JSDB6tFw686nUEcb5AVHMA2VtKoDlqQv2W/CNe6M3SgABH64NYhs6IZT9nLTjtdcn
-         WHKa1T3YBCG8NgQVYydXXfl1/RL/ubgKLqCnlb3J5455FeHb5OOe182xDLWQpIP5mI
-         2+69Uzr67nttywP2PNHdB3rLlUzOZycU2X4bf+HU=
+        s=default; t=1602839528;
+        bh=lzm+jLE2P7Vo7sKxbeA83fAf+Nh9GliipOJ1rgA++vI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=xFNkfWS78lVPbpbtgasTpT8emyfLjuAjM6uTwamiDI43vQY8U+2uwA8w/rsu4v4nR
+         VH539tO7r8eGXLJgoh2xLuzHHMtoU9xHIrzxBOXFSDtJ5soWqB2b9FBujwHm7+vGPM
+         JX5EEGTRdmLGPpHSv+Cu0MLu7AZ7jiSTd8rr+0A8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9b33c9b118d77ff59b6f@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.8 14/14] reiserfs: Fix oops during mount
-Date:   Fri, 16 Oct 2020 11:07:59 +0200
-Message-Id: <20201016090437.856364597@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        pavel@denx.de, stable@vger.kernel.org
+Subject: [PATCH 5.9 00/15] 5.9.1-rc1 review
+Date:   Fri, 16 Oct 2020 11:08:02 +0200
+Message-Id: <20201016090437.170032996@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.153175229@linuxfoundation.org>
-References: <20201016090437.153175229@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.9.1-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.9.1-rc1
+X-KernelTest-Deadline: 2020-10-18T09:04+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+This is the start of the stable review cycle for the 5.9.1 release.
+There are 15 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit c2bb80b8bdd04dfe32364b78b61b6a47f717af52 upstream.
+Responses should be made by Sun, 18 Oct 2020 09:04:25 +0000.
+Anything received after that time might be too late.
 
-With suitably crafted reiserfs image and mount command reiserfs will
-crash when trying to verify that XATTR_ROOT directory can be looked up
-in / as that recurses back to xattr code like:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.1-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.9.y
+and the diffstat can be found below.
 
- xattr_lookup+0x24/0x280 fs/reiserfs/xattr.c:395
- reiserfs_xattr_get+0x89/0x540 fs/reiserfs/xattr.c:677
- reiserfs_get_acl+0x63/0x690 fs/reiserfs/xattr_acl.c:209
- get_acl+0x152/0x2e0 fs/posix_acl.c:141
- check_acl fs/namei.c:277 [inline]
- acl_permission_check fs/namei.c:309 [inline]
- generic_permission+0x2ba/0x550 fs/namei.c:353
- do_inode_permission fs/namei.c:398 [inline]
- inode_permission+0x234/0x4a0 fs/namei.c:463
- lookup_one_len+0xa6/0x200 fs/namei.c:2557
- reiserfs_lookup_privroot+0x85/0x1e0 fs/reiserfs/xattr.c:972
- reiserfs_fill_super+0x2b51/0x3240 fs/reiserfs/super.c:2176
- mount_bdev+0x24f/0x360 fs/super.c:1417
+thanks,
 
-Fix the problem by bailing from reiserfs_xattr_get() when xattrs are not
-yet initialized.
+greg k-h
 
-CC: stable@vger.kernel.org
-Reported-by: syzbot+9b33c9b118d77ff59b6f@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+-------------
+Pseudo-Shortlog of commits:
 
----
- fs/reiserfs/xattr.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.9.1-rc1
 
---- a/fs/reiserfs/xattr.c
-+++ b/fs/reiserfs/xattr.c
-@@ -674,6 +674,13 @@ reiserfs_xattr_get(struct inode *inode,
- 	if (get_inode_sd_version(inode) == STAT_DATA_V1)
- 		return -EOPNOTSUPP;
- 
-+	/*
-+	 * priv_root needn't be initialized during mount so allow initial
-+	 * lookups to succeed.
-+	 */
-+	if (!REISERFS_SB(inode->i_sb)->priv_root)
-+		return 0;
-+
- 	dentry = xattr_lookup(inode, name, XATTR_REPLACE);
- 	if (IS_ERR(dentry)) {
- 		err = PTR_ERR(dentry);
+Dominik Przychodni <dominik.przychodni@intel.com>
+    crypto: qat - check cipher length for aead AES-CBC-HMAC-SHA
+
+Herbert Xu <herbert@gondor.apana.org.au>
+    crypto: bcm - Verify GCM/CCM key length in setkey
+
+Alex Deucher <alexander.deucher@amd.com>
+    Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs handlers"
+
+Jan Kara <jack@suse.cz>
+    reiserfs: Fix oops during mount
+
+Jan Kara <jack@suse.cz>
+    reiserfs: Initialize inode keys properly
+
+Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+    vt_ioctl: make VT_RESIZEX behave like VT_RESIZE
+
+Mychaela N. Falconia <falcon@freecalypso.org>
+    USB: serial: ftdi_sio: add support for FreeCalypso JTAG+UART adapters
+
+Scott Chen <scott@labau.com.tw>
+    USB: serial: pl2303: add device-id for HP GC device
+
+Anant Thazhemadam <anant.thazhemadam@gmail.com>
+    staging: comedi: check validity of wMaxPacketSize of usb endpoints found
+
+Leonid Bloch <lb.workbox@gmail.com>
+    USB: serial: option: Add Telit FT980-KS composition
+
+Wilken Gottwalt <wilken.gottwalt@mailbox.org>
+    USB: serial: option: add Cellient MPL200 card
+
+Oliver Neukum <oneukum@suse.com>
+    media: usbtv: Fix refcounting mixup
+
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: MGMT: Fix not checking if BT_HS is enabled
+
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: L2CAP: Fix calling sk_filter on non-socket based channel
+
+Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+    Bluetooth: A2MP: Fix not initializing all members
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                 |  4 +--
+ drivers/crypto/bcm/cipher.c              | 15 ++++++++-
+ drivers/crypto/qat/qat_common/qat_algs.c | 10 +++++-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c   |  9 +++--
+ drivers/media/usb/usbtv/usbtv-core.c     |  3 +-
+ drivers/staging/comedi/drivers/vmk80xx.c |  3 ++
+ drivers/tty/vt/vt_ioctl.c                | 57 ++++++--------------------------
+ drivers/usb/serial/ftdi_sio.c            |  5 +++
+ drivers/usb/serial/ftdi_sio_ids.h        |  7 ++++
+ drivers/usb/serial/option.c              |  5 +++
+ drivers/usb/serial/pl2303.c              |  1 +
+ drivers/usb/serial/pl2303.h              |  1 +
+ fs/reiserfs/inode.c                      |  6 +---
+ fs/reiserfs/xattr.c                      |  7 ++++
+ include/net/bluetooth/l2cap.h            |  2 ++
+ net/bluetooth/a2mp.c                     | 22 +++++++++++-
+ net/bluetooth/l2cap_core.c               |  7 ++--
+ net/bluetooth/l2cap_sock.c               | 14 ++++++++
+ net/bluetooth/mgmt.c                     |  7 +++-
+ 19 files changed, 120 insertions(+), 65 deletions(-)
 
 
