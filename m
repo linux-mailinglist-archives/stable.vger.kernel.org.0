@@ -2,146 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F13629015B
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC602290113
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:12:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406063AbgJPJNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:13:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41946 "EHLO mail.kernel.org"
+        id S2394764AbgJPJLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:11:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405465AbgJPJMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:12:09 -0400
+        id S2405848AbgJPJLd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:11:33 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 989E72145D;
-        Fri, 16 Oct 2020 09:12:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E35D120EDD;
+        Fri, 16 Oct 2020 09:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839528;
-        bh=lzm+jLE2P7Vo7sKxbeA83fAf+Nh9GliipOJ1rgA++vI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=xFNkfWS78lVPbpbtgasTpT8emyfLjuAjM6uTwamiDI43vQY8U+2uwA8w/rsu4v4nR
-         VH539tO7r8eGXLJgoh2xLuzHHMtoU9xHIrzxBOXFSDtJ5soWqB2b9FBujwHm7+vGPM
-         JX5EEGTRdmLGPpHSv+Cu0MLu7AZ7jiSTd8rr+0A8=
+        s=default; t=1602839491;
+        bh=iJDPr1SCZ19wIMLz4nGPwoBz1Tz+1pyLUTra09Ar6qM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=lkma++NDhxfS/FnQxKqNxq3wcBhivy1kXKHaFixpQh+I9YdSz6nhjIaCmE9K1KnfS
+         mUeWK+tM923NzTrzm16c60eeRj/9K9jPBHtN0CrQiFbzJ0ipalxjw1snTbJyTe2Oqc
+         IZJBrrIb56WNqgpO2fAGGl65Q89VywZ0KdBf+QRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        pavel@denx.de, stable@vger.kernel.org
-Subject: [PATCH 5.9 00/15] 5.9.1-rc1 review
-Date:   Fri, 16 Oct 2020 11:08:02 +0200
-Message-Id: <20201016090437.170032996@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.9 01/15] Bluetooth: A2MP: Fix not initializing all members
+Date:   Fri, 16 Oct 2020 11:08:03 +0200
+Message-Id: <20201016090437.236866715@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-MIME-Version: 1.0
+In-Reply-To: <20201016090437.170032996@linuxfoundation.org>
+References: <20201016090437.170032996@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.9.1-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.9.1-rc1
-X-KernelTest-Deadline: 2020-10-18T09:04+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.9.1 release.
-There are 15 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-Responses should be made by Sun, 18 Oct 2020 09:04:25 +0000.
-Anything received after that time might be too late.
+commit eddb7732119d53400f48a02536a84c509692faa8 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.9.1-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.9.y
-and the diffstat can be found below.
+This fixes various places where a stack variable is used uninitialized.
 
-thanks,
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-greg k-h
+---
+ net/bluetooth/a2mp.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.9.1-rc1
-
-Dominik Przychodni <dominik.przychodni@intel.com>
-    crypto: qat - check cipher length for aead AES-CBC-HMAC-SHA
-
-Herbert Xu <herbert@gondor.apana.org.au>
-    crypto: bcm - Verify GCM/CCM key length in setkey
-
-Alex Deucher <alexander.deucher@amd.com>
-    Revert "drm/amdgpu: Fix NULL dereference in dpm sysfs handlers"
-
-Jan Kara <jack@suse.cz>
-    reiserfs: Fix oops during mount
-
-Jan Kara <jack@suse.cz>
-    reiserfs: Initialize inode keys properly
-
-Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-    vt_ioctl: make VT_RESIZEX behave like VT_RESIZE
-
-Mychaela N. Falconia <falcon@freecalypso.org>
-    USB: serial: ftdi_sio: add support for FreeCalypso JTAG+UART adapters
-
-Scott Chen <scott@labau.com.tw>
-    USB: serial: pl2303: add device-id for HP GC device
-
-Anant Thazhemadam <anant.thazhemadam@gmail.com>
-    staging: comedi: check validity of wMaxPacketSize of usb endpoints found
-
-Leonid Bloch <lb.workbox@gmail.com>
-    USB: serial: option: Add Telit FT980-KS composition
-
-Wilken Gottwalt <wilken.gottwalt@mailbox.org>
-    USB: serial: option: add Cellient MPL200 card
-
-Oliver Neukum <oneukum@suse.com>
-    media: usbtv: Fix refcounting mixup
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: MGMT: Fix not checking if BT_HS is enabled
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: L2CAP: Fix calling sk_filter on non-socket based channel
-
-Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-    Bluetooth: A2MP: Fix not initializing all members
-
-
--------------
-
-Diffstat:
-
- Makefile                                 |  4 +--
- drivers/crypto/bcm/cipher.c              | 15 ++++++++-
- drivers/crypto/qat/qat_common/qat_algs.c | 10 +++++-
- drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c   |  9 +++--
- drivers/media/usb/usbtv/usbtv-core.c     |  3 +-
- drivers/staging/comedi/drivers/vmk80xx.c |  3 ++
- drivers/tty/vt/vt_ioctl.c                | 57 ++++++--------------------------
- drivers/usb/serial/ftdi_sio.c            |  5 +++
- drivers/usb/serial/ftdi_sio_ids.h        |  7 ++++
- drivers/usb/serial/option.c              |  5 +++
- drivers/usb/serial/pl2303.c              |  1 +
- drivers/usb/serial/pl2303.h              |  1 +
- fs/reiserfs/inode.c                      |  6 +---
- fs/reiserfs/xattr.c                      |  7 ++++
- include/net/bluetooth/l2cap.h            |  2 ++
- net/bluetooth/a2mp.c                     | 22 +++++++++++-
- net/bluetooth/l2cap_core.c               |  7 ++--
- net/bluetooth/l2cap_sock.c               | 14 ++++++++
- net/bluetooth/mgmt.c                     |  7 +++-
- 19 files changed, 120 insertions(+), 65 deletions(-)
+--- a/net/bluetooth/a2mp.c
++++ b/net/bluetooth/a2mp.c
+@@ -226,6 +226,9 @@ static int a2mp_discover_rsp(struct amp_
+ 			struct a2mp_info_req req;
+ 
+ 			found = true;
++
++			memset(&req, 0, sizeof(req));
++
+ 			req.id = cl->id;
+ 			a2mp_send(mgr, A2MP_GETINFO_REQ, __next_ident(mgr),
+ 				  sizeof(req), &req);
+@@ -305,6 +308,8 @@ static int a2mp_getinfo_req(struct amp_m
+ 	if (!hdev || hdev->dev_type != HCI_AMP) {
+ 		struct a2mp_info_rsp rsp;
+ 
++		memset(&rsp, 0, sizeof(rsp));
++
+ 		rsp.id = req->id;
+ 		rsp.status = A2MP_STATUS_INVALID_CTRL_ID;
+ 
+@@ -348,6 +353,8 @@ static int a2mp_getinfo_rsp(struct amp_m
+ 	if (!ctrl)
+ 		return -ENOMEM;
+ 
++	memset(&req, 0, sizeof(req));
++
+ 	req.id = rsp->id;
+ 	a2mp_send(mgr, A2MP_GETAMPASSOC_REQ, __next_ident(mgr), sizeof(req),
+ 		  &req);
+@@ -376,6 +383,8 @@ static int a2mp_getampassoc_req(struct a
+ 		struct a2mp_amp_assoc_rsp rsp;
+ 		rsp.id = req->id;
+ 
++		memset(&rsp, 0, sizeof(rsp));
++
+ 		if (tmp) {
+ 			rsp.status = A2MP_STATUS_COLLISION_OCCURED;
+ 			amp_mgr_put(tmp);
+@@ -464,7 +473,6 @@ static int a2mp_createphyslink_req(struc
+ 				   struct a2mp_cmd *hdr)
+ {
+ 	struct a2mp_physlink_req *req = (void *) skb->data;
+-
+ 	struct a2mp_physlink_rsp rsp;
+ 	struct hci_dev *hdev;
+ 	struct hci_conn *hcon;
+@@ -475,6 +483,8 @@ static int a2mp_createphyslink_req(struc
+ 
+ 	BT_DBG("local_id %d, remote_id %d", req->local_id, req->remote_id);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.local_id = req->remote_id;
+ 	rsp.remote_id = req->local_id;
+ 
+@@ -553,6 +563,8 @@ static int a2mp_discphyslink_req(struct
+ 
+ 	BT_DBG("local_id %d remote_id %d", req->local_id, req->remote_id);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.local_id = req->remote_id;
+ 	rsp.remote_id = req->local_id;
+ 	rsp.status = A2MP_STATUS_SUCCESS;
+@@ -675,6 +687,8 @@ static int a2mp_chan_recv_cb(struct l2ca
+ 	if (err) {
+ 		struct a2mp_cmd_rej rej;
+ 
++		memset(&rej, 0, sizeof(rej));
++
+ 		rej.reason = cpu_to_le16(0);
+ 		hdr = (void *) skb->data;
+ 
+@@ -898,6 +912,8 @@ void a2mp_send_getinfo_rsp(struct hci_de
+ 
+ 	BT_DBG("%s mgr %p", hdev->name, mgr);
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	rsp.id = hdev->id;
+ 	rsp.status = A2MP_STATUS_INVALID_CTRL_ID;
+ 
+@@ -995,6 +1011,8 @@ void a2mp_send_create_phy_link_rsp(struc
+ 	if (!mgr)
+ 		return;
+ 
++	memset(&rsp, 0, sizeof(rsp));
++
+ 	hs_hcon = hci_conn_hash_lookup_state(hdev, AMP_LINK, BT_CONNECT);
+ 	if (!hs_hcon) {
+ 		rsp.status = A2MP_STATUS_UNABLE_START_LINK_CREATION;
+@@ -1027,6 +1045,8 @@ void a2mp_discover_amp(struct l2cap_chan
+ 
+ 	mgr->bredr_chan = chan;
+ 
++	memset(&req, 0, sizeof(req));
++
+ 	req.mtu = cpu_to_le16(L2CAP_A2MP_DEFAULT_MTU);
+ 	req.ext_feat = 0;
+ 	a2mp_send(mgr, A2MP_DISCOVER_REQ, 1, sizeof(req), &req);
 
 
