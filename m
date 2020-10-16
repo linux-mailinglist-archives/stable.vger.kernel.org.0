@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B8929019C
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:18:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F3AD2900BC
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 11:11:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406318AbgJPJQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 05:16:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37410 "EHLO mail.kernel.org"
+        id S2405507AbgJPJId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 05:08:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394574AbgJPJIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Oct 2020 05:08:50 -0400
+        id S2405427AbgJPJHm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Oct 2020 05:07:42 -0400
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 859CF214DB;
-        Fri, 16 Oct 2020 09:08:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A501220878;
+        Fri, 16 Oct 2020 09:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1602839316;
-        bh=O30KFM0sT94yUxPrvn+5GjyKvlRBQI2V7sZbwg9qHME=;
+        s=default; t=1602839261;
+        bh=ukzwW89ghWFCLaIzcYhBOI+R1oV1C7LDKFoyrtpgwjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sg78O65A5LflmwoPgkvGXSWKc9ybBIo3KScDAuvADmaEqFuZnO2nsnmDAJMOWVH6z
-         WjI27M/4Lyvopjxpvt2n9iRQxOksbb6/Q9gK79avPLS2MLMg9dmsoVvmajFE1ZqsZT
-         nl/vEMhrIpMdzNKsQyBrHBrwNIPSxFlwkp1nWuwc=
+        b=l2b2vbhMQPoIz0IplgTQ7fSNmaYiza/C2QrDY4vIKalblWyBLEz51JSHXcoAb/ZFz
+         o1O6BYWAGFTDdKovyfhV6S+C0fHyqG6RLlHI0J9/U+LkRb35BYxDdSed8edwUL1zbF
+         SHrjT0AP6WVezK1pOfPrYuogf3H8OfRhRg0erpYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
-Subject: [PATCH 4.14 07/18] Bluetooth: Disconnect if E0 is used for Level 4
+        "Mychaela N. Falconia" <falcon@freecalypso.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 13/16] USB: serial: ftdi_sio: add support for FreeCalypso JTAG+UART adapters
 Date:   Fri, 16 Oct 2020 11:07:17 +0200
-Message-Id: <20201016090437.644988101@linuxfoundation.org>
+Message-Id: <20201016090437.868287120@linuxfoundation.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201016090437.265805669@linuxfoundation.org>
-References: <20201016090437.265805669@linuxfoundation.org>
+In-Reply-To: <20201016090437.205626543@linuxfoundation.org>
+References: <20201016090437.205626543@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,145 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Mychaela N. Falconia <falcon@freecalypso.org>
 
-commit 8746f135bb01872ff412d408ea1aa9ebd328c1f5 upstream.
+commit 6cf87e5edd9944e1d3b6efd966ea401effc304ee upstream.
 
-E0 is not allowed with Level 4:
+There exist many FT2232-based JTAG+UART adapter designs in which
+FT2232 Channel A is used for JTAG and Channel B is used for UART.
+The best way to handle them in Linux is to have the ftdi_sio driver
+create a ttyUSB device only for Channel B and not for Channel A:
+a ttyUSB device for Channel A would be bogus and will disappear as
+soon as the user runs OpenOCD or other applications that access
+Channel A for JTAG from userspace, causing undesirable noise for
+users.  The ftdi_sio driver already has a dedicated quirk for such
+JTAG+UART FT2232 adapters, and it requires assigning custom USB IDs
+to such adapters and adding these IDs to the driver with the
+ftdi_jtag_quirk applied.
 
-BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C page 1319:
+Boutique hardware manufacturer Falconia Partners LLC has created a
+couple of JTAG+UART adapter designs (one buffered, one unbuffered)
+as part of FreeCalypso project, and this hardware is specifically made
+to be used with Linux hosts, with the intent that Channel A will be
+accessed only from userspace via appropriate applications, and that
+Channel B will be supported by the ftdi_sio kernel driver, presenting
+a standard ttyUSB device to userspace.  Toward this end the hardware
+manufacturer will be programming FT2232 EEPROMs with custom USB IDs,
+specifically with the intent that these IDs will be recognized by
+the ftdi_sio driver with the ftdi_jtag_quirk applied.
 
-  '128-bit equivalent strength for link and encryption keys
-   required using FIPS approved algorithms (E0 not allowed,
-   SAFER+ not allowed, and P-192 not allowed; encryption key
-   not shortened'
-
-SC enabled:
-
-> HCI Event: Read Remote Extended Features (0x23) plen 13
-        Status: Success (0x00)
-        Handle: 256
-        Page: 1/2
-        Features: 0x0b 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-          Secure Simple Pairing (Host Support)
-          LE Supported (Host)
-          Secure Connections (Host Support)
-> HCI Event: Encryption Change (0x08) plen 4
-        Status: Success (0x00)
-        Handle: 256
-        Encryption: Enabled with AES-CCM (0x02)
-
-SC disabled:
-
-> HCI Event: Read Remote Extended Features (0x23) plen 13
-        Status: Success (0x00)
-        Handle: 256
-        Page: 1/2
-        Features: 0x03 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-          Secure Simple Pairing (Host Support)
-          LE Supported (Host)
-> HCI Event: Encryption Change (0x08) plen 4
-        Status: Success (0x00)
-        Handle: 256
-        Encryption: Enabled with E0 (0x01)
-[May 8 20:23] Bluetooth: hci0: Invalid security: expect AES but E0 was used
-< HCI Command: Disconnect (0x01|0x0006) plen 3
-        Handle: 256
-        Reason: Authentication Failure (0x05)
-
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: Hans-Christian Noren Egtvedt <hegtvedt@cisco.com>
+Signed-off-by: Mychaela N. Falconia <falcon@freecalypso.org>
+[johan: insert in PID order and drop unused define]
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/net/bluetooth/hci_core.h |   10 ++++++----
- net/bluetooth/hci_conn.c         |   17 +++++++++++++++++
- net/bluetooth/hci_event.c        |   20 ++++++++------------
- 3 files changed, 31 insertions(+), 16 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    5 +++++
+ drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
+ 2 files changed, 12 insertions(+)
 
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -1273,11 +1273,13 @@ static inline void hci_encrypt_cfm(struc
- 	else
- 		encrypt = 0x01;
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1032,6 +1032,11 @@ static const struct usb_device_id id_tab
+ 	/* U-Blox devices */
+ 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
+ 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
++	/* FreeCalypso USB adapters */
++	{ USB_DEVICE(FTDI_VID, FTDI_FALCONIA_JTAG_BUF_PID),
++		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
++	{ USB_DEVICE(FTDI_VID, FTDI_FALCONIA_JTAG_UNBUF_PID),
++		.driver_info = (kernel_ulong_t)&ftdi_jtag_quirk },
+ 	{ }					/* Terminating entry */
+ };
  
--	if (conn->sec_level == BT_SECURITY_SDP)
--		conn->sec_level = BT_SECURITY_LOW;
-+	if (!status) {
-+		if (conn->sec_level == BT_SECURITY_SDP)
-+			conn->sec_level = BT_SECURITY_LOW;
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -38,6 +38,13 @@
  
--	if (conn->pending_sec_level > conn->sec_level)
--		conn->sec_level = conn->pending_sec_level;
-+		if (conn->pending_sec_level > conn->sec_level)
-+			conn->sec_level = conn->pending_sec_level;
-+	}
+ #define FTDI_LUMEL_PD12_PID	0x6002
  
- 	mutex_lock(&hci_cb_list_lock);
- 	list_for_each_entry(cb, &hci_cb_list, list) {
---- a/net/bluetooth/hci_conn.c
-+++ b/net/bluetooth/hci_conn.c
-@@ -1163,6 +1163,23 @@ int hci_conn_check_link_mode(struct hci_
- 			return 0;
- 	}
- 
-+	 /* AES encryption is required for Level 4:
-+	  *
-+	  * BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 3, Part C
-+	  * page 1319:
-+	  *
-+	  * 128-bit equivalent strength for link and encryption keys
-+	  * required using FIPS approved algorithms (E0 not allowed,
-+	  * SAFER+ not allowed, and P-192 not allowed; encryption key
-+	  * not shortened)
-+	  */
-+	if (conn->sec_level == BT_SECURITY_FIPS &&
-+	    !test_bit(HCI_CONN_AES_CCM, &conn->flags)) {
-+		bt_dev_err(conn->hdev,
-+			   "Invalid security: Missing AES-CCM usage");
-+		return 0;
-+	}
++/*
++ * Custom USB adapters made by Falconia Partners LLC
++ * for FreeCalypso project, ID codes allocated to Falconia by FTDI.
++ */
++#define FTDI_FALCONIA_JTAG_BUF_PID	0x7150
++#define FTDI_FALCONIA_JTAG_UNBUF_PID	0x7151
 +
- 	if (hci_conn_ssp_enabled(conn) &&
- 	    !test_bit(HCI_CONN_ENCRYPT, &conn->flags))
- 		return 0;
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -2626,26 +2626,22 @@ static void hci_encrypt_change_evt(struc
+ /* Sienna Serial Interface by Secyourit GmbH */
+ #define FTDI_SIENNA_PID		0x8348
  
- 	clear_bit(HCI_CONN_ENCRYPT_PEND, &conn->flags);
- 
-+	/* Check link security requirements are met */
-+	if (!hci_conn_check_link_mode(conn))
-+		ev->status = HCI_ERROR_AUTH_FAILURE;
-+
- 	if (ev->status && conn->state == BT_CONNECTED) {
- 		if (ev->status == HCI_ERROR_PIN_OR_KEY_MISSING)
- 			set_bit(HCI_CONN_AUTH_FAILURE, &conn->flags);
- 
-+		/* Notify upper layers so they can cleanup before
-+		 * disconnecting.
-+		 */
-+		hci_encrypt_cfm(conn, ev->status);
- 		hci_disconnect(conn, HCI_ERROR_AUTH_FAILURE);
- 		hci_conn_drop(conn);
- 		goto unlock;
- 	}
--
--	/* In Secure Connections Only mode, do not allow any connections
--	 * that are not encrypted with AES-CCM using a P-256 authenticated
--	 * combination key.
--	 */
--	if (hci_dev_test_flag(hdev, HCI_SC_ONLY) &&
--	    (!test_bit(HCI_CONN_AES_CCM, &conn->flags) ||
--	     conn->key_type != HCI_LK_AUTH_COMBINATION_P256)) {
--		hci_connect_cfm(conn, HCI_ERROR_AUTH_FAILURE);
--		hci_conn_drop(conn);
--		goto unlock;
--	}
- 
- 	/* Try reading the encryption key size for encrypted ACL links */
- 	if (!ev->status && ev->encrypt && conn->type == ACL_LINK) {
 
 
