@@ -2,125 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84826290B1F
-	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 20:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DA9D290B4E
+	for <lists+stable@lfdr.de>; Fri, 16 Oct 2020 20:31:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391059AbgJPSJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Oct 2020 14:09:35 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:41931 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391056AbgJPSJf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 14:09:35 -0400
-Received: by mail-wr1-f66.google.com with SMTP id s9so3938815wro.8;
-        Fri, 16 Oct 2020 11:09:34 -0700 (PDT)
+        id S2391792AbgJPSbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Oct 2020 14:31:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35306 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391614AbgJPSar (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Oct 2020 14:30:47 -0400
+Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19F66C061755
+        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 11:30:47 -0700 (PDT)
+Received: by mail-il1-x144.google.com with SMTP id t18so3678604ilo.12
+        for <stable@vger.kernel.org>; Fri, 16 Oct 2020 11:30:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=XwC1t/kd5tVFB0hOhwkLMyhbDe+C5ISqOwxwxSmqbmo=;
+        b=ytTZHlGiXHV0W6YLcMA4COSY3JJc6ptnBpuiiH78AyHZrAX9KUF0+AUFCeSJjf3NZ7
+         VaHkNuSnD4R8V22D8sb6JYqfeww8izw6ud5dKiUCB9EPwZHTIEJsfk2oeX3o3Er2pwXI
+         c3qsxBTRX8rwk2uPmM3JUoxnynde8AZNIM8BQWekIV5IszE/H7TWCQhoUUb2k7+HpJbx
+         l63Tm37HQwbCO3JTLz4jlRdDJztM2zMhCG/TvalJRdZgJvbWfFoMMMvpCTvnz8VWhRrI
+         LDLXgSAiUtu8wsO7teJWT/C44EevUQjmzLSoNnvjWXndPETryFLY4kwaoxuUNVMUGY2y
+         YSUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=i1B3U/bK42/bH0dAj7w8r7iLYMqlTy117f0Fgmj1z7s=;
-        b=JZdRFGdoDigFLJ+EDxD6P25smJm8MaoALXTup39k+HuAOBfUGevTFcSvI6lKAiW1x+
-         bU7mdLTQIFm8aCveFIarkz09aw1I8F36UIhroJ7SEBxvG7E7l5dn69rfncw50WhACoYM
-         lAebu2cGo9nkElAa3KSUZ84e10ojrWLlWhzbX8wEFaMnPWGENFTNmz9OetUoGovs0kJa
-         ZsLTVUEIyikAWUEuxQ7G+9dmxQDDLm5sySOGUzUrh2LEvQ5U3aclx6YoHQ3VbQKLDBjs
-         rbczF/EFKzdeTrwGUpSOiNynEZw2pmWAmni5vhHva/QBh5CESOPeo30nbZjEpo1uxEEE
-         F9jw==
-X-Gm-Message-State: AOAM533GrDbq9lhYNQjraWkYS5TMox9N96YiTNjjHC9E+y8w0EOVwbJs
-        I6vZlc/4+TMecEXmXra9SDKkAFuJJ2VI7IBC
-X-Google-Smtp-Source: ABdhPJw31xk1B6nfVmHgik/shYbAcJvmexdgZ214yklfA4Z7dQh6M76Idw+xSeX/9Gps3bhF9zw60w==
-X-Received: by 2002:adf:e88a:: with SMTP id d10mr5601850wrm.247.1602871773067;
-        Fri, 16 Oct 2020 11:09:33 -0700 (PDT)
-Received: from msft-t490s.teknoraver.net (net-2-36-134-112.cust.vodafonedsl.it. [2.36.134.112])
-        by smtp.gmail.com with ESMTPSA id x1sm4369260wrl.41.2020.10.16.11.09.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2020 11:09:32 -0700 (PDT)
-From:   Matteo Croce <mcroce@linux.microsoft.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>, Petr Mladek <pmladek@suse.com>,
-        Arnd Bergmann <arnd@arndb.de>, Mike Rapoport <rppt@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Robin Holt <robinmholt@gmail.com>,
-        Fabian Frederick <fabf@skynet.be>, stable@vger.kernel.org
-Subject: [PATCH 2/2] reboot: fix parsing of reboot cpu number
-Date:   Fri, 16 Oct 2020 20:09:07 +0200
-Message-Id: <20201016180907.171957-3-mcroce@linux.microsoft.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20201016180907.171957-1-mcroce@linux.microsoft.com>
-References: <20201016180907.171957-1-mcroce@linux.microsoft.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=XwC1t/kd5tVFB0hOhwkLMyhbDe+C5ISqOwxwxSmqbmo=;
+        b=VJDdYls2so+fRXrzOes+Z/jSYekSaRQ67uI5NPa0QGWsYCNyPozjsPbooixBOS+bCt
+         7YxQEgLFdizSlF/ofhfFuON0p4pkbPKfb97tYgSgDq/GSokU8Yl3VToGqrqmE3a9ZHfp
+         bMWlQolQa0/1eFHj07YhD1zcGHUH0mTAaYPWL24fbZ0CnyOnBAKR/R+AtYya8PxxE5pS
+         CIxw+DrxT7h2nM6EupU4dUInpAOJVhou43lq6mEIj/6wSiZGjstm1AZEXSj2H+bhPAvq
+         PNAXvkxmz9VXXMBAhGkUDc8vUFApURwssjcW9hMZqKpzTufi+dOtqrnSpmFsykOYMydl
+         Tz1w==
+X-Gm-Message-State: AOAM531bocuLWf1EDXOPyzxg+wQnwCZDmlamKFC+ou3hhgz+YblNhjgJ
+        +eSAoB3RmumZh18K1Du3VNLWMUd1pbi8Z6sbvGg8tA==
+X-Google-Smtp-Source: ABdhPJy3GERS3QJnHLyVKXmmixtnI3c0S9Pvt4tAFwMmL5OZcxhR1vJwxhnnmBWZ9+HitJSPykH0Pz2hjweVN4m0hMc=
+X-Received: by 2002:a92:9944:: with SMTP id p65mr3592525ili.127.1602873046288;
+ Fri, 16 Oct 2020 11:30:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201016090437.153175229@linuxfoundation.org>
+In-Reply-To: <20201016090437.153175229@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 17 Oct 2020 00:00:33 +0530
+Message-ID: <CA+G9fYu211uHcMAo-m5zA4xzcAuU8boWvFajxU7NM=GLw_b3ww@mail.gmail.com>
+Subject: Re: [PATCH 5.8 00/14] 5.8.16-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@microsoft.com>
+On Fri, 16 Oct 2020 at 14:41, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.8.16 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 18 Oct 2020 09:04:25 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.8.16-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.8.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-The kernel cmdline reboot= argument allows to specify the CPU used
-for rebooting, with the syntax `s####` among the other flags, e.g.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-  reboot=soft,s4
-  reboot=warm,s31,force
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-In the early days the parsing was done with simple_strtoul(), later
-deprecated in favor of the safer kstrtoint() which handles overflow.
+Summary
+------------------------------------------------------------------------
 
-But kstrtoint() returns -EINVAL if there are non-digit characters
-in a string, so if this flag is not the last given, it's silently
-ignored as well as the subsequent ones.
+kernel: 5.8.16-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.8.y
+git commit: a69084e6863a56b57c00d2ab5f4da07ea351cdd7
+git describe: v5.8.15-15-ga69084e6863a
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.8.=
+y/build/v5.8.15-15-ga69084e6863a
 
-To fix it, revert the usage of simple_strtoul(), which is no longer
-deprecated, and restore the old behaviour.
+No regressions (compared to build v5.8.15)
 
-While at it, merge two identical code blocks into one.
+No fixes (compared to build v5.8.15)
 
-Fixes: 616feab75397 ("kernel/reboot.c: convert simple_strtoul to kstrtoint")
-Signed-off-by: Matteo Croce <mcroce@microsoft.com>
----
- kernel/reboot.c | 30 ++++++++++++------------------
- 1 file changed, 12 insertions(+), 18 deletions(-)
 
-diff --git a/kernel/reboot.c b/kernel/reboot.c
-index c4e7965c39b9..475f790bbd75 100644
---- a/kernel/reboot.c
-+++ b/kernel/reboot.c
-@@ -552,25 +552,19 @@ static int __init reboot_setup(char *str)
- 
- 		case 's':
- 		{
--			int rc;
--
--			if (isdigit(*(str+1))) {
--				rc = kstrtoint(str+1, 0, &reboot_cpu);
--				if (rc)
--					return rc;
--				if (reboot_cpu >= num_possible_cpus()) {
--					reboot_cpu = 0;
--					return -ERANGE;
--				}
--			} else if (str[1] == 'm' && str[2] == 'p' &&
--				   isdigit(*(str+3))) {
--				rc = kstrtoint(str+3, 0, &reboot_cpu);
--				if (rc)
--					return rc;
--				if (reboot_cpu >= num_possible_cpus()) {
--					reboot_cpu = 0;
-+			int cpu;
-+
-+			/*
-+			 * reboot_cpu is s[mp]#### with #### being the processor
-+			 * to be used for rebooting. Skip 's' or 'smp' prefix.
-+			 */
-+			str += str[1] == 'm' && str[2] == 'p' ? 3 : 1;
-+
-+			if (isdigit(str[0])) {
-+				cpu = simple_strtoul(str, NULL, 10);
-+				if (cpu >= num_possible_cpus())
- 					return -ERANGE;
--				}
-+				reboot_cpu = cpu;
- 			} else
- 				*mode = REBOOT_SOFT;
- 			break;
--- 
-2.26.2
+Ran 29148 total tests in the following environments and test suites.
 
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* perf
+* libhugetlbfs
+* ltp-sched-tests
+* network-basic-tests
+* v4l2-compliance
+* ltp-quickhit-tests
+* kselftest
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
